@@ -1,23 +1,30 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
+import org.omg.CosNotification.AnyOrder;
+import org.omg.CosNotification.DiscardPolicy;
+import org.omg.CosNotification.LifoOrder;
+import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotifyChannelAdmin.AdminNotFound;
+import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
+import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.FilterFactory;
 
 import org.jacorb.test.common.TestUtils;
-import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.util.Debug;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.apache.avalon.framework.logger.Logger;
+
 /**
- * EventChannelTest.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -26,10 +33,10 @@ public class EventChannelTest extends NotificationTestCase {
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
-    EventChannelFactory factory_;
     Any testPerson_;
+
     EventChannel channel_;
-    IntHolder channelId_;
+
     SupplierAdmin supplierAdmin_;
     ConsumerAdmin consumerAdmin_;
 
@@ -37,26 +44,116 @@ public class EventChannelTest extends NotificationTestCase {
      * setup EventChannelFactory, FilterFactory and Any with Testdata
      */
     public void setUp() throws Exception {
-        factory_ = getEventChannelFactory();
-
         testPerson_ = getTestUtils().getTestPersonAny();
 
-        channelId_ = new IntHolder();
-
-        channel_ = factory_.create_channel(new Property[0], new Property[0], channelId_);
+        channel_ = getDefaultChannel();
 
         supplierAdmin_ = channel_.default_supplier_admin();
         consumerAdmin_ = channel_.default_consumer_admin();
     }
 
+
     public void tearDown() {
         super.tearDown();
-        channel_.destroy();
     }
+
 
     public EventChannelTest(String name, NotificationTestCaseSetup setup) {
         super(name, setup);
     }
+
+
+    public void testSetQos() throws Exception {
+        IntHolder ih = new IntHolder();
+
+        ProxySupplier ps =
+            consumerAdmin_.obtain_notification_push_supplier(ClientType.STRUCTURED_EVENT, ih);
+
+        Property[] props = new Property[2];
+
+        Any discardPolicy = getSetup().getORB().create_any();
+        Any orderPolicy = getSetup().getORB().create_any();
+
+        discardPolicy.insert_short(LifoOrder.value);
+        orderPolicy.insert_short(AnyOrder.value);
+
+        props[0] = new Property(DiscardPolicy.value, discardPolicy);
+        props[1] = new Property(OrderPolicy.value, orderPolicy);
+
+        ps.set_qos(props);
+
+        Property[] new_props = ps.get_qos();
+
+        for (int x=0; x<new_props.length; ++x) {
+            if (new_props[x].name.equals(DiscardPolicy.value)) {
+                assertEquals(discardPolicy, new_props[x].value);
+            }
+
+            if (new_props[x].name.equals(OrderPolicy.value)) {
+                assertEquals(orderPolicy, new_props[x].value);
+            }
+        }
+    }
+
+
+    public void testGetConsumerAdmin() throws Exception {
+        ConsumerAdmin c1 = channel_.default_consumer_admin();
+        ConsumerAdmin c2 = channel_.get_consumeradmin(0);
+
+        int[] _allKeys = channel_.get_all_consumeradmins();
+
+        assertTrue(isIn(0, _allKeys));
+
+        IntHolder ih = new IntHolder();
+        channel_.new_for_consumers(InterFilterGroupOperator.AND_OP, ih);
+
+        _allKeys = channel_.get_all_consumeradmins();
+        assertTrue(isIn(ih.value, _allKeys));
+
+        try {
+            channel_.get_consumeradmin(Integer.MIN_VALUE);
+            fail();
+        } catch (AdminNotFound e) {}
+
+        ConsumerAdmin c3 = channel_.get_consumeradmin(ih.value);
+        assertEquals(ih.value, c3.MyID());
+    }
+
+
+    public void testGetSupplierAdmin() throws Exception {
+        SupplierAdmin c1 = channel_.default_supplier_admin();
+        SupplierAdmin c2 = channel_.get_supplieradmin(0);
+
+        int[] _allKeys = channel_.get_all_supplieradmins();
+
+        assertTrue(isIn(0, _allKeys));
+
+        IntHolder ih = new IntHolder();
+        channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP, ih);
+
+        _allKeys = channel_.get_all_supplieradmins();
+        assertTrue(isIn(ih.value, _allKeys));
+
+        try {
+            channel_.get_supplieradmin(Integer.MIN_VALUE);
+            fail();
+        } catch (AdminNotFound e) {}
+
+        SupplierAdmin c3 = channel_.get_supplieradmin(ih.value);
+        assertEquals(ih.value, c3.MyID());
+    }
+
+
+    static boolean isIn(int i, int[] is) {
+        boolean seen = false;
+        for (int x=0; x<is.length; ++x) {
+            if (is[x] == i) {
+                seen = true;
+            }
+        }
+        return seen;
+    }
+
 
     public void testSendEventPushPull() throws Exception {
         AnyPullReceiver _receiver = new AnyPullReceiver(this);
@@ -70,6 +167,7 @@ public class EventChannelTest extends NotificationTestCase {
 
         _receiverThread.join();
         assertTrue(!_receiver.isError());
+
         assertTrue(_receiver.isEventHandled());
 
         _receiver.shutdown();
@@ -160,7 +258,7 @@ public class EventChannelTest extends NotificationTestCase {
     public void testDestroyChannelDisconnectsClients() throws Exception {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = factory_.create_channel(new Property[0], new Property[0], _id);
+        EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
 
         AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(this);
         _anyPullReceiver.connect(getSetup(), _channel, false);
@@ -189,7 +287,7 @@ public class EventChannelTest extends NotificationTestCase {
     public void testDestroyAdminDisconnectsClients() throws Exception {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = factory_.create_channel(new Property[0], new Property[0], _id);
+        EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
 
         AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(this);
         _anyPullReceiver.connect(getSetup(), _channel, false);
@@ -224,12 +322,12 @@ public class EventChannelTest extends NotificationTestCase {
     public void testCreateChannel() throws Exception {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = factory_.create_channel(new Property[0],
-                                                        new Property[0],
-                                                        _id);
+        EventChannel _channel = getFactory().create_channel(new Property[0],
+                                                                        new Property[0],
+                                                                        _id);
 
         // test if channel id appears within channel list
-        int[] _allFactories = factory_.get_all_channels();
+        int[] _allFactories = getFactory().get_all_channels();
         boolean _seen = false;
         for (int x=0; x<_allFactories.length; ++x) {
             if (_allFactories[x] == _id.value) {
@@ -238,7 +336,7 @@ public class EventChannelTest extends NotificationTestCase {
         }
         assertTrue(_seen);
 
-        EventChannel _sameChannel = factory_.get_event_channel(_id.value);
+        EventChannel _sameChannel = getFactory().get_event_channel(_id.value);
         assertTrue(_channel._is_equivalent(_sameChannel));
 
         _channel.destroy();
@@ -260,6 +358,7 @@ public class EventChannelTest extends NotificationTestCase {
 
         return _setup;
     }
+
 
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());

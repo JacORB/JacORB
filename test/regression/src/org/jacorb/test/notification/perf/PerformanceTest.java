@@ -77,22 +77,32 @@ import org.apache.log.Priority;
 public class PerformanceTest extends NotificationTestCase {
 
     ORB orb_;
+
     POA poa_;
 
     EventChannelFactory factory_;
+
     FilterFactory filterFactory_;
+
     Any testPerson_;
+
     EventChannel channel_;
+
     IntHolder channelId_;
+
     SupplierAdmin supplierAdmin_;
+
     ConsumerAdmin consumerAdmin_;
+
     Filter trueFilter_;
+
     TestUtils testUtils_;
 
     Logger logger_ =
         Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
     static long sInterval = 250L;
+
     static long sTimeout = 2 * sInterval;
 
     /**
@@ -127,6 +137,7 @@ public class PerformanceTest extends NotificationTestCase {
         filterFactory_ = channel_.default_filter_factory();
 
         supplierAdmin_ = channel_.default_supplier_admin();
+
         consumerAdmin_ = channel_.default_consumer_admin();
 
         trueFilter_ = filterFactory_.create_filter("EXTENDED_TCL");
@@ -176,21 +187,21 @@ public class PerformanceTest extends NotificationTestCase {
 
         int _runs = 100;
 
-     measureFilterLatency("$ == 10", _any, _runs);
+        measureFilterLatency("$ == 10", _any, _runs);
 
-     _any = testUtils_.getTestPersonAny();
+        _any = testUtils_.getTestPersonAny();
 
-     measureFilterLatency("$.phone_numbers[0] == '12345678'", _any, _runs);
+        measureFilterLatency("$.phone_numbers[0] == '12345678'", _any, _runs);
 
-     measureFilterLatency("exist $.phone_numbers[0] and $.phone_numbers[0] == '12345678'", _any, _runs);
+        measureFilterLatency("exist $.phone_numbers[0] and $.phone_numbers[0] == '12345678'", _any, _runs);
 
-     measureFilterLatency("exist $.phone_numbers[0] and exist $.phone_numbers[0]  and $.phone_numbers[0] == '12345678'", _any, _runs);
+        measureFilterLatency("exist $.phone_numbers[0] and exist $.phone_numbers[0]  and $.phone_numbers[0] == '12345678'", _any, _runs);
 
-     measureFilterLatency("exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and $.phone_numbers[0] == '12345678'", _any, _runs);
+        measureFilterLatency("exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and $.phone_numbers[0] == '12345678'", _any, _runs);
 
-     measureFilterLatency("exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and $.phone_numbers[0] == '12345678'", _any, _runs);
+        measureFilterLatency("exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and $.phone_numbers[0] == '12345678'", _any, _runs);
 
-     measureFilterLatency("exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and $.phone_numbers[0] == '12345678'", _any, _runs);
+        measureFilterLatency("exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and exist $.phone_numbers[0] and $.phone_numbers[0] == '12345678'", _any, _runs);
 
 
         StructuredEvent _event = testUtils_.getStructuredEvent();
@@ -278,6 +289,7 @@ public class PerformanceTest extends NotificationTestCase {
         final Latch _done = new Latch();
 
         PerformanceLogger _perfLogger = new PerformanceLogger();
+
         StructuredGenerator _generator = new StructuredGenerator(orb_);
 
         CyclicBarrier _barrier = new CyclicBarrier(numberOfConsumers);
@@ -586,11 +598,11 @@ public class PerformanceTest extends NotificationTestCase {
 
     public void testMeasureBurstSend() throws Exception {
 
-        int[] tests = {10, 10, 100, 1000, 5000, 10000};
+        int[] tests = {10, 10, 100, 1000}; //, 5000};
 
         for (int x=0; x<tests.length; ++x) {
 
-            measureBurstSend(tests[x],1);
+            measureBurstSend(tests[x],4);
 
             Thread.sleep(3000);
         }
@@ -711,9 +723,10 @@ public class PerformanceTest extends NotificationTestCase {
     }
 
     public void testLatencyPushPushMultipleFilter() throws Exception {
-        measureLatencyPushPushMultipleFilter(1, 100);
-        measureLatencyPushPushMultipleFilter(10, 100);
-        measureLatencyPushPushMultipleFilter(50, 100);
+        measureLatencyPushPushMultipleFilter(1, 1);
+        //        measureLatencyPushPushMultipleFilter(1, 100);
+//         measureLatencyPushPushMultipleFilter(10, 100);
+//         measureLatencyPushPushMultipleFilter(50, 100);
     }
 
 
@@ -725,13 +738,13 @@ public class PerformanceTest extends NotificationTestCase {
         measureLatencyPushPush(1, 10, 100, true, latex);
         measureLatencyPushPush(1, 50, 100, true, latex);
 
-        measureLatencyPushPush(5, 1, 100, true, latex);
-        measureLatencyPushPush(5, 10, 100, true, latex);
-        measureLatencyPushPush(5, 50, 100, true, latex);
+//         measureLatencyPushPush(5, 1, 100, true, latex);
+//         measureLatencyPushPush(5, 10, 100, true, latex);
+//         measureLatencyPushPush(5, 50, 100, true, latex);
 
-        measureLatencyPushPush(10, 1, 100, true, latex);
-        measureLatencyPushPush(10, 10, 100, true, latex);
-        measureLatencyPushPush(10, 50, 100, true, latex);
+//         measureLatencyPushPush(10, 1, 100, true, latex);
+//         measureLatencyPushPush(10, 10, 100, true, latex);
+//         measureLatencyPushPush(10, 50, 100, true, latex);
     }
 
     public void testLatencyPushPushWithFilter() throws Exception {
@@ -780,10 +793,12 @@ public class PerformanceTest extends NotificationTestCase {
             new NotificationTestCaseSetup(_suite);
 
         //        _suite.addTest(new PerformanceTest("testBurstEcho", setup));
-        _suite.addTest(new PerformanceTest("testMeasureBurstSend", setup));
-//         _suite.addTest(new PerformanceTest("testLatencyPushPush", setup));
-//         _suite.addTest(new PerformanceTest("testMeasureFilterLatency", setup));
-//         _suite.addTest(new PerformanceTest("testLatencyPushPushWithFilter", setup));
+                        _suite.addTest(new PerformanceTest("testMeasureBurstSend", setup));
+        _suite.addTest(new PerformanceTest("testLatencyPushPush", setup));
+//          _suite.addTest(new PerformanceTest("testMeasureFilterLatency", setup));
+                //  _suite.addTest(new PerformanceTest("testLatencyPushPushWithFilter", setup));
+
+        //_suite.addTest(new PerformanceTest("testLatencyPushPushMultipleFilter", setup));
 
         return setup;
     }

@@ -21,56 +21,76 @@ package org.jacorb.test.notification;
  *
  */
 
+import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.PortableServer.POA;
 
 import org.jacorb.notification.EventChannelFactoryImpl;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
 
 /**
- *  Unit Test for class NotificationTestCase.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class NotificationTestCase extends TestCase {
 
-    NotificationTestCaseSetup setup_;
-
+    private NotificationTestCaseSetup setup_;
     private EventChannelFactoryImpl factoryServant_;
+    private EventChannel defaultChannel_;
+
+    ////////////////////////////////////////
+
+    public NotificationTestCase(String name, NotificationTestCaseSetup setup) {
+        super(name);
+
+        setup_ = setup;
+    }
+
+    ////////////////////////////////////////
 
     public void tearDown() {
         if (factoryServant_ != null) {
             factoryServant_.dispose();
         }
+
+        if (defaultChannel_ != null) {
+            defaultChannel_.destroy();
+        }
+    }
+
+    public EventChannel getDefaultChannel() throws Exception {
+        if (defaultChannel_ == null) {
+            defaultChannel_ = getFactory().create_channel(new Property[0],
+                                                                      new Property[0],
+                                                                      new IntHolder() );
+        }
+
+        return defaultChannel_;
     }
 
     public ORB getORB() {
-
-        return setup_.getClientOrb();
-
+        return setup_.getORB();
     }
 
     public POA getPOA() {
-
-        return setup_.poa_;
-
+        return setup_.getPOA();
     }
 
     public NotificationTestUtils getTestUtils() {
         return setup_.getTestUtils();
     }
 
-    public EventChannelFactory getEventChannelFactory() {
-        return setup_.getServant().getEventChannelFactory();
+    public EventChannelFactory getFactory() {
+        return setup_.getFactoryServant().getEventChannelFactory();
     }
 
-    public EventChannelFactory getLocalEventChannelFactory() throws Exception {
+    private EventChannelFactory getLocalEventChannelFactory() throws Exception {
         factoryServant_ = EventChannelFactoryImpl.newFactory();
 
         return EventChannelFactoryHelper.narrow(factoryServant_._this(getORB()));
@@ -80,13 +100,4 @@ public class NotificationTestCase extends TestCase {
         return setup_;
     }
 
-    /**
-     * Creates a new <code>NotificationTestCase</code> instance.
-     *
-     * @param name test name
-     */
-    public NotificationTestCase(String name, NotificationTestCaseSetup setup) {
-        super(name);
-        setup_ = setup;
-    }
 }

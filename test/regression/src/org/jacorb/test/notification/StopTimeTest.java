@@ -23,13 +23,14 @@ package org.jacorb.test.notification;
 
 import java.util.Date;
 import java.util.HashSet;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.util.Debug;
 import org.jacorb.util.Time;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -43,8 +44,12 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
-import org.jacorb.util.Debug;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CosNotification.StopTimeSupported;
+import org.omg.CORBA.BAD_QOS;
 
 /**
  * @author Alphonse Bendt
@@ -55,33 +60,23 @@ public class StopTimeTest extends NotificationTestCase
 {
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
-    MessageFactory notificationEventFactory_;
-
-    ApplicationContext applicationContext_;
+    MessageFactory messageFactory_;
 
     StructuredEvent structuredEvent_;
 
     EventChannel eventChannel_;
 
-    /**
-     *
-     * @param name test name
-     */
+
     public StopTimeTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     };
 
     public void setUp() throws Exception {
-        eventChannel_ =
-            getEventChannelFactory().create_channel(new Property[0],
-                                                    new Property[0],
-                                                    new IntHolder());
+        eventChannel_ = getDefaultChannel();
 
-        applicationContext_ = new ApplicationContext(getORB(), getPOA(), true);
-
-        notificationEventFactory_ = new MessageFactory();
-        notificationEventFactory_.init();
+        messageFactory_ = new MessageFactory();
+        messageFactory_.init();
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -99,24 +94,37 @@ public class StopTimeTest extends NotificationTestCase
     }
 
     public void tearDown() {
-        notificationEventFactory_.dispose();
-        applicationContext_.dispose();
-        eventChannel_.destroy();
+        messageFactory_.dispose();
+
         super.tearDown();
     }
 
-    public void testSendEvent() throws Exception {
-        logger_.info("testSendEvent");
 
-        // StartTime now, StopTime in the Past
-        sendEvent(0, -1000, false);
+    public void testA_SendEvent() throws Exception {
+        logger_.info("testSendEvent");
 
         // StartTime +1000ms, StopTime +500ms
         sendEvent(1000, 500, false);
 
         // StartTime +1000ms, StopTime +2000ms
         sendEvent(1000, 2000, true);
+
+        // StartTime now, StopTime in the Past
+        sendEvent(0, -1000, false);
     }
+
+
+    public void testDisableStopTimeSupported() throws Exception {
+        if (true) return;
+
+        Any falseAny = getORB().create_any();
+        falseAny.insert_boolean(false);
+
+        eventChannel_.set_qos(new Property[] {new Property(StopTimeSupported.value, falseAny)});
+
+        sendEvent(0, 1000, false);
+    }
+
 
     public void sendEvent(long startOffset, long stopOffset, boolean expect) throws Exception {
         structuredEvent_.header.variable_header = new Property[2];
@@ -126,7 +134,8 @@ public class StopTimeTest extends NotificationTestCase
         Any _any = getORB().create_any();
         UtcTHelper.insert(_any, Time.corbaTime(_time));
 
-        structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _any);
+        structuredEvent_.header.variable_header[0] =
+            new Property(StartTime.value, _any);
 
         _time = new Date(System.currentTimeMillis() + stopOffset);
 
@@ -139,6 +148,7 @@ public class StopTimeTest extends NotificationTestCase
         StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
 
         _sender.connect(getSetup(), eventChannel_, false);
+
         _receiver.connect(getSetup(), eventChannel_, false);
 
         new Thread(_receiver).start();
@@ -160,14 +170,16 @@ public class StopTimeTest extends NotificationTestCase
     public void testStructuredEventWithoutStopTimeProperty() throws Exception {
         logger_.info("testStructuredEventWithoutStopTimeProperty");
 
-        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
+        Message _event = messageFactory_.newMessage(structuredEvent_);
         assertTrue(!_event.hasStopTime());
     }
 
+
     public void testAnyEventHasNoStopTime() throws Exception {
-        Message _event = notificationEventFactory_.newMessage(getORB().create_any());
+        Message _event = messageFactory_.newMessage(getORB().create_any());
         assertTrue(!_event.hasStopTime());
     }
+
 
     public void testStructuredEventWithStopTimeProperty() throws Exception {
         logger_.debug("testStructuredEventWithStopTimeProperty");
@@ -182,10 +194,11 @@ public class StopTimeTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
 
-        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
+        Message _event = messageFactory_.newMessage(structuredEvent_);
         assertTrue(_event.hasStopTime());
         assertEquals(_now, _event.getStopTime());
     }
+
 
     public void testProcessEventWithStopTime() throws Exception {
         logger_.debug("testProcessEventWithStopTime");
@@ -195,6 +208,7 @@ public class StopTimeTest extends NotificationTestCase
         processEventWithStopTime(1000, 5000, true);
         processEventWithStopTime(5000, 10000, true);
     }
+
 
     public void processEventWithStopTime(long offset, long timeout, boolean receive) throws Exception {
         structuredEvent_.header.variable_header = new Property[1];
@@ -211,7 +225,7 @@ public class StopTimeTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
 
-        final Message _event = notificationEventFactory_.newMessage(structuredEvent_);
+        final Message _event = messageFactory_.newMessage(structuredEvent_);
 
         final HashSet _received = new HashSet();
 
@@ -251,9 +265,7 @@ public class StopTimeTest extends NotificationTestCase
         _taskProcessor.dispose();
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite() throws Exception
     {
         TestSuite _suite = new TestSuite();
@@ -270,9 +282,7 @@ public class StopTimeTest extends NotificationTestCase
         return _setup;
     }
 
-    /**
-     * Entry point
-     */
+
     public static void main(String[] args) throws Exception
     {
         junit.textui.TestRunner.run(suite());

@@ -49,6 +49,7 @@ import java.util.Iterator;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.omg.CosNotification.StartTimeSupported;
 
 /**
  * Created: Mon Aug 11 21:21:21 2003
@@ -59,8 +60,6 @@ import junit.framework.TestSuite;
 
 public class QoSTest extends NotificationTestCase
 {
-
-    EventChannelFactory factory_;
     Any fifoOrder;
     Any lifoOrder;
     Any deadlineOrder;
@@ -69,8 +68,15 @@ public class QoSTest extends NotificationTestCase
     Any persistent;
     Any bestEffort;
 
+    Any trueAny;
+    Any falseAny;
+
     public void setUp() throws Exception {
-        factory_ = getEventChannelFactory();
+        trueAny = getORB().create_any();
+        trueAny.insert_boolean(true);
+
+        falseAny = getORB().create_any();
+        falseAny.insert_boolean(false);
 
         fifoOrder = getORB().create_any();
         fifoOrder.insert_short(FifoOrder.value);
@@ -105,7 +111,7 @@ public class QoSTest extends NotificationTestCase
             new Property( OrderPolicy.value, priorityOrder )
         };
 
-        factory_.create_channel( qosProps, new Property[0], channelId);
+        getFactory().create_channel( qosProps, new Property[0], channelId);
     }
 
     public void testCreate_Reliability() throws Exception {
@@ -118,7 +124,7 @@ public class QoSTest extends NotificationTestCase
             new Property( EventReliability.value, bestEffort )
         };
 
-        factory_.create_channel( qosProps, new Property[0], channelId);
+        getFactory().create_channel( qosProps, new Property[0], channelId);
 
         qosProps = new Property[] {
             new Property( ConnectionReliability.value, persistent ),
@@ -126,7 +132,7 @@ public class QoSTest extends NotificationTestCase
         };
 
         try {
-            factory_.create_channel( qosProps,
+            getFactory().create_channel( qosProps,
                                      new Property[0],
                                      channelId);
             fail();
@@ -154,9 +160,9 @@ public class QoSTest extends NotificationTestCase
         };
 
         EventChannel channel =
-            factory_.create_channel( qosProps,
-                                     new Property[0],
-                                     channelId);
+            getFactory().create_channel( qosProps,
+                                                   new Property[0],
+                                                   channelId);
 
         // testdata
         StructuredEvent[] events = new StructuredEvent[10];

@@ -25,6 +25,7 @@ import org.jacorb.util.Debug;
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 import junit.framework.TestCase;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 public class AnyPushReceiver
             extends PushConsumerPOA
@@ -155,12 +156,15 @@ public class AnyPushReceiver
         }
 
         testCase_.assertEquals(myAdmin_, channel.get_consumeradmin(_adminId.value));
-        logger_.debug("get proxy push supplier");
+
         mySupplier_ =
             ProxyPushSupplierHelper.narrow(myAdmin_.obtain_notification_push_supplier(ClientType.ANY_EVENT, _proxyId));
 
-        logger_.debug("Call connect");
-        mySupplier_.connect_any_push_consumer(_this(setup.getClientOrb()));
+        setup.assertEquals(ProxyType._PUSH_ANY,
+                           mySupplier_.MyType().value());
+
+
+        mySupplier_.connect_any_push_consumer(_this(setup.getORB()));
 
         connected_ = true;
     }

@@ -8,50 +8,47 @@ import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 
+import org.jacorb.util.Debug;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class StructuredEventChannelTest extends NotificationTestCase {
+public class StructuredEventChannelTest extends NotificationTestCase
+{
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     EventChannel channel_;
-    EventChannelFactory channelFactory_;
+
     StructuredEvent testEvent_;
 
     Filter trueFilter_;
     Filter falseFilter_;
     NotificationTestUtils testUtils_;
 
-    public StructuredEventChannelTest(String name, NotificationTestCaseSetup setup) {
+    public StructuredEventChannelTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         super.tearDown();
-        channel_.destroy();
     }
 
-    public void setUp() throws Exception {
-        channelFactory_ = getEventChannelFactory();
-
-        Property[] qos = new Property[0];
-        Property[] adm = new Property[0];
-        IntHolder _channelId = new IntHolder();
-
-        channel_ = channelFactory_.create_channel(qos, adm, _channelId);
+    public void setUp() throws Exception
+    {
+        channel_ = getDefaultChannel();
 
         // set test event type and name
         testEvent_ = new StructuredEvent();
@@ -73,8 +70,8 @@ public class StructuredEventChannelTest extends NotificationTestCase {
         NamedValue _nv = new NamedValue();
 
         _p.first_name = "firstname";
-        _p.last_name =  "lastname";
-        _p.age =        5;
+        _p.last_name = "lastname";
+        _p.age = 5;
         _p.phone_numbers = new String[2];
         _p.phone_numbers[0] = "12345678";
         _p.phone_numbers[1] = "";
@@ -111,21 +108,21 @@ public class StructuredEventChannelTest extends NotificationTestCase {
         _info = falseFilter_.add_constraints(_constraintExp);
     }
 
-    public void testDestroyChannelDisconnectsClients() throws Exception {
+    public void testDestroyChannelDisconnectsClients() throws Exception
+    {
         Property[] _p = new Property[0];
-        IntHolder _channelId = new IntHolder();
 
-        EventChannel _channel = channelFactory_.create_channel(_p, _p, _channelId);
+        EventChannel _channel = getFactory().create_channel(_p, _p, new IntHolder());
 
-        StructuredPushSender _pushSender = new StructuredPushSender(this,testEvent_);
-        StructuredPullSender _pullSender = new StructuredPullSender(this,testEvent_);
+        StructuredPushSender _pushSender = new StructuredPushSender(this, testEvent_);
+        StructuredPullSender _pullSender = new StructuredPullSender(this, testEvent_);
         StructuredPushReceiver _pushReceiver = new StructuredPushReceiver(this);
         StructuredPullReceiver _pullReceiver = new StructuredPullReceiver(this);
 
-        _pushSender.connect(getSetup(), _channel,false);
-        _pullSender.connect(getSetup(), _channel,false);
-        _pushReceiver.connect(getSetup(), _channel,false);
-        _pullReceiver.connect(getSetup(), _channel,false);
+        _pushSender.connect(getSetup(), _channel, false);
+        _pullSender.connect(getSetup(), _channel, false);
+        _pushReceiver.connect(getSetup(), _channel, false);
+        _pullReceiver.connect(getSetup(), _channel, false);
 
         assertTrue(_pushSender.isConnected());
         assertTrue(_pullSender.isConnected());
@@ -140,7 +137,8 @@ public class StructuredEventChannelTest extends NotificationTestCase {
         assertTrue(!_pullReceiver.isConnected());
     }
 
-    public void testSendPushPush() throws Exception {
+    public void testSendPushPush() throws Exception
+    {
         StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
         StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
 
@@ -157,12 +155,13 @@ public class StructuredEventChannelTest extends NotificationTestCase {
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-    public void testSendPushPull() throws Exception {
-        StructuredPushSender _sender = new StructuredPushSender(this,testEvent_);
+    public void testSendPushPull() throws Exception
+    {
+        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
         StructuredPullReceiver _receiver = new StructuredPullReceiver(this);
 
-        _sender.connect(getSetup(), channel_,false);
-        _receiver.connect(getSetup(), channel_,false);
+        _sender.connect(getSetup(), channel_, false);
+        _receiver.connect(getSetup(), channel_, false);
 
         _receiver.start();
         _sender.start();
@@ -174,13 +173,14 @@ public class StructuredEventChannelTest extends NotificationTestCase {
         assertTrue("Should have received something", _receiver.received_);
     }
 
-    public void testSendPullPush() throws Exception {
-        StructuredPullSender _sender = new StructuredPullSender(this,testEvent_);
+    public void testSendPullPush() throws Exception
+    {
+        StructuredPullSender _sender = new StructuredPullSender(this, testEvent_);
         StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
         _receiver.setTimeOut(2000);
 
-        _sender.connect(getSetup(), channel_,false);
-        _receiver.connect(getSetup(), channel_,false);
+        _sender.connect(getSetup(), channel_, false);
+        _receiver.connect(getSetup(), channel_, false);
 
         _receiver.start();
         _sender.start();
@@ -192,12 +192,13 @@ public class StructuredEventChannelTest extends NotificationTestCase {
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-    public void testSendPullPull() throws Exception {
-        StructuredPullSender _sender = new StructuredPullSender(this,testEvent_);
+    public void testSendPullPull() throws Exception
+    {
+        StructuredPullSender _sender = new StructuredPullSender(this, testEvent_);
         StructuredPullReceiver _receiver = new StructuredPullReceiver(this);
-            _sender.connect(getSetup(), channel_,false);
+        _sender.connect(getSetup(), channel_, false);
 
-        _receiver.connect(getSetup(), channel_,false);
+        _receiver.connect(getSetup(), channel_, false);
 
         _receiver.start();
         _sender.start();
@@ -210,7 +211,8 @@ public class StructuredEventChannelTest extends NotificationTestCase {
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         TestSuite _suite;
 
         _suite = new TestSuite("Test of Structured EventChannel");
@@ -220,7 +222,8 @@ public class StructuredEventChannelTest extends NotificationTestCase {
 
         String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(StructuredEventChannelTest.class);
 
-        for (int x=0; x<methodNames.length; ++x) {
+        for (int x = 0; x < methodNames.length; ++x)
+        {
             _suite.addTest(new StructuredEventChannelTest(methodNames[x], _setup));
         }
 
@@ -228,7 +231,8 @@ public class StructuredEventChannelTest extends NotificationTestCase {
         return _setup;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         junit.textui.TestRunner.run(suite());
     }
 }

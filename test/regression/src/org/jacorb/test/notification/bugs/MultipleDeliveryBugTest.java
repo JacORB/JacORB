@@ -66,7 +66,7 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
 
     public void setUp() throws Exception
     {
-        channelFactory_ = getEventChannelFactory();
+        channelFactory_ = getFactory();
 
         Property[] qos = new Property[0];
         Property[] adm = new Property[0];

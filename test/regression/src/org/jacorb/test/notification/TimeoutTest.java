@@ -23,13 +23,12 @@ package org.jacorb.test.notification;
 
 import java.util.Date;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.util.Debug;
 import org.jacorb.util.Time;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -43,15 +42,17 @@ import org.omg.CosNotification.Timeout;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.TimeBase.TimeTHelper;
 import org.omg.TimeBase.UtcTHelper;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
- public class TimeoutTest extends NotificationTestCase
+public class TimeoutTest extends NotificationTestCase
 {
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
@@ -69,11 +70,12 @@ import org.jacorb.util.Debug;
         super(name, setup);
     }
 
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         eventChannel_ =
-            getEventChannelFactory().create_channel(new Property[0],
-                                                    new Property[0],
-                                                    new IntHolder());
+            getFactory().create_channel(new Property[0],
+                                        new Property[0],
+                                        new IntHolder());
 
         applicationContext_ = new ApplicationContext(getORB(), getPOA(), true);
 
@@ -95,7 +97,8 @@ import org.jacorb.util.Debug;
         structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         super.tearDown();
 
         notificationEventFactory_.dispose();
@@ -103,7 +106,9 @@ import org.jacorb.util.Debug;
         eventChannel_.destroy();
     }
 
-    public void testSendEventWithTimeout() throws Exception {
+
+    public void testSendEventWithTimeout() throws Exception
+    {
         sendEvent(0, 1000, true);
 
         sendEvent(2000, 500, false);
@@ -111,7 +116,9 @@ import org.jacorb.util.Debug;
         sendEvent(1000, 2000, true);
     }
 
-    public void sendEvent(long startOffset, long timeout, boolean expect) throws Exception {
+
+    public void sendEvent(long startOffset, long timeout, boolean expect) throws Exception
+    {
         structuredEvent_.header.variable_header = new Property[2];
 
         Date _time = new Date(System.currentTimeMillis() + startOffset);
@@ -143,9 +150,12 @@ import org.jacorb.util.Debug;
 
         Thread.sleep(startOffset + 2000);
 
-        if (expect) {
+        if (expect)
+        {
             assertTrue("Receiver should have received something", _receiver.isEventHandled());
-        } else {
+        }
+        else
+        {
             assertTrue("Receiver shouldn't have received anything", !_receiver.isEventHandled());
         }
 
@@ -154,17 +164,20 @@ import org.jacorb.util.Debug;
     }
 
 
-    public void testStructuredEventWithoutTimeoutProperty() throws Exception {
+    public void testStructuredEventWithoutTimeoutProperty() throws Exception
+    {
         Message _event = notificationEventFactory_.newMessage(structuredEvent_);
         assertTrue(!_event.hasTimeout());
     }
 
-    public void testAnyEventHasNoStopTime() throws Exception {
+    public void testAnyEventHasNoStopTime() throws Exception
+    {
         Message _event = notificationEventFactory_.newMessage(getORB().create_any());
         assertTrue(!_event.hasTimeout());
     }
 
-    public void testStructuredEventWithTimeoutProperty() throws Exception {
+    public void testStructuredEventWithTimeoutProperty() throws Exception
+    {
         structuredEvent_.header.variable_header = new Property[1];
 
         long _timeout = 1234L;
@@ -193,7 +206,8 @@ import org.jacorb.util.Debug;
 
         String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(TimeoutTest.class, "testSendEvent");
 
-        for (int x=0; x<methodNames.length; ++x) {
+        for (int x = 0; x < methodNames.length; ++x)
+        {
             _suite.addTest(new TimeoutTest(methodNames[x], _setup));
         }
 

@@ -133,7 +133,7 @@ public class StructuredPullSender
 
     public void connect(NotificationTestCaseSetup setup,EventChannel channel,boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound {
 
-        orb_ = setup.getClientOrb();
+        orb_ = setup.getORB();
 
         StructuredPullSupplierPOATie _senderTie = new StructuredPullSupplierPOATie(this);
         SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
@@ -146,7 +146,7 @@ public class StructuredPullSender
         testCase_.assertEquals(pullConsumer_.MyType(), ProxyType.PULL_STRUCTURED);
 
 
-        pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper.narrow(_senderTie._this(setup.getClientOrb())));
+        pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper.narrow(_senderTie._this(setup.getORB())));
         connected_ = true;
     }
 

@@ -44,6 +44,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.util.Debug;
+import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 
 
 /**
@@ -74,7 +75,7 @@ public class ReleaseTasksTest extends NotificationTestCase
         Property[] p2 = new Property[0];
 
         eventChannelServant_ = factory_.create_channel_servant(0, p1, p2);
-        eventChannel_ = eventChannelServant_.getEventChannel();
+        eventChannel_ = EventChannelHelper.narrow(eventChannelServant_.activate());
     }
 
     public void tearDown() {
@@ -179,7 +180,7 @@ class MockFilterStage implements FilterStage {
         return false;
     }
 
-    public boolean hasOrSemantic() {
+    public boolean hasInterFilterGroupOperatorOR() {
         return false;
     }
 

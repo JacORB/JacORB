@@ -1,15 +1,15 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
-import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.Debug;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  *  Unit Test for class EventChannel.
@@ -20,31 +20,29 @@ import org.jacorb.util.Debug;
  * @version $Id$
  */
 
-public class CosEventChannelTest extends NotificationTestCase {
+public class CosEventChannelTest extends NotificationTestCase
+{
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     EventChannel channel_;
-    EventChannelFactory factory_;
     Any testData_;
 
-    public void setUp() throws Exception {
-        factory_ = getEventChannelFactory();
-
-        IntHolder _channelId = new IntHolder();
-        channel_ = factory_.create_channel(new Property[0],
-                                           new Property[0],
-                                           _channelId);
+    public void setUp() throws Exception
+    {
+        channel_ = getDefaultChannel();
 
         testData_ = getTestUtils().getTestPersonAny();
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         super.tearDown();
-        channel_.destroy();
     }
 
-    public void testPushPush() throws Exception {
+
+    public void testPushPush() throws Exception
+    {
         CosEventPushReceiver _receiver = new CosEventPushReceiver(this);
 
         _receiver.connect(getSetup(), channel_, false);
@@ -63,13 +61,14 @@ public class CosEventChannelTest extends NotificationTestCase {
         assertTrue(_receiver.isEventHandled());
     }
 
-    public void testPushPull() throws Exception {
+    public void testPushPull() throws Exception
+    {
         CosEventPullReceiver _receiver = new CosEventPullReceiver();
-        _receiver.connect(getSetup(), channel_,false);
+        _receiver.connect(getSetup(), channel_, false);
         Thread _r = new Thread(_receiver);
 
-        CosEventPushSender _sender = new CosEventPushSender(this,testData_);
-        _sender.connect(getSetup(), channel_,false);
+        CosEventPushSender _sender = new CosEventPushSender(this, testData_);
+        _sender.connect(getSetup(), channel_, false);
         Thread _s = new Thread(_sender);
 
         _r.start();
@@ -83,12 +82,13 @@ public class CosEventChannelTest extends NotificationTestCase {
         assertTrue(_receiver.isEventHandled());
     }
 
-    public void testPullPush() throws Exception {
+    public void testPullPush() throws Exception
+    {
         CosEventPushReceiver _receiver = new CosEventPushReceiver(this);
-        _receiver.connect(getSetup(), channel_,false);
+        _receiver.connect(getSetup(), channel_, false);
 
         CosEventPullSender _sender = new CosEventPullSender(testData_);
-        _sender.connect(getSetup(), channel_,false);
+        _sender.connect(getSetup(), channel_, false);
 
         Thread _r = new Thread(_receiver);
         _r.start();
@@ -102,13 +102,14 @@ public class CosEventChannelTest extends NotificationTestCase {
         assertTrue(_receiver.isEventHandled());
     }
 
-    public void testPullPull() throws Exception {
+    public void testPullPull() throws Exception
+    {
         CosEventPullReceiver _receiver = new CosEventPullReceiver();
-        _receiver.connect(getSetup(), channel_,false);
+        _receiver.connect(getSetup(), channel_, false);
         Thread _r = new Thread(_receiver);
 
         CosEventPullSender _sender = new CosEventPullSender(testData_);
-        _sender.connect(getSetup(), channel_,false);
+        _sender.connect(getSetup(), channel_, false);
 
         _r.start();
 
@@ -117,25 +118,30 @@ public class CosEventChannelTest extends NotificationTestCase {
         assertTrue(_receiver.isEventHandled());
     }
 
-    public void testDestroyChannelDisconnectsClients() throws Exception {
-        IntHolder _channelId = new IntHolder();
-        EventChannel _channel = factory_.create_channel(new Property[0], new Property[0], _channelId);
+    public void testDestroyChannelDisconnectsClients() throws Exception
+    {
+
+        EventChannel _channel = getFactory().create_channel(new Property[0],
+                                new Property[0],
+                                new IntHolder());
 
         TestClientOperations[] _testClients = new TestClientOperations[] {
-            new CosEventPullSender(testData_),
-            new CosEventPushSender(this,testData_),
-            new CosEventPushReceiver(this),
-            new CosEventPullReceiver()};
+                                                  new CosEventPullSender(testData_),
+                                                  new CosEventPushSender(this, testData_),
+                                                  new CosEventPushReceiver(this),
+                                                  new CosEventPullReceiver()};
 
-        for (int x=0; x<_testClients.length; ++x) {
-            _testClients[x].connect(getSetup(), _channel,false);
+        for (int x = 0; x < _testClients.length; ++x)
+        {
+            _testClients[x].connect(getSetup(), _channel, false);
             assertTrue(_testClients[x].isConnected());
         }
 
         _channel.destroy();
 
-        for (int x=0; x<_testClients.length; ++x) {
-            assertTrue(!_testClients[x].isConnected());
+        for (int x = 0; x < _testClients.length; ++x)
+        {
+            assertTrue("Idx: " + x + " still connected", !_testClients[x].isConnected());
         }
     }
 
@@ -144,14 +150,16 @@ public class CosEventChannelTest extends NotificationTestCase {
      *
      * @param name test name
      */
-    public CosEventChannelTest (String name, NotificationTestCaseSetup setup){
+    public CosEventChannelTest (String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
     /**
      * @return a <code>TestSuite</code>
      */
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         TestSuite _suite;
 
         _suite = new TestSuite("Basic CosEvent EventChannel Tests");
@@ -161,7 +169,8 @@ public class CosEventChannelTest extends NotificationTestCase {
 
         String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(CosEventChannelTest.class);
 
-        for (int x=0; x<methodNames.length; ++x) {
+        for (int x = 0; x < methodNames.length; ++x)
+        {
             _suite.addTest(new CosEventChannelTest(methodNames[x], _setup));
         }
 
@@ -171,7 +180,8 @@ public class CosEventChannelTest extends NotificationTestCase {
     /**
      * Entry point
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         junit.textui.TestRunner.run(suite());
     }
 

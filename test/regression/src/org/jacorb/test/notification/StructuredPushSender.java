@@ -151,7 +151,8 @@ public class StructuredPushSender
         StructuredPushSupplierPOATie senderTie =
             new StructuredPushSupplierPOATie(this);
 
-        StructuredPushSupplier sender = senderTie._this(setup.getClientOrb());
+        StructuredPushSupplier sender =
+            senderTie._this(setup.getORB());
 
         SupplierAdmin supplierAdmin =
             channel.default_supplier_admin();

@@ -8,7 +8,6 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -24,37 +23,31 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
     EventChannel channel_;
-    EventChannelFactory channelFactory_;
-    FilterFactory filterFactory_;
     StructuredEvent[] testEvent_;
 
     public SequenceEventChannelTest(String name, NotificationTestCaseSetup setup) {
         super(name, setup);
     }
 
+
     public void tearDown() {
         super.tearDown();
-        channel_.destroy();
     }
 
+
     public void setUp() throws Exception {
-        channelFactory_ = getEventChannelFactory();
-
-        Property[] qos = new Property[0];
-        Property[] adm = new Property[0];
-        IntHolder _channelId = new IntHolder();
-
-        channel_ = channelFactory_.create_channel(qos, adm, _channelId);
+        channel_ = getDefaultChannel();
 
         // set test event type and name
         testEvent_ = new StructuredEvent[] {getTestUtils().getStructuredEvent()};
     }
 
+
     public void testDestroyChannelDisconnectsClients() throws Exception {
         Property[] _p = new Property[0];
         IntHolder _channelId = new IntHolder();
 
-        EventChannel _channel = channelFactory_.create_channel(_p, _p, _channelId);
+        EventChannel _channel = getFactory().create_channel(_p, _p, _channelId);
 
         SequencePushSender _pushSender = new SequencePushSender(testEvent_);
         SequencePullSender _pullSender = new SequencePullSender(testEvent_);
@@ -83,6 +76,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
         assertTrue(!_pullReceiver.isConnected());
     }
 
+
     public void testSendPushPush() throws Exception {
         SequencePushSender _sender = new SequencePushSender(testEvent_);
         SequencePushReceiver _receiver = new SequencePushReceiver();
@@ -99,6 +93,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
         assertTrue("Error while sending", !_sender.error_);
         assertTrue("Should have received something", _receiver.received_);
     }
+
 
     public void testSendPushPull() throws Exception {
         SequencePushSender _sender = new SequencePushSender(testEvent_);
@@ -117,6 +112,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+
     public void testSendPullPush() throws Exception {
         SequencePullSender _sender = new SequencePullSender(testEvent_);
         SequencePushReceiver _receiver = new SequencePushReceiver();
@@ -133,6 +129,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
         assertTrue("Error while sending", !_sender.isError());
         assertTrue("Should have received something", _receiver.received_);
     }
+
 
     public void testSendPullPull() throws Exception {
         SequencePullSender _sender = new SequencePullSender(testEvent_);
@@ -152,6 +149,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+
     public static Test suite() throws Exception {
         TestSuite _suite;
 
@@ -169,6 +167,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
         return _setup;
     }
+
 
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());

@@ -35,54 +35,54 @@ import java.lang.reflect.Method;
  * @version $Id$
  */
 
-public class CollectionsWrapperTest extends TestCase 
+public class CollectionsWrapperTest extends TestCase
 {
 
     public void testTime() throws Exception {
-	long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
 
-	List[] list = new List[1000];	
+        List[] list = new List[1000];
 
-	for (int x=0; x<list.length; ++x) {
-	    list[x] = Collections.singletonList("testling");
-	}
+        for (int x=0; x<list.length; ++x) {
+            list[x] = Collections.singletonList("testling");
+        }
 
-	//	System.out.println(System.currentTimeMillis() - now);
+        //      System.out.println(System.currentTimeMillis() - now);
 
-	Method method = Collections.class.getMethod("singletonList", new Class[] {Object.class});
+        Method method = Collections.class.getMethod("singletonList", new Class[] {Object.class});
 
-	now = System.currentTimeMillis();
+        now = System.currentTimeMillis();
 
-	for (int x=0; x<list.length; ++x) {
-	    list[x] = (List)method.invoke(null, new Object[]{"testling"});
-	}
-	//	System.out.println(System.currentTimeMillis() - now);
+        for (int x=0; x<list.length; ++x) {
+            list[x] = (List)method.invoke(null, new Object[]{"testling"});
+        }
+
 
     }
 
     public void testCollectionsWrapper() throws Exception {
-	String o = "testling";
+        String o = "testling";
 
-	List list = CollectionsWrapper.singletonList(o);
+        List list = CollectionsWrapper.singletonList(o);
 
-	assertTrue(list.size() == 1);
+        assertTrue(list.size() == 1);
 
-	assertEquals(o, list.get(0));
+        assertEquals(o, list.get(0));
 
-	Iterator i = list.iterator();
+        Iterator i = list.iterator();
 
-	while (i.hasNext()) {
-	    assertEquals(o, i.next());
-	}
+        while (i.hasNext()) {
+            assertEquals(o, i.next());
+        }
     }
 
-    /** 
+    /**
      *
      * @param name test name
      */
     public CollectionsWrapperTest (String name)
     {
-	super(name);
+        super(name);
     }
 
     /**
@@ -90,17 +90,17 @@ public class CollectionsWrapperTest extends TestCase
      */
     public static Test suite()
     {
-	TestSuite suite = new TestSuite(CollectionsWrapperTest.class);
-	
-	return suite;
+        TestSuite suite = new TestSuite(CollectionsWrapperTest.class);
+
+        return suite;
     }
 
-    /** 
-     * Entry point 
-     */ 
-    public static void main(String[] args) 
+    /**
+     * Entry point
+     */
+    public static void main(String[] args)
     {
-	junit.textui.TestRunner.run(suite());
-    
+        junit.textui.TestRunner.run(suite());
+
     }
 }

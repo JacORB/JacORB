@@ -32,7 +32,6 @@ import org.omg.PortableServer.POAHelper;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.ApplicationEvent;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
@@ -40,30 +39,27 @@ import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
 import org.jacorb.notification.servant.ConsumerAdminTieImpl;
 
 import java.util.List;
-import java.util.Vector;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import java.util.ArrayList;
 
 /**
- *  Unit Test for class AdminLimit
- *
- *
- * Created: Wed Feb 12 19:21:45 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class AdminLimitTest extends TestCase {
+public class AdminLimitTest extends TestCase
+{
 
     ConsumerAdminTieImpl consumerAdmin_;
     ChannelContext channelContext_;
     int counter_;
     ApplicationContext appContext_;
 
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         ORB _orb = ORB.init(new String[0], null);
         POA _poa = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));
 
@@ -73,28 +69,29 @@ public class AdminLimitTest extends TestCase {
         channelContext_.setTaskProcessor(new TaskProcessor());
         channelContext_.setORB(_orb);
 
-        PropertyManager _adminProps = new PropertyManager(appContext_);
-        PropertyManager _qosProps = new PropertyManager(appContext_);
-
         consumerAdmin_ =
-            new ConsumerAdminTieImpl(channelContext_, _adminProps, _qosProps);
+            new ConsumerAdminTieImpl(channelContext_);
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception
+    {
         super.tearDown();
 
         appContext_.dispose();
     }
 
-    public void testObtainNotificationPullSupplierFiresEvent() throws Exception {
+    public void testObtainNotificationPullSupplierFiresEvent() throws Exception
+    {
         IntHolder _proxyId = new IntHolder();
 
-        final List _events = new Vector();
+        final List _events = new ArrayList();
 
         ProxyCreationRequestEventListener _listener =
-            new ProxyCreationRequestEventListener() {
+            new ProxyCreationRequestEventListener()
+            {
                 public void actionProxyCreationRequest(ProxyCreationRequestEvent e)
-                    throws AdminLimitExceeded {
+                throws AdminLimitExceeded
+                {
 
                     _events.add(e);
                 }
@@ -109,13 +106,16 @@ public class AdminLimitTest extends TestCase {
         assertEquals(consumerAdmin_, ((ApplicationEvent)_events.get(0)).getSource());
     }
 
-    public void testDenyCreateNotificationPullSupplier() throws Exception {
+    public void testDenyCreateNotificationPullSupplier() throws Exception
+    {
         IntHolder _proxyId = new IntHolder();
 
         ProxyCreationRequestEventListener _listener =
-            new ProxyCreationRequestEventListener() {
+            new ProxyCreationRequestEventListener()
+            {
                 public void actionProxyCreationRequest(ProxyCreationRequestEvent e)
-                    throws AdminLimitExceeded {
+                throws AdminLimitExceeded
+                {
 
                     throw new AdminLimitExceeded();
 
@@ -124,22 +124,28 @@ public class AdminLimitTest extends TestCase {
 
         consumerAdmin_.addProxyCreationEventListener(_listener);
 
-        try {
+        try
+        {
             ProxySupplier _proxySupplier =
                 consumerAdmin_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId);
 
             fail();
-        } catch (AdminLimitExceeded e) {}
+        }
+        catch (AdminLimitExceeded e)
+        {}
     }
 
-    public void testEvents() throws Exception {
+    public void testEvents() throws Exception
+    {
         IntHolder _proxyId = new IntHolder();
 
         ProxyCreationRequestEventListener _listener =
-            new ProxyCreationRequestEventListener() {
+            new ProxyCreationRequestEventListener()
+            {
 
                 public void actionProxyCreationRequest(ProxyCreationRequestEvent e)
-                    throws AdminLimitExceeded {
+                throws AdminLimitExceeded
+                {
 
                     counter_++;
                 }
@@ -172,20 +178,23 @@ public class AdminLimitTest extends TestCase {
      *
      * @param name test name
      */
-    public AdminLimitTest (String name){
+    public AdminLimitTest (String name)
+    {
         super(name);
     }
 
     /**
      * @return a <code>TestSuite</code>
      */
-    public static Test suite(){
+    public static Test suite()
+    {
         TestSuite suite = new TestSuite(AdminLimitTest.class);
 
         return suite;
     }
 
-    public static void main(String[] args)  {
+    public static void main(String[] args)
+    {
         junit.textui.TestRunner.run(suite());
     }
 

@@ -1,6 +1,5 @@
 package org.jacorb.test.notification;
 
-import junit.framework.TestCase;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
@@ -16,23 +15,22 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumer;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerHelper;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.PullSupplierPOA;
+
 import org.jacorb.util.Debug;
+
+import junit.framework.TestCase;
 import org.apache.avalon.framework.logger.Logger;
 
-/*
- *        JacORB - a free Java ORB
- */
-
 /**
- * AnyPullSender.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class AnyPullSender extends PullSupplierPOA implements TestClientOperations {
+public class AnyPullSender extends PullSupplierPOA implements TestClientOperations
+{
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     Any event_;
@@ -43,33 +41,40 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
     SupplierAdmin myAdmin_;
     TestCase testCase_;
 
-    public AnyPullSender(TestCase testCase,Any event) {
+    public AnyPullSender(TestCase testCase, Any event)
+    {
         event_ = event;
         testCase_ = testCase;
     }
 
-    void reset() {
+    void reset()
+    {
         event_ = null;
     }
 
-    public boolean isConnected() {
+    public boolean isConnected()
+    {
         return connected_;
     }
 
     public void connect(NotificationTestCaseSetup setup,
                         EventChannel channel,
                         boolean useOrSemantic)
-        throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound {
+    throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound
+    {
 
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
 
-        invalidAny_ = setup.getClientOrb().create_any();
+        invalidAny_ = setup.getORB().create_any();
 
-        if (useOrSemantic) {
+        if (useOrSemantic)
+        {
             myAdmin_ = channel.new_for_suppliers(InterFilterGroupOperator.OR_OP, _adminId);
             testCase_.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
-        } else {
+        }
+        else
+        {
             myAdmin_ = channel.new_for_suppliers(InterFilterGroupOperator.AND_OP, _adminId);
             testCase_.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
         }
@@ -79,54 +84,69 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         myConsumer_ =
             ProxyPullConsumerHelper.narrow(myAdmin_.obtain_notification_pull_consumer(ClientType.ANY_EVENT, _proxyId));
 
-        myConsumer_.connect_any_pull_supplier(_this(setup.getClientOrb()));
+        setup.assertEquals(ProxyType._PULL_ANY, myConsumer_.MyType().value());
+
+
+        myConsumer_.connect_any_pull_supplier(_this(setup.getORB()));
         connected_ = true;
     }
 
-    public void shutdown() {
+    public void shutdown()
+    {
         myConsumer_.disconnect_pull_consumer();
     }
 
-    public void run() {
+    public void run()
+    {
         available_ = true;
     }
 
-    public boolean isEventHandled() {
+    public boolean isEventHandled()
+    {
         return sent_;
     }
 
     boolean sent_ = false;
 
-    public boolean isError() {
+    public boolean isError()
+    {
         return false;
     }
 
-    public void subscription_change(EventType[] e1, EventType[] e2) {
-    }
+    public void subscription_change(EventType[] e1, EventType[] e2)
+    {}
 
-    public Any pull() throws Disconnected {
+    public Any pull() throws Disconnected
+    {
         logger_.info("pull()");
 
         BooleanHolder _b = new BooleanHolder();
         Any _event;
-        while(true) {
+        while (true)
+        {
             _event = try_pull(_b);
-            if(_b.value) {
+            if (_b.value)
+            {
                 return _event;
             }
             Thread.yield();
         }
     }
 
-    public Any try_pull(BooleanHolder success) throws Disconnected {
+    public Any try_pull(BooleanHolder success) throws Disconnected
+    {
         logger_.debug("try_pull");
 
-        try {
+        try
+        {
             Any _event = invalidAny_;
             success.value = false;
-            if (available_) {
-                synchronized(this) {
-                    if (available_) {
+            if (available_)
+            {
+                synchronized (this)
+                {
+                    if (available_)
+                    {
                         _event = event_;
                         event_ = null;
                         success.value = true;
@@ -137,14 +157,17 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
                 }
             }
             return _event;
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             logger_.error("during try_pull", t);
             t.printStackTrace();
             throw new RuntimeException();
         }
     }
 
-    public void disconnect_pull_supplier() {
+    public void disconnect_pull_supplier()
+    {
         connected_ = false;
     }
 

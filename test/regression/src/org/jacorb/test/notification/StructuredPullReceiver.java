@@ -53,7 +53,7 @@ public class StructuredPullReceiver extends Thread implements StructuredPullCons
 
         testCase_.assertEquals(pullSupplier_.MyType(), ProxyType.PULL_STRUCTURED);
 
-        pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(setup.getClientOrb())));
+        pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(setup.getORB())));
         connected_ = true;
     }
 
