@@ -20,9 +20,22 @@ public class Client
 
 	try 
 	{
-	    if(args.length > 0 && args[1].startsWith("IOR:") )
+	    if( args.length > 0  )
 	    {
-		benchHelper.narrow(orb.string_to_object( args[1]));
+                try 
+                {
+                    File f = new File( args[0] );
+                    BufferedReader br = new BufferedReader( new FileReader( f ));
+                    String ior = br.readLine();
+                    br.close();
+                    server = benchHelper.narrow(orb.string_to_object(ior));
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    System.exit( 1 );
+                }
+
 	    }
 	    else
 	    {

@@ -1,13 +1,12 @@
-package demo.poa_monitor.user_poa;
+package test.POA.local;
 
-import demo.poa_monitor.foox.*;
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 
 public class FooServantLocatorImpl 
     extends ServantLocatorPOA 
 {
-    private FooImpl foo = new FooImpl("0");
+    private FooImpl foo = new FooImpl();
  
     public void postinvoke(byte[] oid, 
                            POA adapter, 
@@ -25,16 +24,13 @@ public class FooServantLocatorImpl
 
     public Servant preinvoke(byte[] oid, 
                              POA adapter, 
-                             String operation, CookieHolder cookie) 
+                             String operation, 
+                             CookieHolder cookie) 
         throws ForwardRequest 
     {
         String oidStr = new String(oid);
         int oidInt = Integer.parseInt(oidStr);
-        if (oidInt >= 1000 && operation.equals("compute")) 
-        {
-            cookie.value = oidStr;
-            return foo;
-        }
-        return null;
+        cookie.value = oidStr;
+        return foo;
     }
 }

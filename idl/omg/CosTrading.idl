@@ -163,9 +163,11 @@ module CosTrading
 		enum HowManyProps { none, some, all };
 
 		union SpecifiedProps switch ( HowManyProps ) {
-			case none: short none_dummy;
-			case some: PropertyNameSeq prop_names;
-			case all:  short all_dummy;
+                  //	 not in standard:
+                  // case none: short none_dummy; 
+                case some: PropertyNameSeq prop_names;
+                  //	 not in standard:
+                  //	case all:  short all_dummy;
 		};
 
 		exception IllegalPreference {

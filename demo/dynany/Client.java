@@ -76,6 +76,17 @@ public class Client
                                s.generic( dyn_seq.to_any() ) );
 	    dyn_seq.destroy();
 
+            // test the primitive get/set operations for DynSequences
+
+            seq_tc = 
+                orb.create_sequence_tc( 1, orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_boolean));
+
+            dyn_seq = (DynSequence)dynFactory.create_dyn_any_from_type_code( seq_tc );
+
+            dyn_seq.set_length( 1 );
+            dyn_seq.insert_boolean( true );
+	    dyn_seq.destroy();
+
 	    // array
 
 	    TypeCode array_tc = 
@@ -149,7 +160,8 @@ public class Client
 
 	    DynSequence second_member = 
                 (DynSequence)dynFactory.create_dyn_any_from_type_code(
-                                   orb.create_sequence_tc( 0, struct_tc ));
+                                   orb.create_sequence_tc( 0, 
+                                                           org.omg.CORBA.ORB.init().create_recursive_tc("IDL:Node:1.0")));
 	    nvp_seq[1] = 
                 new NameValuePair("second", second_member.to_any() );
 
@@ -158,6 +170,14 @@ public class Client
 
 	    System.out.println("Passing a struct..." + 
                                s.generic( dyn_struct.to_any() ) );
+
+            // test the primitive get/set operations for DynStruct
+
+            dyn_struct.seek(0);
+            dyn_struct.insert_string( "newly inserted" );
+	    System.out.println("Passing the struct again..." + 
+                               s.generic( dyn_struct.to_any() ) );
+
 	    dyn_struct.destroy();
 	    second_member.destroy();
 

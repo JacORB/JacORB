@@ -1,0 +1,16 @@
+module test
+{
+    module POA {
+        module local {
+
+		interface Foo {
+			void compute();
+                        void setFoo( in Foo f );
+		};                
+
+		interface FooFactory {
+			Foo createFoo( in string id);
+		};
+	};
+    };
+};

@@ -17,6 +17,12 @@ module arrays
 	numbers write(in string s, in numbers n);
 	nos write2(in string s, in nos n);
 
+        typedef sequence <long long> Lref;
+        void printLongArray(in Lref refs);
+
+        typedef sequence <double> Dref;
+        void printDoubleArray(in Dref refs);
+
 	// note that the following operation will be
 	// renamed to _notify by the IDL compiler
 	// because of the name clash with java.lang.Object's notify()

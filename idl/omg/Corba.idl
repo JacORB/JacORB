@@ -140,8 +140,6 @@ module CORBA
     const Flags ARG_INOUT = 3;
     const Flags CTX_RESTRICT_SCOPE = 15;
 
-    exception Bounds {};
-
     pseudo interface ExceptionList { // PIDL mapped according to Java mapping, not listed here
     }; 
 

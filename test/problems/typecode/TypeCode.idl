@@ -1,0 +1,53 @@
+module test
+{
+    module problems
+        {
+            module typecode
+                {
+                    typedef string PropertyName;
+
+                    struct Property {
+                        PropertyName property_name;
+                        any property_value;
+                    };
+
+                    typedef sequence<Property> PropertySeq;
+                    typedef string FieldName;
+
+                    struct NameValuePair
+                    {
+                        FieldName id;
+                        any value;
+                    };
+                    typedef sequence<NameValuePair> NameValuePairSeq;
+
+                    struct FeaturePortrayal
+                    {
+                        //    string scope;
+                        PropertySeq properties;
+                        PropertySeq geometries;
+                    };
+
+                    typedef sequence<FeaturePortrayal> FeaturePortrayalSeq;
+
+                    struct DataFlavor 
+                    {
+                        string name;
+                        NameValuePairSeq parameters;
+                    };
+                    typedef sequence<DataFlavor> DataFlavors;
+
+                    struct TransferData
+                    {
+                        //    DataFlavor flavor;
+                        any value;
+                    };
+
+                    interface Transferable 
+                        {
+                            any export_data(in DataFlavor flavor);
+                        };
+                };
+
+        };
+};

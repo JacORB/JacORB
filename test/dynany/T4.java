@@ -34,6 +34,8 @@ public class T4
       System.out.println ("No active member? " +
                          dUnion.has_no_active_member());
 
+      dUnion.set_to_no_active_member() ;
+
       dAny = dUnion.member ();
 
       System.out.println ("Should not see this!");

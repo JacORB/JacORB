@@ -42,6 +42,19 @@ class serverImpl
 	    System.out.println("[" + i + "]: " + j[i] ); 
 	return a;
     }
+
+    public void printLongArray(long[] refs) {
+        System.out.println("Taille du tableau de long : " + refs.length);
+        for (int i=0; i<refs.length; i++ )
+            System.out.println("refs[" + i + "] = " + refs[i]);
+    }
+
+    public void printDoubleArray(double[] refs) {
+        System.out.println("Taille du tableau de doble : " + refs.length);
+        for (int i=0; i<refs.length; i++ )
+            System.out.println("refs[" + i + "] = " + refs[i]);
+    }
+
 }
 
 

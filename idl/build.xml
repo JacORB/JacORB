@@ -341,7 +341,7 @@
    <!--     trading service  -->
    <!--                      -->
 
-   <target name="trading" depends="basic,repository,dynamic">
+   <target name="trading" depends="init,basic,repository,dynamic">
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
 	       includes="org/omg/CosTrading/**,org/omg/CosTradingDynamic/**,org/omg/CosTradingRepos/**"

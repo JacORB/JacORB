@@ -1,5 +1,7 @@
 module names {
 
+    interface XPOA { void op(); };
+
   typedef string blubHolder;
   typedef long longHolder[2];
   typedef sequence<short> shortHolder;

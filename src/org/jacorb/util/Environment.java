@@ -500,7 +500,10 @@ public class Environment
 
     public static final String proxyURL() { return _proxy_server; }
 
-    public static final byte[] implName() { return _impl_name; }
+    public static final byte[] implName() 
+    {
+        return _impl_name; 
+    }
 
     public static final boolean useAppligator(boolean amIanApplet)
     {

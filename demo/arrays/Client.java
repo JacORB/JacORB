@@ -48,6 +48,22 @@ class Client
 	    arrayContainer ac = 
 		new arrayContainer( shorts );
 	    g.notify3( ac );
+
+
+            // test printLongArray
+            long[] refs = new long[10];
+            for (int ir=0; ir<refs.length; ir++ )
+                refs[ir] = (long)ir;
+            
+            g.printLongArray(refs);
+
+            // test printLongArray
+            double[] drefs = new double[10];
+            for (int ir = 0; ir < drefs.length; ir++ )
+                drefs[ir] = (float)ir;
+            
+            g.printDoubleArray( drefs);
+
 	
 	} 
 	catch (Exception e) 

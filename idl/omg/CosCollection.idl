@@ -9,9 +9,7 @@
 
 module CosCollection 
 { 
-
     interface Collection;
-
 
     //  T y p e   d e f i n i t i o n s
 
@@ -26,6 +24,7 @@ module CosCollection
     //  E x c e p t i o n s
     exception  EmptyCollection{};
     exception  PositionInvalid{};
+
     enum IteratorInvalidReason {is_invalid, 
 				is_not_for_collection,  
 				is_const};
@@ -1075,4 +1074,4 @@ module CosCollection
     };
 
 };
-#endif /* ifndef _COS_COLLECTION_IDL_ */
+#endif /* ifndef _COS_COLLECTION_IDL_ */!

@@ -25,7 +25,21 @@ public class Server
 	    }
 	    else
 	    {
-		System.out.println( orb.object_to_string( o ) );
+                try
+                {
+                    String ref = orb.object_to_string( o );
+                    String refFile = args[0];
+                    java.io.PrintWriter out =
+                        new java.io.PrintWriter(new java.io.FileOutputStream(refFile));
+                    out.println(ref);
+                    out.flush();
+                }
+                catch(java.io.IOException ex)
+                {
+                    System.err.println("Server: can't write to `" +
+                                       ex.getMessage() + "'");
+                    System.exit( 1 );
+                }
 	    }
 	    orb.run();			
 	} 

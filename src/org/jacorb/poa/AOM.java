@@ -53,11 +53,11 @@ public class AOM
 
     // an ObjectID can appear only once, but an servant can have multiple ObjectId's
     // if MULTIPLE_ID is set
-    private Hashtable   objectMap = new Hashtable(); // oid -> servant
+    private Hashtable           objectMap = new Hashtable(); // oid -> servant
 
     // only meaningful if UNIQUE_ID is set
     // only for performance improvements (brose: is that still true?)
-    private Hashtable   servantMap;             // servant -> oid
+    private Hashtable           servantMap;             // servant -> oid
 
     // for synchronisation of servant activator calls
     private Vector              etherealisationList = new Vector();
@@ -68,17 +68,20 @@ public class AOM
     }
 
     protected AOM( boolean _unique, 
-                   boolean single_threaded, LogTrace _logTrace
+                   boolean single_threaded, 
+                   LogTrace _logTrace
                    ) 
     {
         unique = _unique;
         singleThreaded = single_threaded;
         logTrace = _logTrace;
 
-        if (unique) {
+        if (unique) 
+        {
             servantMap = new Hashtable();
         }
     }
+
 
     synchronized protected void add( byte[] oid, Servant servant ) 
         throws ObjectAlreadyActive, ServantAlreadyActive 
@@ -122,15 +125,18 @@ public class AOM
             aomListener.objectActivated(oid, servant, objectMap.size());
     }
 
+
     protected synchronized void addAOMListener(AOMListener listener) 
     {
         aomListener = EventMulticaster.add(aomListener, listener);
     }
 
+
     protected boolean contains(byte[] oid) 
     {
         return objectMap.containsKey(POAUtil.objectId_to_string(oid));
     }
+
 
     protected boolean contains(Servant servant) 
     {
@@ -144,17 +150,21 @@ public class AOM
         }
     }
 
+
     synchronized protected StringPair[] deliverContent() 
     {               
         StringPair[] result = new StringPair[objectMap.size()];
         String oidStr;
         Enumeration en = objectMap.keys();
-        for (int i=0; i<result.length; i++) 
+
+        for ( int i = 0; i < result.length; i++ ) 
         {
             oidStr = (String) en.nextElement();
-            result[i] = new StringPair(oidStr, objectMap.get(oidStr).getClass().getName()); 
+            result[i] = 
+                new StringPair(oidStr, objectMap.get(oidStr).getClass().getName()); 
         }
         return result;
+
     }
 
     protected byte[] getObjectId(Servant servant) 
@@ -180,9 +190,9 @@ public class AOM
 
 
 
-    synchronized protected Servant incarnate(byte[] oid, 
-                                             ServantActivator servant_activator, 
-                                             org.omg.PortableServer.POA poa) 
+    synchronized protected Servant incarnate( byte[] oid, 
+                                              ServantActivator servant_activator, 
+                                              org.omg.PortableServer.POA poa ) 
         throws org.omg.PortableServer.ForwardRequest 
     {
         String oidStr = POAUtil.objectId_to_string(oid);
@@ -254,13 +264,14 @@ public class AOM
         return servant;
     }
 
-    protected void remove(byte[] oid, 
-                          RequestController requestController, 
-                          ServantActivator servant_activator, 
-                          POA poa,
-                          boolean cleanup_in_progress) 
-    {
 
+
+    protected void remove( byte[] oid, 
+                           RequestController requestController, 
+                           ServantActivator servant_activator, 
+                           POA poa,
+                           boolean cleanup_in_progress) 
+    {
         String  oidStr = POAUtil.objectId_to_string(oid);
         Servant servant = null;
                 
@@ -293,13 +304,17 @@ public class AOM
                 aomListener.objectDeactivated(oid, servant, objectMap.size());
 
             if (servant_activator == null) 
+            {
+                requestController.freeObject(oid);
                 return;
+            }
                         
             /* servant etherealization */
                         
-            /* all invocations of incarnate on the servant manager are serialized */
-            /* all invocations of etherealize on the servant manager are serialized */
-            /* invocations of incarnate and etherialize are mutually exclusive */
+            /* all invocations of incarnate on the servant manager are
+               serialized,  all  invocations   of  etherealize  on  the
+               servant manager are serialized, invocations of incarnate
+               and etherialize are mutually exclusive */
 
             while (!incarnationList.isEmpty() || !etherealisationList.isEmpty()) 
             {
@@ -344,7 +359,9 @@ public class AOM
         }
     }
 
-    protected void removeAll(ServantActivator servant_activator, POA poa, boolean cleanup_in_progress) 
+    protected void removeAll( ServantActivator servant_activator, 
+                              POA poa, 
+                              boolean cleanup_in_progress ) 
     {
         byte[] oid;
         Enumeration en = objectMap.keys();
@@ -367,7 +384,8 @@ public class AOM
 
     public void printSizes()
     {
-        System.out.println( "AOM: objectMap " + size() + " servantMap " + servantMap.size());
+        System.out.println( "AOM: objectMap " + size() + 
+                            " servantMap " + servantMap.size());
     }
 
 }

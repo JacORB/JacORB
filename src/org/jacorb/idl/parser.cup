@@ -614,7 +614,7 @@ non terminal ScopedName scopename;
 non terminal Value        value;
 non terminal ValueBoxDecl value_box_dcl;
 non terminal ValueDecl    value_dcl;
-non terminal ValueAbsDecl value_abs_dcl;
+//non terminal ValueAbsDecl value_abs_dcl;
 non terminal IdlSymbol    value_body;
 non terminal IdlSymbol    value_inheritance_spec;
 non terminal Definitions  value_elements;
@@ -985,10 +985,10 @@ value ::=
                {: 
                         RESULT.setValue (vd);
                 :}
-        | value_abs_dcl:vad
-               {: 
-                        RESULT.setValue (vad);
-                :}
+//        | value_abs_dcl:vad
+//               {: 
+//                        RESULT.setValue (vad);
+//                :}
         | value_box_dcl:vbx
                {: 
                         RESULT.setValue (vbx);
@@ -1006,10 +1006,12 @@ value_box_dcl ::=
                 :}
         ;
 
+/*
 value_abs_dcl ::=
           ABSTRACT VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_body:b RCBRACE
         |  ABSTRACT VALUETYPE ID:i value_inheritance_spec:is LCBRACE RCBRACE
         ;
+*/
 
 value_body ::=
           export:e value_body:vb
