@@ -40,14 +40,14 @@ class UnionType
     extends TypeDeclaration
     implements Scope
 {
-    /* the union's discriminator's type spec */
-
+    /** the union's discriminator's type spec */
     TypeSpec switch_type_spec;
-
-    private ScopeData scopeData;
 
     SwitchBody switch_body;
     boolean written = false;
+
+    private ScopeData scopeData;
+
     private boolean allCasesCovered = false;
     private boolean switch_is_enum = false;
     private boolean switch_is_bool = false;
@@ -215,10 +215,9 @@ class UnionType
                 addImportedName( switch_type_spec.typeName() );
 	    }
 	    switch_type_spec.parse();
-
-
 	    switch_body.setTypeSpec(switch_type_spec);
             switch_body.setUnion(this);
+
             ScopedName.addRecursionScope( typeName() );
             switch_body.parse();
             ScopedName.removeRecursionScope( typeName() );
@@ -286,7 +285,7 @@ class UnionType
 	int def = 0; 
 	java.util.Vector allCaseLabels = new java.util.Vector();
 
-	for( Enumeration e = switch_body.v.elements(); e.hasMoreElements();)
+	for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
 	    for( int i = 0; i < c.case_label_list.v.size(); i++) 
@@ -408,7 +407,7 @@ class UnionType
 
 	/* print members */
 
-	for( Enumeration e = switch_body.v.elements(); e.hasMoreElements();)
+	for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
 	    int caseLabelNum = c.case_label_list.v.size();
@@ -450,7 +449,7 @@ class UnionType
 	 * print accessor and modifiers for each case label and branch
 	 */
     
-	for( Enumeration e = switch_body.v.elements(); e.hasMoreElements();)
+	for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
 	    boolean thisCaseIsDefault = false;
@@ -703,7 +702,7 @@ class UnionType
 	PrintWriter defaultWriter = new PrintWriter( bos );
 	PrintWriter alt = null;
 
-	for( Enumeration e = switch_body.v.elements(); e.hasMoreElements();)
+	for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
 	    TypeSpec t = c.element_spec.t;
@@ -815,7 +814,7 @@ class UnionType
 	defaultWriter = new PrintWriter( bos );
 	alt = null;
 
-	for( Enumeration e = switch_body.v.elements(); e.hasMoreElements();)
+	for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
 	    TypeSpec t = c.element_spec.t;
@@ -903,7 +902,7 @@ class UnionType
 	    label_t = ((ScopedName)label_t).resolvedTypeSpec();
 	label_t = label_t.typeSpec();
 
-	for( Enumeration e = switch_body.v.elements(); e.hasMoreElements();)
+	for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
  	    TypeSpec t = c.element_spec.t;
