@@ -39,8 +39,8 @@ public class Current
   //    extends org.omg.CORBA.LocalObject
   //    implements org.omg.PortableServer.Current
 {
-    private Map threadTable = new HashMap();
-    // Thread -> list of InvocationContext elements (Stack)
+    private Hashtable threadTable = new Hashtable();
+    // Thread -> vector of InvocationContext elements (Stack)
 
     private Current()
     {
@@ -53,23 +53,23 @@ public class Current
 
     public synchronized void _addContext(Thread t, InvocationContext c)
     {
-        List cv = (List) threadTable.get(t);
+        Vector cv = (Vector) threadTable.get(t);
 
         if (cv == null) {
-            cv = new ArrayList();
+            cv = new Vector();
             threadTable.put(t, cv);
         }
 
-        cv.add(c);
+        cv.addElement(c);
     }
 
     public synchronized void _removeContext(Thread t)
     {
-        List cv = (List) threadTable.get(t);
+        Vector cv = (Vector) threadTable.get(t);
 
         if (cv != null) {
 
-            cv.remove(cv.size()-1);
+            cv.removeElementAt(cv.size()-1);
 
             if (cv.size() == 0) {
                 threadTable.remove(t);
@@ -106,11 +106,11 @@ public class Current
     {
         Thread ct = Thread.currentThread();
 
-        List cv = (List)threadTable.get(ct);
+        Vector cv = (Vector) threadTable.get(ct);
 
         if (cv != null)
         {
-            InvocationContext c = (InvocationContext)cv.get(cv.size()-1);
+            InvocationContext c = (InvocationContext) cv.lastElement();
 
             if (c != null)
             {

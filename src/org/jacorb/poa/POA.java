@@ -69,7 +69,7 @@ public class POA
     private String                qualifiedName;
 
     // name -> child POA's
-    private Map                   childs = new HashMap();
+    private Hashtable             childs = new Hashtable();
 
     Servant                       defaultServant;
     ServantManager                servantManager;
@@ -110,10 +110,10 @@ public class POA
     // default: NORMAL
     protected BidirectionalPolicy       bidirectionalPolicy;
 
-    private Map all_policies = null;
+    private Hashtable all_policies = null;
 
     /** key: , value: CORBA.Object */
-    private Map createdReferences;
+    private Hashtable createdReferences;
 
     // stores the etherealize_objects value from the first call of destroy
     private boolean               etherealize;
@@ -141,8 +141,8 @@ public class POA
         poaManager = _poaManager;
         logPrefix = "POA " + name;
 
-        all_policies = new HashMap();
-        createdReferences = new HashMap();
+        all_policies = new Hashtable();
+        createdReferences = new Hashtable();
 
         if (policies != null)
         {
@@ -811,10 +811,10 @@ public class POA
         /* child poa creations are impossible now */
         // destroy all childs first
 
-        Iterator en = childs.values().iterator();
-        while (en.hasNext())
+        Enumeration en = childs.elements();
+        while (en.hasMoreElements())
         {
-            POA child = (POA) en.next();
+            POA child = (POA) en.nextElement();
             child.destroy(etherealize, wait_for_completion);
         }
 
@@ -1714,16 +1714,16 @@ public class POA
         checkDestructionApparent();
 
         int i = 0;
-        Iterator enum;
+        Enumeration enum;
         org.omg.PortableServer.POA[] children;
 
         synchronized (poaCreationLog)
         {
             children = new org.omg.PortableServer.POA[childs.size()];
-            enum = childs.values().iterator();
-            while (enum.hasNext())
+            enum = childs.elements();
+            while (enum.hasMoreElements())
             {
-                children[i] = (org.omg.PortableServer.POA) enum.next();
+                children[i] = (org.omg.PortableServer.POA) enum.nextElement();
                 i++;
             }
         }

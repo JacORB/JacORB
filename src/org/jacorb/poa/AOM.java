@@ -55,17 +55,17 @@ public class AOM
 
     // an ObjectID can appear only once, but an servant can have multiple ObjectId's
     // if MULTIPLE_ID is set
-    private Map               objectMap = new HashMap(); // oid -> servant
+    private Hashtable           objectMap = new Hashtable(); // oid -> servant
 
     // only meaningful if UNIQUE_ID is set
     // only for performance improvements (brose: is that still true?)
-    private Map               servantMap;             // servant -> oid
+    private Hashtable           servantMap;             // servant -> oid
 
     // for synchronisation of servant activator calls
-    private List              etherealisationList = new ArrayList();
-    private List              incarnationList = new ArrayList();
+    private Vector              etherealisationList = new Vector();
+    private Vector              incarnationList = new Vector();
 
-    private List              deactivationList = new ArrayList();
+    private Vector              deactivationList = new Vector();
     /** a lock to protect two consecutive operations on the list, used
         in remove() */
     private Object              deactivationListLock = new Object();
@@ -85,7 +85,7 @@ public class AOM
 
         if (unique)
         {
-            servantMap = new HashMap();
+            servantMap = new Hashtable();
         }
     }
 
@@ -178,7 +178,7 @@ public class AOM
         }
         else
         {
-            return objectMap.containsValue(servant);
+            return objectMap.contains(servant);
         }
     }
 
@@ -187,11 +187,11 @@ public class AOM
     {
         StringPair[] result = new StringPair[objectMap.size()];
         ByteArrayKey oidbak;
-        Iterator en = objectMap.keySet().iterator();
+        Enumeration en = objectMap.keys();
 
         for ( int i = 0; i < result.length; i++ )
         {
-            oidbak = (ByteArrayKey) en.next();
+            oidbak = (ByteArrayKey) en.nextElement();
             result[i] = new StringPair
             (
                 oidbak.toString(),
@@ -261,14 +261,14 @@ public class AOM
 
         /* servant incarnation */
 
-        incarnationList.add(oidbak);
+        incarnationList.addElement(oidbak);
         try
         {
             servant = servant_activator.incarnate(oid, poa);
         }
         finally
         {
-            incarnationList.remove(oidbak);
+            incarnationList.removeElement(oidbak);
             notifyAll();
         }
 
@@ -339,7 +339,7 @@ public class AOM
                 throw new ObjectNotActive();
             }
 
-            deactivationList.add(oidbak);
+            deactivationList.addElement(oidbak);
         }
 
         final byte[] oid_ = oid;
@@ -388,7 +388,7 @@ public class AOM
         if (!objectMap.containsKey(oidbak))
         {
             // should not happen but ...
-            deactivationList.remove(oidbak);
+            deactivationList.removeElement(oidbak);
             return;
         }
 
@@ -414,7 +414,7 @@ public class AOM
             // Wait to remove the oid from the deactivationList here so that the
             // object map can be cleared out first. This ensures we don't
             // reactivate an object we're currently deactivating.
-            deactivationList.remove(oidbak);
+            deactivationList.removeElement(oidbak);
 
             if (logger.isInfoEnabled())
             {
@@ -451,7 +451,7 @@ public class AOM
                 {
                 }
             }
-            etherealisationList.add(oidbak);
+            etherealisationList.addElement(oidbak);
 
             try
             {
@@ -487,7 +487,7 @@ public class AOM
             }
             finally
             {
-                etherealisationList.remove(oidbak);
+                etherealisationList.removeElement(oidbak);
                 notifyAll();
             }
 
@@ -502,10 +502,10 @@ public class AOM
                               boolean cleanup_in_progress )
     {
         byte[] oid;
-        Iterator en = objectMap.keySet().iterator();
-        while (en.hasNext())
+        Enumeration en = objectMap.keys();
+        while (en.hasMoreElements())
         {
-            oid = ((ByteArrayKey) en.next()).getBytes();
+            oid = ((ByteArrayKey) en.nextElement()).getBytes();
             _remove(oid, null, servant_activator, poa, cleanup_in_progress);
         }
     }
