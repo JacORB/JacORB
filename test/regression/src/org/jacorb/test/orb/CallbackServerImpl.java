@@ -1,6 +1,8 @@
 package org.jacorb.test.orb;
 
 import org.jacorb.Tests.CallbackServerPOA;
+import org.jacorb.Tests.EmptyException;
+import org.jacorb.Tests.NonEmptyException;
 import org.omg.CORBA.CharHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.portable.InputStream;
@@ -43,6 +45,8 @@ public class CallbackServerImpl extends CallbackServerPOA
         return p2.value;
     }
 
+    
+
     private synchronized void delay( long time )
     {
         try
@@ -54,5 +58,34 @@ public class CallbackServerImpl extends CallbackServerPOA
             throw new RuntimeException( "delay interrupted" );
         }
     }        
+
+    public void ex_1( boolean do_it, int delay ) throws EmptyException
+    {
+        delay( delay );
+        if ( do_it )
+            throw new EmptyException();
+        else
+            return;        
+    }
+
+    public int ex_2( IntHolder p, boolean do_it, int delay )
+        throws NonEmptyException
+    {
+        delay( delay );
+        if ( do_it )
+            throw new NonEmptyException( "just do it", p.value, "xxx" );
+        else
+            return p.value;
+    }
+            
+    public void ex_3( boolean non_empty, int delay )
+        throws NonEmptyException, EmptyException
+    {
+        delay( delay );
+        if ( non_empty )
+            throw new NonEmptyException( 4321, "zzz" );
+        else
+            throw new EmptyException( "reason" );
+    }
 
 }
