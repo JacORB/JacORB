@@ -111,7 +111,7 @@ public class BiDirConnectionServerInterceptor
 
                 Debug.output( 2, "BiDirServerInterceptor: Added client conn to target " + info );
                 
-                conn_mg.addConnection( connection, info );
+                conn_mg.addConnection( connection );
             }            
         }
     }    
