@@ -152,7 +152,7 @@ public class Environment
 
             _props = new Properties( System.getProperties() );
             
-            String customPropertyFileName = _props.getProperty("custom.props");
+            String customPropertyFileNames = _props.getProperty("custom.props");
             String home = _props.getProperty("user.home");
             String sep = _props.getProperty("file.separator");
             String lib = _props.getProperty("java.home");
@@ -198,13 +198,19 @@ public class Environment
                 jacorb.properties files 
             */
 
-            if( customPropertyFileName != null )
+            if( customPropertyFileNames != null )
             { 
                 try 
                 {
-                    _props.load( 
-                           new BufferedInputStream( 
-                                 new FileInputStream( customPropertyFileName )));
+                    StringTokenizer strtok = 
+                        new StringTokenizer(customPropertyFileNames, ",");
+
+                    while( strtok.hasMoreTokens() )
+                    {
+                        _props.load( 
+                            new BufferedInputStream( 
+                                 new FileInputStream( strtok.nextToken() )));
+                    }
                 } 
                 catch ( IOException e ) 
                 {                    
@@ -606,10 +612,14 @@ public class Environment
      * generic 
      */
 
-    public static String getProperty(String key) 
+    public static String getProperty( String key ) 
     { 
-        return _props.getProperty(key); 
-        
+        return _props.getProperty(key);         
+    }
+
+    public static String getProperty( String key, String def ) 
+    { 
+        return _props.getProperty( key, def ); 
     }
 
     public static String[] getPropertyValueList(String key) 
