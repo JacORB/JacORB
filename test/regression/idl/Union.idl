@@ -9,52 +9,52 @@ module org
             interface Discriminator
             {
 
-    enum EnumType 
-    {
-      ENUM_VALUE_A,	     
-      ENUM_VALUE_B,
-      ENUM_VALUE_C,
-      ENUM_VALUE_D
-    };
-
-    union UnionType switch(EnumType) 
-    {
-    	case ENUM_VALUE_A: string value;
-    	default: short dummy;	
-    };
-
-
-               enum Color{red, green, blue, black, grey};
-
-               union CharUnionDef switch(char) {
-                  case '\x0':
-                  char mem1;
-                  case 'a':
-                  case 'b':
-                  case 'd':
-                  default:
-                  string default_mem;
-               };
-
-               union ShortUnionDef switch(short) {
-                  case 0:
-                  short neg_mem;
-                  case 2:
-                  short pos_mem;
-                  case 3:
-                  case 4:
-                  case 5:
-                  default:
-                  string default_mem;
-               };
-
-               union EnumUnionDef switch(Color) {
-                  case red:
-                  Color Color_mem;
-                  case green:
-                  default:
-                  string default_mem;
-               };
+                enum EnumType 
+                {
+                    ENUM_VALUE_A,	     
+                    ENUM_VALUE_B,
+                    ENUM_VALUE_C,
+                    ENUM_VALUE_D
+                };
+                
+                union UnionType switch(EnumType) 
+                {
+                    case ENUM_VALUE_A: string value;
+                    default: short dummy;	
+                };
+                
+                
+                enum Color{red, green, blue, black, grey};
+                
+                union CharUnionDef switch(char) {
+                    case '\x0':
+                        char mem1;
+                    case 'a':
+                    case 'b':
+                    case 'd':
+                    default:
+                        string default_mem;
+                };
+                
+                union ShortUnionDef switch(short) {
+                    case 0:
+                        short neg_mem;
+                    case 2:
+                        short pos_mem;
+                    case 3:
+                    case 4:
+                    case 5:
+                    default:
+                        string default_mem;
+                };
+                
+                union EnumUnionDef switch(Color) {
+                    case red:
+                        Color Color_mem;
+                    case green:
+                    default:
+                        string default_mem;
+                };
             };
          };
       };

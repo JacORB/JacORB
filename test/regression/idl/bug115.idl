@@ -10,7 +10,7 @@
    Resolution: Bug acknowledged (for 2.0 beta 1), compiler will loop
    and die with a stack overflow eventually. Fixed now. (Gerald.)
 
-* /
+*/
 
 
 interface TestIntfUnion

@@ -1,0 +1,20 @@
+/*
+
+ Following IDL does not compile
+ and the hHelper.java file is empty!
+*/
+
+module bug84
+{
+    struct h
+    {
+        struct aa
+        {
+            string s;
+            long lng[4];
+            sequence <aa> b;
+            sequence <h> g;
+        } g[3];
+    };
+    
+};
