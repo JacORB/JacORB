@@ -25,6 +25,7 @@ import java.util.*;
 
 import org.omg.GIOP.*;
 import org.omg.IOP.*;
+import org.omg.TimeBase.*;
 
 import org.jacorb.orb.*;
 
@@ -44,6 +45,9 @@ public class RequestOutputStream
     private boolean response_expected = true;
     private String operation = null;
 
+    /** Absolute time at which roundtrip must have been completed. */
+    private UtcT roundtripTimeout = null;
+
     private org.jacorb.orb.dii.Request request = null;
 
     private ClientConnection connection = null;
@@ -52,6 +56,7 @@ public class RequestOutputStream
                                 int request_id,
                                 String operation, 
                                 boolean response_expected,
+                                UtcT roundtripTimeout,
                                 byte[] object_key,
                                 int giop_minor )
     {
@@ -64,6 +69,7 @@ public class RequestOutputStream
         this.response_expected = response_expected;
         this.operation = operation;
         this.connection = connection;
+        this.roundtripTimeout = roundtripTimeout;
 
         writeGIOPMsgHeader( MsgType_1_1._Request,
                             giop_minor );
@@ -178,6 +184,11 @@ public class RequestOutputStream
     public String operation()
     {
         return operation;
+    }
+
+    public UtcT getRoundtripTimeout()
+    {
+        return roundtripTimeout;
     }
 
     public void setRequest(org.jacorb.orb.dii.Request request)
