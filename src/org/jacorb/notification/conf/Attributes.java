@@ -87,4 +87,28 @@ public interface Attributes
 
     String MAX_QUEUE_LENGTH =
         "jacorb.notification.admin.max_queue_length";
+
+    String PRINT_IOR =
+        "jacorb.notification.print_ior";
+
+    String PRINT_CORBALOC =
+        "jacorb.notification.print_corbaloc";
+
+    String IOR_FILE =
+        "jacorb.notification.ior_file";
+
+    String START_CHANNELS =
+        "jacorb.notification.start_channels";
+
+    String REGISTER_NAME_ID =
+        "jacorb.notification.register_name.id";
+
+    String REGISTER_NAME_KIND =
+        "jacorb.notification.register_name.kind";
+
+    String ENABLE_TYPED_CHANNEL =
+        "jacorb.notification.enable_typed_channel";
+
+    String FILTER_PLUGIN_PREFIX =
+        "jacorb.notification.filter.plugin";
 }
