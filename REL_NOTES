@@ -58,13 +58,19 @@ brose@inf.fu-berlin.de
 
 1.3.20
         - internal redesign: all package names now begin with "org.jacorb"
-        - IDL compiler bug fixes:
+
+        - IDL compiler:
+                . added the -nostub switch
                 . name resolution bug fixed
                 . stricter checks in lots of places (thanks to Paul Locke)
                 . minor bug fixes
+
         - Any marshalling bugs for alias types fixed
+
         - fixed diverse bugs in wstring support
+
         - enhanced dior tool to display codeset information
+
         - fixed minor bug in internal buffer management
 
 1.3.11:
