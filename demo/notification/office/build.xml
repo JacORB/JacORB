@@ -22,11 +22,6 @@
       <pathelement location="${basedir}/classes" />
     </path>
 
-    <taskdef
-      name="jacidl"
-      classname="org.jacorb.idl.JacIDL"
-      classpathref="demo.classpath" />
-
     <mkdir dir="${dirs.base}/demo/${name}/generated" />
    </target>
 
@@ -36,7 +31,7 @@
                includes="**.java" />
   </target>
 
-  <target name="idl" depends="demo.init" >
+  <target name="idl" depends="demo.init, load-taskdef" >
     <jacidl srcdir="${dirs.base}/demo/${name}"
       includepath="${idl}/omg"
       includes="*.idl"
