@@ -21,17 +21,19 @@ package org.jacorb.test.notification;
  *
  */
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.EventChannelFactoryImpl;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.queue.EventQueueFactory;
+
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+
+import junit.extensions.TestSetup;
+import junit.framework.Test;
+import org.apache.avalon.framework.configuration.Configuration;
 
 /**
  * @author Alphonse Bendt
