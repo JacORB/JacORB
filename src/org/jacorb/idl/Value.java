@@ -141,7 +141,7 @@ public class Value
 
     public void accept( IDLTreeVisitor visitor )
     {
-        visitor.visitValue( this );
+        value.accept( visitor );
     }
 
 
