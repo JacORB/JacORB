@@ -24,7 +24,7 @@ package org.jacorb.poa;
  * This class collects all POA related constants.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.03, 10/07/99, RT
+ * @version $Id$
  */
 public class POAConstants {
 
