@@ -344,12 +344,6 @@ public final class ORB
     }
 
 
-    //      void _release( org.omg.CORBA.Object o )
-    //      {
-    //          String key = ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)o)._get_delegate()).pior.getIORString() ;
-    //          knownReferences.remove( key );
-    //      }
-
     synchronized void _release( org.jacorb.orb.Delegate delegate )
     {
         knownReferences.remove( delegate.getParsedIOR().getIORString() );
@@ -373,7 +367,7 @@ public final class ORB
         switch (type)
         {
             case MAX_HOPS_POLICY_TYPE.value:
-                return new 
+                return new
                     org.jacorb.orb.policies.MaxHopsPolicy (value);
             case QUEUE_ORDER_POLICY_TYPE.value:
                 return new
@@ -382,7 +376,7 @@ public final class ORB
                 return new
                     org.jacorb.orb.policies.RebindPolicy (value);
             case RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value:
-              return new 
+              return new
                 org.jacorb.orb.policies.RelativeRequestTimeoutPolicy (value);
             case RELATIVE_RT_TIMEOUT_POLICY_TYPE.value:
               return new
@@ -413,10 +407,10 @@ public final class ORB
                     org.jacorb.orb.policies.SyncScopePolicy (value);
             default:
                 Integer key = new Integer(type);
-                if ( policy_factories == null || 
+                if ( policy_factories == null ||
                      (! policy_factories.containsKey(key)) )
                     throw new org.omg.CORBA.PolicyError();
-                PolicyFactory factory = 
+                PolicyFactory factory =
                     (PolicyFactory)policy_factories.get(key);
                 return factory.create_policy(type, value);
         }
@@ -756,11 +750,11 @@ public final class ORB
             rootpoa = org.jacorb.poa.POA._POA_init(this);
             rootpoa._addPOAEventListener( this );
 
-            basicAdapter = new BasicAdapter( this, 
-                                             rootpoa, 
+            basicAdapter = new BasicAdapter( this,
+                                             rootpoa,
                                              transport_manager,
                                              giop_connection_manager );
-            
+
         }
         return rootpoa;
     }
@@ -1351,8 +1345,8 @@ public final class ORB
 
         transport_manager = new TransportManager( this );
         giop_connection_manager = new GIOPConnectionManager();
-        clientConnectionManager = 
-            new ClientConnectionManager( this, 
+        clientConnectionManager =
+            new ClientConnectionManager( this,
                                          transport_manager,
                                          giop_connection_manager );
 
@@ -1430,9 +1424,9 @@ public final class ORB
 
         transport_manager = new TransportManager( this );
         giop_connection_manager = new GIOPConnectionManager();
-        clientConnectionManager = 
-            new ClientConnectionManager( 
-                this, 
+        clientConnectionManager =
+            new ClientConnectionManager(
+                this,
                 transport_manager,
                 giop_connection_manager);
 
