@@ -174,17 +174,15 @@ public class Client_TCP_IP_Transport
     {
         if( connected && socket != null )
         {
-            // Try and invoke socket.shutdownOutput via reflection
+            // Close socket output stream to avoid deadlock in some cases (Bug #81)
 
             try
             {
-                java.lang.reflect.Method method 
-                    = (socket.getClass().getMethod ("shutdownOutput", new Class [0]));
-                method.invoke (socket, new java.lang.Object[0]);
+               socket.getOutputStream().close ();
             }
-            catch (Throwable ex)
+            catch (IOException ex)
             {
-                // If Socket does not support shutdownOutput method (i.e JDK < 1.3)
+                // Ignore
             }
 
             socket.close ();
