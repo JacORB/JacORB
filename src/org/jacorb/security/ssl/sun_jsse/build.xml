@@ -19,6 +19,7 @@
    </target>
 
    <target name="patch" depends="init">
+           <property name="local" value="${dirs.base}/src/org/jacorb/security/ssl/sun_jsse"/>
            <patch patchfile="${local}/ServerInvocationInterceptor.java.patch"
                   originalfile="${local}/ServerInvocationInterceptor.java"
                   backups="yes" />
@@ -31,6 +32,7 @@
    </target>
 
    <target name="unpatch" depends="init">
+             <property name="local" value="${dirs.base}/src/org/jacorb/security/ssl/sun_jsse"/>
            <patch patchfile="${local}/ServerInvocationInterceptor.java.patch"
                   originalfile="${local}/ServerInvocationInterceptor.java"
                   backups="no"
