@@ -76,7 +76,7 @@
       <antcall target="idl-tests"/>
       <antcall target="idl-basicserver"/>
       <antcall target="idl-charserver"/>
-<!--  <antcall target="idl-callbackserver"/> -->
+      <antcall target="idl-callbackserver"/>
    </target>
 
 
