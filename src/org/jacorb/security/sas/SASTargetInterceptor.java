@@ -152,8 +152,6 @@ public class SASTargetInterceptor
         if (logger.isDebugEnabled())
             logger.debug("receive_request_service_contexts for " + ri.operation());
 
-        //if (ri.operation().equals("_is_a")) return;
-        //if (ri.operation().equals("_non_existent")) return;
         if (sasContext == null) 
             return;
 
@@ -306,8 +304,6 @@ public class SASTargetInterceptor
         if (logger.isDebugEnabled())
             logger.debug("receive_request for "+ri.operation());
 
-        //if (ri.operation().equals("_is_a")) return;
-        //if (ri.operation().equals("_non_existent")) return;
         if (sasContext == null) 
             return;
         GIOPConnection connection = 
@@ -323,7 +319,6 @@ public class SASTargetInterceptor
                 (org.jacorb.orb.Delegate)oi._get_delegate();
             SASPolicy policy = 
                 (SASPolicy)d.getPOA().getPolicy(SAS_POLICY_TYPE.value);
-            //SASPolicy policy = (SASPolicy)ri.get_server_policy(SAS_POLICY_TYPE.value);
             if (policy != null) 
                 sasValues = policy.value();
         } 
@@ -352,7 +347,6 @@ public class SASTargetInterceptor
             ObjectImpl oi = (ObjectImpl)((ServerRequestInfoImpl) ri).target();
             org.jacorb.orb.Delegate d = (org.jacorb.orb.Delegate)oi._get_delegate();
             ATLASPolicy policy = (ATLASPolicy)d.getPOA().getPolicy(ATLAS_POLICY_TYPE.value);
-            //SASPolicy policy = (SASPolicy)ri.get_server_policy(SAS_POLICY_TYPE.value);
             if (policy != null) 
                 atlasValues = policy.value();
         } 
@@ -459,7 +453,6 @@ public class SASTargetInterceptor
                 client_context_id = msg.client_context_id;
                 contextToken = msg.client_authentication_token;
 
-                //if (!sasContext.validateContext(ri, contextToken)) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
                 principalName = sasContext.getValidatedPrincipal();
             }
             catch (org.omg.CORBA.NO_PERMISSION e)
@@ -501,9 +494,6 @@ public class SASTargetInterceptor
         try
         {
             makeCompleteEstablishContext(ri, client_context_id, sasValues);
-            //Any nameAny = orb.create_any();
-            //nameAny.insert_string(getSASContextPrincipalName(connection, client_context_id));
-            //ri.set_slot( SASInitializer.sasPrincipalNamePIC, nameAny);
         }
         catch (Exception e)
         {
@@ -520,7 +510,7 @@ public class SASTargetInterceptor
         if (logger.isDebugEnabled())
             logger.debug("send_reply for "+ri.operation());
 
-        //if (!useSAS) return;
+        /*
         Any slot_any = null;
         try 
         {
@@ -554,6 +544,7 @@ public class SASTargetInterceptor
                                                   MinorCodes.SAS_TSS_FAILURE, 
                                                   CompletionStatus.COMPLETED_MAYBE);
         }
+        */
     }
 
     public void send_exception( ServerRequestInfo ri )
@@ -562,6 +553,7 @@ public class SASTargetInterceptor
         if (logger.isDebugEnabled())
             logger.debug("send_exception for "+ri.operation());
 
+        /*
         //if (!useSAS) return;
         Any slot_any = null;
         try 
@@ -598,6 +590,7 @@ public class SASTargetInterceptor
                                                   MinorCodes.SAS_TSS_FAILURE, 
                                                   CompletionStatus.COMPLETED_MAYBE);
         }
+        */
     }
 
     public void send_other( ServerRequestInfo ri )
