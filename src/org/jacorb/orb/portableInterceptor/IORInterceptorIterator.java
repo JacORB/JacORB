@@ -23,6 +23,7 @@ package org.jacorb.orb.portableInterceptor;
 
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.UserException;
+import org.jacorb.orb.standardInterceptors.CodeSetInfoInterceptor;
 
 /**
  * IORInterceptorIterator.java
@@ -33,16 +34,24 @@ import org.omg.CORBA.UserException;
  * $Id$
  */
 
-public class IORInterceptorIterator 
-    extends AbstractInterceptorIterator 
+public class IORInterceptorIterator
+    extends AbstractInterceptorIterator
 {
     private IORInfoImpl info = null;
+    private int[] profile_tags = null;
 
-    public IORInterceptorIterator(Interceptor[] interceptors) 
+    public IORInterceptorIterator(Interceptor[] interceptors)
     {
         super(interceptors);
     }
-  
+
+    public IORInterceptorIterator(Interceptor[] interceptors,
+                                  int[] ptags )
+    {
+        super(interceptors);
+        profile_tags = ptags;
+    }
+
     public void iterate(IORInfoImpl info)
         throws UserException{
 
@@ -56,12 +65,14 @@ public class IORInterceptorIterator
     {
         try
         {
-            ((IORInterceptor) interceptor).establish_components(info);
+            if (interceptor instanceof CodeSetInfoInterceptor)
+                ((CodeSetInfoInterceptor) interceptor).
+                    establish_components(info, profile_tags);
+            else
+                ((IORInterceptor) interceptor).establish_components(info);
         }
         catch(Exception e)
         {
         }
     }
 } // IORInterceptorIterator
-
-

@@ -33,11 +33,12 @@ import java.util.*;
  * @version $Id$
  */
 
-public class InterceptorManager  
+public class InterceptorManager
 {
     private Interceptor[] client_req_interceptors = null;
     private Interceptor[] server_req_interceptors = null;
     private Interceptor[] ior_interceptors = null;
+    private int[] profile_tags = null;
 
     private org.omg.CORBA.ORB orb = null;
     private int current_slots = 0;
@@ -47,26 +48,25 @@ public class InterceptorManager
 
     public static final PICurrentImpl EMPTY_CURRENT = new PICurrentImpl(null, 0);
 
-
     public InterceptorManager(Vector client_interceptors,
                               Vector server_interceptors,
                               Vector ior_intercept,
                               int slot_count,
-                              org.omg.CORBA.ORB orb) 
+                              org.omg.CORBA.ORB orb)
     {
-        logger = 
+        logger =
             ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.orb.interceptors");
-        
+
         if (logger.isInfoEnabled())
         {
-            logger.info("InterceptorManager started with " + 
-                        server_interceptors.size() +" SIs, " 
+            logger.info("InterceptorManager started with " +
+                        server_interceptors.size() +" SIs, "
                         + client_interceptors.size() + " CIs and " +
                         ior_intercept.size() + " IORIs");
         }
 
         //build sorted arrays of interceptors
-        client_req_interceptors = 
+        client_req_interceptors =
             new ClientRequestInterceptor[client_interceptors.size()];
 
         //selection sort
@@ -83,7 +83,7 @@ public class InterceptorManager
                     min_index = _i;
                 }
 
-            client_req_interceptors[j] = (ClientRequestInterceptor) 
+            client_req_interceptors[j] = (ClientRequestInterceptor)
                 client_interceptors.elementAt(min_index);
             client_interceptors.removeElementAt(min_index);
         }
@@ -104,10 +104,10 @@ public class InterceptorManager
                     min_index = _i;
                 }
 
-            server_req_interceptors[j] = (ServerRequestInterceptor) 
+            server_req_interceptors[j] = (ServerRequestInterceptor)
                 server_interceptors.elementAt(min_index);
 
-            server_interceptors.removeElementAt(min_index);   
+            server_interceptors.removeElementAt(min_index);
         }
 
 
@@ -123,19 +123,19 @@ public class InterceptorManager
                     min = ((IORInterceptor) ior_intercept.elementAt(_i)).name();
                     min_index = _i;
                 }
-	   
+
             ior_interceptors[j] = (IORInterceptor) ior_intercept.
                 elementAt(min_index);
 
             ior_intercept.removeElementAt(min_index);
         }
-      
+
         this.orb = orb;
         current_slots = slot_count;
     }
 
     /**
-     * This method returns a thread specific PICurrent. 
+     * This method returns a thread specific PICurrent.
      */
     public Current getCurrent()
     {
@@ -198,10 +198,18 @@ public class InterceptorManager
      */
     public IORInterceptorIterator getIORIterator()
     {
-        return new IORInterceptorIterator(ior_interceptors);
+        return new IORInterceptorIterator(ior_interceptors, profile_tags);
     }
 
-  
+
+    /**
+     * Assign the array of profile tags to be passed to the IORInterceptors
+     */
+    public void setProfileTags (int [] ptags)
+    {
+        profile_tags = ptags;
+    }
+
     /**
      * Test, if the manager has ClientRequestInterceptors
      */
@@ -254,5 +262,3 @@ public class InterceptorManager
 
     }
 } // InterceptorManager
-
-
