@@ -64,5 +64,7 @@ public class CodeSetInfoInterceptor
 
         info.add_ior_component_to_profile( tagc, 
                                            org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value );
+        info.add_ior_component_to_profile( tagc, 
+                                           org.omg.IOP.TAG_INTERNET_IOP.value );
     }
 }
