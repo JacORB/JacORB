@@ -66,24 +66,15 @@ public class PingObject
         }
         else
         {
-            boolean non_exist = true;
             try
             {
-                o._non_existent();
+                System.out.println("Object exists: "  + (!o._non_existent()));
             }
             catch (org.omg.CORBA.SystemException e)
             {
-                non_exist = true;
+                System.out.println("Object not reachable! (Exception: " + e + ")");
             }
-            
-            if( non_exist )
-            {
-                System.out.println("Object not reachable!");
-            }
-            else
-            {
-                System.out.println("Object is alive! ");
-            }
+
         }
     }
 }
