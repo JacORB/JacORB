@@ -580,7 +580,7 @@ public final class Delegate
         if (p != null)
             return ((org.omg.Messaging.SyncScopePolicy)p).synchronization();
         else
-            return ((org.omg.Messaging.SYNC_NONE.value));
+            return ((org.omg.Messaging.SYNC_WITH_TRANSPORT.value));
     }
 
     /**
