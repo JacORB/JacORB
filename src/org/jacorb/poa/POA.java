@@ -891,11 +891,20 @@ public class POA
     }
 
 
-    private byte[] generateObjectId() {
-        if (isPersistent()) {
+    /**
+     * <code>generateObjectId</code> creates a new ObjectId for an object.
+     *
+     * @return a <code>byte[]</code> value.
+     */
+    private synchronized byte[] generateObjectId()
+    {
+        if (isPersistent())
+        {
             return IdUtil.concat(IdUtil.createId(4), watermark);
-
-        } else {
+        }
+        else
+        {
+            // Synchonize as the increment is not an atomic operation.
             return IdUtil.concat(IdUtil.toId(objectIdCount++), watermark);
         }
     }
@@ -1389,7 +1398,7 @@ public class POA
 
         ByteArrayKey oid = new ByteArrayKey (objectId);
 
-        if ( ( aom != null && aom.isDeactivating (oid) ) 
+        if ( ( aom != null && aom.isDeactivating (oid) )
              || requestController.isDeactivating (oid))
         {
             if (logTrace.test(0))
