@@ -499,8 +499,7 @@ class StructType
 	    if( !dir.exists() )
 		if( !dir.mkdirs())
 		{
-		    System.err.println("Unable to create " + path );
-		    System.exit(1);
+                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );	
 		}
 
 	    /** print the mapped java class */

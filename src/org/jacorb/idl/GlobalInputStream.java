@@ -162,8 +162,8 @@ public class GlobalInputStream
 	{
 	    if( path_names == null )
 	    {
-		System.err.println("File " + fname + " not found in include path");
-		System.exit(1);
+                org.jacorb.idl.parser.fatal_error( "File " + fname + 
+                                                   " not found in include path", null);
 	    }
 	    else
 	    {
@@ -179,8 +179,9 @@ public class GlobalInputStream
 		    {}
 		}
 	    }
-	    System.err.println("File " + fname + " not found in include path");
-	    System.exit(1);
+
+            org.jacorb.idl.parser.fatal_error( "File " + fname + 
+                                               " not found in include path", null);
 	    return null;
 	}
     }

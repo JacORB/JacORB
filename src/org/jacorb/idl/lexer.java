@@ -323,10 +323,9 @@ public class lexer
         }
         catch (Exception e)
         {
-            System.err.println("Cannot read from file " + 
-                               GlobalInputStream.currentFile().getAbsolutePath() + 
-                               ", please check file name.");
-            System.exit(1);
+            org.jacorb.idl.parser.fatal_error( "Cannot read from file " + 
+                                               GlobalInputStream.currentFile().getAbsolutePath() + 
+                                               ", please check file name.", null);
         }
 
         if (next_char == EOF_CHAR) 
