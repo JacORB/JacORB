@@ -871,10 +871,18 @@ public class TCLTest extends NotificationTestCase
 
     public void testAccessNonExistingStructMember() throws Exception
     {
-        runEvaluation( testPerson_, "$not_exist == 3", "FALSE");
-        runEvaluation( testPerson_, "3 == $not_exist", "FALSE");
+        try {
+            runEvaluation( testPerson_, "$.not_exist");
+            fail();
+        } catch (EvaluationException e) {}
     }
 
+    public void testAccessNonExistingRuntimeVariable() throws Exception {
+        try {
+            runEvaluation(testPerson_, "$not_exist");
+            fail();
+        } catch (EvaluationException e) {}
+    }
 
     public void testLTEforwardsVisitorBug() throws Exception
     {
