@@ -97,7 +97,6 @@ public class SequenceProxyPushSupplierImpl
 
     public SequenceProxyPushSupplierImpl( AbstractAdmin myAdminServant,
                                           ChannelContext channelContext)
-        throws UnsupportedQoS
     {
         super( myAdminServant,
                channelContext);
@@ -119,8 +118,7 @@ public class SequenceProxyPushSupplierImpl
                     catch ( InterruptedException e )
                     {}
                 }
-            }
-            ;
+            };
     }
 
     ////////////////////////////////////////
@@ -136,53 +134,45 @@ public class SequenceProxyPushSupplierImpl
 
 
     // overwrite
-    public void deliverMessage( Message event )
+    public void deliverMessage( Message event ) throws Disconnected
     {
         if (logger_.isDebugEnabled())
         {
             logger_.debug( "deliverEvent connected="
-                           + connected_
+                           + isConnected()
                            + " active="
                            + active_
                            + " enabled="
                            + enabled_ );
         }
 
-        if ( connected_ )
-        {
-            try
+        if ( isConnected() )
             {
                 enqueue(event);
 
                 if ( active_ && enabled_) // && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
-                {
-                    deliverPendingEvents(false);
-                }
+                    {
+                        deliverPendingEvents(false);
+                    }
 
             }
-            catch ( NotConnected d )
-            {
-                connected_ = false;
-                logger_.debug( "push failed - Recipient is Disconnected" );
-            }
-        }
         else
-        {
-            logger_.debug( "Not connected" );
-        }
+            {
+                logger_.debug( "Not connected" );
+            }
     }
 
 
     /**
      * overrides the superclass version.
      */
-    public void deliverPendingMessages() throws NotConnected
+    public void deliverPendingMessages() throws Disconnected
     {
         deliverPendingEvents(true);
     }
 
 
-    private void deliverPendingEvents(boolean force) throws NotConnected
+    private void deliverPendingEvents(boolean force) throws Disconnected
     {
         logger_.debug( "deliverPendingEvents()" );
 
@@ -211,14 +201,7 @@ public class SequenceProxyPushSupplierImpl
                 _messages[x] = null;
             }
 
-            try
-            {
-                sequencePushConsumer_.push_structured_events( _eventsToDeliver );
-            }
-            catch ( Disconnected d )
-            {
-                throw new NotConnected();
-            }
+            sequencePushConsumer_.push_structured_events( _eventsToDeliver );
         }
     }
 
@@ -230,13 +213,12 @@ public class SequenceProxyPushSupplierImpl
     {
         logger_.debug( "connect_sequence_push_consumer" );
 
-        if ( connected_ )
-        {
-            throw new AlreadyConnected();
-        }
+        assertNotConnected();
 
         sequencePushConsumer_ = consumer;
-        connected_ = true;
+
+        connectClient(consumer);
+
         active_ = true;
 
         try {
@@ -253,24 +235,24 @@ public class SequenceProxyPushSupplierImpl
         throws NotConnected,
                ConnectionAlreadyActive
     {
-        if ( !connected_ )
-        {
-            throw new NotConnected();
-        }
+        assertConnected();
 
         if ( active_ )
         {
             throw new ConnectionAlreadyActive();
         }
 
-        active_ = true;
-
-        if ( hasPendingMessages() )
-        {
+        try {
             deliverPendingMessages();
-        }
 
-        startCronJob();
+            active_ = true;
+
+            startCronJob();
+        } catch (Disconnected e) {
+            logger_.error("Illegal State: PushConsumer thinks it is disconnected. SequenceProxyPushSupplier thinks it is connected", e);
+
+            dispose();
+        }
     }
 
 
@@ -291,17 +273,10 @@ public class SequenceProxyPushSupplierImpl
 
     protected void disconnectClient()
     {
-        if ( connected_ )
-        {
-            if ( sequencePushConsumer_ != null )
-            {
-                stopCronJob();
+        stopCronJob();
 
-                sequencePushConsumer_.disconnect_sequence_push_consumer();
-                sequencePushConsumer_ = null;
-                connected_ = false;
-            }
-        }
+        sequencePushConsumer_.disconnect_sequence_push_consumer();
+        sequencePushConsumer_ = null;
     }
 
 

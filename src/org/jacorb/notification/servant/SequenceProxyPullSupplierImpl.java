@@ -68,7 +68,6 @@ public class SequenceProxyPullSupplierImpl
 
     public SequenceProxyPullSupplierImpl( AbstractAdmin myAdminServant,
                                           ChannelContext channelContext)
-        throws UnsupportedQoS
     {
         super( myAdminServant,
                channelContext );
@@ -81,13 +80,11 @@ public class SequenceProxyPullSupplierImpl
     public void connect_sequence_pull_consumer( SequencePullConsumer consumer )
         throws AlreadyConnected
     {
-        if ( connected_ )
-        {
-            throw new AlreadyConnected();
-        }
+	assertNotConnected();
 
-        connected_ = true;
         sequencePullConsumer_ = consumer;
+	
+	connectClient(consumer);
 
         try {
             offerListener_ = NotifyPublishHelper.narrow(consumer);
@@ -97,8 +94,6 @@ public class SequenceProxyPullSupplierImpl
 
     public StructuredEvent[] pull_structured_events( int number ) throws Disconnected
     {
-        checkConnected();
-
         StructuredEvent[] _event = null;
         BooleanHolder _hasEvent = new BooleanHolder();
         StructuredEvent _ret[] = sUndefinedSequence;
@@ -119,9 +114,7 @@ public class SequenceProxyPullSupplierImpl
     public StructuredEvent[] try_pull_structured_events( int number,
                                                          BooleanHolder success )
         throws Disconnected
-    {
-        checkConnected();
-
+    {      
         Message[] _events = getUpToMessages(number);
 
         if (_events != null)
@@ -163,15 +156,8 @@ public class SequenceProxyPullSupplierImpl
 
     protected void disconnectClient()
     {
-        if ( connected_ )
-        {
-            if ( sequencePullConsumer_ != null )
-            {
-                sequencePullConsumer_.disconnect_sequence_pull_consumer();
-                connected_ = false;
-                sequencePullConsumer_ = null;
-            }
-        }
+	sequencePullConsumer_.disconnect_sequence_pull_consumer();
+	sequencePullConsumer_ = null;
     }
 
 

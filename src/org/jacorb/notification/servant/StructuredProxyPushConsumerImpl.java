@@ -21,7 +21,6 @@ package org.jacorb.notification.servant;
  *
  */
 
-
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.interfaces.Message;
 
@@ -63,9 +62,6 @@ public class StructuredProxyPushConsumerImpl
     ////////////////////////////////////////
 
     public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
-
-        checkConnected();
-
         Message _mesg =
             messageFactory_.newMessage(structuredEvent, this);
 
@@ -81,25 +77,19 @@ public class StructuredProxyPushConsumerImpl
 
 
     protected void disconnectClient() {
-        if (connected_) {
-            if (pushSupplier_ != null) {
-                connected_ = false;
-                pushSupplier_.disconnect_structured_push_supplier();
-                pushSupplier_ = null;
-            }
-        }
+        pushSupplier_.disconnect_structured_push_supplier();
+        pushSupplier_ = null;
     }
 
 
     public void connect_structured_push_supplier(StructuredPushSupplier structuredPushSupplier)
         throws AlreadyConnected {
 
-        if (connected_) {
-            throw new AlreadyConnected();
-        }
+        assertNotConnected();
 
-        connected_ = true;
         pushSupplier_ = structuredPushSupplier;
+
+        connectClient(structuredPushSupplier);
 
         subscriptionListener_ = NotifySubscribeHelper.narrow(structuredPushSupplier);
     }

@@ -67,6 +67,10 @@ public class PullFromSupplierTask extends AbstractTask
 
     public void handleTaskError(AbstractTask task, Throwable error) {
         logger_.fatalError("Error in Task: " + task, error);
+
+        if (error instanceof Disconnected) {
+            target_.dispose();
+        }
     }
 
 

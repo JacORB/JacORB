@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.EventChannelImpl;
@@ -38,9 +37,10 @@ import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
+import org.jacorb.notification.interfaces.ProxyEvent;
+import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.util.Debug;
 
-import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
@@ -59,6 +59,7 @@ import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
 
@@ -81,56 +82,57 @@ public abstract class AbstractAdmin
     protected static final InterFilterGroupOperator
         DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
 
-    protected static final int NO_ID = 0;
-
-    protected ChannelContext channelContext_;
-
     ////////////////////////////////////////
 
     protected Logger logger_ =
         Debug.getNamedLogger( getClass().getName() );
 
-    private Integer key_;
+    protected OfferManager offerManager_;
 
-    private boolean isKeyPublic_;
+    protected SubscriptionManager subscriptionManager_;
+
+    protected final Object modifyProxiesLock_ = new Object();
+
+    protected final Map pullServants_ = new HashMap();
+
+    protected final Map pushServants_ = new HashMap();
+
+    private ChannelContext channelContext_;
+
+    private Integer id_;
+
+    private boolean isIDPublic_;
 
     private POA poa_;
 
     private ORB orb_;
 
-    private EventChannelImpl eventChannelServant_;
+    private InterFilterGroupOperator filterGroupOperator_;
 
-    protected InterFilterGroupOperator filterGroupOperator_;
-
-    protected FilterManager filterManager_;
+    private FilterManager filterManager_;
 
     private SynchronizedInt proxyIdPool_ = new SynchronizedInt(0);
 
-    protected Object modifyProxiesLock_ = new Object();
+    private QoSPropertySet qosSettings_ = new QoSPropertySet(QoSPropertySet.ADMIN_QOS);
 
-    protected Map pullServants_ = new HashMap();
+    private AdminPropertySet adminSettings_ = new AdminPropertySet();
 
-    protected Map pushServants_ = new HashMap();
+    private SynchronizedBoolean disposed_ = new SynchronizedBoolean(false);
 
-    protected QoSPropertySet qosSettings_ = new QoSPropertySet(QoSPropertySet.ADMIN_QOS);
+    private List proxyCreationRequestEventListeners_ = new ArrayList();
 
-    protected AdminPropertySet adminSettings_ = new AdminPropertySet();
+    private List proxyEventListener_ = new ArrayList();
 
-    protected boolean disposed_ = false;
-
-    protected List seqProxyCreationRequestEventListener_ = new Vector();
-
-    protected OfferManager offerManager_;
-
-    protected SubscriptionManager subscriptionManager_;
+    /**
+     * hook that is run during dispose
+     */
+    private Runnable disposeHook_;
 
     ////////////////////////////////////////
 
     protected AbstractAdmin(ChannelContext channelContext)
     {
         channelContext_ = channelContext;
-
-        eventChannelServant_ = channelContext_.getEventChannelServant();
 
         filterManager_ =
             new FilterManager(channelContext_);
@@ -142,21 +144,31 @@ public abstract class AbstractAdmin
 
     ////////////////////////////////////////
 
+    public ChannelContext getChannelContext() {
+        return channelContext_;
+    }
+
+
+    public void setDisposeHook(Runnable disposeHook) {
+        disposeHook_ = disposeHook;
+    }
+
+
     public void setInterFilterGroupOperator(InterFilterGroupOperator op)
     {
         filterGroupOperator_ = op;
     }
 
 
-    public void setKey(Integer key)
+    public void setID(Integer id)
     {
-        key_ = key;
+        id_ = id;
     }
 
 
-    public void setIsKeyPublic(boolean isKeyPublic)
+    public void setIsIDPublic(boolean isIDPublic)
     {
-        isKeyPublic_ = isKeyPublic;
+        isIDPublic_ = isIDPublic;
     }
 
 
@@ -192,13 +204,13 @@ public abstract class AbstractAdmin
 
     protected EventChannelImpl getChannelServant()
     {
-        return eventChannelServant_;
+        return channelContext_.getEventChannelServant();
     }
 
 
     private EventChannel getChannel()
     {
-        return EventChannelHelper.narrow(eventChannelServant_.activate());
+        return EventChannelHelper.narrow(getChannelServant().activate());
     }
 
 
@@ -264,7 +276,7 @@ public abstract class AbstractAdmin
 
     public int MyID()
     {
-        return key_.intValue();
+        return getID().intValue();
     }
 
 
@@ -282,11 +294,11 @@ public abstract class AbstractAdmin
     }
 
 
-    public void validate_qos( Property[] aPropertySeq,
+    public void validate_qos( Property[] props,
                               NamedPropertyRangeSeqHolder propertyRangeSeqHolder )
         throws UnsupportedQoS
     {
-        throw new NO_IMPLEMENT("The method validate_qos is not supported yet");
+        qosSettings_.validate_qos(props, propertyRangeSeqHolder);
     }
 
 
@@ -296,30 +308,19 @@ public abstract class AbstractAdmin
     }
 
 
-    public void dispose()
-    {
-        synchronized (this) {
-            if (!disposed_) {
-                disposed_ = true;
-            } else {
-                throw new OBJECT_NOT_EXIST();
-            }
+    private void checkDisposalStatus() throws OBJECT_NOT_EXIST {
+        if (disposed_.get()) {
+            throw new OBJECT_NOT_EXIST();
         }
+        disposed_.set(true);
+    }
 
-        //////////////////////////////
 
-        getChannelServant().removeAdmin( this );
-
-        //////////////////////////////
-
-        remove_all_filters();
-
-        //////////////////////////////
-
-        logger_.debug("dispose PushServants");
-        Iterator _i;
-
+    private void disposeProxies() {
         synchronized(modifyProxiesLock_) {
+            logger_.debug("dispose PushServants");
+
+            Iterator _i;
             _i = pushServants_.values().iterator();
 
             while ( _i.hasNext() )
@@ -367,8 +368,30 @@ public abstract class AbstractAdmin
     }
 
 
+    public void dispose()
+    {
+        checkDisposalStatus();
+
+        //////////////////////////////
+
+        deactivate();
+
+        //////////////////////////////
+
+        remove_all_filters();
+
+        //////////////////////////////
+
+        disposeProxies();
+
+        //////////////////////////////
+
+        disposeHook_.run();
+    }
+
+
     public void deactivate() {
-        logger_.debug( "deactivate Object" );
+        logger_.debug( "deactivate Admin" );
 
         try
             {
@@ -377,8 +400,7 @@ public abstract class AbstractAdmin
             }
         catch ( Exception e )
             {
-                logger_.fatalError("Couldn't deactivate Object", e);
-                throw new RuntimeException();
+                logger_.fatalError("Couldn't deactivate Admin", e);
             }
     }
 
@@ -386,70 +408,82 @@ public abstract class AbstractAdmin
     abstract Servant getServant();
 
 
-    public Integer getKey()
+    public Integer getID()
     {
-        return key_;
+        return id_;
     }
 
 
     public boolean isDisposed()
     {
-        return disposed_;
+        return disposed_.get();
     }
 
 
     public void addProxyCreationEventListener( ProxyCreationRequestEventListener listener )
     {
-        seqProxyCreationRequestEventListener_.add( listener );
+        synchronized(proxyCreationRequestEventListeners_) {
+            proxyCreationRequestEventListeners_.add( listener );
+        }
     }
 
 
     public void removeProxyCreationEventListener( ProxyCreationRequestEventListener listener )
     {
-        if ( seqProxyCreationRequestEventListener_ != null )
-        {
-            seqProxyCreationRequestEventListener_.remove( listener );
+        synchronized(proxyCreationRequestEventListeners_) {
+            proxyCreationRequestEventListeners_.remove( listener );
         }
     }
 
 
     protected void fireCreateProxyRequestEvent() throws AdminLimitExceeded
     {
-        if ( seqProxyCreationRequestEventListener_ != null )
-        {
+        synchronized( proxyCreationRequestEventListeners_ ) {
             ProxyCreationRequestEvent _event =
                 new ProxyCreationRequestEvent( this );
 
-            Iterator _i = seqProxyCreationRequestEventListener_.iterator();
+            Iterator _i = proxyCreationRequestEventListeners_.iterator();
 
             while ( _i.hasNext() )
-            {
-                ProxyCreationRequestEventListener _pcrListener;
-                _pcrListener = ( ProxyCreationRequestEventListener ) _i.next();
-                _pcrListener.actionProxyCreationRequest( _event );
-            }
+                {
+                    ProxyCreationRequestEventListener _listener;
+                    _listener = ( ProxyCreationRequestEventListener ) _i.next();
+                    _listener.actionProxyCreationRequest( _event );
+                }
         }
     }
 
 
+    /**
+     * admin does not have a lifetime filter
+     */
     public boolean hasLifetimeFilter()
     {
         return false;
     }
 
 
+    /**
+     * admin does not have a priority filter
+     */
     public boolean hasPriorityFilter()
     {
         return false;
     }
 
 
+    /**
+     * admin does not have a lifetime filter
+     */
     public MappingFilter getLifetimeFilter()
     {
         throw new UnsupportedOperationException();
     }
 
 
+    /**
+     * admin does not have a priority filter
+     */
     public MappingFilter getPriorityFilter()
     {
         throw new UnsupportedOperationException();
@@ -466,33 +500,55 @@ public abstract class AbstractAdmin
     }
 
 
-    protected AbstractProxy getProxy(int key) throws ProxyNotFound
+    public boolean hasInterFilterGroupOperatorOR()
     {
-        Integer _key = new Integer(key);
+        return (filterGroupOperator_ != null &&
+                (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP) );
+    }
+
+
+    /**
+     * fetch the proxy specified by the provided id. this method will
+     * not access an event style proxy.
+     */
+    protected AbstractProxy getProxy(int id) throws ProxyNotFound
+    {
+        Integer _id = new Integer(id);
+
         AbstractProxy _servant = null;
 
         synchronized (modifyProxiesLock_)
         {
-            _servant = (AbstractProxy)pullServants_.get(_key);
+            _servant = (AbstractProxy)pullServants_.get(_id);
 
             if (_servant == null)
             {
-                _servant = (AbstractProxy)pullServants_.get(_key);
+                _servant = (AbstractProxy)pullServants_.get(_id);
             }
         }
 
-        if (_servant == null || !_servant.isKeyPublic() )
+        if (_servant == null)
         {
-            throw new ProxyNotFound("The ProxyConsumer with ID=" + key + " does not exist");
+            throw new ProxyNotFound("The proxy with ID=" + id + " does not exist");
+        }
+
+        if ( !_servant.isKeyPublic() ) {
+            throw new ProxyNotFound("The proxy with ID="
+                                    + id
+                                    + " is a EventStyle proxy and therefor not accessible");
         }
 
         return _servant;
     }
 
 
+    /**
+     * return the ID's for all NotifyStyle proxies stored in the
+     * provided Map.
+     */
     protected int[] get_all_notify_proxies(Map map, Object lock)
     {
-        List _allKeys = new ArrayList();
+        List _allIDsList = new ArrayList();
 
         synchronized (lock)
         {
@@ -503,30 +559,50 @@ public abstract class AbstractAdmin
                 Map.Entry _entry = (Map.Entry)_i.next();
 
                 if ( ( (AbstractProxy)_entry.getValue() ).isKeyPublic() ) {
-                    _allKeys.add(_entry.getKey());
+                    _allIDsList.add(_entry.getKey());
                 }
 
             }
         }
 
-        int[] _allKeysArray = new int[_allKeys.size()];
-        for (int x=0; x<_allKeysArray.length; ++x) {
-            _allKeysArray[x] = ((Integer)_allKeys.get(x)).intValue();
+        int[] _allIDsArray = new int[_allIDsList.size()];
+
+        for (int x=0; x<_allIDsArray.length; ++x) {
+            _allIDsArray[x] = ((Integer)_allIDsList.get(x)).intValue();
         }
-        return _allKeysArray;
+
+        return _allIDsArray;
     }
 
 
-    protected void configureEventStyleID(AbstractProxy servant) {
-        servant.setKey(new Integer(getProxyID()), false);
+    /**
+     * configure a event style proxy. the key is only for internal
+     * use. especially the key cannot used to fetch the proxy via
+     * get_proxy_consumer or get_proxy_supplier.
+     */
+    protected void configureEventStyleID(AbstractProxy proxy) {
+        proxy.setKey(new Integer(getProxyID()), false);
 
-        servant.setFilterManager( FilterManager.EMPTY_FILTER_MANAGER );
+        proxy.setFilterManager( FilterManager.EMPTY_FILTER_MANAGER );
     }
 
 
-    protected void configureQoS(AbstractProxy servant)  {
+    /**
+     * configure the ID for a notify style proxy. the id is
+     * public. the proxy can be accessed via a call to
+     * get_proxy_consumer or get_proxy_supplier.
+     */
+    protected void configureNotifyStyleID(AbstractProxy proxy) {
+        proxy.setKey(new Integer(getProxyID()), true);
+    }
+
+
+    /**
+     * configure initial QoS Settings for a proxy.
+     */
+    protected void configureQoS(AbstractProxy proxy)  {
         try {
-            servant.set_qos(qosSettings_.get_qos());
+            proxy.set_qos(qosSettings_.get_qos());
         } catch (UnsupportedQoS e) {
             logger_.fatalError("unexpected exception", e);
 
@@ -535,22 +611,95 @@ public abstract class AbstractAdmin
     }
 
 
-    protected void configureNotifyStyleID(AbstractProxy servant) {
-        servant.setKey(new Integer(getProxyID()), true);
-    }
-
-
-    protected void configureInterFilterGroupOperator(AbstractProxy servant) {
+    /**
+     * configure the InterFilterGroupOperator a proxy should use.
+     */
+    protected void configureInterFilterGroupOperator(AbstractProxy proxy) {
         if ( filterGroupOperator_ != null &&
              (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP ) )
             {
-                servant.setInterFilterGroupOperatorOR( true );
+                proxy.setInterFilterGroupOperatorOR( true );
             }
     }
 
 
-    protected void configureManagers(AbstractProxy servant) {
-        servant.setOfferManager(offerManager_);
-        servant.setSubscriptionManager(subscriptionManager_);
+    /**
+     * configure OfferManager and SubscriptionManager for a proxy.
+     */
+    protected void configureManagers(AbstractProxy proxy) {
+        proxy.setOfferManager(offerManager_);
+        proxy.setSubscriptionManager(subscriptionManager_);
+    }
+
+
+    /**
+     * satisfy method implementation
+     */
+    public void preActivate() {
+    }
+
+
+    public void addProxyEventListener( ProxyEventListener l )
+    {
+        synchronized(proxyEventListener_) {
+            proxyEventListener_.add( l );
+        }
+    }
+
+
+    public void removeProxyEventListener( ProxyEventListener l )
+    {
+        synchronized(proxyEventListener_) {
+            proxyEventListener_.remove( l );
+        }
+    }
+
+
+    private void fireProxyRemoved( AbstractProxy proxy )
+    {
+        synchronized(proxyEventListener_) {
+            Iterator i = proxyEventListener_.iterator();
+            ProxyEvent e = new ProxyEvent( proxy );
+
+            while ( i.hasNext() )
+            {
+                ( ( ProxyEventListener ) i.next() ).actionProxyDisposed( e );
+            }
+        }
+    }
+
+
+    private void fireProxyCreated( AbstractProxy proxy )
+    {
+        synchronized(proxyEventListener_) {
+            Iterator i = proxyEventListener_.iterator();
+            ProxyEvent e = new ProxyEvent( proxy );
+
+            while ( i.hasNext() )
+                {
+                    ( ( ProxyEventListener ) i.next() ).actionProxyCreated( e );
+                }
+        }
+    }
+
+
+    protected void addProxyToMap(final AbstractProxy proxy,
+                                 final Map map,
+                                 final Object lock) {
+        synchronized(lock) {
+            map.put(proxy.getKey(), proxy);
+            fireProxyCreated(proxy);
+        }
+
+        // this hook is run when proxy.dispose() is called.
+        // it removes proxy from proxies again.
+        proxy.setDisposeHook(new Runnable() {
+                public void run() {
+                    synchronized(lock) {
+                        map.remove(proxy.getKey());
+                        fireProxyRemoved(proxy);
+                    }
+                }
+            });
     }
 }

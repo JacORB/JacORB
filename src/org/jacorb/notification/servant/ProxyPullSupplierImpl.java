@@ -69,7 +69,7 @@ public class ProxyPullSupplierImpl
     ////////////////////////////////////////
 
     ProxyPullSupplierImpl(AbstractAdmin admin,
-                          ChannelContext channelContext) throws UnsupportedQoS
+                          ChannelContext channelContext)
     {
 
         super(admin,
@@ -100,14 +100,11 @@ public class ProxyPullSupplierImpl
 
     public Any pull() throws Disconnected
     {
-        checkConnected();
-
         try
         {
             Message _event = getMessageBlocking();
             try
             {
-                logger_.debug("return from pull()");
                 return _event.toAny();
             }
             finally
@@ -127,9 +124,8 @@ public class ProxyPullSupplierImpl
     public Any try_pull (BooleanHolder hasEvent)
         throws Disconnected
     {
-        checkConnected();
-
         Any event = sUndefinedAny;
+
         hasEvent.value = false;
 
         Message _message = getMessageNoBlock();
@@ -139,6 +135,7 @@ public class ProxyPullSupplierImpl
             try
             {
                 hasEvent.value = true;
+
                 return _message.toAny();
             }
             finally
@@ -149,6 +146,7 @@ public class ProxyPullSupplierImpl
         else
         {
             hasEvent.value = false;
+
             return sUndefinedAny;
         }
     }
@@ -170,17 +168,16 @@ public class ProxyPullSupplierImpl
     {
         logger_.info("connect any_pull_consumer");
 
-        if (connected_)
-        {
-            throw new AlreadyConnected();
-        }
+        assertNotConnected();
 
-        connected_ = true;
         pullConsumer_ = consumer;
+
+        connectClient(consumer);
 
         try {
             offerListener_ = NotifyPublishHelper.narrow(pullConsumer_);
         } catch (Throwable t) {
+            logger_.info("disable offer_change for PullConsumer");
         }
     }
 

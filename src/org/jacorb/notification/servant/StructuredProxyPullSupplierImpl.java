@@ -37,7 +37,6 @@ import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierOperations;
@@ -53,8 +52,8 @@ import org.omg.PortableServer.Servant;
  */
 
 public class StructuredProxyPullSupplierImpl
-    extends AbstractProxySupplier
-    implements StructuredProxyPullSupplierOperations
+            extends AbstractProxySupplier
+            implements StructuredProxyPullSupplierOperations
 {
     /**
      * undefined StructuredEvent that is returned on unsuccessful pull operations.
@@ -85,7 +84,6 @@ public class StructuredProxyPullSupplierImpl
 
     public StructuredProxyPullSupplierImpl( AbstractAdmin myAdminServant,
                                             ChannelContext channelContext)
-        throws UnsupportedQoS
     {
         super( myAdminServant,
                channelContext );
@@ -98,35 +96,42 @@ public class StructuredProxyPullSupplierImpl
     public void connect_structured_pull_consumer( StructuredPullConsumer consumer )
         throws AlreadyConnected
     {
-        if ( connected_ )
-            {
-            throw new AlreadyConnected();
-        }
+        assertNotConnected();
 
-        connected_ = true;
         structuredPullConsumer_ = consumer;
 
-        try {
+        connectClient(consumer);
+
+        try
+        {
             offerListener_ = NotifyPublishHelper.narrow(consumer);
-        } catch (Throwable t) {}
+        }
+        catch (Throwable t)
+        {
+            logger_.info("disable offer_change for StructuredPullConsumer");
+        }
     }
 
 
     public StructuredEvent pull_structured_event()
         throws Disconnected
     {
-        checkConnected();
-
         Message _message = null;
 
-        try {
+        try
+        {
             _message = getMessageBlocking();
 
             return _message.toStructuredEvent();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             return undefinedStructuredEvent_;
-        } finally {
-            if (_message != null) {
+        }
+        finally
+        {
+            if (_message != null)
+            {
                 _message.dispose();
             }
         }
@@ -136,20 +141,24 @@ public class StructuredProxyPullSupplierImpl
     public StructuredEvent try_pull_structured_event( BooleanHolder hasEvent )
         throws Disconnected
     {
-        checkConnected();
-
         Message _notificationEvent =
             getMessageNoBlock();
 
-        if (_notificationEvent != null) {
-            try {
+        if (_notificationEvent != null)
+        {
+            try
+            {
                 hasEvent.value = true;
 
                 return _notificationEvent.toStructuredEvent();
-            } finally {
+            }
+            finally
+            {
                 _notificationEvent.dispose();
             }
-        } else {
+        }
+        else
+        {
             hasEvent.value = false;
 
             return undefinedStructuredEvent_;
@@ -165,15 +174,8 @@ public class StructuredProxyPullSupplierImpl
 
     protected void disconnectClient()
     {
-        if ( connected_ )
-        {
-            if ( structuredPullConsumer_ != null )
-            {
-                structuredPullConsumer_.disconnect_structured_pull_consumer();
-                connected_ = false;
-                structuredPullConsumer_ = null;
-            }
-        }
+        structuredPullConsumer_.disconnect_structured_pull_consumer();
+        structuredPullConsumer_ = null;
     }
 
 
@@ -225,20 +227,22 @@ public class StructuredProxyPullSupplierImpl
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-            {
-                thisServant_ = new StructuredProxyPullSupplierPOATie( this );
-            }
+        {
+            thisServant_ = new StructuredProxyPullSupplierPOATie( this );
+        }
 
         return thisServant_;
     }
 
 
-    public org.omg.CORBA.Object activate() {
+    public org.omg.CORBA.Object activate()
+    {
         return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 
 
-    NotifyPublishOperations getOfferListener() {
+    NotifyPublishOperations getOfferListener()
+    {
         return offerListener_;
     }
 }

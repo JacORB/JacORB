@@ -64,24 +64,16 @@ public class ProxyPushSupplierImpl
 
     ProxyPushSupplierImpl(AbstractAdmin myAdminServant,
                           ChannelContext channelContext)
-        throws UnsupportedQoS
     {
         super(myAdminServant,
               channelContext);
 
         setProxyType(ProxyType.PUSH_ANY);
 
-        connected_ = false;
         enabled_ = true;
     }
 
     ////////////////////////////////////////
-
-    public String toString()
-    {
-        return "<ProxyPushSupplier connected: " + connected_ + ">";
-    }
-
 
     public void disconnect_push_supplier()
     {
@@ -91,37 +83,25 @@ public class ProxyPushSupplierImpl
 
     protected void disconnectClient()
     {
-        if (pushConsumer_ != null)
-        {
-            pushConsumer_.disconnect_push_consumer();
-            pushConsumer_ = null;
-            connected_ = false;
-        }
+        pushConsumer_.disconnect_push_consumer();
+        pushConsumer_ = null;
     }
 
 
-    public void deliverMessage(Message event)
+    public void deliverMessage(Message event) throws Disconnected
     {
-        if (connected_)
+        if (isConnected())
         {
-            try
-            {
-                if (active_ && enabled_)
+            if (active_ && enabled_)
                 {
                     pushConsumer_.push(event.toAny());
 
                     event.dispose();
                 }
-                else
+            else
                 {
                     enqueue(event);
                 }
-            }
-            catch (Disconnected e)
-            {
-                connected_ = false;
-                logger_.debug("push failed: Not connected");
-            }
         }
         else
         {
@@ -133,19 +113,12 @@ public class ProxyPushSupplierImpl
     public void connect_any_push_consumer(PushConsumer pushConsumer)
         throws AlreadyConnected
     {
-
-        if (connected_)
-        {
-            throw new AlreadyConnected();
-        }
-
-        if (pushConsumer == null)
-        {
-            throw new BAD_PARAM();
-        }
+        assertNotConnected();
 
         pushConsumer_ = pushConsumer;
-        connected_ = true;
+
+        connectClient(pushConsumer);
+
         active_ = true;
 
         try {
@@ -177,55 +150,45 @@ public class ProxyPushSupplierImpl
                ConnectionAlreadyInactive
     {
 
-        if (!connected_)
-        {
-            throw new NotConnected();
-        }
+        assertConnected();
 
         if (!active_)
         {
             throw new ConnectionAlreadyInactive();
         }
+
         active_ = false;
     }
 
 
     public void deliverPendingMessages()
-        throws NotConnected
+        throws Disconnected
     {
         Message[] _events = getAllMessages();
 
-        for (int x = 0; x < _events.length; ++x)
-        {
-            try
-            {
-                pushConsumer_.push(_events[x].toAny());
-            }
-            catch (Disconnected e)
-            {
-                connected_ = false;
-                throw new NotConnected();
-            }
-            finally
-            {
+        try {
+            for (int x = 0; x < _events.length; ++x)
+                {
+                    pushConsumer_.push(_events[x].toAny());
+                }
+        }
+        finally {
+            for (int x=0; x<_events.length; ++x) {
                 _events[x].dispose();
-                _events[x] = null;
             }
         }
     }
+
 
 
     public void resume_connection()
         throws NotConnected,
                ConnectionAlreadyActive
     {
+        assertConnected();
+
         synchronized (this)
         {
-            if (!connected_)
-            {
-                throw new NotConnected();
-            }
-
             if (active_)
             {
                 throw new ConnectionAlreadyActive();
@@ -234,7 +197,13 @@ public class ProxyPushSupplierImpl
             active_ = true;
         }
 
-        deliverPendingMessages();
+        try {
+            deliverPendingMessages();
+        } catch (Disconnected e) {
+            logger_.fatalError("illegal state: PushConsumer think it's disconnected. ProxyPushSupplier think it's connected", e);
+
+            dispose();
+        }
     }
 
 

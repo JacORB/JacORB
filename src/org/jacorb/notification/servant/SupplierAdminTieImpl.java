@@ -21,18 +21,12 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.interfaces.ProxyEvent;
-import org.jacorb.notification.interfaces.ProxyEventListener;
 
-import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
@@ -64,8 +58,6 @@ public class SupplierAdminTieImpl
 
     private SupplierAdmin thisCorbaRef_;
 
-    private List listProxyEventListener_ = new ArrayList();
-
     ////////////////////////////////////////
 
     public SupplierAdminTieImpl(ChannelContext channelContext)
@@ -83,10 +75,6 @@ public class SupplierAdminTieImpl
             }
 
         return thisCorbaServant_;
-    }
-
-
-    public void preActivate() {
     }
 
 
@@ -108,7 +96,6 @@ public class SupplierAdminTieImpl
         offerManager_.offer_change(added, removed);
     }
 
-    // Implementation of org.omg.CosNotifyChannelAdmin.SupplierAdminOperations
 
     /**
      * access the ids of all PullConsumers
@@ -132,66 +119,37 @@ public class SupplierAdminTieImpl
                                                             IntHolder intHolder )
         throws AdminLimitExceeded
     {
-        try {
-            AbstractProxy _servant = obtain_notification_pull_consumer_servant( clientType, intHolder );
+        fireCreateProxyRequestEvent();
 
-            Integer _key = _servant.getKey();
+        try {
+            AbstractProxy _servant = obtain_notification_pull_consumer_servant( clientType );
+
+            intHolder.value = _servant.getKey().intValue();
 
             _servant.preActivate();
 
-            ProxyConsumer _proxyConsumer = ProxyConsumerHelper.narrow( _servant.activate() );
-
-            fireProxyCreated( _servant );
-
-            return _proxyConsumer;
-        } catch (AdminLimitExceeded e) {
-            throw e;
+            return ProxyConsumerHelper.narrow( _servant.activate() );
         } catch (Exception e) {
-            logger_.fatalError("unexpected exception", e);
-            throw new RuntimeException();
+            logger_.fatalError("obtain_notification_pull_consumer: unexpected error", e);
+
+            throw new UNKNOWN();
         }
     }
 
 
-    public AbstractProxy obtain_notification_pull_consumer_servant( ClientType clientType,
-                                                                    IntHolder intHolder )
-        throws AdminLimitExceeded
+    private AbstractProxy obtain_notification_pull_consumer_servant( ClientType clientType )
     {
-        fireCreateProxyRequestEvent();
-
-        AbstractProxy _servant;
-
-        switch ( clientType.value() )
-            {
-            case ClientType._ANY_EVENT:
-                _servant = new ProxyPullConsumerImpl( this,
-                                                      channelContext_);
-                break;
-            case ClientType._STRUCTURED_EVENT:
-                _servant =
-                    new StructuredProxyPullConsumerImpl( this,
-                                                         channelContext_);
-                break;
-            case ClientType._SEQUENCE_EVENT:
-                _servant =
-                    new SequenceProxyPullConsumerImpl( this,
-                                                       channelContext_);
-                break;
-            default:
-                throw new BAD_PARAM("ClientType: " + clientType.value() + " unknown");
-            }
+        AbstractProxy _servant = AbstractProxyConsumer.newProxyPullConsumer(this, clientType);
 
         configureManagers(_servant);
 
         configureNotifyStyleID(_servant);
 
-        intHolder.value = _servant.getKey().intValue();
-
         configureInterFilterGroupOperator(_servant);
 
         configureQoS(_servant);
 
-        configureAdmin(_servant, modifyProxiesLock_, pullServants_);
+        addProxyToMap(_servant, pullServants_, modifyProxiesLock_);
 
         return _servant;
     }
@@ -204,93 +162,44 @@ public class SupplierAdminTieImpl
 
 
     public ProxyConsumer obtain_notification_push_consumer( ClientType clienttype,
-                                                            IntHolder intholder )
-        throws AdminLimitExceeded
-    {
-        try {
-            AbstractProxy _servant =
-                obtain_notification_push_consumer_servant( clienttype, intholder );
-
-            Integer _key = _servant.getKey();
-
-            _servant.preActivate();
-
-            ProxyConsumer _proxyConsumer = ProxyConsumerHelper.narrow( _servant.activate() );
-
-            fireProxyCreated( _servant );
-
-            return _proxyConsumer;
-        } catch (AdminLimitExceeded e) {
-            throw e;
-        } catch (Exception e) {
-            logger_.fatalError("unexpected exception", e);
-            throw new UNKNOWN();
-        }
-    }
-
-
-    public AbstractProxy obtain_notification_push_consumer_servant( ClientType clientType,
-                                                                    IntHolder intHolder )
+                                                            IntHolder intHolder )
         throws AdminLimitExceeded
     {
         // may throws AdminLimitExceeded
         fireCreateProxyRequestEvent();
 
-        AbstractProxy _servant;
+        try {
+            AbstractProxy _servant =
+                obtain_notification_push_consumer_servant( clienttype );
 
-        switch ( clientType.value() )
-            {
-            case ClientType._ANY_EVENT:
-                _servant = new ProxyPushConsumerImpl( this,
-                                                      channelContext_);
-                break;
-            case ClientType._STRUCTURED_EVENT:
-                _servant =
-                    new StructuredProxyPushConsumerImpl( this,
-                                                         channelContext_);
-                break;
-            case ClientType._SEQUENCE_EVENT:
-                _servant =
-                    new SequenceProxyPushConsumerImpl( this,
-                                                       channelContext_);
-                break;
+            intHolder.value =  _servant.getKey().intValue();
 
-            default:
-                throw new BAD_PARAM();
-            }
+            _servant.preActivate();
+
+            return ProxyConsumerHelper.narrow( _servant.activate() );
+        } catch (Exception e) {
+            logger_.fatalError("obtain_notification_push_consumer: unexpected error", e);
+
+            throw new UNKNOWN();
+        }
+    }
+
+
+    private AbstractProxy obtain_notification_push_consumer_servant( ClientType clientType )
+    {
+        AbstractProxy _servant = AbstractProxyConsumer.newProxyPushConsumer(this, clientType);
 
         configureManagers(_servant);
 
         configureNotifyStyleID(_servant);
 
-        intHolder.value = _servant.getKey().intValue();
-
         configureInterFilterGroupOperator(_servant);
 
         configureQoS(_servant);
 
-        configureAdmin(_servant, modifyProxiesLock_, pushServants_);
+        addProxyToMap(_servant, pushServants_, modifyProxiesLock_);
 
         return _servant;
-    }
-
-
-    private void configureAdmin(final AbstractProxy servant,
-                                final Object lock,
-                                final Map map) {
-        synchronized(lock) {
-            map.put(servant.getKey(), servant);
-        }
-
-        servant.setDisposeHook(new Runnable() {
-                public void run() {
-                    synchronized(lock) {
-                        map.remove(servant.getKey());
-
-                        fireProxyRemoved(servant);
-                    }
-                }
-            });
     }
 
     // Implementation of org.omg.CosEventChannelAdmin.SupplierAdminOperations
@@ -301,26 +210,19 @@ public class SupplierAdminTieImpl
     public ProxyPushConsumer obtain_push_consumer()
     {
         try {
-            final ProxyPushConsumerImpl _servant =
+            AbstractProxy _servant =
                 new ECProxyPushConsumerImpl( this,
-                                             channelContext_);
+                                             getChannelContext());
 
             configureEventStyleID(_servant);
 
-            configureAdmin(_servant, modifyProxiesLock_, pushServants_);
+            addProxyToMap(_servant, pushServants_, modifyProxiesLock_);
 
-            _servant.preActivate();
-
-            ProxyPushConsumer _ret =
-                org.omg.CosEventChannelAdmin.ProxyPushConsumerHelper.narrow( _servant.activate() );
-
-            fireProxyCreated( _servant );
-
-            return _ret;
+            return org.omg.CosEventChannelAdmin.ProxyPushConsumerHelper.narrow( _servant.activate() );
         } catch (Exception e) {
-            logger_.fatalError("unexpected exception", e);
+            logger_.fatalError("obtain_push_consumer: unexpected error", e);
 
-            throw new RuntimeException();
+            throw new UNKNOWN();
         }
     }
 
@@ -331,24 +233,21 @@ public class SupplierAdminTieImpl
     public ProxyPullConsumer obtain_pull_consumer()
     {
         try {
-            ECProxyPullConsumerImpl _servant =
+            AbstractProxy _servant =
                 new ECProxyPullConsumerImpl( this,
-                                             channelContext_);
+                                             getChannelContext());
 
             configureEventStyleID(_servant);
 
-            configureAdmin(_servant, modifyProxiesLock_, pushServants_);
+            addProxyToMap(_servant, pushServants_, modifyProxiesLock_);
 
             _servant.preActivate();
 
-            ProxyPullConsumer _ret =
-                org.omg.CosEventChannelAdmin.ProxyPullConsumerHelper.narrow( _servant.activate() );
-
-            fireProxyCreated( _servant );
-
-            return _ret;
+            return org.omg.CosEventChannelAdmin.ProxyPullConsumerHelper.narrow( _servant.activate() );
         } catch (Exception e) {
-            throw new RuntimeException();
+            logger_.fatalError("obtain_pull_consumer: unexpected error", e);
+
+            throw new UNKNOWN();
         }
     }
 
@@ -378,44 +277,8 @@ public class SupplierAdminTieImpl
     }
 
 
-    void fireProxyRemoved( AbstractProxy b )
-    {
-        Iterator i = listProxyEventListener_.iterator();
-        ProxyEvent e = new ProxyEvent( b );
-
-        while ( i.hasNext() )
-            {
-                ( ( ProxyEventListener ) i.next() ).actionProxyDisposed( e );
-            }
-    }
-
-
-    void fireProxyCreated( AbstractProxy b )
-    {
-        Iterator i = listProxyEventListener_.iterator();
-        ProxyEvent e = new ProxyEvent( b );
-
-        while ( i.hasNext() )
-            {
-                ( ( ProxyEventListener ) i.next() ).actionProxyCreated( e );
-            }
-    }
-
-
     public boolean hasInterFilterGroupOperatorOR()
     {
         return false;
-    }
-
-
-    public void addProxyEventListener( ProxyEventListener l )
-    {
-        listProxyEventListener_.add( l );
-    }
-
-
-    public void removeProxyEventListener( ProxyEventListener l )
-    {
-        listProxyEventListener_.remove( l );
     }
 }

@@ -94,17 +94,17 @@ public class StructuredProxyPullConsumerImpl
         engine_ = channelContext.getTaskProcessor();
 
         runQueueThis_ = new Runnable()
+            {
+                public void run()
+                {
+                    try
                         {
-                            public void run()
-                            {
-                                try
-                                {
-                                    engine_.scheduleTimedPullTask( StructuredProxyPullConsumerImpl.this );
-                                }
-                                catch ( InterruptedException ie )
-                                {}
-                            }
-                        };
+                            engine_.scheduleTimedPullTask( StructuredProxyPullConsumerImpl.this );
+                        }
+                    catch ( InterruptedException ie )
+                        {}
+                }
+            };
     }
 
     ////////////////////////////////////////
@@ -138,19 +138,19 @@ public class StructuredProxyPullConsumerImpl
     public synchronized void connect_structured_pull_supplier( StructuredPullSupplier pullSupplier )
         throws AlreadyConnected
     {
-        if ( connected_ )
-        {
-            throw new AlreadyConnected();
-        }
+        assertNotConnected();
 
-        connected_ = true;
         active_ = true;
 
         pullSupplier_ = pullSupplier;
 
+        connectClient(pullSupplier);
+
         try {
             subscriptionListener_ = NotifySubscribeHelper.narrow(pullSupplier);
-        } catch (Throwable t) {}
+        } catch (Throwable t) {
+            logger_.info("disable subscription_change for StructuredPullSupplier");
+        }
 
         startTask();
     }
@@ -160,10 +160,7 @@ public class StructuredProxyPullConsumerImpl
         throws NotConnected,
                ConnectionAlreadyInactive
     {
-        if ( !connected_ )
-        {
-            throw new NotConnected();
-        }
+        assertConnected();
 
         if ( !active_ )
         {
@@ -180,10 +177,7 @@ public class StructuredProxyPullConsumerImpl
         throws ConnectionAlreadyActive,
                NotConnected
     {
-        if ( !connected_ )
-        {
-            throw new NotConnected();
-        }
+        assertConnected();
 
         if ( active_ )
         {
@@ -202,11 +196,15 @@ public class StructuredProxyPullConsumerImpl
     }
 
 
-    public void runPullEvent()
+    public void runPullEvent() throws Disconnected
     {
+        if (!isConnected()) {
+            return;
+        }
+
         synchronized ( this )
         {
-            if (!connected_ || !active_)
+            if (!active_)
             {
                 return;
             }
@@ -219,15 +217,6 @@ public class StructuredProxyPullConsumerImpl
         catch (InterruptedException e)
         {
             logger_.error("pull interrupted", e);
-        }
-        catch (Disconnected e)
-        {
-            logger_.error("supplier thinks its disconnected. we think its connected.", e);
-
-            synchronized (this)
-            {
-                connected_ = false;
-            }
         }
     }
 
@@ -263,14 +252,10 @@ public class StructuredProxyPullConsumerImpl
 
     protected void disconnectClient()
     {
-        if ( connected_ )
-        {
-            stopTask();
-            pullSupplier_.disconnect_structured_pull_supplier();
+        stopTask();
+        pullSupplier_.disconnect_structured_pull_supplier();
 
-            pullSupplier_ = null;
-            connected_ = false;
-        }
+        pullSupplier_ = null;
     }
 
 

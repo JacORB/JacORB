@@ -47,7 +47,7 @@ public class ECProxyPushSupplierImpl
         super(myAdminServant,
               channelContext);
 
-        isKeyPublic_ = false;
+        isIDPublic_ = false;
     }
 
     ////////////////////////////////////////

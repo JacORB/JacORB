@@ -31,7 +31,6 @@ import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
@@ -65,7 +64,6 @@ public class StructuredProxyPushSupplierImpl
 
     public StructuredProxyPushSupplierImpl( AbstractAdmin myAdminServant,
                                             ChannelContext channelContext)
-        throws UnsupportedQoS
     {
         super( myAdminServant,
                channelContext );
@@ -76,38 +74,31 @@ public class StructuredProxyPushSupplierImpl
 
     ////////////////////////////////////////
 
-    public void deliverMessage( Message event )
+    public void deliverMessage( Message event ) throws Disconnected
     {
-        if (logger_.isDebugEnabled()) {
+        if (logger_.isDebugEnabled())
+        {
             logger_.debug( "deliverEvent connected="
-                           + connected_
+                           + isConnected()
                            + " active="
                            + active_
                            + " enabled="
                            + enabled_ );
         }
 
-        if ( connected_ )
-        {
-            try
-            {
-                if ( active_ && enabled_ )
+        if ( isConnected() ) {
+
+            if ( active_ && enabled_ )
                 {
                     pushConsumer_.push_structured_event( event.toStructuredEvent() );
 
                     event.dispose();
                 }
-                else
+            else
                 {
                     // not enabled
                     enqueue( event );
                 }
-            }
-            catch ( Disconnected d )
-            {
-                connected_ = false;
-                logger_.warn( "push failed - PushConsumer was disconnected" );
-            }
         }
         else
         {
@@ -117,25 +108,29 @@ public class StructuredProxyPushSupplierImpl
 
 
     public void connect_structured_push_consumer( StructuredPushConsumer consumer )
-        throws AlreadyConnected,
-               TypeError
+        throws AlreadyConnected
     {
-        if ( connected_ )
-        {
-            throw new AlreadyConnected();
-        }
+        assertNotConnected();
 
-        if (logger_.isDebugEnabled()) {
+        if (logger_.isDebugEnabled())
+        {
             logger_.debug("connect structured_push_consumer");
         }
 
         pushConsumer_ = consumer;
-        connected_ = true;
+
+        connectClient(consumer);
+
         active_ = true;
 
-        try {
+        try
+        {
             offerListener_ = NotifyPublishHelper.narrow(consumer);
-        } catch (Throwable t) {}
+        }
+        catch (Throwable t)
+        {
+            logger_.info("disable offer_change for StructuredPushConsumer");
+        }
     }
 
 
@@ -149,10 +144,7 @@ public class StructuredProxyPushSupplierImpl
         throws NotConnected,
                ConnectionAlreadyInactive
     {
-        if ( !connected_ )
-        {
-            throw new NotConnected();
-        }
+        assertConnected();
 
         if ( !active_ )
         {
@@ -163,25 +155,23 @@ public class StructuredProxyPushSupplierImpl
     }
 
 
-    public void deliverPendingMessages() throws NotConnected
+    public void deliverPendingMessages() throws Disconnected
     {
         Message[] _events = getAllMessages();
 
-        if (_events != null) {
-            for (int x=0; x<_events.length; ++x) {
-                try {
-                    if (logger_.isDebugEnabled()) {
-                        logger_.debug(pushConsumer_
-                                      + ".push_structured_event("
-                                      + _events[x].toStructuredEvent()
-                                      + ")" );
-                    }
-
+        if (_events != null)
+        {
+            try
+            {
+                for (int x = 0; x < _events.length; ++x)
+                {
                     pushConsumer_.push_structured_event( _events[x].toStructuredEvent() );
-                } catch (Disconnected e) {
-                    connected_ = false;
-                    throw new NotConnected();
-                } finally {
+                }
+            }
+            finally
+            {
+                for (int x = 0; x < _events.length; ++x)
+                {
                     _events[x].dispose();
                 }
             }
@@ -191,37 +181,30 @@ public class StructuredProxyPushSupplierImpl
 
     public void resume_connection() throws NotConnected, ConnectionAlreadyActive
     {
-        if ( !connected_ )
-        {
-            throw new NotConnected();
-        }
+        assertConnected();
 
         if ( active_ )
         {
             throw new ConnectionAlreadyActive();
         }
 
-        deliverPendingMessages();
+        try {
+            deliverPendingMessages();
 
-        active_ = true;
+            active_ = true;
+        } catch (Disconnected e) {
+            logger_.fatalError("Illegal State: PushConsumer thinks it is disconnected. StructuredProxyPushSupplier thinks it is connected", e);
+
+            dispose();
+        }
     }
 
 
     protected void disconnectClient()
     {
-        if ( connected_ )
-        {
-            if ( pushConsumer_ != null )
-            {
-                try {
-                    pushConsumer_.disconnect_structured_push_consumer();
-                } catch (Exception e) {
-                    logger_.warn("Error disconnecting consumer: ", e);
-                }
-                pushConsumer_ = null;
-                connected_ = false;
-            }
-        }
+        pushConsumer_.disconnect_structured_push_consumer();
+
+        pushConsumer_ = null;
     }
 
 
@@ -258,19 +241,21 @@ public class StructuredProxyPushSupplierImpl
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-            {
-                thisServant_ = new StructuredProxyPushSupplierPOATie( this );
-            }
+        {
+            thisServant_ = new StructuredProxyPushSupplierPOATie( this );
+        }
         return thisServant_;
     }
 
 
-    public org.omg.CORBA.Object activate() {
+    public org.omg.CORBA.Object activate()
+    {
         return ProxySupplierHelper.narrow( getServant()._this_object(getORB()) );
     }
 
 
-    NotifyPublishOperations getOfferListener() {
+    NotifyPublishOperations getOfferListener()
+    {
         return offerListener_;
     }
 }

@@ -26,6 +26,7 @@ import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.util.TaskExecutor;
 
 import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CosEventComm.Disconnected;
 
 /**
  * @author Alphonse Bendt
@@ -95,6 +96,11 @@ public abstract class AbstractDeliverTask extends AbstractTask
             {
                 logger_.warn( "push to Consumer failed: Dispose MessageConsumer" );
             }
+
+            _pushToConsumerTask.getMessageConsumer().dispose();
+        }
+        else if (error instanceof Disconnected) {
+            logger_.error("Illegal State: disconnect proxy");
 
             _pushToConsumerTask.getMessageConsumer().dispose();
         }

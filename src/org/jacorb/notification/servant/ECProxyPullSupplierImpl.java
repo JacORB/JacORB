@@ -41,14 +41,11 @@ public class ECProxyPullSupplierImpl
 {
 
     ECProxyPullSupplierImpl(AbstractAdmin adminServant,
-                            ChannelContext channelContext,
-                            Integer key) throws UnsupportedQoS
+                            ChannelContext channelContext) throws UnsupportedQoS
     {
 
         super(adminServant,
               channelContext);
-
-        setKey(key, false);
     }
 
     ////////////////////////////////////////

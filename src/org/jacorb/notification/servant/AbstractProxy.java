@@ -21,8 +21,6 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.notification.ChannelContext;
@@ -35,19 +33,18 @@ import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
-import org.jacorb.notification.interfaces.ProxyEvent;
-import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
-import org.omg.CosEventComm.Disconnected;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.QoSAdminOperations;
 import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
@@ -56,6 +53,7 @@ import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
 
@@ -71,6 +69,38 @@ public abstract class AbstractProxy
                Disposable,
                ManageableServant
 {
+    protected boolean isIDPublic_;
+
+    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
+
+    protected MessageFactory messageFactory_;
+
+    private SynchronizedBoolean connected_ = new SynchronizedBoolean(false);
+
+    protected QoSPropertySet qosSettings_ =
+        new QoSPropertySet(QoSPropertySet.PROXY_QOS);
+
+    protected Integer id_;
+
+    protected AbstractAdmin admin_;
+
+    protected OfferManager offerManager_;
+
+    protected SubscriptionManager subscriptionManager_;
+
+    protected Servant thisServant_;
+
+    protected MappingFilter lifetimeFilter_;
+
+    protected MappingFilter priorityFilter_;
+
+    /**
+    * delegate for FilterAdminOperations
+    */
+    private FilterManager filterManager_;
+
+    private SynchronizedBoolean disposed_ = new SynchronizedBoolean(false);
+
     private Runnable disposeHook_;
 
     private SynchronizedInt errorCounter_ = new SynchronizedInt(0);
@@ -81,45 +111,9 @@ public abstract class AbstractProxy
 
     private TaskProcessor taskProcessor_;
 
-    protected final static Integer NO_KEY = null;
-
-    protected boolean isKeyPublic_;
-
-    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
-    protected List proxyDisposedEventListener_;
-
-    protected MessageFactory messageFactory_;
-
-    protected boolean connected_;
-
-    protected QoSPropertySet qosSettings_ =
-        new QoSPropertySet(QoSPropertySet.PROXY_QOS);
-
-    protected Integer key_;
-
-    protected AbstractAdmin myAdmin_;
-
-    protected OfferManager offerManager_;
-
-    protected SubscriptionManager subscriptionManager_;
-
-    /**
-     * delegate for FilterAdminOperations
-     */
-    protected FilterManager filterManager_;
-
-    protected boolean disposed_ = false;
-
     private ProxyType proxyType_;
 
     private boolean isInterFilterGroupOperatorOR_;
-
-    protected Servant thisServant_;
-
-    protected MappingFilter lifetimeFilter_;
-
-    protected MappingFilter priorityFilter_;
 
     private boolean disposedProxyDisconnectsClient_;
 
@@ -128,9 +122,7 @@ public abstract class AbstractProxy
     AbstractProxy(AbstractAdmin admin,
                   ChannelContext channelContext)
     {
-        myAdmin_ = admin;
-
-        connected_ = false;
+        admin_ = admin;
 
         messageFactory_ =
             channelContext.getMessageFactory();
@@ -150,31 +142,34 @@ public abstract class AbstractProxy
 
     ////////////////////////////////////////
 
-    public void setOfferManager(OfferManager m) {
+    public void setOfferManager(OfferManager m)
+    {
         offerManager_ = m;
     }
 
 
-    public void setSubscriptionManager(SubscriptionManager m) {
+    public void setSubscriptionManager(SubscriptionManager m)
+    {
         subscriptionManager_ = m;
     }
 
 
-    public void setDisposeHook(Runnable hook) {
+    public void setDisposeHook(Runnable hook)
+    {
         disposeHook_ = hook;
     }
 
 
     public void setKey(Integer key, boolean isKeyPublic)
     {
-        key_ = key;
-        isKeyPublic_ = isKeyPublic;
+        id_ = key;
+        isIDPublic_ = isKeyPublic;
     }
 
 
     public boolean isKeyPublic()
     {
-        return isKeyPublic_;
+        return isIDPublic_;
     }
 
 
@@ -211,26 +206,6 @@ public abstract class AbstractProxy
     protected TaskProcessor getTaskProcessor()
     {
         return taskProcessor_;
-    }
-
-
-    public synchronized void addProxyDisposedEventListener(ProxyEventListener listener)
-    {
-        if (proxyDisposedEventListener_ == null)
-        {
-            proxyDisposedEventListener_ = new ArrayList();
-        }
-
-        proxyDisposedEventListener_.add(listener);
-    }
-
-
-    public void removeProxyDisposedEventListener(ProxyEventListener listener)
-    {
-        if (proxyDisposedEventListener_ != null)
-        {
-            proxyDisposedEventListener_.remove(listener);
-        }
     }
 
     //////////////////////////////////////////////////////
@@ -270,7 +245,7 @@ public abstract class AbstractProxy
 
     public void validate_event_qos(Property[] qosProps,
                                    NamedPropertyRangeSeqHolder propSeqHolder)
-        throws UnsupportedQoS
+    throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT();
     }
@@ -278,7 +253,7 @@ public abstract class AbstractProxy
 
     public void validate_qos(Property[] props,
                              NamedPropertyRangeSeqHolder propertyRange)
-        throws UnsupportedQoS
+    throws UnsupportedQoS
     {
         qosSettings_.validate_qos(props, propertyRange);
     }
@@ -322,7 +297,7 @@ public abstract class AbstractProxy
 
     public Integer getKey()
     {
-        return key_;
+        return id_;
     }
 
 
@@ -350,34 +325,58 @@ public abstract class AbstractProxy
     }
 
 
-    public void deactivate()  {
-        logger_.info("deactivate_object");
+    public void deactivate()
+    {
+        logger_.info("deactivate Proxy");
 
         try
-            {
-                byte[] _oid = getPOA().servant_to_id(getServant());
-                getPOA().deactivate_object(_oid);
-            }
+        {
+            byte[] _oid = getPOA().servant_to_id(getServant());
+            getPOA().deactivate_object(_oid);
+        }
         catch (Exception e)
-            {
-                logger_.fatalError("Couldn't deactivate Object", e);
-            }
+        {
+            logger_.fatalError("Couldn't deactivate Proxy", e);
+        }
+    }
+
+
+    private void tryDisconnectClient()
+    {
+        try {
+            if (disposedProxyDisconnectsClient_ && isConnected() )
+                {
+                    logger_.info("disconnect_client");
+
+                    disconnectClient();
+                }
+        } catch (Exception e) {
+            logger_.error("try to disconnect client: unexpected error", e);
+        } finally {
+            connected_.set(false);
+        }
+    }
+
+
+    private void checkDisposalStatus() throws OBJECT_NOT_EXIST
+    {
+        if (disposed_.get())
+        {
+            logger_.fatalError("dispose has been called twice");
+
+            throw new OBJECT_NOT_EXIST();
+        }
+        disposed_.set(true);
     }
 
 
     public void dispose()
     {
-        synchronized (this)
-        {
-            if (!disposed_)
-            {
-                disposed_ = true;
-            }
-            else
-            {
-                throw new OBJECT_NOT_EXIST();
-            }
-        }
+        checkDisposalStatus();
+
+        //////////////////////////////
+
+        tryDisconnectClient();
 
         //////////////////////////////
 
@@ -385,50 +384,17 @@ public abstract class AbstractProxy
 
         //////////////////////////////
 
-        if (disposeHook_ != null) {
-            disposeHook_.run();
-        }
-
-        //////////////////////////////
-
         remove_all_filters();
 
         //////////////////////////////
 
-        Iterator _i;
-
-        if (proxyDisposedEventListener_ != null)
-        {
-            _i = proxyDisposedEventListener_.iterator();
-            ProxyEvent _event = new ProxyEvent(this);
-            while (_i.hasNext())
-            {
-
-                ProxyEventListener _listener =
-                    (ProxyEventListener)_i.next();
-
-                _listener.actionProxyDisposed(_event);
-            }
-        }
-
-        //////////////////////////////
-
-        if (disposedProxyDisconnectsClient_) {
-            try
-                {
-                    disconnectClient();
-                }
-            catch (Throwable e)
-                {
-                    logger_.error("error disconnecting client", e);
-                }
-        }
+        disposeHook_.run();
     }
 
 
-    protected void setProxyType(ProxyType p)
+    protected void setProxyType(ProxyType proxyType)
     {
-        proxyType_ = p;
+        proxyType_ = proxyType;
     }
 
 
@@ -452,13 +418,13 @@ public abstract class AbstractProxy
 
     public boolean isDisposed()
     {
-        return disposed_;
+        return disposed_.get();
     }
 
 
     public boolean isConnected()
     {
-        return connected_;
+        return connected_.get();
     }
 
 
@@ -504,12 +470,26 @@ public abstract class AbstractProxy
     }
 
 
-    protected void checkConnected() throws Disconnected
+    protected void assertConnected() throws NotConnected
     {
-        if ( !connected_ )
+        if ( !connected_.get() )
         {
-            throw new Disconnected();
+            throw new NotConnected();
         }
+    }
+
+
+    protected void assertNotConnected() throws AlreadyConnected
+    {
+        if (connected_.get())
+        {
+            throw new AlreadyConnected();
+        }
+    }
+
+
+    protected void connectClient(org.omg.CORBA.Object client) {
+        connected_.set(true);
     }
 
 
@@ -517,6 +497,7 @@ public abstract class AbstractProxy
     {
         // NO Op
     }
+
 
     protected abstract void disconnectClient();
 
