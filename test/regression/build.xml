@@ -82,20 +82,26 @@
    </target>
 
 
-  <target name="compile-src-notification" if="regexp.available">
-    <antcall target="jacorb-javac">
-      <param name="javac-includes" value="org/jacorb/test/notification/**"/>
+  <target name="compile-src-notification" 
+    depends="test-init, check-regexp" 
+    if="regexp.available">
 
-      </antcall>
+    <antcall target="jacorb-javac">
+      <param name="javac-includes" value="org/jacorb/test/notification/**"/>     
+      <param name="javac-src" value="${src}" />
+      <param name="javac-sourcepath" value="${src}/generated" />
+    </antcall>
+
   </target>
 
 
-  <target name="compile-src" depends="check-regexp">
+  <target name="compile-src">
     <antcall target="jacorb-javac">
       <param name="javac-includes" value="**"/>
       <param name="javac-excludes" value="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**"/>
     </antcall>
-    <antcall target="compile-src-notification" inheritRefs="true"/>
+
+    <antcall target="compile-src-notification" />
   </target>
 
 
@@ -526,6 +532,11 @@
          <param name="test" value="org.jacorb.test.notification.AllTest"/>
       </antcall>
    </target>
+
+
+  <target name="run-all-notification-rebuild" 
+    depends="test-init, compile-src-notification, run-all-notification-no-build" >    
+  </target>
 
 
   <target name="run-package-notification-seperate">
