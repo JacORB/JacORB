@@ -623,264 +623,265 @@ public class CDRInputStream
 
     private final org.omg.CORBA.TypeCode read_TypeCode( Hashtable tcMap )
     {
-	int start_pos = pos;
-	int kind = read_long();
-        //  Debug.output( 4, "Read Type code of kind " + 
-//                        kind + " at pos: " + start_pos );
+       int kind = read_long();
+       int start_pos = pos - 4;
 
-	String id, name;
-	String[] member_names;
-	org.omg.CORBA.TypeCode[] member_types;
-	int member_count, length;
-	org.omg.CORBA.TypeCode content_type;
-	org.omg.CORBA.TypeCode result_tc;
-	boolean byteorder = false;
+       //  Debug.output( 4, "Read Type code of kind " + 
+       //                        kind + " at pos: " + start_pos );
 
-	switch( kind ) 
-	{
-	case TCKind._tk_null:
-	case TCKind._tk_void:
-	case TCKind._tk_short:
-	case TCKind._tk_long:
-	case TCKind._tk_ushort:
-	case TCKind._tk_ulong:
-	case TCKind._tk_float:
-	case TCKind._tk_double:
-	case TCKind._tk_boolean:
-	case TCKind._tk_char:
-	case TCKind._tk_octet:
-	case TCKind._tk_any:
-	case TCKind._tk_TypeCode:
-	case TCKind._tk_longlong:
-	case TCKind._tk_ulonglong:
-        case TCKind._tk_wchar:
-	case TCKind._tk_Principal:
-	    return orb.get_primitive_tc( org.omg.CORBA.TCKind.from_int(kind) );
-	case TCKind._tk_objref: 
-	    openEncapsulation();
-	    id = read_string();
-	    name = read_string();
-	    closeEncapsulation();
-	    return orb.create_interface_tc(id, name);
-	case TCKind._tk_struct: 
-	    openEncapsulation();
-	    id = read_string();
+       String id, name;
+       String[] member_names;
+       org.omg.CORBA.TypeCode[] member_types;
+       int member_count, length;
+       org.omg.CORBA.TypeCode content_type;
+       org.omg.CORBA.TypeCode result_tc;
+       boolean byteorder = false;
 
-            //  Debug.output(4, "** remember " + id + " at pos " + start_pos );
-
-            tcMap.put( new Integer( start_pos ), id );
-
-	    name = read_string();
-	    member_count = read_long();
-	    StructMember[] struct_members = new StructMember[member_count];
-	    for( int i = 0; i < member_count; i++)
-	    {
-		struct_members[i] = new StructMember( read_string(),
-                                                      read_TypeCode(tcMap), 
-                                                      null);
-	    }
-	    closeEncapsulation();
-	    result_tc = orb.create_struct_tc(id, name, struct_members );
-
-            recursiveTCMap.put( id , result_tc );
-
-	    return result_tc;
-	case TCKind._tk_except:
-	    openEncapsulation();
-	    id = read_string();
-
-            // Debug.output(4, "** remember " + id + " at pos " + start_pos );
-            tcMap.put( new Integer( start_pos ), id );
-
-	    name = read_string();
-	    member_count = read_long();
-	    StructMember[] members = new StructMember[member_count];
-	    for( int i = 0; i < member_count; i++)
-	    {
-		members[i] = new StructMember( read_string(),read_TypeCode(), null);
-	    }
-	    closeEncapsulation();
-	    result_tc = orb.create_struct_tc(id, name, members );
-            recursiveTCMap.put( id , result_tc );
-	    return result_tc;
-	case TCKind._tk_enum:
-	    openEncapsulation();
-	    id = read_string();
-
-            tcMap.put( new Integer( start_pos ), id );
-
-	    name = read_string();
-	    member_count = read_long();
-	    member_names = new String[member_count];
-	    for( int i = 0; i < member_count; i++)
-	    {
-		member_names[i] = read_string();
-	    }
-	    closeEncapsulation();
-            result_tc = orb.create_enum_tc(id, name, member_names);
-            recursiveTCMap.put( id , result_tc );
-	    return result_tc;
-	case TCKind._tk_union:
-	    {
-                //		Debug.output(4, "TC Union at pos" + 
-                //           pos, buffer, pos, buffer.length );
-
-		openEncapsulation();
-		id = read_string();
-
-                // remember this TC's id and start_pos
-                tcMap.put( new Integer(start_pos), id ); 
-
-		name = read_string();
-//  		Debug.output(4, "TC Union has name " + 
-//                               name + " at pos" + pos );
-		org.omg.CORBA.TypeCode discriminator_type = 
-                    read_TypeCode(tcMap);
-
-		int default_index = read_long();
-
-//  		Debug.output(4, "TC Union has default idx: " +  
-//                               default_index +  "  (at pos " + pos );
-
-		member_count = read_long();
-
-                //  Debug.output(4, "TC Union has " + member_count + 
-                //               " members at pos " + pos );
-
-		UnionMember[] union_members = new UnionMember[member_count];
-		for( int i = 0; i < member_count; i++)
-		{
-		    // Debug.output(4, "Member " + i + "in  union " + 
-                    //             id + " , " + name + ", start reading TC at pos " + pos );
-		    org.omg.CORBA.Any label = orb.create_any();
-		    
-		    if( i == default_index )
-		    {
-			//Debug.output(4, "Default discr.");
-                        label.insert_octet( read_octet());
-		    } 
-		    else 
-		    {
-			label.read_value( this,discriminator_type  );
-		    }
- 
-		    String mn = read_string();
-
-		    union_members[i] = 
-                        new UnionMember( mn, label, read_TypeCode(tcMap), null);
-		}		
-		closeEncapsulation();
-		result_tc = 
-                    orb.create_union_tc( id, name, discriminator_type, union_members );
-                recursiveTCMap.put( id , result_tc );
-		return result_tc;
-	    }
-	case TCKind._tk_string: 
-	    return orb.create_string_tc(read_long());
-	case TCKind._tk_wstring: 
-	    return orb.create_wstring_tc(read_long());
-	case TCKind._tk_fixed: 
-	    return orb.create_fixed_tc(read_ushort(), read_short() );
-	case TCKind._tk_array: 
-	    openEncapsulation();
-
-	    content_type = read_TypeCode(tcMap);
-	    length = read_long();
-
-	    closeEncapsulation();
-	    return orb.create_array_tc(length, content_type);
-	case TCKind._tk_sequence: 
-	    openEncapsulation();
-
-	    content_type = read_TypeCode(tcMap);
-	    length = read_long();
-
-	    closeEncapsulation();
-	    org.omg.CORBA.TypeCode seq_tc = 
-                orb.create_sequence_tc(0, content_type);
-	    return seq_tc;
-	case TCKind._tk_alias: 
-	    openEncapsulation();
-	    id = read_string();
-	    name = read_string();
-
-            // Debug.output(4, "** remember alias at pos " + start_pos );
-            tcMap.put( new Integer( start_pos ), id );
-
-	    content_type = read_TypeCode( tcMap );
-	    closeEncapsulation();
-            result_tc = orb.create_alias_tc( id, name, content_type );
-            recursiveTCMap.put( id , result_tc );
-	    return result_tc;
-	case TCKind._tk_value: 
-	    openEncapsulation();
-	    id = read_string();
-
-            tcMap.put( new Integer( start_pos ), id );
-
-	    name = read_string();
-            short type_modifier = read_short();
-	    org.omg.CORBA.TypeCode concrete_base_type = read_TypeCode( tcMap );
-	    member_count = read_long();
-	    ValueMember[] vMembers = new ValueMember[member_count];
-	    for( int i = 0; i < member_count; i++)
-	    {
-		vMembers[i] = new ValueMember(read_string(),
-                                              null, // id
-                                              null, // defined_in
-                                              null, // version
-                                              read_TypeCode( tcMap ),
-                                              null, // type_def
-                                              read_short());
-	    }
-	    closeEncapsulation();
-	    result_tc = orb.create_value_tc(id, name, type_modifier,
-                                        concrete_base_type, vMembers);
-            recursiveTCMap.put( id , result_tc );
-	    return result_tc;
-	case TCKind._tk_value_box: 
-	    openEncapsulation();
-	    id = read_string();
-            tcMap.put( new Integer( start_pos ), id );
-	    name = read_string();
-	    content_type = read_TypeCode( tcMap );
-	    closeEncapsulation();
-            result_tc = orb.create_value_box_tc( id, name, content_type );
-            recursiveTCMap.put( id , result_tc );
-	    return result_tc;
-	case TCKind._tk_abstract_interface: 
-	    openEncapsulation();
-	    id = read_string();
-	    name = read_string();
-	    closeEncapsulation();
-            return orb.create_abstract_interface_tc( id, name );
-	case 0xffffffff:
-	    /* recursive TC */
-	    int negative_offset = read_long();
-       String recursiveId = 
-          (String)tcMap.get( new Integer( pos - 4 - 1 + negative_offset ) );
-
-       Debug.myAssert( recursiveId != null,
-                       "No recursive TypeCode! (pos: " + 
-                       (pos-4-1+negative_offset) + ")");
-            
-       // look up TypeCode in map to check if it's repeated
-       org.omg.CORBA.TypeCode rec_tc =
-          (org.omg.CORBA.TypeCode) recursiveTCMap.get (recursiveId);
-
-       // Debug.output(4, "** found type code in map " + recursiveId );
-
-       if (rec_tc == null)
+       switch( kind ) 
        {
-          // TypeCode is not in map so it is recursive
-          rec_tc = orb.create_recursive_tc( recursiveId );
-       }
+       case TCKind._tk_null:
+       case TCKind._tk_void:
+       case TCKind._tk_short:
+       case TCKind._tk_long:
+       case TCKind._tk_ushort:
+       case TCKind._tk_ulong:
+       case TCKind._tk_float:
+       case TCKind._tk_double:
+       case TCKind._tk_boolean:
+       case TCKind._tk_char:
+       case TCKind._tk_octet:
+       case TCKind._tk_any:
+       case TCKind._tk_TypeCode:
+       case TCKind._tk_longlong:
+       case TCKind._tk_ulonglong:
+       case TCKind._tk_wchar:
+       case TCKind._tk_Principal:
+          return orb.get_primitive_tc( org.omg.CORBA.TCKind.from_int(kind) );
+       case TCKind._tk_objref: 
+          openEncapsulation();
+          id = read_string();
+          name = read_string();
+          closeEncapsulation();
+          return orb.create_interface_tc(id, name);
+       case TCKind._tk_struct: 
+          openEncapsulation();
+          id = read_string();
 
-	    return rec_tc;
-	default:
-	    // error, dump buffer contents for diagnosis
-	    throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
-	}
+          //  Debug.output(4, "** remember " + id + " at pos " + start_pos );
+
+          tcMap.put( new Integer( start_pos ), id );
+
+          name = read_string();
+          member_count = read_long();
+          StructMember[] struct_members = new StructMember[member_count];
+          for( int i = 0; i < member_count; i++)
+          {
+             struct_members[i] = new StructMember( read_string(),
+                                                   read_TypeCode(tcMap), 
+                                                   null);
+          }
+          closeEncapsulation();
+          result_tc = orb.create_struct_tc(id, name, struct_members );
+
+          recursiveTCMap.put( id , result_tc );
+
+          return result_tc;
+       case TCKind._tk_except:
+          openEncapsulation();
+          id = read_string();
+
+          // Debug.output(4, "** remember " + id + " at pos " + start_pos );
+          tcMap.put( new Integer( start_pos ), id );
+
+          name = read_string();
+          member_count = read_long();
+          StructMember[] members = new StructMember[member_count];
+          for( int i = 0; i < member_count; i++)
+          {
+             members[i] = new StructMember( read_string(),read_TypeCode(), null);
+          }
+          closeEncapsulation();
+          result_tc = orb.create_struct_tc(id, name, members );
+          recursiveTCMap.put( id , result_tc );
+          return result_tc;
+       case TCKind._tk_enum:
+          openEncapsulation();
+          id = read_string();
+
+          tcMap.put( new Integer( start_pos ), id );
+
+          name = read_string();
+          member_count = read_long();
+          member_names = new String[member_count];
+          for( int i = 0; i < member_count; i++)
+          {
+             member_names[i] = read_string();
+          }
+          closeEncapsulation();
+          result_tc = orb.create_enum_tc(id, name, member_names);
+          recursiveTCMap.put( id , result_tc );
+          return result_tc;
+       case TCKind._tk_union:
+          {
+             //		Debug.output(4, "TC Union at pos" + 
+             //           pos, buffer, pos, buffer.length );
+
+             openEncapsulation();
+             id = read_string();
+
+             // remember this TC's id and start_pos
+             tcMap.put( new Integer(start_pos), id ); 
+
+             name = read_string();
+             //  		Debug.output(4, "TC Union has name " + 
+             //                               name + " at pos" + pos );
+             org.omg.CORBA.TypeCode discriminator_type = 
+                read_TypeCode(tcMap);
+
+             int default_index = read_long();
+
+             //  		Debug.output(4, "TC Union has default idx: " +  
+             //                               default_index +  "  (at pos " + pos );
+
+             member_count = read_long();
+
+             //  Debug.output(4, "TC Union has " + member_count + 
+             //               " members at pos " + pos );
+
+             UnionMember[] union_members = new UnionMember[member_count];
+             for( int i = 0; i < member_count; i++)
+             {
+                // Debug.output(4, "Member " + i + "in  union " + 
+                //             id + " , " + name + ", start reading TC at pos " + pos );
+                org.omg.CORBA.Any label = orb.create_any();
+		    
+                if( i == default_index )
+                {
+                   //Debug.output(4, "Default discr.");
+                   label.insert_octet( read_octet());
+                } 
+                else 
+                {
+                   label.read_value( this,discriminator_type  );
+                }
+ 
+                String mn = read_string();
+
+                union_members[i] = 
+                   new UnionMember( mn, label, read_TypeCode(tcMap), null);
+             }		
+             closeEncapsulation();
+             result_tc = 
+                orb.create_union_tc( id, name, discriminator_type, union_members );
+             recursiveTCMap.put( id , result_tc );
+             return result_tc;
+          }
+       case TCKind._tk_string: 
+          return orb.create_string_tc(read_long());
+       case TCKind._tk_wstring: 
+          return orb.create_wstring_tc(read_long());
+       case TCKind._tk_fixed: 
+          return orb.create_fixed_tc(read_ushort(), read_short() );
+       case TCKind._tk_array: 
+          openEncapsulation();
+
+          content_type = read_TypeCode(tcMap);
+          length = read_long();
+
+          closeEncapsulation();
+          return orb.create_array_tc(length, content_type);
+       case TCKind._tk_sequence: 
+          openEncapsulation();
+
+          content_type = read_TypeCode(tcMap);
+          length = read_long();
+
+          closeEncapsulation();
+          org.omg.CORBA.TypeCode seq_tc = 
+             orb.create_sequence_tc(0, content_type);
+          return seq_tc;
+       case TCKind._tk_alias: 
+          openEncapsulation();
+          id = read_string();
+          name = read_string();
+
+          // Debug.output(4, "** remember alias at pos " + start_pos );
+          tcMap.put( new Integer( start_pos ), id );
+
+          content_type = read_TypeCode( tcMap );
+          closeEncapsulation();
+          result_tc = orb.create_alias_tc( id, name, content_type );
+          recursiveTCMap.put( id , result_tc );
+          return result_tc;
+       case TCKind._tk_value: 
+          openEncapsulation();
+          id = read_string();
+
+          tcMap.put( new Integer( start_pos ), id );
+
+          name = read_string();
+          short type_modifier = read_short();
+          org.omg.CORBA.TypeCode concrete_base_type = read_TypeCode( tcMap );
+          member_count = read_long();
+          ValueMember[] vMembers = new ValueMember[member_count];
+          for( int i = 0; i < member_count; i++)
+          {
+             vMembers[i] = new ValueMember(read_string(),
+                                           null, // id
+                                           null, // defined_in
+                                           null, // version
+                                           read_TypeCode( tcMap ),
+                                           null, // type_def
+                                           read_short());
+          }
+          closeEncapsulation();
+          result_tc = orb.create_value_tc(id, name, type_modifier,
+                                          concrete_base_type, vMembers);
+          recursiveTCMap.put( id , result_tc );
+          return result_tc;
+       case TCKind._tk_value_box: 
+          openEncapsulation();
+          id = read_string();
+          tcMap.put( new Integer( start_pos ), id );
+          name = read_string();
+          content_type = read_TypeCode( tcMap );
+          closeEncapsulation();
+          result_tc = orb.create_value_box_tc( id, name, content_type );
+          recursiveTCMap.put( id , result_tc );
+          return result_tc;
+       case TCKind._tk_abstract_interface: 
+          openEncapsulation();
+          id = read_string();
+          name = read_string();
+          closeEncapsulation();
+          return orb.create_abstract_interface_tc( id, name );
+       case 0xffffffff:
+          /* recursive TC */
+          int negative_offset = read_long();
+          String recursiveId = 
+             (String)tcMap.get( new Integer( pos - 4 + negative_offset ) );
+
+          Debug.myAssert( recursiveId != null,
+                          "No recursive TypeCode! (pos: " + 
+                          (pos - 4 + negative_offset) + ")");
+            
+          // look up TypeCode in map to check if it's repeated
+          org.omg.CORBA.TypeCode rec_tc =
+             (org.omg.CORBA.TypeCode) recursiveTCMap.get (recursiveId);
+
+          // Debug.output(4, "** found type code in map " + recursiveId );
+
+          if (rec_tc == null)
+          {
+             // TypeCode is not in map so it is recursive
+             rec_tc = orb.create_recursive_tc( recursiveId );
+          }
+
+          return rec_tc;
+       default:
+          // error, dump buffer contents for diagnosis
+          throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
+       }
     }
 
     public final int read_ulong()
