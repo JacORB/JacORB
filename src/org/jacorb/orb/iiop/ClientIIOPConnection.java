@@ -20,21 +20,35 @@
 
 package org.jacorb.orb.iiop;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.avalon.framework.logger.Logger;
-
-import org.jacorb.util.*;
-import org.jacorb.orb.*;
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.IIOPAddress;
+import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
-import org.jacorb.orb.factory.*;
-import org.jacorb.orb.iiop.*;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.SSLIOP.*;
-import org.omg.CSIIOP.*;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.omg.CSIIOP.CompoundSecMechList;
+import org.omg.CSIIOP.CompoundSecMechListHelper;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.DetectMisordering;
+import org.omg.CSIIOP.DetectReplay;
+import org.omg.CSIIOP.EstablishTrustInClient;
+import org.omg.CSIIOP.EstablishTrustInTarget;
+import org.omg.CSIIOP.Integrity;
+import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
+import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+import org.omg.SSLIOP.SSL;
+import org.omg.SSLIOP.SSLHelper;
+import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * ClientIIOPConnection.java
@@ -318,15 +332,30 @@ public class ClientIIOPConnection
             = (CompoundSecMechList)target_profile.getComponent
                                            (TAG_CSI_SEC_MECH_LIST.value,
                                             CompoundSecMechListHelper.class);
+        
+        TLS_SEC_TRANS tls = null;
+        if (sas != null && sas.mechanism_list[0].transport_mech.tag == TAG_TLS_SEC_TRANS.value) {
+            try
+            {
+                byte[] tagData = sas.mechanism_list[0].transport_mech.component_data;
+                CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null, tagData );
+                in.openEncapsulatedArray();
+                tls = TLS_SEC_TRANSHelper.read( in );
+            }
+            catch ( Exception ex )
+            {
+                logger.warn("Error parsing TLS_SEC_TRANS: "+ex);
+            }
+        }
 
         SSL ssl = (SSL)target_profile.getComponent
                                            (TAG_SSL_SEC_TRANS.value,
                                             SSLHelper.class);
-        if( sas != null &&
-            ssl != null )
-        {
-            ssl.target_requires |= sas.mechanism_list[0].target_requires;
-        }
+        //if( sas != null &&
+        //    ssl != null )
+        //{
+        //    ssl.target_requires |= sas.mechanism_list[0].target_requires;
+        //}
 
         // SSL usage is decided the following way: At least one side
         // must require it. Therefore, we first check if it is
@@ -361,7 +390,31 @@ public class ClientIIOPConnection
             );
         }
 
-        if( ssl != null && // server knows about ssl...
+        if( tls != null && // server knows about ssl...
+            ((tls.target_supports & minimum_options) != 0) && //...and "really" supports it
+            Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+            ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
+            ( ((tls.target_requires & minimum_options) != 0) || //server ...
+              ((client_required & minimum_options) != 0))) //...or client require it
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Selecting TLS for connection");
+            }
+
+            use_ssl  = true;
+            ssl_port = tls.addresses[0].port;
+            if (ssl_port < 0) ssl_port += 65536;
+        }
+        //prevent client policy violation, i.e. opening plain TCP
+        //connections when SSL is required
+        else if( tls == null && // server doesn't know ssl...
+                 Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+                 ((client_required & minimum_options) != 0)) //...and requires it
+        {
+            throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires TLS, but server doesn't support it" );
+        }
+        else if( ssl != null && // server knows about ssl...
             ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
             Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
             ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
