@@ -1106,7 +1106,7 @@ such as used by the RootPOA.
 First of all, the central repository process (which we will call ImR
 in the following) must be started:
 
-\cmdline{imr [-n] [-p <port>] [-i <ior\_file>][-f <file>][-b <file>]}
+\cmdline{imr [-n] [-p <port>] [-i <ior\_file>][-f <file>][-b <file>] [-a]}
 
 The   ImR   is  located   using   the   configuration  property   {\tt
 jacorb.ImplementationRepositoryURL}.  This property  must be  set such
@@ -1150,6 +1150,14 @@ interpreter. On NT the following startup command will do the job: {\tt
 cmd /c "jaco MyServer"}.  Please keep in mind that if you use the {\tt
 imr\_mg} command  to set the startup  command, you have  to escape the
 quotes so they appear inside of the resulting string.
+
+If you don't  intend to have your server  automatically started by the
+ImR     you      can     also     set      the     property     ``{\tt
+jacorb.imr.allow\_auto\_register}'' or use the  {\tt -a} switch of the
+ImR  process. If  this property  is  set, the  ImR will  automatically
+create a new  entry for a server on POA activation,  if the server has
+not been registered previously. In this case you don't have to use the
+ImR Manager to register your server.
 
 For a client program to be  able to issue requests, it needs an object
 reference.  Up to  this  point,  we haven't  said  anything about  how
