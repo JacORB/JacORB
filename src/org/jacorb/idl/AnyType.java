@@ -18,19 +18,16 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 package org.jacorb.idl;
-
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class AnyType
-        extends BaseType
+public class AnyType
+    extends BaseType
 {
-
     public AnyType( int num )
     {
         super( num );
@@ -67,7 +64,6 @@ class AnyType
     }
 
     public void parse()
-
     {
     }
 

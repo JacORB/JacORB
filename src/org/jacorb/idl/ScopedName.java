@@ -31,7 +31,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.*;
 
-class ScopedName
+public class ScopedName
     extends SimpleTypeSpec
     implements SwitchTypeSpec
 {
@@ -331,13 +331,16 @@ class ScopedName
             String unmap = unMap( ( !global? pack_name + "." : "" ) + result );
 
             if( logger.isInfoEnabled() )
-		 logger.info( "resolve, " + ( !global? pack_name + "." : "" ) + result + " was in name table, returning " + unmap + " suffix: " + suffix );
+		 logger.info( "resolve, " + 
+                              ( !global? pack_name + "." : "" ) + result + 
+                              " was in name table, returning " + unmap + 
+                              " suffix: " + suffix );
 
             return unmap + suffix;
         }
 
         java.util.StringTokenizer strtok =
-                new java.util.StringTokenizer( s, "." );
+            new java.util.StringTokenizer( s, "." );
         String s_scopes[] = new String[ strtok.countTokens() ];
 
         for( int i = 0; strtok.hasMoreTokens(); i++ )
@@ -489,7 +492,7 @@ class ScopedName
         }
         String res = unMap( prefix + buf.toString() ) + suffix;
         if( logger.isDebugEnabled() )
-		 logger.debug( "ScopedName.resolve (at end) returns: " + res );
+            logger.debug( "ScopedName.resolve (at end) returns: " + res );
         return res;
     }
 
@@ -532,16 +535,26 @@ class ScopedName
 
     private String unMap( String _name )
     {
+        if( logger.isDebugEnabled() )
+            logger.debug( "ScopedName.unmap: " + _name );
+
         String tmp = null;
         TypeSpec y = TypeMap.map( _name );
+
+        if( logger.isDebugEnabled() )
+            logger.debug( "ScopedName.unmap: " + _name + ", Type.map( " + _name + " ) is : " + y);
+
         TypeSpec x = null;
+
         while( y != null && !( y instanceof ScopedName )
                 && !( y instanceof ConstrTypeSpec ) )
         {
             x = y;
             y = y.typeSpec();
-            if( x.equals( y ) ) break; // necessary?
+            if( x.equals( y ) ) 
+                break; // necessary?
         }
+
         if( y == null )
         {
             if( x != null )
@@ -589,6 +602,9 @@ class ScopedName
         if( n.endsWith( "PackagePackage" ) || !n.startsWith( "_" ) && n.endsWith( "Package" ) )
             n = n.substring( 0, n.lastIndexOf( "Package" ) );
 
+        int i = n.indexOf( '.' );
+        if( i > 0 && parser.hasImports() )
+            n = n.substring( i + 1 );
         return n;
     }
 
