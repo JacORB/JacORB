@@ -131,9 +131,9 @@ public class GIOPConnectionManager
         RequestListener request_listener,
         ReplyListener reply_listener )
     {
-        return new GIOPConnection( transport,
-                                   request_listener,
-                                   reply_listener );
+        return new ClientGIOPConnection( transport,
+                                         request_listener,
+                                         reply_listener );
     }
 
 }// GIOPConnectionManager

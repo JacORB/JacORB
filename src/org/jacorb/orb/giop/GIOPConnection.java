@@ -43,14 +43,15 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class GIOPConnection
+public abstract class GIOPConnection
     extends java.io.OutputStream
+    implements TransportListener
 {
     protected Transport transport = null;
 
     private RequestListener request_listener = null;
     private ReplyListener reply_listener = null;
-    private ConnectionListener connection_listener = null;
+    protected ConnectionListener connection_listener = null;
 
     private boolean writer_active = false;
     private Object write_sync = new Object();
@@ -82,7 +83,10 @@ public class GIOPConnection
     //used to lock the section where we got a message, but it isn't
     //yet decided, if this might need a reply, i.e. set the transport
     //busy
-    private Object pendingUndecidedSync = new Object();
+    protected Object pendingUndecidedSync = new Object();
+
+    //stop listening for messages
+    private boolean do_close = false;
 
     public GIOPConnection( Transport transport,
                            RequestListener request_listener,
@@ -91,6 +95,8 @@ public class GIOPConnection
         this.transport = transport;
         this.request_listener = request_listener;
         this.reply_listener = reply_listener;
+
+        transport.setTransportListener( this );
 
         fragments = new Hashtable();
         buf_mg = BufferManager.getInstance();
@@ -178,33 +184,19 @@ public class GIOPConnection
     {
         while( true )
         {
-            byte[] message = null;
+            byte[] message = transport.getMessage();
 
-            try
-            {
-                message = transport.getMessage();
-            }
-            catch( CloseConnectionException cce )
-            {
-                if( connection_listener != null )
-                {
-                    connection_listener.connectionClosed();
-                }
-
-                throw cce;
-            }
-            catch( StreamClosedException sce )
-            {
-                if( connection_listener != null )
-                {
-                    connection_listener.streamClosed();
-                }
-            }
 
             if( message == null )
             {
-                //do sth. else?
-                continue;
+                if( do_close )
+                {
+                    return;
+                }
+                else
+                {
+                    continue;
+                }
             }
             
             synchronized( pendingUndecidedSync )
@@ -502,18 +494,12 @@ public class GIOPConnection
 
     public final void incPendingMessages()
     {
-        if( ++pending_messages > 0 )
-        {
-            transport.setBusy();
-        }
+        ++pending_messages;
     }
 
     public final void decPendingMessages()
     {
-        if( --pending_messages == 0 )
-        {
-            transport.setIdle();
-        }
+        --pending_messages;
     }
 
     public final boolean hasPendingMessages()
@@ -599,6 +585,11 @@ public class GIOPConnection
 
     public void closeCompletely()
     {
+        if( connection_listener != null )
+        {
+            connection_listener.connectionClosed();
+        }
+
         try
         {
             transport.closeCompletely();
@@ -607,25 +598,10 @@ public class GIOPConnection
         {
             //Debug.output( 1, e );
         }
-    }
 
-    public void closeAllowReopen()
-    {
-        getWriteLock();
+        do_close = true;
 
-        try
-        {
-            transport.closeAllowReopen();
-        }
-        catch( IOException e )
-        {
-            //Debug.output( 1, e );
-        }
-        finally
-        {
-            releaseWriteLock();
-        }
-        
+        Debug.output( 2, "GIOPConnection closed completely" );
     }
 
     /**
@@ -658,6 +634,15 @@ public class GIOPConnection
             }
         }
     }
+
+    public void streamClosed()
+    {
+        if( connection_listener != null )
+        {
+            connection_listener.streamClosed();
+        }
+    }
+
 
     /*
       class CachedContext

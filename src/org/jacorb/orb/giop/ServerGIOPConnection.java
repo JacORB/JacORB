@@ -45,6 +45,10 @@ public class ServerGIOPConnection
 
     private GIOPConnectionManager manager = null;
 
+    private boolean closeOnReadTimeout = false;
+
+    private boolean delayClose = false;
+
     public ServerGIOPConnection( Transport transport,
                                  RequestListener request_listener,
                                  ReplyListener reply_listener,
@@ -53,6 +57,9 @@ public class ServerGIOPConnection
         super( transport, request_listener, reply_listener );
         
         this.manager = manager;
+
+        delayClose = 
+            Environment.isPropertyOn( "jacorb.connection.delay_close" );
     }
     
 
@@ -60,7 +67,14 @@ public class ServerGIOPConnection
     {
         if( tryDiscard() )
         {
-            close();
+            sendCloseConnection();
+
+            closeOnReadTimeout = true;
+
+            if( connection_listener != null )
+            {
+                connection_listener.connectionClosed();
+            }
             
             return true;
         }
@@ -70,7 +84,7 @@ public class ServerGIOPConnection
         }
     }
 
-    public void close()
+    public void sendCloseConnection()
     {
         try
         {
@@ -80,7 +94,15 @@ public class ServerGIOPConnection
                              0,
                              CLOSE_CONNECTION_MESSAGE.length );
             transport.flush();
-            //transport.close();
+
+            if( delayClose )
+            {
+                transport.turnOnFinalTimeout();
+            }
+            else
+            {
+                transport.closeCompletely();
+            }
         }
         catch( IOException e )
         {
@@ -89,6 +111,36 @@ public class ServerGIOPConnection
 
         releaseWriteLock();        
         manager.unregisterServerGIOPConnection( this );
+    }
+
+    
+    public void readTimedOut()
+    {
+        if( closeOnReadTimeout )
+        {
+            close();
+        }
+        else
+        {
+            /**
+             * If we don't have any more pending messages, we'll send a
+             * GIOP CloseConnection message (done by tryClose() ).  
+             */
+            tryClose();
+        }
+    }
+
+    /**
+     * We're server side and can't reopen, therefore close completely
+     * if stream closed.  
+     */
+    public void streamClosed()
+    {
+        /**
+         * We're server side and can't reopen, therefore close completely
+         * if stream closed.  
+         */
+        closeCompletely();
     }
 }// ServerGIOPConnection
 

@@ -86,8 +86,7 @@ public class Client_TCP_IP_Transport
         }
     }
 
-    protected synchronized void waitUntilConnected()
-        throws IOException
+    protected synchronized boolean waitUntilConnected()
     {
         while( ! connected &&
                ! closed )
@@ -101,10 +100,7 @@ public class Client_TCP_IP_Transport
             }
         }
 
-        if( closed )
-        {
-            throw new CloseConnectionException();
-        }
+        return ! closed;
      }
 
     protected synchronized void connect()
@@ -185,20 +181,34 @@ public class Client_TCP_IP_Transport
         }
     }
 
+    public synchronized void closeCompletely()
+        throws IOException
+    {
+        closeSocket();
+
+        Debug.output( 2, "Closed client-side TCP/IP transport to " +
+                      connection_info + " terminally");
+
+        //terminate this transport
+        closed = true;
+        notifyAll();
+    }
+    
+    public synchronized void closeAllowReopen()
+        throws IOException
+    {
+        closeSocket();
+
+        Debug.output( 2, "Closed client-side TCP/IP transport to " +
+                      connection_info + " non-terminally (can be reopened)");
+    }
+
     /**
      * Close socket layer down.
      */
-    protected synchronized void close( int reason )
+    private void closeSocket()
         throws IOException
     {
-        // read timeouts should only close the connection, if it is
-        // idle, i.e. has no pending messages.
-        if( reason == READ_TIMED_OUT &&
-            ! isIdle() )
-        {
-            return;
-        }
-
         if (connected && socket != null)
         {
             socket.close ();
@@ -215,27 +225,11 @@ public class Client_TCP_IP_Transport
                 out_stream.close();
             }
 
-            Debug.output( 2, "Closed client-side TCP/IP transport to " +
-                          connection_info + " with reason " +
-                          reason);
-
             //for testing purposes
             --openTransports;
         }
 
         connected = false;
-
-        if( reason == GIOP_CONNECTION_CLOSED )
-        {
-            //terminate this transport
-            closed = true;
-
-            notifyAll();
-        }
-        else if( reason == READ_TIMED_OUT || reason == STREAM_CLOSED )
-        {
-            throw new StreamClosedException( "Socket stream closed" );
-        }
     }
 
     public boolean isSSL()

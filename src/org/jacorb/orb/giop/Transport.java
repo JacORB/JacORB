@@ -89,27 +89,25 @@ public interface Transport
     public boolean isSSL();
 
     /**
-     * Tell this transport that no messages are pending, i.e. it may
-     * be closed on a read timeout.  
-     */
-    public void setIdle();
-
-    /**
-     * Tell this transport that messages are pending on this
-     * transport, i.e. it must not be closed on a read timeout.  
-     */
-    public void setBusy();
-
-    /**
-     * Test, if this transport has pending messages. If not, closing
-     * on a read timeout is o.k.  
-     */
-    public boolean isIdle();
-
-    /**
      * Get the statistics provider for transport usage statistics.
      */
     public StatisticsProvider getStatisticsProvider();
+
+    /**
+     * Set the transport listener used for upcalls.
+     */
+    public void setTransportListener( TransportListener listener );
+
+    /**
+     * This is used to tell the transport that a CloseConnection has
+     * been sent, and that it should set a timeout in case the client
+     * doesn't close its side of the connection right away.
+     *
+     * This should only be called on the thread that listens on the
+     * socket because timeouts are not applied until read() is called
+     * the next time.  
+     */
+    public void turnOnFinalTimeout();
 }// Transport
 
 

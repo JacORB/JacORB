@@ -52,10 +52,6 @@ public class MessageReceptor
         {
             ((GIOPConnection) job).receiveMessages();
         }
-        catch( CloseConnectionException cce )
-        {
-            //ignore
-        }
         catch( Exception e )
         {
             Debug.output( 3, e );

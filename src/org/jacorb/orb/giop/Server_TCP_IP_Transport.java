@@ -67,23 +67,13 @@ public class Server_TCP_IP_Transport
         return socket;
     }
 
-    protected synchronized void close( int reason )
+    public synchronized void closeCompletely()
         throws IOException
     {
-        // read timeouts should only close the connection, if it is
-        // idle, i.e. has no pending messages.
-        if( reason == READ_TIMED_OUT &&
-            ! isIdle() )
-        {
-            return;
-        }
-
         //ignore the reasons since this transport can never be
         //reestablished.
         if( socket != null )
         {
-            Debug.output( 2, "Closing TCP connection, reason " + reason );
-
             socket.close();
 
             //this will cause exceptions when trying to read from
@@ -100,17 +90,21 @@ public class Server_TCP_IP_Transport
             
             socket = null;
 
-            Debug.output( 2, "Closed connection (server-side) " +
+            Debug.output( 2, "Closed server-side transport to " +
                           connection_info );
         }
-
-        throw new CloseConnectionException();
     }
 
-    protected void waitUntilConnected()
+    public void closeAllowReopen()
         throws IOException
     {
+        throw new org.omg.CORBA.BAD_OPERATION();
+    }
+
+    protected boolean waitUntilConnected()
+    {
         //can't reconnect
+        return true;
     }
 
     protected void connect()

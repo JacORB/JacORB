@@ -39,12 +39,6 @@ import org.jacorb.util.*;
 public abstract class TCP_IP_Transport
     implements Transport
 {
-    //Reasons for closing connections
-    public static final int GIOP_CONNECTION_CLOSED = 0;
-    public static final int READ_TIMED_OUT = 1;
-    public static final int STREAM_CLOSED = 2;
-    public static final int FORCE_CLOSE = 3;
-
     protected InputStream in_stream = null;
     protected OutputStream out_stream = null;
 
@@ -54,10 +48,6 @@ public abstract class TCP_IP_Transport
     private ByteArrayOutputStream b_out = null;
     private boolean dump_incoming = false;
 
-    //If no messages are pending on this transport, it is idle. This
-    //is decided by the connection layer.
-    private boolean is_idle = true;
-
     String connection_info;
     Socket socket;
 
@@ -66,6 +56,10 @@ public abstract class TCP_IP_Transport
 
     //used to unregister this transport
     protected TransportManager transport_manager = null;
+
+    private TransportListener transport_listener = null;
+
+    private int finalTimeout = 20000;
 
     public TCP_IP_Transport( StatisticsProvider statistics_provider,
                              TransportManager transport_manager )
@@ -91,6 +85,10 @@ public abstract class TCP_IP_Transport
                                      "off" );
 
         dump_incoming = "on".equals( dump_incoming_str );
+
+        finalTimeout = 
+            Environment.getIntPropertyWithDefault( "jacorb.connection.timeout_after_closeconnection", 
+                                                   20000 );
     }
 
     /**
@@ -104,65 +102,10 @@ public abstract class TCP_IP_Transport
      * getMessage() so the connection may be opened up not until the
      * first message is sent (instead of opening it up when the
      * transport is created).
+     *
+     * @return true if connection ready, false if connection closed.
      */
-    protected abstract void waitUntilConnected()
-        throws IOException;
-
-    /**
-     * Tell the extending class that the connection has/sould be
-     * closed together with the reason. The extending class can then
-     * decide if it wishes to close the connection finally by throwing
-     * a CloseConnectionException.
-     */
-
-    protected abstract void close( int reason )
-        throws IOException;
-
-    /**
-     * Tell this transport that no messages are pending, i.e. it may
-     * be closed on a read timeout.  
-     */
-    public void setIdle()
-    {
-        is_idle = true;
-    }
-
-    /**
-     * Tell this transport that messages are pending on this
-     * transport, i.e. it must not be closed on a read timeout.  
-     */
-    public void setBusy()
-    {
-        is_idle = false;
-    }
-
-    /**
-     * Test, if this transport has pending messages. If not, closing
-     * on a read timeout is o.k.  
-     */
-    public boolean isIdle()
-    {
-        return is_idle;
-    }
-
-    /**
-     * Close this transport (and free resources).  
-     */
-    public void closeCompletely()
-        throws IOException
-    {
-        close( GIOP_CONNECTION_CLOSED );
-    }
-
-    /**
-     * Close only the underlying network connection. Everything else
-     * stays in place and the network connection can be reopened.  
-     */
-    public void closeAllowReopen()
-        throws IOException
-    {
-        close( STREAM_CLOSED );
-    }
+    protected abstract boolean waitUntilConnected();
 
     /**
      * This method tries to read in <tt>length</tt> bytes from
@@ -196,22 +139,34 @@ public abstract class TCP_IP_Transport
                 {
                     Debug.output
                         (
-                         1,
+                         2,
                          "Socket timed out with timeout period of " +
                          socket.getSoTimeout ()
                          );
+
+                    transport_listener.readTimedOut();
+                    return -1;
                 }
-                close( READ_TIMED_OUT );
+                else
+                {
+                    throw e;
+                }
             }
             catch( SocketException se )
             {
-                close( STREAM_CLOSED );
+                Debug.output( 2, "Transport to " + connection_info +
+                              ": stream closed" );
+
+                transport_listener.streamClosed();
                 return -1;
             }
 
             if( n < 0 )
             {
-                close( STREAM_CLOSED );
+                Debug.output( 2, "Transport to " + connection_info +
+                              ": stream closed" );
+
+                transport_listener.streamClosed();
                 return -1;
             }
 
@@ -241,7 +196,10 @@ public abstract class TCP_IP_Transport
         //is necessary for the client side, so opening up a new
         //connection can be delayed until the first message is to be
         //sent.
-        waitUntilConnected();
+        if( ! waitUntilConnected() )
+        {
+            return null;
+        }
 
         int read = readToBuffer( msg_header, 0, Messages.MSG_HEADER_SIZE );
 
@@ -384,5 +342,36 @@ public abstract class TCP_IP_Transport
     {
         return statistics_provider;
     }
+
+    public void setTransportListener( TransportListener transport_listener )
+    {
+       this.transport_listener = transport_listener;
+    }
+
+    /**
+     * This is used to tell the transport that a CloseConnection has
+     * been sent, and that it should set a timeout in case the client
+     * doesn't close its side of the connection right away.
+     *
+     * This should only be called on the thread that listens on the
+     * socket because timeouts are not applied until read() is called
+     * the next time.  
+     */
+    public void turnOnFinalTimeout()
+    {
+        if( socket != null )
+        {
+            try
+            {
+                socket.setSoTimeout( finalTimeout );
+            }
+            catch( SocketException se )
+            {
+                Debug.output( 2, se );
+            }
+        }
+    }
+
 }
 // TCP_IP_Transport
+

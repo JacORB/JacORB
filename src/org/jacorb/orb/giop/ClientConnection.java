@@ -312,15 +312,19 @@ public class ClientConnection
                                          GIOPConnection connection )
     {
         Debug.output( 2, "Received a CloseConnection message" );
-        gracefulStreamClose = true;
-        connection.closeAllowReopen();
 
-        //since this is run on the message receptor thread itself, it
-        //will not try to read again after returning, because it just
-        //closed the transport itself. Therefore, no exception goes
-        //back up into the GIOPConnection, where streamClosed() will
-        //be called. Ergo, we need to call streamClosed() ourselves.
-        streamClosed();
+        if( client_initiated )
+        {
+            gracefulStreamClose = true;
+            ((ClientGIOPConnection) connection).closeAllowReopen();
+            
+            //since this is run on the message receptor thread itself, it
+            //will not try to read again after returning, because it just
+            //closed the transport itself. Therefore, no exception goes
+            //back up into the GIOPConnection, where streamClosed() will
+            //be called. Ergo, we need to call streamClosed() ourselves.
+            streamClosed();
+        }
     }
 
 
@@ -355,7 +359,6 @@ public class ClientConnection
                 }
                 else
                 {
-                    Debug.printTrace( 2 );
                     Debug.output( 1, "ERROR: Abnormal connection termination. Lost " +
                                   replies.size() + " outstanding replie(s)!");
                 }
