@@ -60,6 +60,7 @@ class ValueDecl
         for( Iterator i = d.v.iterator(); i.hasNext(); )
         {
             Declaration dec = ( (Definition)( i.next() ) ).get_declaration();
+            dec.setPackage( name );
             if( dec instanceof StateMember )
                 stateMembers.v.add( dec );
             else if( dec instanceof OpDecl )
@@ -97,6 +98,8 @@ class ValueDecl
 
     public void setPackage( String s )
     {
+        Environment.output( 4, "** ValueDecl setPackage " + s );
+
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = s + "." + pack_name;
