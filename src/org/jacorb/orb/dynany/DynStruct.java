@@ -191,8 +191,8 @@ public final class DynStruct
     }
 
 
-    public void set_members( NameValuePair[] nvp )
-	throws InvalidValue, TypeMismatch
+   public void set_members( NameValuePair[] nvp )
+       throws InvalidValue, TypeMismatch
     {
 	if( nvp.length != limit )
 	    throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
@@ -201,15 +201,11 @@ public final class DynStruct
 	{
 	    if( ! nvp[i].value.type().equivalent( members[i].value.type() ))
 	    {
-		System.err.println("expected tc kind " + 
-                                   members[i].value.type().kind().value()
-				   + ", got " + 
-                                   nvp[i].value.type().kind().value() );
-		throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
+          throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
 	    }
 
 	    if(! (nvp[i].id.equals("") || nvp[i].id.equals( members[i].id )))
-		throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
+          throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
 	}
 	members = nvp;	
     }

@@ -76,23 +76,7 @@ public final class DynSequence
     {
         if( ! type().equivalent( value.type() ))
         {
-            System.err.println("expected tc kind " + type().kind().value()
-                       + ", got " + value.type().kind().value() );      
-            try
-            { 
-                System.err.println("expected element tc kind " + 
-                                   type().content_type().kind().value()+ ", got " + 
-                                   value.type().content_type().kind().value() ); 
-    
-                System.err.println("expected length " + type().length()
-                                   + ", got " + value.type().length() );         
-            }
-            catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-            {
-                // should not happen anymore
-                bk.printStackTrace();
-            }
-            throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
+           throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
         }
 
         try

@@ -271,9 +271,6 @@ public final class DynUnion
     {
 	if( ! d.type().equivalent( discriminator.type()))
 	{
-	    System.err.println("expected tc kind " + 
-                               discriminator.type().kind().value() + 
-			       ", got " + d.type().kind().value() );	  
 	    throw new TypeMismatch();
 	}
 
