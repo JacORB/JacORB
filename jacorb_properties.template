@@ -279,6 +279,13 @@ jacorb.security.iaik_debug=off
 # the keystore has been loaded because its keys are needed
 jacorb.security.jsse.trustees_from_ks=off
 
+# These properties set the trust store for Suns JSSE. They are
+# necessary, because the "javax.net.ssl.trustStore[Password]" properties
+# don't seem to take effect, but will be ignored, if
+# "jacorb.security.jsse.trustees_from_ks"is set to on.
+jacorb.security.jsse.truststore=
+jacorb.security.jsse.truststore_password=
+
 #########################
 #                       #
 #   POA Configuration   #
