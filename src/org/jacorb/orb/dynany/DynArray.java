@@ -55,7 +55,8 @@ public final class DynArray
 	    type = _type;
             this.orb = org.omg.CORBA.ORB.init();
 	    this.dynFactory = dynFactory;
-	    elementType = tc.content_type();
+            elementType = ((org.jacorb.orb.TypeCode)type.content_type()).originalType();
+
 	    limit = type.length();
 	    members = new Any[limit];
 	    try
@@ -88,7 +89,8 @@ public final class DynArray
 	try
 	{	    
 	    limit = type().length();
-	    elementType = type().content_type();
+	    elementType = ((org.jacorb.orb.TypeCode)type.content_type()).originalType();
+
 	    if( limit > 0 )
 		pos = 0;
 

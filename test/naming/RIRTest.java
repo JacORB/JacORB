@@ -1,4 +1,4 @@
-package testes.naming;
+package test.naming;
 
 import org.omg.CosNaming.*;
 

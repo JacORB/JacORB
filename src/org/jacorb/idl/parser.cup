@@ -31,7 +31,7 @@ parser code
     public static Stack scopes = new Stack();
 
     public static String currentVersion = "";
-    public static String compiler_version = "1.3.31, 22 June 2001";
+    public static String compiler_version = "1.3.35, 14 September 2001";
 
     static String out_dir = "."; 
     static String package_prefix = null;
@@ -574,7 +574,7 @@ terminal java_cup.runtime.token
   SEMI, COMMA, STAR, DOT, COLON, EQUALS, PLUS, MINUS, LPAREN, RPAREN,
   LCBRACE, RCBRACE, LSBRACE, RSBRACE, LESSTHAN, GREATERTHAN, QUOTE, DBLQUOTE, 
   BSLASH, BAR, CIRCUM, AMPERSAND, SLASH, PERCENT, TILDE, DBLCOLON,
-  RSHIFT, LSHIFT;
+  RSHIFT, LSHIFT, LDBLQUOTE;
 
 
 terminal org.jacorb.idl.str_token ID;
@@ -667,7 +667,7 @@ non terminal VoidTypeSpec void_type_spec;
 non terminal StringType string_type;
 non terminal SequenceType sequence_type;
 non terminal FixedPointType fixed_point_type;
-non terminal Literal literal, string_literal;
+non terminal Literal literal, string_literal, wide_string_literal;
 
 non terminal Member member;
 non terminal Declarator declarator;
@@ -1247,7 +1247,8 @@ literal ::=
 //                :}
         | string_literal:s 
                 {: 
-                        RESULT.string = s.string; 
+                        RESULT.string = s.string;                 
+                        RESULT.wide = s.wide; 
                 :}
         | FIXED_NUMBER:f 
                 {: 
@@ -1274,6 +1275,16 @@ string_literal ::=
                  {: RESULT.string = "\"" + i.str_val + "\""; :}
         | DBLQUOTE DBLQUOTE
                  {: RESULT.string = "\"\""; :}
+        | LDBLQUOTE ID:i DBLQUOTE
+                 {: 
+                        RESULT.string = "\"" + i.str_val + "\"";
+                        RESULT.wide = true;
+                  :}
+        | LDBLQUOTE DBLQUOTE
+                 {: 
+                        RESULT.string = "\"\"";
+                        RESULT.wide = true;
+                  :}
         ;
 
 // #26

@@ -21,16 +21,26 @@ module basetypes
 
     typedef long ASN1_Integer;
     typedef ASN1_Integer NotificationIdentifierHelper;
+
+    interface foo {
+        typedef  string < 8 > octstring;
+        
+        octstring afunction(in octstring asdf);
+    };
     
     const long arrayBound = 011;
     
     const long LEN = 5;
     typedef string<LEN> ls;
 
-    const float f_c1 = 1.11;
-    const float f_c2 = 11e-2;
-    const float f_c3 = 0.41;
-    const float f_c4 = 1;
+    const wstring WS1 = L"Hello";
+    const string S1 = "Hello";
+    // const string WS1 = L"Hello"; // illegal, must be detected
+
+      const float f_c1 = 1.11;
+      const float f_c2 = 11e-2;
+      const float f_c3 = 0.41;
+      //       const float f_c4 = 1; // illegal
 
     const string A = "/*";
     const fixed ff = 1.1d;

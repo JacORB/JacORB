@@ -31,6 +31,10 @@ public interface Scope
     public void setScopeData(ScopeData data);
 
     public ScopeData getScopeData();
+
+    public str_token get_token();
+
+    public String name();
 }
 
 

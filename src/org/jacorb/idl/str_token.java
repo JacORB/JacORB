@@ -43,7 +43,8 @@ public class str_token
     public String fileName = "";
 
     /** Full constructor. */
-    public str_token(int term_num, String v, PositionInfo p, String _fileName )
+    public str_token( int term_num, String v, 
+                      PositionInfo p, String _fileName )
     {
 	/* super class does most of the work */
 	super(term_num);

@@ -13,6 +13,14 @@ module names {
   default : string s;
   };
 
+  module ArrrgPackage
+      {
+          interface BlubPackage {
+              typedef  sequence<short> shortHolder;
+          };
+      };
+
+
   interface KeyHolder { };
 
   interface Test {
@@ -35,6 +43,7 @@ module names {
   };
 
   module M {
+    module T {
       module M {
 
           typedef short M20;
@@ -45,12 +54,13 @@ module names {
           
           struct TEST2 {
               string tesT4;
-              string TesT4;
+              //string TesT4; // error: must be caught
           };
           
           //  enum teSt2 { t, T };
           
       };
+    };
       
   };  
   };

@@ -30,7 +30,15 @@ module recursiveTC
         };
 
 
+        union blubT switch (boolean) {
+        case TRUE : sequence <blubT> b;
+        case FALSE: string s;
+        };
+
+
         void passParm( in Parm p ); 
+
+        void passAny( in any a );
 
     };
 

@@ -68,10 +68,11 @@ public final class DynStruct
 	    members = new NameValuePair[limit];
 	    for( int i = 0 ; i < limit; i++ )
 	    {		
-		members[i]= new NameValuePair(
-                               type.member_name(i),
-                                  dynFactory.create_dyn_any_from_type_code(
-                                      type.member_type(i)).to_any());
+		members[i] =
+                    new NameValuePair(
+                       type.member_name(i),
+                           dynFactory.create_dyn_any_from_type_code(
+                               ((org.jacorb.orb.TypeCode)type.member_type(i)).originalType()).to_any());
 	    }
 	}
 	catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
@@ -109,7 +110,8 @@ public final class DynStruct
 		try
 		{
 		    Any a = (org.jacorb.orb.Any)orb.create_any();
-		    a.read_value(is, type().member_type(i));		   
+		    a.read_value(is, 
+                                 ((org.jacorb.orb.TypeCode)type.member_type(i)).originalType());		   
 		    members[i] = new NameValuePair( type().member_name(i), a);
 		}
 		catch( org.omg.CORBA.TypeCodePackage.Bounds b )

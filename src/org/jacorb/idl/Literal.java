@@ -32,6 +32,7 @@ class Literal
     extends IdlSymbol
 {
     public String string;
+    public boolean wide;
     public java_cup.runtime.token token;
 
     private ConstDecl declared_in;
@@ -50,7 +51,8 @@ class Literal
     {
         // const expressions containing literals can be declared
         // outside cons declarations (e.g, in sequence bounds), 
-        // but care only for const declarations here.
+        // but we care only for const declarations here.
+
         if( declared_in != null )
         {
             TypeSpec ts = declared_in.const_type.symbol.typeSpec();
@@ -68,12 +70,18 @@ class Literal
             {
                 parser.error("Expecting fixed point constant (perhaps a missing \"d\")!" );    
             }
+            else if( ts instanceof StringType )
+            {
+                if( wide && !((StringType)ts).isWide())
+                    parser.error("Illegal assignment of wide string constant to string!" );    
+
+            }
 
         }
     }
 
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
         ps.print( string );
     }

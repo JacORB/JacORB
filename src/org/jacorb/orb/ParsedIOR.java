@@ -565,15 +565,18 @@ public class ParsedIOR
 
 	    try
 	    {
-		NamingContextExt n = NamingContextExtHelper.narrow( orb.string_to_object(corbaloc));
-		org.omg.CORBA.Object target = n.resolve_str( name );
-		IOR ior = ((Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate()).getIOR();
+		NamingContextExt n =
+                    NamingContextExtHelper.narrow( orb.string_to_object(corbaloc));
+		org.omg.CORBA.Object target = 
+                    n.resolve_str( name );
+		IOR ior = 
+                    ((Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate()).getIOR();
 		decode(ior);
 	    }
 	    catch( Exception e )
 	    {
 		org.jacorb.util.Debug.output(4, e );
-		throw new RuntimeException("Invalid object reference: " + object_reference);
+		throw new RuntimeException("Invalid object reference: " + corbaloc );
 	    }
 	}
 	else

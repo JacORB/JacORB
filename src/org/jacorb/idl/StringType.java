@@ -71,7 +71,8 @@ class StringType
     public void setEnclosingSymbol( IdlSymbol s )
     {
 	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
+	    throw new RuntimeException("Compiler Error: trying to reassign container for " 
+                                       + name );
 	enclosing_symbol = s;
     }
 

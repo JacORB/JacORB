@@ -64,6 +64,18 @@ public class Client
 
             Parm outerParm = new Parm("outer", pvi  );
             goodDay.passParm( outerParm );
+
+
+            blubT union = new blubT();
+            Any any = orb.create_any();
+
+            blubT[] blubs = new blubT[0];
+            union.b( blubs );
+
+            blubTHelper.insert( any, union );
+
+            goodDay.passAny( any );
+
         }
         catch( Exception ex ) 
 	{

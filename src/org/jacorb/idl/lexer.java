@@ -210,6 +210,7 @@ public class lexer
         keywords.put("::", new Integer(sym.DBLCOLON));
         keywords.put("<<", new Integer(sym.LSHIFT));
         keywords.put(">>", new Integer(sym.RSHIFT));
+        keywords.put( "L\"", new Integer(sym.LDBLQUOTE));
 
         // setup the mapping of lower case keywords to case sensitive
         // keywords
@@ -480,7 +481,10 @@ public class lexer
      */
     protected static boolean id_start_char(int ch)
     {
-        return (ch >= 'a' &&  ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||  (ch == '_');
+        return  
+            ( ch >= 'a' &&  ch <= 'z') || 
+            ( ch >= 'A' && ch <= 'Z') ||  
+            ( ch == '_') ;
     }
 
 
@@ -867,7 +871,7 @@ public class lexer
      *  or dollar sign, which is followed by zero or more letters, numbers,
      *  underscores or dollar signs.  This routine returns a str_token suitable
      *  for return by the scanner or null, if the string that was read expanded to
-     *  a symbol that was #defined.In this case, the symbol is expanded in place
+     *  a symbol that was #defined. In this case, the symbol is expanded in place
      */
 
     protected static token do_symbol() 
@@ -884,7 +888,7 @@ public class lexer
         advance();
 
         /* collect up characters while they fit in id */ 
-        while(id_char(next_char))
+        while( id_char(next_char) )
         {
             buffer[0] = (char)next_char;
             result.append(buffer,0,1);
@@ -925,8 +929,8 @@ public class lexer
     
         result_str = checkIdentifier ( result_str );
         if ( null != result_str )
-            return new str_token(sym.ID, result_str, getPosition(), 
-                                 GlobalInputStream.currentFile().getName() );
+            return new str_token( sym.ID, result_str, getPosition(), 
+                                  GlobalInputStream.currentFile().getName() );
         else
             return null;
     }
@@ -995,16 +999,16 @@ public class lexer
         return( (!s.equals("Helper") && s.endsWith("Helper")) || 
                 (!s.equals("Holder") && s.endsWith("Holder")) || 
                 (!s.equals("Operations") && s.endsWith("Operations")) || 
+                (!s.equals("Package") && s.endsWith("Package")) || 
                 (!s.equals("POA") && s.endsWith("POA")) || 
                 (!s.equals("POATie") && s.endsWith("POATie")));
     }
 
-    public static boolean needsJavaEscape(Module m)
+    public static boolean needsJavaEscape( Module m )
     {
         String s = m.pack_name;
-        return ( !s.equals("Package") && s.endsWith("Package") ||
-                 strictJavaEscapeCheck(s)
-                );
+        Environment.output(4, "checking module name " + s );       
+        return ( strictJavaEscapeCheck(s));
     }
 
 
@@ -1095,6 +1099,15 @@ public class lexer
                         advance();
                         return new token(sym.COLON);
                     }
+                }
+
+                /* leading L for wide strings */
+                if (next_char == 'L' && next_char2 == '\"')
+                {
+                    advance();
+                    advance();
+                    in_string = true;
+                    return new token(sym.LDBLQUOTE);
                 }
 
 
@@ -1277,7 +1290,7 @@ public class lexer
                 }
 
                 /* look for an id or keyword */
-                if (id_start_char(next_char))
+                if ( id_start_char(next_char) )
                 {
                     token t = do_symbol();
                     if( t != null )
@@ -1317,8 +1330,9 @@ public class lexer
                 String s = result.toString();
 
                 /*  build and return an id token with an attached string */
-                return new org.jacorb.idl.str_token(sym.ID, s , getPosition(), 
-                                                GlobalInputStream.currentFile().getName());
+                return new org.jacorb.idl.str_token(sym.ID, s ,
+                                                    getPosition(), 
+                                                    GlobalInputStream.currentFile().getName());
             }
 
             /* if we get here, we have an unrecognized character */

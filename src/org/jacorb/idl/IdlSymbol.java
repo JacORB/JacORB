@@ -96,6 +96,11 @@ class IdlSymbol
 	return token;
     }
 
+    public String name()
+    {
+	return name;
+    }
+
     /**
      * A number of IDL constructs need to have their names
      * checked for clashes with name reserved by Java or
