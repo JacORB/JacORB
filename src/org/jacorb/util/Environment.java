@@ -588,6 +588,39 @@ public class Environment
         return compactTypecodes;
     }
 
+    public static String imrProxyHost()
+    {
+        return _props.getProperty (jacorbPrefix + "imr.ior_proxy_host");   
+    }
+    
+    public static int imrProxyPort()
+    {
+        return getIntPropertyWithDefault (jacorbPrefix + "imr.ior_proxy_port",
+                                          -1);
+    }
+    
+    public static String iorProxyHost()
+    {
+        return _props.getProperty (jacorbPrefix + "ior_proxy_host");
+    }
+    
+    public static int iorProxyPort()
+    {
+        return getIntPropertyWithDefault (jacorbPrefix + "ior_proxy_port",
+                                          -1);
+    }
+    
+    public static int giopMinorVersion()
+    {
+        return getIntPropertyWithDefault (jacorbPrefix + "giop_minor_version",
+                                          2);
+    }
+    
+    public static boolean giopAdd_1_0_Profiles()
+    {
+        return isPropertyOn (jacorbPrefix + "giop.add_1_0_profiles");
+    }
+
     /**
      * generic
      */
