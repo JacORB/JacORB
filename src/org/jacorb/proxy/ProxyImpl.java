@@ -212,7 +212,7 @@ class ProxyImpl extends ProxyPOA
                 catch (org.omg.CORBA.SystemException ex)
                 {
                     // Server not actually running or otherwise unavailable
-    
+
                     Debug.output (1, "Failed to register with name server");
                 }
             }
@@ -345,7 +345,7 @@ class ProxyImpl extends ProxyPOA
                 }
 
                 if ( logger.isDebugEnabled())
-                { 
+                {
                     logger.debug( "[changeByteOrder[" + off +
                                   "]] context_dataLength=" +
                                   context_dataLength );
@@ -383,7 +383,7 @@ class ProxyImpl extends ProxyPOA
             }
 
             if ( logger.isDebugEnabled())
-            { 
+            {
                 logger.debug ( "[changeByteOrder[" + off +
                                "]] object_keyLength=" +
                                object_keyLength );
@@ -413,9 +413,9 @@ class ProxyImpl extends ProxyPOA
                                  ((buffer[3+off] & 0xff) << 0));
             }
 
-            
+
             if ( logger.isDebugEnabled())
-            { 
+            {
                 logger.debug( "[changeByteOrder[" + off +
                               "]] opname_Length=" + opname_Length );
             }
@@ -437,6 +437,7 @@ class ProxyImpl extends ProxyPOA
             Delegate delegate = null;
             byte[] newbuff;
             byte[] outbuff;
+            byte[] reqisCopy;
             int newlen;
             int datalen;
             int status;
@@ -507,12 +508,13 @@ class ProxyImpl extends ProxyPOA
                 );
 
                 // Append data to new buffer
+                reqisCopy = reqis.getBufferCopy ();
 
                 if (datalen > 0)
                 {
                     System.arraycopy
                     (
-                        reqis.getBuffer (),
+                        reqisCopy,
                         reqis.get_pos (),
                         newbuff,
                         outbuff.length,
@@ -527,7 +529,7 @@ class ProxyImpl extends ProxyPOA
 
                 // Check GIOP header flags endian bit
 
-                if ((reqis.getBuffer()[6]&1) != (outbuff[6]&1))
+                if ((reqisCopy[6]&1) != (outbuff[6]&1))
                 {
                     changeByteOrder (outbuff);
                 }
@@ -552,7 +554,7 @@ class ProxyImpl extends ProxyPOA
                 /////////////////////
 
                 // Get reply output stream
-                        
+
                 repos = request.get_out ();
 
                 // Patch in reply status if not normal return
@@ -600,7 +602,7 @@ class ProxyImpl extends ProxyPOA
                 {
                     System.arraycopy
                     (
-                        repis.getBuffer (),
+                        repis.getBufferCopy (),
                         repis.get_pos (),
                         newbuff,
                         outbuff.length,
