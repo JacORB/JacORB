@@ -152,14 +152,13 @@
     </target>
 
    <!-- This target creates a jar file that contains the -->
-   <!-- core ORB components and (genrated) OMG classes + -->
-   <!-- the Naming Service -->
+   <!-- core ORB components and (genrated) OMG classes -->
    <target name="core_jacorb_jar" depends="init">
       <delete file="${lib}/core_jacorb.jar"/>
        <jar jarfile="${lib}/core_jacorb.jar"
       basedir="${classdir}"
-      includes="org/jacorb/orb/**,org/jacorb/naming/*,org/jacorb/poa/**,org/jacorb/util/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**"
-            excludes="org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/orb/connection/http/*"
+      includes="org/jacorb/orb/**,org/jacorb/poa/**,org/jacorb/util/**,org/jacorb/security/ssl/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**,org/omg/ETF/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
+            excludes="org/jacorb/poa/gui/*,org/jacorb/util/tracing/*"
       />
    </target>
 
