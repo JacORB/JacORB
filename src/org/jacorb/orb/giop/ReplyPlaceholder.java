@@ -24,7 +24,6 @@ import org.jacorb.orb.*;
 import org.jacorb.util.*;
 
 import org.omg.GIOP.*;
-import org.omg.Messaging._MessagingModule;
 import org.omg.CORBA.portable.RemarshalException;
 
 /**
@@ -39,25 +38,17 @@ import org.omg.CORBA.portable.RemarshalException;
 
 public class ReplyPlaceholder 
 {
-    private boolean ready = false;
-    private boolean communicationException = false;
-    private boolean remarshalException = false;
-    private boolean timeoutException = false;
+    protected boolean ready = false;
+    protected boolean communicationException = false;
+    protected boolean remarshalException = false;
+    protected boolean timeoutException = false;
 
-    private MessageInputStream in = null;
-    private org.omg.Messaging.ReplyHandler replyHandler = null;
+    protected MessageInputStream in = null;
 
-    private int timeout = -1;
+    protected int timeout = -1;
 
     public ReplyPlaceholder()
-    {
-        this (null);
-    }
-
-    public ReplyPlaceholder( org.omg.Messaging.ReplyHandler rh )
     {        
-        replyHandler = rh;
-
         //get the client-side timeout property value
         String prop = 
             Environment.getProperty( "jacorb.client.pending_reply_timeout" );
