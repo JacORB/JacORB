@@ -378,8 +378,17 @@ public class IIOPListener extends _ListenerLocalBase
      */
     private void deliverConnection (Socket socket)
     {
-        Connection result = null; // new ServerIIOPConnection (socket,
-                                  //                           endpoint());
+        Connection result = null;
+        try
+        {
+            result = new ServerIIOPConnection (socket, false);
+        }
+        catch (IOException ex)
+        {
+            Debug.output (1, "Could not create connection from socket: " + ex);
+            return;
+        }
+
         if (up != null)
         {
               up.add_input (result);
