@@ -47,13 +47,23 @@ ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 # The network and netmask configuration properties can optionally be
 # used to configure the network for the local client. If this is done
 # the calls to objects within the local subnet will not be redirected.
+#
+# The 'jacorb.ProxyServer.ID' property can be used to configure the
+# object identity for the appligator IOR. If not set this defaults
+# to 'Appligator'. For additionaly security it is recommended that
+# this be set to some other value.
+#
+# The 'jacorb.ProxyServer.Name' property is the name by which the
+# appligator adds itself to the name service (if available) on
+# startup.
 
+#jacorb.ProxyServer.Name=Appligator
+#jacorb.ProxyServer.ID=Appligator
 #jacorb.ProxyServer.Netmask=255.255.255.0
 #jacorb.ProxyServer.Network=160.45.110.0
 #jacorb.ProxyServer.URL=<url>
 #jacorb.ProxyServer.URL-<network1>-<netmask1>=<url1>
 #jacorb.ProxyServer.URL-<network2>-<netmask2>=<url2>
-
 
 ##################################
 #                                #
