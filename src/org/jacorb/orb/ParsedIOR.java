@@ -508,21 +508,41 @@ public class ParsedIOR
         // EstablishTrustInTarget and EstablishTrustInClient is
         // handled at the socket factory layer.
 
-        if( ssl != null &&                                               // server knows about ssl
-            Environment.isPropertyOn( "jacorb.security.support_ssl" ) )
-            //              Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //we support ssl
-            //              ( ((Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ) & 0x60) != 0) ||
-            //                                                       // we require ssl
-            //                ((ssl.target_requires & 0x60) != 0) || // server requires client auth.
-            //                ((ssl.target_requires & 0x02) != 0) || // server requires integrity
-            //                ((ssl.target_requires & 0x04) != 0)    // server requires confidentiality
-            //                ))
+        //the following is used as a bit mask to check, if any of
+        //these options are set
+        int minimum_options = 
+            Integrity.value |
+            Confidentiality.value |
+            DetectReplay.value |
+            DetectMisordering.value |
+            EstablishTrustInTarget.value |
+            EstablishTrustInClient.value;
+
+        int client_required = 
+            Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 );
+        int client_supported = 
+            Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 );
+
+        if( ssl != null && // server knows about ssl...
+            ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
+            Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+            ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
+            ( ((ssl.target_requires & minimum_options) != 0) || //server ...
+              ((client_required & minimum_options) != 0))) //...or client require it
         {
             use_ssl = true; 
             port = ssl.port; 
-        }                
-        else 
-        { 
+        }
+        //prevent client policy violation, i.e. opening plain TCP
+        //connections when SSL is required
+        else if( ssl == null && // server doesn't know ssl...
+                 Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+                 ((client_required & minimum_options) != 0)) //...and requires it
+        {
+            throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires SSL, but server doesn't support it" );
+        }
+        else
+        {
             use_ssl = false; 
         } 
             
