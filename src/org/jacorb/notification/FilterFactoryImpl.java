@@ -163,9 +163,14 @@ public class FilterFactoryImpl
 
                 availableFilters_.put(_grammar, _constructor);
             } catch (ClassNotFoundException e) {
-                throw new ConfigurationException(key + ": class " + _clazzName + " is unknown");
+                throw new ConfigurationException("Property "
+                                                 + key
+                                                 + ": class "
+                                                 + _clazzName
+                                                 + " is unknown");
             } catch (NoSuchMethodException e) {
-                throw new ConfigurationException(key
+                throw new ConfigurationException("Property "
+                                                 + key
                                                  + ": does the c'tor of class "
                                                  + _clazzName
                                                  + " accept param ApplicationContext ?");
