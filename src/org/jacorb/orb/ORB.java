@@ -1300,7 +1300,7 @@ public final class ORB
             }
             catch( org.omg.CORBA.BAD_INV_ORDER bio )
             {
-                // only set the delegate if it has not been set already                
+                // only set the delegate if it has not been set already                
                 org.jacorb.orb.ServantDelegate delegate = 
                     new org.jacorb.orb.ServantDelegate( this );
                 ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
@@ -1447,9 +1447,6 @@ public final class ORB
     }
 
 }
-
-
-
 
 
 
