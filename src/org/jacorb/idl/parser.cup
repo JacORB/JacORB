@@ -29,6 +29,8 @@ parser code
 
     public static Hashtable pack_replace = new Hashtable();
     public static Stack scopes = new Stack();
+    private static Hashtable tmpDefines = null;
+    private static Hashtable tmpUnDefines = null;
 
     public static String currentVersion = "";
 
@@ -96,6 +98,8 @@ parser code
         command_line = null;
         pack_replace = new Hashtable();
         scopes = new Stack();
+        tmpDefines = new Hashtable();
+        tmpUnDefines = new Hashtable();
 
         out_dir = ".";
         package_prefix = null;
@@ -186,9 +190,6 @@ parser code
               logStreamWriter = logWriter;
 
         init();
-
-        Hashtable tmpDefines = new Hashtable();
-        Hashtable tmpUnDefines = new Hashtable();
 
         command_line = argv;
         if( argv.length > 0 )
@@ -381,6 +382,14 @@ parser code
                     setFinalString(NO_FINAL);
                     continue;
                 }
+                if( argv[i].equals("-in") )
+                {
+                    i++;
+                    if( i < argv.length )
+                    {
+                        prepareAndParse(argv[i]);
+                    }
+                }
                 if( argv[i].endsWith(".idl") )
                 {
                     break;
@@ -394,33 +403,7 @@ parser code
             {
                 if( argv[j].endsWith(".idl"))
                 {
-                    GlobalInputStream.init();
-                    GlobalInputStream.setInput( argv[j] );
-
-                    /* reset tables everywhere */
-                    lexer.reset();
-                    NameTable.init();
-                    ConstDecl.init();
-                    TypeMap.init();
-
-                    /* define/undefine symbols */
-                    for( Enumeration e = tmpDefines.keys(); e.hasMoreElements(); )
-                    {
-                            String key = (String)e.nextElement();
-                            lexer.define( key, (String)tmpDefines.get( key ));
-                    }
-
-                    for( Enumeration e = tmpUnDefines.keys(); e.hasMoreElements(); )
-                    {
-                            lexer.undefine( (String)e.nextElement() );
-                    }
-
-                    new parser().parse();
-
-                    if( lexer.error_count > 0 )
-                    {
-                       throw new ParseException( "Errors in lexer" );
-                    }
+                    prepareAndParse(argv[j]);
                 }
                 else
                 {
@@ -430,6 +413,41 @@ parser code
         }
         return true;
     }
+
+    private static void prepareAndParse(String fileName)
+        throws Exception
+    {
+        GlobalInputStream.init();
+        GlobalInputStream.setInput( fileName );
+
+        /* reset tables everywhere */
+        lexer.reset();
+        NameTable.init();
+        ConstDecl.init();
+        TypeMap.init();
+
+        /* define/undefine symbols */
+        for( Enumeration e = tmpDefines.keys(); e.hasMoreElements(); )
+        {
+            String key = (String)e.nextElement();
+            lexer.define( key, (String)tmpDefines.get( key ));
+        }
+
+        for( Enumeration e = tmpUnDefines.keys(); e.hasMoreElements(); )
+        {
+            lexer.undefine( (String)e.nextElement() );
+        }
+
+        new parser().parse();
+
+        if( lexer.error_count > 0 )
+        {
+            throw new ParseException( "Errors in lexer" );
+        }
+    }
+
+
+
 
     public static void usage(String [] argv, String msg)
     {
@@ -1665,7 +1683,7 @@ base_type_spec ::=
         | bool_type:s {: RESULT.type_spec = s; :}
         | octet_type:s {: RESULT.type_spec = s; :}
         | any_type:s {: RESULT.type_spec = s; :}
-        | VALUEBASE
+        | VALUEBASE:s {: RESULT.type_spec = new ValueBase(sym.VALUEBASE); :}
         ;
 
 // #32
