@@ -558,7 +558,7 @@ public class CDRInputStream
                 org.jacorb.util.ValueHandler
                 .portableRemoteObject_narrow(read_Object(), clz);
         else
-            throw new org.omg.CORBA.NO_IMPLEMENT();
+            return read_Object();
     }
 
     public final byte read_octet ()
