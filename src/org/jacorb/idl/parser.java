@@ -936,7 +936,7 @@ public class parser extends java_cup.runtime.lr_parser {
     // Compiles out leaving no runtime dependency on Version
     public static final String compiler_version = org.jacorb.util.Version.longVersion;
 
-    private static final String yearString = "1997-2002";
+    private static final String yearString = "1997-2003";
 
     private static final String FINAL = " final";
     private static final String NO_FINAL = "";

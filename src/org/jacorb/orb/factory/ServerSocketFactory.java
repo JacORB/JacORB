@@ -3,7 +3,7 @@ package org.jacorb.orb.factory;
 /*
  *        Written for JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2002  Gerald Brose, André Benvenuti.
+ *   Copyright (C) 1999-2003  Gerald Brose, André Benvenuti.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public

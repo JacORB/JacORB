@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2002 Gerald Brose
+ *   Copyright (C) 1999-2003 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -31,6 +31,9 @@ import java.awt.*;
  * @author Nicolas Noffke
  *
  * $Log$
+ * Revision 1.5  2002/07/01 07:54:16  nicolas
+ * updated or inserted Copyright notice
+ *
  * Revision 1.4  2002/03/19 09:25:11  nicolas
  * updated copyright to 2002
  *
