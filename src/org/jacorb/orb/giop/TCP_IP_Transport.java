@@ -67,6 +67,8 @@ public abstract class TCP_IP_Transport
     //used to unregister this transport
     protected TransportManager transport_manager = null;
 
+    //is this transport in the rpocess of reading or writing a
+    //message?
     private boolean is_reading = false;
     private boolean is_writing = false;
 
@@ -237,6 +239,10 @@ public abstract class TCP_IP_Transport
     public byte[] getMessage()
         throws IOException
     {
+        //we'll not be in reading state until we've read the giop
+        //message header
+        is_reading = false;
+
         //Wait until the actual socket connection is established. This
         //is necessary for the client side, so opening up a new
         //connection can be delayed until the first message is to be
@@ -327,7 +333,13 @@ public abstract class TCP_IP_Transport
                                                      Messages.MSG_HEADER_SIZE );
             }
 
-            is_reading = false;
+            //this is the "good" exit point. we'll not set is_reading
+            //back to false until we enter this op again.  this will
+            //make sure that the upper layer has had a chance to
+            //decide if this transport is idle or not (drawback: this
+            //transport will be declared "reading" longer than
+            //strictly necessary)
+            //is_reading = false;
             return inbuf;
         }
         else
