@@ -1,5 +1,7 @@
 #pragma prefix "jacorb.org"
 
+#include "Tests.idl"
+
 module Tests {
 
   interface CallbackServer
@@ -11,8 +13,18 @@ module Tests {
     
     char return_char (in short unicode_number, in long delay);
     
-	long operation (inout char p1, out long p2, 
-	                in boolean p3, in long delay);
+    long operation (inout char p1, out long p2, 
+	            in boolean p3, in long delay);
+
+    void ex_1 (in boolean do_it, in long delay)
+      raises (EmptyException);
+
+    long ex_2 (inout long p, in boolean do_it, in long delay)
+      raises (NonEmptyException);
+
+    void ex_3 (in boolean non_empty, in long delay) 
+      raises (EmptyException, NonEmptyException);
+    
   };
 
 };
