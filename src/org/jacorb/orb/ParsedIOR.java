@@ -902,6 +902,11 @@ public class ParsedIOR
         return (buff.toString ());
     }
 
+    public TaggedComponent[] getMultipleComponents()
+    {
+        return taggedComponents;
+    }
+
     public boolean isNull()
     {
         return ( ior.type_id.equals("") && ( ior.profiles.length == 0 ));
