@@ -158,7 +158,7 @@ public class IIOPAddress
         {
             IIOPAddress x = (IIOPAddress)other;
             if (this.port == x.port)
-                return this.getIP() == x.getIP();
+                return this.getIP().equals(x.getIP());
             else
                 return false;
         }
