@@ -82,9 +82,9 @@ public class ServerRequest
      * we have to remember the target POA's name 
      */
 
-    public void setRemainingPOAName(String [] r_o_n)
+    public void setRemainingPOAName(String [] rest_of_name)
     {
-	rest_of_name = r_o_n;
+	this.rest_of_name = rest_of_name;
     }
 
     public String[] remainingPOAName()
@@ -309,7 +309,9 @@ public class ServerRequest
 		    }
 		    else if( status == ReplyStatusType_1_2._NO_EXCEPTION )
 		    {
-			result.write_value( out );
+                        if( result != null )
+                            result.write_value( out );
+
 			if( args != null )
 			{
 			    for( java.util.Enumeration e = args.enumerate(); 
@@ -320,7 +322,7 @@ public class ServerRequest
 				
 				if( nv.flags() != org.omg.CORBA.ARG_IN.value )
 				{ 
-				// in parameters are not returnd
+                                    // in parameters are not returnd
 				    try
 				    { 
 					nv.send( out );
