@@ -539,14 +539,13 @@ public class TypeCode
                 }
             }
         }
+        // Equal does not raise Bounds or BadKind so just return false.
         catch( org.omg.CORBA.TypeCodePackage.Bounds b )
         {
-            b.printStackTrace();
             return false;
         }
         catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
         {
-            bk.printStackTrace();
             return false;
         }
 
@@ -1032,14 +1031,13 @@ public class TypeCode
                 }
             }
         }
+        // Equivalent does not raise Bounds or BadKind so just return false.
         catch( org.omg.CORBA.TypeCodePackage.Bounds b )
         {
-            b.printStackTrace();
             return false;
         }
         catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
         {
-            bk.printStackTrace();
             return false;
         }
 
@@ -1074,10 +1072,10 @@ public class TypeCode
      */
     public static boolean isRecursive(org.omg.CORBA.TypeCode tc)
     {
-        return (tc instanceof TypeCode) ? ((TypeCode)tc).is_recursive() 
+        return (tc instanceof TypeCode) ? ((TypeCode)tc).is_recursive()
                                         : false;
     }
- 
+
     /**
      * called after replacing the placeholder
      * to be able to break off recursion
@@ -1092,7 +1090,7 @@ public class TypeCode
 
     public static String idlTypeName( org.omg.CORBA.TypeCode tc )
     {
-        return (tc instanceof org.jacorb.orb.TypeCode) 
+        return (tc instanceof org.jacorb.orb.TypeCode)
                                   ? ((org.jacorb.orb.TypeCode)tc).idlTypeName()
                                   : "(foreign typecode)";
     }
@@ -1192,20 +1190,20 @@ public class TypeCode
     }
 
     /**
-     * @return the content type if the argument is an alias, or the argument 
+     * @return the content type if the argument is an alias, or the argument
      *         itself otherwise
      */
-    public static org.omg.CORBA.TypeCode originalType(org.omg.CORBA.TypeCode tc) 
+    public static org.omg.CORBA.TypeCode originalType(org.omg.CORBA.TypeCode tc)
     {
         if (isRecursive(tc))
         {
             // Recursive typecodes must be structs or unions so there is no
-            // unwinding of aliases to be done. By returning here we avoid 
-            // calling kind() on a recursive typecode that might not have been 
-            // resolved yet. (If you remove the return statement below, you 
-            // will get org.omg.CORBA.BAD_INV_ORDER exceptions within kind() 
+            // unwinding of aliases to be done. By returning here we avoid
+            // calling kind() on a recursive typecode that might not have been
+            // resolved yet. (If you remove the return statement below, you
+            // will get org.omg.CORBA.BAD_INV_ORDER exceptions within kind()
             // calls on non-resolved recursive typecodes!)
-            return tc; 
+            return tc;
         }
 
         try
@@ -1242,7 +1240,7 @@ public class TypeCode
     {
         if (clz.isPrimitive())
             return (TypeCode)primitive_tcs_map.get(clz);
-        else if (knownTypes.containsKey(clz)) 
+        else if (knownTypes.containsKey(clz))
         {
             // recursive type code
             TypeCode newTypeCode = new TypeCode(RepositoryID.repId(clz));
@@ -1252,12 +1250,12 @@ public class TypeCode
         else if (clz.isArray())
         {
             // a Java array is mapped to a valuebox containing an IDL sequence
-            TypeCode newTypeCode = 
+            TypeCode newTypeCode =
                 new TypeCode(TCKind._tk_value_box,
                              RepositoryID.repId(clz),
                              "Java_array",
                              new TypeCode(TCKind._tk_sequence,
-                                          0, 
+                                          0,
                                           create_tc(clz.getComponentType(),
                                                     knownTypes)));
             knownTypes.put(clz, newTypeCode);
@@ -1274,9 +1272,9 @@ public class TypeCode
             {
                 Class helperClass =
                     clz.getClassLoader().loadClass(helperClassName);
-                java.lang.reflect.Method typeMethod = 
+                java.lang.reflect.Method typeMethod =
                     helperClass.getMethod("type", null);
-                TypeCode newTypeCode = 
+                TypeCode newTypeCode =
                     (TypeCode)typeMethod.invoke(null, null);
                 knownTypes.put(clz, newTypeCode);
                 return newTypeCode;
@@ -1285,7 +1283,7 @@ public class TypeCode
             {
                 throw new RuntimeException(
                                     "Cannot create TypeCode for class " + clz
-                                    + "\nReason: Error loading helper class " 
+                                    + "\nReason: Error loading helper class "
                                     + helperClassName
                                     + "\n" + e);
             }
@@ -1312,7 +1310,7 @@ public class TypeCode
         }
         else if (clz == java.io.Serializable.class ||
                  clz == java.io.Externalizable.class ||
-                 clz == java.lang.Object.class) 
+                 clz == java.lang.Object.class)
         {
             // Each such Java type is mapped to an IDL typedef for an IDL any
             return (TypeCode)get_primitive_tc(TCKind._tk_any);
@@ -1345,8 +1343,8 @@ public class TypeCode
 
     /*
      * Java interfaces whose method definitions (including inherited method
-     * definitions) all throw java.rmi.RemoteException or a superclass of 
-     * java.rmi.RemoteException are mapped to IDL abstract interfaces. 
+     * definitions) all throw java.rmi.RemoteException or a superclass of
+     * java.rmi.RemoteException are mapped to IDL abstract interfaces.
      */
     private static boolean isMappedToAnAbstractInterface(Class clz)
     {
@@ -1354,7 +1352,7 @@ public class TypeCode
         {
             return false;
         }
-        else 
+        else
         {
             java.lang.reflect.Method[] methods = clz.getMethods();
             for (int i = 0; i < methods.length; i++)
@@ -1371,12 +1369,12 @@ public class TypeCode
                 }
                 if (j == exceps.length)
                 {
-                    // method[i] does not throw java.rmi.RemoteException 
+                    // method[i] does not throw java.rmi.RemoteException
                     // or a superclass of java.rmi.RemoteException
-                    return false; 
+                    return false;
                 }
             }
-            // every method throws java.rmi.RemoteException 
+            // every method throws java.rmi.RemoteException
             // or a superclass of java.rmi.RemoteException
             return true;
         }
@@ -1452,7 +1450,7 @@ public class TypeCode
       for (int i = 0; i < member_type.length; i++)
       {
          typeCode = originalType (member_type[i]);
-         if (typeCode instanceof TypeCode) 
+         if (typeCode instanceof TypeCode)
          {
             tc = (TypeCode)typeCode;
 
@@ -1464,7 +1462,7 @@ public class TypeCode
                break;
             case   TCKind._tk_sequence:
                typeCode = originalType (tc.content_type);
-               if (typeCode instanceof TypeCode) 
+               if (typeCode instanceof TypeCode)
                {
                   tc = (TypeCode)typeCode;
 
