@@ -473,6 +473,7 @@ import org.omg.PortableServer.POA;
 
                     GIOPConnection connection =
                         giop_connection_manager.createServerGIOPConnection(
+                            null,
                             transport,
                             request_listener,
                             reply_listener );
