@@ -381,6 +381,7 @@ class ProxyImpl extends ProxyPOA
             byte[] outbuff;
             int newlen;
             int datalen;
+            int status;
 
             request = (org.jacorb.orb.dsi.ServerRequest) req;
             reqis = request.get_in ();
@@ -497,10 +498,17 @@ class ProxyImpl extends ProxyPOA
                         
                 repos = request.get_out ();
 
-                // Patch in reply type
+                // Patch in reply status if not normal return
 
-                repos.reduceSize (4);
-                repos.write_long (repis.rep_hdr.reply_status.value ());
+                status = repis.rep_hdr.reply_status.value ();
+                if (status != org.omg.GIOP.ReplyStatusType_1_2._NO_EXCEPTION)
+                {
+                    // Reply status is last CORBA long in reply header for
+                    // GIOP 1.0 and 1.1. This won't work for GIOP 1.2
+
+                    repos.reduceSize (4);
+                    repos.write_long (status);
+                }
 
                 // Get copy of buffer from stream
 
