@@ -352,6 +352,9 @@ public class SASClientInterceptor
             // if stateful, remove from connection
             if (reply.client_context_id > 0) 
                 connection.purgeSASContext(reply.client_context_id);
+            
+            // if context not found, resend with empty context cache
+            if (reply.major_status == 2) throw new org.omg.PortableInterceptor.ForwardRequest(ri.target());
         }
     }
 
