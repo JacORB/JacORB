@@ -216,7 +216,7 @@
 
    <target name="doc" depends="init">
            <javadoc destdir="${basedir}/doc/api"
-                    packagenames="jacorb.*">
+                    packagenames="org.jacorb.*">
                     <sourcepath> 
                                  <pathelement path="${src}" />
                                  <pathelement path="${src}/generated" />
