@@ -40,7 +40,25 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-2.0 GA
+2.1
+====
+
+      - new: 
+
+         * Implementation of the ORB PolicyManager interface to
+           set QoSS policies ORB-wide
+         * CDR 1.2 Portable Interceptor codec
+
+         * "-cdlc10" IDL compiler option to generate J2ME/CLDC1.0 
+           compatible stub code
+
+      - fixed:
+
+         * connection management problem that resulted in hanging 
+           clients
+         * server-side memory leaks
+
+2.0 (GA)
 ======
 
       - You can now use IORInterceptors to add new profiles to IORs
