@@ -30,6 +30,7 @@ import org.jacorb.util.*;
 import org.omg.IOP.*;
 import org.omg.GIOP.*;
 import org.omg.IIOP.*;
+import org.omg.CSIIOP.*;
 import org.omg.CosNaming.*;
 import org.omg.CONV_FRAME.*;
 
@@ -45,8 +46,11 @@ public class ParsedIOR
     private int effectiveProfileBody = 0;
     private ProfileBody_1_1[] profileBodies = null; 
 
-    /** top-level tagged componenents, i.e. not part of IOP components    */
+    /** top-level tagged components, i.e. NOT part of IOP components. Other
+        tagged components may be part of the profile podies
+     */
     public TaggedComponent[] taggedComponents = new TaggedComponent[0];
+
     public TaggedProfile[]  effectiveProfile;
 
     protected boolean endianness = false;
@@ -316,6 +320,7 @@ public class ParsedIOR
      * exception may only be thrown on the first invocation of that
      * reference.  
      */
+
     public void init()
     {
         ProfileBody_1_1 pb = getProfileBody();
@@ -380,7 +385,7 @@ public class ParsedIOR
         Vector internetProfiles = new Vector();
         Vector multipleComponentsProfiles = new Vector();
 
-	for ( int i = 0; i <_ior.profiles.length; i++ )
+	for( int i = 0; i < _ior.profiles.length; i++ )
 	{
 	    Debug.output( 4, "Parsing IOR, found profile id: " +
                                       _ior.profiles[i].tag );
@@ -425,6 +430,7 @@ public class ParsedIOR
         
         /* select the effective profile. We take the one with the
            highest minor version  number */
+
         for( int b = 1; b < profileBodies.length; b++)
         {
             if( profileBodies[b].iiop_version.minor > 
@@ -437,7 +443,7 @@ public class ParsedIOR
 	ior = _ior;
 	ior_str = getIORString();
 
-        //allow IORs without IIOP components
+        // allow IORs without IIOP components
         TaggedComponent[] iiop_components = null;
         if( profileBodies.length == 0 )
         {
@@ -454,6 +460,7 @@ public class ParsedIOR
 	    if( iiop_components[i].tag == TAG_CODE_SETS.value )
             {
                 // get server cs from IOR 
+
                 CDRInputStream is =
                     new CDRInputStream( orb, 
                                         iiop_components[i].component_data);
@@ -629,6 +636,7 @@ public class ParsedIOR
 
 	if (object_reference.startsWith ("IOR:"))
 	{
+
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream ();
 	    int cnt = (object_reference.length () - 4) / 2;
 	    for (int j = 0; j < cnt; j++)
@@ -656,6 +664,7 @@ public class ParsedIOR
                 in_ = new CDRInputStream (orb, bos.toByteArray());
             }                
 	    
+
 	    endianness = in_.read_boolean ();
 	    if (endianness)
             {

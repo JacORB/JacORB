@@ -3,7 +3,7 @@ package org.jacorb.ir;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -27,7 +27,8 @@ public class WstringDef
     public WstringDef(org.omg.CORBA.TypeCode tc)
     {
         org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_wstring, 
-                                  "Precondition volation: TypeCode must be of kind wstring, but is " + tc.kind().value() );
+                                  "Precondition volation: TypeCode must be of kind wstring, but is " + 
+                                        tc.kind().value() );
         def_kind = org.omg.CORBA.DefinitionKind.dk_Wstring;
         type = tc;
         try
@@ -41,11 +42,5 @@ public class WstringDef
     }
 
 }
-
-
-
-
-
-
 
 

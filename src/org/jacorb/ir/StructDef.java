@@ -85,14 +85,20 @@ public class StructDef
 	
             helperClass = RepositoryImpl.loader.loadClass( classId + "Helper") ;
             id( (String)helperClass.getDeclaredMethod( "id", null ).invoke( null, null ));
-            type = 
-                TypeCodeUtil.getTypeCode( myClass, RepositoryImpl.loader, null, classId );
+
+//              type = 
+//                  TypeCodeUtil.getTypeCode( myClass, RepositoryImpl.loader, null, classId );
+
+            type = (TypeCode)helperClass.getDeclaredMethod( "type", null ).invoke( null, null );
             
             members = new org.omg.CORBA.StructMember[ type.member_count() ];
             for( int i = 0; i < members.length; i++ )
             {
                 org.omg.CORBA.TypeCode type_code = type.member_type(i);
                 String member_name = type.member_name(i);
+
+                org.jacorb.util.Debug.output(3, "StructDef " + absolute_name  + " member " + member_name);
+
                 members[i] = new org.omg.CORBA.StructMember( member_name, 
                                                              type_code,
                                                              null );
@@ -521,15 +527,6 @@ public class StructDef
     }
 
 }
-
-
-
-
-
-
-
-
-
 
 
 

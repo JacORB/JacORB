@@ -296,13 +296,18 @@ public class IdlWriter
             indent( indentation );
             print( "struct " + s_def.name() + " {" + "\n" );
             indent( indentation + 3 );
-            for( int i = 0; i< members.length; i++){
+
+            for( int i = 0; i < members.length; i++)
+            {
                 print( idlTypeName( members[i].type ) + " " +
                        members[i].name + ";" + "\n" );
             }
-            for( int i = 0; i< contents.length; i++){
+
+            for( int i = 0; i< contents.length; i++)
+            {
                 printContained( contents[i], indentation  );
-            }			
+            }
+			
             indent( indentation );
             print( "};" + "\n\n" );
         } 
@@ -315,7 +320,8 @@ public class IdlWriter
     /** print an IDL const
      */
 
-    public void printConstant( org.omg.CORBA.ConstantDescription c, int indentation )
+    public void printConstant( org.omg.CORBA.ConstantDescription c, 
+                               int indentation )
     {
         indent( indentation );
         StringBuffer sb = 
@@ -374,7 +380,8 @@ public class IdlWriter
     /** print an IDL attribute
      */
 
-    public void printAttribute( org.omg.CORBA.AttributeDescription a, int indentation )
+    public void printAttribute( org.omg.CORBA.AttributeDescription a, 
+                                int indentation )
     {
         indent( indentation );
         String mode = "";
@@ -388,7 +395,8 @@ public class IdlWriter
     /** print an IDL Enum
      */
 
-    public void printEnum( org.omg.CORBA.TypeDescription t, int indentation )
+    public void printEnum( org.omg.CORBA.TypeDescription t, 
+                           int indentation )
     {
         org.omg.CORBA.EnumDef e_def =
             org.omg.CORBA.EnumDefHelper.narrow( ir.lookup_id( t.id )); 
@@ -412,7 +420,8 @@ public class IdlWriter
     /** print an IDL Union
      */
 
-    public void printUnion( org.omg.CORBA.TypeDescription t, int indentation )
+    public void printUnion( org.omg.CORBA.TypeDescription t, 
+                            int indentation )
     {
         org.omg.CORBA.UnionDef u_def = 
             org.omg.CORBA.UnionDefHelper.narrow( ir.lookup_id( t.id )); 
@@ -530,7 +539,8 @@ public class IdlWriter
     }
 
 
-    public void printParameter( org.omg.CORBA.ParameterDescription p, String separator )
+    public void printParameter( org.omg.CORBA.ParameterDescription p, 
+                                String separator )
     {
         if( p.mode.equals( org.omg.CORBA.ParameterMode.PARAM_OUT) )
             print("out ");

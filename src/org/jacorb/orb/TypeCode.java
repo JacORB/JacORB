@@ -802,7 +802,8 @@ public class TypeCode
             try
             {
                 return  idToIDL(id());   
-            } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+            } 
+            catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
             {}
         case   TCKind._tk_void:   return "void";
         case   TCKind._tk_string: return "string";

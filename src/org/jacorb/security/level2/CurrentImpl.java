@@ -158,6 +158,7 @@ public class CurrentImpl
      * of the property "jacorb.security.default_password" as the arg 
      * "auth_data" and a CredentialsHolder. All other args are null.
      */
+
     private void authenticate()
     {
         String s = Environment.getProperty("jacorb.security.principal_authenticator");
@@ -234,19 +235,18 @@ public class CurrentImpl
                 own_creds.copyInto( own_credentials );
 
 
-                Debug.output( 2, "AuthenticationStatus.SecAuthSuccess");
+                Debug.output( 2, "PA " + i + ": AuthenticationStatus.SecAuthSuccess");
             }
             else
             {
-                Debug.output( 2, "AuthenticationStatus.SecAuthFailure");
+                Debug.output( 2, "PA " + i + ": AuthenticationStatus.SecAuthFailure");
             }
         }
     }
 
     /* thread specific, from SecurityLevel1*/
     public SecAttribute[] get_attributes(AttributeType[] types)
-    {
-        
+    {        
         CredentialsImpl[] tsc = getTSCredentials();
         
         if( tsc != null && tsc.length > 0)

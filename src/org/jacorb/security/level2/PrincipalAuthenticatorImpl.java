@@ -46,7 +46,7 @@ public class PrincipalAuthenticatorImpl
                                              OpaqueHolder auth_specific_data
                                              )
     {
-	Debug.output( 3,"starting authentication" );
+	Debug.output( 3,"JPA: starting authentication" );
 	try 
 	{	
 	    registerProvider();
@@ -148,7 +148,7 @@ public class PrincipalAuthenticatorImpl
             
             creds.value = credsImpl;
 
-            Debug.output(3,"authentication succeeded");
+            Debug.output(3,"JPA: authentication succeeded");
 
             return AuthenticationStatus.SecAuthSuccess;
 	}

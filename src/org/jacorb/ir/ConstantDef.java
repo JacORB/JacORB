@@ -118,6 +118,7 @@ public class ConstantDef
         org.jacorb.util.Debug.output( 2, "New ConstantDef " + absolute_name());
     }
 
+
     void define()
     {
         org.jacorb.util.Debug.output( 2, "ConstantDef " + absolute_name() + " defining.");

@@ -862,6 +862,7 @@ public final class ORB
     /**
      * resolve_initial_references
      */
+
     public org.omg.CORBA.Object resolve_initial_references(String identifier) 
         throws org.omg.CORBA.ORBPackage.InvalidName 
     {
@@ -1025,16 +1026,16 @@ public final class ORB
                 {
                     try
                     {
-                        Class ssl = Class.forName( "org.jacorb.security.level2.CurrentImpl" );
+                        Class currentClass = Class.forName( "org.jacorb.security.level2.CurrentImpl" );
 
-                        Constructor constr = ssl.getConstructor( new Class[]{
+                        Constructor constr = currentClass.getConstructor( new Class[]{
                             org.omg.CORBA.ORB.class });
 
                         securityCurrent = (org.omg.SecurityLevel2.Current)
                             constr.newInstance( new Object[]{ this });
 
-                        Method init = ssl.getDeclaredMethod( "init",
-                                                             new Class[0] );
+                        Method init = currentClass.getDeclaredMethod( "init",
+                                                                      new Class[0] );
                         init.invoke( securityCurrent, new Object[0] );
                     }
                     catch (Exception e)
@@ -1220,6 +1221,7 @@ public final class ORB
             }
         }
 
+
 	connectionManager = new ConnectionManager(this);
 	
         String s = Environment.getProperty( "jacorb.hashtable_class" );
@@ -1269,6 +1271,16 @@ public final class ORB
             Environment.isPropertyOn( "jacorb.giop.add_1_0_profiles" );
 
         interceptorInit();
+
+//          try
+//          {
+//              resolve_initial_references("SecurityCurrent");
+//          }
+//          catch( Exception e )
+//          {
+//              e.printStackTrace();
+//          }
+
     }
 
 

@@ -23,7 +23,7 @@ package org.jacorb.ir.gui.typesystem.remote;
 import org.omg.CORBA.*;
 
 /**
- * @author jerome Julius
+ * @author Jerome Julius
  * @version $Id$
  */
 

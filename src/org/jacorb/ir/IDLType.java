@@ -162,9 +162,18 @@ public class IDLType
         case TCKind._tk_wstring: 
             try
             {
-                return org.omg.CORBA.WstringDefHelper.narrow( 
-                      RepositoryImpl.poa.servant_to_reference(
-                           new org.omg.CORBA.WstringDefPOATie( new WstringDef( tc ))));
+                if( tc.length() == 0)
+                {
+                    return org.omg.CORBA.PrimitiveDefHelper.narrow( 
+                       RepositoryImpl.poa.servant_to_reference( 
+                          new org.omg.CORBA.PrimitiveDefPOATie( new PrimitiveDef( tc ))));
+                }
+                else
+                {
+                    return org.omg.CORBA.WstringDefHelper.narrow( 
+                       RepositoryImpl.poa.servant_to_reference(
+                          new org.omg.CORBA.WstringDefPOATie( new WstringDef( tc ))));
+                }
             }
             catch( Exception e )
             {
