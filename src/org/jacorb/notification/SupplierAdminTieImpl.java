@@ -121,6 +121,8 @@ public class SupplierAdminTieImpl
             {
                 if ( thisRef_ == null )
                 {
+		    // sideeffect of getServant() is that
+		    // thisServant_ gets set.
                     getServant();
                     thisRef_ = thisServant_._this( getOrb() );
                 }

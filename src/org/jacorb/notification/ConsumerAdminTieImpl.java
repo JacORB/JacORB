@@ -122,16 +122,18 @@ public class ConsumerAdminTieImpl
             synchronized ( this )
             {
                 if ( thisRef_ == null )
-                {
-                    getServant();
-                    thisRef_ = thisServant_._this( getOrb() );
-                }
+		    {
+			// sideeffect of getServant() is that
+			// thisServant_ gets set.		
+			getServant();
+			thisRef_ = thisServant_._this( getOrb() );
+		    }
             }
         }
-
+	
         return thisRef_;
     }
-
+    
     public org.omg.CORBA.Object getThisRef()
     {
         return getConsumerAdmin();

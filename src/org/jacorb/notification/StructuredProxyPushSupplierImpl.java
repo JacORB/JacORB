@@ -91,15 +91,16 @@ public class StructuredProxyPushSupplierImpl
                 {
                     pushConsumer_.push_structured_event( event.toStructuredEvent() );
                 }
-                else
+                else 
                 {
+		    // not enabled
                     pendingEvents_.add( event.toStructuredEvent() );
                 }
             }
             catch ( Disconnected d )
             {
                 connected_ = false;
-                logger_.debug( "push failed - Recipient is Disconnected" );
+                logger_.warn( "push failed - PushConsumer was disconnected" );
             }
         }
         else
@@ -188,10 +189,10 @@ public class StructuredProxyPushSupplierImpl
             if ( pushConsumer_ != null )
             {
             	try {
-                	pushConsumer_.disconnect_structured_push_consumer();
-				} catch (Exception e) {
-					logger_.warn("Error disconnecting consumer: "+e);
-				}
+		    pushConsumer_.disconnect_structured_push_consumer();
+		} catch (Exception e) {
+		    logger_.warn("Error disconnecting consumer: "+e);
+		}
                 pushConsumer_ = null;
                 connected_ = false;
             }
