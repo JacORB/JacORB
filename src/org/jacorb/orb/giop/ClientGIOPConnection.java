@@ -34,9 +34,10 @@ public class ClientGIOPConnection
 {
     public ClientGIOPConnection( Transport transport,
                                  RequestListener request_listener,
-                                 ReplyListener reply_listener )
+                                 ReplyListener reply_listener,
+                                 StatisticsProvider statistics_provider )
     {
-        super( transport, request_listener, reply_listener );
+        super( transport, request_listener, reply_listener, statistics_provider );
     }
     
 
