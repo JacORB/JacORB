@@ -28,7 +28,7 @@ import org.omg.CosNotifyComm.NotifyPublishOperations;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestSuite;
+import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt
@@ -118,9 +118,7 @@ public class OfferManagerTest extends NotificationTestCase {
     }
 
 
-    public static TestSuite suite(){
-        TestSuite suite = new TestSuite(OfferManagerTest.class);
-
-        return suite;
+    public static Test suite() throws Exception {
+        return NotificationTestCase.suite(OfferManagerTest.class);
     }
 }
