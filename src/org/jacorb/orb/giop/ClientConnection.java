@@ -215,7 +215,7 @@ public class ClientConnection
         {
             connection.sendMessage( os );
         }
-        catch( Exception e )
+        catch( java.io.IOException e )
         {
             Debug.output(2,e);
             throw new org.omg.CORBA.COMM_FAILURE();
