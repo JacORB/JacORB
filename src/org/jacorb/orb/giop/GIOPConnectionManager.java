@@ -19,6 +19,8 @@
  */
 package org.jacorb.orb.giop;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import java.util.*;
 
 import org.jacorb.util.*;
@@ -32,14 +34,13 @@ public class GIOPConnectionManager
 {
     //private List client_giop_connections = null;
     private List server_giop_connections = null;
-
     private int max_server_giop_connections = 0;
-
     private Class statistics_provider_class = null;
-
     private SelectionStrategy selection_strategy = null;
-
     private int wait_for_idle_interval = 0;
+
+    private Logger logger = Debug.getNamedLogger("jacorb.giop.conn");
+
 
     public GIOPConnectionManager()
     {
@@ -73,8 +74,10 @@ public class GIOPConnectionManager
                 }
                 catch( Exception e )
                 {
-                    Debug.output( 1, "ERROR: Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e );
-                               
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error( "Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e.getMessage() );
+                    }                        
                 }
             }
         }
@@ -82,11 +85,10 @@ public class GIOPConnectionManager
     }
     
 
-    public ServerGIOPConnection createServerGIOPConnection( 
-        org.omg.ETF.Profile profile,
-        org.omg.ETF.Connection transport,
-        RequestListener request_listener,
-        ReplyListener reply_listener )
+    public ServerGIOPConnection createServerGIOPConnection(org.omg.ETF.Profile profile,
+                                                           org.omg.ETF.Connection transport,
+                                                           RequestListener request_listener,
+                                                           ReplyListener reply_listener )
     {
         //if too many open connections, shut one down
         if( server_giop_connections.size() >= max_server_giop_connections )
@@ -123,7 +125,10 @@ public class GIOPConnectionManager
             }
             else
             {
-                Debug.output( 1, "ERROR: no of max server giop connections set, but no SelectionStrategy present" );
+                if (logger.isErrorEnabled())
+                {
+                    logger.error( "No. of max server giop connections set, but no SelectionStrategy present" );
+                }
             }
         }
 
