@@ -52,7 +52,7 @@ jacorb.verbosity=1
 #                                                #
 #    WARNING: The following properties should    # 
 #    only be edited by the expert user. They     #
-#    can be left untouched for most cases!       #
+#    can be left untouched in most cases!        #
 #                                                #
 ##################################################
 
