@@ -388,14 +388,14 @@ public class POA
                 if (!previouslyGeneratedObjectKey(request.objectKey())) 
                 {
                     logTrace.printLog(0, request, 
-                                      "_invoke: object key not previous generated!,  operation: " + 
+                                      "_invoke: object key not previously generated!,  operation: " + 
                                       request.operation());   
                     throw new WrongAdapter();
                 }
                 if (isSystemId() && !previouslyGeneratedObjectId(request.objectId()) ) 
                 {
                     logTrace.printLog(0, request.objectId(), 
-                                      "_invoke: oid not previous generated!, operation: " + 
+                                      "_invoke: oid not previously generated!, operation: " + 
                                       request.operation());   
                     throw new WrongAdapter();
                 }
@@ -507,7 +507,7 @@ public class POA
 
         if ( isSystemId() && !previouslyGeneratedObjectId(oid) ) 
         {
-            logTrace.printLog(0, oid, "activate_object_with_id: oid not previous generated!");   
+            logTrace.printLog(0, oid, "activate_object_with_id: oid not previously generated!");   
             throw new org.omg.CORBA.BAD_PARAM();
         }
 
@@ -724,7 +724,7 @@ public class POA
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
 
         if (isSystemId() && !previouslyGeneratedObjectId(oid)) {
-            logTrace.printLog(0, oid, "create_reference_with_id: oid not previous generated!");   
+            logTrace.printLog(0, oid, "create_reference_with_id: oid not previously generated!");   
             throw new org.omg.CORBA.BAD_PARAM();
         }               
 
@@ -1329,12 +1329,12 @@ public class POA
         }
     }
 
-    private boolean previouslyGeneratedObjectId(byte[] oid) 
+    boolean previouslyGeneratedObjectId(byte[] oid) 
     {
         return IdUtil.equals(watermark, extractWatermark(oid));
     }
 
-    private boolean previouslyGeneratedObjectKey(byte[] object_key) 
+    public boolean previouslyGeneratedObjectKey(byte[] object_key) 
     {
         return IdUtil.equals(object_key, getPOAId(), getPOAId().length);
     }
@@ -1348,7 +1348,7 @@ public class POA
         byte[] objectId = POAUtil.extractOID(reference);
         /* not spec (isSystemId) */
         if (isSystemId() && !previouslyGeneratedObjectId(objectId)) {
-            logTrace.printLog(0, objectId, "reference_to_id: oid not previous generated!");   
+            logTrace.printLog(0, objectId, "reference_to_id: oid not previously generated!");   
             throw new WrongAdapter();
         }               
                 
@@ -1368,7 +1368,7 @@ public class POA
 
         /* not spec (isSystemId) */
         if (isSystemId() && !previouslyGeneratedObjectId(objectId)) {
-            logTrace.printLog(0, objectId, "reference_to_servant: oid not previous generated!");   
+            logTrace.printLog(0, objectId, "reference_to_servant: oid not previously generated!");   
             throw new WrongAdapter();
         }               
                 

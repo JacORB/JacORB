@@ -44,7 +44,7 @@ public class AccessDecisionImpl
 
         // do something to find out...
         
-        return false;       
+        return true;       
     }  
 
 } // AccessDecisionImpl

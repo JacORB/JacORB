@@ -235,10 +235,13 @@ public final class POAUtil
         }
         return result;
     }
+
     /**
      * masks the object key separator chars
      */
-    public static String maskStr(String str) {
+
+    public static String maskStr(String str) 
+    {
         return new String(maskId(str.getBytes()));
     }
     /**
@@ -253,10 +256,13 @@ public final class POAUtil
     public static byte[] string_to_objectId(String str) {	
         return str.getBytes();
     }
+
     /**
      * unmasks the object key separator bytes 
      */
-    public static byte[] unmaskId(byte[] id) {
+
+    public static byte[] unmaskId(byte[] id) 
+    {
         int altered = id.length;
         for (int i=0; i<id.length; i++) {
             if (id[i] == POAConstants.MASK_BYTE) {
@@ -294,11 +300,12 @@ public final class POAUtil
     /**
      * unmasks the object key separator chars
      */
-    public static String unmaskStr(String str) {
+
+    public static String unmaskStr(String str) 
+    {
         return new String(unmaskId(str.getBytes()));
     }
 }
-
 
 
 

@@ -59,7 +59,7 @@ public class ImportThread extends Thread {
 		String _preference = "";
 		
 		SpecifiedProps _desired_props = new SpecifiedProps();
-		_desired_props.all_dummy((short)0);	    
+                //		_desired_props.all_dummy((short)0);	    
 		
 		OfferSeqHolder _offers = new OfferSeqHolder();
 		OfferIteratorHolder _iter = new OfferIteratorHolder();
@@ -113,9 +113,6 @@ public class ImportThread extends Thread {
 
     }    
 } // ImportThread
-
-
-
 
 
 

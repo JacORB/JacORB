@@ -73,9 +73,7 @@ public class ServerAccessDecisionInterceptor
     public void receive_request(ServerRequestInfo ri)
         throws ForwardRequest
     {
-
-        //System.out.println("Call to: " + ri.target_most_derived_interface() );
- 
+        //Debug.output(1,"Call to: " + ri.target_most_derived_interface() );
 
         if (special_operations.containsKey(ri.operation()))
         {

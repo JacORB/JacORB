@@ -200,13 +200,19 @@ public class Query
 	    SpecifiedProps desiredProps = new SpecifiedProps();
 	    if (! m_useProps.getState())
 		//desiredProps._default(HowManyProps.all);
-		desiredProps.all_dummy((short)0);
-	    else {
+              //desiredProps.all_dummy((short)0);
+              ;
+	    else 
+            {
 		String props = m_props.getText().trim();
 		if (props.length() == 0)
+                {
 		    //desiredProps._default(HowManyProps.none);
-		    desiredProps.none_dummy((short)0);
-		else {
+                  //desiredProps.none_dummy((short)0);
+                  ;
+                }
+		else 
+                {
 		    StringTokenizer tok = new StringTokenizer(props, ",");
 		    String[] names = new String[tok.countTokens()];
 		    int count = 0;

@@ -31,15 +31,22 @@ class ForwarderImpl
             return ids;
         }
 
-        public void Xswap4(byte[] by,int a, int b, int c, int d, int off){
+        public void Xswap4(byte[] by,int a, int b, int c, int d, int off)
+        {
             byte swap;
-            swap=by[a+off];by[a+off]=by[d+off];by[d+off]=swap;
+
+            swap = by[ a+off ];
+            by[a+off] = by[ d+off ];
+            by[d+off] = swap;
+
             //this line is wrong (reported by Armin Schloesser) swap=by[b+off];by[c+off]=by[b+off];by[b+off]=swap;
             swap=by[b+off];by[b+off]=by[c+off];by[c+off]=swap;
         }
 
-	public int doAlign(int index, int boundary) {
-            if (index%boundary != 0) {
+	public int doAlign( int index, int boundary ) 
+        {
+            if( index%boundary != 0 ) 
+            {
                 index = index + boundary - (index%boundary);
             }
             return index;
@@ -250,7 +257,7 @@ class ForwarderImpl
                 poa_current=
                     org.omg.PortableServer.CurrentHelper.narrow(orb.resolve_initial_references("POACurrent"));
             }
-            catch(org.omg.CORBA.UserException ue)
+            catch( org.omg.CORBA.UserException ue )
             {
                 ue.printStackTrace();
             }
@@ -305,7 +312,8 @@ class ForwarderImpl
                     {
                         //getting a buffer of the right size
                         byte[] new_array = 
-                            org.jacorb.orb.BufferManager.getInstance().getBuffer( datalength + 
+                            org.jacorb.orb.BufferManager.getInstance().getBuffer( 
+                                                                   datalength + 
                                                                    cdr.size() );
                         
                         //copying the old header to the new array
@@ -352,15 +360,19 @@ class ForwarderImpl
                     if (Environment.verbosityLevel()>=3)
                     {
                         Debug.output(3,"[Proxy:Incoming byte-stream:]");
-                        for(int i=0;i<inrequest.get_in().msg_hdr.message_size+12;i++)
+
+                        for( int i = 0 ; i < inrequest.get_in().msg_hdr.message_size+12; i++ )
                             System.out.print(((byte)inrequest.get_in().getBuffer()[i])+"  ");
-                        Debug.output(3,"[Proxy:Outgoing byte-stream:]");
-                        for(int i=0;i<cdr.size();i++)
+
+                        Debug.output(3, "[Proxy:Outgoing byte-stream:]");
+                        for(int i=0; i < cdr.size(); i++)
                         {
                             System.out.print(((byte)cdr.getInternalBuffer()[i])+"  ");
                         }
                         System.out.println("[The real Data:]");
-                        for(int i=inrequest.get_in().get_pos();i<inrequest.get_in().msg_hdr.message_size+12;i++)
+                        for( int i = inrequest.get_in().get_pos(); 
+                             i < inrequest.get_in().msg_hdr.message_size + 12;
+                             i++ )
                         {
                             System.out.print(inrequest.get_in().getBuffer()[i]+"  ");
                         }

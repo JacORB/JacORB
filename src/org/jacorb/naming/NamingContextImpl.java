@@ -664,8 +664,8 @@ public class NamingContextImpl
         }
         
         /** 
-         * Recreate tables. For serialization, object references have been transformed
-         * into strings
+         * Recreate tables. For serialization, object references 
+         * have been transformed into strings
          */
 
         for( Enumeration e = contexts.keys(); e.hasMoreElements();)
