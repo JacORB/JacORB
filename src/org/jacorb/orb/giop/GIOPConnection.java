@@ -134,7 +134,7 @@ public abstract class GIOPConnection
         dump_incoming = 
             configuration.getAttribute("jacorb.debug.dump_incoming_messages","off").equals("on");
         timeout = 
-            configuration.getAttributeAsInteger("jacorb.connection.connect_timeout", 0);
+            configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 0);
 
     }
 
