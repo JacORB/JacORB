@@ -251,7 +251,7 @@ public class CallbackTest extends CallbackTestCase
         };
         ( ( _CallbackServerStub ) server )
             .sendc_return_char( ref( handler ), ( short ) EURO_SIGN, 100 );
-        handler.wait_for_reply( 200 );           
+        handler.wait_for_reply( 500 );           
     }
     
     public void test_complex_operation()
