@@ -43,18 +43,19 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.interfaces.Disposable;
 
 /**
- * MappingFilterImpl.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class MappingFilterImpl extends MappingFilterPOA
+public class MappingFilterImpl extends MappingFilterPOA implements Disposable
 {
-
+    /**
+     * map constraint ids used by class FilterImpl to default values
+     * used by MappingFilterImpl.
+     */
     private static class ValueMap
     {
         private Map valueMap_ = new Hashtable();
@@ -74,7 +75,7 @@ public class MappingFilterImpl extends MappingFilterPOA
             return ( Any ) valueMap_.remove( new Integer( key ) );
         }
 
-        public void clear()
+        public void dispose()
         {
             valueMap_.clear();
         }
@@ -96,15 +97,16 @@ public class MappingFilterImpl extends MappingFilterPOA
         defaultValue_ = defaultValue;
     }
 
-    // Implementation of org.omg.CosNotifyFilter.MappingFilterOperations
 
-    /**
-     * Describe <code>destroy</code> method here.
-     *
-     */
     public void destroy()
     {
-        filterImpl_.destroy();
+        dispose();
+    }
+
+
+    public void dispose() {
+        filterImpl_.dispose();
+        valueMap_.dispose();
         defaultValue_ = null;
     }
 
@@ -138,16 +140,16 @@ public class MappingFilterImpl extends MappingFilterPOA
         return defaultValue_;
     }
 
-    public MappingConstraintInfo[] add_mapping_constraints( MappingConstraintPair[] mappingConstraintPairArray )
+    public MappingConstraintInfo[] add_mapping_constraints( MappingConstraintPair[] mcp )
         throws InvalidValue, InvalidConstraint
     {
         ConstraintExp[] _constraintExpArray =
-            new ConstraintExp[ mappingConstraintPairArray.length ];
+            new ConstraintExp[ mcp.length ];
 
-        for ( int x = 0; x < mappingConstraintPairArray.length; ++x )
+        for ( int x = 0; x < mcp.length; ++x )
         {
             _constraintExpArray[ x ] =
-                mappingConstraintPairArray[ x ].constraint_expression;
+                mcp[ x ].constraint_expression;
         }
 
         ConstraintInfo[] _constraintInfo =
@@ -161,10 +163,10 @@ public class MappingFilterImpl extends MappingFilterPOA
             _mappingConstraintInfo[ x ] =
                 new MappingConstraintInfo( _constraintInfo[ x ].constraint_expression,
                                            _constraintInfo[ x ].constraint_id,
-                                           mappingConstraintPairArray[ x ].result_to_set );
+                                           mcp[ x ].result_to_set );
 
             valueMap_.put( _constraintInfo[ x ].constraint_id ,
-                           mappingConstraintPairArray[ x ].result_to_set );
+                           mcp[ x ].result_to_set );
         }
 
         return _mappingConstraintInfo;
@@ -263,7 +265,7 @@ public class MappingFilterImpl extends MappingFilterPOA
     public void remove_all_mapping_constraints()
     {
         filterImpl_.remove_all_constraints();
-        valueMap_.clear();
+        valueMap_.dispose();
     }
 
     /**
