@@ -3,7 +3,9 @@ package org.jacorb.proxy;
 import org.omg.PortableInterceptor.*;
 import org.omg.CosNaming.*;
 import org.jacorb.orb.*;
+import org.jacorb.util.Debug;
 import org.omg.IOP.*;
+
 /**
  * This class registers the ClientForwardInterceptor
  * with the ORB.
@@ -16,35 +18,27 @@ public class ProxyClientInitializer
     extends org.omg.CORBA.LocalObject
     implements ORBInitializer
 {
-
-    public ProxyClientInitializer() {
+    public ProxyClientInitializer ()
+    {
     }
 
     /**
-     * This method resolves the NameService and registers the
-     * interceptor.
+     * This method registers the client proxy interceptor.
      */
 
-    public void post_init(ORBInitInfo info)
+    public void post_init (ORBInitInfo info)
     {
         try
         {
-
-			int slot_id = info.allocate_slot_id();
-
-			Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value,
-							       (byte) 1, (byte) 0);
-			Codec codec = info.codec_factory().create_codec(encoding);
-
-            info.add_client_request_interceptor
-                (new ProxyClientForwardInterceptor(info, slot_id, codec));
+            info.add_client_request_interceptor (new ProxyClientForwardInterceptor (info));
         }
-        catch (Exception e)
+        catch (org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName ex)
         {
-            e.printStackTrace();
+            Debug.output (1, "Duplicate client interceptor name");
         }
     }
 
-    public void pre_init(ORBInitInfo info) {
+    public void pre_init (ORBInitInfo info)
+    {
     }
-} // ClientInitializer
+}
