@@ -1,5 +1,5 @@
 /**
- * some definitions from the CORBA module which are not covered
+ * Some definitions from the CORBA module which are not covered
  * by the OMG's standard Java mapping files. We need the classes
  * generated from this file, but it is not suitable to be
  * included in user-defined IDL files!
@@ -56,8 +56,6 @@ module CORBA
     {
 	PolicyErrorCode reason;
     };
-
-    enum CompletionStatus {COMPLETED_YES, COMPLETED_NO, COMPLETED_MAYBE } ;
 
     typedef string Identifier;
 
