@@ -25,6 +25,8 @@ import org.omg.PortableServer.*;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.*;
 
+import org.apache.avalon.framework.logger.*;
+
 import org.jacorb.orb.giop.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
@@ -47,6 +49,7 @@ class ProxyImpl extends ProxyPOA
     private Hashtable iorMap = new Hashtable ();
     private Hashtable iorRefCnt = new Hashtable ();
     private org.jacorb.orb.ORB orb;
+    private Logger logger;
 
     /**
      * Server main line
@@ -103,7 +106,8 @@ class ProxyImpl extends ProxyPOA
         // Use default id if not configured
 
         idString = Environment.getProperty ("jacorb.ProxyServer.ID", DEFAULT_ID);
-        id = idString.getBytes ();
+        id = idString.getBytes();
+        logger = org.jacorb.util.Debug.getNamedLogger("jacorb.appligator");
 
         try
         {
@@ -160,7 +164,7 @@ class ProxyImpl extends ProxyPOA
         }
         catch (Exception ex)
         {
-            Debug.output (1, "Unexpected exception while initializing Proxy: " + ex);
+            logger.warn("Unexpected exception while initializing Proxy: " + ex);
             System.exit (1);
         }
 
@@ -265,10 +269,10 @@ class ProxyImpl extends ProxyPOA
             int off = 0;
 
             //debug
-            if (Environment.verbosityLevel() >= 3)
+            if ( logger.isDebugEnabled())
             {
-                System.out.println( "[changeByteOrder] little=" + little +
-                                    " is_giop_1_1=" + is_giop_1_1 );
+                logger.debug( "[changeByteOrder] little=" + little +
+                              " is_giop_1_1=" + is_giop_1_1 );
             }
 
             off += 8;
@@ -288,10 +292,10 @@ class ProxyImpl extends ProxyPOA
                            ((buffer[3+off] & 0xff) << 0));
             }
 
-            if( Environment.verbosityLevel() >= 3 )
+            if ( logger.isDebugEnabled())
             {
-                System.out.println( "[changeByteOrder[" + off +
-                                    "]] msgSize=" + msgSize );
+                logger.debug( "[changeByteOrder[" + off +
+                              "]] msgSize=" + msgSize );
             }
 
             off += 4;
@@ -312,11 +316,11 @@ class ProxyImpl extends ProxyPOA
                                         ((buffer[3+off] & 0xff) << 0));
             }
 
-            if (Environment.verbosityLevel() >= 3)
+            if ( logger.isDebugEnabled())
             {
-                System.out.println( "[changeByteOrder[" + off +
-                                    "]] serviceContextLength=" +
-                                    serviceContextLength );
+                logger.debug( "[changeByteOrder[" + off +
+                              "]] serviceContextLength=" +
+                              serviceContextLength );
             }
 
             off += 4; // we are now at the RequestHeader
@@ -340,11 +344,11 @@ class ProxyImpl extends ProxyPOA
                                           ((buffer[7+off] & 0xff) << 0));
                 }
 
-                if (Environment.verbosityLevel() >= 3)
-                {
-                    System.out.println( "[changeByteOrder[" + off +
-                                        "]] context_dataLength=" +
-                                        context_dataLength );
+                if ( logger.isDebugEnabled())
+                { 
+                    logger.debug( "[changeByteOrder[" + off +
+                                  "]] context_dataLength=" +
+                                  context_dataLength );
                 }
 
                 off = off + 8 + context_dataLength;
@@ -378,12 +382,13 @@ class ProxyImpl extends ProxyPOA
                                     ((buffer[3+off] & 0xff) << 0));
             }
 
-            if( Environment.verbosityLevel() >= 3 )
-            {
-                System.out.println( "[changeByteOrder[" + off +
-                                    "]] object_keyLength=" +
-                                    object_keyLength );
+            if ( logger.isDebugEnabled())
+            { 
+                logger.debug ( "[changeByteOrder[" + off +
+                               "]] object_keyLength=" +
+                               object_keyLength );
             }
+
 
             off+=4 + object_keyLength;
             // we are now at String Operation
@@ -408,10 +413,11 @@ class ProxyImpl extends ProxyPOA
                                  ((buffer[3+off] & 0xff) << 0));
             }
 
-            if( Environment.verbosityLevel() >= 3 )
-            {
-                System.out.println( "[changeByteOrder[" + off +
-                                    "]] opname_Length=" + opname_Length );
+            
+            if ( logger.isDebugEnabled())
+            { 
+                logger.debug( "[changeByteOrder[" + off +
+                              "]] opname_Length=" + opname_Length );
             }
 
             buffer[6] = (little) ? (byte)1 : (byte)0; //toggle the endian byte
