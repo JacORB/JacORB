@@ -32,6 +32,7 @@ import org.apache.log.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventChannelEvent;
 import org.jacorb.notification.interfaces.EventChannelEventListener;
+import org.jacorb.notification.util.LogConfiguration;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -61,7 +62,6 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import org.jacorb.notification.util.PatternWrapper;
-import org.jacorb.notification.util.LogConfiguration;
 import org.omg.CosNaming.NamingContext;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextHelper;
@@ -81,9 +81,6 @@ import org.omg.CosNaming.NamingContextHelper;
  * <code>EventChannelFactory</code> instance, returns the object
  * reference of that event channel.<br>
  *
- *
- * Created: Thu Oct 03 23:54:41 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -95,11 +92,15 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	public void shutdownComplete();
     }
 
+    ////////////////////////////////////////
+
     static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[0];
 
-    private static final String NOTIFICATION_SERVICE = "NotificationService";
-    static final String notificationPOAName = "NotificationPOA";
-    static final String objectName = "_factory";
+    static final String NOTIFICATION_SERVICE = "NotificationService";
+    static final String NOTIFICATION_POA_NAME = "NotificationPOA";
+    static final String OBJECT_NAME = "_factory";
+
+    ////////////////////////////////////////
 
     protected EventChannelFactory thisFactory_;
     protected FilterFactory defaultFilterFactory_;
@@ -109,11 +110,70 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     protected int counter_ = 0;
     protected Map allChannels_;
     protected PropertyValidator propertyValidator_;
-    protected Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );;
+    protected Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
     protected String ior_;
     protected Vector listEventChannelCreatedEventListener_ = new Vector();
     protected String corbaLoc_;
     private POA notificationPOA_;
+
+    ////////////////////////////////////////
+
+    public EventChannelFactoryImpl() throws Exception {
+	String standardImplName = "Notification";
+	String notificationPOAName = "NotificationPOA";
+	String objectName = "_factory";
+
+	Properties props = new Properties();
+	props.put("jacorb.implname", standardImplName);
+	props.put("jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE,
+		  standardImplName + "/" + notificationPOAName + "/" + objectName);
+
+
+        final ORB _orb = ORB.init( new String[0], props );
+
+        POA _rootPOA = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+
+        applicationContext_ = new ApplicationContext( _orb, _rootPOA, true );
+
+	org.omg.CORBA.Policy[] _policies = 
+	    new org.omg.CORBA.Policy [] {
+		_rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID)
+	    };
+
+	notificationPOA_ = _rootPOA.create_POA(notificationPOAName,
+					       _rootPOA.the_POAManager(),
+					       _policies);
+
+	for (int x=0; x<_policies.length; ++x) {
+	    _policies[x].destroy();
+	}
+
+	byte[] oid = (objectName.getBytes());
+
+	notificationPOA_.activate_object_with_id(oid, this);
+	thisFactory_ = EventChannelFactoryHelper.narrow(notificationPOA_.id_to_reference(oid));
+
+	initialize();
+
+        _rootPOA.the_POAManager().activate();
+	notificationPOA_.the_POAManager().activate();
+
+	Thread t = new Thread(
+			      new Runnable() {
+				  public void run() {
+				      _orb.run();
+				  }});
+	
+	t.setDaemon(true);
+	t.start();
+
+	ior_ = _orb.object_to_string( notificationPOA_.id_to_reference( oid ) );
+	corbaLoc_ = getCorbaLoc(notificationPOA_.the_name(), oid);
+
+	logger_.info("EventChannelFactory - ready");
+    }
+
+    ////////////////////////////////////////
 
     /**
      * The <code>create_channel</code> operation is invoked to create
@@ -211,6 +271,8 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	       WrongPolicy,
 	       ServantAlreadyActive
     {
+	logger_.debug("create_channel_servant " + key);
+
         propertyValidator_.checkAdminPropertySeq( administrativeProperties );
         propertyValidator_.checkQoSPropertySeq( qualitiyOfServiceProperties );
 
@@ -332,7 +394,6 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
         return (( EventChannelImpl ) allChannels_.get( new Integer( n ) )).getEventChannel();
     }
 
-    ////////////////////////////////////////
 
     public void addEventChannelEventListener(EventChannelEventListener listener) {
 	listEventChannelCreatedEventListener_.add(listener);
@@ -427,6 +488,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	return buffer.toString();
     }
 
+
     public EventChannelFactoryImpl(final ORB _orb) throws Exception {
 
         POA _rootPOA = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
@@ -438,7 +500,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 		_rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID)
 	    };
 
-	notificationPOA_ = _rootPOA.create_POA(notificationPOAName,
+	notificationPOA_ = _rootPOA.create_POA(NOTIFICATION_POA_NAME,
 					       _rootPOA.the_POAManager(),
 					       _policies);
 
@@ -446,7 +508,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	    _policies[x].destroy();
 	}
 
-	byte[] oid = (objectName.getBytes());
+	byte[] oid = (OBJECT_NAME.getBytes());
 
 	notificationPOA_.activate_object_with_id(oid, this);
 	thisFactory_ = EventChannelFactoryHelper.narrow(notificationPOA_.id_to_reference(oid));
@@ -471,6 +533,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	logger_.info("EventChannelFactory - ready");
     }
 
+
     public String getIOR() {
 	return ior_;
     }
@@ -489,8 +552,8 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 
         UnsupportedQoS _e =
             new UnsupportedQoS( new PropertyError[] {new PropertyError( QoSError_code.UNSUPPORTED_VALUE,
-                                property,
-                                new PropertyRange( _lowVal, _highVal ) ) } );
+									property,
+									new PropertyRange( _lowVal, _highVal ) ) } );
     }
 
     void throwBadValue( String property ) throws UnsupportedQoS
@@ -534,6 +597,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	String nameId = null;
 	String nameKind = "";
 
+	Logger _logger = Hierarchy.getDefaultHierarchy().getLoggerFor(EventChannelFactoryImpl.class.getName() + ".init");
 
 	LogConfiguration.getInstance().configure();
 
@@ -591,7 +655,8 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	String standardImplName = "Notification";
 	Properties props = new Properties();
 	props.put("jacorb.implname", standardImplName);
-	props.put("jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE, standardImplName + "/" + notificationPOAName + "/" + objectName);
+	props.put("jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE, 
+		  standardImplName + "/" + NOTIFICATION_POA_NAME + "/" + OBJECT_NAME);
 
 	if (oaPort != null) {
 	    props.put ("OAPort", oaPort);
@@ -611,10 +676,15 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	}
 
 	if (iorFileName != null) {
-	    PrintWriter out = new PrintWriter(new FileWriter(iorFileName));
-	    out.println(_factory.getIOR());
-	    out.flush();
-	    out.close();
+	    _logger.info("Writing IOR to file:" + iorFileName);
+	    try {
+		PrintWriter out = new PrintWriter(new FileWriter(iorFileName));
+		out.println(_factory.getIOR());
+		out.flush();
+		out.close();
+	    } catch (Exception e) {
+		_logger.error("Could not write the IOR to file:" + iorFileName, e);
+	    }
 	}
 
 	if (nameId != null) {
@@ -625,7 +695,12 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 		new NameComponent(nameId, nameKind)
 	    };
 
-	    System.out.println("namingContext.rebind("+ name + " => " + _factory);
+	    _logger.info("namingContext.rebind(" 
+			 + nameId 
+			 + ((nameKind!= null && nameKind.length() > 0) ? ("." + nameKind) : "") 
+			 + " => " 
+			 + _factory.getCorbaLoc() 
+			 + ")");
 	    
 	    namingContext.rebind(name, _factory.getEventChannelFactory());
 	}
@@ -641,5 +716,4 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     public static void main(String[] args) throws Exception {
 	newFactory(args);
     }
-
 } 
