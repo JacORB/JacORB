@@ -29,110 +29,113 @@ import org.jacorb.naming.*;
  * A graphical user interface for the Naming Service.
  * If invoked with a file name argument, the NameManager
  * will create and use its own root context and print its
- * IOR to the given file such that it complies with the 
+ * IOR to the given file such that it complies with the
  * JacORB mechanism for locating the root naming context
  *
  * @authors Gerald Brose, Wei-Ju Wu, Volker Siegel
  * @date September 1998
  */
 
-public class NameManager 
+public class NameManager
 {
     public static void main(String args[])
     {
-	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
 
-	JFrame frame = new JFrame("JacORB NameManager");
+        JFrame frame = new JFrame("JacORB NameManager");
 
-	// set up menu bars and menu
-	JMenuBar menubar = new JMenuBar();
+        // set up menu bars and menu
+        JMenuBar menubar = new JMenuBar();
 
-	JMenu fileMenu = new JMenu("File");
-	JMenu editMenu = new JMenu("Edit");
-	JMenu helpMenu = new JMenu("Help");
+        JMenu fileMenu = new JMenu("File");
+        JMenu editMenu = new JMenu("Edit");
+        JMenu helpMenu = new JMenu("Help");
 
-	JMenuItem quit = new JMenuItem("Quit");
-	fileMenu.add(quit);
+        JMenuItem quit = new JMenuItem("Quit");
+        fileMenu.add(quit);
 
-	JMenuItem options = new JMenuItem("Options");
-	JMenuItem create =  new JMenuItem("New context");
-	JMenuItem unbind =  new JMenuItem("Unbind name");
+        JMenuItem options = new JMenuItem("Options");
+        JMenuItem create =  new JMenuItem("New context");
+        JMenuItem unbind =  new JMenuItem("Unbind name");
 
-	editMenu.add(options);		
-	editMenu.add(create);
-	editMenu.add(unbind);
-						
-	JMenuItem about = new JMenuItem("About...");
-	helpMenu.add(about);
-		
-	menubar.add(fileMenu);
-	menubar.add(editMenu);
-	menubar.add(helpMenu);
+        editMenu.add(options);
+        editMenu.add(create);
+        editMenu.add(unbind);
 
-	NamingContextExt rootContext = null;
-	try 
-	{
-	    rootContext = 
-                NamingContextExtHelper.narrow( orb.resolve_initial_references("NameService"));	   
-	}
-	catch (Exception e) 
-	{ 
-	    JOptionPane.showMessageDialog(frame,
+        JMenuItem about = new JMenuItem("About...");
+        helpMenu.add(about);
+
+        menubar.add(fileMenu);
+        menubar.add(editMenu);
+        menubar.add(helpMenu);
+
+        NamingContextExt rootContext = null;
+        try
+        {
+            rootContext =
+                NamingContextExtHelper.narrow( orb.resolve_initial_references("NameService"));
+        }
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(frame,
                                           "Could not find name service",
-					  "Initialization error",
+                                          "Initialization error",
                                           JOptionPane.ERROR_MESSAGE);
-	    System.exit(1);
-	}
+            usage();
+            System.exit(1);
+        }
 
-	if( rootContext == null )
-	{
-	    System.err.println("Narrow for name service failed, exiting...");
-	    System.exit(1);
-	}
+        if( rootContext == null )
+        {
+            System.err.println("Narrow for name service failed, exiting...");
+            usage();
+            System.exit(1);
+        }
 
-	// set up tree and table
-		
-	NSTable nstable = new NSTable();
-	JScrollPane tableScrollPane=new JScrollPane(nstable);
-	nstable.setPreferredScrollableViewportSize(new Dimension(300,250));
-		
-	NSTree tree=new NSTree(300,200,nstable, rootContext);
-	JScrollPane treeScrollPane=new JScrollPane(tree);
-		
-	JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-	splitPane.setLeftComponent( treeScrollPane );
-	splitPane.setRightComponent( tableScrollPane );
-	splitPane.setDividerLocation(200);
-	splitPane.setDividerSize(2);
-	frame.getContentPane().setBackground(Color.white);
-	frame.getContentPane().add(splitPane);
-	tree.update();
+        // set up tree and table
 
-	Handler handler=new Handler(frame,tree);
-	TableHandler tableHandler = new TableHandler(frame, nstable);
-	quit.addActionListener(handler);
-	options.addActionListener(handler);
-	create.addActionListener(handler);
-	unbind.addActionListener(handler);
-	about.addActionListener(handler);
+        NSTable nstable = new NSTable();
+        JScrollPane tableScrollPane=new JScrollPane(nstable);
+        nstable.setPreferredScrollableViewportSize(new Dimension(300,250));
 
-	tree.addMouseListener(handler);
-	tree.addKeyListener(handler);
+        NSTree tree=new NSTree(300,200,nstable, rootContext);
+        JScrollPane treeScrollPane=new JScrollPane(tree);
 
-	frame.addWindowListener(handler);
-	nstable.addMouseListener(tableHandler);
-	nstable.addKeyListener(tableHandler);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.setLeftComponent( treeScrollPane );
+        splitPane.setRightComponent( tableScrollPane );
+        splitPane.setDividerLocation(200);
+        splitPane.setDividerSize(2);
+        frame.getContentPane().setBackground(Color.white);
+        frame.getContentPane().add(splitPane);
+        tree.update();
 
-	frame.setJMenuBar(menubar);
-	frame.pack();
-	frame.show();
+        Handler handler=new Handler(frame,tree);
+        TableHandler tableHandler = new TableHandler(frame, nstable);
+        quit.addActionListener(handler);
+        options.addActionListener(handler);
+        create.addActionListener(handler);
+        unbind.addActionListener(handler);
+        about.addActionListener(handler);
 
-	orb.run();
+        tree.addMouseListener(handler);
+        tree.addKeyListener(handler);
+
+        frame.addWindowListener(handler);
+        nstable.addMouseListener(tableHandler);
+        nstable.addKeyListener(tableHandler);
+
+        frame.setJMenuBar(menubar);
+        frame.pack();
+        frame.show();
+
+        orb.run();
     }
 
-    public static void usage() 
+    public static void usage()
     {
-	System.out.println("NameManager [ <filename> ]");
+        System.out.println("Usage: NameManager [orb_options]");
+        System.out.println("          e.g. nmg -ORBInitRef NameService=file:///c:/ns.ior");
     }
 }
 
