@@ -57,9 +57,3 @@ public class POAConstants {
 	public static int DESTROYED = 4;
 }
 
-
-
-
-
-
-
