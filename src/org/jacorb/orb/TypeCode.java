@@ -65,7 +65,7 @@ public class TypeCode
     private TypeCode    actualTypecode = null;
 
     private static boolean     class_init = false;
-    private static TypeCode[]  primitive_tcs = new TypeCode[33];
+    private static TypeCode[]  primitive_tcs = new TypeCode[34];
 
     /**
      * Maps the java.lang.Class objects for primitive types to
@@ -274,7 +274,8 @@ public class TypeCode
     }
 
     /**
-     * Constructor for tk_objref, tk_abstract_interface, tk_native
+     * Constructor for tk_objref, tk_abstract_interface, tk_native,
+     * tk_local_interface
      */  
 
     public TypeCode (int _kind, 
@@ -378,7 +379,8 @@ public class TypeCode
                  kind == TCKind._tk_alias  || kind == TCKind._tk_except ||
                  kind == TCKind._tk_value  || kind == TCKind._tk_value_box ||
                  kind == TCKind._tk_native ||
-                 kind == TCKind._tk_abstract_interface )
+                 kind == TCKind._tk_abstract_interface ||
+                 kind == TCKind._tk_local_interface )
             {
                 if ( ! id().equals( tc.id() ) || ! name().equals( tc.name() ) )
                 {
@@ -524,6 +526,7 @@ public class TypeCode
             case   TCKind._tk_value_box:
             case   TCKind._tk_native:
             case   TCKind._tk_abstract_interface:
+            case   TCKind._tk_local_interface:
             case   TCKind._tk_except: return id;
             default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
             }
@@ -549,6 +552,7 @@ public class TypeCode
         case   TCKind._tk_value_box:
         case   TCKind._tk_native:
         case   TCKind._tk_abstract_interface:
+        case   TCKind._tk_local_interface:
         case   TCKind._tk_except: return name;
         default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
@@ -782,7 +786,8 @@ public class TypeCode
                 kind == TCKind._tk_alias  || kind == TCKind._tk_except ||
                 kind == TCKind._tk_value  || kind == TCKind._tk_value_box ||
                 kind == TCKind._tk_native ||
-                kind == TCKind._tk_abstract_interface )
+                kind == TCKind._tk_abstract_interface ||
+                kind == TCKind._tk_local_interface )
             {
                 if( id().length() > 0 && tc.id().length() > 0 )
                 {
@@ -937,6 +942,7 @@ public class TypeCode
        case   TCKind._tk_except: 
        case   TCKind._tk_native:
        case   TCKind._tk_abstract_interface:
+       case   TCKind._tk_local_interface:
           try
           {
              return  idToIDL(id());   

@@ -468,6 +468,16 @@ public class ORBSingleton
                                            name);
     }
 
+    public org.omg.CORBA.TypeCode create_local_interface_tc(String id,
+                                                            String name) 
+    {
+       checkTCRepositoryId( id );
+       checkTCName( name );
+       return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_local_interface,
+                                           id, 
+                                           name);
+    }
+   
     public org.omg.CORBA.TypeCode create_native_tc(String id,
                                                    String name) 
     {
