@@ -208,7 +208,7 @@ public class SASClientInterceptor
         {
             logger.warn("No SAS security context found: "+e);
         }
-        if (ctx == null) return;
+        if (ctx == null || ctx.context_data.length <= 1) return;
 
         try
         {
@@ -217,7 +217,7 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            logger.warn("Could not parse SAS reply: " + e);
+            logger.warn("Could not parse SAS reply: " + e);e.printStackTrace();
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
