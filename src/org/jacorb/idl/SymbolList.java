@@ -28,8 +28,8 @@ import java.util.*;
  * @version $Id$
  */
 
-class SymbolList
-        extends IdlSymbol
+public class SymbolList
+    extends IdlSymbol
 {
     Vector v;
 
@@ -52,11 +52,15 @@ class SymbolList
     }
 
 
-    public int size ()
+    public int size()
     {
-        return v.size ();
+        return v.size();
     }
 
+    public Enumeration elements()
+    {
+        return v.elements();
+    }
 
     public void parse()
     {
