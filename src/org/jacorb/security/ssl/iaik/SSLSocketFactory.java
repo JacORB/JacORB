@@ -59,7 +59,6 @@ public class SSLSocketFactory
     implements org.jacorb.orb.factory.SocketFactory, Configurable
 {
     private String[] default_cs = null;
-    private boolean isRoleChange; // rt
     private CurrentImpl securityCurrent = null;
     private org.jacorb.orb.ORB orb = null;
     private SSLContext default_context = null;
@@ -73,11 +72,11 @@ public class SSLSocketFactory
         throws ConfigurationException
     {
         this.orb = orb;
-	CipherSuite[] cs = SSLSetup.getCipherSuites();
-	default_cs = new String[ cs.length ];
-	for ( int i = 0; i < cs.length; i++ )
+        CipherSuite[] cs = SSLSetup.getCipherSuites();
+        default_cs = new String[ cs.length ];
+        for ( int i = 0; i < cs.length; i++ )
         {
-	    default_cs[ i ] = cs[ i ].toString();
+            default_cs[ i ] = cs[ i ].toString();
         }
         configure( orb.getConfiguration());
     }
@@ -88,9 +87,6 @@ public class SSLSocketFactory
     {
         logger = 
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.jsse");
-
-	isRoleChange =
-            configuration.getAttributeAsBoolean("jacorb.security.change_ssl_roles",false);
 
         clientRequirededOptions = 
             Short.parseShort(
@@ -115,7 +111,7 @@ public class SSLSocketFactory
 
 
     public Socket createSocket( String host,  int port )
-	throws IOException, UnknownHostException
+        throws IOException, UnknownHostException
     {
         SSLSocket sock = null;
         try
@@ -128,14 +124,6 @@ public class SSLSocketFactory
                 logger.warn("GeneralSecurityException", g);
             throw new IOException(g.getMessage());
         }
-
-        // rt: switch to server mode
-        if( isRoleChange )
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("SSLSocket switch to server mode...");
-	    sock.setUseClientMode( false );
-	}
 
         return sock;
     }
@@ -157,8 +145,8 @@ public class SSLSocketFactory
     }
 
     private SSLContext getDefaultContext()
-	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
-	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException,
+        throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
+        java.security.NoSuchAlgorithmException, java.security.InvalidKeyException,
         java.security.NoSuchProviderException, java.io.IOException
     {
         if( default_context != null )
@@ -166,73 +154,38 @@ public class SSLSocketFactory
             return default_context;
         }
 
-	if( isRoleChange )
-        {
-	    SSLServerContext ctx = new SSLServerContext();
+        SSLClientContext ctx = new SSLClientContext();
 
-            //the server always has to have certificates
-            org.jacorb.security.level2.KeyAndCert[] kac = getSSLCredentials();
+        //only add own credentials, if establish trust in client
+        //is supported
+        if((clientSupportedOptions & 0x40) != 0 )
+        {
+            org.jacorb.security.level2.KeyAndCert[] kac =
+                getSSLCredentials();
 
             for( int i = 0; i < kac.length; i++ )
             {
-		ctx.addServerCredentials( (X509Certificate[]) kac[i].chain,
-                                          kac[i].key );
-	    }
-
-            if( ( clientRequirededOptions & 0x20) != 0 )
-            {
-                //required: establish trust in target (the SSL client
-                //in this case)--> force other side to authenticate
-                ctx.setRequestClientCertificate( true );
-                ctx.setChainVerifier( new ServerChainVerifier( true ));
-	    }
-
-            if (!trusteeFileNames.isEmpty())
-            {
-                for( Iterator iter = trusteeFileNames.iterator(); iter.hasNext(); )
-                {
-                    String fName = (String)iter.next();
-                    ctx.addTrustedCertificate( CertUtils.readCertificate(fName));
-                }
+                ctx .addClientCredentials( (X509Certificate[]) kac[i].chain,
+                                           kac[i].key );
             }
-
-            default_context = ctx;
-	}
-	else
-        {
-	    SSLClientContext ctx = new SSLClientContext();
-
-            //only add own credentials, if establish trust in client
-            //is supported
-            if((clientSupportedOptions & 0x40) != 0 )
-            {
-                org.jacorb.security.level2.KeyAndCert[] kac =
-                    getSSLCredentials();
-
-                for( int i = 0; i < kac.length; i++ )
-                {
-                    ctx .addClientCredentials( (X509Certificate[]) kac[i].chain,
-                                               kac[i].key );
-                }
-            }
+        }
 
 	    //always adding trusted certificates, since in SSL, the
 	    //server must always authenticate
 
-            if (!trusteeFileNames.isEmpty())
-            {
-                for( Iterator iter = trusteeFileNames.iterator(); iter.hasNext(); )
-                {
-                    String fName = (String)iter.next();
-                    ctx.addTrustedCertificate( CertUtils.readCertificate(fName));
-                }
-            }
-            default_context = ctx;
-	}
-
-	if( iaikDebug )
+        if (!trusteeFileNames.isEmpty())
         {
-	    default_context.setDebugStream( System.out );
+            for( Iterator iter = trusteeFileNames.iterator(); iter.hasNext(); )
+            {
+                String fName = (String)iter.next();
+                ctx.addTrustedCertificate( CertUtils.readCertificate(fName));
+            }
+        }
+        default_context = ctx;
+	
+        if( iaikDebug )
+        {
+            default_context.setDebugStream( System.out );
         }
 
         return default_context;
@@ -266,11 +219,11 @@ public class SSLSocketFactory
      */
     public String[] getSupportedCipherSuites()
     {
-	CipherSuite [] suites = CipherSuite.getDefault();
-	java.lang.String lst [] = new String[ suites.length ];
-	for ( int i = 0; i < lst.length; i++ )
-	    lst [ i ] = suites[ i ].toString ();
-	return lst;
+        CipherSuite [] suites = CipherSuite.getDefault();
+        java.lang.String lst [] = new String[ suites.length ];
+        for ( int i = 0; i < lst.length; i++ )
+            lst [ i ] = suites[ i ].toString ();
+        return lst;
     }
 
     public boolean isSSL ( Socket s )
