@@ -185,11 +185,11 @@ jacorb.bufferManagerMaxFlush=-1
 
 # Wait the specified number of msecs for a reply to a request. If
 # exceeded, a org.omg.CORBA.TIMEOUT exception will be thrown
-#jacorb.client.pending_reply_timeout=0
+#jacorb.connection.client.pending_reply_timeout=0
 
 # client-side connection idle timeout, set no non-zero to stop
 # close the connection after so many msecs.
-#jacorb.connection.client_idle_timeout=0
+#jacorb.connection.client.idle_timeout=0
 
 # max time (msecs) a server keeps a connection open if nothing happens
 #jacorb.connection.server_timeout=10000

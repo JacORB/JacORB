@@ -49,7 +49,7 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
         TestSuite suite = new TestSuite( "Client connection idle-timeout tests" );
 
         Properties client_props = new Properties();
-        client_props.setProperty( "jacorb.connection.client_idle_timeout", "1000" );
+        client_props.setProperty( "jacorb.connection.client.idle_timeout", "1000" );
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,

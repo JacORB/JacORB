@@ -63,7 +63,7 @@ public class ClientIIOPConnection
 
         //get the client-side timeout property value
         String prop =
-            Environment.getProperty( "jacorb.connection.client_idle_timeout" );
+            Environment.getProperty( "jacorb.connection.client.idle_timeout" );
 
         if( prop != null )
         {
@@ -75,7 +75,7 @@ public class ClientIIOPConnection
             {
                 Debug.output( 1, "Unable to create int from string >" +
                               prop + '<' );
-                Debug.output( 1, "Please check property \"jacorb.connection.client_idle_timeout\"" );
+                Debug.output( 1, "Please check property \"jacorb.connection.client.idle_timeout\"" );
             }
         }
     }
