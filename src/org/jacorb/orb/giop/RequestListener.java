@@ -44,7 +44,6 @@ public interface RequestListener
     public void fragmentReceived( byte[] fragment,
                                   GIOPConnection connection );
 
-    public void connectionClosed();
 }// RequestListener
 
 

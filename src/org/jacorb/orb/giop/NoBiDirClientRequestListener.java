@@ -78,10 +78,6 @@ public class NoBiDirClientRequestListener
     {
         
     }
-
-    public void connectionClosed()
-    {
-    }
     
     private void replyException( byte[] request, 
                                  GIOPConnection connection )

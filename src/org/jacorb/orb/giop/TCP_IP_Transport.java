@@ -139,14 +139,20 @@ public abstract class TCP_IP_Transport
             {
                 close( READ_TIMED_OUT );
                 
-                return -1;
+                throw new TimeOutException( "Socket read timed out" );
             }
-
+            catch( SocketException se )
+            {
+                close( STREAM_CLOSED );
+                
+                throw new StreamClosedException( "Socket stream closed" );
+            }
+                
             if( n < 0 )
             {
                 close( STREAM_CLOSED );
                 
-                return -1;
+                throw new StreamClosedException( "Socket stream closed" );
             }  
 
             read += n;
@@ -225,6 +231,12 @@ public abstract class TCP_IP_Transport
 
             //read "body"
             read = readToBuffer( inbuf, Messages.MSG_HEADER_SIZE, msg_size );
+
+            if( read == -1 )
+            {
+                //stream ended too early
+                return null;
+            }
 
             if( read != msg_size )
             {

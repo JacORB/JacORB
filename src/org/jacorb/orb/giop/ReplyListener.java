@@ -43,8 +43,6 @@ public interface ReplyListener
     
     public void fragmentReceived( byte[] fragment,
                                   GIOPConnection connection );
-
-    public void connectionClosed();
 }// ReplyListener
 
 

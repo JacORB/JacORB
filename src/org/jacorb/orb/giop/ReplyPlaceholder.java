@@ -96,6 +96,13 @@ public class ReplyPlaceholder
 	this.notify();
     }
 
+    public synchronized void timeout()
+    {
+	timeoutException = true;
+	ready = true;
+	this.notify();
+    }
+
     public synchronized MessageInputStream getInputStream() 
 	throws RemarshalException
     {

@@ -46,6 +46,7 @@ public class GIOPConnection
     
     private RequestListener request_listener = null;
     private ReplyListener reply_listener = null;
+    private ConnectionListener connection_listener = null;
 
     private boolean writer_active = false;
     private Object write_sync = new Object();
@@ -132,6 +133,11 @@ public class GIOPConnection
         this.reply_listener = v;
     }
 
+    public void setConnectionListener( ConnectionListener connection_listener )
+    {
+        this.connection_listener = connection_listener;
+    }
+
     public Transport getTransport()
     {
         return transport;
@@ -148,22 +154,36 @@ public class GIOPConnection
             {
                 message = transport.getMessage();
             }
-            catch( IOException e )
+            catch( CloseConnectionException cce )
             {
-                request_listener.connectionClosed();
-                reply_listener.connectionClosed();
+                if( connection_listener != null )
+                {
+                    connection_listener.connectionClosed();
+                }
 
-                throw e;
+                throw cce;
             }
-            
+            catch( TimeOutException toe )
+            {
+                if( connection_listener != null )
+                {
+                    connection_listener.connectionTimedOut();
+                }
+            }
+            catch( StreamClosedException sce )
+            {
+                if( connection_listener != null )
+                {
+                    connection_listener.streamClosed();
+                }
+            }
+
             if( message == null )
             {
                 //do sth. else?
                 continue;
             }
             
-            Debug.output( 10, "Receive Request", message );
-
             //check major version
             if( Messages.getGIOPMajor( message ) != 1 )
             {

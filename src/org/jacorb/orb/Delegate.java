@@ -944,7 +944,10 @@ public final class Delegate
                 //reply returned (with whatever result)
                 synchronized( pending_replies )
                 {
-                    pending_replies.remove( rep );
+                    if( rep != null )
+                    {
+                        pending_replies.remove( rep );
+                    }
                 }
     
                 if(! location_forward_permanent)

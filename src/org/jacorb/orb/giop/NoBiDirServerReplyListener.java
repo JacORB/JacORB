@@ -63,11 +63,6 @@ public class NoBiDirServerReplyListener
     {
         
     }
-
-    public void connectionClosed()
-    {
-    }
-
 }// NoBiDirServerReplyListener
 
 
