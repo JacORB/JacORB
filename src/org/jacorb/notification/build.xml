@@ -137,7 +137,7 @@
            destdir="${classdir}" >
       <classpath>
         <pathelement location="${dirs.base}/classes"/>
-        <pathelement location="${lib}/wrapper.jar"/>
+        <pathelement location="${lib}/wrapper-3.0.3.jar"/>
       </classpath>
       <include name="org/jacorb/notification/Main.java"/>
     </javac>
