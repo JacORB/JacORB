@@ -38,6 +38,10 @@ import org.jacorb.notification.util.LogConfiguration;
 
 public class AllTest extends TestCase {
 
+    static {
+	LogConfiguration.getInstance().configure();
+    }
+
     public AllTest(String name) {
 	super(name);
     }
@@ -55,8 +59,6 @@ public class AllTest extends TestCase {
     }
 
     public static void main(String[] args) throws Exception {
-	LogConfiguration.getInstance().configure();
-
 	junit.textui.TestRunner.run(suite());
     }
 } 
