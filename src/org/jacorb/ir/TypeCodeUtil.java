@@ -63,6 +63,7 @@ public class TypeCodeUtil
      */
 
     public static TypeCode getTypeCode( Class c, java.lang.Object o )
+        throws ClassNotFoundException
     {
         return getTypeCode( c, null, o, null );
     }
@@ -76,6 +77,7 @@ public class TypeCodeUtil
                                         ClassLoader classLoader,
                                         java.lang.Object o, 
                                         String idlName )
+        throws ClassNotFoundException
     {
         String typeName = c.getName();
         org.jacorb.util.Debug.output(3, "TypeCodes.getTypeCode for class : " + 
@@ -152,7 +154,8 @@ public class TypeCodeUtil
         {
             org.jacorb.util.Debug.output(3, ce );
             System.err.println("Serious Error, can't load org.jacorb base classes!");
-            System.exit(1);
+            throw ce;
+            //System.exit(1);
         } 
         int field_size = 0;
 
