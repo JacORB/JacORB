@@ -99,17 +99,22 @@ class SwitchBody
             // get all case labels and check for duplicates
 
             IdlSymbol[] labels = theCase.getLabels();
+
             for( int i = 0; i < labels.length; i++ )
             {
-                IdlSymbol sym = 
-                    (IdlSymbol)usedLabelNames.get(labels[i].toString());
+                if( labels[i] != null ) // null means default
+                {
+                    IdlSymbol sym = 
+                        (IdlSymbol)usedLabelNames.get(labels[i].toString());
 
-                if( sym != null )
-                {                    
-                    parser.error("Duplicate case label <" + 
-                                 sym.toString() + ">", sym.get_token() );
+                    if( sym != null )
+                    {                    
+                        parser.error("Duplicate case label <" + 
+                                     sym.toString() + ">", sym.get_token() );
+                    }
+                    
+                    usedLabelNames.put( labels[i].toString(), labels[i] );
                 }
-                usedLabelNames.put( labels[i].toString(), labels[i] );
             }
         }
         usedLabelNames.clear();
