@@ -33,17 +33,17 @@ Required:
 Installation:
 =============
 
-0. Download "Ant" and install it as described in its documentation if
+1. Download "Ant" and install it as described in its documentation if
    you want to rebuild. This JacORB release relies on Ant 1.2 or later.
 
-1. Extend your search path to include the bin subdirectory of the
+2. Extend your search path to include the bin subdirectory of the
    installation directory so that the JacORB utilities can be found.
 
-2. If you can't or don't want to use the jaco[.bat] start scripts,
+3. If you can't or don't want to use the jaco[.bat] start scripts,
    copy orb.properties to JAVA_HOME/lib or edit the existing
    orb.properties file.
 
-3. Edit jacorb.properties and copy them to your "home" directory.
+4. Edit jacorb.properties and copy them to your "home" directory.
    Please use jacorb_properties.template as a template.  Most options
    need no configuration, but make sure you adjust at last the URL
    strings for the services you plan to use (e.g. NameService and so
@@ -70,7 +70,7 @@ Installation:
 
       org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
-4. Generate or edit the start scripts jaco and jaco.bat:
+5. Generate or edit the start scripts jaco and jaco.bat:
    (This step is carried out automatically by the build process, so
     it is only required if you are not rebuilding JacORB.)
 
@@ -82,8 +82,8 @@ Installation:
            classpath. You can use the file jacotemplate[.bat] as a
            template and replace the @@@XYZ_HOME@@@ placeholders by
            your actual paths.
-      
-5. Generate or edit the IDL compiler scripts idl and idl.bat if you 
+
+6. Generate or edit the IDL compiler scripts idl and idl.bat if you
    plan to use the IDL compiler.
    (This step is carried out automatically by the build process, so
     it is only required if you are not rebuilding JacORB.)
@@ -97,7 +97,7 @@ Installation:
            template and replace the @@@XYZ_HOME@@@ placeholders by
            your actual paths.
 
-6. If you like to have host names instead of IP adresses in your IORs
+7. If you like to have host names instead of IP adresses in your IORs
    you have to install dnsjava (make its classes present) and
    recompile src/org/jacorb/orb/dns. To recompile, do an "ant" in that
    dir, and an "ant libs" in the JacORB root dir. If you're absolutely
