@@ -57,8 +57,11 @@ public final class Delegate
     /** domain service used to implement get_policy and get_domain_managers */
     private static Domain _domainService = null;
 
-    /* save original ior for fall-back */
+    /* save last ior for fallback */
     private ParsedIOR piorOriginal = null;
+
+    /* save first forwarded ior to detect dead objects */
+    private ParsedIOR piorFirst = null;
 
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
@@ -271,7 +274,18 @@ public final class Delegate
                 return;
             }
 
-            //keep "old" pior for fallback
+            if (piorFirst == null)
+            {
+               // keep first forwarded ior to detect dead objects
+               piorFirst = p;
+            }
+            else if (piorFirst.equals (p))
+            {
+               // if we've already tried to bind to this object then it's dead
+               throw new org.omg.CORBA.TRANSIENT ();
+            }
+
+            //keep last pior for fallback
             piorOriginal = _pior;
             
             _pior = p;
@@ -288,34 +302,6 @@ public final class Delegate
             bind();
         }
     }    
-        
-    /**
-     * Fallback is a rebind() to the piorOriginal, with nulling that
-     * attribute afterwards.  
-     * 
-     * @return true, if piorOriginal was not null. false, otherwise
-     */
-    private boolean fallback() 
-    {
-        synchronized( bind_sync )
-        {
-            if( piorOriginal != null )
-            {
-                Debug.output(2, "Delegate: falling back to original IOR");
-
-                rebind( piorOriginal );
-                
-                //clean up;
-                piorOriginal = null;
-                
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    }
 
     public org.omg.CORBA.Request create_request(org.omg.CORBA.Object self,
                                                 org.omg.CORBA.Context ctx,
@@ -334,9 +320,6 @@ public final class Delegate
                                                ctx, 
                                                result );
     }
-
-    /** 
-     */
 
     public org.omg.CORBA.Request create_request(org.omg.CORBA.Object self, 
                                                 org.omg.CORBA.Context ctx, 
@@ -790,17 +773,27 @@ public final class Delegate
                                    ClientInterceptorIterator.RECEIVE_EXCEPTION);
             }
                 
-            if( fallback() )
+            if ( cfe instanceof org.omg.CORBA.TRANSIENT )
             {
-                /* now cause this invocation to be repeated by the
-                   caller of invoke(), i.e. the stub 
-                */
-                throw new RemarshalException();
-            } 
-            else
-            {
-                throw cfe;
+               // if the exception is a TRANSIENT then we may want to retry
+
+               synchronized( bind_sync )
+               {
+                  if( piorOriginal != null )
+                  {
+                     Debug.output(2, "Delegate: falling back to last IOR");
+                     rebind( piorOriginal );
+
+                     //clean up
+                     piorOriginal = null;
+
+                     //now cause this invocation to be repeated by the
+                     //caller of invoke(), i.e. the stub 
+                     throw new RemarshalException();
+                  }
+               }
             }
+            throw cfe;
         }
 
         /* look at the result stream now */
