@@ -76,7 +76,7 @@ public class BiDirTest extends ClientServerTestCase
         Properties properties = new Properties();
         properties.setProperty 
             ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
-             "org.jacorb.orb.connection.BiDirConnectionInitializer" );
+             "org.jacorb.orb.giop.BiDirConnectionInitializer" );
         
         BiDirSetup setup = new BiDirSetup (suite, properties, properties);
 
