@@ -13,7 +13,7 @@
 	<property name="src" value="${dirs.base}/src"/>
 	<available classname="iaik.x509.X509Certificate" 
                    property="iaik.present" />
-	<available classname="javax.net.ssl.TrustManager" 
+	<available classname="com.sun.net.ssl.SSLContext" 
                    property="sun_jsse.present" />
    </target>
 
