@@ -27,38 +27,34 @@ import java.util.*;
  * @version $Id$
  */
 
-public  class ObjectUtil
+public class ObjectUtil
 {
     /**
-     * @returns the contents of the ressource as a string, or null
+     * @returns the contents of the resource as a string, or null
      * if the contents of the resource could not be located using url
      */
-
     public static final String readURL( String url ) 
     {
-	try
-	{
-	    java.net.URL u = new java.net.URL(url);
-	    String line  = null;
-	    java.io.BufferedReader in;	    
-	    
-	    in = new java.io.BufferedReader(new java.io.InputStreamReader(u.openStream()) ); 
-	    line = in.readLine();
-	    
-	    while (line.indexOf("IOR:") != 0) 
-		line = in.readLine();
-	    
-	    in.close();
-	    return line;
-	}
-	catch ( Exception e )
-	{ 
-            Debug.output( 1, "ERROR: Could not read from URL " + url );
-	    Debug.output( 5, e );	    
-	}
+        try
+        {
+            java.net.URL u = new java.net.URL(url);
+            String line  = null;
+            java.io.BufferedReader in;	    
 
-	return null;
-    }
+            in = new java.io.BufferedReader(new java.io.InputStreamReader(u.openStream()) ); 
+            line = in.readLine();
+
+            in.close();
+            return line;
+        }
+        catch ( Exception e )
+        { 
+            Debug.output( 1, "ERROR: Could not read from URL " + url );
+            Debug.output( 5, e );	    
+        }
+
+        return null;
+   }
 
 }
 
