@@ -42,11 +42,11 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public final class GIOPConnection 
+public final class GIOPConnection
     extends java.io.OutputStream
 {
     private Transport transport = null;
-    
+
     private RequestListener request_listener = null;
     private ReplyListener reply_listener = null;
     private ConnectionListener connection_listener = null;
@@ -58,13 +58,16 @@ public final class GIOPConnection
      * Connection OSF character formats.
      */
     private int TCS = CodeSet.getTCSDefault();
-    private int TCSW = CodeSet.getTCSWDefault();	
+    private int TCSW = CodeSet.getTCSWDefault();
 
     private boolean tcs_negotiated = false;
 
     //map request id (Integer) to ByteArrayInputStream
     private Hashtable fragments = null;
     private BufferManager buf_mg = null;
+
+    // support for SAS Stateful contexts
+    private Hashtable sasContexts = null;
 
     public GIOPConnection( Transport transport,
                            RequestListener request_listener,
@@ -76,8 +79,9 @@ public final class GIOPConnection
 
         fragments = new Hashtable();
         buf_mg = BufferManager.getInstance();
+        sasContexts = new Hashtable();
     }
-    
+
     public final void setCodeSets( int TCS, int TCSW )
     {
         this.TCS = TCS;
@@ -100,44 +104,44 @@ public final class GIOPConnection
     {
         tcs_negotiated = true;
     }
-    
+
     public  final boolean isTCSNegotiated()
     {
         return tcs_negotiated;
     }
-        
+
     /**
      * Get the value of request_listener.
      * @return value of request_listener.
      */
-    private  final synchronized RequestListener getRequestListener() 
+    private  final synchronized RequestListener getRequestListener()
     {
         return request_listener;
     }
-    
+
     /**
      * Set the value of request_listener.
      * @param v  Value to assign to request_listener.
      */
-    public  final synchronized void setRequestListener( RequestListener  v ) 
+    public  final synchronized void setRequestListener( RequestListener  v )
     {
         this.request_listener = v;
     }
-    
+
     /**
      * Get the value of reply_listener.
      * @return value of reply_listener.
      */
-    private  final synchronized ReplyListener getReplyListener() 
+    private  final synchronized ReplyListener getReplyListener()
     {
         return reply_listener;
     }
-    
+
     /**
      * Set the value of reply_listener.
      * @param v  Value to assign to reply_listener.
      */
-    public  final synchronized void setReplyListener( ReplyListener  v ) 
+    public  final synchronized void setReplyListener( ReplyListener  v )
     {
         this.reply_listener = v;
     }
@@ -151,14 +155,14 @@ public final class GIOPConnection
     {
         return transport;
     }
-    
+
     public  final void receiveMessages()
         throws IOException
     {
         while( true )
         {
             byte[] message = null;
-            
+
             try
             {
                 message = transport.getMessage();
@@ -192,15 +196,15 @@ public final class GIOPConnection
                 //do sth. else?
                 continue;
             }
-            
+
             //check major version
             if( Messages.getGIOPMajor( message ) != 1 )
             {
                 Debug.output( 1, "ERROR: Invalid GIOP major version encountered: " +
                               Messages.getGIOPMajor( message ) );
-                
+
                 Debug.output( 3, "GIOPConnection.receiveMessages()", message );
-                
+
                 continue;
             }
 
@@ -212,7 +216,7 @@ public final class GIOPConnection
                 if( Messages.getGIOPMinor( message ) == 0 )
                 {
                     Debug.output( 1, "WARNING: Received a GIOP 1.0 message of type Fragment" );
-                    
+
                     MessageOutputStream out =
                         new MessageOutputStream();
                     out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
@@ -225,10 +229,10 @@ public final class GIOPConnection
                 }
 
                 //GIOP 1.1 Fragmented messages currently not supported
-                if( Messages.getGIOPMinor( message ) == 1 ) 
+                if( Messages.getGIOPMinor( message ) == 1 )
                 {
                         Debug.output( 1, "WARNING: Received a GIOP 1.1 Fragment message" );
-                        
+
                         //Can't return a message in this case, because
                         //GIOP 1.1 fragments don't have request
                         //ids. Therefore, just discard.
@@ -239,9 +243,9 @@ public final class GIOPConnection
 
                 //for now, only GIOP 1.2 from here on
 
-                Integer request_id = 
+                Integer request_id =
                     new Integer( Messages.getRequestId( message ));
-                
+
                 //sanity check
                 if( ! fragments.containsKey( request_id ))
                 {
@@ -252,15 +256,15 @@ public final class GIOPConnection
 
                     continue;
                 }
-                
+
                 ByteArrayOutputStream b_out = (ByteArrayOutputStream)
                     fragments.get( request_id );
-                
+
                 //add the message contents to stream (discarding the
                 //GIOP message header and the request id ulong of the
                 //Fragment header)
-                b_out.write( message, 
-                             Messages.MSG_HEADER_SIZE + 4 , 
+                b_out.write( message,
+                             Messages.MSG_HEADER_SIZE + 4 ,
                              Messages.getMsgSize(message) - 4 );
 
                 if( Messages.moreFragmentsFollow( message ))
@@ -276,7 +280,7 @@ public final class GIOPConnection
                     //silently replace the original message buffer and type
                     message = b_out.toByteArray();
                     msg_type = Messages.getMsgType( message );
-                    
+
                     fragments.remove( request_id );
                 }
             }
@@ -286,7 +290,7 @@ public final class GIOPConnection
                 if( Messages.getGIOPMinor( message ) == 0 )
                 {
                     Debug.output( 1, "WARNING: Received a GIOP 1.0 message with the \"more fragments follow\" bits set" );
-                    
+
                     MessageOutputStream out =
                         new MessageOutputStream();
                     out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
@@ -299,13 +303,13 @@ public final class GIOPConnection
                 }
 
                 //If GIOP 1.1, only Request and Reply messages may be fragmented
-                if( Messages.getGIOPMinor( message ) == 1 ) 
+                if( Messages.getGIOPMinor( message ) == 1 )
                 {
                     if( msg_type != MsgType_1_1._Request &&
                         msg_type != MsgType_1_1._Reply )
                     {
                         Debug.output( 1, "WARNING: Received a GIOP 1.1 message of type " + msg_type + " with the \"more fragments follow\" bits set" );
-                        
+
                         MessageOutputStream out =
                             new MessageOutputStream();
                         out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
@@ -313,24 +317,24 @@ public final class GIOPConnection
                         out.insertMsgSize();
                         sendMessage( out );
                         buf_mg.returnBuffer( message );
-                
+
                         continue;
                     }
                     else //GIOP 1.1 Fragmented messages currently not supported
                     {
                         Debug.output( 1, "WARNING: Received a fragmented GIOP 1.1 message" );
-                        
+
                         int giop_minor = Messages.getGIOPMinor( message );
-                        
-                        ReplyOutputStream out = 
+
+                        ReplyOutputStream out =
                             new ReplyOutputStream( Messages.getRequestId( message ),
                                                    ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                                    giop_minor,
                                                    false );//no locate reply
-                        
-                        SystemExceptionHelper.write( out, 
+
+                        SystemExceptionHelper.write( out,
                                                      new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
-                        
+
                         sendMessage( out );
                         buf_mg.returnBuffer( message );
 
@@ -346,22 +350,22 @@ public final class GIOPConnection
                     Debug.output( 1, "WARNING: Received a GIOP message of type " + msg_type +
                                   " with the \"more fragments follow\" bits set, but this " +
                                   "message type isn't allowed to be fragmented" );
-                        
+
                     MessageOutputStream out =
                         new MessageOutputStream();
                     out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
                                             1 );
                     out.insertMsgSize();
-                    sendMessage( out );                    
+                    sendMessage( out );
                     buf_mg.returnBuffer( message );
 
                     continue;
                 }
-                
+
                 //if we're here, it's the first part of a fragmented message
-                Integer request_id = 
+                Integer request_id =
                     new Integer( Messages.getRequestId( message ));
-                
+
                 //sanity check
                 if( fragments.containsKey( request_id ))
                 {
@@ -371,23 +375,23 @@ public final class GIOPConnection
 
                     //Drop this one and continue
                     buf_mg.returnBuffer( message );
-                    
+
                     continue;
                 }
-                
+
                 //create new stream and add to table
                 ByteArrayOutputStream b_out = new ByteArrayOutputStream();
                 fragments.put( request_id, b_out );
-                
+
                 //add the message contents to stream
-                b_out.write( message, 
-                             0, 
-                             Messages.MSG_HEADER_SIZE + 
+                b_out.write( message,
+                             0,
+                             Messages.MSG_HEADER_SIZE +
                              Messages.getMsgSize(message) );
 
 
                 buf_mg.returnBuffer( message );
-                
+
                 //This message isn't yet complete
                 continue;
             }
@@ -395,21 +399,21 @@ public final class GIOPConnection
             switch( msg_type )
             {
                 case MsgType_1_1._Request:
-                {                                
+                {
                     getRequestListener().requestReceived( message, this );
 
                     break;
-                }                 
+                }
                 case MsgType_1_1._Reply:
                 {
                     getReplyListener().replyReceived( message, this );
-                    
-                    break;                    
+
+                    break;
                 }
                 case MsgType_1_1._CancelRequest:
                 {
                     getRequestListener().cancelRequestReceived( message, this );
-                    
+
                     break;
                 }
                 case MsgType_1_1._LocateRequest:
@@ -421,7 +425,7 @@ public final class GIOPConnection
                 case MsgType_1_1._LocateReply:
                 {
                     getReplyListener().locateReplyReceived( message, this );
-   
+
                     break;
                 }
                 case MsgType_1_1._CloseConnection:
@@ -444,10 +448,10 @@ public final class GIOPConnection
                     Debug.output(0, "ERROR: received message with unknown message type " + msg_type);
                     Debug.output( 3, "GIOPConnection.receiveMessages()", message );
                 }
-            }            
+            }
         }
-    }        
-                                        
+    }
+
     private  final void getWriteLock()
     {
         synchronized( write_sync )
@@ -462,7 +466,7 @@ public final class GIOPConnection
                 {
                 }
             }
-        
+
             writer_active = true;
         }
     }
@@ -470,7 +474,7 @@ public final class GIOPConnection
     private  final void releaseWriteLock()
     {
         synchronized( write_sync )
-        {            
+        {
             writer_active = false;
 
             write_sync.notifyAll();
@@ -489,7 +493,7 @@ public final class GIOPConnection
 
     /* pro forma implementations of io.OutputStream methods */
 
-    public  final void write(int i) 
+    public  final void write(int i)
         throws java.io.IOException
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
@@ -498,7 +502,7 @@ public final class GIOPConnection
     public final void write(byte[] b) throws java.io.IOException
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
-    } 
+    }
 
 
     public final void flush() throws java.io.IOException
@@ -506,16 +510,16 @@ public final class GIOPConnection
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
-    
+
     public final void sendMessage( MessageOutputStream out )
         throws IOException
     {
         try
         {
             getWriteLock();
-            
+
             out.write_to( this );
-            
+
             transport.flush();
         }
         finally
@@ -528,7 +532,7 @@ public final class GIOPConnection
     {
         return transport.isSSL();
     }
-    
+
     public  final void close()
     {
         try
@@ -538,8 +542,35 @@ public final class GIOPConnection
         catch( IOException e )
         {
             Debug.output( 1, e );
-        }      
+        }
     }
+
+    public void cacheSASContext(long client_context_id, byte[] client_authentication_token)
+    {
+        synchronized ( sasContexts )
+        {
+            sasContexts.put(new Long(client_context_id), new String(client_authentication_token));
+        }
+    }
+
+    public void purgeSASContext(long client_context_id)
+    {
+        synchronized ( sasContexts )
+        {
+            sasContexts.remove(new Long(client_context_id));
+        }
+    }
+
+    public byte[] getSASContext(long client_context_id)
+    {
+        Long key = new Long(client_context_id);
+        synchronized (sasContexts)
+        {
+            if (!sasContexts.containsKey(key)) return null;
+            return ((String)sasContexts.get(key)).getBytes();
+        }
+    }
+
 }// GIOPConnection
 
 

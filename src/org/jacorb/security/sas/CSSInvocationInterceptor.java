@@ -218,8 +218,6 @@ public class CSSInvocationInterceptor
         msg.client_authentication_token = client_authentication_token;
         msg.identity_token = identity_token;
         msg.authorization_token = authorization_token;
-        //Any any1 = orb.create_any();
-        //EstablishContextHelper.insert(any1, msg);
         SASContextBody contextBody = new SASContextBody();
         contextBody.establish_msg(msg);
         Any any = orb.create_any();

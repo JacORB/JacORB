@@ -92,8 +92,11 @@ public class TSSInvocationInterceptor
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        System.out.println("receive_request_service_contexts");
-        org.omg.CSI.SASContextBody contextBody = null;
+        //System.out.println("receive_request_service_contexts");
+        SASContextBody contextBody = null;
+        GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
+        long client_context_id = 0;
+        byte[] contextToken = null;
         try
         {
             // parse service context
@@ -102,34 +105,63 @@ public class TSSInvocationInterceptor
             Any ctx_any = codec.decode( ctx.context_data );
             contextBody = SASContextBodyHelper.extract(ctx_any);
 
-            // get GSS Context and credentials
-            Oid myMechOid = myCredential.getMechs()[0];
-            GSSContext context = gssManager.createContext(myCredential);
-            context.acceptSecContext(contextBody.establish_msg().client_authentication_token, 0, contextBody.establish_msg().client_authentication_token.length);
-            GSSName sourceName = context.getSrcName();
+            // process MessageInContext
+            if (contextBody.discriminator() == MTMessageInContext.value)
+            {
+                MessageInContext msg = contextBody.in_context_msg();
+                client_context_id = msg.client_context_id;
+                contextToken = connection.getSASContext(msg.client_context_id);
+                if (contextToken == null)
+                {
+                    Debug.output(1, "Could not find cached context: " + msg.client_context_id);
+                    throw new org.omg.CORBA.NO_PERMISSION();
+                }
+            }
+
+            // process EstablishContext
+            if (contextBody.discriminator() == MTEstablishContext.value)
+            {
+                EstablishContext msg = contextBody.establish_msg();
+                client_context_id = msg.client_context_id;
+
+                // verify context
+                Oid myMechOid = myCredential.getMechs()[0];
+                GSSContext context = gssManager.createContext(myCredential);
+                context.acceptSecContext(msg.client_authentication_token, 0, msg.client_authentication_token.length);
+                GSSName sourceName = context.getSrcName();
+                contextToken = sourceName.toString().getBytes();
+                if (contextToken == null)
+                {
+                    Debug.output(1, "Could not find cached context: " + msg.client_context_id);
+                    throw new org.omg.CORBA.NO_PERMISSION();
+                }
+
+                // cache context
+                connection.cacheSASContext(msg.client_context_id, contextToken);
+            }
 
             Any source_any = orb.create_any();
-            source_any.insert_string(sourceName.toString());
+            source_any.insert_string(new String(contextToken));
             ri.set_slot( sourceNameSlotID, source_any);
-            ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(contextBody.establish_msg().client_context_id, false));
+            ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id, true));
         }
         catch (GSSException e)
         {
             Debug.output(1, "Error parsing service context: " + e+": "+e.getMajorString()+": "+e.getMinorString());
-            try { ri.set_slot( sasReplySlotID, makeContextError(contextBody.establish_msg().client_context_id, e.getMajor(), e.getMinor(), contextBody.establish_msg().client_authentication_token)); } catch (Exception ee) {}
+            try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, e.getMajor(), e.getMinor(), contextToken)); } catch (Exception ee) {}
             throw new org.omg.CORBA.NO_PERMISSION("Error parsing service context");
         }
         catch (Exception e)
         {
             Debug.output(1, "Error parsing service context: " + e);
-            try { ri.set_slot( sasReplySlotID, makeContextError(contextBody.establish_msg().client_context_id, 1, 1, contextBody.establish_msg().client_authentication_token)); } catch (Exception ee) {}
+            try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
             throw new org.omg.CORBA.NO_PERMISSION("Error parsing service context");
         }
     }
 
     public void send_reply( ServerRequestInfo ri )
     {
-        System.out.println("send_reply");
+        //System.out.println("send_reply");
         try
         {
             ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( ri.get_slot(sasReplySlotID) ) ), true);
@@ -143,7 +175,7 @@ public class TSSInvocationInterceptor
     public void send_exception( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        System.out.println("send_exception");
+        //System.out.println("send_exception");
         try
         {
             ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( ri.get_slot(sasReplySlotID) ) ), true);
@@ -157,7 +189,7 @@ public class TSSInvocationInterceptor
     public void send_other( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        System.out.println("send_other");
+        //System.out.println("send_other");
     }
 
     private Any makeCompleteEstablishContext(long client_context_id, boolean context_stateful) {

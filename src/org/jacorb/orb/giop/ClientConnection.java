@@ -35,16 +35,20 @@ import org.omg.CONV_FRAME.*;
  * Created: Sat Aug 18 18:37:56 2002
  *
  * @author Nicolas Noffke
- * @version $Id$ 
+ * @version $Id$
  */
 
-public class ClientConnection 
+public class ClientConnection
     implements ReplyListener, ConnectionListener
 {
     private GIOPConnection connection = null;
     private org.omg.CORBA.ORB orb = null;
 
     private Hashtable replies = null;
+
+    // support for SAS Stateful contexts
+    private Hashtable sasContexts = null;
+    private static long last_client_context_id = 0;
 
     /* how many clients use this connection? */
     private int client_count = 0;
@@ -79,11 +83,12 @@ public class ClientConnection
         {
             id_count = 1;
         }
-        
+
         connection.setReplyListener( this );
         connection.setConnectionListener( this );
 
         replies = new Hashtable();
+        sasContexts = new Hashtable();
     }
 
     public ServiceContext setCodeSet( ParsedIOR pior )
@@ -107,7 +112,7 @@ public class ClientConnection
         if( info == null )
         {
             Debug.output( 2, "No CodeSetComponentInfo present in IOR. Will use default CodeSets" );
-            
+
             //If we can't find matching codesets, we still mark the
             //GIOPConnection as negotiated, so the following requests
             //will not always try to select a codeset again.
@@ -115,15 +120,15 @@ public class ClientConnection
 
             return null;
         }
-        
+
         int tcs = CodeSet.selectTCS( info );
         int tcsw = CodeSet.selectTCSW( info );
-        
+
         if( tcs == -1 || tcsw == -1 )
         {
             //if no matching codesets can be found, an exception is
             //thrown
-            throw new org.omg.CORBA.CODESET_INCOMPATIBLE( 
+            throw new org.omg.CORBA.CODESET_INCOMPATIBLE(
                 "WARNING: CodeSet negotiation failed! No matching " +
                 (( tcs == -1 )? "normal" : "wide") +
                 " CodeSet found");
@@ -159,7 +164,7 @@ public class ClientConnection
     {
         return connection.getTCSW();
     }
-    
+
     public String getInfo()
     {
         return info;
@@ -168,7 +173,7 @@ public class ClientConnection
     public synchronized int getId()
     {
         int id = id_count;
-        
+
         //if odd or even is determined by the starting value of
         //id_count
         id_count += 2;
@@ -180,7 +185,7 @@ public class ClientConnection
     {
         client_count++;
     }
-    
+
     public void decClients()
     {
         client_count--;
@@ -202,9 +207,9 @@ public class ClientConnection
     public void sendRequest( MessageOutputStream os,
                              ReplyPlaceholder placeholder,
                              int request_id )
-    {        
+    {
         Integer key = new Integer( request_id );
-        
+
         synchronized( replies )
         {
             replies.put( key, placeholder );
@@ -222,9 +227,9 @@ public class ClientConnection
         catch (java.io.IOException e)
         {
             Debug.output (2,e);
-            throw new org.omg.CORBA.COMM_FAILURE 
+            throw new org.omg.CORBA.COMM_FAILURE
                 (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
-        }		
+        }
     }
 
     public void close()
@@ -240,9 +245,9 @@ public class ClientConnection
                                GIOPConnection connection )
     {
         Integer key = new Integer( Messages.getRequestId( reply ));
-        
+
         ReplyPlaceholder placeholder = null;
-        
+
         synchronized( replies )
         {
             placeholder =
@@ -260,14 +265,14 @@ public class ClientConnection
         }
     }
 
-        
+
     public void locateReplyReceived( byte[] reply,
                                      GIOPConnection connection )
     {
         Integer key = new Integer( Messages.getRequestId( reply ));
 
         ReplyPlaceholder placeholder = null;
-        
+
         synchronized( replies )
         {
             placeholder =
@@ -277,22 +282,22 @@ public class ClientConnection
         if( placeholder != null )
         {
             //this will unblock the waiting thread
-            placeholder.replyReceived( new LocateReplyInputStream( orb, 
+            placeholder.replyReceived( new LocateReplyInputStream( orb,
                                                                    reply ));
         }
         else
         {
             Debug.output( 1, "WARNING: Received an unknown reply" );
-        }        
+        }
     }
 
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection )
     {
-        
+
     }
 
-    
+
     /*
      * Operations from ConnectionListener
      */
@@ -306,11 +311,11 @@ public class ClientConnection
             //pooled in the ConnectionManager even if no Delegate is
             //associated with it. Therefore, it has to be removed when
             //the underlying connection closed.
-            
+
             conn_mg.removeConnection( this );
         }
     }
-    
+
     public void connectionTimedOut()
     {
         synchronized( replies )
@@ -326,12 +331,12 @@ public class ClientConnection
             {
                 ReplyPlaceholder placeholder =
                     (ReplyPlaceholder) replies.remove( keys.nextElement() );
-               
+
                 placeholder.timeout();
             }
-        }        
+        }
     }
-    
+
     public void streamClosed()
     {
         synchronized( replies )
@@ -347,10 +352,48 @@ public class ClientConnection
             {
                 ReplyPlaceholder placeholder =
                     (ReplyPlaceholder) replies.remove( keys.nextElement() );
-               
+
                 placeholder.cancel();
             }
-        }                
+        }
+    }
+
+    public long cacheSASContext(byte[] client_authentication_token)
+    {
+        long client_context_id = 0;
+        String key = new String(client_authentication_token);
+        synchronized ( sasContexts )
+        {
+            if (!sasContexts.containsKey(key))
+            {
+                // new context
+                client_context_id = ++last_client_context_id;
+                sasContexts.put(key, new Long(client_context_id));
+                client_context_id = -client_context_id;
+            }
+            else
+            {
+                // reuse cached context
+                client_context_id = ((Long)sasContexts.get(key)).longValue();
+            }
+        }
+        return client_context_id;
+    }
+
+    public long purgeSASContext(long client_context_id)
+    {
+        synchronized ( sasContexts )
+        {
+            Enumeration enum = sasContexts.keys();
+            while (enum.hasMoreElements())
+            {
+                Object key = enum.nextElement();
+                if (((Long)sasContexts.get(key)).longValue() != client_context_id) continue;
+                sasContexts.remove(key);
+                break;
+            }
+        }
+        return client_context_id;
     }
 }// ClientConnection
 
