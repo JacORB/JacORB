@@ -180,7 +180,7 @@ gerald.brose@acm.org
                 - Replaced properties
 
                   jacorb.security.ssl.supported_options
-                  jacorb.security.ssl.requireded_options   
+                  jacorb.security.ssl.required_options   
 
                   by
 
