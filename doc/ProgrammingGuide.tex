@@ -34,7 +34,7 @@ $$
 % Use these instead of writing version numbers directly, so
 % version changes only have to be made in one place
 \newcommand{\JacORBDir}{JacORB1\_4}
-\newcommand{\JacORBVersion}{1.4}
+\newcommand{\JacORBVersion}{1.4.1}
 
 \maketitle
 
@@ -343,8 +343,7 @@ The steps we will generally have to take are:
 \begin{enumerate}
     \item  write an IDL specification.
     \item  compile this specification with the IDL compiler to generate Java classes.
-    \item write an implementation for the interface generated in step
-      2
+    \item write an implementation for the interface generated in step 2
     \item  write a ``Main'' class that instantiates the server implementation
         and registers it with the ORB
     \item  write a client class that retrieves a reference to the server object.
@@ -355,10 +354,9 @@ The steps we will generally have to take are:
 
 Our example uses a simple server the definition of which should be
 clear if you know IDL. Its interface is given in {\tt server.idl}. All
-the source code for this example can be found in {\tt
-  \JacORBDir/demo/grid}.
+the source code for this example can be found in {\tt \JacORBDir/demo/grid}.
 
-\small{
+{\small
 \begin{verbatim}
 // server.idl
 // IDL definition of a 2-D grid:
