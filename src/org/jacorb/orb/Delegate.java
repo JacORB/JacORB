@@ -38,6 +38,7 @@ import org.omg.PortableInterceptor.*;
 import org.omg.IOP.ServiceContext;
 import org.omg.GIOP.*;
 import org.omg.CORBA.SystemException;
+import org.omg.PortableServer.POAPackage.*;
 
 /**
  * JacORB implementation of CORBA object reference
@@ -1412,6 +1413,7 @@ public final class Delegate
                 if ( ( poa.isRetain() && !poa.isUseServantManager() ) ||
                         poa.useDefaultServant() )
                 {
+                    // no ServantManagers, but AOM use
                     so.servant = poa.reference_to_servant( self );
                 }
                 else if ( poa.isUseServantManager() )
@@ -1423,16 +1425,29 @@ public final class Delegate
 
                     if ( poa.isRetain() )
                     {
-                        org.omg.PortableServer.ServantActivator sa =
-                            ( org.omg.PortableServer.ServantActivator ) sm ;
-                        //  org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
-                        so.servant = sa.incarnate( oid, poa );
+                        // ServantManager is a ServantActivator:
+                        // see if the servant is already activated
+                        try
+                        {
+                            so.servant = poa.id_to_servant( oid );
+                        }
+                        catch( ObjectNotActive ona )
+                        {
+                            // okay, we need to activate it
+                            org.omg.PortableServer.ServantActivator sa =
+                                ( org.omg.PortableServer.ServantActivator ) sm ;
+                            org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
+                            so.servant = sa.incarnate( oid, poa );
+                        }                        
                     }
                     else
                     {
+                        // ServantManager is a ServantLocator: 
+                        // locate a servant
+
                         org.omg.PortableServer.ServantLocator sl =
                             ( org.omg.PortableServer.ServantLocator ) sm;
-                        //org.omg.PortableServer.ServantLocatorHelper.narrow( sm );
+
                         so.servant =
                             sl.preinvoke( oid, poa, operation,
                                   new org.omg.PortableServer.ServantLocatorPackage.CookieHolder() );
@@ -1440,6 +1455,7 @@ public final class Delegate
                 }
                 else
                 {
+                    System.err.println("Internal error: we should have gotten to this piece of code!")
                 }
                 
                 if ( !expectedType.isInstance( so.servant ) )
