@@ -24,6 +24,7 @@ import org.omg.DynamicAny.NameValuePair;
 import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.NameDynAnyPair;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+import org.omg.DynamicAny.*;
 
 import org.jacorb.orb.*;
 import org.omg.CORBA.TCKind;
@@ -79,6 +80,8 @@ public final class DynUnion
                 }
             }
 	    select_member();
+            org.jacorb.util.Debug.output( 3, "DynUnion.ctor(), member == null? " + 
+                                          ( member == null ));
 	}
 	catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
 	{
@@ -90,6 +93,9 @@ public final class DynUnion
 	}   	
     }
 
+    /**
+     * @overrides  from_any() in DynAny
+     */
 
     public void from_any( org.omg.CORBA.Any value ) 
 	throws InvalidValue, TypeMismatch
@@ -100,6 +106,8 @@ public final class DynUnion
 	try
 	{
             type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
+            super.from_any( value );
+
 	    limit = 2;
 	    org.omg.CORBA.portable.InputStream is = 
                 value.create_input_stream();
@@ -109,10 +117,23 @@ public final class DynUnion
             
 	    discriminator.read_value(is, type().discriminator_type());
 
-	    int members = type().member_count();
+	    int member_count = type().member_count();
+            members = new org.omg.DynamicAny.NameDynAnyPair[member_count];
 	    org.omg.CORBA.Any member_any = null;
-	    for( int i = 0; i < members; i++ )
+	    for( int i = 0; i < member_count; i++ )
 	    {
+                try
+                {
+                    members[i] = 
+                        new org.omg.DynamicAny.NameDynAnyPair( 
+                               type().member_name(i),
+                               dynFactory.create_dyn_any_from_type_code( type().member_type(i) ));	
+                }
+		catch( InconsistentTypeCode itc )
+		{
+		    // should never happen
+		    itc.printStackTrace();
+		}	
 		if( type().member_label(i).equals( discriminator ))
 		{
 		    member_any = org.omg.CORBA.ORB.init().create_any();
@@ -139,7 +160,7 @@ public final class DynUnion
 	    {
 		try
 		{
-		    member =  dynFactory.create_dyn_any( member_any );
+		    member = dynFactory.create_dyn_any( member_any );
 		}
 		catch( InconsistentTypeCode itc )
 		{
@@ -147,6 +168,9 @@ public final class DynUnion
 		    itc.printStackTrace();
 		}		
 	    }
+
+            org.jacorb.util.Debug.output( 3, "DynUnion.from_any(), member == null? " + 
+                                          ( member == null ));
 	}
 	catch( org.omg.CORBA.TypeCodePackage.Bounds b )
 	{
@@ -159,6 +183,9 @@ public final class DynUnion
 	}
     }
 
+    /** 
+     * @return an Any that holds a copy of this union
+     */
 
     public org.omg.CORBA.Any to_any() 
     {
@@ -197,7 +224,7 @@ public final class DynUnion
     }
 
     /** 
-     * sets the  discriminator to d  
+     * sets the discriminator to d  
      * @throws  TypeMismatch if  the TypeCode of the d parameter 
      * is not equivalent to  the TypeCode of the union's discriminator
      */
@@ -342,7 +369,8 @@ public final class DynUnion
      *
      * @throws TypeMismatch if the union  has an explicit default 
      * case or uses the entire range of discriminator values for 
-     * explicit case labels.  */
+     * explicit case labels.  
+     */
 
     public void set_to_no_active_member() 
 	throws TypeMismatch
@@ -353,36 +381,97 @@ public final class DynUnion
             if( type().default_index() != -1 )
 		throw new TypeMismatch();
 
-	    int members = type().member_count();
-	    Any dis_any = 
-                (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
-
 	    /* find a discriminator value that is not an explicit case label */
-	    switch( type().kind().value() )
+	    switch( discriminator.type().kind().value() )
 	    {
 	    case TCKind._tk_boolean:
 		{
 		    boolean found_true = false;
 		    boolean found_false = false;
-		    for( int i = 0; i < members; i++ )
+		    for( int i = 0; i < type().member_count(); i++ )
 		    {
-			found_true = 
+			found_true |= 
                             ( type().member_label(i).extract_boolean() == true );
-			found_false = 
+			found_false |= 
                             ( type().member_label(i).extract_boolean() == false );
 		    }
 		    if( !found_true )
 		    {
-			dis_any.insert_boolean( true );
+			discriminator.insert_boolean( true );
 		    }
 		    else if( !found_false )
 		    {
-			dis_any.insert_boolean( true );
+			discriminator.insert_boolean( true );
 		    }
 		    else
 			throw new TypeMismatch();
 		    break;
 		}
+	    case TCKind._tk_char:
+            {
+                // does this union use all char values
+                if( type().member_count() == 256 )
+                    throw new TypeMismatch();
+
+                for( short s = 0; s < 256; s++)
+                {
+                    char c = (char)s;
+                }
+            }
+	    case TCKind._tk_long:
+            {	
+                // does this union use all long values
+                if( type().member_count() == 2147483647) // -2^31,  max long
+                    throw new TypeMismatch();
+            }
+	    case TCKind._tk_enum:
+            {
+                // does this union use all enum labels available?
+                if( type().member_count() == discriminator.type().member_count())
+                    throw new TypeMismatch();
+
+                org.omg.DynamicAny.DynEnum enum = null;
+                try
+                {         
+                    enum = DynEnumHelper.narrow(
+                              dynFactory.create_dyn_any_from_type_code(discriminator.type()));
+                }
+                catch( InconsistentTypeCode it )
+                {
+                    it.printStackTrace();
+                }   	
+
+                for( int i = 0; i < discriminator.type().member_count(); i++ )
+                {    
+                    try
+                    {
+                        enum.set_as_string( discriminator.type().member_name(i) );
+                    }
+                    catch( InvalidValue iv )
+                    {
+                        // should not happen anymore
+                        iv.printStackTrace();
+                    }
+
+                    boolean found = false; // is the value used as a label?
+                    
+                    for( int j = 0; j < type().member_count() && !found ; j++ )
+                    {
+                        if( enum.equals( type().member_label(i))  )
+                        {
+                            found = true;
+                        }
+                    }                   
+                    if( !found )
+                    {
+                        // the enum value is not found among the union's label
+                        discriminator = enum.to_any();
+                        return;
+                    }                    
+                }
+                // no unused value found, should not happen
+                throw new TypeMismatch();                
+            }
 	    default:
 		throw new TypeMismatch();
 	    }
@@ -412,19 +501,40 @@ public final class DynUnion
 	try
 	{
 	    if( type().default_index() != -1 )
+            {
 		return false;
+            }
 
-            // check   whether   union   uses  complete   range   of
-            // discriminator values... not implemented
-            if( false ) 
-		return false;
+            // check whether  the union  uses the  complete  range of
+            // discriminator values
+
+            if( discriminator.type().member_count() == members.length )
+            {
+                return false;
+            }
+            else
+            {                    
+                org.omg.CORBA.TypeCode tc = type();
+                
+                for( int i = 0; i < type.member_count(); i++ )
+                {
+                    if( discriminator.equal( type.member_label(i)  ))
+                        return false;
+                }
+                return true;
+            }
 	}
+	catch( org.omg.CORBA.TypeCodePackage.Bounds b )
+	{
+	    // should not happen anymore
+	    b.printStackTrace();
+	}	
 	catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
 	{
 	    // should not happen anymore
 	    bk.printStackTrace();
 	}	
-	return( member != null );
+	return( member == null );
     }
 
     /** 
@@ -460,6 +570,7 @@ public final class DynUnion
     {
 	if( has_no_active_member() )
 	    throw new InvalidValue();
+
 	return member.type().kind();
     }
 
@@ -468,7 +579,7 @@ public final class DynUnion
      * @throws InvalidValue if the union has no active member
      */
 
-    public java.lang.String member_name() 
+    public String member_name() 
 	throws InvalidValue
     {
 	if( has_no_active_member() )
