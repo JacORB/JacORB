@@ -53,17 +53,18 @@ public class ConstraintEntry
 
     ////////////////////////////////////////
 
-    static class EventTypeWrapper implements EventTypeIdentifier
+    private static class EventTypeWrapper implements EventTypeIdentifier
     {
-        EventType et_;
         String constraintKey_;
 
         EventTypeWrapper( EventType et )
         {
-            et_ = et;
-
             constraintKey_ =
-                FilterUtils.calcConstraintKey( et_.domain_name, et_.type_name );
+                FilterUtils.calcConstraintKey( et.domain_name, et.type_name );
+        }
+
+        public String getConstraintKey() {
+            return constraintKey_;
         }
 
         public String toString()
