@@ -52,6 +52,7 @@ public class AllTest extends TestCase
         _suite.addTest( org.jacorb.test.notification.queue.PackageTest.suite() );
         _suite.addTest( org.jacorb.test.notification.evaluate.PackageTest.suite() );
         _suite.addTest( org.jacorb.test.notification.engine.PackageTest.suite() );
+        _suite.addTest( org.jacorb.test.notification.bugs.PackageTest.suite() );
 
         return _suite;
     }
