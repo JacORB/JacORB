@@ -292,7 +292,8 @@ public final class ORB
             byte[] objectId = 
                 org.jacorb.poa.util.POAUtil.extractOID( ref );
 
-            if( ! tmp_poa.previouslyGeneratedObjectId( objectId ))
+            if( tmp_poa.isSystemId() 
+               && ! tmp_poa.previouslyGeneratedObjectId( objectId ))
             {
                 Debug.output(3, "ORB.findPOA: not a previously generated object key.");
                 return null;
