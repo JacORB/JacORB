@@ -1,3 +1,119 @@
+2003-08-28  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/PushToConsumerTest.java: corrected typo
+
+	* notification/perf/EchoServerImpl.java,
+	notification/perf/PerformanceLogger.java,
+	notification/perf/PerformanceTest.java: moved from old test dir
+
+	* notification/engine/MockEventConsumer.java,
+	notification/engine/PushToConsumerTest.java: extracted
+	MockEventConsumer to file
+
+	* notification/PackageTest.java,
+	notification/PropertyValidatorTest.java: added testcase for class
+	PropertyValidator
+
+2003-08-27  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AdminLimitTest.java,
+	notification/EventChannelFactoryTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MessageUtilsTest.java,
+	notification/NotificationEventFactoryTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/StartTimeTest.java:
+	(tearDown) added calls to super.tearDown()
+
+2003-08-26  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/ReleaseTasksTest.java:
+	(testAllTasksAreReleased) added Thread.sleep(1000) to allow the
+	Notification Channel to deliver the Messages
+
+2003-08-25  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AdminLimitTest.java, notification/AllTest.java,
+	notification/EventChannelFactoryTest.java,
+	notification/FilterTest.java, notification/MappingFilterTest.java,
+	notification/MessageUtilsTest.java, notification/MockMessage.java,
+	notification/NotificationEventFactoryTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationEventUtilsTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/PackageTest.java, notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullSender.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPullSender.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestUtils.java, notification/TimeoutTest.java,
+	notification/engine/PackageTest.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/evaluate/PackageTest.java,
+	notification/evaluate/TestDynamicEvaluator.java,
+	notification/node/PackageTest.java,
+	notification/node/TCLTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java,
+	notification/queue/PackageTest.java,
+	notification/util/CachingWildcardMapTest.java,
+	notification/util/PackageTest.java,
+	notification/util/ThreadPoolTest.java,
+	notification/util/WildcardMapTest.java: too many changes to check
+	in the single files.
+
+	removed tabs from all files.
+
+	reformated sources according to Coding Style.
+
+	renamed all abstract classes according to name schema
+	Abstract<ClassName>.
+
+	renamed  NotificationEvent to Message.
+
+	added QoS: DiscardPolicy and OrderPolicy.
+
+	added Testcases to test the QoS support classes.
+
+2003-08-20  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* common/ClientServerSetup.java:
+	Server called with jaco (Xbootclasspath) again.
+
+2003-08-17  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/AllTest.java (suite): Add QueueNoWaitTest and QueueWaitTest.
+
+	* poa/QueueNoWaitTest.java, poa/QueueWaitTest.java: Initial revision.
+
+	* poa/Deactivate.java (suite): Change title.
+
+	* common/StreamListener.java (run): Exit on any exception.
+
+	* orb/connection/BiDirTest.java (c'tor): Use the giop package in
+	the ORB rather than connection.
+
+2003-08-15  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/GIOPConnectionTest.java, orb/etf/WIOPSelector.java:
+	Use org.jacorb.orb.giop rather than org.jacorb.orb.connection.
+
+2003-08-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* bugs/AllTest.java, bugs/bug344/TestCase.java: Fix for
+	Jac344/RT964 POA activate/deactivate object (AOM plus test)
+
 2003-08-13  Andre Spiegel  <spiegel@gnu.org>
 
 	* bugs/AllTest.java (suite): Add bug 272.

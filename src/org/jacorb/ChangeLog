@@ -1,3 +1,292 @@
+2003-08-29  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/Interface.java, idl/Method.java: More fixes for Jac286 -
+	handle abstract
+
+2003-08-29  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/SequenceProxyPushSupplierImpl.java: removed wrong
+	import
+
+2003-08-29  Gerald Brose  <gerald.brose@acm.org>
+
+	[ new-backend-visitor branch ]
+	
+	* idl/IDLTreeVisitor.java: *** empty log message ***
+
+	* idl/IDLTreeVisitor.java: New file.
+
+2003-08-28  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/TaskConfigurator.java,
+	notification/engine/TaskProcessor.java: added properties to
+	disconnect a failing consumer after a number of retries
+	renamed method handle... to on...
+
+	* notification/engine/AbstractTask.java:
+	(doWork) renamed misleading variable name
+
+	* notification/engine/AbstractDeliverTask.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/engine/TimerDeliverTask.java: moved common behaviour
+	to AbstractDeliverTask
+
+	* notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java:
+	(doWork) renamed misleading variable name
+
+	* notification/engine/AbstractTaskPool.java:
+	(class) changed visibility to public
+	(ctor) added ctor
+
+	* notification/interfaces/EventConsumer.java,
+	notification/interfaces/TimerEventConsumer.java: merged Interfaces
+	EventConsumer and TimerEventConsumer in EventConsumer
+
+	* notification/README.PROPERTIES: documented new properties
+
+	* notification/EventChannelFactoryImpl.java: renamed misleading
+	variablename
+
+	* notification/ConfigurableProperties.java,
+	notification/Constants.java: added properties to disconnect a
+	failing consumer after a number of retries
+
+	* notification/AbstractProxy.java: added errorcounter to keep
+	track of failed deliveries
+
+	* notification/util/AbstractObjectPool.java: removed debug code
+
+2003-08-28  Gerald Brose  <gerald.brose@acm.org>
+
+	[ new-backend-visitor branch ]
+
+	* idl/ScopedName.java, idl/StructType.java, idl/TypeDeclaration.java:
+	new methods getIDLTypeName and getJavaTypeName as part of the
+	preparation for new compiler backends added.
+
+	* idl/TypeMap.java:
+	(removeDefinition) new method, added while fixing bug #345
+
+	* idl/NameTable.java:
+	(define) fixed bug #345, ie. redefinitions of inherited types in a
+	scope where blocked by the old types still lurking in the TypeMap
+	table. Now remove the old type in define() before as part of the
+	redefinition.
+
+	* idl/BaseType.java, idl/FloatType.java, idl/IdlSymbol.java,
+	idl/IntType.java, idl/LongLongType.java, idl/LongType.java,
+	idl/OctetType.java, idl/ShortType.java, idl/SimpleTypeSpec.java,
+	idl/TypeSpec.java: new getIDLTypeName() and getJavaTypeName()
+	methods
+
+2003-08-27  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/ConstraintEntry.java:
+	(calcConstraintKey) moved method from class FilterUtils to class
+	MessageUtils
+
+	* notification/StructuredEventMessage.java:
+	(getPriority) changed visibility to public
+
+	* notification/FilterUtils.java, notification/MessageUtils.java:
+	(calcConstraintKey) moved method from class FilterUtils to class
+	MessageUtils
+
+	* notification/EventChannelFactoryImpl.java:
+	(ctor) removed no-args constructor because it wasn't used changed
+	       visibility to private as a factory method should be used
+
+	* notification/AnyMessage.java:
+	(getPriority) replaced "magic number" by an constant
+
+	* notification/AbstractMessage.java:
+	(getPriority) changed visibility to public
+
+2003-08-27  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASTargetInterceptor.java,
+	security/sas/SASTargetInitializer.java,
+	security/sas/SASClientInitializer.java: Cleanup
+
+2003-08-27  Gerald Brose  <gerald.brose@acm.org>
+
+	[ new-backend-visitor branch ]
+
+	* idl/AliasTypeSpec.java, idl/ArrayTypeSpec.java,
+	idl/AttrDecl.java, idl/ConstrTypeSpec.java, idl/Declaration.java,
+	idl/Declarator.java, idl/Definition.java, idl/Definitions.java,
+	idl/EnumType.java, idl/IdlSymbol.java,
+	idl/IllegalRedefinition.java, idl/Interface.java,
+	idl/InterfaceBody.java, idl/JacIDL.java, idl/Member.java,
+	idl/MemberList.java, idl/Method.java, idl/Module.java,
+	idl/NameTable.java, idl/NativeType.java, idl/ObjectTypeSpec.java,
+	idl/OpDecl.java, idl/Operation.java, idl/ParamDecl.java,
+	idl/ScopedName.java, idl/SequenceType.java, idl/ShortType.java,
+	idl/SimpleDeclarator.java, idl/SimpleTypeSpec.java, idl/Spec.java,
+	idl/StringType.java, idl/StructType.java, idl/SymbolList.java,
+	idl/TemplateTypeSpec.java, idl/TypeDeclaration.java,
+	idl/TypeDef.java, idl/TypeSpec.java, idl/UnionType.java,
+	idl/Value.java, idl/VectorType.java, idl/VoidTypeSpec.java,
+	idl/parser.cup, idl/parser.java, idl/sym.java: first version of
+	new compiler backend using the visitor pattern
+
+2003-08-26  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* notification/EventChannelFactoryImpl.java: setDaemon(false)
+
+2003-08-25  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractAdmin.java,
+	notification/AbstractMessage.java,
+	notification/AbstractProxy.java, notification/AdminBase.java,
+	notification/AnyMessage.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java,
+	notification/CollectionsWrapper.java,
+	notification/ConfigurableProperties.java,
+	notification/Constants.java,
+	notification/ConsumerAdminTieImpl.java,
+	notification/EvaluationContext.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/FilterFactoryImpl.java, notification/FilterImpl.java,
+	notification/FilterUtils.java, notification/Main.java,
+	notification/MappingFilterImpl.java,
+	notification/MessageFactory.java, notification/MessageUtils.java,
+	notification/NotificationAnyEvent.java,
+	notification/NotificationEvent.java,
+	notification/NotificationEventFactory.java,
+	notification/NotificationEventUtils.java,
+	notification/NotificationStructuredEvent.java,
+	notification/Properties.java, notification/PropertyManager.java,
+	notification/PropertyValidator.java, notification/ProxyBase.java,
+	notification/ProxyPullConsumerImpl.java,
+	notification/ProxyPullSupplierImpl.java,
+	notification/ProxyPushConsumerImpl.java,
+	notification/ProxyPushSupplierImpl.java, notification/README,
+	notification/README.PROPERTIES,
+	notification/SequenceProxyPullConsumerImpl.java,
+	notification/SequenceProxyPullSupplierImpl.java,
+	notification/SequenceProxyPushConsumerImpl.java,
+	notification/SequenceProxyPushSupplierImpl.java,
+	notification/StructuredEventMessage.java,
+	notification/StructuredProxyPullConsumerImpl.java,
+	notification/StructuredProxyPullSupplierImpl.java,
+	notification/StructuredProxyPushConsumerImpl.java,
+	notification/StructuredProxyPushSupplierImpl.java,
+	notification/SupplierAdminTieImpl.java, notification/build.xml,
+	notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/AbstractTaskPool.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/FilterTaskBase.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/engine/Task.java, notification/engine/TaskBase.java,
+	notification/engine/TaskConfigurator.java,
+	notification/engine/TaskPoolBase.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TimerDeliverTask.java,
+	notification/evaluate/DynamicEvaluator.java,
+	notification/evaluate/FilterConstraint.java,
+	notification/evaluate/ResultExtractor.java,
+	notification/grammar/comp-lexer.g,
+	notification/grammar/tcl-lexer.g, notification/grammar/tcl.g,
+	notification/interfaces/AbstractPoolable.java,
+	notification/interfaces/AdminEvent.java,
+	notification/interfaces/ApplicationEvent.java,
+	notification/interfaces/Disposable.java,
+	notification/interfaces/EventChannelEvent.java,
+	notification/interfaces/EventConsumer.java,
+	notification/interfaces/FrameworkEvent.java,
+	notification/interfaces/Message.java,
+	notification/interfaces/Poolable.java,
+	notification/interfaces/ProxyCreationRequestEvent.java,
+	notification/interfaces/ProxyCreationRequestEventListener.java,
+	notification/interfaces/ProxyDisposedEvent.java,
+	notification/interfaces/ProxyEvent.java,
+	notification/interfaces/TimerEventSupplier.java,
+	notification/node/AbstractTCLNode.java,
+	notification/node/AbstractTCLVisitor.java,
+	notification/node/AndOperator.java,
+	notification/node/ArrayOperator.java,
+	notification/node/AssocOperator.java,
+	notification/node/BoolValue.java,
+	notification/node/ComponentName.java,
+	notification/node/ComponentPositionOperator.java,
+	notification/node/CurrentTimeNode.java,
+	notification/node/DefaultOperator.java,
+	notification/node/DivOperator.java,
+	notification/node/DomainNameShorthandNode.java,
+	notification/node/DotOperator.java,
+	notification/node/DynamicTypeException.java,
+	notification/node/EqOperator.java,
+	notification/node/EvaluationResult.java,
+	notification/node/EventNameShorthandNode.java,
+	notification/node/ExistOperator.java,
+	notification/node/GtOperator.java,
+	notification/node/GteOperator.java,
+	notification/node/IdentValue.java,
+	notification/node/ImplicitOperatorNode.java,
+	notification/node/InOperator.java,
+	notification/node/LtOperator.java,
+	notification/node/LteOperator.java,
+	notification/node/MinusOperator.java,
+	notification/node/MultOperator.java,
+	notification/node/NeqOperator.java,
+	notification/node/NotOperator.java,
+	notification/node/NumberValue.java,
+	notification/node/OrOperator.java,
+	notification/node/PlusOperator.java,
+	notification/node/PropertyShorthandNode.java,
+	notification/node/RuntimeVariableNode.java,
+	notification/node/StaticTypeChecker.java,
+	notification/node/StaticTypeException.java,
+	notification/node/StringValue.java,
+	notification/node/SubstrOperator.java,
+	notification/node/TCLCleanUp.java, notification/node/TCLNode.java,
+	notification/node/TCLVisitor.java,
+	notification/node/TypeNameShorthandNode.java,
+	notification/node/UnionPositionOperator.java,
+	notification/node/VisitorException.java,
+	notification/queue/AbstractBoundedEventQueue.java,
+	notification/queue/BoundedDeadlineEventQueue.java,
+	notification/queue/BoundedFifoEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/EventQueue.java,
+	notification/queue/EventQueueFactory.java,
+	notification/queue/EventQueueOverflowStrategy.java,
+	notification/queue/HeapEntry.java,
+	notification/queue/QueueUtil.java,
+	notification/util/AbstractObjectPool.java,
+	notification/util/CachingWildcardMap.java,
+	notification/util/JDK14PatternWrapper.java,
+	notification/util/LogConfiguration.java,
+	notification/util/ObjectPoolBase.java,
+	notification/util/PatternWrapper.java,
+	notification/util/ThreadPool.java,
+	notification/util/WildcardMap.java: too many changes to check in
+	the single files.
+
+	removed tabs from all files.
+
+	reformated sources according to Coding Style.
+
+	renamed all abstract classes according to name schema
+	Abstract<ClassName>.
+
+	renamed  NotificationEvent to Message.
+
+	added QoS: DiscardPolicy and OrderPolicy.
+
+	added Testcases to test the QoS support classes.
+
 2003-08-22  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* ir/IDLType.java, ir/IdlWriter.java, ir/OperationDef.java,
@@ -444,7 +733,7 @@
 	- fixed bug: EventChannelFactoryImpl.disposed() caused
 	  ConcurrentModificationException
 
-2003-07-18  david.robison  <david.robison@eagle>
+2003-07-18  David R Robison  <drrobison@openroadsconsulting.com>
 
 	* notification/EventChannelFactoryImpl.java: Notify and Naming as
 	NT Services
