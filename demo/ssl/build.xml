@@ -48,7 +48,7 @@
          </java>
    </target>
 
-   <target name="clean">
+   <target name="clean" depends="init">
 	   <delete dir="${classdir}/demo/${name}"/>
 	   <delete dir="${dirs.base}/demo/${name}/generated"/>
    </target>
