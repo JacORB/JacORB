@@ -243,8 +243,9 @@ public class EventChannelImpl extends JacORBEventChannelPOA
         }
         catch( org.omg.CORBA.COMM_FAILURE comm )
         {
-          pullSuppliers.removeElementAt( i );
+          pushSuppliers.removeElementAt( i );
           --i;
+          --n;
         }
       }
     }
@@ -261,6 +262,7 @@ public class EventChannelImpl extends JacORBEventChannelPOA
         {
           pullSuppliers.removeElementAt( i );
           --i;
+          --n;
         }
       }
     }
