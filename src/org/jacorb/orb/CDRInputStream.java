@@ -27,6 +27,8 @@ import org.omg.CORBA.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.connection.CodeSet;
 
+import org.jacorb.util.ValueHandler;
+
 /**
  * Read CDR encoded data 
  *
@@ -35,7 +37,7 @@ import org.jacorb.orb.connection.CodeSet;
  */
 
 public class CDRInputStream
-    extends org.omg.CORBA.portable.InputStream
+    extends org.omg.CORBA_2_3.portable.InputStream
 {
     /** index for reading from the stream in plain java.io. style */
     int read_index;
@@ -55,6 +57,18 @@ public class CDRInputStream
 
     private boolean closed = false;
 
+    /**
+     * Maps indices within the buffer (java.lang.Integer) to the values that 
+     * appear at these indices.
+     */
+    private Hashtable valueMap = new Hashtable();
+
+    /**
+     * Maps indices within the buffer (java.lang.Integer) to repository ids
+     * that appear at these indices.
+     */
+    private Hashtable repIdMap = new Hashtable();
+
     public boolean littleEndian = false;
 	
     /** indices into the actual buffer */
@@ -67,7 +81,7 @@ public class CDRInputStream
 	a full ORB (not the Singleton!) must be known. If this stream 
 	is used only to demarshal base type data, the Singleton is enough
     */
-    public org.omg.CORBA.ORB orb = null;
+    private org.omg.CORBA.ORB orb = null;
  
     public CDRInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
@@ -98,6 +112,12 @@ public class CDRInputStream
 	closed = true;
     }
 	
+    public org.omg.CORBA.ORB orb ()
+    {
+        if (orb == null) orb = org.omg.CORBA.ORB.init();
+        return orb;
+    }
+
     public void setCodeSet( int codeSet, int codeSetWide )
     {
         this.codeSet = codeSet;
@@ -624,6 +644,7 @@ public class CDRInputStream
 	case TCKind._tk_TypeCode:
 	case TCKind._tk_longlong:
 	case TCKind._tk_ulonglong:
+        case TCKind._tk_wchar:
 	case TCKind._tk_Principal:
 	    return orb.get_primitive_tc( org.omg.CORBA.TCKind.from_int(kind) );
 	case TCKind._tk_objref: 
@@ -758,6 +779,35 @@ public class CDRInputStream
 	    closeEncapsulation();
             result_tc = orb.create_alias_tc( id, name, content_type );
 	    return result_tc;
+	case TCKind._tk_value: 
+	    openEncapsulation();
+	    id = read_string();
+            tcMap.put( new Integer( start_pos ), id );
+	    name = read_string();
+            short type_modifier = read_short();
+	    org.omg.CORBA.TypeCode concrete_base_type = read_TypeCode( tcMap );
+	    member_count = read_long();
+	    ValueMember[] vMembers = new ValueMember[member_count];
+	    for( int i = 0; i < member_count; i++)
+	    {
+		vMembers[i] = new ValueMember(read_string(),
+                                              null, // id
+                                              null, // defined_in
+                                              null, // version
+                                              read_TypeCode( tcMap ),
+                                              null, // type_def
+                                              read_short());
+	    }
+	    closeEncapsulation();
+	    return  orb.create_value_tc(id, name, type_modifier,
+                                        concrete_base_type, vMembers);
+	case TCKind._tk_value_box: 
+	    openEncapsulation();
+	    id = read_string();
+	    name = read_string();
+	    content_type = read_TypeCode( tcMap );
+	    closeEncapsulation();
+            return orb.create_value_box_tc( id, name, content_type );
 	case 0xffffffff:
 	    /* recursive TC */
 	    int negative_offset = read_long();
@@ -1187,6 +1237,168 @@ public class CDRInputStream
 	    throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
 	}
     }
+
+    public java.io.Serializable read_value() 
+    {
+        int tag = read_long();
+        if (tag == 0x7fffff00)
+            throw new org.omg.CORBA.MARSHAL ("missing value type information");
+        else if (tag == 0x7fffff02)
+            return read_typed_value();
+        else
+            return read_special_value (tag);
+    }
+
+    public java.io.Serializable read_value (String rep_id) 
+    {
+        int tag = read_long();
+        if (tag == 0x7fffff00)
+            return read_untyped_value (rep_id, pos - 4);
+        else if (tag == 0x7fffff02)
+            return read_typed_value();
+        else
+            return read_special_value (tag);
+    }
+
+    public java.io.Serializable read_value (java.lang.Class clz) 
+    {
+        int tag = read_long();
+        if (tag == 0x7fffff00)
+            return read_untyped_value (org.jacorb.ir.RepositoryID.repId (clz),
+                                       pos - 4);
+        else if (tag == 0x7fffff02)
+            return read_typed_value();
+        else
+            return read_special_value (tag);
+    }
+
+    public java.io.Serializable read_value (
+      org.omg.CORBA.portable.BoxedValueHelper factory) 
+    {
+        int tag = read_long();
+        if (tag == 0x7fffff00) 
+        {
+            int index = pos - 4;
+            java.io.Serializable result = factory.read_value (this);
+            valueMap.put (new Integer(index), result);
+            return result;
+        } 
+        else if (tag == 0x7fffff02)
+            // Read value according to type information.
+            // Possible optimization: ignore type info and use factory for
+            // reading the value anyway, since the type information is 
+            // most likely redundant.
+            return read_typed_value(); 
+        else 
+            return read_special_value (tag);
+    }
+
+    /**
+     * Immediateley reads a value from this stream; i.e. without any
+     * repository id preceding it.  The expected type of the value is given
+     * by `repository_id', and the index at which the value started is
+     * `index'.
+     */
+    private java.io.Serializable read_untyped_value (String repository_id,
+                                                     int index)
+    {
+        java.io.Serializable result;
+	if (repository_id.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+            // special handling of strings, according to spec
+	    result = read_wstring();
+        else if (repository_id.startsWith ("IDL:")) 
+        {
+            org.omg.CORBA.portable.ValueFactory factory =
+                ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory 
+                                                            (repository_id);
+            result = factory.read_value (this);
+        }
+        else // RMI
+        {
+            // ValueHandler wants class, repository_id, and sending context.
+            // I wonder why it wants all of these.
+            // If we settle down on this implementation, compute these 
+            // values more efficiently elsewhere.
+            String className = 
+                org.jacorb.ir.RepositoryID.className (repository_id);
+            Class c = null;
+            try {
+	        c = Thread.currentThread().getContextClassLoader().loadClass
+		                                                   (className);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException ("class not found: " + className);
+            }
+            result = ValueHandler.readValue(this, index, 
+                                            c,
+                                            repository_id, 
+                                            // use our own code base for now
+                                            ValueHandler.getRunTimeCodeBase());
+        }
+        
+        valueMap.put (new Integer (index), result);
+        return result;
+    }
+
+    /**
+     * Reads a value with type information, i.e. one that is preceded 
+     * by a RepositoryID.  It is assumed that the tag of the value
+     * has already been read.
+     */
+    private java.io.Serializable read_typed_value() 
+    {
+        int index = pos - 4;
+        return read_untyped_value (read_repository_id(), index);
+    }
+
+    /**
+     * Reads a RepositoryID from the buffer, either directly or via
+     * indirection.
+     */
+    private String read_repository_id() 
+    {
+        int tag = read_long();
+        if (tag == 0xffffffff)  
+        {
+            // indirection
+            int index = read_long();
+            index = index + pos - 4;
+            String repId = (String)repIdMap.get (new Integer(index));
+            if (repId == null)
+                throw 
+                 new org.omg.CORBA.MARSHAL ("stale RepositoryID indirection");
+            else
+                return repId;
+        }
+        else
+        {
+            // a new id
+            pos -= 4;
+            int index = pos;
+            String repId = read_string();
+            repIdMap.put (new Integer(index), repId);
+            return repId;
+        }
+    }
+
+    private java.io.Serializable read_special_value (int tag) {
+        if (tag == 0x00000000) 
+            // null tag
+            return null;
+        else if (tag == 0xffffffff) 
+        {
+            // indirection
+            int index = read_long();
+            index = index + pos - 4;
+            java.lang.Object value = valueMap.get (new Integer(index));
+            if (value == null)
+                throw new org.omg.CORBA.MARSHAL ("stale value indirection");
+            else
+                return (java.io.Serializable)value;
+        } 
+        else
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+					     + Integer.toHexString(tag));
+    } 
 
     //      public byte[]  get_buffer(){
     //  	return buffer;
