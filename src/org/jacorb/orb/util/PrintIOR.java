@@ -98,6 +98,7 @@ public class PrintIOR
         else
             System.out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
 
+        orb.shutdown(true);
     }
 
 
@@ -165,7 +166,6 @@ public class PrintIOR
             printTaggedComponents( multiple_components );
         }
 
-        orb.shutdown(true);
     }
 
     /**
