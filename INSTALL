@@ -43,7 +43,8 @@ Installation:
 3. Copy orb.properties to JAVA_HOME/lib or edit the existing
    orb.properties file.
 
-4. Edit jacorb.properties and copy them to your "home" directory:
+4. Edit jacorb.properties and copy them to your "home" directory.
+   Please use jacorb_properties.template as a template.
    Most options need no configuration, but you must adjust the  
    URL strings
 
