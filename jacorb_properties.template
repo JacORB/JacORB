@@ -291,6 +291,8 @@ jacorb.interop.chunk_custom_rmi_valuetypes=on
 #
 #jacorb.net.socket_factory=org.jacorb.orb.factory.DefaultSocketFactory
 #jacorb.net.server_socket_factory=org.jacorb.orb.factory.DefaultServerSocketFactory
+#jacorb.net.socket_factory=org.jacorb.orb.factory.PortRangeSocketFactory
+#jacorb.net.server_socket_factory=org.jacorb.orb.factory.PortRangeServerSocketFactory
 #
 # Additional socket factores are supported that allow for the configuration
 # of maximum and minimum port numbers that can be used. This can be used to
