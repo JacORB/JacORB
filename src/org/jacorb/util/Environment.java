@@ -661,6 +661,7 @@ public class Environment
     {
         Enumeration prop_names = _props.propertyNames();
         Vector orb_initializers = new Vector();
+
         String initializer_prefix = 
             "org.omg.PortableInterceptor.ORBInitializerClass.";
         
@@ -669,9 +670,24 @@ public class Environment
         while(prop_names.hasMoreElements())
         {
             String prop = (String) prop_names.nextElement();
-            if ( prop.startsWith("org.omg.PortableInterceptor.ORBInitializerClass."))
+            if ( prop.startsWith( initializer_prefix ))
             {
-                String name = _props.getProperty(prop);
+                String name = _props.getProperty( prop );
+                if( name == null || 
+                    name.length() == 0 )
+                {
+                    if( prop.length() > initializer_prefix.length() )
+                    {
+                        name = 
+                            prop.substring( initializer_prefix.length() );
+                    }
+                }
+
+                if( name == null )
+                {
+                    continue;
+                }
+
                 try
                 {
                     orb_initializers.addElement(Class.forName(name).newInstance());
@@ -681,6 +697,9 @@ public class Environment
                 catch (Exception e)
                 {
                     Debug.output(1, e);
+                    
+                    Debug.output( 1, "Unable to build ORBInitializer from >>" +
+                                  name + "<<" );
                 }
             }
         }
