@@ -80,7 +80,7 @@ public class ProxyServerForwardInterceptor
 
 		org.omg.IOP.ServiceContext context = ri.get_request_service_context(1245790978);
 
-	
+		String ior_str=new String(context.context_data);
 		org.omg.CORBA.Any any = orb.create_any();
 		any.insert_string( ior_str );
 
