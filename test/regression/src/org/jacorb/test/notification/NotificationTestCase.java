@@ -42,15 +42,16 @@ import junit.framework.TestSuite;
  * @version $Id$
  */
 
-public class NotificationTestCase extends TestCase {
-
+public class NotificationTestCase extends TestCase
+{
     private NotificationTestCaseSetup setup_;
 
     private EventChannel defaultChannel_;
 
     ////////////////////////////////////////
 
-    public NotificationTestCase(String name, NotificationTestCaseSetup setup) {
+    public NotificationTestCase(String name, NotificationTestCaseSetup setup)
+    {
         super(name);
 
         setup_ = setup;
@@ -58,80 +59,111 @@ public class NotificationTestCase extends TestCase {
 
     ////////////////////////////////////////
 
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception
+    {
         super.tearDown();
 
-        if (defaultChannel_ != null) {
+        if (defaultChannel_ != null)
+        {
             defaultChannel_.destroy();
         }
     }
 
 
-    public EventChannel getDefaultChannel() throws Exception {
-        if (defaultChannel_ == null) {
+    public EventChannel getDefaultChannel() throws Exception
+    {
+        if (defaultChannel_ == null)
+        {
             defaultChannel_ = getFactory().create_channel(new Property[0],
-                                                          new Property[0],
-                                                          new IntHolder() );
+                              new Property[0],
+                              new IntHolder() );
         }
 
         return defaultChannel_;
     }
 
 
-    public ORB getORB() {
+    public ORB getORB()
+    {
         return setup_.getORB();
     }
 
 
-    public POA getPOA() {
+    public POA getPOA()
+    {
         return setup_.getPOA();
     }
 
 
-    public Configuration getConfiguration() {
+    public Configuration getConfiguration()
+    {
         return ((org.jacorb.orb.ORB)getORB()).getConfiguration();
     }
 
 
-    public NotificationTestUtils getTestUtils() {
+    public NotificationTestUtils getTestUtils()
+    {
         return setup_.getTestUtils();
     }
 
 
-    public EventChannelFactory getFactory() {
-        try {
+    public EventChannelFactory getFactory()
+    {
+        try
+        {
             return setup_.getFactoryServant().getEventChannelFactory();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new RuntimeException(e.getMessage());
         }
     }
 
 
-    private NotificationTestCaseSetup getSetup() {
+    private NotificationTestCaseSetup getSetup()
+    {
         return setup_;
     }
 
 
-    protected static Test suite(Class clazz) throws Exception {
+    protected static Test suite(Class clazz) throws Exception
+    {
         return suite("TestSuite defined in Class: " + clazz.getName(), clazz);
     }
 
 
-    protected static Test suite(String suiteName, Class clazz) throws Exception {
+    protected static Test suite(String suiteName, Class clazz) throws Exception
+    {
+        return suite(suiteName, clazz, "test");
+    }
+
+
+    protected static Test suite(String suiteName, Class clazz, String testMethodPrefix) throws Exception
+    {
         TestSuite _suite = new TestSuite(suiteName);
 
         NotificationTestCaseSetup _setup =
             new NotificationTestCaseSetup(_suite);
 
-        String[] _methodNames = TestUtils.getTestMethods(clazz);
+        String[] _methodNames = TestUtils.getTestMethods(clazz, testMethodPrefix);
 
+        addToSuite(_suite, _setup, clazz, _methodNames);
+
+        return _setup;
+    }
+
+
+    private static void addToSuite(TestSuite suite,
+                                   NotificationTestCaseSetup setup,
+                                   Class clazz,
+                                   String[] testMethods) throws Exception
+    {
         Constructor _ctor =
             clazz.getConstructor(new Class[] {String.class, NotificationTestCaseSetup.class});
 
-        for (int x=0; x<_methodNames.length; ++x) {
-            _suite.addTest((Test)_ctor.newInstance(new Object[] {_methodNames[x], _setup}));
+        for (int x = 0; x < testMethods.length; ++x)
+        {
+            suite.addTest((Test)_ctor.newInstance(new Object[] {testMethods[x], setup}));
         }
-
-        return _setup;
     }
 }
