@@ -5,10 +5,10 @@
 
 #include <orb.idl>
 
-module IOP { 
-    
-    //locality constrained
-    interface Codec {
+module IOP
+{ 
+    local interface Codec
+    {
         exception InvalidTypeForEncoding {};
         exception FormatMismatch {};
         exception TypeMismatch {};
@@ -29,8 +29,8 @@ module IOP {
         octet minor_version;
     };
 
-    //locality constrained
-    interface CodecFactory {
+    local interface CodecFactory
+    {
         exception UnknownEncoding {};
 
         Codec create_codec (in Encoding enc) raises (UnknownEncoding);
