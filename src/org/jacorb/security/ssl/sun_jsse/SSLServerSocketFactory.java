@@ -26,8 +26,6 @@ package org.jacorb.security.ssl.sun_jsse;
  * $Id$
  */
 import org.jacorb.util.*;
-import org.jacorb.security.util.*;
-import org.jacorb.security.level2.*;
 
 //uncomment this line if you want to compile with the separately
 //available jsse1.0.2
