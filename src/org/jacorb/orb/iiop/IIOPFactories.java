@@ -25,7 +25,6 @@ import org.omg.IOP.*;
 import org.omg.ETF.*;
 import org.omg.RTCORBA.ProtocolProperties;
 
-
 /**
  * @author Andre Spiegel
  * @version $Id$
@@ -65,6 +64,18 @@ public class IIOPFactories extends org.omg.ETF._FactoriesLocalBase
     public int profile_tag()
     {
         return org.omg.IOP.TAG_INTERNET_IOP.value;
+    }
+
+    public Profile decode_corbaloc (String corbaloc)
+    {
+        int colon = corbaloc.indexOf (':');
+        String token = corbaloc.substring (0,colon).toLowerCase();
+        if (token.length() == 0 ||
+            token.equals ("iiop") ||
+            token.equals ("ssliop"))
+            return new IIOPProfile(corbaloc);
+        else
+            return null;
     }
 
 }
