@@ -27,51 +27,65 @@ import java.util.*;
 import java.io.*;
 
 /**
- * JacORB configuration options are accessed through this class.
+ * JacORB configuration options are accessed through this class.<BR>
+ * <p>
+ * On initialization, this class loads ORB configuration properties
+ * from different sources. The default configuration files are called
+ * ".jacorb_properties" or "jacorb.properties". Properties areloaded 
+ * in the following order, with properties loaded later 
+ * overriding earlier settings:<break> 
+ * <ol>
+ * <li>default file in JRE/lib
+ * <li>default file in user.home
+ * <li>default file on classpath
+ * <li>command line properties
+ * <li>additional custom properties files (custom.props)
+ * </ol>
+ * <break>
+ * ORB.init() parameters are set using the addProperties() method and 
+ * override any settings from configuration files, so hard-coded 
+ * properties will always we honored.
  *
- * Properties originate from three sources, listed in order of precedence:
- *
- * 1) command line arguments (-Dx=y)
- * 2) properties passed to ORB.init() by an application
- * 3) properties read from configuration files
- *
- * This means that in case of conflicts,  command line args
- * override application properties which in turn may override
- * options from configuration files.
- *
- * Configuration files may be called ".jacorb_properties" or "jacorb.properties"
- * and are searched in the following order: if a configuration file is found
- * in "user.home", it is loaded first. If another file is found in the
- * current directory, it is also loaded. If properties of the same name
- * are found in both files, those loaded later override earlier ones,
- * so properties from a file found in "." take precedence.
- *
- * @author Gerald Brose
+ * @author Gerald Brose <mailto:gerald.brose@acm.org>
  * @version $Id$
  */
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * Applets are using a special init procedure (readFromURL) and do not
- * have access to all system properties. Due to this special init
- * DO NOT USE Debug.Output here in Environment (at leat not until you are
- * very sure) semu
+ * have access to all system properties. (semu)
  */
 
 public class Environment
 {
+    /** the configuration properties */
+    private static Properties   configurationProperties;
+
+    /** default file names for ORB configurain files */
     private static String propertiesFile1       = ".jacorb_properties";
     private static String propertiesFile2       = "jacorb.properties";
-    private static java.util.Vector propertiesFiles = new java.util.Vector();
+
     private static String jacorbPrefix          = "jacorb.";
     private static String poaPrefix             = jacorbPrefix + "poa.";
 
-    private static Properties   _props;
+    /** root logger instance for JacORB */
+    private static LoggerFactory loggerFactory = null;
+
+    /**  logger factory used to create loggers */
+    private static org.apache.avalon.framework.logger.Logger logger = null;
+
+    /**  default class name for logger factory */
+    private static String loggerFactoryClzName = "org.jacorb.util.LogKitLoggerFactory";
+
+    private static Class identityHashMapClass = null;
+
+    /* standard JacORB properties with default values follow */
 
     private static int                  _client_pending_reply_timeout = 0;
     private static int                  _retries = 10;
     private static long                 _retry_interval = 700;
     private static int                  _outbuf_size = 4096;
     private static int                  maxManagedBufSize = 18;
+
     /**
      * <code>compactTypecodes</code> denotes whether to compact typecodes.
      * Levels are:
@@ -82,20 +96,16 @@ public class Environment
     private static int                  compactTypecodes = 0;
 
     private static String               _default_context = "<undefined>";
-
-    //    private static int                  _verbosity = 2;
-
     private static boolean              _locate_on_bind = false;
     private static boolean              _use_imr = false;
     private static boolean              _use_imr_endpoint = true;
     private static boolean              _cache_references = false;
     private static String               logFileName = null;
-
     private static long                  _max_log_size = 0;
     private static boolean              append = false;
     private static long                  _current_log_size = 0;
 
-    /** threading properties */
+    /* threading properties */
     private static boolean              _monitoring_on = false;
     private static int                  _thread_pool_max = 20;
     private static int                  _thread_pool_min = 10;
@@ -103,7 +113,7 @@ public class Environment
     private static int                  _queue_min = 10;
     private static boolean              _queue_wait = false;
 
-    /** IIOP proxy/appligator */
+    /* IIOP proxy/appligator */
     private static boolean              _use_appligator_for_applets = true;
     private static boolean              _use_appligator_for_applications = false;
     private static Hashtable            _use_httptunneling_for = new Hashtable();
@@ -122,123 +132,99 @@ public class Environment
 
     private static boolean strict_check_on_tc_creation;
 
-    /** root logger instance for JacORB */
-    private static LoggerFactory loggerFactory = null;
-
-    /**  logger factory used to create loggers */
-    private static org.apache.avalon.framework.logger.Logger logger = null;
-
-    /**  default class name for logger factory */
-    private static String loggerFactoryClzName = "org.jacorb.util.LogKitLoggerFactory";
-
-    private static Class identityHashMapClass = null;
-
     /** remarshal on COMM_FAILURE or retrow */
     private static boolean _retry_on_failure = false;
 
+
+    /**
+     * static initializer, calling init() explicitly...
+     */ 
     static
     {
-        _init();
+        init();
     }
 
-    public static void _init()
+    /**
+     * Starting point for initialization of the ORB's
+     * environment. Locates configuration files and reads properties
+     * from these, then initializes logging.
+     */
+
+    private static void init()
     {
         try
         {
-            _props = new Properties();
-
-            String customPropertyFileNames =
-                System.getProperty("custom.props");
+            /* read configuration properties */
+            configurationProperties = new Properties();
 
             String home = System.getProperty("user.home");
             String sep = System.getProperty("file.separator");
             String lib = System.getProperty("java.home");
 
-            /* look for home directory config files first */
+            // look for config files in java.home/lib first
+            try
+            {
+                loadProperties( lib + sep + "lib" + sep + propertiesFile1 );
+            }
+            catch (IOException e)
+            { }
 
-            propertiesFiles.addElement(home + sep + propertiesFile1);
-            propertiesFiles.addElement(home + sep + propertiesFile2);
+            try
+            {
+                loadProperties( lib + sep + "lib" + sep + propertiesFile2 );
+            }
+            catch (IOException e)
+            { }
 
-            /* look for config files in "." */
+            // look in user's  home directory next
+            try
+            {
+                loadProperties( home + sep + propertiesFile1 );
+            }
+            catch ( IOException e )
+            { }
 
-            propertiesFiles.addElement(propertiesFile1);
-            propertiesFiles.addElement(propertiesFile2);
+            try
+            {
+                loadProperties( home + sep + propertiesFile2 );
+            }
+            catch ( IOException e )
+            { }
 
-
-            /* look for config files in java.home/lib */
-
-            propertiesFiles.addElement(lib + sep + "lib" + sep + propertiesFile1);
-            propertiesFiles.addElement(lib + sep + "lib" + sep + propertiesFile2);
-            boolean loaded = false;
-
-            // Full name of the config file
-            String sConfigFile = null;
-
-            /*
-             * load config files from the default ClassLoader's classpath
-             *
-             * supported by Per Bockman (pebo@enea.se)
-             */
-            //#ifjdk 1.2
+            /* load config files from the default ClassLoader's classpath
+               next, if any (supported by Per Bockman mailto:pebo@enea.se ) */
+             
             try
             {
                 java.net.URL url = null;
 
-                //try first file name
-                url =
-                    ClassLoader.getSystemResource( propertiesFile1 );
+                // try first file name
+                url = ClassLoader.getSystemResource( propertiesFile1 );
 
-                if( url == null )
+                if (url == null)
                 {
                     //first is not found, so try second
-                    url =
-                        ClassLoader.getSystemResource( propertiesFile2 );
+                    url = ClassLoader.getSystemResource( propertiesFile2 );
                 }
 
-                if( url != null )
+                if (url != null)
                 {
-                    _props.load( url.openStream() );
-
-                    sConfigFile = url.toString();
-
-                    loaded = true;
+                    configurationProperties.load( url.openStream() );
+                    if (true)
+                        System.out.println("[configuration loaded from classpath resource " + 
+                                           url + "]");
                 }
             }
-            catch(java.io.IOException ioe)
+            catch (java.io.IOException ioe)
             {
-                // ignore it
-            }
-            //#endif
-
-            if( ! loaded ) //no props file found in classpath
-            {
-                for( int i = 0; i < propertiesFiles.size(); ++i )
-                {
-                    try
-                    {
-                        _props.load(
-                            new BufferedInputStream(
-                                new FileInputStream(
-                                    (String) propertiesFiles.elementAt( i ) )));
-
-                        loaded = true;
-                        sConfigFile = (String) propertiesFiles.elementAt( i );
-
-                        break;
-                    }
-                    catch ( Exception e )
-                    {
-                        //ignore
-                    }
-                }
+                // ignore
             }
 
-            /*  load additional  properties from  a  custom properties
-                file in  addition to the ones loaded  from the various
-                jacorb.properties files.  This is loadded last so that
-                its    properties    override    any    settings    in
-                jacorb.properties files
-            */
+            // load system properties (including command line properties)
+            configurationProperties.putAll( System.getProperties() );
+
+            // load additional properties from custom properties files
+            String customPropertyFileNames = System.getProperty("custom.props");
 
             if( customPropertyFileNames != null )
             {
@@ -247,14 +233,11 @@ public class Environment
                     StringTokenizer strtok =
                         new StringTokenizer(customPropertyFileNames, ",");
 
-                    while( strtok.hasMoreTokens() )
+                    while (strtok.hasMoreTokens())
                     {
-                        _props.load(
-                            new BufferedInputStream(
-                                new FileInputStream( strtok.nextToken() )));
+                        String fileName = strtok.nextToken();
+                        loadProperties(fileName);
                     }
-
-                    loaded = true;
                 }
                 catch ( IOException e )
                 {
@@ -262,71 +245,59 @@ public class Environment
                 }
             }
 
-            _props.putAll( System.getProperties() );
-
-            //read prop values to set fields ov this class
+            //read prop values to set fields of this class
             readValues();
+
+            // NB: additional properties passed as arguments to
+            // ORB.init() are later explicitly added 
 
             // initialize default logger factory and create a logger:
             initLogging();
 
-            if( logger == null )
+            if (logger == null)
+            {
                 throw new Error("Logger is null!");
-
-//             if( _verbosity > 0 &&
-//                     ! loaded &&
-//                     ! _props.getProperty( "jacorb.suppress_no_props_warning", "off" ).equals( "on" )) // rt
-//             {
-//                 System.err.println( "#####################################################################" );
-
-//                 System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets or suppressed by setting jacorb.suppress_no_props_warning\nto on. A file called \"jacorb.properties\" or \".jacorb_properties\"\nshould be present in the classpath, the home directory (" + home + "), \nthe current directory (.) or in Javas lib directory (" + lib + ')'  );
-
-//                 System.err.println( "#####################################################################\n" );
-//             }
-
-//             if( _verbosity > 2 && sConfigFile != null)
-//             {
-//                 System.err.println("Setup Info: properties was file loaded from: " + sConfigFile );
-//             }
+            }
         }
-        catch(SecurityException secex)
+        catch (SecurityException secex)
         {
             System.out.println("Could not read local jacorb properties.");
         }
-
-
-    }
-
-
-    /** creating an object ensures that Environment is properly initialized*/
-
-    private Environment()
-    {
     }
 
     /**
-     * called from ORB.init()
+     * Loads properties from a file, overriding existing properties
+     * in case of conflict.
+     * @param fileName the name of a properties file
+     * @throws IOException
      */
 
-    public static void addProperties(java.util.Properties other_props)
+    private static void loadProperties(String fileName)
+        throws java.io.IOException
     {
-        if( _props == null )
-            _props = new java.util.Properties();
+        BufferedInputStream bin = 
+            new BufferedInputStream(new FileInputStream(fileName));
+        configurationProperties.load(bin);
+        bin.close();
+        if (true)
+            System.out.println("[configuration loaded from " + fileName + "]");
+    }
 
-        if( other_props != null )
+
+    /**
+     * Adds more properties, overriding any existing settings. (Called
+     * from ORB.init()).
+     * @param otherProperties a Properties object with properties to be added
+     */
+
+    public static void addProperties(java.util.Properties otherProperties)
+    {
+        if (configurationProperties == null)
+            configurationProperties = new java.util.Properties();
+
+        if (otherProperties != null)
         {
-            try
-            {
-                _props.putAll( System.getProperties() );
-            }
-            catch( SecurityException se )
-            {
-                // not allowed for applets
-                se.printStackTrace();
-            }
-
-            _props.putAll( other_props );
-
+            configurationProperties.putAll( otherProperties );
             readValues();
         }
     }
@@ -336,12 +307,13 @@ public class Environment
      * Tries to read value from propname and then suffix locations. Returns
      * null if value was not found.
      */
-    private static String readValue(String propname,String prefix)
+
+    private static String readValue(String propname, String prefix)
     {
-        if (_props.getProperty(propname) != null)
-            return _props.getProperty(propname);
-        else if (prefix!=null && _props.getProperty(prefix) != null)
-            return _props.getProperty(prefix);
+        if (configurationProperties.getProperty(propname) != null)
+            return configurationProperties.getProperty(propname);
+        else if (prefix!=null && configurationProperties.getProperty(prefix) != null)
+            return configurationProperties.getProperty(prefix);
         else return null;
     }
 
@@ -349,6 +321,7 @@ public class Environment
      * Uses reflection to set field varName to value get from readValue(String,String).
      * Converts into String,long,int and boolean ("on"==true).
      */
+
     private static void readValue(String varName,String propname,String prefix)
     {
         String o = readValue(propname,prefix);
@@ -402,7 +375,7 @@ public class Environment
                 _use_httptunneling_for.put(s,new Object());
             }
         }
-        else  if( varName.equals("_impl_name"))
+        else if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
         else if( varName.equals("strict_check_on_tc_creation"))
             strict_check_on_tc_creation = (o.equalsIgnoreCase("on")? true : false);
@@ -452,35 +425,35 @@ public class Environment
     {
         append = isPropertyOn("jacorb.logfile.append");
 
-        if ( _props.getProperty("logfile") != null)
+        if (configurationProperties.getProperty("logfile") != null)
         {
-            logFileName = _props.getProperty("logfile");
+            logFileName = configurationProperties.getProperty("logfile");
         }
-        else if (_props.getProperty( jacorbPrefix+"logfile") != null)
+        else if (configurationProperties.getProperty( jacorbPrefix+"logfile") != null)
         {
-            logFileName = _props.getProperty(jacorbPrefix+"logfile");
+            logFileName = configurationProperties.getProperty(jacorbPrefix+"logfile");
         }
 
-        String size = _props.getProperty( jacorbPrefix + "logfile.maxLogSize" );
+        String size = configurationProperties.getProperty( jacorbPrefix + "logfile.maxLogSize" );
         if( size != null )
         {
             _max_log_size = Integer.parseInt( size );
         }
 
-        if (logFileName != null && !logFileName.equals (""))
+        if (logFileName != null && !logFileName.equals(""))
         {
             // Convert $implname postfix to implementation name
-            if (logFileName.endsWith ("$implname"))
+            if (logFileName.endsWith("$implname"))
             {
                 logFileName = logFileName.substring (0, logFileName.length () - 9);
 
-                if (_props.getProperty ("implname") != null)
+                if (configurationProperties.getProperty ("implname") != null)
                 {
-                    logFileName += _props.getProperty ("implname");
+                    logFileName += configurationProperties.getProperty("implname");
                 }
-                else if (_props.getProperty (jacorbPrefix + "implname") != null)
+                else if (configurationProperties.getProperty (jacorbPrefix + "implname") != null)
                 {
-                    logFileName += _props.getProperty (jacorbPrefix + "implname");
+                    logFileName += configurationProperties.getProperty (jacorbPrefix + "implname");
                 }
                 else
                 {
@@ -556,7 +529,7 @@ public class Environment
 
     public static final  Properties jacorbProperties() 
     { 
-        return _props;   
+        return configurationProperties;   
     }
 
     /**
@@ -568,25 +541,22 @@ public class Environment
         return logger;
     }
 
-    /**
-     * @return the root logger object for JacORB
-     * @deprecated
-     */
+//     /**
+//      * @return the root logger object for JacORB
+//      * @deprecated
+//      */
 
-    public static final Logger logFileOut()
-    {
-        return getLogger();
-    }
-
-    /*    public static final  String logFileName() { return logFileName; }*/
-
+//     public static final Logger logFileOut()
+//     {
+//         return getLogger();
+//     }
 
     /**
      * @return the max size of the log file in kilo bytes. A size of 0 
      * means no limit, any other size requires log file rotation.
      */
 
-    public static final  long maxLogSize()
+    public static final long maxLogSize()
     {
         return _max_log_size;
     }
@@ -597,6 +567,7 @@ public class Environment
     {
         return _client_pending_reply_timeout;
     }
+
     public static final int noOfRetries() { return _retries;   }
     public static final  int outBufSize() { return _outbuf_size; }
     public static final boolean locateOnBind() { return _locate_on_bind; }
@@ -612,11 +583,6 @@ public class Environment
 
     public static final  int threadPoolMax() { return _thread_pool_max; }
     public static final  int threadPoolMin() { return _thread_pool_min; }
-
-//     public static final int verbosityLevel()
-//     {
-//         return _verbosity;
-//     }
 
     public static final byte[] implName()
     {
@@ -654,7 +620,7 @@ public class Environment
 
     public static String imrProxyHost()
     {
-        return _props.getProperty (jacorbPrefix + "imr.ior_proxy_host");
+        return configurationProperties.getProperty (jacorbPrefix + "imr.ior_proxy_host");
     }
 
     public static int imrProxyPort()
@@ -665,7 +631,7 @@ public class Environment
 
     public static String iorProxyHost()
     {
-        return _props.getProperty (jacorbPrefix + "ior_proxy_host");
+        return configurationProperties.getProperty (jacorbPrefix + "ior_proxy_host");
     }
 
     public static int iorProxyPort()
@@ -696,12 +662,12 @@ public class Environment
 
     public static String getProperty( String key )
     {
-        return _props.getProperty(key);
+        return configurationProperties.getProperty(key);
     }
 
     public static String getProperty( String key, String def )
     {
-        return _props.getProperty( key, def );
+        return configurationProperties.getProperty( key, def );
     }
 
     /**
@@ -712,7 +678,7 @@ public class Environment
 
     public static boolean isPropertyOn(String key)
     {
-        String s = _props.getProperty (key, "off");
+        String s = configurationProperties.getProperty (key, "off");
         return "on".equals (s);
     }
 
@@ -723,7 +689,7 @@ public class Environment
 
     public static long getLongProperty(String key, int base, long def)
     {
-        String s = _props.getProperty (key);
+        String s = configurationProperties.getProperty (key);
 
         try
         {
@@ -737,7 +703,7 @@ public class Environment
 
     public static long getLongProperty( String key, int base )
     {
-        String s = _props.getProperty( key );
+        String s = configurationProperties.getProperty( key );
 
         try
         {
@@ -753,7 +719,7 @@ public class Environment
 
     public static int getIntProperty( String key, int base )
     {
-        String s = _props.getProperty( key );
+        String s = configurationProperties.getProperty( key );
 
         try
         {
@@ -769,7 +735,7 @@ public class Environment
 
     public static int getIntPropertyWithDefault( String key, int def )
     {
-        String s = _props.getProperty( key );
+        String s = configurationProperties.getProperty( key );
 
         if( s != null && s.length() > 0 )
         {
@@ -791,15 +757,16 @@ public class Environment
     }
 
     /**
-     * Create an object from the give property. The classes default
+     * Create an object from the given property. The class's default
      * constructor will be used.
      *
      * @return null or an object of the class of the keys value
      * @throws Error if reflection fails.
      */
+
     public static Object getObjectProperty( String key )
     {
-        String s = _props.getProperty( key );
+        String s = configurationProperties.getProperty( key );
 
         if( s != null && s.length() > 0 )
         {
@@ -825,10 +792,11 @@ public class Environment
      * this method returns these values as a list of Strings.
      * If the property is not set, an empty list is returned.
      */
+
     public static List getListProperty (String key)
     {
         List   result = new ArrayList();
-        String value  = _props.getProperty (key);
+        String value  = configurationProperties.getProperty (key);
         if (value != null)
         {
             StringTokenizer tok = new StringTokenizer (value, ",");
@@ -838,27 +806,19 @@ public class Environment
         return result;
     }
 
-    /*
-      public static int getIntProperty( String key )
-      {
-      return getIntProperty( key, 10 );
-      }
-    */
-
     public static boolean hasProperty( String key )
     {
-        return _props.containsKey( key );
+        return configurationProperties.containsKey( key );
     }
 
     public static void setProperty( String key, String value )
     {
-        //for jdk1.1 compatibility (was _props.setProperty())
-        _props.put( key, value );
+        configurationProperties.put( key, value );
     }
 
     public static String[] getPropertyValueList(String key)
     {
-        String list =  _props.getProperty(key);
+        String list =  configurationProperties.getProperty(key);
 
         if( list == null )
         {
@@ -883,10 +843,13 @@ public class Environment
 
     }
 
-    /** returns a copy of the org.jacorb properties. */
+    /** 
+     * returns a copy of the org.jacorb properties. 
+     */
+
     public static Properties getProperties()
     {
-        return (Properties) _props.clone();
+        return (Properties)configurationProperties.clone();
     }
 
     public static final String date()
@@ -913,8 +876,8 @@ public class Environment
         System.out.println("Reading properties from url:"+URL.toString());
         try
         {
-            _props=new Properties();
-            _props.load(new java.io.BufferedInputStream(URL.openStream()));
+            configurationProperties=new Properties();
+            configurationProperties.load(new java.io.BufferedInputStream(URL.openStream()));
         }
         catch(Exception e)
         {
@@ -922,7 +885,7 @@ public class Environment
                                e.toString());
         }
         readValues();
-        // _props.list( System.out );
+        // configurationProperties.list( System.out );
     }
 
     public static final byte[] serverId()
@@ -941,7 +904,7 @@ public class Environment
 
     public static Vector getORBInitializers()
     {
-        Enumeration prop_names = _props.propertyNames();
+        Enumeration prop_names = configurationProperties.propertyNames();
         Vector orb_initializers = new Vector();
 
         String initializer_prefix =
@@ -954,7 +917,7 @@ public class Environment
             String prop = (String) prop_names.nextElement();
             if ( prop.startsWith( initializer_prefix ))
             {
-                String name = _props.getProperty( prop );
+                String name = configurationProperties.getProperty( prop );
                 if( name == null ||
                         name.length() == 0 )
                 {
@@ -1015,7 +978,7 @@ public class Environment
             return (Hashtable)untrimmedPrefixProps.get( prefix );
         else
         {
-            Enumeration prop_names = _props.propertyNames();
+            Enumeration prop_names = configurationProperties.propertyNames();
             Hashtable properties = new Hashtable();
 
             // Test EVERY property if prefix matches.
@@ -1026,18 +989,20 @@ public class Environment
                 {
                     if( trim )
                     {
-                        properties.put( name.substring( prefix.length() + 1) , _props.getProperty(name) );
+                        properties.put( name.substring( prefix.length() + 1) , 
+                                        configurationProperties.getProperty(name) );
                     }
                     else
                     {
-                        properties.put( name , _props.getProperty(name));
+                        properties.put( name , 
+                                        configurationProperties.getProperty(name));
                     }
                 }
             }
 
             /* record for later use */
 
-            if( trim )
+            if (trim)
                 trimmedPrefixProps.put( prefix, properties );
             else
                 untrimmedPrefixProps.put( prefix, properties );
