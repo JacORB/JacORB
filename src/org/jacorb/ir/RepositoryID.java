@@ -21,6 +21,7 @@ package org.jacorb.ir;
  */
 
 import java.util.StringTokenizer;
+import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.CORBA.INTF_REPOS;
 
 /**
@@ -236,5 +237,29 @@ public class RepositoryID
         {
             return null;
         }
+    }
+
+    /**
+     * Creates a BoxedValueHelper instance for a given repository ID.
+     * @param repId the repository ID of the boxed value type
+     * @return a newly created BoxedValueHelper, or null if no
+     *         BoxedValueHelper class can be found for that ID
+     * @throws RuntimeException if creation of the Helper instance fails
+     */
+    public static BoxedValueHelper createBoxedValueHelper(String repId)
+    {
+        String className = className(repId, "Helper");
+        Class c = loadClass(className);
+        if (c != null)
+            try
+            {
+                return (BoxedValueHelper)c.newInstance();
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);   
+            }
+        else
+            return null;
     }
 }
