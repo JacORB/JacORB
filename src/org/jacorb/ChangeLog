@@ -1,8 +1,15 @@
-2002-04-01  Heather Drury  <drury_h@ociweb.com>
+2002-04-02  Heather Drury  <drury_h@ociweb.com>
+
 	* orb/CDROutputStream.java:
-	Added checks to is_recursive() within write_TypeCode() method for value, alias,
-	value_box, abstract_interface, union, enum, and except types. Fixed a bug where "No
-	recursive TC" exception was erroneously being thrown.
+	Backed out change to add is_recursive() checks within write_TypeCode() as 
+	fix had already been made and this fix does not conform to the CORBA spec.
+
+2002-04-01  Heather Drury  <drury_h@ociweb.com>
+
+	* orb/CDROutputStream.java:
+	Added checks to is_recursive() within write_TypeCode() method for value, 
+	alias, value_box, abstract_interface, union, enum, and except types. 
+	Fixed a bug where "No recursive TC" exception was erroneously being thrown.
 
 2002-03-18  Andre Spiegel  <spiegel@gnu.org>
 
