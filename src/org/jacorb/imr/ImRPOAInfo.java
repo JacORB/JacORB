@@ -62,16 +62,16 @@ public class ImRPOAInfo
      */
 
     public ImRPOAInfo(String name, String host, int port, ImRServerInfo server) 
-	throws IllegalPOAName 
+        throws IllegalPOAName 
     {
-	if (name == null || name.length() == 0)
-	    throw new IllegalPOAName(name);
+        if (name == null || name.length() == 0)
+            throw new IllegalPOAName(name);
 
-	this.name = name;
-	this.host = host;
-	this.port = port;
-	this.server = server;
-	this.active = true;
+        this.name = name;
+        this.host = host;
+        this.port = port;
+        this.server = server;
+        this.active = true;
     }
 
     public void configure(Configuration myConfiguration)
@@ -92,7 +92,7 @@ public class ImRPOAInfo
 
     public POAInfo toPOAInfo()
     {
-	return new POAInfo(name, host, port,server.name, active); 
+        return new POAInfo(name, host, port,server.name, active); 
     }
 
     /**
@@ -105,12 +105,12 @@ public class ImRPOAInfo
 
     public synchronized void reactivate(String host, int port)
     {
-	this.host = host;
-	this.port = port;
-	active = true;	
-	server.active = true;
-	server.restarting = false;
-	notifyAll();
+        this.host = host;
+        this.port = port;
+        active = true;	
+        server.active = true;
+        server.restarting = false;
+        notifyAll();
     }
 
     /**
@@ -122,30 +122,28 @@ public class ImRPOAInfo
 
     public synchronized boolean awaitActivation()
     {
-	while(!active)
+        while(!active)
         {
-	    try
+            try
             {
-		long _sleep_begin = System.currentTimeMillis();
-		wait(timeout);
-		if (!active && 
+                long _sleep_begin = System.currentTimeMillis();
+                wait(timeout);
+                if (!active && 
                     (System.currentTimeMillis() - _sleep_begin) > timeout)
-		{
-                    if (logger.isDebugEnabled())
-                        logger.debug("awaitActivation, time_out");
-		    return false;
-		}
-	    }
+                {
+                    logger.debug("awaitActivation, time_out");
+                    return false;
+                }
+            }
             catch (java.lang.Exception e)
             {
-                if (logger.isDebugEnabled())
-                    logger.debug("awaitActivation: " + e.getMessage());
-	    }
-	}
-        if (logger.isDebugEnabled())
-            logger.debug("awaitActivation, returns true");
+                logger.debug("awaitActivation", e);
+            }
+        }        
+        
+        logger.debug("awaitActivation, returns true");
 
-	return true;
+        return true;
     }
 } // ImRPOAInfo
 
