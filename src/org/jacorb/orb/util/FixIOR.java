@@ -46,6 +46,7 @@ public class FixIOR
     {
         org.omg.CORBA.ORB orb;
         String iorString;
+        String host;
         BufferedReader br;
         BufferedWriter bw;
         CDRInputStream is;
@@ -55,12 +56,15 @@ public class FixIOR
         TaggedProfile[] profiles;
         ProfileBody_1_0 body10;
         ProfileBody_1_1 body11;
+        short port;
+        int iport;
     
         if (args.length != 4)
         {
             System.err.println ("Usage: FixIOR ior_file ior_out_file host port");
             System.exit( 1 );
         }
+        host = args[2];
 
         orb = org.omg.CORBA.ORB.init (args, null);
 
@@ -75,6 +79,13 @@ public class FixIOR
             System.err.println ("IOR must be in the standard IOR URL scheme");
             System.exit (1);
         }
+
+        iport = Integer.parseInt (args[3]);
+        if (iport > 32767)
+        {
+           iport = iport - 65536;
+        }
+        port = (short) iport;
 
         // Parse IOR 
 
@@ -101,15 +112,15 @@ public class FixIOR
                     body11 = ProfileBody_1_1Helper.read (is);
                     is.close ();
 
-                    body11.host = args[2];
-                    body11.port = Short.parseShort (args[3]);
+                    body11.host = host;
+                    body11.port = port;
 
                     ProfileBody_1_1Helper.write (os, body11);
                 }
                 else
                 {
-                    body10.host = args[2];
-                    body10.port = Short.parseShort (args[3]);
+                    body10.host = host;
+                    body10.port = port;
 
                     ProfileBody_1_0Helper.write (os, body10);
                 }
