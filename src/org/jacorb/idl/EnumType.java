@@ -323,6 +323,16 @@ class EnumType
         pw.println("\t\tvalue = i;");
         pw.println("\t}");
         
+        pw.println("\tpublic boolean equals( java.lang.Object other )");
+        pw.println("\t{");
+        pw.println("\t\treturn ( other instanceof " + className + " ) && value == ((" + className + " )other).value();");
+        pw.println("\t}");
+
+        pw.println("\tpublic int hashCode()");
+        pw.println("\t{");
+        pw.println("\t\treturn ( \"" + pack_name + "." + className + "\" + value()).hashCode();");
+        pw.println("\t}");
+
         pw.println("}");
     }
 
