@@ -88,7 +88,7 @@ public final class Any
     {   
         if( a == null )
         {
-            org.jacorb.util.Debug.output( 3, "Any.equal(), a == null"); 
+            //            org.jacorb.util.Debug.output( 3, "Any.equal(), a == null"); 
             return false;
         }
 
@@ -614,7 +614,6 @@ public final class Any
         if( value instanceof org.jacorb.orb.CDROutputStream )
         {
             //System.out.println("Any.create_input_stream()");
-            //Connection.dumpBA( ((CDROutputStream)value).getBuffer());
             return new org.jacorb.orb.CDRInputStream(orb, ((CDROutputStream)value).getBufferCopy());
         }
         else
@@ -708,22 +707,8 @@ public final class Any
             else
                 value = new CDROutputStream(orb);
             ((CDRInputStream)input).read_value(type, (CDROutputStream)value);
+
             break;
-//          case TCKind._tk_alias:
-//              try
-//              {
-//                  // save alias type code...
-//                  org.omg.CORBA.TypeCode _tc = typeCode;
-//                  // because it gets overwritten here...
-//                  read_value( input, type.content_type());
-//                  // restore type code
-//                  typeCode = _tc;
-//              } 
-//              catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-//              {
-//                  throw new org.omg.CORBA.UNKNOWN("Bad TypeCode kind");
-//              }
-//              break;
         case TCKind._tk_value:
             insert_Value 
                 (((org.omg.CORBA_2_3.portable.InputStream)input).read_value());
@@ -731,7 +716,7 @@ public final class Any
         default:
             throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
         }
-        org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
+        //        org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
     }
 
 
@@ -740,7 +725,7 @@ public final class Any
     public void write_value(org.omg.CORBA.portable.OutputStream output)
     {
         int kind = typeCode.kind().value();
-        org.jacorb.util.Debug.output(3, "Any.writeValue kind " + kind );
+        // org.jacorb.util.Debug.output(3, "Any.writeValue kind " + kind );
         switch (kind)
         {
         case TCKind._tk_null: 
