@@ -58,6 +58,9 @@ parser code
     public static boolean generate_skeletons = true;
     public static boolean generate_stubs = true;
 
+    public static boolean generate_ami_callback = false;
+	public static boolean generate_ami_polling  = false;    
+
     protected static boolean generateIncluded = false;
     protected static boolean inhibitionState = false;
     protected static boolean localityContraint = false;
@@ -130,6 +133,18 @@ parser code
                     {
                         generate_stubs = false;
                         continue;
+                    }
+                    if( argv[i].equals("-ami_callback"))
+                    {
+                        generate_ami_callback = true;
+                        continue;
+                    }
+                    if( argv[i].equals("-ami_polling"))
+                    {
+                        throw new RuntimeException 
+                          ("Sorry, the polling model is not yet implemented.");
+                        // generate_ami_polling = true;
+                        // continue;
                     }
                     if( argv[i].equals("-sloppy_forward"))
                     {
@@ -320,6 +335,8 @@ parser code
         System.out.println("\t-noskel\t\tdisables generation of POA skeletons");
         System.out.println("\t-nostub\t\tdisables generation of client stubs");
         System.out.println("\t-Idir\t\tset include path for idl files");
+        System.out.println("\t-ami_callback\t\tgenerate AMI reply handlers and sendc methods");
+        System.out.println("\t-ami_polling\t\tgenerate AMI poller and sendp methods");
         System.out.println("\t-sloppy_forward\tallow forward declarations wo. later definitions");
         System.out.println("\t-sloppy_names\tless strict checking of names for backward compatibility");
         System.out.println("\t-Dx\t\tdefine preprocessor symbol x with value 1");
