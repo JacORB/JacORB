@@ -165,6 +165,12 @@ public class CDROutputStream
         buffer = buf;
     }
 
+    public org.omg.CORBA.ORB orb ()
+    {
+        if (orb == null) orb = org.omg.CORBA.ORB.init();
+        return orb;
+    }
+
     /**
      * write the contents of this CDR stream to the output stream, 
      * includes all deferred writes (e.g., for byte arrays)...
@@ -1371,10 +1377,21 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_abstract_interface: 
-               beginEncapsulation();
-               write_string(value.id());
-               write_string(value.name());
-               endEncapsulation();
+               if( tcMap.containsKey( value.id()) )
+               {
+                  writeRecursiveTypeCode( value, tcMap );
+               }
+               else
+               {
+                  write_long( _kind  );
+                  tcMap.put( value.id(), new Integer( pos ) );
+                  recursiveTCMap.put( value.id(), value );
+                  beginEncapsulation();
+                  write_string(value.id());
+                  write_string(value.name());
+                  endEncapsulation();
+               }
+
                break;
             default: 
                throw new org.omg.CORBA.MARSHAL ("Cannot handle TypeCode with kind: " + _kind);
