@@ -148,8 +148,6 @@ public class AliasTypeSpec
                     tName = originalType.typeName();
 
                 addImportedName( tName );
-//                  imports.put( tName, "" );
-//                  imports.put( tName + "Helper", "" );
             }        
         }
 
@@ -158,12 +156,6 @@ public class AliasTypeSpec
 	    originalType = ((ScopedName)originalType).resolvedTypeSpec();
 
             addImportedName( originalType.typeName() );
-
-//              if( originalType.typeName().indexOf( '.' ) < 0 )
-//              {
-//                  imports.put( originalType.typeName(), "" );
-//                  imports.put( originalType.typeName() + "Helper", "" );
-//              }
         }
 
 

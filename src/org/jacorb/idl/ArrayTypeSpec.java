@@ -34,7 +34,7 @@ class ArrayTypeSpec
     ArrayDeclarator declarator = null;
     String typename = null;
     String dimensionStr = "";
-    int [] dims;
+    int [] dims = null;
     int my_dim = 0;
     String typeSig;
 
@@ -71,7 +71,7 @@ class ArrayTypeSpec
     {
 	super(num);
 	declarator = ad;
-	name =  declarator.name();
+	name = declarator.name();
 	dims = declarator.dimensions();
 	set_token( ad.get_token());
 	setEnclosingSymbol( ad.getEnclosingSymbol());
@@ -94,7 +94,6 @@ class ArrayTypeSpec
 
     public Object clone()
     {
-	System.out.println("clone");
 	ArrayTypeSpec st = new ArrayTypeSpec(new_num(), type_spec, declarator, pack_name);
 	st.dims = this.dims;
 	st.included = this.included;
@@ -261,9 +260,9 @@ class ArrayTypeSpec
 	
     }
 
-    int length()
+    int length ()
     { 
-	return dims[my_dim];
+	return dims [my_dim];
     }
 
     public String printReadExpression(String streamname)
@@ -271,15 +270,15 @@ class ArrayTypeSpec
 	return helperName() +  ".read(" + streamname +")"; 
     }
 
-    public String printReadStatement(String var_name, String streamname)
+    public String printReadStatement (String var_name, String streamname)
     {
-	StringBuffer sb = new StringBuffer();
-	String type = typeName();
+	StringBuffer sb = new StringBuffer ();
+	String type = typeName ();
 
-	sb.append(var_name + " = new " + type.substring(0,type.indexOf("[")));
-	sb.append("[" + length() + "]");
+	sb.append (var_name + " = new " + type.substring (0,type.indexOf("[")));
+	sb.append ("[" + length() + "]");
 
-	sb.append( type.substring(type.indexOf(']')+1) +";\n");
+	sb.append (type.substring (type.indexOf(']')+1) +";\n");
 
 
 	//	for( int i = my_dim+1; i < dims.length; i++ )
@@ -511,12 +510,4 @@ class ArrayTypeSpec
     {
 	return typeName();
     }
-
-
-
 }
-
-
-
-
-
