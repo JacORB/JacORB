@@ -33,11 +33,12 @@
 \contentsline {section}{\numberline {7.5}Accessing the Value of a DynAny Object}{40}
 \contentsline {section}{\numberline {7.6}Traversing the Value of a DynAny Object}{40}
 \contentsline {section}{\numberline {7.7}Constructed Types}{42}
-\contentsline {subsection}{\numberline {7.7.1}DynEnum}{42}
-\contentsline {subsection}{\numberline {7.7.2}DynStruct}{42}
-\contentsline {subsection}{\numberline {7.7.3}DynUnion}{42}
-\contentsline {subsection}{\numberline {7.7.4}DynSequence}{42}
-\contentsline {subsection}{\numberline {7.7.5}DynArray}{43}
+\contentsline {subsection}{\numberline {7.7.1}DynFixed}{42}
+\contentsline {subsection}{\numberline {7.7.2}DynEnum}{42}
+\contentsline {subsection}{\numberline {7.7.3}DynStruct}{42}
+\contentsline {subsection}{\numberline {7.7.4}DynUnion}{42}
+\contentsline {subsection}{\numberline {7.7.5}DynSequence}{43}
+\contentsline {subsection}{\numberline {7.7.6}DynArray}{43}
 \contentsline {section}{\numberline {7.8}Converting between Any and DynAny Objects}{43}
 \contentsline {section}{\numberline {7.9}Further Examples}{43}
 \contentsline {chapter}{\numberline {8}Interface Repository}{45}

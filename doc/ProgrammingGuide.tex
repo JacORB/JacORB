@@ -1419,6 +1419,7 @@ interface that extends the DynAny interface and defines operations
 specific to the constructed type.  The table below lists the
 interfaces in the DynamicAny module and the types they represent.
 
+
 \begin{small}
 \begin{longtable}{|p{6.3cm}|p{8.6cm}|}
 \hline
@@ -1426,7 +1427,7 @@ interfaces in the DynamicAny module and the types they represent.
 \hline
 \verb"DynAny" & \verb"basic types (boolean, long, etc.)" \\
 \hline
-\verb"DynFixed*" & \verb"fixed" \\
+\verb"DynFixed" & \verb"fixed" \\
 \hline
 \verb"DynEnum" & \verb"enum" \\
 \hline
@@ -1446,7 +1447,7 @@ interfaces in the DynamicAny module and the types they represent.
 \end{longtable}
 \end{small}
 
-* Not currently implemented in JacORB.
+* Not currently implemented by JacORB.
 
 \section{Usage Constraints}
 
@@ -1689,6 +1690,18 @@ operation.
 This section describes the interfaces in the DynamicAny module that
 represent the constructed types supported by JacORB.  Each of these
 interfaces extends the DynAny interface.
+
+
+
+\subsection{DynFixed}
+
+A DynFixed object represents a fixed value.  Since IDL does not have
+a generic type to represent a fixed type, the operations in this
+interface use the IDL string type.  The value represented by a
+DynFixed object can be accessed (as a string) using the get\_value
+and set\_value operations.
+
+A DynFixed object has no components.
 
 \subsection{DynEnum}
 
