@@ -21,7 +21,7 @@ package org.jacorb.orb;
  */
 
 import java.io.*;
-import java.net.*;
+import java.net.URL;
 import java.util.*;
 
 import org.jacorb.orb.util.*;
@@ -30,6 +30,7 @@ import org.jacorb.util.*;
 import org.omg.IOP.*;
 import org.omg.GIOP.*;
 import org.omg.IIOP.*;
+import org.omg.SSLIOP.*;
 import org.omg.CSIIOP.*;
 import org.omg.CosNaming.*;
 import org.omg.CONV_FRAME.*;
@@ -80,7 +81,7 @@ public class ParsedIOR
                                        int giop_minor )
     {
 	IOR ior = new IOR();
-	ior.type_id = "IDL:org.omg/CORBA/Object:1.0";//"org.omg/CORBA/Object";
+	ior.type_id = "IDL:org.omg/CORBA/Object:1.0";
 	ior.profiles = new TaggedProfile[1];
 
 	ior.profiles[0] = new TaggedProfile();
@@ -115,6 +116,69 @@ public class ParsedIOR
             ProfileBody_1_1Helper.write( out, pb1_1 );
             ior.profiles[0].profile_data = out.getBufferCopy();
         }
+
+	return ior;
+    }
+
+    public static IOR createObjectIOR( String host,
+                                       short port,
+                                       byte[] object_key,
+                                       int giop_minor,
+                                       TaggedComponent[] components)
+    {
+	IOR ior = new IOR();
+	ior.type_id = "IDL:org.omg/CORBA/Object:1.0";
+
+        TaggedProfile profile = new TaggedProfile();
+        profile.tag = TAG_INTERNET_IOP.value;
+
+        if( giop_minor == 0 )
+        {
+            ProfileBody_1_0 pb1_0 = 
+                new ProfileBody_1_0( new org.omg.IIOP.Version( (byte) 1, 
+                                                               (byte) 0 ), 
+                                     host,
+                                     port,
+                                     object_key );    
+            
+            CDROutputStream out = new CDROutputStream();
+            out.beginEncapsulatedArray();
+            ProfileBody_1_0Helper.write( out, pb1_0 );
+            profile.profile_data = out.getBufferCopy();
+
+            ior.profiles = new TaggedProfile[2];
+            
+            // 1.0 ProfileBodies don't have the tagged component array
+            // so we have to encapsulate the tagged components in a
+            // multiple components profile.
+            out.reset();
+            out.beginEncapsulatedArray();
+            MultipleComponentProfileHelper.write( out, 
+                                                  components );
+                
+            ior.profiles[1] = 
+                new TaggedProfile( TAG_MULTIPLE_COMPONENTS.value,
+                                   out.getBufferCopy() );
+        }
+        else //GIOP 1.1 or 1.2
+        {
+            ProfileBody_1_1 pb1_1 = 
+                new ProfileBody_1_1( new org.omg.IIOP.Version( (byte) 1, 
+                                                               (byte) giop_minor ),
+                                     host,
+                                     port,
+                                     object_key,
+                                     components );
+
+            CDROutputStream out = new CDROutputStream();
+            out.beginEncapsulatedArray();
+            ProfileBody_1_1Helper.write( out, pb1_1 );
+            profile.profile_data = out.getBufferCopy();
+            
+            ior.profiles = new TaggedProfile[1];
+        }
+
+        ior.profiles[0] = profile;
 
 	return ior;
     }
@@ -158,10 +222,10 @@ public class ParsedIOR
 		ProfileBody_1_0 pb0;
 		pb0 = ProfileBody_1_0Helper.read(in);
 		_profile_body = new ProfileBody_1_1(pb0.iiop_version,
-								 pb0.host,
-								 pb0.port,
-								 pb0.object_key,
-								 new TaggedComponent[0]);
+                                                    pb0.host,
+                                                    pb0.port,
+                                                    pb0.object_key,
+                                                    new TaggedComponent[0]);
 		// taggedComponents);
 		if( _profile_body.port < 0 )
 		    _profile_body.port += 65536;
@@ -177,7 +241,8 @@ public class ParsedIOR
 	return _profile_body;  
     }
 
-    public static org.omg.SSLIOP.SSL getSSLTaggedComponent( TaggedComponent[] components )
+    /*
+    public static SSL getSSLTaggedComponent( TaggedComponent[] components )
     {
         boolean found_ssl = false;
         for ( int i = 0; i < components.length; i++ )
@@ -192,7 +257,7 @@ public class ParsedIOR
                 try
                 {
                     in.openEncapsulatedArray();
-                    return org.omg.SSLIOP.SSLHelper.read( in );
+                    return SSLHelper.read( in );
                 } 
                 catch ( Exception ex ) 
                 { 
@@ -202,14 +267,13 @@ public class ParsedIOR
         }
         return null;
     }
+    */
 
-
-    public static org.omg.SSLIOP.SSL getSSLTaggedComponent( 
-                                   ProfileBody_1_1 profileBody )
+    private static SSL getSSLTaggedComponent( ProfileBody_1_1 profileBody )
     {
         if ( profileBody == null ||
              profileBody.iiop_version == null ||
-             ( char )profileBody.iiop_version.minor == (( char ) 0 ) ||
+             profileBody.iiop_version.minor == (short) 0 ||
              profileBody.components == null
              )
         {
@@ -221,7 +285,7 @@ public class ParsedIOR
         boolean found_ssl = false;
         for ( int i = 0; i < profileBody.components.length; i++ )
         {
-            if( profileBody.components[i].tag == 20 ) //TAG_SSL_SEC_TRANS
+            if( profileBody.components[i].tag == TAG_SSL_SEC_TRANS.value )
             {
                 found_ssl = true;
 
@@ -234,7 +298,7 @@ public class ParsedIOR
                 try
                 {
                     in.openEncapsulatedArray();
-                    return org.omg.SSLIOP.SSLHelper.read( in );
+                    return SSLHelper.read( in );
                 } 
                 catch ( Exception ex ) 
                 {
@@ -337,7 +401,7 @@ public class ParsedIOR
         int port = pb.port;
             
         // bnv: consults SSL tagged component
-        org.omg.SSLIOP.SSL ssl = getSSLTaggedComponent( pb );    
+        SSL ssl = getSSLTaggedComponent( pb );    
 
         // SSL usage is decided the following way: At least one side
         // must require it. Therefore, we first check if it is
@@ -506,18 +570,88 @@ public class ParsedIOR
 	}
 	else if( address.protocol_identifier.equals("iiop"))
 	{
-	    ProfileBody_1_0 profile_body = 
-		new ProfileBody_1_0( address.getVersion(),
-                                     address.host,
-                                     (short) address.port,
-                                     corbaLoc.getKey());
-
-	    ior = createObjectIOR( address.host,
+            ior = createObjectIOR( address.host,
                                    (short) address.port,
                                    corbaLoc.getKey(),
                                    address.minor );
-            //"IDL:org.omg/CORBA/Object:1.0", profile_body);
 	}
+        else if( address.protocol_identifier.equals("ssliop") )
+        {
+            SSL ssl = new SSL();
+            ssl.port = (short) address.port;
+
+            String supported_str = 
+                Environment.getProperty( "jacorb.security.ssl.corbaloc_ssliop.supported_options" );
+
+            if( (supported_str != null) &&
+                (! supported_str.equals( "" )) )
+            {
+                try
+                {
+                    ssl.target_supports = (short)
+                        Integer.parseInt( supported_str, 16 );
+                }
+                catch( NumberFormatException nfe )
+                {
+                    Debug.output( 0, "WARNING: Unable to create int from string >>" +
+                                  supported_str + "<<" );
+                    Debug.output( 0, "Please check property \"jacorb.security.ssl.corbaloc_ssliop.supported_options\"" );
+
+                    ssl.target_supports = EstablishTrustInTarget.value;
+                }
+            }
+            else
+            {
+                //For the time being, we only uses EstablishTrustInTarget,
+                //because we don't handle any of the other options anyway.
+                ssl.target_supports = EstablishTrustInTarget.value;
+            }
+
+
+            String required_str = 
+                Environment.getProperty( "jacorb.security.ssl.corbaloc_ssliop.required_options" );
+
+            if( (required_str != null) &&
+                (! required_str.equals( "" )) )
+            {
+                try
+                {
+                    ssl.target_supports = (short)
+                        Integer.parseInt( required_str, 16 );
+                }
+                catch( NumberFormatException nfe )
+                {
+                    Debug.output( 0, "WARNING: Unable to create int from string >>" +
+                                  required_str + "<<" );
+                    Debug.output( 0, "Please check property \"jacorb.security.ssl.corbaloc_ssliop.required_options\"" );
+
+                    ssl.target_supports = EstablishTrustInTarget.value;
+                }
+            }
+            else
+            {            
+                //For the time being, we only uses EstablishTrustInTarget,
+                //because we don't handle any of the other options anyway
+                ssl.target_requires = EstablishTrustInTarget.value;
+            }
+            
+            //create the tagged component containing the ssl struct
+            CDROutputStream out = new CDROutputStream();
+            out.beginEncapsulatedArray();
+            
+            SSLHelper.write( out, ssl );
+            
+            TaggedComponent ssl_c =
+                new TaggedComponent( TAG_SSL_SEC_TRANS.value,
+                                     out.getBufferCopy() );
+
+            ior =  createObjectIOR( address.host,
+                                    (short) address.port,
+                                    corbaLoc.getKey(),
+                                    address.minor,
+                                    new TaggedComponent[]{ssl_c});
+        }
+
 	decode( ior );
     }
 
@@ -674,7 +808,7 @@ public class ParsedIOR
             
             if (orb == null)
             {
-                in_ = new CDRInputStream (org.omg.CORBA.ORB.init (), 
+                in_ = new CDRInputStream (org.omg.CORBA.ORB.init(), 
                                           bos.toByteArray ());
             }
             else

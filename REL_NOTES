@@ -66,6 +66,29 @@ gerald.brose@acm.org
                 Locally constrained objects, such as portable interceptors,
                 should now extend this class.
 
+         - Portable Interceptors:
+               - Adapted to CORBA 2.5 IDL (ForwardRequest exception
+                 now doesn't have the permanent flag anymore)
+
+         - SSL/JSSE:
+               - Integrated patch to be able to access the peers
+                 certificates also using JSSE 1.0.2 with a JDK < 1.4
+               - Added property
+                 "jacorb.security.ssl.server.cipher_suites" to allow
+                 selecting ciphersuites (Sun-JSSE only)
+
+         - ORB:
+               - Added support for corbaloc:ssliop style IORs to be
+                 able to use corbaloc together with SSL. WARNING: This
+                 is not (yet ;-) standardized by the OMG, but
+                 agreed-upon by many more (TAO, MICO, ...) open source
+                 ORBs. The SSL behaviour defaults to
+                 EstablishTrustInTarget, but can also be configured by
+                 the properties
+                 jacorb.security.ssl.corbaloc_ssliop.supported_options
+                 jacorb.security.ssl.corbaloc_ssliop.required_options
+
+
         - bug fixes:
                 Naming Service:
                         - Fix for handling of name strings containing escaped
@@ -130,15 +153,6 @@ gerald.brose@acm.org
                         - The create_abstract_interface_tc and
                           create_native_tc operations are now implemented.
                         - Many small fixes to TypeCode operations.
-
-         - Portable Interceptors:
-               - Adapted to CORBA 2.5 IDL (ForwardRequest exception
-                 now doesn't have the permanent flag anymore)
-
-         - SSL/JSSE
-               - Integrated patch to be able to access the peers
-                 certificates also using JSSE 1.0.2 with a JDK < 1.4
-
 1.4 beta 2:
 ===========
 

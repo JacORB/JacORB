@@ -113,8 +113,11 @@ public class CorbaLoc
 	    return result;
 	}
 	else if ( addr.indexOf(':') == 0 ||
-		  addr.startsWith("iiop:") ) 
+		  addr.startsWith("iiop:") ||
+                  addr.startsWith("ssliop:")) 
 	{
+            result.protocol_identifier = addr.substring( 0, addr.indexOf(':') );
+
 	    String version_and_host = addr.substring( addr.indexOf(':')+1);
 	    if( version_and_host.length() == 0)
 		throw new IllegalArgumentException("Illegal IIOP protocol format in object address format: " + addr);

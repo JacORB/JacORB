@@ -322,6 +322,16 @@ jacorb.security.ssl.client.required_options=0
 jacorb.security.ssl.server.supported_options=0
 jacorb.security.ssl.server.required_options=0
 
+#
+# If set, the following two values will be placed in the IOR, if
+# "corbaloc:ssliop" ssliop.
+#
+# If not set, only EstablishTrustInTarget is used for both supported
+# and required options. EstablishTrustInClient is not set, and the
+# rest of the Association Options aren't currently used anyway.
+#jacorb.security.ssl.corbaloc_ssliop.supported_options=0
+#jacorb.security.ssl.corbaloc_ssliop.required_options=0
+
 # The name and location of the keystore. This may be absolute or
 # relative to the home directory.
 #
@@ -331,8 +341,8 @@ jacorb.security.ssl.server.required_options=0
 # property "jacorb.security.jsse.trustees_from_ks"is to "on", so trusted
 # certificates are taken from the keystore instead of a dedicated
 # truststore. 
-jacorb.security.keystore=.keystore
-jacorb.security.keystore_password=jacorb
+jacorb.security.keystore=
+jacorb.security.keystore_password=
 
 
 #
@@ -344,11 +354,11 @@ jacorb.security.keystore_password=jacorb
 # WARNING: If no CA certs are present, the IAIK chain verifier will
 # accept ALL otherwise valid chains!
 #
-jacorb.security.trustees=trustee1.cert,trustee2.cert
+jacorb.security.trustees=
 
 # the name of the default key alias to look up in the keystore
-jacorb.security.default_user=brose
-jacorb.security.default_password=jacorb
+jacorb.security.default_user=
+jacorb.security.default_password=
 
 # have iaiks ssl classes print debug output to stdout
 jacorb.security.iaik_debug=off
@@ -359,6 +369,9 @@ jacorb.security.iaik_debug=off
 # Use the keystore to take trusted certs from. 
 jacorb.security.jsse.trustees_from_ks=off
 
+# A comma-separated (no whitespaces!) list of cipher suite names. See
+# the JSSE docs on how to obtain the correct cipher suite strings
+jacorb.security.ssl.server.cipher_suites=
 
 #########################
 #                       #
