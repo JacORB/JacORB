@@ -30,24 +30,24 @@ import org.jacorb.orb.giop.*;
 
 //Note: HTTPServerConnections are good for one incoming Request only!
 
-public final class ServerConnection 
+public final class ServerConnection
     extends org.jacorb.orb.connection.ServerConnection
 {
     private boolean connected = true;
-    private int readcount = 0;	
+    private int readcount = 0;
     private boolean readyParsed = false;
     Object oldrequest;
     Object requestwait = new Object();
     org.jacorb.orb.http.httpserver.ServeConnection realCon;
     Socket mysock;
-    
+
     private ORB orb = null;
     private int client_count = 0;
-   
-    public ServerConnection( org.jacorb.orb.ORB orb, 
+
+    public ServerConnection( org.jacorb.orb.ORB orb,
                              boolean is_ssl,
-                             Socket s, 
-                             java.io.InputStream _in_stream) 
+                             Socket s,
+                             java.io.InputStream _in_stream)
         throws IOException
     {
         this.orb = orb;
@@ -55,8 +55,8 @@ public final class ServerConnection
         isSSL = is_ssl;
 
 	in_stream = new BufferedInputStream(_in_stream);
-	realCon = 
-            new org.jacorb.orb.http.httpserver.ServeConnection(s,_in_stream);	
+	realCon =
+            new org.jacorb.orb.http.httpserver.ServeConnection(s,_in_stream);
 	String ip = mysock.getInetAddress().getHostAddress();
 	if( ip.indexOf('/') > 0)
 	    ip = ip.substring( ip.indexOf('/') + 1 );
@@ -67,16 +67,16 @@ public final class ServerConnection
 	org.jacorb.util.Debug.output(1,"Accepted HTTP connection from " + host_and_port);
 
     }
-  
+
     protected void abort()
 	throws  EOFException
     {
         org.jacorb.util.Debug.output(3,"HTTPServerConnection to " + connection_info + " aborting...");
         throw new EOFException();
-	
+
     }
 
-    /** 
+    /**
      * socket closing etc is done after each single HTTP Connection
      */
 
@@ -91,8 +91,8 @@ public final class ServerConnection
         return connected;
     }
 
-    public byte[] readBuffer() 
-        throws java.io.IOException 
+    public byte[] readBuffer()
+        throws java.io.IOException
     {
         readcount++;
         in_stream = realCon.getInputStream();
@@ -101,7 +101,7 @@ public final class ServerConnection
 
     public  synchronized void reconnect()
 	throws org.omg.CORBA.COMM_FAILURE
-    {	
+    {
 	connected=true;
     }
 
@@ -109,34 +109,34 @@ public final class ServerConnection
      * send a "close connection" message to the other side.
      */
 
-    public synchronized void sendCloseConnection() 
+    public synchronized void sendCloseConnection()
         throws org.omg.CORBA.COMM_FAILURE
     {
         String iaddr=mysock.getInetAddress().toString()+mysock.getPort();
-        //BasicAdapter ba = orb.getBasicAdapter();		
+        //BasicAdapter ba = orb.getBasicAdapter();
 
         try
         {
             realCon.answerRequest(Messages.closeConnectionMessage());
-            realCon.close();	
-        } 
+            realCon.close();
+        }
         catch ( Exception e )
         {
             throw new org.omg.CORBA.COMM_FAILURE
                 (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
         }
-    }   
+    }
 
     /**
      *
      */
 
-    public void sendLocateReply( int request_id, 
-                                 int status, 
+    public void sendLocateReply( int request_id,
+                                 int status,
                                  org.omg.CORBA.Object arg,
-                                 int giop_minor ) 
+                                 int giop_minor )
         throws org.omg.CORBA.COMM_FAILURE
-    {   
+    {
 	/**
 	 * called from dsi/ServerRequest
 	 */
@@ -153,8 +153,8 @@ public final class ServerConnection
                                                                    arg,
                                                                    giop_minor ));
 		realCon.close();
-			
-	    } 
+
+	    }
 	    catch ( Exception e )
 	    {
 		org.jacorb.util.Debug.output(2,e);
@@ -185,7 +185,7 @@ public final class ServerConnection
                 if (os!=null)
                 {
                     realCon.answerRequest(os.getBufferCopy());
-                    os.release();
+                    os.close();
                 }
                 else
                 { //dummy reply
@@ -196,8 +196,8 @@ public final class ServerConnection
 
                 //	}
 		// org.jacorb.util.Debug.output(3,"bypassing any message-level interceptors");
-		realCon.close();					    		
-	    } 
+		realCon.close();
+	    }
 	    catch ( Exception e )
 	    {
 		org.jacorb.util.Debug.output(2,e);
@@ -214,9 +214,3 @@ public final class ServerConnection
 	//do nothing here
     }
 }
-
-
-
-
-
-
