@@ -21,7 +21,10 @@
 package org.jacorb.orb;
 
 import java.lang.reflect.*;
+
+import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.util.ObjectUtil;
+import org.omg.IOP.*;
 
 public class SystemExceptionHelper
 {
@@ -146,6 +149,18 @@ public class SystemExceptionHelper
 	int minor = in.read_long();
 	org.omg.CORBA.CompletionStatus completed =
             org.omg.CORBA.CompletionStatusHelper.read(in);
+	String message = null;
+	if (in instanceof ReplyInputStream)
+	{
+	    ReplyInputStream input = (ReplyInputStream)in;
+	    ServiceContext c = input.getServiceContext(ExceptionDetailMessage.value);
+	    if (c != null)
+	    {
+	        CDRInputStream data = new CDRInputStream(null, c.context_data);
+	        data.openEncapsulatedArray();
+	        message = data.read_wstring();
+	    }
+	}
 	try
 	{
             Class ex = ObjectUtil.classForName( className );
@@ -156,7 +171,7 @@ public class SystemExceptionHelper
                                                org.omg.CORBA.CompletionStatus.class});
 
 	    return (org.omg.CORBA.SystemException)constr.newInstance(
-                           new Object[]{"This exception was reported by the server, it is only re-thrown here.",
+                           new Object[]{"Server-side Exception: " + message,
                                         new Integer(minor),
                                         completed});
 	}
