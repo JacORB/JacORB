@@ -52,8 +52,6 @@ public abstract class TCP_IP_Transport
     //used to unregister this transport
     protected TransportManager transport_manager = null;
 
-    private TransportListener transport_listener = null;
-
     private int finalTimeout = 20000;
     
     public TCP_IP_Transport (TCP_IP_Transport other)
@@ -64,7 +62,6 @@ public abstract class TCP_IP_Transport
         this.dump_incoming = other.dump_incoming;
         this.connection_info = other.connection_info;
         this.transport_manager = other.transport_manager;
-        this.transport_listener = other.transport_listener;
         this.finalTimeout = other.finalTimeout;
     }
 
@@ -124,20 +121,17 @@ public abstract class TCP_IP_Transport
                          "Socket timed out with timeout period of " +
                          soTimeout
                         ); 
-                    transport_listener.readTimedOut();
                     throw new org.omg.CORBA.TIMEOUT();
                 }
                 else
                 {
-                    throw to_COMM_FAILURE (e);
+                    throw new org.omg.CORBA.TRANSIENT ("Interrupted I/O: " + e);
                 }
             }
             catch( IOException se )
             {
                 Debug.output( 2, "Transport to " + connection_info +
                               ": stream closed" );
-
-                transport_listener.streamClosed();
                 throw to_COMM_FAILURE (se);
             }
 
@@ -145,8 +139,6 @@ public abstract class TCP_IP_Transport
             {
                 Debug.output( 2, "Transport to " + connection_info +
                               ": stream closed" );
-
-                transport_listener.streamClosed();
                 throw new org.omg.CORBA.COMM_FAILURE ("read() did not return any data");
             }
 
@@ -202,11 +194,6 @@ public abstract class TCP_IP_Transport
     public boolean is_connected()
     {
         return connected;
-    }
-
-    public void setTransportListener( TransportListener transport_listener )
-    {
-       this.transport_listener = transport_listener;
     }
 
     /**
