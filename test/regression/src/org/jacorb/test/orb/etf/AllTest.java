@@ -24,17 +24,24 @@ import junit.framework.*;
 
 public class AllTest extends TestCase
 {
-   public AllTest (String name)
-   {
-      super (name);
-   }
+    public AllTest(String name)
+    {
+        super(name);
+    }
 
-   public static Test suite ()
-   {
-        TestSuite suite = new TestSuite ("All ETF Tests");
+    public static Test suite()
+    {
+        TestSuite suite = new TestSuite("ETF Tests");
 
-        suite.addTest (C_WIOP_S_WIOP.suite());
+        suite.addTest(C_WIOP_S_WIOP.suite());
+        suite.addTest(C_WIOP_S_IIOP_WIOP.suite());
+        suite.addTest(C_IIOP_WIOP_S_IIOP_WIOP.suite());
+        suite.addTest(C_IIOP_WIOP_S_WIOP_IIOP.suite());
+        suite.addTest(C_WIOP_IIOP_S_WIOP_IIOP.suite());
+        suite.addTest(C_IIOP_S_WIOP.suite());
+        suite.addTest(ProfileSelectorTest.suite());
+        suite.addTest(ServerListenerTest.suite());
 
         return suite;
-   }
+    }
 }
