@@ -3092,7 +3092,7 @@ For each CORBA request four different points in time can be specified:
 \end{description}
 
 Each of these points in time can be specified on a per-object level as
-a client-side override policy: \emph{RequestStartTimePolicy},
+a client-side override policy: \mbox{\emph{RequestStartTimePolicy}},
 \emph{RequestEndTimePolicy}, \emph{ReplyStartTimePolicy}, and
 \emph{ReplyEndTimePolicy} (see below for concrete code examples).
 
@@ -3115,7 +3115,7 @@ invocations alike.
 
 \begin{figure}[htb]
   \begin{center}
-    \includegraphics[width=17cm]{Timing.png}
+    \includegraphics[width=16cm]{Timing.png}
   \end{center}
 \caption{Timing Policies in JacORB}
 \label{fig:timing}
@@ -3134,19 +3134,19 @@ the relative value to the current system time.
 \emph{Reply End Time} have already elapsed.  If so, no invocation is
 made, and an {\tt org.omg.CORBA.TIMEOUT} is thrown to the client.
 
-\item After the ORB has sent the request, it waits until \emph{Reply
-End Time} has elapsed.  If it receives no reply before that, the
-request is discarded and an {\tt org.omg.CORBA.TIMEOUT} thrown to the
-client.  (JacORB does not currently cancel the outstanding request, it
-simply discards the reply, should one arrive after the timeout has
-elapsed.)
+\item After the ORB has sent the request, it waits for a reply until
+\emph{Reply End Time} has elapsed.  If it receives no reply before
+that, the request is discarded and an {\tt org.omg.CORBA.TIMEOUT}
+thrown to the client.  (JacORB does not currently cancel the
+outstanding request, it simply discards the reply, should one arrive
+after the timeout has elapsed.)
 
 \item On the server side (before demarshalling), the ORB checks
 whether \emph{Request End Time} or \emph{Reply End Time} have already
 elapsed.  If so, the request is not delivered to the target, and an
-{\tt org.omg.CORBA.TIMEOUT} thrown back to the client.
+{\tt org.omg.CORBA.TIMEOUT} is thrown back to the client.
 
-\item If the request proceeds, the ORB waits until its \emph{Reply
+\item If the request proceeds, the ORB waits until the \emph{Reply
 Start Time} has been reached, if one was specified, and has not
 already elapsed.  After that, the request is delivered to the target.
 
@@ -3163,19 +3163,103 @@ that, the reply is delivered back to the client.
 \end{itemize}
 
 The bottom line of this is that for a simple, per-invocation timeout,
-you should specify a \emph{RelativeRoundtripTimeoutPolicy}.  Note
+you should specify a \mbox{\emph{RelativeRoundtripTimeoutPolicy}}.  Note
 that since this relative time is converted into an absolute time, and
 also checked on the server side, the clocks on both the server and
 the client need to be synchronized at least to the same order of
 magnitude as the desired timeout.
 
-[code examples to follow]
+\subsection*{Programming}
 
+In CORBA, points of time are specified to an accuracy of 100~ns, using
+values of struct {\tt TimeBase::UtcT}.  To allow easy manipulation of such
+values from Java, JacORB provides a number of static methods in {\tt
+org.jacorb.util.Time}.  For example, to convert the current Java time
+into a {\tt UtcT} value, write
 
+\begin{verbatim}
+UtcT currentTime = org.jacorb.util.corbaTime();
+\end{verbatim}
 
+To create a {\tt UtcT} value that specifies a time $n$~ms in the
+future, you can write
 
+\begin{verbatim}
+UtcT time = org.jacorb.util.corbaFuture (10000 * n);
+\end{verbatim}
 
+(The argument to {\tt corbaFuture()} is in CORBA time units of
+100~ns; we multiply $n$ by 10000 here to convert it from Java time
+units (milliseconds).)
 
+The standard mechanism for specifying a timing policy for an object
+is quite verbose: We need to stuff the time value into a CORBA Any,
+let the ORB create a Policy object from that, and supply that as an
+argument to {\tt \_set\_policy\_override()}.  As an example, if we
+want to set a \emph{ReplyEndTimePolicy} that lies one second in the
+future, this looks as follows:
+
+\begin{verbatim}
+import org.omg.CORBA.*;
+
+SomeCorbaType server  = ...  // the object for which we want to set
+                             // a timing policy
+org.omg.CORBA.ORB orb = ...
+org.omg.CORBA.Any a   = orb.create_any();
+
+org.omg.TimeBase.UtcT replyEndTime 
+    = org.jacorb.util.Time.corbaFuture (1000);  // one second
+
+org.omg.TimeBase.UtcTHelper.insert (a, replyEndTime);
+
+try
+{
+    Policy p 
+        = orb.create_policy (REPLY_END_TIME_POLICY_TYPE.value, a);
+    server._set_policy_override (new Policy[]{ p },
+                                 SetOverrideType.ADD_OVERRIDE);
+}
+catch (PolicyError e)
+{
+    ...
+}
+\end{verbatim}
+
+To make this a little less verbose, JacORB's implementations of
+policy values have constructors that allow you to create them right
+away, without calling the ORB, and without going via an Any.  Thus,
+the above becomes:
+
+\begin{verbatim}
+SomeCorbaType server  = ...
+
+Policy p = new org.jacorb.orb.policies.ReplyEndTimePolicy 
+                         (org.jacorb.util.Time.corbaFuture (1000));
+
+server._set_policy_override (new Policy[]{ p },
+                             SetOverrideType.ADD_OVERRIDE);
+\end{verbatim}
+
+Likewise, to set a \emph{Relative Roundtrip Timeout} of one second,
+write:
+
+\begin{verbatim}
+SomeCorbaType server  = ...
+
+Policy p = 
+    new org.jacorb.orb.policies.RelativeRoundtripTimeoutPolicy (1000);
+
+server._set_policy_override (new Policy[]{ p },
+                             SetOverrideType.ADD_OVERRIDE);
+\end{verbatim}
+
+The difference between this and the example before, where a
+\emph{Reply End Time} was used, is that the latter specifies a
+\emph{relative time} to CORBA.  The policy will therefore be valid
+for all subsequent invocations, because the absolute deadline will be
+recomputed before each invocation.  In the first example, the
+deadline will no longer make sense for any subsequent invocations,
+since only an absolute time was specified to the ORB.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
