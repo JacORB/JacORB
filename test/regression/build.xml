@@ -480,6 +480,41 @@
    </target>
 
 
+  <target name="run-package-notification-seperate">
+    <antcall target="build-all" />
+    
+    <antcall target="run-package-notification-seperate-no-build" />
+  </target>
+
+
+  <target name="run-package-notification-seperate-no-build">
+
+    <antcall target="run-no-build">
+      <param name="test" value="org.jacorb.test.notification.PackageTest"/>
+    </antcall>
+
+    <antcall target="run-no-build">
+      <param name="test" value="org.jacorb.test.notification.node.PackageTest"/>
+    </antcall>
+
+    <antcall target="run-no-build">
+      <param name="test" value="org.jacorb.test.notification.engine.PackageTest"/>
+    </antcall>
+
+    <antcall target="run-no-build">
+      <param name="test" value="org.jacorb.test.notification.evaluate.PackageTest"/>
+    </antcall>
+
+    <antcall target="run-no-build">
+      <param name="test" value="org.jacorb.test.notification.queue.PackageTest"/>
+    </antcall>
+
+    <antcall target="run-no-build">
+      <param name="test" value="org.jacorb.test.notification.util.PackageTest"/>
+    </antcall>
+
+  </target>
+
    <!-- ==================================================== -->
    <!--                   clean up                           -->
    <!-- ==================================================== -->
