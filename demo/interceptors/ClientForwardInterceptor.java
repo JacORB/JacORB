@@ -59,7 +59,7 @@ public class ClientForwardInterceptor
                     System.out.println("Interceptor: Throwing ForwardRequest");
           
                     // setting in_loop not back, since the forward is permanent
-                    throw new ForwardRequest(grid);
+                    throw new ForwardRequest( grid );
                 }
                 else
                 {
