@@ -270,16 +270,20 @@ public class JacIDL
     }
 
     /**
-    * Inner class that will read the PCDATA i2jpackage tags.
+    * Inner class that will read the i2jpackage tags.
     *
-    * The format for these will be <i2jpackage>x:y</i2jpackage>.
+    * The format for these will be <i2jpackage names="x:y"/>.
     * @see #createI2jpackage()
     */
     public class I2JPackageTagHandler
     {
-        public void addText(String text)
+        /**
+        * Handle the names="packagefrom:packageto" attribute of the i2jpackage element.
+        * @param names the packagefrom:packageto value.
+        */
+        public void setNames(String names)
         {
-            _i2jpackages.add(text);
+            _i2jpackages.add(names);
         }
     }
 
