@@ -68,6 +68,7 @@ public class ParsedIOR
     private boolean use_ssl = false;
 
     private CodeSetComponentInfo cs_info = null;
+    private Integer orbTypeId = null;
 
     /* static part */
 
@@ -75,112 +76,205 @@ public class ParsedIOR
      * factory method
      */
 
+
     public static IOR createObjectIOR( String host,
                                        short port,
                                        byte[] object_key,
                                        int giop_minor )
     {
-        IOR ior = new IOR();
-        ior.type_id = "IDL:org.omg/CORBA/Object:1.0";
-        ior.profiles = new TaggedProfile[1];
+        String repId = "IDL:org.omg/CORBA/Object:1.0";
+        Vector components_v = new Vector();
+        TaggedComponent[] components = null;
 
-        ior.profiles[0] = new TaggedProfile();
-        ior.profiles[0].tag = 0; // IIOP
+        // set the ORB type ID component to JacORB
+
+        CDROutputStream orbIDComponentDataStream = new CDROutputStream();
+        orbIDComponentDataStream.beginEncapsulatedArray();
+        orbIDComponentDataStream.write_long( ORBConstants.JACORB_ORB_ID );
+
+        TaggedComponent orbIDComponent = new TaggedComponent
+        (
+            TAG_ORB_TYPE.value,
+            orbIDComponentDataStream.getBufferCopy()
+        );
+        components_v.addElement( orbIDComponent );
+
+        // all components for the profiles must be created by now
+
+        components = new TaggedComponent[ components_v.size() ];
+        components_v.copyInto( components );
+        
+        CDROutputStream profileDataStream = new CDROutputStream();
+        profileDataStream.beginEncapsulatedArray();
+
+        TaggedProfile tp = null;
+        Vector taggedProfileVector = new Vector();
 
         if( giop_minor == 0 )
         {
-            ProfileBody_1_0 pb1_0 = 
-                new ProfileBody_1_0( new org.omg.IIOP.Version( (byte) 1, 
-                                                               (byte) 0 ), 
-                                     host,
-                                     port,
-                                     object_key );    
-            
-            CDROutputStream out = new CDROutputStream();
-            out.beginEncapsulatedArray();
-            ProfileBody_1_0Helper.write( out, pb1_0 );
-            ior.profiles[0].profile_data = out.getBufferCopy();
+            ProfileBody_1_0 pb1_0 = new ProfileBody_1_0
+            (
+                new org.omg.IIOP.Version( (byte) 1, (byte) 0 ),
+                host,
+                port,
+                object_key
+            );
+            ProfileBody_1_0Helper.write( profileDataStream, pb1_0 );
+
+            tp = new TaggedProfile
+            (
+                TAG_INTERNET_IOP.value,
+                profileDataStream.getBufferCopy()
+            );
+            taggedProfileVector.addElement( tp );            
+
+            // now fill the last IOR profile with components
+
+            profileDataStream = new CDROutputStream();
+            profileDataStream.beginEncapsulatedArray();
+            MultipleComponentProfileHelper.write( profileDataStream, components );
+
+            tp = new TaggedProfile
+            (
+                TAG_MULTIPLE_COMPONENTS.value,
+                profileDataStream.getBufferCopy()
+            );
+            taggedProfileVector.addElement( tp );
         }
         else //GIOP 1.1 or 1.2
         {
-            ProfileBody_1_1 pb1_1 = 
-                new ProfileBody_1_1( new org.omg.IIOP.Version( (byte) 1, 
-                                                               (byte) giop_minor ),
-                                     host,
-                                     port,
-                                     object_key,
-                                     new TaggedComponent[0] );
+            ProfileBody_1_1 pb1_1 = new ProfileBody_1_1
+            (
+                new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor ),
+                host,
+                port,
+                object_key,
+                components
+            );
+            ProfileBody_1_1Helper.write( profileDataStream, pb1_1 );
 
-            CDROutputStream out = new CDROutputStream();
-            out.beginEncapsulatedArray();
-            ProfileBody_1_1Helper.write( out, pb1_1 );
-            ior.profiles[0].profile_data = out.getBufferCopy();
+            tp = new TaggedProfile
+            (
+                TAG_INTERNET_IOP.value,
+                profileDataStream.getBufferCopy()
+            );
+            taggedProfileVector.addElement( tp );
         }
 
-        return ior;
+        // copy the profiles into the IOR
+
+        TaggedProfile[] tps = new TaggedProfile[ taggedProfileVector.size() ];
+        taggedProfileVector.copyInto( tps );
+
+        return new IOR( repId, tps );
     }
 
     public static IOR createObjectIOR( String host,
                                        short port,
                                        byte[] object_key,
                                        int giop_minor,
-                                       TaggedComponent[] components)
+                                       TaggedComponent[] components )
     {
-        IOR ior = new IOR();
-        ior.type_id = "IDL:org.omg/CORBA/Object:1.0";
+        String repId = "IDL:org.omg/CORBA/Object:1.0";
+        boolean orbTypeSet = false;
+        Vector components_v = new Vector();
+        TaggedComponent[] allComponents = null;
 
-        TaggedProfile profile = new TaggedProfile();
-        profile.tag = TAG_INTERNET_IOP.value;
+        // search for the ORB type ID component
+
+        for( int i = 0; i < components.length; i++ )
+        {
+            if( components[i].tag == TAG_ORB_TYPE.value )
+            {
+                orbTypeSet = true;
+            }
+            components_v.addElement( components[i] );
+        }
+
+        if( ! orbTypeSet )
+        {
+            // set the ORB type ID component to JacORB
+
+            CDROutputStream orbIDComponentDataStream = new CDROutputStream();
+            orbIDComponentDataStream.beginEncapsulatedArray();
+            orbIDComponentDataStream.write_long( ORBConstants.JACORB_ORB_ID );
+
+            TaggedComponent orbIDComponent = new TaggedComponent
+            (
+                TAG_ORB_TYPE.value,
+                orbIDComponentDataStream.getBufferCopy()
+            );
+            components_v.addElement( orbIDComponent );
+        }
+
+        // all components for the profiles must be created by now
+
+        allComponents = new TaggedComponent[ components_v.size() ];
+        components_v.copyInto( allComponents );
+        
+        CDROutputStream profileDataStream = new CDROutputStream();
+        profileDataStream.beginEncapsulatedArray();
+
+        TaggedProfile tp = null;
+        Vector taggedProfileVector = new Vector();
 
         if( giop_minor == 0 )
         {
-            ProfileBody_1_0 pb1_0 = 
-                new ProfileBody_1_0( new org.omg.IIOP.Version( (byte) 1, 
-                                                               (byte) 0 ), 
-                                     host,
-                                     port,
-                                     object_key );    
-            
-            CDROutputStream out = new CDROutputStream();
-            out.beginEncapsulatedArray();
-            ProfileBody_1_0Helper.write( out, pb1_0 );
-            profile.profile_data = out.getBufferCopy();
+            ProfileBody_1_0 pb1_0 = new ProfileBody_1_0
+            (
+                new org.omg.IIOP.Version( (byte) 1, (byte) 0 ), 
+                host,
+                port,
+                object_key
+            );    
+            ProfileBody_1_0Helper.write( profileDataStream, pb1_0 );
 
-            ior.profiles = new TaggedProfile[2];
-            
-            // 1.0 ProfileBodies don't have the tagged component array
-            // so we have to encapsulate the tagged components in a
-            // multiple components profile.
-            out.reset();
-            out.beginEncapsulatedArray();
-            MultipleComponentProfileHelper.write( out, 
-                                                  components );
-                
-            ior.profiles[1] = 
-                new TaggedProfile( TAG_MULTIPLE_COMPONENTS.value,
-                                   out.getBufferCopy() );
+            tp = new TaggedProfile
+            (
+                TAG_INTERNET_IOP.value,
+                profileDataStream.getBufferCopy()
+            );
+            taggedProfileVector.addElement( tp );            
+
+            // now fill the last IOR profile with components
+
+            profileDataStream = new CDROutputStream();
+            profileDataStream.beginEncapsulatedArray();
+            MultipleComponentProfileHelper.write( profileDataStream, allComponents );
+
+            tp = new TaggedProfile
+            (
+                TAG_MULTIPLE_COMPONENTS.value,
+                profileDataStream.getBufferCopy()
+            );
+            taggedProfileVector.addElement( tp );
         }
         else //GIOP 1.1 or 1.2
         {
-            ProfileBody_1_1 pb1_1 = 
-                new ProfileBody_1_1( new org.omg.IIOP.Version( (byte) 1, 
-                                                               (byte) giop_minor ),
-                                     host,
-                                     port,
-                                     object_key,
-                                     components );
+            ProfileBody_1_1 pb1_1 = new ProfileBody_1_1
+            (
+                new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor ),
+                host,
+                port,
+                object_key,
+                allComponents
+            );
+            ProfileBody_1_1Helper.write( profileDataStream, pb1_1 );
 
-            CDROutputStream out = new CDROutputStream();
-            out.beginEncapsulatedArray();
-            ProfileBody_1_1Helper.write( out, pb1_1 );
-            profile.profile_data = out.getBufferCopy();
-            
-            ior.profiles = new TaggedProfile[1];
+            tp = new TaggedProfile
+            (
+                TAG_INTERNET_IOP.value,
+                profileDataStream.getBufferCopy()
+            );
+            taggedProfileVector.addElement( tp );
         }
 
-        ior.profiles[0] = profile;
+        // copy the profiles into the IOR
 
-        return ior;
+        TaggedProfile[] tps = new TaggedProfile[ taggedProfileVector.size() ];
+        taggedProfileVector.copyInto( tps );
+
+        return new IOR( repId, tps );
     }
 
 
@@ -347,13 +441,13 @@ public class ParsedIOR
 
             Debug.output(4,"TAG_JAVA_CODEBASE found");			
 
-	    // get codebase cs from IOR 
-	    CDRInputStream is =
-		new CDRInputStream( orb, 
-                                   taggedComponents[i].component_data);
-	    is.openEncapsulatedArray();
-	    return is.read_string();
-	}
+            // get codebase cs from IOR 
+            CDRInputStream is =
+                new CDRInputStream( orb, 
+                                    taggedComponents[i].component_data);
+            is.openEncapsulatedArray();
+            return is.read_string();
+        }
         return null;
     }
 
@@ -456,7 +550,7 @@ public class ParsedIOR
 
         for( int i = 0; i < _ior.profiles.length; i++ )
         {
-            //            Debug.output( 4, "Parsing IOR, found profile id: " +
+            //Debug.output( 4, "Parsing IOR, found profile id: " +
             //              _ior.profiles[i].tag );
 
             switch( _ior.profiles[i].tag ) 
@@ -471,7 +565,7 @@ public class ParsedIOR
                     in.openEncapsulatedArray();
 
                     taggedComponents = MultipleComponentProfileHelper.read( in );
-                    break;	
+                    break; 
                 }
                 case TAG_INTERNET_IOP.value :
                 {
@@ -492,16 +586,14 @@ public class ParsedIOR
             } 
         }
 
-        profileBodies = 
-            new ProfileBody_1_1[ internetProfiles.size() ];
+        profileBodies = new ProfileBody_1_1[ internetProfiles.size() ];
         internetProfiles.copyInto( profileBodies );
+        
+        /* Select the effective profile. We take the one with the
+           highest minor version number. */
 
         effectiveProfileBody = 0;
-        
-        /* select the effective profile. We take the one with the
-           highest minor version  number */
-
-        for( int b = 1; b < profileBodies.length; b++)
+        for( int b = 1; b < profileBodies.length; b++ )
         {
             if( profileBodies[b].iiop_version.minor > 
                 profileBodies[ effectiveProfileBody ].iiop_version.minor )
@@ -513,31 +605,58 @@ public class ParsedIOR
         ior = _ior;
         ior_str = getIORString();
 
-        // allow IORs without IIOP components
-        TaggedComponent[] iiop_components = null;
-        if( profileBodies.length == 0 )
-        {
-            iiop_components = new TaggedComponent[0];
-        }
-        else
-        {
-            iiop_components = profileBodies[ effectiveProfileBody ].components;
-        }
+        //search for the codeset component and the orb type ID component
+        CDRInputStream is = null;
 
-        //retrieve the codeset component
         for( int i = 0; i < taggedComponents.length; i++ )
         {
             if( taggedComponents[i].tag == TAG_CODE_SETS.value )
             {
-                // get server cs from IOR 
-                CDRInputStream is =
-                    new CDRInputStream( orb, taggedComponents[i].component_data );
-                
+                // get server codeset from IOR
+
+                is = new CDRInputStream( orb,
+                                         taggedComponents[i].component_data);
                 is.openEncapsulatedArray();
-                
                 cs_info = CodeSetComponentInfoHelper.read( is );
-            
-                break;
+            }
+            else if( taggedComponents[i].tag == TAG_ORB_TYPE.value )
+            {
+                // get ORB type ID from IOR
+
+                is = new CDRInputStream( orb,
+                                         taggedComponents[i].component_data);
+                is.openEncapsulatedArray();
+                orbTypeId = new Integer( is.read_long() );
+            }
+        }
+
+        // if ORB type ID isn't found yet then search IOP profile for it
+        if( orbTypeId == null )
+        {
+            // allow IORs without IIOP components
+            TaggedComponent[] iiop_components = null;
+            if( profileBodies.length == 0 )
+            {
+                iiop_components = new TaggedComponent[0];
+            }
+            else
+            {
+                iiop_components = profileBodies[ effectiveProfileBody ].components;
+            }
+
+            for( int i = 0; i < iiop_components.length; i++ )
+            {
+                if( iiop_components[i].tag == TAG_ORB_TYPE.value )
+                {
+                    // get ORB type ID from IOR
+
+                    is = new CDRInputStream( orb,
+                                             iiop_components[i].component_data);
+                    is.openEncapsulatedArray();
+                    orbTypeId = new Integer( is.read_long() );
+
+                    break;
+                }
             }
         }
     }
@@ -659,6 +778,10 @@ public class ParsedIOR
         return cs_info;
     }
 
+    public Integer getORBTypeId()
+    {
+        return orbTypeId;
+    }
 
     public IOR getIOR()
     {
@@ -799,7 +922,6 @@ public class ParsedIOR
 
         if (object_reference.startsWith ("IOR:"))
         {
-
             ByteArrayOutputStream bos = new ByteArrayOutputStream ();
             int cnt = (object_reference.length () - 4) / 2;
             for (int j = 0; j < cnt; j++)
@@ -826,8 +948,7 @@ public class ParsedIOR
             {
                 in_ = new CDRInputStream (orb, bos.toByteArray());
             }                
-	    
-
+       
             endianness = in_.read_boolean ();
             if (endianness)
             {
