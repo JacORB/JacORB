@@ -120,7 +120,7 @@ public class Client_TCP_IP_Transport
                     socket = socket_factory.createSocket( target_host, 
                                                           target_port );
                     
-                    socket.setTcpNoDelay( true );
+                    //                    socket.setTcpNoDelay( true );
                     
                     if( timeout != 0 )
                     {
@@ -129,7 +129,7 @@ public class Client_TCP_IP_Transport
                     }
 
                     in_stream =
-                        new BufferedInputStream(socket.getInputStream());
+                        socket.getInputStream();
                     
                     out_stream = 
                         new BufferedOutputStream( socket.getOutputStream());

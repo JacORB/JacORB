@@ -66,24 +66,39 @@ public class ReplyOutputStream
                 //times
 
                 //GIOP 1.1
-                ReplyHeader_1_0 repl_hdr = 
-                    new ReplyHeader_1_0( service_context,
-                                         request_id,
-                                         ReplyStatusType_1_0.from_int( reply_status.value() ));
-
-                ReplyHeader_1_0Helper.write( this, repl_hdr );
+//                  ReplyHeader_1_0 repl_hdr = 
+//                      new ReplyHeader_1_0( alignment_ctx,
+//                                           request_id,
+//                                           ReplyStatusType_1_0.from_int( reply_status.value() ));
+//                  ReplyHeader_1_0Helper.write( this, repl_hdr );
                
+                // inlining for performance
+
+		org.omg.IOP.ServiceContextListHelper.write(this , service_context );
+		write_ulong( request_id );
+		org.omg.GIOP.ReplyStatusType_1_0Helper.write( this, 
+                                                              ReplyStatusType_1_0.from_int( reply_status.value() ));
+
                 break;
             }
             case 2 :
             {
                 //GIOP 1.2
-                ReplyHeader_1_2 repl_hdr = 
-                    new ReplyHeader_1_2( request_id,
-                                         reply_status,
-                                         service_context );
+//                  ReplyHeader_1_2 repl_hdr = 
+//                      new ReplyHeader_1_2( request_id,
+//                                           reply_status,
+//                                           alignment_ctx );
 
-                ReplyHeader_1_2Helper.write( this, repl_hdr );
+//                  ReplyHeader_1_2Helper.write( this, repl_hdr );
+
+                // more inlining
+
+		write_ulong( request_id );
+		org.omg.GIOP.ReplyStatusType_1_2Helper.write(this, 
+                                                             reply_status);
+
+
+		org.omg.IOP.ServiceContextListHelper.write( this, service_context );
 
                 markHeaderEnd(); //use padding if minor 2
 

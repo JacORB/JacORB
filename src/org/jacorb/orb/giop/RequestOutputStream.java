@@ -73,31 +73,55 @@ public class RequestOutputStream
             case 0 :
             { 
                 // GIOP 1.0
-                RequestHeader_1_0 req_hdr = 
-                    new RequestHeader_1_0( service_context,
-                                           request_id,
-                                           response_expected,
-                                           object_key,
-                                           operation,
-                                           principal );
 
-                RequestHeader_1_0Helper.write( this, req_hdr );
+//                  RequestHeader_1_0 req_hdr = 
+//                      GIOPHeaderFactory.getRequestHeader_1_0( alignment_ctx,
+//                                                              request_id,
+//                                                              response_expected,
+//                                                              object_key,
+//                                                              operation,
+//                                                              principal );
+
+//                  RequestHeader_1_0Helper.write( this, req_hdr );
+//                  GIOPHeaderFactory.returnRequestHeader_1_0( req_hdr );
+
+
+                // inlining
+
+		org.omg.IOP.ServiceContextListHelper.write( this , service_context );
+		write_ulong( request_id);
+		write_boolean( response_expected );		
+		write_long( object_key.length );
+		write_octet_array( object_key, 0, object_key.length);
+		write_string( operation);
+		org.omg.CORBA.PrincipalHelper.write( this, 
+                                                     principal);
+
                 break;
             }
             case 1 :
             {
                 //GIOP 1.1
-                RequestHeader_1_1 req_hdr = 
-                    new RequestHeader_1_1( service_context,
-                                           request_id,
-                                           response_expected,
-                                           reserved,
-                                           object_key,
-                                           operation,
-                                           principal );
+//                  RequestHeader_1_1 req_hdr = new 
+                //                RequestHeader_1_1( alignment_ctx,
+//                                                              request_id,
+//                                                              response_expected,
+//                                                              reserved,
+//                                                              object_key,
+//                                                              operation,
+//                                                              principal );
+//                  RequestHeader_1_1Helper.write( this, req_hdr );
+//                  GIOPHeaderFactory.returnRequestHeader_1_1( req_hdr );
 
-                RequestHeader_1_1Helper.write( this, req_hdr );
-               
+		org.omg.IOP.ServiceContextListHelper.write( this , service_context );
+		write_ulong( request_id);
+		write_boolean( response_expected );		
+		write_long( object_key.length );
+		write_octet_array( object_key, 0, object_key.length);
+		write_string( operation);
+		org.omg.CORBA.PrincipalHelper.write( this, 
+                                                     principal);
+
                 break;
             }
             case 2 :
@@ -106,15 +130,29 @@ public class RequestOutputStream
                 TargetAddress addr = new TargetAddress();
                 addr.object_key( object_key );
 
-                RequestHeader_1_2 req_hdr = 
-                    new RequestHeader_1_2( request_id,
-                                           (byte) ((response_expected)? 0x03 : 0x00),
-                                           reserved,
-                                           addr,
-                                           operation,
-                                           service_context );
+//                  RequestHeader_1_2 req_hdr = 
+//                      GIOPHeaderFactory.getRequestHeader_1_2( alignment_ctx,
+//                                                              request_id,
+//                                                              (byte) ((response_expected)? 0x03 : 0x00),
+//                                                              reserved,
+//                                                              addr,
+//                                                              operation
+//                                                              );
 
-                RequestHeader_1_2Helper.write( this, req_hdr );
+//                  RequestHeader_1_2Helper.write( this, req_hdr );
+
+                // inlined RequestHeader_1_2Helper.write method 
+
+                write_ulong( request_id);
+		write_octet( (byte) ((response_expected)? 0x03 : 0x00) );
+                if( reserved.length < 3)
+                    throw new org.omg.CORBA.MARSHAL("Incorrect array size "+
+                                                     reserved.length + ", expecting 3");
+
+		write_octet_array( reserved,0,3 );
+		org.omg.GIOP.TargetAddressHelper.write( this, addr );
+		write_string( operation );
+		org.omg.IOP.ServiceContextListHelper.write( this, service_context );
 
                 markHeaderEnd(); //use padding if GIOP minor == 2
 

@@ -50,10 +50,10 @@ public class Server_TCP_IP_Transport
         super();
 
         this.socket = socket;
-        socket.setTcpNoDelay( true );
+        //        socket.setTcpNoDelay( true );
         this.is_ssl = is_ssl;
 
-        in_stream = new BufferedInputStream(socket.getInputStream());
+        in_stream = socket.getInputStream();
         out_stream = new BufferedOutputStream(socket.getOutputStream());
         
         connection_info = socket.getInetAddress().getHostName() +

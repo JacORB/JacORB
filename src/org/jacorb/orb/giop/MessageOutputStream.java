@@ -90,6 +90,7 @@ public class MessageOutputStream
         buffer[11] = (byte) (size        & 0xFF);
     }
 
+
     public void insertMsgSize()
     {
         insertMsgSize( size() - Messages.MSG_HEADER_SIZE );
