@@ -25,14 +25,15 @@ import junit.framework.*;
 
 import org.jacorb.config.Configuration;
 
-public class GIOPConnectionTest extends TestCase
+public class GIOPConnectionTest 
+    extends TestCase
 {
-
     Configuration config;
 
-    public void setUp() throws Exception
+    public void setUp() 
+        throws Exception
     {
-        config = new Configuration ("jacorb",null,null);
+        config = Configuration.getConfiguration(null,null);
     }
 
     public static junit.framework.TestSuite suite()
