@@ -58,6 +58,9 @@ gerald.brose@acm.org
                 should now extend this class.
 
         - bug fixes:
+                Naming Service:
+                        - Fix for handling of name strings containing escaped
+                          characters.
                 DII:
                         - User exceptions now correctly encapsuled within
                           Request environment.
