@@ -50,9 +50,11 @@
       <jacidl generateir="true"
          srcdir="idl"
          omgprefix="true"
-         includepath="${idl}/omg"
-         includes="omg/_orb.idl"
+        includepath="${idl}/omg"
+         includes="omg/Corba.idl"
          destdir="${src}/generated"/>
+         <!--all="true"-->
+
 
       <delete file="${src}/generated/org/omg/CORBA/Policy.java"/>
       <delete file="${src}/generated/org/omg/CORBA/TypeCode.java"/>
@@ -668,7 +670,7 @@
    <!--                       CORBA                          -->
    <!-- ==================================================== -->
 
-   <target name="jacorb" depends="imr, proxy, sasPolicy"/>
+   <target name="jacorb" depends="init, load-taskdef,imr, proxy,sasPolicy"/>
 
    <target name="imr">
       <jacidl srcdir="${idl}/jacorb"
@@ -686,7 +688,6 @@
       <jacidl srcdir="${idl}/jacorb"
               destdir="${src}/generated"
               sloppynames="true"
-              generateir="true"
               includepath="${idl}/omg"
               includes="Proxy.idl"/>
       <antcall target="jacorb-javac">
@@ -700,7 +701,6 @@
       <jacidl srcdir="${idl}/jacorb"
               destdir="${src}/generated"
               sloppynames="true"
-              generateir="true"
               includepath="${idl}/omg"
               includes="SASPolicy.idl"/>
       <antcall target="jacorb-javac">
