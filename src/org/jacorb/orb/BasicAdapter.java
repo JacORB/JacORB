@@ -21,7 +21,7 @@
 package org.jacorb.orb;
 
 /**
- * 
+ *
  * Class BasicAdapter, used by the POA.
  *
  * @author Gerald Brose, FU Berlin
@@ -52,8 +52,8 @@ public class BasicAdapter
         socket_factory = SocketFactoryManager.getServerSocketFactory ((ORB) null);
     }
 
-    private  org.jacorb.orb.ORB orb; 
-    private  POA rootPOA; 
+    private  org.jacorb.orb.ORB orb;
+    private  POA rootPOA;
     private  Listener listener;
     private  Listener sslListener; // bnv
 
@@ -65,7 +65,7 @@ public class BasicAdapter
     private TransportManager transport_manager = null;
     private GIOPConnectionManager giop_connection_manager = null;
 
-    public BasicAdapter( org.jacorb.orb.ORB orb, 
+    public BasicAdapter( org.jacorb.orb.ORB orb,
                          POA rootPOA,
                          TransportManager transport_manager,
                          GIOPConnectionManager giop_connection_manager )
@@ -89,10 +89,10 @@ public class BasicAdapter
                 try
                 {
                     Class ssl = Class.forName( s );
-                    
+
                     Constructor constr = ssl.getConstructor( new Class[]{
                         org.jacorb.orb.ORB.class });
-                    
+
                     ssl_socket_factory = (SSLServerSocketFactory)
                         constr.newInstance( new Object[]{ orb });
                 }
@@ -104,9 +104,9 @@ public class BasicAdapter
                     throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl server socket factory can't be instanciated (see trace)!" );
                 }
             }
-            
+
             if( client_socket_factory == null )
-            {                
+            {
                 String s = Environment.getProperty( "jacorb.ssl.socket_factory" );
                 if( s == null || s.length() == 0 )
                 {
@@ -116,10 +116,10 @@ public class BasicAdapter
                 try
                 {
                     Class ssl = Class.forName( s );
-                    
+
                     Constructor constr = ssl.getConstructor( new Class[]{
                         org.jacorb.orb.ORB.class });
-                    
+
                     client_socket_factory = (SocketFactory)
                         constr.newInstance( new Object[]{ orb });
                 }
@@ -154,20 +154,20 @@ public class BasicAdapter
         /*
          * We always create a plain socket listener as well. If SSL is
          * required, we do not accept requests on this port, however
-         * (see below). 
+         * (see below).
          */
 
         listener = new Listener( Environment.getProperty( "OAPort" ),
                                  socket_factory,
                                  false );
 
-        String prop = 
+        String prop =
             Environment.getProperty("jacorb.connection.server_timeout");
 
         if( prop != null )
         {
             timeout = Integer.parseInt(prop);
-        } 
+        }
     }
 
     public RequestListener getRequestListener()
@@ -198,13 +198,13 @@ public class BasicAdapter
     {
         return listener.getAddress();
     }
-    
+
     /**
      * to be called from the POA, code duplicated for performance
      * reasons to avoid synchronization in the private version of this
-     * method.  
+     * method.
      */
-    public synchronized void deliverRequest( org.jacorb.orb.dsi.ServerRequest request, 
+    public synchronized void deliverRequest( org.jacorb.orb.dsi.ServerRequest request,
                                              org.omg.PortableServer.POA poa )
     {
         org.jacorb.poa.POA tmp_poa = (org.jacorb.poa.POA)poa;
@@ -225,22 +225,22 @@ public class BasicAdapter
                 }
                 catch ( org.jacorb.poa.except.ParentIsHolding p )
                 {
-                    /* 
+                    /*
                      * if one of the POAs is in holding state, we
                      * simply deliver deliver the request to this
                      * POA. It will forward the request to its child
                      * POAs if necessary when changing back to active
                      * For the POA to be able to forward this request
                      * to its child POAa, we need to supply the
-                     * remaining part of the child's POA name 
+                     * remaining part of the child's POA name
                      */
                     String[] rest_of_name = new String[scopes.length - i];
                     for( int j = 0; j < i; j++ )
                         rest_of_name[j] = scopes[j+i];
                     request.setRemainingPOAName(rest_of_name);
                     break;
-                }               
-            }         
+                }
+            }
 
             if( tmp_poa == null )
             {
@@ -251,7 +251,7 @@ public class BasicAdapter
                 /* hand over to the POA */
                 ((org.jacorb.poa.POA)tmp_poa)._invoke( request );
             }
-              
+
         }
         catch( org.omg.PortableServer.POAPackage.WrongAdapter wa )
         {
@@ -269,10 +269,10 @@ public class BasicAdapter
             request.setSystemException( new org.omg.CORBA.UNKNOWN( th.toString()) );
             request.reply();
             th.printStackTrace(); // TODO
-        }                       
+        }
     }
 
-    /** 
+    /**
      * to be called from the POA
      */
 
@@ -284,7 +284,7 @@ public class BasicAdapter
     public void stopListeners()
     {
         listener.doStop();
-        
+
         if( sslListener != null )
         {
             sslListener.doStop();
@@ -309,7 +309,7 @@ public class BasicAdapter
 
         private boolean do_run = true;
 
-        public Listener( String oa_port, 
+        public Listener( String oa_port,
                          ServerSocketFactory factory,
                          boolean is_ssl )
             throws org.omg.CORBA.INITIALIZE
@@ -330,8 +330,8 @@ public class BasicAdapter
                 {
                     if( oa_port != null )
                     {
-                        serverSocket = 
-                            factory.createServerSocket( 
+                        serverSocket =
+                            factory.createServerSocket(
                                 Integer.parseInt( oa_port ));
                     }
                     else
@@ -339,12 +339,12 @@ public class BasicAdapter
                         serverSocket = factory.createServerSocket( 0 );
                     }
 
-                    
+
                     setAddress( InetAddress.getLocalHost() );
                 }
                 else
                 {
-                    InetAddress target_addr = 
+                    InetAddress target_addr =
                         InetAddress.getByName( ip_addr );
 
                     if( target_addr == null )
@@ -352,9 +352,9 @@ public class BasicAdapter
 
                     if( target_addr == null )
                     {
-                        System.err.println("[ Listener: Couldn't initialize, illegal ip addr " + 
+                        System.err.println("[ Listener: Couldn't initialize, illegal ip addr " +
                                            ip_addr +" ]");
-                        throw new org.omg.CORBA.INITIALIZE("Listener: Could not initialize. " + 
+                        throw new org.omg.CORBA.INITIALIZE("Listener: Could not initialize. " +
                                                            " illegal ip addr " + ip_addr,
                                                            1,
                                                            org.omg.CORBA.CompletionStatus.COMPLETED_NO );
@@ -362,35 +362,34 @@ public class BasicAdapter
 
                     if( oa_port != null )
                     {
-                        serverSocket = 
-                            factory.createServerSocket( Integer.parseInt( oa_port), 
-                                                        20, 
+                        serverSocket =
+                            factory.createServerSocket( Integer.parseInt( oa_port),
+                                                        20,
                                                         target_addr );
                     }
                     else
                     {
-                        serverSocket = 
+                        serverSocket =
                             factory.createServerSocket( 0, 20, target_addr );
                     }
 
                     setAddress( target_addr );
                 }
 
-                port = serverSocket.getLocalPort();                
-            } 
-            catch (Exception e) 
+                port = serverSocket.getLocalPort();
+            }
+            catch (Exception e)
             {
                 Debug.output(2,e);
-                throw new org.omg.CORBA.INITIALIZE("ORB Listener: could not initialize, illegal address config.?!", 
+                throw new org.omg.CORBA.INITIALIZE("ORB Listener: could not initialize, illegal address config.?!",
                                           1,
                                          org.omg.CORBA.CompletionStatus.COMPLETED_NO);
-                // System.exit(1);
             }
 
             if( ssl_socket_factory == null )
             {
                 //can't be SSL, if no corresponding factory is present
-                is_ssl = false; 
+                is_ssl = false;
             }
             else
             {
@@ -410,7 +409,7 @@ public class BasicAdapter
 
         private void setAddress( InetAddress addr )
         {
-            address_string = 
+            address_string =
                 org.jacorb.orb.dns.DNSLookup.inverseLookup( addr );
 
             if( address_string == null )
@@ -419,19 +418,19 @@ public class BasicAdapter
 
                 if( address_string.indexOf( "/" ) >= 0 )
                 {
-                    address_string = 
-                        address_string.substring( 
+                    address_string =
+                        address_string.substring(
                               address_string.indexOf( "/" ) + 1 );
                 }
             }
 
             Debug.output( 2, "Set BasicListener address string to " +
-                          address_string );            
+                          address_string );
         }
 
         private void setAddress( String ip )
         {
-            address_string = 
+            address_string =
                 org.jacorb.orb.dns.DNSLookup.inverseLookup( ip );
 
             if( address_string == null )
@@ -440,21 +439,21 @@ public class BasicAdapter
             }
 
             Debug.output( 2, "Set BasicListener address string to " +
-                          address_string );            
+                          address_string );
         }
 
         public String getAddress()
         {
             return address_string;
         }
-                   
-        public void run() 
+
+        public void run()
         {
             // setPriority(Thread.MAX_PRIORITY);
             while( do_run )
             {
                 try
-                {                                      
+                {
                     Socket socket = serverSocket.accept();
 
                     if( timeout > 0 )
@@ -470,32 +469,32 @@ public class BasicAdapter
                         ssl_socket_factory.switchToClientMode( socket );
                     }
 
-                    Transport transport = 
+                    Transport transport =
                         transport_manager.createServerTransport( socket, is_ssl );
 
-                    GIOPConnection connection = 
+                    GIOPConnection connection =
                         giop_connection_manager.createServerGIOPConnection(
                             transport,
                             request_listener,
                             reply_listener );
-                    
+
                     receptor_pool.connectionCreated( connection );
-                } 
+                }
                 catch( Exception e )
                 {
                     if( do_run )
                         Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT, e );
                 }
             }
-                        
-            Debug.output( Debug.INFORMATION | Debug.ORB_CONNECT, 
+
+            Debug.output( Debug.INFORMATION | Debug.ORB_CONNECT,
                           "Listener exited");
-        }               
-        
+        }
+
         public void doStop()
         {
             do_run = false;
-            
+
             try
             {
                 serverSocket.close();
@@ -504,12 +503,6 @@ public class BasicAdapter
             {
                 Debug.output( Debug.INFORMATION | Debug.ORB_CONNECT, e );
             }
-        }            
+        }
     }
 }
-
-
-
-
-
-
