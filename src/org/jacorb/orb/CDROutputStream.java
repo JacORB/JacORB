@@ -1158,7 +1158,7 @@ public class CDROutputStream
     public final void write_longlong (final long value)
     {
         check(15,8);
-        org.jacorb.util.Debug.output( "### CDROutputStream::write_longlong:" + value );
+
         buffer[pos]   = (byte)((value >>> 56) & 0xFF);
         buffer[pos+1] = (byte)((value >>> 48) & 0xFF);
         buffer[pos+2] = (byte)((value >>> 40) & 0xFF);
@@ -2310,16 +2310,6 @@ public class CDROutputStream
             write_value_header( streamable._truncatable_ids() );
             start_chunk();
             ((org.omg.CORBA.portable.StreamableValue)value)._write(this);
-            end_chunk();
-        }
-        else if (value instanceof org.omg.CORBA.portable.CustomValue )
-        {
-            org.omg.CORBA.DataOutputStream outputStream = new DataOutputStream( this );
-
-            write_value_header
-                ( ((org.omg.CORBA.portable.CustomValue )value )._truncatable_ids() );
-            start_chunk();
-            ( ( org.omg.CORBA.portable.CustomValue ) value ).marshal( outputStream );
             end_chunk();
         }
         else
