@@ -24,6 +24,20 @@ public class CodeSet
         return "Unknown TCS: " + Integer.toHexString(cs);
     }
 
+    public static int getTCSDefault()
+    {
+        return ISO8859_1;
+    }
+
+    public static int getTCSWDefault()
+    {
+        return UTF16;
+    }
+
+    public static int getConversionDefault()
+    {
+        return UTF8;
+    }
 }
 
 

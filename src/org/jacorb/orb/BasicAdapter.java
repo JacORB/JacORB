@@ -711,10 +711,10 @@ public class BasicAdapter
                                 orb.getBasicAdapter().replyPending();
                                 
                                 // devik: look for codeset context if not negotiated yet
-                                if(!connection.isTCSNegotiated())
+                                if( !connection.isTCSNegotiated() )
                                 {
                                     // look for codeset service context
-                                    connection.setServerCodeSet(request.getServiceContext());
+                                    connection.setServerCodeSet( request.getServiceContext() );
                                 }
                                 
                                 deliverRequest( request );

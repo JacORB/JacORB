@@ -250,7 +250,7 @@ public class ConnectionManager
                 {
                     try
                     {
-                        s.setSoTimeout(Integer.parseInt(prop));
+                        s.setSoTimeout( Integer.parseInt(prop) );
                     } 
                     catch ( java.lang.NumberFormatException nfe )
                     {

@@ -153,6 +153,140 @@ public class ClientConnection
         return mysock;
     }
 
+
+    /**
+     * This  code selects the appropriate codeset  for connection from
+     * information  contained in  some IOR. Code  is called  by client
+     * side connection.  Returns true  if common codeset was found and
+     * so that it should be sent in context.  
+     */
+
+    protected boolean selectCodeSet( ParsedIOR pior )
+    {
+	for( int i = 0; i < pior.taggedComponents.length; i++ )
+	{
+	    if( pior.taggedComponents[i].tag != org.omg.IOP.TAG_CODE_SETS.value ) 
+		continue;
+
+	    Debug.output(4, "TAG_CODE_SETS found");			
+
+	    // get server cs from IOR 
+	    CDRInputStream is =
+		new CDRInputStream( orb, pior.taggedComponents[i].component_data);
+
+	    is.openEncapsulatedArray();
+
+	    org.omg.CONV_FRAME.CodeSetComponentInfo inf = 
+		org.omg.CONV_FRAME.CodeSetComponentInfoHelper.read( is );
+		
+	    // char data
+            int tmpTCS = 
+                selectCodeSet( inf.ForCharData, CodeSet.getTCSDefault() );
+
+	    if( tmpTCS == 0 ) 
+		tmpTCS = selectCodeSet( inf.ForCharData, 
+                                     CodeSet.getConversionDefault() );
+            if( tmpTCS == 0 ) 
+                return false;
+            else
+                TCS = tmpTCS;
+			
+	    // wchar data
+	    int tmpTCSW = 
+                selectCodeSet( inf.ForWcharData, CodeSet.getTCSWDefault() );
+
+	    if( tmpTCSW == 0) 
+		tmpTCSW = selectCodeSet( inf.ForWcharData, 
+                                         CodeSet.getConversionDefault() );
+	    if( tmpTCSW == 0) 
+		return false;
+            else
+                TCSW = tmpTCSW;
+
+	    Debug.output(4,"selected TCS: " + CodeSet.csName(TCS) +
+                         ", TCSW: " + CodeSet.csName(TCSW));
+	    return true;
+	}
+
+	/* if we  are here then no tagged component was found
+        */
+
+	TCS = CodeSet.getTCSDefault();
+	TCSW = CodeSet.getTCSWDefault();
+		
+	// mark as negotiated, why if it's not true ? because we don't
+	// want to try negotiate on each IOR until IOR with codeset is found.
+	// TODO(devik): Or should we ???
+
+	markTcsNegotiated();
+		
+	Debug.output(4,"default TCS selected: "+CodeSet.csName(TCS)+"," +
+                                 CodeSet.csName(TCSW));
+	return false;
+    }	
+
+    protected int selectCodeSet( org.omg.CONV_FRAME.CodeSetComponent scs,
+				 int ourNative )
+    {
+	// check if we support server's native sets
+	if( scs.native_code_set == ourNative ) 
+	    return ourNative;
+		
+	// is our native CS supported at server ?
+	for( int i = 0; i < scs.conversion_code_sets.length; i++)
+	{
+	    if( scs.conversion_code_sets[i] == ourNative ) 
+		return ourNative;
+	}
+		
+	// can't find supported set ..
+	return 0;
+    }
+
+
+    /**
+     * Adds code set service context to another contexts if needed.
+     */
+
+    public org.omg.IOP.ServiceContext [] addCodeSetContext( org.omg.IOP.ServiceContext [] ctx,
+							    ParsedIOR pior)
+    {		
+	// if already negotiated, don't send any further cs contexts
+	// we should test it also directly before calling this method
+	// as performance optimization
+
+	if( isTCSNegotiated() || !Environment.charsetSendCtx()) 
+	    return ctx;
+		
+	// not negotiated but also TCS is not selected, so select one
+	// if it can't be selected (ior doesn't contain codesets) don't change ctx
+	if( !isTCSNegotiated() ) 
+            //	if( TCS == 0 ) 
+	{
+	    if(!selectCodeSet(pior)) 
+		return ctx;
+	}
+
+	// encapsulate context
+
+	CDROutputStream os = new CDROutputStream( orb );
+	os.write_boolean(false);
+	org.omg.CONV_FRAME.CodeSetContextHelper.write(os,
+						      new org.omg.CONV_FRAME.CodeSetContext(TCS,TCSW));
+		
+	org.omg.IOP.ServiceContext [] ncx =
+            new org.omg.IOP.ServiceContext[ctx.length+1];
+
+	System.arraycopy(ctx,0,ncx,0,ctx.length);
+	ncx[ctx.length] = 
+            new org.omg.IOP.ServiceContext(org.omg.IOP.TAG_CODE_SETS.value,
+                                           os.getBufferCopy());
+
+	// Debug.output(4,"TCS ctx added: "+CodeSet.csName(TCS)+","+CodeSet.csName(TCSW));
+	return ncx;
+    }	
+
+
     /**
      *	Close a connection. Should only be done directly if the connection
      *  is broken or idCount has reached zero. Otherwise, use releaseConnection.

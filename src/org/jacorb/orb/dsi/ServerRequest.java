@@ -75,9 +75,11 @@ public class ServerRequest
 	this.orb = orb;
 	in = new RequestInputStream( orb,_buf);
 	connection = _connection;
-        in.setCodeSet( connection.TCS, connection.TCSW );
 
-	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key);
+        if( connection.isTCSNegotiated() )
+            in.setCodeSet( connection.TCS, connection.TCSW );
+
+	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key );
     }
 
     /** if this request could not be delivered directly to the

@@ -129,6 +129,40 @@ public class ServerConnection
         return mysock != null;
     }
 
+    /**
+     * Called on server side connection to evaluate requext contexts and
+     * set TCS if one found. Returns true if TCS was correctly set.
+     * Currently it's called from BasicAdapter.
+     */
+
+    public boolean setServerCodeSet( org.omg.IOP.ServiceContext [] ctx )
+    {
+        if( !Environment.charsetScanCtx() ) 
+	    return false;
+
+	// search all contexts until TAG_CODE_SETS found
+	for( int i = 0; i < ctx.length; i++ )
+	{
+	    if( ctx[i].context_id != org.omg.IOP.TAG_CODE_SETS.value ) 
+		continue;
+			
+	    // TAG_CODE_SETS found, demarshall
+	    CDRInputStream is = new CDRInputStream( orb, ctx[i].context_data);
+	    is.setLittleEndian(is.read_boolean());
+	    org.omg.CONV_FRAME.CodeSetContext csx =
+		org.omg.CONV_FRAME.CodeSetContextHelper.read(is);
+
+	    TCSW = csx.wchar_data;
+	    TCS = csx.char_data;
+	    markTcsNegotiated();
+
+	    Debug.output(4, "TCS set: "+CodeSet.csName(TCS)+","+
+                                     CodeSet.csName(TCSW));
+	    return true;
+	}
+	return false; // no TAG_CODE_SETS here
+    }
+	
 
     /**
      *	Close a connection. Should only be done directly if the connection

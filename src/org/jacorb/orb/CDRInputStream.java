@@ -49,21 +49,21 @@ public class CDRInputStream
     private int marked_index;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
-    private int codeSet =  CodeSet.UTF8;
-    private int codeSetW=  CodeSet.UTF16;
+    private int codeSet =  CodeSet.getTCSDefault();
+    private int codeSetW=  CodeSet.getTCSWDefault();
     private int minorGIOPVersion = 1; // needed to determine size in chars
 
     private boolean closed = false;
 
     public boolean littleEndian = false;
 	
-
     /** indices into the actual buffer */
     protected byte[] buffer = null;
     protected int pos = 0;
     protected int index = 0;
 
-    /** for this stream to be able to return a live object reference,
+    /** 
+        for this stream to be able to return a live object reference,
 	a full ORB (not the Singleton!) must be known. If this stream 
 	is used only to demarshal base type data, the Singleton is enough
     */
