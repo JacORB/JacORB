@@ -1,0 +1,87 @@
+// Tests.idl contains examples of various IDL types
+
+#pragma prefix "jacorb.org"
+
+module Tests
+{
+   // bound for Sequences and Arrays
+   const long Bound = 10;   
+
+   // example empty Exception
+   exception EmptyException {};
+
+   // example non-empty Exception
+   exception NonEmptyException
+   {
+      long field1;
+      string field2;
+   };
+   
+   // example unbounded Sequence
+   typedef sequence< long > UnboundedData;
+
+   // example bounded Sequence
+   typedef sequence< long, Bound > BoundedData;
+   
+   // example of an Array
+   typedef long ArrayType[Bound];
+
+   // example Enum type
+   enum EnumType {first, second, third, fourth, fifth};
+
+   // example Struct type
+   struct StructType
+   {
+      long field1;
+      string field2;
+   };      
+
+   // example Union type with a default case (enumeration discriminator)
+   union UnionDefaultType switch (EnumType)
+   {
+      case first: long win;
+      case second: short place;
+      case third:
+      case fourth: octet show;
+      default: boolean other;
+   };   
+
+   // example Union type without a default case (enumeration discriminator)
+   union UnionNoDefaultType switch (EnumType)
+   {
+      case first: long win;
+      case second: short place;
+      case third:
+      case fourth: octet show;
+   };   
+
+   // example Union type that uses full range of discriminator values
+   // (enumeration discriminator)
+   union UnionFullRangeType switch (EnumType)
+   {
+      case first: long win;
+      case second: short place;
+      case third:
+      case fourth: 
+      case fifth: octet show;
+   };
+
+   // example Union type with a default case (integer discriminator)
+   union UnionDefaultIntType switch (short)
+   {
+      case 0: long win;
+      case 1: short place;
+      case 2:
+      case 3: octet show;
+      default: boolean other;
+   };   
+
+   // example Union type without a default case (integer discriminator)
+   union UnionNoDefaultIntType switch (short)
+   {
+      case 0: long win;
+      case 1: short place;
+      case 2:
+      case 3: octet show;
+   };   
+};
