@@ -57,7 +57,8 @@ brose@inf.fu-berlin.de
  -------------------------------------------
 next
         - added support for inverse DNS lookup of IP addresses, so IORs
-          contain fully qualified host names instead of IP numbers.
+          contain fully qualified host names instead of IP numbers. See
+          INSTALL file for details.
         
         - added properties "jacorb.ior_proxy_[host|port]" that replace
           the actual host/port where the ORB listens for requests. This
@@ -67,7 +68,11 @@ next
           object reference caused the irregular termination of other 
           concurrent requests over that reference.
   
-
+        - added property "custom.props" which can contain a comma separated
+          list of additional properties files. These properties will override
+          properties set in the jacorb.properties file. This is useful for 
+          setups with multiple servers/clients, where each process needs its
+          own configuration.   
 
 1.3.21
         - internal redesign: all package names now begin with "org.jacorb"
