@@ -254,6 +254,7 @@ public class GlobalInputStream
 
             if (ch == -1)
             {
+                // the following line was moved here to fix bug #385
                 currentStream().close();
                 if (included)
                 {
