@@ -32,7 +32,7 @@ $Revision$
 % uniform formatting of a command line, includes leading $
 \newcommand{\cmdline}[1]{\begin{small}\noindent \texttt{\$ #1}\end{small}}
 
-% Use these instead of writing version numbers directly, so 
+% Use these instead of writing version numbers directly, so
 % version changes only have to be made in one place
 \newcommand{\JacORBDir}{JacORB1\_4\_beta4}
 \newcommand{\JacORBVersion}{1.4 beta 4}
@@ -76,8 +76,8 @@ ftp.inf.fu-berlin.de} from the directory {\tt pub/jacorb/}.
 To install JacORB, just unzip  and untar (or simply unzip) the archive
 somewhere.  This will result  in a new directory {\tt \JacORBDir}.
 Make   sure  your   CLASSPATH  environment   variable   contains  {\tt
-\JacORBDir/lib/jacorb.jar}. Extend  your search path  with 
-{\tt  \JacORBDir/bin}, so  that the shell scripts and batch files  for 
+\JacORBDir/lib/jacorb.jar}. Extend  your search path  with
+{\tt  \JacORBDir/bin}, so  that the shell scripts and batch files  for
 the utilities in this directory are found.
 
 \section{Installation}
@@ -128,12 +128,12 @@ following places:
         java programm that prints out this property.
   \item in the current directory.
   \item in the {\tt lib} directory of the JDK installation. The JDKs
-        home directory is obtained by calling 
+        home directory is obtained by calling
         {\tt System.getProperty( "java.home" )}.
 \end{enumerate}
 
 The places are searched in the order presented above. If a properties
-file is found, it is loaded and searching is terminated. 
+file is found, it is loaded and searching is terminated.
 
 For  more  application--specific  properties,  you  can  pass  a  {\tt
   java.util.Properties} object to  {\tt ORB.init()} during application
@@ -143,9 +143,9 @@ For  more  application--specific  properties,  you  can  pass  a  {\tt
   containing command line arguments):
 
 \small{
-\begin{verbatim}            
+\begin{verbatim}
     java.util.Properties props = new java.util.Properties();
-    props.setProperty("jacorb.implname","StandardNS"); 
+    props.setProperty("jacorb.implname","StandardNS");
     // use put() under Java 1.1
 
     org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, props);
@@ -182,7 +182,7 @@ single file, and you only have to add one command line property, for example:
 \cmdline{jaco -Dcustom.props=ssl\_props MyServer}
 
 We are now ready to have a look at the most basic JacORB configuration
-properties.  Here is an example {\tt jacorb\_properties} file: 
+properties.  Here is an example {\tt jacorb\_properties} file:
 
 \renewcommand{\baselinestretch}{0.9}
 \small{
@@ -200,12 +200,12 @@ properties.  Here is an example {\tt jacorb\_properties} file:
 #
 # URLs where IORs are stored (used in orb.resolve_initial_service())
 # DO EDIT these! (Only those that you are planning to use,
-# of course ;-). 
+# of course ;-).
 #
-# The ORBInitRef references are created on ORB startup time. In the 
-# cases of the services themselves, this may lead to exceptions being 
+# The ORBInitRef references are created on ORB startup time. In the
+# cases of the services themselves, this may lead to exceptions being
 # displayed (because the services aren't up yet). These exceptions
-# are handled properly and cause no harm! 
+# are handled properly and cause no harm!
 
 #ORBInitRef.NameService=corbaloc::160.45.110.41:38693/\
 #                       StandardNS/NameServer%2DPOA/_root
@@ -224,7 +224,7 @@ jacorb.ProxyServerURL=http://www.x.y.z/~user/Appligator_Ref
 ##################################
 
 # use (java) jacorb.util.CAD to generate an appropriate
-# verbosity level 
+# verbosity level
 # 0 = off
 # 1 = important messages and exceptions
 # 2 = informational messages and exceptions
@@ -236,7 +236,7 @@ jacorb.verbosity=1
 
 ##################################################
 #                                                #
-#    WARNING: The following properties should    # 
+#    WARNING: The following properties should    #
 #    only be edited by the expert user. They     #
 #    can be left untouched for most cases!       #
 #                                                #
@@ -321,7 +321,7 @@ Please see chapter \ref{POA} on the POA for more details.
 You can now test your installation  by typing {\tt ant} in one of the
 subdirectories of the {\tt demo/} directory which contains a number of
 examples for using JacORB.
-    
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Getting Started}
@@ -368,8 +368,8 @@ the source code for this example can be found in {\tt
 // IDL definition of a 2-D grid:
 module demo
 {
-  module grid 
-  { 
+  module grid
+  {
     interface MyServer
     {
         typedef fixed <5,2> fixedT;
@@ -382,7 +382,7 @@ module demo
 
         // return element [n,m] of the grid:
         fixedT get(in short n, in short m);
-        
+
         exception MyException
         {
             string why;
@@ -397,7 +397,7 @@ module demo
 
 \section{Generating Java classes}
 
-Feeding this file into the IDL compiler 
+Feeding this file into the IDL compiler
 
 \cmdline{idl -d ../..  server.idl}
 
@@ -461,13 +461,13 @@ package demo.grid;
 
 import demo.grid.MyServerPackage.MyException;
 
-public class gridImpl  
+public class gridImpl
     extends MyServerPOA
 {
     protected short height = 31;
     protected short width = 14;
     protected java.math.BigDecimal[][] mygrid;
- 
+
     public gridImpl()
     {
         mygrid = new java.math.BigDecimal[height][width];
@@ -537,15 +537,15 @@ public class Server
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
         try
         {
-            org.omg.PortableServer.POA poa = 
+            org.omg.PortableServer.POA poa =
                 org.omg.PortableServer.POAHelper.narrow(
                      orb.resolve_initial_references("RootPOA"));
-            
+
             poa.the_POAManager().activate();
 
             org.omg.CORBA.Object o = poa.servant_to_reference(new gridImpl());
 
-            if( args.length == 1 ) 
+            if( args.length == 1 )
             {
                 // write the object reference to args[0]
 
@@ -554,17 +554,17 @@ public class Server
                                        new File( args[0] )));
                 ps.println( orb.object_to_string( o ) );
                 ps.close();
-            } 
+            }
             else
             {
-                // register with the naming service             
+                // register with the naming service
 
-                NamingContextExt nc = 
+                NamingContextExt nc =
                      NamingContextExtHelper.narrow(
                         orb.resolve_initial_references("NameService"));
-                nc.bind( nc.to_name("grid.example"), o);        
+                nc.bind( nc.to_name("grid.example"), o);
             }
-        } 
+        }
         catch ( Exception e )
         {
             e.printStackTrace();
@@ -616,8 +616,8 @@ import org.omg.CosNaming.*;
 
 public class Client
 {
-   public static void main(String args[]) 
-   { 
+   public static void main(String args[])
+   {
        try
        {
            MyServer grid;
@@ -625,7 +625,7 @@ public class Client
 
            if(args.length==1 )
            {
-               // args[0] is an IOR-string 
+               // args[0] is an IOR-string
                grid = MyServerHelper.narrow(orb.string_to_object(args[0]));
            }
            else
@@ -647,26 +647,26 @@ public class Client
             x -= 1;
             y -= 1;
 
-            System.out.println("Old value at (" + x + "," + y +"): " + 
+            System.out.println("Old value at (" + x + "," + y +"): " +
                                grid.get( x,y));
 
             System.out.println("Setting (" + x + "," + y +") to 470.11");
-                
+
             grid.set( x, y, new java.math.BigDecimal("470.11"));
 
-            System.out.println("New value at (" + x + "," + y +"): " + 
+            System.out.println("New value at (" + x + "," + y +"): " +
                                grid.get( x,y));
 
-           try 
+           try
            {
                grid.opWithException();
            }
-           catch (jacorb.demo.grid.MyServerPackage.MyException ex) 
+           catch (jacorb.demo.grid.MyServerPackage.MyException ex)
            {
                System.out.println("MyException, reason: " + ex.why);
            }
        }
-       catch (Exception e) 
+       catch (Exception e)
        {
            e.printStackTrace();
        }
@@ -692,14 +692,14 @@ server is running before starting  either the server or the client. If
 it isn't, type something like:
 
 \cmdline{ns /home/me/public\_html/NS\_Ref}
-    
+
 where  {\tt /home/me/public\_html/NS\_Ref}  is the  name of  a locally
 writable file  which can be  read by using  the URL given in  both the
 remote client and  server code. (This is to  avoid using a well--known
 address for  the name server,  so both client  and server look  up the
 location of the  name server via the URL and  later communicate with it
 directly.)
-    
+
 You can now launch the server:
 
 \cmdline{jaco demo.grid.Server}
@@ -707,7 +707,7 @@ You can now launch the server:
 The client can be invoked on any machine you like:
 
 \cmdline{jaco demo.grid.Client}
-    
+
 Running the  client after starting  the server produces  the following
 output on your terminal:
 
@@ -735,7 +735,7 @@ package demo.grid;
 
 import demo.grid.MyServerPackage.MyException;
 
-public class gridOperationsImpl  
+public class gridOperationsImpl
     implements MyServerOperations
 {
 ...
@@ -754,24 +754,24 @@ public class TieServer
 {
     public static void main( String[] args )
     {
-        org.omg.CORBA.ORB orb = 
+        org.omg.CORBA.ORB orb =
             org.omg.CORBA.ORB.init(args, null);
         try
         {
-            org.omg.PortableServer.POA poa = 
+            org.omg.PortableServer.POA poa =
                 org.omg.PortableServer.POAHelper.narrow(
                      orb.resolve_initial_references("RootPOA"));
 
             // use the operations implementation and wrap it in
             // a tie object
 
-            org.omg.CORBA.Object o = 
-                poa.servant_to_reference( 
+            org.omg.CORBA.Object o =
+                poa.servant_to_reference(
                      new MyServerPOATie( new gridOperationsImpl()) );
 
             poa.the_POAManager().activate();
 
-            if( args.length == 1 ) 
+            if( args.length == 1 )
             {
                 // write the object reference to args[0]
 
@@ -779,17 +779,17 @@ public class TieServer
                     new FileOutputStream(new File( args[0] )));
                 ps.println( orb.object_to_string( o ) );
                 ps.close();
-            } 
+            }
             else
             {
-                NamingContextExt nc = 
+                NamingContextExt nc =
                      NamingContextExtHelper.narrow(
                         orb.resolve_initial_references("NameService"));
                 NameComponent [] name = new NameComponent[1];
                 name[0] = new NameComponent("grid", "whatever");
                 nc.bind( name, o );
             }
-        } 
+        }
         catch ( Exception e )
         {
             e.printStackTrace();
@@ -867,7 +867,7 @@ looks like
 
 \noindent{\tt file:/home/brose/public\_html/NS\_Ref}
 
-rather than 
+rather than
 
 \noindent\verb+http://www.inf.fu-berlin.de/~brose/NS_Ref+
 
@@ -916,7 +916,7 @@ defined  interface:
    org.omg.CORBA.Object o = orb.resolve_initial_references("NameService")
    NamingContextExt nc = NamingContextExtHelper.narrow( o );
 
-   // look up an object 
+   // look up an object
    server s = serverHelper.narrow( nc.resolve(nc.to_name("server.service")) );
 \end{verbatim}
 }
@@ -952,15 +952,15 @@ subcontext using a given name and return a reference to it:
 \small{\begin{verbatim}
    // get a reference to the naming service
    ORB orb = ORB.init();
-   org.omg.CORBA.Object o = 
+   org.omg.CORBA.Object o =
       orb.resolve_initial_references("NameService");
-   NamingContextExt rootContext = 
+   NamingContextExt rootContext =
       NamingContextExtHelper.narrow( o );
 
-   // look up an object 
+   // look up an object
    NameComponent[] name = new NameComponent[1];
    name[0] = new NameComponent("sub","context");
-   NamingContextExt subContext = 
+   NamingContextExt subContext =
      NamingContextExtHelper.narrow( rootContext.bind_new_context( name ));
 \end{verbatim}}
 
@@ -1038,7 +1038,7 @@ programming languages using the  standard language mappings, but which
 is  locality constrained.  This means  that references  to  objects of
 these types may not be passed outside of a server's address space. The
 POA  interface  itself  is  one  example of  a  locality--constrained
-interface.  
+interface.
 
 The  object adapter  is that  part of  CORBA that  is  responsible for
 creating CORBA  objects and  object references and  --- with  a little
@@ -1095,7 +1095,7 @@ all.  In other  words --- and that is a  rock-solid principle on which
 the whole of the Corporation's Galaxywide success is founded --- their
 fundamental design  flaws are  completely hidden by  their superficial
 design flaws.''
-    
+
              D. Adams: So Long and Thanks for all the Fish
 \end{quote}
 
@@ -1214,7 +1214,7 @@ lifespan policy. This is done as in the following code snippet:
 \begin{verbatim}
     /* init ORB and root POA */
     orb = org.omg.CORBA.ORB.init(args, props);
-    org.omg.PortableServer.POA rootPOA = 
+    org.omg.PortableServer.POA rootPOA =
         org.omg.PortableServer.POAHelper.narrow(
                         orb.resolve_initial_references("RootPOA"));
 
@@ -1228,10 +1228,10 @@ lifespan policy. This is done as in the following code snippet:
 
     /* create POA */
 
-    POA myPOA = rootPOA.create_POA("XYZPOA", 
+    POA myPOA = rootPOA.create_POA("XYZPOA",
                                 rootPOA.the_POAManager(), policies);
 
-    /* activate POAs */                              
+    /* activate POAs */
     poa.the_POAManager().activate();
 
 \end{verbatim}
@@ -1306,7 +1306,7 @@ references do not contain addressing information for the slow machine,
 so server migration can be done transparently to client.
 
 Assuming  that you  added your  server to  the repository,  and  it is
-running  correctly.  
+running  correctly.
 
 \cmdline{imr\_mg add AServerName -h a\_slow\_machine -c "jaco MyServer"}
 
@@ -1388,7 +1388,7 @@ don't consider this list to be complete:
 \label{Ch_dynany}
 
 The purpose of this chapter is to describe the DynAny specification,
-which is the specification for the dynamic management of Any values. 
+which is the specification for the dynamic management of Any values.
 This chapter only describes the main features of the DynAny
 specification; for the complete specification consult the appropriate
 chapter of the CORBA specification available from the OMG.
@@ -1450,7 +1450,7 @@ interfaces in the DynamicAny module and the types they represent.
 \section{Usage Constraints}
 
 Objects that implement interfaces in the DynamicAny module are
-intended to be local to the process that constructs and uses them. 
+intended to be local to the process that constructs and uses them.
 As a result, references to these objects cannot be exported to other
 processes or externalized using ORB::object\_to\_string;  an
 operation that attempts to do so will throw the MARSHAL system
@@ -1458,7 +1458,7 @@ exception.
 
 \section{Creating a DynAny Object}
 
-The DynAnyFactory interface is used to create a DynAny object.	There
+The DynAnyFactory interface is used to create a DynAny object.  There
 are two operations for creating a DynAny object; these are listed in
 the table below.
 
@@ -1481,7 +1481,7 @@ the table below.
 
 The example below illustrates how to obtain a reference to the
 DynAnyFacory object and then use it to construct a DynAny object with
-each of the create operations.	Exception handling is omitted for
+each of the create operations.  Exception handling is omitted for
 brevity.
 
 The following line of code imports the classes in the DynamicAny
@@ -1601,7 +1601,7 @@ constructed types that have components, the current position is the
 index of the component DynAny that would be obtained by a call to the
 current\_component operation (described in the table below).  The
 component DynAnys of a DynAny object are indexed from 0 to n-1, where
-n is the number of components.	For DynAnys representing basic types,
+n is the number of components.  For DynAnys representing basic types,
 or constructed types that do not have components, the current
 position is fixed at the value -1.
 
@@ -1636,7 +1636,7 @@ available for traversing a DynAny object.
 
 The following code segment illustrates one way of traversing the
 component DynAnys of a DynStruct object.  As the DynStruct is
-traversed, the value of each component is obtained and printed. 
+traversed, the value of each component is obtained and printed.
 Exception handling is omitted for brevity.
 
 \begin{small}
@@ -1703,7 +1703,7 @@ A DynFixed object has no components.
 
 \subsection{DynEnum}
 
-A DynEnum object represents a single enumerated value.	The integer
+A DynEnum object represents a single enumerated value.  The integer
 (ordinal) value of the enumerated value can be accessed with the
 get\_as\_ulong and set\_as\_ulong operations.  The string (IDL
 identifier) value of the enumerated value can be accessed with the
@@ -1713,7 +1713,7 @@ A DynEnum object has no components.
 
 \subsection{DynStruct}
 
-A DynStruct object represents a struct value or an exception value. 
+A DynStruct object represents a struct value or an exception value.
 The current\_member\_name and current\_member\_kind operations return
 the name and TCKind value of the TypeCode of the member at the
 current position of the DynStruct.  The members of the DynStruct can
@@ -1727,12 +1727,12 @@ no components.
 
 A DynUnion object represents a union value.  The value of the
 discriminator can be accessed using the get\_discriminator and
-set\_discriminator operations.	
+set\_discriminator operations.
 
 If the discriminator is set to a value that names a member of the
-union then that member becomes active.	Otherwise, if the value of
+union then that member becomes active.  Otherwise, if the value of
 the discriminator does not name a member of the union then there is
-no active member.  
+no active member.
 
 If there is an active member, the member operation returns its value
 as a DynAny object, and the member\_name and member\_kind operations
@@ -1756,7 +1756,7 @@ sequence.
 
 \subsection{DynArray}
 
-A DynArray object represents an array.	The elements of the array can
+A DynArray object represents an array.  The elements of the array can
 be accessed using the get\_elements and set\_elements operations.
 
 The component DynAnys of a DynArray object are the elements of the
@@ -2022,9 +2022,9 @@ exception if your applet needs to use the name server.
 
 \subsubsection*{Starting Appligator}
 
-Just type  
+Just type
 
-\cmdline{appligator <port> <filename>} 
+\cmdline{appligator <port> <filename>}
 
 to  start the  proxy  on port  {\tt  port}.  {\tt  <filename>} is  the
 location where the IOR of  the Appligator is written to. This location
@@ -2038,7 +2038,7 @@ below).
     \item init the  ORB with {\tt jacorb.orb.init(applet,properties)},
 where   applet    is   this    applet   and   properties    are   {\tt
 java.util.Properties} (which can be null)
-        
+
     \item put a {\tt jacorb.properties} file in the directory of the applet
 
     \item specify the location for the appligator IOR file in the {\tt
@@ -2065,9 +2065,9 @@ be specified too.
 
 Properties can be set in three ways:
 \begin{enumerate}
-     \item   in  the  {\tt ORB.init()}  call  with  the  
+     \item   in  the  {\tt ORB.init()}  call  with  the
      {\tt java.util.Properties}parameter
-                 
+
      \item  in the {\tt  jacorb\_properties} file  located in  the same
      directory as the applet
 
@@ -2201,7 +2201,7 @@ traffic look  like HTTP traffic to  the firewall. HTTP  tunneling is a
 built--in feature of  JacORB and produces correct HTTP  1.1 messages so
 that your firewalls sees a HTTP request (from your CORBA client to the
 CORBA server) and a HTTP reply  (from the CORBA server to your client)
-for each method  you call on the server.  
+for each method  you call on the server.
 
 HTTP tunneling in JacORB is not compatible with any OMG standard so it
 will  work between  JacORB  clients and  servers  only.  Every  JacORB
@@ -2290,7 +2290,7 @@ required:
 
 \begin{itemize}
         \item JDK 1.2 or later,
-        
+
         \item when using IAIKs libraries:
               \begin{itemize}
                 \item IAIK-JCE 2.591 or later, the security provider classes
@@ -2358,7 +2358,7 @@ signing  the certificate,  a CA  supports  the identity  claim of  the
 certificate  subject. Whose  signature is  accepted as  trustworthy is
 just a matter  of configuration, but normally proper  CAs are expected
 to only sign certificates that  they have carefully scrutinized --- or
-even created themselves. 
+even created themselves.
 
 \bigskip
 \centerline{\epsfig{file=Keystore.eps, width=11cm}}
@@ -2373,7 +2373,7 @@ your own public  key certificate as generated by the  key store. It is
 automatically signed with its own  private key. Second in the chain is
 the public key certificate that is signed by the CA. The last entry in
 a key  chain must hold the  CA's public key  certificate, signed using
-its private key. Trust in the CA key is ``axiomatic''. 
+its private key. Trust in the CA key is ``axiomatic''.
 
 \bigskip
 \centerline{\epsfig{file=KSMenu.eps, width=11cm}}
@@ -2483,14 +2483,14 @@ the CORBA Security Service  Specification and reproduced here from the
         typedef unsigned short   AssociationOptions;
 
         const AssociationOptions NoProtection = 1;
-        const AssociationOptions Integrity = 2; 
-        const AssociationOptions Confidentiality = 4; 
-        const AssociationOptions DetectReplay = 8; 
+        const AssociationOptions Integrity = 2;
+        const AssociationOptions Confidentiality = 4;
+        const AssociationOptions DetectReplay = 8;
         const AssociationOptions DetectMisordering = 16;
-        const AssociationOptions EstablishTrustInTarget = 32; 
+        const AssociationOptions EstablishTrustInTarget = 32;
         const AssociationOptions EstablishTrustInClient = 64;
         const AssociationOptions NoDelegation = 128;
-        const AssociationOptions SimpleDelegation = 256; 
+        const AssociationOptions SimpleDelegation = 256;
         const AssociationOptions CompositeDelegation = 512;
 \end{verbatim}
 
@@ -2499,7 +2499,7 @@ the CORBA Security Service  Specification and reproduced here from the
 % values 20, 40 or 60. NoProtection is not possible when SSL is used. If
 % you don't want protection, switch SSL support off. The following
 % sections go into some more detail about what specific property values
-% mean. 
+% mean.
 
 \subsection{Client side configuration}
 
@@ -2518,7 +2518,7 @@ keystore, because it must be prepared to authenticate to the server.
 \begin{verbatim}
    jacorb.security.ssl.client.required_options=20 //EstablishTrustInTarget
 \end{verbatim}
-This enforces SSL to be used. 
+This enforces SSL to be used.
 
 \begin{verbatim}
    jacorb.security.ssl.client.required_options=40 //EstablishTrustInClient
@@ -2593,17 +2593,17 @@ the presence of the following property, which can be added by the usual ways
 (see section \ref{configuration}):
 
 \begin{verbatim}
-   org.omg.PortableInterceptor.ORBInitializerClass.bidir_init= 
+   org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=
        org.jacorb.orb.connection.BiDirConnectionInitializer
 \end{verbatim}
 
 If this property is present on ORB startup, the corresponding policy factory
-and interceptors will be loaded. 
+and interceptors will be loaded.
 
 
 \subsection{Creating the BiDir Policy}
 Creating the necessary BiDir Policy is done via a policy factory hidden in the
-ORB. 
+ORB.
 
 \begin{verbatim}
 import org.omg.BiDirPolicy.*;
@@ -2660,7 +2660,7 @@ successful. There are two ways to solve this problem:
 \item Use {\tt ``-ORBdotteddecimaladdresses 1''} as an command line argument
   to the TAO server.
 \item Recompile JacORB with DNS support (See the INSTALL file for more
-  information). 
+  information).
 \end{enumerate}
 
 
@@ -2686,10 +2686,10 @@ doesn't have to  have any meaningful value. The  value of the property
 however has to be the fully qualified classname of the initializer. If
 the  verbosity  is  set  to  $\geq  2$  JacORB  will  display  a  {\tt
 ClassNotFoundException} in  case the initializers class is  not in the
-class path. 
+class path.
 
 An example line might look like:
-\begin{verbatim}org.omg.PortableInterceptor.ORBInitializerClass.my_init=  
+\begin{verbatim}org.omg.PortableInterceptor.ORBInitializerClass.my_init=
    test.MyInterceptorInitializer
 \end{verbatim}
 
@@ -2728,7 +2728,8 @@ automatically be generated.
 
 \noindent{\tt idl
   [-h|-help] [-v|-version] [-syntax] [-all] [-Idir] [-Dsymbol[=value]]
-  [-d <Output Dir>] [-p <package\_prefix>] [-i2jpackage <mapping>][-W debug\_level]   <filelist>}
+  [-d <Output Dir>] [-p <package\_prefix>] [-i2jpackage <mapping>]
+  [-W debug\_level] [-nofinal]   <filelist>}
 
 The option {\tt  -v} prints out a short version  string while {\tt -h}
 or {\tt -help} displays brief usage information.
@@ -2745,7 +2746,7 @@ IDL module, and another additional file per IDL interface.
 Invoking {\tt idl}  with the {\tt -syntax} option  allows you to check
 your IDL  specification for  syntactic errors without  producing code.
 Without {\tt  -syntax}, the compiler creates  directories according to
-the Java package structure. 
+the Java package structure.
 
 The  compiler  does  not,  by  default,  generate  code  for  included
 files. If that is desired, you have to use the {\tt -all} option which
@@ -2757,7 +2758,7 @@ inhibit\_code\_generation}.
 
 The {\tt-I} options allows you to specify one or more search paths for
 IDL files included from within  {\tt <filelist>}. If no path is given,
-only the  current directory will  be considered. 
+only the  current directory will  be considered.
 
 With the  {\tt -D} option you can  define symbols that can  be used by
 the  preprocessor while  processing  the  IDL file.   If  no value  is
@@ -2772,6 +2773,11 @@ Compiling a  file with  a module {\tt  ModuleX} and an  interface {\tt
   however, provide a  different directory in which these  files are to
   be placed by  using the -d option. Using the -d  option when you are
   only checking the syntax of an IDL file has no effect.
+
+By using the {\tt -nofinal} option the compiler can be made to generate
+class definitions that are not final. This will override the default
+behaviour, which is to generate final class definitions in certain
+circumstances to allow for their optimisation during compilation.
 
 With the  {\tt -p}  option it  is also possible  to specify  a package
 prefix for the generated Java  classes. E.g., if the IDL file contains
@@ -2813,7 +2819,7 @@ interfaces are mapped to Java according to our Java mapping.
 
 \cmdline{ns <filename>  [<timeout>]}
 
-or 
+or
 
 \cmdline{jaco jacorb.Naming.NameServer <filename>  [<timeout>]}
 
@@ -2885,7 +2891,7 @@ with the name server.
 \section{dior}
 
 JacORB comes with a simple utility to decode an interoperable object reference
-(IOR) in string form into a more readable representation. 
+(IOR) in string form into a more readable representation.
 
 \subsection*{Usage}
 
@@ -2904,7 +2910,7 @@ Profile Id   :  TAG_INTERNET_IOP
 IIOP Version :  1.0
 Host    :       160.45.110.41
 Port    :       49435
-Object key :    0x52 6F 6F 74 50 4F 41 3A 3A 30 D7 D1 91 E1 70 95 04 
+Object key :    0x52 6F 6F 74 50 4F 41 3A 3A 30 D7 D1 91 E1 70 95 04
 \end{verbatim}
 }
 
@@ -2949,7 +2955,7 @@ chapter \ref{SSL}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Configuration Properties}
 
-A comprehensive listing and description of the properties which are used 
+A comprehensive listing and description of the properties which are used
 to configure JacORB are given in the following tables.
 
 \begin{small}
@@ -3364,7 +3370,7 @@ to configure JacORB are given in the following tables.
 A few limitations and known bugs (list is incomplete):
 
 \begin{itemize}
-    \item the IDL compiler does not support 
+    \item the IDL compiler does not support
     \begin{itemize}
         \item the {\tt context} construct
     \end{itemize}

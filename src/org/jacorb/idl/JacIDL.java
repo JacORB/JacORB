@@ -59,6 +59,7 @@ public class JacIDL extends MatchingTask
     private boolean _sloppyforward;
     private boolean _sloppynames;
     private boolean _includestate;
+    private boolean _nofinal;
 
     private List _defines = new ArrayList();
     private List _undefines = new ArrayList();
@@ -80,6 +81,7 @@ public class JacIDL extends MatchingTask
         _noskel = false;
         _nostub = false;
         _generateincluded = false;
+        _nofinal = false;
         _debuglevel = 0;
     }
 
@@ -217,6 +219,17 @@ public class JacIDL extends MatchingTask
         _sloppynames = flag;
     }
 
+    /**
+     * Setter for 'nofinal' property that indicates whether generated code should have
+     * a final class definition.
+     * @param nofinal <code>true</true> for definitions that are not final.
+     */
+    public void setNofinal(boolean flag)
+    {
+        _nofinal = flag;
+    }
+
+
     // ****************************************************************
     // **** Nested elements
     // ******************************
@@ -277,6 +290,9 @@ public class JacIDL extends MatchingTask
 
         // sloppy names
         parser.strict_names = ( !_sloppynames );
+
+        // nofinal
+        parser.setGenerateFinalCode(!_nofinal);
 
         // include path
         if( _includepath != null )

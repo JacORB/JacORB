@@ -643,7 +643,7 @@ class ValueDecl
 
         printClassComment( out );
 
-        out.println( "public final class " + name + "Holder" );
+        out.println( "public" + parser.getFinalString() + " class " + name + "Holder" );
         out.println( "\timplements org.omg.CORBA.portable.Streamable" );
         out.println( "{" );
         out.println( "\tpublic " + javaName() + " value;" );

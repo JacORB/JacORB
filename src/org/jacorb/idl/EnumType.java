@@ -222,7 +222,7 @@ class EnumType
 
         printClassComment( className, ps );
 
-        ps.println( "public final class " + className + "Holder" );
+        ps.println( "public" + parser.getFinalString() + " class " + className + "Holder" );
         ps.println( "\timplements org.omg.CORBA.portable.Streamable" );
         ps.println( "{" );
 
@@ -262,7 +262,7 @@ class EnumType
 
         printClassComment( className, ps );
 
-        ps.println( "public final class " + className + "Helper" );
+        ps.println( "public" + parser.getFinalString() + " class " + className + "Helper" );
         ps.println( "{" );
 
         ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";" );
@@ -292,7 +292,7 @@ class EnumType
 
         printClassComment( className, pw );
 
-        pw.println( "public final class " + className );
+        pw.println( "public" + parser.getFinalString() + " class " + className );
         pw.println( "\timplements org.omg.CORBA.portable.IDLEntity\n{" );
 
         pw.println( "\tprivate int value = -1;" );

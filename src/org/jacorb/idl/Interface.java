@@ -470,7 +470,7 @@ class Interface
 
         printClassComment( classname, ps );
 
-        ps.print( "public final class " + classname + "Holder" );
+        ps.print( "public" + parser.getFinalString() + " class " + classname + "Holder" );
         ps.print( "\timplements org.omg.CORBA.portable.Streamable" );
 
         ps.println( "{" );
@@ -512,7 +512,7 @@ class Interface
 
         printClassComment( className, ps );
 
-        ps.println( "public final class " + className + "Helper" );
+        ps.println( "public" + parser.getFinalString() + " class " + className + "Helper" );
         ps.println( "{" );
 
         ps.println( "\tpublic static void insert (final org.omg.CORBA.Any any, final " + typeName() + " s)" );

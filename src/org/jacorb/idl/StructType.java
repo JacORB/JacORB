@@ -295,7 +295,7 @@ class StructType
 
         printClassComment( className, ps );
 
-        ps.println( "public final class " + className + "Holder" );
+        ps.println( "public" + parser.getFinalString() + " class " + className + "Holder" );
         ps.println( "\timplements org.omg.CORBA.portable.Streamable" );
         ps.println( "{" );
 
@@ -338,7 +338,7 @@ class StructType
 
         printClassComment( className, ps );
 
-        ps.println( "public final class " + className + "Helper" );
+        ps.println( "public" + parser.getFinalString() + " class " + className + "Helper" );
         ps.println( "{" );
         ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";" );
 
@@ -406,7 +406,7 @@ class StructType
 
         printClassComment( className, ps );
 
-        ps.println( "public final class " + className );
+        ps.println( "public" + parser.getFinalString() + " class " + className );
 
         if( exc )
             ps.println( "\textends org.omg.CORBA.UserException" );

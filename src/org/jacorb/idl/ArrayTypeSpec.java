@@ -317,7 +317,7 @@ class ArrayTypeSpec
 
         String type = typeName();
 
-        ps.println( "public final class " + className + "Holder" );
+        ps.println( "public" + parser.getFinalString() + " class " + className + "Holder" );
         ps.println( "\timplements org.omg.CORBA.portable.Streamable" );
 
         ps.println( "{" );
@@ -358,7 +358,7 @@ class ArrayTypeSpec
 
         String type = typeName();
 
-        ps.println( "public final class " + className + "Helper" );
+        ps.println( "public" + parser.getFinalString() + " class " + className + "Helper" );
         ps.println( "{" );
 
         ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = " +
