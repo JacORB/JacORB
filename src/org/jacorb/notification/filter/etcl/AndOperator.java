@@ -24,32 +24,35 @@ package org.jacorb.notification.filter.etcl;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.omg.CORBA.TCKind;
 
 import antlr.Token;
 
 /** A simple node to represent AND operation */
 
-public class AndOperator extends UnaryOperator{
+public class AndOperator extends UnaryOperator
+{
 
-    public AndOperator(Token tok) {
+    public AndOperator(Token tok)
+    {
         super(tok);
-        setKind(TCKind.tk_boolean);
+        setName(NAME);
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "and";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, 
-            EvaluationResult left)
-        throws EvaluationException {
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left)
+            throws EvaluationException
+    {
 
         boolean _l, _r;
 
         _l = left.getBool();
 
-        if (!_l) {
+        if (!_l)
+        {
             return EvaluationResult.BOOL_FALSE;
         }
 
@@ -58,30 +61,30 @@ public class AndOperator extends UnaryOperator{
         return (_r ? EvaluationResult.BOOL_TRUE : EvaluationResult.BOOL_FALSE);
     }
 
-    public boolean isStatic() {
+    public boolean isStatic()
+    {
         return (left().isStatic() && right().isStatic());
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitAnd(this);
         right().acceptInOrder(visitor);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitAnd(this);
         left().acceptPreOrder(visitor);
         right().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptPostOrder(visitor);
         right().acceptPostOrder(visitor);
         visitor.visitAnd(this);
-    }
-
-    public String getName() {
-        return NAME;
     }
 
     static final String NAME = "AndOperator";

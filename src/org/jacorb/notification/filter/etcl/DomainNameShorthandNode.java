@@ -34,8 +34,8 @@ import org.jacorb.notification.interfaces.Message;
 public class DomainNameShorthandNode
     extends ETCLComponentName {
 
-    static AbstractTCLNode expandedPath_;
-    static final String COMP_NAME = "$.header.fixed_header.event_type.domain_name";
+    private static final AbstractTCLNode expandedPath_;
+    private static final String COMP_NAME = "$.header.fixed_header.event_type.domain_name";
     public static final String SHORT_NAME = "domain_name";
 
     static {
@@ -43,6 +43,8 @@ public class DomainNameShorthandNode
             expandedPath_ = TCLParser.parse( COMP_NAME );
             expandedPath_.acceptInOrder( new TCLCleanUp() );
         } catch (Exception e) {
+            // should never happen
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -91,5 +93,4 @@ public class DomainNameShorthandNode
     public String toString() {
         return COMP_NAME;
     }
-
 }

@@ -21,9 +21,10 @@ package org.jacorb.notification.filter.etcl;
  *
  */
 
-import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.filter.EvaluationException;
 import org.omg.CORBA.Any;
+
 
 /**
  * @author Alphonse Bendt
@@ -31,5 +32,5 @@ import org.omg.CORBA.Any;
  */
 
 public interface ImplicitOperator {
-    Any evaluateImplicit(EvaluationContext context, Any value) throws EvaluationException;
+    Any evaluateImplicit(ETCLEvaluator evaluator, Any value) throws EvaluationException;
 }

@@ -33,17 +33,10 @@ import antlr.Token;
  */
 public abstract class BinaryOperator extends UnaryOperator
 {
-
     public BinaryOperator(Token tok)
     {
         super(tok);
     }
-
-    public BinaryOperator()
-    {
-        super();
-    }
-
  
     protected final EvaluationResult evaluate(EvaluationContext context, 
             EvaluationResult left)

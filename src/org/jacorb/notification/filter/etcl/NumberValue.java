@@ -28,31 +28,34 @@ import antlr.Token;
 
 /**
  * A simple node to represent a Number
+ * 
  * @version $Id$
  */
 
-public class NumberValue extends AbstractTCLNode {
+public class NumberValue extends AbstractTCLNode
+{
 
-    private Double  number_;
-    EvaluationResult result_;
+    private Double number_;
 
-    public Double getNumber() {
+    private EvaluationResult result_;
+
+    public Double getNumber()
+    {
         return number_;
     }
 
-    public String getName() {
-        return getClass().getName();
-    }
-
-    public NumberValue(Token tok) {
+    public NumberValue(Token tok)
+    {
         super(tok);
 
+        setName("NumberValue");
+        
         EvaluationResult _r = new EvaluationResult();
         number_ = new Double(tok.getText());
 
         int t = getType();
 
-        switch(t) {
+        switch (t) {
         case NUMBER:
             _r.setLong(number_);
             break;
@@ -66,13 +69,14 @@ public class NumberValue extends AbstractTCLNode {
         result_ = EvaluationResult.wrapImmutable(_r);
     }
 
-    public EvaluationResult evaluate(EvaluationContext context) {
-
+    public EvaluationResult evaluate(EvaluationContext context)
+    {
         return result_;
     }
 
-    public String toString() {
-        switch(getType()) {
+    public String toString()
+    {
+        switch (getType()) {
         case NUM_FLOAT:
             return "" + number_.floatValue();
         default:
@@ -80,23 +84,28 @@ public class NumberValue extends AbstractTCLNode {
         }
     }
 
-    public boolean isStatic() {
+    public boolean isStatic()
+    {
         return true;
     }
 
-    public boolean isNumber() {
+    public boolean isNumber()
+    {
         return true;
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitNumber(this);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitNumber(this);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitNumber(this);
     }
 }

@@ -22,8 +22,6 @@ package org.jacorb.notification.filter;
  */
 import java.lang.reflect.Field;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCodePackage.BadKind;
@@ -34,7 +32,7 @@ import org.omg.CORBA.TypeCodePackage.Bounds;
  * @version $Id$
  */
 
-public class EvaluationResult implements Configurable
+public class EvaluationResult
 {
     public static final EvaluationResult BOOL_TRUE;
 
@@ -42,13 +40,15 @@ public class EvaluationResult implements Configurable
 
     ////////////////////////////////////////
 
-    static {
+    static
+    {
         EvaluationResult _r = new EvaluationResult();
-        _r.setBool( true );
-        BOOL_TRUE = wrapImmutable( _r );
+        _r.setBool(true);
+        BOOL_TRUE = wrapImmutable(_r);
+
         _r = new EvaluationResult();
-        _r.setBool( false );
-        BOOL_FALSE = wrapImmutable( _r );
+        _r.setBool(false);
+        BOOL_FALSE = wrapImmutable(_r);
     }
 
     ////////////////////////////////////////
@@ -60,17 +60,13 @@ public class EvaluationResult implements Configurable
     private Any any_;
 
     ////////////////////////////////////////
-    public void configure (Configuration conf)
-    {
-    }
 
     protected Object getValue()
     {
         return value_;
     }
 
-
-    private Object setValue( Object value )
+    private Object setValue(Object value)
     {
         Object _old = value_;
 
@@ -79,683 +75,596 @@ public class EvaluationResult implements Configurable
         return _old;
     }
 
-
     public boolean isLongLong()
     {
         return typeCode_ == TCKind._tk_longlong;
     }
-
 
     public boolean isDouble()
     {
         return typeCode_ == TCKind._tk_double;
     }
 
-
     public boolean isFloat()
     {
         return typeCode_ == TCKind._tk_float;
     }
-
 
     public boolean isLong()
     {
         return typeCode_ == TCKind._tk_long;
     }
 
-
     public boolean isString()
     {
         return typeCode_ == TCKind._tk_string;
     }
 
-
-    public void setString( String s )
+    public void setString(String s)
     {
-        setValue( s );
+        setValue(s);
         typeCode_ = TCKind._tk_string;
     }
 
-
-    public void setFloat( float f )
+    public void setFloat(float f)
     {
-        setFloat( new Double( f ) );
+        setFloat(new Double(f));
     }
 
-
-    public void setFloat( double d )
+    public void setFloat(double d)
     {
-        setFloat( new Double( d ) );
+        setFloat(new Double(d));
     }
 
-
-    public void setFloat( Double d )
+    public void setFloat(Double d)
     {
-        setValue( d );
+        setValue(d);
         typeCode_ = TCKind._tk_float;
     }
 
-
-    public void setLongLong( long l )
+    public void setLongLong(long l)
     {
-        setLongLong( new Double( l ) );
+        setLongLong(new Double(l));
     }
 
-
-    public void setLongLong( Double d )
+    public void setLongLong(Double d)
     {
-        setValue( d );
+        setValue(d);
         typeCode_ = TCKind._tk_longlong;
     }
 
-
-    public void setLong( int l )
+    public void setLong(int l)
     {
-        setLong( new Double( l ) );
+        setLong(new Double(l));
     }
 
-
-    public void setLong( Double d )
+    public void setLong(Double d)
     {
-        setValue( d );
+        setValue(d);
         typeCode_ = TCKind._tk_long;
     }
 
-
-    public void setDouble( Double d )
+    public void setDouble(Double d)
     {
-        setValue( d );
+        setValue(d);
         typeCode_ = TCKind._tk_double;
     }
 
-
-    public void setDouble( double d )
+    public void setDouble(double d)
     {
-        setDouble( new Double( d ) );
+        setDouble(new Double(d));
     }
-
 
     public String getString() throws DynamicTypeException
     {
         try
-            {
-                return ( String ) getValue();
-            }
-        catch ( ClassCastException c )
-            {
-                throw newDynamicTypeException("String");
-            }
+        {
+            return (String) getValue();
+        } catch (ClassCastException c)
+        {
+            throw newDynamicTypeException("String");
+        }
     }
-
 
     private DynamicTypeException newDynamicTypeException(String type)
     {
         return new DynamicTypeException("could not convert value: " + getValue() + " to " + type);
     }
 
-
     private static DynamicTypeException newDynamicTypeException(String operand,
-                                                                EvaluationResult left,
-                                                                EvaluationResult right)
+            EvaluationResult left, EvaluationResult right)
     {
-        return new DynamicTypeException("failed to "
-                                        + operand
-                                        + " incompatible operands "
-                                        + left
-                                        + " and "
-                                        + right );
+        return new DynamicTypeException("failed to " + operand + " incompatible operands " + left
+                + " and " + right);
     }
-
 
     public long getLongLong() throws DynamicTypeException
     {
         try
-            {
-                return ( ( Double ) getValue() ).longValue();
-            }
-        catch ( ClassCastException e )
-            {}
+        {
+            return ((Double) getValue()).longValue();
+        } catch (ClassCastException e)
+        {
+        }
 
         try
-            {
-                return ( ( Boolean ) getValue() ).booleanValue() ? 1l : 0;
-            }
-        catch ( ClassCastException e )
-            {}
+        {
+            return ((Boolean) getValue()).booleanValue() ? 1l : 0;
+        } catch (ClassCastException e)
+        {
+        }
 
         try
-            {
-                String _s = ( String ) getValue();
+        {
+            String _s = (String) getValue();
 
-                if ( _s.length() == 1 )
-                    {
-                        return _s.charAt( 0 );
-                    }
+            if (_s.length() == 1)
+            {
+                return _s.charAt(0);
             }
-        catch ( ClassCastException e )
-            {}
+        } catch (ClassCastException e)
+        {
+        }
 
         throw newDynamicTypeException("LongLong");
     }
 
-
     public int getLong() throws DynamicTypeException
     {
-        if ( getValue() != null )
+        if (getValue() != null)
+        {
+            try
             {
-                try
-                    {
-                        return ( ( Double ) getValue() ).intValue();
-                    }
-                catch ( ClassCastException e )
-                    {}
-
-                try
-                    {
-                        return ( ( Boolean ) getValue() ).booleanValue() ? 1 : 0;
-                    }
-                catch ( ClassCastException e )
-                    {}
-
-                try
-                    {
-                        String _s = ( String ) getValue();
-
-                        if ( _s.length() == 1 )
-                            {
-                                return _s.charAt( 0 );
-                            }
-                    }
-                catch ( ClassCastException e )
-                    {}
-
+                return ((Double) getValue()).intValue();
+            } catch (ClassCastException e)
+            {
             }
+
+            try
+            {
+                return ((Boolean) getValue()).booleanValue() ? 1 : 0;
+            } catch (ClassCastException e)
+            {
+            }
+
+            try
+            {
+                String _s = (String) getValue();
+
+                if (_s.length() == 1)
+                {
+                    return _s.charAt(0);
+                }
+            } catch (ClassCastException e)
+            {
+            }
+
+        }
         else
-            {
-                return any_.extract_long();
-            }
+        {
+            return any_.extract_long();
+        }
 
         throw newDynamicTypeException("Long");
     }
 
-
     public double getDouble() throws DynamicTypeException
     {
         try
-            {
-                return ( ( Double ) getValue() ).doubleValue();
-            }
-        catch ( ClassCastException e )
-            {}
+        {
+            return ((Double) getValue()).doubleValue();
+        } catch (ClassCastException e)
+        {
+        }
 
         try
-            {
-                return ( ( Boolean ) getValue() ).booleanValue() ? 1d : 0;
-            }
-        catch ( ClassCastException e )
-            {}
+        {
+            return ((Boolean) getValue()).booleanValue() ? 1d : 0;
+        } catch (ClassCastException e)
+        {
+        }
 
         try
-            {
-                String _s = ( String ) getValue();
+        {
+            String _s = (String) getValue();
 
-                if ( _s.length() == 1 )
-                    {
-                        return _s.charAt( 0 );
-                    }
+            if (_s.length() == 1)
+            {
+                return _s.charAt(0);
             }
-        catch ( ClassCastException e )
-            {}
+        } catch (ClassCastException e)
+        {
+        }
 
         throw newDynamicTypeException("Double");
     }
 
-
     public float getFloat() throws DynamicTypeException
     {
         try
-            {
-                return ( ( Double ) getValue() ).floatValue();
-            }
-        catch ( ClassCastException c )
-            {}
+        {
+            return ((Double) getValue()).floatValue();
+        } catch (ClassCastException c)
+        {
+        }
 
         try
-            {
-                return ( ( Boolean ) getValue() ).booleanValue() ? 1f : 0;
-            }
-        catch ( ClassCastException c2 )
-            {}
+        {
+            return ((Boolean) getValue()).booleanValue() ? 1f : 0;
+        } catch (ClassCastException c2)
+        {
+        }
 
         try
-            {
-                String _s = ( String ) getValue();
+        {
+            String _s = (String) getValue();
 
-                if ( _s.length() == 1 )
-                    {
-                        return _s.charAt( 0 );
-                    }
+            if (_s.length() == 1)
+            {
+                return _s.charAt(0);
             }
-        catch ( ClassCastException c3 )
-            {}
+        } catch (ClassCastException c3)
+        {
+        }
 
         throw newDynamicTypeException("Float");
     }
 
-
     public boolean getBool() throws DynamicTypeException
     {
         try
-            {
-                return ( ( Boolean ) getValue() ).booleanValue();
-            }
-        catch ( ClassCastException c )
-            {}
+        {
+            return ((Boolean) getValue()).booleanValue();
+        } catch (ClassCastException c)
+        {
+        }
 
         throw newDynamicTypeException("Boolean");
     }
 
-
-    public void setBool( boolean b )
+    public void setBool(boolean b)
     {
-        if ( b )
-            {
-                setValue( Boolean.TRUE );
-            }
+        if (b)
+        {
+            setValue(Boolean.TRUE);
+        }
         else
-            {
-                setValue( Boolean.FALSE );
-            }
+        {
+            setValue(Boolean.FALSE);
+        }
 
         typeCode_ = TCKind._tk_boolean;
     }
-
 
     public Any getAny()
     {
         return any_;
     }
 
-
-    public void addAny( Any any )
+    public void addAny(Any any)
     {
         any_ = any;
     }
 
-
-    private static String typeCodeToName( int x )
+    private static String typeCodeToName(int x)
     {
         try
-            {
-                Field[] _fields = TCKind.class.getDeclaredFields();
+        {
+            Field[] _fields = TCKind.class.getDeclaredFields();
 
-                return _fields[ x ].getName();
-            }
-        catch ( Exception e )
-            {
-                return "unknown: " + x;
-            }
+            return _fields[x].getName();
+        } catch (Exception e)
+        {
+            return "unknown: " + x;
+        }
     }
-
 
     public String toString()
     {
-        StringBuffer _buffer = new StringBuffer( "{" );
+        StringBuffer _buffer = new StringBuffer("{");
 
-        _buffer.append( getValue() );
-        _buffer.append( ";TC=" );
-        _buffer.append( typeCodeToName( typeCode_ ) );
-        _buffer.append( ";any=" );
-        _buffer.append( any_ );
-        _buffer.append( "}" );
+        _buffer.append(getValue());
+        _buffer.append(";TC=");
+        _buffer.append(typeCodeToName(typeCode_));
+        _buffer.append(";any=");
+        _buffer.append(any_);
+        _buffer.append("}");
 
         return _buffer.toString();
     }
 
-
-    public boolean equals( Object o )
+    public boolean equals(Object o)
     {
-        if ( o instanceof EvaluationResult )
-            {
-                return ( ( ( EvaluationResult ) o ).getValue().equals( getValue() ) );
-            }
+        if (o instanceof EvaluationResult)
+        {
+            return (((EvaluationResult) o).getValue().equals(getValue()));
+        }
 
-        return super.equals( o );
+        return super.equals(o);
     }
-
 
     public int hashCode()
     {
         return getValue().hashCode();
     }
 
-
-    public int compareTo( EvaluationResult other )
-        throws DynamicTypeException,
-               EvaluationException
+    public int compareTo(EvaluationResult other) throws DynamicTypeException, EvaluationException
     {
         int _ret = Integer.MAX_VALUE;
 
-        if ( getValue() == null && any_ != null && other.getValue() instanceof String )
+        if (getValue() == null && any_ != null && other.getValue() instanceof String)
+        {
+            try
             {
-                try
-                    {
-                        String _l = any_.type().member_name( 0 );
-                        String _r = other.getString();
+                String _l = any_.type().member_name(0);
 
-                        _ret = _l.compareTo( other.getString() );
-                    }
-                catch ( BadKind e )
-                    {
-                        throw new EvaluationException(e);
-                    }
-                catch ( Bounds e )
-                    {
-                        throw new EvaluationException(e);
-                    }
-
-            }
-        else if ( isString() || other.isString() )
+                _ret = _l.compareTo(other.getString());
+            } catch (BadKind e)
             {
-                _ret = getString().compareTo( other.getString() );
-
-                if ( _ret < -1 )
-                    {
-                        _ret = -1;
-                    }
-                else if ( _ret > 1 )
-                    {
-                        _ret = 1;
-                    }
-            }
-        else if ( isFloat() || other.isFloat() )
+                throw new EvaluationException(e);
+            } catch (Bounds e)
             {
-                float _l = getFloat();
-                float _r = other.getFloat();
-
-                if ( _l < _r )
-                    {
-                        _ret = -1;
-                    }
-                else if ( _l == _r )
-                    {
-                        _ret = 0;
-                    }
-                else
-                    {
-                        _ret = 1;
-                    }
+                throw new EvaluationException(e);
             }
+
+        }
+        else if (isString() || other.isString())
+        {
+            _ret = getString().compareTo(other.getString());
+
+            if (_ret < -1)
+            {
+                _ret = -1;
+            }
+            else if (_ret > 1)
+            {
+                _ret = 1;
+            }
+        }
+        else if (isFloat() || other.isFloat())
+        {
+            float _l = getFloat();
+            float _r = other.getFloat();
+
+            if (_l < _r)
+            {
+                _ret = -1;
+            }
+            else if (_l == _r)
+            {
+                _ret = 0;
+            }
+            else
+            {
+                _ret = 1;
+            }
+        }
         else
-            {
-                int _l = getLong();
-                int _r = other.getLong();
+        {
+            int _l = getLong();
+            int _r = other.getLong();
 
-                if ( _l < _r )
-                    {
-                        _ret = -1;
-                    }
-                else if ( _l == _r )
-                    {
-                        _ret = 0;
-                    }
-                else
-                    {
-                        _ret = 1;
-                    }
-            }
-
-        if ( _ret == Integer.MAX_VALUE )
+            if (_l < _r)
             {
-                throw newDynamicTypeException("compare", this, other);
+                _ret = -1;
             }
+            else if (_l == _r)
+            {
+                _ret = 0;
+            }
+            else
+            {
+                _ret = 1;
+            }
+        }
+
+        if (_ret == Integer.MAX_VALUE)
+        {
+            throw newDynamicTypeException("compare", this, other);
+        }
 
         return _ret;
     }
 
-
-    public static EvaluationResult wrapImmutable( EvaluationResult e )
+    public static EvaluationResult wrapImmutable(EvaluationResult e)
     {
-        return new ImmutableEvaluationResultWrapper( e );
+        return new ImmutableEvaluationResultWrapper(e);
     }
 
-
-    public static EvaluationResult plus( EvaluationResult left,
-                                         EvaluationResult right )
-        throws DynamicTypeException
+    public static EvaluationResult plus(EvaluationResult left, EvaluationResult right)
+            throws DynamicTypeException
     {
-        EvaluationResult _res = new EvaluationResult();
+        final EvaluationResult _res = new EvaluationResult();
 
-        if ( left.isDouble() ||
-             right.isDouble() )
-            {
-                _res.setDouble( left.getDouble() + right.getDouble() );
-            }
-        else if ( left.isFloat() ||
-                  right.isFloat() )
-            {
-                _res.setFloat( left.getDouble() + right.getDouble() );
-            }
-        else if ( left.isLongLong() ||
-                  right.isLongLong() )
-            {
-                _res.setLongLong( left.getLongLong() + right.getLongLong() );
-            }
-        else if ( left.isLong() ||
-                  right.isLong() )
-            {
-                _res.setLong( left.getLong() + right.getLong() );
-            }
+        if (left.isDouble() || right.isDouble())
+        {
+            _res.setDouble(left.getDouble() + right.getDouble());
+        }
+        else if (left.isFloat() || right.isFloat())
+        {
+            _res.setFloat(left.getDouble() + right.getDouble());
+        }
+        else if (left.isLongLong() || right.isLongLong())
+        {
+            _res.setLongLong(left.getLongLong() + right.getLongLong());
+        }
+        else if (left.isLong() || right.isLong())
+        {
+            _res.setLong(left.getLong() + right.getLong());
+        }
         else
-            {
-                throw newDynamicTypeException("add", left, right);
-            }
+        {
+            throw newDynamicTypeException("add", left, right);
+        }
 
         return _res;
     }
 
-
-    public static EvaluationResult minus( EvaluationResult left,
-                                          EvaluationResult right )
-        throws DynamicTypeException
+    public static EvaluationResult minus(EvaluationResult left, EvaluationResult right)
+            throws DynamicTypeException
     {
+        final EvaluationResult _res = new EvaluationResult();
 
-        EvaluationResult _res = new EvaluationResult();
+        if (left.isDouble() ||
 
-        if ( left.isDouble() ||
-
-             right.isDouble() )
-            {
-                _res.setDouble( left.getDouble() - right.getDouble() );
-            }
-        else if ( left.isFloat() ||
-                  right.isFloat() )
-            {
-                _res.setFloat( left.getDouble() - right.getDouble() );
-            }
-        else if ( left.isLongLong() ||
-                  right.isLongLong() )
-            {
-                _res.setLongLong( left.getLongLong() - right.getLongLong() );
-            }
-        else if ( left.isLong() ||
-                  right.isLong() )
-            {
-                _res.setLong( left.getLong() - right.getLong() );
-            }
+        right.isDouble())
+        {
+            _res.setDouble(left.getDouble() - right.getDouble());
+        }
+        else if (left.isFloat() || right.isFloat())
+        {
+            _res.setFloat(left.getDouble() - right.getDouble());
+        }
+        else if (left.isLongLong() || right.isLongLong())
+        {
+            _res.setLongLong(left.getLongLong() - right.getLongLong());
+        }
+        else if (left.isLong() || right.isLong())
+        {
+            _res.setLong(left.getLong() - right.getLong());
+        }
         else
-            {
-                throw newDynamicTypeException("subtract", left, right);
-            }
+        {
+            throw newDynamicTypeException("subtract", left, right);
+        }
 
         return _res;
     }
 
-
-    static public EvaluationResult unaryMinus( EvaluationResult r )
-        throws DynamicTypeException
+    static public EvaluationResult unaryMinus(EvaluationResult r) throws DynamicTypeException
     {
-        EvaluationResult _ret = new EvaluationResult();
+        final EvaluationResult _ret = new EvaluationResult();
 
-        if ( r.isFloat() )
-            {
-                _ret.setFloat( - r.getFloat() );
-            }
+        if (r.isFloat())
+        {
+            _ret.setFloat(-r.getFloat());
+        }
         else
-            { // (r.isFloat()) {
-                _ret.setDouble( - r.getDouble() );
-            }
+        { // (r.isFloat()) {
+            _ret.setDouble(-r.getDouble());
+        }
 
         return _ret;
     }
 
-
-    static public EvaluationResult div( EvaluationResult left,
-                                        EvaluationResult right )
-        throws DynamicTypeException
+    static public EvaluationResult div(EvaluationResult left, EvaluationResult right)
+            throws DynamicTypeException
     {
-        EvaluationResult _res = new EvaluationResult();
+        final EvaluationResult _res = new EvaluationResult();
 
-
-        if ( left.isDouble() ||
-             right.isDouble() )
-            {
-                _res.setDouble( left.getDouble() / right.getDouble() );
-            }
-        else if ( left.isFloat() ||
-                  right.isFloat() )
-            {
-                _res.setFloat( left.getDouble() / right.getDouble() );
-            }
-        else if ( left.isLongLong() ||
-                  right.isLongLong() )
-            {
-                _res.setLongLong( left.getLongLong() / right.getLongLong() );
-            }
-        else if ( left.isLong() ||
-                  right.isLong() )
-            {
-                _res.setLong( left.getLong() / right.getLong() );
-            }
+        if (left.isDouble() || right.isDouble())
+        {
+            _res.setDouble(left.getDouble() / right.getDouble());
+        }
+        else if (left.isFloat() || right.isFloat())
+        {
+            _res.setFloat(left.getDouble() / right.getDouble());
+        }
+        else if (left.isLongLong() || right.isLongLong())
+        {
+            _res.setLongLong(left.getLongLong() / right.getLongLong());
+        }
+        else if (left.isLong() || right.isLong())
+        {
+            _res.setLong(left.getLong() / right.getLong());
+        }
         else
-            {
-                throw newDynamicTypeException("divide", left, right);
-            }
+        {
+            throw newDynamicTypeException("divide", left, right);
+        }
 
         return _res;
 
     }
 
-
-    static public EvaluationResult mult( EvaluationResult left,
-                                         EvaluationResult right )
-        throws DynamicTypeException
+    static public EvaluationResult mult(EvaluationResult left, EvaluationResult right)
+            throws DynamicTypeException
     {
-        EvaluationResult _res = new EvaluationResult();
+        final EvaluationResult _res = new EvaluationResult();
 
-        if ( left.isDouble() ||
-             right.isDouble() )
-            {
-                _res.setDouble( left.getDouble() * right.getDouble() );
-            }
-        else if ( left.isFloat() ||
-                  right.isFloat() )
-            {
-                _res.setFloat( left.getDouble() * right.getDouble() );
-            }
-        else if ( left.isLongLong() ||
-                  right.isLongLong() )
-            {
-                _res.setLongLong( left.getLongLong() * right.getLongLong() );
-            }
-        else if ( left.isLong() ||
-                  right.isLong() )
-            {
-                _res.setLong( left.getLong() * right.getLong() );
-            }
+        if (left.isDouble() || right.isDouble())
+        {
+            _res.setDouble(left.getDouble() * right.getDouble());
+        }
+        else if (left.isFloat() || right.isFloat())
+        {
+            _res.setFloat(left.getDouble() * right.getDouble());
+        }
+        else if (left.isLongLong() || right.isLongLong())
+        {
+            _res.setLongLong(left.getLongLong() * right.getLongLong());
+        }
+        else if (left.isLong() || right.isLong())
+        {
+            _res.setLong(left.getLong() * right.getLong());
+        }
         else
-            {
-                throw newDynamicTypeException("multiply", left, right);
-            }
+        {
+            throw newDynamicTypeException("multiply", left, right);
+        }
 
         return _res;
     }
 
-
-    public static EvaluationResult fromAny( Any any )
+    public static EvaluationResult fromAny(Any any)
     {
-        if (any == null) {
+        if (any == null)
+        {
             return null;
         }
 
-        EvaluationResult _ret = null;
+        final EvaluationResult result;
 
-        // if any is a wrapped Any dont create EvaluationResult
-        // instead fromAny is called recursively again (in next switch
-        // below)
-        switch (any.type().kind().value() ) {
+        switch (any.type().kind().value()) {
         case TCKind._tk_any:
+            result = fromAny(any.extract_any());
+
             break;
         default:
-            _ret = new EvaluationResult();
+            result = new EvaluationResult();
+
+            extractIntoEvaluationResult(result, any);
         }
+        return result;
+    }
 
-
-        switch ( any.type().kind().value() )
-            {
-            case TCKind._tk_boolean:
-                _ret.setBool( any.extract_boolean() );
-                break;
-
-            case TCKind._tk_string:
-                _ret.setString( any.extract_string() );
-                break;
-
-            case TCKind._tk_long:
-                _ret.setLong( any.extract_long() );
-                break;
-
-            case TCKind._tk_short:
-                _ret.setLong( any.extract_short() );
-                break;
-
-            case TCKind._tk_ulonglong:
-                _ret.setLongLong( any.extract_ulonglong() );
-                break;
-
-            case TCKind._tk_any:
-                return fromAny( any.extract_any() );
-
-            default:
-                _ret.addAny( any );
-                break;
-            }
-
-        return _ret;
+    private static void extractIntoEvaluationResult(EvaluationResult er, Any any)
+    {
+        switch (any.type().kind().value()) {
+        case TCKind._tk_boolean:
+            er.setBool(any.extract_boolean());
+            break;
+        case TCKind._tk_string:
+            er.setString(any.extract_string());
+            break;
+        case TCKind._tk_long:
+            er.setLong(any.extract_long());
+            break;
+        case TCKind._tk_short:
+            er.setLong(any.extract_short());
+            break;
+        case TCKind._tk_ulonglong:
+            er.setLongLong(any.extract_ulonglong());
+            break;
+        default:
+            er.addAny(any);
+            break;
+        }
     }
 }
 
 class ImmutableEvaluationResultWrapper extends EvaluationResult
 {
-    private EvaluationResult delegate_;
+    private final EvaluationResult delegate_;
 
     ////////////////////////////////////////
 
-    ImmutableEvaluationResultWrapper( EvaluationResult delegate )
+    ImmutableEvaluationResultWrapper(EvaluationResult delegate)
     {
         delegate_ = delegate;
     }
 
     ////////////////////////////////////////
-
-    public int compareTo( EvaluationContext evaluationContext,
-                          EvaluationResult evaluationResult )
-        throws DynamicTypeException,
-               EvaluationException
-    {
-
-        return delegate_.compareTo( evaluationResult );
-    }
 
     public Object getValue()
     {
@@ -767,9 +676,9 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
         return delegate_.getFloat();
     }
 
-    public boolean equals( Object object )
+    public boolean equals(Object object)
     {
-        return delegate_.equals( object );
+        return delegate_.equals(object);
     }
 
     public int hashCode()
@@ -817,37 +726,37 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
         return delegate_.getAny();
     }
 
-    public void setString( String s )
+    public void setString(String s)
     {
         unsupported();
     }
 
-    public void setFloat( float f )
+    public void setFloat(float f)
     {
         unsupported();
     }
 
-    public void setFloat( Double d )
+    public void setFloat(Double d)
     {
         unsupported();
     }
 
-    public void setInt( int i )
+    public void setInt(int i)
     {
         unsupported();
     }
 
-    public void setInt( Double i )
+    public void setInt(Double i)
     {
         unsupported();
     }
 
-    public void setBool( boolean b )
+    public void setBool(boolean b)
     {
         unsupported();
     }
 
-    public void addAny( Any a )
+    public void addAny(Any a)
     {
         unsupported();
     }
@@ -858,7 +767,6 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
     }
 }
 
-
 class DynamicTypeException extends EvaluationException
 {
     public DynamicTypeException()
@@ -866,8 +774,8 @@ class DynamicTypeException extends EvaluationException
         super();
     }
 
-    public DynamicTypeException( String msg )
+    public DynamicTypeException(String msg)
     {
-        super( msg );
+        super(msg);
     }
 }

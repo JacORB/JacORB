@@ -34,7 +34,7 @@ public class IdentValue extends AbstractTCLNode
     public IdentValue( Token tok )
     {
         super( tok );
-        setKind( null );
+        
         value_ = tok.getText();
         setName( "IdentValue" );
         EvaluationResult _result = new EvaluationResult();

@@ -27,45 +27,50 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent GTE operation */
-public class GteOperator extends BinaryOperator {
+public class GteOperator extends BinaryOperator
+{
 
-    public GteOperator(Token tok) {
+    public GteOperator(Token tok)
+    {
         super(tok);
+        setName("GteOperator");
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
-        throws EvaluationException {        
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
+            EvaluationResult right) throws EvaluationException
+    {
 
-        int _comp = left.compareTo( right);
+        int _comp = left.compareTo(right);
 
-        if (_comp == -1) {
+        if (_comp == -1)
+        {
             return EvaluationResult.BOOL_FALSE;
         }
         return EvaluationResult.BOOL_TRUE;
 
     }
 
-    public String toString() {
+    public String toString()
+    {
         return ">=";
     }
 
-    public String getName() {
-        return getClass().getName();
-    }
-
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitGteOperator(this);
         right().acceptInOrder(visitor);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptPostOrder(visitor);
         right().acceptPostOrder(visitor);
         visitor.visitGteOperator(this);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitGteOperator(this);
         left().acceptPreOrder(visitor);
         right().acceptPreOrder(visitor);

@@ -38,9 +38,9 @@ import org.omg.TimeBase.UtcTHelper;
 public class CurrentTimeNode extends ETCLComponentName {
 
     public static final String SHORT_NAME = "curtime";
-    static final String COMP_NAME = "$curtime";
+    private static final String COMP_NAME = "$curtime";
 
-    static ORB orb_ = ORB.init();
+    private final static ORB orb_ = ORB.init();
 
     public EvaluationResult evaluate( EvaluationContext context )
 	throws EvaluationException {

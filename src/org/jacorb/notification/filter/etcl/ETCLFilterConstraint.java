@@ -43,11 +43,6 @@ import org.omg.CosNotifyFilter.InvalidConstraint;
 public class ETCLFilterConstraint implements FilterConstraint
 {
     /**
-     * String representation of the Constraint.
-     */
-    private String constraint_;
-
-    /**
      * AST for the Constraint
      */
     private AbstractTCLNode rootNode_;
@@ -65,7 +60,6 @@ public class ETCLFilterConstraint implements FilterConstraint
     {
         try
         {
-            constraint_ = constraintExp.constraint_expr;
             rootNode_ = TCLParser.parse( constraintExp.constraint_expr );
 
             if (rootNode_ != null) {
@@ -85,19 +79,9 @@ public class ETCLFilterConstraint implements FilterConstraint
         {
             throw new InvalidConstraint( e.getMessage(), constraintExp );
         }
-        catch ( Throwable ex)
-        {
-            ex.printStackTrace (System.out);
-        }
     }
 
     ////////////////////////////////////////
-
-    public String getConstraint()
-    {
-        return constraint_;
-    }
-
 
     public EvaluationResult evaluate( EvaluationContext evaluationContext,
                                       Message event )

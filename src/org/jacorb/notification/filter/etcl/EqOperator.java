@@ -34,6 +34,7 @@ public class EqOperator extends BinaryOperator {
     
     public EqOperator(Token tok) {
         super(tok);
+        setName("EqOperator");
     }
 
     public EvaluationResult evaluate(EvaluationContext context, 
@@ -41,18 +42,12 @@ public class EqOperator extends BinaryOperator {
         
         if (left.compareTo( right) == 0) {
             return EvaluationResult.BOOL_TRUE;
-        } else {
-
+        } 
         return EvaluationResult.BOOL_FALSE;
-        }
     }
 
     public String toString() {
         return VALUE;
-    }
-
-    public String getName() {
-        return getClass().getName();
     }
 
     public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {

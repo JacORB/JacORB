@@ -49,67 +49,74 @@ public class PropertyShorthandNode extends AbstractTCLNode
 
     public PropertyShorthandNode(String value)
     {
-        try {
+        try
+        {
             value_ = value;
 
-            shorthandVariableHeader_ =
-                (ETCLComponentName)TCLParser.parse("$.header.variable_header(" + value + ")");
+            shorthandVariableHeader_ = (ETCLComponentName) TCLParser
+                    .parse("$.header.variable_header(" + value + ")");
 
             shorthandVariableHeader_.acceptInOrder(new TCLCleanUp());
 
-            shorthandFilterableData_ =
-                (ETCLComponentName)TCLParser.parse("$.filterable_data(" + value + ")");
+            shorthandFilterableData_ = (ETCLComponentName) TCLParser.parse("$.filterable_data("
+                    + value + ")");
 
             shorthandFilterableData_.acceptInOrder(new TCLCleanUp());
 
-            shorthandDefault_ = (ETCLComponentName)TCLParser.parse("$." + value );
+            shorthandDefault_ = (ETCLComponentName) TCLParser.parse("$." + value);
             shorthandDefault_.acceptInOrder(new TCLCleanUp());
 
-            shorthandDefaultAny_ = (ETCLComponentName)TCLParser.parse("$(" + value + ")");
+            shorthandDefaultAny_ = (ETCLComponentName) TCLParser.parse("$(" + value + ")");
             shorthandDefaultAny_.acceptInOrder(new TCLCleanUp());
 
-        } catch (ParseException e) {
+        } catch (ParseException e)
+        {
             throw new RuntimeException();
-        } catch (VisitorException e) {
+        } catch (VisitorException e)
+        {
             throw new RuntimeException();
         }
     }
 
-
-    public EvaluationResult evaluate(EvaluationContext context) throws PropertyDoesNotExistException {
-
+    public EvaluationResult evaluate(EvaluationContext context)
+            throws PropertyDoesNotExistException
+    {
         Message _event = context.getCurrentMessage();
         EvaluationResult _res = null;
 
-        try {
-            _res = _event.extractVariableHeader(context,
-                                                shorthandVariableHeader_,
-                                                value_);
+        try
+        {
+            _res = _event.extractVariableHeader(context, shorthandVariableHeader_, value_);
 
-        } catch (EvaluationException e) {
+        } catch (EvaluationException e)
+        {
             // can be safely ignored
             // three more methods will be tried ...
         }
 
-        if (_res == null) {
-            try {
-                _res = _event.extractFilterableData(context,
-                                                    shorthandFilterableData_,
-                                                    value_);
-            } catch (EvaluationException e) {
+        if (_res == null)
+        {
+            try
+            {
+                _res = _event.extractFilterableData(context, shorthandFilterableData_, value_);
+            } catch (EvaluationException e)
+            {
                 // can be safely ignored
                 // two more methods will be tried ...
             }
 
-            if (_res == null) {
+            if (_res == null)
+            {
                 _res = extractDefaultValue(context);
             }
 
-            if (_res == null) {
+            if (_res == null)
+            {
                 _res = extractDefaultAnyValue(context);
             }
 
-            if (_res == null) {
+            if (_res == null)
+            {
                 throw new PropertyDoesNotExistException(value_);
             }
         }
@@ -117,46 +124,48 @@ public class PropertyShorthandNode extends AbstractTCLNode
         return _res;
     }
 
-
-    public EvaluationResult extractDefaultValue(EvaluationContext context) {
-        try {
+    public EvaluationResult extractDefaultValue(EvaluationContext context)
+    {
+        try
+        {
             return context.getCurrentMessage().extractValue(context, shorthandDefault_);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             return null;
         }
     }
 
-
-    public EvaluationResult extractDefaultAnyValue(EvaluationContext context) {
-        try {
+    public EvaluationResult extractDefaultAnyValue(EvaluationContext context)
+    {
+        try
+        {
             return context.getCurrentMessage().extractValue(context, shorthandDefaultAny_);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             return null;
         }
     }
 
-
-    public String toString() {
+    public String toString()
+    {
         return "PropertyShorthandNode: " + value_;
     }
 
-
-    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
-        if (getFirstChild() != null) {
-            ( ( AbstractTCLNode ) getFirstChild() ).acceptPostOrder( visitor );
+        if (getFirstChild() != null)
+        {
+            ((AbstractTCLNode) getFirstChild()).acceptPostOrder(visitor);
         }
     }
 
-
-    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
-        ( ( AbstractTCLNode ) getFirstChild() ).acceptPreOrder( visitor );
+        ((AbstractTCLNode) getFirstChild()).acceptPreOrder(visitor);
     }
 
-
-    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
-        ( ( AbstractTCLNode ) getFirstChild() ).acceptInOrder( visitor );
+        ((AbstractTCLNode) getFirstChild()).acceptInOrder(visitor);
     }
 }

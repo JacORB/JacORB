@@ -36,6 +36,7 @@ public class DivOperator extends BinaryOperator {
 
     public DivOperator(Token tok) {
         super(tok);
+        setName("DivOperator");
     }
 
     public String toString() {
@@ -50,7 +51,6 @@ public class DivOperator extends BinaryOperator {
         } catch (ArithmeticException e) {
             throw new EvaluationException(e.getMessage());
         }
-
     }
 
     public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
@@ -69,9 +69,5 @@ public class DivOperator extends BinaryOperator {
         visitor.visitDiv(this);
         left().acceptPreOrder(visitor);
         right().acceptPreOrder(visitor);
-    }
-
-    public String getName() {
-        return "DivOperator";
     }
 }

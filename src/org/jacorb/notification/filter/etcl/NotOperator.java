@@ -27,43 +27,46 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent NOT operation */
-public class NotOperator extends UnaryOperator {
-    public NotOperator(Token tok) {
+public class NotOperator extends UnaryOperator
+{
+    public NotOperator(Token tok)
+    {
         super(tok);
+        setName(NAME);
     }
 
-    public String toString() {
+    public String toString()
+    {
         return " not";
     }
-
-    public boolean checkOperands() {
-        return true;
-    }
-
+    
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left)
-        throws EvaluationException {
+            throws EvaluationException
+    {
 
         boolean _b = left.getBool();
-        
+
         return (_b ? EvaluationResult.BOOL_FALSE : EvaluationResult.BOOL_TRUE);
     }
 
     static final String NAME = "NotOperator";
-    public String getName() {
-        return NAME;
-    }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    
+
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitNot(this);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitNot(this);
         left().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitNot(this);
     }

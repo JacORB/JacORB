@@ -31,12 +31,9 @@ public class SubstrOperator extends BinaryOperator {
 
     static final String NAME = "SubstrOperator";
 
-    public String getName() {
-        return NAME;
-    }
-
     public SubstrOperator(Token tok) {
         super(tok);
+        setName(NAME);
     }
 
 

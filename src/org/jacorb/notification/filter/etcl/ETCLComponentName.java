@@ -38,15 +38,17 @@ import antlr.Token;
 
 public class ETCLComponentName extends AbstractTCLNode implements ComponentName
 {
-    String value_;
+    private final String value_;
 
-    String componentName_;
-
+    private String componentName_;
+    
     ////////////////////////////////////////
-
+    
     protected ETCLComponentName() {
+        super();
+        
+        value_ = null;
     }
-
 
     public ETCLComponentName( Token tok )
     {
@@ -65,7 +67,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
 
         Message _event = context.getCurrentMessage();
 
-        AbstractTCLNode _left = (AbstractTCLNode) left();
+        AbstractTCLNode _left = left();
 
         if (_left == null) {
             // this is the case when the expression just consists of

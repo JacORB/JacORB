@@ -21,7 +21,7 @@ package org.jacorb.notification.filter.etcl;
  *
  */
 
-import org.jacorb.notification.filter.DynamicEvaluator;
+import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
@@ -30,42 +30,46 @@ import org.omg.CORBA.Any;
 import antlr.Token;
 
 /** A simple node to represent IN operation */
-public class InOperator extends BinaryOperator {
+public class InOperator extends BinaryOperator
+{
 
-    public InOperator(Token tok) {
+    public InOperator(Token tok)
+    {
         super(tok);
+        setName("InOperator");
     }
 
-    public String toString() {
+    public String toString()
+    {
         return " in";
     }
 
-    public String getName() {
-        return getClass().getName();
-    }
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
+            EvaluationResult right) throws EvaluationException
+    {
 
-    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
-        throws EvaluationException {
+        Any _any = right.getAny();
+        ETCLEvaluator _evaluator = context.getDynamicEvaluator();
 
-        Any _any = right.getAny();      
-        DynamicEvaluator _evaluator = context.getDynamicEvaluator();
-        
         return _evaluator.evaluateElementInSequence(context, left, _any);
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitIn(this);
         right().acceptInOrder(visitor);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitIn(this);
         left().acceptPreOrder(visitor);
         right().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptPostOrder(visitor);
         right().acceptPostOrder(visitor);
         visitor.visitIn(this);

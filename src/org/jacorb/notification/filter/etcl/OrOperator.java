@@ -24,24 +24,25 @@ package org.jacorb.notification.filter.etcl;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.omg.CORBA.TCKind;
 
 import antlr.Token;
 
 /**
  * A simple node to represent OR operation
+ * 
  * @version $Id$
  */
 
 public class OrOperator extends UnaryOperator
 {
     private static final String NAME = "OrOperator";
+
     private static final String OR = "or";
-    
-    public OrOperator( Token tok )
+
+    public OrOperator(Token tok)
     {
-        super( tok );
-        setKind( TCKind.tk_boolean );
+        super(tok);
+        setName(NAME);
     }
 
     public String toString()
@@ -49,52 +50,40 @@ public class OrOperator extends UnaryOperator
         return OR;
     }
 
-    public EvaluationResult evaluate( EvaluationContext context, 
-            EvaluationResult left )
-        throws EvaluationException
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left)
+            throws EvaluationException
     {
-
-        if ( left.getBool() )
+        if (left.getBool())
         {
-
             return EvaluationResult.BOOL_TRUE;
-
         }
-        else
+
+        if (right().evaluate(context).getBool())
         {
-
-            if ( right().evaluate( context ).getBool() )
-            {
-                return EvaluationResult.BOOL_TRUE;
-            }
-
-            return EvaluationResult.BOOL_FALSE;
+            return EvaluationResult.BOOL_TRUE;
         }
+
+        return EvaluationResult.BOOL_FALSE;
     }
 
-    public String getName()
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
-        return NAME;
+        left().acceptInOrder(visitor);
+        visitor.visitOr(this);
+        right().acceptInOrder(visitor);
     }
 
-    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
-        left().acceptInOrder( visitor );
-        visitor.visitOr( this );
-        right().acceptInOrder( visitor );
+        visitor.visitOr(this);
+        left().acceptPreOrder(visitor);
+        right().acceptPreOrder(visitor);
     }
 
-    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
-        visitor.visitOr( this );
-        left().acceptPreOrder( visitor );
-        right().acceptPreOrder( visitor );
-    }
-
-    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
-    {
-        left().acceptPostOrder( visitor );
-        right().acceptPostOrder( visitor );
-        visitor.visitOr( this );
+        left().acceptPostOrder(visitor);
+        right().acceptPostOrder(visitor);
+        visitor.visitOr(this);
     }
 }

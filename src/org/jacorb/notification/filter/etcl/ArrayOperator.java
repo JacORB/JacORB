@@ -27,15 +27,14 @@ import antlr.Token;
 
 public class ArrayOperator extends AbstractTCLNode
 {
+    private final int arrayIndex_;
 
-    public ArrayOperator( Token tok )
+    public ArrayOperator(Token tok)
     {
-        super( tok );
-        arrayIndex_ = Integer.parseInt( tok.getText() );
-        setName( "ArrayOperator" );
+        super(tok);
+        arrayIndex_ = Integer.parseInt(tok.getText());
+        setName("ArrayOperator");
     }
-
-    int arrayIndex_;
 
     public int getArrayIndex()
     {
@@ -47,18 +46,18 @@ public class ArrayOperator extends AbstractTCLNode
         return "[" + arrayIndex_ + "]";
     }
 
-    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
-        ( ( AbstractTCLNode ) getNextSibling() ).acceptPostOrder( visitor );
-        visitor.visitArray( this );
+        ((AbstractTCLNode) getNextSibling()).acceptPostOrder(visitor);
+        visitor.visitArray(this);
     }
 
-    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
     }
 
-    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
-        {}
-
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
+    }
 
 }

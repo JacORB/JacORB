@@ -27,45 +27,49 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent LT operation */
-public class LtOperator extends BinaryOperator {
+public class LtOperator extends BinaryOperator
+{
 
-    public LtOperator(Token tok) {
+    public LtOperator(Token tok)
+    {
         super(tok);
+        setName("LtOperator");
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, 
-            EvaluationResult left, EvaluationResult right)
-        throws EvaluationException {
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
+            EvaluationResult right) throws EvaluationException
+    {
 
-        int _comp = left.compareTo( right);
+        int _comp = left.compareTo(right);
 
-        if (_comp == 1 || _comp == 0) {
+        if (_comp == 1 || _comp == 0)
+        {
             return EvaluationResult.BOOL_FALSE;
         }
         return EvaluationResult.BOOL_TRUE;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "<";
     }
 
-    public String getName() {
-        return getClass().getName();
-    }
-
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitLt(this);
         right().acceptInOrder(visitor);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitLt(this);
         left().acceptPreOrder(visitor);
         right().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptPostOrder(visitor);
         right().acceptPostOrder(visitor);
         visitor.visitLt(this);

@@ -29,42 +29,47 @@ import antlr.Token;
 
 /**
  * A simple node to represent MULT operation
+ * 
  * @version $Id$
  */
 
-public class MultOperator extends BinaryOperator {
+public class MultOperator extends BinaryOperator
+{
 
-    public MultOperator(Token tok) {
+    public MultOperator(Token tok)
+    {
         super(tok);
+        setName("MultOperator");
     }
 
-    public String toString() {
+    public String toString()
+    {
         return " *";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
-        throws EvaluationException {
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
+            EvaluationResult right) throws EvaluationException
+    {
 
         return EvaluationResult.mult(right, left);
     }
 
-    public String getName() {
-        return "MultOperator";
-    }
-
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitMult(this);
         right().acceptInOrder(visitor);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptPostOrder(visitor);
         right().acceptPostOrder(visitor);
         visitor.visitMult(this);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitMult(this);
         left().acceptPreOrder(visitor);
         right().acceptPreOrder(visitor);

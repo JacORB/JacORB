@@ -1,4 +1,4 @@
-package org.jacorb.notification.filter.etcl;
+package org.jacorb.notification.filter;
 
 /*
  *        JacORB - a free Java ORB
@@ -26,10 +26,6 @@ package org.jacorb.notification.filter.etcl;
  * @version $Id$
  */
 
-public class VisitorException extends Exception
-{
-    public VisitorException(String msg)
-    {
-        super(msg);
-    }
+public interface EventTypeIdentifier {
+    String getConstraintKey();
 }

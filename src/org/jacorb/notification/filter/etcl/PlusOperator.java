@@ -31,60 +31,68 @@ import antlr.Token;
  * A simple node to represent PLUS operation
  */
 
-public class PlusOperator extends UnaryOperator {
-    boolean unary_;
+public class PlusOperator extends UnaryOperator
+{
+    private boolean isUnaryOperator_;
 
-    public PlusOperator(Token tok) {
+    public PlusOperator(Token tok)
+    {
         super(tok);
+        setName("PlusOperator");
     }
 
-    public void setType(int type) {
-        unary_ = (type == UNARY_PLUS);
+    public void setType(int type)
+    {
+        isUnaryOperator_ = (type == UNARY_PLUS);
     }
 
-    public String getName() {
-        return "PlusOperator";
-    }
-
-    public String toString() {
+    public String toString()
+    {
         return " +";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, 
-            EvaluationResult left)
-        throws EvaluationException {
-
-        if (unary_) {
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left)
+            throws EvaluationException
+    {
+        if (isUnaryOperator_)
+        {
             return left;
         }
 
         return EvaluationResult.plus(left, right().evaluate(context));
     }
 
-    public boolean isStatic() {
+    public boolean isStatic()
+    {
         return (left().isStatic() && right().isStatic());
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitPlus(this);
-        if (!unary_) {
+        if (!isUnaryOperator_)
+        {
             right().acceptInOrder(visitor);
         }
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptPostOrder(visitor);
-        if (!unary_) {
+        if (!isUnaryOperator_)
+        {
             right().acceptPostOrder(visitor);
         }
         visitor.visitPlus(this);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitPlus(this);
         left().acceptPreOrder(visitor);
-        if (!unary_) {
+        if (!isUnaryOperator_)
+        {
             right().acceptPreOrder(visitor);
         }
     }

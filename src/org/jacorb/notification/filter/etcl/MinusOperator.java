@@ -37,16 +37,13 @@ public class MinusOperator extends UnaryOperator {
     private boolean unary_;
     private static final String NAME = "MinusOperator";
 
-    public String getName() {
-        return NAME;
-    }
-
     public MinusOperator(Token tok) {
         super(tok);
+        setName(NAME);
     }
 
     public void setType(int type) {
-        unary_ = type == UNARY_MINUS;
+        unary_ = (type == UNARY_MINUS);
     }
 
     public String toString() {
@@ -61,11 +58,9 @@ public class MinusOperator extends UnaryOperator {
 
             return EvaluationResult.unaryMinus(left);
 
-        } else {
-
+        } 
             return EvaluationResult.minus(left,
                                           right().evaluate(context));
-        }
     }
 
     public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {

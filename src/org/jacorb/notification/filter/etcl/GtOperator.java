@@ -35,10 +35,11 @@ public class GtOperator extends BinaryOperator
     public GtOperator(Token tok)
     {
         super(tok);
+        setName("GtOperator");
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
-        throws EvaluationException
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
+            EvaluationResult right) throws EvaluationException
     {
         int _comp = left.compareTo(right);
 
@@ -52,11 +53,6 @@ public class GtOperator extends BinaryOperator
     public String toString()
     {
         return ">";
-    }
-
-    public String getName()
-    {
-        return "GtOperator";
     }
 
     public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException

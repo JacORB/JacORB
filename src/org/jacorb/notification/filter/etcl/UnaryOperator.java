@@ -38,11 +38,6 @@ abstract class UnaryOperator extends AbstractTCLNode
         super(tok);
     }
 
-    public UnaryOperator()
-    {
-        super();
-    }
-
     public final EvaluationResult evaluate(EvaluationContext context) throws EvaluationException {
         EvaluationResult _left = left().evaluate(context);  
 

@@ -20,28 +20,41 @@ package org.jacorb.notification.filter.etcl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.AbstractFilter;
-import org.jacorb.notification.ApplicationContext;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.filter.AbstractFilter;
 import org.jacorb.notification.filter.FilterConstraint;
+import org.jacorb.notification.interfaces.EvaluationContextFactory;
+import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.InvalidConstraint;
+import org.omg.PortableServer.POA;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class ETCLFilter extends AbstractFilter {
-
+public class ETCLFilter extends AbstractFilter
+{
     public final static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
 
-    public ETCLFilter(ApplicationContext applicationContext)
+    public ETCLFilter(Configuration config, 
+            EvaluationContextFactory evaluationContextFactory,
+            MessageFactory messageFactory, 
+            ORB orb, POA poa) throws ConfigurationException
     {
-        super(applicationContext, CONSTRAINT_GRAMMAR);
+        super(config, evaluationContextFactory, messageFactory, orb, poa);
     }
 
-
-    public FilterConstraint newFilterConstraint(ConstraintExp constraintExp) throws InvalidConstraint{
+    public FilterConstraint newFilterConstraint(ConstraintExp constraintExp)
+            throws InvalidConstraint
+    {
         return new ETCLFilterConstraint(constraintExp);
     }
 
+    public String constraint_grammar()
+    {
+        return CONSTRAINT_GRAMMAR;
+    }
 }

@@ -29,13 +29,6 @@ import antlr.Token;
 
 public class DotOperator extends AbstractTCLNode
 {
-
-    DotOperator()
-    {
-        super();
-        setName( "DotOperator" );
-    }
-
     public DotOperator( Token tok )
     {
         super( tok );

@@ -21,6 +21,7 @@ package org.jacorb.notification.filter.etcl;
  *
  */
 
+import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
@@ -118,10 +119,10 @@ class RepoOperator implements ImplicitOperator {
         return "_repos_id";
     }
 
-    public Any evaluateImplicit(EvaluationContext context,
+    public Any evaluateImplicit(ETCLEvaluator evaluator,
                                 Any value) throws EvaluationException {
 
-        return context.getDynamicEvaluator().evaluateRepositoryId(value);
+        return evaluator.evaluateRepositoryId(value);
 
     }
 }
@@ -133,13 +134,11 @@ class TypeOperator implements ImplicitOperator {
         return "_type_id";
     }
 
-    public Any evaluateImplicit(EvaluationContext context,
+    public Any evaluateImplicit(ETCLEvaluator evaluator,
                                 Any value) throws EvaluationException {
 
-        return context.getDynamicEvaluator().evaluateTypeName(value);
-
+        return evaluator.evaluateTypeName(value);
     }
-
 }
 
 
@@ -149,10 +148,10 @@ class DiscrimOperator implements ImplicitOperator {
         return "_d";
     }
 
-    public Any evaluateImplicit(EvaluationContext context,
+    public Any evaluateImplicit(ETCLEvaluator evaluator,
                                 Any value) throws EvaluationException {
 
-        return context.getDynamicEvaluator().evaluateDiscriminator(value);
+        return evaluator.evaluateDiscriminator(value);
 
     }
 
@@ -165,10 +164,10 @@ class LengthOperator implements ImplicitOperator {
         return "_length";
     }
 
-    public Any evaluateImplicit(EvaluationContext context,
+    public Any evaluateImplicit(ETCLEvaluator evaluator,
                                 Any value) throws EvaluationException {
 
-        return context.getDynamicEvaluator().evaluateListLength(value);
+        return evaluator.evaluateListLength(value);
 
     }
 }

@@ -34,9 +34,7 @@ import org.jacorb.notification.interfaces.Message;
  */
 
 public interface FilterConstraint
-{
-    String getConstraint();
-
+{   
     EvaluationResult evaluate( EvaluationContext evaluationContext,
                                       Message event )
         throws EvaluationException;

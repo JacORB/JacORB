@@ -33,9 +33,8 @@ import org.jacorb.notification.interfaces.Message;
 
 public class TypeNameShorthandNode extends ETCLComponentName
 {
-
-    static AbstractTCLNode expandedPath_;
-    static final String COMP_NAME = "$.header.fixed_header.event_type.type_name";
+    private static final AbstractTCLNode expandedPath_;
+    private static final String COMP_NAME = "$.header.fixed_header.event_type.type_name";
     public static final String SHORT_NAME = "type_name";
 
     static {
@@ -46,6 +45,8 @@ public class TypeNameShorthandNode extends ETCLComponentName
         }
         catch ( Exception e )
         {
+            // should never happen
+            throw new RuntimeException(e.getMessage());
         }
     }
 

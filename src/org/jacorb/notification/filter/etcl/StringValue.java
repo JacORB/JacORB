@@ -23,7 +23,6 @@ package org.jacorb.notification.filter.etcl;
 
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.omg.CORBA.TCKind;
 
 import antlr.Token;
 
@@ -34,7 +33,7 @@ public class StringValue extends AbstractTCLNode {
 
     public StringValue(Token tok) {
         super(tok);
-        setKind(TCKind.tk_string);
+        setName("StringValue");
         value_ = tok.getText();
         EvaluationResult _result = new EvaluationResult();
         _result.setString(value_);
@@ -69,10 +68,6 @@ public class StringValue extends AbstractTCLNode {
 
     public boolean isString() {
         return true;
-    }
-
-    public String getName() {
-        return "StringValue";
     }
 
     public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {

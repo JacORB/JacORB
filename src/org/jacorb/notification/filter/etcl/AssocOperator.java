@@ -25,35 +25,42 @@ import antlr.Token;
 
 /** A simple node to represent Assoc operation */
 
-public class AssocOperator extends AbstractTCLNode {
+public class AssocOperator extends AbstractTCLNode
+{
+    private final String assocName_;
 
-    public AssocOperator(Token tok) {
+    public AssocOperator(Token tok)
+    {
         super(tok);
         setName("AssocOperator");
         assocName_ = tok.getText();
     }
 
-    String assocName_;
-
-    public String getAssocName() {
+    public String getAssocName()
+    {
         return assocName_;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "{" + assocName_ + "}";
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        if (getNextSibling() != null) {
-            ((AbstractTCLNode)getNextSibling()).acceptPostOrder(visitor);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
+        if (getNextSibling() != null)
+        {
+            ((AbstractTCLNode) getNextSibling()).acceptPostOrder(visitor);
         }
         visitor.visitAssoc(this);
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
 
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
     }
 }

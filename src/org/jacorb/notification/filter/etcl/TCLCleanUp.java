@@ -32,7 +32,6 @@ import antlr.collections.AST;
 
 public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenTypes
 {
-
     public void fix( AbstractTCLNode node )
     {
         try
@@ -67,7 +66,7 @@ public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenType
             new StringBuffer( comp.toString() );
 
         AbstractTCLNode _cursor =
-            ( AbstractTCLNode ) comp.left();
+            comp.left();
 
         while ( _cursor != null )
         {
@@ -78,7 +77,7 @@ public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenType
         comp.setComponentName( _name.toString() );
     }
 
-    void fixUnionPosition( UnionPositionOperator node )
+    private void fixUnionPosition( UnionPositionOperator node )
     {
         AST _nextSibling = node.getNextSibling();
 

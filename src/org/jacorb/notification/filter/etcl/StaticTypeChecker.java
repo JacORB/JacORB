@@ -26,27 +26,20 @@ package org.jacorb.notification.filter.etcl;
  * @version $Id$
  */
 
-public class StaticTypeChecker
-    extends AbstractTCLVisitor
-    implements TCLParserTokenTypes
+public class StaticTypeChecker extends AbstractTCLVisitor
 {
-    ////////////////////////////////////////
-
     public void check(AbstractTCLNode rootNode) throws StaticTypeException
     {
         try
         {
             rootNode.acceptPostOrder(this);
-        }
-        catch (VisitorException e)
+        } catch (VisitorException e)
         {
             throw new StaticTypeException(e.getMessage());
         }
     }
 
-
-    static void checkBinaryNumaryOperatorNode(AbstractTCLNode node)
-        throws StaticTypeException
+    private void checkBinaryNumaryOperatorNode(AbstractTCLNode node) throws StaticTypeException
     {
         if (node.isStatic())
         {
@@ -54,70 +47,33 @@ public class StaticTypeChecker
             {
                 return;
             }
-            throw new StaticTypeException("num or float or identifier (or bool) excepted)");
-        }
-        else
-        {
-            return;
+            throw new StaticTypeException("num or float excepted): " + node.toStringTree());
         }
     }
-
-
-    static void checkCMPNode(AbstractTCLNode node) throws StaticTypeException
-    {
-        //      if (_leftKind.equals(TCKind.tk_boolean) &&
-        //          _rightKind.equals(TCKind.tk_boolean)) {
-        //          return;
-        //      }
-
-        //      if (_leftKind.equals(TCKind.tk_string) &&
-        //          _rightKind.equals(TCKind.tk_string)) {
-        //          return;
-        //      }
-
-        //      if ((_leftKind.equals(TCKind.tk_float) ||
-        //           _leftKind.equals(TCKind.tk_long) ||
-        //           _leftKind.equals(TCKind.tk_boolean))
-        //          &&
-        //          (_rightKind.equals(TCKind.tk_float) ||
-        //           _rightKind.equals(TCKind.tk_long) ||
-        //           _rightKind.equals(TCKind.tk_boolean))) {
-        //          return;
-        //      }
-
-        //      throw new StaticTypeException("incompatible operands");
-    }
-
 
     public void visitGt(GtOperator n) throws VisitorException
     {
-        checkCMPNode(n);
     }
-
 
     public void visitPlus(PlusOperator n) throws VisitorException
     {
         checkBinaryNumaryOperatorNode(n);
     }
 
-
     public void visitMinus(MinusOperator node) throws VisitorException
     {
         checkBinaryNumaryOperatorNode(node);
     }
-
 
     public void visitDiv(DivOperator node) throws VisitorException
     {
         checkBinaryNumaryOperatorNode(node);
     }
 
-
     public void visitMult(MultOperator node) throws VisitorException
     {
         checkBinaryNumaryOperatorNode(node);
     }
-
 
     public void visitSubstr(SubstrOperator node) throws VisitorException
     {
@@ -130,7 +86,6 @@ public class StaticTypeChecker
             throw new StaticTypeException("~ Operator expects 2 Strings");
         }
     }
-
 
     public void visitAnd(AndOperator and) throws VisitorException
     {

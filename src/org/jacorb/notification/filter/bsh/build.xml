@@ -6,32 +6,32 @@
 
 <project name="JacORB Notify BSH Filter Plugin" default="all" basedir="../../../../../..">
 
-<!-- ============================================================== -->
-<!--               JacORB - NotificationService BSH Filter          -->
-<!-- $Id$ -->
-<!-- ============================================================== -->
+	<!-- ============================================================== -->
+	<!--               JacORB - NotificationService BSH Filter          -->
+	<!-- $Id$ -->
+	<!-- ============================================================== -->
 
   &common;
 
-  <property name="current.package"
-    value="org/jacorb/notification/filter/bsh" />
+  <property name="current.package" value="org/jacorb/notification/filter/bsh" />
 
-  <target name="local.init" depends="init">
-    <condition property="available.bsh" value="true" >
-      <available classname="bsh.Interpreter" classpath="${classpath}" />
-    </condition>
-  </target>
+	
 
-  <target name="fail" unless="available.bsh">
-    <echo>Skipped build of optional BSH Filter Plugin because Beanshell is not
+	<target name="local.init" depends="init">
+		<condition property="available.bsh" value="true">
+			<available classname="bsh.Interpreter" classpathref="path.base" />
+		</condition>
+	</target>
+
+	<target name="fail" unless="available.bsh">
+		<echo>Skipped build of optional BSH Filter Plugin because Beanshell is not
       available (http://www.beanshell.org)</echo>
-  </target>
+	</target>
 
-  <target name="all" depends="local.init, fail" if="available.bsh">
-    <antcall target="jacorb-javac">
-      <param name="javac-includes"
-	value="${current.package}/*.java" />
-    </antcall>
-  </target>
+	<target name="all" depends="local.init, fail" if="available.bsh">
+		<antcall target="jacorb-javac">
+			<param name="javac-includes" value="${current.package}/*.java" />
+		</antcall>
+	</target>
 
 </project>

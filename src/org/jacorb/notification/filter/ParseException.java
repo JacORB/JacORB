@@ -27,7 +27,7 @@ package org.jacorb.notification.filter;
 
 public class ParseException extends Exception {
 
-    Exception nested_;
+    private final Exception nested_;
 
     public ParseException(Exception e) {
         super();

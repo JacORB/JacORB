@@ -20,17 +20,21 @@ package org.jacorb.notification.filter.bsh;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.AbstractFilter;
-import org.jacorb.notification.ApplicationContext;
+import java.util.Date;
+
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.filter.AbstractFilter;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.FilterConstraint;
+import org.jacorb.notification.interfaces.EvaluationContextFactory;
 import org.jacorb.notification.interfaces.Message;
-
+import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.ConstraintExp;
-
-import java.util.Date;
+import org.omg.PortableServer.POA;
 
 import bsh.EvalError;
 import bsh.Interpreter;
@@ -39,30 +43,40 @@ import bsh.Interpreter;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class BSHFilter extends AbstractFilter {
-
+public class BSHFilter extends AbstractFilter
+{
     public static final String CONSTRAINT_GRAMMAR = "BSH";
 
-    public BSHFilter(ApplicationContext context) {
-        super(context, CONSTRAINT_GRAMMAR);
+    public BSHFilter(Configuration config, EvaluationContextFactory evaluationContextFactory,
+            MessageFactory messageFactory, ORB orb, POA poa) throws ConfigurationException
+    {
+        super(config, evaluationContextFactory, messageFactory, orb, poa);
     }
 
-    public FilterConstraint newFilterConstraint(ConstraintExp constraintExp) {
+    public String constraint_grammar()
+    {
+        return CONSTRAINT_GRAMMAR;
+    }
+
+    public FilterConstraint newFilterConstraint(ConstraintExp constraintExp)
+    {
         return new BSHFilterConstraint(constraintExp);
     }
 
-    private static class BSHFilterConstraint implements FilterConstraint {
+    private static class BSHFilterConstraint implements FilterConstraint
+    {
+        private final String constraint_;
 
-        private String constraint_;
-
-        BSHFilterConstraint(ConstraintExp constraintExp) {
+        BSHFilterConstraint(ConstraintExp constraintExp)
+        {
             constraint_ = constraintExp.constraint_expr;
         }
 
-        public EvaluationResult evaluate(EvaluationContext context,
-                                         Message message)
-            throws EvaluationException {
-            try {
+        public EvaluationResult evaluate(EvaluationContext context, Message message)
+                throws EvaluationException
+        {
+            try
+            {
                 Interpreter _interpreter = new Interpreter();
 
                 // TODO import useful stuff
@@ -74,38 +88,35 @@ public class BSHFilter extends AbstractFilter {
                 _interpreter.set("constraint", constraint_);
                 Object _result = _interpreter.eval(constraint_);
 
-                if (_result == null) {
+                if (_result == null)
+                {
                     return EvaluationResult.BOOL_FALSE;
                 }
 
-                if (_result instanceof Boolean) {
-                    if (_result.equals(Boolean.TRUE)) {
+                if (_result instanceof Boolean)
+                {
+                    if (_result.equals(Boolean.TRUE))
+                    {
                         return EvaluationResult.BOOL_TRUE;
-                    } else {
-                        return EvaluationResult.BOOL_FALSE;
                     }
+
+                    return EvaluationResult.BOOL_FALSE;
                 }
 
-                if (_result instanceof String) {
-                    if ("".equals(_result)) {
+                if (_result instanceof String)
+                {
+                    if ("".equals(_result))
+                    {
                         return EvaluationResult.BOOL_FALSE;
                     }
                     return EvaluationResult.BOOL_TRUE;
                 }
 
-
-                if (_result != null) {
-                    return EvaluationResult.BOOL_TRUE;
-                }
-                return EvaluationResult.BOOL_FALSE;
-            } catch (EvalError e) {
+                return EvaluationResult.BOOL_TRUE;
+            } catch (EvalError e)
+            {
                 throw new EvaluationException(e);
             }
-        }
-
-
-        public String getConstraint() {
-            return constraint_;
         }
     }
 }
