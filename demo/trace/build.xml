@@ -24,7 +24,7 @@
 
    <target name="idl" >
 <echo message="lib is ${lib}"/>
-      <java classname="jacorb.idl.parser" 
+      <java classname="org.jacorb.idl.parser" 
 	      args="${idlflags} ${dirs.base}/demo/trace/server.idl"
 	      jvmargs="-classpath ${lib}/idl.jar;${java.class.path}"
 	      fork="yes"

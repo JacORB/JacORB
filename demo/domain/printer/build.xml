@@ -28,7 +28,7 @@
 
 
    <target name="idl" depends="init">
-        <java classname="jacorb.idl.parser" 
+        <java classname="org.jacorb.idl.parser" 
               fork="yes" 
               classpath="${lib}/idl.jar;${java.class.path}">
 
