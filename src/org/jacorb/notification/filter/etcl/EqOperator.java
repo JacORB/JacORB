@@ -43,9 +43,7 @@ public class EqOperator extends AbstractTCLNode {
         EvaluationResult _left = left().evaluate(context);
         EvaluationResult _right = right().evaluate(context);
 
-        if (_left != null
-            && _right != null
-            && _left.compareTo( _right) == 0) {
+        if (_left.compareTo( _right) == 0) {
             return EvaluationResult.BOOL_TRUE;
         }
 
