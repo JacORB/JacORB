@@ -18,14 +18,13 @@
 
   <target name="local.init" depends="init">
     <condition property="available.bsh" value="true" >
-      <available classname="bsh.Interpreter" />
+      <available classname="bsh.Interpreter" classpath="${classpath}" />
     </condition>
   </target>
 
   <target name="fail" unless="available.bsh">
-    <echo>Skipped build of BSH Filter Plugin because Beanshell is not
-      available (http://www.beanshell.org) 
-    </echo>
+    <echo>Skipped build of optional BSH Filter Plugin because Beanshell is not
+      available (http://www.beanshell.org)</echo>
   </target>
 
   <target name="all" depends="local.init, fail" if="available.bsh">
