@@ -33,7 +33,7 @@ import org.jacorb.util.Debug;
  * MessageOutputStream.java
  *
  *
- * Created: Sat Aug 18 12:12:22 2001
+ * Created: Sat Aug 18 12:12:22 2002
  *
  * @author Nicolas Noffke
  * @version $Id$ 

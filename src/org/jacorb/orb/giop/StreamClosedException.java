@@ -6,7 +6,7 @@ import java.io.IOException;
  * StreamClosedException.java
  *
  *
- * Created: Thu Oct  4 15:50:30 2001
+ * Created: Thu Oct  4 15:50:30 2002
  *
  * @author Nicolas Noffke
  * @version $Id$

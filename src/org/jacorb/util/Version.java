@@ -3,7 +3,7 @@ package org.jacorb.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -31,7 +31,7 @@ import java.io.*;
 
 public final class Version
 {
-    private static String version = "1.4 pre 1, September 2001";
+    private static String version = "1.4 pre 1, September 2002";
 
     public static String get()
     {

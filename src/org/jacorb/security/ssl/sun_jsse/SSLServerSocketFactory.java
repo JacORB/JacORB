@@ -89,7 +89,7 @@ public class SSLServerSocketFactory
 
 	s.setNeedClientAuth( mutual_auth );
 
-	// Andrew T. Finnell / Change made for e-Security Inc. 2001 
+	// Andrew T. Finnell / Change made for e-Security Inc. 2002 
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
 	if( cipher_suites != null )
@@ -109,7 +109,7 @@ public class SSLServerSocketFactory
 
 	s.setNeedClientAuth( mutual_auth );
 
-	// Andrew T. Finnell / Change made for e-Security Inc. 2001 
+	// Andrew T. Finnell / Change made for e-Security Inc. 2002 
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
 	if( cipher_suites != null )
@@ -130,7 +130,7 @@ public class SSLServerSocketFactory
 
 	s.setNeedClientAuth( mutual_auth );
 
-	// Andrew T. Finnell / Change made for e-Security Inc. 2001 
+	// Andrew T. Finnell / Change made for e-Security Inc. 2002 
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
 	if( cipher_suites != null )

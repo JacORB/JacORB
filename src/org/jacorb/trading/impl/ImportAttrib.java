@@ -13,13 +13,16 @@
 
 /*
  * $Log$
- * Revision 1.4  2001/03/27 12:01:45  noffke
- * updated copyright header to 2001
+ * Revision 1.5  2002/03/27 12:09:40  noffke
+ * rollback to 1998-1999
  *
- * Revision 1.3  2001/03/19 11:10:03  brose
+ * Revision 1.4  2002/03/27 12:01:45  noffke
+ * updated copyright header to 2002
+ *
+ * Revision 1.3  2002/03/19 11:10:03  brose
  * *** empty log message ***
  *
- * Revision 1.2  2001/03/17 18:45:24  brose
+ * Revision 1.2  2002/03/17 18:45:24  brose
  * *** empty log message ***
  *
  * Revision 1.4  1999/11/25 16:08:15  brose

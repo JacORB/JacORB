@@ -3,7 +3,7 @@ package org.jacorb.concurrency;
 /*
  *        JacORB concurrency control service - a free CCS for JacORB
  *
- *   Copyright (C) 1999-2001  LogicLand group, Viacheslav Tararin.
+ *   Copyright (C) 1999-2002  LogicLand group, Viacheslav Tararin.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public

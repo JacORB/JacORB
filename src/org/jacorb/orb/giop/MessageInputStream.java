@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,7 +26,7 @@ import org.jacorb.orb.CDRInputStream;
  * MessageInputStream.java
  *
  *
- * Created: Sat Aug 18 21:07:07 2001
+ * Created: Sat Aug 18 21:07:07 2002
  *
  * @author Nicolas Noffke
  * @version $Id$

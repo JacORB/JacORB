@@ -6,7 +6,7 @@ import java.net.InetAddress;
  * DNSLookupDelegate.java
  *
  *
- * Created: Thu Apr  5 10:54:29 2001
+ * Created: Thu Apr  5 10:54:29 2002
  *
  * @author Nicolas Noffke
  * @version $Id$

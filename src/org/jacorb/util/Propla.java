@@ -12,7 +12,7 @@ package org.jacorb.util;
  * properties. With this class, you don't have to edit the global properties
  * each time a different process is started, but can keep the individual 
  * properties on a separate file for each different process.
- * <P>Created: Mon Apr  2 11:35:24 2001
+ * <P>Created: Mon Apr  2 11:35:24 2002
  *
  * @author Nicolas Noffke
  * $Id$

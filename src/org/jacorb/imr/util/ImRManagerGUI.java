@@ -19,7 +19,10 @@ import org.jacorb.imr.*;
  * @author Nicolas Noffke
  * 
  * $Log$
- * Revision 1.2  2001/03/17 18:44:00  brose
+ * Revision 1.3  2002/03/19 11:08:00  brose
+ * *** empty log message ***
+ *
+ * Revision 1.2  2002/03/17 18:44:00  brose
  * *** empty log message ***
  *
  * Revision 1.7  1999/11/25 16:05:47  brose
