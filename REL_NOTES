@@ -47,6 +47,8 @@ gerald.brose@acm.org
                  compatability.
          - IDL Compiler:
                - Fix for long long constant assignment from constant.
+         - Tools:
+               - Updated 'dior' utility to decode ORB type tagged components.
 
 1.4.0
 =====
