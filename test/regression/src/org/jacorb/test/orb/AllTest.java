@@ -21,7 +21,6 @@ package org.jacorb.test.orb;
  */
 
 import junit.framework.*;
-import org.jacorb.test.common.ORBSetup;
 
 public class AllTest extends TestCase
 {
@@ -32,13 +31,14 @@ public class AllTest extends TestCase
 
    public static Test suite ()
    {
-        TestSuite suite = new TestSuite ("All ORB");
+        TestSuite suite = new TestSuite ("All ORB Tests");
 
         suite.addTest (org.jacorb.test.orb.BasicTest.suite());
         suite.addTest (org.jacorb.test.orb.CharTest.suite());
         suite.addTest (org.jacorb.test.orb.CallbackTest.suite());
         suite.addTest (org.jacorb.test.orb.dynany.AllTest.suite ());
         suite.addTest (org.jacorb.test.orb.connection.AllTest.suite ());
+        suite.addTest (org.jacorb.test.orb.policies.AllTest.suite());
 
         return suite;
    }
