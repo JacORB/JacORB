@@ -1,3 +1,45 @@
+2003-10-16  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/connection/ClientConnectionTimeoutTest.java: Fix for bug
+	#396, inconsistent property names
+
+2003-10-10  Andre Spiegel  <spiegel@gnu.org>
+
+	* bugs/AllTest.java (suite): Add bug 387.
+
+	* bugs/bug384/TestCase.java (suite): Remove comma in test
+	description, it chokes Eclipse.
+
+	* bugs/bug387/TestCase.java, bugs/bug387/TestInterfaceImpl.java:
+	Initial revision.
+
+2003-10-05  Gerald Brose  <gerald.brose@acm.org>
+
+	* bugs/AllTest.java:
+	(suite) added call to add bug384 test suite to this suite.
+
+	* bugs/bug384/TestCase.java: (teardown) added
+
+2003-10-04  Gerald Brose  <gerald.brose@acm.org>
+
+	* bugs/bug384/TestCase.java, bugs/bug384/TestObject.java,
+	bugs/bug384/TestObjectHelper.java,
+	bugs/bug384/TestObjectHolder.java,
+	bugs/bug384/TestObjectImpl.java,
+	bugs/bug384/TestObjectOperations.java,
+	bugs/bug384/TestObjectPOA.java, bugs/bug384/_TestObjectStub.java,
+	bugs/bug384/test.idl: *** empty log message ***
+
+2003-09-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/policies/TimingTest.java (suite): Disable test cases where
+	RequestEndTime is supposed to expire during invocation -- we can't
+	possibly achieve that with millisecond precision.
+
+2003-09-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/QoSTest.java: (suite) added testCases to suite
+
 2003-09-12  Gerald Brose  <gerald.brose@acm.org>
 
 	* Version 2.0 beta 2 released.
