@@ -27,6 +27,8 @@ import org.omg.CORBA.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.connection.CodeSet;
 
+import org.jacorb.util.ValueHandler;
+
 /**
  * Read CDR encoded data 
  *
@@ -1258,8 +1260,7 @@ public class CDRInputStream
     {
         java.io.Serializable result;
 	if (repository_id.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
-	    // ValueHandler.readValue seems not to read Strings,
-	    // so I treat them as a special case
+            // special handling of strings, according to spec
 	    result = read_wstring();
         else if (repository_id.startsWith ("IDL:")) 
         {
@@ -1270,9 +1271,6 @@ public class CDRInputStream
         }
         else // RMI
         {
-            javax.rmi.CORBA.ValueHandler v = 
-                javax.rmi.CORBA.Util.createValueHandler();
-
             // ValueHandler wants class, repository_id, and sending context.
             // I wonder why it wants all of these.
             // If we settle down on this implementation, compute these 
@@ -1286,11 +1284,11 @@ public class CDRInputStream
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException ("class not found: " + className);
             }
-            result = v.readValue (this, index, 
-                                  c,
-                                  repository_id, 
-                                  // use our own code base for now
-                                  v.getRunTimeCodeBase());
+            result = ValueHandler.readValue(this, index, 
+                                            c,
+                                            repository_id, 
+                                            // use our own code base for now
+                                            ValueHandler.getRunTimeCodeBase());
         }
         
         valueMap.put (new Integer (index), result);
