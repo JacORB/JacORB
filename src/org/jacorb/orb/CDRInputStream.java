@@ -551,7 +551,7 @@ public class CDRInputStream
 
         getEncapsStack().push(
             new EncapsInfo (old_endian, index, pos, size,
-                            getRepIdMap(), getValueMap(), getCodebaseMap())
+                            getValueMap(), getRepIdMap(), getCodebaseMap())
         );
         
         valueMap    = ObjectUtil.createIdentityHashMap();
