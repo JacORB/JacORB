@@ -85,7 +85,6 @@ public class Environment
     private static int                  _client_pending_reply_timeout = 0;
     private static int                  _retries = 10;
     private static long                 _retry_interval = 700;
-    private static int                  _outbuf_size = 4096;
     private static int                  maxManagedBufSize = 18;
 
     /**
@@ -97,7 +96,6 @@ public class Environment
      */
     private static int                  compactTypecodes = 0;
 
-    private static String               _default_context = "<undefined>";
     private static boolean              _locate_on_bind = false;
     private static boolean              _use_imr = false;
     private static boolean              _use_imr_endpoint = true;
@@ -118,7 +116,6 @@ public class Environment
     /* IIOP proxy/appligator */
     private static boolean              _use_appligator_for_applets = true;
     private static boolean              _use_appligator_for_applications = false;
-    private static Hashtable            _use_httptunneling_for = new Hashtable();
 
     public static java.net.URL          URL=null;
 
@@ -303,115 +300,28 @@ public class Environment
         }
     }
 
-
-    /**
-     * Tries to read value from propname and then suffix locations. Returns
-     * null if value was not found.
-     */
-
-    private static String readValue(String propname, String prefix)
-    {
-        if (configurationProperties.getProperty(propname) != null)
-            return configurationProperties.getProperty(propname);
-        else if (prefix!=null && configurationProperties.getProperty(prefix) != null)
-            return configurationProperties.getProperty(prefix);
-        else return null;
-    }
-
-    /**
-     * Uses reflection to set field varName to value get from readValue(String,String).
-     * Converts into String,long,int and boolean ("on"==true).
-     */
-
-    private static void readValue(String varName,String propname,String prefix)
-    {
-        String o = readValue(propname,prefix);
-        if( o == null)
-            return;
-        if( varName.equals("_retries"))
-            _retries = Integer.parseInt(o);
-        else if( varName.equals("_retry_interval"))
-            _retry_interval = Integer.parseInt(o);
-        else if (varName.equals("_client_pending_reply_timeout"))
-            _client_pending_reply_timeout = Integer.parseInt(o);
-        else if( varName.equals("_outbuf_size"))
-            _outbuf_size = Integer.parseInt(o);
-        else if( varName.equals("_max_managed_bufsize"))
-            maxManagedBufSize = Integer.parseInt(o);
-        else if( varName.equals("_compactTypecodes"))
-            compactTypecodes = Integer.parseInt(o);
-        else if( varName.equals("_default_context"))
-            _default_context = o;
-//         else    if( varName.equals("_verbosity"))
-//             _verbosity = Integer.parseInt(o);
-        else    if( varName.equals("_locate_on_bind"))
-            _locate_on_bind = (o.equalsIgnoreCase("on")? true : false);
-        else    if( varName.equals("_cache_references"))
-            _cache_references = (o.equalsIgnoreCase("on")? true : false);
-        else if( varName.equals("_monitoring_on"))
-            _monitoring_on = (o.equalsIgnoreCase("on")? true : false);
-        else  if( varName.equals("_use_imr"))
-            _use_imr =  (o.equalsIgnoreCase("on")? true : false);
-        else  if( varName.equals("_use_imr_endpoint"))
-            _use_imr_endpoint =  (o.equalsIgnoreCase("on")? true : false);
-        else    if( varName.equals("_thread_pool_max"))
-            _thread_pool_max = Integer.parseInt(o);
-        else    if( varName.equals("_thread_pool_min"))
-            _thread_pool_min = Integer.parseInt(o);
-        else    if( varName.equals("_queue_max"))
-            _queue_max = Integer.parseInt(o);
-        else if (varName.equals("_queue_min"))
-            _queue_min = Integer.parseInt(o);
-        else if (varName.equals("_queue_wait"))
-            _queue_wait = o.equalsIgnoreCase("off") ? false : true;
-        else if( varName.equals("_use_appligator_for_applets"))
-            _use_appligator_for_applets = (o.equalsIgnoreCase("off")? false : true );
-        else if( varName.equals("_use_appligator_for_applications"))
-            _use_appligator_for_applications = (o.equalsIgnoreCase("off")? false : true );
-        else if( varName.equals("_use_httptunneling_for")){
-            StringTokenizer tokenizer=new StringTokenizer((String)o,",");
-            while(tokenizer.hasMoreTokens()){
-                String s=tokenizer.nextToken();
-                System.out.println("HTTP Tunneling set for:"+s);
-                _use_httptunneling_for.put(s,new Object());
-            }
-        }
-        else if( varName.equals("_impl_name"))
-            _impl_name = o.getBytes();
-        else if( varName.equals("strict_check_on_tc_creation"))
-            strict_check_on_tc_creation = (o.equalsIgnoreCase("on")? true : false);
-        else if (varName.equals("retry_on_failure"))
-            _retry_on_failure = o.equalsIgnoreCase("on") ? true : false;
-    }
-
     private static void readValues()
     {
-        //        readValue("_verbosity", "verbosity", jacorbPrefix + "verbosity");
-        readValue("_client_pending_reply_timeout", "connection.client.pending_reply_timeout", jacorbPrefix + "connection.client.pending_reply_timeout");
-
-        readValue("_retries","retries",jacorbPrefix+"retries");
-        readValue("_retry_interval","retry_interval",jacorbPrefix+"retry_interval");
-        readValue("_outbuf_size","outbuf_size",jacorbPrefix+"outbuf_size");
-        readValue("_max_managed_bufsize","maxManagedBufSize",jacorbPrefix+"maxManagedBufSize");
-        readValue("_compactTypecodes","compactTypecodes",jacorbPrefix+"compactTypecodes");
-        readValue("_locate_on_bind","locate_on_bind",jacorbPrefix+"locate_on_bind");
-        readValue("_cache_references","reference_caching",jacorbPrefix+"reference_caching");
-        readValue("_monitoring_on","monitoring",poaPrefix+"monitoring");
-        readValue("_use_imr","use_imr",jacorbPrefix+"use_imr");
-        readValue("_impl_name","implname",jacorbPrefix+"implname");
-        readValue("_use_imr_endpoint","use_imr_endpoint",jacorbPrefix+"use_imr_endpoint");
-        readValue("_thread_pool_max","thread_pool_max",poaPrefix+"thread_pool_max");
-        readValue("_thread_pool_min","thread_pool_min",poaPrefix+"thread_pool_min");
-        readValue("_queue_max","queue_max",poaPrefix+"queue_max");
-        readValue("_queue_min","queue_min",poaPrefix+"queue_min");
-        readValue("_queue_wait","queue_wait",poaPrefix+"queue_wait");
-        readValue("_use_appligator_for_applets", jacorbPrefix+"use_appligator_for_applets", null);
-        readValue("_use_appligator_for_applications", jacorbPrefix+"use_appligator_for_applications", null);
-        readValue("_use_httptunneling_for",jacorbPrefix+"use_httptunneling_for", null);
-        readValue("strict_check_on_tc_creation","strict_check_on_tc_creation",jacorbPrefix+"interop.strict_check_on_tc_creation");
-        readValue("retry_on_failure",
-                  "_retry_on_failure",
-                  "jacorb.connection.client.retry_on_failure");
+        _retries = getIntPropertyWithDefault("jacorb.retries", 5);
+        _retry_interval = getIntPropertyWithDefault("jacorb.retry_interval", 500);
+        _client_pending_reply_timeout = getIntPropertyWithDefault("jacorb.connection.client.pending_reply_timeout", 0);
+        maxManagedBufSize = getIntPropertyWithDefault("jacorb.maxManagedBufSize", 18);
+        compactTypecodes = getIntPropertyWithDefault("jacorb.compactTypecodes", 0);
+        _locate_on_bind = isPropertyOn("jacorb.locate_on_bind");
+        _cache_references = isPropertyOn("jacorb.reference_caching");
+        _monitoring_on = isPropertyOn("jacorb.poa.monitoring");
+        _use_imr = isPropertyOn("jacorb.use_imr");
+        _use_imr_endpoint = isPropertyOn("jacorb.use_imr", "on");
+        _thread_pool_max = getIntPropertyWithDefault("jacorb.poa.thread_pool_max", 20);
+        _thread_pool_min = getIntPropertyWithDefault("jacorb.poa.thread_pool_min", 5);
+        _queue_max = getIntPropertyWithDefault("jacorb.poa.queue_max", 100);
+        _queue_min = getIntPropertyWithDefault("jacorb.poa.queue_min", 10);
+        _queue_wait = isPropertyOn("jacorb.poa.queue_wait");
+        _use_appligator_for_applets = isPropertyOn("jacorb.use_appligator_for_applets");
+        _use_appligator_for_applications = isPropertyOn("jacorb.use_appligator_for_applications");
+        _impl_name = getProperty("jacorb.impl_name", "").getBytes();
+        strict_check_on_tc_creation = isPropertyOn("jacorb.strict_check_on_tc_creation", "on");
+        _retry_on_failure = isPropertyOn("jacorb.connection.client.retry_on_failure");
     }
 
     /**
@@ -571,7 +481,6 @@ public class Environment
     }
 
     public static final int noOfRetries() { return _retries;   }
-    public static final  int outBufSize() { return _outbuf_size; }
     public static final boolean locateOnBind() { return _locate_on_bind; }
     public static final boolean cacheReferences() { return _cache_references; }
 
@@ -602,13 +511,6 @@ public class Environment
             return _use_appligator_for_applications;
         }
     }
-
-    public static final boolean useHTTPTunneling(String ipaddr)
-    {
-        Object o=_use_httptunneling_for.get(ipaddr);
-        return (o!=null);
-    }
-
 
     public static int getMaxManagedBufSize()
     {
@@ -680,7 +582,12 @@ public class Environment
 
     public static boolean isPropertyOn(String key)
     {
-        String s = configurationProperties.getProperty (key, "off");
+        return isPropertyOn(key, "off");
+    }
+
+    public static boolean isPropertyOn(String key, String def)
+    {
+        String s = configurationProperties.getProperty (key, def);
         return "on".equals (s);
     }
 
@@ -1127,5 +1034,4 @@ public class Environment
             throw new RuntimeException(exc.toString());
         }
     }
-
 }
