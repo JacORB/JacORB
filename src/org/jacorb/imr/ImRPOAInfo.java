@@ -25,9 +25,6 @@ import org.jacorb.imr.AdminPackage.*;
 
 import org.jacorb.util.*;
 
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
-
 /**
  * This class stores information about a POA. It also provides methods 
  * for reactivation, conversion, and for waiting for reactivation.
@@ -47,9 +44,6 @@ public class ImRPOAInfo
     protected boolean active;
     protected long timeout; // 2 min.
 
-    private org.jacorb.config.Configuration configuration;
-    private Logger logger;
-
     /**
      * The constructor of this class.
      *
@@ -61,7 +55,11 @@ public class ImRPOAInfo
      * <code>null</code> or of length zero.
      */
 
-    public ImRPOAInfo(String name, String host, int port, ImRServerInfo server) 
+    public ImRPOAInfo(String name, 
+                      String host, 
+                      int port, 
+                      ImRServerInfo server,
+                      long timeout) 
         throws IllegalPOAName 
     {
         if (name == null || name.length() == 0)
@@ -72,17 +70,8 @@ public class ImRPOAInfo
         this.port = port;
         this.server = server;
         this.active = true;
+        this.timeout = timeout;
     }
-
-    public void configure(Configuration myConfiguration)
-        throws ConfigurationException
-    {
-        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.imr");
-        // default timeout is 2 mins.
-        timeout = configuration.getAttributeAsInteger( "jacorb.imr.timeout",120000);
-    }
-
 
     /**
      * "Converts" this Object to an instance of the POAInfo class.
@@ -131,18 +120,17 @@ public class ImRPOAInfo
                 if (!active && 
                     (System.currentTimeMillis() - _sleep_begin) > timeout)
                 {
-                    logger.debug("awaitActivation, time_out");
                     return false;
                 }
             }
             catch (java.lang.Exception e)
             {
-                logger.debug("awaitActivation", e);
+                //o.k., not nice but since this class is Serializable, we
+                //can't keep a Logger member
+                e.printStackTrace();
             }
         }        
         
-        logger.debug("awaitActivation, returns true");
-
         return true;
     }
 } // ImRPOAInfo
