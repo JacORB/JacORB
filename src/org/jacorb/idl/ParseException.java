@@ -28,8 +28,10 @@ package org.jacorb.idl;
  */
 
 public class ParseException
-        extends RuntimeException
+    extends RuntimeException
 {
+    /** remember the error position  */
+    private PositionInfo position = null;
 
     public ParseException()
     {
@@ -39,6 +41,20 @@ public class ParseException
     {
         super( reason );
     }
+
+    public ParseException( String reason, PositionInfo pos )
+    {
+        super( reason );
+        position = pos;
+    }
+
+    public String getMessage()
+    {
+        return "IDL Parse error in " + 
+            ( position != null ?  position.toString() : "" ) + 
+            ": " + super.getMessage();
+    }
+    
 
 
 }
