@@ -92,10 +92,10 @@ public class ClientInterceptorHandler
     {
         if ( info != null )
         {
-            info.reply_status = LOCATION_FORWARD.value;
+            info.setReplyStatus (LOCATION_FORWARD.value);
             info.setReplyServiceContexts( reply.rep_hdr.service_context );
 
-            info.forward_reference = forward_reference;
+            info.setForwardReference (forward_reference);
 
             //allow interceptors access to reply input stream
             info.reply_is = reply;
@@ -114,7 +114,7 @@ public class ClientInterceptorHandler
 
             if ( header.reply_status.value() == ReplyStatusType_1_2._NO_EXCEPTION )
             {
-                info.reply_status = SUCCESSFUL.value;
+                info.setReplyStatus (SUCCESSFUL.value);
 
                 info.setReplyServiceContexts( header.service_context );
 
@@ -125,7 +125,7 @@ public class ClientInterceptorHandler
                 if ( info.request_os.getRequest() == null )
                 {
                     InterceptorManager manager = info.orb.getInterceptorManager();
-                    info.current = manager.getCurrent();
+                    info.setCurrent (manager.getCurrent());
 
                     //allow interceptors access to reply input stream
                     info.reply_is = reply;
@@ -144,7 +144,7 @@ public class ClientInterceptorHandler
     {
         if ( info != null )
         {
-            info.reply_status = reply_status;
+            info.setReplyStatus (reply_status);
             invokeInterceptors ( info, ClientInterceptorIterator.RECEIVE_OTHER );
         }   
     }
@@ -172,7 +172,7 @@ public class ClientInterceptorHandler
                 if (logger.isDebugEnabled())
                     logger.debug("BadKind: " + bk.getMessage());
             }
-            info.reply_status = SYSTEM_EXCEPTION.value;
+            info.setReplyStatus (SYSTEM_EXCEPTION.value);
 
             if ( reply != null )
             {
@@ -205,7 +205,7 @@ public class ClientInterceptorHandler
                                                new org.omg.CORBA.UNKNOWN
                                                   ( e.getMessage() ) );
             }
-            info.reply_status = USER_EXCEPTION.value;
+            info.setReplyStatus (USER_EXCEPTION.value);
 
             try
             {
