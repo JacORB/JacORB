@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -60,15 +60,21 @@ public class PingObject
 
 	org.omg.CORBA.Object o = orb.string_to_object( iorString );
 
-	if( o._non_existent())
-	{
-	    System.out.println("Object not reachable!");
+        if( o == null )
+        {
+            System.out.println("Could not convert " + iorString + " to an object");
+        }
+        else
+        {
+            if( o._non_existent())
+            {
+                System.out.println("Object not reachable!");
+            }
+            else
+            {
+                System.out.println("Object is alive! ");
+            }
 	}
-	else
-	{
-	    System.out.println("Object is alive! ");
-	}
-	
     }
 }
 
