@@ -81,73 +81,18 @@ public class ReplyReceiver extends ReplyPlaceholder
             return; // discard reply
 
         this.in = in;
-        ReplyInputStream reply = ( ReplyInputStream ) in;
-        Set pending_replies    = delegate.get_pending_replies();
-
-        try
-        {
-            if ( !delegate.doNotCheckExceptions() )
-            {
-                // This will check the reply status and
-                // throw arrived exceptions
-                reply.checkExceptions();
-            }
-            
-            interceptors.handle_receive_reply ( reply );
-        }
-        catch ( RemarshalException re )
-        {
-            // Wait until the thread that received the actual
-            // forward request rebound the Delegate
-            delegate.waitOnBarrier();
-            remarshalException = true;
-        }            
-        catch ( org.omg.PortableServer.ForwardRequest f )
-        {
-            intercept_location_forward ( reply, f.forward_reference );
-            
-            // make other threads that have unreturned replies wait
-            delegate.lockBarrier();
-
-            // tell every pending request to remarshal
-            // they will be blocked on the barrier
-            synchronized ( pending_replies )
-            {
-                for ( Iterator i = pending_replies.iterator(); i.hasNext(); )
-                {
-                    ReplyPlaceholder p = ( ReplyPlaceholder ) i.next();
-                    p.retry();
-                }
-            }
-            
-            // do the actual rebind
-            delegate.rebind ( f.forward_reference );
-            
-            // now other threads can safely remarshal
-            delegate.openBarrier();
-            
-            remarshalException = true;
-        }
-        catch ( SystemException se )
-        {
-            intercept_exception ( se, reply );
-            systemException = se;
-        }
-        catch ( ApplicationException ae )
-        {
-            intercept_exception ( ae, reply );
-            applicationException = ae;
-        }
 
         if ( replyHandler != null )
         {
-            performCallback ( reply );
+            performCallback ( (ReplyInputStream)in );
         }
 
+        Set pending_replies = delegate.get_pending_replies();
         synchronized ( pending_replies )
         {            
             pending_replies.remove ( this );
         }
+
         ready   = true;
         notifyAll();
     }       
@@ -174,20 +119,68 @@ public class ReplyReceiver extends ReplyPlaceholder
     {
         // Call to super implementation handles RemarshalException,
         // COMM_FAILURE, and timeout (IMP_LIMIT).
-        MessageInputStream result = super.getInputStream();
+        ReplyInputStream reply = ( ReplyInputStream ) super.getInputStream();
+        Set pending_replies    = delegate.get_pending_replies();
 
-        if ( systemException != null )
+        // ReplyStatusType_1_2 status = delegate.doNotCheckExceptions()
+        //                            ? ReplyStatusType_1_2.NO_EXCEPTION
+        //                            : reply.getStatus();
+
+        try
         {
-            throw systemException;
+            if ( !delegate.doNotCheckExceptions() )
+            {
+                // This will check the reply status and
+                // throw arrived exceptions
+                reply.checkExceptions();
+            }
+            interceptors.handle_receive_reply ( reply );
+            return reply;
         }
-        else if ( applicationException != null )
+        catch ( RemarshalException re )
         {
-            throw applicationException;
-        }
-        else
+            // Wait until the thread that received the actual
+            // forward request rebound the Delegate
+            delegate.waitOnBarrier();
+            throw re;
+        }            
+        catch ( org.omg.PortableServer.ForwardRequest f )
         {
-            return ( ReplyInputStream ) result;
+            intercept_location_forward ( reply, f.forward_reference );
+            
+            // make other threads that have unreturned replies wait
+            delegate.lockBarrier();
+
+            // tell every pending request to remarshal
+            // they will be blocked on the barrier
+            synchronized ( pending_replies )
+            {
+                for ( Iterator i = pending_replies.iterator(); i.hasNext(); )
+                {
+                    ReplyPlaceholder p = ( ReplyPlaceholder ) i.next();
+                    p.retry();
+                }
+            }
+            
+            // do the actual rebind
+            delegate.rebind ( f.forward_reference );
+            
+            // now other threads can safely remarshal
+            delegate.openBarrier();
+            
+            throw new RemarshalException();
         }
+        catch ( SystemException se )
+        {
+            intercept_exception ( se, reply );
+            throw se;
+        }
+        catch ( ApplicationException ae )
+        {
+            intercept_exception ( ae, reply );
+            throw ae;
+        }
+
     }
 
     private void intercept_location_forward 
