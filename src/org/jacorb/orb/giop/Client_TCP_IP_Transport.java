@@ -128,9 +128,11 @@ public class Client_TCP_IP_Transport
                         socket.setSoTimeout( timeout );
                     }
 
-                    in_stream = socket.getInputStream();
+                    in_stream =
+                        new BufferedInputStream(socket.getInputStream());
                     
-                    out_stream = socket.getOutputStream();
+                    out_stream = 
+                        new BufferedOutputStream( socket.getOutputStream());
 
                     Debug.output( 2, "Succeeded to connect to " +
                                   connection_info +
