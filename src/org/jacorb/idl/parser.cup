@@ -1928,9 +1928,9 @@ op_dcl ::=
 // #68
 op_attribute ::=
           ONEWAY
-                {: RESULT.int_val = 1; :}
+                {: RESULT.int_val = OpDecl.ONEWAY; :}
         | empty
-                {: RESULT.int_val = 0; :}
+                {: RESULT.int_val = OpDecl.NO_ATTRIBUTE; :}
         ;
 
 // #69
@@ -1978,9 +1978,9 @@ param_dcl ::=
 
 // #72
 param_attribute ::=
-          IN    {: RESULT.int_val = 1; :}
-        | OUT   {: RESULT.int_val = 2; :}
-        | INOUT {: RESULT.int_val = 3; :}
+          IN    {: RESULT.int_val = ParamDecl.MODE_IN; :}
+        | OUT   {: RESULT.int_val = ParamDecl.MODE_OUT; :}
+        | INOUT {: RESULT.int_val = ParamDecl.MODE_INOUT; :}
         ;
 
 // #73
