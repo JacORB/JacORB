@@ -25,9 +25,6 @@ import org.tanukisoftware.wrapper.WrapperListener;
 import org.tanukisoftware.wrapper.WrapperManager;
 
 /**
- * Main.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
