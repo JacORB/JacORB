@@ -149,7 +149,7 @@ public final class Delegate
     public Delegate ( org.jacorb.orb.ORB orb, org.omg.IOP.IOR _ior )
     {
         this.orb = orb;
-        _pior = new ParsedIOR( _ior );
+        _pior = new ParsedIOR( _ior, orb );
 
         checkIfImR( _pior.getTypeId() );
         conn_mg = orb.getClientConnectionManager();
@@ -1482,7 +1482,7 @@ public final class Delegate
 
         synchronized ( bind_sync )
         {
-            _pior = new ParsedIOR( ior );
+            _pior = new ParsedIOR( ior, orb );
         }
 
         return self;
