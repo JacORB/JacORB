@@ -62,10 +62,10 @@ public class AOM
     private Hashtable           servantMap;             // servant -> oid
 
     // for synchronisation of servant activator calls
-    private Vector              etherealisationList = new Vector();
-    private Vector              incarnationList = new Vector();
+    private List              etherealisationList = new ArrayList();
+    private List              incarnationList = new ArrayList();
 
-    private Vector              deactivationList = new Vector();
+    private List              deactivationList = new ArrayList();
     /** a lock to protect two consecutive operations on the list, used
         in remove() */
     private Object              deactivationListLock = new Object();
@@ -261,14 +261,14 @@ public class AOM
 
         /* servant incarnation */
 
-        incarnationList.addElement(oidbak);
+        incarnationList.add(oidbak);
         try
         {
             servant = servant_activator.incarnate(oid, poa);
         }
         finally
         {
-            incarnationList.removeElement(oidbak);
+            incarnationList.remove(oidbak);
             notifyAll();
         }
 
@@ -339,7 +339,7 @@ public class AOM
                 throw new ObjectNotActive();
             }
 
-            deactivationList.addElement(oidbak);
+            deactivationList.add(oidbak);
         }
 
         final byte[] oid_ = oid;
@@ -388,7 +388,7 @@ public class AOM
         if (!objectMap.containsKey(oidbak))
         {
             // should not happen but ...
-            deactivationList.removeElement(oidbak);
+            deactivationList.remove(oidbak);
             return;
         }
 
@@ -414,7 +414,7 @@ public class AOM
             // Wait to remove the oid from the deactivationList here so that the
             // object map can be cleared out first. This ensures we don't
             // reactivate an object we're currently deactivating.
-            deactivationList.removeElement(oidbak);
+            deactivationList.remove(oidbak);
 
             if (logger.isInfoEnabled())
             {
@@ -451,7 +451,7 @@ public class AOM
                 {
                 }
             }
-            etherealisationList.addElement(oidbak);
+            etherealisationList.add(oidbak);
 
             try
             {
@@ -487,7 +487,7 @@ public class AOM
             }
             finally
             {
-                etherealisationList.removeElement(oidbak);
+                etherealisationList.remove(oidbak);
                 notifyAll();
             }
 
