@@ -8,6 +8,6 @@ GOTO EXIT
 
 :USAGE
    echo.
-   echo Usage: %0 ^<filename^> 
+   echo Usage: %0 ^[^<IOR^> ^| -f ^<filename^>^] 
 
 :EXIT
