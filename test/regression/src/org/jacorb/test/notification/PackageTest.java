@@ -41,8 +41,8 @@ public class PackageTest extends TestCase {
             new TestSuite("Tests in Package org.jacorb.test.notification");
 
         _suite.addTest(EventChannelFactoryTest.suite());
-        _suite.addTest(StopTimeTest.suite());
         _suite.addTest(TimeoutTest.suite());
+        _suite.addTest(StopTimeTest.suite());
         _suite.addTest(StartTimeTest.suite());
         _suite.addTest(EventChannelTest.suite());
         _suite.addTest(CosEventChannelTest.suite());
@@ -52,6 +52,7 @@ public class PackageTest extends TestCase {
         _suite.addTest(AdminLimitTest.suite());
         _suite.addTest(FilterImplTest.suite());
         _suite.addTest(FilterTest.suite());
+        _suite.addTest(MappingFilterTest.suite());
         _suite.addTest(MessageFactoryTest.suite());
         _suite.addTest(MessageUtilsTest.suite());
         _suite.addTest(NotificationEventTest.suite());
