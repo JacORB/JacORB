@@ -19,10 +19,9 @@
 
 \title{JacORB 1.4 Programming Guide}
 
-\author{Gerald Brose, Nicolas Noffke, Sebastian M\"uller\\
-Institut f\"ur Informatik\\
-Freie Universit\"at Berlin, Germany\\
-\{brose,noffke,semu\}@inf.fu-berlin.de\\
+\author{Gerald Brose, Nicolas Noffke\\
+Xtradyne Technologies, Berlin, Germany\\
+\{brose,noffke\}@xtradyne.com\\
 \\
 $Revision$
 }
@@ -34,8 +33,8 @@ $Revision$
 
 % Use these instead of writing version numbers directly, so
 % version changes only have to be made in one place
-\newcommand{\JacORBDir}{JacORB1\_4\_beta4}
-\newcommand{\JacORBVersion}{1.4 beta 4}
+\newcommand{\JacORBDir}{JacORB1\_4}
+\newcommand{\JacORBVersion}{1.4}
 
 \maketitle
 
@@ -2965,12 +2964,12 @@ to configure JacORB are given in the following tables.
 ~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
 
 \hline
-\verb"ORBInitRef.<Service>" & \verb"The ORBInitRef references are"
-\verb"configured initial service objects"
-\verb"that can be resolved via the ORB"
-\verb"resolve_intial_references operation."
-\verb"File and HTTP based URLs are"
-\verb"supported." & \verb"URL" \\
+\verb"ORBInitRef.<Service>" & The ORBInitRef references are
+configured initial service objects that can be resolved via the ORB's
+resolve\_intial\_references operation. File and HTTP based URLs are supported. & URL \\
+\hline
+\verb"jacorb.orb."
+\verb"objectKeyMap.<Name>" & Maps an object key to the string Name so that corbaloc: URLs can be made easier to set up & object key \\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializer.C"
@@ -3381,7 +3380,7 @@ A few limitations and known bugs (list is incomplete):
 
 Please mail bug reports as well as criticism and experience reports to:
 
-\verb+brose@inf.fu-berlin.de+
+\verb+gerald.brose@acm.org+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 {
