@@ -602,6 +602,9 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         } catch (RetryException e)
         {
             logger_.error("retry failed", e);
+            
+            _retry.dispose();
+            dispose();
         }
     }
 
