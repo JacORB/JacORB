@@ -1,7 +1,7 @@
-/* 
-   Test IDL for bug #115 
+/*
+   Test IDL for bug #115
 
-   Description from Bugzilla: 
+   Description from Bugzilla:
 
    IDL compiler doesn't generate any Classes for the union
    "VariableUnion" defined in the IDL construct. Instead If I use
@@ -13,21 +13,35 @@
 */
 
 
-interface TestIntfUnion
+module org
 {
-    struct VariableStruct
-    {
-	string s;
-    };
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bug115
+            {
+               interface TestIntfUnion
+               {
+                  struct VariableStruct
+                  {
+                     string s;
+                  };
 
-    typedef TestIntfUnion TestIntfUnionAlias; 
+                  typedef TestIntfUnion TestIntfUnionAlias;
 
-    union VariableUnion switch(boolean)
-    {
-        //case FALSE: TestIntfUnionAlias tiua;
-        case FALSE: TestIntfUnion tiua;
-            //  case FALSE: Another tiu;
-          case TRUE: VariableStruct st;
+                  union VariableUnion switch(boolean)
+                  {
+                     //case FALSE: TestIntfUnionAlias tiua;
+                     case FALSE: TestIntfUnion tiua;
+                     //  case FALSE: Another tiu;
+                     case TRUE: VariableStruct st;
+                  };
+               };
+            };
+         };
       };
-    
+   };
 };
