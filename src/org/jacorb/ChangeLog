@@ -1,5 +1,19 @@
 2003-09-01  Nick Cross  <nick.cross@prismtechnologies.com>
 
+	* poa/Current.java: Remove commented out code
+
+2003-09-01  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/TypeMap.java:
+	(removeDefinition) new method, needed to fix bug #345 (fix joined in
+	from a separate branch)
+
+	* idl/NameTable.java: added fix for bug#345
+
+	* util/Version.java: *** empty log message ***
+
+2003-09-01  Nick Cross  <nick.cross@prismtechnologies.com>
+
 	* util/Version.java, util/tracing/ClientTraceInterceptor.java,
 	util/tracing/ServerTraceInterceptor.java, util/tracing/Timer.java,
 	util/tracing/TraceInitializer.java,
