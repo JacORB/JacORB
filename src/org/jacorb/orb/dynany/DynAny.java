@@ -703,6 +703,9 @@ public class DynAny
       case TCKind._tk_wstring: 
          _any.insert_wstring("");
          break;
+      case TCKind._tk_objref: 
+         _any.insert_Object(null);
+         break;
       case TCKind._tk_TypeCode: 
          _any.insert_TypeCode( orb.get_primitive_tc( TCKind.tk_null ) );
          break;
