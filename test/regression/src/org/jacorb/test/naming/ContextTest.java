@@ -123,7 +123,7 @@ public class ContextTest extends TestCase
 	}
 	catch( AlreadyBound e )
         {
-            assert("We should get here!", true );
+            assertTrue ("We should get here!", true );
         } 
 	catch( Exception e ) 
 	{
