@@ -132,8 +132,13 @@ public class SSLSocketFactory
 		defaultContext.addServerCredentials( kac[i].chain,  
                                                      kac[i].key );
 	    }
-
-            defaultContext.setRequestClientCertificate( true );
+            
+            if( Environment.requiredBySSL & 0x20 != 0 )
+            {
+                //required: establish trust in target
+                //--> force other side to authenticate
+                defaultContext.setRequestClientCertificate( true );
+            }
 
             ctx = defaultContext;
 	}
