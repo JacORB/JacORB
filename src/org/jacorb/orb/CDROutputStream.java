@@ -75,7 +75,7 @@ public class CDROutputStream
      * variable directly. It is initialised on demand. Use the method
      * {@link #getRecursiveTCMap() getRecursiveTCMap()}
      */
-    private HashMap recursiveTCMap;
+    private Map recursiveTCMap;
 
     /**
      * <code>valueMap</code> is used to maps all value objects that have
@@ -84,7 +84,7 @@ public class CDROutputStream
      * this variable directly. It is initialised on demand. Use the method
      * {@link #getValueMap() getValueMap()}
      */
-    private HashMap valueMap;
+    private Map valueMap;
 
     /**
      * <code>repIdMap</code> is used to map all repository ids that have already
@@ -93,7 +93,7 @@ public class CDROutputStream
      * directly. It is initialised on demand. Use the method
      * {@link #getRepIdMap() getRepIdMap()}
      */
-    private HashMap repIdMap;
+    private Map repIdMap;
 
     /**
      * <code>codebaseMap</code> is used to maps all codebase strings that have
@@ -102,7 +102,7 @@ public class CDROutputStream
      * directly. It is initialised on demand. Use the method
      * {@link #getCodebaseMap() getCodebaseMap()}
      */
-    private HashMap codebaseMap;
+    private Map codebaseMap;
 
     /**
      * <code>cachedTypecodes</code> is used to cache compacted typecodes when
@@ -208,7 +208,7 @@ public class CDROutputStream
      *
      * @return a <code>Stack</code> value
      */
-    private Stack getEncapsStack ()
+    private Stack getEncapsStack()
     {
         if (encaps_stack == null)
         {
@@ -219,12 +219,11 @@ public class CDROutputStream
 
 
     /**
-     * <code>getRecursiveTCMap</code> is used to initialize recursiveTCMap
-     * on demand.
+     * Gets the Map that is used to store recursive TypeCodes.
      *
-     * @return a <code>HashMap</code> value
+     * @return a <code>Map</code> value
      */
-    private HashMap getRecursiveTCMap ()
+    private Map getRecursiveTCMap()
     {
         if (recursiveTCMap == null)
         {
@@ -235,47 +234,46 @@ public class CDROutputStream
 
 
     /**
-     * <code>getValueMap</code> is used to initialize valueMap
-     * on demand.
+     * Gets the Map that is used to detect reference sharing when
+     * marshaling valuetype instances.
      *
-     * @return a <code>HashMap</code> value
+     * @return a <code>Map</code> value
      */
-    private HashMap getValueMap ()
+    private Map getValueMap()
     {
         if (valueMap == null)
         {
-            valueMap = new HashMap ();
+            valueMap = new HashMap(); // should be IdentityHashMap, will be fixed, AS.
         }
         return valueMap;
     }
 
 
     /**
-     * <code>getRepIdMap</code> is used to initialize valueMap
-     * on demand.
+     * Gets the Map that is used to implement indirections for RepositoryIDs.
      *
-     * @return a <code>HashMap</code> value
+     * @return a <code>Map</code> value
      */
-    private HashMap getRepIdMap ()
+    private Map getRepIdMap()
     {
         if (repIdMap == null)
         {
-            repIdMap = new HashMap ();
+            repIdMap = new HashMap();
         }
         return repIdMap;
     }
 
     /**
-     * <code>getCodebaseMap</code> is used to initialize valueMap
-     * on demand.
+     * Gets the Map that is used to implement indirections for Codebase
+     * specifications.
      *
-     * @return a <code>HashMap</code> value
+     * @return a <code>Map</code> value
      */
-    private HashMap getCodebaseMap ()
+    private Map getCodebaseMap ()
     {
         if (codebaseMap == null)
         {
-            codebaseMap = new HashMap ();
+            codebaseMap = new HashMap();
         }
         return codebaseMap;
     }
@@ -522,15 +520,17 @@ public class CDROutputStream
            Also, remember the current index and the indirection maps because
            we need to restore these when closing the encapsulation */
 
-        getEncapsStack ().push
+        getEncapsStack().push
         (
-            new EncapsInfo
-            (index, encaps_start, valueMap, repIdMap, codebaseMap)
+            new EncapsInfo(index, encaps_start, 
+                           getValueMap(), 
+                           getRepIdMap(), 
+                           getCodebaseMap())
         );
 
         // set up new indirection maps for this encapsulation
 
-        valueMap = new HashMap();
+        valueMap = new HashMap(); // should be IdentityHashMap, will be fixed, AS.
         repIdMap = new HashMap();
         codebaseMap = new HashMap();
 
