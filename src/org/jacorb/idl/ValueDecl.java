@@ -85,8 +85,27 @@ class ValueDecl
             ((IdlSymbol)i.next()).setPackage (s);
     }
 
+    public TypeDeclaration declaration()
+    {
+        return this;
+    }
+
     public void parse()
     {	
+	try
+	{
+	    ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
+	    ctspec.c_type_spec = this;
+
+	    NameTable.define( full_name(), "type" );
+	    TypeMap.typedef( full_name(), ctspec );
+	} 
+	catch ( NameAlreadyDefined nad )
+	{
+            Environment.output( 4, nad );
+	    parser.error("Valuetype " + typeName() + " already defined", token);
+	}
+
         stateMembers.parse();
 
         for (Iterator i = operations.iterator(); i.hasNext();)
@@ -104,19 +123,6 @@ class ValueDecl
             }
         }
 
-	try
-	{
-	    ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
-	    ctspec.c_type_spec = this;
-
-	    NameTable.define( full_name(), "type" );
-	    TypeMap.typedef( full_name(), ctspec );
-	} 
-	catch ( NameAlreadyDefined nad )
-	{
-            Environment.output( 4, nad );
-	    parser.error("Valuetype " + typeName() + " already defined", token);
-	}
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -156,32 +162,43 @@ class ValueDecl
 
     public String getTypeCodeExpression()
     {
-        StringBuffer result = new StringBuffer 
-            ("org.omg.CORBA.ORB.init().create_value_tc (" + 
-             // id
-             "\"" + id() + "\", " + 
-             // name
-             "\"" + name + "\", " +
-             // type modifier
-             "(short)" +
-             (this.isCustomMarshalled() ? org.omg.CORBA.VM_CUSTOM.value
-                                        : org.omg.CORBA.VM_NONE.value) + ", " +
-             // concrete base type
-             "null, " +
-             // value members
-             "new org.omg.CORBA.ValueMember[] {");
-        
-        for (Iterator i = stateMembers.v.iterator(); i.hasNext();)
-        {
-            StateMember m = (StateMember)i.next();
-            result.append (getValueMemberExpression (m));
-            if (i.hasNext()) result.append (", ");
-        }
-        result.append ("})");
-        return result.toString();
+        return this.getTypeCodeExpression (new HashSet());
     }
 
-    private String getValueMemberExpression (StateMember m)
+    public String getTypeCodeExpression (Set knownTypes)
+    {
+        if (knownTypes.contains (this))
+        {
+            return this.getRecursiveTypeCodeExpression();
+        }
+        else
+        {
+            knownTypes.add (this);
+            StringBuffer result = new StringBuffer 
+                ("org.omg.CORBA.ORB.init().create_value_tc (" + 
+                 // id, name
+                 "\"" + id() + "\", " + "\"" + name + "\", " +
+                 // type modifier
+                 "(short)" +
+                 (this.isCustomMarshalled() 
+                  ? org.omg.CORBA.VM_CUSTOM.value
+                  : org.omg.CORBA.VM_NONE.value) + ", " +
+                 // concrete base type
+                 "null, " +
+                 // value members
+                 "new org.omg.CORBA.ValueMember[] {");
+            for (Iterator i = stateMembers.v.iterator(); i.hasNext();)
+            {
+                StateMember m = (StateMember)i.next();
+                result.append (getValueMemberExpression (m, knownTypes));
+                if (i.hasNext()) result.append (", ");
+            }
+            result.append ("})");
+            return result.toString();
+        }
+    }
+
+    private String getValueMemberExpression (StateMember m, Set knownTypes)
     {
         TypeSpec typeSpec = m.typeSpec();
         short    access   = m.isPublic
@@ -190,7 +207,7 @@ class ValueDecl
         return "new org.omg.CORBA.ValueMember (" +
                "\"" + m.name + "\", \"" + typeSpec.id() +
                "\", \"" + name + "\", \"1.0\", " + 
-               typeSpec.getTypeCodeExpression() + ", null, " + 
+               typeSpec.getTypeCodeExpression (knownTypes) + ", null, " + 
                "(short)" + access + ")";
     }
                
