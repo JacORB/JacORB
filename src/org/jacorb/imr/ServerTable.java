@@ -74,6 +74,18 @@ public class ServerTable implements Serializable {
     }
 
     /**
+     * This method tests, if a server is known.
+     *
+     * @param name the servers name.
+     * @return true, if a server with the specified name has already been registered.
+     **/
+    public boolean hasServer( String name )
+    {
+        return servers.containsKey(name);
+    }
+
+
+    /**
      * This method gets a server for a specified name.
      *
      * @param name the servers name.
