@@ -59,7 +59,7 @@ public interface IORInfoExt extends IORInfo
     * @param tag        tag of profile, e.g. TAG_INTERNET_IOP.value
     * @param position   position in IOR
     * @return           profile
-    * @excception       ArrayIndexOutOfBoundsException if position is
+    * @exception       ArrayIndexOutOfBoundsException if position is
     *                   out of range
     */
    public org.omg.ETF.Profile get_profile(int tag, int position);
