@@ -244,6 +244,8 @@ public abstract class TCP_IP_Transport
         }
     }
     
+    public abstract boolean isSSL();
+    
     protected org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE (IOException ex)
     {
         return new org.omg.CORBA.COMM_FAILURE ("IOException: "
