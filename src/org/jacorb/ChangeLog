@@ -1,3 +1,73 @@
+2003-09-03  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/build.xml,
+	idl/javamapping/JavaMappingGeneratingVisitor.java: *** empty log
+	message ***
+
+	* idl/IDLTreeVisitor.java, idl/Value.java, idl/parser.cup,
+	idl/parser.java, idl/sym.java: consolidated merge of the visitor
+	branch
+
+	* idl/ScopedName.java, idl/AnyType.java: made public
+
+	* idl/Member.java: more public for visitor access
+
+	* idl/SymbolList.java: now public, new methode elements()
+
+	* idl/MemberList.java, idl/SimpleDeclarator.java: now public
+
+	* idl/Declarator.java: joined in branch, now public
+
+	* idl/Operation.java: joined in branch, now public
+	(accept) new method
+
+	* idl/Operation.java: interface made public
+
+	* idl/AliasTypeSpec.java, idl/ArrayTypeSpec.java,
+	idl/BaseType.java, idl/ConstrTypeSpec.java, idl/EnumType.java,
+	idl/FloatType.java, idl/IntType.java, idl/LongLongType.java,
+	idl/LongType.java, idl/NativeType.java, idl/ObjectTypeSpec.java,
+	idl/OctetType.java, idl/SequenceType.java, idl/ShortType.java,
+	idl/SimpleTypeSpec.java, idl/StringType.java, idl/StructType.java,
+	idl/TemplateTypeSpec.java, idl/TypeDef.java, idl/TypeSpec.java,
+	idl/UnionType.java, idl/VectorType.java, idl/VoidTypeSpec.java:
+	mregd in visitor branch,
+	(getIDLTypeName, getJavaTypeName) new methods
+
+	* idl/TypeDeclaration.java: class now public
+	(accept, getIDLTypeName, getJavaTypeName) new methods
+
+	* idl/ParamDecl.java: (accept) new method class now public
+
+	* idl/Declaration.java: (accept) new method
+
+	* idl/Module.java: (accept) new method
+	(getDefinitions) new method
+
+	* idl/Definition.java, idl/Definitions.java: classes now public
+	and with accept() methods for the visitor pattern
+
+	* idl/Method.java: merged in branch: class now public, new methods
+	accept() and isGetter()
+
+	* idl/Interface.java, idl/InterfaceBody.java: merged in the
+	visitor branch (made things more public)
+
+	* idl/IdlSymbol.java: joined in changes from branch: made public,
+	added a few comments, made set_included non-public
+
+2003-09-02  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/Spec.java: re-committed visitor-related change (class now
+	public)
+
+	* idl/parser.cup: *** empty log message ***
+
+	* idl/OpDecl.java: (printMethod) restored Nick's version of this
+	method
+
+	* idl/OpDecl.java: tried to get Nick's changes back in
+
 2003-09-02  Nick Cross  <nick.cross@prismtechnologies.com>
 
 	* poa/RequestProcessor.java: Remove commented out code
