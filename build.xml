@@ -12,7 +12,7 @@
    <property name="name" value="main"/>
    <property name="dirs.base" value="${basedir}"/>
    <property name="classdir" value="${dirs.base}/classes"/>
-   <property name="classpath" value="${java.class.path}:${dirs.base}/classes"/>
+   <property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
    <property name="src" value="${dirs.base}/src"/>
    <property name="lib" value="${dirs.base}/lib"/>
    <mkdir dir="${classdir}"/>

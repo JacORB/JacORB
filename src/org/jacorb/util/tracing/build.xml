@@ -9,7 +9,7 @@
    <target name="init">
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="classpath" value="${java.class.path}:${dirs.base}/classes"/>
+	<property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
 	<property name="idlflags" value="-I${include}/omg -d ${dirs.base}/src/generated"/>

@@ -10,7 +10,7 @@
    <target name="init" depends="javatest">
 	<property name="base" value="${basedir}"/>
 	<property name="dclassdir" value="${base}/classes"/>
-	<property name="dclasspath" value="${java.class.path}:${dirs.base}/classes"/>
+	<property name="dclasspath" value="${dirs.base}/classes:${java.class.path}"/>
 	<property name="bootclasspath" value="${dirs.base}/classes:${java.home}/lib/classes.zip"/>
 	<property name="dsrc" value="${base}/src"/>
 	<property name="lib" value="${base}/lib"/>
