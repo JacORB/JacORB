@@ -47,17 +47,23 @@
 
          * Implementation of the ORB PolicyManager interface to
            set QoSS policies ORB-wide
+
          * CDR 1.2 Portable Interceptor codec
 
-         * "-cdlc10" IDL compiler option to generate J2ME/CLDC1.0
+         * "-cldc10" IDL compiler option to generate J2ME/CLDC1.0 
            compatible stub code
+
          * Removed deprecated option -i on the IDL Compiler
 
       - fixed:
 
          * connection management problem that resulted in hanging
            clients
-         * server-side memory leaks
+
+         * server-side memory leaks (#456/458)
+
+         * incompatibility with libraries in existing J2SDK 1.4
+           installations ("endorsed dir")
 
 2.0 (GA)
 ======
