@@ -45,17 +45,8 @@ public abstract class ReplyPlaceholder
 
     protected int timeout = -1;
 
-    protected boolean remarshalOnCF = false;
-
     public ReplyPlaceholder()
     {
-        this( false );
-    }
-
-    public ReplyPlaceholder( boolean remarshalOnCF )
-    {        
-        this.remarshalOnCF = remarshalOnCF;
-
         //get the client-side timeout property value
         String prop = 
             Environment.getProperty( "jacorb.client.pending_reply_timeout" );
@@ -101,16 +92,16 @@ public abstract class ReplyPlaceholder
 
     public synchronized void retry()
     {
-	remarshalException = true;
-	ready = true;
-	this.notify();
+        remarshalException = true;
+        ready = true;
+        this.notify();
     }
 
     public synchronized void timeout()
     {
-	timeoutException = true;
-	ready = true;
-	this.notify();
+        timeoutException = true;
+        ready = true;
+        this.notify();
     }
 
     /**
@@ -121,7 +112,7 @@ public abstract class ReplyPlaceholder
      * returning it to the caller.
      */
     protected synchronized MessageInputStream getInputStream() 
-	throws RemarshalException
+        throws RemarshalException
     {
         while( !ready ) 
         {
@@ -148,22 +139,16 @@ public abstract class ReplyPlaceholder
         }
 
         if( remarshalException )
-	{
-	    throw new org.omg.CORBA.portable.RemarshalException();
-	}	
-
-        if( communicationException )
-	{
-        if( remarshalOnCF )
         {
             throw new org.omg.CORBA.portable.RemarshalException();
-        }
-        else
+        }	
+
+        if( communicationException )
         {
-            throw new org.omg.CORBA.COMM_FAILURE
-                (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+            throw new org.omg.CORBA.COMM_FAILURE(
+                0, 
+                org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE );
         }
-	}
 
         if( timeoutException )
         {

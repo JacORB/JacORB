@@ -88,7 +88,7 @@ public final class Delegate
 
     private boolean locate_on_bind_performed = false;
 
-    private ConnectionManager conn_mg = null;
+    private ClientConnectionManager conn_mg = null;
 
     private Hashtable policy_overrides = new Hashtable();
 
@@ -110,11 +110,7 @@ public final class Delegate
      */
 
 
-    private ThreadLocal retryCounter = null; 
-    private int maxRetries = 0;
-
     /* constructors: */
-
 
     private Delegate ()
     {
@@ -126,24 +122,7 @@ public final class Delegate
         _pior = pior;
         checkIfImR( _pior.getTypeId() );
 
-        conn_mg = orb.getConnectionManager();
-
-        maxRetries = 
-            Environment.getIntPropertyWithDefault( 
-                "jacorb.connection.comm_failure_retries",
-                0 );
-
-        if( maxRetries > 0 )
-        {
-            retryCounter =  
-                new ThreadLocal() {
-                        protected Object initialValue()
-                        {
-                            return new Integer( maxRetries );
-                        }
-                    };
-        }
-
+        conn_mg = orb.getClientConnectionManager();
     }
 
     public Delegate ( org.jacorb.orb.ORB orb, String object_reference )
@@ -161,23 +140,7 @@ public final class Delegate
         }
 
         checkIfImR( _pior.getTypeId() );
-        conn_mg = orb.getConnectionManager();
-
-        maxRetries = 
-            Environment.getIntPropertyWithDefault( 
-                "jacorb.connection.comm_failure_retries",
-                0 );
-
-        if( maxRetries > 0 )
-        {
-            retryCounter =  
-                new ThreadLocal() {
-                        protected Object initialValue()
-                        {
-                            return new Integer( maxRetries );
-                        }
-                    };
-        }
+        conn_mg = orb.getClientConnectionManager();
     }
 
     public Delegate ( org.jacorb.orb.ORB orb, org.omg.IOP.IOR _ior )
@@ -186,23 +149,7 @@ public final class Delegate
         _pior = new ParsedIOR( _ior );
         checkIfImR( _pior.getTypeId() );
 
-        conn_mg = orb.getConnectionManager();
-
-        maxRetries = 
-            Environment.getIntPropertyWithDefault( 
-                "jacorb.connection.comm_failure_retries",
-                0 );
-
-        if( maxRetries > 0 )
-        {
-            retryCounter =  
-                new ThreadLocal() {
-                        protected Object initialValue()
-                        {
-                            return new Integer( maxRetries );
-                        }
-                    };
-        }
+        conn_mg = orb.getClientConnectionManager();
     }
 
     //special constructor for appligator
@@ -212,22 +159,6 @@ public final class Delegate
     {
         this( orb, object_reference );
         doNotCheckExceptions = _donotcheckexceptions;
-
-        maxRetries = 
-            Environment.getIntPropertyWithDefault( 
-                "jacorb.connection.comm_failure_retries",
-                0 );
-
-        if( maxRetries > 0 )
-        {
-            retryCounter =  
-                new ThreadLocal() {
-                        protected Object initialValue()
-                        {
-                            return new Integer( maxRetries );
-                        }
-                    };
-        }
     }
 
     public boolean doNotCheckExceptions()
@@ -844,13 +775,6 @@ public final class Delegate
         RequestOutputStream ros      = ( RequestOutputStream ) os;
         ReplyReceiver       receiver = null;
 
-        int retries = 0;
-        if( maxRetries > 0 )
-        {
-            retries = ((Integer) retryCounter.get()).intValue();
-            retryCounter.set( new Integer( retries - 1 ));
-        }
-
         ClientInterceptorHandler interceptors = 
             new ClientInterceptorHandler ( orb, ros, self, this, 
                                            piorOriginal, connection );
@@ -861,24 +785,7 @@ public final class Delegate
         {
             if ( !ros.response_expected() )  // oneway op
             {
-                try
-                {
-                    connection.sendRequest ( ros, false );
-                }
-                catch( org.omg.CORBA.COMM_FAILURE cfe )
-                {
-                    Debug.output( 2, "WARNING: caught a " + cfe );
-
-                    if( retries == 0 )
-                    {
-                        throw cfe;
-                    }
-                    else
-                    {
-                        throw new RemarshalException();
-                    }
-                }
-
+                connection.sendRequest ( ros, false );
                 interceptors.handle_receive_other ( SUCCESSFUL.value );
                 return null;
             }
@@ -888,34 +795,17 @@ public final class Delegate
                                                ros.operation(),
                                                ros.getReplyEndTime(),
                                                interceptors,
-                                               replyHandler,
-                                               retries > 0);
+                                               replyHandler );
                 synchronized ( bind_sync )
                 {
                     if ( ros.getConnection() == connection )
                     {
-                        try
-                        {
-                            //RequestOutputStream has been created for
-                            //exactly this connection
-                            connection.sendRequest( ros,
-                                                    receiver,
-                                                    ros.requestId(),
-                                                    true ); // response expected
-                        }
-                        catch( org.omg.CORBA.COMM_FAILURE cfe )
-                        {
-                            Debug.output( 2, "WARNING: caught a " + cfe );
-                            
-                            if( retries == 0 )
-                            {
-                                throw cfe;
-                            }
-                            else
-                            {
-                                throw new RemarshalException();
-                            }
-                        }
+                        //RequestOutputStream has been created for
+                        //exactly this connection
+                        connection.sendRequest( ros,
+                                                receiver,
+                                                ros.requestId(),
+                                                true ); // response expected
                     }
                     else
                     {
@@ -947,11 +837,6 @@ public final class Delegate
             // Synchronous invocation, response expected.
             // This call blocks until the reply arrives.
             org.omg.CORBA.portable.InputStream is = receiver.getReply();
-
-            if( maxRetries > 0 )
-            {
-                retryCounter.set( new Integer( maxRetries ));
-            }
 
             return is;
         }

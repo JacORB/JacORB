@@ -70,10 +70,9 @@ public class ReplyReceiver extends ReplyPlaceholder
                           String                         operation,
                           org.omg.TimeBase.UtcT          replyEndTime,
                           ClientInterceptorHandler       interceptors,
-                          org.omg.Messaging.ReplyHandler replyHandler,
-                          boolean remarshalOnCF )
+                          org.omg.Messaging.ReplyHandler replyHandler )
     {        
-        super( remarshalOnCF );
+        super();
 
         this.delegate         = delegate;
         this.operation        = operation;
