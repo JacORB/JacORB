@@ -1,4 +1,0 @@
-@echo off
-rem decodes and prints the components of a stringified IOR
-
-jaco org.jacorb.orb.util.PingObject %*

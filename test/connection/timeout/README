@@ -1,5 +1,0 @@
-Test for client-side socket timeouts
-
-Simple subset of the grid example with a server that goes to sleep for
-ten seconds in each operation, so the client can set a timeout that is
-shorter than that.
