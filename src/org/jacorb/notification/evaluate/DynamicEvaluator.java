@@ -48,18 +48,12 @@ import org.omg.DynamicAny.DynUnionHelper;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
- * IdentifierEvaluator.java
- *
- *
- * Created: Sat Sep 07 21:05:32 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class DynamicEvaluator
 {
-
     private static final String NAME = "name";
     private static final String VALUE = "value";
 
@@ -101,7 +95,7 @@ public class DynamicEvaluator
 
     public Any evaluateExistIdentifier( Any value,
                                         String identifier )
-    throws EvaluationException
+        throws EvaluationException
     {
         try
         {
@@ -196,7 +190,7 @@ public class DynamicEvaluator
     }
 
     String getDefaultUnionMemberName( TypeCode unionTypeCode )
-    throws EvaluationException
+        throws EvaluationException
     {
         try
         {
@@ -220,8 +214,8 @@ public class DynamicEvaluator
     }
 
     String getUnionMemberNameFromDiscriminator( TypeCode unionTypeCode,
-            int discriminator )
-    throws EvaluationException
+                                                int discriminator )
+        throws EvaluationException
     {
         try
         {
@@ -277,23 +271,21 @@ public class DynamicEvaluator
     }
 
     /**
-     *
-     *
-     * @param value
-     *
+     * extract the default member from Union wrapped inside the
+     * provided Any.
      */
     public Any evaluateUnion( Any value )
-    throws EvaluationException
+        throws EvaluationException
     {
         String _defaultMemberName = getDefaultUnionMemberName( value.type() );
+
         return evaluateIdentifier( value, _defaultMemberName );
     }
 
 
     public Any evaluateUnion( Any value, int position )
-    throws EvaluationException
+        throws EvaluationException
     {
-
         Any _ret = null;
         DynUnion _dynUnion = toDynUnion( value );
 
@@ -317,8 +309,10 @@ public class DynamicEvaluator
 
     public Any evaluatePropertyList( Property[] list, String name )
     {
-        logger_.debug( "evaluatePropertyList " + list );
-        logger_.debug( "list length: " + list.length );
+        if (logger_.isDebugEnabled() ) {
+            logger_.debug( "evaluatePropertyList " + list );
+            logger_.debug( "list length: " + list.length );
+        }
 
         for ( int x = 0; x < list.length; ++x )
         {
@@ -341,7 +335,7 @@ public class DynamicEvaluator
      * extract a named value out of a sequence of name/value pairs.
      */
     public Any evaluateNamedValueList( Any any, String name )
-    throws EvaluationException
+        throws EvaluationException
     {
         try
         {
@@ -382,9 +376,8 @@ public class DynamicEvaluator
     }
 
     protected Any evaluateNamedValue( DynAny any, String name )
-    throws EvaluationException
+        throws EvaluationException
     {
-
         if ( logger_.isDebugEnabled() )
         {
             logger_.debug( "evaluate assoc "
@@ -415,10 +408,10 @@ public class DynamicEvaluator
     }
 
     /**
-     * extract the nth position out of an Array.
+     * extract the n-th position out of an Array wrapped inside an Any.
      */
     public Any evaluateArrayIndex( Any any, int index )
-    throws EvaluationException
+        throws EvaluationException
     {
         try
         {
@@ -454,9 +447,8 @@ public class DynamicEvaluator
     }
 
     Any evaluateIdentifier( DynAny any, int position )
-    throws EvaluationException
+        throws EvaluationException
     {
-
         try
         {
             Any _ret = null;
@@ -480,14 +472,12 @@ public class DynamicEvaluator
         {
             throw new EvaluationException( e.getMessage() );
         }
-
-
     }
 
-    public Any evaluateIdentifier( Any any, int position )
-    throws EvaluationException
-    {
 
+    public Any evaluateIdentifier( Any any, int position )
+        throws EvaluationException
+    {
         Any _ret = null;
 
         if ( logger_.isDebugEnabled() )
@@ -505,7 +495,6 @@ public class DynamicEvaluator
     {
         switch ( any.type().kind().value() )
         {
-
             case TCKind._tk_union:
                 DynUnion _dynUnion = toDynUnion( any );
                 return _dynUnion.get_discriminator().to_any();
@@ -534,7 +523,7 @@ public class DynamicEvaluator
                 _currentComponent = _dynSequence.current_component();
 
                 EvaluationResult _r =
-                    _resultExtractor.extractFromAny( _currentComponent.to_any() );
+                    EvaluationResult.fromAny( _currentComponent.to_any() );
 
                 if ( element.compareTo( _r ) == 0 )
                 {
@@ -676,6 +665,7 @@ public class DynamicEvaluator
             if ( _cursor == null )
             {
                 logger_.debug( "Member not found" );
+
                 throw new EvaluationException( "member not found" );
             }
 
