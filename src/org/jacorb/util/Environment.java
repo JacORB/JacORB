@@ -132,7 +132,7 @@ public class Environment
     private static Map untrimmedPrefixProps = new HashMap();
     private static Map trimmedPrefixProps = new HashMap();
 
-    private static boolean strict_check_on_tc_creation;
+    private static boolean _strict_check_on_tc_creation = false;
 
     /** remarshal on COMM_FAILURE or retrow */
     private static boolean _retry_on_failure = false;
@@ -323,7 +323,7 @@ public class Environment
         _use_appligator_for_applets = isPropertyOn("jacorb.use_appligator_for_applets");
         _use_appligator_for_applications = isPropertyOn("jacorb.use_appligator_for_applications");
         _impl_name = getProperty("jacorb.impl_name", "").getBytes();
-        strict_check_on_tc_creation = isPropertyOn("jacorb.strict_check_on_tc_creation", "on");
+        _strict_check_on_tc_creation = isPropertyOn("jacorb.interop.strict_check_on_tc_creation", "on");
         _retry_on_failure = isPropertyOn("jacorb.connection.client.retry_on_failure");
         _useIndirection = ! isPropertyOn("jacorb.interop.indirection_encoding_disable");
     }
@@ -435,7 +435,7 @@ public class Environment
     // value getters
     public static final  boolean getStrictCheckOnTypecodeCreation()
     {
-        return strict_check_on_tc_creation;
+        return _strict_check_on_tc_creation;
     }
 
     public static final  boolean isMonitoringOn()
