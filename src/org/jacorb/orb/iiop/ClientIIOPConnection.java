@@ -234,7 +234,8 @@ public class ClientIIOPConnection
                 IIOPAddress address = (IIOPAddress)addressIterator.next();
 
                 final SocketFactory factory = 
-                    transportManager.getSocketFactory(); /// ??? FIXME , Andre ???
+                    (use_ssl) ? transportManager.getSSLSocketFactory() :
+                    transportManager.getSocketFactory();
 
                 final String ipAddress = address.getIP();
                 final int port = (use_ssl) ? ssl_port : address.getPort();
