@@ -813,36 +813,18 @@ public final class Delegate
                         // come back up at a different address
                         Debug.output(2, "Delegate: attempting to contact ImR");
 
-                        org.omg.CORBA.Object obj = null;
+                        ImRAccess imr = null;
                         try
                         {
-                            obj = orb.resolve_initial_references( "ImplementationRepository" );
+                            imr = (ImRAccess) Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
+                            imr.connect( orb );
                         }
                         catch ( Exception e )
                         {
-                            Debug.output(2, "Delegate: failed to resolve ImR");
+                            Debug.output(2, "Delegate: failed to contact ImR");
                             throw cfe;
                         }
-
-                        ImplementationRepository imr = null;
-                        try
-                        {
-                            imr = ImplementationRepositoryHelper.narrow( obj );
-                        }
-                        catch ( Exception e )
-                        {
-                            Debug.output(2, "Delegate: failed to narrow object reference to ImR");
-                            throw cfe;
-                        }
-
-                        if( imr == null )
-                        {
-                            Debug.output(2, "Delegate: ImR reference is null");
-                            throw cfe;
-                        }
-
-                        ImRInfo imrInfo = imr.get_imr_info();
-                        String imrAddr = imrInfo.host + ":" + imrInfo.port;
+                        String imrAddr = imr.getImRHost() + ":" + imr.getImRPort();
 
                         //create a corbaloc URL to use to contact the server
                         StringBuffer corbaloc = new StringBuffer( "corbaloc:iiop:" );
