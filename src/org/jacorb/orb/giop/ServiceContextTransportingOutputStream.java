@@ -147,8 +147,7 @@ public class ServiceContextTransportingOutputStream
             //no additional service contexts present, so buffer can be
             //sent as a whole
             insertMsgSize();
-
-            conn.addMessageFragment( getInternalBuffer(), 0, size() );
+            write( conn, 0, size() );
         }
         else
         {
@@ -208,23 +207,19 @@ public class ServiceContextTransportingOutputStream
                     //The ServiceContexts are the first attribute in
                     //the RequestHeader struct. Therefore firstly, we
                     //have to write the GIOP message header...
-                    conn.addMessageFragment( getInternalBuffer(), 
-                                             0,
-                                             Messages.MSG_HEADER_SIZE );
-                                             
+                    write( conn, 0, Messages.MSG_HEADER_SIZE );                            
                     
                     
                     //... then add the contexts ...
-                    conn.addMessageFragment( ctx_out.getInternalBuffer(),
-                                             0,
-                                             ctx_out.size() );
+                    ctx_out.write( conn, 0, ctx_out.size() );
 
                     //... and finally the rest of the message
                     //(omitting the empty original context array).
-                    conn.addMessageFragment( getInternalBuffer(), 
-                                             Messages.MSG_HEADER_SIZE + 4,
-                                             size() - 
-                                             (Messages.MSG_HEADER_SIZE + 4) );
+
+                    write( conn, 
+                           Messages.MSG_HEADER_SIZE + 4,
+                           size() - 
+                           (Messages.MSG_HEADER_SIZE + 4) );
                     break;
                 }
                 case 2 :
@@ -276,20 +271,20 @@ public class ServiceContextTransportingOutputStream
                     //have to remove the length ulong of the
                     //"original" empty service context array, because
                     //the new one has its own length attribute
-                    conn.addMessageFragment( getInternalBuffer(), 
-                                             0,
-                                             getHeaderEnd() - 4 );
+                    write( conn, 
+                           0,
+                           getHeaderEnd() - 4 );
 
                     //... then add the contexts ...
-                    conn.addMessageFragment( ctx_out.getInternalBuffer(),
-                                             0,
-                                             ctx_out.size() );
+
+                    ctx_out.write( conn, 0, ctx_out.size());
                     
                     //... and finally the rest of the message
                     //(omitting the empty original context array).
-                    conn.addMessageFragment( getInternalBuffer(), 
-                                             getBodyBegin(),
-                                             size() - getBodyBegin() );
+
+                    write( conn, 
+                           getBodyBegin(),
+                           size() - getBodyBegin() );
                     
                     break;
                 }
@@ -311,12 +306,17 @@ public class ServiceContextTransportingOutputStream
         contexts.add( ctx );
     }
 
+
+    /**
+     * private hack...
+     */
+
     public byte[] getBody()
     {
         byte [] result = 
             org.jacorb.orb.BufferManager.getInstance().getBuffer( size() - getBodyBegin());
 
-        System.arraycopy( getInternalBuffer(), getBodyBegin(), result, 0, result.length );
+        System.arraycopy( getBufferCopy(), getBodyBegin(), result, 0, result.length );
 
         return result;
     }
