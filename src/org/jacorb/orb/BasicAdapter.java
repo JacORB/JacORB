@@ -35,6 +35,7 @@ import org.jacorb.util.Environment;
 
 import org.apache.avalon.framework.logger.*;
 
+import org.omg.CORBA.INTERNAL;
 import org.omg.ETF.*;
 import org.omg.PortableServer.POA;
 
@@ -46,7 +47,7 @@ import org.omg.PortableServer.POA;
  * @version $Id$
  */
 
-public class BasicAdapter 
+public class BasicAdapter
     extends org.omg.ETF._HandleLocalBase
 {
     public  static SSLServerSocketFactory ssl_socket_factory = null;
@@ -118,8 +119,8 @@ public class BasicAdapter
         reply_listener = new NoBiDirServerReplyListener();
 
         // create all Listeners
-        
-        for (Iterator i = getListenerFactories().iterator(); 
+
+        for (Iterator i = getListenerFactories().iterator();
              i.hasNext();)
         {
              Factories f = (Factories)i.next();
@@ -127,9 +128,9 @@ public class BasicAdapter
              l.set_handle (this);
              listeners.add (l);
         }
-        
+
         // activate them
-             
+
         for (Iterator i = listeners.iterator(); i.hasNext();)
         {
             ((Listener)i.next()).listen();
@@ -143,7 +144,7 @@ public class BasicAdapter
     private List getListenerFactories()
     {
         List result = new ArrayList();
-        List tags = Environment.getListProperty 
+        List tags = Environment.getListProperty
                                     ("jacorb.transport.server.listeners");
         if (tags.isEmpty())
             result.addAll (transport_manager.getFactoriesList());
@@ -181,9 +182,9 @@ public class BasicAdapter
 
     /**
      * Returns a List of endpoint profiles for all transports that listen
-     * for incoming connections.  Each individual profile is a copy and can 
-     * safely be modified by the caller (e.g. add an object key, patch the 
-     * address, stuff it into an IOR, etc.). 
+     * for incoming connections.  Each individual profile is a copy and can
+     * safely be modified by the caller (e.g. add an object key, patch the
+     * address, stuff it into an IOR, etc.).
      */
     public List getEndpointProfiles()
     {
@@ -212,12 +213,12 @@ public class BasicAdapter
                 return null;
         }
         else
-            return null;   
+            return null;
     }
 
     /**
      * @deprecated This method cannot return a sensible result in the presence
-     * of alternate transports, use {@link #getEndpointProfiles()} instead. 
+     * of alternate transports, use {@link #getEndpointProfiles()} instead.
      */
     public int getPort()
     {
@@ -236,7 +237,7 @@ public class BasicAdapter
 
     /**
      * @deprecated This method cannot return a sensible result in the presence
-     * of alternate transports, use {@link #getEndpointProfiles()} instead. 
+     * of alternate transports, use {@link #getEndpointProfiles()} instead.
      */
     public int getSSLPort()
     {
@@ -255,7 +256,7 @@ public class BasicAdapter
 
     /**
      * @deprecated This method cannot return a sensible result in the presence
-     * of alternate transports, use {@link #getEndpointProfiles()} instead. 
+     * of alternate transports, use {@link #getEndpointProfiles()} instead.
      */
     public boolean hasSSLListener()
     {
@@ -264,7 +265,7 @@ public class BasicAdapter
 
     /**
      * @deprecated This method cannot return a sensible result in the presence
-     * of alternate transports, use {@link #getEndpointProfiles()} instead. 
+     * of alternate transports, use {@link #getEndpointProfiles()} instead.
      */
     public String getAddress()
     {
@@ -278,7 +279,7 @@ public class BasicAdapter
         }
         else
         {
-            throw new RuntimeException 
+            throw new RuntimeException
                 ("Cannot find server address for non-IIOP transport");
         }
     }
@@ -328,7 +329,7 @@ public class BasicAdapter
 
             if( tmp_poa == null )
             {
-                throw new Error("request POA null!");
+                throw new INTERNAL("Request POA null!");
             }
             else
             {
@@ -376,19 +377,19 @@ public class BasicAdapter
     // Handle methods below this line
 
     /**
-     * Announces a new connection instance to the ORB. 
+     * Announces a new connection instance to the ORB.
      * The caller shall examine the boolean return value and
      * destroy the connection, if the call returns false.
-     * A new connection initially belongs to the plug-in, 
-     * and it shall signal the connection to the ORB when 
-     * the first incoming request data was received, 
+     * A new connection initially belongs to the plug-in,
+     * and it shall signal the connection to the ORB when
+     * the first incoming request data was received,
      * using this Handle upcall.
      * <p>
      * The Handle shall accept the connection (and cache
      * information about it if needed), as long as it is
      * allowed to do so by the ORB. In this case it shall
-     * return true. If a new connection is currently not 
-     * allowed, it shall ignore the passed instance and 
+     * return true. If a new connection is currently not
+     * allowed, it shall ignore the passed instance and
      * return false.
      */
     public boolean add_input (org.omg.ETF.Connection conn)
@@ -406,8 +407,8 @@ public class BasicAdapter
     }
 
     /**
-     * In some cases, the client side can initiate the closing of a 
-     * connection. The plugin shall signal this event to the server side 
+     * In some cases, the client side can initiate the closing of a
+     * connection. The plugin shall signal this event to the server side
      * ORB via its Handle by calling this function.
      */
     public void closed_by_peer (org.omg.ETF.Connection conn)
@@ -420,10 +421,10 @@ public class BasicAdapter
 
     /**
      * The plugged-in transport (e.g. the Listener instance) shall call
-     * this function when it owns a server-side Connection and data arrives 
-     * on the local endpoint. This will start a new request dispatching 
+     * this function when it owns a server-side Connection and data arrives
+     * on the local endpoint. This will start a new request dispatching
      * cycle in the ORB. Subsequently, it shall ignore any other incoming
-     * data from this Connection until the Listener's completed_data function 
+     * data from this Connection until the Listener's completed_data function
      * is called by the ORB.
      */
     public void signal_data_available (Connection conn)

@@ -127,7 +127,7 @@ public class ServantDelegate
             // We most likely get this if the Sun JDK definition of Current is getting picked up rather than ours.
             // It has (at present - SDK 1.4.2) no get_servant() method.
             // Give the user a hint as to how this can be fixed.
-            org.jacorb.util.Debug.output(1, "ERROR: NoSuchMethodError - re-run specifying jacorb.jar " 
+            org.jacorb.util.Debug.output(1, "ERROR: NoSuchMethodError - re-run specifying jacorb.jar "
                                              + "with -Xbootclasspath/p: option to avoid use of (incorrect) SDK implementation class.");
             throw nsme;
         }
@@ -284,7 +284,7 @@ public class ServantDelegate
             _out.write_boolean(self._non_existent() );
         }
         else
-            throw new Error("Unknown operation: " + method );
+            throw new BAD_PARAM("Unknown operation: " + method );
 
         return _out;
     }
