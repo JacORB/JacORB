@@ -20,9 +20,8 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.DynamicAny.NameValuePair;
 import org.omg.DynamicAny.DynAnyPackage.*;
-import org.omg.DynamicAny.NameDynAnyPair;
+import org.omg.DynamicAny.*;
 import org.jacorb.orb.*;
 
 /**
@@ -125,7 +124,9 @@ public final class DynStruct
 	    // should not happen anymore
 	    bk.printStackTrace();
 	}
+        super.from_any( value );
     }
+
 
     public org.omg.CORBA.Any to_any() 
     {
@@ -145,6 +146,30 @@ public final class DynStruct
 	out_any.read_value( is, type());
 	return out_any;
     }
+
+    /**
+     * @overrides  equal() in DynAny
+     */
+
+    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
+    {
+        if( !type().equal( dyn_any.type())  )
+            return false;
+
+        org.omg.DynamicAny.DynStruct other =  DynStructHelper.narrow( dyn_any );
+
+        NameValuePair[]  elements = get_members();
+        NameValuePair[]  other_elements = other.get_members();
+
+        for( int i = 0; i < elements.length; i++ )
+        {
+            if( !(elements[i].value.equal( other_elements[i].value ))) 
+                return false;
+        }
+
+        return true;
+    }
+
 
     /* DynStruct specials */
 

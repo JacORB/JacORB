@@ -50,8 +50,8 @@ public class DynAnyFactoryImpl
 	{
             org.omg.DynamicAny.DynAny dynAny =
                 create_dyn_any_from_type_code( value.type() );
-            dynAny.from_any(value);
-            return dynAny;
+            dynAny.from_any( value );
+            return dynAny; 
 	}
 	catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
 	{

@@ -109,7 +109,11 @@ public final class DynEnum
 	    bk.printStackTrace();
 	}
     }
-   
+
+    /**
+     * @overrides  equal() in DynAny
+     */
+
     public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
     {
         if( !type().equal( dyn_any.type()))

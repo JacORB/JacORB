@@ -20,9 +20,9 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.DynamicAny.NameValuePair;
 import org.omg.DynamicAny.DynAnyPackage.*;
-import org.omg.DynamicAny.NameDynAnyPair;
+import org.omg.DynamicAny.*;
+
 import org.jacorb.orb.*;
 import java.util.Vector;
 
@@ -98,6 +98,7 @@ public final class DynSequence
         try
         {
             type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
+            super.from_any( value );
 
             limit = type().length();
 
@@ -147,6 +148,32 @@ public final class DynSequence
         CDRInputStream is = new CDRInputStream( orb, os.getBufferCopy());
         out_any.read_value( is, type());
         return out_any;
+    }
+
+    /**
+     * @overrides  equal() in DynAny
+     */
+
+    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
+    {
+        if( !type().equal( dyn_any.type())  )
+            return false;
+
+        org.omg.DynamicAny.DynSequence other =  DynSequenceHelper.narrow( dyn_any );
+
+        if( other.get_length() != get_length())
+            return false;
+
+        org.omg.CORBA.Any[] elements = get_elements();
+        org.omg.CORBA.Any[] other_elements = other.get_elements();
+
+        for( int i = 0; i < elements.length; i++ )
+        {
+            if( ! (elements[i].equal( other_elements[i] )))
+                return false;
+        }
+
+        return true;
     }
 
     public int get_length()

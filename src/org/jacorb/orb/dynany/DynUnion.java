@@ -205,6 +205,43 @@ public final class DynUnion
 	return out_any;
     }
 
+
+
+    /**
+     * @overrides  equal() in DynAny
+     */
+
+    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
+    {
+        if( !type().equal( dyn_any.type())  )
+            return false;
+
+        org.omg.DynamicAny.DynUnion other =  DynUnionHelper.narrow( dyn_any );
+
+        if( ! get_discriminator().equal( other.get_discriminator()))
+            return false;
+
+        if( !has_no_active_member() ) 
+        {
+            // other must have the same here because we know the 
+            // discriminators are equal
+
+            try
+            {
+                if( ! member.equal( other.member()))
+                    return false;
+            }
+            catch( Exception e )
+            {
+                // should not happen
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
+
+
+
     /** 
      * @return the current discriminator value
      */
