@@ -163,7 +163,6 @@ abstract public class AbstractBoundedEventQueue implements EventQueue
     {
         synchronized ( lock_ )
         {
-
             while ( getSize() >= capacity_ )
             {
                 Message _e = overflowStrategy_.removeElementFromQueue( this );
