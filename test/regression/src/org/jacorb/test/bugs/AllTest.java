@@ -38,6 +38,7 @@ public class AllTest extends TestCase
       TestSuite suite = new TestSuite ("All bugs");
 
       suite.addTest (org.jacorb.test.bugs.bug272.TestCase.suite());
+      suite.addTest (org.jacorb.test.bugs.bug344.TestCase.suite());
       suite.addTest (org.jacorb.test.bugs.bug351.TestCase.suite());
 
       return suite;

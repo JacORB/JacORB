@@ -88,6 +88,15 @@ public class AOM
     }
 
 
+    /**
+     * <code>add</code> is called by the POA when activating an object
+     * to add a Servant into the Active Object Map.
+     *
+     * @param oid a <code>byte[]</code>, the id to use.
+     * @param servant a <code>Servant</code>, the servant to store.
+     * @exception ObjectAlreadyActive if an error occurs
+     * @exception ServantAlreadyActive if an error occurs
+     */
     protected synchronized void add( byte[] oid, Servant servant )
         throws ObjectAlreadyActive, ServantAlreadyActive
     {
@@ -97,8 +106,18 @@ public class AOM
            priority, a reactivation for the same oid blocks until
            etherealization is complete */
 
-        while (incarnationList.contains(oidbak) ||
-               etherealisationList.contains(oidbak))
+        while (incarnationList.contains(oidbak)     ||
+               etherealisationList.contains(oidbak) ||
+               // This is to check whether we are currently deactivating an
+               // object with the same id - if so, wait for the deactivate
+               // thread to complete.
+               deactivationList.contains( oidbak )  ||
+               // This is to check whether we are attempting to reactivate
+               // a servant that is currently being deactivated with another ID.
+               (
+                   servantMap.get( servant ) != null &&
+                   deactivationList.contains((ByteArrayKey)servantMap.get( servant ))
+               ))
         {
             try
             {
@@ -326,6 +345,17 @@ public class AOM
         thread.start();
     }
 
+
+    /**
+     * <code>_remove</code> is spawned by remove to allow deactivate_object
+     * to return immediately.
+     *
+     * @param oid a <code>byte[]</code>, the id to use.
+     * @param requestController a <code>RequestController</code> value
+     * @param servantActivator a <code>ServantActivator</code> value
+     * @param poa a <code>POA</code> value
+     * @param cleanupInProgress a <code>boolean</code> value
+     */
     private void _remove( byte[] oid,
 			  RequestController requestController,
 			  ServantActivator servantActivator,
@@ -346,10 +376,8 @@ public class AOM
         if ( requestController != null)
              requestController.waitForObjectCompletion(oid);
 
-	synchronized(this) {
-
-	    deactivationList.removeElement(oidbak);
-
+	synchronized(this)
+        {
 	    if ((servant = (Servant)objectMap.get(oidbak)) == null) {
         	return;
 	    }
@@ -363,7 +391,12 @@ public class AOM
 		servantMap.remove(servant);
 	    }
 
-	    if (logTrace.test(2))
+            // Wait to remove the oid from the deactivationList here so that the
+            // object map can be cleared out first. This ensures we don't
+            // reactivate an object we're currently deactivating.
+            deactivationList.removeElement(oidbak);
+
+            if (logTrace.test(2))
         	logTrace.printLog(oid, "object is deactivated");
 
 	    // notify an aom listener
@@ -373,6 +406,8 @@ public class AOM
 	    if (servantActivator == null)
 	    {
 		requestController.freeObject(oid);
+                // Tell anyone waiting we're done now.
+                notifyAll();
 		return;
 	    }
 
