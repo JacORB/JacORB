@@ -628,7 +628,7 @@ public class lexer
                 {
                     advance();
                 }
-                GlobalInputStream.include( fname, (char)next_char2, useIncludePath );
+                GlobalInputStream.include( fname, next_char2, useIncludePath );
                 current_line = 0;
                 advance();
                 advance();
@@ -969,7 +969,6 @@ public class lexer
         {
             char[] next = {(char)next_char, (char)next_char2};
             GlobalInputStream.insert( text + ( new String( next ) ) );
-            //System.out.println("Advancing after symbol " + result_str );
             advance(); // restore lookahead
             advance(); // restore lookahead
             return null;

@@ -74,10 +74,10 @@ public class GlobalInputStream
         expandedText.insert( pos, str );
     }
 
-    public static void include( String fname, char lookahead, boolean useIncludePath )
+    public static void include( String fname, int lookahead, boolean useIncludePath )
             throws FileNotFoundException
     {
-        //	System.out.println( "Including " + fname + " , lookahead char is " + (char)lookahead );
+        //      System.out.println( "Including " + fname + " , lookahead char is " + (char)lookahead );
         included = true;
         PositionInfo position = lexer.getPosition();
         position.file = currentFile();
@@ -86,7 +86,7 @@ public class GlobalInputStream
         stream = find( fname, useIncludePath );
 
         positions.push( position );
-        lookahead_stack.push( new Character( lookahead ) );
+        lookahead_stack.push( new Integer( lookahead ) );
 
         if( logger.isWarnEnabled() )
 		 logger.warn( "Including " + fname );
@@ -208,7 +208,9 @@ public class GlobalInputStream
     {
         int ch = 0;
 
-        if( eof )
+        // Might be the end of file for main file but still have an included file
+        // to process.
+        if( eof && positions.size() == 0 )
         {
             return -1;
         }
@@ -246,9 +248,8 @@ public class GlobalInputStream
                     PositionInfo positionInfo = (PositionInfo)positions.pop();
                     stream = positionInfo.stream;
                     currentFile = positionInfo.file;
-                    ch = ( (Character)lookahead_stack.pop() ).charValue();
+                    ch = ( (Integer)lookahead_stack.pop() ).intValue();
 
-                    //ch = stream.read();
                     included = !( positions.empty() );
                     if( logger.isInfoEnabled() )
 		 logger.info( "returning to " + currentFile + " included: " + included );
@@ -264,8 +265,3 @@ public class GlobalInputStream
     }
 
 }
-
-
-
-
-
