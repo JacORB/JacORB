@@ -56,10 +56,9 @@ public class Client_TCP_IP_Transport
     public Client_TCP_IP_Transport( InternetIOPProfile target_profile,
                                     boolean use_ssl,
                                     SocketFactory socket_factory,
-                                    StatisticsProvider statistics_provider,
                                     TransportManager transport_manager )
     {
-        super( statistics_provider, transport_manager );
+        super( transport_manager );
 
         this.target_profile = target_profile;
         this.use_ssl        = use_ssl;
@@ -142,8 +141,6 @@ public class Client_TCP_IP_Transport
                                   ( socket_factory.isSSL( socket ) ? " via SSL" : "" ));
 
                     connected = true;
-
-                    notifyAll();
 
                     //for testing purposes
                     ++openTransports;
