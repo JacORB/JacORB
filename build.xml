@@ -177,7 +177,7 @@
 
    <target name="realclean" depends="clean" description="Clean the checkout including generated jars">
       <delete>
-        <fileset dir="lib/" includes="*.jar"/>
+        <fileset dir="lib/" includes="jacorb.jar, idl.jar"/>
       </delete >
    </target>
 
