@@ -355,7 +355,7 @@ class NameTable
                                                             anc );
                     }
 
-                    if( !defined( key ) )
+                    if( !isDefined( key ) )
                         throw new RuntimeException( "CompilerError!" );
                 }
             }
@@ -378,12 +378,12 @@ class NameTable
      * check whether name is already defined
      */
 
-    public static boolean defined( String name )
+    public static boolean isDefined( String name )
     {
         return ( h.containsKey( name ) );
     }
 
-    public static boolean defined( String name, String kind )
+    public static boolean isDefined( String name, String kind )
     {
         if( !h.containsKey( name ) )
         {

@@ -176,7 +176,7 @@ public class ReplyHandler extends Interface
         
     public void parse()
     {
-        if (!NameTable.defined ("org.omg.Messaging.ReplyHandler"))
+        if (!NameTable.isDefined ("org.omg.Messaging.ReplyHandler"))
         {
             try
             {

@@ -184,7 +184,7 @@ public class ArrayTypeSpec
             if (!typedefd)
                 NameTable.define(full_name(), "type");
 
-            if (!NameTable.defined(typeName(), "type"))
+            if (!NameTable.isDefined(typeName(), "type"))
                 NameTable.define(typeName(), "type");
         }
         catch (NameAlreadyDefined n)
