@@ -31,7 +31,7 @@ import org.omg.CosEventComm.Disconnected;
  * @version $Id$
  */
 
-public interface TimerEventSupplier {
+public interface TimerEventSupplier extends Disposable {
 
     /**
      * execute a pull-Operations. depending on the underlying
