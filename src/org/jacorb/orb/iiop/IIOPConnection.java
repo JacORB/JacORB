@@ -38,7 +38,7 @@ import org.jacorb.util.*;
 public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
 {
     protected boolean connected = false;
-    
+
     protected InputStream in_stream = null;
     protected OutputStream out_stream = null;
 
@@ -49,7 +49,7 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
     protected Socket socket;
 
     private int finalTimeout = 20000;
-    
+
     public IIOPConnection (IIOPConnection other)
     {
         this.in_stream = other.in_stream;
@@ -71,15 +71,15 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
             b_out = new ByteArrayOutputStream();
         }
 
-        finalTimeout = 
-            Environment.getIntPropertyWithDefault( "jacorb.connection.timeout_after_closeconnection", 
+        finalTimeout =
+            Environment.getIntPropertyWithDefault( "jacorb.connection.timeout_after_closeconnection",
                                                    20000 );
     }
 
-    public void read (org.omg.ETF.BufferHolder data, 
-                      int offset, 
-                      int min_length, 
-                      int max_length, 
+    public void read (org.omg.ETF.BufferHolder data,
+                      int offset,
+                      int min_length,
+                      int max_length,
                       long time_out)
     {
         int read = 0;
@@ -113,7 +113,7 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
                          2,
                          "Socket timed out with timeout period of " +
                          soTimeout
-                        ); 
+                        );
                     throw new org.omg.CORBA.TIMEOUT();
                 }
                 else
@@ -140,7 +140,7 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
     }
 
     public void write (boolean is_first,
-                       boolean is_last, 
+                       boolean is_last,
                        byte[] data,
                        int offset,
                        int length,
@@ -180,8 +180,8 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
         }
 
     }
-    
-    public boolean is_connected()
+
+    public synchronized boolean is_connected()
     {
         return connected;
     }
@@ -193,7 +193,7 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
      *
      * This should only be called on the thread that listens on the
      * socket because timeouts are not applied until read() is called
-     * the next time.  
+     * the next time.
      */
     public void turnOnFinalTimeout()
     {
@@ -209,9 +209,9 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
             }
         }
     }
-    
+
     public abstract boolean isSSL();
-    
+
     protected org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE (IOException ex)
     {
         return new org.omg.CORBA.COMM_FAILURE ("IOException: "
@@ -234,12 +234,12 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
             throw to_COMM_FAILURE (ex);
         }
     }
-    
+
     /**
-     * Wait for the given time_out period for incoming data on this 
-     * connection. It shall return false if this call times out and 
-     * no data is available. It may not throw a  TIMEOUT  exception. 
-     * If data can already be read or arrives before the end of the 
+     * Wait for the given time_out period for incoming data on this
+     * connection. It shall return false if this call times out and
+     * no data is available. It may not throw a  TIMEOUT  exception.
+     * If data can already be read or arrives before the end of the
      * time out, this function shall return true, immediately.
      */
     public boolean wait_next_data (long time_out)
@@ -249,7 +249,7 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
 
 
     /**
-     * A boolean flag describing whether this connection supports the 
+     * A boolean flag describing whether this connection supports the
      * Bidirectional GIOP mechanism as described by GIOP-1.2 in CORBA 2.3.1
      * (OMG Document: formal/99-10-07). It shall return true if it does,
      * and false if it does not.
@@ -262,9 +262,9 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
     /**
      * A flag directing the ORB to use either the Handle class to perform
      * data queries with a time_out, or the transport layer (through this
-     * connection). The instance shall return true, if the Handle should 
-     * signal time outs for read operations. Then the ORB may not call 
-     * wait_next_data. Otherwise, a false shall be returned, and the 
+     * connection). The instance shall return true, if the Handle should
+     * signal time outs for read operations. Then the ORB may not call
+     * wait_next_data. Otherwise, a false shall be returned, and the
      * function wait_next_data shall be implemented by this class.
      */
     public boolean use_handle_time_out()
@@ -276,4 +276,3 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
 
 }
 // TCP_IP_Transport
-
