@@ -99,7 +99,6 @@ public abstract class AbstractProxySupplier
 
     private int errorThreshold_;
 
-
     private ConsumerAdmin consumerAdmin_;
 
     private EventQueueFactory eventQueueFactory_;
@@ -109,7 +108,7 @@ public abstract class AbstractProxySupplier
      * pending messages queue. calls to set_qos may cause the
      * MessageQueue instance to be changed.
      */
-    private Object pendingMessagesRefLock_ = new Object();
+    private final Object pendingMessagesRefLock_ = new Object();
 
     private NotifyPublishOperations proxyOfferListener_;
 
@@ -450,20 +449,17 @@ public abstract class AbstractProxySupplier
                     {
                         public void offer_change(EventType[] added, EventType[] removed)
                         {
-                            try
-                                {
-                                    _listener.offer_change(added, removed);
-                                }
-                            catch (NO_IMPLEMENT e)
-                                {
-                                    logger_.info("disable offer_change for connected Consumer.", e);
+                            try {
+                                _listener.offer_change(added, removed);
+                            }
+                            catch (NO_IMPLEMENT e) {
+                                logger_.info("disable offer_change for connected Consumer.", e);
 
-                                    removeListener();
-                                }
-                            catch (InvalidEventType e)
-                                {
-                                    logger_.error("invalid event type", e);
-                                }
+                                removeListener();
+                            }
+                            catch (InvalidEventType e) {
+                                logger_.error("invalid event type", e);
+                            }
                             catch (Exception e) {
                                 logger_.error("offer_change failed", e);
                             }
@@ -476,7 +472,7 @@ public abstract class AbstractProxySupplier
     }
 
 
-    private void removeListener()
+    protected void removeListener()
     {
         if (proxyOfferListener_ != null)
         {
