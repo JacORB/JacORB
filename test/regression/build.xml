@@ -167,6 +167,7 @@
       <antcall target="idl-iiopaddress"/>
       <antcall target="idl-recursive"/>
       <antcall target="idl-notification"/>
+      <antcall target="idl-value"/>
       <antcall target="idl-bugs"/>
    </target>
 
@@ -309,6 +310,14 @@
     <property name="pkg.idl" value="org/jacorb/test/notification" />
     <property name="callback.idl" value="false"/>
     <property name="file.idl" value="Notification.idl" />
+    <antcall target="process-idl" />
+  </target>
+
+  <target name="idl-value">
+    <property name="props.idl" value="value" />
+    <property name="pkg.idl" value="org/jacorb/test" />
+    <property name="callback.idl" value="false"/>
+    <property name="file.idl" value="value.idl" />
     <antcall target="process-idl" />
   </target>
 
