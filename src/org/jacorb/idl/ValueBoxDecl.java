@@ -115,7 +115,7 @@ class ValueBoxDecl
 	try
 	{
 	    NameTable.define( full_name(), "type" );
-	    TypeMap.typedef( full_name(), null );
+	    //TypeMap.typedef( full_name(), null );
 	} 
 	catch ( NameAlreadyDefined nad )
 	{
@@ -255,14 +255,20 @@ class ValueBoxDecl
 	    ps.println("package " + pack_name + ";" );
 	}
 
-	ps.println("public final class " + className );	
+	ps.println("public class " + className );	
         ps.println("\timplements org.omg.CORBA.portable.ValueBase");
 	ps.println("{");
-        ps.println("\tpublic " + className + "value;");
+        ps.println("\tpublic " + typeSpec.typeName() + " value;");
+        ps.println("\tprivate static String[] _ids = { " + className + "Helper.id() };");
 
-        ps.println("\tpublic " + className + "(" + " <type> initial )");
+        ps.println("\tpublic " + className + "(" + typeSpec.typeName() +  " initial )");
         ps.println("\t{");
-        ps.println("\tvalue = initial;");
+        ps.println("\t\tvalue = initial;");
+	ps.println("\t}");
+
+        ps.println("\tpublic String[] _truncatable_ids()");
+        ps.println("\t{");
+        ps.println("\t\treturn _ids;");
 	ps.println("\t}");
 
 	ps.println("}");
@@ -302,10 +308,15 @@ class ValueBoxDecl
 
 	    /** print the mapped java class */
 
+            PrintWriter decl_ps;
 	    String fname = className + ".java";
-	    PrintWriter decl_ps = new PrintWriter(new java.io.FileWriter(new File(dir,fname)));
-	    printValueClass( className, decl_ps );
-	    decl_ps.close();
+
+            if( typeSpec.typeSpec() instanceof BaseType )
+            {
+                decl_ps = new PrintWriter(new java.io.FileWriter(new File(dir,fname)));
+                printValueClass( className, decl_ps );
+                decl_ps.close();
+            }
 
 	    /** print the holder class */
 
