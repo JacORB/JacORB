@@ -5,8 +5,14 @@
 This chapter explains the general mechanism for configuring JacORB 
 and lists all configuration properties. Note that ORB configuration
 has changed from version 2.1 to 2.2, in particular the names and
-locations of the standard configuration files. However, JacORB will
-still work with the old files.
+locations of the standard configuration files. 
+
+If you are upgrading from a previous version, please note that JacORB
+will still work with the old files, but you will have to copy your
+existing {\tt jacorb.properties} file to {\tt
+  JacORB\_HOME/etc/jacorb.properties}, or rename it to {\tt
+  orb.properties} if you want it loaded from your user home directory
+as before.
 
 \section{Properties}
 
@@ -590,27 +596,25 @@ which the file is rolled over & integer & 0 \\
 
 \begin{small}
 \begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
-\caption{Appligator Configuration}\\
+\caption{Name service Configuration}\\
 \hline
 ~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
 \hline
-\verb"jacorb.ProxyServer.URL" & This is the URL for the default Appligator and is used when applets or firewall traversal is supported via the JacORB Appligator.  & URL \\
-\hline
-\verb"jacorb.ProxyServer.URL"
-\verb"-<network>-<netmask>" & Additional appligators can be configured for remote subnets using this subnet form of URL configuration. The subnet for a scoped appligator is calculated by the logical ANDing of the network and netmask values.  & URL \\
-\hline
-\verb"jacorb.ProxyServer.Nam"
-\verb"e" & The name the appligator uses when adding itself to the Name Service (if available) on start up. Default is Appligator. & string \\
-\hline
-\verb"jacorb.ProxyServer.ID" & Defines the object identity for the appligator IOR. If not set, then this defaults to 'Appligator': it is recommended that this is set to some other value for additional security. & string \\
-\hline
-\verb"jacorb.ProxyServer.Net"
-\verb"mask" & Optionally used to configure the network for the local client. When used, the calls to objects within the local subnet will not be redirected. Not set by default. & IP address \\
-\hline
-\verb"jacorb.ProxyServer.Net"
-\verb"work" & See jacorb.ProxyServer.Netmask above. Not set by default. & IP address \\
-\hline
 
+\verb"jacorb.naming.log." & The log level for the name & \\
+\verb"verbosity" & service. Defaults to jacorb.log.default.verbosity & 0-4  \\
+\hline
+\verb"jacorb.naming.purge" & Whether non-active references are purged from name service
+when list operation is invoked. Default is off & on or off \\
+\hline
+\verb"jacorb.naming.noping" & Whether resolve should return references without trying to
+ping them to see if they're still alive first. Default is ping (off) &
+on or off\\
+\hline
+\verb"jacorb.naming." & The file where the name server & string\\
+\verb"ior_filename" &  drops its IOR (default unset) &   \\
+
+\hline
 \end{longtable}
 \end{small}
 

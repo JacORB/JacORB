@@ -14,13 +14,13 @@ service comprises two components: the name server program, and a set
 of interfaces and classes used to access the service.
 
 
-One word of caution about using JDK 1.2 with the JacORB naming service: JDK
-1.2 comes with a couple of outdated and apparently buggy naming service
-classes that do not work properly with JacORB. To avoid having these classes
-loaded and used inadvertently, please make sure that you always use the {\tt
-  NamingContextExt} interface rather than the plain {\tt NamingContext}
-interface in your code. Otherwise, you will see your application receive null
-pointer or other exceptions.
+One word of caution about using JDK 1.2 with the JacORB naming
+service: JDK 1.2 comes with a couple of outdated and apparently buggy
+naming service classes that do not work properly with JacORB. To avoid
+having these classes loaded and used inadvertently, please make sure
+that you always use the {\tt NamingContextExt} interface rather than
+the plain {\tt NamingContext} interface in your code. Otherwise, you
+will see your application receive null pointer or other exceptions.
 
 \section{Running the Name Server}
 
@@ -178,7 +178,7 @@ section.
 
 \section{NameManager --- A simple GUI front-end to the Naming Service}
 
-The graphical front-end to the name service can be started by simply calling
+The graphical front-end to the name service can be started by calling
 
 \cmdline{nmg}
 
@@ -194,12 +194,12 @@ its contents. Figure \ref{fig:nameManager} gives a screen shot.
 \label{fig:nameManager}
 \end{figure}
 
-NameManager has menus  that let you unbind names  and create or delete
-naming contexts within the root context. Creating a nested name space,
-e.g., can be done by selecting the {\tt RootContext} and bringing up a
-context  by clicking  the right  mouse button.  After  selecting ``new
-context'' from that menu, you will be  prompted to enter a name for the
-new, nested context.
+NameManager has menus that let you bind and unbind names, and create
+or delete naming contexts within the root context. Creating a nested
+name space, e.g., can be done by selecting the {\tt RootContext} and
+bringing up a context by clicking the right mouse button.  After
+selecting ``new context'' from that menu, you will be prompted to
+enter a name for the new, nested context.
 
 
 %%% Local Variables: 
