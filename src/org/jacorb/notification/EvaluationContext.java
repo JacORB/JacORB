@@ -44,7 +44,6 @@ import org.omg.DynamicAny.DynAnyFactory;
 
 public class EvaluationContext extends AbstractPoolable {
 
-    private DynAnyFactory dynAnyFactory_;
     private DynamicEvaluator dynamicEvaluator_;
     private ResultExtractor resultExtractor_;
     private Message event_;
@@ -67,10 +66,6 @@ public class EvaluationContext extends AbstractPoolable {
 
     public void setResultExtractor(ResultExtractor r) {
         resultExtractor_ = r;
-    }
-
-    public void setDynAnyFactory(DynAnyFactory d) {
-        dynAnyFactory_ = d;
     }
 
     public DynamicEvaluator getDynamicEvaluator() {
