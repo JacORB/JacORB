@@ -217,7 +217,8 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
     }
 
     /**
-     * @deprecated
+     * @deprecated This method cannot return a sensible result in the presence
+     * of alternate transports, use {@link getEndpointProfiles()} instead. 
      */
     public int getPort()
     {
@@ -235,7 +236,8 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
     }
 
     /**
-     * @deprecated
+     * @deprecated This method cannot return a sensible result in the presence
+     * of alternate transports, use {@link getEndpointProfiles()} instead. 
      */
     public int getSSLPort()
     {
@@ -253,7 +255,8 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
     }
 
     /**
-     * @deprecated
+     * @deprecated This method cannot return a sensible result in the presence
+     * of alternate transports, use {@link getEndpointProfiles()} instead. 
      */
     public boolean hasSSLListener()
     {
@@ -261,7 +264,8 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
     }
 
     /**
-     * @deprecated
+     * @deprecated This method cannot return a sensible result in the presence
+     * of alternate transports, use {@link getEndpointProfiles()} instead. 
      */
     public String getAddress()
     {
