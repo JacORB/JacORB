@@ -54,7 +54,7 @@ public class ParsedIOR
     public TaggedProfile[]  effectiveProfile;
 
     protected boolean endianness = false;
-    protected String ior_str = null;
+    private String ior_str = null;
     private IOR ior = null;
     
     private ORB orb = null;
@@ -336,20 +336,21 @@ public class ParsedIOR
         org.omg.SSLIOP.SSL ssl = getSSLTaggedComponent( pb );    
 
         // SSL usage is decided the following way: At least one side
-        // must require it. Therfore, we first check if it is
+        // must require it. Therefore, we first check if it is
         // supported by both sides, and then if it is required by at
         // least one side. The distinction between
         // EstablishTrustInTarget and EstablishTrustInClient is
         // handled at the socket factory layer.
 
         if( ssl != null &&                                               // server knows about ssl
-            Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //we support ssl
-            ( ((Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ) & 0x60) != 0) ||
-                                                     // we require ssl
-              ((ssl.target_requires & 0x60) != 0) || // server requires client auth.
-              ((ssl.target_requires & 0x02) != 0) || // server requires integrity
-              ((ssl.target_requires & 0x04) != 0)    // server requires confidentiality
-              ))
+            Environment.isPropertyOn( "jacorb.security.support_ssl" ) )
+//              Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //we support ssl
+//              ( ((Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ) & 0x60) != 0) ||
+//                                                       // we require ssl
+//                ((ssl.target_requires & 0x60) != 0) || // server requires client auth.
+//                ((ssl.target_requires & 0x02) != 0) || // server requires integrity
+//                ((ssl.target_requires & 0x04) != 0)    // server requires confidentiality
+//                ))
         {
             use_ssl = true; 
             port = ssl.port; 
