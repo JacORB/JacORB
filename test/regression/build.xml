@@ -13,10 +13,9 @@
       <property name="dirs.src" value="${testdir}/src"/>
       <property name="dirs.idl" value="${testdir}/idl"/>
       <property name="dirs.classes" value="${basedir}/classes"/>
-      <property name="dirs.lib" value="${testdir}/lib"/>
       <property name="dirs.output" value="${testdir}/output"/>
       <path id="project.class.path">
-         <pathelement path="${java.class.path}:${basedir}/lib/jacorb.jar:${dirs.classes}:${dirs.lib}/xerces.jar"/>
+         <pathelement path="${java.class.path}:${basedir}/lib/jacorb.jar:${dirs.classes}"/>
       </path>
       <property name="class.path" refid="project.class.path"/>
       <property name="idl.flags" 
