@@ -284,7 +284,8 @@ class ArrayTypeSpec
 	//  sb.append("[]");
 	//	sb.append(";\n");
 	
-	if( elementTypeSpec() instanceof BaseType )
+	if( elementTypeSpec() instanceof BaseType && 
+            ! ( elementTypeSpec() instanceof AnyType))
 	{
 	    String _tmp =  elementTypeSpec().printReadExpression( streamname );
 	    sb.append("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + "_array("+var_name+",0,"+length()+");");
@@ -311,13 +312,14 @@ class ArrayTypeSpec
       
     public String printWriteStatement(String var_name, String streamname)
     {
-//  	if( !typedefd )
-//  	{
 	    StringBuffer sb = new StringBuffer();
 	    String type = typeName();
-	    sb.append("if("+var_name+".length<"+length()+")\n\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect array size \"+"+var_name+".length+\", expecting " + length()+"\");\n");
+	    sb.append("\t\tif("+var_name+".length<"+length()+
+                      ")\n\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect array size \"+"+
+                      var_name+".length+\", expecting " + length()+"\");\n");
 	    
-	    if( elementTypeSpec() instanceof BaseType )
+	    if( elementTypeSpec() instanceof BaseType && 
+            ! ( elementTypeSpec() instanceof AnyType))
 	    {
 		String _tmp =  elementTypeSpec().printWriteStatement(var_name, streamname);
 		sb.append( "\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + 
@@ -405,20 +407,25 @@ class ArrayTypeSpec
 
 	/* read */
 
-	ps.println("\tpublic static " + type + " read(org.omg.CORBA.portable.InputStream _in)");
+	ps.println("\tpublic static " + type + 
+                   " read(org.omg.CORBA.portable.InputStream _in)");
 	ps.println("\t{");
 
-	ps.print("\t\t" + type + " result = new " + type.substring(0, type.indexOf(']'))+length()+"]");
+	ps.print("\t\t" + type + " result = new " + 
+                 type.substring(0, type.indexOf(']'))+length()+"]");
+
 	ps.println( type.substring(type.indexOf(']')) +"; // " + type);
 
 		    //	for( int i = my_dim+1; i < dims.length; i++ )
 		    //	    ps.print("[]");
 		    //	ps.print(";\n");
 
-	if( elementTypeSpec() instanceof BaseType )
+	if( elementTypeSpec() instanceof BaseType && 
+            ! ( elementTypeSpec() instanceof AnyType) )
 	{
 	    String _tmp =  elementTypeSpec().printReadExpression("_in");
-	    ps.println("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + "_array(result,0," +length() + ");");
+	    ps.println("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) +
+                       "_array(result,0," +length() + ");");
 	}
 	else
 	{
@@ -437,7 +444,8 @@ class ArrayTypeSpec
 	    ps.println("\t\tif( s.length != " + declarator.dimensions()[0] + ")");
 	    ps.println("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect array size\");");
 	}
-	if( elementTypeSpec() instanceof BaseType )
+	if( elementTypeSpec() instanceof BaseType  && 
+            ! ( elementTypeSpec() instanceof AnyType) )
 	{
 	    String _tmp =  elementTypeSpec().printWriteStatement("s","out");
 	    ps.println("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + "_array(s,0," + length()+");");
@@ -506,21 +514,6 @@ class ArrayTypeSpec
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -32,6 +32,9 @@ public class SequenceType
 {
     private boolean written = false;
 
+    /** used to generate unique name vor local variables */
+    private static int idxNum = 0;
+
     /** markers for recursive sequences */
     private boolean recursive = false;
 
@@ -161,6 +164,11 @@ public class SequenceType
 	return originalType;           
     }
 
+    public static int getNumber()
+    {
+        return idxNum++;
+    }
+
     /** we have to distinguish between sequence types that have been
      * explicitly declared as types with a typedef and those that
      * are declared as anonymous types in structs or unions. In
@@ -176,6 +184,10 @@ public class SequenceType
 	// if [i] is part of the name, trim that off
 	if( lgt.indexOf("[") > 0 )
 	    lgt = lgt.substring(0,lgt.indexOf("[")) + "_";
+
+        // make local variable name unique
+        lgt = lgt + getNumber();
+
 	sb.append("int " + lgt + " = " + streamname + ".read_long();\n");
 	if( length != 0 )
 	{
@@ -184,10 +196,13 @@ public class SequenceType
 	}
 	sb.append("\t\t" + var_name + " = new " + type.substring(0,type.indexOf("[")) +
 		  "["+lgt+"]" + type.substring( type.indexOf("]") + 1) + ";\n");
-	if( elementTypeSpec() instanceof BaseType && !(elementTypeSpec() instanceof AnyType) )
+
+	if( elementTypeSpec() instanceof BaseType && 
+            !(elementTypeSpec() instanceof AnyType) )
 	{
-	    String _tmp =  elementTypeSpec().printReadExpression(streamname);
-	    sb.append("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + "_array("+var_name+",0,"+lgt+");");
+	    String _tmp = elementTypeSpec().printReadExpression(streamname);
+	    sb.append("\t" + _tmp.substring(0,_tmp.indexOf("(")) + 
+                      "_array("+var_name+",0,"+lgt+");");
 	}
 	else 
 	{
@@ -203,13 +218,12 @@ public class SequenceType
 	    
 	    sb.append("\t\t\t"+indent+ 
 		      elementTypeSpec().printReadStatement(var_name +
-							   "["+idx_variable+"]", streamname) + "\n");
+							   "["+idx_variable+"]", 
+                                                           streamname)
+                      + "\n");
+
 	    sb.append("\t\t"+indent+"}\n");
 
-//  	    sb.append("\t\tfor(int i=0;i<"+lgt+";i++)\n");
-//  	    sb.append("\t\t{\n");
-//  	    sb.append("\t\t\t" + elementTypeSpec().printReadStatement(var_name + "[i]", streamname) + "\n");
-//  	    sb.append("\t\t}\n");
 	}
 	return sb.toString();
     }
@@ -227,15 +241,16 @@ public class SequenceType
 	String type = typeName();
 	if( length != 0 )
 	{
-	    sb.append("if( "+var_name+".length > " + length + ")\n");
+	    sb.append("\t\tif( "+var_name+".length > " + length + ")\n");
 	    sb.append("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect sequence length\");");
 	}
 	sb.append("\n\t\t" + streamname + ".write_long("+ var_name + ".length);\n");
 
-	if( elementTypeSpec() instanceof BaseType && !(elementTypeSpec() instanceof AnyType))
+	if( elementTypeSpec() instanceof BaseType && 
+            !(elementTypeSpec() instanceof AnyType))
 	{
 	    String _tmp =  elementTypeSpec().printWriteStatement(var_name, streamname);
-	    sb.append( _tmp.substring(0,_tmp.indexOf("(")) + "_array("+
+	    sb.append( "\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + "_array("+
 		       var_name+",0,"+var_name+".length);");
 	}
 	else
@@ -247,15 +262,15 @@ public class SequenceType
                 idx_variable = (char)( var_name.charAt( var_name.length()-2 ) + 1);
                 indent = "    ";
             }
-            sb.append("\t\t"+indent+"for( int "+idx_variable+"=0; "+idx_variable+"<"+var_name+".length;"+idx_variable+"++)\n\t\t"+indent+"{\n");
-            sb.append("\t\t\t"+indent+ elementTypeSpec().printWriteStatement(var_name 
-                                                                             + "["+idx_variable+"]",streamname) + "\n");
-            sb.append("\t\t"+indent+"}\n");
+            sb.append("\t\t"+indent+"for( int "+idx_variable+"=0; " +
+                      idx_variable+"<"+var_name+".length;" +
+                      idx_variable+"++)\n\t\t"+indent+"{\n");
 
-//  	    sb.append("\t\tfor( int i=0; i<"+var_name+".length;i++)\n");
-//  	    sb.append("\t\t{\n");
-//  	    sb.append("\t\t\t" + elementTypeSpec().printWriteStatement(var_name + "[i]",streamname) + "\n");
-//  	    sb.append("\t\t}\n");
+            sb.append("\t\t\t"+indent+ 
+                      elementTypeSpec().printWriteStatement(var_name 
+                                                            + "["+idx_variable+"]",
+                                                            streamname) + "\n");
+            sb.append("\t\t"+indent+"}\n");
 	}
 	return sb.toString();
     }
@@ -447,12 +462,16 @@ public class SequenceType
 	    ps.println("\t\t\tthrow new org.omg.CORBA.MARSHAL();");
 	}
 
-	ps.println("\t\t" + type + " result = new " + type.substring(0,type.indexOf("[")) + "[l]"+
+	ps.println("\t\t" + type + " result = new " + 
+                   type.substring(0,type.indexOf("[")) + "[l]"+
 		   type.substring(type.indexOf("]")+1)  + ";");
-	if( elementTypeSpec() instanceof BaseType && !(elementTypeSpec() instanceof AnyType))
+
+	if( elementTypeSpec() instanceof BaseType && 
+            !(elementTypeSpec() instanceof AnyType))
 	{
-	    String _tmp =  elementTypeSpec().printReadExpression("in");
-	    ps.println("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + "_array(result,0,result.length);");
+	    String _tmp = elementTypeSpec().printReadExpression("in");
+	    ps.println("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + 
+                       "_array(result,0,result.length);");
 	}
 	else 
 	{
@@ -467,7 +486,8 @@ public class SequenceType
 
 	/** write */
 
-	ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream out, " + type + " s)");
+	ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream out, " + 
+                   type + " s)");
 	ps.println("\t{");
 	if( length != 0 )
 	{
@@ -476,7 +496,8 @@ public class SequenceType
 	}
 	ps.println("\t\tout.write_long(s.length);");
 
-	if( elementTypeSpec() instanceof BaseType && !(elementTypeSpec() instanceof AnyType))
+	if( elementTypeSpec() instanceof BaseType && 
+            !(elementTypeSpec() instanceof AnyType))
 	{
 	    String _tmp =  elementTypeSpec().printWriteStatement("s", "out");
 	    ps.println( _tmp.substring(0,_tmp.indexOf("(")) + "_array(s,0,s.length);");
@@ -552,22 +573,6 @@ public class SequenceType
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
