@@ -166,24 +166,13 @@ public class SASComponentInterceptor
                 SAS_ContextSec sasContextSec = new SAS_ContextSec((short)0, (short)0, serviceConfiguration, new byte[0][0], 0);
 
                 // create the security mech list
-                int mechCnt = 0;
-                for (int i = 1; i <= 16; i++)
-                {
-                    String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".oid");
-                    if (mechOID != null) mechCnt++;
-                }
-                CompoundSecMech[] compoundSecMech = new CompoundSecMech[mechCnt];
-                mechCnt = 0;
-                for (int i = 1; i <= 16; i++)
-                {
-                    String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".oid");
-                    if (mechOID == null) continue;
-                    Oid oid = new Oid(mechOID);
-                    byte[] clientAuthenticationMech = oid.getDER();
-                    AS_ContextSec asContextSec = new AS_ContextSec(asTargetSupports, asTargetRequires, clientAuthenticationMech, targetName);
-                    compoundSecMech[mechCnt++] = new CompoundSecMech(targetRequires, transportMech, asContextSec, sasContextSec);
-                }
-                CompoundSecMechList compoundSecMechList = new CompoundSecMechList(false, compoundSecMech);
+                boolean useStateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.stateful", "true")).booleanValue();                CompoundSecMech[] compoundSecMech = new CompoundSecMech[1];
+                String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism.oid");
+                Oid oid = new Oid(mechOID);
+                byte[] clientAuthenticationMech = oid.getDER();
+                AS_ContextSec asContextSec = new AS_ContextSec(asTargetSupports, asTargetRequires, clientAuthenticationMech, targetName);
+                compoundSecMech[0] = new CompoundSecMech(targetRequires, transportMech, asContextSec, sasContextSec);
+                CompoundSecMechList compoundSecMechList = new CompoundSecMechList(useStateful, compoundSecMech);
 
                 // export to tagged component
                 CDROutputStream sasDataStream = new CDROutputStream( orb );
