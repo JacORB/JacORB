@@ -48,9 +48,9 @@ public class DomainFactoryImpl
       
         org.jacorb.util.Debug.output(4, "Domain.createDomain: finished.");
 
-        org.jacorb.util.Debug.assert(2, result != null, 
+        org.jacorb.util.Debug.myAssert(2, result != null, 
                                  "DomainFactoryImpl.createDomain: result is null");
-        org.jacorb.util.Debug.assert(2, result.isRoot(),
+        org.jacorb.util.Debug.myAssert(2, result.isRoot(),
                                  "DomainFactoryImpl.createDomain: result is"
                                  +"not a root domain");
 
@@ -93,7 +93,7 @@ public class DomainFactoryImpl
      */
     public void clear(org.jacorb.orb.domain.Domain aDomain)
     {
-        Debug.assert(1, aDomain.getChildCount() == 0, 
+        Debug.myAssert(1, aDomain.getChildCount() == 0, 
                      "DomainFactory.clear: "
                      +"cannot clear a domain with child domains, remove child domains first.");
 

@@ -57,7 +57,7 @@ public class ODMCache
                     {
                         entry.domainArray[i]= DomainHelper.narrow
                             ((org.omg.CORBA.Object)domainEnum.nextElement());
-                        Debug.assert(0, entry.domainArray[i] != null, 
+                        Debug.myAssert(0, entry.domainArray[i] != null, 
                                      "OMDCache.read: result " + i + 
                                      " is null.");
                         i++;

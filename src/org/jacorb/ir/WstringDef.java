@@ -26,7 +26,7 @@ public class WstringDef
 {
     public WstringDef(org.omg.CORBA.TypeCode tc)
     {
-        org.jacorb.util.Debug.assert( tc.kind() == org.omg.CORBA.TCKind.tk_wstring, 
+        org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_wstring, 
                                   "Precondition volation: TypeCode must be of kind wstring, but is " + tc.kind().value() );
         def_kind = org.omg.CORBA.DefinitionKind.dk_Wstring;
         type = tc;

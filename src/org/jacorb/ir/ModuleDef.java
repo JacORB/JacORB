@@ -46,7 +46,7 @@ public class ModuleDef
         org.jacorb.util.Debug.output(2, "New ModuleDef " + full_name + " path: " + path);
 
         def_kind = org.omg.CORBA.DefinitionKind.dk_Module;
-        Debug.assert( ir != null, "No repository!");
+        Debug.myAssert( ir != null, "No repository!");
 
         containing_repository = ir;
         defined_in = def_in;

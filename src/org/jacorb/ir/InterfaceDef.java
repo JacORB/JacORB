@@ -101,8 +101,8 @@ public class InterfaceDef
                   org.omg.CORBA.Repository ir )
         throws org.omg.CORBA.INTF_REPOS 
     {
-        Debug.assert( ir != null, "IR null!");
-        Debug.assert( def_in != null, "Defined?in null!");
+        Debug.myAssert( ir != null, "IR null!");
+        Debug.myAssert( def_in != null, "Defined?in null!");
 
         def_kind = org.omg.CORBA.DefinitionKind.dk_Interface;
         containing_repository = ir;
@@ -136,7 +136,7 @@ public class InterfaceDef
             e.printStackTrace();
         }
 
-        Debug.assert( irInfo != null, "IR Info null!");
+        Debug.myAssert( irInfo != null, "IR Info null!");
 
         try
         { 
@@ -152,7 +152,7 @@ public class InterfaceDef
             {
                 name = classId.substring( classId.lastIndexOf('.')+1);
 
-                Debug.assert( defined_in != null, 
+                Debug.myAssert( defined_in != null, 
                               "InterfaceDef " + name + " path " + path + 
                               " has no defined_in repository");
 
@@ -198,12 +198,12 @@ public class InterfaceDef
     {
         org.jacorb.util.Debug.output(2, "Interface " +name+ " loading... "); 
         // read from the interface class (operations and atributes)
-        Debug.assert( getReference() != null, "my own ref null");
+        Debug.myAssert( getReference() != null, "my own ref null");
 
         myReference = 
             org.omg.CORBA.InterfaceDefHelper.narrow( getReference());
 
-        Debug.assert( myReference != null, "narrow failed for " + getReference() );
+        Debug.myAssert( myReference != null, "narrow failed for " + getReference() );
 
         /* load nested definitions from interfacePackage directory */
         
@@ -278,7 +278,7 @@ public class InterfaceDef
 
     void define()
     {
-        Debug.assert( loaded, "Interface " + name +  " not loaded!");
+        Debug.myAssert( loaded, "Interface " + name +  " not loaded!");
         org.jacorb.util.Debug.output(2, "Interface " + name +  " defining... ]");
 
         org.jacorb.util.Debug.output(2, "Interface " +name+ " loads attributes/ops");
@@ -505,7 +505,7 @@ public class InterfaceDef
 
     public FullInterfaceDescription describe_interface()
     {
-        Debug.assert( defined, "InterfaceDef " + name + " not defined.");
+        Debug.myAssert( defined, "InterfaceDef " + name + " not defined.");
 
         if( fullDescription == null )
         {
@@ -603,8 +603,8 @@ public class InterfaceDef
                 constants[b] = constant_defs[b].describe_constant();
             }           
 
-            Debug.assert( operations != null, "operations null!");
-            Debug.assert( attributes != null, "attributes null!");
+            Debug.myAssert( operations != null, "operations null!");
+            Debug.myAssert( attributes != null, "attributes null!");
             
             fullDescription =
                 new FullInterfaceDescription( name, id, def_in, version, 
@@ -738,7 +738,7 @@ public class InterfaceDef
     public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type, 
                                               boolean exclude_inherited)
     {
-        Debug.assert( defined, "InterfaceDef " + name + " not defined.");
+        Debug.myAssert( defined, "InterfaceDef " + name + " not defined.");
 
         Hashtable limited = new Hashtable();
 
@@ -941,7 +941,7 @@ public class InterfaceDef
 
     public org.omg.CORBA.ContainedPackage.Description describe()
     {
-        Debug.assert( defined, "InterfaceDef " + name + " not defined.");
+        Debug.myAssert( defined, "InterfaceDef " + name + " not defined.");
 
         org.omg.CORBA.Any a = orb.create_any();
 

@@ -38,7 +38,7 @@ public class MemberListRootNode extends DefaultMutableTreeNode
   {
     super(domain.name());
     theDomain= domain;
-    org.jacorb.util.Debug.assert(2, domain != null, "domain is null");
+    org.jacorb.util.Debug.myAssert(2, domain != null, "domain is null");
 
     org.omg.CORBA.Object member[]= domain.getMembers();
     theValidNames= new String[member.length];
@@ -79,7 +79,7 @@ public class MemberListRootNode extends DefaultMutableTreeNode
    */
  //   public String toString()
 //    {
-//      org.jacorb.util.Debug.assert(1, theDomain != null, " domain representing "
+//      org.jacorb.util.Debug.myAssert(1, theDomain != null, " domain representing "
 //        +"tree node is null ");
 //      return theDomain.name();
 //    } // toString
@@ -96,7 +96,7 @@ public class MemberListRootNode extends DefaultMutableTreeNode
    */
   public Domain getDomain()
   {
-    org.jacorb.util.Debug.assert(1, theDomain != null, " domain representing "
+    org.jacorb.util.Debug.myAssert(1, theDomain != null, " domain representing "
       +"tree node is null ");
     return theDomain;
   }

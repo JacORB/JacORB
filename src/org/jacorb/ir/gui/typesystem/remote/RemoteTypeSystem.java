@@ -83,7 +83,7 @@ public class RemoteTypeSystem
 
     public static TypeSystemNode createTypeSystemNode(java.lang.Object obj) 
     {
-        Debug.assert( obj != null, 
+        Debug.myAssert( obj != null, 
                       "A reference from the Repository is null... (but it should not)");
 	IRObject irObject = null;
 	TypeSystemNode result = null;

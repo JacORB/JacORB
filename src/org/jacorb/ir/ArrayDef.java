@@ -31,7 +31,7 @@ public class ArrayDef
  
     public ArrayDef( org.omg.CORBA.TypeCode tc, org.omg.CORBA.Repository ir )
     {
-         org.jacorb.util.Debug.assert( tc.kind() == org.omg.CORBA.TCKind.tk_array, 
+         org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_array, 
                                   "Precondition volation: TypeCode must be of kind arry");
          def_kind = org.omg.CORBA.DefinitionKind.dk_Array;
          this.ir = ir;
@@ -44,10 +44,10 @@ public class ArrayDef
          }
          catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
          {
-             // cannot happen because of assertion
+             // cannot happen because of myAssertion
          }
          
-         org.jacorb.util.Debug.assert( element_type_def != null, "Element type null in sequence def");
+         org.jacorb.util.Debug.myAssert( element_type_def != null, "Element type null in sequence def");
          org.jacorb.util.Debug.output(2, "New ArrayDef");
          
     }

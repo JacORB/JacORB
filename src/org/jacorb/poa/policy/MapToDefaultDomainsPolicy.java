@@ -45,7 +45,7 @@ public class MapToDefaultDomainsPolicy
 
     public Domain getDefaultDomain()                        
     {
-        Debug.assert(1, _default_domains != null, 
+        Debug.myAssert(1, _default_domains != null, 
                      "default domains are invalid (== null)");
         return   _default_domains[0]; 
     }

@@ -52,7 +52,7 @@ public class PolicyListRootNode
     public void update(Domain domain)
     {
         theDomain= domain;
-        org.jacorb.util.Debug.assert(2, domain != null, "domain is null");
+        org.jacorb.util.Debug.myAssert(2, domain != null, "domain is null");
 
         org.omg.CORBA.Policy pol[]= domain.getPolicies();
         // theValidNames= new String[pol.length];
@@ -78,7 +78,7 @@ public class PolicyListRootNode
      */
     //  public String toString()
     //    {
-    //      org.jacorb.util.Debug.assert(1, theDomain != null, " domain representing "
+    //      org.jacorb.util.Debug.myAssert(1, theDomain != null, " domain representing "
     //        +"tree node is null ");
     //      return theDomain.name();
     //    } // toString
@@ -95,7 +95,7 @@ public class PolicyListRootNode
      */
     public Domain getDomain()
     {
-        org.jacorb.util.Debug.assert(1, theDomain != null, " domain representing "
+        org.jacorb.util.Debug.myAssert(1, theDomain != null, " domain representing "
                                  +"tree node is null ");
         return theDomain;
     }

@@ -68,7 +68,7 @@ public final class DynSequence
         {
             bk.printStackTrace();
         }
-        org.jacorb.util.Debug.assert( elementType != null, "DynSequence.set_length, elementType null");
+        org.jacorb.util.Debug.myAssert( elementType != null, "DynSequence.set_length, elementType null");
     }
 
     public void from_any( org.omg.CORBA.Any value ) 
@@ -127,7 +127,7 @@ public final class DynSequence
             // should not happen anymore
             bk.printStackTrace();
         }
-        org.jacorb.util.Debug.assert( elementType != null, "DynSequence.set_length, elementType null");
+        org.jacorb.util.Debug.myAssert( elementType != null, "DynSequence.set_length, elementType null");
     }
 
 
@@ -194,7 +194,7 @@ public final class DynSequence
             pos = -1;
         }
 
-        org.jacorb.util.Debug.assert( elementType != null, 
+        org.jacorb.util.Debug.myAssert( elementType != null, 
                                       "DynSequence.set_length, elementType null");
 
         if( len > length )

@@ -119,7 +119,7 @@ public class SharedDataImpl
             {
                 _orbDomain = 
                     DomainHelper.narrow(getORB().resolve_initial_references("LocalDomainService"));
-            org.jacorb.util.Debug.assert(1, 
+            org.jacorb.util.Debug.myAssert(1, 
                                          _orbDomain != null, 
                                          "orb domain  not running");
 
@@ -190,7 +190,7 @@ public class SharedDataImpl
 
     public PropertyPolicy getPolicyEditors() 
     {
-        Debug.assert(1, 
+        Debug.myAssert(1, 
                      _policyEditors != null, 
                      "SharedDataImpl.PolicyEditors: _policyEditors"
                      +"is null");

@@ -375,7 +375,7 @@ public class BrowserFrame
                 {
                     org.omg.CORBA.Object obj= null;
                     String nameBeforeEdit= "???";
-                    Debug.assert(1, memberListRoot != null, "root of member list is null");
+                    Debug.myAssert(1, memberListRoot != null, "root of member list is null");
 
                     int i= memberList.getMinSelectionRow();
                     MemberListLeafNode node= (MemberListLeafNode) memberListRoot.getChildAt(i);
@@ -477,7 +477,7 @@ public class BrowserFrame
             result = 
                 DomainHelper.narrow(getORB().resolve_initial_references("DomainService"));
 
-            org.jacorb.util.Debug.assert(1, result != null, "domain server not running");
+            org.jacorb.util.Debug.myAssert(1, result != null, "domain server not running");
         }
         catch (org.omg.CORBA.ORBPackage.InvalidName inv)
         {
@@ -976,7 +976,7 @@ public class BrowserFrame
     void OnPolicyPopupProperties(ActionEvent e)
     {
         org.omg.CORBA.Policy pol;
-        Debug.assert(1, policyListRoot != null,
+        Debug.myAssert(1, policyListRoot != null,
                      "root of policy list is null");
 
         // extract policy from selection, take first of all if more than one is selected
@@ -1081,7 +1081,7 @@ public class BrowserFrame
     {
 
         org.omg.CORBA.Object obj= null;
-        Debug.assert(1, memberListRoot != null, "root of member list is null");
+        Debug.myAssert(1, memberListRoot != null, "root of member list is null");
 
         int i= memberList.getMinSelectionRow();
 
@@ -1094,7 +1094,7 @@ public class BrowserFrame
         obj= node.getObject();
 
         String name= node.toString();
-        // Debug.assert(1, name.equals(memberListRoot.getDomain().getNameOf(obj)),
+        // Debug.myAssert(1, name.equals(memberListRoot.getDomain().getNameOf(obj)),
         // 		 "name of object in list and name of object in domain are not the same");
         if (obj == null) 
             return;
@@ -1173,7 +1173,7 @@ public class BrowserFrame
     void OnPolicyPopupCut(ActionEvent e)
     {
         org.omg.CORBA.Policy pol;
-        Debug.assert(1, policyListRoot != null, "root of policy list is null");
+        Debug.myAssert(1, policyListRoot != null, "root of policy list is null");
 
         // extract policy from selection, take first of all if more than one is selected
         int i= policyList.getMinSelectionRow();
@@ -1207,7 +1207,7 @@ public class BrowserFrame
     void OnMemberPopupCut(ActionEvent e)
     {
         org.omg.CORBA.Object obj= null;
-        Debug.assert(1, memberListRoot != null, "root of member list is null");
+        Debug.myAssert(1, memberListRoot != null, "root of member list is null");
 
         int i = memberList.getMinSelectionRow();
         if( i < 0 ) 
@@ -1247,7 +1247,7 @@ public class BrowserFrame
     void OnMemberPopupCopy(ActionEvent e)
     {
         org.omg.CORBA.Object obj= null;
-        Debug.assert(1, memberListRoot != null, "root of member list is null");
+        Debug.myAssert(1, memberListRoot != null, "root of member list is null");
 
         int i= memberList.getMinSelectionRow();
         if (i < 0) return; // nothing selected
@@ -1264,9 +1264,9 @@ public class BrowserFrame
 
     void OnMemberPopupPaste(ActionEvent e)
     {
-        Debug.assert(1, memberListRoot != null, 
+        Debug.myAssert(1, memberListRoot != null, 
                      "root of member list is null");
-        Debug.assert(1, ! theSharedData.MemberBufferIsEmpty(), 
+        Debug.myAssert(1, ! theSharedData.MemberBufferIsEmpty(), 
                      "member buffer is empty");
 
         Domain domain= memberListRoot.getDomain();
@@ -1490,7 +1490,7 @@ public class BrowserFrame
     void OnPolicyPopupCopy(ActionEvent e)
     {
         org.omg.CORBA.Policy pol;
-        Debug.assert(1, policyListRoot != null, "root of policy list is null");
+        Debug.myAssert(1, policyListRoot != null, "root of policy list is null");
 
         // extract policy from selection, take first of all if more than one is selected
         int i= policyList.getMinSelectionRow();
@@ -1505,7 +1505,7 @@ public class BrowserFrame
 
     void OnPolicyPopupPaste(ActionEvent e)
     {
-        Debug.assert(1, policyListRoot != null, "root of policy list is null");
+        Debug.myAssert(1, policyListRoot != null, "root of policy list is null");
         Domain domain= policyListRoot.getDomain();
         try
         {
@@ -1532,7 +1532,7 @@ public class BrowserFrame
 
     void OnPolicyPopupNewPropertyPolicy(ActionEvent e)
     {
-        Debug.assert(1, policyListRoot != null, "root of policy list is null");
+        Debug.myAssert(1, policyListRoot != null, "root of policy list is null");
         Domain domain= policyListRoot.getDomain();
         PropertyPolicy pol= null;
         String name= "Property", typeString="?";
@@ -1579,7 +1579,7 @@ public class BrowserFrame
 
     void OnPolicyPopupNewMetaPropertyPolicy(ActionEvent e)
     {
-        Debug.assert(1, policyListRoot != null, "root of policy list is null");
+        Debug.myAssert(1, policyListRoot != null, "root of policy list is null");
         Domain domain= policyListRoot.getDomain();
         MetaPropertyPolicy pol= null;
         String name= "Property", typeString="?", types="?";
@@ -1663,7 +1663,7 @@ public class BrowserFrame
 
     void OnPolicyPopupNewConflictResolutionPolicy(ActionEvent e)
     {
-        Debug.assert(1, policyListRoot != null, "root of policy list is null");
+        Debug.myAssert(1, policyListRoot != null, "root of policy list is null");
         Domain domain= policyListRoot.getDomain();
         if ( domain.hasPolicyOfType(CONFLICT_RESOLUTION_POLICY_ID.value) )
         {

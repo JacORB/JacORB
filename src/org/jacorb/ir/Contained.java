@@ -206,7 +206,7 @@ public abstract class Contained
 
     public static org.omg.CORBA.Contained createContainedReference( Contained containedObject )
     {
-        org.jacorb.util.Debug.assert( containedObject != null, 
+        org.jacorb.util.Debug.myAssert( containedObject != null, 
                                   "Precondition violated in Contained createContainedReference");
 
         org.omg.PortableServer.Servant servant = null;

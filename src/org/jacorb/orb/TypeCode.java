@@ -126,7 +126,7 @@ public class TypeCode
 
     static TypeCode get_primitive_tc( int _kind )
     {
-        org.jacorb.util.Debug.assert( primitive_tcs[_kind] != null, 
+        org.jacorb.util.Debug.myAssert( primitive_tcs[_kind] != null, 
                                       "No primitive TypeCode for kind " + _kind);
         return primitive_tcs[_kind];
     }
@@ -280,7 +280,7 @@ public class TypeCode
         kind = _kind;
         length = _bound;
         content_type = (TypeCode)_element_type;
-        org.jacorb.util.Debug.assert( content_type != null, 
+        org.jacorb.util.Debug.myAssert( content_type != null, 
                                       "TypeCode.ctor, content_type null");
 
     }

@@ -52,7 +52,7 @@ public class AliasDef
 	
     public org.omg.CORBA.IDLType original_type_def()
     {
-        org.jacorb.util.Debug.assert( original_type_def != null, "Alias " + name() 
+        org.jacorb.util.Debug.myAssert( original_type_def != null, "Alias " + name() 
                                   + " has null original_type_def" );
         return original_type_def;
     }

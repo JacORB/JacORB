@@ -66,7 +66,7 @@ public class Container
         my_dir = new File( path + fileSeparator + 
                            ( full_name != null ? full_name : "" ) );
 
-        Debug.assert( my_dir.isDirectory(), "no directory : " + 
+        Debug.myAssert( my_dir.isDirectory(), "no directory : " + 
                           path + fileSeparator + full_name);
 
         this.name = delegator.getName();
@@ -84,7 +84,7 @@ public class Container
     {
         this_container = 
             org.omg.CORBA.ContainerHelper.narrow( delegator.getReference());
-        Debug.assert( this_container != null , "no container !");
+        Debug.myAssert( this_container != null , "no container !");
 
         if( delegator instanceof Contained )
         {
@@ -98,7 +98,7 @@ public class Container
             defined_in = containing_repository;
         }
 
-        Debug.assert( containing_repository != null , 
+        Debug.myAssert( containing_repository != null , 
                           "no containing repository ");
 
         String[] classes;
@@ -251,7 +251,7 @@ public class Container
     public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type, 
                                               boolean exclude_inherited)
     {
-        Debug.assert( defined , "contents undefined");
+        Debug.myAssert( defined , "contents undefined");
 
         Hashtable filtered = new Hashtable();
 

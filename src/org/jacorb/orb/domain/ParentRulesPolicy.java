@@ -31,7 +31,7 @@ public class ParentRulesPolicy extends ManagementPolicyImpl
 public org.omg.CORBA.Policy resolveConflict(Domain[] overlappingDMs, 
 					    int overlapType)
   {
-    org.jacorb.util.Debug.assert(1, overlappingDMs.length > 0,"SimpleConflictResolutionPolicy:"
+    org.jacorb.util.Debug.myAssert(1, overlappingDMs.length > 0,"SimpleConflictResolutionPolicy:"
 			     +" list of overlapping domain managers is empty");
     if (overlappingDMs.length == 2)
       { // two conflicting domains may be a frequent case, fasten it

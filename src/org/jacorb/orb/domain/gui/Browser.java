@@ -107,7 +107,7 @@ public class Browser
 
     private static String readIORStringFromArguments(String[] args)
     {
-        Debug.assert(1,  args.length > 0, "Browser.readIORStringFromArguments: "
+        Debug.myAssert(1,  args.length > 0, "Browser.readIORStringFromArguments: "
                      + "no arguments.");
         // take domain reference from args
         String iorString= null;

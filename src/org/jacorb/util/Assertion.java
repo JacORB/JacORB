@@ -12,9 +12,9 @@ public class Assertion
     /**
      */
     
-    public static void assert( boolean assertion, String msg )
+    public static void myAssert( boolean myAssertion, String msg )
     {
-        if( !assertion )
+        if( !myAssertion )
             throw new AssertionViolation(msg);
     }  
 }

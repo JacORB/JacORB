@@ -31,7 +31,7 @@ public class StringDef
 
     public StringDef(org.omg.CORBA.TypeCode tc)
     {
-        org.jacorb.util.Debug.assert( tc.kind() == org.omg.CORBA.TCKind.tk_string, 
+        org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_string, 
                                   "Precondition volation: TypeCode must be of kind string");
         def_kind = org.omg.CORBA.DefinitionKind.dk_String;
         type = tc;

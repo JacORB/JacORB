@@ -126,7 +126,7 @@ public class ORBDomainImpl
     public org.jacorb.orb.domain.Domain _this()
     {
         Debug.output( Debug.DOMAIN | Debug.DEBUG1, "ORBDomainImpl._this()");
-        Debug.assert( 1, theTie != null, 
+        Debug.myAssert( 1, theTie != null, 
                       "ORBDomainPOATie._this: the tie has not been set (is null)");
         return theTie._this();
     }
@@ -138,7 +138,7 @@ public class ORBDomainImpl
 
     public org.omg.PortableServer.POA _getPOA()
     {   
-        Debug.assert(1, theTie != null, 
+        Debug.myAssert(1, theTie != null, 
                      "ORBDomainPOATie._getPOA: the tie has not been set (is null)");
         return theTie._poa();
     }
@@ -149,7 +149,7 @@ public class ORBDomainImpl
 
     public org.omg.CORBA.ORB _getORB()
     {
-        Debug.assert(1, theTie != null, 
+        Debug.myAssert(1, theTie != null, 
                      "ORBDomainPOATie._getORB: the tie has not been set (is null)");
         return theTie._orb();
     }

@@ -46,8 +46,8 @@ public class ExceptionDef
         def_kind = org.omg.CORBA.DefinitionKind.dk_Exception;
         containing_repository = ir;
         defined_in = _defined_in;
-        Debug.assert( defined_in != null, "defined_in = null");
-        Debug.assert( containing_repository != null, "containing_repository = null");
+        Debug.myAssert( defined_in != null, "defined_in = null");
+        Debug.myAssert( containing_repository != null, "containing_repository = null");
 
         try
         { 
@@ -119,7 +119,7 @@ public class ExceptionDef
 
     public org.omg.CORBA.TypeCode type() 
     {
-        Debug.assert( type != null, "Exception TypeCode is null");
+        Debug.myAssert( type != null, "Exception TypeCode is null");
         return type;
     }
 

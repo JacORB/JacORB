@@ -167,7 +167,7 @@ public class MapToTypeDomainsPolicy
      */
     public InitialMapPolicyPOATie getTie() 
     { 
-        org.jacorb.util.Debug.assert(1, 
+        org.jacorb.util.Debug.myAssert(1, 
                                  _tie != null,
                                  "MapToTypeDomainsPolicy.getTie: tie is not set !");
         return _tie; 

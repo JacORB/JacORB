@@ -48,10 +48,10 @@ public class PopupMenuActivator extends MouseAdapter
   public PopupMenuActivator(JPopupMenu menu, JTree tree, 
 			    JMenuItem selectionDependantMenuItems[])
   {
-    Debug.assert(1, menu != null, "PopupMenuActivator.init: menu is null");
+    Debug.myAssert(1, menu != null, "PopupMenuActivator.init: menu is null");
     thePopupMenu= menu;
 
-    Debug.assert(1, tree != null, "PopupMenuActivator.init: tree is null");
+    Debug.myAssert(1, tree != null, "PopupMenuActivator.init: tree is null");
     theTree= tree;
 
     theSelectionDependantMenuItems= selectionDependantMenuItems;

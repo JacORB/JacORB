@@ -103,12 +103,12 @@ public class UnionDef
     public void loadContents()
     {
        // read from the  class (operations and atributes)
-        Debug.assert( getReference() != null, "my own ref null");
+        Debug.myAssert( getReference() != null, "my own ref null");
 
         org.omg.CORBA.UnionDef myReference = 
             org.omg.CORBA.UnionDefHelper.narrow( getReference());
 
-        Debug.assert( myReference != null, "narrow failed for " + getReference() );
+        Debug.myAssert( myReference != null, "narrow failed for " + getReference() );
 
         /* load nested definitions from interfacePackage directory */
         

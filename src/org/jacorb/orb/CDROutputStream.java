@@ -1250,7 +1250,7 @@ public class CDROutputStream
                                     CDRInputStream in, 
                                     Hashtable tcMap)
     {
-        Debug.assert( tc != null, "Illegal null pointer for TypeCode");
+        Debug.myAssert( tc != null, "Illegal null pointer for TypeCode");
         int kind = ((TypeCode)tc)._kind();
  
         //int kind = tc.kind().value();

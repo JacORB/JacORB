@@ -60,8 +60,8 @@ public class StructDef
         containing_repository = ir;
         defined_in = _defined_in;
         this.path = path;
-        Debug.assert( defined_in != null, "defined_in = null");
-        Debug.assert( containing_repository != null, "containing_repository = null");
+        Debug.myAssert( defined_in != null, "defined_in = null");
+        Debug.myAssert( containing_repository != null, "containing_repository = null");
 
         try
         { 
@@ -117,12 +117,12 @@ public class StructDef
     public void loadContents()
     {
         // read from the  class (operations and atributes)
-        Debug.assert( getReference() != null, "my own ref null");
+        Debug.myAssert( getReference() != null, "my own ref null");
 
         org.omg.CORBA.StructDef myReference = 
             org.omg.CORBA.StructDefHelper.narrow( getReference());
 
-        Debug.assert( myReference != null, "narrow failed for " + getReference() );
+        Debug.myAssert( myReference != null, "narrow failed for " + getReference() );
 
         /* load nested definitions from interfacePackage directory */
         
@@ -202,7 +202,7 @@ public class StructDef
             members[i].type_def = 
                 IDLType.create( members[i].type, containing_repository);
 
-            org.jacorb.util.Debug.assert( members[i].type_def != null,
+            org.jacorb.util.Debug.myAssert( members[i].type_def != null,
                                           "No type_def for member " + members[i].name + 
                                           " in struct " +  full_name );
         }
@@ -216,7 +216,7 @@ public class StructDef
 
     org.omg.CORBA.TypeDescription describe_struct() 
     {
-        org.jacorb.util.Debug.assert( defined,
+        org.jacorb.util.Debug.myAssert( defined,
                                   "Struct " + full_name + " not defined! ");
         return new org.omg.CORBA.TypeDescription(name(), 
                                                  id(), 
@@ -227,7 +227,7 @@ public class StructDef
 
     public org.omg.CORBA.TypeCode type() 
     {
-        Debug.assert( type != null, "Struct TypeCode is null");
+        Debug.myAssert( type != null, "Struct TypeCode is null");
         return type;
     }
 
@@ -296,7 +296,7 @@ public class StructDef
 
     public org.omg.CORBA.StructMember[] members()
     {
-        org.jacorb.util.Debug.assert( defined,
+        org.jacorb.util.Debug.myAssert( defined,
                                   "Struct " + full_name + " not defined! ");
         return members;
     }
@@ -510,7 +510,7 @@ public class StructDef
 
     public org.omg.CORBA.ContainedPackage.Description describe()
     {
-        org.jacorb.util.Debug.assert( defined,
+        org.jacorb.util.Debug.myAssert( defined,
                                   "Struct " + full_name + "not defined! ");
 
         org.omg.CORBA.Any a = orb.create_any();

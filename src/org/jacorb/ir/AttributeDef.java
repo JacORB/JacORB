@@ -57,9 +57,9 @@ public class AttributeDef
         defined_in = _defined_in;
         containing_repository = _containing_repository;
 
-        Debug.assert( containing_repository != null, 
+        Debug.myAssert( containing_repository != null, 
                       "containing_repository null!");
-        Debug.assert( defined_in != null, "Defined?in null!");
+        Debug.myAssert( defined_in != null, "Defined?in null!");
 
         org.omg.CORBA.Contained myContainer = 
             org.omg.CORBA.ContainedHelper.narrow( defined_in );
@@ -86,7 +86,7 @@ public class AttributeDef
 
     public void type_def(org.omg.CORBA.IDLType a)
     {
-        Debug.assert( defined == true, "Attribute not defined" );
+        Debug.myAssert( defined == true, "Attribute not defined" );
         type_def = a;
     }
 

@@ -85,7 +85,7 @@ public class DynAny
 
     public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
     {
-        org.jacorb.util.Debug.assert( anyRepresentation != null, "anyRepresentation not initialized");
+        org.jacorb.util.Debug.myAssert( anyRepresentation != null, "anyRepresentation not initialized");
         return dyn_any.to_any().equal( anyRepresentation );
     }
 

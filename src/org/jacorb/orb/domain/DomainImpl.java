@@ -220,7 +220,7 @@ public class DomainImpl
 
     public void clear(org.jacorb.orb.domain.Domain aDomain)
     {
-        Debug.assert(1, aDomain.getChildCount() == 0, 
+        Debug.myAssert(1, aDomain.getChildCount() == 0, 
                      "DomainFactory.clear: "
                      +"cannot clear a domain with child domains, remove child domains first.");
 
@@ -550,7 +550,7 @@ public class DomainImpl
 
     protected org.omg.CORBA.Policy getParentPolicy(int policy_type)
     {
-        org.jacorb.util.Debug.assert(2, 
+        org.jacorb.util.Debug.myAssert(2, 
                                  !isRoot(), 
                                  "DMImpl.getParentPolicy: precondition violated");
 
@@ -712,7 +712,7 @@ public class DomainImpl
 
 	// first main step
 	Domain domains[]= getDomains(obj);
-	org.jacorb.util.Debug.assert(2, domains != null," Domain.getPolicy: "
+	org.jacorb.util.Debug.myAssert(2, domains != null," Domain.getPolicy: "
 				 +"result of getDomains is null");
 
 	for (int i= 0; i < domains.length; i++) 
@@ -720,7 +720,7 @@ public class DomainImpl
 	    try 
             { 
 		// try to get policy from domain: second main step
-		org.jacorb.util.Debug.assert(2, 
+		org.jacorb.util.Debug.myAssert(2, 
                                          domains[i] != null,
                                          "Domain.getPolicy:"
 					 +" array entry is null");
@@ -738,7 +738,7 @@ public class DomainImpl
 	if (n == 1) // fine, one domain has had the needed policy type,
             // so pol is set to the policy of this domain 
         {
-	    Debug.assert(1, pol != null, "DomainImpl.getPolicy: pol is null");
+	    Debug.myAssert(1, pol != null, "DomainImpl.getPolicy: pol is null");
 	    return pol;
         }
 	else if (n > 1)
@@ -747,7 +747,7 @@ public class DomainImpl
                                      "Domain.getPolicy: there is more than one domain (n= " + n
                                      +") with the wanted policy, using conflict resolution for overlapping domains...");
 	    pol = doConflictResolution(targetDomains, type, policyFactory() );
-	    Debug.assert(1, pol != null, 
+	    Debug.myAssert(1, pol != null, 
                          "DomainImpl.getPolicy: pol is null (conflict case)");
 	    return pol;
         }
@@ -1332,7 +1332,7 @@ public class DomainImpl
     //  	org.jacorb.util.Debug.output(2, "Domain(" + _name +  ").getRootDomain: calling getRootDomain"
     //  				 +", parent is " + ds.name());
     //  	foundRoot= ds.getRootDomain();
-    //  	org.jacorb.util.Debug.assert(1, foundRoot != null,"DMImpl.getRootDomain:"
+    //  	org.jacorb.util.Debug.myAssert(1, foundRoot != null,"DMImpl.getRootDomain:"
     //  				 + " found root is null");
     //  	if (oldfoundRoot == null) oldfoundRoot= foundRoot;       // first step
     //  	else 
@@ -1373,8 +1373,8 @@ public class DomainImpl
         Domain self = _this();
 
         // check precondition
-        org.jacorb.util.Debug.assert(2, child != null, "child is null");
-        org.jacorb.util.Debug.assert(2, self != null, "self is null");
+        org.jacorb.util.Debug.myAssert(2, child != null, "child is null");
+        org.jacorb.util.Debug.myAssert(2, self != null, "self is null");
 
         if ( child.isReachable(self) ) 
             throw new org.jacorb.orb.domain.GraphNodePackage.ClosesCycle();
@@ -1407,7 +1407,7 @@ public class DomainImpl
         }
 
         // check postcondition
-        org.jacorb.util.Debug.assert( 2, self.hasChild( child ) && child.hasParent( self ), 
+        org.jacorb.util.Debug.myAssert( 2, self.hasChild( child ) && child.hasParent( self ), 
                                  "post condition of Domain.insertChild violated");
 	    
     } // insertChild
@@ -1429,7 +1429,7 @@ public class DomainImpl
             if ( dm.hasParent( self ) )
                 dm.deleteParent( self );
 
-            org.jacorb.util.Debug.assert(2, ! dm.hasParent(self) && ! self.hasChild(dm),
+            org.jacorb.util.Debug.myAssert(2, ! dm.hasParent(self) && ! self.hasChild(dm),
                                      "DSImpl.deleteChild: post condition violated");
         }
         catch (org.omg.CORBA.COMM_FAILURE fail)
@@ -1448,7 +1448,7 @@ public class DomainImpl
 
     public boolean hasChild( Domain aDomain )
     {
-        //  org.jacorb.util.Debug.assert(2, aDomain != null,
+        //  org.jacorb.util.Debug.myAssert(2, aDomain != null,
         //  " Domain.hasChild: parameter \"aDomain\" is null.");
         //      java.lang.Object hashResult= _child_domains.get( aDomain.name() );
         //      if ( hashResult == null) return false;
@@ -1577,7 +1577,7 @@ public class DomainImpl
         Domain rootOfParent  = getRootDomain(parentDS, domain2root);
 
         // check precondition
-        org.jacorb.util.Debug.assert(Debug.DOMAIN | Debug.IMPORTANT, 
+        org.jacorb.util.Debug.myAssert(Debug.DOMAIN | Debug.IMPORTANT, 
                                  self.isRoot() || 
                                  ( !self.isRoot() && 
                                    rootOfParent._is_equivalent(rootOfSelf) ),
@@ -1587,7 +1587,7 @@ public class DomainImpl
                                  "Domain("+_name+").insertParent: "
                                  +" adding " + parentDS.name()+ " as parent domain.");
 
-        org.jacorb.util.Debug.assert( !hasParent( parentDS ), "Parent already there");
+        org.jacorb.util.Debug.myAssert( !hasParent( parentDS ), "Parent already there");
 
         if ( self.isReachable(parentDS) ) 
             throw new org.jacorb.orb.domain.GraphNodePackage.ClosesCycle();
@@ -1622,10 +1622,10 @@ public class DomainImpl
         domain2root.clear();
         rootOfSelf    = getRootDomain(self, domain2root);
         rootOfParent  = getRootDomain(parentDS, domain2root);
-        org.jacorb.util.Debug.assert(1, self.hasParent(parentDS) && 
+        org.jacorb.util.Debug.myAssert(1, self.hasParent(parentDS) && 
                                  parentDS.hasChild(self),
                                  "DMImpl.insertParent: child <-> parent postcond. violated");
-        org.jacorb.util.Debug.assert(1, ! self.isRoot(), 
+        org.jacorb.util.Debug.myAssert(1, ! self.isRoot(), 
                                  "DMImpl.insertParent: root postcondition violated");
 
         if ( ! rootOfSelf._is_equivalent(rootOfParent) ) 
@@ -1634,7 +1634,7 @@ public class DomainImpl
                                      +"has root " + rootOfParent.name()
                                      +"I have "+ rootOfSelf.name() + " as root.");
         }
-        org.jacorb.util.Debug.assert(1, rootOfParent._is_equivalent(rootOfSelf) ,
+        org.jacorb.util.Debug.myAssert(1, rootOfParent._is_equivalent(rootOfSelf) ,
                                  "DMImpl.insertParent: unique root postcondition violated");
     } // insertParent
 
@@ -1653,7 +1653,7 @@ public class DomainImpl
             parentDS.deleteChild( self );
     
         // check post condition
-        org.jacorb.util.Debug.assert(2, !parentDS.hasChild(self) && !self.hasParent(parentDS),
+        org.jacorb.util.Debug.myAssert(2, !parentDS.hasChild(self) && !self.hasParent(parentDS),
                                  "DMImpl.insertParent: child <-> parent postcondition violated");
     }
   
@@ -2126,7 +2126,7 @@ public class DomainImpl
         if ( aDomain.hasMember(obj) )      
         {
 	    result.value=  aDomain.getMapping(obj);
-	    Debug.assert(1, result.value != null, 
+	    Debug.myAssert(1, result.value != null, 
                          "D<" + aDomain.name()+">: has member, but"
 			 +" mapping is null");
 	    Debug.output(Debug.DOMAIN | Debug.INFORMATION, 
@@ -2247,7 +2247,7 @@ public class DomainImpl
 
     private final static org.jacorb.orb.domain.Domain getRootDomain(Domain aDomain)
     {
-        org.jacorb.util.Debug.assert(2, aDomain != null, 
+        org.jacorb.util.Debug.myAssert(2, aDomain != null, 
                                  "Domain.getRootDomain: Parameter aDomain is null");
 
         if ( aDomain.isRoot() ) return aDomain;
@@ -2264,7 +2264,7 @@ public class DomainImpl
                                      + aDomain.name() + ", parent is " + 
                                      ds.name());
             foundRoot= getRootDomain(ds);
-            org.jacorb.util.Debug.assert(1, foundRoot != null,
+            org.jacorb.util.Debug.myAssert(1, foundRoot != null,
                                      "DMImpl.getRootDomain:"
                                      + " found root is null");
 
@@ -2300,7 +2300,7 @@ public class DomainImpl
     final static org.jacorb.orb.domain.Domain getRootDomain(Domain aDomain, 
                                                         Hashtable domain2root)
     {
-        org.jacorb.util.Debug.assert(2, aDomain != null, 
+        org.jacorb.util.Debug.myAssert(2, aDomain != null, 
                                  "Domain.getRootDomain: Parameter aDomain is null");
 
         if ( aDomain.isRoot() ) 
@@ -2328,7 +2328,7 @@ public class DomainImpl
                                      ds.name());
             foundRoot= getRootDomain(ds, domain2root);
 
-            org.jacorb.util.Debug.assert(1, foundRoot != null,
+            org.jacorb.util.Debug.myAssert(1, foundRoot != null,
                                      "DMImpl.getRootDomain:"
                                      + " found root is null");
 

@@ -33,7 +33,7 @@ public class SequenceDef
 
     public SequenceDef( org.omg.CORBA.TypeCode tc, org.omg.CORBA.Repository ir )
     {
-        org.jacorb.util.Debug.assert( tc.kind() == org.omg.CORBA.TCKind.tk_sequence, 
+        org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_sequence, 
                                   "Precondition volation: TypeCode must be of kind sequence");
        
         type = tc;
@@ -48,12 +48,12 @@ public class SequenceDef
         } 
         catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
         {
-            // cannot happen because of assertion
+            // cannot happen because of myAssertion
         }
 
         element_type_def = IDLType.create( element_type, ir );
 
-        org.jacorb.util.Debug.assert( element_type_def != null, 
+        org.jacorb.util.Debug.myAssert( element_type_def != null, 
                                       "Element type " + name  + 
                                       " null in SequenceDef " + name );
 

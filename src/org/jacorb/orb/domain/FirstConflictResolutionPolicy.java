@@ -30,7 +30,7 @@ public class FirstConflictResolutionPolicy
     public org.omg.CORBA.Policy resolveConflict(Domain[] overlappingDMs, 
 						int overlapType)
     {
-        org.jacorb.util.Debug.assert(1, overlappingDMs.length > 0,"FirstConflictResolutionPolicy:"
+        org.jacorb.util.Debug.myAssert(1, overlappingDMs.length > 0,"FirstConflictResolutionPolicy:"
                                      +" list of overlapping domain managers is empty");
         return overlappingDMs[0].get_domain_policy(overlapType);
     }

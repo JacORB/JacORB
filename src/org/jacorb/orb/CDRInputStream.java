@@ -816,7 +816,7 @@ public class CDRInputStream
             String recursiveId = 
                 (String)tcMap.get( new Integer( pos -4-1 + negative_offset ) );
 
-            Debug.assert( recursiveId != null,
+            Debug.myAssert( recursiveId != null,
                           "No recursive TypeCode! (pos: " + 
                           (pos-4-1+negative_offset) + ")");
 

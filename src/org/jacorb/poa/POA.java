@@ -1910,7 +1910,7 @@ public class POA
         {
             orb_domain
                 = DomainHelper.narrow( orb.resolve_initial_references("LocalDomainService"));
-            // Debug.assert(1, orb_domain != null, "POA.doInitialDomainMapping: orb_domain is null");
+            // Debug.myAssert(1, orb_domain != null, "POA.doInitialDomainMapping: orb_domain is null");
         }
         catch (org.omg.CORBA.ORBPackage.InvalidName invalid)
         {

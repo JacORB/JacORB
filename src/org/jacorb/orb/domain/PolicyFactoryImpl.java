@@ -121,7 +121,7 @@ public class PolicyFactoryImpl
             return null;
         }
         // should never be called
-        org.jacorb.util.Debug.assert(1, false, 
+        org.jacorb.util.Debug.myAssert(1, false, 
                                  "PolicyFactoryImpl.createInitialMapPolicy: impossible "
                                  +" fallthrough happened !!!");
         return null;
@@ -159,7 +159,7 @@ public class PolicyFactoryImpl
                     ConflictResolutionPolicyHelper.narrow
                     (_poa().servant_to_reference( new ConflictResolutionPolicyPOATie
                         ( new ParentRulesPolicy() ) ));
-                org.jacorb.util.Debug.assert(1, pol != null, "pol is null");
+                org.jacorb.util.Debug.myAssert(1, pol != null, "pol is null");
                 return pol;
 
             case ConflictResolutionPolicy.CHILD_RULES: 

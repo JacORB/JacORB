@@ -63,7 +63,7 @@ public class ConstantDef
         myContainer = 
             org.omg.CORBA.ContainedHelper.narrow( defined_in );
 
-        org.jacorb.util.Debug.assert( myContainer != null , 
+        org.jacorb.util.Debug.myAssert( myContainer != null , 
                                   "Constant should be in an interface!");
 
         String def_in_id = myContainer.id();
@@ -123,8 +123,8 @@ public class ConstantDef
         org.jacorb.util.Debug.output( 2, "ConstantDef " + absolute_name() + " defining.");
         value = (org.jacorb.orb.Any) orb.create_any();
         type_def = IDLType.create( typeCode, containing_repository );
-        Debug.assert( typeCode != null, "typeCode null!");
-        Debug.assert( type_def != null, "type_def null!");
+        Debug.myAssert( typeCode != null, "typeCode null!");
+        Debug.myAssert( type_def != null, "type_def null!");
 
         try 
         { 
@@ -166,7 +166,7 @@ public class ConstantDef
 
     org.omg.CORBA.ConstantDescription describe_constant()
     {
-        Debug.assert( defined , "ConstantDef " + name + " not defined!");
+        Debug.myAssert( defined , "ConstantDef " + name + " not defined!");
         if( description == null )
         {
             String def_in = null;

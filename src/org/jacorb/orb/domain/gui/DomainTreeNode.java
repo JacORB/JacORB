@@ -41,7 +41,7 @@ public class DomainTreeNode extends DefaultMutableTreeNode
     catch (org.omg.CORBA.COMM_FAILURE fail) { setUserObject("???"); }
 
     theDomain= domain;
-    org.jacorb.util.Debug.assert(2, domain != null, "domain is null");
+    org.jacorb.util.Debug.myAssert(2, domain != null, "domain is null");
 
     //    try { cachedName= domain.name(); }
     // catch (org.omg.CORBA.COMM_FAILURE fail) { cachedName= "???"; }
@@ -58,7 +58,7 @@ public class DomainTreeNode extends DefaultMutableTreeNode
  //   public String toString()
 //    {
 
-//      org.jacorb.util.Debug.assert(1, theDomain != null, " domain representing "
+//      org.jacorb.util.Debug.myAssert(1, theDomain != null, " domain representing "
 //        +"tree node is null ");
 //      return cachedName;
 //    } // toString
@@ -77,7 +77,7 @@ public class DomainTreeNode extends DefaultMutableTreeNode
    */
   public Domain getDomain()
   {
-    org.jacorb.util.Debug.assert(1, theDomain != null, " domain representing "
+    org.jacorb.util.Debug.myAssert(1, theDomain != null, " domain representing "
       +"tree node is null ");
     return theDomain;
   }

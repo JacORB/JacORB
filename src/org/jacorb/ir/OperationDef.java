@@ -59,8 +59,8 @@ public class OperationDef
         def_kind = org.omg.CORBA.DefinitionKind.dk_Operation;
         name( m.getName());
 
-        Debug.assert( def_in != null, "Class argument null" );
-        Debug.assert( i_def != null, "Idef argument null" );
+        Debug.myAssert( def_in != null, "Class argument null" );
+        Debug.myAssert( i_def != null, "Idef argument null" );
 
         id( RepositoryID.toRepositoryID( RepositoryID.className( i_def.id())
                                          + "/" + name(), false));
@@ -196,7 +196,7 @@ public class OperationDef
 
         if( paramTypeNames.length > 0 )
         {
-            Debug.assert( paramTypeNames.length == m_params.length,
+            Debug.myAssert( paramTypeNames.length == m_params.length,
                           "Different parameter type numbers! " + 
                           paramTypeNames.length + " vs. " + m_params.length + 
                           " inforString: " + opInfo);
@@ -228,7 +228,7 @@ public class OperationDef
                 }
                 else
                 {
-                    Debug.assert( paramInfo != null && (paramInfo.indexOf(' ') > 0),
+                    Debug.myAssert( paramInfo != null && (paramInfo.indexOf(' ') > 0),
                                   "No param info for " + parameterTypeName);
                    
                     if( paramInfo.substring(0, (paramInfo.indexOf(' ')-1)).startsWith("inout:"))
@@ -271,8 +271,8 @@ public class OperationDef
 
     public org.omg.CORBA.IDLType result_def()
     {
-        Debug.assert( defined , "OperationDef undefined");
-        Debug.assert( result_def != null, 
+        Debug.myAssert( defined , "OperationDef undefined");
+        Debug.myAssert( result_def != null, 
                       "Result def for op " + name() +" null");
         return result_def;
     }
@@ -294,14 +294,14 @@ public class OperationDef
 
     public org.omg.CORBA.TypeCode result()
     {
-        Debug.assert( defined , "OperationDeg undefined");
+        Debug.myAssert( defined , "OperationDeg undefined");
 
         return result;
     }
 
     public org.omg.CORBA.ParameterDescription[] params()
     {
-        Debug.assert( defined , "OperationDeg undefined");
+        Debug.myAssert( defined , "OperationDeg undefined");
         if( !defined )
             define();
         return params;
@@ -314,7 +314,7 @@ public class OperationDef
 
     public java.lang.String[] contexts()
     {
-        Debug.assert( defined , "OperationDeg undefined");
+        Debug.myAssert( defined , "OperationDeg undefined");
 
 
         if( !defined )
@@ -329,7 +329,7 @@ public class OperationDef
 
     public org.omg.CORBA.ExceptionDef[] exceptions()
     {
-        Debug.assert( defined , "OperationDeg undefined");
+        Debug.myAssert( defined , "OperationDeg undefined");
         if( !defined )
             define();
         return exceptions;
@@ -380,7 +380,7 @@ public class OperationDef
 
     public org.omg.CORBA.ContainedPackage.Description describe()
     {
-        Debug.assert( defined , "OperationDef undefined");
+        Debug.myAssert( defined , "OperationDef undefined");
 
         org.omg.CORBA.Any a = orb.create_any();
         org.omg.CORBA.OperationDescriptionHelper.insert( a, describe_operation() );
