@@ -7,46 +7,47 @@
   <!-- ==================================================== -->
 
    <target name="init">
-	<property name="name" value="benchmark"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg -p demo -d ${dirs.base}/demo/${name}/generated"/>
+   <property name="name" value="benchmark"/>
+   <property name="dirs.base" value="${basedir}"/>
+   <property name="classdir" value="${dirs.base}/classes"/>
+   <property name="lib" value="${dirs.base}/lib"/>
+   <property name="include" value="${dirs.base}/idl"/>
+   <property name="idlflags" value="-I${include}/omg -p demo -d ${dirs.base}/demo/${name}/generated"/>
    </target>
 
    <target name="all" depends="init,idl">
-	<javac srcdir="${dirs.base}/demo/${name}/generated"
+   <javac srcdir="${dirs.base}/demo/${name}/generated"
                destdir="${classdir}"
-	       optimize="on"
-	       includes="**/*.java"
-	        />
-	<javac srcdir="${dirs.base}"
+          optimize="on"
+          includes="**/*.java"
+           />
+   <javac srcdir="${dirs.base}"
                destdir="${classdir}"
-	       optimize="on"
-	       includes="demo/${name}/*.java"
-	        />
+          optimize="on"
+          includes="demo/${name}/*.java"
+           />
    </target>
 
    <target name="idl" depends="init">
         <java classname="org.jacorb.idl.parser" 
               fork="yes" 
               classpath="${lib}/idl.jar;${java.class.path}">
-
-	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/*.idl"/>
+         <arg line="${idlflags} 
+         ${dirs.base}/demo/${name}/server.idl"/>
+         </java>
+        <java classname="org.jacorb.idl.parser" 
+              fork="yes" 
+              classpath="${lib}/idl.jar;${java.class.path}">
+         <arg line="${idlflags} 
+         ${dirs.base}/demo/${name}/octetServer.idl"/>
          </java>
    </target>
 
 
-   <target name="clean">
-   <deltree dir="${classdir}/demo/${name}"/>
-   <deltree dir="${dirs.base}/demo/${name}/generated"/>
+   <target name="clean" depends="init">
+      <echo message="${name}"/>
+      <delete dir="${classdir}/demo/${name}"/>
+      <delete dir="${dirs.base}/demo/${name}/generated"/>
    </target>
 
 </project>
-
-
-
-
-
