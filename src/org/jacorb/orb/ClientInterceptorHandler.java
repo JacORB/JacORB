@@ -2,10 +2,15 @@ package org.jacorb.orb;
 
 import java.util.Enumeration;
 
+import org.jacorb.orb.connection.*;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.util.Debug;
+
+import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.IOP.ServiceContext;
+import org.omg.GIOP.ReplyHeader_1_2;
+import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.PortableInterceptor.*;
 
 /**
@@ -57,6 +62,59 @@ public class ClientInterceptorHandler
         }
     }   
 
+    public void handle_location_forward ( ReplyInputStream     reply,
+                                          org.omg.CORBA.Object forward_reference )
+        throws RemarshalException
+    {
+        if ( info != null )
+        {
+            info.reply_status = LOCATION_FORWARD.value;
+            info.setReplyServiceContexts( reply.rep_hdr.service_context );
+
+            info.forward_reference = forward_reference;
+
+            //allow interceptors access to reply input stream
+            info.reply_is = reply;
+
+            invokeInterceptors( info,
+                                ClientInterceptorIterator.RECEIVE_OTHER );
+        }
+    }
+
+    public void handle_receive_reply ( ReplyInputStream reply )
+        throws RemarshalException
+    {
+        if ( info != null )
+        {                                          
+            ReplyHeader_1_2 header = reply.rep_hdr;
+
+            if ( header.reply_status.value() == ReplyStatusType_1_2._NO_EXCEPTION )
+            {
+                info.reply_status = SUCCESSFUL.value;
+
+                info.setReplyServiceContexts( header.service_context );
+
+                // the case that invoke was called from
+                // dii.Request._invoke() will be handled inside
+                // of dii.Request._invoke() itself, because the
+                // result will first be available there
+                if ( info.request_os.getRequest() == null )
+                {
+                    InterceptorManager manager = info.orb.getInterceptorManager();
+                    info.current = manager.getCurrent();
+
+                    //allow interceptors access to reply input stream
+                    info.reply_is = reply;
+
+                    invokeInterceptors( info,
+                                        ClientInterceptorIterator.RECEIVE_REPLY );
+                }
+                else
+                    info.request_os.getRequest().setInfo( info );
+            }
+        }
+    }
+            
     public void handle_receive_other ( short reply_status )
         throws RemarshalException
     {
@@ -70,10 +128,16 @@ public class ClientInterceptorHandler
     public void handle_receive_exception ( org.omg.CORBA.SystemException ex )
         throws RemarshalException
     {
+        handle_receive_exception ( ex, null );
+    }        
+
+    public void handle_receive_exception ( org.omg.CORBA.SystemException ex,
+                                           ReplyInputStream reply )
+        throws RemarshalException
+    {
         if ( info != null )
         {
             SystemExceptionHelper.insert ( info.received_exception, ex );
-        
             try
             {
                 info.received_exception_id =
@@ -83,18 +147,59 @@ public class ClientInterceptorHandler
             {
                 Debug.output ( Debug.INTERCEPTOR | Debug.INFORMATION, bk );
             }
-            
             info.reply_status = SYSTEM_EXCEPTION.value;
+
+            if ( reply != null )
+            {
+                info.setReplyServiceContexts ( reply.rep_hdr.service_context );
+                info.reply_is = reply;
+            }
             
             invokeInterceptors ( info,
                                  ClientInterceptorIterator.RECEIVE_EXCEPTION );
         }
-        
-        
-        
     }
-    
-    public void invokeInterceptors( ClientRequestInfoImpl info, short op )
+
+    public void handle_receive_exception ( ApplicationException ex,
+                                           ReplyInputStream reply )
+        throws RemarshalException
+    {
+        if ( info != null )
+        {
+            info.received_exception_id = ex.getId();
+            try
+            {
+                ApplicationExceptionHelper.insert( info.received_exception, 
+                                                   ex );
+            }
+            catch ( Exception e )
+            {
+                Debug.output ( Debug.INTERCEPTOR | Debug.INFORMATION, e );
+                SystemExceptionHelper.insert ( info.received_exception,
+                                               new org.omg.CORBA.UNKNOWN
+                                                  ( e.getMessage() ) );
+            }
+            info.reply_status = USER_EXCEPTION.value;
+
+            try
+            {
+                reply.reset();
+            }
+            catch ( Exception e )
+            {
+                // shouldn't happen anyway
+                Debug.output ( Debug.INTERCEPTOR | Debug.INFORMATION, e);
+            }                        
+
+            info.setReplyServiceContexts ( reply.rep_hdr.service_context );
+            info.reply_is = reply;
+            
+            invokeInterceptors ( info,
+                                 ClientInterceptorIterator.RECEIVE_EXCEPTION );
+        }
+    }
+        
+    private void invokeInterceptors( ClientRequestInfoImpl info, short op )
       throws RemarshalException
     {
         ClientInterceptorIterator intercept_iter =
