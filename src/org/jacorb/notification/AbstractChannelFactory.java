@@ -538,6 +538,7 @@ public abstract class AbstractChannelFactory
             case Persistent.value:
                 throwPersistentNotSupported( EventReliability.value );
 
+                // fallthrough
             default:
                 throwBadValue( EventReliability.value );
             }
@@ -558,9 +559,9 @@ public abstract class AbstractChannelFactory
                 break;
 
             case Persistent.value:
-                //break;
                 throwPersistentNotSupported( ConnectionReliability.value );
 
+                break; // to satisfy compiler
             default:
                 throwBadValue( ConnectionReliability.value );
             }
@@ -713,6 +714,16 @@ public abstract class AbstractChannelFactory
         // force activation
         _factory.activate();
 
+        _factory.printIOR(props);
+
+        _factory.printCorbaLoc(props);
+
+        _factory.writeFile(props);
+
+        _factory.registerName(props);
+
+        _factory.startChannels(props);
+
         if (startThread) {
             Thread _orbThread = new Thread(
                                            new Runnable()
@@ -731,16 +742,6 @@ public abstract class AbstractChannelFactory
             _orbThread.start();
         }
 
-        _factory.printIOR(props);
-
-        _factory.printCorbaLoc(props);
-
-        _factory.writeFile(props);
-
-        _factory.registerName(props);
-
-        _factory.startChannels(props);
-
         return _factory;
     }
 
@@ -755,8 +756,8 @@ public abstract class AbstractChannelFactory
 
 
     private void registerName(Properties props) throws Exception {
-        registerName((String)props.get(Attributes.REGISTER_NAME_ID),
-                     (String)props.get(Attributes.REGISTER_NAME_KIND));
+        registerName(props.getProperty(Attributes.REGISTER_NAME_ID),
+                     props.getProperty(Attributes.REGISTER_NAME_KIND, ""));
     }
 
 
@@ -764,28 +765,34 @@ public abstract class AbstractChannelFactory
                                            String nameKind)
         throws Exception
     {
-        if ( nameId != null )
-        {
-            namingContext_ =
-                NamingContextHelper.narrow( getORB().resolve_initial_references( "NameService" ) );
-
-            NameComponent[] _name = new NameComponent[] {
-                                       new NameComponent( nameId, nameKind )
-                                   };
-
-            if (logger_.isInfoEnabled()) {
-                logger_.info( "namingContext.rebind("
-                              + nameId
-                              + ((nameKind != null && nameKind.length() > 0 )
-                                 ? ( "." + nameKind ) : "" )
-                              + " => "
-                              + getCorbaLoc()
-                              + ")" );
-            }
-            namingContext_.rebind( _name, thisRef_ );
-
-            registeredName_ = _name;
+        if ( nameId == null ) {
+            throw new ConfigurationException(Attributes.REGISTER_NAME_ID + "is null. This attributes needs to be non null if a reference should be registered in the NameService.");
         }
+
+        namingContext_ =
+            NamingContextHelper.narrow( getORB().resolve_initial_references( "NameService" ) );
+
+        if (namingContext_ == null) {
+            throw new ConfigurationException("could not resolve initial reference 'NameService'");
+        }
+
+        NameComponent[] _name = new NameComponent[] {
+            new NameComponent( nameId, nameKind )
+        };
+
+        if (logger_.isInfoEnabled()) {
+            logger_.info( "namingContext.rebind("
+                          + nameId
+                          + ((nameKind != null && nameKind.length() > 0 )
+                             ? ( "." + nameKind ) : "" )
+                          + " => "
+                          + getCorbaLoc()
+                              + ")" );
+        }
+
+        namingContext_.rebind( _name, thisRef_ );
+
+        registeredName_ = _name;
     }
 
 
