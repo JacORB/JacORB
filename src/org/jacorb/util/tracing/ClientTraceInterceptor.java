@@ -10,7 +10,6 @@ import java.io.*;
 
 import org.omg.CORBA.LocalObject;
 import org.jacorb.orb.portableInterceptor.*;
-import org.jacorb.orb.domain.*;
 
 public class ClientTraceInterceptor
     extends RecursionAwareCI
@@ -70,29 +69,8 @@ public class ClientTraceInterceptor
             // only for requests which return
             if( ri.response_expected() )
             {
-
-                if (ri.effective_target()._is_a(DomainHelper.id()))
-                    return;
-
                 System.out.println("request: call to op " + ri.operation());
 
-                try
-                {
-                    // check if target is in a domain that enforces tracing
-                    Policy p =  ri.effective_target().
-                        _get_policy( TRACE_POLICY_TYPE );
-
-                    PropertyPolicy pp = PropertyPolicyHelper.narrow( p );
-                    if ( OFF.equals( pp.getValueOfProperty( TRACE ) ) )
-                    {             
-                        System.out.println("No tracing due to policy");
-                        
-                        return;
-                    }
-                }catch (org.omg.CORBA.INV_POLICY ip)
-                {
-                    //ignore, no policy present;
-                }
 
                 current_request = new Request( myTraceId, 
                                                ri.effective_target().
@@ -141,8 +119,6 @@ public class ClientTraceInterceptor
     {		
         try
         {
-            if (ri.effective_target()._is_a(DomainHelper.id()))
-                return;
 
 System.out.println("reply: return from op " + ri.operation());
 
