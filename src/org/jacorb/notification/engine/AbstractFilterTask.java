@@ -21,12 +21,12 @@ package org.jacorb.notification.engine;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.util.TaskExecutor;
-import java.util.ArrayList;
 
 /**
  * Abstract Base Class for FilterTask.
@@ -37,6 +37,8 @@ import java.util.ArrayList;
 
 abstract class AbstractFilterTask extends AbstractTask
 {
+    //    private boolean disposed_ = false;
+
     /**
      * for debugging purpose.
      */
@@ -58,7 +60,9 @@ abstract class AbstractFilterTask extends AbstractTask
 
     /**
      * child FilterStages for which evaluation was successful. these
-     * Stages are to be eval'd by the next Task.
+     * Stages are to be eval'd by the next Task. As each Task is
+     * processed by one Thread at a time unsynchronized ArrayList can
+     * be used here.
      */
     private List listOfFilterStageToBeProcessed_ = new ArrayList();
 
@@ -133,6 +137,10 @@ abstract class AbstractFilterTask extends AbstractTask
     {
         super.reset();
 
+//         synchronized(this) {
+//             disposed_ = false;
+//         }
+
         clearFilterStageToBeProcessed();
     }
 
@@ -141,4 +149,27 @@ abstract class AbstractFilterTask extends AbstractTask
     {
         logger_.fatalError( "Error while Filtering in Task:" + task, error );
     }
+
+
+    /**
+     * Schedule this Task on its default Executor for execution.
+     */
+    public void schedule() throws InterruptedException{
+        // as all FilterTasks share their Executor queuing of this
+        // Task can be avoided if there are no other Tasks to run.
+        // in this case this Task will be run immediately.
+        schedule(!getTaskExecutor().isTaskQueued());
+    }
+
+//     public final void dispose() {
+//         super.dispose();
+
+// //         synchronized(this) {
+// //             if (disposed_) {
+// //                 throw new RuntimeException("may only be disposed once");
+// //             }
+
+// //             disposed_ = true;
+// //         }
+//     }
 }

@@ -21,18 +21,18 @@ package org.jacorb.notification;
  *
  */
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.evaluate.FilterConstraint;
+import org.jacorb.notification.filter.DynamicEvaluator;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.FilterConstraint;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.node.DynamicTypeException;
 import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
 import org.jacorb.util.Debug;
@@ -167,24 +167,33 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected DynAnyFactory dynAnyFactory_;
 
-    protected MessageFactory notificationEventFactory_;
+    protected MessageFactory messageFactory_;
 
     public FilterImpl(ApplicationContext applicationContext, String constraintGrammar)
     {
         super();
 
+        if (logger_.isInfoEnabled()) {
+            logger_.info("Created filter for Grammar: " + constraintGrammar);
+        }
+
         constraintGrammar_ = constraintGrammar;
 
         applicationContext_ = applicationContext;
 
-        notificationEventFactory_ =
+        messageFactory_ =
             applicationContext.getMessageFactory();
 
         dynAnyFactory_ = applicationContext.getDynAnyFactory();
+
         dynamicEvaluator_ = applicationContext.getDynamicEvaluator();
 
-        constraints_ = new Hashtable();
+        // as access to constraints_ is controlled by
+        // constraintsLock_ its safe to use unsynchronized HashMap here
+        constraints_ = new HashMap();
+
         constraintsLock_ = new WriterPreferenceReadWriteLock();
+
         wildcardMap_ = new CachingWildcardMap(4);
     }
 
@@ -658,10 +667,6 @@ public class FilterImpl extends FilterPOA implements Disposable
                                     {
                                         logger_.fatalError("Error evaluating filter", e);
                                     }
-                                catch ( DynamicTypeException e )
-                                    {
-                                        logger_.fatalError("Error evaluating filter", e);
-                                    }
                             }
                     }
                 else
@@ -704,7 +709,7 @@ public class FilterImpl extends FilterPOA implements Disposable
             _evaluationContext = applicationContext_.newEvaluationContext();
 
             _event =
-                notificationEventFactory_.newEvent( anyEvent );
+                messageFactory_.newMessage( anyEvent );
 
             return match(_evaluationContext, _event );
         }
@@ -750,7 +755,7 @@ public class FilterImpl extends FilterPOA implements Disposable
             _evaluationContext = applicationContext_.newEvaluationContext();
 
             _event =
-                notificationEventFactory_.newEvent( structuredEvent );
+                messageFactory_.newMessage( structuredEvent );
 
             return match(_evaluationContext, _event );
         }

@@ -21,7 +21,7 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.AbstractAdmin;
+import org.jacorb.notification.servant.AbstractAdmin;
 
 /**
  * AdminEvent.java

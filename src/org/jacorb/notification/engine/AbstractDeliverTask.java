@@ -38,19 +38,17 @@ public abstract class AbstractDeliverTask extends AbstractTask
 
     ////////////////////
 
-    protected AbstractDeliverTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
-    {
-        super(te, tp, tc);
+    protected AbstractDeliverTask(TaskProcessor tp, TaskFactory tf) {
+        super(null, tp, tf);
     }
 
     ////////////////////
 
-    public static void scheduleTasks(AbstractDeliverTask[] tasks,
-                                     boolean runAllowed) throws InterruptedException
+    public static void scheduleTasks(AbstractDeliverTask[] tasks) throws InterruptedException
     {
         for ( int x = 0; x < tasks.length; ++x )
         {
-            tasks[x].schedule(runAllowed);
+            tasks[x].schedule(false);
         }
     }
 
@@ -64,7 +62,7 @@ public abstract class AbstractDeliverTask extends AbstractTask
     }
 
 
-    public MessageConsumer getMessageConsumer()
+    protected MessageConsumer getMessageConsumer()
     {
         return target_;
     }
@@ -73,19 +71,11 @@ public abstract class AbstractDeliverTask extends AbstractTask
     public void setMessageConsumer( MessageConsumer mc )
     {
         target_ = mc;
-
-        if (logger_.isDebugEnabled())
-        {
-            logger_.debug("DeliverTask.setMessageConsumer Target="
-                          + target_ );
-
-        }
     }
 
 
     public void handleTaskError(AbstractTask task, Throwable error)
     {
-
         if (logger_.isDebugEnabled())
         {
             logger_.debug("Entering Exceptionhandler for Task:"
@@ -155,7 +145,7 @@ public abstract class AbstractDeliverTask extends AbstractTask
 
                     //                    _consumer.backoff();
 
-                    taskProcessor_.backoffMessageConsumer(_consumer);
+                    taskProcessor_.backoutMessageConsumer(_consumer);
                 }
                 catch (Exception e)
                 {
@@ -185,5 +175,27 @@ public abstract class AbstractDeliverTask extends AbstractTask
         }
 
         _pushToConsumerTask.dispose();
+    }
+
+
+    /**
+     * override default schedule to use the TaskExecutor provided
+     * by the current MessageConsumer.
+     */
+    protected void schedule(boolean directRunAllowed) throws InterruptedException {
+        schedule(getTaskExecutor(), directRunAllowed);
+    }
+
+
+    public void schedule() throws InterruptedException {
+        schedule(!getTaskExecutor().isTaskQueued());
+    }
+
+
+    /**
+     * override to use the TaskExecutor provided by the current MessageConsumer
+     */
+    protected TaskExecutor getTaskExecutor() {
+        return getMessageConsumer().getExecutor();
     }
 }

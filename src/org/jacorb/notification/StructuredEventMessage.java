@@ -21,15 +21,18 @@ package org.jacorb.notification;
  *
  */
 
+
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.filter.ComponentName;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.filter.FilterUtils;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.util.Time;
 
 import org.omg.CORBA.Any;
@@ -44,9 +47,6 @@ import org.omg.CosNotification.Timeout;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.TimeBase.TimeTHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
@@ -61,32 +61,41 @@ import org.omg.TimeBase.UtcTHelper;
 class StructuredEventMessage extends AbstractMessage
 {
     private Any anyValue_;
+
     private StructuredEvent structuredEventValue_;
+
     private String constraintKey_;
 
     private Date startTime_;
+
     private Date stopTime_;
 
     private long timeout_ = 0;
+
     private boolean isTimeoutSet_;
 
     private short priority_;
+
+    ////////////////////////////////////////
 
     StructuredEventMessage( )
     {
         super( );
     }
 
+    ////////////////////////////////////////
+
     public void setStructuredEventValue( StructuredEvent event )
     {
         structuredEventValue_ = event;
 
         constraintKey_ =
-            MessageUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
-                                           structuredEventValue_.header.fixed_header.event_type.type_name );
+            FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
+                                            structuredEventValue_.header.fixed_header.event_type.type_name );
 
         parseQosSettings();
     }
+
 
     public void reset()
     {
@@ -100,10 +109,12 @@ class StructuredEventMessage extends AbstractMessage
         priority_ = 0;
     }
 
+
     public int getType()
     {
         return Message.TYPE_STRUCTURED;
     }
+
 
     public synchronized Any toAny()
     {
@@ -114,6 +125,7 @@ class StructuredEventMessage extends AbstractMessage
 
         return anyValue_;
     }
+
 
     public StructuredEvent toStructuredEvent()
     {
@@ -126,17 +138,16 @@ class StructuredEventMessage extends AbstractMessage
         return constraintKey_;
     }
 
+
     public EvaluationResult extractFilterableData(EvaluationContext context,
                                                   ComponentName root,
                                                   String v) throws EvaluationException {
-            Any _a =
+            Any _any =
                 context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.filterable_data, v);
 
-            return EvaluationResult.fromAny(_a);
-
-
-
+            return EvaluationResult.fromAny(_any);
     }
+
 
     public EvaluationResult extractVariableHeader(EvaluationContext context,
                                                   ComponentName root,
@@ -144,12 +155,12 @@ class StructuredEventMessage extends AbstractMessage
         throws EvaluationException {
 
 
-        Any _a =
+        Any _any =
             context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.header.variable_header, v);
 
-        return EvaluationResult.fromAny(_a);
-
+        return EvaluationResult.fromAny(_any);
     }
+
 
     private void parseQosSettings() {
         Property[] props = toStructuredEvent().header.variable_header;
@@ -167,6 +178,7 @@ class StructuredEventMessage extends AbstractMessage
         }
     }
 
+
     public static long unixTime(UtcT corbaTime) {
         long _unixTime = (corbaTime.time - Time.UNIX_OFFSET) / 10000;
 
@@ -177,34 +189,42 @@ class StructuredEventMessage extends AbstractMessage
         return _unixTime;
     }
 
+
     public boolean hasStartTime() {
         return startTime_ != null;
     }
+
 
     public Date getStartTime() {
         return startTime_;
     }
 
+
     public boolean hasStopTime() {
         return stopTime_ != null;
     }
+
 
     public Date getStopTime() {
         return stopTime_;
     }
 
+
     public boolean hasTimeout() {
         return isTimeoutSet_;
     }
+
 
     public long getTimeout() {
         return timeout_;
     }
 
+
     private void setTimeout(long timeout) {
         isTimeoutSet_ = true;
         timeout_ = timeout;
     }
+
 
     public boolean match(FilterStage destination) {
         List _filterList = destination.getFilters();
@@ -238,9 +258,11 @@ class StructuredEventMessage extends AbstractMessage
         return false;
     }
 
+
     public int getPriority() {
         return priority_;
     }
+
 
     public boolean match(MappingFilter filter, AnyHolder value) throws UnsupportedFilterableData {
         return filter.match_structured(toStructuredEvent(), value);

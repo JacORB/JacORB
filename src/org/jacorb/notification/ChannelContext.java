@@ -22,8 +22,6 @@ package org.jacorb.notification;
  */
 
 import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.util.Debug;
 
@@ -33,6 +31,7 @@ import org.omg.CosNotifyFilter.FilterFactory;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.omg.PortableServer.POA;
+import org.omg.CORBA.ORB;
 
 /**
  * @author Alphonse Bendt
@@ -41,7 +40,6 @@ import org.omg.PortableServer.POA;
 
 public class ChannelContext
 {
-
     private POA poa_;
 
     private Logger logger_ = Debug.getNamedLogger(getClass().getName());
@@ -206,16 +204,34 @@ public class ChannelContext
         return proxySupplierDisposedListener_;
     }
 
-    public void processMessage(Message m)
-    {
-        getTaskProcessor().processMessage( m );
-    }
-
     public void setPOA(POA poa) {
         poa_ = poa;
     }
 
     public POA getPOA() {
         return poa_;
+    }
+
+    private ORB orb_;
+
+    public void setORB(ORB orb) {
+        orb_ = orb;
+    }
+
+    public ORB getORB() {
+        return orb_;
+    }
+
+
+    private MessageFactory messageFactory_;
+
+    public void setMessageFactory(MessageFactory messageFactory) {
+        messageFactory_ = messageFactory;
+    }
+
+
+    public MessageFactory getMessageFactory()
+    {
+        return messageFactory_;
     }
 }

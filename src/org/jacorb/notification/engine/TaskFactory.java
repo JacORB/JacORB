@@ -35,7 +35,7 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class TaskFactory implements Disposable
 {
-    final Logger logger_ = Debug.getNamedLogger( getClass().getName() );
+    private final Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
 
     private TaskProcessor taskProcessor_;
@@ -94,8 +94,7 @@ public class TaskFactory implements Disposable
         {
             public Object newInstance()
             {
-                PushToConsumerTask _task = new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
-                                                                  taskProcessor_,
+                PushToConsumerTask _task = new PushToConsumerTask(taskProcessor_,
                                                                   TaskFactory.this);
 
                 return _task;
@@ -110,11 +109,6 @@ public class TaskFactory implements Disposable
     }
 
     ////////////////////////////////////////
-
-    public void setDeliverTaskPool(AbstractTaskPool pool) {
-        deliverTaskPool_ = pool;
-    }
-
 
     public void init()
     {
@@ -137,25 +131,38 @@ public class TaskFactory implements Disposable
         deliverTaskPool_.dispose();
     }
 
+    ////////////////////////////////////////
 
-    FilterProxyConsumerTask newFilterProxyConsumerTask() {
+    ////////////////////////////////////////
+    // Factory methods for FilterProxyConsumerTasks
+    ////////////////////////////////////////
+
+    private FilterProxyConsumerTask newFilterProxyConsumerTask() {
         return (FilterProxyConsumerTask)filterProxyConsumerTaskPool_.lendObject();
     }
 
 
-    FilterProxyConsumerTask newFilterConsumerProxyTask( Message event )
+    FilterProxyConsumerTask newFilterProxyConsumerTask( Message message )
     {
         FilterProxyConsumerTask task = newFilterProxyConsumerTask();
 
-        task.setMessage( event );
-        task.setCurrentFilterStage( new FilterStage[] { event.getInitialFilterStage() } );
+        task.setMessage( message );
+
+        task.setCurrentFilterStage( new FilterStage[] { message.getInitialFilterStage() } );
 
         return task;
     }
 
+    ////////////////////////////////////////
+
+    ////////////////////////////////////////
+    // Factory methods for FilterSupplierAdminTasks
+    ////////////////////////////////////////
+
     private FilterSupplierAdminTask newFilterSupplierAdminTask() {
         return (FilterSupplierAdminTask)filterSupplierAdminTaskPool_.lendObject();
     }
+
 
     FilterSupplierAdminTask newFilterSupplierAdminTask( FilterProxyConsumerTask t )
     {
@@ -174,7 +181,13 @@ public class TaskFactory implements Disposable
         return task;
     }
 
-    FilterConsumerAdminTask newFilterConsumerAdminTask() {
+    ////////////////////////////////////////
+
+    ////////////////////////////////////////
+    // Factory methods for FilterConsumerAdminTasks
+    ////////////////////////////////////////
+
+    private FilterConsumerAdminTask newFilterConsumerAdminTask() {
         return (FilterConsumerAdminTask)filterConsumerAdminTaskPool_.lendObject();
     }
 
@@ -183,10 +196,17 @@ public class TaskFactory implements Disposable
         FilterConsumerAdminTask task = newFilterConsumerAdminTask();
 
         task.setMessage(t.removeMessage());
+
         task.setCurrentFilterStage( t.getFilterStageToBeProcessed() );
 
         return task;
     }
+
+    ////////////////////////////////////////
+
+    ////////////////////////////////////////
+    // Factory methods for FilterProxySupplierTasks
+    ////////////////////////////////////////
 
     private FilterProxySupplierTask newFilterProxySupplierTask() {
         return (FilterProxySupplierTask)filterProxySupplierTaskPool_.lendObject();
@@ -203,16 +223,11 @@ public class TaskFactory implements Disposable
         return task;
     }
 
-    /**
-     * factory method for a new FilterIncomingTask instance. uses
-     * an Object Pool.
-     */
-    AbstractFilterTask newFilterIncomingTask( Message event )
-    {
+    ////////////////////////////////////////
 
-        return newFilterConsumerProxyTask( event );
-
-    }
+    ////////////////////////////////////////
+    // Factory methods for AbstractDeliverTasks
+    ////////////////////////////////////////
 
     AbstractDeliverTask[] newPushToConsumerTask(FilterStage[] nodes, Message event) {
 
@@ -232,13 +247,13 @@ public class TaskFactory implements Disposable
      * possession of the Message.
      *
      * @param map alternate Messages that should be used for
-     * MessageConsumers.
+     * specific MessageConsumers.
      *
      * @return a <code>PushToConsumerTask[]</code> value
      */
-    AbstractDeliverTask[] newPushToConsumerTask(FilterStage [] filterStagesWithMessageConsumer,
-                                                Message defaultMessage,
-                                                FilterProxySupplierTask.AlternateMessageMap map) {
+    private AbstractDeliverTask[] newPushToConsumerTask(FilterStage [] filterStagesWithMessageConsumer,
+                                                        Message defaultMessage,
+                                                        FilterProxySupplierTask.AlternateMessageMap map) {
 
         AbstractDeliverTask[] _seqPushToConsumerTask =
             new AbstractDeliverTask[ filterStagesWithMessageConsumer.length ];
@@ -272,6 +287,7 @@ public class TaskFactory implements Disposable
             }
         return _seqPushToConsumerTask;
     }
+
 
     /**
      * factory method to create PushToConsumer Tasks. The Tasks are

@@ -21,12 +21,10 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.AbstractAdmin;
+import org.jacorb.notification.servant.AbstractAdmin;
 
 /**
  * Indicate that a Admin wants to create a new ProxyObject.
- *
- * Created: Wed Feb 12 18:19:14 2003
  *
  * @author Alphonse Bendt
  * @version $Id$

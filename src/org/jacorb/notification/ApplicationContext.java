@@ -22,10 +22,10 @@ package org.jacorb.notification;
  */
 
 import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
+import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.node.EvaluationResult;
+import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.AbstractObjectPool;
@@ -44,6 +44,7 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.TimeTHelper;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.filter.EvaluationContext;
 
 /**
  * @author Alphonse Bendt
@@ -73,7 +74,7 @@ public class ApplicationContext implements Disposable
         dynAnyFactory_ =
             DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
 
-        dynamicEvaluator_ = new DynamicEvaluator( orb_, dynAnyFactory_ );
+        dynamicEvaluator_ = new DynamicEvaluator(dynAnyFactory_ );
 
         evaluationContextPool_ =
             new AbstractObjectPool("EvaluationContextPool")

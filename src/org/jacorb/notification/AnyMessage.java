@@ -25,11 +25,13 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.filter.ComponentName;
+import org.jacorb.notification.filter.FilterUtils;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.EvaluationResult;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
@@ -41,9 +43,6 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 /**
  * @author Alphonse Bendt
@@ -59,13 +58,13 @@ public class AnyMessage extends AbstractMessage
     private static final EventHeader sEventHeader;
 
     private static final String sAnyKey =
-        MessageUtils.calcConstraintKey( "", "%ANY" );
+        FilterUtils.calcConstraintKey( "", "%ANY" );
 
     static {
-        EventType _type = new EventType( "", "%ANY" );
-        FixedEventHeader _fixed = new FixedEventHeader( _type, "" );
-        Property[] _variable = new Property[ 0 ];
-        sEventHeader = new EventHeader( _fixed, _variable );
+        EventType _eventType = new EventType( "", "%ANY" );
+        FixedEventHeader _fixedHeader = new FixedEventHeader( _eventType, "" );
+        Property[] _variableHeader = new Property[ 0 ];
+        sEventHeader = new EventHeader( _fixedHeader, _variableHeader );
         sFilterableData = new Property[ 0 ];
     }
 
@@ -95,6 +94,7 @@ public class AnyMessage extends AbstractMessage
         anyValue_ = any;
     }
 
+
     public void reset()
     {
         super.reset();
@@ -103,15 +103,18 @@ public class AnyMessage extends AbstractMessage
         structuredEventValue_ = null;
     }
 
+
     public int getType()
     {
         return Message.TYPE_ANY;
     }
 
+
     public Any toAny()
     {
         return anyValue_;
     }
+
 
     public synchronized StructuredEvent toStructuredEvent()
     {
@@ -128,29 +131,29 @@ public class AnyMessage extends AbstractMessage
         return structuredEventValue_;
     }
 
+
     public String getConstraintKey()
     {
         return sAnyKey;
     }
+
 
     public EvaluationResult extractFilterableData( EvaluationContext context,
                                                    ComponentName root,
                                                    String v )
         throws EvaluationException
     {
-
         return extractValue( context, root );
-
     }
+
 
     public EvaluationResult extractVariableHeader( EvaluationContext context,
                                                    ComponentName root,
                                                    String v ) throws EvaluationException
     {
-
         return extractValue( context, root );
-
     }
+
 
     public boolean match( FilterStage destination )
     {
@@ -176,19 +179,22 @@ public class AnyMessage extends AbstractMessage
                     return true;
                 }
             }
-            catch ( UnsupportedFilterableData ufd )
-            {
-                // error means false
-            }
+            catch ( UnsupportedFilterableData e )
+                {
+                    logger_.debug("Evaluation of a Filter failed", e);
+                    // error means false
+                }
         }
 
         return false;
     }
 
+
     public int getPriority()
     {
         return DEFAULT_PRIORITY;
     }
+
 
     public boolean match( MappingFilter filter,
                           AnyHolder value ) throws UnsupportedFilterableData
@@ -196,30 +202,36 @@ public class AnyMessage extends AbstractMessage
         return filter.match( toAny(), value );
     }
 
+
     public boolean hasStartTime()
     {
         return false;
     }
+
 
     public Date getStartTime()
     {
         throw new UnsupportedOperationException();
     }
 
+
     public boolean hasStopTime()
     {
         return false;
     }
+
 
     public Date getStopTime()
     {
         throw new UnsupportedOperationException();
     }
 
+
     public boolean hasTimeout()
     {
         return false;
     }
+
 
     public long getTimeout()
     {

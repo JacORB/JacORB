@@ -21,7 +21,8 @@ package org.jacorb.notification;
  *
  */
 
-import org.jacorb.notification.evaluate.FilterConstraint;
+import org.jacorb.notification.filter.FilterConstraint;
+import org.jacorb.notification.filter.FilterUtils;
 
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintInfo;
@@ -62,7 +63,7 @@ public class ConstraintEntry
             et_ = et;
 
             constraintKey_ =
-                MessageUtils.calcConstraintKey( et_.domain_name, et_.type_name );
+                FilterUtils.calcConstraintKey( et_.domain_name, et_.type_name );
         }
 
         public String toString()

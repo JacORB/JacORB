@@ -25,10 +25,13 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
+import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventChannelEvent;
 import org.jacorb.notification.interfaces.EventChannelEventListener;
@@ -59,7 +62,6 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryPOA;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
-import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
@@ -67,7 +69,8 @@ import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 import org.apache.avalon.framework.logger.Logger;
-import java.util.List;
+import org.jacorb.util.Environment;
+import org.omg.CosNotifyFilter.FilterFactoryHelper;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -104,13 +107,15 @@ public class EventChannelFactoryImpl
 
     private static final String STANDARD_IMPL_NAME = "JacORB-NotificationService";
 
-    private static final String NOTIFICATION_SERVICE_SHORTCUT = "COSNotificationService";
+    private static final String NOTIFICATION_SERVICE_SHORTCUT = "NotificationService";
 
     private static final String EVENTCHANNEL_FACTORY_POA_NAME = "EventChannelFactoryPOA";
 
     private static final String OBJECT_NAME = "_ECFactory";
 
     ////////////////////////////////////////
+
+    private ORB orb_;
 
     protected EventChannelFactory thisFactory_;
 
@@ -138,11 +143,13 @@ public class EventChannelFactoryImpl
 
     ////////////////////////////////////////
 
-    private EventChannelFactoryImpl( final ORB _orb ) throws Exception
+    private EventChannelFactoryImpl( final ORB orb ) throws Exception
     {
-        POA _rootPOA = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+        orb_ = orb;
 
-        applicationContext_ = new ApplicationContext( _orb, _rootPOA, true );
+        POA _rootPOA = POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ) );
+
+        applicationContext_ = new ApplicationContext( orb, _rootPOA, true );
 
         org.omg.CORBA.Policy[] _policies =
             new org.omg.CORBA.Policy [] {
@@ -166,10 +173,11 @@ public class EventChannelFactoryImpl
             EventChannelFactoryHelper.narrow( eventChannelFactoryPOA_.id_to_reference( oid ) );
 
         if (logger_.isDebugEnabled()) {
-            logger_.debug("activated EventChannelFactory with OID: "
+            logger_.debug("activated EventChannelFactory with OID '"
                           + new String(oid)
-                          + " on POA: "
-                          + eventChannelFactoryPOA_.the_name());
+                          + "' on '"
+                          + eventChannelFactoryPOA_.the_name()
+                          + "'" );
         }
 
         initialize();
@@ -183,7 +191,7 @@ public class EventChannelFactoryImpl
                        {
                            public void run()
                            {
-                               _orb.run();
+                               orb.run();
                            }
                        }
                    );
@@ -192,11 +200,11 @@ public class EventChannelFactoryImpl
 
         t.start();
 
-        ior_ = _orb.object_to_string( eventChannelFactoryPOA_.id_to_reference( oid ) );
+        ior_ = orb.object_to_string( eventChannelFactoryPOA_.id_to_reference( oid ) );
 
         corbaLoc_ = createCorbaLoc( eventChannelFactoryPOA_.the_name(), oid );
 
-        ((org.jacorb.orb.ORB)_orb).addObjectKey(NOTIFICATION_SERVICE_SHORTCUT,
+        ((org.jacorb.orb.ORB)orb).addObjectKey(NOTIFICATION_SERVICE_SHORTCUT,
                                                 ior_);
 
         if (logger_.isInfoEnabled()) {
@@ -205,6 +213,10 @@ public class EventChannelFactoryImpl
     }
 
     ////////////////////////////////////////
+
+    protected ORB getORB() {
+        return orb_;
+    }
 
     /**
      * The <code>create_channel</code> operation is invoked to create
@@ -270,7 +282,7 @@ public class EventChannelFactoryImpl
             _channel = _channelServant.getEventChannel();
 
             if (logger_.isInfoEnabled()) {
-                logger_.info( "created new EventChannel with id: " + _identifier );
+                logger_.info( "created EventChannel id=" + _identifier );
             }
 
             allChannels_.put( _key, _channelServant );
@@ -279,15 +291,15 @@ public class EventChannelFactoryImpl
         }
         catch ( WrongPolicy e )
         {
-            logger_.fatalError( "create_channel()", e );
+            logger_.fatalError( "create_channel", e );
         }
         catch ( ObjectNotActive e )
         {
-            logger_.fatalError( "create_channel()", e );
+            logger_.fatalError( "create_channel", e );
         }
         catch ( ServantAlreadyActive e )
         {
-            logger_.fatalError( "create_channel()", e );
+            logger_.fatalError( "create_channel", e );
         }
 
         throw new RuntimeException();
@@ -318,10 +330,11 @@ public class EventChannelFactoryImpl
                ServantAlreadyActive
     {
         if (logger_.isDebugEnabled() ) {
-            logger_.debug( "create_channel_servant " + key );
+            logger_.debug( "create channel_servant id=" + key );
         }
 
         PropertyValidator.checkAdminPropertySeq( administrativeProperties );
+
         PropertyValidator.checkQoSPropertySeq( qualitiyOfServiceProperties );
 
         Map _uniqueAdminProperties =
@@ -334,15 +347,13 @@ public class EventChannelFactoryImpl
 
         if ( _uniqueQoSProperties.containsKey( EventReliability.value ) )
         {
-            logger_.info( "try to set EventReliability" );
-
             short _eventReliabilty =
                 ( ( Any ) _uniqueQoSProperties.get( EventReliability.value ) ).extract_short();
 
             switch ( _eventReliabilty )
             {
-
                 case BestEffort.value:
+                    logger_.info("EventReliability=BestEffort");
                     break;
 
                 case Persistent.value:
@@ -350,7 +361,6 @@ public class EventChannelFactoryImpl
 
                 default:
                     throwBadValue( EventReliability.value );
-
             }
         }
 
@@ -364,6 +374,7 @@ public class EventChannelFactoryImpl
             switch ( _connectionReliability )
             {
                 case BestEffort.value:
+                    logger_.info("ConnectionReliability=BestEffort");
                     break;
 
                 case Persistent.value:
@@ -372,13 +383,16 @@ public class EventChannelFactoryImpl
 
                 default:
                     throwBadValue( ConnectionReliability.value );
-
             }
         }
 
         ChannelContext _channelContext;
 
         _channelContext = ( ChannelContext ) channelContextTemplate_.clone();
+
+        _channelContext.setMessageFactory(applicationContext_.getMessageFactory());
+
+        _channelContext.setORB(applicationContext_.getOrb());
 
         if (_connectionReliability == Persistent.value ) {
             //            _channelContext.setPOA(getPersistentChannelPOA());
@@ -485,11 +499,13 @@ public class EventChannelFactoryImpl
     {
         int numberOfChannels = allChannels_.size();
 
-        // estimate 1000ms shutdowntime per channel
-        cb.needTime( numberOfChannels * 1000 );
+        // estimate 4000ms shutdowntime per channel
+        cb.needTime( numberOfChannels * 4000 );
 
         logger_.info( "NotificationService is going down" );
+
         dispose();
+
         logger_.info( "NotificationService down" );
 
         cb.shutdownComplete();
@@ -509,7 +525,9 @@ public class EventChannelFactoryImpl
             _ec.dispose();
         }
 
-        defaultFilterFactoryServant_.dispose();
+        if (defaultFilterFactoryServant_ != null) {
+            defaultFilterFactoryServant_.dispose();
+        }
 
         applicationContext_.dispose();
 
@@ -517,14 +535,45 @@ public class EventChannelFactoryImpl
     }
 
 
+    private void setUpDefaultFilterFactory() throws InvalidName {
+        String _filterFactoryConf =
+            Environment.getProperty(Configuration.FILTER_FACTORY,
+                                    Default.DEFAULT_FILTER_FACTORY);
+
+
+        if (!_filterFactoryConf.equals(Default.DEFAULT_FILTER_FACTORY)) {
+            try {
+                if (logger_.isInfoEnabled()) {
+                    logger_.info("try to set default_filter_factory to '" + _filterFactoryConf + "'");
+                }
+
+                defaultFilterFactory_ =
+                    FilterFactoryHelper.narrow(getORB().string_to_object(_filterFactoryConf));
+            } catch (Throwable e) {
+                logger_.error("Could not resolve FilterFactory: '"
+                              + _filterFactoryConf +
+                              "'. Will default to builtin FilterFactory.", e);
+            }
+        }
+
+
+        if (defaultFilterFactory_ == null) {
+            logger_.info("Create FilterFactory");
+
+            defaultFilterFactoryServant_ =
+                new FilterFactoryImpl( applicationContext_ );
+
+            defaultFilterFactory_ =
+                defaultFilterFactoryServant_._this( applicationContext_.getOrb() );
+        }
+    }
+
+
     private void initialize() throws InvalidName
     {
         allChannels_ = new Hashtable();
 
-        defaultFilterFactoryServant_ = new FilterFactoryImpl( applicationContext_ );
-
-        logger_.info( "create Default Filter Factory" );
-        defaultFilterFactory_ = defaultFilterFactoryServant_._this( applicationContext_.getOrb() );
+        setUpDefaultFilterFactory();
 
         channelContextTemplate_ = new ChannelContext();
         channelContextTemplate_.setDefaultFilterFactory( defaultFilterFactory_ );
@@ -549,6 +598,7 @@ public class EventChannelFactoryImpl
         _corbaLoc.append( getLocalPort() );
         _corbaLoc.append( "/" );
         _corbaLoc.append( NOTIFICATION_SERVICE_SHORTCUT );
+
 //         _corbaLoc.append( STANDARD_IMPL_NAME );
 //         _corbaLoc.append( "/" );
 //         _corbaLoc.append( poaName );
@@ -647,8 +697,6 @@ public class EventChannelFactoryImpl
 
     public POA _default_POA()
     {
-        logger_.debug("_default_POA()");
-
         return eventChannelFactoryPOA_;
     }
 
@@ -765,7 +813,7 @@ public class EventChannelFactoryImpl
 
         Properties props = new Properties();
 
-//         props.put( "jacorb.implname", STANDARD_IMPL_NAME );
+        props.put( "jacorb.implname", STANDARD_IMPL_NAME );
 
 //         props.put( "jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE_SHORTCUT,
 //                    STANDARD_IMPL_NAME + "/" + EVENTCHANNEL_FACTORY_POA_NAME + "/" + OBJECT_NAME );
@@ -845,4 +893,3 @@ public class EventChannelFactoryImpl
         newFactory( args );
     }
 }
-

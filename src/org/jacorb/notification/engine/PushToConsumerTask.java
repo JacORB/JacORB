@@ -21,10 +21,6 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.util.TaskExecutor;
-
 /**
  *
  * @author Alphonse Bendt
@@ -38,8 +34,8 @@ public class PushToConsumerTask extends AbstractDeliverTask
 
     ////////////////////
 
-    public PushToConsumerTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
-        super(te, tp, tc);
+    public PushToConsumerTask(TaskProcessor tp, TaskFactory tc) {
+        super(tp, tc);
     }
 
     ////////////////////

@@ -21,12 +21,12 @@ package org.jacorb.notification.engine;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.util.TaskExecutor;
-import java.util.ArrayList;
 
 /**
  * FilterConsumerAdminTask.java
@@ -120,12 +120,12 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
                 taskFactory_.newPushToConsumerTask(_filterStagesWithMessageConsumer,
                                                         copyMessage());
 
-            AbstractDeliverTask.scheduleTasks(_listOfPushToConsumerTaskToBeScheduled, true);
+            AbstractDeliverTask.scheduleTasks(_listOfPushToConsumerTaskToBeScheduled);
         }
 
         _filterTaskToBeScheduled = taskFactory_.newFilterProxySupplierTask( this );
 
-        _filterTaskToBeScheduled.schedule(true);
+        _filterTaskToBeScheduled.schedule();
 
         dispose();
     }

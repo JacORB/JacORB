@@ -34,9 +34,8 @@ import org.jacorb.notification.util.TaskExecutor;
 
 public class TimerDeliverTask extends AbstractDeliverTask
 {
-
-    TimerDeliverTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
-        super(te, tp, tc);
+    TimerDeliverTask(TaskProcessor tp, TaskFactory tc) {
+        super(tp, tc);
     }
 
     ////////////////////////////////////////
@@ -51,16 +50,19 @@ public class TimerDeliverTask extends AbstractDeliverTask
             {
                 schedule(true);
             }
-            else
-            {
-                dispose();
-            }
+
         } else {
             if (logger_.isDebugEnabled()) {
                 logger_.debug("Nothing to do as the Target:"
                               + getMessageConsumer()
                               + " has no Pending Events.");
             }
+
+            dispose();
         }
+    }
+
+    public void schedule() throws InterruptedException {
+        schedule(false);
     }
 }

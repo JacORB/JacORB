@@ -23,12 +23,13 @@ package org.jacorb.notification.engine;
 
 import java.util.Date;
 
-import org.jacorb.notification.ConfigurableProperties;
-import org.jacorb.notification.Constants;
+import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.servant.AbstractProxySupplier;
 import org.jacorb.notification.util.TaskExecutor;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
@@ -38,7 +39,6 @@ import org.omg.CosNotification.StructuredEvent;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.engine.TaskProcessor.EnableMessageConsumer;
 
 /**
  * @author Alphonse Bendt
@@ -48,11 +48,14 @@ import org.jacorb.notification.engine.TaskProcessor.EnableMessageConsumer;
 public class TaskProcessor implements Disposable
 {
 
+    ////////////////////////////////////////
+
     class TimeoutTask
         implements Runnable,
                    Message.MessageStateListener
     {
         Object timerRegistration_;
+
         Message message_;
 
         TimeoutTask( Message message )
@@ -65,10 +68,10 @@ public class TaskProcessor implements Disposable
                 executeTaskAfterDelay( message.getTimeout(), this );
         }
 
+
         public void actionLifetimeChanged( long timeout )
         {
             ClockDaemon.cancel( timerRegistration_ );
-            //            cancelTask( timerRegistration_ );
 
             timerRegistration_ =
                 executeTaskAfterDelay( message_.getTimeout(), this );
@@ -79,6 +82,7 @@ public class TaskProcessor implements Disposable
             logger_.debug("run Timeout");
 
             message_.removeMessageStateListener();
+
             message_.actionTimeout();
         }
     }
@@ -129,6 +133,7 @@ public class TaskProcessor implements Disposable
                               + message_
                               + " will be processed now");
             }
+
             processEventInternal( message_ );
         }
     }
@@ -163,20 +168,44 @@ public class TaskProcessor implements Disposable
 
     private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
-    private TaskExecutor filterPool_;
-    private TaskExecutor deliverPool_;
+    /**
+     * TaskExecutor used to invoke match-Operation on filters
+     */
+    private TaskExecutor matchTaskExecutor_;
 
+    /**
+     * TaskExecutor used to invoke push-Operation on Consumers. This
+     * Executor is only existent if the ThreadPolicy ThreadPool is used.
+     */
+    private TaskExecutor pushTaskExecutor_;
+
+    /**
+     * TaskExecutor used to invoke pull-Operation on PullSuppliers.
+     */
+    private TaskExecutor pullTaskExecutor_;
+
+    /**
+     * ClockDaemon to schedule Operation that must be run at a
+     * specific time.
+     */
     private ClockDaemon clockDaemon_;
+
+    /**
+     * TaskFactory that is used to create new Tasks.
+     */
     private TaskFactory taskFactory_;
 
+    /**
+     * specify how long a ProxySupplier should be disabled in case
+     * delivering messages to its Consumer fails.
+     */
     private long backoutInterval_;
 
     ////////////////////////////////////////
 
     /**
      * Start ClockDaemon
-     * Set up DeliverThreadPool
-     * Set up FilterThreadPool
+     * Set up TaskExecutors
      * Set up TaskFactory
      */
     public TaskProcessor()
@@ -185,19 +214,21 @@ public class TaskProcessor implements Disposable
 
         clockDaemon_ = new ClockDaemon();
 
-        filterPool_ =
-            new TaskExecutor( "FilterThread",
-                            Environment.getIntPropertyWithDefault( ConfigurableProperties.FILTER_POOL_WORKERS,
-                                                                   Constants.DEFAULT_FILTER_POOL_SIZE ) );
+        pullTaskExecutor_ =
+            new TaskExecutor( "PullThread",
+                              Environment.getIntPropertyWithDefault( Configuration.PULL_POOL_WORKERS,
+                                                                     Default.DEFAULT_PULL_POOL_SIZE ) );
 
-        deliverPool_ =
-            new TaskExecutor( "DeliverThread",
-                            Environment.getIntPropertyWithDefault( ConfigurableProperties.DELIVER_POOL_WORKERS,
-                                                                   Constants.DEFAULT_DELIVER_POOL_SIZE ) );
+        matchTaskExecutor_ =
+            new TaskExecutor( "FilterThread",
+                              Environment.getIntPropertyWithDefault( Configuration.FILTER_POOL_WORKERS,
+                                                                     Default.DEFAULT_FILTER_POOL_SIZE ) );
+        configureDeliverTaskExecutor();
+
 
         backoutInterval_ =
-            Environment.getIntPropertyWithDefault( ConfigurableProperties.BACKOUT_INTERVAL,
-                                                   Constants.DEFAULT_BACKOUT_INTERVAL );
+            Environment.getIntPropertyWithDefault( Configuration.BACKOUT_INTERVAL,
+                                                   Default.DEFAULT_BACKOUT_INTERVAL );
 
         taskFactory_ = new TaskFactory( this );
 
@@ -206,27 +237,76 @@ public class TaskProcessor implements Disposable
 
     ////////////////////////////////////////
 
-    public TaskExecutor getDeliverTaskExecutor() {
-        return deliverPool_;
+    private void configureDeliverTaskExecutor() {
+        String _threadPolicy = Environment.getProperty(Configuration.THREADPOLICY,
+                                                       Default.DEFAULT_THREADPOLICY);
+
+        if ("ThreadPool".equals(_threadPolicy)) {
+            if (logger_.isInfoEnabled()) {
+                logger_.info("Use channel-wide ThreadPool for delivery");
+            }
+
+            pushTaskExecutor_ =
+                new TaskExecutor( "DeliverThread",
+                                  Environment.getIntPropertyWithDefault( Configuration.DELIVER_POOL_WORKERS,
+                                                                         Default.DEFAULT_DELIVER_POOL_SIZE ) );
+
+        } else if ("ThreadPerProxy".equals(_threadPolicy)) {
+            if (logger_.isInfoEnabled()) {
+                logger_.info("Use Thread Per Proxy for delivery");
+            }
+
+            pushTaskExecutor_ = null;
+        } else {
+            throw new IllegalArgumentException("The specified value: \""
+                                               + _threadPolicy
+                                               + "\" specified in property: \""
+                                               + Configuration.THREADPOLICY
+                                               + "\" is invalid");
+        }
     }
 
+
+    /**
+     * configure a AbstractProxySupplier to use a TaskExecutor
+     * dependent on the settings for the current Channel.
+     *
+     * @todo remove dependency from class AbstractProxySupplier
+     */
+    public void configureTaskExecutor(AbstractProxySupplier proxySupplier) {
+
+        if (pushTaskExecutor_ != null) {
+            proxySupplier.setTaskExecutor(pushTaskExecutor_);
+        } else {
+            final TaskExecutor _executor = new TaskExecutor("PerProxyDeliverThread", 1);
+
+            Disposable _disposableDelegate = new Disposable() {
+                    public void dispose() {
+                        _executor.dispose();
+                    }
+                };
+            proxySupplier.setTaskExecutor(_executor, _disposableDelegate);
+        }
+    }
+
+
     TaskExecutor getFilterTaskExecutor() {
-        return deliverPool_;
+        return matchTaskExecutor_;
     }
 
 
     private boolean isFilterTaskQueued()
     {
-        return ( filterPool_.isTaskQueued() );
+        return ( matchTaskExecutor_.isTaskQueued() );
     }
 
     private boolean isDeliverTaskQueued()
     {
-        return ( deliverPool_.isTaskQueued() );
+        return ( pushTaskExecutor_.isTaskQueued() );
     }
 
     /**
-     * shutdown this TaskProcessor. The Threadpools will be shutdown, the
+     * shutdown this TaskProcessor. The TaskExecutors will be shutdown, the
      * running Threads interrupted and all
      * allocated ressources will be freed. As the active Threads will
      * be interrupted pending Events will be discarded.
@@ -236,21 +316,27 @@ public class TaskProcessor implements Disposable
         logger_.info( "shutdown TaskProcessor" );
 
         clockDaemon_.shutDown();
-        filterPool_.dispose();
-        deliverPool_.dispose();
+
+        matchTaskExecutor_.dispose();
+
+        if (pushTaskExecutor_ != null) {
+            pushTaskExecutor_.dispose();
+        }
+
+        pullTaskExecutor_.dispose();
+
         taskFactory_.dispose();
 
         logger_.debug( "shutdown complete" );
     }
 
 
+    /**
+     * process a Message. the various settings for the Message
+     * (timeout, starttime, stoptime) are checked and applied.
+     */
     public void processMessage( Message m )
     {
-        if ( m.hasTimeout() )
-        {
-            new TimeoutTask( m );
-        }
-
         if ( m.hasStopTime() )
         {
             if ( m.getStopTime().getTime() <= System.currentTimeMillis() )
@@ -259,12 +345,19 @@ public class TaskProcessor implements Disposable
 
                 m.dispose();
 
+                logger_.debug("Message Stoptime is passed already");
+
                 return;
             }
             else
             {
                 new DeferedStopTask( m );
             }
+        }
+
+        if ( m.hasTimeout() )
+        {
+            new TimeoutTask( m );
         }
 
         if ( m.hasStartTime() && (m.getStartTime().getTime() > System.currentTimeMillis() ) )
@@ -277,14 +370,16 @@ public class TaskProcessor implements Disposable
         }
     }
 
-
-    public void processEventInternal( Message event )
+    /**
+     * process a Message. create FilterTask and schedule it.
+     */
+    protected void processEventInternal( Message event )
     {
-        AbstractFilterTask _task = taskFactory_.newFilterIncomingTask( event );
+        AbstractFilterTask _task = taskFactory_.newFilterProxyConsumerTask( event );
 
         try
         {
-            _task.schedule(false);
+            _task.schedule();
         }
         catch ( InterruptedException ie )
         {
@@ -303,11 +398,11 @@ public class TaskProcessor implements Disposable
     public void scheduleTimedPullTask( TimerEventSupplier dest )
         throws InterruptedException
     {
-        PullFromSupplierTask _task = new PullFromSupplierTask();
+        PullFromSupplierTask _task = new PullFromSupplierTask(pullTaskExecutor_);
 
         _task.setTarget( dest );
 
-        deliverPool_.execute( _task );
+        _task.schedule();
     }
 
 
@@ -321,15 +416,21 @@ public class TaskProcessor implements Disposable
     public void scheduleTimedPushTask( MessageConsumer consumer )
         throws InterruptedException
     {
-        TimerDeliverTask _task = new TimerDeliverTask(getDeliverTaskExecutor(),
-                                                      this,
+        TimerDeliverTask _task = new TimerDeliverTask(this,
                                                       taskFactory_);
 
         _task.setMessageConsumer( consumer );
 
-        _task.schedule(true);
+
+        _task.schedule();
     }
 
+
+    ////////////////////////////////////////
+
+    ////////////////////////////////////////
+    // Timer Operations
+    ////////////////////////////////////////
 
     /**
      * access the Clock Daemon instance.
@@ -367,6 +468,8 @@ public class TaskProcessor implements Disposable
         return clockDaemon_.executeAt( startTime, task );
     }
 
+    ////////////////////////////////////////
+
 
     void fireEventDiscarded( Message event )
     {
@@ -386,10 +489,10 @@ public class TaskProcessor implements Disposable
     }
 
 
-    void backoffMessageConsumer(MessageConsumer mc)
+    void backoutMessageConsumer(MessageConsumer mc)
     {
         if (logger_.isDebugEnabled()) {
-            logger_.debug("backoffMessageConsumer " + mc);
+            logger_.debug("back out MessageConsumer " + mc);
         }
 
         Runnable runEnableTask = new EnableMessageConsumer(mc);

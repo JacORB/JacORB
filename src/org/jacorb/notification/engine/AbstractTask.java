@@ -23,10 +23,10 @@ package org.jacorb.notification.engine;
 
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.util.TaskExecutor;
 import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.util.TaskExecutor;
 
 /**
  * @author Alphonse Bendt
@@ -45,12 +45,9 @@ public abstract class AbstractTask
 
     protected TaskFactory taskFactory_;
 
-    protected TaskExecutor executor_;
+    private TaskExecutor executor_;
 
     ////////////////////
-
-    protected AbstractTask() {
-    }
 
     protected AbstractTask(TaskExecutor ex, TaskProcessor tp, TaskFactory tf) {
         executor_ = ex;
@@ -59,6 +56,11 @@ public abstract class AbstractTask
     }
 
     ////////////////////
+
+    protected TaskExecutor getTaskExecutor() {
+        return executor_;
+    }
+
 
     /**
      * set the Message for this Task to use.
@@ -88,10 +90,12 @@ public abstract class AbstractTask
         return ( Message ) message_.clone();
     }
 
+
     /**
      * Override this Method in Subclasses to do the "real work".
      */
     public abstract void doWork() throws Exception;
+
 
     /**
      * template method.
@@ -121,7 +125,9 @@ public abstract class AbstractTask
         }
     }
 
+
     abstract void handleTaskError(AbstractTask t, Throwable error);
+
 
     public void reset()
     {
@@ -151,10 +157,10 @@ public abstract class AbstractTask
      * run this Task on the calling Thread.
      * @exception InterruptedException if an error occurs
      */
-    public void schedule(boolean directRunAllowed)
+    protected void schedule(boolean directRunAllowed)
         throws InterruptedException
     {
-        if (directRunAllowed && executor_.isTaskQueued()) {
+        if (directRunAllowed) {
             run();
         } else {
             executor_.execute(this);
@@ -169,14 +175,16 @@ public abstract class AbstractTask
      * @param directRunAllowed a <code>boolean</code> value
      * @exception InterruptedException if an error occurs
      */
-    public void schedule(TaskExecutor executor,
-                         boolean directRunAllowed)
+    protected void schedule(TaskExecutor executor,
+                            boolean directRunAllowed)
         throws InterruptedException
     {
-        if (directRunAllowed  && executor_.isTaskQueued()) {
+        if (directRunAllowed) {
             run();
         } else {
             executor.execute(this);
         }
     }
+
+    abstract public void schedule() throws InterruptedException;
 }

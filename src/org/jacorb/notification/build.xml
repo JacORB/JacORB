@@ -16,16 +16,16 @@
   <property name="notification.dir"
       value="${basedir}/src/org/jacorb/notification" />
 
-
   <target name="notification.init" depends="init, check-regexp">
 
-    <!-- directory where the antlr grammar is located -->
-    <property name="grammar.dir" value="${notification.dir}/grammar" />
+    <!-- directory where the etcl grammar is located -->
+    <property name="etcl.grammar.dir"
+      value="${notification.dir}/filter/etcl/grammar" />
 
     <!-- package to which the parser classes are generated -->
-    <property name="antlr.target.package" value="org/jacorb/notification/parser" />
+    <property name="etcl.target.package" value="org/jacorb/notification/filter/etcl" />
 
-    <mkdir dir="${src}/generated/${antlr.target.package}" />
+    <mkdir dir="${src}/generated/${etcl.target.package}" />
 
     <path id="antlr.classpath">
       <pathelement path="${basedir}/lib/antlr-2.7.2.jar" />
@@ -50,7 +50,7 @@
 
 
   <target name="all-wrapper" if="regexp.available" depends="all-fail">
-     <antcall target="antlr" inheritRefs="true"/>
+     <antcall target="etcl" inheritRefs="true"/>
      <antcall target="server" inheritRefs="true"/>
   </target>
 
@@ -58,35 +58,35 @@
   <!-- ====== -->
   <!-- Parser -->
   <!-- ====== -->
-  <target name="antlr" depends="notification.init, antlr.depend, antlr.generate, antlr.compile" />
+  <target name="etcl" depends="notification.init, etcl.depend, etcl.generate, etcl.compile" />
 
 
   <!-- check if parser needs to be generated -->
-  <target name="antlr.depend">
-    <uptodate property = "antlr.generate.notRequired"
-      targetfile="${src}/generated/${antlr.target.package}/TCLParser.java" >
-      <srcfiles dir="${grammar.dir}" includes="**/*.g" />
+  <target name="etcl.depend">
+    <uptodate property = "etcl.generate.notRequired"
+      targetfile="${src}/generated/${etcl.target.package}/TCLParser.java" >
+      <srcfiles dir="${etcl.grammar.dir}" includes="**/*.g" />
     </uptodate>
   </target>
 
 
   <!-- generate parser -->
-  <target name="antlr.generate" unless="antlr.generate.notRequired" >
+  <target name="etcl.generate" unless="etcl.generate.notRequired" >
     <delete>
-      <fileset dir="${src}/generated/${antlr.target.package}" includes="*.java, *.txt" />
+      <fileset dir="${src}/generated/${etcl.target.package}" includes="*.java, *.txt" />
     </delete>
 
-    <copy file="${grammar.dir}/CommonTokenTypes.txt"
-      todir="${src}/generated/${antlr.target.package}" />
+    <copy file="${etcl.grammar.dir}/CommonTokenTypes.txt"
+      todir="${src}/generated/${etcl.target.package}" />
 
     <java classname="antlr.Tool"  fork="yes" failonerror="yes"
           classpathref="antlr.classpath" >
-      <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/tcl-lexer.g" />
+      <arg line="-o ${src}/generated/${etcl.target.package} ${etcl.grammar.dir}/tcl-lexer.g" />
     </java>
 
     <java classname="antlr.Tool" fork="yes" failonerror="yes"
           classpathref="antlr.classpath" >
-      <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/comp-lexer.g" />
+      <arg line="-o ${src}/generated/${etcl.target.package} ${etcl.grammar.dir}/comp-lexer.g" />
     </java>
 
     <echo message="*****************************************************************" />
@@ -95,7 +95,7 @@
     <echo message="*****************************************************************" />
 
     <java classname="antlr.Tool" fork="yes" failonerror="yes" classpathref="antlr.classpath" >
-      <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/tcl.g" />
+      <arg line="-o ${src}/generated/${etcl.target.package} ${etcl.grammar.dir}/tcl.g" />
     </java>
 
     <!-- didn't like the optional antlr task -->
@@ -108,18 +108,18 @@
 
 
   <!-- compile generated parser and AST Classes -->
-  <target name="antlr.compile">
+  <target name="etcl.compile">
     <antcall target="jacorb-javac">
       <param name="javac-src"
         value="${src}/generated" />
       <param name="javac-includes"
-      value="org/jacorb/notification/parser/*.java" />
+        value="${etcl.target.package}/*.java" />
       <param name="javac-sourcepath"
         value="${src}" />
     </antcall>
 
     <antcall target="jacorb-javac">
-      <param name="javac-includes" value="org/jacorb/notification/node/*.java" />
+      <param name="javac-includes" value="${etcl.target.package}/*.java" />
     </antcall>
   </target>
 
@@ -165,11 +165,11 @@
 
 
   <!-- clean -->
-  <target name="clean" 
-    depends="init, clean.classes" 
+  <target name="clean"
+    depends="init, clean.classes"
     description="Cleans the notification">
   </target>
-  
+
 
   <target name="realclean" depends="clean, clean.antlr" />
 
@@ -185,7 +185,7 @@
   <target name="clean.antlr">
     <delete>
       <fileset dir="${src}/generated"
-	includes="org/jacorb/notification/**/*.*" />
+        includes="org/jacorb/notification/**/*.*" />
     </delete>
   </target>
 

@@ -36,6 +36,8 @@ import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  * FilterFactoryImpl.java
@@ -49,11 +51,14 @@ import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
 public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
 {
-
     public final static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
 
+    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
+
     protected ApplicationContext applicationContext_;
+
     protected boolean isApplicationContextCreatedHere_;
+
     private FilterFactory thisRef_;
 
     public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive
@@ -93,6 +98,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
         super();
 
         applicationContext_ = applicationContext;
+
         isApplicationContextCreatedHere_ = false;
     }
 

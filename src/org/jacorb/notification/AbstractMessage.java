@@ -23,15 +23,15 @@ package org.jacorb.notification;
 
 import java.util.Date;
 
-import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.filter.ComponentName;
+import org.jacorb.notification.filter.RuntimeVariable;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.DynamicTypeException;
-import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.RuntimeVariableNode;
 import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
@@ -48,7 +48,8 @@ import org.apache.avalon.framework.logger.Logger;
  * @version $Id$
  */
 
-public abstract class AbstractMessage extends AbstractPoolable
+public abstract class AbstractMessage
+    extends AbstractPoolable
 {
     /**
      * Instead of directly using an instance of AbstractMessage an
@@ -62,30 +63,58 @@ public abstract class AbstractMessage extends AbstractPoolable
      */
     class MessageHandle implements Message, Disposable
     {
-        private Message.MessageStateListener eventStateListener_;
+        /**
+         * Listener that gets notified if the State of this
+         * MessageHandle changes.
+         */
+        private MessageStateListener eventStateListener_;
 
-        private boolean inValid_ = false;
+        private boolean isInvalid_ = false;
 
-        private boolean priorityOverride_ = false;
+        private boolean isDisposed_ = false;
+
+        /**
+         * flag to indicate that the Priority has been changed for
+         * this Messagehandle.
+         */
+        private boolean isPrioritySet_ = false;
+
+        /**
+         * if isPrioritySet_ is true priority_ contains the Priority
+         * for this MessageHandle.
+         */
         private int priority_;
-        private boolean timeoutOverride_ = false;
-        private long timeOut_;
 
-        private boolean disposed_ = false;
+        /**
+         * flag to indicate that the Timeout has been changed for this
+         * Messagehandle.
+         */
+        private boolean isTimeoutSet_ = false;
+
+        /**
+         * if isTimeoutSet_ is true timeOut_ contains the Timeout for
+         * this MessageHandle.
+         */
+        private long timeOut_;
 
         ////////////////////
 
+        /**
+         * default ctor. adds a reference to the underlying message.
+         */
         MessageHandle()
         {
             addReference();
         }
 
+        /**
+         * copy ctor. adds a reference to the underlying message.
+         */
         private MessageHandle(int priority,
                               boolean priorityOverride,
                               long timeout,
                               boolean timeoutOverride)
         {
-
             // i would like to write this() here to call the no-args
             // constructor.
             // this compiles but results in java.lang.VerifyErrors
@@ -93,53 +122,63 @@ public abstract class AbstractMessage extends AbstractPoolable
             addReference();
 
             priority_ = priority;
-            priorityOverride_ = priorityOverride;
+            isPrioritySet_ = priorityOverride;
             timeOut_ = timeout;
-            timeoutOverride_ = timeoutOverride;
+            isTimeoutSet_ = timeoutOverride;
         }
 
         ////////////////////
 
+        /**
+         * set the Inital FilterStage (the ProxyConsumer that has
+         * received the Message).
+         */
         public void setInitialFilterStage(FilterStage s)
         {
             AbstractMessage.this.setFilterStage(s);
         }
 
-        public String getConstraintKey()
-        {
-            return AbstractMessage.this.getConstraintKey();
-        }
-
-        public Any toAny()
-        {
-            return AbstractMessage.this.toAny();
-        }
-
-        public StructuredEvent toStructuredEvent()
-        {
-            return AbstractMessage.this.toStructuredEvent();
-        }
-
-        public int getType()
-        {
-            return AbstractMessage.this.getType();
-        }
 
         public FilterStage getInitialFilterStage()
         {
             return AbstractMessage.this.getFilterStage();
         }
 
+
+        public String getConstraintKey()
+        {
+            return AbstractMessage.this.getConstraintKey();
+        }
+
+
+        public Any toAny()
+        {
+            return AbstractMessage.this.toAny();
+        }
+
+
+        public StructuredEvent toStructuredEvent()
+        {
+            return AbstractMessage.this.toStructuredEvent();
+        }
+
+
+        public int getType()
+        {
+            return AbstractMessage.this.getType();
+        }
+
+
         public EvaluationResult extractValue( EvaluationContext context,
                                               ComponentName componentName,
-                                              RuntimeVariableNode runtimeVariable )
-            throws EvaluationException,
-                   DynamicTypeException
+                                              RuntimeVariable runtimeVariable )
+            throws EvaluationException
         {
             return AbstractMessage.this.extractValue(context,
                                                      componentName,
                                                      runtimeVariable);
         }
+
 
         public EvaluationResult extractValue( EvaluationContext context,
                                               ComponentName componentName)
@@ -148,57 +187,63 @@ public abstract class AbstractMessage extends AbstractPoolable
             return AbstractMessage.this.extractValue(context, componentName);
         }
 
+
         public EvaluationResult extractFilterableData( EvaluationContext context,
                                                        ComponentName componentRootNode,
                                                        String variable)
             throws EvaluationException
         {
-
             return
                 AbstractMessage.this.extractFilterableData(context,
                                                            componentRootNode,
                                                            variable);
         }
 
+
         public EvaluationResult extractVariableHeader( EvaluationContext context,
                                                        ComponentName componentName,
                                                        String s )
             throws EvaluationException
         {
-
             return AbstractMessage.this.extractVariableHeader(context,
                                                               componentName,
                                                               s);
         }
+
 
         public boolean hasStartTime()
         {
             return AbstractMessage.this.hasStartTime();
         }
 
+
         public Date getStartTime()
         {
             return AbstractMessage.this.getStartTime();
         }
+
 
         public boolean hasStopTime()
         {
             return AbstractMessage.this.hasStopTime();
         }
 
+
         public Date getStopTime()
         {
             return AbstractMessage.this.getStopTime();
         }
 
+
         public boolean hasTimeout()
         {
-            return AbstractMessage.this.hasTimeout();
+            return isTimeoutSet_ || AbstractMessage.this.hasTimeout();
         }
+
 
         public long getTimeout()
         {
-            if (timeoutOverride_)
+            if (isTimeoutSet_)
             {
                 return timeOut_;
             }
@@ -208,10 +253,12 @@ public abstract class AbstractMessage extends AbstractPoolable
             }
         }
 
+
         public void setTimeout(long timeout)
         {
             timeOut_ = timeout;
-            timeoutOverride_ = true;
+
+            isTimeoutSet_ = true;
 
             if (eventStateListener_ != null)
             {
@@ -219,15 +266,18 @@ public abstract class AbstractMessage extends AbstractPoolable
             }
         }
 
+
         public void setPriority(int priority)
         {
-            priorityOverride_ = true;
+            isPrioritySet_ = true;
+
             priority_ = priority;
         }
 
+
         public int getPriority()
         {
-            if (priorityOverride_)
+            if (isPrioritySet_)
             {
                 return priority_;
             }
@@ -237,10 +287,12 @@ public abstract class AbstractMessage extends AbstractPoolable
             }
         }
 
+
         public boolean match(FilterStage s)
         {
             return AbstractMessage.this.match(s);
         }
+
 
         public boolean match(MappingFilter m,
                              AnyHolder r) throws UnsupportedFilterableData
@@ -249,6 +301,7 @@ public abstract class AbstractMessage extends AbstractPoolable
             return AbstractMessage.this.match(m, r);
         }
 
+
         public Object clone()
         {
             try
@@ -256,15 +309,16 @@ public abstract class AbstractMessage extends AbstractPoolable
                 checkInvalid();
 
                 return new MessageHandle(priority_,
-                                         priorityOverride_,
+                                         isPrioritySet_,
                                          timeOut_,
-                                         timeoutOverride_);
+                                         isTimeoutSet_);
             }
             catch (IllegalArgumentException e)
             {
                 return null;
             }
         }
+
 
         public void dispose()
         {
@@ -276,32 +330,38 @@ public abstract class AbstractMessage extends AbstractPoolable
             //             }
         }
 
+
         public synchronized boolean isInvalid()
         {
-            return inValid_;
+            return isInvalid_;
         }
 
-        public void setMessageStateListener(Message.MessageStateListener l)
+
+        public void setMessageStateListener(MessageStateListener l)
         {
             eventStateListener_ = l;
         }
 
-        public Message.MessageStateListener removeMessageStateListener() {
-            Message.MessageStateListener _l = eventStateListener_;
+
+        public MessageStateListener removeMessageStateListener() {
+            MessageStateListener _l = eventStateListener_;
             eventStateListener_ = null;
 
             return _l;
         }
 
+
         public synchronized void actionTimeout()
         {
-            inValid_ = true;
+            isInvalid_ = true;
         }
+
 
         public String toString()
         {
             return "-->" + AbstractMessage.this.toString();
         }
+
 
         private void checkInvalid() throws IllegalArgumentException
         {
@@ -320,8 +380,11 @@ public abstract class AbstractMessage extends AbstractPoolable
     static final ORB sOrb = ORB.init();
 
     protected boolean proxyConsumerFiltered_;
+
     protected boolean supplierAdminFiltered_;
+
     protected boolean consumerAdminFiltered_;
+
     protected boolean proxySupplierFiltered_;
 
     private FilterStage currentFilterStage_;
@@ -334,7 +397,7 @@ public abstract class AbstractMessage extends AbstractPoolable
      * this Event. The Constraint Key consists of domain_name and
      * type_name of the Event.
      * Within this Implementation the Operation
-     * {@link MessageUtils#calcConstraintKey(String, String)}
+     * {@link FilterUtils#calcConstraintKey(String, String)}
      * is used to provide a uniform
      * Mapping from domain_name and type_name to a Constraint Key.
      *
@@ -386,6 +449,7 @@ public abstract class AbstractMessage extends AbstractPoolable
         ++referenced_;
     }
 
+
     /**
      * release this NotificationEvent. If the
      * internal Refcounter is zero the NotificationEvent is returned
@@ -404,28 +468,32 @@ public abstract class AbstractMessage extends AbstractPoolable
         }
     }
 
+
     public void setFilterStage( FilterStage node )
     {
         currentFilterStage_ = node;
     }
+
 
     public FilterStage getFilterStage()
     {
         return currentFilterStage_;
     }
 
+
     public EvaluationResult extractValue(EvaluationContext context,
                                          ComponentName componentRootNode,
-                                         RuntimeVariableNode runtimeVariable )
-        throws EvaluationException,
-               DynamicTypeException
+                                         RuntimeVariable runtimeVariable )
+        throws EvaluationException
     {
         EvaluationResult _ret = null;
+
         String _completePath = componentRootNode.getComponentName();
 
         if (logger_.isDebugEnabled())
         {
-            logger_.debug("Extract " + _completePath);
+            logger_.debug("extractValue2: " + _completePath);
+            logger_.debug("runtimeVariable=" + runtimeVariable);
         }
 
         _ret = context.lookupResult( _completePath );
@@ -434,13 +502,10 @@ public abstract class AbstractMessage extends AbstractPoolable
         {
             _ret = runtimeVariable.evaluate(context);
 
-            if (componentRootNode.right() != null)
-            {
-                _ret = MessageUtils.extractFromAny(componentRootNode.right(),
-                                                   _ret.getAny(),
-                                                   context,
-                                                   runtimeVariable.toString());
-            }
+
+            _ret =
+                context.extractFromMessage(this, _ret, componentRootNode, runtimeVariable);
+
             context.storeResult( _completePath, _ret);
         }
 
@@ -464,29 +529,29 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     {
         EvaluationResult _ret = null;
-        String _completePath = componentRootNode.getComponentName();
+
+        String _completeExpr = componentRootNode.getComponentName();
 
         if ( logger_.isDebugEnabled() )
         {
             logger_.debug( "extractValue path: "
-                           + componentRootNode.toStringTree() );
-
-            logger_.debug( "complete path is: "
-                           + _completePath );
+                           + componentRootNode.toStringTree() +
+                           "\n\tcomplete Expression="
+                           + _completeExpr );
         }
 
-        _ret = evaluationContext.lookupResult( _completePath );
+        // check if the value is available in the cache
+        _ret = evaluationContext.lookupResult( _completeExpr );
 
         if (logger_.isDebugEnabled()) {
-            logger_.debug("Cache lookup: " + _ret);
+            logger_.debug("Cache READ: " + _ret);
         }
 
         if ( _ret == null )
         {
-            _ret = MessageUtils.extractFromAny(componentRootNode.left(),
-                                               toAny(),
-                                               evaluationContext,
-                                               componentRootNode.toString());
+            logger_.debug("Cache MISS");
+
+            _ret = evaluationContext.extractFromMessage(this, componentRootNode);
 
             // Cache the EvaluationResult
             if ( _ret != null )
@@ -494,42 +559,47 @@ public abstract class AbstractMessage extends AbstractPoolable
                 if ( logger_.isDebugEnabled() )
                 {
                     logger_.debug( "Cache WRITE: "
-                                   + _completePath
+                                   + _completeExpr
                                    + " => "
                                    + _ret );
                 }
-
-                evaluationContext.storeResult( _completePath, _ret );
+                evaluationContext.storeResult( _completeExpr, _ret );
             }
-        }
-        else
-        {
-            logger_.debug( "Cache HIT: " + _ret);
         }
 
         return _ret;
     }
+
 
     public Message getHandle()
     {
         return new MessageHandle();
     }
 
+
     public abstract boolean hasStartTime();
+
 
     public abstract Date getStartTime();
 
+
     public abstract boolean hasStopTime();
+
 
     public abstract Date getStopTime();
 
+
     public abstract boolean hasTimeout();
+
 
     public abstract long getTimeout();
 
+
     public abstract int getPriority();
 
+
     public abstract boolean match(FilterStage filterStage);
+
 
     public abstract boolean match(MappingFilter filter,
                                   AnyHolder value)

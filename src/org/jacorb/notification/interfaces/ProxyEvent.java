@@ -21,7 +21,7 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.AbstractProxy;
+import org.jacorb.notification.servant.AbstractProxy;
 
 /**
  * ProxyEvent.java

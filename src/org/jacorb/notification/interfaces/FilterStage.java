@@ -28,7 +28,7 @@ import org.omg.CosNotifyFilter.MappingFilter;
 /**
  * Abstraction of a ProxyConsumer, SupplierAdmin, ConsumerAdmin,
  * ProxySupplier. This Interface provides uniform access to use
- * these Classes during processing of an event.
+ * these Classes during processing of a Message.
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -48,7 +48,7 @@ public interface FilterStage
     List getSubsequentFilterStages();
 
     /**
-     * get Filter associated to this FilterStage.
+     * get Filters associated to this FilterStage.
      */
     List getFilters();
 
@@ -63,7 +63,7 @@ public interface FilterStage
     boolean hasOrSemantic();
 
     /**
-     * get the associated DeliverTarget or null.
+     * get the associated MessageConsumer or null.
      */
     MessageConsumer getMessageConsumer();
 

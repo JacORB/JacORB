@@ -21,32 +21,29 @@ package org.jacorb.notification;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifySubscribe;
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.CosNotifyComm.NotifySubscribePOA;
 import org.omg.CosNotifyFilter.CallbackNotFound;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
+import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.interfaces.Disposable;
 
 /**
- * FilterManager.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -55,44 +52,63 @@ public class FilterManager
     implements FilterAdminOperations,
                SubscriptionChangeListener
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
+    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
-    protected ApplicationContext applicationContext_;
+    protected ChannelContext channelContext_;
+
     protected List filters_;
+
     protected List filtersReadOnlyView_;
+
     protected int filterIdPool_ = 0;
 
     protected Map filterId2callbackId_ = new Hashtable();
 
-    public static final FilterManager EMPTY =
+    ////////////////////////////////////////
+
+    public static final FilterManager EMPTY_FILTER_MANAGER =
         new FilterManager( Collections.EMPTY_LIST );
+
+    ////////////////////////////////////////
 
     protected FilterManager( List list )
     {
         filters_ = list;
+
         filtersReadOnlyView_ = Collections.unmodifiableList( filters_ );
     }
 
-    FilterManager(ApplicationContext applicationContext)
-    {
-        this( new Vector() );
 
-        applicationContext_ = applicationContext;
+    public FilterManager(ChannelContext channelContext)
+    {
+        this( new ArrayList() );
+
+        channelContext_ = channelContext;
     }
+
+    ////////////////////////////////////////
 
     protected int getFilterId()
     {
         return ++filterIdPool_;
     }
 
-    // Implementation of org.omg.CosNotifyFilter.FilterAdminOperations
 
     public int add_filter( Filter filter )
     {
         int _key = getFilterId();
 
         KeyedListEntry _entry = new KeyedListEntry( _key, filter );
+
         filters_.add( _entry );
+
+        if (logger_.isWarnEnabled()) {
+            try {
+                if (!((org.omg.CORBA.portable.ObjectImpl)filter)._is_local()) {
+                    logger_.warn("filter is not local!");
+                }
+            } catch (Exception e) {}
+        }
 
         return _key;
     }
@@ -116,6 +132,7 @@ public class FilterManager
         throw new FilterNotFound();
     }
 
+
     public Filter get_filter( int filterId ) throws FilterNotFound
     {
         Iterator _i = filters_.iterator();
@@ -133,6 +150,7 @@ public class FilterManager
         throw new FilterNotFound();
     }
 
+
     public int[] get_all_filters()
     {
         int[] _allKeys = new int[ filters_.size() ];
@@ -149,15 +167,18 @@ public class FilterManager
         return _allKeys;
     }
 
+
     public void remove_all_filters()
     {
         filters_.clear();
     }
 
+
     public List getFilters()
     {
         return filtersReadOnlyView_;
     }
+
 
     public void subscriptionChangedForFilter(int filterId,
                                              EventType[] eventType1,
@@ -165,16 +186,18 @@ public class FilterManager
 
     }
 
+
     private void attachFilterListener(int filterId, Filter filter) {
         FilterCallback filterCallback =
             new FilterCallback(this,
-                               applicationContext_.getOrb(),
+                               channelContext_.getORB(),
                                filterId,
                                filter);
 
         filterId2callbackId_.put(new Integer(filterId),
                                  filterCallback);
     }
+
 
     private void detachFilterListener(int filterId) {
         Integer key = new Integer(filterId);
@@ -186,25 +209,32 @@ public class FilterManager
             filterCallback.dispose();
         }
     }
+}
 
-
-} // FilterManager
 
 interface SubscriptionChangeListener {
     void subscriptionChangedForFilter(int filterId,
                                       EventType[] eventTypeArray,
                                       EventType[] eventTypeArray1);
 
-} // SubscriptionChangeListener
+}
+
 
 class FilterCallback extends NotifySubscribePOA implements Disposable {
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
+
     int callbackId_;
+
     int filterId;
+
     Filter filter_;
+
     NotifySubscribe notifySubscribe_;
+
     SubscriptionChangeListener subscriptionChangeListener_;
+
+    ////////////////////////////////////////
 
     public FilterCallback(SubscriptionChangeListener subscriptionChangeListener,
                           ORB orb,
@@ -216,9 +246,12 @@ class FilterCallback extends NotifySubscribePOA implements Disposable {
         attach();
     }
 
+    ////////////////////////////////////////
+
     private void attach() {
         callbackId_ = filter_.attach_callback(notifySubscribe_);
     }
+
 
     private void detach() {
         try {
@@ -227,6 +260,7 @@ class FilterCallback extends NotifySubscribePOA implements Disposable {
 
         }
     }
+
 
     public void subscription_change(EventType[] eventTypeArray,
                                     EventType[] eventTypeArray1)
@@ -237,8 +271,8 @@ class FilterCallback extends NotifySubscribePOA implements Disposable {
                                                                 eventTypeArray1);
     }
 
+
     public void dispose() {
         detach();
     }
-
 }

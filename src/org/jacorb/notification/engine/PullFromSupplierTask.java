@@ -22,6 +22,7 @@ package org.jacorb.notification.engine;
  */
 
 import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.util.TaskExecutor;
 
 import org.omg.CosEventComm.Disconnected;
 
@@ -36,8 +37,8 @@ public class PullFromSupplierTask extends AbstractTask
 
     ////////////////////////////////////////
 
-    PullFromSupplierTask() {
-        super();
+    PullFromSupplierTask(TaskExecutor te) {
+        super(te, null, null);
     }
 
     ////////////////////////////////////////
@@ -66,5 +67,10 @@ public class PullFromSupplierTask extends AbstractTask
 
     public void handleTaskError(AbstractTask task, Throwable error) {
         logger_.fatalError("Error in Task: " + task, error);
+    }
+
+
+    public void schedule() throws InterruptedException {
+        schedule(false);
     }
 }
