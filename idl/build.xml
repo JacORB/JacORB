@@ -230,6 +230,13 @@
         />
    </target>
 
+   <target name="messaging" depends="init">
+	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
+	      <arg line="${idlflags}  ${include}/omg/Messaging.idl"/>
+	</java>
+   </target>
+
+
    <!-- ==================================================== -->
    <!--                   OMG Object services                -->
    <!-- ==================================================== -->
