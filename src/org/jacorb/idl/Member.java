@@ -180,10 +180,24 @@ public class Member
 
             if( tokName != null )
             {
-                if( dName.equalsIgnoreCase( tokName ) )
+
+                if (org.jacorb.idl.parser.strict_names)
                 {
-                    parser.fatal_error( "Declarator " + dName +
-                            " already defined in scope.", token );
+                    // check for name clashes strictly (i.e. case insensitive)
+                    if( dName.equalsIgnoreCase( tokName ) )
+                    {
+                        parser.fatal_error( "Declarator " + dName +
+                                            " already defined in scope.", token );
+                    }
+                }
+                else
+                {
+                    // check for name clashes only loosely (i.e. case sensitive)
+                    if( dName.equals( tokName ) )
+                    {
+                        parser.fatal_error( "Declarator " + dName +
+                                            " already defined in scope.", token );
+                    }
                 }
             }
 
