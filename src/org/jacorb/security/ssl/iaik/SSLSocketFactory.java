@@ -48,6 +48,7 @@ import iaik.security.ssl.*;
 
 import java.net.*;
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 
 public class SSLSocketFactory 
     implements org.jacorb.orb.factory.SocketFactory 
@@ -132,7 +133,7 @@ public class SSLSocketFactory
             
             for( int i = 0; i < kac.length; i++ )
             {
-		ctx.addServerCredentials( kac[i].chain,  
+		ctx.addServerCredentials( (X509Certificate[]) kac[i].chain,  
                                           kac[i].key );
 	    }
             
@@ -172,7 +173,7 @@ public class SSLSocketFactory
 
                 for( int i = 0; i < kac.length; i++ )
                 {
-                    ctx .addClientCredentials( kac[i].chain,  
+                    ctx .addClientCredentials( (X509Certificate[]) kac[i].chain,  
                                                kac[i].key );
                 }
             }

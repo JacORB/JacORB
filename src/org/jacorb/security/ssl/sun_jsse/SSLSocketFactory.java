@@ -36,6 +36,8 @@ import javax.net.ssl.*;
 import javax.net.*;
 import java.security.*;
 
+//uncomment this line if you want to compile with the separately
+//available jsse1.0.2
 //import com.sun.net.ssl.*;
 
 public class SSLSocketFactory 
@@ -78,6 +80,8 @@ public class SSLSocketFactory
 
     private SocketFactory createSocketFactory() 
     {
+        //uncomment this line if you want to compile with the separately
+        //available jsse1.0.2
         //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
 
 	try 

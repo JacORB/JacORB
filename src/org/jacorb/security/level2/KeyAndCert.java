@@ -10,17 +10,17 @@ package org.jacorb.security.level2;
  */
 
 import java.security.PrivateKey;
-import java.security.cert.X509Certificate;;
+import java.security.cert.Certificate;
 
 public class KeyAndCert
 {
     //might stay null for received creds
     public PrivateKey key = null; 
 
-    public X509Certificate[] chain = null;
+    public Certificate[] chain = null;
     
     public KeyAndCert( PrivateKey key,
-                       X509Certificate[] chain )
+                       Certificate[] chain )
     {
         this.key = key;
         this.chain = chain;
@@ -30,7 +30,7 @@ public class KeyAndCert
     {
         this.key = source.key;
         
-        chain = new X509Certificate[ source.chain.length ];
+        chain = new Certificate[ source.chain.length ];
         System.arraycopy( source.chain, 0, chain, 0, source.chain.length );
     }
 } // KeyAndCert

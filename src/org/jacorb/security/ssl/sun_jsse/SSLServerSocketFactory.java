@@ -9,6 +9,8 @@ import org.jacorb.util.*;
 import org.jacorb.security.util.*;
 import org.jacorb.security.level2.*;
 
+//uncomment this line if you want to compile with the separately
+//available jsse1.0.2
 //import com.sun.net.ssl.*;
 
 import java.net.*;
@@ -26,6 +28,8 @@ public class SSLServerSocketFactory
 
     public SSLServerSocketFactory( org.jacorb.orb.ORB orb )
     {
+        //uncomment this line if you want to compile with the separately
+        //available jsse1.0.2
         //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
 
 	factory = createServerSocketFactory();
