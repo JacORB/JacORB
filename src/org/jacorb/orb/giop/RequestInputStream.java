@@ -64,6 +64,18 @@ public class RequestInputStream
 
 	req_hdr = org.omg.GIOP.RequestHeader_1_0Helper.read(this);	   
     }
+
+    public void finalize()
+    {
+	try
+	{
+	    close();
+	}
+	catch( java.io.IOException iox )
+	{
+	    //ignore
+	}
+    }
 }
 
 

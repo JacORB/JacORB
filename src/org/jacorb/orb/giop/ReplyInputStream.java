@@ -208,6 +208,18 @@ public class ReplyInputStream
 
 	return this;
     }
+
+    public void finalize()
+    {
+	try
+	{
+	    close();
+	}
+	catch( java.io.IOException iox )
+	{
+	    //ignore
+	}
+    }
 }
 
 

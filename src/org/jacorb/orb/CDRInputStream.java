@@ -260,8 +260,10 @@ public class CDRInputStream
 	else if ( bb == 0 )
 	    return false;
 	else
+        {
 	    throw new Error("Unexpected boolean value: " + bb 
 			    + " pos: " + pos + " index: " + index);
+        }
     }
 
     /** arrays */
@@ -1155,17 +1157,17 @@ public class CDRInputStream
 	return pos;
     }
 
-    public void finalize()
-    {
-	try
-	{
-	    close();
-	}
-	catch( IOException iox )
-	{
-	    //ignore
-	}
-    }
+//      public void finalize()
+//      {
+//  	try
+//  	{
+//  	    close();
+//  	}
+//  	catch( IOException iox )
+//  	{
+//  	    //ignore
+//  	}
+//      }
 }
 
 
