@@ -16,6 +16,7 @@ import org.omg.CORBA.TRANSIENT;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.util.Debug;
 import org.jacorb.notification.util.TaskExecutor;
+import org.omg.CosEventComm.Disconnected;
 
 class MockEventConsumer implements MessageConsumer {
 
@@ -70,7 +71,7 @@ class MockEventConsumer implements MessageConsumer {
         enabled = false;
     }
 
-    public void deliverMessage(Message event) {
+    public void deliverMessage(Message event) throws Disconnected {
         logger_.info("deliverEvent " + event);
 
         if (enabled) {
