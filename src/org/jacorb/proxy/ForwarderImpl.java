@@ -2,10 +2,11 @@ package org.jacorb.proxy;
 
 import java.util.Hashtable;
 import org.omg.PortableServer.*;
-import org.omg.CORBA.*;
+import org.omg.CORBA.ORB;
 import org.omg.CosNaming.*;
 
 import org.jacorb.orb.connection.*;
+import org.jacorb.util.*;
 
 
 class ForwarderImpl 
@@ -98,8 +99,10 @@ class ForwarderImpl
             int off=0;
 
             //debug
-            if (org.jacorb.util.Environment.verbosityLevel()>=3){
-                System.out.println("[changeByteOrder] little=" + little + " is_giop_1_1=" + is_giop_1_1);
+            if( Environment.verbosityLevel() >= 3 )
+            {
+                System.out.println( "[changeByteOrder] little=" + little + 
+                                    " is_giop_1_1=" + is_giop_1_1 );
             }
 
             off += 8;
@@ -115,11 +118,15 @@ class ForwarderImpl
 			  ((buffer[2+off] & 0xff) << 8) +
 			  ((buffer[3+off] & 0xff) << 0));
 
-            if (org.jacorb.util.Environment.verbosityLevel()>=3){
-                System.out.println("[changeByteOrder[" + off + "]] msgSize=" + msgSize);
+            if( Environment.verbosityLevel() >= 3 )
+            {
+                System.out.println( "[changeByteOrder[" + off + 
+                                    "]] msgSize=" + msgSize );
             }
+
             off += 4;
-            Xswap4(buffer,0,1,2,3,off);   //serviceContext Length               
+            Xswap4(buffer,0,1,2,3,off);   //serviceContext Length
+
             if (little)
                 serviceContextLength=  (((buffer[3+off] & 0xff) << 24) +
                                         ((buffer[2+off] & 0xff) << 16) +
@@ -131,12 +138,16 @@ class ForwarderImpl
                                        ((buffer[2+off] & 0xff) << 8) +
                                        ((buffer[3+off] & 0xff) << 0));
 
-            if (org.jacorb.util.Environment.verbosityLevel()>=3){
-                System.out.println("[changeByteOrder[" + off + "]] serviceContextLength=" + serviceContextLength);
+            if( Environment.verbosityLevel() >= 3 )
+            {
+                System.out.println( "[changeByteOrder[" + off + 
+                                    "]] serviceContextLength=" + 
+                                    serviceContextLength );
             }
 
             off += 4; // we are now at the RequestHeader
-            for(int i=serviceContextLength;i>0;i--){
+            for( int i = serviceContextLength; i > 0; i-- ) 
+            {
                 Xswap4(buffer,0,1,2,3,off); //context_id
                 Xswap4(buffer,4,5,6,7,off); //context_dataLength
                 int context_dataLength;
@@ -151,8 +162,11 @@ class ForwarderImpl
                                          ((buffer[6+off] & 0xff) << 8) +
                                          ((buffer[7+off] & 0xff) << 0));
 
-                if (org.jacorb.util.Environment.verbosityLevel()>=3){
-                    System.out.println("[changeByteOrder[" + off + "]] context_dataLength=" + context_dataLength);
+                if( Environment.verbosityLevel() >= 3 )
+                {
+                    System.out.println( "[changeByteOrder[" + off + 
+                                        "]] context_dataLength=" + 
+                                        context_dataLength );
                 }
 
                 off=off+8+context_dataLength;
@@ -164,7 +178,8 @@ class ForwarderImpl
             Xswap4(buffer,0,1,2,3,off); //request_ID
             off += 4;
             off += 1; // skip response_expected
-            if( is_giop_1_1 ) {
+            if( is_giop_1_1 ) 
+            {
                 off += 3;
             }
             // align
@@ -181,8 +196,11 @@ class ForwarderImpl
                                    ((buffer[2+off] & 0xff) << 8) +
                                    ((buffer[3+off] & 0xff) << 0));
 
-            if (org.jacorb.util.Environment.verbosityLevel()>=3){
-                System.out.println("[changeByteOrder[" + off + "]] object_keyLength=" + object_keyLength);
+            if( Environment.verbosityLevel() >= 3 )
+            {
+                System.out.println( "[changeByteOrder[" + off + 
+                                    "]] object_keyLength=" + 
+                                    object_keyLength );
             }
 
             off+=4 + object_keyLength;
@@ -203,8 +221,10 @@ class ForwarderImpl
                                 ((buffer[1+off] & 0xff) << 16) +
                                 ((buffer[2+off] & 0xff) << 8) +
                                 ((buffer[3+off] & 0xff) << 0));
-            if (org.jacorb.util.Environment.verbosityLevel()>=3){
-                System.out.println("[changeByteOrder[" + off + "]] opname_Length=" + opname_Length);
+            if( Environment.verbosityLevel() >= 3 )
+            {
+                System.out.println( "[changeByteOrder[" + off + 
+                                    "]] opname_Length=" + opname_Length );
             }
 
             buffer[6] = (little)?(byte)1:(byte)0; //toggle the endian byte
@@ -216,7 +236,7 @@ class ForwarderImpl
         public void invoke(org.omg.CORBA.ServerRequest r)
         {
             int mycounter=counter++;
-            org.jacorb.util.Debug.output(1,"[DynProxy]invoked:"+mycounter);         
+            Debug.output(1,"[DynProxy]invoked:"+mycounter);         
             //get oid
             byte[] oid=null;
             Integer key = null;
@@ -237,7 +257,7 @@ class ForwarderImpl
                    
             MiniStub mStub=(MiniStub)forwardMap.get(new String(oid));
             org.jacorb.orb.ParsedIOR ior=mStub.getParsedIOR();
-            org.jacorb.util.Debug.output(4,"[Call should go to IOR: "+ior+" ]");
+            Debug.output(4,"[Call should go to IOR: "+ior+" ]");
 
             ReplyInputStream rep=null;
 
@@ -255,40 +275,87 @@ class ForwarderImpl
                 //create new Message    
                 //Msgheader
                 cdr = 
-                    new RequestOutputStream(                                                            orb,
-                                                                                                        realCon.getId(),
-                                                                                                        inrequest.operation(),
-                                                                                                        inrequest.get_in().req_hdr.response_expected,
-                                                                                                        ior.get_object_key(),
-                                                                                                        inrequest.getServiceContext());
+                    new RequestOutputStream( orb,
+                                             realCon.getId(),
+                                             inrequest.operation(),
+                                             inrequest.get_in().req_hdr.response_expected,
+                                             ior.get_object_key(),
+                                             inrequest.getServiceContext());
                 //data
                 synchronized(realCon.writeLock)
                 {
-                    byte outbuffer[] = cdr.getInternalBuffer();
-                    System.out.println("["+mycounter+"]Incoming Request with size: "+(inrequest.get_in().msg_hdr.message_size+12));
-                    int datalength= ((int)inrequest.get_in().msg_hdr.message_size+12)-((int)inrequest.get_in().get_pos());
+                    byte[] outbuffer = cdr.getInternalBuffer();
+
+                    System.out.println( "[" + mycounter + 
+                                        "]Incoming Request with size: " + 
+                                        (inrequest.get_in().msg_hdr.message_size+12 ));
+
+                    int datalength= 
+                        ((int) inrequest.get_in().msg_hdr.message_size + 12 )-
+                        ((int) inrequest.get_in().get_pos() );
                     // inrequest.get_in().get_buffer().length
-                    if (datalength>0){
-                                //copy the data
-                        System.arraycopy(inrequest.get_in().getBuffer(),
-                                         inrequest.get_in().get_pos(),
-                                         outbuffer,
-                                         //inrequest.get_in().get_pos(),
-                                         cdr.size(),
-                                         datalength);
+
+                    /*
+                     * This is a fix for the following bug: in the previous 
+                     * versions, outbuffer was taken, but no check was 
+                     * perfomed, to see if the buffer was large enough. This
+                     * led to an ArrayIndexOutOfBoundsException.
+                     */
+                    if( outbuffer.length < (datalength + cdr.size()) )
+                    {
+                        //getting a buffer of the right size
+                        byte[] new_array = 
+                            org.jacorb.orb.BufferManager.getInstance().getBuffer( datalength + 
+                                                                   cdr.size() );
+                        
+                        //copying the old header to the new array
+                        System.arraycopy( outbuffer,
+                                          0,
+                                          new_array,
+                                          0,
+                                          cdr.size() );
+                        
+                        //replacing the local pointer
+                        outbuffer = new_array;
+
+                        //replacing the internal buffer of the reply
+                        //especially the bit bit with setting the size is
+                        //definitely hacky
+
+                        //remeber size
+                        int old_size = cdr.size();
+
+                        //replace buffer
+                        //this overwrites the size/pos of the stream
+                        cdr.setBuffer( outbuffer ); 
+
+                        //patch pos
+                        cdr.setSize( old_size );
                     }
+
+                    if( datalength > 0 )
+                    {                        
+                        //copy the data
+                        System.arraycopy( inrequest.get_in().getBuffer(),
+                                          inrequest.get_in().get_pos(),
+                                          outbuffer,
+                                          //inrequest.get_in().get_pos(),
+                                          cdr.size(),
+                                          datalength );
+                    }
+
                     cdr.setSize(cdr.size()+datalength);
                     cdr.insertMsgSize();
                     if ((inrequest.get_in().getBuffer()[6]&1)!=(outbuffer[6]&1))
                         changeByteOrder(outbuffer);
                     //send it   
                     //debug
-                    if (org.jacorb.util.Environment.verbosityLevel()>=3)
+                    if (Environment.verbosityLevel()>=3)
                     {
-                        org.jacorb.util.Debug.output(3,"[Proxy:Incoming byte-stream:]");
+                        Debug.output(3,"[Proxy:Incoming byte-stream:]");
                         for(int i=0;i<inrequest.get_in().msg_hdr.message_size+12;i++)
                             System.out.print(((byte)inrequest.get_in().getBuffer()[i])+"  ");
-                        org.jacorb.util.Debug.output(3,"[Proxy:Outgoing byte-stream:]");
+                        Debug.output(3,"[Proxy:Outgoing byte-stream:]");
                         for(int i=0;i<cdr.size();i++)
                         {
                             System.out.print(((byte)cdr.getInternalBuffer()[i])+"  ");
@@ -332,11 +399,11 @@ class ForwarderImpl
             }
             catch (Exception e)
             {
-                org.jacorb.util.Debug.output(1,"Proxy:reply forward error");
+                Debug.output(1,"Proxy:reply forward error");
                 inrequest.setSystemException(new org.omg.CORBA.COMM_FAILURE(e.toString()));
                 inrequest.reply();
             }
-            org.jacorb.util.Debug.output(1,"[DynProxy]invoke DONE:"+mycounter);     
+            Debug.output(1,"[DynProxy]invoke DONE:"+mycounter);     
         }
 
 
@@ -387,7 +454,7 @@ class ForwarderImpl
     public String forward( String IOR,
                            org.omg.CORBA.StringHolder uid)
     {           
-        org.jacorb.util.Debug.output( 2,"Forwading for IOR: " + IOR );
+        Debug.output( 2,"Forwading for IOR: " + IOR );
         org.omg.CORBA.Object o = null;
         org.jacorb.orb.ParsedIOR pIOR = new org.jacorb.orb.ParsedIOR( IOR );
         String oid=null;
@@ -398,7 +465,7 @@ class ForwarderImpl
             if (o == null)
             {
                 //IOR not forwarded yet
-                org.jacorb.util.Debug.output(3,"Creating new proxy object");
+                Debug.output(3,"Creating new proxy object");
                 forwarderPOA = rootPOA.find_POA("FORWARDER_POA",false);
                 o = forwarderPOA.create_reference(pIOR.getIOR().type_id); //create new "CORBA Object"
                 oid = new String( forwarderPOA.reference_to_id(o));
@@ -419,7 +486,7 @@ class ForwarderImpl
             }        
             else
             {
-                org.jacorb.util.Debug.output(3,"Proxyobject taken from cache");
+                Debug.output(3,"Proxyobject taken from cache");
                 Integer I=(Integer)iorRefCnt.get(IOR);
                 int i=I.intValue();
                 iorRefCnt.put(IOR,new Integer(++i));
@@ -439,7 +506,7 @@ class ForwarderImpl
     {   
         if (args.length != 2)
         {
-            org.jacorb.util.Debug.output(0,"usage: appligator <port> <IOR-File>");
+            Debug.output(0,"usage: appligator <port> <IOR-File>");
             System.exit(1);
         }       
         try
@@ -462,7 +529,7 @@ class ForwarderImpl
 
             if(nc==null)
             {
-                org.jacorb.util.Debug.output(1,"Nameserver not present. Trying without");
+                Debug.output(1,"Nameserver not present. Trying without");
             }
             else
             {
@@ -476,13 +543,13 @@ class ForwarderImpl
         }       
         catch(java.io.IOException ioe)
         {
-            org.jacorb.util.Debug.output(1,"Could not write IOR File:"+ioe.toString());
+            Debug.output(1,"Could not write IOR File:"+ioe.toString());
         }
     }
 
     public synchronized void release(/*in*/String uid)
     {
-        org.jacorb.util.Debug.output(3,"Release starts...");
+        Debug.output(3,"Release starts...");
         try
         {
             MiniStub mStub = (MiniStub)forwardMap.get(uid);
@@ -506,7 +573,7 @@ class ForwarderImpl
 
         }
         catch(NullPointerException npe){} //someone released this ressource allready            
-        org.jacorb.util.Debug.output(3,"Release ends");
+        Debug.output(3,"Release ends");
 
     }
 }
