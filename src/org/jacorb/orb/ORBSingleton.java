@@ -112,7 +112,7 @@ public class ORBSingleton
     {
         if( repId == null || repId.indexOf( ':' ) < 0 )
         {
-            throw new BAD_PARAM("Illegal Repository ID " + repId, 
+            throw new BAD_PARAM("Illegal Repository ID: " + repId, 
                                 16, CompletionStatus.COMPLETED_NO );    
         }
     }
@@ -187,7 +187,7 @@ public class ORBSingleton
             }
             if( names.containsKey( members[i] ) || fault )
             {
-                throw new BAD_PARAM("Illegal enum member name " + members[i], 
+                throw new BAD_PARAM("Illegal enum member name: " + members[i], 
                                     17, CompletionStatus.COMPLETED_NO );    
             }
             names.put( members[i], "" );
@@ -224,7 +224,7 @@ public class ORBSingleton
             }
             if( names.containsKey( members[i].name ) || fault )
             {
-                throw new BAD_PARAM("Illegal exception member name " + 
+                throw new BAD_PARAM("Illegal exception member name: " + 
                                     members[i].name, 
                                     17, CompletionStatus.COMPLETED_NO );    
             }
@@ -315,7 +315,7 @@ public class ORBSingleton
             }
             if( names.containsKey( members[i].name ) || fault )
             {
-                throw new BAD_PARAM("Illegal struct member name " + 
+                throw new BAD_PARAM("Illegal struct member name: " + 
                                     members[i].name, 
                                     17, CompletionStatus.COMPLETED_NO );    
             }
@@ -362,7 +362,7 @@ public class ORBSingleton
               )
             )
         {
-            throw new BAD_PARAM("Illegal union discriminator type ",
+            throw new BAD_PARAM("Illegal union discriminator type",
                                 20, CompletionStatus.COMPLETED_NO );
         }
 
@@ -378,7 +378,7 @@ public class ORBSingleton
             }
             catch( BAD_PARAM bp )
             {
-                throw new BAD_PARAM("Illegal union member name " + 
+                throw new BAD_PARAM("Illegal union member name: " + 
                                     members[i].name, 
                                     17, CompletionStatus.COMPLETED_NO );    
             }
