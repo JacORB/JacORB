@@ -331,20 +331,32 @@ public class CDROutputStream
     {
         int remainder = align - (index % align);
 
-        check( i + remainder );
+        check (i + remainder);
 
-        if ( remainder != align )
+        if (remainder != align)
         {
-            // Clear padding areas. This is necessary for all those
-            // cases, where the resulting byte array is interpreted as
-            // a string for comparation purposes.
-
-            // Done in loop so as not to overrun end of buffer
+            // Clear padding. Allowing for possible buffer end.
 
             int topad = Math.min (buffer.length - pos, 8);
-            for (int j = 0; j < topad; j++)
+            int j = 0;
+            switch (topad)
             {
-                buffer[ pos + j ] = (byte) 0;
+                case 8:
+                    buffer[pos + j++] = (byte)0;
+                case 7:
+                    buffer[pos + j++] = (byte)0;
+                case 6:
+                    buffer[pos + j++] = (byte)0;
+                case 5:
+                    buffer[pos + j++] = (byte)0;
+                case 4:
+                    buffer[pos + j++] = (byte)0;
+                case 3:
+                    buffer[pos + j++] = (byte)0;
+                case 2:
+                    buffer[pos + j++] = (byte)0;
+                case 1:
+                    buffer[pos + j++] = (byte)0;
             }
 
             index += remainder;
