@@ -32,7 +32,7 @@ package org.jacorb.idl;
 
 public abstract class VectorType
     extends TemplateTypeSpec
-{    
+{
     TypeSpec type_spec;
 
     public VectorType( int num )
@@ -118,6 +118,12 @@ public abstract class VectorType
         {
             return ts.getTypeCodeExpression();
         }
+        // According to http://www.omg.org/issues/issue1536.txt ObjectHelper is not
+        // standard so in this case establish the type by other means.
+        else if ( ts instanceof ObjectTypeSpec )
+        {
+            return "org.omg.CORBA.ORB.init ().get_primitive_tc (org.omg.CORBA.TCKind.tk_objref)";
+        }
         else
         {
             return ts.typeName() + "Helper.type()";
@@ -165,9 +171,3 @@ public abstract class VectorType
 
 
 }
-
-
-
-
-
-
