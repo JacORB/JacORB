@@ -71,10 +71,11 @@ public class Client
 
 	    // wstring
 	    System.out.print("Passing a Wstring...");
-            //myWStringHelper.insert( a, "WWWWWSTring-הההההß" );
-            a.insert_wstring( "WWWWWSTring-הההההß" );
+       //myWStringHelper.insert( a, "WWWWWSTring-הההההß" );
+       //a.insert_wstring( "WWWWWSTring-הההההß" );
+       a.insert_wstring( "Hi there" );
 
-            System.out.println("Any.kind: " + a.type().kind().value() );
+       System.out.println("Any.kind: " + a.type().kind().value() );
 
 	    System.out.println( s.generic( a ) );
 
