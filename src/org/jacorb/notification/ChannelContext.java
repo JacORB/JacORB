@@ -58,10 +58,6 @@ public class ChannelContext
 
     private TaskProcessor taskProcessor_;
 
-    private ProxyEventListener proxySupplierDisposedListener_;
-
-    private ProxyEventListener proxyConsumerDisposedListener_;
-
     ////////////////////////////////////////
 
     public TaskProcessor getTaskProcessor()
@@ -138,30 +134,6 @@ public class ChannelContext
         _copy.setDefaultFilterFactory(defaultFilterFactory_);
 
         return _copy;
-    }
-
-
-    public void setProxyConsumerDisposedEventListener(ProxyEventListener listener)
-    {
-        proxyConsumerDisposedListener_ = listener;
-    }
-
-
-    public void setProxySupplierDisposedEventListener(ProxyEventListener listener)
-    {
-        proxySupplierDisposedListener_ = listener;
-    }
-
-
-    public ProxyEventListener getRemoveProxyConsumerListener()
-    {
-        return proxyConsumerDisposedListener_;
-    }
-
-
-    public ProxyEventListener getRemoveProxySupplierListener()
-    {
-        return proxySupplierDisposedListener_;
     }
 
 
