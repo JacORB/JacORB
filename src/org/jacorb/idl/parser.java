@@ -910,7 +910,7 @@ public class parser extends java_cup.runtime.lr_parser {
     public static Stack scopes = new Stack();
 
     public static String currentVersion = "";
-    public static String compiler_version = "1.4 beta 3, 2 February 2002";
+    public static String compiler_version = "1.4 beta 3, March 2002";
 
     static String out_dir = "."; 
     static String package_prefix = null;
