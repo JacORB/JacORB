@@ -89,7 +89,7 @@ public final class Delegate
 
     private ClientConnectionManager conn_mg = null;
 
-    private Hashtable policy_overrides;
+    private Map policy_overrides;
 
     private boolean doNotCheckExceptions = false; //Setting for Appligator
 
@@ -1308,21 +1308,27 @@ public final class Delegate
         // now, because it is the earliest possible time, and therefore any
         // relative timeouts will cover the entire invocation.
 
-        long request = getRelativeRequestTimeout();
-        UtcT requestEndTime = Time.earliest (Time.corbaFuture (request),
-                                             getRequestEndTime());
+        UtcT requestEndTime = getRequestEndTime();
+        long requestTimeout = getRelativeRequestTimeout();
 
-        long roundtrip = getRelativeRoundtripTimeout();
-        UtcT replyEndTime = Time.earliest (Time.corbaFuture (roundtrip),
-                                           getReplyEndTime());
+        if ((requestTimeout != 0) || (requestEndTime != null)) {
+            requestEndTime = Time.earliest(Time.corbaFuture (requestTimeout),
+                                           requestEndTime);
+            if (Time.hasPassed(requestEndTime))
+                throw new TIMEOUT("Request End Time exceeded prior to invocation",
+                                  0, CompletionStatus.COMPLETED_NO);
+        }    
 
-        // Perhaps we're already too late?
-        if (Time.hasPassed (requestEndTime))
-            throw new TIMEOUT ("Request End Time exceeded prior to invocation",
-                               0, CompletionStatus.COMPLETED_NO);
-        else if (Time.hasPassed (replyEndTime))
-            throw new TIMEOUT ("Reply End Time exceeded prior to invocation",
-                               0, CompletionStatus.COMPLETED_NO);
+        UtcT replyEndTime     = getReplyEndTime();
+        long roundtripTimeout = getRelativeRoundtripTimeout();
+
+        if ((roundtripTimeout != 0) || (replyEndTime != null)) {
+            replyEndTime = Time.earliest(Time.corbaFuture (roundtripTimeout),
+                                         replyEndTime);
+            if (Time.hasPassed(replyEndTime))
+                throw new TIMEOUT("Reply End Time exceeded prior to invocation",
+                                  0, CompletionStatus.COMPLETED_NO);
+        }    
 
         synchronized ( bind_sync )
         {
@@ -1580,7 +1586,7 @@ public final class Delegate
     {
         if (policy_overrides == null)
         {
-            policy_overrides = new Hashtable ();
+            policy_overrides = new HashMap();
         }
         if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
         {
