@@ -746,6 +746,12 @@ public class ImplementationRepositoryImpl
                         // SSD.
                         ImRHostInfo _host = server_table.getHost(server.host);
 
+                        if( _host == null )
+                        {
+                            throw new ServerStartupFailed( "Unknown host: >>" +
+                                                           server.host + "<<" );
+                        }
+
                         Debug.output(Debug.IMR | Debug.INFORMATION, 
                                      "ImR: will restart " + server.name);
 
