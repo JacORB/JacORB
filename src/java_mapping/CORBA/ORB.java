@@ -144,9 +144,8 @@ new RuntimeException().printStackTrace();
 
     abstract public NVList create_list(int count);
 
-    public NVList create_operation_list(org.omg.CORBA.Object oper) {
-            throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
+    abstract public NVList create_operation_list (org.omg.CORBA.Object oper);
+    abstract public NVList create_operation_list (org.omg.CORBA.OperationDef oper);
 
     abstract public NamedValue create_named_value(String s, Any any, int flags);
 

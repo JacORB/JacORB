@@ -853,8 +853,8 @@ module CORBA
         string object_to_string (in Object obj);
         Object string_to_object (in string str);
 		
-        NVList create_list ( in long count );
-        NVList create_operation_list ( in OperationDef oper );
+        NVList create_list (in long count);
+        NVList create_operation_list (in Object obj);
 
         NamedValue create_named_value( in string name, in any value, 
                                        in Flags flags);

@@ -488,6 +488,12 @@ public class ORBSingleton
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
+    public org.omg.CORBA.NVList create_operation_list
+        (org.omg.CORBA.Object obj)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
+    }
+
     public org.omg.CORBA.Object string_to_object(String str) 
     {
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");

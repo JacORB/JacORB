@@ -608,10 +608,10 @@ public final class ORB
 
     public org.omg.CORBA.Current get_current ()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT ("Current deprecated");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("ORB get_current operation deprecated");
     }
 
-    public  org.omg.CORBA.Context get_default_context ()
+    public org.omg.CORBA.Context get_default_context ()
     {
         return null;
     }
@@ -1858,7 +1858,7 @@ public final class ORB
 
     public org.omg.CORBA.NVList create_list (int count)
     {
-        return new org.jacorb.orb.NVList (this);
+        return new org.jacorb.orb.NVList (this, count);
     }
 
     public org.omg.CORBA.NamedValue create_named_value
@@ -1868,8 +1868,47 @@ public final class ORB
     }
 
     public org.omg.CORBA.NVList create_operation_list
+        (org.omg.CORBA.Object obj)
+    {
+        org.omg.CORBA.OperationDef oper;
+
+        if (obj instanceof org.omg.CORBA.OperationDef)
+        {
+            oper = (org.omg.CORBA.OperationDef) obj;
+        }
+        else
+        {
+            throw new org.omg.CORBA.BAD_PARAM ("Argument must be of type org.omg.CORBA.OperationDef");
+        }
+        return (create_operation_list (oper));
+    }
+
+    // This operation is under deprecation. To be replaced by one above.
+
+    public org.omg.CORBA.NVList create_operation_list
         (org.omg.CORBA.OperationDef oper)
     {
-        return null;
+        int no = 0;
+        org.omg.CORBA.Any any;
+        org.omg.CORBA.ParameterDescription[] params = null;
+        org.omg.CORBA.ParameterDescription param;
+        org.omg.CORBA.NVList list;
+
+        params = oper.params ();
+        if (params != null)
+        {
+            no = params.length;
+        }
+        list = new org.jacorb.orb.NVList (this, no);
+
+        for (int i = 0; i < no; i++)
+        {
+            param = params[i];
+            any = create_any ();
+            any.type (param.type);
+            list.add_value (param.name, any, param.mode.value ());
+        }
+
+        return list;
     }
 }
