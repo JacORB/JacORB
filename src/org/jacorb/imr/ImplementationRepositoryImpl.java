@@ -515,7 +515,8 @@ public class ImplementationRepositoryImpl
 	String _ior_file_str = null;
 	String _backup_file_str = null;
 
-        System.setProperty( "jacorb.implname", "the_ImR" );
+        System.setProperty ("jacorb.implname", "the_ImR");
+        System.setProperty ("jacorb.use_imr", "off");
 
 	try{
 	    for (int i = 0; i < args.length ; i++){
