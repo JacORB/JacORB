@@ -808,39 +808,56 @@ public class TypeCode
      */
     public static TypeCode create_tc (Class clz)
     {
+        return create_tc (clz, new HashSet());
+    }
+
+    /**
+     * Creates a TypeCode for class `clz'.  If `clz' is a member of
+     * `knownClasses', then a recursive type code is returned for it.
+     * If `clz' is not a member of `knownClasses', and a value type
+     * code is created for it, then `clz' is also inserted into
+     * `knownClasses'.  
+     */
+    private static TypeCode create_tc (Class clz, Set knownClasses)
+    {
         if (clz.isPrimitive())
-        {
             return (TypeCode)primitive_tcs_map.get (clz);
-        }
+        else if (knownClasses.contains (clz))
+            // recursive type code
+            return new TypeCode (RepositoryID.repId (clz));
         else if (clz.isArray())
-        {
             return new TypeCode (TCKind._tk_sequence,
-                                 0, create_tc (clz.getComponentType()));
-        }
+                                 0, create_tc (clz.getComponentType(),
+                                               knownClasses));
         else if (java.rmi.Remote.class.isAssignableFrom (clz))
-        {
             return new TypeCode (RepositoryID.repId (clz),
                                  clz.getName());
-        }
         else if (java.io.Serializable.class.isAssignableFrom (clz))
         {
             Class    superClass    = clz.getSuperclass();
             TypeCode superTypeCode = null;
             if (superClass != null && superClass != java.lang.Object.class)
-                superTypeCode = create_tc (superClass);
+                superTypeCode = create_tc (superClass, knownClasses);
 
+            knownClasses.add (clz);
             return new TypeCode (RepositoryID.repId (clz),
                                  clz.getName(),
                                  org.omg.CORBA.VM_NONE.value,
                                  superTypeCode,
-                                 getValueMembers (clz));
+                                 getValueMembers (clz, knownClasses));
         }
         else
             throw new RuntimeException 
                                 ("cannot create TypeCode for class: " + clz);
     }
 
-    private static ValueMember[] getValueMembers (Class clz)
+    /**
+     * Returns the array of ValueMembers of class `clz'.
+     * `knownClasses' is the set of classes for which recursive
+     * typecodes must be created; this is passed through from
+     * `create_tc (Class, Set)' above.  
+     */
+    private static ValueMember[] getValueMembers (Class clz, Set knownClasses)
     {
         List    result = new ArrayList();
         Field[] fields = clz.getDeclaredFields();
@@ -849,19 +866,24 @@ public class TypeCode
             if ((fields[i].getModifiers()
                  & (Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT))
                 == 0)
-                result.add (createValueMember (fields[i]));
+                result.add (createValueMember (fields[i], knownClasses));
         }
         return (ValueMember[])result.toArray (new ValueMember[0]);
     }
 
-    private static ValueMember createValueMember (Field f)
+    /**
+     * Creates a ValueMember for field `f'.  `knownClasses' is the set
+     * of classes for which recursive type codes must be created; this
+     * is passed through from `create_tc (Class, Set)' above.  
+     */
+    private static ValueMember createValueMember (Field f, Set knownClasses)
     {
         Class    type   = f.getType();
         String   id     = RepositoryID.repId (type);
-        TypeCode tc     = create_tc (type);
+        TypeCode tc     = create_tc (type, knownClasses);
         short    access = ((f.getModifiers() & Modifier.PUBLIC) != 0)
                               ? org.omg.CORBA.PUBLIC_MEMBER.value
-                              : org.omg.CORBA.PRIVATE_MEMBER.value; 
+                              : org.omg.CORBA.PRIVATE_MEMBER.value;
         return new ValueMember (f.getName(), id, "", "1.0", tc, null, access);
     }
 
