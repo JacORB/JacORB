@@ -22,8 +22,6 @@ package org.jacorb.security.sas;
 
 import java.io.*;
 import java.util.*;
-import org.ietf.jgss.*;
-import org.omg.Security.*;
 
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.ORBPackage.*;
@@ -34,6 +32,7 @@ import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.*;
 import org.jacorb.orb.connection.ClientConnection;
+import org.omg.IOP.CodecFactoryPackage.*;
 
 import org.omg.IOP.*;
 import org.omg.CSI.*;
@@ -47,25 +46,25 @@ import org.omg.ATLAS.*;
  * @version $Id$
  */
 
-public class CSSInvocationInterceptor
+public class SASClientInterceptor
     extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor
 {
-    private static final String DEFAULT_NAME = "CSSInvocationInterceptor";
-    private static final int SecurityAttributeService = 15;
-    private static GSSCredential myCredential;
-    private static boolean context_stateful = true;
+    protected static final int SecurityAttributeService = 15;
+    protected final String DEFAULT_NAME = "SASClientInterceptor";
+    protected Codec codec = null;
+    protected String name = null;
 
-    private Codec codec = null;
-    private String name = null;
+    protected byte[] contextToken = new byte[0];
+    protected boolean useStateful = true;
+    protected Hashtable atlasCache = new Hashtable();
 
-    private Hashtable atlasCache = new Hashtable();
-
-    public CSSInvocationInterceptor(Codec codec)
+    public SASClientInterceptor(ORBInitInfo info) throws UnknownEncoding
     {
-        this.codec = codec;
         name = DEFAULT_NAME;
-        context_stateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.css.stateful", "true")).booleanValue();
+        Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
+        codec = info.codec_factory().create_codec(encoding);
+        useStateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.stateful", "true")).booleanValue();
     }
 
     public String name()
@@ -77,11 +76,8 @@ public class CSSInvocationInterceptor
     {
     }
 
-    public static void setMyCredential(GSSCredential cred) {
-        myCredential = cred;
-    }
-
-    public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri) throws org.omg.PortableInterceptor.ForwardRequest
+    public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri)
+        throws org.omg.PortableInterceptor.ForwardRequest
     {
         org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
 
@@ -100,28 +96,10 @@ public class CSSInvocationInterceptor
         }
         if (csmList == null) return;
 
-        // generate the context token
-        byte[] contextToken = null;
-        try
-        {
-            GSSManager gssManager = CSSInitializer.gssManager;
-            Oid myMechOid = myCredential.getMechs()[0];
-            //OLD GSSName myPeer = gssManager.createName("".getBytes(), GSSName.NT_ANONYMOUS, myMechOid);
-            GSSName myPeer = gssManager.createName("".getBytes(), null, myMechOid);
-            GSSContext myContext = gssManager.createContext(myPeer, myMechOid, myCredential, GSSContext.DEFAULT_LIFETIME);
-            contextToken = new byte[0];
-            while (!myContext.isEstablished()) contextToken = myContext.initSecContext(contextToken, 0, contextToken.length);
-        }
-        catch (Exception e)
-        {
-            Debug.output(1, "SAS Could not generate context token: " + e);
-            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not generate context token: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_NO);
-        }
-
         // ask connection for client_context_id
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
         long client_context_id = 0;
-        if (context_stateful) client_context_id = connection.cacheSASContext(contextToken);
+        if (useStateful) client_context_id = connection.cacheSASContext(contextToken);
         if (client_context_id < 0) Debug.output(1, "New SAS Context: " + (-client_context_id));
 
         // get ATLAS tokens
@@ -146,19 +124,17 @@ public class CSSInvocationInterceptor
         catch (Exception e)
         {
             Debug.output(1, "Could not set security service context: " + e);
+            e.printStackTrace();;
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not set security service context: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
     }
 
     public void send_poll(org.omg.PortableInterceptor.ClientRequestInfo ri)
     {
-        //System.out.println("send_poll");
     }
 
     public void receive_reply(org.omg.PortableInterceptor.ClientRequestInfo ri)
     {
-        //System.out.println("receive_reply");
-
         // get SAS message
         SASContextBody contextBody = null;
         ServiceContext ctx = null;
@@ -203,8 +179,6 @@ public class CSSInvocationInterceptor
     public void receive_exception(org.omg.PortableInterceptor.ClientRequestInfo ri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
-        //System.out.println("receive_exception");
-
         // get SAS message
         SASContextBody contextBody = null;
         ServiceContext ctx = null;
@@ -249,10 +223,9 @@ public class CSSInvocationInterceptor
     public void receive_other(org.omg.PortableInterceptor.ClientRequestInfo ri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
-        //System.out.println("receive_other");
     }
 
-    private Any makeEstablishContext(org.omg.CORBA.ORB orb, long client_context_id, AuthorizationElement[] authorization_token, IdentityToken identity_token, byte[] client_authentication_token)
+    protected Any makeEstablishContext(org.omg.CORBA.ORB orb, long client_context_id, AuthorizationElement[] authorization_token, IdentityToken identity_token, byte[] client_authentication_token)
     {
         EstablishContext msg = new EstablishContext();
         msg.client_context_id = client_context_id;
@@ -266,7 +239,7 @@ public class CSSInvocationInterceptor
         return any;
     }
 
-    private Any makeMessageInContext(org.omg.CORBA.ORB orb, long client_context_id, boolean discard_context)
+    protected Any makeMessageInContext(org.omg.CORBA.ORB orb, long client_context_id, boolean discard_context)
     {
         MessageInContext msg = new MessageInContext();
         msg.client_context_id = client_context_id;
@@ -278,7 +251,7 @@ public class CSSInvocationInterceptor
         return any;
     }
 
-    private AuthorizationElement[] getATLASTokens(org.omg.CORBA.ORB orb, CompoundSecMechList csmList) throws org.omg.CORBA.NO_PERMISSION
+    protected AuthorizationElement[] getATLASTokens(org.omg.CORBA.ORB orb, CompoundSecMechList csmList) throws org.omg.CORBA.NO_PERMISSION
     {
         // find the ATLAS profile in the IOR
         ATLASProfile atlasProfile = null;
