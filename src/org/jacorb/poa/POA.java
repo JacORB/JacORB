@@ -184,6 +184,19 @@ public class POA
                 }
             }
         }
+
+        //check if BiDir policy tell us to use BiDirGIOP (for the
+        //whole ORB)
+        if( bidirectionalPolicy != null )
+        {
+            org.jacorb.orb.connection.BiDirPolicy bdp = 
+                (org.jacorb.orb.connection.BiDirPolicy) bidirectionalPolicy;
+            
+            if( bdp.useBiDirGIOP() )
+            {
+                _orb.turnOnBiDirGIOP();
+            }
+        }
         
         org.omg.CORBA.Policy pol = 
             this.getPolicy(org.jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value);

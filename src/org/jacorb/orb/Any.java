@@ -139,27 +139,30 @@ public final class Any
                 case TCKind._tk_enum:
                 case TCKind._tk_union:
                 {
-                    org.jacorb.orb.CDROutputStream out1, out2;
+                    CDROutputStream out1, out2;
                     if( !( orb instanceof org.jacorb.orb.ORB ))
                     {
-                        out1 = new org.jacorb.orb.CDROutputStream();
-                        out2 = new org.jacorb.orb.CDROutputStream();
+                        out1 = new CDROutputStream();
+                        out2 = new CDROutputStream();
                     }
                     else
                     {
-                        out1 = new org.jacorb.orb.CDROutputStream(orb);
-                        out2 = new org.jacorb.orb.CDROutputStream(orb);
+                        out1 = new CDROutputStream(orb);
+                        out2 = new CDROutputStream(orb);
                     }
                     write_value( out1 );
                     a.write_value( out2 );
 
-                    if( out1.buffer.length != out2.buffer.length )
+                    if( out1.size() != out2.size() )
                         return false;
 
-                    for( int i = 0; i < out1.buffer.length; i++ )
+                    for( int i = 0; i < out1.size(); i++ )
                     {
-                        if( out1.buffer[ i ] != out2.buffer[ i ] )
+                        if( out1.getInternalBuffer()[ i ] !=
+                            out2.getInternalBuffer()[ i ] )
+                        {
                             return false;
+                        }
                     }
 
                     return true;

@@ -131,9 +131,15 @@
    </target>
 
    <target name="giop" depends="init">
+   <!-- Compile two times with different preprocessor flags set, so structs for -->
+   <!-- both GIOP 1.0 / 1.1 and GIOP 1.2 get generated -->
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/GIOP.idl"/>
+	      <arg line="${idlflags} -DGIOP_1_1 ${include}/omg/GIOP.idl"/>
 	</java>
+	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
+	      <arg line="${idlflags} -DGIOP_1_2 ${include}/omg/GIOP.idl"/>
+	</java>
+
    </target>
 
    <target name="conf">

@@ -3,7 +3,7 @@ Query is a simple graphical application for performing queries.
 To run it, make sure the IDL-generated classes are in your CLASSPATH,
 and type
 
-  % java jtclient.query.Query iorfile
+  % jaco org.jacorb.trading.client.query.Query iorfile
 
 where iorfile is the name of a file containing the IOR of the trading
 service's Lookup object.

@@ -37,7 +37,8 @@ public class PrincipalAuthenticatorImpl
     public PrincipalAuthenticatorImpl()
     {
         loginData = new LoginData();
-    	loginData.keyStoreLocation = Environment.keyStore();
+    	loginData.keyStoreLocation = 
+            Environment.getProperty( "jacorb.security.keystore" );
         loginData.storePassphrase = 
             Environment.getProperty("jacorb.security.keystore_password");
         attrib_mgr = SecAttributeManager.getInstance();
@@ -58,7 +59,7 @@ public class PrincipalAuthenticatorImpl
                                              OpaqueHolder auth_specific_data
                                              )
     {
-	org.jacorb.util.Debug.output( 3,"starting authentication" );
+	Debug.output( 3,"starting authentication" );
 	try 
 	{	
 	    registerProvider();
@@ -147,20 +148,25 @@ public class PrincipalAuthenticatorImpl
                 AuthenticationStatus.SecAuthSuccess,
                 InvocationCredentialsType.SecOwnCredentials);
 
-            credsImpl.accepting_options_supported( Environment.supportedBySSL() );
-            credsImpl.accepting_options_required( Environment.requiredBySSL() );
-            credsImpl.invocation_options_supported( Environment.supportedBySSL() );
-            credsImpl.invocation_options_required( Environment.requiredBySSL() );
+            /*
+            credsImpl.accepting_options_supported( (short) Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ));
 
+            credsImpl.accepting_options_required( (short) Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ));
+
+            credsImpl.invocation_options_supported( (short) Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ));
+
+            credsImpl.invocation_options_required( (short) Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ));
+            */
+            
             creds.value = credsImpl;
 
-            org.jacorb.util.Debug.output(3,"authentication succeeded");
+            Debug.output(3,"authentication succeeded");
 
             return AuthenticationStatus.SecAuthSuccess;
 	}
 	catch (Exception e) 
 	{
-	    org.jacorb.util.Debug.output(2,e);
+	    Debug.output(2,e);
 
 	    return org.omg.Security.AuthenticationStatus.SecAuthFailure;
 	}
@@ -183,7 +189,7 @@ public class PrincipalAuthenticatorImpl
     {
         iaik.security.provider.IAIK.addAsProvider();
 
-        org.jacorb.util.Debug.output(3, "added Provider IAIK" );
+        Debug.output(3, "added Provider IAIK" );
     }
 }
 

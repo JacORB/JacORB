@@ -1,4 +1,4 @@
-package org.jacorb.security.jsse;
+package org.jacorb.security.ssl.sun_jsse;
 
 /*
  *        JacORB - a free Java ORB

@@ -2,6 +2,8 @@ package org.jacorb.orb.standardInterceptors;
 
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.*;
+import org.omg.SSLIOP.*;
+
 import org.jacorb.orb.*;
 import org.jacorb.util.*;
 
@@ -17,12 +19,15 @@ public class SSLComponentInterceptor
     implements IORInterceptor
 {
     private ORB orb = null;
+    private TaggedComponent tc = null;
 
-    public SSLComponentInterceptor(ORB orb) {
+    public SSLComponentInterceptor( ORB orb ) 
+    {
         this.orb = orb;
     }
   
-     public String name(){
+    public String name()
+    {
         return "SSLComponentCreator";
     }
 
@@ -52,54 +57,38 @@ public class SSLComponentInterceptor
     {
         try
         {
-            org.omg.SSLIOP.SSL ssl = 
-                new org.omg.SSLIOP.SSL ( Environment.supportedBySSL(),
-                                         Environment.requiredBySSL(),
-                                         (short) orb.getBasicAdapter().getSSLPort());
-
-            if( ! Environment.enforceSSL() ) 
+            if( tc == null )
             {
-                // target (we) also supports unprotected messages
-                // viz. on the other, non-SSL socket
-                ssl.target_supports |= 0x001;
+                short supported = (short)
+                    Environment.getIntProperty( "jacorb.security.ssl.server.supported_options", 16 );
+
+                short required = (short)
+                    Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 );
+
+                SSL ssl = 
+                    new SSL ( supported,
+                              required,
+                              (short) orb.getBasicAdapter().getSSLPort());
+
+                //we don't support delegation 0x80 -> NoDelegation we don't
+                //care if the other side delegates, so no required options are
+                //set.
+                ssl.target_supports |= 0x80;
+
+                //this is SSLs default behaviour, included for completeness
+                ssl.target_supports |= 0x20; //establish trust in target
+       
+                CDROutputStream sslDataStream = 
+                    new CDROutputStream( orb );
+  
+                sslDataStream.beginEncapsulatedArray();
+
+                SSLHelper.write( sslDataStream , ssl );
+
+                tc = new TaggedComponent( TAG_SSL_SEC_TRANS.value,
+                                          sslDataStream.getBufferCopy() );
             }
 
-            //we don't support delegation
-            //0x80 -> NoDelegation
-            //we don't care if the other side delegates,
-            //so no required options are set.
-            ssl.target_supports |= 0x080;
-
-	    //this is SSLs default behaviour, included for
-	    //completeness	    
-	    ssl.target_supports |= 0x020; //establish trust in target
-	    if( Environment.enforceSSL() ) 
-	    {
-		//tell the client right away that we only accept ssl
-		//connections
-		ssl.target_requires |= 0x020; //establish trust in target
-	    }
-
-            ssl.target_requires |= 0x002; //Integrity - SSL default
-            ssl.target_requires |= 0x004; //Confidentiality - SSL default
-
-            //for completeness
-            ssl.target_supports |= 0x002; //Integrity - SSL default
-            ssl.target_supports |= 0x004; //Confidentiality - SSL default
-            
-            CDROutputStream sslDataStream = 
-                new org.jacorb.orb.CDROutputStream(orb);
-  
-            sslDataStream.beginEncapsulatedArray();
-
-            org.omg.SSLIOP.SSLHelper.write( sslDataStream , ssl );
-
-
-            TaggedComponent tc = 
-                new TaggedComponent(org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value,
-                                    sslDataStream.getBufferCopy());
-            sslDataStream.close();
-            
             info.add_ior_component_to_profile (tc, TAG_INTERNET_IOP.value);
         }
         catch (Exception e)

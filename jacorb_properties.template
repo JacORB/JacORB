@@ -54,6 +54,11 @@ jacorb.verbosity=1
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
 
+# hexdump outgoing messages
+jacorb.debug.dump_outgoing_messages=off
+
+# hexdump incoming messages
+jacorb.debug.dump_incoming_messages=off
 
 
 ##################################################
@@ -71,6 +76,9 @@ jacorb.verbosity=1
 #   Basic ORB Configuration    #
 #                              #
 ################################
+
+# the GIOP minor version number to use for newly created IORs
+jacorb.giop_minor_version=2
 
 # number of retries if connection cannot directly be established
 jacorb.retries=5
@@ -235,15 +243,19 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 #org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
 
 # IIOP/SSL parameters (numbers are hex values, without the leading "0x"):
+# NoProtection = 1
 # EstablishTrustInClient = 40
 # EstablishTrustInTarget = 20
 # mutual authentication = 60
 # please see the programming guide for more explanation
 
 jacorb.security.support_ssl=off
-jacorb.security.ssl.supported_options=60
-jacorb.security.enforce_ssl=off
-jacorb.security.ssl.required_options=60
+
+jacorb.security.ssl.client.supported_options=0
+jacorb.security.ssl.client.required_options=0
+
+jacorb.security.ssl.server.supported_options=0
+jacorb.security.ssl.server.required_options=0
 
 # files with public key certs of trusted CAs
 #
@@ -256,7 +268,7 @@ jacorb.security.trustees=trustee1.cert,trustee2.cert
 jacorb.security.default_user=brose
 jacorb.security.default_password=jacorb
 
-# the name and location of the keystore relative to the home directory
+# the name and location of the keystore
 jacorb.security.keystore=.keystore
 jacorb.security.keystore_password=jacorb
 
@@ -270,10 +282,10 @@ jacorb.security.access_decision=org.jacorb.security.level2.AccessDecisionImpl
 jacorb.security.principal_authenticator=org.jacorb.security.level2.PrincipalAuthenticatorImpl
 
 # the qualified classname of the ssl socket factory class
-jacorb.ssl.socket_factory=org.jacorb.security.ssl.SSLSocketFactory
+jacorb.ssl.socket_factory=org.jacorb.security.ssl.iaik.SSLSocketFactory
 
 # the qualified classname of the ssl server socket factory class
-jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.SSLServerSocketFactory
+jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.iaik.SSLServerSocketFactory
 
 # exchange ssl client server roles to enforce client authentication, but 
 # attention: this causes problems with peers that not prepared to handle 

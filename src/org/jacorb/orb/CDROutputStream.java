@@ -26,6 +26,8 @@ import java.util.*;
 
 import org.jacorb.orb.connection.CodeSet;
 import org.jacorb.ir.RepositoryID;
+import org.jacorb.orb.connection.Messages;
+import org.jacorb.util.*;
 
 import org.omg.CORBA.TCKind;
 import org.omg.PortableServer.*;
@@ -41,26 +43,21 @@ import org.omg.PortableServer.*;
 public class CDROutputStream
     extends org.omg.CORBA_2_3.portable.OutputStream
 {
-    /** GIOP Message header version 1.0 Big Endian */
-    private static final byte[] giopMessageHeader = { (byte)'G', (byte)'I',
-                                                      (byte)'O', (byte)'P',
-                                                      1, 0, 0 } ;
+    private static final int NET_BUF_SIZE = 1024;
+    private static final int MEM_BUF_SIZE = 256;
+
     private int index = 0;
     private int pos = 0;
-    public  byte[] buffer;
-    private int BUF_SIZE;
-    private int NET_BUF_SIZE = 1024;
+    private byte[] buffer = null;
 
-    private static final int MEM_BUF_SIZE = 128;
     private boolean closed = false;
     private boolean released = false;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
-    private int codeSet =  CodeSet.UTF8;
-    private int codeSetW=  CodeSet.UTF16;
-    private int minorGIOPVersion = 1; // needed to determine size in chars
+    private int codeSet =  CodeSet.getTCSDefault();
+    private int codeSetW=  CodeSet.getTCSWDefault();
 
-    private BufferManager bufMgr;
+    private BufferManager bufMgr = null;
 
     private int resize_factor = 1;
     private int encaps_start = -1;
@@ -86,26 +83,16 @@ public class CDROutputStream
     private final static org.omg.IOP.IOR null_ior = 
         new org.omg.IOP.IOR("", new org.omg.IOP.TaggedProfile[0]);
 
-    private org.omg.CORBA.ORB orb;
-        
-    /**
-     * Associated connection. Can be null only if stream is used
-     * for data encapsulation which should not use connection's
-     * properties such as CodeSet.
-     */
+    private org.omg.CORBA.ORB orb = null;
 
-    /**
-     * This stream contains the separated header
-     */
-
-    protected CDROutputStream header_stream = null;
-
+    //default access, so derived classes can access this field
+    public int giop_minor = 2;
+    
     /** 
      * OutputStreams created using  the empty constructor are used for
      * in  memory marshaling, but do  not use the  ORB's output buffer
      * manager 
      */
-
     public CDROutputStream()
     {
         bufMgr = BufferManager.getInstance();
@@ -149,67 +136,21 @@ public class CDROutputStream
         this.codeSetW = codeSetWide;
     }
 
-    /**
-     * Returns codeset OSF registry number used for this stream.
-     */
-
-//      protected int codeSet( boolean wide )
-//      {
-//          return codeSet;
-//          if( connection == null )
-//          {
-//              if( wide )  
-//                  throw new RuntimeException("Wide codeset can't be used without associated connection");
-//              return CodeSet.ISO8859_1;                   
-//          }
-//          return wide ? connection.TCSW : connection.TCS;
-//      }
-
-    /**
-     * Writes a GIOPMessageHeader of the required type to the beginning of
-     * the buffer and sets the start position and index.
-     */
-
-    public void writeGIOPMsgHeader( byte messageType )
+    public void setGIOPMinor( int giop_minor )
     {
-        // Write the array header without
-        System.arraycopy(giopMessageHeader,0,buffer,0,giopMessageHeader.length);
-        buffer[7]=messageType;
-
-        // Skip the header + leave 4 bytes for message size
-        index=12;
-        pos=12;
+        this.giop_minor = giop_minor;
     }
 
-    /**
-     * insertMsgSize, messageSize and close have been moved here from
-     * derived classes. 
-     */
-
-    public void insertMsgSize(int size)
+    public int getGIOPMinor()
     {
-        buffer[8] = (byte)((size >>> 24) & 0xFF);
-        buffer[9] = (byte)((size >>> 16) & 0xFF);
-        buffer[10] = (byte)((size >>>  8) & 0xFF);
-        buffer[11] = (byte)(size & 0xFF);
-    }
-
-    public void insertMsgSize()
-    {
-        insertMsgSize( pos-12 );
+        return giop_minor;
     }
 
     public void close() 
     {
         if( closed )
-            throw new java.lang.Error("Stream already closed!");
+            throw new Error("Stream already closed!");
         
-        if (header_stream != null)
-            header_stream.close();
-        else 
-            //if ((header_stream == null) && (! header_valid))
-            insertMsgSize();
-
         closed = true;
     }
 
@@ -224,9 +165,6 @@ public class CDROutputStream
         if( bufMgr != null )
         {
             bufMgr.returnBuffer( buffer );
-            
-            if ( header_stream != null )
-                header_stream.release();
         }
 
         released = true;
@@ -249,6 +187,7 @@ public class CDROutputStream
     }
         
     /** 
+
      * check whether the current buffer is big enough to receive
      * i more bytes. If it isn't, get a bigger buffer.
      */
@@ -281,10 +220,10 @@ public class CDROutputStream
 
     private final static void _write4int(byte[] buf, int _pos, int value)
     {
-        buf[_pos]   = (byte)((value >>> 24) & 0xFF);
-        buf[_pos+1] = (byte)((value >>> 16) & 0xFF);
-        buf[_pos+2] = (byte)((value >>>  8) & 0xFF);
-        buf[_pos+3] = (byte) (value & 0xFF);
+        buf[_pos]   = (byte)((value >> 24) & 0xFF);
+        buf[_pos+1] = (byte)((value >> 16) & 0xFF);
+        buf[_pos+2] = (byte)((value >>  8) & 0xFF);
+        buf[_pos+3] = (byte) (value        & 0xFF);
     }
 
     /** 
@@ -370,70 +309,22 @@ public class CDROutputStream
         index = ei.index + encaps_size;
     }
 
-    public org.omg.CORBA.portable.InputStream create_input_stream()
-    {
-        byte [] buf = (byte [])buffer.clone();
-        return new CDRInputStream( orb, buf );
-    }
-
-    //      public final byte[] getBuffer(boolean exact_size)
-    //      {
-    //      if( exact_size )
-    //          return getBuffer();
-    //      else
-    //          return buffer;
-    //      }
-
-    //      public final byte[] getBuffer()
-    //      {
-
-    //      // System.out.println("getBuffer, size" + (pos-12));
-    //      // Connection.dumpBA( buffer );
-
-    //      byte [] result = new byte[pos];
-    //      System.arraycopy(buffer,0,result,0,result.length);
-    //      return result;
-    //      }
-
-
-    /**
-     * WARNING: The header, if separate, might not
-     * be valid yet, because, the message size
-     * has not been set!
-     */
-
     public byte[] getBufferCopy()
     {
         byte[] result = null;
 
-        if( header_stream != null )
-        {
-            result = new byte[pos + header_stream.pos];
-      
-            System.arraycopy(header_stream.buffer, 0, result, 0, header_stream.pos);
-            System.arraycopy(buffer, 0, result, header_stream.pos, pos);
-        }
-        else
-        {
-            result = new byte[pos];
-            System.arraycopy(buffer,0,result,0,result.length);
-        }
+        result = new byte[pos];
+        System.arraycopy(buffer,0,result,0,result.length);
 
-        org.jacorb.util.Debug.output(10,"getBufferCopy", result, result.length );
         return result;
     }
-
-    /**
-     * WARNING: the buffer returned here might only be the data part,
-     * without the GIOP header.
-     */
 
     public byte[] getInternalBuffer()
     {
         return buffer;
     }
 
-    public void resetIndex()
+    private void resetIndex()
     {
         index = 0;
     }
@@ -443,9 +334,58 @@ public class CDROutputStream
         return pos;
     }
 
-  
+    public void reset() 
+    {
+        pos = 0;
+        index = 0;
+    }
 
-    public final void write_any (org.omg.CORBA.Any value)
+    public void finalize()
+    {
+	release();
+    }
+
+    public void skip( int step ) 
+    {
+        pos += step;
+        index += step;
+    }
+
+    public void reduceSize( int amount )
+    {
+        pos -= amount;
+    }
+
+    /**
+     * Add <tt>amount</tt> empty space
+     */
+    public void increaseSize( int amount )
+    {
+        pos += amount;
+        
+        check( amount );
+    }
+
+    public void setBuffer( byte[] b )
+    {
+        bufMgr.returnBuffer( buffer );
+
+        buffer = b;
+        
+        reset();
+    }
+
+    /**************************************************
+     * The following operations are from OutputStream *
+     **************************************************/
+
+    public org.omg.CORBA.portable.InputStream create_input_stream()
+    {
+        byte [] buf = (byte [])buffer.clone();
+        return new CDRInputStream( orb, buf );
+    }
+
+    public final void write_any( org.omg.CORBA.Any value )
     {
         write_TypeCode( value.type() );
         value.write_value(this);
@@ -607,9 +547,9 @@ public class CDROutputStream
             write_char( value[i] );
     }
         
-    public final void write_wstring (String s)
+    public final void write_wstring( String s )
     {      
-        if ( s==null ) 
+        if( s == null ) 
             throw new org.omg.CORBA.MARSHAL("Null References");
                 
         check(7 + s.length()*3, 4);  // the worst case
@@ -626,7 +566,7 @@ public class CDROutputStream
         write_wchar( (char)0 );
                         
         boolean sizeInChars = 
-            ( minorGIOPVersion < 2 && codeSetW == CodeSet.UTF16 );
+            ( giop_minor < 2 && codeSetW == CodeSet.UTF16 );
 
         _write4int( buffer, 
                     startPos, 
@@ -809,12 +749,12 @@ public class CDROutputStream
         }
         else
         {
-            if( value instanceof org.jacorb.orb.LocalityConstrainedObject )
+            if( value instanceof LocalityConstrainedObject )
                 throw new org.omg.CORBA.MARSHAL("Attempt to serialize a locality-constrained object.");     
             org.omg.CORBA.portable.ObjectImpl obj = 
                 (org.omg.CORBA.portable.ObjectImpl)value;
             org.omg.IOP.IORHelper.write(this,  
-                                        ((org.jacorb.orb.Delegate)obj._get_delegate()).getIOR()  );
+                                        ((Delegate)obj._get_delegate()).getIOR()  );
         }
     }
 
@@ -904,19 +844,18 @@ public class CDROutputStream
         */
 
         int start_pos = pos;
-        int _kind = ((org.jacorb.orb.TypeCode)value)._kind();
+        int _kind = ((TypeCode)value)._kind();
 
-        org.jacorb.util.Debug.output(4,"Write Type code of kind " + _kind  );
+        Debug.output(4,"Write Type code of kind " + _kind  );
         try
         {
 
-            if( // ((org.jacorb.orb.TypeCode)value).is_recursive() || 
-               ( _kind == -1 || _kind == 15 || _kind == 16  ) &&
-               tcMap.containsKey( value.id() ) )
+            if( ((TypeCode)value).is_recursive() &&
+                tcMap.containsKey( value.id()) )
             {
-                org.jacorb.util.Debug.output( 4, "Write recursive Type code for id " +
-                                              value.id() + " pos " +
-                                              (((Integer)tcMap.get( value.id())).intValue() - pos ) );
+                Debug.output(4,"Write recursive Type code for id " +
+                                         value.id() + " pos " +
+                                         (((Integer)tcMap.get( value.id())).intValue() - pos ) );
                 // recursive TypeCode
                 write_long( -1 ); // recursion marker
                 int curr = pos; // that's where we will be in a second...
@@ -968,9 +907,7 @@ public class CDROutputStream
                     write_long(_mc);
                     for( int i = 0; i < _mc; i++)
                     {
-                        org.jacorb.util.Debug.output( 3, "struct member name " +  
-                                                      value.member_name(i)  );
-
+                        Debug.output(3,"struct member name " +  value.member_name(i)  );
                         write_string( value.member_name(i) );
                         write_TypeCode( value.member_type(i), tcMap );
                     }
@@ -1029,7 +966,7 @@ public class CDROutputStream
                 case TCKind._tk_array: 
                 case TCKind._tk_sequence: 
                       beginEncapsulation();
-//                      if( ((org.jacorb.orb.TypeCode)value.content_type()).is_recursive())
+//                      if( ((TypeCode)value.content_type()).is_recursive())
 //                      {
 //                          Integer enclosing_tc_pos = (Integer)recursiveTCStack.peek();
 //                          write_long( enclosing_tc_pos.intValue() - pos );
@@ -1061,7 +998,7 @@ public class CDROutputStream
                     write_long(_mc);
                     for( int i = 0; i < _mc; i++)
                     {
-                        org.jacorb.util.Debug.output(3,"value member name " +  value.member_name(i)  );
+                        Debug.output(3,"value member name " +  value.member_name(i)  );
                         write_string( value.member_name(i) );
                         write_TypeCode( value.member_type(i), tcMap );
                         write_short( value.member_visibility(i) );
@@ -1173,9 +1110,9 @@ public class CDROutputStream
 
     private final void write_value( org.omg.CORBA.TypeCode tc, CDRInputStream in, Hashtable tcMap)
     {
-        org.jacorb.util.Debug.assert( tc != null, "Illegal null pointer for TypeCode");
-        int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
-        org.jacorb.util.Debug.output(3, "CDROutput.write_value kind " + kind );
+        Debug.assert( tc != null, "Illegal null pointer for TypeCode");
+        int kind = ((TypeCode)tc)._kind();
+        Debug.output(3, "CDROutput.write_value kind " + kind );
 
         //int kind = tc.kind().value();
         switch (kind)
@@ -1243,7 +1180,7 @@ public class CDROutputStream
                 try
                 {
                     int length = tc.length();
-                    int a_kind = ((org.jacorb.orb.TypeCode)tc.content_type())._kind();
+                    int a_kind = ((TypeCode)tc.content_type())._kind();
                     if( a_kind == TCKind._tk_octet )
                     {
                         check( length );
@@ -1265,8 +1202,8 @@ public class CDROutputStream
                 {
                     int len = in.read_long();
                     write_long(len);
-        org.jacorb.util.Debug.output(4,"Write_value, sequence of length " + len  );
-                    int s_kind = ((org.jacorb.orb.TypeCode)tc.content_type())._kind();
+        Debug.output(4,"Write_value, sequence of length " + len  );
+                    int s_kind = ((TypeCode)tc.content_type())._kind();
                     if( s_kind == TCKind._tk_octet )
                     {
                         check( len );
@@ -1311,7 +1248,7 @@ public class CDROutputStream
                 {       
                     tcMap.put( tc.id(), tc );
                     //                recursiveTCStack.push(tc);
-                    org.jacorb.orb.TypeCode disc = (org.jacorb.orb.TypeCode)tc.discriminator_type();
+                    TypeCode disc = (TypeCode)tc.discriminator_type();
                     int def_idx = tc.default_index();
                     int member_idx = -1;
 
@@ -1447,7 +1384,7 @@ public class CDROutputStream
                                     int label = tc.member_label(i).create_input_stream().read_long();
                                 /* we have to use the any's input stream because enums are not 
                                    inserted as longs */
-                                    org.jacorb.util.Debug.output(10, "label: " +label + " switch: " + s );
+                                    Debug.output(10, "label: " +label + " switch: " + s );
 
                                     if( s == label)
                                     {
@@ -1525,7 +1462,8 @@ public class CDROutputStream
                     b.printStackTrace();
                 } 
                 break;
-                //            throw new RuntimeException("Cannot handle recursive TypeCode here!");
+                //            throw new RuntimeException("Cannot
+                //            handle recursive TypeCode here!");
                 // write_value( (org.omg.CORBA.TypeCode)recursiveTCStack.peek(), in);
             }
             default:
@@ -1660,81 +1598,9 @@ public class CDROutputStream
         else if (value instanceof org.omg.CORBA.portable.StreamableValue)
             ((org.omg.CORBA.portable.StreamableValue)value)._write (this);
         else
-            org.jacorb.util.ValueHandler.writeValue (this, value);
+            ValueHandler.writeValue (this, value);
 
     }
-
-    public void setSize(int s){
-        pos = s;
-    }
-
-    public void setGIOPRequestId( int id )
-    {
-        if ((buffer[6]&1)==0)
-        { //little     
-            buffer[16]=(byte)((id >> 24) & 0xFF);
-            buffer[17]=(byte)((id >> 16) & 0xFF);
-            buffer[18]=(byte)((id >>  8) & 0xFF);
-            buffer[19]=(byte)( id        & 0xFF);
-        }
-        else
-        {
-            buffer[16]=(byte)( id        & 0xFF);
-            buffer[17]=(byte)((id >>  8) & 0xFF);
-            buffer[18]=(byte)((id >> 16) & 0xFF);
-            buffer[19]=(byte)((id >> 24) & 0xFF);
-        }
-    }
-
-    public void setBuffer(byte[] b)
-    {
-        if (bufMgr != null)
-            bufMgr.returnBuffer(buffer);
-
-        if ((header_stream != null) &&
-            ! header_stream.released){
-            header_stream.release();
-            header_stream = null;
-        }
-
-        buffer = b;
-        pos = buffer.length;
-    }
-  
-    public void reset() 
-    {
-        pos = 0;
-        index = 0;
-    }
-
-    public void write_to( java.io.OutputStream out )
-        throws java.io.IOException
-    {
-        if (header_stream != null)
-        {
-            header_stream.insertMsgSize(header_stream.size() + size() - 12);
-            out.write(header_stream.buffer, 0, header_stream.pos);
-        }
-
-        out.write(buffer, 0, pos);
-        out.flush();
-    }
-  
-    public boolean separateHeader()
-    {
-        return (header_stream != null);
-    }
-
-    public CDROutputStream getHeaderStream()
-    {
-        return header_stream;
-    }
-
-    public void finalize()
-    {
-	release();
-    }
-
 }
 
 

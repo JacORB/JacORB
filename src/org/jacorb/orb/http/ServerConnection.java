@@ -130,7 +130,10 @@ public final class ServerConnection
      *
      */
 
-    public void sendLocateReply( int request_id, int status, org.omg.CORBA.Object arg ) 
+    public void sendLocateReply( int request_id, 
+                                 int status, 
+                                 org.omg.CORBA.Object arg,
+                                 int giop_minor ) 
         throws org.omg.CORBA.COMM_FAILURE
     {   
 	/**
@@ -144,7 +147,10 @@ public final class ServerConnection
 	    try
 	    {
 
-		realCon.answerRequest(Messages.locateReplyMessage(request_id,status,arg));
+		realCon.answerRequest(Messages.locateReplyMessage( request_id,
+                                                                   status,
+                                                                   arg,
+                                                                   giop_minor ));
 		realCon.close();
 			
 	    } 

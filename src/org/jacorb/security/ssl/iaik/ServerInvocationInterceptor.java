@@ -1,4 +1,4 @@
-package org.jacorb.security.ssl;
+package org.jacorb.security.ssl.iaik;
 
 /*
  *        JacORB - a free Java ORB
@@ -32,7 +32,7 @@ import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.security.level2.*;
 import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.orb.connection.ServerConnection;
+import org.jacorb.orb.connection.*;
 
 import iaik.security.ssl.SSLSocket;
 
@@ -52,9 +52,9 @@ public class ServerInvocationInterceptor
     private String name = null;
 
     private org.jacorb.security.level2.CurrentImpl current = null;
-    private SecAttributeManager attrib_mgr;
-    private AttributeType type; 
-
+    private SecAttributeManager attrib_mgr = null;
+    private AttributeType type = null; 
+    
     public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current)
     {
         this( current, DEFAULT_NAME );
@@ -88,43 +88,41 @@ public class ServerInvocationInterceptor
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
-	if(( (byte)Environment.requiredBySSL() & 0x40) != 0 ) 
-	    //only if establish trust in client is requireded,
-	    //we have to fetch the certificates from the socket.
-	{
-	    ServerRequest request = ((ServerRequestInfoImpl) ri).request;
-
-	    ServerConnection connection = request.getConnection();
-
-	    // lookup for context
-	    if (connection == null)
-	    {
-		Debug.output( 3, "target has no connection!");
-		return;
-	    }
-
-	    if( !connection.isSSL() )
-	    {
-		return;
-	    }
-
-	    SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+        ServerRequest request = ((ServerRequestInfoImpl) ri).request;
+        
+        GIOPConnection connection = request.getConnection();
+        
+        // lookup for context
+        if (connection == null)
+        {
+            Debug.output( 3, "target has no connection!");
+            return;
+        }
+        
+        if( !connection.isSSL() )
+        {
+            return;
+        }
             
-	    KeyAndCert kac = new KeyAndCert( null, 
-					     sslSocket.getPeerCertificateChain() );
-
-	    if( kac.chain == null )
-	    {
-		Debug.output( 2, "Client sent no certificate chain!" );
+        Server_TCP_IP_Transport transport =
+            (Server_TCP_IP_Transport) connection.getTransport();
+        
+        SSLSocket sslSocket = (SSLSocket) transport.getSocket();
+        
+        KeyAndCert kac = new KeyAndCert( null, 
+                                         sslSocket.getPeerCertificateChain() );
+        
+        if( kac.chain == null )
+        {
+            Debug.output( 2, "Client sent no certificate chain!" );
             
-		return;
-	    }
-
-	    SecAttribute [] atts = new SecAttribute[] {
-		attrib_mgr.createAttribute( kac, type ) } ;
-
-	    current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
-	}
+            return;
+        }
+        
+        SecAttribute [] atts = new SecAttribute[] {
+            attrib_mgr.createAttribute( kac, type ) } ;
+        
+        current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
     }
 
     public void send_reply( ServerRequestInfo ri )

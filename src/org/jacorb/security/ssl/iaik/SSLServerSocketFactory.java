@@ -1,4 +1,4 @@
-package org.jacorb.security.ssl;
+package org.jacorb.security.ssl.iaik;
 
 /*
  *        Written for JacORB - a free Java ORB
@@ -20,35 +20,15 @@ package org.jacorb.security.ssl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/* 
- * We follow the design of socket factories in package javax.net 
- * and javax.net.ssl. Because this package don't the JDK yet we 
- * don't extend its classes, but we are fully compatible.
- *
- * The basic idea is to setup policies related to the sockets being 
- * constructed, in the factory: no special configuration is done in 
- * the code which asks for the sockets.
- * 
- * We will not define an abstract SSLSocketFactory but implement one 
- * using the iSaSiLk packages.
- * The sockets returned to the application have to be subclasses of 
- * java.net.Socket,
- * so we can return sockets of class iaik.security.ssl.Socket.
- * By now we wont directly expose security relevant APIs, but will
- *  probably as we implement Security Objects. 
- * Which factory classes is used will de decide in org.jacorb.util.Environment 
- * as this is specific to the environment configuration.
- * So the getDefault method could return null if no SSL support at all, 
- * or a factory that encapsulates a particular implementation and take 
- * care of initialising and pass specific parameters. 
- * bnv: just to be sure...
- */
 
 import org.jacorb.util.*;
 import org.jacorb.security.util.*;
 import org.jacorb.security.level2.*;
 
 import iaik.security.ssl.*;
+
+import java.net.*;
+import java.io.IOException;
 
 public class SSLServerSocketFactory 
     implements org.jacorb.orb.factory.SSLServerSocketFactory
@@ -62,9 +42,9 @@ public class SSLServerSocketFactory
 
         defaultContext = new SSLServerContext();
 
-        if( Environment.changeSSLRoles() )
+        if( Environment.isPropertyOn( "jacorb.security.change_ssl_roles" ))
         {	                
-            if(( (byte) Environment.supportedBySSL() & 0x20) != 0 ) 
+            if(( Environment.getIntProperty( "jacorb.security.ssl.server.supported_options", 16 ) & 0x20) != 0 ) 
                 //Establish trust in target supported means
                 //that we must have own certificates
             {
@@ -94,11 +74,12 @@ public class SSLServerSocketFactory
                                                      kac[i].key );
             }                   
             
-            if(( (byte)Environment.requiredBySSL() & 0x40) != 0 ) 
+            if((Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 ) 
                 //Establish trust in client requireded means
                 //that we must request the clients certificates
             {
                 defaultContext.setRequestClientCertificate( true );
+                defaultContext.setChainVerifier( new ServerChainVerifier( true ));
 
 		String[] trusteeFileNames = 
 		    Environment.getPropertyValueList( "jacorb.security.trustees" );
@@ -115,8 +96,10 @@ public class SSLServerSocketFactory
             }
         }                    
 
-	if( "on".equals( Environment.getProperty( "jacorb.security.iaik_debug", "off" )))
+	if( Environment.isPropertyOn( "jacorb.security.iaik_debug" ))
+        {
 	    defaultContext.setDebugStream( System.out );
+        }
     }
 
     private org.jacorb.security.level2.KeyAndCert[] getSSLCredentials( org.jacorb.orb.ORB orb )
@@ -144,14 +127,14 @@ public class SSLServerSocketFactory
      * Parameters:
      *     port - the port to listen to
      * Throws:
-     *     java.io.IOException - for networking errors
+     *     IOException - for networking errors
      */
 
-    public java.net.ServerSocket createServerSocket (int port)
-        throws java.io.IOException
+    public ServerSocket createServerSocket (int port)
+        throws IOException
     {
         if (defaultContext == null) 
-            throw new java.io.IOException("Cannot support SSL, no default SSL context found!");
+            throw new IOException("Cannot support SSL, no default SSL context found!");
 
         return new SSLServerSocket(port, defaultContext);
     }
@@ -164,14 +147,14 @@ public class SSLServerSocketFactory
      *     port - the port to listen to
      *     backlog - how many connections are queued
      * Throws:
-     *     java.io.IOException - for networking errors
+     *     IOException - for networking errors
      */
 
-    public java.net.ServerSocket createServerSocket(int port,int backlog) 
-        throws java.io.IOException
+    public ServerSocket createServerSocket(int port,int backlog) 
+        throws IOException
     {
         if ( defaultContext == null ) 
-            throw new java.io.IOException("Cannot support SSL, no default SSL context found!");
+            throw new IOException("Cannot support SSL, no default SSL context found!");
     
         return new SSLServerSocket(port, backlog, defaultContext);
     }
@@ -187,16 +170,16 @@ public class SSLServerSocketFactory
      *     backlog - how many connections are queued
      *     ifAddress - the network interface address to use
      * Throws:
-     *     java.io.IOException - for networking errors
+     *     IOException - for networking errors
      */
 
-    public java.net.ServerSocket createServerSocket (int port,
-                                                     int backlog,
-                                                     java.net.InetAddress ifAddress)
-        throws java.io.IOException    
+    public ServerSocket createServerSocket (int port,
+                                            int backlog,
+                                            InetAddress ifAddress)
+        throws IOException    
     {
         if (defaultContext == null)
-            throw new java.io.IOException("Cannot support SSL, no default SSL context found!");
+            throw new IOException("Cannot support SSL, no default SSL context found!");
         return new SSLServerSocket (port, backlog, ifAddress, defaultContext);
     }
 
@@ -211,9 +194,9 @@ public class SSLServerSocketFactory
      * See Also: 
      */
 
-    public java.lang.String[] getDefaultCipherSuites()
+    public String[] getDefaultCipherSuites()
     {
-        java.lang.String lst[] = new java.lang.String[cs.length];
+        String lst[] = new String[cs.length];
         for (int i = 0; i < lst.length; i++)
             lst [i] = cs[i].toString();
         return lst;
@@ -230,30 +213,30 @@ public class SSLServerSocketFactory
      *     an array of cipher suite names
      */
 
-    public java.lang.String[] getSupportedCipherSuites()
+    public String[] getSupportedCipherSuites()
     {
-        CipherSuite [] suites = CipherSuite.getDefault ();
-        java.lang.String lst [] = new java.lang.String[ suites.length ];
-        for ( int i = 0; i < lst.length; i++ )
+        CipherSuite[] suites = CipherSuite.getDefault ();
+        String lst[] = new String[ suites.length ];
+        for( int i = 0; i < lst.length; i++ )
             lst [ i ] = suites[ i ].toString ();
         return lst;
     }
 
-    public boolean isSSL (java.net.ServerSocket s)
+    public boolean isSSL( ServerSocket s )
     { 
         return (s instanceof SSLServerSocket); 
     }
 
-    public void switchToClientMode( java.net.Socket socket )
+    public void switchToClientMode( Socket socket )
     {
         // rt: switch to client mode
-        if( Environment.changeSSLRoles())
+        if( Environment.isPropertyOn( "jacorb.security.change_ssl_roles" ))
         {	
             try
             {
                 ((SSLSocket) socket).setUseClientMode( true );
             }
-            catch( java.io.IOException iox )
+            catch( IOException iox )
             {
                 Debug.output( Debug.SECURITY | Debug.IMPORTANT, iox );
             }

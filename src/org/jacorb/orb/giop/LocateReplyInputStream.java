@@ -35,66 +35,55 @@ import org.omg.CORBA.portable.RemarshalException;
  */
 
 public class LocateReplyInputStream
-    extends CDRInputStream
+    extends MessageInputStream
 {
-    private org.omg.GIOP.LocateReplyHeader_1_0 rep_hdr;
-    private int _request_id;
-    private boolean ready = false;
+    public LocateReplyHeader_1_2 rep_hdr = null;
 
-    public LocateReplyInputStream(org.omg.CORBA.ORB orb,  int request_id)
+    public LocateReplyInputStream( org.omg.CORBA.ORB orb,  byte[] buf )
     {
-	super( orb,new byte[0]);
-	_request_id = request_id;
-    }
+	super( orb, buf );
 
-    public synchronized void init( byte[] buf )
-    {
-	super.buffer = buf;
+        //check message type
+	if( buffer[7] != (byte) MsgType_1_1._LocateReply )
+        {
+	    throw new Error( "Error: not a reply!" );
+        }
+        
+        switch( giop_minor )
+        { 
+            case 0 : 
+            {
+                //GIOP 1.0 = GIOP 1.1, fall through
+            }
+            case 1 : 
+            {
+                /*
+                //GIOP 1.1
+                LocateReplyHeader_1_0 hdr = 
+                    LocateReplyHeader_1_0Helper.read( this );
 
-	if( buf[6] != 0 ) // big-endian
-	{
-	    littleEndian = true;
-	    setLittleEndian(true);
-	}
-	if( buf[7] != (byte)org.omg.GIOP.MsgType_1_0._LocateReply )
-	    throw new RuntimeException("Trying to initialize ReplyInputStream from non-reply msg.!");
+                rep_hdr = 
+                    new LocateReplyHeader_1_2( hdr.request_id,
+                                               LocateStatusType_1_2.from_int( hdr.locate_status.value() ));
+                break;
+                */
+            }
+            case 2 : 
+            {
+                //GIOP 1.2
+                rep_hdr = LocateReplyHeader_1_2Helper.read( this );
 
-	skip(12);
-	rep_hdr = org.omg.GIOP.LocateReplyHeader_1_0Helper.read(this );
-
-	if( _request_id != rep_hdr.request_id )
-	    throw new RuntimeException("Fatal, request ids don\'t match");
-	ready = true;
-	this.notify();
-    }
-
-    public int requestId()
-    {
-	return _request_id;
-    }
-
-
-    /** 
-     *  called from within Connection. The result is returned to
-     *  the waiting client.
-     */
-
-    public synchronized org.omg.GIOP.LocateStatusType_1_0 status() 
-    {
-	try
-	{
-	    while( !ready ) 
-	    {
-		wait();
-	    }
-	} 
-	catch ( java.lang.InterruptedException e )
-	{}
-	int read = 0;
-
-	return rep_hdr.locate_status;
+                break;
+            }
+            default : 
+            {
+                throw new Error( "Unknown GIOP minor version: " + giop_minor );
+            }
+        }
     }
 }
+
+
 
 
 

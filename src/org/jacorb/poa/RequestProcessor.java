@@ -26,8 +26,11 @@ import org.jacorb.util.*;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.portableInterceptor.*;
+import org.jacorb.orb.connection.ReplyOutputStream;
+
 
 import java.util.Hashtable;
+import java.util.Enumeration;
 
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantManager;
@@ -37,8 +40,9 @@ import org.omg.PortableServer.DynamicImplementation;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 
 import org.omg.CORBA.portable.InvokeHandler;
-import org.omg.GIOP.ReplyStatusType_1_0;
+import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.PortableInterceptor.*;
+import org.omg.IOP.ServiceContext;
 
 /**
  * This thread performs the request processing, the actual method invocation and
@@ -270,7 +274,7 @@ public class RequestProcessor
             controller.getLogTrace().printLog(1, request, "invocation: system exception was thrown ("+e+")");
             request.setSystemException(e);
         } 
-        catch (Throwable e) 
+        catch (Throwable e)             
         {         /* not spec. */
             controller.getLogTrace().printLog(0, request, "invocation: throwable was thrown");
             controller.getLogTrace().printLog(0, e);
@@ -378,11 +382,21 @@ public class RequestProcessor
             InterceptorManager manager = controller.getORB().getInterceptorManager();
             info.current = manager.getEmptyCurrent();
 
-            if (! invokeInterceptors( info, 
-                                      ServerInterceptorIterator.
-                                      RECEIVE_REQUEST_SERVICE_CONTEXTS))
-            {       
-                request.getReplyOutputStream().setServiceContexts(info.getReplyServiceContexts());
+            if(! invokeInterceptors( info, 
+                                     ServerInterceptorIterator.
+                                     RECEIVE_REQUEST_SERVICE_CONTEXTS))
+            {   
+                //an interceptor bailed out, so don't continue request
+                //processing and return here. The service contexts for
+                //the result have to be set, of course.
+                ReplyOutputStream out = request.getReplyOutputStream();
+                Enumeration ctx = info.getReplyServiceContexts();
+                                
+                while( ctx.hasMoreElements() )
+                {
+                    out.addServiceContext( (ServiceContext) ctx.nextElement() );
+                }
+
                 return;
             }
 
@@ -407,19 +421,29 @@ public class RequestProcessor
 
                 if (servant instanceof org.omg.CORBA.portable.InvokeHandler)
                 {
-                    boolean exception_occurred = false;
-
-                    exception_occurred = ! invokeInterceptors(info, 
-                                                              ServerInterceptorIterator.
-                                                              RECEIVE_REQUEST);
-                  
-                    if (exception_occurred ) 
+                    if(! invokeInterceptors(info, 
+                                            ServerInterceptorIterator.RECEIVE_REQUEST )) 
                     {
-                        if( cookieHolder != null )
-                            invokePostInvoke();
+                        //an interceptor bailed out, so don't continue
+                        //request processing and return here. The
+                        //service contexts for the result have to be
+                        //set, of course.
 
-                        request.getReplyOutputStream().setServiceContexts(
-                            info.getReplyServiceContexts() );
+                        if( cookieHolder != null )
+                        {
+                            invokePostInvoke();
+                        }
+
+                        ReplyOutputStream out = 
+                            request.getReplyOutputStream();
+                        Enumeration ctx = 
+                            info.getReplyServiceContexts();
+                                
+                        while( ctx.hasMoreElements() )
+                        {
+                            out.addServiceContext( (ServiceContext) ctx.nextElement() );
+                        }
+
                         return;
                     }
                 }
@@ -443,39 +467,50 @@ public class RequestProcessor
    
         if (info != null)
         {
-            InterceptorManager manager = controller.getORB().getInterceptorManager();
+            InterceptorManager manager = 
+                controller.getORB().getInterceptorManager();
             info.current = manager.getCurrent();
 
             short op = 0;
             switch(request.status().value())
             {
-            case ReplyStatusType_1_0._NO_EXCEPTION :
+            case ReplyStatusType_1_2._NO_EXCEPTION :
                 op = ServerInterceptorIterator.SEND_REPLY;
                 info.reply_status = SUCCESSFUL.value;
                 break;
 
-            case ReplyStatusType_1_0._USER_EXCEPTION :
+            case ReplyStatusType_1_2._USER_EXCEPTION :
                 info.reply_status = USER_EXCEPTION.value;
                 SystemExceptionHelper.insert(info.sending_exception, 
                                              new org.omg.CORBA.UNKNOWN("Stream-based UserExceptions are not available!"));
                 op = ServerInterceptorIterator.SEND_EXCEPTION;
                 break;
 
-            case ReplyStatusType_1_0._SYSTEM_EXCEPTION :
+            case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
                 info.reply_status = SYSTEM_EXCEPTION.value;
                 SystemExceptionHelper.insert(info.sending_exception, 
                                              request.getSystemException());
                 op = ServerInterceptorIterator.SEND_EXCEPTION;
                 break;
 
-            case ReplyStatusType_1_0._LOCATION_FORWARD :
+            case ReplyStatusType_1_2._LOCATION_FORWARD :
                 info.reply_status = LOCATION_FORWARD.value;
                 op = ServerInterceptorIterator.SEND_OTHER;
                 break;
             }
       
             invokeInterceptors(info, op);
-            request.get_out().setServiceContexts(info.getReplyServiceContexts());
+
+            ReplyOutputStream out = 
+                request.get_out();
+            Enumeration ctx = 
+                info.getReplyServiceContexts();
+                                
+            while( ctx.hasMoreElements() )
+            {
+                out.addServiceContext( (ServiceContext) ctx.nextElement() );
+            }
+
             manager.removeTSCurrent();
         }
         //org.jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req end");
@@ -554,12 +589,12 @@ public class RequestProcessor
     //      private RequestProcessor() {
     //      }
 
-
+    /*
     org.jacorb.orb.connection.ServerConnection getConnection()
     {
         return request.getConnection();
     }
-
+    */
 }
 
 

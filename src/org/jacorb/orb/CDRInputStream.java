@@ -24,6 +24,7 @@ import java.io.*;
 import java.util.*;
 
 import org.omg.CORBA.*;
+
 import org.jacorb.util.*;
 import org.jacorb.orb.connection.CodeSet;
 
@@ -50,12 +51,12 @@ public class CDRInputStream
     private int marked_pos;
     private int marked_index;
 
+    private boolean closed = false;
+
     /* character encoding code sets for char and wchar, default ISO8859_1 */
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
-    private int minorGIOPVersion = 1; // needed to determine size in chars
-
-    private boolean closed = false;
+    public int giop_minor = 2; // needed to determine size in chars
 
     /**
      * Maps indices within the buffer (java.lang.Integer) to the values that 
@@ -77,11 +78,12 @@ public class CDRInputStream
     protected int index = 0;
 
     /** 
-        for this stream to be able to return a live object reference,
-	a full ORB (not the Singleton!) must be known. If this stream 
-	is used only to demarshal base type data, the Singleton is enough
-    */
+     * for this stream to be able to return a live object reference, a
+     * full ORB (not the Singleton!) must be known. If this stream is
+     * used only to demarshal base type data, the Singleton is enough
+     */
     private org.omg.CORBA.ORB orb = null;
+
  
     public CDRInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
@@ -95,6 +97,16 @@ public class CDRInputStream
     {       
         this( orb, buf );
 	this.littleEndian = littleEndian;
+    }
+
+    public void setGIOPMinor( int giop_minor )
+    {
+        this.giop_minor = giop_minor;
+    }
+
+    public int getGIOPMinor()
+    {
+        return giop_minor;
     }
 
     public void close()
@@ -124,28 +136,31 @@ public class CDRInputStream
         this.codeSetW = codeSetWide;
     }
 
-
-    private static final int _read4int(boolean _littleEndian, byte[] _buffer, int _pos)
+    private static final int _read4int(boolean _littleEndian, 
+                                       byte[] _buffer, 
+                                       int _pos)
     {
 	if (_littleEndian)
 	    return (((_buffer[_pos+3] & 0xff) << 24) +
 		    ((_buffer[_pos+2] & 0xff) << 16) +
-		    ((_buffer[_pos+1] & 0xff) << 8) +
-		    ((_buffer[_pos] & 0xff) << 0));
+		    ((_buffer[_pos+1] & 0xff) <<  8) +
+		    ((_buffer[_pos]   & 0xff) <<  0));
 	else
-	    return (((_buffer[_pos] & 0xff) << 24) +
+	    return (((_buffer[_pos]   & 0xff) << 24) +
 		    ((_buffer[_pos+1] & 0xff) << 16) +
-		    ((_buffer[_pos+2] & 0xff) << 8) +
-		    ((_buffer[_pos+3] & 0xff) << 0));
+		    ((_buffer[_pos+2] & 0xff) <<  8) +
+		    ((_buffer[_pos+3] & 0xff) <<  0));
     }    
 
-    private static final short _read2int(boolean _littleEndian, byte[] _buffer, int _pos)
+    private static final short _read2int( boolean _littleEndian, 
+                                          byte[] _buffer, 
+                                          int _pos )
     {
 	if (_littleEndian)
 	    return  (short)(((_buffer[_pos+1] & 0xff) << 8) +
-			    ((_buffer[_pos] & 0xff) << 0));
+			    ((_buffer[_pos]   & 0xff) << 0));
 	else
-	    return (short)(((_buffer[_pos ] & 0xff) << 8) +
+	    return (short)(((_buffer[_pos ]    & 0xff) << 8) +
 			   ((_buffer[_pos + 1] & 0xff) << 0));
     }
 
@@ -220,6 +235,7 @@ public class CDRInputStream
     {     
 	if( closed )
 	    throw new java.io.IOException("Stream already closed!");
+
 	if( available() < 1 )
 	    return -1;
 
@@ -231,7 +247,7 @@ public class CDRInputStream
 	return pos - read_index;
     }
 
-    public int read( byte[] b)
+    public int read( byte[] b )
 	throws java.io.IOException
     {
 	return read(b, 0, b.length);
@@ -244,7 +260,9 @@ public class CDRInputStream
 	if( b == null )
 	    throw new NullPointerException();
 
-	if( off < 0 || len < 0 || off + len > b.length )
+	if( off < 0 || 
+            len < 0 || 
+            off + len > b.length )
 	    throw new IndexOutOfBoundsException();
 
 	if( len == 0 )
@@ -281,6 +299,7 @@ public class CDRInputStream
 	    return false;
 	else
         {
+            Debug.output( 1, "", buffer );
 	    throw new Error("Unexpected boolean value: " + bb 
 			    + " pos: " + pos + " index: " + index);
         }
@@ -486,15 +505,20 @@ public class CDRInputStream
 	ParsedIOR pior = new ParsedIOR( ior );
 
 	if( pior.isNull() ) 
+        {
 	    return null;
+        }
 	else
 	{
 	    if( ! (orb instanceof org.jacorb.orb.ORB))
-		throw new java.lang.RuntimeException(
-                                                     "Can not use the singleton ORB to receive object references" + 
-                                                     ", please initialize a full ORB instead.");
+            {
+		throw new RuntimeException( "Can not use the singleton ORB to receive object references" + 
+                                            ", please initialize a full ORB instead.");
+            }
 	    else
+            {
 		return ((org.jacorb.orb.ORB)orb)._getObject( pior );
+            }
 	}
     }
 
@@ -579,7 +603,7 @@ public class CDRInputStream
 	char[] buf = new char[size];
 	int i;
 	int endPos = pos + 
-	    ((tcs==CodeSet.UTF16 &&  minorGIOPVersion < 2 ) ? size*2 : size);
+	    ((tcs==CodeSet.UTF16 &&  giop_minor < 2 ) ? size*2 : size);
 
 	for( i=0; pos < endPos; i++ ) 
 	    buf[i] = read_char( tcs );
@@ -601,12 +625,14 @@ public class CDRInputStream
      * 		why about to replace it with position marking ?
      */
 
+    /*
     protected final void unread_string(String str)
     {
 	int diff = 4 + str.length() + 1;
 	pos -= diff;
 	index -= diff;
     }
+    */
 
     public final org.omg.CORBA.TypeCode read_TypeCode()
     {

@@ -103,7 +103,7 @@ public final class ClientConnection
         return buffers;
     }
    
- public Hashtable get_replies(){
+    public Hashtable get_replies(){
         return replies;
     }
 

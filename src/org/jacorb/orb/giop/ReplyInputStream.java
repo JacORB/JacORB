@@ -20,11 +20,12 @@ package org.jacorb.orb.connection;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-import org.jacorb.orb.*;
+import org.jacorb.orb.SystemExceptionHelper;
+import org.jacorb.util.*;
+
 import org.omg.GIOP.*;
 import org.omg.CORBA.portable.ApplicationException;
-import org.omg.CORBA.portable.RemarshalException;
+import org.omg.PortableServer.ForwardRequest;
 
 /**
  * @author Gerald Brose, FU Berlin 1999
@@ -33,180 +34,106 @@ import org.omg.CORBA.portable.RemarshalException;
  */
 
 public class ReplyInputStream
-    extends CDRInputStream
+    extends ServiceContextTransportingInputStream
 {
-    private org.omg.GIOP.ReplyHeader_1_0 rep_hdr;
-    private int _request_id;
-    private boolean _response_expected;
-    private String _operation;
-    private boolean ready = false;
-    private boolean communicationException = false;
-    private boolean remarshalException = false;
-    private boolean timeoutException = false;
-    public org.omg.GIOP.MessageHeader_1_0 msg_hdr=null;
+    public ReplyHeader_1_2 rep_hdr = null;
 
-    public ReplyInputStream( org.omg.CORBA.ORB orb, int request_id)
+    public ReplyInputStream( org.omg.CORBA.ORB orb, byte[] buffer )
     {
-	super( orb, new byte[0] );
-	_request_id = request_id;
-    }
+	super( orb, buffer );
 
-    /**
-     * called from org.jacorb.orb.Connection
-     * @param buf - the reply message buffer
-     * @param target - the target object that was called (necessary 
-     * for determining the correct interceptors)
-     */
+        //check message type
+	if( Messages.getMsgType( buffer ) != MsgType_1_1._Reply )
+        {
+	    throw new Error( "Error: not a reply!" );
+        }
+        
+        switch( giop_minor )
+        { 
+            case 0 : 
+            {
+                //GIOP 1.0 = GIOP 1.1, fall through
+            }
+            case 1 : 
+            {
+                //GIOP 1.1
+                ReplyHeader_1_0 hdr = 
+                    ReplyHeader_1_0Helper.read( this );
 
-    public synchronized void init( byte[] buf )
-    {
-	super.buffer = buf;
-	ready = true;
-	this.notify();
-    }
+                rep_hdr = 
+                    new ReplyHeader_1_2( hdr.request_id,
+                                         ReplyStatusType_1_2.from_int( hdr.reply_status.value() ),
+                                         hdr.service_context );
+                break;
+            }
+            case 2 : 
+            {
+                //GIOP 1.2
+                rep_hdr = ReplyHeader_1_2Helper.read( this );
+                
+                skipHeaderPadding();
 
-    /** 
-     * this thread takes over again, start by
-     * inspecting the reply message in buffer
-     */
-
-    private void wakeup()
-    {
-	if( buffer[6] != 0 ) // big-endian
-	{
-	    littleEndian = true;
-	    setLittleEndian(true);
-	}
-	if( buffer[7] != (byte)org.omg.GIOP.MsgType_1_0._Reply )
-	    throw new RuntimeException("Trying to initialize ReplyInputStream from non-reply msg.!");
-
-	if (buffer[5]==1){
-	    skip(12);	    
-	}
-	else	    
-	    msg_hdr= org.omg.GIOP.MessageHeader_1_0Helper.read(this);
-
-	rep_hdr = org.omg.GIOP.ReplyHeader_1_0Helper.read(this );
-
-	if( _request_id != rep_hdr.request_id )
-	    throw new RuntimeException("Fatal, request ids don\'t match");
-    }
-
-    /**
-     * called by the ORB to notify a client blocked on this object
-     * of a communication error
-     */
-
-    public synchronized void cancel( boolean timeout )
-    {
-	timeoutException = timeout;
-	communicationException = true;
-	ready = true;
-	this.notify();
-    }
-
-
-    public synchronized void retry()
-    {
-	remarshalException = true;
-	ready = true;
-	this.notify();
-    }
-
-    public int requestId()
-    {
-	return _request_id;
-    }
-
-    public org.omg.GIOP.ReplyHeader_1_0 getHeader()
-    {
-	return rep_hdr;
+                break;
+            }
+            default : {
+                throw new Error( "Unknown GIOP minor version: " + giop_minor );
+            }
+        }
     }
 
     /** 
-     * to be called from within Delegate. The result is returned to
-     *  the waiting client.
+     * This is called from within Delegate and will throw arrived exceptions.
      */
 
-    public synchronized org.omg.CORBA.portable.InputStream result() 
+    public synchronized void checkExceptions() 
 	throws ApplicationException, 
-        RemarshalException, 
-        org.omg.PortableServer.ForwardRequest
+        ForwardRequest
     {
-	try
-	{
-	    while( !ready ) 
-	    {
-		wait();
-	    }
-	} 
-	catch ( java.lang.InterruptedException e )
-	{}
-
-        if( remarshalException )
-	{
-	    throw new org.omg.CORBA.portable.RemarshalException();
-	}	
-        else if( communicationException )
-	{
-            if( timeoutException )
-                throw new org.omg.CORBA.IMP_LIMIT("Client timeout reached.");
-            else
-                throw new org.omg.CORBA.COMM_FAILURE();
-	}
-
-	wakeup();
-
-	int read = 0;
-
 	switch( rep_hdr.reply_status.value() ) 
 	{
-	    case org.omg.GIOP.ReplyStatusType_1_0._NO_EXCEPTION : 
-		return this;	       
-	    case  org.omg.GIOP.ReplyStatusType_1_0._USER_EXCEPTION : 
+	    case ReplyStatusType_1_2._NO_EXCEPTION :
+            { 
+		break; //no exception	       
+            }
+	    case ReplyStatusType_1_2._USER_EXCEPTION : 
 	    {
+                mark( 0 ); 
 		String id = read_string();
-		unread_string(id);
-		throw new ApplicationException(id, this);
+                
+                try
+                {
+                    reset();
+                }
+                catch( java.io.IOException ioe )
+                {
+                    //should not happen anyway
+                    Debug.output( 1, ioe );
+                }
+
+		throw new ApplicationException( id, this );
 	    }
- 	    case  org.omg.GIOP.ReplyStatusType_1_0._SYSTEM_EXCEPTION: 
+ 	    case  ReplyStatusType_1_2._SYSTEM_EXCEPTION: 
 	    {
-		throw( org.jacorb.orb.SystemExceptionHelper.read(this) );
+		throw SystemExceptionHelper.read( this );
 	    }
-	    case  org.omg.GIOP.ReplyStatusType_1_0._LOCATION_FORWARD: 
-		throw new org.omg.PortableServer.ForwardRequest( this.read_Object());
+	    case  ReplyStatusType_1_2._LOCATION_FORWARD:
+            {
+                //fall through
+            }
+            case  ReplyStatusType_1_2._LOCATION_FORWARD_PERM: 
+            {
+		throw new ForwardRequest( read_Object() );
+            }
+            case  ReplyStatusType_1_2._NEEDS_ADDRESSING_MODE :
+            {
+                throw new org.omg.CORBA.NO_IMPLEMENT( "WARNING: Received reply with status NEEDS_ADRESSING_MODE, but this isn't implemented yet" );
+            }
+            default :
+            {
+                throw new Error( "Received unexpected reply status: " +
+                                 rep_hdr.reply_status.value() );
+            }
 	}
-	return this;
-    }
-
-    /*  Method for proxy. The raw buffer
-	will be returned without any processing of CORBA exceptions  */
- 	
-    public synchronized org.omg.CORBA.portable.InputStream rawResult() 
-    {
-	try
-	{
-	    while( !ready ) 
-	    {
-		wait();
-	    }
-	} 
-	catch ( java.lang.InterruptedException e )
-	{}
-
-	if( communicationException )
-	{
-	    throw new org.omg.CORBA.COMM_FAILURE();
-	}
-	/* is this needed for the Appligator ??  */
-//  	else if( remarshalException )
-//  	{
-//  	    throw new org.omg.CORBA.portable.RemarshalException();
-//  	}
-
-	wakeup();
-
-	return this;
     }
 
     public void finalize()
@@ -221,6 +148,10 @@ public class ReplyInputStream
 	}
     }
 }
+
+
+
+
 
 
 

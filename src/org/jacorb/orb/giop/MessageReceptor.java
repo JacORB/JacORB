@@ -1,5 +1,3 @@
-package org.jacorb.orb.connection;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -20,19 +18,52 @@ package org.jacorb.orb.connection;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+package org.jacorb.orb.connection;
 
-public class TimeOutException
-	extends java.io.IOException
+import org.jacorb.util.threadpool.Consumer;
+import org.jacorb.util.*;
+
+/**
+ * MessageReceptor.java
+ *
+ *
+ * Created: Sat Aug 18 10:52:45 2001
+ *
+ * @author Nicolas Noffke
+ * @version $Id$
+ */
+
+public class MessageReceptor 
+    implements Consumer  
 {
-    public TimeOutException()
+    public MessageReceptor()
     {
-        super();
+        
     }
+    
+    // implementation of org.jacorb.util.threadpool.Consumer interface
+    
+    /**
+     *
+     * @param job <description>
+     */
+    public void doWork( Object job ) 
+    {
+        try
+        {
+            ((GIOPConnection) job).receiveMessages();
+        }
+        catch( CloseConnectionException cce )
+        {
+            //ignore
+        }
+        catch( Exception e )
+        {
+            Debug.output( 1, e );
+        }
+    }    
+}// MessageReceptor
 
-    public TimeOutException( String s )
-    {
-        super( s );
-    }
-}
+
 
 

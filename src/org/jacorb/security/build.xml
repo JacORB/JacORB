@@ -19,19 +19,12 @@
 	   <echo message="security.build: src ${src}"/>
    </target>
 
-   <target name="all" depends="init,leveltwo,ssl,jsse,util">
+   <target name="all" depends="init,leveltwo,ssl,util">
 
    </target>
 
-   <target name="ssl" if="iaik.present">
-	   <javac srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/security/ssl/*.java"
-        />
-   </target>
-
-   <target name="jsse">
-           <ant antfile="${src}/org/jacorb/security/jsse/build.xml" dir="${basedir}"/>
+   <target name="ssl">
+           <ant antfile="${src}/org/jacorb/security/ssl/build.xml" dir="${basedir}"/>
    </target>
 
 

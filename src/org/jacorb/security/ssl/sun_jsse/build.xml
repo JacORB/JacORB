@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="security" default="all" basedir="../../../../..">
+<project name="sun_jsse" default="all" basedir="../../../../../..">
 
   <!-- ==================================================== -->
   <!--                 jsse build file                      -->
@@ -11,17 +11,12 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
-	<available classname="javax.net.ssl.SSLSocketFactory" property="jsse.present" />
    </target>
 
-   <target name="all" depends="init,jsse">
-
-   </target>
-
-   <target name="jsse" if="jsse.present">
-	   <javac srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/security/jsse/*.java"
+   <target name="all" depends="init">
+           <javac srcdir="${src}"
+                  destdir="${classdir}"
+                  includes="org/jacorb/security/ssl/sun_jsse/*.java"
         />
    </target>
 </project>

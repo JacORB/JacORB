@@ -35,6 +35,8 @@ public class ClientRequestInfoImpl
     public org.jacorb.orb.connection.RequestOutputStream request_os = null;
     public org.jacorb.orb.connection.ReplyInputStream reply_is = null;
 
+    public org.jacorb.orb.connection.ClientConnection connection = null;
+
     public ClientRequestInfoImpl() 
     {
         super();
@@ -73,18 +75,9 @@ public class ClientRequestInfoImpl
      * data aligning purposes.
      */
 
-    public ServiceContext[] getRequestServiceContexts()
+    public Enumeration getRequestServiceContexts()
     {
-        //copying manually for jdk1.1 compatibility
-        ServiceContext[] _ctx = new ServiceContext[request_ctx.size() + 1];
-        Enumeration _enum = request_ctx.elements(); 
-        int _i = 0;
-        while(_enum.hasMoreElements())
-            _ctx[_i++] = (ServiceContext) _enum.nextElement();
-
-        _ctx[_ctx.length - 1] = new ServiceContext(Integer.MAX_VALUE, new byte[0]);
-
-        return _ctx;
+        return request_ctx.elements(); 
     }
 
     // implementation                        of

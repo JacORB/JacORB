@@ -53,9 +53,6 @@ public final class Delegate
     // OF THE REFERENCE.
     private ParsedIOR _pior = null;
     private ClientConnection connection = null;
- 
-    /** code set service Context */
-    org.omg.IOP.ServiceContext[] ctx = new org.omg.IOP.ServiceContext[0];
 
     /** domain service used to implement get_policy and get_domain_managers */
     private static Domain _domainService = null;
@@ -165,16 +162,11 @@ public final class Delegate
             if( bound )
                 return;
 
-            _pior.init();
-            
-            if( _pior.useSSL() )
-                Debug.output( 3, "Delegate bound to SSL " + _pior.getAdPort() );
-            else
-                Debug.output( 3, "Delegate bound to " + _pior.getAdPort() );
-        
-    
-            connection = conn_mg.getConnection( this );
 
+            _pior.init();
+    
+            connection = conn_mg.getConnection( _pior.getAdPort(),
+                                                _pior.useSSL() );
             bound = true;
             
             /* The delegate could query the server for the object
@@ -186,32 +178,57 @@ public final class Delegate
                 Environment.locateOnBind() )
             {  
                 //only locate once, because bind is called from the
-                //swith statement below again.
+                //switch statement below again.
                 locate_on_bind_performed = true;
 
-                LocateRequestOutputStream lros = 
-                    new LocateRequestOutputStream( _pior.get_object_key(), 
-                                                   connection.getId() );
-                LocateReplyInputStream lris = 
-                    connection.sendLocateRequest( lros );
-    
-                switch( lris.status().value() )
+                try
                 {
-                    case org.omg.GIOP.LocateStatusType_1_0._OBJECT_HERE:
-                        Debug.output(3,"object here");
-                        break;
-                    case org.omg.GIOP.LocateStatusType_1_0._OBJECT_FORWARD:
-                        Debug.output(3,"Locate Reply: Forward");
-                        rebind( orb.object_to_string( lris.read_Object()) );
-                        // ignore this for the moment...
-                        break;
-                    case org.omg.GIOP.LocateStatusType_1_0._UNKNOWN_OBJECT :
-                        throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
-                    default:
-                        throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.status().value());
+                    LocateRequestOutputStream lros = 
+                        new LocateRequestOutputStream( _pior.get_object_key(), 
+                                                       connection.getId(),
+                                                       (int) _pior.getProfileBody().iiop_version.minor );
+                    
+                    ReplyPlaceholder place_holder = 
+                        connection.sendRequest( lros,
+                                                true, //response expected
+                                                lros.getRequestId() );
+                    
+                    
+                    LocateReplyInputStream lris =
+                        (LocateReplyInputStream) place_holder.getInputStream();
+                    
+                    switch( lris.rep_hdr.locate_status.value() )
+                    {
+                        case LocateStatusType_1_2._OBJECT_HERE :
+                        {
+                            Debug.output(3,"object here");
+                            
+                            break;
+                        }
+                        case LocateStatusType_1_2._OBJECT_FORWARD :
+                        {
+                            Debug.output(3,"Locate Reply: Forward");
+                            
+                            rebind( orb.object_to_string( lris.read_Object()) );
+                            
+                            break;
+                        }
+                        case LocateStatusType_1_2._UNKNOWN_OBJECT :
+                        {
+                            throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
+                        }
+                        default :
+                        {
+                            throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.rep_hdr.locate_status.value());
+                        }
+                    }
+                }
+                catch( Exception e )
+                {
+                    Debug.output( 1, e );
                 }
             }
-            
+
             //wake up threads waiting for the pior
             bind_sync.notifyAll();
         }
@@ -425,26 +442,43 @@ public final class Delegate
     public org.omg.CORBA.Policy get_policy_no_intercept(org.omg.CORBA.Object self, 
                                                         int policy_type)
     {
+        RequestOutputStream _os = null;
+
         synchronized( bind_sync )
         {
             bind();
             
             ParsedIOR p = getParsedIOR();
-            
-            // devik: if connection's tcs was not negotiated yet, mark all requests
-            // with codeset servicecontext.
-            ctx = connection.addCodeSetContext( ctx, p );
-    
-            RequestOutputStream _os = 
-                new RequestOutputStream( orb, 
-                                         connection.getId(),
+
+            _os = 
+                new RequestOutputStream( connection.getId(),
                                          "_get_policy", 
                                          true, 
-                                         p.get_object_key(), 
-                                         ctx);
+                                         p.get_object_key(),
+                                         (int) p.getProfileBody().iiop_version.minor );
 
-            return get_policy(self, policy_type, _os);
+            //Problem: What about the case where different objects
+            //that are accessed by the same connection have different
+            //codesets?  Is this possible anyway?
+            if( ! connection.isTCSNegotiated() )
+            {
+                ServiceContext ctx = connection.setCodeSet( p );
+
+                if( ctx != null )
+                {
+                    _os.addServiceContext( ctx );
+                }
+            }
+
+            //Setting the codesets not until here results in the
+            //header being writtend using the default codesets. On the
+            //other hand, the server side must have already read the
+            //header to discover the codeset service context.
+            _os.setCodeSet( connection.getTCS(), connection.getTCSW() );
+
         }
+        
+        return get_policy(self, policy_type, _os);
     }
 
 
@@ -616,20 +650,18 @@ public final class Delegate
                                                       org.omg.CORBA.portable.OutputStream os)
         throws ApplicationException, RemarshalException
     {
-        ReplyInputStream rep = null;
         ClientRequestInfoImpl info = null;
         RequestOutputStream ros = null;
 
         ros = (RequestOutputStream) os;
     
-        if ( use_interceptors && ros.separateHeader() )
+        if ( use_interceptors )
         {
             //set up info object
             info = new ClientRequestInfoImpl();
             info.orb = (org.jacorb.orb.ORB) orb;
             info.operation = ros.operation();
             info.response_expected = ros.response_expected();
-            info.setRequestServiceContexts(ros.getServiceContexts());
             info.received_exception = orb.create_any();
     
             if (ros.getRequest() != null)
@@ -660,36 +692,47 @@ public final class Delegate
             info.delegate = this;
         
             info.request_id = ros.requestId();
-            InterceptorManager manager = ((org.jacorb.orb.ORB) orb).getInterceptorManager();
+            InterceptorManager manager = 
+                ((org.jacorb.orb.ORB) orb).getInterceptorManager();
+
             info.current = manager.getCurrent();
 
             //allow interceptors access to request output stream
             info.request_os = ros;
+
+            //allow (BiDir) interceptor to inspect the connection
+            info.connection = connection;
     
             invokeInterceptors(info, ClientInterceptorIterator.SEND_REQUEST);
-              
-            ros.setServiceContexts(info.getRequestServiceContexts());
+
+            //add service contexts to message
+            Enumeration ctx = info.getRequestServiceContexts();
+            while( ctx.hasMoreElements() )
+            {
+                ros.addServiceContext( (ServiceContext) ctx.nextElement() );
+            }
         }
-    
+
+        ReplyPlaceholder placeholder = null;
         try
         {          
-            os.close(); 
-
-            rep = (ReplyInputStream) connection.sendRequest( ros );
+            placeholder = connection.sendRequest( ros,
+                                                  ros.response_expected(),
+                                                  ros.requestId() );
  
             // devik: if tcs was not negotiated yet, in every context
             // we will send tcs wanted. After first such request was
             // sent (and it is here) we can mark connection tcs as
             // negotiated
-            connection.markTcsNegotiated();
+            //connection.markTcsNegotiated();
 
             //store pending replies, so in the case of a LocationForward
-            //a RemarshalException can thrown to *all* waiting threads. 
-            if( ros.response_expected() )
+            //a RemarshalException can be thrown to *all* waiting threads. 
+            if( ros.response_expected())
             {
                 synchronized( pending_replies )
                 {
-                    pending_replies.put( rep, rep );
+                        pending_replies.put( placeholder, placeholder );
                 }
             }
         } 
@@ -700,7 +743,8 @@ public final class Delegate
 
                 try 
                 {
-                    info.received_exception_id = SystemExceptionHelper.type(cfe).id();
+                    info.received_exception_id = 
+                        SystemExceptionHelper.type(cfe).id();
                 } 
                 catch(org.omg.CORBA.TypeCodePackage.BadKind _bk) 
                 {
@@ -708,8 +752,7 @@ public final class Delegate
                 }
                 
                 info.reply_status = SYSTEM_EXCEPTION.value;
-                info.setReplyServiceContexts(new ServiceContext[0]);
-            
+                            
                 invokeInterceptors(info,
                                    ClientInterceptorIterator.RECEIVE_EXCEPTION);
             }
@@ -726,71 +769,33 @@ public final class Delegate
                 throw cfe;
             }
         }
-        catch (java.io.IOException ioe)
-        {
-            Debug.output(0, ioe);
-            ApplicationException _e = 
-                new ApplicationException(ioe.getMessage(), null);
-    
-            if (use_interceptors && (info != null))
-            {
-                SystemExceptionHelper.insert(info.received_exception, 
-                                             new org.omg.CORBA.UNKNOWN(ioe.getMessage(),
-                                                                       1, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE));
-    
-                info.received_exception_id = _e.getId();
-              
-                info.reply_status = SYSTEM_EXCEPTION.value;
-                info.setReplyServiceContexts(new ServiceContext[0]);
-              
-                invokeInterceptors(info,
-                                   ClientInterceptorIterator.RECEIVE_EXCEPTION);
-            }
-
-            throw _e;
-        }
-        catch (Exception e)
-        {        
-            Debug.output(0, e);
-            ApplicationException _e = 
-                new ApplicationException(e.getMessage(), null);
-          
-            if ( use_interceptors && (info != null) )
-            {
-                SystemExceptionHelper.insert(info.received_exception, 
-                                             new org.omg.CORBA.UNKNOWN(e.getMessage(),
-                                                                       1, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE));
-            
-                info.received_exception_id = _e.getId();
-              
-                info.reply_status = SYSTEM_EXCEPTION.value;
-                info.setReplyServiceContexts(new ServiceContext[0]);
-    
-                invokeInterceptors(info,
-                                   ClientInterceptorIterator.RECEIVE_EXCEPTION);
-            }
-          
-            throw _e;
-        }         
 
         /* look at the result stream now */
         
-        if( rep != null )
+        if( placeholder != null )
         {
+            //response is expected
+
+            ReplyInputStream rep = null;
+
             try
             {
-                org.omg.CORBA.portable.InputStream result = rep.result();
+                //this blocks until the reply arrives
+                rep = (ReplyInputStream) placeholder.getInputStream();
+                
+                //this will check the reply status and throw arrived
+                //exceptions
+                rep.checkExceptions();
 
                 if ( use_interceptors && (info != null) )
                 {
-                    ReplyHeader_1_0 _header = rep.getHeader();
+                    ReplyHeader_1_2 _header = rep.rep_hdr;
               
-                    //exceptions are thrown by result()
-                    if (_header.reply_status.value() == ReplyStatusType_1_0._NO_EXCEPTION)
+                    if (_header.reply_status.value() == ReplyStatusType_1_2._NO_EXCEPTION)
                     { 
                         info.reply_status = SUCCESSFUL.value;
             
-                        info.setReplyServiceContexts(_header.service_context);
+                        info.setReplyServiceContexts( _header.service_context );
     
                         //the case that invoke was called from
                         //dii.Request._invoke() will be handled inside
@@ -813,7 +818,7 @@ public final class Delegate
                     }
                 }
     
-                return result;
+                return rep;
             }
             catch( RemarshalException re )
             {
@@ -830,20 +835,18 @@ public final class Delegate
                     //assuming "permanent", until new GIOP version is
                     //implemented
                     info.reply_status = LOCATION_FORWARD_PERMANENT.value;
-                    info.setReplyServiceContexts(rep.getHeader().service_context);
+                    info.setReplyServiceContexts(rep.rep_hdr.service_context);
             
                     info.forward_reference = f.forward_reference;
 
                     //allow interceptors access to reply input stream
                     info.reply_is = rep;
 
-    
                     invokeInterceptors(info,
                                        ClientInterceptorIterator.RECEIVE_OTHER);
                 }
               
                 /* retrieve the forwarded IOR and bind to it */
-                Debug.output( 3, "LocationForward" );
 
                 //make other threads, that have unreturned replies, wait
                 pending_replies_sync.lockBarrier();
@@ -855,8 +858,8 @@ public final class Delegate
                     for( Enumeration e = pending_replies.elements();
                          e.hasMoreElements(); )
                     {
-                        ReplyInputStream r = 
-                            (ReplyInputStream) e.nextElement();
+                        ReplyPlaceholder r = 
+                               (ReplyPlaceholder) e.nextElement();
                         r.retry();
                     }
                 }
@@ -875,14 +878,7 @@ public final class Delegate
                 {
                     info.reply_status = SYSTEM_EXCEPTION.value;
                     
-                    if( rep.getHeader() != null )
-                    {
-                        info.setReplyServiceContexts(rep.getHeader().service_context);
-                    }
-                    else
-                    {
-                        info.setReplyServiceContexts( new ServiceContext[0] );
-                    }
+                    info.setReplyServiceContexts(rep.rep_hdr.service_context);
     
                     SystemExceptionHelper.insert(info.received_exception, _sys_ex);
                     try
@@ -897,7 +893,6 @@ public final class Delegate
 
                     //allow interceptors access to reply input stream
                     info.reply_is = rep;
-
     
                     invokeInterceptors(info,
                                        ClientInterceptorIterator.RECEIVE_EXCEPTION);
@@ -910,7 +905,7 @@ public final class Delegate
                 if (use_interceptors && (info != null))
                 {
                     info.reply_status = USER_EXCEPTION.value;
-                    info.setReplyServiceContexts(rep.getHeader().service_context);
+                    info.setReplyServiceContexts(rep.rep_hdr.service_context);
             
                     info.received_exception_id  = _user_ex.getId();
             
@@ -964,7 +959,6 @@ public final class Delegate
             {
                 //oneway call
                 info.reply_status = SUCCESSFUL.value;
-                info.setReplyServiceContexts(new ServiceContext[0]);
     
                 invokeInterceptors(info, ClientInterceptorIterator.RECEIVE_OTHER);
             }
@@ -1082,11 +1076,16 @@ public final class Delegate
         {
             try
             {       
-                org.omg.CORBA.portable.OutputStream os = request(self, "_non_existent", true);
+                org.omg.CORBA.portable.OutputStream os = 
+                    request(self, "_non_existent", true);
+
                 org.omg.CORBA.portable.InputStream is = invoke( self, os );
+
                 return is.read_boolean();
             }
-            catch ( RemarshalException r ){}
+            catch ( RemarshalException r )
+            {
+            }
             catch( Exception n )        
             {
                 return true;
@@ -1146,27 +1145,38 @@ public final class Delegate
         // Interceptor-if-statement, please make sure to update 
         // get_poliy_no_intercept as well!
           
-        // Delegate d =
-        // (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
         synchronized( bind_sync )
         {
             bind();
      
             ParsedIOR p = getParsedIOR();
 
-            // devik: if connection's tcs was not negotiated yet, mark all
-            // requests with codeset servicecontext.
-            ctx = connection.addCodeSetContext( ctx, p );
+            RequestOutputStream ros = 
+                new RequestOutputStream( connection.getId(),
+                                         operation, 
+                                         responseExpected, 
+                                         p.get_object_key(),
+                                         (int) p.getProfileBody().iiop_version.minor );
+
+            //Problem: What about the case where different objects
+            //that are accessed by the same connection have different
+            //codesets?  Is this possible anyway?
+            if( ! connection.isTCSNegotiated() )
+            {
+                ServiceContext ctx = connection.setCodeSet( p );
+                
+                if( ctx != null )
+                {
+                    ros.addServiceContext( ctx );
+                }
+            }
+
+            //Setting the codesets not until here results in the
+            //header being writtend using the default codesets. On the
+            //other hand, the server side must have already read the
+            //header to discover the codeset service context.
+            ros.setCodeSet( connection.getTCS(), connection.getTCSW() );
             
-            RequestOutputStream ros = new RequestOutputStream( orb, 
-                                                               connection.getId(),
-                                                               operation, 
-                                                               responseExpected, 
-                                                               p.get_object_key(),
-                                                               ctx, 
-                                                               use_interceptors);
-            ros.setCodeSet( connection.TCS, connection.TCSW );
-        
             return ros;
         }
     }
@@ -1190,7 +1200,7 @@ public final class Delegate
         if (poa != null) 
         {
             /* make sure that no proxified IOR is used for local invocations */
-    
+            /*
             if( ((org.jacorb.orb.ORB)orb).isApplet())
             {
                 Debug.output(1, "Unproxyfying IOR:");
@@ -1208,7 +1218,7 @@ public final class Delegate
 
                 ((org.omg.CORBA.portable.ObjectImpl)self)._set_delegate(d);
             }    
-    
+            */
             try 
             {
                 ServantObject so = new ServantObject();
@@ -1242,7 +1252,7 @@ public final class Delegate
      * used only by ORB.getConnection ( Delegate ) when diverting
      * connection to the proxy by Delegate.servant_preinvoke 
      */
-
+    /*
     public void set_adport_and_key( String ap, byte[] _key )
     {
         //adport = ap;
@@ -1250,17 +1260,16 @@ public final class Delegate
     }
 
     public void setIOR(org.omg.IOP.IOR _ior)
-    {
-        
+    {        
         synchronized( bind_sync )
         {
             _pior = new ParsedIOR( _ior );
             piorOriginal = null;
 
             bind_sync.notifyAll();
-        }
+        }     
     }
-
+    */
     public String toString()
     {
         synchronized( bind_sync )

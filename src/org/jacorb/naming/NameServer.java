@@ -177,6 +177,12 @@ public class NameServer
             // orb domain of the ns can't be inserted
 	    props.put("jacorb.orb_domain.mount","off");
 
+	    /* 
+             * set a connection time out : after 30 secs. idle time,
+             * the adapter will close connections 
+             */
+            props.put( "jacorb.connection.server_timeout", "10000" );
+
 
 	    /* which directory to store/load in? */
 
@@ -205,11 +211,6 @@ public class NameServer
 
 	    org.omg.PortableServer.POA rootPOA = 
 		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
-	    /* set a connection time out :
-	       after 30 secs. idle time, the adapter will close connections 
-	    */
-	    ((org.jacorb.orb.ORB)orb).getBasicAdapter().setTimeout(30000);
 
 	    /* create a user defined poa for the naming contexts */
 
@@ -260,7 +261,7 @@ public class NameServer
 	    if( time_out == 0 )
 		orb.run();
 	    else
-		java.lang.Thread.sleep(time_out);
+		Thread.sleep(time_out);
 
 
 	    /* shutdown. This will etherealize all servants, thus saving their state */

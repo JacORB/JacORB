@@ -146,9 +146,3 @@ public class CapsuleThread
         }
     }
 } // CapsuleThread
-
-
-
-
-
-
