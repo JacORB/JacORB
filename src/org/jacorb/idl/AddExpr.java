@@ -28,9 +28,8 @@ import java.io.PrintWriter;
  */
 
 class AddExpr
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public AddExpr add_expr = null;
     public String operator;
     public MultExpr mult_expr;
