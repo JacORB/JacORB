@@ -1466,17 +1466,47 @@ public class DomainImpl
 
     public Domain[] getChilds()
     {
-        Domain result[]= new Domain[_child_domains.size()];
-        // Enumeration objectEnum= _child_domains.keys();
+        int childDomainCount= _child_domains.size();
+        Domain result[]=  new Domain[childDomainCount];
         Enumeration objectEnum= _child_domains.keys();
         // convert enumeration to array
-        int i= 0;
-        while ( objectEnum.hasMoreElements() ) {
-            result[i]= (Domain) objectEnum.nextElement() ;
-            i++;
-        }
-        return result;
-    }
+        int counter= 0;
+	Domain current;
+
+        while ( objectEnum.hasMoreElements() ) 
+	  {
+	    current= (Domain) objectEnum.nextElement() ;
+
+	    if (current._non_existent()) // check if domain is still alive
+	      { 
+		// remove if dead
+		Debug.output(Debug.DOMAIN | Debug.INFORMATION, 
+			     "DomainImpl.getChilds: removing an invalid child"
+			     +" domain reference from list of child domains.");
+
+		this._child_domains.remove(current);
+		this.deleteEntryFromChildDomainNames(current);
+	      }
+	    else 
+	      {
+		result[counter]= current;
+		counter++;
+	      }
+	  }
+
+	if (counter == childDomainCount) // any failures ?
+	  return result;        // no, so return normal array
+	else                    // yes, resize return array
+	  {
+	    // copy valid entries form result to result2
+	    Debug.output(Debug.DOMAIN | Debug.DEBUG1, "childDomainCount: "+ 
+			 childDomainCount + "counter: "+ counter);
+	    Domain[] result2= new Domain[counter];    // counter == #valid refs
+	    for (int i= 0; i < counter; i++)
+	      result2[i]= result[i];
+	    return result2;
+	  }
+    } // getChilds
 
     /** 
      * returns the number of child domains. 
@@ -2514,7 +2544,16 @@ public class DomainImpl
       }
     }
   }
-  
+
+  /** deletes an (name, ref)-tupel from the private hashtable 
+   * _child_domain_names. The tupel is found by an linear search :(
+   * @param domain the domain reference which identifies the (name, domain)-tupel
+   *               to delete. 
+   */
+  private void deleteEntryFromChildDomainNames(Domain domain)
+  {
+    // TODO
+  } // deleteEntryFromChildDomainNames
 } // DomainImpl
 
 
