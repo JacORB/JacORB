@@ -134,8 +134,16 @@
   <target name="antlr.compile" depends="notification.init, antlr.generate">
     <antcall target="jacorb-javac">
       <param name="javac-includes"
-	value="org/jacorb/notification/node/*.java, generated/org/jacorb/notification/parser/*.java" />
+	value="org/jacorb/notification/node/*.java" />
     </antcall>
+
+    <antcall target="jacorb-javac">
+      <param name="javac-src"
+	value="${src}/generated" />
+      <param name="javac-includes"
+	value="org/jacorb/notification/parser/*.java" />
+    </antcall>
+
   </target> 
 
   <target name="server" depends="notification.init, server.compile, server.compile.wrapper" />

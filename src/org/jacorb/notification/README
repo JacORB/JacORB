@@ -9,7 +9,8 @@ and make it available in the classpath
 
 to start the Notification Service run bin/ntfy or bin/ntfy.bat.
 
-ntfy[.bat] [-printIOR] [-printCorbaloc] [-writeIOR <filename>] 
+ntfy[.bat] [-printIOR] [-printCorbaloc] [-writeIOR <filename>]
+	   [-registerName <nameId>[.<nameKind>]] 
            [-port <oaPort>] [-channels <channels>] [-help]
 	
 The script starts a EventChannelFactory
@@ -20,9 +21,29 @@ The script starts a EventChannelFactory
 
 * -writeIOR <filename>: write the IOR to a file
 
-* -port <oaport>:	try to start the service on a specific port
+			Examples:
+			-writeIOR /tmp/notify.ior
+
+* -registerName <nameId>[.<nameKind>]:
+			make a Name Service Entry for the Factory. 
+			The Name Service must be available by 
+			resolve_initial_references. 
+			No nested names yet.
+
+			Examples:
+			-registerName notificationservice
+			-registerName notificationservice.factory
+
+* -port <oaport>:	try to start the service on the specified port.
+			This will fail if the port is already in use.
+
+			Examples:
+			-port 9102
 
 * -channels <channels>:	create a number of EventChannels
+
+			Examples:
+			-channels 2
 
 
 any comments/suggestions to the JacORB Developer Mailing List
