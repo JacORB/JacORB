@@ -120,7 +120,7 @@
 
    <target name="iop" depends="init">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/IOP.idl"/>
+	      <arg line="${idlflags}  ${include}/omg/IOP.idl"/>
 	</java>
    </target>
 
@@ -138,31 +138,31 @@
 
    <target name="conf">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/CONV_FRAME.idl"/>
+	      <arg line="${idlflags}  -noskel ${include}/omg/CONV_FRAME.idl"/>
 	</java>
    </target>
    
    <target name="interceptor" depends="time">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/Dynamic.idl"/>
+	      <arg line="${idlflags} -nostub -noskel ${include}/omg/Dynamic.idl"/>
 	</java>
 
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/Messaging.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/Messaging.idl"/>
 	</java>
 
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/IOP_N.idl"/>
+	      <arg line="${idlflags} -noskel  ${include}/omg/IOP_N.idl"/>
 	</java>
 
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/PortableInterceptor.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/PortableInterceptor.idl"/>
 	</java>
    </target>
 
    <target name="portableserver" depends="init,copymapping">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-           <arg line="${idlflags} -noskel ${include}/omg/PortableServer.idl"/>
+           <arg line="${idlflags} -noskel  ${include}/omg/PortableServer.idl"/>
         </java>
 
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
@@ -410,43 +410,43 @@
 
    <target name="secbasic" depends="init">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/Security.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/Security.idl"/>
 	</java>
    </target>
 
    <target name="time" depends="init">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/TimeBase.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/TimeBase.idl"/>
 	</java>
    </target>
 
    <target name="level1">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/SecurityLevel1.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/SecurityLevel1.idl"/>
 	</java>
    </target>
 
    <target name="level2">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/SecurityLevel2.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/SecurityLevel2.idl"/>
 	</java>
    </target>
 
    <target name="secadmin">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/SecurityAdmin.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/SecurityAdmin.idl"/>
 	</java>
    </target>
 
    <target name="replaceable">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/SecurityReplaceable.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub  ${include}/omg/SecurityReplaceable.idl"/>
 	</java>
    </target>
 
    <target name="ssliop">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/SSLIOP.idl"/>
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/SSLIOP.idl"/>
 	</java>
    </target>
 

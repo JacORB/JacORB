@@ -529,7 +529,10 @@ class Interface
         }
         else
         {
+            ps.println("\t\tif( obj instanceof " + typeName() + " )");
             ps.println("\t\t\treturn (" + typeName() + ")obj;");
+            ps.println("\t\telse");
+            ps.println("\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Narrow failed, not a " + typeName()+ "\");");
         }
         ps.println("\t}");
 
