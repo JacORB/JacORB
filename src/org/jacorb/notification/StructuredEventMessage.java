@@ -78,13 +78,6 @@ class StructuredEventMessage extends AbstractMessage
 
     ////////////////////////////////////////
 
-    StructuredEventMessage( )
-    {
-        super( );
-    }
-
-    ////////////////////////////////////////
-
     public synchronized void setStructuredEventValue( StructuredEvent event,
                                                       boolean startTimeSupported,
                                                       boolean timeOutSupported)
@@ -93,7 +86,7 @@ class StructuredEventMessage extends AbstractMessage
 
         constraintKey_ =
             FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
-                                            structuredEventValue_.header.fixed_header.event_type.type_name );
+                                           structuredEventValue_.header.fixed_header.event_type.type_name );
 
         parseQosSettings(startTimeSupported, timeOutSupported);
     }
