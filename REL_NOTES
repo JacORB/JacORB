@@ -70,7 +70,7 @@ gerald.brose@acm.org
    - SSL: 
         - Changed SSL usage policy: SSL will now only be used, if both
           sides support it and at least one side requires it. If the
-          client requires SSL, but the server doesn't soppurt it, a
+          client requires SSL, but the server doesn't support it, a
           NO_PERMISSION exception is thrown.
 
 1.4.0
