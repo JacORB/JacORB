@@ -183,7 +183,8 @@ class NameTable
         h.put( name, kind );
 
         /* block identifiers that only differ in case */
-        h.put( name.toUpperCase(), "dummy" );
+        if( org.jacorb.idl.parser.strict_names )
+            h.put( name.toUpperCase(), "dummy" );
 
         if( kind.equals( "operation" ) )
             operationSources.put( name, name.substring( 0, name.lastIndexOf( "." ) ) );
