@@ -485,18 +485,37 @@ public final class Delegate
         bind();
         
         ParsedIOR p = getParsedIOR();
-
-        // devik: if connection's tcs was not negotiated yet, mark all requests
-        // with codeset servicecontext.
-        //ctx = connection.addCodeSetContext( ctx, p );
-    
+            
         RequestOutputStream _os = 
              new RequestOutputStream( connection.getId(),
                                       "_get_policy", 
                                       true, 
                                       object_key,
                                       (int) p.getProfileBody().iiop_version.minor );
-    
+
+        //This is not synchronized so it may happen that multiple
+        //contexts are sent. The flag will eventually be switched
+        //anyway.  
+        //
+        //Problem: What about the case where different objects that
+        //are accessed by the same connection have different codesets?
+        //Is this possible anyway?
+        if( ! connection.isTCSNegotiated() )
+        {
+            ServiceContext ctx = connection.setCodeSet( p );
+            
+            if( ctx != null )
+            {
+                _os.addServiceContext( ctx );
+            }
+        }
+
+        //Setting the codesets not until here results in the header
+        //being writtend using the default codesets. On the other
+        //hand, the server side must have already read the header to
+        //discover the codeset service context.
+        _os.setCodeSet( connection.getTCS(), connection.getTCSW() );
+
         return get_policy(self, policy_type, _os);
     }
 
@@ -1193,17 +1212,36 @@ public final class Delegate
         
         ParsedIOR p = getParsedIOR();
 
-        // devik: if connection's tcs was not negotiated yet, mark all
-        // requests with codeset servicecontext.
-        //ctx = connection.addCodeSetContext( ctx, p );
-        
         RequestOutputStream ros = 
             new RequestOutputStream( connection.getId(),
                                      operation, 
                                      responseExpected, 
                                      object_key,
                                      (int) p.getProfileBody().iiop_version.minor );
-        //ros.setCodeSet( connection.TCS, connection.TCSW );
+
+        //This is not synchronized so it may happen that multiple
+        //contexts are sent. The flag will eventually be switched
+        //anyway.  
+        //
+        //Problem: What about the case where different objects that
+        //are accessed by the same connection have different codesets?
+        //Is this possible anyway?
+        if( ! connection.isTCSNegotiated() )
+        {
+            ServiceContext ctx = connection.setCodeSet( p );
+            
+            if( ctx != null )
+            {
+                ros.addServiceContext( ctx );
+            }
+        }
+
+        //Setting the codesets not until here results in the header
+        //being writtend using the default codesets. On the other
+        //hand, the server side must have already read the header to
+        //discover the codeset service context.
+        ros.setCodeSet( connection.getTCS(), connection.getTCSW() );
+
         return ros;
     }
 

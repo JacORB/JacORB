@@ -53,7 +53,7 @@ public class CDRInputStream
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
 
-    public int giop_minor = 0; // needed to determine size in chars
+    public int giop_minor = 2; // needed to determine size in chars
 
     private boolean closed = false;
 
@@ -495,15 +495,20 @@ public class CDRInputStream
 	ParsedIOR pior = new ParsedIOR( ior );
 
 	if( pior.isNull() ) 
+        {
 	    return null;
+        }
 	else
 	{
 	    if( ! (orb instanceof org.jacorb.orb.ORB))
-		throw new java.lang.RuntimeException(
-                                                     "Can not use the singleton ORB to receive object references" + 
-                                                     ", please initialize a full ORB instead.");
+            {
+		throw new RuntimeException( "Can not use the singleton ORB to receive object references" + 
+                                            ", please initialize a full ORB instead.");
+            }
 	    else
+            {
 		return ((org.jacorb.orb.ORB)orb)._getObject( pior );
+            }
 	}
     }
 

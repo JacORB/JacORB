@@ -56,6 +56,9 @@ public class GIOPConnection
     private int TCS = CodeSet.getTCSDefault();
     private int TCSW = CodeSet.getTCSWDefault();	
 
+    private boolean tcs_negotiated = false;
+
+
     public GIOPConnection( Transport transport,
                            RequestListener request_listener,
                            ReplyListener reply_listener )
@@ -69,6 +72,8 @@ public class GIOPConnection
     {
         this.TCS = TCS;
         this.TCSW = TCSW;
+
+        tcs_negotiated = true;
     }
 
     public int getTCS()
@@ -79,6 +84,16 @@ public class GIOPConnection
     public int getTCSW()
     {
         return TCSW;
+    }
+
+    public void markTCSNegotiated()
+    {
+        tcs_negotiated = true;
+    }
+    
+    public boolean isTCSNegotiated()
+    {
+        return tcs_negotiated;
     }
         
     /**

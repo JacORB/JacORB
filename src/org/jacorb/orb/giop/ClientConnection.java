@@ -22,8 +22,12 @@ package org.jacorb.orb.connection;
 
 import java.util.*;
 
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ParsedIOR;
 import org.jacorb.util.Debug;
 
+import org.omg.IOP.*;
+import org.omg.CONV_FRAME.*;
 /**
  * ClientConnection.java
  *
@@ -81,6 +85,64 @@ public class ClientConnection
         replies = new Hashtable();
     }
 
+    public ServiceContext setCodeSet( ParsedIOR pior )
+    {
+        if( isTCSNegotiated() )
+        {
+            //if negotiated, do nothing
+            return null;
+        }
+
+        CodeSetComponentInfo info = pior.getCodeSetComponentInfo();
+        
+        int tcs = CodeSet.selectTCS( info );
+        int tcsw = CodeSet.selectTCSW( info );
+        
+        if( tcs == -1 || tcsw == -1 )
+        {
+            Debug.output( 2, "WARNING: CodeSet negotiation failed! No matching " +
+                          (( tcs == -1 )? "normal" : "wide") +
+                          " CodeSet found" );
+
+            //If we can't find matching codesets, we still mark the
+            //GIOPConnection as negotiated, so the following requests
+            //will not always try to select a codeset again.
+            connection.markTCSNegotiated();
+
+            return null;
+        }
+
+        //this also marks tcs as negotiated.
+        connection.setCodeSets( tcs, tcsw );
+
+        Debug.output( 3, "Successfully negotiated Codesets. Using " +
+                      CodeSet.csName( tcs ) + " as TCS and " +
+                      CodeSet.csName( tcsw ) + " as TCSW" );
+
+        // encapsulate context
+	CDROutputStream os = new CDROutputStream( orb );
+	os.beginEncapsulatedArray();
+	CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
+
+        return new ServiceContext( TAG_CODE_SETS.value,
+                                   os.getBufferCopy() );
+    }
+
+    public boolean isTCSNegotiated()
+    {
+        return connection.isTCSNegotiated();
+    }
+
+    public int getTCS()
+    {
+        return connection.getTCS();
+    }
+
+    public int getTCSW()
+    {
+        return connection.getTCS();
+    }
+    
     public String getInfo()
     {
         return info;

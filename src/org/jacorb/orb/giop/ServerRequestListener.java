@@ -34,6 +34,9 @@ import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.CompletionStatus;
 
+import org.omg.CONV_FRAME.CodeSetContext;
+
+
 /**
  * ServerRequestListener.java
  *
@@ -87,6 +90,24 @@ public class ServerRequestListener
 
         RequestInputStream in = 
             new RequestInputStream( orb, request );
+
+        if( ! connection.isTCSNegotiated() )
+        {
+            CodeSetContext ctx = 
+                CodeSet.getCodeSetContext( in.req_hdr.service_context );
+            
+            if( ctx != null )
+            {
+                connection.setCodeSets( ctx.char_data, ctx.wchar_data );
+
+                Debug.output( 3, "Received CodeSetContext. Using " +
+                              CodeSet.csName( ctx.char_data ) + " as TCS and " +
+                              CodeSet.csName( ctx.wchar_data ) + " as TCSW" );
+
+            }
+        }
+        
+        in.setCodeSet( connection.getTCS(), connection.getTCSW() );
 
         ServerRequest server_request = 
             new ServerRequest( orb, in, connection );

@@ -21,6 +21,10 @@
 package org.jacorb.orb.connection;
 
 import org.omg.CONV_FRAME.*;
+import org.omg.IOP.*;
+
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
 
 public class CodeSet
 {
@@ -128,6 +132,35 @@ public class CodeSet
 		
 	// can't find supported set ..
 	return -1;
+    }
+
+    public static ServiceContext createCodesetContext( int tcs, int tcsw )
+    {
+        // encapsulate context
+	CDROutputStream os = new CDROutputStream();
+	os.beginEncapsulatedArray();
+	CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
+
+        return new ServiceContext( TAG_CODE_SETS.value,
+                                   os.getBufferCopy() );
+    }
+    
+    public static CodeSetContext getCodeSetContext( ServiceContext[] contexts )
+    {
+        for( int i = 0; i < contexts.length; i++ )
+        {
+	    if( contexts[i].context_id == TAG_CODE_SETS.value )
+            {
+                // TAG_CODE_SETS found, demarshall
+                CDRInputStream is = new CDRInputStream( (org.omg.CORBA.ORB) null,
+                                                        contexts[i].context_data );
+                is.openEncapsulatedArray();
+
+                return CodeSetContextHelper.read( is );
+            }
+	}
+
+	return null; 
     }
 }
 
