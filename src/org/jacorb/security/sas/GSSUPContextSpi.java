@@ -149,13 +149,11 @@ public final class GSSUPContextSpi implements GSSContextSpi
 
     public boolean isTransferable() throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.isTransferable");
         return true;
     }
 
     public boolean isProtReady()
     {
-        //System.out.println("GSSUPContextSpi.isProtReady");
         return false;
     }
 
@@ -181,13 +179,11 @@ public final class GSSUPContextSpi implements GSSContextSpi
 
     public GSSNameSpi getSrcName() throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.getSrcName");
         return sourceCred.getName();
     }
 
     public GSSNameSpi getTargName() throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.getTargName");
         return targetName;
     }
 
@@ -198,7 +194,6 @@ public final class GSSUPContextSpi implements GSSContextSpi
 
     public GSSCredentialSpi getDelegCred() throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.getDelegCred");
         return null;
     }
 
@@ -209,7 +204,6 @@ public final class GSSUPContextSpi implements GSSContextSpi
 
     public byte[] acceptSecContext(InputStream inStream, int inLen) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.acceptSecContext");
         established = true;
         try
         {
@@ -227,85 +221,70 @@ public final class GSSUPContextSpi implements GSSContextSpi
 
     public int getWrapSizeLimit(int i1, boolean b1, int i2) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.getWrapSizeLimit");
         return 0;
     }
 
     public void wrap(InputStream inStream, OutputStream outStream, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.wrap");
     }
 
     public byte[] wrap(byte[] b, int i1, int i2, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.wrap");
         return null;
     }
 
     public int wrap(byte[] b1, int i1, int i2, byte[] b2, int i3, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.wrap");
         return 0;
     }
 
     public void wrap(byte[] b, int i1, int i2, OutputStream outStream, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.wrap");
     }
 
     public void unwrap(InputStream inStream, OutputStream outStream, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.unwrap");
     }
 
     public byte[] unwrap(byte[] b, int i1, int i2, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.unwrap");
         return null;
     }
 
     public int unwrap(byte[] b1, int i1, int i2, byte[] b2, int i3, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.unwrap");
         return 0;
     }
 
     public int unwrap(InputStream inStream, byte[] b, int i1, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.unwrap");
         return 0;
     }
 
     public void getMIC(InputStream inStream, OutputStream outStream, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.getMIC");
     }
 
     public byte[] getMIC(byte[] b1, int i1, int i2, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.getMIC");
         return null;
     }
 
     public void verifyMIC(InputStream inStream1, InputStream inStream2, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.verifyMIC");
     }
 
     public void verifyMIC(byte[] b1, int i1, int i2, byte[] b2, int i3, int i4, MessageProp mp) throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.verifyMIC");
     }
 
     public byte[] export() throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.export");
         return null;
     }
 
     public void dispose() throws GSSException
     {
-        //System.out.println("GSSUPContextSpi.dispose");
         channelBinding = null;
         provider = null;
         mechOid = null;

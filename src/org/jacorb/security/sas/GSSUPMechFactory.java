@@ -22,9 +22,11 @@ package org.jacorb.security.sas;
 
 import java.security.Provider;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
+import org.jacorb.util.Debug;
 
 import sun.security.jgss.spi.GSSContextSpi;
 import sun.security.jgss.spi.GSSCredentialSpi;
@@ -40,6 +42,7 @@ import sun.security.jgss.spi.MechanismFactory;
 
 public final class GSSUPMechFactory implements MechanismFactory
 {
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS.GSSUP");
 
     protected static Provider myProvider;
 
@@ -54,7 +57,7 @@ public final class GSSUPMechFactory implements MechanismFactory
         }
         catch (GSSException e)
         {
-            System.out.println("GSSUPMechanism: " + e);
+            logger.error("GSSUPMechanism: " + e);
         }
     }
 
@@ -75,7 +78,6 @@ public final class GSSUPMechFactory implements MechanismFactory
 
     public GSSCredentialSpi getCredentialElement(GSSNameSpi name, int initLifetime, int acceptLifetime, int usage) throws GSSException
     {
-        //System.out.println("getCredentialElement");
         return new GSSUPCredentialSpi(myProvider, myMechOid, name, initLifetime, acceptLifetime, usage);
     }
 
@@ -91,19 +93,16 @@ public final class GSSUPMechFactory implements MechanismFactory
 
     public GSSContextSpi getMechanismContext(GSSNameSpi nameSpi, GSSCredentialSpi credSpi, int lifetime) throws GSSException
     {
-        //System.out.println("getMechanismContext-1");
         return new GSSUPContextSpi(myProvider, myMechOid, nameSpi, credSpi, lifetime);
     }
 
     public GSSContextSpi getMechanismContext(GSSCredentialSpi credSpi) throws GSSException
     {
-        //System.out.println("getMechanismContext-2");
         return new GSSUPContextSpi(credSpi.getProvider(), credSpi.getMechanism(), credSpi.getName(), credSpi, credSpi.getInitLifetime());
     }
 
     public GSSContextSpi getMechanismContext(byte[] b1) throws GSSException
     {
-        //System.out.println("getMechanismContext");
         return null;
     }
 }

@@ -59,7 +59,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (GSSException e)
         {
-            System.out.println("GSSUPMechanism: " + e);
+            logger.error("GSSUPMechanism: " + e);
         }
     }
 

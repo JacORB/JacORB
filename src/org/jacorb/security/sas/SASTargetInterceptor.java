@@ -274,7 +274,7 @@ public class SASTargetInterceptor
         }
         catch (BAD_PARAM e)
         {
-            logger.warn("Could not parse service context for operation " + ri.operation());
+            logger.debug("Could not parse service context for operation " + ri.operation());
         }
         catch (Exception e)
         {
