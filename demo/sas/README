@@ -1,18 +1,23 @@
         What is it good for?
-        --------------------
-The purpose of this demo is to show the use of the Secure Attribute Service (SAS).
+        -------------------- 
 
-There are two versions of the demo. One is a simple demo where login credentials
-are entered by the client and sent to the server without cerifying their validity.
-The server likewise accepts the credentials without question.
+The purpose of this demo is to show the use of the Secure Attribute
+Service (SAS).
 
-The second demo validates the logon credentials against a valid Windows NT logon.
-This demo requeres that JacORB be built with the JAAS login modules downloaded from
-http://free.tagish.net/jaas/
+There are two versions of the demo. One is a simple demo where login
+credentials are entered by the client and sent to the server without
+cerifying their validity.  The server likewise accepts the credentials
+without question.
+
+The second demo validates the logon credentials against a valid
+Windows NT logon.  This demo requeres that JacORB be built with the
+JAAS login modules downloaded from http://free.tagish.net/jaas/
 
         How to build this demo?
-        -----------------------
-If you want to use the custom JAAS login modules, they should be downloaded from
+        ----------------------- 
+
+If you want to use the custom JAAS
+login modules, they should be downloaded from
 http://free.tagish.net/jaas/ and the classes added to the CLASSPATH
 
         How to run the simple demo?

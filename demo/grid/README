@@ -1,24 +1,28 @@
-Objective:
-    This is a simple example shows how to get and set valus into a two 
-    dimentional arry of BigDecimal Numbers(fixed type). 
-    This also shows a simple implementation of creating throwing user exceptions.
-    There are two different server implemenations one based on inheritance
-    which extends XXXPOA, another based on Deligation XXXTie.
+
+    This is a simple example shows how to get and set values into a 
+    two-dimensional array of BigDecimal Numbers(fixed type). 
+
+    This also shows a simple implementation of creating throwing user
+    exceptions. There are two different server implemenations, one 
+    based on inheritance which extends XXXPOA, another based on 
+    delegation XXXTie (aka "the tie approach").
     
     
 How to Run:
     Compile:
         ant
     Run NamingServer:
-        ns c:/prahalad/NS_Ref
+        ns c:/NS_Ref
     Run Server:
-        if Inheritance Model is used
+        if the inheritance model is used
             jaco demo.grid.Server
-        if Delegation model is used
+        if the delegation model is used
             jaco demo.grid.TieServer
     Run Client:
         jaco demo.grid.Client
 
-Note: Make sure that jacorb.properties is in place and has the name server reference
-      as ORBInitRef.NameService=file:/c:/prahalad/NS_Ref. Same as the IOR file mentioned
-      while starting up the naming server
+Note:
+
+  Make sure that jacorb.properties is in place and has the name server
+  reference as ORBInitRef.NameService=file:/c:/NS_Ref. Same as the IOR
+  file mentioned while starting up the naming server

@@ -35,6 +35,7 @@
         <jacidl srcdir="demo/${name}"
                 destdir="${dest}"
                 includepath="${include}"
+                uncheckedNarrow="true"
 	        includes="*.idl"/>
    </target>
 
