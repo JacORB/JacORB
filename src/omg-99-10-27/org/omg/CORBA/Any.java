@@ -107,8 +107,12 @@ public abstract class Any implements org.omg.CORBA.portable.IDLEntity {
     public java.math.BigDecimal extract_fixed() {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
-    public void insert_fixed(java.math.BigDecimal f,
-                org.omg.CORBA.TypeCode t) throws org.omg.CORBA.BAD_INV_ORDER {
+
+	 public void insert_fixed(java.math.BigDecimal f) {
+		 throw new org.omg.CORBA.NO_IMPLEMENT();
+	 }
+   
+    public void insert_fixed(java.math.BigDecimal f, org.omg.CORBA.TypeCode t) throws org.omg.CORBA.BAD_INV_ORDER {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
