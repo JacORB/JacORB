@@ -32,19 +32,17 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.FilterFactory;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.PortableServer.POA;
 
 /**
- * ChannelContext.java
- *
- *
- * Created: Sat Nov 30 16:02:18 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ChannelContext
 {
+
+    private POA poa_;
 
     private Logger logger_ = Debug.getNamedLogger(getClass().getName());
     private EventChannel eventChannel;
@@ -208,8 +206,16 @@ public class ChannelContext
         return proxySupplierDisposedListener_;
     }
 
-    public void dispatchEvent(Message event)
+    public void processMessage(Message m)
     {
-        getTaskProcessor().processEvent( event );
+        getTaskProcessor().processMessage( m );
+    }
+
+    public void setPOA(POA poa) {
+        poa_ = poa;
+    }
+
+    public POA getPOA() {
+        return poa_;
     }
 }

@@ -124,10 +124,10 @@ public class SequenceProxyPullConsumerImpl
                 {
                     for ( int x = 0; x < _events.length; ++x )
                     {
-                        Message _notifyEvent =
-                            notificationEventFactory_.newEvent( _events[ x ], this );
+                        Message msg =
+                            messageFactory_.newEvent( _events[ x ], this );
 
-                        channelContext_.dispatchEvent( _notifyEvent );
+                        channelContext_.processMessage( msg );
                     }
                 }
             }

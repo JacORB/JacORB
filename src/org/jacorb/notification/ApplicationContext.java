@@ -23,7 +23,6 @@ package org.jacorb.notification;
 
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.node.EvaluationResult;
@@ -47,11 +46,6 @@ import org.omg.TimeBase.TimeTHelper;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
- * ApplicationContext.java
- *
- *
- * Created: Sat Nov 30 16:02:04 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -66,7 +60,6 @@ public class ApplicationContext implements Disposable
     private AbstractObjectPool evaluationContextPool_;
     private MessageFactory notificationEventFactory_;
     private DynAnyFactory dynAnyFactory_;
-    private ResultExtractor resultExtractor_;
     private DynamicEvaluator dynamicEvaluator_;
     private PropertyManager defaultAdminProperties_;
     private PropertyManager defaultQoSProperties_;
@@ -80,17 +73,15 @@ public class ApplicationContext implements Disposable
         dynAnyFactory_ =
             DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
 
-        resultExtractor_ = new ResultExtractor();
         dynamicEvaluator_ = new DynamicEvaluator( orb_, dynAnyFactory_ );
 
         evaluationContextPool_ =
-            new AbstractObjectPool()
+            new AbstractObjectPool("EvaluationContextPool")
             {
                 public Object newInstance()
                 {
                     EvaluationContext _e = new EvaluationContext();
                     _e.setDynamicEvaluator( dynamicEvaluator_ );
-                    _e.setResultExtractor( resultExtractor_ );
 
                     return _e;
                 }
@@ -106,7 +97,7 @@ public class ApplicationContext implements Disposable
         evaluationContextPool_.init();
 
         evaluationResultPool_ =
-            new AbstractObjectPool()
+            new AbstractObjectPool("EvaluationResultPool")
             {
                 public Object newInstance()
                 {
@@ -161,7 +152,7 @@ public class ApplicationContext implements Disposable
     }
 
     public ApplicationContext( ORB orb, POA poa, boolean init )
-    throws InvalidName
+        throws InvalidName
     {
         setup( orb, poa, init );
     }
@@ -242,30 +233,30 @@ public class ApplicationContext implements Disposable
         return dynAnyFactory_;
     }
 
+
     public PropertyManager getDefaultAdminProperties()
     {
         return defaultAdminProperties_;
     }
+
 
     public PropertyManager getDefaultQoSProperties()
     {
         return defaultQoSProperties_;
     }
 
+
     public DynamicEvaluator getDynamicEvaluator()
     {
         return dynamicEvaluator_;
     }
 
-    public ResultExtractor getResultExtractor()
-    {
-        return resultExtractor_;
-    }
 
     public TaskProcessor getTaskProcessor()
     {
         return taskProcessor_;
     }
+
 
     public EventQueue newEventQueue( PropertyManager qosProperties )
         throws UnsupportedQoS

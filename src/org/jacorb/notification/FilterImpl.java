@@ -30,7 +30,6 @@ import java.util.Map;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.evaluate.FilterConstraint;
-import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.node.DynamicTypeException;
@@ -136,7 +135,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class FilterImpl extends FilterPOA implements Disposable
 {
-
     static Logger logger_ = Debug.getNamedLogger( FilterImpl.class.getName() );
 
     final static RuntimeException NOT_SUPPORTED =
@@ -144,12 +142,12 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     /**
      * contains a number of callbacks, which are notified each time there is a
-     * change to the list of
+     * change to the list of constraints.
      */
     protected Map callbacks_;
 
     /**
-     * contains a number of constraints
+     * contains the associated constraints.
      */
     protected Map constraints_;
 
@@ -163,11 +161,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     public static final int NO_CONSTRAINT = Integer.MIN_VALUE;
 
-    protected ORB orb_;
-
     protected ApplicationContext applicationContext_;
-
-    protected ResultExtractor resultExtractor_;
 
     protected DynamicEvaluator dynamicEvaluator_;
 
@@ -182,13 +176,11 @@ public class FilterImpl extends FilterPOA implements Disposable
         constraintGrammar_ = constraintGrammar;
 
         applicationContext_ = applicationContext;
-        orb_ = applicationContext.getOrb();
 
         notificationEventFactory_ =
             applicationContext.getMessageFactory();
 
         dynAnyFactory_ = applicationContext.getDynAnyFactory();
-        resultExtractor_ = applicationContext.getResultExtractor();
         dynamicEvaluator_ = applicationContext.getDynamicEvaluator();
 
         constraints_ = new Hashtable();
@@ -257,10 +249,12 @@ public class FilterImpl extends FilterPOA implements Disposable
     public ConstraintInfo[] add_constraints( ConstraintExp[] constraintExp )
         throws InvalidConstraint
     {
-
         FilterConstraint[] _arrayConstraintEvaluator =
             new FilterConstraint[ constraintExp.length ];
 
+        // creation of the FilterConstraint's may cause a
+        // InvalidConstraint Exception. Note that the State of the
+        // Filter has not been changed yet.
         for ( int _x = 0; _x < constraintExp.length; _x++ )
         {
             _arrayConstraintEvaluator[ _x ] =
@@ -277,7 +271,6 @@ public class FilterImpl extends FilterPOA implements Disposable
 
             try
             {
-
                 for ( int _x = 0; _x < constraintExp.length; _x++ )
                 {
                     // we did not create the constraint id's in the
@@ -340,7 +333,6 @@ public class FilterImpl extends FilterPOA implements Disposable
         throws ConstraintNotFound,
                InvalidConstraint
     {
-
         try
         {
             // write lock
@@ -446,8 +438,7 @@ public class FilterImpl extends FilterPOA implements Disposable
                         _listOfConstraintEvaluator.add( _entry );
                     }
                 }
-
-                return ;
+                return;
             }
             finally
             {
@@ -564,7 +555,8 @@ public class FilterImpl extends FilterPOA implements Disposable
     }
 
     /**
-     * call and use Iterator inside a read access mutex section only.
+     * call and use this Iterator inside a acquired read lock section
+     * only.
      */
     Iterator getConstraintsForEvent( Message event )
     {
@@ -630,74 +622,79 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 
-    // readers
-    int match(EvaluationContext evaluationContext,
-              Message event ) throws UnsupportedFilterableData
+    /**
+     * generic version of the match operation
+     */
+    private int match(EvaluationContext evaluationContext,
+                      Message event )
+        throws UnsupportedFilterableData
     {
-        try
-        {
+        try {
             constraintsLock_.readLock().acquire();
 
-            try
-            {
+            try {
                 if ( !constraints_.isEmpty() )
-                {
-                    Iterator _entries = getConstraintsForEvent( event );
-
-                    while ( _entries.hasNext() )
                     {
+                        Iterator _entries = getConstraintsForEvent( event );
 
-                        ConstraintEntry _entry =
-                            ( ConstraintEntry ) _entries.next();
-
-                        try
-                        {
-                            boolean _result =
-                                _entry.
-                                getConstraintEvaluator().
-                                evaluate( evaluationContext, event ).
-                                getBool();
-
-                            if ( _result )
+                        while ( _entries.hasNext() )
                             {
-                                return _entry.getConstraintId();
+                                ConstraintEntry _entry =
+                                    ( ConstraintEntry ) _entries.next();
+                                try
+                                    {
+                                        boolean _result =
+                                            _entry.
+                                            getConstraintEvaluator().
+                                            evaluate( evaluationContext, event ).
+                                            getBool();
+
+                                        if ( _result )
+                                            {
+                                                return _entry.getConstraintId();
+                                            }
+                                    }
+                                catch ( EvaluationException e )
+                                    {
+                                        logger_.fatalError("Error evaluating filter", e);
+                                    }
+                                catch ( DynamicTypeException e )
+                                    {
+                                        logger_.fatalError("Error evaluating filter", e);
+                                    }
                             }
-                        }
-                        catch ( EvaluationException e )
-                        {
-                            logger_.fatalError("Error evaluating filter", e);
-                        }
-                        catch ( DynamicTypeException e )
-                        {
-                            logger_.fatalError("Error evaluating filter", e);
-                        }
                     }
-                }
                 else
-                {
-                    logger_.info( "Filter has no Expressions" );
-                }
+                    {
+                        logger_.info( "Filter has no Expressions" );
+                    }
 
                 return NO_CONSTRAINT;
             }
             finally
-            {
-                constraintsLock_.readLock().release();
-            }
+                {
+                    constraintsLock_.readLock().release();
+                }
         }
         catch ( InterruptedException ie )
-        {
-            Thread.currentThread().interrupt();
-            return NO_CONSTRAINT;
-        }
+            {
+                Thread.currentThread().interrupt();
+                return NO_CONSTRAINT;
+            }
     }
+
 
     public boolean match( Any anyEvent ) throws UnsupportedFilterableData
     {
         return match_internal( anyEvent ) != NO_CONSTRAINT;
     }
 
-    public int match_internal( Any anyEvent ) throws UnsupportedFilterableData
+
+    /**
+     * match Any to associated constraints. return the id of the
+     * first matching filter or NO_CONSTRAINT.
+     */
+    protected int match_internal( Any anyEvent ) throws UnsupportedFilterableData
     {
         EvaluationContext _evaluationContext = null;
         Message _event = null;
@@ -739,14 +736,17 @@ public class FilterImpl extends FilterPOA implements Disposable
         return match_structured_internal(structuredevent) != NO_CONSTRAINT;
     }
 
-    public int match_structured_internal( StructuredEvent structuredEvent )
+    /**
+     * match the StructuredEvent to the associated constraints. return
+     * the id of the first matching filter or NO_CONSTRAINT.
+     */
+    protected int match_structured_internal( StructuredEvent structuredEvent )
         throws UnsupportedFilterableData
     {
         EvaluationContext _evaluationContext = null;
         Message _event = null;
 
-        try
-        {
+        try {
             _evaluationContext = applicationContext_.newEvaluationContext();
 
             _event =
@@ -754,28 +754,26 @@ public class FilterImpl extends FilterPOA implements Disposable
 
             return match(_evaluationContext, _event );
         }
-        finally
-        {
-            try
-            {
+        finally {
+            try {
                 _event.dispose();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 logger_.fatalError("Error disposing event", e);
             }
 
-            try
-            {
+            try {
                 _evaluationContext.dispose();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 logger_.fatalError("Error releasing EvaluationContext", e);
             }
         }
     }
 
+    /**
+     * not implemented yet.
+     */
     public boolean match_typed( Property[] properties )
         throws UnsupportedFilterableData
     {

@@ -73,8 +73,7 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 {
     private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
-    private ORB myOrb_ = null;
-    private POA myPoa_ = null;
+    private POA poa_ = null;
 
     private String ior_;
 
@@ -602,17 +601,16 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         adminProperties_ = new PropertyManager( applicationContext_, adminProperties );
         qosProperties_ = new PropertyManager( applicationContext_, qosProperties );
 
-        myOrb_ = appContext.getOrb();
-        myPoa_ = appContext.getPoa();
+        poa_ = channelContext_.getPOA();
         myFactory_ = channelContext.getEventChannelFactory();
         myFactoryServant_ = channelContext.getEventChannelFactoryServant();
         defaultFilterFactory_ = channelContext.getDefaultFilterFactory();
 
         channelContext.setEventChannelServant( this );
 
-        byte[] oid = myPoa_.activate_object(this);
-        thisRef_ = EventChannelHelper.narrow(myPoa_.id_to_reference(oid));
-        ior_ = myOrb_.object_to_string(myPoa_.id_to_reference(oid));
+        byte[] oid = poa_.activate_object(this);
+        thisRef_ = EventChannelHelper.narrow(poa_.id_to_reference(oid));
+        ior_ = applicationContext_.getOrb().object_to_string(poa_.id_to_reference(oid));
         channelContext_.setEventChannel( thisRef_ );
 
         channelContext_.setProxySupplierDisposedEventListener( proxySupplierDisposedListener_ );
@@ -765,7 +763,7 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
      */
     public POA _default_POA()
     {
-        return myPoa_;
+        return poa_;
     }
 
     private void refreshConsumerAdminList()
@@ -788,7 +786,6 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 
     public List getAllConsumerAdmins()
     {
-
         refreshConsumerAdminList();
 
         return subsequentDestinations_;

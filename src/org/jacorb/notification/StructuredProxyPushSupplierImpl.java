@@ -23,7 +23,7 @@ package org.jacorb.notification;
 
 import java.util.List;
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -41,19 +41,13 @@ import org.omg.CosNotifyComm.StructuredPushConsumer;
 import org.omg.PortableServer.Servant;
 
 /**
- * StructuredProxyPushSupplierImpl.java
- *
- *
- * Created: Sun Nov 03 22:41:38 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class StructuredProxyPushSupplierImpl
     extends AbstractProxySupplier
-    implements StructuredProxyPushSupplierOperations,
-               EventConsumer
+    implements StructuredProxyPushSupplierOperations
 {
     private StructuredPushConsumer pushConsumer_;
     protected boolean active_;
@@ -78,7 +72,7 @@ public class StructuredProxyPushSupplierImpl
         enabled_ = true;
     }
 
-    public void deliverEvent( Message event )
+    public void deliverMessage( Message event )
     {
         if (logger_.isDebugEnabled()) {
             logger_.debug( "deliverEvent connected="
@@ -125,7 +119,9 @@ public class StructuredProxyPushSupplierImpl
             throw new AlreadyConnected();
         }
 
-        logger_.debug("Connect " +consumer);
+        if (logger_.isDebugEnabled()) {
+            logger_.debug("connect_structured_push_consumer " +consumer);
+        }
 
         pushConsumer_ = consumer;
         connected_ = true;
@@ -138,7 +134,8 @@ public class StructuredProxyPushSupplierImpl
     }
 
     synchronized public void suspend_connection()
-    throws NotConnected, ConnectionAlreadyInactive
+        throws NotConnected,
+               ConnectionAlreadyInactive
     {
         if ( !connected_ )
         {
@@ -153,17 +150,19 @@ public class StructuredProxyPushSupplierImpl
         active_ = false;
     }
 
-    public void deliverPendingEvents() throws NotConnected
+    public void deliverPendingMessages() throws NotConnected
     {
         Message[] _events = getAllMessages();
 
         if (_events != null) {
             for (int x=0; x<_events.length; ++x) {
                 try {
-                    logger_.debug(pushConsumer_
-                                  + ".push_structured_event("
-                                  + _events[x].toStructuredEvent()
-                                  + ")" );
+                    if (logger_.isDebugEnabled()) {
+                        logger_.debug(pushConsumer_
+                                      + ".push_structured_event("
+                                      + _events[x].toStructuredEvent()
+                                      + ")" );
+                    }
 
                     pushConsumer_.push_structured_event( _events[x].toStructuredEvent() );
                 } catch (Disconnected e) {
@@ -189,7 +188,8 @@ public class StructuredProxyPushSupplierImpl
             throw new ConnectionAlreadyActive();
         }
 
-        deliverPendingEvents();
+        deliverPendingMessages();
+
         active_ = true;
     }
 
@@ -212,7 +212,7 @@ public class StructuredProxyPushSupplierImpl
 
     public ConsumerAdmin MyAdmin()
     {
-        return ( ConsumerAdmin ) myAdmin_.getThisRef();
+        return ( ConsumerAdmin ) myAdmin_.getCorbaRef();
     }
 
     public List getSubsequentFilterStages()
@@ -220,12 +220,12 @@ public class StructuredProxyPushSupplierImpl
         return CollectionsWrapper.singletonList( this );
     }
 
-    public EventConsumer getEventConsumer()
+    public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
-    public boolean hasEventConsumer()
+    public boolean hasMessageConsumer()
     {
         return true;
     }
@@ -233,6 +233,7 @@ public class StructuredProxyPushSupplierImpl
     synchronized public void dispose()
     {
         super.dispose();
+
         disconnectClient();
     }
 
@@ -254,6 +255,4 @@ public class StructuredProxyPushSupplierImpl
             }
         return thisServant_;
     }
-
-
-} // StructuredProxyPushSupplierImpl
+}

@@ -23,7 +23,7 @@ package org.jacorb.notification;
 import java.util.Collections;
 import java.util.List;
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CORBA.Any;
@@ -48,7 +48,6 @@ public class ProxyPushConsumerImpl
 {
 
     private org.omg.CosEventComm.PushSupplier myPushSupplier;
-    private boolean connected = false;
     private List subsequentDestinations_;
 
     ProxyPushConsumerImpl( SupplierAdminTieImpl myAdminServant,
@@ -117,47 +116,42 @@ public class ProxyPushConsumerImpl
      */
     public void push( Any event ) throws Disconnected
     {
-        //      logger_.debug("push(Any)");
-
-        if ( !connected )
-        {
-            throw new Disconnected();
-        }
+        checkConnected();
 
         Message _notifyEvent =
-            notificationEventFactory_.newEvent( event, this );
+            messageFactory_.newEvent( event, this );
 
         //logger_.debug("createdEvent");
 
-        channelContext_.dispatchEvent( _notifyEvent );
+        channelContext_.processMessage( _notifyEvent );
 
         //logger_.debug("dispatchedEvent");
     }
 
     public void connect_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
-    throws AlreadyConnected
+        throws AlreadyConnected
     {
         connect_any_push_supplier( pushSupplier );
     }
 
     public void connect_any_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
-    throws AlreadyConnected
+        throws AlreadyConnected
     {
 
         logger_.info( "connect pushsupplier" );
 
-        if ( connected )
+        if ( connected_ )
         {
             throw new AlreadyConnected();
         }
 
         myPushSupplier = pushSupplier;
-        connected = true;
+        connected_ = true;
     }
 
     public SupplierAdmin MyAdmin()
     {
-        return ( SupplierAdmin ) myAdmin_.getThisRef();
+        return ( SupplierAdmin ) myAdmin_.getCorbaRef();
     }
 
     public List getSubsequentFilterStages()
@@ -165,12 +159,12 @@ public class ProxyPushConsumerImpl
         return subsequentDestinations_;
     }
 
-    public EventConsumer getEventConsumer()
+    public MessageConsumer getMessageConsumer()
     {
         throw new UnsupportedOperationException();
     }
 
-    public boolean hasEventConsumer()
+    public boolean hasMessageConsumer()
     {
         return false;
     }

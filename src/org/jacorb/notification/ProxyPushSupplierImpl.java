@@ -23,7 +23,7 @@ package org.jacorb.notification;
 import java.util.List;
 import java.util.Map;
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CORBA.BAD_PARAM;
@@ -49,12 +49,10 @@ import org.omg.PortableServer.Servant;
 public class ProxyPushSupplierImpl
     extends AbstractProxySupplier
     implements ProxyPushSupplierOperations,
-               org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations,
-               EventConsumer
+               org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations
 {
 
     private org.omg.CosEventComm.PushConsumer myPushConsumer_;
-    private boolean connected_;
     private boolean enabled_;
     private boolean active_;
 
@@ -124,7 +122,7 @@ public class ProxyPushSupplierImpl
         }
     }
 
-    public void deliverEvent(Message event)
+    public void deliverMessage(Message event)
     {
         if (connected_)
         {
@@ -181,7 +179,7 @@ public class ProxyPushSupplierImpl
 
     public ConsumerAdmin MyAdmin()
     {
-        return (ConsumerAdmin)myAdmin_.getThisRef();
+        return (ConsumerAdmin)myAdmin_.getCorbaRef();
     }
 
     public List getSubsequentFilterStages()
@@ -189,12 +187,12 @@ public class ProxyPushSupplierImpl
         return CollectionsWrapper.singletonList(this);
     }
 
-    public EventConsumer getEventConsumer()
+    public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
-    public boolean hasEventConsumer()
+    public boolean hasMessageConsumer()
     {
         return true;
     }
@@ -216,7 +214,7 @@ public class ProxyPushSupplierImpl
         active_ = false;
     }
 
-    public void deliverPendingEvents()
+    public void deliverPendingMessages()
         throws NotConnected
     {
         Message[] _events = getAllMessages();
@@ -254,7 +252,7 @@ public class ProxyPushSupplierImpl
             throw new ConnectionAlreadyActive();
         }
 
-        deliverPendingEvents();
+        deliverPendingMessages();
         active_ = true;
     }
 

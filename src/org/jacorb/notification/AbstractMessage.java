@@ -62,6 +62,18 @@ public abstract class AbstractMessage extends AbstractPoolable
      */
     class MessageHandle implements Message, Disposable
     {
+        private Message.MessageStateListener eventStateListener_;
+
+        private boolean inValid_ = false;
+
+        private boolean priorityOverride_ = false;
+        private int priority_;
+        private boolean timeoutOverride_ = false;
+        private long timeOut_;
+
+        private boolean disposed_ = false;
+
+        ////////////////////
 
         MessageHandle()
         {
@@ -86,14 +98,7 @@ public abstract class AbstractMessage extends AbstractPoolable
             timeoutOverride_ = timeoutOverride;
         }
 
-        private Message.MessageStateListener eventStateListener_;
-
-        private boolean inValid_ = false;
-
-        private boolean priorityOverride_ = false;
-        private int priority_;
-        private boolean timeoutOverride_ = false;
-        private long timeOut_;
+        ////////////////////
 
         public void setInitialFilterStage(FilterStage s)
         {
@@ -132,8 +137,8 @@ public abstract class AbstractMessage extends AbstractPoolable
                    DynamicTypeException
         {
             return AbstractMessage.this.extractValue(context,
-                    componentName,
-                    runtimeVariable);
+                                                     componentName,
+                                                     runtimeVariable);
         }
 
         public EvaluationResult extractValue( EvaluationContext context,
@@ -151,8 +156,8 @@ public abstract class AbstractMessage extends AbstractPoolable
 
             return
                 AbstractMessage.this.extractFilterableData(context,
-                        componentRootNode,
-                        variable);
+                                                           componentRootNode,
+                                                           variable);
         }
 
         public EvaluationResult extractVariableHeader( EvaluationContext context,
@@ -206,6 +211,7 @@ public abstract class AbstractMessage extends AbstractPoolable
         public void setTimeout(long timeout)
         {
             timeOut_ = timeout;
+            timeoutOverride_ = true;
 
             if (eventStateListener_ != null)
             {
@@ -262,7 +268,12 @@ public abstract class AbstractMessage extends AbstractPoolable
 
         public void dispose()
         {
+            //            if (!disposed_) {
             removeReference();
+            //                 disposed_ = true;
+            //             } else {
+            //                 throw new RuntimeException("dispose may only be called once on this handle");
+            //             }
         }
 
         public synchronized boolean isInvalid()
@@ -312,6 +323,7 @@ public abstract class AbstractMessage extends AbstractPoolable
     protected boolean supplierAdminFiltered_;
     protected boolean consumerAdminFiltered_;
     protected boolean proxySupplierFiltered_;
+
     private FilterStage currentFilterStage_;
 
     ////////////////////////////////////////

@@ -132,7 +132,7 @@ class StructuredEventMessage extends AbstractMessage
             Any _a =
                 context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.filterable_data, v);
 
-            return context.getResultExtractor().extractFromAny(_a);
+            return EvaluationResult.fromAny(_a);
 
 
 
@@ -147,7 +147,7 @@ class StructuredEventMessage extends AbstractMessage
         Any _a =
             context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.header.variable_header, v);
 
-        return context.getResultExtractor().extractFromAny(_a);
+        return EvaluationResult.fromAny(_a);
 
     }
 

@@ -29,30 +29,33 @@ package org.jacorb.notification;
 public interface ConfigurableProperties
 {
 
-    public static final String FILTER_POOL_WORKERS =
+    String FILTER_POOL_WORKERS =
         "jacorb.notification.filter_pool_workers";
 
-    public static final String DELIVER_POOL_WORKERS =
+    String DELIVER_POOL_WORKERS =
         "jacorb.notification.deliver_pool_workers";
 
-    public static final String PULL_CONSUMER_POLLINTERVALL =
+    String PULL_CONSUMER_POLLINTERVALL =
         "jacorb.notification.pull_consumer_pollintervall";
 
-    public static final String MAX_BATCH_SIZE =
+    String MAX_BATCH_SIZE =
         "jacorb.notification.max_batch_size";
 
-    public static final String MAX_EVENTS_PER_CONSUMER =
+    String MAX_EVENTS_PER_CONSUMER =
         "jacorb.notification.max_events_per_consumer";
 
-    public static final String ORDER_POLICY =
+    String ORDER_POLICY =
         "jacorb.notification.order_policy";
 
-    public static final String DISCARD_POLICY =
+    String DISCARD_POLICY =
         "jacorb.notification.discard_policy";
 
-    public static final String BACKOUT_INTERVAL =
+    String BACKOUT_INTERVAL =
         "jacorb.notification.backout_interval";
 
-    public static final String EVENTCONSUMER_ERROR_THRESHOLD =
+    String EVENTCONSUMER_ERROR_THRESHOLD =
         "jacorb.notification.eventconsumer_error_threshold";
+
+    String THREADPOLICY =
+        "jacorb.notification.proxysupplier.threadpolicy";
 }

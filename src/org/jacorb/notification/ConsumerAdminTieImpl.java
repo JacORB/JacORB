@@ -26,14 +26,17 @@ import java.util.List;
 import java.util.Vector;
 
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.jacorb.notification.util.TaskExecutor;
+
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplier;
 import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
@@ -46,22 +49,20 @@ import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.Servant;
-import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CORBA.BAD_QOS;
+import org.jacorb.util.Environment;
 
 /**
- * ConsumerAdminImpl.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ConsumerAdminTieImpl
-            extends AbstractAdmin
-            implements ConsumerAdminOperations,
-            Disposable,
-            ProxyEventListener
+    extends AbstractAdmin
+    implements ConsumerAdminOperations,
+               Disposable,
+               ProxyEventListener
 {
-
     List eventStyleServants_ = new Vector();
     ConsumerAdmin thisRef_;
     ConsumerAdminPOATie thisServant_;
@@ -120,7 +121,7 @@ public class ConsumerAdminTieImpl
         return thisRef_;
     }
 
-    public org.omg.CORBA.Object getThisRef()
+    public org.omg.CORBA.Object getCorbaRef()
     {
         return getConsumerAdmin();
     }
@@ -195,8 +196,7 @@ public class ConsumerAdminTieImpl
         intHolder.value = getPullProxyId();
         Integer _key = new Integer( intHolder.value );
 
-        AbstractProxy _servant;
-        ProxySupplier _pullSupplier = null;
+        AbstractProxySupplier _servant;
 
         PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
         PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
@@ -238,6 +238,9 @@ public class ConsumerAdminTieImpl
             throw new BAD_PARAM();
         }
 
+        _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
+
+
         if ( filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP )
         {
             _servant.setOrSemantic( true );
@@ -256,6 +259,7 @@ public class ConsumerAdminTieImpl
 
         return _servant;
     }
+
 
     /**
      *
@@ -364,7 +368,7 @@ public class ConsumerAdminTieImpl
         intHolder.value = getPushProxyId();
 
         Integer _key = new Integer( intHolder.value );
-        AbstractProxy _servantImpl;
+        AbstractProxySupplier _servant;
 
         PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
         PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
@@ -373,25 +377,26 @@ public class ConsumerAdminTieImpl
         {
 
         case ClientType._ANY_EVENT:
-            _servantImpl = new ProxyPushSupplierImpl( this,
-                                                      applicationContext_,
-                                                      channelContext_,
-                                                      _adminProperties,
-                                                      _qosProperties,
-                                                      _key );
+            _servant = new ProxyPushSupplierImpl( this,
+                                                  applicationContext_,
+                                                  channelContext_,
+                                                  _adminProperties,
+                                                  _qosProperties,
+                                                  _key );
             break;
 
         case ClientType._STRUCTURED_EVENT:
-            _servantImpl = new StructuredProxyPushSupplierImpl( this,
-                           applicationContext_,
-                           channelContext_,
-                           _adminProperties,
-                           _qosProperties,
-                           _key );
+            _servant =
+                new StructuredProxyPushSupplierImpl( this,
+                                                     applicationContext_,
+                                                     channelContext_,
+                                                     _adminProperties,
+                                                     _qosProperties,
+                                                     _key );
             break;
 
         case ClientType._SEQUENCE_EVENT:
-            _servantImpl =
+            _servant =
                 new SequenceProxyPushSupplierImpl( this,
                                                    applicationContext_,
                                                    channelContext_,
@@ -404,20 +409,51 @@ public class ConsumerAdminTieImpl
             throw new BAD_PARAM();
         }
 
-        pushServants_.put( _key, _servantImpl );
+        configureTaskExecutor(_servant);
+
+        pushServants_.put( _key, _servant );
 
         if ( filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP )
         {
-            _servantImpl.setOrSemantic( true );
+            _servant.setOrSemantic( true );
         }
 
-        _servantImpl.addProxyDisposedEventListener( this );
-        _servantImpl.addProxyDisposedEventListener( channelContext_.getRemoveProxySupplierListener() );
+        _servant.addProxyDisposedEventListener( this );
+        _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxySupplierListener() );
 
         proxyListDirty_ = true;
 
-        return _servantImpl;
+        return _servant;
     }
+
+    private void configureTaskExecutor(AbstractProxySupplier proxy)
+    {
+        String _threadPolicy = Environment.getProperty(ConfigurableProperties.THREADPOLICY,
+                                                       Constants.DEFAULT_THREADPOLICY);
+
+
+        if ("ThreadPool".equals(_threadPolicy)) {
+            if (logger_.isInfoEnabled()) {
+                logger_.info("configure Proxy " + proxy + " to use channel-wide ThreadPool for delivery");
+            }
+
+            proxy.setTaskExecutor(channelContext_.getTaskProcessor().getDeliverTaskExecutor());
+        } else if ("ThreadPerProxy".equals(_threadPolicy)) {
+            if (logger_.isInfoEnabled()) {
+                logger_.info("configure Proxy " + proxy + " to use its own Thread for delivery");
+            }
+
+            proxy.setTaskExecutor(new TaskExecutor(proxy.toString() + "-DeliverThread", 1));
+        } else {
+            throw new IllegalArgumentException("The specified value: \""
+                                               + _threadPolicy
+                                               + "\" specified in property: \""
+                                               + ConfigurableProperties.THREADPOLICY
+                                               + "\" is invalid");
+        }
+
+    }
+
 
     public ProxyPullSupplier obtain_pull_supplier()
     {
@@ -429,8 +465,9 @@ public class ConsumerAdminTieImpl
                                            ( PropertyManager ) adminProperties_.clone(),
                                            ( PropertyManager ) qosProperties_.clone() );
 
+            _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
+
             _servant.addProxyDisposedEventListener( this );
-            // _servant.addProxyDisposedEventListener(channelContext_.getRemoveProxySupplierListener());
 
             _servant.setFilterManager( FilterManager.EMPTY );
             eventStyleServants_.add( _servant );
@@ -441,12 +478,12 @@ public class ConsumerAdminTieImpl
             ProxyPullSupplier _supplier =
                 org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow( _tie._this_object( getOrb() ) );
 
-            //servantCache_.put(_servant, _tie);
             proxyListDirty_ = true;
 
             return _supplier;
         } catch (UnsupportedQoS e) {
             logger_.fatalError("Could not create PullSupplier", e);
+
             throw new RuntimeException();
         }
     }
@@ -461,8 +498,9 @@ public class ConsumerAdminTieImpl
                                            ( PropertyManager ) adminProperties_.clone(),
                                            ( PropertyManager ) qosProperties_.clone() );
 
+            configureTaskExecutor(_servant);
+
             _servant.addProxyDisposedEventListener( this );
-            // _servant.addProxyDisposedEventListener(channelContext_.getRemoveProxySupplierListener());
 
             _servant.setFilterManager( FilterManager.EMPTY );
             eventStyleServants_.add( _servant );
@@ -473,12 +511,12 @@ public class ConsumerAdminTieImpl
             ProxyPushSupplier _supplier =
                 org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow( _tie._this_object( getOrb() ) );
 
-            // servantCache_.put(_servant, _tie);
             proxyListDirty_ = true;
 
             return _supplier;
         } catch (UnsupportedQoS e) {
             logger_.fatalError("Could not create ProxyPushSupplier", e);
+
             throw new RuntimeException();
         }
     }
@@ -513,12 +551,12 @@ public class ConsumerAdminTieImpl
     }
 
 
-    public EventConsumer getEventConsumer()
+    public MessageConsumer getMessageConsumer()
     {
         return null;
     }
 
-    public boolean hasEventConsumer()
+    public boolean hasMessageConsumer()
     {
         return false;
     }

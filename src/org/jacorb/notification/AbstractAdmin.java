@@ -126,12 +126,12 @@ public abstract class AbstractAdmin
 
     protected POA getPoa()
     {
-        return applicationContext_.getPoa();
+        return channelContext_.getPOA();
     }
 
     public POA _default_POA()
     {
-        return applicationContext_.getPoa();
+        return channelContext_.getPOA();
     }
 
     protected AbstractAdmin( ApplicationContext aApplicationContext,
@@ -370,7 +370,7 @@ public abstract class AbstractAdmin
         }
     }
 
-    public abstract org.omg.CORBA.Object getThisRef();
+    public abstract org.omg.CORBA.Object getCorbaRef();
 
     public abstract Servant getServant();
 
@@ -379,16 +379,16 @@ public abstract class AbstractAdmin
         return disposed_;
     }
 
-    public void addProxyCreationEventListener( ProxyCreationRequestEventListener aProxyCreationRequestEventListener )
+    public void addProxyCreationEventListener( ProxyCreationRequestEventListener listener )
     {
-        seqProxyCreationRequestEventListener_.add( aProxyCreationRequestEventListener );
+        seqProxyCreationRequestEventListener_.add( listener );
     }
 
-    public void removeProxyCreationEventListener( ProxyCreationRequestEventListener aProxyCreationRequestEventListener )
+    public void removeProxyCreationEventListener( ProxyCreationRequestEventListener listener )
     {
         if ( seqProxyCreationRequestEventListener_ != null )
         {
-            seqProxyCreationRequestEventListener_.remove( aProxyCreationRequestEventListener );
+            seqProxyCreationRequestEventListener_.remove( listener );
         }
     }
 

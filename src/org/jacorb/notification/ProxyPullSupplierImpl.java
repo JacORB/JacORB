@@ -23,7 +23,7 @@ package org.jacorb.notification;
 
 import java.util.List;
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CORBA.Any;
@@ -39,6 +39,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.PortableServer.Servant;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.ORB;
+import org.jacorb.util.Environment;
 
 /**
  * @author Alphonse Bendt
@@ -48,12 +49,12 @@ import org.omg.CORBA.ORB;
 public class ProxyPullSupplierImpl
     extends AbstractProxySupplier
     implements ProxyPullSupplierOperations,
-               org.omg.CosEventChannelAdmin.ProxyPullSupplierOperations,
-               EventConsumer {
+               org.omg.CosEventChannelAdmin.ProxyPullSupplierOperations {
 
     private PullConsumer pullConsumer_ = null;
-    private boolean connected_ = false;
+    //    private boolean connected_ = false;
     private static final Any sUndefinedAny;
+
 
     static {
         ORB _orb = ORB.init();
@@ -114,12 +115,9 @@ public class ProxyPullSupplierImpl
         }
     }
 
-    public Any pull()
-        throws Disconnected {
+    public Any pull() throws Disconnected {
 
-        if (!connected_) {
-            throw new Disconnected();
-        }
+        checkConnected();
 
         try {
             Message _event = getMessageBlocking();
@@ -139,9 +137,7 @@ public class ProxyPullSupplierImpl
     public Any try_pull (BooleanHolder hasEvent)
         throws Disconnected {
 
-        if (!connected_) {
-            throw new Disconnected();
-        }
+        checkConnected();
 
         Any event = sUndefinedAny;
         hasEvent.value = false;
@@ -166,7 +162,7 @@ public class ProxyPullSupplierImpl
      * PullConsumer we simply put the Events in a Queue. The
      * PullConsumer will pull the Events out of the Queue at a later time.
      */
-    public void deliverEvent(Message message) {
+    public void deliverMessage(Message message) {
         enqueue(message);
     }
 
@@ -190,18 +186,18 @@ public class ProxyPullSupplierImpl
     }
 
     public ConsumerAdmin MyAdmin() {
-        return (ConsumerAdmin)myAdmin_.getThisRef();
+        return (ConsumerAdmin)myAdmin_.getCorbaRef();
     }
 
     public List getSubsequentFilterStages() {
         return CollectionsWrapper.singletonList(this);
     }
 
-    public EventConsumer getEventConsumer() {
+    public MessageConsumer getMessageConsumer() {
         return this;
     }
 
-    public boolean hasEventConsumer() {
+    public boolean hasMessageConsumer() {
         return true;
     }
 
@@ -221,7 +217,7 @@ public class ProxyPullSupplierImpl
         // we can ignore this
     }
 
-    public void deliverPendingEvents() {
+    public void deliverPendingMessages() {
         // as we do not actively deliver events we can ignore this
     }
 
@@ -235,4 +231,5 @@ public class ProxyPullSupplierImpl
     public void setServant(Servant servant) {
         thisServant_ = servant;
     }
+
 }

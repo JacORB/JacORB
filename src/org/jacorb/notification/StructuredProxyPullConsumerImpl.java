@@ -24,7 +24,7 @@ package org.jacorb.notification;
 import java.util.List;
 
 import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.util.Environment;
@@ -179,7 +179,7 @@ public class StructuredProxyPullConsumerImpl
 
     public SupplierAdmin MyAdmin()
     {
-        return ( SupplierAdmin ) myAdmin_.getThisRef();
+        return ( SupplierAdmin ) myAdmin_.getCorbaRef();
     }
 
     public EventType[] obtain_subscription_types( ObtainInfoMode obtainInfoMode )
@@ -228,9 +228,9 @@ public class StructuredProxyPullConsumerImpl
                     logger_.debug( "pulled Event" );
 
                     Message _notifyEvent =
-                        notificationEventFactory_.newEvent( _event, this );
+                        messageFactory_.newEvent( _event, this );
 
-                    channelContext_.dispatchEvent( _notifyEvent );
+                    channelContext_.processMessage( _notifyEvent );
                 }
             }
         }
@@ -241,12 +241,12 @@ public class StructuredProxyPullConsumerImpl
         return subsequentDestinations_;
     }
 
-    public EventConsumer getEventConsumer()
+    public MessageConsumer getMessageConsumer()
     {
         throw new UnsupportedOperationException();
     }
 
-    public boolean hasEventConsumer()
+    public boolean hasMessageConsumer()
     {
         return false;
     }

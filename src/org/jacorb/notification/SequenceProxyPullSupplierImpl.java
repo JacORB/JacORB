@@ -24,7 +24,7 @@ package org.jacorb.notification;
 import java.util.Collections;
 import java.util.List;
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CORBA.BooleanHolder;
@@ -48,8 +48,7 @@ import org.omg.PortableServer.Servant;
 
 public class SequenceProxyPullSupplierImpl
     extends StructuredProxyPullSupplierImpl
-    implements SequenceProxyPullSupplierOperations,
-               EventConsumer
+    implements SequenceProxyPullSupplierOperations
 {
 
     private SequencePullConsumer sequencePullConsumer_;
@@ -91,6 +90,8 @@ public class SequenceProxyPullSupplierImpl
 
     public StructuredEvent[] pull_structured_events( int number ) throws Disconnected
     {
+        checkConnected();
+
         StructuredEvent[] _event = null;
         BooleanHolder _hasEvent = new BooleanHolder();
         StructuredEvent _ret[] = sUndefinedSequence;
@@ -110,7 +111,10 @@ public class SequenceProxyPullSupplierImpl
                                                          BooleanHolder success )
         throws Disconnected
     {
+        checkConnected();
+
         Message[] _events = getUpToMessages(number);
+
         if (_events != null) {
             StructuredEvent[] _ret = new StructuredEvent[_events.length];
 
@@ -132,12 +136,12 @@ public class SequenceProxyPullSupplierImpl
         return CollectionsWrapper.singletonList( this );
     }
 
-    public EventConsumer getEventConsumer()
+    public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
-    public boolean hasEventConsumer()
+    public boolean hasMessageConsumer()
     {
         return true;
     }
@@ -168,7 +172,7 @@ public class SequenceProxyPullSupplierImpl
 
     public ConsumerAdmin MyAdmin()
     {
-        return ( ConsumerAdmin ) myAdmin_.getThisRef();
+        return ( ConsumerAdmin ) myAdmin_.getCorbaRef();
     }
 
     public void disconnect_sequence_pull_supplier()

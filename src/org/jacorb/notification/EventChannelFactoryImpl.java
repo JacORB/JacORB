@@ -33,6 +33,8 @@ import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventChannelEvent;
 import org.jacorb.notification.interfaces.EventChannelEventListener;
 import org.jacorb.notification.util.PatternWrapper;
+import org.jacorb.notification.persistence.EventChannelStore;
+import org.jacorb.notification.persistence.PersistenceException;
 import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
@@ -66,6 +68,7 @@ import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.PortableServer.LifespanPolicyValue;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -98,11 +101,12 @@ public class EventChannelFactoryImpl
 
     ////////////////////////////////////////
 
-    static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[ 0 ];
+    private static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[ 0 ];
+    private static final String NOTIFICATION_SERVICE = "NotificationService";
+    private static final String EVENTCHANNEL_FACTORY_POA_NAME = "NotificationPOA";
+    private static final String OBJECT_NAME = "_factory";
 
-    static final String NOTIFICATION_SERVICE = "NotificationService";
-    static final String NOTIFICATION_POA_NAME = "NotificationPOA";
-    static final String OBJECT_NAME = "_factory";
+    private static final String PERSISTENT_EVENTCHANNEL_POA_NAME = "PersistentNotificationPOA";
 
     ////////////////////////////////////////
 
@@ -117,9 +121,46 @@ public class EventChannelFactoryImpl
     protected String ior_;
     protected Vector listEventChannelEventListener_ = new Vector();
     protected String corbaLoc_;
-    private POA notificationPOA_;
+
+    private POA eventChannelFactoryPOA_;
+    private POA persistentEventChannelPOA_;
+
+    private EventChannelStore eventChannelStore_;
 
     ////////////////////////////////////////
+
+    private POA getPersistentChannelPOA() {
+        try {
+            if (persistentEventChannelPOA_ == null) {
+                ORB _orb = applicationContext_.getOrb();
+
+                POA _rootPOA = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+
+                org.omg.CORBA.Policy[] _policies =
+                    new org.omg.CORBA.Policy [] {
+                        _rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID ),
+                        _rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT)
+                    };
+
+                persistentEventChannelPOA_ = _rootPOA.create_POA( PERSISTENT_EVENTCHANNEL_POA_NAME,
+                                                             _rootPOA.the_POAManager(),
+                                                             _policies );
+
+                for ( int x = 0; x < _policies.length; ++x )
+                    {
+                        _policies[ x ].destroy();
+                    }
+
+                persistentEventChannelPOA_.the_POAManager().activate();
+            }
+
+            return persistentEventChannelPOA_;
+        } catch (Exception e) {
+            logger_.fatalError("unable to create Persistent POA", e);
+
+            throw new RuntimeException();
+        }
+    }
 
     private EventChannelFactoryImpl( final ORB _orb ) throws Exception
     {
@@ -132,7 +173,7 @@ public class EventChannelFactoryImpl
                 _rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID )
             };
 
-        notificationPOA_ = _rootPOA.create_POA( NOTIFICATION_POA_NAME,
+        eventChannelFactoryPOA_ = _rootPOA.create_POA( EVENTCHANNEL_FACTORY_POA_NAME,
                                                 _rootPOA.the_POAManager(),
                                                 _policies );
 
@@ -143,13 +184,13 @@ public class EventChannelFactoryImpl
 
         byte[] oid = ( OBJECT_NAME.getBytes() );
 
-        notificationPOA_.activate_object_with_id( oid, this );
-        thisFactory_ = EventChannelFactoryHelper.narrow( notificationPOA_.id_to_reference( oid ) );
+        eventChannelFactoryPOA_.activate_object_with_id( oid, this );
+        thisFactory_ = EventChannelFactoryHelper.narrow( eventChannelFactoryPOA_.id_to_reference( oid ) );
 
         initialize();
 
         _rootPOA.the_POAManager().activate();
-        notificationPOA_.the_POAManager().activate();
+        eventChannelFactoryPOA_.the_POAManager().activate();
 
         Thread t = new Thread(
                        new Runnable()
@@ -159,14 +200,13 @@ public class EventChannelFactoryImpl
                                _orb.run();
                            }
                        }
-
                    );
 
         t.setDaemon( false );
         t.start();
 
-        ior_ = _orb.object_to_string( notificationPOA_.id_to_reference( oid ) );
-        corbaLoc_ = getCorbaLoc( notificationPOA_.the_name(), oid );
+        ior_ = _orb.object_to_string( eventChannelFactoryPOA_.id_to_reference( oid ) );
+        corbaLoc_ = getCorbaLoc( eventChannelFactoryPOA_.the_name(), oid );
 
         logger_.info( "EventChannelFactory - ready" );
     }
@@ -217,7 +257,7 @@ public class EventChannelFactoryImpl
     public EventChannel create_channel( Property[] qualitiyOfServiceProperties,
                                         Property[] administrativeProperties,
                                         IntHolder channelIdentifier )
-    throws UnsupportedAdmin, UnsupportedQoS
+        throws UnsupportedAdmin, UnsupportedQoS
     {
         try
         {
@@ -229,8 +269,8 @@ public class EventChannelFactoryImpl
             Integer _key = new Integer( _identifier );
 
             EventChannelImpl _channelServant = create_channel_servant( _identifier,
-                                               qualitiyOfServiceProperties,
-                                               administrativeProperties );
+                                                                       qualitiyOfServiceProperties,
+                                                                       administrativeProperties );
 
             eventChannelServantCreated( _channelServant );
 
@@ -254,6 +294,9 @@ public class EventChannelFactoryImpl
         {
             logger_.fatalError( "create_channel()", e );
         }
+        catch (PersistenceException e) {
+            logger_.fatalError("error creating persistent channel", e);
+        }
 
         throw new RuntimeException();
     }
@@ -271,16 +314,19 @@ public class EventChannelFactoryImpl
     }
 
     public EventChannelImpl create_channel_servant( int key,
-            Property[] qualitiyOfServiceProperties,
-            Property[] administrativeProperties )
+                                                    Property[] qualitiyOfServiceProperties,
+                                                    Property[] administrativeProperties )
 
-    throws UnsupportedAdmin,
-                UnsupportedQoS,
-                ObjectNotActive,
-                WrongPolicy,
-                ServantAlreadyActive
+        throws UnsupportedAdmin,
+               UnsupportedQoS,
+               ObjectNotActive,
+               WrongPolicy,
+               ServantAlreadyActive,
+               PersistenceException
     {
-        logger_.debug( "create_channel_servant " + key );
+        if (logger_.isDebugEnabled() ) {
+            logger_.debug( "create_channel_servant " + key );
+        }
 
         PropertyValidator.checkAdminPropertySeq( administrativeProperties );
         PropertyValidator.checkQoSPropertySeq( qualitiyOfServiceProperties );
@@ -295,7 +341,6 @@ public class EventChannelFactoryImpl
 
         if ( _uniqueQoSProperties.containsKey( EventReliability.value ) )
         {
-
             logger_.info( "try to set EventReliability" );
 
             short _eventReliabilty =
@@ -316,20 +361,21 @@ public class EventChannelFactoryImpl
             }
         }
 
+        short _connectionReliability = BestEffort.value;
+
         if ( _uniqueQoSProperties.containsKey( ConnectionReliability.value ) )
         {
-
-            short _connectionReliability =
+            _connectionReliability =
                 ( ( Any ) _uniqueQoSProperties.get( ConnectionReliability.value ) ).extract_short();
 
             switch ( _connectionReliability )
             {
-
                 case BestEffort.value:
                     break;
 
                 case Persistent.value:
-                    throwPersistentNotSupported( ConnectionReliability.value );
+                    break;
+                    //                    throwPersistentNotSupported( ConnectionReliability.value );
 
                 default:
                     throwBadValue( ConnectionReliability.value );
@@ -341,14 +387,33 @@ public class EventChannelFactoryImpl
 
         _channelContext = ( ChannelContext ) channelContextTemplate_.clone();
 
+        if (_connectionReliability == Persistent.value ) {
+            _channelContext.setPOA(getPersistentChannelPOA());
+        } else {
+            _channelContext.setPOA(applicationContext_.getPoa());
+        }
+
         // create new servant
-        EventChannelImpl _channelServant = new EventChannelImpl( key,
-                                           applicationContext_,
-                                           _channelContext,
-                                           _uniqueQoSProperties,
-                                           _uniqueAdminProperties );
+        EventChannelImpl _channelServant =
+            new EventChannelImpl( key,
+                                  applicationContext_,
+                                  _channelContext,
+                                  _uniqueQoSProperties,
+                                  _uniqueAdminProperties );
+
+        if (_connectionReliability == Persistent.value) {
+            makePersistent(_channelServant);
+        }
 
         return _channelServant;
+    }
+
+    private void makePersistent(EventChannelImpl channel) throws PersistenceException {
+        logger_.info("The creation of a persistent Channel has been requested");
+
+        if (eventChannelStore_ != null) {
+            eventChannelStore_.storePersistentChannel(channel);
+        }
     }
 
     void removeEventChannelServant( int id )
@@ -577,7 +642,7 @@ public class EventChannelFactoryImpl
 
     public POA _default_POA()
     {
-        return applicationContext_.getPoa();
+        return eventChannelFactoryPOA_;
     }
 
     private static void help()
@@ -611,7 +676,7 @@ public class EventChannelFactoryImpl
         // force Classloader to load Class PatternWrapper.
         // PatternWrapper may cause a ClassNotFoundException if
         // running on < JDK1.4 and gnu.regexp is NOT installed.
-        // Therefor the Error should occur as early as possible.
+        // Therefor the Error should occur as _early_ as possible.
         PatternWrapper.class.getName();
 
         try
@@ -670,6 +735,7 @@ public class EventChannelFactoryImpl
                 else
                 {
                     System.out.println( "Unknown argument: " + args[ i ] );
+
                     help();
                 }
             }
@@ -693,7 +759,7 @@ public class EventChannelFactoryImpl
         props.put( "jacorb.implname", standardImplName );
 
         props.put( "jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE,
-                   standardImplName + "/" + NOTIFICATION_POA_NAME + "/" + OBJECT_NAME );
+                   standardImplName + "/" + EVENTCHANNEL_FACTORY_POA_NAME + "/" + OBJECT_NAME );
 
         if ( oaPort != null )
         {

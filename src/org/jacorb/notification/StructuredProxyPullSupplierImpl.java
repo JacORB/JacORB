@@ -23,7 +23,7 @@ package org.jacorb.notification;
 
 import java.util.List;
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CORBA.BooleanHolder;
@@ -52,13 +52,19 @@ import org.omg.CORBA.ORB;
 
 public class StructuredProxyPullSupplierImpl
     extends AbstractProxySupplier
-    implements StructuredProxyPullSupplierOperations,
-               EventConsumer
+    implements StructuredProxyPullSupplierOperations
 {
+    /**
+     * the associated Consumer.
+     */
     StructuredPullConsumer structuredPullConsumer_;
 
+    /**
+     * undefined StructuredEvent that is returned on unsuccessful pull operations.
+     */
     protected static final StructuredEvent undefinedStructuredEvent_;
 
+    // initialize undefinedStructuredEvent_
     static {
         ORB _orb = ORB.init();
 
@@ -93,7 +99,7 @@ public class StructuredProxyPullSupplierImpl
         throws AlreadyConnected
     {
         if ( connected_ )
-        {
+            {
             throw new AlreadyConnected();
         }
 
@@ -101,52 +107,51 @@ public class StructuredProxyPullSupplierImpl
         structuredPullConsumer_ = consumer;
     }
 
-
     public ConsumerAdmin MyAdmin()
     {
-        return ( ConsumerAdmin ) myAdmin_.getThisRef();
+        return ( ConsumerAdmin ) myAdmin_.getCorbaRef();
     }
 
     public StructuredEvent pull_structured_event()
         throws Disconnected
     {
-        StructuredEvent _event = null;
-        BooleanHolder _hasEvent = new BooleanHolder();
+        checkConnected();
 
-        while ( true )
-        {
-            _event = try_pull_structured_event( _hasEvent );
+        Message _message = null;
 
-            if ( _hasEvent.value )
-            {
-                return _event;
+        try {
+            _message = getMessageBlocking();
+
+            return _message.toStructuredEvent();
+        } catch (InterruptedException e) {
+            return undefinedStructuredEvent_;
+        } finally {
+            if (_message != null) {
+                _message.dispose();
             }
-
-            Thread.yield();
         }
     }
+
 
     public StructuredEvent try_pull_structured_event( BooleanHolder hasEvent )
         throws Disconnected
     {
-        if ( !connected_ )
-            {
-                throw new Disconnected();
-            }
+        checkConnected();
 
         Message _notificationEvent =
             getMessageNoBlock();
 
         if (_notificationEvent != null) {
-
             try {
                 hasEvent.value = true;
+
                 return _notificationEvent.toStructuredEvent();
             } finally {
                 _notificationEvent.dispose();
             }
         } else {
             hasEvent.value = false;
+
             return undefinedStructuredEvent_;
         }
     }
@@ -157,10 +162,6 @@ public class StructuredProxyPullSupplierImpl
         dispose();
     }
 
-    public void disconnect_sequence_pull_supplier()
-    {
-        dispose();
-    }
 
     private void disconnectClient()
     {
@@ -175,7 +176,10 @@ public class StructuredProxyPullSupplierImpl
         }
     }
 
-    public void deliverEvent( Message event )
+    /**
+     * PullSupplier always enqueues.
+     */
+    public void deliverMessage( Message event )
     {
         enqueue( event );
     }
@@ -185,12 +189,12 @@ public class StructuredProxyPullSupplierImpl
         return CollectionsWrapper.singletonList( this );
     }
 
-    public EventConsumer getEventConsumer()
+    public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
-    public boolean hasEventConsumer()
+    public boolean hasMessageConsumer()
     {
         return true;
     }
@@ -198,22 +202,23 @@ public class StructuredProxyPullSupplierImpl
     public void dispose()
     {
         super.dispose();
+
         disconnectClient();
     }
 
     public void disableDelivery()
     {
-        // ignore
+        // as no active deliveries are made this can be ignored
     }
 
     public void enableDelivery()
     {
-        // ignore
+        // as no active deliveries are made this can be ignored
     }
 
-    public void deliverPendingEvents()
+    public void deliverPendingMessages()
     {
-        // can't do it
+        // as no active deliveries are made this can be ignored
     }
 
     public synchronized Servant getServant()

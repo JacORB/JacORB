@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 
@@ -119,7 +119,7 @@ public class SupplierAdminTieImpl
         return thisRef_;
     }
 
-    public org.omg.CORBA.Object getThisRef()
+    public org.omg.CORBA.Object getCorbaRef()
     {
         return getSupplierAdmin();
     }
@@ -421,12 +421,12 @@ public class SupplierAdminTieImpl
         return getChannelServant().getAllConsumerAdmins();
     }
 
-    public EventConsumer getEventConsumer()
+    public MessageConsumer getMessageConsumer()
     {
         return null;
     }
 
-    public boolean hasEventConsumer()
+    public boolean hasMessageConsumer()
     {
         return false;
     }

@@ -32,13 +32,15 @@ import org.omg.CosNotification.FifoOrder;
 
 public interface Constants
 {
-    public final static long DEFAULT_PROXY_POLL_INTERVALL = 1000L;
-    public final static String DEFAULT_ORDER_POLICY = "PriorityOrder";
-    public final static String DEFAULT_DISCARD_POLICY = "PriorityOrder";
-    public final static int DEFAULT_MAX_EVENTS_PER_CONSUMER = 100;
-    public final static int DEFAULT_MAX_BATCH_SIZE = 1;
-    public final static int DEFAULT_FILTER_POOL_SIZE = 2;
-    public final static int DEFAULT_DELIVER_POOL_SIZE = 4;
-    public static final int DEFAULT_BACKOUT_INTERVAL = 2000;
-    public static final int DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD = 3;
+    long DEFAULT_PROXY_POLL_INTERVALL = 1000L;
+    String DEFAULT_ORDER_POLICY = "PriorityOrder";
+    String DEFAULT_DISCARD_POLICY = "PriorityOrder";
+    int DEFAULT_MAX_EVENTS_PER_CONSUMER = 100;
+    int DEFAULT_MAX_BATCH_SIZE = 1;
+    int DEFAULT_FILTER_POOL_SIZE = 2;
+    int DEFAULT_DELIVER_POOL_SIZE = 4;
+    int DEFAULT_BACKOUT_INTERVAL = 2000;
+    int DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD = 3;
+
+    String DEFAULT_THREADPOLICY = "ThreadPool";
 }

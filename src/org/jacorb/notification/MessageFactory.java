@@ -38,7 +38,7 @@ import org.omg.CosNotification.StructuredEvent;
 public class MessageFactory implements Disposable
 {
     private AbstractObjectPool anyMessagePool_ =
-        new AbstractObjectPool()
+        new AbstractObjectPool("AnyMessagePool")
         {
             public Object newInstance()
             {
@@ -56,7 +56,7 @@ public class MessageFactory implements Disposable
         };
 
     private AbstractObjectPool structuredEventMessagePool_ =
-        new AbstractObjectPool()
+        new AbstractObjectPool("StructuredEventMessagePool")
         {
             public Object newInstance()
             {

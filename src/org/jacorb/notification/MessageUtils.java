@@ -34,9 +34,6 @@ import org.jacorb.notification.node.UnionPositionOperator;
 import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import org.apache.avalon.framework.logger.Logger;
 
@@ -47,7 +44,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class MessageUtils
 {
-
     static Logger logger_ = Debug.getNamedLogger( MessageUtils.class.getName() );
 
     public static EvaluationResult extractFromAny(AbstractTCLNode operator,
@@ -85,7 +81,6 @@ public class MessageUtils
             {
                 switch ( _operator.getType() )
                 {
-
                     case AbstractTCLNode.DOT:
                         // skip
                         logger_.debug( "skip" );
@@ -145,7 +140,7 @@ public class MessageUtils
 
                         _result = _op.evaluateImplicit(evaluationContext, _valueCursor);
 
-                        _ret = evaluationContext.getResultExtractor().extractFromAny( _result );
+                        _ret = EvaluationResult.fromAny( _result );
 
                         _ret.addAny( _valueCursor );
 
@@ -193,7 +188,7 @@ public class MessageUtils
         }
 
         // Create the EvaluationResult
-        _ret = evaluationContext.getResultExtractor().extractFromAny( _result );
+        _ret = EvaluationResult.fromAny( _result );
 
         if ( logger_.isDebugEnabled() )
         {

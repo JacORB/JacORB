@@ -21,7 +21,10 @@ package org.jacorb.notification;
  */
 
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.queue.EventQueue;
+import org.jacorb.notification.util.TaskExecutor;
+import org.jacorb.util.Environment;
 
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CosNotification.Property;
@@ -30,17 +33,28 @@ import org.omg.CosNotification.UnsupportedQoS;
 import java.util.Map;
 
 /**
- * Abstract class that provides the implementation of the method
- * set_qos for the ProxySuppliers.
+ * Abstract base class for ProxySuppliers.
+ * This class provides following logic for the different
+ * ProxySuppliers:
+ * <ul>
+ * <li> generic queue management,
+ * <li> error threshold settings.
+ * </ul>
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public abstract class AbstractProxySupplier extends AbstractProxy
+public abstract class AbstractProxySupplier
+    extends AbstractProxy
+    implements MessageConsumer
 {
 
+    private TaskExecutor taskExecutor_;
+
     private EventQueue pendingEvents_;
+
+    private int errorThreshold_;
 
     /**
      * lock variable used to control access to the reference to the
@@ -49,6 +63,8 @@ public abstract class AbstractProxySupplier extends AbstractProxy
     private Object pendingEventsLock_ =
         new Object();
 
+
+    ////////////////////
 
     protected AbstractProxySupplier(AbstractAdmin admin,
                                     ApplicationContext appContext,
@@ -63,10 +79,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy
               adminProperties,
               qosProperties);
 
-        synchronized (pendingEventsLock_)
-        {
-            pendingEvents_ = appContext.newEventQueue(qosProperties);
-        }
+        init(appContext, qosProperties);
     }
 
     protected AbstractProxySupplier(AbstractAdmin admin,
@@ -84,9 +97,35 @@ public abstract class AbstractProxySupplier extends AbstractProxy
               qosProperties,
               key);
 
+        init(appContext, qosProperties);
+    }
+
+    private void init(ApplicationContext appContext,
+                      PropertyManager qosProperties)
+        throws UnsupportedQoS
+    {
         synchronized (pendingEventsLock_)
-        {
-            pendingEvents_ = appContext.newEventQueue(qosProperties);
+            {
+                pendingEvents_ = appContext.newEventQueue(qosProperties);
+            }
+
+        errorThreshold_ =
+            Environment.getIntPropertyWithDefault(ConfigurableProperties.EVENTCONSUMER_ERROR_THRESHOLD,
+                                                  Constants.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD);
+
+        logger_.info(toString() + ": set Error Threshold to : " + errorThreshold_);
+    }
+
+    public TaskExecutor getExecutor() {
+        return taskExecutor_;
+    }
+
+
+    public void setTaskExecutor(TaskExecutor executor) {
+        if (taskExecutor_ == null) {
+            taskExecutor_ = executor;
+        } else {
+            throw new IllegalArgumentException("set only once");
         }
     }
 
@@ -137,7 +176,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy
         }
     }
 
-    public boolean hasPendingEvents()
+    public boolean hasPendingMessages()
     {
         synchronized (pendingEventsLock_)
         {
@@ -160,11 +199,13 @@ public abstract class AbstractProxySupplier extends AbstractProxy
         }
     }
 
+
     protected Message getMessageBlocking() throws InterruptedException {
         synchronized(pendingEventsLock_) {
             return pendingEvents_.getEvent(true);
         }
     }
+
 
     protected Message getMessageNoBlock() {
         synchronized(pendingEventsLock_) {
@@ -212,4 +253,9 @@ public abstract class AbstractProxySupplier extends AbstractProxy
         }
         return null;
     }
+
+    public int getErrorThreshold() {
+        return errorThreshold_;
+    }
+
 }

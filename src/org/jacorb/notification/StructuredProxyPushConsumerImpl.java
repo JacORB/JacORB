@@ -24,7 +24,7 @@ package org.jacorb.notification;
 import java.util.Collections;
 import java.util.List;
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
@@ -69,14 +69,13 @@ public class StructuredProxyPushConsumerImpl
     }
 
     public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
-        if (!connected_) {
-            throw new Disconnected();
-        }
+
+        checkConnected();
 
         Message _notifyEvent =
-            notificationEventFactory_.newEvent(structuredEvent, this);
+            messageFactory_.newEvent(structuredEvent, this);
 
-        channelContext_.dispatchEvent(_notifyEvent);
+        channelContext_.processMessage(_notifyEvent);
     }
 
     public void disconnect_structured_push_consumer() {
@@ -113,14 +112,14 @@ public class StructuredProxyPushConsumerImpl
      * @return a <code>SupplierAdmin</code> value
      */
     public SupplierAdmin MyAdmin() {
-        return (SupplierAdmin)myAdmin_.getThisRef();
+        return (SupplierAdmin)myAdmin_.getCorbaRef();
     }
 
-    public EventConsumer getEventConsumer() {
+    public MessageConsumer getMessageConsumer() {
         throw new UnsupportedOperationException();
     }
 
-    public boolean hasEventConsumer() {
+    public boolean hasMessageConsumer() {
         return false;
     }
 
