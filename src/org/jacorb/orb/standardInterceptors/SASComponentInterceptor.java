@@ -66,8 +66,8 @@ public class SASComponentInterceptor
     extends org.omg.CORBA.LocalObject
     implements IORInterceptor
 {
-	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.IOR");
+    /** the logger used by the naming service implementation */
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.IOR");
 
     private ORB orb = null;
     private Codec codec = null;
@@ -76,7 +76,7 @@ public class SASComponentInterceptor
 
     public SASComponentInterceptor(ORBInitInfo info)
     {
-		orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
+        orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
         try
         {
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
@@ -87,18 +87,18 @@ public class SASComponentInterceptor
         {
             logger.error("Error initing SASComponentInterceptor: ",e);
         }
-		String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
-		if (contextClass != null) {
-			try {
-				Class c = org.jacorb.util.Environment.classForName(contextClass);
-			  	sasContext = (ISASContext)c.newInstance();
-			} catch (Exception e) {
-			  logger.error("Could not instantiate SAS Context class " + contextClass + ": " + e);
-			}
-		}
-		if (sasContext == null) {
-			logger.error("Could not load SAS context class: "+contextClass);
-		}
+        String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
+        if (contextClass != null) {
+            try {
+                Class c = org.jacorb.util.Environment.classForName(contextClass);
+                sasContext = (ISASContext)c.newInstance();
+            } catch (Exception e) {
+                logger.error("Could not instantiate SAS Context class " + contextClass + ": " + e);
+            }
+        }
+        if (sasContext == null) {
+            logger.error("Could not load SAS context class: "+contextClass);
+        }
     }
 
     // implementation of org.omg.PortableInterceptor.IORInterceptorOperations interface
@@ -119,31 +119,31 @@ public class SASComponentInterceptor
 
     public void establish_components(IORInfo info)
     {
-    	// see if SAS policy is set
-    	if (sasContext == null) return;
-    	SASPolicyValues sasValues = null;
-    	try {
-    		SASPolicy policy = (SASPolicy)((IORInfoImpl)info).get_effective_policy(SAS_POLICY_TYPE.value);
-    		if (policy != null) sasValues = policy.value();
-    	} catch (BAD_PARAM e) {
-    		logger.debug("No SAS Policy");
-    	} catch (Exception e) {
-    		logger.warn("Error fetching SAS policy: "+e);
-    	}
-    	if (sasValues == null) return;
-    	if (sasValues.targetRequires == 0 && sasValues.targetSupports == 0) return;
+        // see if SAS policy is set
+        if (sasContext == null) return;
+        SASPolicyValues sasValues = null;
+        try {
+            SASPolicy policy = (SASPolicy)((IORInfoImpl)info).get_effective_policy(SAS_POLICY_TYPE.value);
+            if (policy != null) sasValues = policy.value();
+        } catch (BAD_PARAM e) {
+            logger.debug("No SAS Policy");
+        } catch (Exception e) {
+            logger.warn("Error fetching SAS policy: "+e);
+        }
+        if (sasValues == null) return;
+        if (sasValues.targetRequires == 0 && sasValues.targetSupports == 0) return;
 
-		ATLASPolicyValues atlasValues = null;
-		try {
-			ATLASPolicy policy = (ATLASPolicy)info.get_effective_policy(ATLAS_POLICY_TYPE.value);
-			if (policy != null) atlasValues = policy.value();
-		} catch (BAD_PARAM e) {
-			logger.debug("No ATLAS Policy");
-		} catch (Exception e) {
-			logger.warn("Error fetching ATLAS policy: "+e);
-		}
-    	
-    	// generate SAS tag
+        ATLASPolicyValues atlasValues = null;
+        try {
+            ATLASPolicy policy = (ATLASPolicy)info.get_effective_policy(ATLAS_POLICY_TYPE.value);
+            if (policy != null) atlasValues = policy.value();
+        } catch (BAD_PARAM e) {
+            logger.debug("No ATLAS Policy");
+        } catch (Exception e) {
+            logger.warn("Error fetching ATLAS policy: "+e);
+        }
+
+        // generate SAS tag
         try
         {
             if( tc == null )
@@ -179,7 +179,7 @@ public class SASComponentInterceptor
                 boolean useStateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.stateful", "true")).booleanValue();
                 CompoundSecMech[] compoundSecMech = new CompoundSecMech[1];
                 Oid oid = new Oid(sasContext.getMechOID());
-				byte[] clientAuthenticationMech = oid.getDER();
+                byte[] clientAuthenticationMech = oid.getDER();
                 AS_ContextSec asContextSec = new AS_ContextSec(sasValues.targetSupports, sasValues.targetRequires, clientAuthenticationMech, targetName);
                 compoundSecMech[0] = new CompoundSecMech(sasValues.targetRequires, transportMech, asContextSec, sasContextSec);
                 CompoundSecMechList compoundSecMechList = new CompoundSecMechList(useStateful, compoundSecMech);
