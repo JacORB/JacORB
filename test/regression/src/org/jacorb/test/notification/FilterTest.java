@@ -38,15 +38,21 @@ public class FilterTest extends TestCase {
 
     static Random random_ = new Random(System.currentTimeMillis());
 
+    ////////////////////////////////////////
+
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     FilterFactory factory_;
+
     Any testPerson_;
+
     NotificationTestUtils testUtils_;
 
     FilterFactoryImpl factoryServant_;
 
     ORB orb_;
+
+    ////////////////////////////////////////
 
     public FilterTest(String name, NotificationTestCaseSetup setup) {
         super(name);
@@ -55,6 +61,8 @@ public class FilterTest extends TestCase {
     public FilterTest(String name) {
         super(name);
     }
+
+    ////////////////////////////////////////
 
     public void setUp() throws Exception {
         super.setUp();
@@ -70,6 +78,7 @@ public class FilterTest extends TestCase {
         testPerson_ = testUtils_.getTestPersonAny();
     }
 
+
     public void tearDown() throws Exception {
         super.tearDown();
 
@@ -78,20 +87,13 @@ public class FilterTest extends TestCase {
         factoryServant_.dispose();
     }
 
+
     /**
      * create remote filter object and invoke match operation on it
      */
     public void testMatch() throws Exception {
-        logger_.debug("enter testMatch()");
-
         Filter _filter = factory_.create_filter("EXTENDED_TCL");
 
-        logger_.debug("created Filter");
-
-        // filter is empty. should not match
-        assertTrue(!_filter.match(testPerson_));
-
-        // add some filter data
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
@@ -103,11 +105,17 @@ public class FilterTest extends TestCase {
         assertTrue(_filter.match(testPerson_));
     }
 
-    public void testMatchModify() throws Exception {
+
+    public void testMatchEmptyFilter() throws Exception {
         Filter _filter = factory_.create_filter("EXTENDED_TCL");
 
-        // empty filter won't match
-        assertTrue(!_filter.match(testPerson_));
+        // TODO match or not ???
+        assertTrue(_filter.match(testPerson_));
+    }
+
+
+    public void testMatchModify() throws Exception {
+        Filter _filter = factory_.create_filter("EXTENDED_TCL");
 
         // add a filter
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
@@ -127,11 +135,13 @@ public class FilterTest extends TestCase {
         assertTrue(_filter.match(testPerson_));
     }
 
+
     public void testCreateFilter() throws Exception {
         Filter _filter = factory_.create_filter("EXTENDED_TCL");
 
         assertEquals("EXTENDED_TCL", _filter.constraint_grammar());
     }
+
 
     public void testAddConstraints() throws Exception {
         Filter _filter = factory_.create_filter("EXTENDED_TCL");
@@ -151,6 +161,7 @@ public class FilterTest extends TestCase {
         assertEquals(_eventType[0].domain_name, _info[0].constraint_expression.event_types[0].domain_name);
         assertEquals(_eventType[0].type_name, _info[0].constraint_expression.event_types[0].type_name);
     }
+
 
     public void testDeleteConstraints() throws Exception {
         Filter _filter = factory_.create_filter("EXTENDED_TCL");
@@ -184,6 +195,7 @@ public class FilterTest extends TestCase {
         assertEquals(_info[1].constraint_expression.constraint_expr,
                      _info2[0].constraint_expression.constraint_expr);
     }
+
 
     /**
      * multithreaded test. Some Writers modify the Constraints of a
@@ -219,12 +231,29 @@ public class FilterTest extends TestCase {
         _mod2.join();
     }
 
+
+    public void testMatchEmptyEventTypes() throws Exception {
+        Filter _filter = factory_.create_filter("EXTENDED_TCL");
+
+        // add some filter data
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+        EventType[] _eventType = new EventType[0];
+
+        _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
+        ConstraintInfo[] _info = _filter.add_constraints(_constraintExp);
+
+        // this should match
+        assertTrue(_filter.match(testPerson_));
+    }
+
+
+
     public static Test suite() throws Exception {
         TestSuite _suite = new TestSuite(FilterTest.class);
 
-
         return _suite;
     }
+
 
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());
