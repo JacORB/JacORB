@@ -1225,15 +1225,15 @@ public final class ORB
                                dateString );
         }
 
-        Hashtable initrefs = Environment.getProperties("ORBInitRef");
+//          Hashtable initrefs = Environment.getProperties("ORBInitRef");
 
-        for( Enumeration e = initrefs.keys(); e.hasMoreElements(); )
-        {
-            String key = (String)e.nextElement();
-            Object obj = string_to_object( (String)initrefs.get( key ));
-            if( obj != null )
-                initial_references.put( key.substring( key.indexOf('.')+1), obj);
-        }
+//          for( Enumeration e = initrefs.keys(); e.hasMoreElements(); )
+//          {
+//              String key = (String)e.nextElement();
+//              Object obj = string_to_object( (String)initrefs.get( key ));
+//              if( obj != null )
+//                  initial_references.put( key.substring( key.indexOf('.')+1), obj);
+//          }
 
         always_add_1_0_Profile = 
             Environment.isPropertyOn( "jacorb.giop.add_1_0_profiles" );
