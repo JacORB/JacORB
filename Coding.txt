@@ -36,15 +36,21 @@ source code:
     d) write: x = y, not: x=y
 
     e) Include extra spaces between parenthesis and expression, and
-       around operators
+       around operators,
        For example:
  
              if( foo )
              a = b * c
 
-    e) break lines that get too long  (around column 100)
+    f) No spaces between method names and opening brackets, e.g:
+ 
+             a.method( arg1 );
 
-    f) insert empty lines freely wherever you think it helps.
+             public int myMethod( int param 1, ... )
+
+    g) break lines that get too long  (around column 100)
+
+    h) insert empty lines freely wherever you think it helps.
 
 
 2) Comments:
