@@ -1,3 +1,114 @@
+2004-01-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/AOM.java, poa/Current.java, poa/POA.java,
+	poa/POAManager.java, poa/RPPoolManager.java,
+	poa/RequestController.java: Revert collections back to JDK 1.1,
+	since synchronization is important for some of them.
+
+2004-01-01  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/parser.cup, idl/parser.java, idl/sym.java: new
+	unchecked_narrow option
+
+	* idl/JacIDL.java: added new flag for unchecked_narrow option
+
+	* idl/Interface.java: added code to generated helpers with
+	unchecked_narrow() calls (rather than narrow()), plus minor
+	cosmetics
+
+2003-12-30  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/LogKitLoggerFactory.java (namedLoggers): Use a HashMap
+	instead of a Hashtable.
+
+	* util/Environment.java (trimmedPrefixProps,
+	untrimmedPrefixProps): Use HashMaps instead of Hashtables.
+
+	* poa/RequestProcessor.java (specialOperations): Use a HashMap
+	instead of a Hashtable.
+
+	* poa/RequestController.java (activeRequestTable): Use a HashMap
+	instead of a Hashtable.
+
+	* poa/POA.java (all_policies, childs, createdReferences): Use
+	HashMaps instead of Hashtables.
+
+	* poa/Current.java (threadTable): Use a HashMap instead of a
+	Hashtable.
+
+	* poa/AOM.java (objectMap, servantMap): Use HashMaps instead of
+	Hashtables.
+
+	* orb/ORB.java (initial_references, knownReferences,
+	policy_factories): Use HashMaps instead of Hashtables.
+
+	* orb/CDROutputStream.java,
+	orb/CDRInputStream.java (cachedTypeCodes): Use a HashMap instead
+	of a Hashtable.
+
+	* poa/RPPoolManager.java (pool): Use a List instead of a Vector.
+
+	* poa/RequestController.java (deactivationList): Use a List
+	instead of a Vector.
+
+	* poa/POAManager.java (poas): Use a List instead of a Vector,
+	update all callers.
+
+	* poa/Current.java (_addContext, _removeContext,
+	getInvocationContext): Use Lists instead of Vectors.
+
+	* poa/AOM.java (deactivationList, etherealisationList,
+	incarnationList): Use Lists instead of Vectors. Update all
+	callers.
+
+	* poa/util/POAUtil.java (extractScopedPOANames): Return a List
+	instead of a Vector.
+
+	* orb/ParsedIOR.java (createObjectIOR): Use List instead of
+	Vector.
+
+	* orb/ORB.java (findPOA): Use a List for scopes, not a Vector.
+
+	* orb/CDROutputStream.java (deferredArrayQueue):
+	Instantiate with an ArrayList, not a Vector.
+
+	* orb/giop/ServerRequestListener.java (scopes):
+	Use a List instead of a Vector.
+
+	* orb/dsi/ServerRequest.java (scopes, getScopes):
+	Use a List instead of a Vector.
+
+	* orb/BufferManager.java (bufferPool): Use an array of Lists,
+	rather than Stacks, to avoid synchronization.
+
+	* poa/RequestQueue.java (queue): Use an ArrayList rather than a Vector,
+	to avoid synchronization. Update all callers.
+
+	* orb/Delegate.java (policy_overrides): Use a HashMap rather than
+	a Hashtable.
+	(request): Streamline the check for timing policies.
+
+2003-12-27  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* orb/giop/ClientConnection.java: removed forgotten debug
+	System.out.println
+
+2003-12-23  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/giop/ClientConnection.java: Fixed compilation error.
+
+2003-12-22  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* util/LoggerFactory.java: The visibility of the LoggerFactory
+	interface was changed to public, so that a class can implement
+	this interface without having to live in the package
+	org.jacorb.util.
+
+2003-12-22  Gerald Brose  <gerald.brose@acm.org>
+
+	* util/Environment.java:
+	(init) modified order or loading properties from files.
+
 2003-12-19  Nicolas Noffke <Nicolas.Noffke@web.de>
 
 	* orb/giop/ClientConnection.java, orb/giop/ClientConnectionManager.java:
