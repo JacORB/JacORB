@@ -113,14 +113,21 @@ module Messaging {
 	//
 	// Exception Delivery in the Callback Model
 	//
-	/*
-	value ExceptionHolder {
-		boolean is_system_exception;
-		boolean byte_order;
-		sequence<octet> marshaled_exception;
+        // native UserExceptionBase;
+        //
+        // Replaced with CORBA::UserException below,
+        // as specified in the Java mapping.
+        //
+	valuetype ExceptionHolder {
+                void raise_exception() raises (CORBA::UserException);
+                void raise_exception_with_list(
+                     in CORBA::ExceptionList  exc_list
+                ) raises (CORBA::UserException);
+		private boolean is_system_exception;
+		private boolean byte_order;
+		private sequence<octet> marshaled_exception;
 	};
-	*/
-	//
+        //
 	// Base interface for the Callback model
 	//
 	interface ReplyHandler { };
