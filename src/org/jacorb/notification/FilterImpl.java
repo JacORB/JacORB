@@ -125,7 +125,7 @@ import org.apache.log.Hierarchy;
  * is attached to receive. Operations are also defined to support
  * administration of this callback list by unique identifier. <br>
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -171,7 +171,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected NotificationEventFactory notificationEventFactory_;
 
-    FilterImpl( String constraintGrammar,
+    public FilterImpl( String constraintGrammar,
                 ApplicationContext applicationContext )
     {
         super();
@@ -571,7 +571,7 @@ public class FilterImpl extends FilterPOA implements Disposable
         return getIterator( _key );
     }
 
-    Iterator getIterator( Object key )
+    public Iterator getIterator( Object key )
     {
         Object[] _entries = wildcardMap_.getWithExpansion( key );
         return new ConstraintIterator( _entries );
@@ -781,70 +781,3 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 } // FilterImpl
-
-class ConstraintEntry
-{
-    private FilterConstraint constraintEvaluator_;
-    private ConstraintInfo constraintInfo_;
-    private int constraintId_;
-
-    ////////////////////////////////////////
-
-    ConstraintEntry( int constraintId,
-                     FilterConstraint constraintEvaluator,
-                     ConstraintInfo constraintInfo )
-    {
-
-        constraintId_ = constraintId;
-        constraintEvaluator_ = constraintEvaluator;
-        constraintInfo_ = constraintInfo;
-    }
-
-    ////////////////////////////////////////
-
-    class EventTypeWrapper implements EventTypeIdentifier
-    {
-        EventType et_;
-        String constraintKey_;
-
-        EventTypeWrapper( EventType et )
-        {
-            et_ = et;
-
-            constraintKey_ =
-                FilterUtils.calcConstraintKey( et_.domain_name, et_.type_name );
-        }
-
-        public String toString()
-        {
-            return constraintKey_;
-        }
-    }
-
-    ////////////////////////////////////////
-
-    EventTypeIdentifier getEventTypeIdentifier( int index )
-    {
-        return new EventTypeWrapper( constraintInfo_.constraint_expression.event_types[ index ] );
-    }
-
-    int getEventTypeCount()
-    {
-        return constraintInfo_.constraint_expression.event_types.length;
-    }
-
-    int getConstraintId()
-    {
-        return constraintId_;
-    }
-
-    ConstraintInfo getConstraintInfo()
-    {
-        return constraintInfo_;
-    }
-
-    FilterConstraint getConstraintEvaluator()
-    {
-        return constraintEvaluator_;
-    }
-}
