@@ -101,7 +101,6 @@
    </target>
 
    <target name="gui1" if="java2">
-   <echo message="gui1 ausgefuehrt" />
 	<javac debug="${debug}" srcdir="${dsrc}"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
@@ -114,7 +113,6 @@
    </target>
 
    <target name="gui2" unless="java2">
- <echo message="gui2 ausgefuehrt" />
 	<javac debug="${debug}" srcdir="${dsrc}"
                destdir="${dclassdir}"
 	       includes="org/jacorb/orb/domain/gui/**/*.java"
