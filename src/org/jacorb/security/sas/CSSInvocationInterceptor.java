@@ -28,6 +28,7 @@ import org.omg.Security.*;
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.ORBPackage.*;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.*;
 
 import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
@@ -80,17 +81,22 @@ public class CSSInvocationInterceptor
 
     public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri) throws org.omg.PortableInterceptor.ForwardRequest
     {
+        org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
+
         // see if target requires protected requests by looking into the IOR
-        TaggedComponent tc = null;
+        CompoundSecMechList csmList = null;
         try
         {
-            tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
+            TaggedComponent tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
+            CDRInputStream is = new CDRInputStream( (org.omg.CORBA.ORB)null, tc.component_data);
+            is.openEncapsulatedArray();
+            csmList = CompoundSecMechListHelper.read( is );
         }
         catch (Exception e)
         {
+            Debug.output(2, "Did not find tagged component TAG_CSI_SEC_MECH_LIST");
         }
-        if (tc == null) return;
-        org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
+        if (csmList == null) return;
 
         // generate the context token
         byte[] contextToken = null;
@@ -101,12 +107,12 @@ public class CSSInvocationInterceptor
             GSSName myPeer = gssManager.createName("".getBytes(), GSSName.NT_ANONYMOUS, myMechOid);
             GSSContext myContext = gssManager.createContext(myPeer, myMechOid, myCredential, GSSContext.DEFAULT_LIFETIME);
             contextToken = new byte[0];
-            contextToken = myContext.initSecContext(contextToken, 0, contextToken.length);
+            while (!myContext.isEstablished()) contextToken = myContext.initSecContext(contextToken, 0, contextToken.length);
         }
         catch (Exception e)
         {
-            Debug.output(1, "Could not generate context token: " + e);
-            throw new org.omg.CORBA.NO_PERMISSION();
+            Debug.output(1, "SAS Could not generate context token: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not generate context token: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
 
         // ask connection for client_context_id
@@ -115,7 +121,7 @@ public class CSSInvocationInterceptor
         if (client_context_id < 0) Debug.output(1, "New SAS Context: " + (-client_context_id));
 
         // get ATLAS tokens
-        AuthorizationElement[] authorizationList = getATLASTokens(orb, tc);
+        AuthorizationElement[] authorizationList = getATLASTokens(orb, csmList);
 System.out.println("Authorized list size = " + authorizationList.length);
 
         // establish the security context
@@ -265,7 +271,7 @@ System.out.println("Authorized list size = " + authorizationList.length);
         return any;
     }
 
-    private AuthorizationElement[] getATLASTokens(org.omg.CORBA.ORB orb, TaggedComponent tc) throws org.omg.CORBA.NO_PERMISSION
+    private AuthorizationElement[] getATLASTokens(org.omg.CORBA.ORB orb, CompoundSecMechList csmList) throws org.omg.CORBA.NO_PERMISSION
     {
         // find the ATLAS profile in the IOR
         ATLASProfile atlasProfile = null;
@@ -274,10 +280,10 @@ System.out.println("Authorized list size = " + authorizationList.length);
             //Any any = orb.create_any();
             //any = codec.decode(tc.component_data);
             //CompoundSecMechList compoundSecMechList = CompoundSecMechListHelper.extract(any);
-            CDRInputStream is = new CDRInputStream( orb, tc.component_data);
-            is.openEncapsulatedArray();
-            CompoundSecMechList compoundSecMechList = CompoundSecMechListHelper.read( is );
-            ServiceConfiguration authorities[] = compoundSecMechList.mechanism_list[0].sas_context_mech.privilege_authorities;
+            //CDRInputStream is = new CDRInputStream( orb, tc.component_data);
+            //is.openEncapsulatedArray();
+            //CompoundSecMechList compoundSecMechList = CompoundSecMechListHelper.read( is );
+            ServiceConfiguration authorities[] = csmList.mechanism_list[0].sas_context_mech.privilege_authorities;
             for (int i = 0; i < authorities.length; i++)
             {
                 if (authorities[i].syntax != SCS_ATLAS.value) continue;
