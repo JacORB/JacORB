@@ -14,15 +14,15 @@ gerald.brose@acm.org
         - fully multithreaded, very good performance
 
         - IDL compiler, complies to rev. 2.3 of the Java language mapping
-        - DII, DSI, 
-        - native IIOP, supports IIOP 1.2 Code sets and IIOP over SSL 
+        - DII, DSI,
+        - native IIOP, supports IIOP 1.2 Code sets and IIOP over SSL
         - GIOP 1.2, Bidirectional GIOP
         - POA
         - OBV
         - DynAny
-        - Implementation Repository with GUI 
-        - Interface Repository with GUI 
-        - Applet support and HTTP tunneling 
+        - Implementation Repository with GUI
+        - Interface Repository with GUI
+        - Applet support and HTTP tunneling
 
         - Portable Interceptors (for service context passing)
         - Domain Management
@@ -32,7 +32,7 @@ gerald.brose@acm.org
                 - Trading Service (extension of Mark Spruiell's JTrader)
                 - Event Service
                 - Transaction, collection and concurrency services
-                    (by Alex Sinishin and Viacheslav Tararin of DekaSoft 
+                    (by Alex Sinishin and Viacheslav Tararin of DekaSoft
                     Ltd., Ukraine,taras@deka.kp.km.ua)
 
 
@@ -83,6 +83,10 @@ gerald.brose@acm.org
          - New portable interceptor based implementation. Updates
            to support multiple appligators in different subnets and
            disable appligator use in local subnet. No HTTP tunneling.
+   - IMR:
+         - Background saving thread
+           Duplicate POA/Impl name fix
+           New property jacorb.imr.port_number to configure a fixed port.
 
 1.4 beta 4:
 ===========
@@ -98,7 +102,7 @@ gerald.brose@acm.org
         notes:
 
 	- SSL/JSSE
-	      - added properties 
+	      - added properties
 		      jacorb.security.ssl.server.cipher_suites
 		      jacorb.security.ssl.client.cipher_suites
 		that allow for setting the enabled cipher suites for
@@ -108,13 +112,13 @@ gerald.brose@acm.org
              - incompatibility notice: Please note that the IAIK SSL
 	       and JCE libraries don't work using the JDK 1.4. This is
 	       because the JDK 1.4 only accepts signed cryptography
-	       providers, but the IAIK JCE isn't. 
+	       providers, but the IAIK JCE isn't.
 
 	- Corbaloc with SSL
 
              - added new corbaloc protocol qualifier "ssliop" to allow
 	       for using corbaloc IORs together with SSL. Also added
-	       properties 
+	       properties
 	            jacorb.security.ssl.corbaloc_ssliop.supported_options
 	            jacorb.security.ssl.corbaloc_ssliop.required_options
 	       to be able to configure these SSL connections.
@@ -136,13 +140,13 @@ gerald.brose@acm.org
         - Initial References:
                 Support has been added for resolving object references from
                 JNDI and as resources. This can be done using 'jndi:' or
-                'resource:' based URLs. Unrecognised URL types are now passed 
-                down to the underlying JDK for processing ('https:', 'ftp:' 
+                'resource:' based URLs. Unrecognised URL types are now passed
+                down to the underlying JDK for processing ('https:', 'ftp:'
                 etc.). Note that the javax.naming package required for JNDI
                 support is not included in the JDK 1.2 and this package must be
                 added explicitly to the CLASSPATH.
 
-        - Local Objects: 
+        - Local Objects:
                 The org.jacorb.orb.LocalityConstrainedObject class has
                 been superseded by org.omg.CORBA.LocalObject class as
                 defined in the CORBA 2.4 IDL to Java mapping specification.
@@ -215,11 +219,11 @@ gerald.brose@acm.org
                           operations for these types will throw NO_IMPLEMENT.
                         - DII support operations on singleton ORB now correctly
                           throw NO_IMPLEMENT.
-                        - The create_operation_list operation is now 
+                        - The create_operation_list operation is now
                           implemented.
                         - Added helper classes for CORBA system exceptions.
                 DynAny:
-                        - Operations called on a DynAny that has been 
+                        - Operations called on a DynAny that has been
                           destroyed now throw an OBJECT_NOT_EXIST exception.
                         - Enabled creation of DynAnys with TCKind tk_null and
                           tk_void.
@@ -232,15 +236,15 @@ gerald.brose@acm.org
                           set_to_no_active_member, set_to_default_member and
                           set_discriminator.
                 TypeCode:
-                        - Fix for CDRInputStream::read_TypeCode operation to 
+                        - Fix for CDRInputStream::read_TypeCode operation to
                           handle recursive and repeated TypeCodes.
                         - Fix for ORBSingleton::create_struct_tc and
-                          ORBSingleton::create_union_tc operations to 
+                          ORBSingleton::create_union_tc operations to
                           correctly construct recursive TypeCodes.
                         - Fix for TypeCode API to correctly handle recursive
                           TypeCodes.
                         - Fix for CDRInputStream and CDROutputStream to
-                          correctly calculate the indirection offset value 
+                          correctly calculate the indirection offset value
                           for recursive and repeated TypeCodes.
                         - The create_native_tc, create_local_interface_tc and
                           create_abstract_interface_tc operations are now
@@ -255,21 +259,21 @@ gerald.brose@acm.org
 
         - bug fixes
                 ImR: used wrong name for property jacorb.implname
-                Marshalling: 
+                Marshalling:
                         - occasionally, wrong buffer sizes were
                           calculated in CDROutputStream
-                        - more bugs fixed for recursive and 
-                          repeated TypeCode               
+                        - more bugs fixed for recursive and
+                          repeated TypeCode
                 IDL Compiler fix to handle escape characters
 
-        - Added build compatibility to the JDK 1.4 and fixed 
+        - Added build compatibility to the JDK 1.4 and fixed
           compatibility problems with JDK 1.2
-        
-        - Portable Interceptors: 
-                   - Adapted to new IDL which requires interceptors 
+
+        - Portable Interceptors:
+                   - Adapted to new IDL which requires interceptors
                      to implement operation destroy().
 
-                   - Merged module IOP_N (Codecs, etc.) into module 
+                   - Merged module IOP_N (Codecs, etc.) into module
                      IOP for JDK 1.4 compatibility.
 
         - SSL Support changes:
@@ -286,24 +290,24 @@ gerald.brose@acm.org
 1.4 beta 1:
 ===========
 
-        - This beta compiles only on JDK 1.3 or greater. We will also 
+        - This beta compiles only on JDK 1.3 or greater. We will also
           support JDK 1.2 in the next release, but will give up
           backwards compatibility with JDK 1.1.
 
         - bug fixes:
                 in Any (equals()) and TypeCode (equivalent)
-                marshalling streams: 
+                marshalling streams:
                         recursive and repeated TypeCodes
-                DynAnys: 
+                DynAnys:
                         diverse bugs, e.g., treat aliased types correctly
                         made implementations purely local
-                IDL compiler: 
+                IDL compiler:
                         name resolution bugs
-                POA and ORB: 
+                POA and ORB:
                         memory leaks, local invocations
                 IAIK SSL:
                         fixed bug that prevented mutual authentication
-                        in non-role-change mode.         
+                        in non-role-change mode.
                 Delegate/ImR:
                         fixed bug that caused exceptions when multiple
                         concurrent requests were issued to the ImR.
@@ -312,7 +316,7 @@ gerald.brose@acm.org
                 not supported in this beta ! (please wait for the next
                 release...)
 
-        - SSL support changes:                
+        - SSL support changes:
 
                 - added support for Suns SSL implementation
                   JSSE. Please note that for technical reasons, it
@@ -323,7 +327,7 @@ gerald.brose@acm.org
 
                   jacorb.ssl.socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
                   jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
-                  
+
                 - Made a change in the SSL package structure: classes
                   for IAIKs libraries that were formerly in package
                   org.jacorb.security.ssl are now in the package
@@ -335,17 +339,17 @@ gerald.brose@acm.org
 
                 - Removed property
 
-                  jacorb.security.enforce_ssl 
+                  jacorb.security.enforce_ssl
 
                   Enforcing SSL can now be achieved by setting the
                   required and supported options. Please see the
                   Programming Guide for more details on these
-                  properties. 
-                  
+                  properties.
+
                 - Replaced properties
 
                   jacorb.security.ssl.supported_options
-                  jacorb.security.ssl.required_options   
+                  jacorb.security.ssl.required_options
 
                   by
 
@@ -355,17 +359,17 @@ gerald.brose@acm.org
                   jacorb.security.ssl.server.required_options
 
                   This allows for a more fine-grained setup of
-                  SSL. Please see the Programming Guide for more 
+                  SSL. Please see the Programming Guide for more
                   details on these properties.
 
                 - modified the property "jacorb.security.keystore". It
                   now allows three ways of specifying the keystore
-                  location: 
-                  a) absolute path 
+                  location:
+                  a) absolute path
                   b) relative path to current dir
                   c) relative path to users home dir
                   These possibilities are searched in the order give above.
-        
+
         - OBV support added
                 some feature are still unimplemented:
                   - valuetype inheritance
@@ -378,13 +382,13 @@ gerald.brose@acm.org
 1.3.30
 
         - fixed a problem with client-side connection time outs (clients
-             would only time out once, and not also after subsequent 
-             reconnects).       
+             would only time out once, and not also after subsequent
+             reconnects).
 
-             Involved changing some of COMM_FAILURE exceptions thrown 
+             Involved changing some of COMM_FAILURE exceptions thrown
              in the runtime to IMP_LIMIT for tiemouts - these are the
-             ones yu want to catch! Also changed a few others to 
-             TRANSIENT where they are appropriate for failures in 
+             ones yu want to catch! Also changed a few others to
+             TRANSIENT where they are appropriate for failures in
              the *initial* connection setup.
 
         - IDL compiler bug fixes:
@@ -394,27 +398,27 @@ gerald.brose@acm.org
              Compiler now resets internal table between IDL files passed
                 on the same command line
 
-             Compiler did not complain if oneway operations declare 
+             Compiler did not complain if oneway operations declare
                 exceptions or return types other than void. Now it does.
 
              Compiler did not complain about identifiers in the same
                 scope that differed only in case, which it should according
-                to the spec. Now it correctly rejects definitions like 
+                to the spec. Now it correctly rejects definitions like
                 "teST" and "TEst".
 
              Compiler did not check the IDL 2.3 rules for redefinition of
-                interfaces etc. in nested scopes, now it does. (If that 
+                interfaces etc. in nested scopes, now it does. (If that
                 breaks your IDL files, use the new switch -sloppy_names
                 to have the compiler behave as before.)
 
              Fixed Problems in generated code
-                - String members in exceptions and structs are now initialized 
-                  to "", otherwise there can be CORBA.MARSHAL exceptions 
+                - String members in exceptions and structs are now initialized
+                  to "", otherwise there can be CORBA.MARSHAL exceptions
                   at runtime because of null values.
-                - generated code in multi-dimensional sequences now 
+                - generated code in multi-dimensional sequences now
                   compiles with javac.
                 - Arrays of anys: generated code now compiles with javac.
-                - Corrected references to holder classes for out 
+                - Corrected references to holder classes for out
                   parameters for types aliased to string
 
              Additional bug fixes...
@@ -422,43 +426,43 @@ gerald.brose@acm.org
         - added support for inverse DNS lookup of IP addresses, so IORs
           contain fully qualified host names instead of IP numbers. See
           INSTALL file for details.
-        
+
         - added properties "jacorb.ior_proxy_[host|port]" that replace
           the actual host/port where the ORB listens for requests. This
           is for cases where servers are hidden behind proxies / firewalls.
-        
+
         - fixed a bug where a release() or a LocationForward on a shared
-          object reference caused the irregular termination of other 
+          object reference caused the irregular termination of other
           concurrent requests over that reference.
-  
+
         - added property "custom.props" which can contain a comma separated
           list of additional properties files. These properties will override
-          properties set in the jacorb.properties file. This is useful for 
+          properties set in the jacorb.properties file. This is useful for
           setups with multiple servers/clients, where each process needs its
-          own configuration.   
+          own configuration.
 
         - fixed bugs in trader build files (leftover from "org" change).
 
         - added "auto-register" feature to the ImR. This will register
-          servers, that don't need to be restarted automatically, on their 
-          first startup, so they don't have to be registered manually. This 
-          feature is activated  via a  "-a" switch  to the  ImR process  or 
+          servers, that don't need to be restarted automatically, on their
+          first startup, so they don't have to be registered manually. This
+          feature is activated  via a  "-a" switch  to the  ImR process  or
           by  setting the property "jacorb.imr.allow_auto_register" to "on".
 
-        - renamed property "jacorb.ImplementationRepositoryURL" to 
-          "ORBInitRef.ImplementationRepository", so the ImR is available 
+        - renamed property "jacorb.ImplementationRepositoryURL" to
+          "ORBInitRef.ImplementationRepository", so the ImR is available
           through resolve_initial_references().
 
-        - accepting now ORBInitializer class properties in the form of 
+        - accepting now ORBInitializer class properties in the form of
           "org.omg.PortableInterceptor.ORBInitializerClass.<class name>"
-          for compliance reasons. Old form of 
+          for compliance reasons. Old form of
           "org.omg.PortableInterceptor.ORBInitializerClass.<name>=<class name>"
           is still supported.
 
 
 1.3.21
         - internal redesign: all package names now begin with "org.jacorb"
-          NOTE: You MUST change existing jacorb.properties files to 
+          NOTE: You MUST change existing jacorb.properties files to
           reflect these changes where property values point to JacORB
           classes, e.g. the value for property:
 
@@ -469,9 +473,9 @@ gerald.brose@acm.org
               org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
         - IDL compiler:
-                . added the -nostub switch to suppress generation of client 
+                . added the -nostub switch to suppress generation of client
                   stubs
-                . added the -sloppy_forward switch for forward declared 
+                . added the -sloppy_forward switch for forward declared
                   interfaces without definitions
                 . name resolution bug fixed
                 . stricter checks in lots of places (thanks to Paul Locke)
@@ -489,21 +493,21 @@ gerald.brose@acm.org
           by a portable interceptor
 
         - added few properties to allow for tailor-made authentication
-          implementations (aka PrincipalAuthenticator). Also fixed a 
-          few minor glitches in the SSL setup, so that we can now 
+          implementations (aka PrincipalAuthenticator). Also fixed a
+          few minor glitches in the SSL setup, so that we can now
           interoperate with, e.g., Orbacus' SSL.
 
 1.3.11:
 
         - fixed two minor but annoying syntax errors in the source
-          code... (jacorb/ir/gui/ModelBuilder.java and 
+          code... (jacorb/ir/gui/ModelBuilder.java and
           jacorb/orb/domain/gui/BrowserFrame.java). Also fixed
           broken jacorb.jar file
 
 
 Changes for 1.3.0:
 
-        new: 
+        new:
                 - Interface Repository with GUI Browser
 
         improvements and bug fixes:
@@ -515,9 +519,9 @@ Changes for 1.3.0:
                 - IDL compiler
                         - function of -i2jpackage switch fixed
                         - code generated for helper method narrow()
-                          now compliant (throw BAD_PARAM rather than 
+                          now compliant (throw BAD_PARAM rather than
                           return null)
-                - name server: fixed a problem with reloading persistent state  
+                - name server: fixed a problem with reloading persistent state
                         after restarting
                 - dior utility (ParsedIOR class) now corretcly
                   displays multiple profiles
@@ -544,7 +548,7 @@ Changes for 1.2.2:
 
         added client-side time outs (see properties file)
 
-        changed check for OAIAddr property (address selection 
+        changed check for OAIAddr property (address selection
                 on multi-homed hosts)
 
         IDL compiler:
@@ -577,15 +581,15 @@ Changes for 1.2:
                 - HTTP tunneling
                 - improved SSL integration
 
-        - IDL compiler: 
+        - IDL compiler:
                 - #pragma version works now
-                - accepts value type definitions 
+                - accepts value type definitions
                   (but only syntacically :-), no code is generated)
                 - bug fixes (typedefs, any)
 
         - Implementation Repository: minor changes and fixes
 
-        - ORB: fixed ORBInitRef, now a Java property       
+        - ORB: fixed ORBInitRef, now a Java property
 
         - bug fixes:
                 - Any/TypeCode bug
@@ -610,7 +614,7 @@ Changes for 1.1:
         - Appligator bug fixes and resource usage improvements
 
         - IDL compiler improvements (by Matt Briggs, Vertel Inc.)
-                - new compiler switch no_skel to suppress skeleton 
+                - new compiler switch no_skel to suppress skeleton
                   code generation
                 - extended preprocessor support
                 - removed inter-package dependencies
@@ -623,6 +627,6 @@ Changes for 1.1:
           fiddling, coexist with Sun JDK CORBA classes)
 
         - new, platform-independent build files (for Jakarta's Ant)
-                
-        - internal bug fixes (memory managament, memory leaks, 
+
+        - internal bug fixes (memory managament, memory leaks,
           CDR encapsulation size  tolerance, ...)
