@@ -30,7 +30,7 @@ import java.util.*;
 public class ExceptionList 
 	extends org.omg.CORBA.ExceptionList 
 {
-	private Vector list = new java.util.Vector();
+	private Vector list = new Vector();
 
 	public int count()
 	{

@@ -47,9 +47,9 @@ public class UnionDef
     /* reference to my container as a contained object */
     private org.omg.CORBA.Contained       myContainer;
 	/** local references to contained objects */
-    private Hashtable		             containedLocals = new Hashtable();
+    private Hashtable  containedLocals = new Hashtable();
     /** CORBA references to contained objects */
-    private java.util.Hashtable	         contained = new java.util.Hashtable();
+    private Hashtable  contained = new Hashtable();
 
     private File 		                 my_dir;
     private String                       path;

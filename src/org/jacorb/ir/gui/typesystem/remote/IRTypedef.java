@@ -27,9 +27,9 @@ package org.jacorb.ir.gui.typesystem.remote;
  * 
  */
  
- import java.util.*;
- import org.omg.CORBA.*;
- import javax.swing.tree.*;
+import java.util.*;
+import org.omg.CORBA.*;
+import javax.swing.tree.*;
  
 public class IRTypedef extends IRNode {
 	static {

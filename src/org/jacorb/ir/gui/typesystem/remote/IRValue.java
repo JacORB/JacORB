@@ -28,10 +28,10 @@ package org.jacorb.ir.gui.typesystem.remote;
  * 
  */
 
- import org.jacorb.ir.gui.typesystem.*;
- import java.util.*;
- import org.omg.CORBA.*;
- import javax.swing.tree.*;
+import org.jacorb.ir.gui.typesystem.*;
+import java.util.*;
+import org.omg.CORBA.*;
+import javax.swing.tree.*;
  
 public class IRValue 
     extends IRContainer 
@@ -120,7 +120,7 @@ public class IRValue
     public TypeSystemNode[] getAllFields() 
     {
         if (allFields==null) {
-            Vector fields = new java.util.Vector();
+            Vector fields = new Vector();
 
             // erstmal die Fields der interfaces sammeln
             Interface[] interfaces = getInterfaces();
@@ -161,7 +161,7 @@ public class IRValue
     {
 	if (this.allOperations==null) 
         {
-            Vector operations = new java.util.Vector();
+            Vector operations = new Vector();
             // erstmal die Operationen der interfaces sammeln
             Interface[] interfaces = this.getInterfaces();
             for (int i=0; i<interfaces.length; i++) 
@@ -233,7 +233,7 @@ public class IRValue
     public TypeSystemNode[] getAllMembers() 
     {
 	if (allMembers == null) {
-            Vector members = new java.util.Vector();
+            Vector members = new Vector();
 
             // first collect value members of our base value
             Value base = getBaseValue();

@@ -24,10 +24,10 @@ package org.jacorb.ir.gui.typesystem.remote;
  * 
  */
 
- import org.jacorb.ir.gui.typesystem.*;
- import java.util.*;
- import org.omg.CORBA.*;
- import javax.swing.tree.*;
+import org.jacorb.ir.gui.typesystem.*;
+import java.util.*;
+import org.omg.CORBA.*;
+import javax.swing.tree.*;
  
 public class IRInterface 
     extends IRContainer 
@@ -102,7 +102,7 @@ public class IRInterface
     {
 		if (this.allFields==null) 
 		{
-            Vector fields = new java.util.Vector();
+            Vector fields = new Vector();
             // erstmal die Fields der superInterfaces sammeln
             Interface[] superInterfaces = this.getSuperInterfaces();
             for (int i=0; i<superInterfaces.length; i++) 
@@ -142,7 +142,7 @@ public class IRInterface
     {
 	if (this.allOperations==null) 
         {
-            Vector operations = new java.util.Vector();
+            Vector operations = new Vector();
             // erstmal die Operationen der superInterfaces sammeln
             Interface[] superInterfaces = this.getSuperInterfaces();
             for (int i=0; i<superInterfaces.length; i++) 

@@ -308,7 +308,7 @@ public class KeyStoreUtil
 	if(! ks.isKeyEntry(alias))
 	   return null;
 
-	java.util.Vector vector = new java.util.Vector();
+	Vector vector = new Vector();
 
 	java.security.cert.Certificate[] chain = 
 	    (java.security.cert.Certificate[])ks.getCertificateChain( alias );

@@ -24,6 +24,8 @@ import org.omg.CORBA.*;
 import javax.swing.tree.*;
 import javax.swing.table.*;
 
+import java.util.*;
+
 import org.jacorb.ir.gui.typesystem.*;
 import org.jacorb.util.Debug;
 
@@ -37,8 +39,7 @@ public class RemoteTypeSystem
 {
     Repository rep;
     ORB orb = ORB.init( new String[0], null);
-    private static java.util.Hashtable knownIRObjects = 
-        new java.util.Hashtable();
+    private static Hashtable knownIRObjects = new Hashtable();
 
     private static String test = "";
     private static int test2;

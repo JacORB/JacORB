@@ -23,6 +23,8 @@ package org.jacorb.ir;
 import org.omg.CORBA.TCKind;
 import org.jacorb.orb.TypeCode;
 
+import java.util.*;
+
 /**
  * @author Gerald Brose, FU Berlin
  * @version $Id$    
@@ -30,7 +32,7 @@ import org.jacorb.orb.TypeCode;
  
 public class TypeCodeUtil
 {
-    private static java.util.Hashtable cache = new java.util.Hashtable();
+    private static Hashtable cache = new Hashtable();
 
     static 
     {

@@ -69,7 +69,7 @@ public class WeakHashtable
     }
 
     /**
-     * @overrides elements() in java.util.Hashtable
+     * @overrides elements() in Hashtable
      */
 
     public Enumeration elements()

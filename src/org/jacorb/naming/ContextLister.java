@@ -23,6 +23,7 @@ package org.jacorb.naming;
 import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
 import java.io.*;
+import java.util.*;
 
 /**
  * This class allows listing all bindings in a naming context
@@ -34,7 +35,7 @@ import java.io.*;
 public class ContextLister
 {
     public NamingContextExt root_context;
-    private java.util.Hashtable contexts = new java.util.Hashtable();
+    private Hashtable contexts = new Hashtable();
     private org.omg.CORBA.ORB orb;
 
     public ContextLister(org.omg.CORBA.ORB orb) 

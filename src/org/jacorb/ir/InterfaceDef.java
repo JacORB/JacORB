@@ -73,7 +73,7 @@ public class InterfaceDef
     private Hashtable		                 containedLocals = new Hashtable();
 
     /** CORBA references to contained objects */
-    private java.util.Hashtable	                 contained = new java.util.Hashtable();
+    private Hashtable	                         contained = new Hashtable();
 
     /* reference to my container as a contained object */
     private org.omg.CORBA.Contained              myContainer;

@@ -20,6 +20,8 @@
 
 package org.jacorb.naming.namemanager;
 
+import java.util.*;
+
 public class NSTableModel 
 	extends javax.swing.table.DefaultTableModel 
 {
@@ -51,15 +53,15 @@ public class NSTableModel
     }
     /**
      * 
-     * @param data java.util.Vector
+     * @param data Vector
      */
-    public void setDataVector(java.util.Vector newData) 
+    public void setDataVector(Vector newData) 
     {
         if (newData == null)
             throw new IllegalArgumentException("setDataVector() - Null parameter");
         
         // Clear all the previous data.
-        dataVector = new java.util.Vector(0);
+        dataVector = new Vector(0);
         
         fireTableStructureChanged();
         

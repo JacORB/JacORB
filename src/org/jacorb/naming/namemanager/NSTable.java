@@ -20,6 +20,8 @@
 
 package org.jacorb.naming.namemanager;
 
+import java.util.*;
+
 public class NSTable 
     extends javax.swing.JTable 
 {
@@ -45,9 +47,9 @@ public class NSTable
 	}
     /**
      * 
-     * @param newData java.util.Vector
+     * @param newData Vector
      */
-    public void setData(java.util.Vector newData, ContextNode currentSource) 
+    public void setData(Vector newData, ContextNode currentSource) 
 	{
 	    current = currentSource;
 	    ((NSTableModel)super.getModel()).setDataVector( newData );

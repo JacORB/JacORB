@@ -36,7 +36,7 @@ public class ExceptionDef
     private Class                        myClass;
     private Class                        helperClass;
     private org.omg.CORBA.StructMember[] members;
-    private java.util.Hashtable	         contained = new java.util.Hashtable();
+    private Hashtable	                 contained = new Hashtable();
 
 
     public ExceptionDef(Class c, 

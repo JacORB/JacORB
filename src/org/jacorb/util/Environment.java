@@ -58,7 +58,7 @@ public class Environment
 {
     private static String propertiesFile1       = ".jacorb_properties";
     private static String propertiesFile2       = "jacorb.properties";
-    private static java.util.Vector propertiesFiles = new java.util.Vector();
+    private static Vector propertiesFiles       = new Vector();
     private static String jacorbPrefix          = "jacorb.";
     private static String poaPrefix             = jacorbPrefix + "poa.";
 

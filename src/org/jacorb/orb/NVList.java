@@ -36,13 +36,13 @@ public class NVList
     NVList(org.omg.CORBA.ORB orb)
     {
 	this.orb = orb;
-	list = new java.util.Vector();
+	list = new Vector();
     }
 
     NVList(org.omg.CORBA.ORB orb, int count)
     {
 	this.orb = orb;
-	list = new java.util.Vector(count);
+	list = new Vector(count);
     }
 
     public int count()

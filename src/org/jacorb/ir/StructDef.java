@@ -44,7 +44,7 @@ public class StructDef
     /** local references to contained objects */
     private Hashtable		             containedLocals = new Hashtable();
     /** CORBA references to contained objects */
-    private java.util.Hashtable	         contained = new java.util.Hashtable();
+    private Hashtable	                 contained = new Hashtable();
 
     private File 		         my_dir;
     private String                       path;

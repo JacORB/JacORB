@@ -179,7 +179,7 @@ public class ContextNode
             // Delete those child nodes that were not found in the
             // list
 	
-	    java.util.Vector removeList = new java.util.Vector();
+	    Vector removeList = new Vector();
 	    for (int i=0;i<childCount;i++)
 	    {
 		DefaultMutableTreeNode node=(DefaultMutableTreeNode) 
