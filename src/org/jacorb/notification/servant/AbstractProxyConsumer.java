@@ -22,15 +22,15 @@ package org.jacorb.notification.servant;
 
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.CollectionsWrapper;
-import org.jacorb.notification.conf.Configuration;
-import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.util.EventTypeUtil;
-import org.jacorb.util.Environment;
+import org.jacorb.notification.util.PropertySet;
+import org.jacorb.notification.util.PropertySetListener;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_QOS;
@@ -68,6 +68,8 @@ abstract class AbstractProxyConsumer
 
     ////////////////////////////////////////
 
+    protected MessageFactory messageFactory_;
+
     private TaskProcessor taskProcessor_;
 
     private SynchronizedBoolean isStartTimeSupported_ = new SynchronizedBoolean(true);
@@ -87,6 +89,9 @@ abstract class AbstractProxyConsumer
     {
         super( adminServant,
                channelContext);
+
+        messageFactory_ =
+            channelContext.getMessageFactory();
 
         subsequentDestinations_ = CollectionsWrapper.singletonList(admin_);
 
@@ -132,15 +137,7 @@ abstract class AbstractProxyConsumer
 
     private void configureStartTimeSupported()
     {
-        if (qosSettings_.containsKey(StartTimeSupported.value))
-        {
-            isStartTimeSupported_.set(qosSettings_.get(StartTimeSupported.value).extract_boolean());
-        }
-        else
-        {
-            isStartTimeSupported_.set(Environment.isPropertyOn(Configuration.START_TIME_SUPPORTED,
-                                      Default.DEFAULT_START_TIME_SUPPORTED));
-        }
+        isStartTimeSupported_.set(qosSettings_.get(StartTimeSupported.value).extract_boolean());
 
         if (logger_.isInfoEnabled())
         {
@@ -151,15 +148,7 @@ abstract class AbstractProxyConsumer
 
     private void configureStopTimeSupported()
     {
-        if (qosSettings_.containsKey(StopTimeSupported.value))
-        {
-            isStopTimeSupported_.set(qosSettings_.get(StopTimeSupported.value).extract_boolean());
-        }
-        else
-        {
-            isStopTimeSupported_.set(Environment.isPropertyOn(Configuration.STOP_TIME_SUPPORTED,
-                                     Default.DEFAULT_STOP_TIME_SUPPORTED));
-        }
+        isStopTimeSupported_.set(qosSettings_.get(StopTimeSupported.value).extract_boolean());
 
         if (logger_.isInfoEnabled())
         {
@@ -177,24 +166,13 @@ abstract class AbstractProxyConsumer
         }
     }
 
+
     /**
      * check if a Message is acceptable to the QoS Settings of this ProxyConsumer
      */
     protected void checkMessageProperties(Message mesg)
     {
-        if (mesg.hasStartTime() && !isStartTimeSupported_.get() )
-        {
-            logger_.error("StartTime NOT allowed");
-
-            throw new BAD_QOS("property StartTime is not allowed");
-        }
-
-        if (mesg.hasStopTime() && !isStopTimeSupported_.get() )
-        {
-            logger_.error("StopTime NOT allowed");
-
-            throw new BAD_QOS("property StopTime is not allowed");
-        }
+        // No Op
     }
 
 
@@ -269,7 +247,8 @@ abstract class AbstractProxyConsumer
                 removeListener();
                 break;
             default:
-                throw new IllegalArgumentException("Illegal ObtainInfoMode: ObtainInfoMode." + obtainInfoMode.value() );
+                throw new IllegalArgumentException("Illegal ObtainInfoMode: ObtainInfoMode."
+                                                   + obtainInfoMode.value() );
         }
 
         return _subscriptionTypes;
