@@ -35,16 +35,16 @@ class ConstDecl extends Declaration
     private static Hashtable values = new Hashtable();
     private static Hashtable declarations = new Hashtable();
 
-    private ScopedName t = new ScopedName( new_num() );
+    private ScopedName t = new ScopedName(new_num());
     private int pos_int_const = 0;
     private boolean int_const_set = false;
 
     public ConstExpr const_expr;
     public ConstType const_type;
 
-    public ConstDecl( int num )
+    public ConstDecl(int num)
     {
-        super( num );
+        super(num);
     }
 
     public static void init()
@@ -53,12 +53,12 @@ class ConstDecl extends Declaration
         declarations.clear();
     }
 
-    public static String namedValue( ScopedName sn )
+    public static String namedValue(ScopedName sn)
     {
         String resolvedName = sn.resolvedName();
-        if( values.containsKey( resolvedName ) )
+        if (values.containsKey(resolvedName))
         {
-            return (String)values.get( resolvedName );
+            return (String)values.get(resolvedName);
         }
         else
         {
@@ -66,53 +66,53 @@ class ConstDecl extends Declaration
         }
     }
 
-    public void setPackage( String s )
+    public void setPackage(String s)
     {
-        s = parser.pack_replace( s );
-        super.setPackage( s );
-        const_type.setPackage( s );
-        const_expr.setPackage( s );
+        s = parser.pack_replace(s);
+        super.setPackage(s);
+        const_type.setPackage(s);
+        const_expr.setPackage(s);
         t.typeName = name;
-        t.setPackage( s );
+        t.setPackage(s);
     }
 
     public void parse()
     {
-        const_expr.setDeclaration( this );
+        const_expr.setDeclaration(this);
         try
         {
-            NameTable.define( full_name(), "constant" );
+            NameTable.define(full_name(), "constant");
         }
-        catch( NameAlreadyDefined p )
+        catch (NameAlreadyDefined p)
         {
-            parser.error( "Constant " + full_name() +
-                    " already defined", token );
+            parser.error("Constant " + full_name() +
+                         " already defined", token);
         }
         const_type.parse();
         const_expr.parse();
         t.typeName = name;
-        values.put( t.resolvedName() +
-                    ( contained() ? "" : ".value" ),
-                    const_expr.value() );
+        values.put(t.resolvedName() +
+                   (contained() ? "" : ".value"),
+                   const_expr.value());
 
-        if( logger.isDebugEnabled() )
+        if (logger.isDebugEnabled())
         {
             logger.debug("ConstDecl.parse, put value: " + t.resolvedName() +
-                         ( contained() ? "" : ".value" ) + " , " + 
-                         const_expr.value() );
+                         (contained() ? "" : ".value") + " , " +
+                         const_expr.value());
         }
 
-        declarations.put( t.resolvedName(), this );
+        declarations.put(t.resolvedName(), this);
     }
 
-    static ConstDecl getDeclaration( String resolvedName )
+    static ConstDecl getDeclaration(String resolvedName)
     {
-        return (ConstDecl)declarations.get( resolvedName );
+        return (ConstDecl)declarations.get(resolvedName);
     }
 
     int pos_int_const()
     {
-        if( !int_const_set )
+        if (!int_const_set)
         {
             pos_int_const = const_expr.pos_int_const();
             int_const_set = true;
@@ -125,53 +125,53 @@ class ConstDecl extends Declaration
      *  interface
      */
 
-    public void printContained( PrintWriter ps )
+    public void printContained(PrintWriter ps)
     {
         TypeSpec ts = const_type.symbol.typeSpec();
         boolean alias = ts instanceof AliasTypeSpec;
 
-        if( ts instanceof AliasTypeSpec )
+        if (ts instanceof AliasTypeSpec)
         {
-            ts = ( (AliasTypeSpec)ts ).originalType();
+            ts = ((AliasTypeSpec)ts).originalType();
         }
 
-        ps.print( "\t" + const_type + " " + name + " = " );
-        if( ts instanceof IntType && ( (IntType)ts ).type_spec instanceof ShortType )
+        ps.print("\t" + const_type + " " + name + " = ");
+        if (ts instanceof IntType && ((IntType)ts).type_spec instanceof ShortType)
         {
             // short constant values have to be cast explicitly
-            ps.print( "(short)(" );
-            const_expr.print( ps );
-            ps.println( ");" );
+            ps.print("(short)(");
+            const_expr.print(ps);
+            ps.println(");");
         }
-        else if( ts instanceof LongLongType )
+        else if (ts instanceof LongLongType)
         {
             ps.print (const_expr.toString () + ';');
         }
-        else if( ts instanceof FloatType )
+        else if (ts instanceof FloatType)
         {
             // float constant values have to be cast explicitly
-            ps.print( "(float)(" );
-            const_expr.print( ps );
-            ps.println( ");" );
+            ps.print("(float)(");
+            const_expr.print(ps);
+            ps.println(");");
         }
-        else if( ts instanceof FixedPointConstType )
+        else if (ts instanceof FixedPointConstType)
         {
             // fixed point values have to be created explicitly
-            ps.print( "new java.math.BigDecimal(" );
-            const_expr.print( ps );
-            ps.println( ");" );
+            ps.print("new java.math.BigDecimal(");
+            const_expr.print(ps);
+            ps.println(");");
         }
-        else if( ts instanceof OctetType )
+        else if (ts instanceof OctetType)
         {
             // float constant values have to be cast explicitly
-            ps.print( "(byte)(" );
-            const_expr.print( ps );
-            ps.println( ");" );
+            ps.print("(byte)(");
+            const_expr.print(ps);
+            ps.println(");");
         }
         else
         {
-            const_expr.print( ps );
-            ps.println( ";" );
+            const_expr.print(ps);
+            ps.println(";");
         }
     }
 
@@ -181,18 +181,18 @@ class ConstDecl extends Declaration
         boolean result = false;
         IdlSymbol enc = getEnclosingSymbol();
 
-        while( enc != null )
+        while(enc != null)
         {
-            if( enc instanceof Interface )
+            if (enc instanceof Interface)
             {
                 result = true;
                 break;
             }
             enc = enc.getEnclosingSymbol();
         }
-        if( logger.isDebugEnabled() )
-		 logger.debug( "ConstDecl.contained()? " + full_name()
-                + " returns " + result );
+        if (logger.isDebugEnabled())
+            logger.debug("ConstDecl.contained()? " + full_name()
+                         + " returns " + result);
         return result;
     }
 
@@ -200,19 +200,20 @@ class ConstDecl extends Declaration
      *  into a separate interface
      */
 
-    public void print( PrintWriter ps )
+    public void print(PrintWriter ps)
     {
-        if( contained() || ( included && !generateIncluded() ) )
+        if (contained() || (included && !generateIncluded()))
             return;
+
         try
         {
             //new RuntimeException().printStackTrace();
-            String fullName = ScopedName.unPseudoName( full_name() );
+            String fullName = ScopedName.unPseudoName(full_name());
             String className;
-            if( fullName.indexOf( '.' ) > 0 )
+            if (fullName.indexOf('.') > 0)
             {
-                pack_name = fullName.substring( 0, fullName.lastIndexOf( '.' ) );
-                className = fullName.substring( fullName.lastIndexOf( '.' ) + 1 );
+                pack_name = fullName.substring(0, fullName.lastIndexOf('.'));
+                className = fullName.substring(fullName.lastIndexOf('.') + 1);
             }
             else
             {
@@ -221,85 +222,87 @@ class ConstDecl extends Declaration
             }
 
             String path = parser.out_dir + fileSeparator +
-                    pack_name.replace( '.', fileSeparator );
-            File dir = new File( path );
-            if( !dir.exists() )
+                pack_name.replace('.', fileSeparator);
+            File dir = new File(path);
+            if (!dir.exists())
             {
-                if( !dir.mkdirs() )
+                if (!dir.mkdirs())
                 {
-                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
+                    org.jacorb.idl.parser.fatal_error("Unable to create " + path, null);
                 }
             }
 
             String fname = className + ".java";
-            PrintWriter pw =
-                    new PrintWriter( new java.io.FileWriter(
-                            new File( dir, fname ) ) );
+            File f = new File(dir, fname);
 
-            if( logger.isDebugEnabled() )
-		 logger.debug( "ConstDecl.print " + fname );
-
-            if( parser.checkJdk14 && pack_name.equals( "" ) )
-                parser.fatal_error
-                    ( "No package defined for " + className + " - illegal in JDK1.4", token );
-            if( !pack_name.equals( "" ) )
-                pw.println( "package " + pack_name + ";" );
-
-            pw.println( "/**" );
-            pw.println( " * Automatically generated from IDL const definition " );
-            pw.println( " * @author JacORB IDL compiler " );
-            pw.println( " */\n" );
-
-
-            pw.println( "public interface " + className );
-            pw.println( "{" );
-
-            TypeSpec ts = const_type.symbol.typeSpec();
-            if (ts instanceof AliasTypeSpec)
+            if (GlobalInputStream.isMoreRecentThan(f))
             {
-                ts = ( (AliasTypeSpec)ts ).originalType();
-            }
+                PrintWriter pw = new PrintWriter(new java.io.FileWriter(f));
 
-            pw.print( "\t" + const_type.toString() + " value = " );
+                if (logger.isDebugEnabled())
+                    logger.debug("ConstDecl.print " + fname);
 
-            if( logger.isWarnEnabled() )
-		 logger.warn( "ConstDecl, ts " +
-                    const_type.toString() + " " + ts.getClass() );
+                if (parser.checkJdk14 && pack_name.equals(""))
+                    parser.fatal_error
+                        ("No package defined for " + className + " - illegal in JDK1.4", token);
+                if (!pack_name.equals(""))
+                    pw.println("package " + pack_name + ";");
 
-            if( ts instanceof ShortType )
-            {
-                // short constant values have to be cast explicitly
-                pw.print( "(short)(" + const_expr.toString() + ");" );
+                pw.println("/**");
+                pw.println(" * Automatically generated from IDL const definition ");
+                pw.println(" * @author JacORB IDL compiler ");
+                pw.println(" */\n");
+
+                pw.println("public interface " + className);
+                pw.println("{");
+
+                TypeSpec ts = const_type.symbol.typeSpec();
+                if (ts instanceof AliasTypeSpec)
+                {
+                    ts = ((AliasTypeSpec)ts).originalType();
+                }
+
+                pw.print("\t" + const_type.toString() + " value = ");
+
+                if (logger.isWarnEnabled())
+                    logger.warn("ConstDecl, ts " +
+                                const_type.toString() + " " + ts.getClass());
+
+                if (ts instanceof ShortType)
+                {
+                    // short constant values have to be cast explicitly
+                    pw.print("(short)(" + const_expr.toString() + ");");
+                }
+                else if (ts instanceof LongLongType)
+                {
+                    pw.print (const_expr.toString () + ';');
+                }
+                else if (ts instanceof FloatType)
+                {
+                    // float constant values have to be cast explicitly
+                    pw.println("(float)(" + const_expr.toString() + ");");
+                }
+                else if (ts instanceof OctetType)
+                {
+                    // float constant values have to be cast explicitly
+                    pw.println("(byte)(" + const_expr.toString() + ");");
+                }
+                else if (ts instanceof FixedPointConstType ||
+                         ts instanceof FixedPointType)
+                {
+                    pw.println("new java.math.BigDecimal (" + const_expr.toString() + ");");
+                }
+                else
+                {
+                    pw.println(const_expr.toString() + ";");
+                }
+                pw.println("}");
+                pw.close();
             }
-            else if( ts instanceof LongLongType )
-            {
-                pw.print (const_expr.toString () + ';');
-            }
-            else if( ts instanceof FloatType )
-            {
-                // float constant values have to be cast explicitly
-                pw.println( "(float)(" + const_expr.toString() + ");" );
-            }
-            else if( ts instanceof OctetType )
-            {
-                // float constant values have to be cast explicitly
-                pw.println( "(byte)(" + const_expr.toString() + ");" );
-            }
-            else if( ts instanceof FixedPointConstType ||
-                    ts instanceof FixedPointType )
-            {
-                pw.println( "new java.math.BigDecimal (" + const_expr.toString() + ");" );
-            }
-            else
-            {
-                pw.println( const_expr.toString() + ";" );
-            }
-            pw.println( "}" );
-            pw.close();
         }
-        catch( java.io.IOException i )
+        catch (java.io.IOException i)
         {
-            System.err.println( "File IO error" );
+            System.err.println("File IO error");
             i.printStackTrace();
         }
     }
