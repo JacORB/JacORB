@@ -21,11 +21,13 @@ package org.jacorb.notification.queue;
  *
  */
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.util.QoSPropertySet;
@@ -37,176 +39,190 @@ import org.omg.CosNotification.LifoOrder;
 import org.omg.CosNotification.MaxEventsPerConsumer;
 import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.PriorityOrder;
-import org.omg.CosNotification.UnsupportedQoS;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$ 
+ * @version $Id$
  */
 
 public class EventQueueFactory implements Configurable
 {
     private static final short UNKNOWN_POLICY = Short.MIN_VALUE;
-    private static final Map mapOrderPolicyNameToValue = new HashMap();
-    private static final Map mapDiscardPolicyNameToValue = new HashMap();
-    private static final String[] mapOrderPolicyValueToName;
-    private static final String[] mapDiscardPolicyValueToName;
+
+    private static final Map mapOrderPolicyNameToValue;
+
+    private static final Map mapDiscardPolicyNameToValue;
 
     private String orderPolicy_;
+
     private String discardPolicy_;
 
-    static {
-        mapOrderPolicyNameToValue.put("AnyOrder",
-                                      new Short(AnyOrder.value));
-        mapOrderPolicyNameToValue.put("FifoOrder",
-                                      new Short(FifoOrder.value));
-        mapOrderPolicyNameToValue.put("PriorityOrder",
-                                      new Short(PriorityOrder.value));
-        mapOrderPolicyNameToValue.put("DeadlineOrder",
-                                      new Short(DeadlineOrder.value));
-        mapOrderPolicyValueToName = new String[] {
-                                        "AnyOrder",
-                                        "FifoOrder",
-                                        "PriorityOrder",
-                                        "DeadlineOrder"
-                                    };
-
-        mapDiscardPolicyNameToValue.put( "AnyOrder",
-                                         new Short(AnyOrder.value));
-        mapDiscardPolicyNameToValue.put( "FifoOrder",
-                                         new Short(FifoOrder.value));
-        mapDiscardPolicyNameToValue.put( "LifoOrder",
-                                         new Short(LifoOrder.value));
-        mapDiscardPolicyNameToValue.put( "PriorityOrder",
-                                         new Short(PriorityOrder.value));
-        mapDiscardPolicyNameToValue.put( "DeadlineOrder",
-                                         new Short(DeadlineOrder.value));
-        mapDiscardPolicyValueToName = new String[] {
-                                          "AnyOrder",
-                                          "FifoOrder",
-                                          "PriorityOrder",
-                                          "DeadlineOrder",
-                                          "LifoOrder"
-                                      };
-
-    }
-
-    public void configure(Configuration conf)
+    static
     {
-        orderPolicy_ = conf.getAttribute( Attributes.ORDER_POLICY,
-                                          Default.DEFAULT_ORDER_POLICY );
+        Map orderMap = new HashMap();
+        
+        orderMap.put("anyorder", new Short(AnyOrder.value));
+        orderMap.put("fifoorder", new Short(FifoOrder.value));
+        orderMap.put("priorityorder", new Short(PriorityOrder.value));
+        orderMap.put("deadlineorder", new Short(DeadlineOrder.value));
 
-        discardPolicy_ = conf.getAttribute( Attributes.DISCARD_POLICY,
-                                            Default.DEFAULT_DISCARD_POLICY );
+        mapOrderPolicyNameToValue = Collections.unmodifiableMap(orderMap);
+        
+        
+        Map discardMap = new HashMap();
+        
+        discardMap.put("anyorder", new Short(AnyOrder.value));
+        discardMap.put("fifoorder", new Short(FifoOrder.value));
+        discardMap.put("lifoorder", new Short(LifoOrder.value));
+        discardMap.put("priorityorder", new Short(PriorityOrder.value));
+        discardMap.put("deadlineorder", new Short(DeadlineOrder.value));
+        
+        mapDiscardPolicyNameToValue = Collections.unmodifiableMap(discardMap);
     }
 
     ////////////////////////////////////////
 
-    public EventQueueFactory()
-    {}
+    public EventQueueFactory(Configuration config) throws ConfigurationException
+    {
+        configure(config);
+    }
 
     ////////////////////////////////////////
 
-    public EventQueue newEventQueue( QoSPropertySet qosProperties )
-        throws UnsupportedQoS
+    public void configure(Configuration conf) throws ConfigurationException
     {
-        short shortOrderPolicy = orderPolicyNameToValue( orderPolicy_ );
+        try
+        {
+            setOrderPolicy(conf.getAttribute(Attributes.ORDER_POLICY, Default.DEFAULT_ORDER_POLICY));
 
-        short shortDiscardPolicy = discardPolicyNameToValue( discardPolicy_ );
+            setDiscardPolicy(conf.getAttribute(Attributes.DISCARD_POLICY,
+                    Default.DEFAULT_DISCARD_POLICY));
+        } catch (IllegalArgumentException e)
+        {
+            throw new ConfigurationException("Invalid Policy", e);
+        }
+    }
+
+    private void setDiscardPolicy(String s)
+    {
+        String policy = s.toLowerCase().trim();
+
+        if (mapDiscardPolicyNameToValue.containsKey(policy))
+        {
+            discardPolicy_ = policy;
+        }
+        else
+        {
+            throw new IllegalArgumentException("Invalid DiscardPolicy: " + s);
+        }
+    }
+
+    private void setOrderPolicy(String s)
+    {
+        String policy = s.toLowerCase().trim();
+
+        if (mapOrderPolicyNameToValue.containsKey(policy))
+        {
+            orderPolicy_ = policy;
+        }
+        else
+        {
+            throw new IllegalArgumentException("Invalid OrderPolicy: " + s);
+        }
+    }
+
+    public MessageQueueAdapter newMessageQueue(QoSPropertySet qosProperties)
+    {
+        short shortOrderPolicy = orderPolicyNameToValue(orderPolicy_);
+
+        short shortDiscardPolicy = discardPolicyNameToValue(discardPolicy_);
 
         int maxEventsPerConsumer;
 
-        try {
-            maxEventsPerConsumer = qosProperties.get( MaxEventsPerConsumer.value ).extract_long();
-        } catch (Exception e) {
+        try
+        {
+            maxEventsPerConsumer = qosProperties.get(MaxEventsPerConsumer.value).extract_long();
+        } catch (Exception e)
+        {
             maxEventsPerConsumer = Default.DEFAULT_MAX_EVENTS_PER_CONSUMER;
         }
 
-        if (qosProperties.containsKey( OrderPolicy.value ))
+        if (qosProperties.containsKey(OrderPolicy.value))
         {
-            shortOrderPolicy =
-                qosProperties.get(OrderPolicy.value).extract_short();
+            shortOrderPolicy = qosProperties.get(OrderPolicy.value).extract_short();
         }
 
         if (qosProperties.containsKey(DiscardPolicy.value))
         {
-            shortDiscardPolicy =
-                qosProperties.get( DiscardPolicy.value ).extract_short();
+            shortDiscardPolicy = qosProperties.get(DiscardPolicy.value).extract_short();
         }
 
-        AbstractBoundedEventQueue queue;
+        final EventQueueOverflowStrategy _overflowStrategy;
+        switch (shortDiscardPolicy) {
+        case AnyOrder.value:
+        // fallthrough. will default to FifoOrder
 
-        switch ( shortOrderPolicy )
-        {
-            case AnyOrder.value:
-                // fallthrough
+        case FifoOrder.value:
+            _overflowStrategy = EventQueueOverflowStrategy.FIFO;
+            break;
 
-            case FifoOrder.value:
-                queue = new BoundedFifoEventQueue( maxEventsPerConsumer );
-                break;
+        case LifoOrder.value:
+            _overflowStrategy = EventQueueOverflowStrategy.LIFO;
+            break;
 
-            case PriorityOrder.value:
-                queue = new BoundedPriorityEventQueue( maxEventsPerConsumer );
-                break;
+        case PriorityOrder.value:
+            _overflowStrategy = EventQueueOverflowStrategy.LEAST_PRIORITY;
+            break;
 
-            case DeadlineOrder.value:
-                queue = new BoundedDeadlineEventQueue( maxEventsPerConsumer );
-                break;
+        case DeadlineOrder.value:
+            _overflowStrategy = EventQueueOverflowStrategy.EARLIEST_TIMEOUT;
+            break;
 
-            default:
-                throw new IllegalArgumentException( "Orderpolicy: "
-                                                    + orderPolicy_
-                                                    + " OrderPolicyValue: "
-                                                    + shortOrderPolicy
-                                                    + " unknown" );
+        default:
+            throw new IllegalArgumentException("Discardpolicy: " + discardPolicy_
+                    + "DiscardPolicyValue: " + shortDiscardPolicy + " unknown");
         }
 
-        switch ( shortDiscardPolicy )
-        {
-            case AnyOrder.value:
-                // fallthrough
+        final AbstractBoundedEventQueue queue;
+        switch (shortOrderPolicy) {
+        case AnyOrder.value:
+        // fallthrough. will default to FifoOrder
 
-            case FifoOrder.value:
-                queue.setOverflowStrategy( EventQueueOverflowStrategy.FIFO );
-                break;
+        case FifoOrder.value:
+            queue = new BoundedFifoEventQueue(maxEventsPerConsumer, _overflowStrategy);
+            break;
 
-            case LifoOrder.value:
-                queue.setOverflowStrategy( EventQueueOverflowStrategy.LIFO );
-                break;
+        case PriorityOrder.value:
+            queue = new BoundedPriorityEventQueue(maxEventsPerConsumer, _overflowStrategy);
+            break;
 
-            case PriorityOrder.value:
-                queue.setOverflowStrategy( EventQueueOverflowStrategy.LEAST_PRIORITY );
-                break;
+        case DeadlineOrder.value:
+            queue = new BoundedDeadlineEventQueue(maxEventsPerConsumer, _overflowStrategy);
+            break;
 
-            case DeadlineOrder.value:
-                queue.setOverflowStrategy( EventQueueOverflowStrategy.EARLIEST_TIMEOUT );
-                break;
-
-            default:
-                throw new IllegalArgumentException( "Discardpolicy: "
-                                                    + discardPolicy_
-                                                    + "DiscardPolicyValue: "
-                                                    + shortDiscardPolicy
-                                                    + " unknown" );
+        default:
+            throw new IllegalArgumentException("Orderpolicy: " + orderPolicy_
+                    + " OrderPolicyValue: " + shortOrderPolicy + " unknown");
         }
-        return queue;
+
+        return new BasicMessageQueueAdapter(queue);
     }
 
-
-    public static short orderPolicyNameToValue( String orderPolicyName )
+    private static short orderPolicyNameToValue(String orderPolicyName)
     {
-        if (mapOrderPolicyNameToValue.containsKey(orderPolicyName))
-            return ((Short)mapOrderPolicyNameToValue.get(orderPolicyName)).
-                   shortValue();
+        if (mapOrderPolicyNameToValue.containsKey(orderPolicyName.toLowerCase()))
+        {
+            return ((Short) mapOrderPolicyNameToValue.get(orderPolicyName)).shortValue();
+        }
         return UNKNOWN_POLICY;
     }
 
-
-    public static short discardPolicyNameToValue( String discardPolicyName )
+    private static short discardPolicyNameToValue(String discardPolicyName)
     {
-        if (mapDiscardPolicyNameToValue.containsKey(discardPolicyName))
-            return ((Short)mapDiscardPolicyNameToValue.get(discardPolicyName)).
-                   shortValue();
+        if (mapDiscardPolicyNameToValue.containsKey(discardPolicyName.toLowerCase()))
+        {
+            return ((Short) mapDiscardPolicyNameToValue.get(discardPolicyName)).shortValue();
+        }
         return UNKNOWN_POLICY;
     }
 }

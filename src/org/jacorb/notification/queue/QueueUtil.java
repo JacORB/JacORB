@@ -32,172 +32,97 @@ import org.jacorb.notification.interfaces.Message;
 
 class QueueUtil
 {
-
-    private QueueUtil() {}
+    private QueueUtil()
+    {
+        // not intended to be invoked
+    }
 
     ////////////////////////////////////////
 
-    static final Message[] NOTIFICATION_EVENT_ARRAY_TEMPLATE =
-        new Message[ 0 ];
+    static final Message[] MESSAGE_ARRAY_TEMPLATE = new Message[0];
 
-    static final HeapEntry[] HEAP_ENTRY_ARRAY_TEMPLATE =
-        new HeapEntry[ 0 ];
-
+    static final HeapEntry[] HEAP_ENTRY_ARRAY_TEMPLATE = new HeapEntry[0];
 
     static Comparator ASCENDING_TIMEOUT_COMPARATOR = new Comparator()
+    {
+        public int compare(Object left, Object right)
         {
-            public int compare( Object o1, Object o2 )
+            Message _left = toMessage(left);
+            Message _right = toMessage(right);
+
+            if (_left.hasTimeout())
             {
-                Message n1;
-                Message n2;
+                if (!_right.hasTimeout())
+                {
+                    return -1;
+                }
 
-                if ( o1 instanceof HeapEntry )
-                    {
-                        n1 = ( ( HeapEntry ) o1 ).event_;
-                    }
-                else if ( o1 instanceof Message )
-                    {
-                        n1 = ( Message ) o1;
-                    }
-                else
-                    {
-                        throw new IllegalArgumentException();
-                    }
-
-                if ( o2 instanceof HeapEntry )
-                    {
-                        n2 = ( ( HeapEntry ) o2 ).event_;
-                    }
-                else if ( o2 instanceof Message )
-                    {
-                        n2 = ( Message ) o2;
-                    }
-                else
-                    {
-                        throw new IllegalArgumentException();
-                    }
-
-
-                if ( n1.hasTimeout() )
-                    {
-                        if ( !n2.hasTimeout() )
-                            {
-                                return -1;
-                            }
-                        else
-                            {
-                                if ( n1.getTimeout() < n2.getTimeout() )
-                                    {
-                                        return -1;
-                                    }
-                                else if ( n1.getTimeout() > n2.getTimeout() )
-                                    {
-                                        return 1;
-                                    }
-                                else
-                                    {
-                                        return 0;
-                                    }
-                            }
-                    }
-                else if ( n2.hasTimeout() )
-                    {
-                        return 1;
-                    }
-                else
-                    {
-                        return 0;
-                    }
+                return (int) (_left.getTimeout() - _right.getTimeout());
             }
-        };
+            else if (_right.hasTimeout())
+            {
+                return 1;
+            }
+
+            return 0;
+        }
+    };
 
     static Comparator ASCENDING_AGE_COMPARATOR = new Comparator()
+    {
+        public int compare(Object left, Object right)
         {
-            public int compare( Object o1, Object o2 )
-            {
-                HeapEntry e1 = ( HeapEntry ) o1;
-                HeapEntry e2 = ( HeapEntry ) o2;
+            HeapEntry _left = (HeapEntry) left;
+            HeapEntry _right = (HeapEntry) right;
 
-                if ( e1.order_ < e2.order_ )
-                    {
-                        return -1;
-                    }
-                else if ( e1.order_ > e2.order_ )
-                    {
-                        return 1;
-                    }
-                else
-                    {
-                        return 0;
-                    }
-            }
-        };
+            return (int)(_left.order_ - _right.order_);
+        }
+    };
 
     static Comparator DESCENDING_AGE_COMPARATOR = new Comparator()
+    {
+        public int compare(Object left, Object right)
         {
-            public int compare( Object o1, Object o2 )
-            {
-                return -ASCENDING_AGE_COMPARATOR.compare( o1, o2 );
-            }
-        };
-
+            return -ASCENDING_AGE_COMPARATOR.compare(left, right);
+        }
+    };
 
     static Comparator ASCENDING_PRIORITY_COMPARATOR = new Comparator()
+    {
+        public int compare(Object left, Object right)
         {
-            public int compare( Object o1, Object o2 )
-            {
+            Message _right = toMessage(right);
 
-                Message n1;
-                Message n2;
-
-                if ( o1 instanceof HeapEntry )
-                    {
-                        n1 = ( ( HeapEntry ) o1 ).event_;
-                    }
-                else if ( o1 instanceof Message )
-                    {
-                        n1 = ( Message ) o1;
-                    }
-                else
-                    {
-                        throw new IllegalArgumentException();
-                    }
-
-                if ( o2 instanceof HeapEntry )
-                    {
-                        n2 = ( ( HeapEntry ) o2 ).event_;
-                    }
-                else if ( o2 instanceof Message )
-                    {
-                        n2 = ( Message ) o2;
-                    }
-                else
-                    {
-                        throw new IllegalArgumentException();
-                    }
-
-
-                if ( n1.getPriority() < n2.getPriority() )
-                    {
-                        return -1;
-                    }
-                else if ( n1.getPriority() > n2.getPriority() )
-                    {
-                        return 1;
-                    }
-                else
-                    {
-                        return 0;
-                    }
-            }
-        };
-
-
+            Message _left = toMessage(left);
+            
+            return _left.getPriority() - _right.getPriority();
+        }        
+    };
+    
     static Comparator DESCENDING_PRIORITY_COMPARATOR = new Comparator()
+    {
+        public int compare(Object left, Object right)
         {
-            public int compare( Object o1, Object o2 )
-            {
-                return -ASCENDING_PRIORITY_COMPARATOR.compare( o1, o2 );
-            }
-        };
+            return -ASCENDING_PRIORITY_COMPARATOR.compare(left, right);
+        }
+    };
+    
+    static Message toMessage(Object object)
+    {
+        final Message _message;
+        
+        if (object instanceof HeapEntry)
+        {
+            _message = ((HeapEntry) object).event_;
+        }
+        else if (object instanceof Message)
+        {
+            _message = (Message) object;
+        }
+        else
+        {
+            throw new IllegalArgumentException();
+        }
+        return _message;
+    }    
 }

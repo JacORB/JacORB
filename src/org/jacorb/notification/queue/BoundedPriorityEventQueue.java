@@ -31,35 +31,40 @@ import org.jacorb.notification.interfaces.Message;
 import EDU.oswego.cs.dl.util.concurrent.Heap;
 
 /**
+ * Note that most of the methods are not thread-safe. this causes no problem as 
+ * the methods are not intended to be directly called by clients. instead the superclass
+ * implements the interface EventQueue and invokes the methods thereby synchronizing access.
+
  * @author Alphonse Bendt
  * @version $Id$
  */
-
 
 public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
 {
     private Heap heap_;
 
     private long counter_ = 0;
+    
+    private final int maxCapacity_;
 
     ////////////////////////////////////////
 
     public BoundedPriorityEventQueue(int maxSize,
                                      EventQueueOverflowStrategy overflowStrategy)
     {
+        super(maxSize, overflowStrategy, new Object());
 
-        super(maxSize, overflowStrategy);
-
-        heap_ = new Heap(maxSize, QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
-    }
-
-    BoundedPriorityEventQueue(int maxSize)
-    {
-        super(maxSize);
-        heap_ = new Heap(maxSize, QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
+        maxCapacity_ = maxSize;
+        
+        heap_ = newHeap();
     }
 
     ////////////////////////////////////////
+
+    private Heap newHeap()
+    {
+        return new Heap(maxCapacity_, QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
+    }
 
     protected Message getNextElement()
     {
@@ -75,8 +80,8 @@ public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
 
         HeapEntry _earliest = (HeapEntry)_all.remove(0);
 
-        Heap _newHeap = new Heap(_all.size(), QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
-
+        Heap _newHeap = newHeap();
+        
         Iterator i = _all.iterator();
 
         while (i.hasNext())
@@ -99,14 +104,8 @@ public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
 
         HeapEntry _oldest = (HeapEntry)_all.remove(0);
 
-        int _capacity = _all.size();
-
-        if (_capacity <= 0) {
-            _capacity = 5;
-        }
-
-        Heap _newHeap = new Heap(_capacity, QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
-
+        Heap _newHeap = newHeap();
+        
         Iterator i = _all.iterator();
 
         while (i.hasNext())
@@ -127,8 +126,8 @@ public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
 
         HeapEntry _youngest = (HeapEntry)_all.remove(0);
 
-        Heap _newHeap = new Heap(_all.size(), QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
-
+        Heap _newHeap = newHeap();
+        
         Iterator i = _all.iterator();
 
         while (i.hasNext())
@@ -151,8 +150,8 @@ public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
 
         HeapEntry _leastPriority = (HeapEntry)_all.remove(0);
 
-        Heap _newHeap = new Heap(_all.size(), QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
-
+        Heap _newHeap = newHeap();
+        
         Iterator i = _all.iterator();
 
         while (i.hasNext())
@@ -178,7 +177,7 @@ public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
         }
 
         return (Message[])
-               _events.toArray(QueueUtil.NOTIFICATION_EVENT_ARRAY_TEMPLATE);
+               _events.toArray(QueueUtil.MESSAGE_ARRAY_TEMPLATE);
     }
 
 
@@ -190,7 +189,6 @@ public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
 
     private List getAllElementsInternal()
     {
-
         List _events = new ArrayList();
         Object _element;
 
@@ -200,7 +198,6 @@ public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
         }
 
         return _events;
-
     }
 
 

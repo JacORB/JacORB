@@ -28,9 +28,8 @@ import org.jacorb.notification.interfaces.Message;
  * @version $Id$
  */
 
-public interface EventQueue
+public interface MessageQueue
 {
-
     /**
      * get the next Message from this queue. which particular event is
      * selected depends on the underlying implementation.
@@ -42,7 +41,7 @@ public interface EventQueue
      *
      * @exception InterruptedException
      */
-    Message getEvent( boolean wait )
+    Message getMessage( boolean wait )
         throws InterruptedException;
 
     /**
@@ -55,7 +54,7 @@ public interface EventQueue
      * available. If the parameter is set to false the queue will
      * return null in case it is empty.
      */
-    Message[] getEvents( int n, boolean wait )
+    Message[] getMessages( int n, boolean wait )
         throws InterruptedException;
 
     /**
@@ -66,7 +65,7 @@ public interface EventQueue
      * available. If the parameter is set to false the queue will
      * return null in case it is empty.
      */
-    Message[] getAllEvents( boolean wait )
+    Message[] getAllMessages( boolean wait )
         throws InterruptedException;
 
     /**

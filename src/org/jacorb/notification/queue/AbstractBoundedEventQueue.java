@@ -28,28 +28,19 @@ import org.jacorb.notification.interfaces.Message;
  * @version $Id$
  */
 
-abstract public class AbstractBoundedEventQueue implements EventQueue
+abstract public class AbstractBoundedEventQueue implements MessageQueue
 {
-    private Object lock_ = new Object();
+    private final Object lock_;
 
-    private int capacity_;
+    private final int capacity_;
 
-    private EventQueueOverflowStrategy overflowStrategy_;
+    private final EventQueueOverflowStrategy overflowStrategy_;
 
-    protected AbstractBoundedEventQueue( int capacity,
-                                         EventQueueOverflowStrategy overflowStrategy )
+    protected AbstractBoundedEventQueue(int capacity, EventQueueOverflowStrategy overflowStrategy,
+            Object lock)
     {
+        lock_ = lock;
         capacity_ = capacity;
-        overflowStrategy_ = overflowStrategy;
-    }
-
-    protected AbstractBoundedEventQueue( int capacity )
-    {
-        capacity_ = capacity;
-    }
-
-    void setOverflowStrategy( EventQueueOverflowStrategy overflowStrategy )
-    {
         overflowStrategy_ = overflowStrategy;
     }
 
@@ -63,108 +54,105 @@ abstract public class AbstractBoundedEventQueue implements EventQueue
 
     abstract protected Message getYoungestElement();
 
-    abstract protected Message[] getElements( int max );
+    abstract protected Message[] getElements(int max);
 
-    abstract protected void addElement( Message event );
+    abstract protected void addElement(Message event);
 
     abstract protected Message[] getAllElements();
 
-    private void fireEventDiscarded( Message event )
-    {}
-
-    public Message[] getAllEvents( boolean wait ) throws InterruptedException
+    public Message[] getAllMessages(boolean wait) throws InterruptedException
     {
-        if ( wait )
+        synchronized (lock_)
         {
-            return getAllBlocking();
-        }
-        else
-        {
-            return getAllElements();
-        }
-    }
-
-    private Message[] getAllBlocking() throws InterruptedException
-    {
-        synchronized ( lock_ )
-        {
-            while ( isEmpty() )
+            if (wait)
             {
-                lock_.wait();
+                return getAllBlocking();
             }
 
             return getAllElements();
         }
     }
 
-    public Message getEvent( boolean wait ) throws InterruptedException
+    /**
+     * @pre current thread own monitor lock_
+     */
+    private Message[] getAllBlocking() throws InterruptedException
     {
-        if ( wait )
+        while (isEmpty())
         {
-            return getEventBlocking();
+            lock_.wait();
         }
-        else
+
+        return getAllElements();
+    }
+
+    public Message getMessage(boolean wait) throws InterruptedException
+    {
+        synchronized (lock_)
         {
-            if ( isEmpty() )
+            if (wait)
+            {
+                return getEventBlocking();
+            }
+
+            if (isEmpty())
             {
                 return null;
             }
-            else
-            {
-                return getNextElement();
-            }
+
+            return getNextElement();
         }
     }
 
-    public Message[] getEvents( int max, boolean wait ) throws InterruptedException
+    public Message[] getMessages(int max, boolean wait) throws InterruptedException
     {
-        if ( wait )
+        synchronized (lock_)
         {
-            return getEventsBlocking( max );
-        }
-        else
-        {
-            return getElements( max );
-        }
-    }
-
-    private Message[] getEventsBlocking( int max ) throws InterruptedException
-    {
-        synchronized ( lock_ )
-        {
-            while ( isEmpty() )
+            if (wait)
             {
-                lock_.wait();
+                return getEventsBlocking(max);
             }
 
-            return getElements( max );
+            return getElements(max);
         }
     }
 
+    /**
+     * @pre current thread owns monitor lock_
+     */
+    private Message[] getEventsBlocking(int max) throws InterruptedException
+    {
+        while (isEmpty())
+        {
+            lock_.wait();
+        }
+
+        return getElements(max);
+    }
+
+    /**
+     * @pre current thread owns monitor lock_
+     */
     private Message getEventBlocking() throws InterruptedException
     {
-        synchronized ( lock_ )
+        while (isEmpty())
         {
-            while ( isEmpty() )
-            {
-                lock_.wait();
-            }
-
-            return getOldestElement();
+            lock_.wait();
         }
+
+        return getOldestElement();
     }
 
-    public void put( Message event )
+    public void put(Message event)
     {
-        synchronized ( lock_ )
+        synchronized (lock_)
         {
-            while ( getSize() >= capacity_ )
+            while (getSize() >= capacity_)
             {
-                Message _e = overflowStrategy_.removeElementFromQueue( this );
-                fireEventDiscarded( _e );
+                overflowStrategy_.removeElementFromQueue(this);
             }
 
-            addElement( event );
+            addElement(event);
 
             lock_.notifyAll();
         }

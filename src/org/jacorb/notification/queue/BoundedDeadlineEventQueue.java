@@ -31,6 +31,10 @@ import org.jacorb.notification.interfaces.Message;
 import EDU.oswego.cs.dl.util.concurrent.Heap;
 
 /**
+ * Note that most of the methods are not thread-safe. this causes no problem as 
+ * the methods are not intended to be directly called by clients. instead the superclass
+ * implements the interface EventQueue and invokes the methods thereby synchronizing access.
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -46,13 +50,8 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
     public BoundedDeadlineEventQueue( int maxSize,
                                       EventQueueOverflowStrategy overflowStrategy )
     {
-        super( maxSize, overflowStrategy );
-        heap_ = new Heap( maxSize, QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
-    }
-
-    BoundedDeadlineEventQueue( int maxSize )
-    {
-        super( maxSize );
+        super(maxSize, overflowStrategy, new Object());
+        
         heap_ = new Heap( maxSize, QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
     }
 
@@ -145,13 +144,13 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         List _events = new ArrayList();
         Object _element;
 
-        while ( ( _element = heap_.extract() ) != null && ( _events.size() <= max ) )
+        while ( ( _events.size() < max ) && ( _element = heap_.extract() ) != null )
         {
             _events.add( ( ( HeapEntry ) _element ).event_ );
         }
 
         return ( Message[] )
-               _events.toArray( QueueUtil.NOTIFICATION_EVENT_ARRAY_TEMPLATE );
+               _events.toArray( QueueUtil.MESSAGE_ARRAY_TEMPLATE );
     }
 
 
@@ -163,8 +162,7 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
 
     private List getAllElementsInternal()
     {
-
-        List _events = new ArrayList();
+        List _events = new ArrayList(heap_.size());
         Object _element;
 
         while ( ( _element = heap_.extract() ) != null )
@@ -173,7 +171,6 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         }
 
         return _events;
-
     }
 
 

@@ -29,25 +29,30 @@ import java.util.List;
 import org.jacorb.notification.interfaces.Message;
 
 /**
+ * Note that most of the methods are not thread-safe. this causes no problem as 
+ * the methods are not intended to be directly called by clients. instead the superclass
+ * implements the interface EventQueue and invokes the methods thereby synchronizing access.
+*
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class BoundedFifoEventQueue extends AbstractBoundedEventQueue
 {
-
-    private LinkedList linkedList_ = new LinkedList();
-
-    public BoundedFifoEventQueue( int maxSize, EventQueueOverflowStrategy overflowStrategy )
+    private final LinkedList linkedList_;
+    
+    public BoundedFifoEventQueue( int maxSize, EventQueueOverflowStrategy overflowStrategy)
     {
-        super( maxSize, overflowStrategy );
+        this(maxSize, overflowStrategy, new Object());
     }
-
-    BoundedFifoEventQueue( int maxSize )
+    
+    public BoundedFifoEventQueue( int maxSize, EventQueueOverflowStrategy overflowStrategy, Object lock)
     {
-        super( maxSize );
+        super( maxSize, overflowStrategy, lock);
+        
+        linkedList_ = new LinkedList();
     }
-
+ 
     public boolean isEmpty()
     {
         return linkedList_.isEmpty();
@@ -101,7 +106,7 @@ public class BoundedFifoEventQueue extends AbstractBoundedEventQueue
 
     protected Message[] getAllElements()
     {
-        return ( Message[] ) linkedList_.toArray( QueueUtil.NOTIFICATION_EVENT_ARRAY_TEMPLATE );
+        return ( Message[] ) linkedList_.toArray( QueueUtil.MESSAGE_ARRAY_TEMPLATE );
     }
 
     protected void addElement( Message e )
