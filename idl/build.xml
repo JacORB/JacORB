@@ -49,7 +49,7 @@
    <target name="orb" depends="init,load-taskdef">
       <jacidl generateir="true"
          srcdir="idl"
-         packageprefix="org.omg"
+         omgprefix="true"
          includepath="${idl}/omg"
          includes="omg/_orb.idl"
          destdir="${src}/generated"/>
@@ -131,7 +131,7 @@
 
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/SystemException.idl"
               destdir="${src}/generated/temp"/>
@@ -157,7 +157,7 @@
    <target name="iop" depends="init,load-taskdef">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/IOP.idl"
               destdir="${src}/generated"
@@ -167,7 +167,7 @@
    <target name="iiop"  depends="init,load-taskdef">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/IIOP.idl"
               destdir="${src}/generated"
@@ -179,7 +179,7 @@
    <!-- for both GIOP 1.0 / 1.1 and GIOP 1.2 get generated -->
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/GIOP.idl"
               destdir="${src}/generated">
@@ -187,7 +187,7 @@
        </jacidl>
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/GIOP.idl"
               destdir="${src}/generated">
@@ -199,7 +199,7 @@
       <jacidl generateir="true"
               noskel="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CONV_FRAME.idl"
               destdir="${src}/generated"/>
@@ -210,7 +210,7 @@
               noskel="true"
               nostub="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/Messaging.idl"
               destdir="${src}/generated"/>
@@ -221,7 +221,7 @@
               noskel="true"
               nostub="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/Dynamic.idl,**/omg/PortableInterceptor.idl"
               destdir="${src}/generated"/>
@@ -231,13 +231,13 @@
       <jacidl generateir="true"
               noskel="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="omg/PortableServer.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/BiDirPolicy.idl"
               destdir="${src}/generated"/>
@@ -254,7 +254,7 @@
    <target name="dynany">
       <jacidl generateir="true"
       srcdir="idl"
-      packageprefix="org.omg"
+      omgprefix="true"
       includepath="${idl}/omg"
       includes="**/omg/DynamicAny.idl"
       destdir="${src}/generated"/>
@@ -274,7 +274,7 @@
    <target name="names" depends="init,load-taskdef">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosNaming.idl"
               destdir="${src}/generated"/>
@@ -299,7 +299,7 @@
    <target name="admin">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="omg/CosEventChannelAdmin.idl"
               destdir="${src}/generated"/>
@@ -308,7 +308,7 @@
    <target name="comm">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="omg/CosEventComm.idl"
               destdir="${src}/generated"/>
@@ -321,7 +321,7 @@
    <target name="transactions" depends="init,load-taskdef">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosTransactions.idl"
               destdir="${src}/generated"/>
@@ -340,7 +340,7 @@
    <target name="collections"  depends="init,load-taskdef">
       <jacidl generateir="true"
       srcdir="idl"
-      packageprefix="org.omg"
+      omgprefix="true"
       includepath="${idl}/omg"
       includes="**/omg/CosCollection.idl"
       destdir="${src}/generated"/>
@@ -386,7 +386,7 @@
    <target name="concurrency">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosConcurrencyControl.idl"
               destdir="${src}/generated"/>
@@ -411,7 +411,7 @@
    <target name="basic">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosTrading.idl"
               destdir="${src}/generated"/>
@@ -420,7 +420,7 @@
    <target name="repository">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosTradingRepos.idl"
               destdir="${src}/generated"/>
@@ -429,7 +429,7 @@
    <target name="dynamic">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosTradingDynamic.idl"
               destdir="${src}/generated"/>
@@ -449,13 +449,13 @@
    <target name="notif">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosNotification.idl,**/omg/CosNotifyChannelAdmin.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosNotifyComm.idl,**/omg/CosNotifyFilter.idl"
               destdir="${src}/generated"/>
@@ -464,25 +464,25 @@
    <target name="typed">
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosTypedNotifyChannelAdmin.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosTypedNotifyComm.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosTypedEventChannelAdmin.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/CosTypedEventComm.idl"
               destdir="${src}/generated"/>
@@ -507,7 +507,7 @@
               noskel="true"
               nostub="true"
               sloppynames="true"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/Security.idl"
               destdir="${src}/generated"/>
@@ -518,7 +518,7 @@
               noskel="true"
               nostub="true"
               srcdir="idl"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/TimeBase.idl"
               destdir="${src}/generated"/>
@@ -530,7 +530,7 @@
               noskel="true"
               nostub="true"
               sloppynames="true"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/SecurityLevel1.idl"
               destdir="${src}/generated"/>
@@ -542,7 +542,7 @@
               noskel="true"
               nostub="true"
               sloppynames="true"
-              packageprefix="org.omg"
+              omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/SecurityLevel2.idl"
                destdir="${src}/generated"/>
@@ -554,7 +554,7 @@
       noskel="true"
       nostub="true"
       sloppynames="true"
-      packageprefix="org.omg"
+      omgprefix="true"
       includepath="${idl}/omg"
       includes="**/omg/SecurityAdmin.idl"
       destdir="${src}/generated"/>
@@ -566,7 +566,7 @@
       noskel="true"
       nostub="true"
       sloppynames="true"
-      packageprefix="org.omg"
+      omgprefix="true"
       includepath="${idl}/omg"
       includes="**/omg/SecurityReplaceable.idl"
       destdir="${src}/generated"/>
@@ -578,7 +578,7 @@
       noskel="true"
       nostub="true"
       sloppynames="true"
-      packageprefix="org.omg"
+      omgprefix="true"
       includepath="${idl}/omg"
       includes="**/omg/SSLIOP.idl"
       destdir="${src}/generated"/>
@@ -594,7 +594,7 @@
       noskel="true"
       nostub="true"
       sloppynames="true"
-      packageprefix="org.omg"
+      omgprefix="true"
       includepath="${idl}/omg"
       includes="**/omg/CSI.idl"
       destdir="${src}/generated"/>
@@ -604,7 +604,7 @@
       noskel="true"
       nostub="true"
       sloppynames="true"
-      packageprefix="org.omg"
+      omgprefix="true"
       includepath="${idl}/omg"
       includes="**/omg/CSIIOP.idl"
       destdir="${src}/generated"/>
@@ -614,14 +614,14 @@
       noskel="true"
       nostub="true"
       sloppynames="true"
-      packageprefix="org.omg"
+      omgprefix="true"
       includepath="${idl}/omg"
       includes="**/omg/GSSUP.idl"
       destdir="${src}/generated"/>
 
        <jacidl generateir="true"
        srcdir="idl"
-       packageprefix="org.omg"
+       omgprefix="true"
        includepath="${idl}/omg"
        includes="**/omg/ATLAS.idl"
        destdir="${src}/generated"/>
