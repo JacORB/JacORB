@@ -132,12 +132,4 @@ public class Current
     {
         return getInvocationContext().getServant();
     }
-
-    /*
-      public org.jacorb.orb.connection.Connection getConnection()
-      throws NoContext
-      {
-      return ((RequestProcessor)getInvocationContext()).getConnection();
-      }
-    */
 }
