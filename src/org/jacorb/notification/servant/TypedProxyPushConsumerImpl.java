@@ -181,7 +181,7 @@ public class TypedProxyPushConsumerImpl
 
             interfaceDef_ =
                 InterfaceDefHelper.narrow(_repository.lookup_id(supportedInterface_));
-        } catch (InvalidName n) {
+        } catch (InvalidName e) {
             throw new InterfaceNotSupported("could not access InterfaceRepository");
         }
 
