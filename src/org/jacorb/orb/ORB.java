@@ -1241,10 +1241,9 @@ public final class ORB
         if( versionProperty != null &&
             versionProperty.equals("on") )
         {
-            System.out.println("\tJacORB V " + versionString + 
+            System.out.println("\tJacORB V " + versionString +
                                ", www.jacorb.org");
-            System.out.println("\t(C) Gerald Brose, FU Berlin, " + 
-                               dateString );
+            System.out.println("\t(C) Gerald Brose, FU Berlin, " + dateString);
         }
 
 //          Hashtable initrefs = Environment.getProperties("ORBInitRef");

@@ -912,6 +912,8 @@ public class parser extends java_cup.runtime.lr_parser {
     public static String currentVersion = "";
     public static String compiler_version = "1.4 beta 3, March 2002";
 
+    private static final String yearString = "1997-2002";
+   
     static String out_dir = "."; 
     static String package_prefix = null;
 
@@ -1206,7 +1208,7 @@ public class parser extends java_cup.runtime.lr_parser {
 
     private static void version()
     {
-        System.out.println("JacORB IDL compiler V" + compiler_version + ",\n   (C) Gerald Brose, FU Berlin, 1997-2002.");
+        System.out.println("JacORB IDL compiler V" + compiler_version + ",\n   (C) Gerald Brose, FU Berlin, " + yearString + ".");
     }
 
     /* override error routines */
