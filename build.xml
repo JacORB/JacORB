@@ -188,7 +188,6 @@
       <delete file="${basedir}/bin/jaco.bat"/>
       <delete dir="${classdir}/demo"/>
       <delete dir="${classdir}/org"/>
-      <delete dir="${classdir}/java_cup"/>
       <delete dir="${classdir}/HTTPClient"/>
       <delete dir="${src}/generated/org"/>
       <delete dir="${src}/generated/CORBA"/>
@@ -196,7 +195,7 @@
    </target>
 
    <target name="realclean" depends="clean" description="Clean the checkout including generated jars">
-      <delete>
+      <delete failonerror="false" >
         <fileset dir="lib/" includes="jacorb.jar, idl.jar"/>
       </delete >
    </target>
