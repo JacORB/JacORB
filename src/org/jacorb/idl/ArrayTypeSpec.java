@@ -59,6 +59,10 @@ public class ArrayTypeSpec
         setEnclosingSymbol( ad.getEnclosingSymbol() );
         this.pack_name = pack_name;
         type_spec = elem;
+
+        if( logger.isDebugEnabled() )
+            logger.debug("ArrayTypeSpec with declarator " + ad.name() );
+
     }
 
     /**
@@ -146,20 +150,33 @@ public class ArrayTypeSpec
     }
 
     public void parse()
-            throws ParseException
+        throws ParseException
     {
+        if( logger.isDebugEnabled() )
+            logger.debug("ArrayTypeSpec.parse " + declarator.name() );
+
         dims = declarator.dimensions();
         if( dims.length > 1 )
         {
             type_spec =
-                    new ArrayTypeSpec( new_num(), type_spec, declarator, pack_name, 1 );
+                new ArrayTypeSpec( new_num(), type_spec, declarator, pack_name, 1 );
+        }
+        else if( type_spec.typeSpec() instanceof ConstrTypeSpec )
+        {
+            // locally defined, nested structs must be parsed (fixes
+            // bug #84) This will also result in an attempt to parse
+            // structs referred to through a scoped name in struct
+            // members, which have been inlined earlier in
+            // Member.java. Not a problem, structs will skip a second
+            // parse attempt.
+            type_spec.parse();
         }
         else if( type_spec.typeSpec() instanceof ScopedName )
         {
             TypeSpec ts = ( (ScopedName)type_spec.typeSpec() ).resolvedTypeSpec();
             if( ts != null )
                 type_spec = ts;
-        }
+        } 
 
         StringBuffer sb = new StringBuffer();
 
@@ -248,7 +265,7 @@ public class ArrayTypeSpec
     public String printReadStatement( String var_name, String streamname )
     {
         if( logger.isWarnEnabled() )
-		 logger.warn( "Array printReadStatement" );
+            logger.warn( "Array printReadStatement" );
 
         StringBuffer sb = new StringBuffer();
         String type = typeName();
@@ -440,6 +457,10 @@ public class ArrayTypeSpec
 
         try
         {
+            // print the element type, may be a locally defined member type, e.g.
+            // a struct member type
+            type_spec.print( _ps );
+
             // only generate class files for explicitly
             // defined sequence types, i.e. for typedef'd ones
 
