@@ -124,7 +124,7 @@ public class PrintIOR
                                (int)p.version().major + "." +
                                (int)p.version().minor);
 
-            System.out.println("\tHost\t:\t" + p.getAddress().getHost());
+            System.out.println("\tHost\t:\t" + p.getAddress().getIP());
             int port = p.getAddress().getPort();
             if( port < 0 )
                 port += 65536;
