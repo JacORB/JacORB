@@ -105,6 +105,12 @@ class Literal
 
       char[] chrs = name.toCharArray();
 
+      // Don't bother escaping if we have "xxx"
+      if (chrs[0] == '\"')
+      {
+         return name;
+      }
+
       for (int i=0; i<chrs.length; i++)
       {
          switch (chrs[i])

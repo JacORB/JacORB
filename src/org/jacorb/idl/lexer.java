@@ -116,7 +116,10 @@ public class lexer
     /** Have we already read a '"' ?  */
     protected static boolean in_string = false;
 
-    /** Count of total errors detected so far. */
+    /** Are we processing a wide char or string ?  */
+    protected static boolean wide = false;
+
+   /** Count of total errors detected so far. */
     static int error_count = 0;
 
     /** Count of warnings issued so far */
@@ -1111,14 +1114,22 @@ public class lexer
                 {
                     advance();
                     advance();
+                    wide = true;
                     in_string = true;
                     return new token(sym.LDBLQUOTE);
+                }
+
+                /* leading L for wide chars */
+                if (next_char == 'L' && next_char2 == '\'')
+                {
+                   // Just eat the L and allow it to be a char
+                   wide = true;
+                   advance();
                 }
 
 
                 /* leading 0: */
                 /* Try to scan octal/hexadecimal numbers, might even find a float */
-
                 if (next_char == '0')
                 {
                     int i_val = 0;
@@ -1294,68 +1305,206 @@ public class lexer
 
                        advance();
 
-                       switch (next_char)
+                       if (isDigit ((char)next_char))
                        {
-                          case 'n':
+                          // Octal character
+                          char octal1 = '0';
+                          char octal2 = '0';
+                          char octal3 = (char)next_char;
+
+                          if (isDigit ((char)next_char2))
                           {
-                             t = new char_token(sym.CH,'\n');
-                             break;
+                             advance ();
+                             octal2 = octal3;
+                             octal3 = (char)next_char;
+
+                             if (isDigit ((char)next_char2))
+                             {
+                                advance ();
+                                octal1 = octal2;
+                                octal2 = octal3;
+                                octal3 = (char)next_char;
+                             }
                           }
-                          case 't':
+
+                          t= new char_token
+                          (
+                             sym.CH,
+                             (char)Integer.parseInt
+                             (new String
+                              (new char [] {octal1, octal2, octal3}),
+                              8
+                             )
+                          );
+                       }
+                       else if ((char)next_char == 'x')
+                       {
+                          // Hexadecimal character
+                          advance ();
+
+                          char hex1 = '0';
+                          char hex2 = (char)next_char;
+
+                          if (isHexLetterOrDigit ((char)next_char2))
                           {
-                             t = new char_token(sym.CH,'\t');
-                             break;
+                             advance ();
+                             hex1 = hex2;
+                             hex2 = (char)next_char;
                           }
-                          case 'v':
+                          else if ((char)next_char2 != '\'')
                           {
-                             t = new char_token(sym.CH,'\013');
-                             break;
+                             emit_error ("Illegal hex character");
+                             return null;
                           }
-                          case 'b':
+
+                          t= new char_token
+                          (
+                             sym.CH,
+                             (char)Integer.parseInt
+                             (new String
+                              (new char [] {hex1, hex2}),
+                              16
+                             )
+                          );
+
+                       }
+                       else if ((char)next_char == 'u')
+                       {
+                          if (wide == false)
                           {
-                             t = new char_token(sym.CH,'\b');
-                             break;
+                             emit_error ("Unicode characters are only legal with wide character");
+                             return null;
                           }
-                          case 'r':
+                          else
                           {
-                             t = new char_token(sym.CH,'\r');
-                             break;
+                             // Hexadecimal character
+                             advance ();
+
+                             char uni1 = '0';
+                             char uni2 = '0';
+                             char uni3 = '0';
+                             char uni4 = (char)next_char;
+
+                             if (isHexLetterOrDigit ((char)next_char2))
+                             {
+                                advance ();
+                                uni3 = uni4;
+                                uni4 = (char)next_char;
+
+                                if (isHexLetterOrDigit ((char)next_char2))
+                                {
+                                   advance ();
+                                   uni2 = uni3;
+                                   uni3 = uni4;
+                                   uni4 = (char)next_char;
+
+                                   if (isHexLetterOrDigit ((char)next_char2))
+                                   {
+                                      advance ();
+                                      uni1 = uni2;
+                                      uni2 = uni3;
+                                      uni3 = uni4;
+                                      uni4 = (char)next_char;
+                                   }
+                                   else if ((char)next_char2 != '\'')
+                                   {
+                                      emit_error ("Illegal unicode character");
+                                      return null;
+                                   }
+                                }
+                                else if ((char)next_char2 != '\'')
+                                {
+                                   emit_error ("Illegal unicode character");
+                                   return null;
+                                }
+                             }
+                             else if ((char)next_char2 != '\'')
+                             {
+                                emit_error ("Illegal unicode character");
+                                return null;
+                             }
+
+                             t= new char_token
+                             (
+                                sym.CH,
+                                (char)Integer.parseInt
+                                (new String
+                                 (new char [] {uni1, uni2, uni3, uni4}),
+                                 16
+                                )
+                             );
                           }
-                          case 'f':
+                       }
+                       else
+                       {
+                          switch (next_char)
                           {
-                             t = new char_token(sym.CH,'\f');
-                             break;
+                             case 'n':
+                             {
+                                t = new char_token(sym.CH,'\n');
+                                break;
+                             }
+                             case 't':
+                             {
+                                t = new char_token(sym.CH,'\t');
+                                break;
+                             }
+                             case 'v':
+                             {
+                                t = new char_token(sym.CH,'\013');
+                                break;
+                             }
+                             case 'b':
+                             {
+                                t = new char_token(sym.CH,'\b');
+                                break;
+                             }
+                             case 'r':
+                             {
+                                t = new char_token(sym.CH,'\r');
+                                break;
+                             }
+                             case 'f':
+                             {
+                                t = new char_token(sym.CH,'\f');
+                                break;
+                             }
+                             case 'a':
+                             {
+                                t = new char_token(sym.CH,'\007');
+                                break;
+                             }
+                             case '\\':
+                             {
+                                t = new char_token(sym.CH,'\\');
+                                break;
+                             }
+                             case '?':
+                             {
+                                t = new char_token(sym.CH,'?');
+                                break;
+                             }
+                             case '0':
+                             {
+                                t = new char_token(sym.CH,'\0');
+                                break;
+                             }
+                             case '\'':
+                             {
+                                t = new char_token(sym.CH,'\'');
+                                break;
+                             }
+                             case '\"':
+                             {
+                                t = new char_token(sym.CH,'\"');
+                                break;
+                             }
+                             default:
+                             {
+                                emit_error("Invalid escape symbol \'");
+                                return null;
+                             }
                           }
-                          case 'a':
-                          {
-                             t = new char_token(sym.CH,'\007');
-                             break;
-                          }
-                          case '\\':
-                          {
-                             t = new char_token(sym.CH,'\\');
-                             break;
-                          }
-                          case '0':
-                          {
-                             t = new char_token(sym.CH,'\0');
-                             break;
-                          }
-                          case '\'':
-                          {
-                             t = new char_token(sym.CH,'\'');
-                             break;
-                          }
-                          case '\"':
-                          {
-                             t = new char_token(sym.CH,'\"');
-                             break;
-                          }
-                          default:
-                          {
-                             emit_error("Invalid escape symbol \'");
-                          }
-                          break;
                        }
                     }
                     else
@@ -1373,7 +1522,9 @@ public class lexer
                     else
                     {
                         emit_error("Expecting closing \'");
+                        return null;
                     }
+                    wide = false;
 
                     return new token(sym.QUOTE);
                 }
@@ -1416,13 +1567,152 @@ public class lexer
                 }
 
                 StringBuffer result = new StringBuffer();
+                char previous = ' ';
 
                 /* collect up characters while they fit in id */
-                while( ((char)next_char) != '\"')
+                while(true)
                 {
-                    result.append( (char)next_char );
+                    if (next_char == '\\')
+                    {
+                       // Remap those characters that have no equivilant in java
+                       switch (next_char2)
+                       {
+                          case 'a':
+                          {
+                             result.append ("\\007");
+                             previous = 'a';
+                             advance();
+                             break;
+                          }
+                          case 'v':
+                          {
+                             result.append ("\\013");
+                             previous = 'v';
+                             advance();
+                             break;
+                          }
+                          case '?':
+                          {
+                             result.append ("?");
+                             previous = '?';
+                             advance();
+                             break;
+                          }
+                          // Replace \xA0 by octal equivilant
+                          case 'x':
+                          {
+                             advance();
+                             advance();
+
+                             // Now next_char will be A and next_char2 will be 0
+                             String octal = Integer.toOctalString
+                             (
+                                Integer.parseInt
+                                (
+                                   new String
+                                   (
+                                      new char [] {
+                                         (char)next_char,
+                                         (char)next_char2}
+                                   ),
+                                   16
+                                )
+                             );
+                             if (octal.length () != 3)
+                             {
+                                if (octal.length () == 1)
+                                {
+                                   octal = "0" + octal;
+                                }
+                                octal = "0" + octal;
+                             }
+                             result.append ("\\" + octal);
+                             previous = (char)next_char2;
+
+                             advance();
+                             break;
+                          }
+                          case 'u':
+                          {
+                             if (wide == false)
+                             {
+                                emit_error ("Unicode characters are only legal with wide strings");
+                                return null;
+                             }
+                             else
+                             {
+                                result.append ((char)next_char);
+                                result.append ((char)next_char2);
+                                advance ();
+                                advance ();
+
+                                char uni1 = (char)next_char;
+                                char uni2 = '0';
+                                char uni3 = '0';
+                                char uni4 = '0';
+
+                                if (isHexLetterOrDigit ((char)next_char2))
+                                {
+                                   advance ();
+                                   uni2 = (char)next_char;
+
+                                   if (isHexLetterOrDigit ((char)next_char2))
+                                   {
+                                      advance ();
+                                      uni3 = (char)next_char;
+
+                                      if (isHexLetterOrDigit ((char)next_char2))
+                                      {
+                                         advance ();
+                                         uni4 = (char)next_char;
+                                      }
+                                      else
+                                      {
+                                         emit_error ("Illegal unicode character");
+                                         return null;
+                                      }
+                                   }
+                                   else
+                                   {
+                                      emit_error ("Illegal unicode character");
+                                      return null;
+                                   }
+                                }
+                                else
+                                {
+                                   emit_error ("Illegal unicode character");
+                                   return null;
+                                }
+
+                                previous = uni4;
+                                result.append (uni1);
+                                result.append (uni2);
+                                result.append (uni3);
+                                result.append (uni4);
+                             }
+                             break;
+                          }
+                          default:
+                          {
+                             previous = (char)next_char;
+                             result.append ((char)next_char);
+                          }
+                       }
+                    }
+                    else
+                    {
+                       previous = (char)next_char;
+                       result.append ((char)next_char);
+                    }
                     advance();
+
+                    // Handle backslash quote but exit if just quote
+                    if (((char)next_char) == '\"'&& previous != '\\')
+                    {
+                       break;
+                    }
                 }
+                wide = false;
 
                 // String s = checkIdentifier( result.toString() );
                 String s = result.toString();
@@ -1442,4 +1732,65 @@ public class lexer
         }
     }
 
+   /**
+    * Returns true if character is US ASCII 0-9
+    *
+    * @param c a value of type 'char'
+    * @return a value of type 'boolean'
+    */
+   private static boolean isDigit (char c)
+   {
+      boolean result = false;
+
+      if (c >= '\u0030')
+      {
+         if (c <= '\u0039')
+         {
+            // Range 0030 [0] -> 0039 [9]
+            result = true;
+         }
+      }
+      return result;
+   }
+
+
+   /**
+    * Returns true if character is US ASCII 0-9, a-f, A-F
+    *
+    * @param c a value of type 'char'
+    * @return a value of type 'boolean'
+    */
+   private static boolean isHexLetterOrDigit (char c)
+   {
+      boolean result = false;
+
+      if (c >= '\u0030')
+      {
+         if (c <= '\u0039')
+         {
+            // Range 0030 [0] -> 0039 [9]
+            result = true;
+         }
+         else
+         {
+            if (c >= '\u0041')
+            {
+               if (c <= '\u0046')
+               {
+                  // Range 0041 [A] -> 0046 [F]
+                  result = true;
+               }
+               if (c >= '\u0061')
+               {
+                  if (c <= '\u0066')
+                  {
+                     // Range 0061 [a] -> 0066 [f]
+                     result = true;
+                  }
+               }
+            }
+         }
+      }
+      return result;
+   }
 }
