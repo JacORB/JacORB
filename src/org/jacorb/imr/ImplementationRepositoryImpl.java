@@ -57,8 +57,8 @@ public class ImplementationRepositoryImpl
     extends ImplementationRepositoryPOA
 {
     /**
-     * <code>default_port</code> is the port number for the IMR. It may be fixed
-     * by the jacorb.imr.endpoint_port_number configuration property.
+     * <code>default_port</code> is the port number for the IMR endpoint. It may
+     * be fixed by the jacorb.imr.endpoint_port_number configuration property.
      */
     private static int default_port;
     /**
@@ -750,6 +750,14 @@ public class ImplementationRepositoryImpl
         {
             for (int i = 0; i < args.length ; i++)
             {
+                // Tru64 insists on passing space as a parameter; check for that
+                // before doing the charAt.
+                if (args[i] == null || args[i].length() < 2)
+                {
+                    System.out.println
+                        ("Ignoring argument '" + args[i] + "' as it is not valid.");
+                    continue;
+                }
                 switch (args[i].charAt(1))
                 {
                     case 'h':
@@ -1293,10 +1301,11 @@ public class ImplementationRepositoryImpl
                                               false); // no SSL
 
                     GIOPConnection connection =
-                    new ClientGIOPConnection( transport.get_server_profile(),
+                    new ServerGIOPConnection( transport.get_server_profile(),
                                               transport,
                                               request_listener,
                                               reply_listener,
+                                              null,
                                               null);
 
                     receptor_pool.connectionCreated( connection );
