@@ -37,6 +37,7 @@ public class ReplyInputStream
     extends ServiceContextTransportingInputStream
 {
     public ReplyHeader_1_2 rep_hdr = null;
+    private int body_start;
 
     public ReplyInputStream( org.omg.CORBA.ORB orb, byte[] buffer )
     {
@@ -60,6 +61,8 @@ public class ReplyInputStream
                 ReplyHeader_1_0 hdr = 
                     ReplyHeader_1_0Helper.read( this );
 
+                body_start = pos;
+
                 rep_hdr = 
                     new ReplyHeader_1_2( hdr.request_id,
                                          ReplyStatusType_1_2.from_int( hdr.reply_status.value() ),
@@ -73,6 +76,8 @@ public class ReplyInputStream
                 
                 skipHeaderPadding();
 
+                body_start = pos;
+
                 break;
             }
             default : {
@@ -81,24 +86,28 @@ public class ReplyInputStream
         }
     }
 
-    /** 
-     * This is called from within Delegate and will throw arrived exceptions.
+    /**
+     * Returns the reply status of this reply.
      */
-
-    public synchronized void checkExceptions() 
-	throws ApplicationException, 
-        ForwardRequest
+    public ReplyStatusType_1_2 getStatus()
     {
-	switch( rep_hdr.reply_status.value() ) 
-	{
-	    case ReplyStatusType_1_2._NO_EXCEPTION :
-            { 
-		break; //no exception	       
-            }
-	    case ReplyStatusType_1_2._USER_EXCEPTION : 
-	    {
+        return rep_hdr.reply_status;
+    }
+
+    /**
+     * Returns any exception that is indicated by this reply.  If
+     * the reply status is USER_EXCEPTION, SYSTEM_EXCEPTION, LOCATION_FORWARD,
+     * or LOCATION_FORWARD_PERM, an appropriate exception object is returned.
+     * For any other status, returns null.
+     */
+    public synchronized Exception getException() 
+    {
+        switch( rep_hdr.reply_status.value() ) 
+        {
+            case ReplyStatusType_1_2._USER_EXCEPTION : 
+            {
                 mark( 0 ); 
-		String id = read_string();
+                String id = read_string();
                 
                 try
                 {
@@ -109,31 +118,35 @@ public class ReplyInputStream
                     //should not happen anyway
                     Debug.output( 1, ioe );
                 }
-
-		throw new ApplicationException( id, this );
-	    }
- 	    case  ReplyStatusType_1_2._SYSTEM_EXCEPTION: 
-	    {
-		throw SystemExceptionHelper.read( this );
-	    }
-	    case  ReplyStatusType_1_2._LOCATION_FORWARD:
-            {
-                //fall through
+                return new ApplicationException( id, this );
             }
+            case ReplyStatusType_1_2._SYSTEM_EXCEPTION: 
+            {
+                return SystemExceptionHelper.read( this );
+            }
+            case  ReplyStatusType_1_2._LOCATION_FORWARD:
             case  ReplyStatusType_1_2._LOCATION_FORWARD_PERM: 
             {
-		throw new ForwardRequest( read_Object() );
+                return new ForwardRequest( read_Object() );
             }
-            case  ReplyStatusType_1_2._NEEDS_ADDRESSING_MODE :
+            default:
             {
-                throw new org.omg.CORBA.NO_IMPLEMENT( "WARNING: Received reply with status NEEDS_ADRESSING_MODE, but this isn't implemented yet" );
+                return null;
             }
-            default :
-            {
-                throw new Error( "Received unexpected reply status: " +
-                                 rep_hdr.reply_status.value() );
-            }
-	}
+    }
+    }
+
+   
+    /**
+     * Returns a copy of the body of this reply.  This does not include
+     * the GIOP header and the reply header.
+     */
+    public byte[] getBody()
+    {
+        int body_length = msg_size - (body_start - Messages.MSG_HEADER_SIZE);
+        byte[] body = new byte[body_length];
+        System.arraycopy (buffer, body_start, body, 0, body_length);
+        return body;
     }
 
     public void finalize()
