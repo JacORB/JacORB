@@ -6,6 +6,8 @@ import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.TaggedComponentList;
+import org.jacorb.util.Environment;
+
 import org.omg.ETF.*;
 import org.omg.IOP.*;
 import org.omg.IIOP.*;
@@ -90,7 +92,9 @@ public class IIOPProfile extends _ProfileLocalBase
                 ProfileBody_1_1 pb1 = new ProfileBody_1_1
                 (
                     new org.omg.IIOP.Version( version.major, version.minor ),
-                    primaryAddress.getHost(),
+                    Environment.isPropertyOn ("jacorb.dns.enable")
+                      ? primaryAddress.getHostname()
+                      : primaryAddress.getIP(),
                     (short)primaryAddress.getPort(),
                     objectKey,
                     allComponents
@@ -114,7 +118,9 @@ public class IIOPProfile extends _ProfileLocalBase
                 ProfileBody_1_0 pb0 = new ProfileBody_1_0
                 (
                     new org.omg.IIOP.Version( version.major, version.minor ),
-                    primaryAddress.getHost(),
+                    Environment.isPropertyOn ("jacorb.dns.enable")
+                      ? primaryAddress.getHostname()
+                      : primaryAddress.getIP(),
                     (short)primaryAddress.getPort(),
                     objectKey
                 );
@@ -244,7 +250,7 @@ public class IIOPProfile extends _ProfileLocalBase
         }
         else if (newPort != -1)
         {
-            primaryAddress = new IIOPAddress (primaryAddress.getHost(),
+            primaryAddress = new IIOPAddress (primaryAddress.getIP(),
                                               newPort);
         }
     }
