@@ -798,6 +798,16 @@ public final class Delegate
                                                ros.getReplyEndTime(),
                                                interceptors,
                                                replyHandler );
+                                             
+                // Store the receiver in pending_replies, so in the
+                // case of a LocationForward a RemarshalException can
+                // be thrown to *all* waiting threads.                               
+
+                synchronized ( pending_replies )
+                {
+                    pending_replies.add ( receiver );                                              
+                }
+                                               
                 synchronized ( bind_sync )
                 {
                     if ( ros.getConnection() == connection )
