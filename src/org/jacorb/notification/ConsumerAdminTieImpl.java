@@ -65,7 +65,7 @@ public class ConsumerAdminTieImpl
     List eventStyleServants_ = new Vector();
     ConsumerAdmin thisRef_;
     ConsumerAdminPOATie thisServant_;
-    private Object thisServantLock_ = new Object();
+    // private Object thisServantLock_ = new Object();
 
     List subsequentDestinations_;
     boolean proxyListDirty_ = true;
@@ -97,37 +97,25 @@ public class ConsumerAdminTieImpl
     }
 
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
         {
-            synchronized ( thisServantLock_ )
-            {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new ConsumerAdminPOATie( this );
-                }
-            }
+            thisServant_ = new ConsumerAdminPOATie( this );
         }
 
         return thisServant_;
     }
 
-    ConsumerAdmin getConsumerAdmin()
+    synchronized ConsumerAdmin getConsumerAdmin()
     {
         if ( thisRef_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisRef_ == null )
-                    {
-                        // sideeffect of getServant() is that
-                        // thisServant_ gets set.
-                        getServant();
-                        thisRef_ = thisServant_._this( getOrb() );
-                    }
+                // sideeffect of getServant() is that
+                // thisServant_ gets set.
+                getServant();
+                thisRef_ = thisServant_._this( getOrb() );
             }
-        }
 
         return thisRef_;
     }
@@ -157,7 +145,8 @@ public class ConsumerAdminTieImpl
     }
 
     public void lifetime_filter( MappingFilter mappingFilter )
-    {}
+    {
+    }
 
     public MappingFilter lifetime_filter()
     {
@@ -170,7 +159,8 @@ public class ConsumerAdminTieImpl
     }
 
     public void priority_filter( MappingFilter mappingFilter )
-    {}
+    {
+    }
 
     public ProxySupplier obtain_notification_pull_supplier( ClientType clientType,
                                                             IntHolder intHolder )
@@ -195,7 +185,7 @@ public class ConsumerAdminTieImpl
     }
 
     public AbstractProxy obtain_notification_pull_supplier_servant( ClientType clientType,
-                                                                IntHolder intHolder )
+                                                                    IntHolder intHolder )
         throws AdminLimitExceeded,
                UnsupportedQoS
     {
@@ -363,7 +353,7 @@ public class ConsumerAdminTieImpl
     }
 
     public AbstractProxy obtain_notification_push_supplier_servant( ClientType clientType,
-                                                                IntHolder intHolder )
+                                                                    IntHolder intHolder )
         throws AdminLimitExceeded,
                UnsupportedQoS
     {
@@ -463,31 +453,30 @@ public class ConsumerAdminTieImpl
 
     public ProxyPushSupplier obtain_push_supplier()
     {
-
         try {
-        ProxyPushSupplierImpl _servant =
-            new ProxyPushSupplierImpl( this,
-                                       applicationContext_,
-                                       channelContext_,
-                                       ( PropertyManager ) adminProperties_.clone(),
-                                       ( PropertyManager ) qosProperties_.clone() );
+            ProxyPushSupplierImpl _servant =
+                new ProxyPushSupplierImpl( this,
+                                           applicationContext_,
+                                           channelContext_,
+                                           ( PropertyManager ) adminProperties_.clone(),
+                                           ( PropertyManager ) qosProperties_.clone() );
 
-        _servant.addProxyDisposedEventListener( this );
-        // _servant.addProxyDisposedEventListener(channelContext_.getRemoveProxySupplierListener());
+            _servant.addProxyDisposedEventListener( this );
+            // _servant.addProxyDisposedEventListener(channelContext_.getRemoveProxySupplierListener());
 
-        _servant.setFilterManager( FilterManager.EMPTY );
-        eventStyleServants_.add( _servant );
+            _servant.setFilterManager( FilterManager.EMPTY );
+            eventStyleServants_.add( _servant );
 
-        Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPushSupplierPOATie( _servant );
-        _servant.setServant( _tie );
+            Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPushSupplierPOATie( _servant );
+            _servant.setServant( _tie );
 
-        ProxyPushSupplier _supplier =
-            org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow( _tie._this_object( getOrb() ) );
+            ProxyPushSupplier _supplier =
+                org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow( _tie._this_object( getOrb() ) );
 
-        // servantCache_.put(_servant, _tie);
-        proxyListDirty_ = true;
+            // servantCache_.put(_servant, _tie);
+            proxyListDirty_ = true;
 
-        return _supplier;
+            return _supplier;
         } catch (UnsupportedQoS e) {
             logger_.fatalError("Could not create ProxyPushSupplier", e);
             throw new RuntimeException();
@@ -560,7 +549,8 @@ public class ConsumerAdminTieImpl
         }
     }
 
-    public void actionProxyCreated(ProxyEvent e) {
+    public void actionProxyCreated(ProxyEvent e)
+    {
         // NO Op
     }
 
