@@ -178,7 +178,7 @@ public class ProxyClientForwardInterceptor
         if (!(profile instanceof IIOPProfile))
             throw new RuntimeException ("cannot redirect non-IIOP transport");
         
-        String host = ((IIOPProfile)profile).getAddress().getHost();
+        String host = ((IIOPProfile)profile).getAddress().getIP();
         long hostIP = ipToInt (host);
 
         // Determine whether to redirect to proxy
