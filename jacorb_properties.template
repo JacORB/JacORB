@@ -30,15 +30,15 @@ ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #                                      #
 ########################################
 
-# allow for more readable corbaloc URLs by mapping the 
-# actual object key to an arbitrary string the mapping 
+# allow for more readable corbaloc URLs by mapping the
+# actual object key to an arbitrary string the mapping
 # below would permit clients of a name service to
 # access it using corbaloc::ipaddress:portnum/NameService
 # Note: it is NOT necessary to define this property for
 # the name service here because this is done already in the
 # code of the ns implementation
 
-# example: 
+# example:
 #jacorb.orb.objectKeyMap.NameService=StandardNS/NameServer-POA/_root
 
 ##################################
@@ -207,6 +207,16 @@ jacorb.giop.add_1_0_profiles=off
 
 ###########################################
 #                                         #
+#         Interoperability                #
+#                                         #
+###########################################
+
+# Turn off indirection encoding for repeated typecodes. This fixes
+# interoperability with certain broken ORB's eg. Orbix2000
+jacorb.interop.indirection_encoding_disable=off
+
+###########################################
+#                                         #
 #         Socket Factories                #
 #                                         #
 ###########################################
@@ -317,6 +327,8 @@ jacorb.imr.no_of_poas=
 jacorb.imr.no_of_servers=
 # Start IMR on a fixed port (equivilant to -p option)
 jacorb.imr.port_number=
+# Port number for IMR endpoint (for IMR IOR)
+jacorb.imr.endpoint_port_number=
 
 # how many millis should the imr wait, until a connection from an
 # application client is terminated. Default is 2000.

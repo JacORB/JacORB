@@ -41,6 +41,11 @@ gerald.brose@acm.org
       - Logging:
         - Added property 'jacorb.logfile.append' to support appending to rather
           than overwriting an existing log file.
+      - ORB:
+        - Added property 'jacorb.interop.indirection_encoding_disable' to turn off
+          indirection encoding for repeated typecodes.
+      - IMR:
+        - Added property 'jacorb.imr.endpoint_port_number' for port IMR runs on.
 
 1.4.1
 =====
@@ -68,10 +73,10 @@ gerald.brose@acm.org
                - Fix for client connection timeout with deferred requests.
    - ORB:
         - Two new client timeout policies to replace jacorb.connection.client_timeout:
-		- jacorb.client.pending_reply_timeout - For request timeout
-		- jacorb.connection.client_idle_timeout - For connection timeout
+        - jacorb.client.pending_reply_timeout - For request timeout
+        - jacorb.connection.client_idle_timeout - For connection timeout
 
-   - SSL: 
+   - SSL:
         - Changed SSL usage policy: SSL will now only be used, if both
           sides support it and at least one side requires it. If the
           client requires SSL, but the server doesn't support it, a
