@@ -1524,6 +1524,15 @@ public class CDROutputStream
         }
     }
 
+    /**
+     * This method does the actual work of writing `value' to this 
+     * stream.  If `repository_id' is non-null, then it is used as
+     * the type information for `value' (possibly via indirection).
+     * If `repository_id' is null, `value' is written without
+     * type information.
+     * Note: This method does not check for the special cases covered
+     * by write_special_value().
+     */
     private void write_value_internal (java.io.Serializable value,
                                        String repository_id) 
     {
@@ -1551,56 +1560,8 @@ public class CDROutputStream
         if (value instanceof org.omg.CORBA.portable.StreamableValue)
             ((org.omg.CORBA.portable.StreamableValue)value)._write (this);
         else
-            write_state (value, value.getClass());
+            javax.rmi.CORBA.Util.createValueHandler().writeValue (this, value);
 
-    }
-
-    /**
-     * Writes the serialized state of `value' to this stream, where `clz'
-     * is the most specific subtype whose state should be written.
-     */
-    private void write_state (java.io.Serializable value, Class clz) 
-    {
-        if (clz != java.lang.Object.class)
-            write_state (value, clz.getSuperclass());
-
-        for (Iterator i = Fields.getFields(clz).iterator(); i.hasNext();) 
-        {
-            Field f = (Field)i.next();
-            try 
-            {
-                Class c = f.getType();
-                if (!c.isPrimitive()) 
-                    if (!c.isArray()) 
-                        write_value ((java.io.Serializable)f.get (value));
-                    else
-                        throw new RuntimeException 
-                            ("serializing arrays not implemented");  
-                else
-                    write_primitive_field (f, c, value);
-            }
-            catch (IllegalAccessException e)
-            {
-                throw new RuntimeException ("cannot access field: " + f);
-            }
-        }
-    }
-
-    private void write_primitive_field (Field f, Class c,
-                                        java.io.Serializable value)
-        throws IllegalAccessException
-    {
-        if      (c == Boolean.TYPE)   write_boolean (f.getBoolean (value));
-        else if (c == Character.TYPE) write_wchar   (f.getChar    (value));
-        else if (c == Byte.TYPE)      write_octet   (f.getByte    (value));
-        else if (c == Short.TYPE)     write_short   (f.getShort   (value));
-        else if (c == Integer.TYPE)   write_long    (f.getInt     (value));
-        else if (c == Long.TYPE)      write_longlong(f.getLong    (value));
-        else if (c == Float.TYPE)     write_float   (f.getFloat   (value));
-        else if (c == Double.TYPE)    write_double  (f.getDouble  (value));
-        else
-            throw new RuntimeException 
-                ("unknown primitive field type: " + f);
     }
 
     public void setSize(int s){
