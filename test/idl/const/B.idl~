@@ -1,9 +1,0 @@
-        #include "A.idl"
-
-        interface TestInterface {
-        
-                const long DerivedValue = Entry1;
-        
-        };
-
-
