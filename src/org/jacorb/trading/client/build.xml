@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="client" default="all" basedir="../../../..">
+<project name="client" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
   <!--             trader client build file                         -->
@@ -16,12 +16,13 @@
    <target name="all" >
  	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/trading/client/**/**.java"
+	       includes="org/jacorb/trading/client/**/**.java"
 	       />
    </target>
 
 
-   <target name="clean">
+   <target name="clean" depends="init">
+           <delete dir="${classdir}/org/jacorb/trading/client"/>
    </target>
 
 </project>

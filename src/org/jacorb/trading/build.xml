@@ -18,12 +18,13 @@
    <target name="impl">
  	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="org/jacorb/trading/impl/*.java"
+	       includes="org/jacorb/trading/impl/*.java,org/jacorb/trading/*.java"
 	       />
    </target>
 
    <target name="db">
-   <ant antfile="${src}/org/jacorb/trading/db/build.xml" dir="${basedir}"/>
+           <ant antfile="${src}/org/jacorb/trading/db/build.xml" 
+           dir="${basedir}"/>
    </target>
 
    <target name="util">
@@ -35,7 +36,8 @@
 
    <target name="client">
 	   <ant
-	   antfile="${src}/org/jacorb/trading/client/build.xml" dir="${basedir}"
+	   antfile="${src}/org/jacorb/trading/client/build.xml" 
+           dir="${basedir}"
 	   />
    </target>
 
@@ -46,7 +48,8 @@
 	       />
    </target>
 
-   <target name="clean">
+   <target name="clean" depends="init">
+           <delete dir="${classdir}/org/jacorb/trading" />
    </target>
 
 </project>

@@ -60,7 +60,8 @@ public class ProxyOffer implements Serializable
     if (m_description == null) 
     {
       result = new ProxyInfo();
-      org.omg.CORBA.Object obj =jacorb.trading.TradingService.getORB().string_to_object(m_target);
+      org.omg.CORBA.Object obj =
+          org.jacorb.trading.TradingService.getORB().string_to_object(m_target);
       result.target = LookupHelper.narrow(obj);
 
       result.properties = new Property[m_props.size()];
