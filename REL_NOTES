@@ -54,7 +54,18 @@ gerald.brose@acm.org
                - Fix to corbaloc URL parsing to recognize corbaloc:rir URLs
                  with no key string specified.
                - Fix to parsing of IOR resources to allow multiple levels of
-                 indirection before an IOR or corbaloc URL is obtained.
+                 indirection before an IOR or corbaloc URL is
+                 obtained.
+               - CodeSet support: 
+                 - Now putting CodeSet Tagged Component into correct
+                   (MULTIPLE_COMPONENTS) profile.
+                 - Not adding the CodeSetInfo interceptor anymore, if
+                   GIOP 1.0 is used.
+                 - Ignoring any CodeSet service contexts if GIOP 1.0
+                   is used.
+                 - Now throwing CODESET_INCOMPATIBLE exception, if no
+                   matching code sets can be found.
+
          - Portable Interceptors:
                - Fix so that interceptors registered with an ORB initializer
                  are also applied to any objects registered as initial
@@ -86,6 +97,8 @@ gerald.brose@acm.org
          - Added property "jacorb.orb.objectKeyMap" to map object keys to
            arbitrary (hopefully readable) strings, which in turn permit
            the construction of short and simple corbaloc: IORs
+
+         - (Re-)Added support for UTF-8 for IDL types char and string
 
    - DynAny:
          - Implemented DynFixed interface.
@@ -139,7 +152,6 @@ gerald.brose@acm.org
 
 
         The following just didn't make it into the beta 3 release
-
         notes:
 
 	- SSL/JSSE
@@ -179,13 +191,14 @@ gerald.brose@acm.org
                 traversal.
 
         - Initial References:
-                Support has been added for resolving object references from
-                JNDI and as resources. This can be done using 'jndi:' or
-                'resource:' based URLs. Unrecognised URL types are now passed
-                down to the underlying JDK for processing ('https:', 'ftp:'
-                etc.). Note that the javax.naming package required for JNDI
-                support is not included in the JDK 1.2 and this package must be
-                added explicitly to the CLASSPATH.
+                Support has been added for resolving object references
+                from JNDI and as resources. This can be done using
+                'jndi:' or 'resource:' based URLs. Unrecognised URL
+                types are now passed down to the underlying JDK for
+                processing ('https:', 'ftp:' etc.). Note that the
+                javax.naming package required for JNDI support is not
+                included in the JDK 1.2 and this package must be added
+                explicitly to the CLASSPATH.
 
         - Local Objects:
                 The org.jacorb.orb.LocalityConstrainedObject class has
@@ -420,7 +433,8 @@ gerald.brose@acm.org
 
         - GIOP 1.2 and bidirectional GIOP
 
-1.3.30
+1.3.30:
+=======
 
         - fixed a problem with client-side connection time outs (clients
              would only time out once, and not also after subsequent
@@ -501,7 +515,8 @@ gerald.brose@acm.org
           is still supported.
 
 
-1.3.21
+1.3.21:
+=======
         - internal redesign: all package names now begin with "org.jacorb"
           NOTE: You MUST change existing jacorb.properties files to
           reflect these changes where property values point to JacORB
@@ -539,15 +554,15 @@ gerald.brose@acm.org
           interoperate with, e.g., Orbacus' SSL.
 
 1.3.11:
-
+=======
         - fixed two minor but annoying syntax errors in the source
           code... (jacorb/ir/gui/ModelBuilder.java and
           jacorb/orb/domain/gui/BrowserFrame.java). Also fixed
           broken jacorb.jar file
 
 
-Changes for 1.3.0:
-
+1.3.0:
+======
         new:
                 - Interface Repository with GUI Browser
 
