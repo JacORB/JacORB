@@ -224,17 +224,20 @@ public class Environment
 
             if(!loaded)
             { 
-                StringBuffer buf = new StringBuffer();
-                for(int i=0; i < propertiesFiles.size(); ++i) 
-                {
-                    if(i > 0) 
-                    {
-                        buf.append(" or ");
-                    }
-                    buf.append((String)propertiesFiles.elementAt(i));
-                }       
                 if( _verbosity >= 1 )
                 {
+                    StringBuffer buf = new StringBuffer();
+                    for( int i = 0; i < propertiesFiles.size(); ++i ) 
+                    {
+                        if( i > 0 ) 
+                        {
+                            buf.append(" or ");
+                        }
+                        
+                        buf.append( (String) propertiesFiles.elementAt( i ));
+                    }       
+
+
                     System.err.println("WARNING: no properties file found! This warning can be ignored\n for applets. (A properties file should be in the current directory or in \n" + buf.toString() + "t)");
                 } 
             }
