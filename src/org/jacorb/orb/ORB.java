@@ -776,6 +776,9 @@ public final class ORB
         {
             getImR();
 
+            // The double call to patchPrimaryAddress ensures that either the
+            // actual imr address or the environment values are patched into the
+            // address, giving precedence to the latter.
             profile.patchPrimaryAddress (imr.getImRHost(), imr.getImRPort());
             profile.patchPrimaryAddress (Environment.imrProxyHost(),
                                          Environment.imrProxyPort());
@@ -1640,6 +1643,7 @@ public final class ORB
     public ValueFactory lookup_value_factory (String id)
     {
         ValueFactory result = (ValueFactory)valueFactories.get (id);
+
         if (result == null)
         {
             if (id.startsWith ("IDL"))
