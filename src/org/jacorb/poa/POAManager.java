@@ -47,6 +47,14 @@ public class POAManager
     {
         orb = _orb;
         monitor = new POAManagerMonitorLightImpl();
+        try
+        {
+            monitor.configure(orb.getConfiguration());
+        }
+        catch (org.apache.avalon.framework.configuration.ConfigurationException ce)
+        {
+            // Never thrown
+        }
         monitor.init(this);
         monitor.openMonitor();
         monitor.printMessage("ready");
