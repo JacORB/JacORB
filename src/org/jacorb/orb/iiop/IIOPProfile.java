@@ -7,11 +7,13 @@ import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.TaggedComponentList;
 import org.jacorb.util.Environment;
+import org.jacorb.util.Debug;
 
 import org.omg.ETF.*;
 import org.omg.IOP.*;
 import org.omg.IIOP.*;
 import org.omg.SSLIOP.*;
+import org.omg.CSIIOP.*;
 
 /**
  * @author Andre Spiegel
@@ -51,6 +53,143 @@ public class IIOPProfile extends _ProfileLocalBase
         this.primaryAddress = address;
         this.objectKey      = objectKey;
         this.components     = new TaggedComponentList();
+    }
+
+    public IIOPProfile (IIOPAddress address, byte[] objectKey, int minor)
+    {
+        this.version        = new org.omg.GIOP.Version ((byte)1, (byte)minor);
+        this.primaryAddress = address;
+        this.objectKey      = objectKey;
+        this.components     = new TaggedComponentList();
+    }
+
+    /**
+     * Constructs an IIOPProfile from a corbaloc URL.  Only to be used
+     * from the corbaloc parser.
+     */
+    public IIOPProfile (String corbaloc)
+    {
+        this.version = null;
+        this.primaryAddress = null;
+        this.objectKey = null;
+        this.components = null;
+        try
+        {
+            this.decode_corbaloc(corbaloc);
+        }
+        catch (Exception e)
+        {
+            Debug.output (1,"could not create new IIOPProfile");
+        }
+    }
+
+    private void decode_corbaloc (String addr)
+    {
+        String host = "127.0.0.1"; //default to localhost
+        short port = 2809; // default IIOP port
+
+        int major = 1;
+        int minor = 2; // should this be 0? should it be configurable?
+
+        String errorstr =
+            "Illegal IIOP protocol format in object address format: " + addr;
+        int sep = addr.indexOf (':');
+        String protocol_identifier = "";
+        if( sep != 0)
+            protocol_identifier = addr.substring( 0,sep);
+        if( sep + 1 == addr.length())
+            throw new IllegalArgumentException(errorstr);
+        addr = addr.substring (sep + 1);
+
+        // decode optional version number
+        sep = addr.indexOf( '@' );
+        if( sep > -1)
+        {
+            String ver_str =  addr.substring(0,sep);
+            sep = ver_str.indexOf('.');
+            if( sep != -1 )
+            {
+                try
+                {
+                    major = Integer.parseInt(ver_str.substring(0,sep));
+                    minor = Integer.parseInt(ver_str.substring(sep+1));
+                }
+                catch( NumberFormatException nfe )
+                {
+                    throw new IllegalArgumentException(errorstr);
+                }
+            }
+            addr = addr.substring(sep+1);
+        }
+        version = new org.omg.GIOP.Version ((byte)major,(byte)minor);
+
+        sep = addr.indexOf (':');
+        if( sep != -1 )
+        {
+            try
+            {
+                port = (short)Integer.parseInt(addr.substring(sep+1));
+                host = addr.substring(0, sep);
+            }
+            catch( NumberFormatException ill )
+            {
+                throw new IllegalArgumentException(errorstr);
+            }
+        }
+        primaryAddress = new IIOPAddress (host,port);
+        decode_extensions (protocol_identifier.toLowerCase());
+    }
+
+    private void decode_extensions (String ident)
+    {
+        this.components = new TaggedComponentList();
+        if (ident.equals("ssliop"))
+        {
+            SSL ssl = new SSL();
+            ssl.port = (short)primaryAddress.getPort();
+            String propname =
+                "jacorb.security.ssl.corbaloc_ssliop.supported_options";
+            ssl.target_supports = get_ssl_options (propname);
+            propname =
+                "jacorb.security.ssl.corbaloc_ssliop.required_options";
+            ssl.target_requires = get_ssl_options (propname);
+
+            //create the tagged component containing the ssl struct
+            CDROutputStream out = new CDROutputStream();
+            out.beginEncapsulatedArray();
+            SSLHelper.write( out, ssl );
+
+            components.addComponent
+                (new TaggedComponent( TAG_SSL_SEC_TRANS.value,
+                                      out.getBufferCopy() )
+                 );
+        }
+    }
+
+    private short get_ssl_options (String propname)
+    {
+        String option_str = Environment.getProperty(propname);
+        short value = EstablishTrustInTarget.value;
+        //For the time being, we only use EstablishTrustInTarget,
+        //because we don't handle any of the other options anyway.
+        // So this makes a reasonable default.
+
+        if( (option_str != null) &&
+            (! option_str.equals( "" )) )
+        {
+            try
+            {
+                value = (short) Integer.parseInt( option_str, 16 );
+            }
+            catch( NumberFormatException nfe )
+            {
+                Debug.output( 0, "WARNING: Invalid hex property >>" +
+                              option_str + "<<" );
+                Debug.output( 0, "Please check property \"" +
+                                  propname + "\"" );
+            }
+        }
+        return value;
     }
 
     /**
