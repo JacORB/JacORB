@@ -173,9 +173,15 @@ public class NameServer
 	    java.util.Properties props = new java.util.Properties();
 	    props.put("jacorb.implname","StandardNS");
 
-	    // because domain server starts after ns the 
-            // orb domain of the ns can't be inserted
-	    props.put("jacorb.orb_domain.mount","off");
+            /*
+             * by setting the following property, the ORB will
+             * accept client requests targeted at the object with
+             * key "NameService", so more readablee corbaloc URLs
+             * can be used
+             */
+
+	    props.put("jacorb.orb.objectKeyMap.NameService",
+                      "StandardNS/NameServer-POA/_root");
 
 	    /* 
              * set a connection time out : after 30 secs. idle time,
@@ -186,7 +192,8 @@ public class NameServer
 
 	    /* which directory to store/load in? */
 
-	    String directory = org.jacorb.util.Environment.getProperty("jacorb.naming.db_dir");
+	    String directory = 
+                org.jacorb.util.Environment.getProperty("jacorb.naming.db_dir");
 
 	    if( directory != null )
 		filePrefix = directory + File.separatorChar + filePrefix;
@@ -195,8 +202,9 @@ public class NameServer
 
 	    orb = org.omg.CORBA.ORB.init(args, props);
 
-	    if (org.jacorb.util.Environment.useImR() && (args.length == 3) &&
-		args[2].equals("imr_register"))
+	    if ( org.jacorb.util.Environment.useImR() && 
+                 (args.length == 3) &&
+                 args[2].equals("imr_register") )
             {
 	      
                 // don't supply "imr_register", so a ns started by an imr_ssd
@@ -216,9 +224,13 @@ public class NameServer
 
 	    org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[3];
 
-	    policies[0] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
-	    policies[1] = rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
-	    policies[2] = rootPOA.create_request_processing_policy(
+	    policies[0] = 
+                rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+	    policies[1] = 
+                rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+
+	    policies[2] = 
+                rootPOA.create_request_processing_policy(
 				       RequestProcessingPolicyValue.USE_SERVANT_MANAGER);
 
 	    POA nsPOA = rootPOA.create_POA("NameServer-POA", 
@@ -241,9 +253,10 @@ public class NameServer
 	    try
 	    {
 		org.omg.CORBA.Object obj = 
-		    nsPOA.create_reference_with_id(oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
+		    nsPOA.create_reference_with_id( oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
 						
-		PrintWriter out = new PrintWriter( new FileOutputStream( args[0] ), true);
+		PrintWriter out =
+                    new PrintWriter( new FileOutputStream( args[0] ), true );
 
 		out.println( orb.object_to_string(obj) );
 		out.close();
@@ -264,8 +277,10 @@ public class NameServer
 		Thread.sleep(time_out);
 
 
-	    /* shutdown. This will etherealize all servants, thus saving their state */
-	    orb.shutdown(true);
+	    /* shutdown. This will etherealize all servants, thus
+               saving their state */
+	    orb.shutdown( true );
+
             //	    System.exit(0);
 	} 
 	catch( Exception e )
