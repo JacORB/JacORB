@@ -2,6 +2,7 @@ package org.jacorb.test.notification;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNotification.AnyOrder;
 import org.omg.CosNotification.DiscardPolicy;
 import org.omg.CosNotification.LifoOrder;
@@ -17,13 +18,7 @@ import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.FilterFactory;
 
-import org.jacorb.test.common.TestUtils;
-import org.jacorb.util.Debug;
-
 import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt
@@ -31,9 +26,6 @@ import org.omg.CORBA.TRANSIENT;
  */
 
 public class EventChannelTest extends NotificationTestCase {
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     Any testPerson_;
 
     EventChannel channel_;
@@ -174,16 +166,12 @@ public class EventChannelTest extends NotificationTestCase {
 
 
     public void testSendEventPushPush() throws Exception {
-        logger_.debug("testSendEventPushPush");
+
         // start a receiver thread
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
         _receiver.connect(channel_, false);
 
-        logger_.debug("Connected");
-
         Thread _receiverThread = new Thread(_receiver);
-
-        logger_.debug("Receiver started");
 
         // start a sender
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
@@ -193,8 +181,6 @@ public class EventChannelTest extends NotificationTestCase {
         _receiverThread.start();
 
         _sender.run();
-
-        logger_.debug("Sender started");
 
         _receiverThread.join();
 
@@ -244,8 +230,6 @@ public class EventChannelTest extends NotificationTestCase {
         _receiverThread.start();
 
         _sender.run();
-
-        logger_.info("Sent Event");
 
         _receiverThread.join();
 
@@ -371,24 +355,7 @@ public class EventChannelTest extends NotificationTestCase {
     }
 
     public static Test suite() throws Exception {
-        TestSuite _suite;
-
-        _suite = new TestSuite("Basic CosNotification EventChannel Tests");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames = TestUtils.getTestMethods( EventChannelTest.class, "testSendEventPushPush_MisbehavingConsumer" );
-
-        for (int x=0; x<methodNames.length; ++x) {
-            _suite.addTest(new EventChannelTest(methodNames[x], _setup));
-        }
-
-        return _setup;
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite("Basic CosNotification EventChannel Tests",
+                                          EventChannelTest.class);
     }
 }

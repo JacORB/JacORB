@@ -26,7 +26,6 @@ import org.omg.CORBA.*;
 
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.util.Debug;
 /**
  * This class represents a codec for encoding ENCODING_CDR_ENCAPS 1.0.
  *
@@ -43,13 +42,15 @@ public class Codec_CDR_1_0_Impl
 
     private ORB orb = null;
 
-    public Codec_CDR_1_0_Impl(ORB orb) {
+    public Codec_CDR_1_0_Impl(ORB orb) 
+    {
         this.orb = orb;
     }
 
     // implementation of org.omg.IOP.CodecOperations interface
 
-    public Any decode(byte[] data) throws FormatMismatch
+    public Any decode(byte[] data) 
+        throws FormatMismatch
     {
         CDRInputStream in = new CDRInputStream(orb, data);
 
@@ -95,7 +96,6 @@ public class Codec_CDR_1_0_Impl
         }
         catch (java.io.IOException e)
         {
-            Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, e);
         }
         */
 
@@ -128,7 +128,6 @@ public class Codec_CDR_1_0_Impl
         }
         catch (java.io.IOException e)
         {
-            Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, e);
         }
         */
 

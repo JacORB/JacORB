@@ -5,11 +5,7 @@ import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 
-import org.jacorb.util.Debug;
-
 import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  *  Unit Test for class EventChannel.
@@ -22,9 +18,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class CosEventChannelTest extends NotificationTestCase
 {
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     EventChannel channel_;
     Any testData_;
 
@@ -33,11 +26,6 @@ public class CosEventChannelTest extends NotificationTestCase
         channel_ = getDefaultChannel();
 
         testData_ = getTestUtils().getTestPersonAny();
-    }
-
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
     }
 
 
@@ -120,7 +108,6 @@ public class CosEventChannelTest extends NotificationTestCase
 
     public void testDestroyChannelDisconnectsClients() throws Exception
     {
-
         EventChannel _channel = getFactory().create_channel(new Property[0],
                                 new Property[0],
                                 new IntHolder());
@@ -145,44 +132,15 @@ public class CosEventChannelTest extends NotificationTestCase
         }
     }
 
-    /**
-     * Creates a new <code>EventChannelTest</code> instance.
-     *
-     * @param name test name
-     */
+
     public CosEventChannelTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite() throws Exception
     {
-        TestSuite _suite;
-
-        _suite = new TestSuite("Basic CosEvent EventChannel Tests");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup( _suite );
-
-        String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(CosEventChannelTest.class);
-
-        for (int x = 0; x < methodNames.length; ++x)
-        {
-            _suite.addTest(new CosEventChannelTest(methodNames[x], _setup));
-        }
-
-        return _setup;
+        return NotificationTestCase.suite("Basic CosEvent EventChannel Tests", CosEventChannelTest.class);
     }
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
-    }
-
 }

@@ -18,7 +18,7 @@ import org.omg.CosEventComm.Disconnected;
  */
 
 public class ExtendedPixelImage extends BrushSizePixelImage implements WhiteboardVars {
-    
+
     StructuredProxyPushConsumer myConsumer_;
     StructuredEvent event_;
     ORB orb_;
@@ -31,7 +31,7 @@ public class ExtendedPixelImage extends BrushSizePixelImage implements Whiteboar
     public ExtendedPixelImage(int w, int h) {
 	super(w,h);
     }
-    
+
     public void setOrb(ORB orb) {
 	orb_ = orb;
     }
@@ -55,13 +55,13 @@ public class ExtendedPixelImage extends BrushSizePixelImage implements Whiteboar
     // dieses drawLine wird von 'remote' aufgerufen
     // und merkt sich u"ber den aufruf die bei uns eingestellte
     // brushSize
-    synchronized public void drawLine(int x0, 
-				      int y0, 
-				      int x1, 
-				      int y1, 
-				      int red, 
-				      int green, 
-				      int blue, 
+    synchronized public void drawLine(int x0,
+				      int y0,
+				      int x1,
+				      int y1,
+				      int red,
+				      int green,
+				      int blue,
 				      int brushSize) {
 	int x = getBrushSize();
 	setBrushSize(brushSize);
@@ -72,18 +72,18 @@ public class ExtendedPixelImage extends BrushSizePixelImage implements Whiteboar
     // gezeichnete Linien mitschreiben ansonsten
     // normal zeichnen
     synchronized public void drawLine(int x0,
-				      int y0, 
-				      int x1, 
+				      int y0,
+				      int x1,
 				      int y1,
 				      int red,
-				      int green, 
+				      int green,
 				      int blue) {
 
 	WhiteboardUpdate _update = new WhiteboardUpdate();
 
 	super.drawLine(x0,y0,x1,y1,red,green,blue);
 	_update.line(new LineData(x0, y0, x1, y1, red, green, blue, getBrushSize()));
-	
+
 	try {
 	    if (myConsumer_ != null) {
 		WhiteboardUpdateHelper.insert(event_.remainder_of_body, _update);
@@ -105,14 +105,14 @@ public class ExtendedPixelImage extends BrushSizePixelImage implements Whiteboar
 
     // drawLine das auf UpdateLine Objekten arbeitet
     void drawLine(UpdateLine ul) {
-	if ( !ul.clearScreen() ) 
+	if ( !ul.clearScreen() )
 	    drawLine( ul.getX0(),
 		      ul.getY0(),
 		      ul.getX1(),
 		      ul.getY1(),
 		      ul.getRed(),
 		      ul.getGreen(),
-		      ul.getBlue(), 
+		      ul.getBlue(),
 		      ul.getBrushSize() );
 	else
 	    super.clearAll();

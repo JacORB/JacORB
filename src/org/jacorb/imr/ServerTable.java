@@ -24,7 +24,6 @@ import java.util.*;
 import java.io.*;
 import org.jacorb.imr.RegistrationPackage.*;
 import org.jacorb.imr.AdminPackage.*;
-import org.jacorb.util.Environment;
 
 /**
  * This class represents the server table of the implementation repository.
@@ -42,42 +41,21 @@ public class ServerTable
     implements Serializable 
 {
     private Hashtable servers;
-    private transient RessourceLock servers_lock;
+    private transient ResourceLock servers_lock;
     private Hashtable poas;
-    private transient RessourceLock poas_lock;
+    private transient ResourceLock poas_lock;
     private Hashtable hosts;
-    private transient RessourceLock hosts_lock;
+    private transient ResourceLock hosts_lock;
 
-    public transient RessourceLock table_lock;
+    public transient ResourceLock table_lock;
 
     public ServerTable() 
     {
-	int _no_of_poas = 100;
-	int _no_of_servers = 5;
+        servers = new Hashtable();
+        poas = new Hashtable();
+        hosts = new Hashtable();
 
-	try
-        {
-	    _no_of_poas = Integer.parseInt(Environment.getProperty("jacorb.imr.no_of_poas"));
-	}
-        catch (Exception _e)
-        {
-	    //ignore
-	}
-
-	try
-        {
-	    _no_of_servers = Integer.parseInt(Environment.getProperty("jacorb.imr.no_of_servers"));
-	}
-        catch (Exception _e)
-        {
-	    //ignore
-	}
-
-	servers = new Hashtable((int) ((100.0 / 75.0) * (double) _no_of_servers));
-	poas = new Hashtable((int) ((100.0 / 75.0) * (double) _no_of_poas));
-	hosts = new Hashtable();
-
-	initTransient();
+        initTransient();
     }
 
     /**
@@ -86,25 +64,25 @@ public class ServerTable
 
     private void initTransient()
     {
-	// The table lock is a special case. It is used to gain
-	// exclusive access to the server table on serialization. That
-	// means the exclusive lock is set on serialization and, if it
-	// was not transient, would be serialized as well.  On startup
-	// of the repository, if the table is deserialized, the lock
-	// is still set, und must be realeased. That means that we
-	// have to distinguish between a new table and a deserialized
-	// one. So its cheaper to instanciate the lock on
-	// deserialization time again.
-	table_lock = new RessourceLock();
+        // The table lock is a special case. It is used to gain
+        // exclusive access to the server table on serialization. That
+        // means the exclusive lock is set on serialization and, if it
+        // was not transient, would be serialized as well.  On startup
+        // of the repository, if the table is deserialized, the lock
+        // is still set, und must be realeased. That means that we
+        // have to distinguish between a new table and a deserialized
+        // one. So its cheaper to instanciate the lock on
+        // deserialization time again.
+        table_lock = new ResourceLock();
 
-	// The locks are needed, because the hashtables have to be
-	// copied to arrays sometimes (usually on command of the
-	// user), and that is done via Enumerations.  Unfortunately
-	// Enumerations get messed up when altering the underlying
-	// structure while reading from them.
-	servers_lock = new RessourceLock();
-	poas_lock = new RessourceLock();
-	hosts_lock = new RessourceLock();
+        // The locks are needed, because the hashtables have to be
+        // copied to arrays sometimes (usually on command of the
+        // user), and that is done via Enumerations.  Unfortunately
+        // Enumerations get messed up when altering the underlying
+        // structure while reading from them.
+        servers_lock = new ResourceLock();
+        poas_lock = new ResourceLock();
+        hosts_lock = new ResourceLock();
     }
 
     /**
@@ -131,13 +109,13 @@ public class ServerTable
      */
 
     public ImRServerInfo getServer(String name)
-	throws UnknownServerName
+        throws UnknownServerName
     {
-	ImRServerInfo _tmp = (ImRServerInfo) servers.get(name);
-	if (_tmp == null)
-	    throw new UnknownServerName(name);
+        ImRServerInfo _tmp = (ImRServerInfo) servers.get(name);
+        if (_tmp == null)
+            throw new UnknownServerName(name);
 
-	return _tmp;
+        return _tmp;
     }
 
     /**
@@ -150,18 +128,18 @@ public class ServerTable
      */
 
     public void putServer(String name, ImRServerInfo server)
-	throws DuplicateServerName
+        throws DuplicateServerName
     {
-	if (servers.containsKey(name))
-	    throw new DuplicateServerName(name);
+        if (servers.containsKey(name))
+            throw new DuplicateServerName(name);
 
-	table_lock.gainSharedLock();
-	servers_lock.gainSharedLock();
+        table_lock.gainSharedLock();
+        servers_lock.gainSharedLock();
 
-	servers.put(name, server);
+        servers.put(name, server);
 
-	servers_lock.releaseSharedLock();
-	table_lock.releaseSharedLock();
+        servers_lock.releaseSharedLock();
+        table_lock.releaseSharedLock();
     }
 
     /**
@@ -173,18 +151,18 @@ public class ServerTable
      */
 
     public void removeServer(String name)
-	throws UnknownServerName
+        throws UnknownServerName
     {
-	table_lock.gainSharedLock();
-	servers_lock.gainSharedLock();
+        table_lock.gainSharedLock();
+        servers_lock.gainSharedLock();
 
-	Object _obj = servers.remove(name);
+        Object _obj = servers.remove(name);
 
-	servers_lock.releaseSharedLock();
-	table_lock.releaseSharedLock();
+        servers_lock.releaseSharedLock();
+        table_lock.releaseSharedLock();
 
-	if (_obj == null)
-	    throw new UnknownServerName(name);
+        if (_obj == null)
+            throw new UnknownServerName(name);
     }
 
     /**
@@ -197,7 +175,7 @@ public class ServerTable
 
     public ImRPOAInfo getPOA (String name)
     {
-	return (ImRPOAInfo) poas.get(name);
+        return (ImRPOAInfo) poas.get(name);
     }
 
     /**
@@ -209,13 +187,13 @@ public class ServerTable
 
     public void putPOA(String name, ImRPOAInfo poa)
     {
-	table_lock.gainSharedLock();
-	poas_lock.gainSharedLock();
+        table_lock.gainSharedLock();
+        poas_lock.gainSharedLock();
 
-	poas.put(name, poa);
+        poas.put(name, poa);
 
-	poas_lock.releaseSharedLock();
-	table_lock.releaseSharedLock();
+        poas_lock.releaseSharedLock();
+        table_lock.releaseSharedLock();
     }
 
     /**
@@ -226,13 +204,13 @@ public class ServerTable
 
     public void removePOA(String name)
     {
-	table_lock.gainSharedLock();
-	poas_lock.gainSharedLock();
+        table_lock.gainSharedLock();
+        poas_lock.gainSharedLock();
 
-	poas.remove(name);
+        poas.remove(name);
 
-	poas_lock.releaseSharedLock();
-	table_lock.releaseSharedLock();
+        poas_lock.releaseSharedLock();
+        table_lock.releaseSharedLock();
     }
 
     /**
@@ -244,22 +222,22 @@ public class ServerTable
 
     public ServerInfo[] getServers()
     {
-	table_lock.gainSharedLock();
-	servers_lock.gainExclusiveLock();
+        table_lock.gainSharedLock();
+        servers_lock.gainExclusiveLock();
 
-	//build array
-	ServerInfo[] _servers = new ServerInfo[servers.size()];
-	Enumeration _server_enum = servers.elements();
+        //build array
+        ServerInfo[] _servers = new ServerInfo[servers.size()];
+        Enumeration _server_enum = servers.elements();
 
-	//copy elements from vector to array
-	int _i = 0;
-	while (_server_enum.hasMoreElements())
-	    _servers[_i++] = ((ImRServerInfo) _server_enum.nextElement()).toServerInfo();
+        //copy elements from vector to array
+        int _i = 0;
+        while (_server_enum.hasMoreElements())
+            _servers[_i++] = ((ImRServerInfo) _server_enum.nextElement()).toServerInfo();
 
-	servers_lock.releaseExclusiveLock();
-	table_lock.releaseSharedLock();
+        servers_lock.releaseExclusiveLock();
+        table_lock.releaseSharedLock();
 
-	return _servers;
+        return _servers;
     }
 
     /**
@@ -271,22 +249,22 @@ public class ServerTable
 
     public HostInfo[] getHosts()
     {
-	table_lock.gainSharedLock();
-	hosts_lock.gainExclusiveLock();
+        table_lock.gainSharedLock();
+        hosts_lock.gainExclusiveLock();
 
-	//build array
-	HostInfo[] _hosts = new HostInfo[hosts.size()];
-	Enumeration _host_enum = hosts.elements();
+        //build array
+        HostInfo[] _hosts = new HostInfo[hosts.size()];
+        Enumeration _host_enum = hosts.elements();
 	
-	//copy elements from vector to array
-	int _i = 0;
-	while (_host_enum.hasMoreElements())
-	    _hosts[_i++] = ((ImRHostInfo) _host_enum.nextElement()).toHostInfo();
+        //copy elements from vector to array
+        int _i = 0;
+        while (_host_enum.hasMoreElements())
+            _hosts[_i++] = ((ImRHostInfo) _host_enum.nextElement()).toHostInfo();
 	
-	hosts_lock.releaseExclusiveLock();
-	table_lock.releaseSharedLock();
+        hosts_lock.releaseExclusiveLock();
+        table_lock.releaseSharedLock();
 
-	return _hosts;
+        return _hosts;
     }
 
     /**
@@ -298,22 +276,22 @@ public class ServerTable
 
     public POAInfo[] getPOAs()
     {
-	table_lock.gainSharedLock();
-	poas_lock.gainExclusiveLock();
+        table_lock.gainSharedLock();
+        poas_lock.gainExclusiveLock();
 
-	//build array
-	POAInfo[] _poas = new POAInfo[poas.size()];
-	Enumeration _poa_enum = poas.elements();
+        //build array
+        POAInfo[] _poas = new POAInfo[poas.size()];
+        Enumeration _poa_enum = poas.elements();
 
-	//copy elements from vector to array
-	int _i = 0;
-	while (_poa_enum.hasMoreElements())
-	    _poas[_i++] = ((ImRPOAInfo) _poa_enum.nextElement()).toPOAInfo();
+        //copy elements from vector to array
+        int _i = 0;
+        while (_poa_enum.hasMoreElements())
+            _poas[_i++] = ((ImRPOAInfo) _poa_enum.nextElement()).toPOAInfo();
 	
-	poas_lock.releaseExclusiveLock();
-	table_lock.releaseSharedLock();
+        poas_lock.releaseExclusiveLock();
+        table_lock.releaseSharedLock();
 
-	return _poas;
+        return _poas;
     }
 
     /**
@@ -326,13 +304,13 @@ public class ServerTable
 
     public void putHost(String name, ImRHostInfo host)
     {
-	table_lock.gainSharedLock();
-	hosts_lock.gainSharedLock();
+        table_lock.gainSharedLock();
+        hosts_lock.gainSharedLock();
 
-	hosts.put(name, host);
+        hosts.put(name, host);
 
-	hosts_lock.releaseSharedLock();
-	table_lock.releaseSharedLock();
+        hosts_lock.releaseSharedLock();
+        table_lock.releaseSharedLock();
     }
 
     /**
@@ -343,7 +321,7 @@ public class ServerTable
 
     public Object removeHost(String name)
     {
-	return hosts.remove(name);
+        return hosts.remove(name);
     }
 
     /**
@@ -356,7 +334,7 @@ public class ServerTable
 
     public ImRHostInfo getHost(String name)
     {
-	return (ImRHostInfo) hosts.get(name);
+        return (ImRHostInfo) hosts.get(name);
     }
 
     /**
@@ -365,11 +343,11 @@ public class ServerTable
      */
 
     private void readObject(java.io.ObjectInputStream in)
-	throws java.io.IOException, java.io.NotActiveException, 
-	ClassNotFoundException
+        throws java.io.IOException, java.io.NotActiveException, 
+        ClassNotFoundException
     {
-	in.defaultReadObject();
-	initTransient();
+        in.defaultReadObject();
+        initTransient();
     }
 } // ServerTable
 

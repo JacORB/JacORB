@@ -33,12 +33,12 @@ public class AllTest extends TestCase
    {
       TestSuite suite = new TestSuite ("All jacorb");
 
-      suite.addTest (org.jacorb.test.idl.AllTest.suite ());
-      suite.addTest (org.jacorb.test.orb.AllTest.suite ());
-      suite.addTest (org.jacorb.test.poa.AllTest.suite ());
-      suite.addTest (org.jacorb.test.naming.AllTest.suite ());
-      suite.addTest (org.jacorb.test.bugs.AllTest.suite());
-      suite.addTest (org.jacorb.test.util.AllTest.suite());
+      suite.addTest(org.jacorb.test.idl.AllTest.suite());
+      suite.addTest(org.jacorb.test.orb.AllTest.suite());
+      suite.addTest(org.jacorb.test.poa.AllTest.suite());
+      //suite.addTest(org.jacorb.test.naming.AllTest.suite());
+      suite.addTest(org.jacorb.test.bugs.AllTest.suite());
+      // suite.addTest (org.jacorb.test.util.AllTest.suite());
 
       return suite;
    }

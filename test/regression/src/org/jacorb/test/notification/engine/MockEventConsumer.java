@@ -9,17 +9,13 @@ import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.queue.BoundedPriorityEventQueue;
 import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
-import org.jacorb.notification.util.TaskExecutor;
-import org.jacorb.util.Debug;
+import org.jacorb.notification.engine.TaskExecutor;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Assert;
-import org.apache.avalon.framework.logger.Logger;
 
 public class MockEventConsumer implements MessageConsumer
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     EventQueue eventQueue =
         new BoundedPriorityEventQueue(10,
                                       EventQueueOverflowStrategy.LEAST_PRIORITY);
@@ -69,13 +65,9 @@ public class MockEventConsumer implements MessageConsumer
     {
         Iterator i = expectedEvents.iterator();
 
-        logger_.info("checkExpectedEvents");
-
         while (i.hasNext())
         {
             Object o = i.next();
-
-            logger_.info("Object: " + o + " Class: " + o.getClass().getName() );
 
             Assert.assertTrue(expectedEvents + " does not contain " + o,
                               eventsReceived.contains(o));
@@ -97,8 +89,6 @@ public class MockEventConsumer implements MessageConsumer
 
     public void deliverMessage(final Message event)
     {
-        logger_.info("deliverEvent " + event);
-
         if (enabled)
         {
             if (deliverPossible)
@@ -133,8 +123,6 @@ public class MockEventConsumer implements MessageConsumer
 
     public void deliverPendingData()
     {
-        logger_.debug("deliverPendingEvents");
-
         try
         {
             Message[] events = eventQueue.getAllEvents(true);

@@ -33,7 +33,6 @@ import junit.swingui.TestRunner;
 
 public class AllTest extends TestCase
 {
-
     public AllTest( String name )
     {
         super( name );

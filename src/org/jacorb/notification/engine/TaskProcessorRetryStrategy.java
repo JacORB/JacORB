@@ -20,57 +20,55 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.conf.Configuration;
-import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.util.TaskExecutor;
-import org.jacorb.util.Environment;
+import org.jacorb.notification.engine.TaskExecutor;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TaskProcessorRetryStrategy extends RetryStrategy {
-
+public class TaskProcessorRetryStrategy extends RetryStrategy
+{
     Runnable retryPushOperation_ = new Runnable()
+    {
+        public void run()
         {
-            public void run()
+            try
             {
-                try {
-                    pushOperation_.invokePush();
-
-                    taskProcessor_.scheduleTimedPushTask(messageConsumer_);
-                } catch (Throwable error) {
-                    try {
-                        remoteExceptionOccured(error);
-
-                        retry();
-                    } catch (RetryException e) {
-                        dispose();
-                    }
-                }
+                pushOperation_.invokePush();
+                taskProcessor_.scheduleTimedPushTask(messageConsumer_);
             }
-        };
-
-
-    Runnable enableMessageConsumer_ = new Runnable()
-        {
-            public void run()
+            catch (Throwable error)
             {
                 try
-                    {
-                        messageConsumer_.enableDelivery();
-
-                        TaskExecutor _executor = messageConsumer_.getExecutor();
-
-                        _executor.execute(retryPushOperation_);
-                    }
-                catch (InterruptedException e)
-                    {
-                        logger_.error("Interrupted", e);
-                    }
+                {
+                    remoteExceptionOccured(error);
+                    retry();
+                }
+                catch (RetryException e)
+                {
+                    dispose();
+                }
             }
-        };
+        }
+    };
+
+    Runnable enableMessageConsumer_ = new Runnable()
+    {
+        public void run()
+        {
+            try
+            {
+                messageConsumer_.enableDelivery();
+                TaskExecutor _executor = messageConsumer_.getExecutor();
+                _executor.execute(retryPushOperation_);
+            }
+            catch (InterruptedException e)
+            {
+//                 logger_.error("Interrupted", e);
+            }
+        }
+    };
 
     TaskProcessor taskProcessor_;
 
@@ -80,14 +78,13 @@ public class TaskProcessorRetryStrategy extends RetryStrategy {
      */
     private long backoutInterval_;
 
-    public TaskProcessorRetryStrategy(MessageConsumer mc, PushOperation op, TaskProcessor tp) {
+    public TaskProcessorRetryStrategy(MessageConsumer mc,
+                                      PushOperation op,
+                                      TaskProcessor tp)
+    {
         super(mc, op);
-
         taskProcessor_ = tp;
-
-        backoutInterval_ =
-            Environment.getIntPropertyWithDefault( Configuration.BACKOUT_INTERVAL,
-                                                   Default.DEFAULT_BACKOUT_INTERVAL );
+        backoutInterval_ = tp.getBackoutInterval();
     }
 
 
@@ -96,9 +93,10 @@ public class TaskProcessorRetryStrategy extends RetryStrategy {
     }
 
 
-    public void retry() throws RetryException {
+    public void retry() throws RetryException
+    {
         messageConsumer_.disableDelivery();
-
-        taskProcessor_.executeTaskAfterDelay(backoutInterval_, enableMessageConsumer_);
+        taskProcessor_.executeTaskAfterDelay(backoutInterval_,
+                                             enableMessageConsumer_);
     }
 }

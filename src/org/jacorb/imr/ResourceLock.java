@@ -21,7 +21,6 @@ package org.jacorb.imr;
  *
  */
 
-import org.jacorb.util.Debug;
 
 /**
  * This class provides shared or exclusive access to a ressource.
@@ -34,7 +33,7 @@ import org.jacorb.util.Debug;
  *
  */
 
-public class RessourceLock 
+public class ResourceLock 
     implements java.io.Serializable 
 {
     private int shared;
@@ -45,10 +44,10 @@ public class RessourceLock
      * The constructor.
      */
 
-    public RessourceLock() 
+    public ResourceLock() 
     {
-	shared = 0;
-	exclusive = 0;
+        shared = 0;
+        exclusive = 0;
     }
 
     /**
@@ -58,18 +57,17 @@ public class RessourceLock
 
     public synchronized void gainSharedLock()
     {
-	while(exclusive > 0 && exclusives_waiting)
+        while(exclusive > 0 && exclusives_waiting)
         {
-	    try
+            try
             {
-		wait();
-	    }
+                wait();
+            }
             catch (java.lang.Exception _e)
             {
-		Debug.output(4, _e);
-	    }
-	}
-	shared++;
+            }
+        }
+        shared++;
     }
 
     /**
@@ -79,8 +77,8 @@ public class RessourceLock
 
     public synchronized void releaseSharedLock()
     {
-	if (--shared == 0)
-	    notifyAll();
+        if (--shared == 0)
+            notifyAll();
     }
 
     /**
@@ -90,20 +88,19 @@ public class RessourceLock
 
     public synchronized void gainExclusiveLock()
     {
-	while(shared > 0 || exclusive > 0)
+        while(shared > 0 || exclusive > 0)
         {
-	    try
+            try
             {
-		exclusives_waiting = true;
-		wait();
-	    }
+                exclusives_waiting = true;
+                wait();
+            }
             catch (java.lang.Exception _e)
             {
-		Debug.output(4, _e);
-	    }
-	}
-	exclusive++;
-	exclusives_waiting = false;
+            }
+        }
+        exclusive++;
+        exclusives_waiting = false;
     }
 
     /**
@@ -113,11 +110,11 @@ public class RessourceLock
 
     public synchronized void releaseExclusiveLock()
     {
-	if (--exclusive == 0)
-	    notifyAll();
+        if (--exclusive == 0)
+            notifyAll();
     }
 
-} // RessourceLock
+} // ResourceLock
 
 
 

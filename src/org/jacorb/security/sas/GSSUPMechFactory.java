@@ -26,7 +26,6 @@ import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
-import org.jacorb.util.Debug;
 
 import sun.security.jgss.spi.GSSContextSpi;
 import sun.security.jgss.spi.GSSCredentialSpi;
@@ -40,14 +39,16 @@ import sun.security.jgss.spi.MechanismFactory;
  * @version $Id$
  */
 
-public final class GSSUPMechFactory implements MechanismFactory
+public final class GSSUPMechFactory
+    implements MechanismFactory
 {
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS.GSSUP");
+    // private static Logger logger = Debug.getNamedLogger("jacorb.SAS.GSSUP");
 
     protected static Provider myProvider;
 
     private Oid myMechOid;
-    private Oid[] nameTypes = new Oid[] {GSSName.NT_EXPORT_NAME};
+    private Oid[] nameTypes = 
+       new Oid[] {GSSName.NT_EXPORT_NAME};
 
     public GSSUPMechFactory ()
     {
@@ -57,7 +58,7 @@ public final class GSSUPMechFactory implements MechanismFactory
         }
         catch (GSSException e)
         {
-            logger.error("GSSUPMechanism: " + e);
+            // logger.error("GSSUPMechanism: " + e);
         }
     }
 

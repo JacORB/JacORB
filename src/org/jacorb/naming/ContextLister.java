@@ -44,7 +44,8 @@ public class ContextLister
         // initialise Naming Service via ORB
         try 
 	{
-            org.omg.CORBA.Object obj = orb.resolve_initial_references("NameService");
+            org.omg.CORBA.Object obj = 
+                orb.resolve_initial_references("NameService");
             root_context = NamingContextExtHelper.narrow( obj );
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName inex ) {
@@ -145,7 +146,9 @@ public class ContextLister
 
     public static void main(String args[]) 
     {
-	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
+	org.omg.CORBA.ORB orb = 
+            org.omg.CORBA.ORB.init(args,null);
+
 	ContextLister ctxLister;
 	PrintStream pw = System.out;
 	String url = null;

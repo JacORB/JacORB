@@ -121,15 +121,16 @@ public class ClientServerSetup extends TestSetup {
     {
         // Environment needs to be reset because subsequent tests
         // reuse the same "instance" of the static Environment class.
-        org.jacorb.util.Environment.init();
-        
+
+        //        org.jacorb.util.Environment.init();
+
         clientOrb = ORB.init (new String[0], clientOrbProperties );
         clientRootPOA = POAHelper.narrow
                           ( clientOrb.resolve_initial_references( "RootPOA" ) );
         clientRootPOA.the_POAManager().activate();
 
 //      StringBuffer serverexec = new StringBuffer( "java -Djacorb.implname=" );
-        StringBuffer serverexec = new StringBuffer( "jaco -Djacorb.implname=" );
+        StringBuffer serverexec = new StringBuffer( "jaco.bat -Djacorb.implname=" );
         serverexec.append( servantName );
 //      serverexec.append(" -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB ");
 //      serverexec.append("-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton ");
@@ -153,7 +154,7 @@ public class ClientServerSetup extends TestSetup {
         outListener.start();
         errListener.start();
         String ior = outListener.getIOR();
-        serverObject = clientOrb.string_to_object(ior);         
+        serverObject = clientOrb.string_to_object(ior);
     }
 
     public void tearDown() throws Exception

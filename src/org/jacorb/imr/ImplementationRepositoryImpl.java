@@ -20,6 +20,9 @@
 
 package org.jacorb.imr;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.GIOP.*;
 
 import org.jacorb.imr.RegistrationPackage.*;
@@ -31,8 +34,7 @@ import org.jacorb.orb.iiop.*;
 
 import org.jacorb.poa.util.POAUtil;
 
-import org.jacorb.util.Environment;
-import org.jacorb.util.Debug;
+import org.jacorb.util.ObjectUtil;
 
 import org.omg.PortableServer.*;
 
@@ -57,32 +59,30 @@ public class ImplementationRepositoryImpl
     extends ImplementationRepositoryPOA
 {
     /**
-     * <code>default_port</code> is the port number for the IMR endpoint. It may
-     * be fixed by the jacorb.imr.endpoint_port_number configuration property.
-     */
-    private static int default_port;
-
-    /**
-     * <code>default_host</code> is the host name for the IMR. It defaults to
-     * localhost. It may be set by jacorb.imr.host configuration property.
-     */
-    private static String default_host;
-
-    /**
      * <code>orb</code> is the ORB instance for the IMR.
      */
-    private static org.omg.CORBA.ORB orb;
+    private org.omg.CORBA.ORB orb;
+
+    private org.jacorb.config.Configuration configuration = null;
+
+    /** the specific logger for this component */
+    private Logger logger = null;
+
+    private String iorFile = null;
 
     private File table_file;
     private ServerTable server_table;
     private File table_file_backup;
     private SocketListener listener;
+    private Thread listenerThread;
 
     private int object_activation_retries = 5;
     private int object_activation_sleep = 50;
 
     private boolean allow_auto_register = false;
     private boolean check_object_liveness = false;
+
+    private int connection_timeout = 2000;
 
     private WriteThread wt;
     private boolean updatePending;
@@ -93,46 +93,14 @@ public class ImplementationRepositoryImpl
      * It builds up the server table and starts up the SocketListener thread.
      *
      * @param table_file the file containing the serialized server table. Also
-     * used for writing the table to on shutdown. If null, an empty table is created.
+     * used for writing the table to on shutdown. If null, an empty table is
+     * created.
      * @param table_backup the file where backups are written to.
      * @param new_table set to true, if an empty server table should be created
      */
-    public ImplementationRepositoryImpl(File table_file,
-                                        File table_backup,
-                                        boolean new_table)
+    public ImplementationRepositoryImpl(org.omg.CORBA.ORB orb)
     {
-        this.table_file = table_file;
-        table_file_backup = table_backup;
-
-        //build up server table
-
-        try
-        {
-            if (new_table)
-            {
-                server_table = new ServerTable ();
-                save_server_table (table_file);
-            }
-            else
-            {
-                try
-                {
-                    ObjectInputStream _in = new ObjectInputStream (new FileInputStream (table_file));
-                    server_table = (ServerTable)_in.readObject();
-                    _in.close();
-                }
-                catch (Exception ex)
-                {
-                    Debug.output (4, ex);
-                    server_table = new ServerTable ();
-                    save_server_table (table_file);
-                }
-            }
-        }
-        catch (FileOpFailed ex)
-        {
-            Debug.output (4, ex);
-        }
+        this.orb = orb;
 
         shutdownThread = new Shutdown ();
         shutdownThread.setDaemon (true);
@@ -143,57 +111,188 @@ public class ImplementationRepositoryImpl
         wt.setName ("IMR Write Thread");
         wt.setDaemon (true);
         wt.start ();
+    }
 
-        // Read in properties from Environment.
-        try
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        configuration = (org.jacorb.config.Configuration)myConfiguration;
+
+        logger = configuration.getNamedLogger("jacorb.imr");
+
+        String defaultTableFile = "table.dat";
+        String tableFileStr = configuration.getAttribute("jacorb.imr.table_file", 
+                                                         defaultTableFile);
+
+        //NOTE: deliberate use of ref equivalence check here. I need to find
+        //out if the default case has taken place, in which case, i assume
+        //that the default string ref is just passed through.
+        if (tableFileStr == defaultTableFile)
         {
-            String _tmp =
-            Environment.getProperty("jacorb.imr.object_activation_retries");
-
-            if( _tmp != null )
+            if (this.logger.isWarnEnabled())
             {
-                object_activation_retries = Integer.parseInt(_tmp);
+                this.logger.warn("No file for the server table specified! Please configure the property jacorb.imr.table_file!");
+                this.logger.warn("Will create \"table.dat\" in current directory, if necessary");
             }
         }
-        catch( NumberFormatException nfe )
+
+        table_file = new File(tableFileStr);
+        boolean _new_table = false;
+
+        // try to open table file
+        if (! table_file.exists ())
         {
+            _new_table = true;
+            if (this.logger.isInfoEnabled())
+            {
+                this.logger.info("Table file " + tableFileStr + 
+                                 " does not exist - autocreating it.");
+            }
+
+            try
+            {
+                table_file.createNewFile ();
+            }
+            catch (IOException ex)
+            {
+                throw new ConfigurationException("Failed to create table file", ex);
+            }
+        }
+        else
+        {
+            if (table_file.isDirectory ())
+            {
+                throw new ConfigurationException("The table file is a directory! Please check " + table_file.getAbsolutePath());
+            }
+
+            if (! table_file.canRead())
+            {
+                throw new ConfigurationException("The table file is not readable! Please check " + table_file.getAbsolutePath());
+            }
+
+            if (! table_file.canWrite())
+            {
+                throw new ConfigurationException("The table file is not writable! Please check " + table_file.getAbsolutePath());
+            }
         }
 
         try
         {
-            String _tmp =
-                (Environment.getProperty("jacorb.imr.object_activation_sleep"));
-
-            if( _tmp != null )
+            if (_new_table)
             {
-                object_activation_sleep = Integer.parseInt(_tmp);
+                this.server_table = new ServerTable();
+                save_server_table(table_file);
+            }
+            else
+            {
+                try
+                {
+                    ObjectInputStream _in = 
+                        new ObjectInputStream(new FileInputStream(table_file));
+                    server_table = (ServerTable)_in.readObject();
+                    _in.close();
+                }
+                catch (Exception ex)
+                {
+                    this.logger.debug("Failed to read ServerTable", ex);
+
+                    server_table = new ServerTable();
+                    save_server_table(table_file);
+                }
             }
         }
-        catch( NumberFormatException e )
+        catch (FileOpFailed ex)
         {
+            this.logger.debug("Failed to read ServerTable", ex);
         }
 
-        String _tmp =
-            (Environment.getProperty("jacorb.imr.allow_auto_register"));
 
-        if( _tmp != null )
+        //should be set. if not, throw
+        this.iorFile = configuration.getAttribute("jacorb.imr.ior_file");
+
+        String _backup_file_str = 
+            configuration.getAttribute("jacorb.imr.backup_file", "");
+
+        //set up server table backup file
+        if (_backup_file_str.length() == 0)
         {
-            _tmp = _tmp.toLowerCase();
-
-            allow_auto_register = "on".equals( _tmp );
+            this.logger.warn("No backup file specified!. No backup file will be created");
         }
 
-        _tmp =
-            (Environment.getProperty("jacorb.imr.check_object_liveness"));
-
-        if( _tmp != null )
+        if (_backup_file_str.length() > 0)
         {
-            _tmp = _tmp.toLowerCase();
+            table_file_backup = new File(_backup_file_str);
 
-            check_object_liveness = "on".equals( _tmp );
+            // try to open backup file
+            if ( ! table_file_backup.exists ())
+            {
+                _new_table = true;
+                
+                if (this.logger.isInfoEnabled())
+                {
+                    this.logger.info("Backup file " + _backup_file_str + 
+                                     " does not exist - autocreating it.");
+                }
+
+                try
+                {
+                    table_file_backup.createNewFile();
+                }
+                catch (IOException ex)
+                {
+                    throw new ConfigurationException("Failed to create backup file",
+                                                     ex);
+                }
+            }
+            else
+            {
+                if (table_file_backup.isDirectory ())
+                {
+                    throw new ConfigurationException("The backup file is a directory! Please check " + table_file_backup.getAbsolutePath());
+                }
+
+                if (! table_file_backup.canRead())
+                {
+                    throw new ConfigurationException("The backup file is not readable! Please check " + table_file_backup.getAbsolutePath());
+                }
+
+                if (! table_file_backup.canWrite())
+                {
+                    throw new ConfigurationException("The backup file is not writable! Please check " + table_file_backup.getAbsolutePath());
+                }
+            }
         }
 
-        listener = new SocketListener();
+        this.object_activation_retries =
+            configuration.getAttributeAsInteger("jacorb.imr.object_activation_retries",
+                                            5);
+
+        this.object_activation_sleep = 
+            configuration.getAttributeAsInteger("jacorb.imr.object_activation_sleep",
+                                            50);
+
+        this.allow_auto_register = 
+            configuration.getAttributeAsBoolean("jacorb.imr.allow_auto_register",
+                                                false);
+        this.check_object_liveness =
+            configuration.getAttributeAsBoolean("jacorb.imr.check_object_liveness",
+                                                false);
+
+        this.connection_timeout = 
+            configuration.getAttributeAsInteger("jacorb.imr.connection_timeout",
+                                            2000 );
+
+        this.listener = new SocketListener();
+        this.listener.configure(configuration);
+        
+        this.listenerThread = new Thread(listener);
+        this.listenerThread.setPriority(Thread.MAX_PRIORITY);
+        this.listenerThread.start();        
+    }
+
+    public String getIORFile()
+    {
+        return this.iorFile;
     }
 
     // implementation of org.jacorb.imr.RegistrationOperations interface
@@ -209,7 +308,10 @@ public class ImplementationRepositoryImpl
     public void set_server_down(String server)
         throws UnknownServerName
     {
-        Debug.output(4, "ImR: server " + server + " is going down... ");
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("ImR: server " + server + " is going down... ");
+        }
 
         ImRServerInfo _server = server_table.getServer(server);
         _server.setDown();
@@ -245,8 +347,11 @@ public class ImplementationRepositoryImpl
 
         updatePending = true;
 
-        Debug.output(4, "ImR: registering poa " + name + " for server: " +
-                     server + " on " + host );
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("ImR: registering poa " + name + " for server: " +
+                              server + " on " + host);
+        }
 
         if( allow_auto_register &&
             ! server_table.hasServer( server ))
@@ -274,7 +379,8 @@ public class ImplementationRepositoryImpl
             _poa = new ImRPOAInfo(name, host, port, _server);
             _server.addPOA(_poa);
             server_table.putPOA(name, _poa);
-            Debug.output(4, "ImR: new poa registered");
+
+            this.logger.debug("ImR: new poa registered");
         }
         else
         {
@@ -314,12 +420,12 @@ public class ImplementationRepositoryImpl
                 }
                 else
                 {
-                    Debug.output(4, "ImR: Remapping server/port");
+                    this.logger.debug("ImR: Remapping server/port");
                 }
             }
 
             _poa.reactivate(host, port);
-            Debug.output(4,"ImR: register_poa, reactivated");
+            this.logger.debug("ImR: register_poa, reactivated");
         }
         try
         {
@@ -330,7 +436,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(4, e);
+            this.logger.debug("Caught Exception", e);
         }
     }
 
@@ -355,9 +461,9 @@ public class ImplementationRepositoryImpl
         {
             host.ssd_ref.get_system_load();
         }
-        catch (Exception _e)
+        catch (Exception e)
         {
-            Debug.output(4, _e);
+            this.logger.debug("Caught Exception", e);
             throw new InvalidSSDRef();
         }
         updatePending = true;
@@ -373,7 +479,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(4, e);
+            this.logger.debug("Caught Exception", e);
         }
     }
 
@@ -415,8 +521,7 @@ public class ImplementationRepositoryImpl
 
         if (check_object_liveness)
         {
-            Debug.output
-                (4, "ImR: Checking servers");
+            this.logger.debug("ImR: Checking servers");
 
             servers = server_table.getServers();
 
@@ -434,8 +539,11 @@ public class ImplementationRepositoryImpl
                     {
                         try
                         {
-                            Debug.output
-                                (4, "ImR: Setting server " + servers[k].name + " down");
+                            if (this.logger.isDebugEnabled())
+                            {
+                                this.logger.debug("ImR: Setting server " + 
+                                                  servers[k].name + " down");
+                            }
 
                             // Server is not active so set it down
                             server_table.getServer(servers[k].name).setDown();
@@ -445,7 +553,10 @@ public class ImplementationRepositoryImpl
                         }
                         catch (UnknownServerName e)
                         {
-                            Debug.output(4, "ImR: Internal error - unknown server " + servers[k].name );
+                            if (this.logger.isDebugEnabled())
+                            {
+                                this.logger.debug("ImR: Internal error - unknown server " + servers[k].name, e);
+                            }
                         }
                     }
                 }
@@ -467,7 +578,8 @@ public class ImplementationRepositoryImpl
      * @exception UnknownServerName the server <code>server</code> has not been registered.
      */
     public ServerInfo get_server_info(String server)
-        throws UnknownServerName{
+        throws UnknownServerName
+    {
         return server_table.getServer(server).toServerInfo();
     }
 
@@ -493,7 +605,12 @@ public class ImplementationRepositoryImpl
         ImRServerInfo _server = new ImRServerInfo(name, host, command);
         server_table.putServer(name, _server);
 
-        Debug.output(4,"ImR: server " + name + " on " + host + " registered");
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("ImR: server " + name + " on " + 
+                              host + " registered");
+        }
+
         try
         {
             synchronized (wt)
@@ -503,7 +620,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(4, e);
+            this.logger.debug("Caught Exception", e);
         }
     }
 
@@ -527,7 +644,12 @@ public class ImplementationRepositoryImpl
             server_table.removePOA(_poas[_i]);
 
         server_table.removeServer(name);
-        Debug.output(4,"ImR: server " + name + " unregistered");
+
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("ImR: server " + name + " unregistered");
+        }
+
         try
         {
             synchronized (wt)
@@ -537,7 +659,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(4, e);
+            this.logger.debug("Caught Exception", e);
         }
     }
 
@@ -560,7 +682,11 @@ public class ImplementationRepositoryImpl
         _server.command = command;
         _server.host = host;
 
-        Debug.output(4,"ImR: server " + name + " edited");
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("ImR: server " + name + " edited");
+        }
+
         try
         {
             synchronized (wt)
@@ -570,7 +696,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(4, e);
+            this.logger.debug("Caught Exception", e);
         }
     }
 
@@ -654,12 +780,12 @@ public class ImplementationRepositoryImpl
                 synchronized (listener)
                 {
                     // Wait at most 5 seconds for the listener to shutdown.
-                    listener.join (5000);
+                    listenerThread.join(5000);
                 }
             }
             catch (InterruptedException e)
             {
-                Debug.output (4, e);
+                this.logger.debug("Caught Exception", e);
             }
         }
         try
@@ -668,9 +794,9 @@ public class ImplementationRepositoryImpl
         }
         catch (FileOpFailed f)
         {
-            Debug.output (4, "ImR: Failed to save backup table.");
+            this.logger.debug("ImR: Failed to save backup table.", f);
         }
-        Debug.output (4, "ImR: Finished shutting down");
+        this.logger.debug("ImR: Finished shutting down");
     }
 
     /**
@@ -703,9 +829,9 @@ public class ImplementationRepositoryImpl
             _out.flush();
             _out.close();
         }
-        catch (Exception _e)
+        catch (Exception e)
         {
-            Debug.output(4, _e);
+            this.logger.debug("Caught Exception", e);
             throw new FileOpFailed();
         }
         updatePending = false;
@@ -717,270 +843,38 @@ public class ImplementationRepositoryImpl
      */
     public static void usage ()
     {
-        System.out.println("Usage: ImplementationRepositoryImpl [Parameter]");
-        System.out.println("Parameter:");
-        System.out.println("\t -p <port> Port to listen on for requests");
-        System.out.println("\t[ -f <file> Read in server table from this file");
-        System.out.println("\t| -n Start with empty server table ]");
-        System.out.println("\t -i <iorfile> Place IOR in this file");
-        System.out.println("\t -b <backupfile> Put server table in this file");
-        System.out.println("\t -a Allow auto-registering of servers");
-        System.out.println("\t -h Print this help");
-
+        System.out.println("Usage: The following properties are useful in conjunction with the \nImplementationRepository:");
+        System.out.println("\t \"jacorb.imr.endpoint_host\" Address to listen on for requests");
+        System.out.println("\t \"jacorb.imr.endpoint_port\" Port to listen on for requests");
+        System.out.println("\t \"jacorb.imr.table_file\" The file to store the server table into");
+        System.out.println("\t \"jacorb.imr.backup_file\" The file to store the server table backup into");
+        System.out.println("\t \"jacorb.imr.ior_file\" The file to store the ImRs IOR into");
+        System.out.println("\t \"jacorb.imr.allow_auto_register\" if set to \"on\", servers that don't \n\talready have an entry on their first call to the imr, will get \n\tautomatically registered. Otherwise, an UnknownServer exception \n\tis thrown.");
         System.exit(0);
     }
 
     /**
-     * The main method. "Parses" the arguments and sets the corresponding attributes up,
-     * creates a new ImplementationRepositoryImpl instance and runs the ORB.
+     * The main method. "Parses" the arguments and sets the corresponding
+     * attributes up, creates a new ImplementationRepositoryImpl instance and
+     * runs the ORB.
      */
-    public static void main(String[] args) {
-        // evaluate args
-        if (args.length > 8)
-            usage();
-
-        String _table_file_str = null;
-        boolean _new_table = false;
-        String _ior_file_str = null;
-        String _backup_file_str = null;
-        String port = null;
-        java.util.Properties props = null;
-        File _backup_file = null;
-
-        System.setProperty ("jacorb.implname", "the_ImR");
-        System.setProperty ("jacorb.use_imr", "off");
-        try
-        {
-            for (int i = 0; i < args.length ; i++)
-            {
-                // Tru64 insists on passing space as a parameter; check for that
-                // before doing the charAt.
-                if (args[i] == null || args[i].length() < 2)
-                {
-                    System.out.println
-                        ("Ignoring argument '" + args[i] + "' as it is not valid.");
-                    continue;
-                }
-                switch (args[i].charAt(1))
-                {
-                    case 'h':
-                    {
-                        usage();
-                    }
-                    case 'p':
-                    {
-                        default_port = Integer.parseInt(args[++i]);
-                        break;
-                    }
-                    case 'f':
-                    {
-                        if (_new_table)
-                        {
-                            System.out.println("ERROR: -n and -f not allowed together");
-                            usage();
-                        }
-                        if ((i + 1) >= args.length)
-                        {
-                            System.out.println("ERROR: Supply filename with -f switch");
-                            usage();
-                        }
-                        _table_file_str = args[++i];
-                        break;
-                    }
-                    case 'n':
-                    {
-                        if (_table_file_str != null)
-                        {
-                            System.out.println("ERROR: -n and -f not allowed together");
-                            usage();
-                        }
-                        _new_table = true;
-                        break;
-                    }
-                    case 'i':
-                    {
-                        if ((i + 1) >= args.length)
-                        {
-                            System.out.println("ERROR: Supply IOR filename with -i switch");
-                            usage();
-                        }
-                        _ior_file_str = args[++i];
-                        break;
-                    }
-                    case 'b':
-                    {
-                        if ((i + 1) >= args.length)
-                        {
-                            System.out.println("ERROR: Supply filename with -b switch");
-                            usage();
-                        }
-                        _backup_file_str = args[++i];
-                        break;
-                    }
-                    case 'a':
-                    {
-                        Environment.setProperty( "jacorb.imr.allow_auto_register",
-                                                 "on" );
-                        break;
-                    }
-
-                    default:
-                    usage();
-                }
-            }
-        }
-        catch (Exception _e)
-        {
-            usage();
-        }
-
-        // If port hasn't been set try retrieving from the Environment
-        if (default_port == 0)
-        {
-            port = Environment.getProperty ("jacorb.imr.endpoint_port_number");
-
-            if (port != null && port.length () > 0)
-            {
-                default_port = Integer.parseInt(port);
-
-                Debug.output(4, "ImR: Using endpoint port number " + default_port);
-            }
-        }
-
-        port = Environment.getProperty ("jacorb.imr.port_number");
-
-        if (port != null && port.length () > 0)
-        {
-            props = new java.util.Properties ();
-            props.setProperty ("OAPort", port);
-
-            Debug.output(4, "ImR: Using port number " + port);
-        }
-
-        default_host = Environment.getProperty ("jacorb.imr.host");
-
-        if (default_host != null && default_host.length() > 0)
-        {
-            Debug.output(4, "ImR: Using host address " + default_host);
-
-            if( props == null )
-            {
-                props = new java.util.Properties ();
-            }
-            props.setProperty ("OAIAddr", default_host);
-        }
-
-        // table file not specified, try via property
-        if (_table_file_str == null){
-            _table_file_str = Environment.getProperty("jacorb.imr.table_file");
-
-            if (_table_file_str == null)
-            {
-                Debug.output( 1, "WARNING: No file for the server table specified! Configure the property jacorb.imr.table_file or use the -f switch");
-                Debug.output( 1, "Will create \"table.dat\" in current directory, if necessary");
-                _table_file_str = "table.dat";
-            }
-        }
-
-        File _table_file = new File(_table_file_str);
-
-        // try to open table file
-        if ( ! _table_file.exists ())
-        {
-            _new_table = true;
-            Debug.output( 1, "Table file " + _table_file_str + " does not exist - autocreating it.");
-            try
-            {
-                _table_file.createNewFile ();
-            }
-            catch (IOException ex)
-            {
-                Debug.output (4, ex);
-                System.exit (-1);
-            }
-        }
-        else
-        {
-            if (_table_file.isDirectory ())
-            {
-                Debug.output(1, "ERROR: The table file is a directory! Please check " + _table_file.getAbsolutePath());
-                System.exit (-1);
-            }
-            if (! _table_file.canRead())
-            {
-                Debug.output(1, "ERROR: The table file is not readable! Please check " + _table_file.getAbsolutePath());
-                System.exit(-1);
-            }
-            if (! _table_file.canWrite())
-            {
-                Debug.output(1, "WARNING: The table file is not writable! Please check " + _table_file.getAbsolutePath());
-                System.exit(-1);
-            }
-        }
-
-        // no ior file specified, try via property
-        if (_ior_file_str == null){
-            _ior_file_str = Environment.getProperty("jacorb.imr.ior_file");
-            if (_ior_file_str == null){
-                System.out.println("ERROR: Please specify a file for the IOR string!");
-                System.out.println("Property jacorb.imr.ior_file or use the -i switch");
-
-                System.exit(-1);
-            }
-        }
-
-        //set up server table backup file
-        if (_backup_file_str == null || _backup_file_str.length() == 0)
-        {
-            _backup_file_str = Environment.getProperty("jacorb.imr.backup_file");
-            if (_backup_file_str == null || _backup_file_str.length() == 0)
-            {
-                Debug.output( 1, "WARNING: No backup file specified!. No backup file will be created.");
-            }
-        }
-        if (_backup_file_str != null)
-        {
-            _backup_file = new File(_backup_file_str);
-
-            // try to open backup file
-            if ( ! _backup_file.exists ())
-            {
-                _new_table = true;
-                Debug.output( 1, "Backup file " + _backup_file_str + " does not exist - autocreating it.");
-                try
-                {
-                    _backup_file.createNewFile ();
-                }
-                catch (IOException ex)
-                {
-                    Debug.output (4, ex);
-                    System.exit (-1);
-                }
-            }
-            else
-            {
-                if (_backup_file.isDirectory ())
-                {
-                    Debug.output( 1, "ERROR: The backup file is a directory! Please check " + _backup_file.getAbsolutePath());
-                    System.exit (-1);
-                }
-                if (! _backup_file.canRead())
-                {
-                    Debug.output( 1, "ERROR: The backup file is not readable! Please check " + _backup_file.getAbsolutePath());
-                    System.exit(-1);
-                }
-                if (! _backup_file.canWrite())
-                {
-                    Debug.output( 1, "WARNING: The backup file is not writable! Please check " + _backup_file.getAbsolutePath());
-                    System.exit(-1);
-                }
-            }
-        }
-
-        orb = org.omg.CORBA.ORB.init( args, props );
+    public static void main(String[] args) 
+    {
+        // translate any properties set on the commandline but after the 
+        // class name to a properties
+        java.util.Properties argProps = ObjectUtil.argsToProps( args );
+        argProps.setProperty("jacorb.implname", "the_ImR");
+        argProps.setProperty("jacorb.use_imr", "off");
 
         //Write IOR to file
-        try{
+        try
+        {
+            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, argProps );
+
+            ImplementationRepositoryImpl _imr = 
+                new ImplementationRepositoryImpl(orb);
+            _imr.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
+
             POA root_poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             root_poa.the_POAManager().activate();
 
@@ -1002,27 +896,24 @@ public class ImplementationRepositoryImpl
 
             byte[] id = "ImR".getBytes();
 
-            ImplementationRepositoryImpl _imr = new ImplementationRepositoryImpl
-                (_table_file, _backup_file, _new_table);
 
             imr_poa.activate_object_with_id( id, _imr );
 
             PrintWriter _out = new PrintWriter
-                (new FileOutputStream(new File(_ior_file_str)));
+                (new FileOutputStream(new File(_imr.getIORFile())));
 
             _out.println(orb.object_to_string(imr_poa.servant_to_reference(_imr)));
             _out.flush();
             _out.close();
+
+            orb.run();
         }
         catch (Exception _e)
         {
-            Debug.output(4, _e);
-
-            Debug.output( 1, "ERROR: Failed to write IOR to file.\nPlease check the path." );
-            System.exit(-1);
+            _e.printStackTrace();
+            usage();
+            System.exit(1);
         }
-
-        orb.run();
     }
 
     private void restartServer(ImRServerInfo server)
@@ -1032,8 +923,11 @@ public class ImplementationRepositoryImpl
         server.awaitRelease();
 
         if(! server.active )
-        {
-            Debug.output(4,"ImR: server " + server.name + " is down");
+        {        
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("ImR: server " + server.name + " is down");
+            }
 
             if (server.command.length() == 0){
                 //server can't be restartet, send exception
@@ -1063,7 +957,10 @@ public class ImplementationRepositoryImpl
                                                            server.host + "<<" );
                         }
 
-                        Debug.output(4,"ImR: will restart " + server.name);
+                        if (this.logger.isDebugEnabled())
+                        {
+                            this.logger.debug("ImR: will restart " + server.name);
+                        }
 
                         _host.startServer(server.command, orb);
                     }
@@ -1073,11 +970,11 @@ public class ImplementationRepositoryImpl
 
                         throw ssf;
                     }
-                    catch (Exception _e)
+                    catch (Exception e)
                     {
                         server.setNotRestarting();
 
-                        Debug.output(4, _e);
+                        this.logger.debug("Caught Exception", e);
 
                         // sth wrong with daemon, remove from table
                         server_table.removeHost(server.host);
@@ -1086,13 +983,22 @@ public class ImplementationRepositoryImpl
                     }
                 }
                 else
-                    Debug.output(4,"ImR: somebody else is restarting " +
-                                 server.name);
-
+                {
+                    if (this.logger.isDebugEnabled())
+                    {
+                        this.logger.debug("ImR: somebody else is restarting " +
+                                          server.name);
+                    }
+                }
             }
         }
         else
-            Debug.output(4,"ImR: server " + server.name + " is active");
+        {
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("ImR: server " + server.name + " is active");
+            }
+        }
     }
 
 
@@ -1135,7 +1041,11 @@ public class ImplementationRepositoryImpl
         }
         catch (Throwable ex)
         {
-            Debug.output (4, "Failed to invoke Runtime." + method.getName () + " and exception " + ex);
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("Failed to invoke Runtime." + method.getName (), 
+                                  ex);
+            }
         }
     }
 
@@ -1148,7 +1058,7 @@ public class ImplementationRepositoryImpl
      * new RequestReceptor thread is started.
      */
     private class SocketListener
-        extends Thread
+        implements Runnable
     {
         private ServerSocket server_socket;
         private int port = 0;
@@ -1168,30 +1078,61 @@ public class ImplementationRepositoryImpl
          */
         public SocketListener()
         {
-            try
-            {
-                server_socket =
-                new ServerSocket( default_port );
-
-                transport_manager =
+            transport_manager =
                 new TransportManager( (org.jacorb.orb.ORB) orb );
 
-                // First deal with DNS; if we are not using DNS do fallback.
-                if( default_host != null && default_host.length() > 0 )
+            receptor_pool = MessageReceptorPool.getInstance();
+            request_listener = new ImRRequestListener();
+            reply_listener = new NoBiDirServerReplyListener();
+        }
+
+        public void configure(Configuration myConfiguration)
+            throws ConfigurationException
+        {
+            try
+            {
+                int endpoint_port = 
+                    configuration.getAttributeAsInteger(
+                        "jacorb.imr.endpoint_port_number",0);
+
+                String endpoint_host = 
+                    configuration.getAttribute("jacorb.imr.endpoint_host", "");
+
+                if (endpoint_host.length() > 0)
                 {
-                    address =
-                    org.jacorb.orb.dns.DNSLookup.inverseLookup( InetAddress.getByName( default_host ) );
+                    server_socket =
+                        new ServerSocket( endpoint_port,
+                                          50, //default backlog, see jdk doc
+                                          InetAddress.getByName(endpoint_host));
                 }
                 else
                 {
-                    address =
-                    org.jacorb.orb.dns.DNSLookup.inverseLookup( InetAddress.getLocalHost() );
+                    //no explicit address given, listen anywhere
+                    server_socket =
+                        new ServerSocket(endpoint_port);
                 }
+
+                org.jacorb.orb.dns.DNSLookup lookup =
+                    new org.jacorb.orb.dns.DNSLookup();
+                lookup.configure(configuration);
+
+                // First deal with DNS; if we are not using DNS do fallback.
+                if( endpoint_host.length() > 0 )
+                {
+                    address = lookup.inverseLookup( 
+                        InetAddress.getByName( endpoint_host ) );
+                }
+                else
+                {
+                    address = lookup.inverseLookup( 
+                        InetAddress.getLocalHost() );
+                }
+
                 if( address == null )
                 {
-                    if( default_host != null && default_host.length() > 0 )
+                    if( endpoint_host.length() > 0 )
                     {
-                        address = default_host;
+                        address = endpoint_host;
                     }
                     else
                     {
@@ -1204,39 +1145,17 @@ public class ImplementationRepositoryImpl
 
                 port = server_socket.getLocalPort();
 
-                Debug.output(4,"ImR Listener at " + port + ", " + address );
-
-                String s =
-                Environment.getProperty( "jacorb.imr.connection_timeout",
-                                         "2000" ); //default: 2 secs
-
-                try
+                if (logger.isDebugEnabled())
                 {
-                    timeout = Integer.parseInt( s );
-                }
-                catch( NumberFormatException nfe )
-                {
-                    Debug.output( 3,"ERROR: Unable to build timeout int from string >>" +
-                                  s + "<<" );
-                    Debug.output( 3,"Please check property \"jacorb.imr.connection_timeout\"" );
+                    logger.debug("ImR Listener at " + port + ", " + address);
                 }
             }
             catch (Exception e)
             {
-                Debug.output(3, e);
-                Debug.output(3,"Listener: Couldn't init");
-
-                System.exit(1);
+                throw new ConfigurationException("Listener: Couldn't init", e);
             }
-
-            setDaemon(true);
-
-            receptor_pool = MessageReceptorPool.getInstance();
-            request_listener = new ImRRequestListener();
-            reply_listener = new NoBiDirServerReplyListener();
-
-            start();
         }
+
 
         /**
          * Get the port this SocketListener is listening on.
@@ -1245,7 +1164,10 @@ public class ImplementationRepositoryImpl
          */
         public int getPort()
         {
-            Debug.output(4,"ImR Listener at " + port + ", " + address );
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("ImR Listener at " + port + ", " + address);
+            }
 
             return port;
         }
@@ -1278,7 +1200,6 @@ public class ImplementationRepositoryImpl
          */
         public void run()
         {
-            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
             while( run )
             {
                 try
@@ -1308,7 +1229,9 @@ public class ImplementationRepositoryImpl
                     // way, we don't display the Exception to avoid
                     // confusing users.
                     if (run)
-                        Debug.output(4, _e);
+                    {
+                        logger.debug("Caught Exception", _e);
+                    }
                 }
             }
 
@@ -1333,13 +1256,13 @@ public class ImplementationRepositoryImpl
             }
             catch (Exception _e)
             {
-                Debug.output(4, _e);
+                logger.debug("Caught Exception", _e);
             }
         }
     }
 
 
-    private static boolean checkServerActive(String host, int port, byte []object_key)
+    private boolean checkServerActive(String host, int port, byte []object_key)
     {
         ClientConnectionManager   cm           = null;
         IIOPAddress               address      = null;
@@ -1353,11 +1276,15 @@ public class ImplementationRepositoryImpl
         address = new IIOPAddress (host, port);
         connection = cm.getConnection (new IIOPProfile (address, object_key));
 
-        Debug.output(4,"Pinging " + host + " / " + port);
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Pinging " + host + " / " + port);
+        }
+
         try
         {
             lros = new LocateRequestOutputStream (object_key, connection.getId(), 2);
-            receiver = new LocateReplyReceiver ();
+            receiver = new LocateReplyReceiver((org.jacorb.orb.ORB)orb);
 
             connection.sendRequest(
                 lros,
@@ -1384,6 +1311,8 @@ public class ImplementationRepositoryImpl
         }
         catch (Throwable ex)
         {
+            this.logger.debug("Caught Exception", ex);
+
             result = false;
         }
         finally
@@ -1485,7 +1414,10 @@ public class ImplementationRepositoryImpl
             // get server of POA
             ImRServerInfo _server = _poa.server;
 
-            Debug.output( 4,"ImR: Looking up: " + _server.name );
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("ImR: Looking up: " + _server.name);
+            }
 
             // There is only point pinging the remote object if server
             // is active and either the QoS to ping returned objects
@@ -1498,6 +1430,7 @@ public class ImplementationRepositoryImpl
                 (_server.command.length() != 0) &&
                 (server_table.getHost(_server.host) != null)
             );
+
             if (_server.active && (check_object_liveness || ssd_valid))
             {
                 // At this point the server *might* be running - we
@@ -1515,9 +1448,12 @@ public class ImplementationRepositoryImpl
             }
             catch( ServerStartupFailed ssf )
             {
-                Debug.output(4,"Object (" + _server.name + ") on "
-                    + _poa.host + '/' + _poa.port + " not reachable"
-                );
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("Object (" + _server.name + ") on "
+                                      + _poa.host + '/' + _poa.port + 
+                                      " not reachable");
+                }
 
                 sendSysException( new org.omg.CORBA.TRANSIENT(ssf.reason),
                                   connection,
@@ -1541,10 +1477,11 @@ public class ImplementationRepositoryImpl
             }
 
             ReplyOutputStream out =
-            new ReplyOutputStream( request_id,
-                                   org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
-                                   giop_minor,
-                                   false );
+                new ReplyOutputStream( request_id,
+                                       org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
+                                       giop_minor,
+                                       false,
+                                       logger);
 
             // The typecode is for org.omg.CORBA.Object, but avoiding
             // creation of new ObjectHolder Instance.
@@ -1561,8 +1498,8 @@ public class ImplementationRepositoryImpl
                 // when trying to contact the server too early.
 
                 org.omg.CORBA.Object _object =
-                orb.string_to_object
-                    ((new ParsedIOR( _ior, (org.jacorb.orb.ORB)orb )).getIORString());
+                    orb.string_to_object(
+                        (new ParsedIOR( _ior, (org.jacorb.orb.ORB) orb, logger)).getIORString());
 
                 // Sort of busy waiting here, no other way possible
                 for( int _i = 0; _i < object_activation_retries; _i++ )
@@ -1579,7 +1516,7 @@ public class ImplementationRepositoryImpl
                     }
                     catch(Exception _e)
                     {
-                        Debug.output(4, _e);
+                        logger.debug("Caught Exception", _e);
                     }
                 }
             }
@@ -1589,15 +1526,18 @@ public class ImplementationRepositoryImpl
                 // write new location to stream
                 out.write_IOR(_ior);
 
-                Debug.output( 4,
-                              "ImR: Sending location forward for " +
-                              _server.name );
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("ImR: Sending location forward for " +
+                                      _server.name);
+                }
 
                 connection.sendReply( out );
             }
             catch( IOException _e )
             {
-                Debug.output(4, _e);
+                logger.debug("Caught Exception", _e);
+
                 sendSysException( new org.omg.CORBA.UNKNOWN(_e.toString()),
                                   connection,
                                   request_id,
@@ -1617,10 +1557,11 @@ public class ImplementationRepositoryImpl
                                        int giop_minor )
         {
             ReplyOutputStream out =
-            new ReplyOutputStream( request_id,
-                                   org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                   giop_minor,
-                                   false );
+                new ReplyOutputStream( request_id,
+                                       org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                       giop_minor,
+                                       false,
+                                       logger);
 
             SystemExceptionHelper.write( out, sys_ex );
 
@@ -1630,7 +1571,7 @@ public class ImplementationRepositoryImpl
             }
             catch( IOException _e )
             {
-                Debug.output(4, _e);
+                logger.debug("Caught Exception", _e);
             }
         }
     }
@@ -1661,8 +1602,9 @@ public class ImplementationRepositoryImpl
                 }
                 catch (FileOpFailed ex)
                 {
-                    Debug.output(4, ex);
+                    logger.debug("Caught Exception", ex);
                 }
+
                 if (done)
                 {
                     break;
@@ -1680,11 +1622,8 @@ public class ImplementationRepositoryImpl
                         }
                     }
                     catch (InterruptedException ex) {}
-                    Debug.output
-                    (
-                        4,
-                        "ImR: IMR write thread waking up to save server table... "
-                    );
+
+                    logger.debug("ImR: IMR write thread waking up to save server table... ");
                 }
             }
         }
@@ -1707,8 +1646,8 @@ public class ImplementationRepositoryImpl
     {
         public synchronized void run ()
         {
-            Debug.output (4, "ImR: Shutting down");
-            shutdown (true);
+            logger.debug("ImR: Shutting down");
+            shutdown(true);
         }
     }
 

@@ -26,7 +26,8 @@ import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.CompletionStatus;
-import org.jacorb.util.Environment;
+
+import org.apache.avalon.framework.configuration.*;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -35,7 +36,19 @@ import org.jacorb.util.Environment;
 
 public class ORBSingleton
     extends org.omg.CORBA_2_5.ORB
+    implements  Configurable
 {
+    private boolean doStrictCheckOnTypecodeCreation = false;
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        doStrictCheckOnTypecodeCreation = 
+            configuration.getAttribute("jacorb.interop.strict_check_on_tc_creation", "on").equals("on");
+                  
+    }
+
+    
     /* factory methods: */
 
     public org.omg.CORBA.Any create_any()
@@ -496,7 +509,7 @@ public class ORBSingleton
        // which calls create_abstract_interface_tc() passing an empty string
        // as the name parameter. checkTCName() then throws
        //`org.omg.CORBA.BAD_PARAM: Illegal blank IDL name'.
-       if ( Environment.getStrictCheckOnTypecodeCreation() )
+       if ( doStrictCheckOnTypecodeCreation )
            checkTCName (name, true);
 
        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_abstract_interface,

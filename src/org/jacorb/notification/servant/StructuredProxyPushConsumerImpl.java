@@ -61,14 +61,13 @@ public class StructuredProxyPushConsumerImpl
     }
 
 
-    public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
+    public void push_structured_event(StructuredEvent structuredEvent)
+        throws Disconnected
+    {
         checkStillConnected();
-
         Message _mesg =
             messageFactory_.newMessage(structuredEvent, this);
-
         checkMessageProperties(_mesg);
-
         getTaskProcessor().processMessage(_mesg);
     }
 

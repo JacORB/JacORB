@@ -21,45 +21,45 @@ package org.jacorb.orb.dns;
  */
 
 import java.net.InetAddress;
-import org.jacorb.util.Environment;
+
+import org.jacorb.util.ObjectUtil;
+
+import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
 
 public class DNSLookup  
+    implements Configurable
 {
-    private static DNSLookupDelegate delegate = null;
-    private static boolean enabled = false;
+    private  DNSLookupDelegate delegate = null;
+    private  boolean enabled = false;
 
-    static
-    {
-        enabled = Environment.isPropertyOn ("jacorb.dns.enable");
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {        
+        enabled = configuration.getAttribute("jacorb.dns.enable","off").equals("on");
         if (enabled)
         {
-            createDelegate();
-        }
-    }
-
-    private static void createDelegate()
-    {
-        if (jdk_DNS_Usable())
-        {
-            delegate = new JdkDelegateImpl();
-        }
-        else
-        {
-            try
+            if (jdk_DNS_Usable())
             {
-                Class c;
-
-                // Ensure that both the delegate implementation
-                // and the DNS support classes are available
-
-                c = Environment.classForName ("org.xbill.DNS.dns");
-                c = Environment.classForName ("org.jacorb.orb.dns.XbillDelegateImpl");
-            
-                delegate = (DNSLookupDelegate) c.newInstance ();
+                delegate = 
+                    new JdkDelegateImpl(((org.jacorb.config.Configuration)configuration).getNamedLogger("org.jacorb.dns"));
             }
-            catch (Exception e)
+            else
             {
-                //ignore
+                try
+                {
+                    Class c;                    
+                    // Ensure that both the delegate implementation
+                    // and the DNS support classes are available
+                    c = ObjectUtil.classForName("org.xbill.DNS.dns");
+                    c = ObjectUtil.classForName("org.jacorb.orb.dns.XbillDelegateImpl");
+                    
+                    delegate = (DNSLookupDelegate)c.newInstance();
+                }
+                catch (Exception e)
+                {
+                    //ignore
+                }
             }
         }
     }
@@ -84,14 +84,14 @@ public class DNSLookup
         }
     }
 
-    public static String inverseLookup (String ip)
+    public String inverseLookup(String ip)
     {
-        return ((delegate == null) ? null : delegate.inverseLookup (ip));
+        return ((delegate == null) ? null : delegate.inverseLookup(ip));
     }
 
-    public static String inverseLookup (InetAddress addr)
+    public String inverseLookup(InetAddress addr)
     {
-        return ((delegate == null) ? null : delegate.inverseLookup (addr));
+        return ((delegate == null) ? null : delegate.inverseLookup(addr));
     }
             
 } // DNSLookup

@@ -21,18 +21,13 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.PortableServer.POA;
 
-import org.jacorb.util.Debug;
-
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import org.apache.avalon.framework.logger.Logger;
 
 public class AnyPushReceiver
     extends PushConsumerPOA
     implements Runnable,
                TestClientOperations
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     Any event_ = null;
     ORB orb_;
     POA poa_;
@@ -105,12 +100,10 @@ public class AnyPushReceiver
     {
         if (expected_ > 0)
         {
-            logger_.debug(received_ + " == " + expected_);
             return received_ == expected_;
         }
         else
         {
-            logger_.debug(received_ + " > 0");
             return received_ > 0;
         }
     }
@@ -148,12 +141,8 @@ public class AnyPushReceiver
                 AlreadyConnected,
                 AdminNotFound
     {
-
-        logger_.debug("connect");
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
-
-        logger_.debug("get consumer admin");
 
         if (useOrSemantic)
         {
@@ -194,10 +183,7 @@ public class AnyPushReceiver
             {
                 synchronized (lock_)
                 {
-                    logger_.debug("wait: " + TIMEOUT);
                     lock_.wait(TIMEOUT);
-                    logger_.debug("woke up");
-                    logger_.debug("handled: " + isEventHandled());
                 }
 
             }
@@ -218,7 +204,6 @@ public class AnyPushReceiver
 
     public void push(Any any) throws Disconnected
     {
-        logger_.debug("recv #" + received_);
         received_++;
 
         if (perfListener_ != null)
@@ -228,8 +213,6 @@ public class AnyPushReceiver
 
         if (expected_ > 0 && (received_ == expected_))
         {
-            logger_.debug("done - notfiy");
-
             synchronized (lock_)
             {
                 lock_.notifyAll();
@@ -254,8 +237,6 @@ public class AnyPushReceiver
 
     public void disconnect_push_consumer()
     {
-        logger_.debug("disconnect");
-
         connected_ = false;
     }
 

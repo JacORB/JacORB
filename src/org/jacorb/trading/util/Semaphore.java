@@ -34,7 +34,6 @@ public class Semaphore {
 	    try{
 		wait();
 	    } catch (InterruptedException e){
-		org.jacorb.util.Debug.output(0, e);
 	    }
 	}
 	count = 0;

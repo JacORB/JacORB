@@ -1,7 +1,6 @@
 package org.jacorb.test.notification;
 
 import java.util.List;
-import java.util.Vector;
 
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -23,17 +22,12 @@ import org.omg.CosNotifyComm.StructuredPushConsumerPOATie;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
-import org.jacorb.util.Debug;
-
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import org.apache.avalon.framework.logger.Logger;
 import java.util.ArrayList;
 
 public class StructuredPushReceiver extends Thread
     implements StructuredPushConsumerOperations,
                TestClientOperations {
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     StructuredProxyPushSupplier pushSupplier_;
 
@@ -107,8 +101,6 @@ public class StructuredPushReceiver extends Thread
         throws Disconnected {
         received_++;
 
-        logger_.info("push#" + received_ + " => " + event.remainder_of_body);
-
         if (perfListener_ != null) {
             perfListener_.eventReceived(event, System.currentTimeMillis());
         }
@@ -137,8 +129,6 @@ public class StructuredPushReceiver extends Thread
         for (int x=0; x<removed.length; ++x) {
             removedOffers.add(removed[x]);
         }
-
-        logger_.info("offer_change");
     }
 
     public void connect(EventChannel channel,

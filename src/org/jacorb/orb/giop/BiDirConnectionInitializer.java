@@ -53,7 +53,6 @@ public class BiDirConnectionInitializer
         }
         catch (Exception e)
         {
-            org.jacorb.util.Debug.output(2, e);
         }
     }
 

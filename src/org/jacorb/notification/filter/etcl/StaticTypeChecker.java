@@ -21,10 +21,6 @@ package org.jacorb.notification.filter.etcl;
  *
  */
 
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -34,8 +30,6 @@ public class StaticTypeChecker
     extends AbstractTCLVisitor
     implements TCLParserTokenTypes
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     ////////////////////////////////////////
 
     public void check(AbstractTCLNode rootNode) throws StaticTypeException

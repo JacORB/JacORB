@@ -20,6 +20,7 @@ package org.jacorb.transaction;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.Logger;
 
 import org.omg.CosTransactions.*;
 import org.omg.CosNaming.*;
@@ -36,9 +37,12 @@ public class TransactionService
     private static int                        trans_id = 0;
     private static org.omg.PortableServer.POA poa;
 
+    private static Logger logger;
+
     static Timer get_timer(){
         return timer;
     }
+
 
     public static boolean is_initialized(){
         return initialized;
@@ -48,7 +52,8 @@ public class TransactionService
         return fact_ref;
     }
 
-    static void release_coordinator(int hash_code){
+    static void release_coordinator(int hash_code)
+    {
         coordinators[hash_code] = null;
     }
 
@@ -61,7 +66,8 @@ public class TransactionService
         throw new org.omg.CORBA.INTERNAL();
     }
 
-    public Control create(int time_out){
+    public Control create(int time_out)
+    {
         trans_id++;
         int ix;
         synchronized(coordinators){
@@ -85,10 +91,13 @@ public class TransactionService
 	{
             poa = _poa;
             factory = new TransactionService();
-            fact_ref = TransactionFactoryHelper.narrow(poa.servant_to_reference(factory));
+            fact_ref = 
+                TransactionFactoryHelper.narrow(poa.servant_to_reference(factory));
 
             coordinators = new CoordinatorImpl [max_of_trans];
-            for (int i = 0;i < coordinators.length;i++){
+
+            for (int i = 0;i < coordinators.length;i++)
+            {
                 coordinators[i] = null;
             }
             timer = new Timer(max_of_trans);
@@ -100,27 +109,31 @@ public class TransactionService
             System.exit(1);
         }
         initialized = true;
-	org.jacorb.util.Debug.output(1,"TransactionService up");
     }
 
 
     public static void main( String[] args )
     {
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
+        org.omg.CORBA.ORB orb = 
+            org.omg.CORBA.ORB.init(args, null);
+        logger = 
+            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.tx_service");
         try
         {
             org.omg.PortableServer.POA poa = 
                 org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 	    poa.the_POAManager().activate();
             
-	    TransactionService  transactionService = new TransactionService();
-	    transactionService.start(poa, 10);	    
+	    TransactionService transactionService = 
+                new TransactionService();
+	    transactionService.start(poa,10);	    
 
             if( args.length == 1 ) 
             {
                 // write the object reference to args[0]
 
-                PrintWriter ps = new PrintWriter(new FileOutputStream(new File( args[0] )));
+                PrintWriter ps = 
+                    new PrintWriter(new FileOutputStream(new File( args[0])));
                 ps.println( orb.object_to_string( transactionService.get_reference() ) );
                 ps.close();
             } 
@@ -132,6 +145,8 @@ public class TransactionService
                 name[0] = new NameComponent( "TransactionService", "service");
                 nc.bind(name, transactionService.get_reference());
             }
+            if (logger.isInfoEnabled())
+                logger.info("TransactionService up");
         } 
         catch ( Exception e )
         {
@@ -141,9 +156,5 @@ public class TransactionService
     }
 
 }
-
-
-
-
 
 

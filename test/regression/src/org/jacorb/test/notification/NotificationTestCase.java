@@ -26,27 +26,32 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.PortableServer.POA;
 
-import org.jacorb.notification.EventChannelFactoryImpl;
+import org.jacorb.config.Configuration;
+import org.jacorb.test.common.TestUtils;
 
+import java.lang.reflect.Constructor;
+
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class NotificationTestCase extends TestCase {
-
+public class NotificationTestCase extends TestCase
+{
     private NotificationTestCaseSetup setup_;
 
     private EventChannel defaultChannel_;
 
     ////////////////////////////////////////
 
-    public NotificationTestCase(String name, NotificationTestCaseSetup setup) {
+    public NotificationTestCase(String name, NotificationTestCaseSetup setup)
+    {
         super(name);
 
         setup_ = setup;
@@ -54,51 +59,111 @@ public class NotificationTestCase extends TestCase {
 
     ////////////////////////////////////////
 
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception
+    {
         super.tearDown();
 
-        if (defaultChannel_ != null) {
+        if (defaultChannel_ != null)
+        {
             defaultChannel_.destroy();
         }
     }
 
 
-    public EventChannel getDefaultChannel() throws Exception {
-        if (defaultChannel_ == null) {
+    public EventChannel getDefaultChannel() throws Exception
+    {
+        if (defaultChannel_ == null)
+        {
             defaultChannel_ = getFactory().create_channel(new Property[0],
-                                                          new Property[0],
-                                                          new IntHolder() );
+                              new Property[0],
+                              new IntHolder() );
         }
 
         return defaultChannel_;
     }
 
 
-    public ORB getORB() {
+    public ORB getORB()
+    {
         return setup_.getORB();
     }
 
 
-    public POA getPOA() {
+    public POA getPOA()
+    {
         return setup_.getPOA();
     }
 
 
-    public NotificationTestUtils getTestUtils() {
+    public Configuration getConfiguration()
+    {
+        return ((org.jacorb.orb.ORB)getORB()).getConfiguration();
+    }
+
+
+    public NotificationTestUtils getTestUtils()
+    {
         return setup_.getTestUtils();
     }
 
 
-    public EventChannelFactory getFactory() {
-        try {
+    public EventChannelFactory getFactory()
+    {
+        try
+        {
             return setup_.getFactoryServant().getEventChannelFactory();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new RuntimeException(e.getMessage());
         }
     }
 
 
-    private NotificationTestCaseSetup getSetup() {
+    private NotificationTestCaseSetup getSetup()
+    {
         return setup_;
+    }
+
+
+    public static Test suite(Class clazz) throws Exception
+    {
+        return suite("TestSuite defined in Class: " + clazz.getName(), clazz);
+    }
+
+
+    public static Test suite(String suiteName, Class clazz) throws Exception
+    {
+        return suite(suiteName, clazz, "test");
+    }
+
+
+    public static Test suite(String suiteName, Class clazz, String testMethodPrefix) throws Exception
+    {
+        TestSuite _suite = new TestSuite(suiteName);
+
+        NotificationTestCaseSetup _setup =
+            new NotificationTestCaseSetup(_suite);
+
+        String[] _methodNames = TestUtils.getTestMethods(clazz, testMethodPrefix);
+
+        addToSuite(_suite, _setup, clazz, _methodNames);
+
+        return _setup;
+    }
+
+
+    private static void addToSuite(TestSuite suite,
+                                   NotificationTestCaseSetup setup,
+                                   Class clazz,
+                                   String[] testMethods) throws Exception
+    {
+        Constructor _ctor =
+            clazz.getConstructor(new Class[] {String.class, NotificationTestCaseSetup.class});
+
+        for (int x = 0; x < testMethods.length; ++x)
+        {
+            suite.addTest((Test)_ctor.newInstance(new Object[] {testMethods[x], setup}));
+        }
     }
 }

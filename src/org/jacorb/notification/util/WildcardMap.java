@@ -21,9 +21,6 @@ package org.jacorb.notification.util;
  *
  */
 
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -66,19 +63,11 @@ import java.util.ArrayList;
 
 public class WildcardMap
 {
-    static Logger logger_ = Debug.getNamedLogger( WildcardMap.class.getName() );
-
     static final int DEFAULT_TOPLEVEL_SIZE = 4;
 
     private EntryList topLevel_;
 
     ////////////////////////////////////////
-
-    public WildcardMap( int topLevelSize, int secondLevelSize )
-    {
-        this( topLevelSize );
-        EntryList.DEFAULT_INITIAL_SIZE = secondLevelSize;
-    }
 
     public WildcardMap( int topLevelSize )
     {
@@ -199,8 +188,6 @@ public class WildcardMap
  */
 class EntryList
 {
-    static Logger logger_ = Debug.getNamedLogger( EntryList.class.getName() );
-
     static int DEFAULT_INITIAL_SIZE = 2;
 
     PatternWrapper myPattern_;
@@ -222,24 +209,9 @@ class EntryList
     ////////////////////////////////////////
     // Constructors
 
-    EntryList()
-    {
-        this( null, 0, 0, 0, null, DEFAULT_INITIAL_SIZE );
-    }
-
     EntryList( int size )
     {
         this( null, 0, 0, 0, null, size );
-    }
-
-    EntryList( char[] key )
-    {
-        this( key, 0, 0, 0, null, DEFAULT_INITIAL_SIZE );
-    }
-
-    EntryList( char[] key, int start, int end, int depth )
-    {
-        this( key, start, end, depth, null, DEFAULT_INITIAL_SIZE );
     }
 
     EntryList( char[] key, int start, int end, int depth, WCEntry value )
@@ -297,32 +269,13 @@ class EntryList
 
     Object put( char[] key, int start, int stop, int depth, WCEntry value, boolean addLeadingStar )
     {
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "put("
-                           + new String( key, start, stop - start )
-                           + ", "
-                           + depth
-                           + ", "
-                           + value
-                           + ")" );
-        }
-
         int _insertKeyLength = stop - start;
         int _myKeyLength = end_ - start_;
 
         int _prefixLength = findCommonPrefix( key, start, stop );
 
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "common Prefix Length: " + _prefixLength );
-            logger_.debug( "common Prefix is: " + new String( key, start, _prefixLength ) );
-        }
-
         if ( _prefixLength == _insertKeyLength )
         {
-            logger_.debug( "prefixLength == insertKeyLength" );
-
             if ( endsWithStar() )
             {
                 splitEntryList( this, _prefixLength );
@@ -390,13 +343,12 @@ class EntryList
 
     Object getSingle( char[] key, int start, int stop )
     {
-        Object _result = null;
+        //        Object _result = null;
         EntryList _entryList = lookup( key[ start ] );
         int _position = start;
 
         while ( _entryList != null )
         {
-            int _currentSubKeyLength = _entryList.end_ - _entryList.start_;
             int _remainingKeyLength = stop - _position;
 
 
@@ -451,11 +403,6 @@ class EntryList
 
         if ( _list != null )
         {
-            if ( logger_.isDebugEnabled() )
-            {
-                logger_.debug( "outgoing edge with label: '" + key[ start ] + "'");
-            }
-
             // add EntryList to nodes to be processed
 
             _toBeProcessed.add( new Cursor(start, _list) );
@@ -465,8 +412,6 @@ class EntryList
 
         if ( ( _list = lookup( '*' ) ) != null )
         {
-            logger_.debug( "outgoing edge with label: '*'" );
-
             // add EntryList to nodes to be processed
 
             _startCursor = new Cursor(start, _list);
@@ -480,8 +425,6 @@ class EntryList
         {
             Cursor _currentCursor = ( Cursor ) _toBeProcessed.get(0);
 
-            int _currentSubKeyLength = _currentCursor.list_.end_ - _currentCursor.list_.start_;
-
             int _remainingKeyLength = stop - _currentCursor.cursor_;
 
             // try to match the search key to the part of key which is
@@ -492,15 +435,9 @@ class EntryList
                                              start + _currentCursor.list_.depth_ + _remainingKeyLength,
                                              true );
 
-            if ( logger_.isDebugEnabled() )
-            {
-                logger_.debug( "could match " + _devoured + " chars" );
-            }
-
             if ( _devoured >= _remainingKeyLength )
             {
                 // the whole key could be matched
-                logger_.debug( "matched >= remainingKey" );
 
                 if ( _currentCursor.list_.hasEntry() )
                 {
@@ -516,7 +453,6 @@ class EntryList
                     // nontheless there still might be outgoing edges
                     // which must be checked if we have some more chars in
                     // the key left.
-                    logger_.debug( "ends with *" );
 
                     for ( int x = 0; x < _currentCursor.list_.entries_.length; ++x )
                     {
@@ -530,8 +466,6 @@ class EntryList
 
                 if ( _currentCursor.list_.lookup( '*' ) != null )
                 {
-                    logger_.debug( "lookup(*) != null" );
-
                     // if there is a outgoing '*' visit it
                     // because it might match the end of a key
 
@@ -540,7 +474,6 @@ class EntryList
                 }
                 else
                 {
-                    logger_.debug( "remove cursor" );
                     _toBeProcessed.remove( 0 );
                 }
             }
@@ -652,21 +585,11 @@ class EntryList
 
     void addLeadingStar()
     {
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "old Key: " + new String( key_ , start_, end_ - start_ ) );
-        }
-
         int _newLength = end_ - start_ + 1;
 
         char[] _newKey = new char[ _newLength ];
         System.arraycopy( key_, start_, _newKey, 1, end_ - start_ );
         _newKey[ 0 ] = '*';
-
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "new Pattern: " + new String( _newKey, 0, _newLength ) );
-        }
 
         initPattern( _newKey, 0, _newLength );
     }
@@ -884,11 +807,6 @@ class EntryList
 
         if ( list.endsWithStar() )
         {
-            if ( logger_.isDebugEnabled() )
-            {
-                logger_.debug( "ends with star: " + list.endsWithStar() );
-            }
-
             _ret.addLeadingStar();
         }
 
@@ -915,12 +833,6 @@ class EntryList
                                 int start2,
                                 int stop2 )
     {
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug ( "compare(" + new String( firstKeyArray, start1, stop1 - start1 ) +
-                            " == " + new String( secondKeyArray, start2, stop2 - start2 ) + ")" );
-        }
-
         int length1 = stop1 - start1;
         int length2 = stop2 - start2;
         int _guard = ( length1 > length2 ) ? length2 : length1;
@@ -945,16 +857,6 @@ class EntryList
                                     int stop1,
                                     PatternWrapper p )
     {
-
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "compare '"
-                           + new String( string1, start1, stop1 - start1 )
-                           + "' == '"
-                           + p
-                           + "'" );
-        }
-
         String _other = new String( string1, start1, stop1 - start1 );
 
         return p.match( _other );
@@ -990,8 +892,6 @@ class EntryList
  */
 class WCEntry
 {
-    static Logger logger_ = Debug.getNamedLogger( WCEntry.class.getName() );
-
     /**
      * start index of key within key_ array
      */
@@ -1041,47 +941,6 @@ class WCEntry
     }
 
 
-    /**
-     * Compare the Key of this entry to another Key.
-     *
-     * @param key a <code>char[]</code> value
-     * @param start an <code>int</code> value
-     * @param stop an <code>int</code> value
-     * @return a <code>boolean</code> value
-     */
-    private boolean compare( char[] key, int start, int stop )
-    {
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "compare("
-                           + new String( key, start, stop - start )
-                           + " == "
-                           + new String( key_ , start_ , stop_ - start_ )
-                           + ")" );
-        }
-
-        int _myLength = stop_ - start_;
-        int _otherLength = stop - start;
-
-        if ( _myLength != _otherLength )
-        {
-            return false;
-        }
-
-        int x = 0;
-
-        while ( x < _myLength )
-        {
-            if ( key[ start + x ] != key_[ start_ + x ] )
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
     public int hashCode() {
         return key_[start_];
 
@@ -1101,11 +960,11 @@ class WCEntry
                                                 _other.start_,
                                                 _other.stop_ ) > 0 );
         }
-        catch ( ClassCastException c )
+        catch ( ClassCastException e )
         {
             return super.equals( o );
         }
-        catch ( NullPointerException n )
+        catch ( NullPointerException e )
         {
             return false;
         }

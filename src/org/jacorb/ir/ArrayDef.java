@@ -21,6 +21,8 @@ package org.jacorb.ir;
  */
 
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
+import org.apache.avalon.framework.logger.Logger;
 
 public class ArrayDef
     extends IDLType
@@ -31,8 +33,17 @@ public class ArrayDef
     org.omg.CORBA.IDLType element_type_def;
     private org.omg.CORBA.Repository ir;
 
-    public ArrayDef( org.omg.CORBA.TypeCode tc, org.omg.CORBA.Repository ir )
+    private Logger logger;
+    private POA poa;
+
+    public ArrayDef( org.omg.CORBA.TypeCode tc, 
+                     org.omg.CORBA.Repository ir,
+                     Logger logger,
+                     POA poa )
     {
+        this.logger = logger;
+        this.poa = poa;
+
         if (tc.kind() != org.omg.CORBA.TCKind.tk_array)
         {
             throw new INTF_REPOS ("Precondition volation: TypeCode must be of kind array");
@@ -45,7 +56,8 @@ public class ArrayDef
          {
              size = tc.length();
              element_type = tc.content_type();
-             element_type_def = IDLType.create(  element_type, ir );
+             element_type_def = IDLType.create(  element_type, ir,
+                                                 this.logger, this.poa);
          }
          catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
          {
@@ -56,8 +68,8 @@ public class ArrayDef
         {
             throw new INTF_REPOS ("Precondition volation: TypeCode must be of kind array");
         }
-         org.jacorb.util.Debug.output(2, "New ArrayDef");
 
+        this.logger.debug("New ArrayDef");
     }
 
     public int length()

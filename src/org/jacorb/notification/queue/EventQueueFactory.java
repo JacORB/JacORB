@@ -21,11 +21,9 @@ package org.jacorb.notification.queue;
  *
  */
 
-import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.util.QoSPropertySet;
 import org.jacorb.notification.conf.Default;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 
 import org.omg.CosNotification.AnyOrder;
 import org.omg.CosNotification.DeadlineOrder;
@@ -41,32 +39,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.Configurable;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class EventQueueFactory
+public class EventQueueFactory implements Configurable
 {
-    private static final Logger sLogger = Debug.getNamedLogger( EventQueueFactory.class.getName() );
-
     private static final short UNKNOWN_POLICY = Short.MIN_VALUE;
-
     private static final Map mapOrderPolicyNameToValue = new HashMap();
-
     private static final Map mapDiscardPolicyNameToValue = new HashMap();
-
     private static final String[] mapOrderPolicyValueToName;
-
     private static final String[] mapDiscardPolicyValueToName;
 
-    static {
-        mapOrderPolicyNameToValue.put( "AnyOrder", new Short( AnyOrder.value ) );
-        mapOrderPolicyNameToValue.put( "FifoOrder", new Short( FifoOrder.value ) );
-        mapOrderPolicyNameToValue.put( "PriorityOrder", new Short( PriorityOrder.value ) );
-        mapOrderPolicyNameToValue.put( "DeadlineOrder", new Short( DeadlineOrder.value ) );
+    private String orderPolicy_;
+    private String discardPolicy_;
 
+    static {
+        mapOrderPolicyNameToValue.put("AnyOrder",
+                                      new Short(AnyOrder.value));
+        mapOrderPolicyNameToValue.put("FifoOrder",
+                                      new Short(FifoOrder.value));
+        mapOrderPolicyNameToValue.put("PriorityOrder",
+                                      new Short(PriorityOrder.value));
+        mapOrderPolicyNameToValue.put("DeadlineOrder",
+                                      new Short(DeadlineOrder.value));
         mapOrderPolicyValueToName = new String[] {
                                         "AnyOrder",
                                         "FifoOrder",
@@ -74,12 +74,16 @@ public class EventQueueFactory
                                         "DeadlineOrder"
                                     };
 
-        mapDiscardPolicyNameToValue.put( "AnyOrder", new Short( AnyOrder.value ) );
-        mapDiscardPolicyNameToValue.put( "FifoOrder", new Short( FifoOrder.value ) );
-        mapDiscardPolicyNameToValue.put( "LifoOrder", new Short( LifoOrder.value ) );
-        mapDiscardPolicyNameToValue.put( "PriorityOrder", new Short( PriorityOrder.value ) );
-        mapDiscardPolicyNameToValue.put( "DeadlineOrder", new Short( DeadlineOrder.value ) );
-
+        mapDiscardPolicyNameToValue.put( "AnyOrder",
+                                         new Short(AnyOrder.value));
+        mapDiscardPolicyNameToValue.put( "FifoOrder",
+                                         new Short(FifoOrder.value));
+        mapDiscardPolicyNameToValue.put( "LifoOrder",
+                                         new Short(LifoOrder.value));
+        mapDiscardPolicyNameToValue.put( "PriorityOrder",
+                                         new Short(PriorityOrder.value));
+        mapDiscardPolicyNameToValue.put( "DeadlineOrder",
+                                         new Short(DeadlineOrder.value));
         mapDiscardPolicyValueToName = new String[] {
                                           "AnyOrder",
                                           "FifoOrder",
@@ -87,48 +91,45 @@ public class EventQueueFactory
                                           "DeadlineOrder",
                                           "LifoOrder"
                                       };
+
+    }
+
+    public void configure(Configuration conf)
+    {
+        orderPolicy_ = conf.getAttribute( Attributes.ORDER_POLICY,
+                                          Default.DEFAULT_ORDER_POLICY );
+
+        discardPolicy_ = conf.getAttribute( Attributes.DISCARD_POLICY,
+                                            Default.DEFAULT_DISCARD_POLICY );
     }
 
     ////////////////////////////////////////
 
-    /**
-     * Utility class shouldn't have public constructor.
-     */
-    private EventQueueFactory() {}
+    public EventQueueFactory()
+    {}
 
     ////////////////////////////////////////
 
-    public static EventQueue newEventQueue( QoSPropertySet qosProperties ) throws UnsupportedQoS
+    public EventQueue newEventQueue( QoSPropertySet qosProperties )
+        throws UnsupportedQoS
     {
-        String orderPolicy = Environment.getProperty( Configuration.ORDER_POLICY,
-                                                      Default.DEFAULT_ORDER_POLICY );
+        short shortOrderPolicy = orderPolicyNameToValue( orderPolicy_ );
 
-        String discardPolicy = Environment.getProperty( Configuration.DISCARD_POLICY,
-                                                        Default.DEFAULT_DISCARD_POLICY );
-
-        short shortOrderPolicy = orderPolicyNameToValue( orderPolicy );
-
-        short shortDiscardPolicy = discardPolicyNameToValue( discardPolicy );
+        short shortDiscardPolicy = discardPolicyNameToValue( discardPolicy_ );
 
         int maxEventsPerConsumer =
             qosProperties.get( MaxEventsPerConsumer.value ).extract_long();
 
-        if ( qosProperties.containsKey( OrderPolicy.value ) )
+        if (qosProperties.containsKey( OrderPolicy.value ))
         {
             shortOrderPolicy =
-                qosProperties.get( OrderPolicy.value ).extract_short();
+                qosProperties.get(OrderPolicy.value).extract_short();
         }
 
-        if ( qosProperties.containsKey( DiscardPolicy.value ) )
+        if (qosProperties.containsKey(DiscardPolicy.value))
         {
-            shortDiscardPolicy = qosProperties.get( DiscardPolicy.value ).extract_short();
-        }
-
-        if (sLogger.isInfoEnabled()) {
-            sLogger.info( "Create EventQueue Settings: \n\tMAX_EVENTS_PER_CONSUMER="
-                          + maxEventsPerConsumer + "\n\t"
-                          + "/ORDER_POLICY=" + mapOrderPolicyValueToName[ shortOrderPolicy ] + "\n\t"
-                          + "/DISCARD_POLICY=" + mapDiscardPolicyValueToName[ shortDiscardPolicy ] );
+            shortDiscardPolicy =
+                qosProperties.get( DiscardPolicy.value ).extract_short();
         }
 
         AbstractBoundedEventQueue queue;
@@ -152,7 +153,7 @@ public class EventQueueFactory
 
             default:
                 throw new IllegalArgumentException( "Orderpolicy: "
-                                                    + orderPolicy
+                                                    + orderPolicy_
                                                     + " OrderPolicyValue: "
                                                     + shortOrderPolicy
                                                     + " unknown" );
@@ -181,7 +182,7 @@ public class EventQueueFactory
 
             default:
                 throw new IllegalArgumentException( "Discardpolicy: "
-                                                    + discardPolicy
+                                                    + discardPolicy_
                                                     + "DiscardPolicyValue: "
                                                     + shortDiscardPolicy
                                                     + " unknown" );
@@ -192,26 +193,18 @@ public class EventQueueFactory
 
     public static short orderPolicyNameToValue( String orderPolicyName )
     {
-        if ( mapOrderPolicyNameToValue.containsKey( orderPolicyName ) )
-        {
-            return ( ( Short ) mapOrderPolicyNameToValue.get( orderPolicyName ) ).shortValue();
-        }
-        else
-        {
-            return UNKNOWN_POLICY;
-        }
+        if (mapOrderPolicyNameToValue.containsKey(orderPolicyName))
+            return ((Short)mapOrderPolicyNameToValue.get(orderPolicyName)).
+                   shortValue();
+        return UNKNOWN_POLICY;
     }
 
 
     public static short discardPolicyNameToValue( String discardPolicyName )
     {
-        if ( mapDiscardPolicyNameToValue.containsKey( discardPolicyName ) )
-        {
-            return ( ( Short ) mapDiscardPolicyNameToValue.get( discardPolicyName ) ).shortValue();
-        }
-        else
-        {
-            return UNKNOWN_POLICY;
-        }
+        if (mapDiscardPolicyNameToValue.containsKey(discardPolicyName))
+            return ((Short)mapDiscardPolicyNameToValue.get(discardPolicyName)).
+                   shortValue();
+        return UNKNOWN_POLICY;
     }
 }

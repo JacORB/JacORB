@@ -103,12 +103,12 @@ public class ServerAccessDecisionInterceptor
             //System.out.println("Ignoring op " + ri.operation());            
             return;
         }
-        else if (ri.target_most_derived_interface().
-                 startsWith("IDL:jacorb/orb/domain"))
-        {
-            //System.out.println("Ignoring call to domain object");            
-            return;
-        }
+//         else if (ri.target_most_derived_interface().
+//                  startsWith("IDL:jacorb/orb/domain"))
+//         {
+//             //System.out.println("Ignoring call to domain object");            
+//             return;
+//         }
         else
         {
             //System.out.println("(ServerAccessDecInterc.)Controlling operation: " + ri.operation());

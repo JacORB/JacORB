@@ -22,8 +22,15 @@
    </target>
 
    <target name="subdirs"
-           depends="template,util,orb,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification">
+           depends="template,config,util,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification">
+<!--       depends="config,template,util,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification"> -->
+
    </target>
+
+   <target name="config" depends="init">
+      <ant antfile="${src}/org/jacorb/config/build.xml" dir="${basedir}"/>
+   </target>
+
 
    <target name="util" depends="init">
       <ant antfile="${src}/org/jacorb/util/build.xml" dir="${basedir}"/>

@@ -1,8 +1,9 @@
+package org.jacorb.security.ssl.iaik;
 
 /*
- *        Written for JacORB - a free Java ORB
+ *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2000-2003 Gerald Brose
+ *   Copyright (C) 2000-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -19,7 +20,21 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.security.ssl.iaik;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
+import org.jacorb.security.level2.*;
+import org.jacorb.security.util.*;
+
+import iaik.security.ssl.*;
+
+import java.util.*;
+import java.net.*;
+import java.io.IOException;
+import java.security.ProviderException;
+import java.security.cert.X509Certificate;
+
 
 /**
  * @author Andr'e Benvenuti, Gerald Brose.
@@ -40,57 +55,85 @@ package org.jacorb.security.ssl.iaik;
  * authenticate.
  */
 
-import org.jacorb.security.level2.*;
-import org.jacorb.security.util.*;
-import org.jacorb.util.*;
-
-import iaik.security.ssl.*;
-
-import java.net.*;
-import java.io.IOException;
-import java.security.ProviderException;
-import java.security.cert.X509Certificate;
-
 public class SSLSocketFactory
-    implements org.jacorb.orb.factory.SocketFactory
+    implements org.jacorb.orb.factory.SocketFactory, Configurable
 {
     private String[] default_cs = null;
-
     private boolean isRoleChange; // rt
-
     private CurrentImpl securityCurrent = null;
-
     private org.jacorb.orb.ORB orb = null;
-
     private SSLContext default_context = null;
+    private short clientRequirededOptions = 0;
+    private short clientSupportedOptions = 0;
+    private boolean iaikDebug = false;
+    private List trusteeFileNames;
+    private Logger logger;
 
     public SSLSocketFactory( org.jacorb.orb.ORB orb )
+        throws ConfigurationException
     {
         this.orb = orb;
-
-	isRoleChange =
-            Environment.isPropertyOn( "jacorb.security.change_ssl_roles" );
-
 	CipherSuite[] cs = SSLSetup.getCipherSuites();
-
 	default_cs = new String[ cs.length ];
 	for ( int i = 0; i < cs.length; i++ )
         {
 	    default_cs[ i ] = cs[ i ].toString();
         }
+        configure( orb.getConfiguration());
     }
 
 
-    public Socket createSocket( String host,
-                                         int port )
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.jsse");
+
+	isRoleChange =
+            configuration.getAttributeAsBoolean("jacorb.security.change_ssl_roles",false);
+
+        clientRequirededOptions = 
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.client.required_options","0"),
+                16);
+
+        clientSupportedOptions = 
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.client.supported_options","0"),
+                16);
+
+        trusteeFileNames =
+            ((org.jacorb.config.Configuration)configuration).getAttributeList("jacorb.security.trustees");
+
+        if( trusteeFileNames.isEmpty())
+        {
+            logger.warn("No trusted certificates specified. This will accept all peer certificate chains!");
+        }
+        iaikDebug = 
+            configuration.getAttributeAsBoolean("jacorb.security.iaik_debug",false);
+    }
+
+
+    public Socket createSocket( String host,  int port )
 	throws IOException, UnknownHostException
     {
-        SSLSocket sock = new SSLSocket( host, port, getDefaultContext() );
+        SSLSocket sock = null;
+        try
+        {
+            sock = new SSLSocket( host, port, getDefaultContext() );
+        }
+        catch( java.security.GeneralSecurityException g)
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("GeneralSecurityException", g);
+            throw new IOException(g.getMessage());
+        }
 
         // rt: switch to server mode
         if( isRoleChange )
         {
-            Debug.output(1, "SSLSocket switch to server mode...");
+            if (logger.isDebugEnabled())
+                logger.debug("SSLSocket switch to server mode...");
 	    sock.setUseClientMode( false );
 	}
 
@@ -99,27 +142,25 @@ public class SSLSocketFactory
 
     private org.jacorb.security.level2.KeyAndCert[] getSSLCredentials()
     {
-        CurrentImpl  securityCurrent = null;
-
+        CurrentImpl securityCurrent = null;
         try
         {
-            securityCurrent = (CurrentImpl)
-                orb.resolve_initial_references("SecurityCurrent");
+            securityCurrent = 
+                (CurrentImpl)orb.resolve_initial_references("SecurityCurrent");
         }
         catch ( org.omg.CORBA.ORBPackage.InvalidName in )
         {
-            Debug.output( 1, "Unable to obtain Security Current. Giving up" );
-
-            throw new ProviderException
-                ("Unable to obtain Security Current.");
+            throw new ProviderException("Unable to obtain Security Current.");
         }
 
         return securityCurrent.getSSLCredentials();
     }
 
     private SSLContext getDefaultContext()
+	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
+	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException,
+        java.security.NoSuchProviderException, java.io.IOException
     {
-
         if( default_context != null )
         {
             return default_context;
@@ -130,8 +171,7 @@ public class SSLSocketFactory
 	    SSLServerContext ctx = new SSLServerContext();
 
             //the server always has to have certificates
-            org.jacorb.security.level2.KeyAndCert[] kac =
-                getSSLCredentials();
+            org.jacorb.security.level2.KeyAndCert[] kac = getSSLCredentials();
 
             for( int i = 0; i < kac.length; i++ )
             {
@@ -139,26 +179,22 @@ public class SSLSocketFactory
                                           kac[i].key );
 	    }
 
-            if( (Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ) & 0x20) != 0 )
+            if( ( clientRequirededOptions & 0x20) != 0 )
             {
                 //required: establish trust in target (the SSL client
                 //in this case)--> force other side to authenticate
                 ctx.setRequestClientCertificate( true );
                 ctx.setChainVerifier( new ServerChainVerifier( true ));
-
-		String[] trusteeFileNames =
-		    Environment.getPropertyValueList( "jacorb.security.trustees" );
-
-		if( trusteeFileNames.length == 0 )
-		{
-		    Debug.output( 1, "WARNING: No trusted certificates specified. This will accept all peer certificate chains!" );
-		}
-
-		for( int i = 0; i < trusteeFileNames.length; i++ )
-		{
-		    ctx.addTrustedCertificate( CertUtils.readCertificate( trusteeFileNames[i] ));
-		}
 	    }
+
+            if (!trusteeFileNames.isEmpty())
+            {
+                for( Iterator iter = trusteeFileNames.iterator(); iter.hasNext(); )
+                {
+                    String fName = (String)iter.next();
+                    ctx.addTrustedCertificate( CertUtils.readCertificate(fName));
+                }
+            }
 
             default_context = ctx;
 	}
@@ -168,7 +204,7 @@ public class SSLSocketFactory
 
             //only add own credentials, if establish trust in client
             //is supported
-            if((Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ) & 0x40) != 0 )
+            if((clientSupportedOptions & 0x40) != 0 )
             {
                 org.jacorb.security.level2.KeyAndCert[] kac =
                     getSSLCredentials();
@@ -182,24 +218,19 @@ public class SSLSocketFactory
 
 	    //always adding trusted certificates, since in SSL, the
 	    //server must always authenticate
-            String[] trusteeFileNames =
-                Environment.getPropertyValueList( "jacorb.security.trustees" );
 
-            if( trusteeFileNames.length == 0 )
+            if (!trusteeFileNames.isEmpty())
             {
-                Debug.output( 1, "WARNING: No trusted certificates specified. This will accept all peer certificate chains!" );
+                for( Iterator iter = trusteeFileNames.iterator(); iter.hasNext(); )
+                {
+                    String fName = (String)iter.next();
+                    ctx.addTrustedCertificate( CertUtils.readCertificate(fName));
+                }
             }
-
-            for( int i = 0; i < trusteeFileNames.length; i++ )
-            {
-                ctx.addTrustedCertificate( CertUtils.readCertificate( trusteeFileNames[i] ));
-            }
-
             default_context = ctx;
 	}
 
-
-	if( Environment.isPropertyOn( "jacorb.security.iaik_debug" ))
+	if( iaikDebug )
         {
 	    default_context.setDebugStream( System.out );
         }

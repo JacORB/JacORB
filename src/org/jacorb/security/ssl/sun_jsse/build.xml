@@ -20,15 +20,17 @@
 
    <target name="patch" depends="init">
            <property name="local" value="${dirs.base}/src/org/jacorb/security/ssl/sun_jsse"/>
-           <patch patchfile="${local}/ServerInvocationInterceptor.java.patch"
+<!--           <patch patchfile="${local}/ServerInvocationInterceptor.java.patch"
                   originalfile="${local}/ServerInvocationInterceptor.java"
                   backups="yes" />
+-->
            <patch patchfile="${local}/SSLSocketFactory.java.patch"
                   originalfile="${local}/SSLSocketFactory.java"
                   backups="yes" />
-           <patch patchfile="${local}/SSLServerSocketFactory.java.patch"
+<!--           <patch patchfile="${local}/SSLServerSocketFactory.java.patch"
                   originalfile="${local}/SSLServerSocketFactory.java"
                   backups="yes" />
+-->
    </target>
 
    <target name="unpatch" depends="init">

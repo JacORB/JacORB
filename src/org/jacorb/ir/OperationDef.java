@@ -20,12 +20,14 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.util.Debug;
-
 import java.lang.reflect.*;
 import java.util.*;
+
 import org.omg.CORBA.ExceptionDefPOATie;
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
+
+import org.apache.avalon.framework.logger.Logger;
 
 public class OperationDef
     extends Contained
@@ -49,11 +51,22 @@ public class OperationDef
 
     private boolean defined = false;
 
+    private Logger logger;    
+    private ClassLoader loader;
+    private POA poa;
+
     public OperationDef( Method m,
                          Class def_in,
                          Class irHelper,
-                         org.omg.CORBA.InterfaceDef i_def )
+                         org.omg.CORBA.InterfaceDef i_def,
+                         Logger logger,
+                         ClassLoader loader,
+                         POA poa)
     {
+        this.logger = logger;
+        this.loader = loader;
+        this.poa = poa;
+
         def_kind = org.omg.CORBA.DefinitionKind.dk_Operation;
         name( m.getName());
 
@@ -66,8 +79,10 @@ public class OperationDef
            throw new INTF_REPOS ("Idef argument null" );
         }
 
-        id( RepositoryID.toRepositoryID( RepositoryID.className( i_def.id())
-                                         + "/" + name(), false));
+        id( RepositoryID.toRepositoryID( 
+                RepositoryID.className( i_def.id(), loader) + "/" + name(), 
+                false, 
+                loader));
 
         version(id().substring( id().lastIndexOf(':')));
         defined_in = i_def;
@@ -76,8 +91,12 @@ public class OperationDef
         absolute_name = i_def.absolute_name() + "::" + name;
         method = m;
 
-        org.jacorb.util.Debug.output(2, "New OperationDef, name: " + name +
-                                 " "  + absolute_name );
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("New OperationDef, name: " + name +
+                              " "  + absolute_name);
+        }
+
         Hashtable irInfo = null;
         opInfo = null;
         try
@@ -87,7 +106,7 @@ public class OperationDef
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            logger.error("Caught Exception", e);
         }
 
         /* parse extra operation information that's in the opInfo string */
@@ -131,15 +150,19 @@ public class OperationDef
         {
             result =
                 TypeCodeUtil.getTypeCode( method.getReturnType(),
-                                          RepositoryImpl.loader,
+                                          this.loader,
                                           null,
-                                          returnTypeName );
+                                          returnTypeName,
+                                          this.logger);
 
-            result_def = org.jacorb.ir.IDLType.create( result, containing_repository );
+            result_def = org.jacorb.ir.IDLType.create( result, 
+                                                       containing_repository,
+                                                       this.logger,
+                                                       this.poa);
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            logger.error("Caught Exception", e);
         }
 
         params = getParameterDescriptions();
@@ -148,7 +171,7 @@ public class OperationDef
         Class uexc = null;
         try
         {
-            uexc = RepositoryImpl.loader.loadClass("org.omg.CORBA.UserException");
+            uexc = this.loader.loadClass("org.omg.CORBA.UserException");
         }
         catch ( ClassNotFoundException e1)
         {
@@ -165,10 +188,13 @@ public class OperationDef
                 {
                     ExceptionDef ex =  new ExceptionDef( ex_classes[ ix ],
                                                          defined_in,
-                                                         containing_repository );
+                                                         containing_repository,
+                                                         this.loader, 
+                                                         this.poa,
+                                                         this.logger);
                     org.omg.CORBA.ExceptionDef exRef =
                         org.omg.CORBA.ExceptionDefHelper.narrow(
-                              RepositoryImpl.poa.servant_to_reference(
+                              this.poa.servant_to_reference(
                                    new ExceptionDefPOATie (  ex )
 								   )
 							  );
@@ -178,7 +204,7 @@ public class OperationDef
                 }
                 catch( Exception e )
                 {
-                    e.printStackTrace();
+                    logger.error("Caught Exception", e);
                 }
             }
         }
@@ -253,25 +279,29 @@ public class OperationDef
                 }
 
 
-
-                org.jacorb.util.Debug.output(2,"Operation " + name() + ", param #"+ i +
-                                             "name: " + name +
-                                             ", paramTypeName " + parameterTypeName +
-                                             paramInfo );
+                if (this.logger.isDebugEnabled())
+                {
+                    this.logger.debug("Operation " + name() + ", param #"+ i +
+                                      "name: " + name +
+                                      ", paramTypeName " + parameterTypeName +
+                                      paramInfo);
+                }
 
                 tc = TypeCodeUtil.getTypeCode( m_params[i],
-                                               RepositoryImpl.loader,
+                                               this.loader,
                                                null,
-                                               parameterTypeName );
+                                               parameterTypeName,
+                                               this.logger);
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
+                logger.error("Caught Exception", e);
                 throw new INTF_REPOS( ErrorMsg.IR_Definition_Not_Found,
 						    org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             }
             org.omg.CORBA.IDLType type_def =
-                IDLType.create( tc, containing_repository );
+                IDLType.create( tc, containing_repository, 
+                                this.logger, this.poa );
             params[i] =
                 new org.omg.CORBA.ParameterDescription( name, tc, type_def, mode);
         }

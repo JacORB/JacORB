@@ -5,11 +5,8 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 
-import org.jacorb.util.Debug;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -18,7 +15,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class SequenceEventChannelTest extends NotificationTestCase {
 
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     EventChannel channel_;
     StructuredEvent[] testEvent_;
 
@@ -148,26 +144,8 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public static Test suite() throws Exception {
-        TestSuite _suite;
-
-        _suite = new TestSuite("Tests for Sequenced Event Channel");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames =
-            org.jacorb.test.common.TestUtils.getTestMethods(SequenceEventChannelTest.class);
-
-        for (int x=0; x<methodNames.length; ++x) {
-            _suite.addTest(new SequenceEventChannelTest(methodNames[x], _setup));
-        }
-
-        return _setup;
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite("Tests for Sequenced Event Channel",
+                                          SequenceEventChannelTest.class);
     }
 }
 

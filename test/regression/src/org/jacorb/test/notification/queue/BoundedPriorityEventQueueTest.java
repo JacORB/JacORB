@@ -23,70 +23,36 @@ package org.jacorb.test.notification.queue;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
-import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.AbstractBoundedEventQueue;
 import org.jacorb.notification.queue.BoundedPriorityEventQueue;
 import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 import org.jacorb.test.notification.MockMessage;
+import org.jacorb.test.notification.NotificationTestCase;
+import org.jacorb.test.notification.NotificationTestCaseSetup;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
-
+import java.util.ArrayList;
 
 /**
- *  Unit Test for class BoundedPriorityEventQueue.java
- *
- *
- * Created: Mon Aug 11 12:21:18 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class BoundedPriorityEventQueueTest extends TestCase
+public class BoundedPriorityEventQueueTest extends NotificationTestCase
 {
-
-    ApplicationContext context_;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
-    public void setUp() throws Exception {
-        context_ = new ApplicationContext(false);
-    }
-
-    public void tearDown() throws Exception {
-        context_.dispose();
-    }
-
-    /**
-     * Creates a new <code>BoundedPriorityEventQueue</code> instance.
-     *
-     * @param name test name
-     */
-    public BoundedPriorityEventQueueTest (String name)
+    public BoundedPriorityEventQueueTest(String name, NotificationTestCaseSetup setup)
     {
-        super(name);
+        super(name, setup);
     }
 
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
-    public static Test suite()
+    public static Test suite() throws Exception
     {
-        TestSuite suite = new TestSuite(BoundedPriorityEventQueueTest.class);
-
-        suite = new TestSuite();
-        suite.addTest(new BoundedPriorityEventQueueTest("testLIFOOverflow"));
-
-        return suite;
+        return NotificationTestCase.suite(BoundedPriorityEventQueueTest.class);
     }
 
 
@@ -115,8 +81,12 @@ public class BoundedPriorityEventQueueTest extends TestCase
 
         for (int x=0; x<10; ++x) {
             int prio = 10 - x;
-            Message _event =
-                new MockMessage( "Prio:" + prio).getHandle();
+
+            MockMessage _mockMessage = new MockMessage( "Prio: " + prio);
+
+            _mockMessage.configure(getConfiguration());
+
+            Message _event = _mockMessage.getHandle();
 
             _event.setPriority(prio);
             _queue.put(_event);
@@ -134,7 +104,7 @@ public class BoundedPriorityEventQueueTest extends TestCase
 
         final SynchronizedInt called = new SynchronizedInt(0);
 
-        final Vector removedEvents = new Vector();
+        final List removedEvents = new ArrayList();
 
         EventQueueOverflowStrategy strategy = new
             EventQueueOverflowStrategy() {
@@ -150,7 +120,7 @@ public class BoundedPriorityEventQueueTest extends TestCase
                 }
             };
 
-        List _events = new Vector();
+        List _events = new ArrayList();
 
         Message e1 = new MockMessage().getHandle();
         Message e2 = new MockMessage().getHandle();
@@ -181,7 +151,7 @@ public class BoundedPriorityEventQueueTest extends TestCase
 
         final SynchronizedInt called = new SynchronizedInt(0);
 
-        final Vector removedEvents = new Vector();
+        final List removedEvents = new ArrayList();
 
         EventQueueOverflowStrategy strategy = new
             EventQueueOverflowStrategy() {
@@ -191,15 +161,13 @@ public class BoundedPriorityEventQueueTest extends TestCase
                     Message e =
                         EventQueueOverflowStrategy.LIFO.removeElementFromQueue(queue);
 
-                    logger_.info("remove " + e);
-
                     removedEvents.add(e);
 
                     return e;
                 }
             };
 
-        List _events = new Vector();
+        List _events = new ArrayList();
 
         _events.add(new MockMessage( "#1").getHandle());
 
@@ -240,14 +208,4 @@ public class BoundedPriorityEventQueueTest extends TestCase
             queue.put((Message)i.next());
         }
     }
-
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args)
-    {
-        junit.textui.TestRunner.run(suite());
-    }
-
 }

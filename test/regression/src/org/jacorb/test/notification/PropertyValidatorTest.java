@@ -19,53 +19,44 @@ import junit.framework.TestSuite;
 import org.omg.CosNotification.QoSError_code;
 
 public class PropertyValidatorTest
-            extends TestCase
+    extends NotificationTestCase
 {
-
     QoSPropertySet propertyvalidator = null;
 
-    ORB orb_;
-
-
-    public PropertyValidatorTest(String name)
+    public PropertyValidatorTest(String name, NotificationTestCaseSetup setup)
     {
-        super(name);
+        super(name, setup);
     }
 
 
     public QoSPropertySet createInstance() throws Exception
     {
-        return new QoSPropertySet(QoSPropertySet.CHANNEL_QOS);
+        QoSPropertySet _props = new QoSPropertySet(getConfiguration(), QoSPropertySet.CHANNEL_QOS);
+
+        return _props;
     }
 
 
-    protected void setUp() throws Exception
+    public void setUp() throws Exception
     {
         super.setUp();
-        orb_ = ORB.init();
+
         propertyvalidator = createInstance();
-    }
-
-
-    protected void tearDown() throws Exception
-    {
-        propertyvalidator = null;
-        super.tearDown();
     }
 
 
     public void testValidateQoS() throws Exception
     {
         Property[] _props = new Property[3];
-        Any _bestEffortAny = orb_.create_any();
+        Any _bestEffortAny = getORB().create_any();
         _bestEffortAny.insert_short(BestEffort.value);
         _props[0] = new Property(ConnectionReliability.value, _bestEffortAny);
 
-        Any _priorityAny = orb_.create_any();
+        Any _priorityAny = getORB().create_any();
         _priorityAny.insert_short((short)20);
         _props[1] = new Property(Priority.value, _priorityAny);
 
-        Any _discardPolicyAny = orb_.create_any();
+        Any _discardPolicyAny = getORB().create_any();
         _discardPolicyAny.insert_short(FifoOrder.value);
 
         _props[2] = new Property(DiscardPolicy.value, _discardPolicyAny);
@@ -87,7 +78,7 @@ public class PropertyValidatorTest
 
         ////////////////////////////////////////
 
-        Any wrongType = orb_.create_any();
+        Any wrongType = getORB().create_any();
         wrongType.insert_long(10);
         _props[2] = new Property(DiscardPolicy.value, wrongType);
         try
@@ -103,20 +94,11 @@ public class PropertyValidatorTest
                 }
             }
         }
-
     }
 
 
-    public static Test suite()
+    public static Test suite() throws Exception
     {
-        TestSuite suite = new TestSuite(PropertyValidatorTest.class);
-
-        return suite;
-    }
-
-
-    public static void main(String[] args)
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite(PropertyValidatorTest.class);
     }
 }

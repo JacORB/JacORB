@@ -1,6 +1,7 @@
 package demo.benchmark;
 
 import org.omg.CosNaming.*;
+import org.omg.PortableServer.*;
 
 public class Server
 {
@@ -9,19 +10,32 @@ public class Server
 	try
 	{
 	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
-	    org.omg.PortableServer.POA poa = 
+	    org.omg.PortableServer.POA rootPOA = 
 		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));		
 
-	    poa.the_POAManager().activate();
+            org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[2];
 
-	    org.omg.CORBA.Object o = poa.servant_to_reference(new benchImpl());
+            policies[0] =
+                rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+            policies[1] =
+                rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+
+            POA benchPOA = 
+                rootPOA.create_POA("BenchPOA",rootPOA.the_POAManager(),policies);
+
+	    rootPOA.the_POAManager().activate();
+
+            byte [] oid = "benchServer".getBytes();
+
+            benchPOA.activate_object_with_id(oid, new benchImpl());
+
+	    org.omg.CORBA.Object o = benchPOA.id_to_reference(oid);
 		 
 	    if( args.length == 0 )
 	    {
 		NamingContextExt nc = 
 		    NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
 		nc.bind(nc.to_name("benchmark"), o);
-
 	    }
 	    else
 	    {

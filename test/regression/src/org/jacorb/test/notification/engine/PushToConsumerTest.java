@@ -24,7 +24,6 @@ package org.jacorb.test.notification.engine;
 import org.jacorb.notification.engine.PushToConsumerTask;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.test.notification.MockMessage;
-import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -32,24 +31,24 @@ import org.omg.CORBA.ORB;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.test.notification.NotificationTestCase;
+import org.jacorb.test.notification.NotificationTestCaseSetup;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class PushToConsumerTest extends TestCase
+public class PushToConsumerTest extends NotificationTestCase
 {
-    Logger test_logger = Debug.getNamedLogger(getClass().getName());
-
     TaskProcessor taskProcessor_;
-
-    ORB orb = ORB.init();
 
     public void setUp() throws Exception
     {
         taskProcessor_ = new TaskProcessor();
+
+        taskProcessor_.configure( getConfiguration() );
     }
 
 
@@ -64,10 +63,15 @@ public class PushToConsumerTest extends TestCase
         PushToConsumerTask task =
             new PushToConsumerTask(taskProcessor_);
 
+        task.configure(getConfiguration());
+
         MockMessage event =
             new MockMessage("testEvent");
 
-        Any any = orb.create_any();
+        event.configure(getConfiguration());
+
+        Any any = getORB().create_any();
+
         any.insert_string("test");
 
         event.setAny(any);
@@ -88,22 +92,14 @@ public class PushToConsumerTest extends TestCase
     }
 
 
-    public PushToConsumerTest (String name)
+    public PushToConsumerTest(String name, NotificationTestCaseSetup setup)
     {
-        super(name);
+        super(name, setup);
     }
 
 
-    public static Test suite()
+    public static Test suite() throws Exception
     {
-        TestSuite suite = new TestSuite(PushToConsumerTest.class);
-
-        return suite;
-    }
-
-
-    public static void main(String[] args)
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite(PushToConsumerTest.class);
     }
 }

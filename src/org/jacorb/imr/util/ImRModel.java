@@ -20,9 +20,11 @@
  */
 package org.jacorb.imr.util;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import org.jacorb.imr.*;
 import org.jacorb.imr.AdminPackage.*;
-import org.jacorb.util.Debug;
 
 import java.util.*;
 
@@ -42,8 +44,13 @@ import javax.swing.table.*;
 public class ImRModel  
 {
     private Admin m_admin;
-    private org.omg.CORBA.ORB m_orb;
-    
+    private org.jacorb.orb.ORB m_orb;
+
+    private org.jacorb.config.Configuration configuration = null;
+
+    /** the specific logger for this component */
+    private Logger logger = null;    
+
     private ServerInfo[] m_servers;
     private ImRInfo m_imr_info;
 
@@ -73,14 +80,18 @@ public class ImRModel
 
     public ImRModel() 
     {
-	m_orb = org.omg.CORBA.ORB.init(new String[0], null);
+	m_orb = (org.jacorb.orb.ORB)org.omg.CORBA.ORB.init(new String[0], null);
+        configuration = m_orb.getConfiguration();
+        logger = configuration.getNamedLogger("jacorb.imr.model");
+
         try 
         {
             m_admin = AdminHelper.narrow( m_orb.resolve_initial_references("ImplementationRepository"));
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName in )
         {
-            Debug.output(0, "WARNING: Could not contact Impl. Repository!");
+            if (logger.isWarnEnabled())
+                logger.warn("Could not contact Impl. Repository!");
             return;
         }
 	
@@ -122,7 +133,8 @@ public class ImRModel
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName in )
         {
-            Debug.output(0, "WARNING: Could not contact Impl. Repository!");
+            if (logger.isWarnEnabled())
+                logger.warn("Could not contact Impl. Repository!");
             return;
         }
 	
@@ -469,6 +481,7 @@ public class ImRModel
      *
      * @param e the exception that has been thrown.
      */
+
     private void handleException (Exception e)
     {
         if (e instanceof org.omg.CORBA.UserException)
@@ -488,7 +501,10 @@ public class ImRModel
                                           JOptionPane.ERROR_MESSAGE);
         }
         else
-            Debug.output(3, e);    
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("Exception: " + e.getMessage());
+        }
     }
 
 

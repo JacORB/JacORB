@@ -21,18 +21,20 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
+
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.GSSUP.GSSUPMechOID;
 import org.omg.GSSUP.InitialContextToken;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public class GssUpContext implements ISASContext
+public class GssUpContext 
+    implements ISASContext
 {
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger = null;
     private static String username = "";
     private static String password = "";
+
     private InitialContextToken initialContextToken = null;
 
     public static void setUsernamePassword(String username, String password) {
@@ -40,14 +42,16 @@ public class GssUpContext implements ISASContext
         GssUpContext.password = password;
     }
 
-    public String getMechOID() {
+    public String getMechOID() 
+    {
         return GSSUPMechOID.value.substring(4);
     }
 
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
      */
-    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
+    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) 
+    {
         byte[] target = csmList.mechanism_list[0].as_context_mech.target_name;
         byte[] contextToken = GSSUPNameSpi.encode(username, password, target);
         initialContextToken = GSSUPNameSpi.decode(contextToken);
@@ -57,14 +61,16 @@ public class GssUpContext implements ISASContext
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
      */
-    public String getClientPrincipal() {
+    public String getClientPrincipal() 
+    {
         return username;
     }
 
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
      */
-    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) 
+    {
         initialContextToken = GSSUPNameSpi.decode(contextToken);
         return (initialContextToken != null);
     }

@@ -23,25 +23,38 @@ package org.jacorb.test.orb.etf.wiop;
 import java.io.*;
 import java.net.*;
 
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.ETF.*;
 import org.omg.IOP.*;
 import org.omg.RTCORBA.ProtocolProperties;
 
 import org.jacorb.orb.iiop.*;
+import org.apache.avalon.framework.configuration.*;
 
 /**
  * WIOP is wrapper around an IIOP transport.  To the ORB, it looks like
  * a wholly different transport, but the actual implementation just
  * delegates everything to the standard IIOP classes.
- * 
+ *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class WIOPFactories extends _FactoriesLocalBase
+public class WIOPFactories 
+    extends _FactoriesLocalBase
+    implements Configurable
 {
     public static boolean transportInUse = false;
-    
-    private final int tag = 7; 
+    private final int tag = 7;
+    org.jacorb.config.Configuration configuration;
+    org.jacorb.orb.ORB orb;
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+        this.orb = this.configuration.getORB();
+    }
 
     public Connection create_connection (ProtocolProperties props)
     {
@@ -53,16 +66,25 @@ public class WIOPFactories extends _FactoriesLocalBase
                                      int stacksize,
                                      short base_priority)
     {
-        IIOPListener delegate = new IIOPListener()
+        IIOPListener delegate = new IIOPListener(orb)
         {
             protected Connection createServerConnection (Socket socket,
                                                          boolean is_ssl)
                 throws IOException
             {
-                return new WIOPConnection 
+                return new WIOPConnection
                     (new ServerIIOPConnection (socket, is_ssl), tag);
             }
-        }; 
+        };
+        try
+        {
+            delegate.configure(configuration);
+        }
+        catch( ConfigurationException ce )
+        {
+            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
+        }
+
         return new WIOPListener (delegate, tag);
     }
 
@@ -71,13 +93,13 @@ public class WIOPFactories extends _FactoriesLocalBase
     {
         if (tagged_profile.value.tag != this.tag)
         {
-            throw new org.omg.CORBA.BAD_PARAM 
-                ("wrong profile for WIOP transport, tag: " 
+            throw new org.omg.CORBA.BAD_PARAM
+                ("wrong profile for WIOP transport, tag: "
                  + tagged_profile.value.tag);
         }
         else
         {
-            IIOPProfile result 
+            IIOPProfile result
                 = new IIOPProfile (tagged_profile.value.profile_data);
             components.value = result.getComponents().asArray();
             return new WIOPProfile (result, this.tag);

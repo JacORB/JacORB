@@ -95,10 +95,10 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
                                        + getNameForType(_left.getType()));
         }
 
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "Result: " + _ret );
-        }
+//         if ( logger_.isDebugEnabled() )
+//         {
+//             logger_.debug( "Result: " + _ret );
+//         }
 
         return _ret;
     }

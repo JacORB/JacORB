@@ -22,8 +22,11 @@ package org.jacorb.ir;
 
 import java.util.*;
 import java.io.*;
-import org.jacorb.util.Debug;
+
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
+
+import org.apache.avalon.framework.logger.Logger;
 
 public class Container
     extends IRObject
@@ -53,13 +56,23 @@ public class Container
 
     protected boolean defined = false;
 
+    private ClassLoader loader;
+    private POA poa;
+    private Logger logger;
+
     /**
      */
 
     public Container( IRObject delegator,
                       String path,
-                      String full_name )
+                      String full_name,
+                      ClassLoader loader,
+                      POA poa,
+                      Logger logger )
     {
+        this.loader = loader;
+        this.poa = poa;
+        this.logger = logger;
         this.delegator = delegator;
         this.path = path;
         this.full_name = full_name;
@@ -74,9 +87,12 @@ public class Container
 
         this.name = delegator.getName();
 
-        org.jacorb.util.Debug.output(2, "New Container full_name " +
-                                 full_name + " name : " + name + " path: " +  path);
-
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("New Container full_name " +
+                              full_name + " name : " + name + 
+                              " path: " +  path);
+        }
         // else: get reference from delegator, but must be postponed until later
     }
 
@@ -128,11 +144,15 @@ public class Container
             {
                 try
                 {
-                    org.jacorb.util.Debug.output(4, "Container " +name+ " tries " +
-                                               prefix +
-                                               classes[j].substring( 0, classes[j].indexOf(".class")) );
+                    if (this.logger.isDebugEnabled())
+                    {
+                        this.logger.debug("Container " +name+ " tries " +
+                                          prefix +
+                                          classes[j].substring( 0, classes[j].indexOf(".class")));
+                    }
+
                     Class cl =
-                        RepositoryImpl.loader.loadClass(
+                        this.loader.loadClass(
                                          ( prefix +
                                            classes[j].substring( 0, classes[j].indexOf(".class"))
                                            ).replace( fileSeparator, '.') );
@@ -141,23 +161,34 @@ public class Container
                         Contained.createContained( cl,
                                                    path,
                                                    this_container,
-                                                   containing_repository );
+                                                   containing_repository, 
+                                                   this.logger, 
+                                                   this.loader,
+                                                   this.poa );
                     if( containedObject == null )
                     {
-                        org.jacorb.util.Debug.output(4, "Container: nothing created for "
-                                                     + cl.getClass().getName() );
+                        if (this.logger.isDebugEnabled())
+                        {
+                            this.logger.debug("Container: nothing created for "
+                                              + cl.getClass().getName());
+                        }
                         continue;
                     }
 
                     org.omg.CORBA.Contained containedRef =
-                        Contained.createContainedReference(containedObject);
+                        Contained.createContainedReference(containedObject, 
+                                                           this.logger, 
+                                                           this.poa);
 
                     containedRef.move( this_container,
                                        containedRef.name(),
                                        containedRef.version() );
 
-                    org.jacorb.util.Debug.output(2, "Container " + prefix +
-                                             " loads "+ containedRef.name() );
+                    if (this.logger.isDebugEnabled())
+                    {
+                        this.logger.debug("Container " + prefix +
+                                          " loads "+ containedRef.name());
+                    }
 
                     contained.put( containedRef.name() , containedRef );
                     containedLocals.put( containedRef.name(), containedObject );
@@ -165,13 +196,9 @@ public class Container
                         ((ContainerType)containedObject).loadContents();
 
                 }
-                catch ( ClassNotFoundException e )
+                catch ( java.lang.Throwable e )
                 {
-                    e.printStackTrace();
-                }
-                catch ( java.lang.Throwable t )
-                {
-                    t.printStackTrace();
+                    this.logger.error("Caught exception", e);
                 }
             }
         }
@@ -197,7 +224,7 @@ public class Container
 //                                      "." + "_" + dirs[k] + "Module" ).replace( fileSeparator, '.') );
 
                             Class moduleClass =
-                                RepositoryImpl.loader.loadClass(
+                                this.loader.loadClass(
                                   (
                                    ( full_name != null ? full_name + "." + dirs[k]: dirs[k] ) +
                                    "." + "_" + dirs[k] + "Module" ).replace( fileSeparator, '.'));
@@ -209,19 +236,26 @@ public class Container
                                                  ""
                                                  ) + dirs[k],
                                                this_container,
-                                               containing_repository );
+                                               containing_repository,
+                                               this.loader,
+                                               this.poa,
+                                               this.logger);
 
                             org.omg.CORBA.ModuleDef moduleRef =
                                 org.omg.CORBA.ModuleDefHelper.narrow(
-                                    RepositoryImpl.poa.servant_to_reference(
+                                    this.poa.servant_to_reference(
                                         new org.omg.CORBA.ModuleDefPOATie( m ) ));
 
                             m.setReference( moduleRef );
                             m.loadContents();
 
-                            org.jacorb.util.Debug.output(2, "Container " +
-                                                     full_name +
-                                                     " puts module " + dirs[k] );
+                            if (this.logger.isDebugEnabled())
+                            {
+                                this.logger.debug("Container " +
+                                                  full_name +
+                                                  " puts module " + dirs[k]);
+                            }
+
                             m.move( this_container, m.name(), m.version() );
                             contained.put( m.name() , moduleRef );
                             containedLocals.put( m.name(), m );
@@ -229,13 +263,12 @@ public class Container
                     }
                     catch( ClassNotFoundException c )
                     {
-                        org.jacorb.util.Debug.output(2, "No module meta data: " +
-                                                 c.getMessage() );
-                        org.jacorb.util.Debug.output(4, c );
+                        this.logger.error("No module meta data: " +
+                                          c.getMessage(), c );
                     }
                     catch ( Exception e )
                     {
-                        e.printStackTrace();
+                        this.logger.error("Caught Exception", e);
                     }
                 }
             }
@@ -244,7 +277,10 @@ public class Container
 
     void define()
     {
-        org.jacorb.util.Debug.output(2, "Container " + full_name + " defining...");
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Container " + full_name + " defining...");
+        }
 
         for( Enumeration e = containedLocals.elements();
              e.hasMoreElements();
@@ -252,7 +288,11 @@ public class Container
             ;
 
         defined = true;
-        org.jacorb.util.Debug.output(2, "Container " + full_name + " defined");
+
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Container " + full_name + " defined");
+        }
     }
 
 
@@ -326,8 +366,11 @@ public class Container
 
         if( top == null )
         {
-            org.jacorb.util.Debug.output(2,"Container " + this.name +
-                                     " top " + top_level_name + " not found ");
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("Container " + this.name +
+                                  " top " + top_level_name + " not found ");
+            }
             return null;
         }
 
@@ -345,9 +388,12 @@ public class Container
             }
             else
             {
-                org.jacorb.util.Debug.output(2,"Container " + this.name +" " +
-                                         scopedname + " not found, top " +
-                                         top.getClass().getName());
+                if (this.logger.isDebugEnabled())
+                {
+                    this.logger.debug("Container " + this.name +" " +
+                                      scopedname + " not found, top " +
+                                      top.getClass().getName());
+                }
                 return null;
             }
         }

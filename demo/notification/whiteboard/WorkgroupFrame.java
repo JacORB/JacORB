@@ -14,7 +14,7 @@ import org.apache.log.Logger;
 
 /**
  *
- * @author 
+ * @author
  * @version $Id$
  */
 
@@ -47,11 +47,11 @@ public class WorkgroupFrame extends Frame implements IWorkgroupFrame {
     public void setCurrentBoardText(String name) {
 	currentBoard.setText(name);
     }
-    
+
     public void setLeaveMenuItem(boolean value) {
 	leaveMenuItem_.setEnabled(value);
     }
-    
+
     /** Initializes the Form */
     public WorkgroupFrame(WorkgroupController wg, String name) {
         super(name);

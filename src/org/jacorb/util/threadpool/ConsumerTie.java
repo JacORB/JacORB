@@ -24,14 +24,11 @@ package org.jacorb.util.threadpool;
 /**
  * ConsumerTie.java
  *
- *
  * Created: Fri Jun  9 15:44:26 2000
  *
  * @author Nicolas Noffke
  * $Id$
  */
-
-import org.jacorb.util.Debug;
 
 public  class ConsumerTie
     implements Runnable
@@ -71,7 +68,6 @@ public  class ConsumerTie
         }
         catch( Exception e )
         {
-            Debug.output(3, e );
             return;
         }
     }

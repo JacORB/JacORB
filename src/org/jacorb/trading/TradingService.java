@@ -14,19 +14,25 @@ package org.jacorb.trading;
 
 import java.io.*;
 import java.util.*;
+
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.CORBA.*;
 import org.omg.CosTrading.*;
 import org.omg.CosTradingRepos.ServiceTypeRepositoryPackage.*;
+
 import org.jacorb.trading.impl.*;
 import org.jacorb.trading.db.DatabaseMgr;
 import org.jacorb.trading.db.OfferDatabase;
 import org.jacorb.trading.db.TypeDatabase;
+
 import org.jacorb.trading.util.*;
 
 
 public class TradingService
 {
     private static final String s_defaultDbpath = "db";
+    private static org.jacorb.config.Configuration configuration = null;
     private static ORB orb;
 
     protected TradingService()
@@ -40,9 +46,7 @@ public class TradingService
 
     public TradingService(DatabaseMgr dbMgr, String iorfile)
     {
-
 	// see if we have an interface repository
-
 	org.omg.CORBA.Repository intRep = null;
 	org.omg.CORBA.Object obj = null;
 
@@ -65,7 +69,7 @@ public class TradingService
 		intRep = org.omg.CORBA.RepositoryHelper.narrow(obj);
 	}
 	catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-	    // ignore - no interface repository available
+	    // ignore 
 	}
 	catch (org.omg.CORBA.SystemException e) {
 	    // ignore
@@ -74,17 +78,13 @@ public class TradingService
 	    // ignore
 	}
 
-
 	// retrieve the database objects
-
 	OfferDatabase offerDb = dbMgr.getOfferDatabase();
 	TypeDatabase typeDb = dbMgr.getTypeDatabase();
 
 	// create the service type repository implementation
-
 	RepositoryImpl typeRepos = new RepositoryImpl(typeDb, intRep);
 	typeRepos._this_object( orb );
-	// GB:    orb.connect(typeRepos);
 
 	// create and initialize the attributes objects
 	SupportAttrib supportAttrib = new SupportAttrib();
@@ -123,12 +123,19 @@ public class TradingService
 	reg._this_object(orb);
 	traderComp.setRegisterInterface(reg._this());
 
-	LinkImpl link = new LinkImpl(traderComp, supportAttrib, linkAttrib);
+	LinkImpl link = 
+            new LinkImpl(traderComp, 
+                         supportAttrib, 
+                         linkAttrib);
+
 	link._this_object(orb);
 	traderComp.setLinkInterface(link._this());
 
-	LookupImpl lookup = new LookupImpl(traderComp, supportAttrib,
-					   importAttrib, offerDb, link);
+	LookupImpl lookup = 
+            new LookupImpl(traderComp, supportAttrib,
+                           importAttrib, offerDb, link, 
+                           ((org.jacorb.orb.ORB)orb).getConfiguration());
+
 	lookup._this_object(orb);
 	traderComp.setLookupInterface(lookup._this());
 
@@ -163,6 +170,10 @@ public class TradingService
 	}
     }
 
+    /**
+     * main
+     */
+
     public static void main(String[] args)
     {
 	String iorfile = null;
@@ -194,8 +205,11 @@ public class TradingService
 	}
 
 	// initialize the ORB
-	//    ORBLayer.instance().init(args);
 	orb = ORB.init(args,null);
+
+        // JacORB-specific service configuration
+        configuration = 
+            (org.jacorb.config.Configuration)((org.jacorb.orb.ORB)orb).getConfiguration();
 
 	// create the appropriate database manager object
 	DatabaseMgr dbMgr;
@@ -220,11 +234,14 @@ public class TradingService
 	System.exit(1);
     }
 
-    private int getProperty(String prop_name, int default_val){
-	String _res = org.jacorb.util.Environment.getProperty(prop_name);
+    private int getProperty(String prop_name, int default_val)
+    {
+	String _res = configuration.getAttribute(prop_name, null);
 	int _value = default_val;
-	if (_res != null){
-	    try{
+	if (_res != null)
+        {
+	    try
+            {
 		_value = Integer.parseInt(_res);
 	    }catch (Exception _e){
 		// sth wrong, ignore
@@ -234,7 +251,7 @@ public class TradingService
     }
 
     private FollowOption getProperty(String prop_name, FollowOption default_val){
-	String _res = org.jacorb.util.Environment.getProperty(prop_name);
+	String _res = configuration.getAttribute(prop_name, null);
 	int _value = default_val.value();
 	if (_res != null){
 	    try{
@@ -248,7 +265,7 @@ public class TradingService
 
     private boolean getProperty(String prop_name, boolean default_val)
     {
-	String _res = org.jacorb.util.Environment.getProperty(prop_name);
+	String _res = configuration.getAttribute(prop_name, null);
 	boolean _value = default_val;
 	if (_res != null)
 	{
@@ -264,12 +281,5 @@ public class TradingService
 	return _value;
     }
 }
-
-
-
-
-
-
-
 
 

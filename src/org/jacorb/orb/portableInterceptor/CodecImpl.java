@@ -29,7 +29,6 @@ import org.omg.CORBA.*;
 
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.util.Debug;
 
 /**
  * This class represents a codec for encoding CDR encapsulations for the supported
@@ -113,7 +112,6 @@ public class CodecImpl
         }
         catch (java.io.IOException e)
         {
-            Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, e);
         }
         */
 
@@ -146,7 +144,6 @@ public class CodecImpl
         }
         catch (java.io.IOException e)
         {
-            Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, e);
         }
         */
 

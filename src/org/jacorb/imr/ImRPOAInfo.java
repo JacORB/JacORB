@@ -25,6 +25,9 @@ import org.jacorb.imr.AdminPackage.*;
 
 import org.jacorb.util.*;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 /**
  * This class stores information about a POA. It also provides methods 
  * for reactivation, conversion, and for waiting for reactivation.
@@ -42,21 +45,11 @@ public class ImRPOAInfo
     protected String host;
     protected String name;
     protected boolean active;
-    protected static long timeout = 120000; // 2 min.
+    protected long timeout; // 2 min.
 
-    static
-    {
-	// read in timeout from Environment
-	String _tmp = Environment.getProperty("jacorb.imr.timeout");
-	if (_tmp != null)
-	    try
-            {
-		timeout = Integer.parseInt(_tmp);
-	    }
-            catch(Exception _e)
-            {}
-    }
-    
+    private org.jacorb.config.Configuration configuration;
+    private Logger logger;
+
     /**
      * The constructor of this class.
      *
@@ -69,17 +62,27 @@ public class ImRPOAInfo
      */
 
     public ImRPOAInfo(String name, String host, int port, ImRServerInfo server) 
-	throws IllegalPOAName 
+        throws IllegalPOAName 
     {
-	if (name == null || name.length() == 0)
-	    throw new IllegalPOAName(name);
+        if (name == null || name.length() == 0)
+            throw new IllegalPOAName(name);
 
-	this.name = name;
-	this.host = host;
-	this.port = port;
-	this.server = server;
-	this.active = true;
+        this.name = name;
+        this.host = host;
+        this.port = port;
+        this.server = server;
+        this.active = true;
     }
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.imr");
+        // default timeout is 2 mins.
+        timeout = configuration.getAttributeAsInteger( "jacorb.imr.timeout",120000);
+    }
+
 
     /**
      * "Converts" this Object to an instance of the POAInfo class.
@@ -89,7 +92,7 @@ public class ImRPOAInfo
 
     public POAInfo toPOAInfo()
     {
-	return new POAInfo(name, host, port,server.name, active); 
+        return new POAInfo(name, host, port,server.name, active); 
     }
 
     /**
@@ -102,12 +105,12 @@ public class ImRPOAInfo
 
     public synchronized void reactivate(String host, int port)
     {
-	this.host = host;
-	this.port = port;
-	active = true;	
-	server.active = true;
-	server.restarting = false;
-	notifyAll();
+        this.host = host;
+        this.port = port;
+        active = true;	
+        server.active = true;
+        server.restarting = false;
+        notifyAll();
     }
 
     /**
@@ -119,27 +122,28 @@ public class ImRPOAInfo
 
     public synchronized boolean awaitActivation()
     {
-	while(!active)
+        while(!active)
         {
-	    try
+            try
             {
-		long _sleep_begin = System.currentTimeMillis();
-		wait(timeout);
-		if (!active && 
+                long _sleep_begin = System.currentTimeMillis();
+                wait(timeout);
+                if (!active && 
                     (System.currentTimeMillis() - _sleep_begin) > timeout)
-		{
-		    Debug.output(4, "awaitActivation, time_out");
-		    return false;
-		}
-	    }
-            catch (java.lang.Exception _e)
+                {
+                    logger.debug("awaitActivation, time_out");
+                    return false;
+                }
+            }
+            catch (java.lang.Exception e)
             {
-		Debug.output(4, _e);
-	    }
-	}
-        Debug.output(4, "awaitActivation, returns true");
+                logger.debug("awaitActivation", e);
+            }
+        }        
+        
+        logger.debug("awaitActivation, returns true");
 
-	return true;
+        return true;
     }
 } // ImRPOAInfo
 

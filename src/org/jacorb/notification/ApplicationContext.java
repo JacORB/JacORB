@@ -29,7 +29,6 @@ import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.AbstractObjectPool;
-import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -44,6 +43,9 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.TimeTHelper;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.Configurable;
+
 import org.jacorb.notification.filter.EvaluationContext;
 
 /**
@@ -51,8 +53,9 @@ import org.jacorb.notification.filter.EvaluationContext;
  * @version $Id$
  */
 
-public class ApplicationContext implements Disposable
+public class ApplicationContext implements Disposable, Configurable
 {
+    private Configuration configuration_;
     private ORB orb_;
     private POA poa_;
     private TaskProcessor taskProcessor_;
@@ -62,9 +65,7 @@ public class ApplicationContext implements Disposable
     private DynAnyFactory dynAnyFactory_;
     private DynamicEvaluator dynamicEvaluator_;
 
-    Logger logger_ = Debug.getNamedLogger( getClass().getName() );
-
-    private void setup( ORB orb, POA poa, boolean init ) throws InvalidName
+    private void setup( ORB orb, POA poa) throws InvalidName
     {
         orb_ = orb;
         poa_ = poa;
@@ -88,12 +89,12 @@ public class ApplicationContext implements Disposable
                 public void activateObject( Object o )
                 {
                     AbstractPoolable obj = (AbstractPoolable) o;
+                    // todo check if configure can be called from AbstractObjectPool
+                    obj.configure(configuration_);
                     obj.reset();
                     obj.setObjectPool( this );
                 }
             };
-
-        evaluationContextPool_.init();
 
         evaluationResultPool_ =
             new AbstractObjectPool("EvaluationResultPool")
@@ -111,41 +112,25 @@ public class ApplicationContext implements Disposable
                 }
             };
 
-        //        evaluationResultPool_.init();
-
         notificationEventFactory_ = new MessageFactory();
-        notificationEventFactory_.init();
-
-        if ( init )
-        {
-            init();
-        }
+        taskProcessor_ = new TaskProcessor();
     }
 
-    public ApplicationContext( boolean init ) throws InvalidName
-    {
-        ORB orb = ORB.init( new String[ 0 ], null );
-
-        POA poa =
-            POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ) );
-
-        setup( orb, poa, init );
-    }
 
     public ApplicationContext( ORB orb, POA poa ) throws InvalidName
     {
-        setup( orb, poa, false );
+        setup( orb, poa);
     }
 
-    public ApplicationContext( ORB orb, POA poa, boolean init )
-        throws InvalidName
-    {
-        setup( orb, poa, init );
-    }
 
-    public void init()
+    public void configure (Configuration conf)
     {
-        taskProcessor_ = new TaskProcessor();
+        configuration_ = conf;
+        dynamicEvaluator_.configure (conf);
+        evaluationContextPool_.configure(conf);
+        evaluationResultPool_.configure(conf);
+        notificationEventFactory_.configure(conf);
+        taskProcessor_.configure (conf);
     }
 
     public void dispose()
@@ -156,7 +141,6 @@ public class ApplicationContext implements Disposable
             taskProcessor_ = null;
         }
 
-        //        evaluationResultPool_.dispose();
         evaluationContextPool_.dispose();
         notificationEventFactory_.dispose();
 
@@ -230,5 +214,4 @@ public class ApplicationContext implements Disposable
     {
         return taskProcessor_;
     }
-
 }

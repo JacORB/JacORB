@@ -21,15 +21,18 @@ package org.jacorb.orb.dsi;
  */
 
 import java.util.*;
+
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.giop.*;
+import org.jacorb.config.Configuration;
 import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.poa.util.POAUtil;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 import org.jacorb.util.Time;
+
 import org.omg.CORBA.INTERNAL;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.IOP.INVOCATION_POLICIES;
@@ -58,7 +61,10 @@ public class ServerRequest
      * <code>scopes</code> caches the scoped poa names.
      */
     private List scopes;
-    private static boolean cachePoaNames;
+
+    /** config property */
+    private boolean cachePoaNames;
+
     private int status = ReplyStatusType_1_2._NO_EXCEPTION;
     private byte[] oid;
     private byte[] object_key;
@@ -83,22 +89,25 @@ public class ServerRequest
 
     private ServerRequestInfoImpl info = null;
 
-    static
-    {
-        cachePoaNames = Environment.isPropertyOn ("jacorb.cachePoaNames");
-    }
+    private Logger logger;
+
 
     public ServerRequest( org.jacorb.orb.ORB orb,
                           RequestInputStream in,
                           GIOPConnection _connection )
     {
         this.orb = orb;
+        Configuration config = orb.getConfiguration();
+        this.logger = config.getNamedLogger("jacorb.org.giop");
+        this.cachePoaNames = config.getAttribute("jacorb.cachePoaNames","off").equals("on");
+
         this.in = in;
         connection = _connection;
 
         getTimingPolicies();
 
-        object_key = orb.mapObjectKey(org.jacorb.orb.ParsedIOR.extractObjectKey(in.req_hdr.target, orb));
+        object_key = 
+            orb.mapObjectKey(org.jacorb.orb.ParsedIOR.extractObjectKey(in.req_hdr.target, orb));
 
         oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
     }
@@ -242,7 +251,8 @@ public class ServerRequest
                     }
                     catch (Exception e)
                     {
-                        Debug.output(2, e);
+                        if (logger.isInfoEnabled())
+                            logger.info("Caught exception ", e);
                     }
                 }
 
@@ -307,16 +317,16 @@ public class ServerRequest
                 }
                 catch( Exception ioe )
                 {
-                    Debug.output(2,ioe);
-                    Debug.output( 2, "ServerRequest: Error replying to request!" );
+                    if (logger.isInfoEnabled())
+                        logger.info("Error replying to request!", ioe);
                 }
 
                 return;
             }
 
-            if( Debug.isDebugEnabled() )
+            if( logger.isDebugEnabled() )
             {
-                Debug.output( "ServerRequest: reply to " + operation() );
+                logger.debug( "ServerRequest: reply to " + operation() );
             }
 
             try
@@ -324,11 +334,11 @@ public class ServerRequest
                 if( out == null )
                 {
                     out =
-                        new ReplyOutputStream(
-                                 requestId(),
-                                 ReplyStatusType_1_2.from_int(status),
-                                 in.getGIOPMinor(),
-                                 in.isLocateRequest());
+                        new ReplyOutputStream(requestId(),
+                                              ReplyStatusType_1_2.from_int(status),
+                                              in.getGIOPMinor(),
+                                              in.isLocateRequest(),
+                                              logger);
                 }
 
                 /*
@@ -395,8 +405,8 @@ public class ServerRequest
             }
             catch ( Exception ioe )
             {
-                Debug.output(2,ioe);
-                Debug.output( 2, "ServerRequest: Error replying to request!" );
+                if (logger.isInfoEnabled())
+                    logger.info("Error replying to request!", ioe);
             }
         }
     }
@@ -420,7 +430,8 @@ public class ServerRequest
             new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.NO_EXCEPTION,
                                   in.getGIOPMinor(),
-                                  in.isLocateRequest() );
+                                  in.isLocateRequest(), 
+                                  logger );
 
         return out;
     }
@@ -435,7 +446,8 @@ public class ServerRequest
             new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.USER_EXCEPTION,
                                   in.getGIOPMinor(),
-                                  in.isLocateRequest() );
+                                  in.isLocateRequest(),
+                                  logger );
 
         return out;
     }
@@ -444,8 +456,6 @@ public class ServerRequest
 
     public void setSystemException(org.omg.CORBA.SystemException s)
     {
-        Debug.output(2, s);
-
         status = ReplyStatusType_1_2._SYSTEM_EXCEPTION;
 
         /* we need to create a new output stream here because a system exception may
@@ -456,20 +466,20 @@ public class ServerRequest
         out = new ReplyOutputStream(requestId(),
                                     ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                     in.getGIOPMinor(),
-                                    in.isLocateRequest() );
+                                    in.isLocateRequest(),
+                                    logger );
         sys_ex = s;
     }
 
     public void setLocationForward(org.omg.PortableServer.ForwardRequest r)
     {
-        Debug.output(2,"Location Forward");
-
         status = ReplyStatusType_1_2._LOCATION_FORWARD;
 
         out = new ReplyOutputStream(requestId(),
                                     ReplyStatusType_1_2.LOCATION_FORWARD,
                                     in.getGIOPMinor(),
-                                    in.isLocateRequest() );
+                                    in.isLocateRequest(),
+                                    logger );
         location_forward = r;
     }
 
@@ -594,11 +604,11 @@ public class ServerRequest
     public ReplyOutputStream get_out()
     {
         if (out == null)
-            out =
-                new ReplyOutputStream(requestId(),
-                                      ReplyStatusType_1_2.NO_EXCEPTION,
-                                      in.getGIOPMinor(),
-                                      in.isLocateRequest() );
+            out = new ReplyOutputStream(requestId(),
+                                        ReplyStatusType_1_2.NO_EXCEPTION,
+                                        in.getGIOPMinor(),
+                                        in.isLocateRequest(),
+                                        logger );
 
         return out;
     }

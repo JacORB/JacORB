@@ -2,12 +2,13 @@ package org.jacorb.orb.iiop;
 
 import java.util.*;
 
+import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.TaggedComponentList;
-import org.jacorb.util.Environment;
-import org.jacorb.util.Debug;
 
 import org.omg.ETF.*;
 import org.omg.IOP.*;
@@ -19,15 +20,20 @@ import org.omg.CSIIOP.*;
  * @author Andre Spiegel
  * @version $Id$
  */
-public class IIOPProfile 
+public class IIOPProfile
     extends _ProfileLocalBase
-    implements Cloneable
+    implements Cloneable, Configurable
 {
     private org.omg.GIOP.Version version = null;
-    private IIOPAddress          primaryAddress = null; 
+    private IIOPAddress          primaryAddress = null;
     private byte[]               objectKey = null;
     private TaggedComponentList  components = null;
-    
+
+    private org.jacorb.config.Configuration configuration;
+    private boolean dnsEnabled = false;
+    private String corbalocStr = null;
+    private Logger logger;
+
     public IIOPProfile(byte[] data)
     {
         CDRInputStream in = new CDRInputStream(null, data);
@@ -37,13 +43,13 @@ public class IIOPProfile
             org.omg.IIOP.VersionHelper.read(in);
         this.version = new org.omg.GIOP.Version(iiopVersion.major,
                                                  iiopVersion.minor);
-                                                 
+
         this.primaryAddress = IIOPAddress.read(in);
-        
+
         int length = in.read_ulong();
         objectKey = new byte[length];
         in.read_octet_array(objectKey, 0, length);
-        
+
         components = (version.minor > 0) ? new TaggedComponentList(in)
                                          : new TaggedComponentList();
     }
@@ -68,21 +74,39 @@ public class IIOPProfile
      * Constructs an IIOPProfile from a corbaloc URL.  Only to be used
      * from the corbaloc parser.
      */
+
     public IIOPProfile(String corbaloc)
     {
         this.version = null;
         this.primaryAddress = null;
         this.objectKey = null;
         this.components = null;
-        try
+        this.corbalocStr = corbaloc;
+    }
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+        logger = this.configuration.getNamedLogger("jacorb.iiop.profile");
+        dnsEnabled = configuration.getAttribute("jacorb.dns.enable","off").equals("on");
+        if (this.primaryAddress != null)
+            this.primaryAddress.configure(configuration);
+
+        if (this.corbalocStr != null)
         {
-            this.decode_corbaloc(corbaloc);
-        }
-        catch(Exception e)
-        {
-            Debug.output(1,"could not create new IIOPProfile");
+            try
+            {
+                this.decode_corbaloc(this.corbalocStr);
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace(); // debug
+            }
         }
     }
+
+
 
     private void decode_corbaloc(String addr)
     {
@@ -138,6 +162,15 @@ public class IIOPProfile
             }
         }
         primaryAddress = new IIOPAddress(host,port);
+        try
+        {
+            primaryAddress.configure(configuration);
+        }
+        catch( ConfigurationException ce)
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("ConfigurationException", ce );
+        }
         decode_extensions(protocol_identifier.toLowerCase());
     }
 
@@ -169,33 +202,18 @@ public class IIOPProfile
 
     private short get_ssl_options(String propname)
     {
-        String option_str = Environment.getProperty(propname);
-        short value = EstablishTrustInTarget.value;
         //For the time being, we only use EstablishTrustInTarget,
         //because we don't handle any of the other options anyway.
         // So this makes a reasonable default.
 
-        if( (option_str != null) &&
-            (! option_str.equals( "" )) )
-        {
-            try
-            {
-                value = (short) Integer.parseInt( option_str, 16 );
-            }
-            catch( NumberFormatException nfe )
-            {
-                Debug.output( 0, "WARNING: Invalid hex property >>" +
-                              option_str + "<<" );
-                Debug.output( 0, "Please check property \"" +
-                                  propname + "\"" );
-            }
-        }
+        short value =
+            (short)configuration.getAttributeAsInteger(propname,EstablishTrustInTarget.value);
         return value;
     }
 
     /**
      * This function marshals the appropriate information for this
-     * transport into the tagged profile.  ORBs will typically need 
+     * transport into the tagged profile.  ORBs will typically need
      * to call the IOR interception points before calling marshal().
      */
     public void marshal(TaggedProfileHolder tagged_profile,
@@ -203,7 +221,7 @@ public class IIOPProfile
     {
         TaggedComponent[] allComponents = null;
         CDROutputStream profileDataStream = null;
-        
+
         if (components == null)
         {
             components = new TaggedComponentSeqHolder(new TaggedComponent[0]);
@@ -220,8 +238,8 @@ public class IIOPProfile
                 // create IIOP 1.1 profile
 
                 // concatenate the two component lists
-                
-                allComponents = new TaggedComponent[   this.components.size() 
+
+                allComponents = new TaggedComponent[   this.components.size()
                                                      + components.value.length ];
                 System.arraycopy( this.components.asArray(), 0,
                                   allComponents, 0, this.components.size() );
@@ -232,9 +250,7 @@ public class IIOPProfile
                 ProfileBody_1_1 pb1 = new ProfileBody_1_1
                 (
                     new org.omg.IIOP.Version( version.major, version.minor ),
-                    Environment.isPropertyOn("jacorb.dns.enable")
-                      ? primaryAddress.getHostname()
-                      : primaryAddress.getIP(),
+                    dnsEnabled ? primaryAddress.getHostname() : primaryAddress.getIP(),
                     (short)primaryAddress.getPort(),
                     objectKey,
                     allComponents
@@ -258,9 +274,7 @@ public class IIOPProfile
                 ProfileBody_1_0 pb0 = new ProfileBody_1_0
                 (
                     new org.omg.IIOP.Version( version.major, version.minor ),
-                    Environment.isPropertyOn("jacorb.dns.enable")
-                      ? primaryAddress.getHostname()
-                      : primaryAddress.getIP(),
+                    dnsEnabled ? primaryAddress.getHostname() : primaryAddress.getIP(),
                     (short)primaryAddress.getPort(),
                     objectKey
                 );
@@ -279,7 +293,7 @@ public class IIOPProfile
     }
 
     /**
-     * To improve the management of a large set of profile instances, 
+     * To improve the management of a large set of profile instances,
      * the author may provide a hash function using the data in a Profile
      * instance. The Profile shall always implement this function and either
      * return a hash number, or 0 (zero) if no hashing is supported.
@@ -323,23 +337,23 @@ public class IIOPProfile
             System.arraycopy(this.objectKey, 0, result.objectKey, 0,
                               this.objectKey.length);
         }
-        
+
         if (this.components != null)
         {
-            result.components = (TaggedComponentList)this.components.clone();   
+            result.components = (TaggedComponentList)this.components.clone();
         }
-        
+
         return result;
     }
 
     /**
-     * This function shall determine if the passed profile, prof, is a match 
+     * This function shall determine if the passed profile, prof, is a match
      * to this profile.  The specifics of the match are left to the details
-     * of the underlying transport, however profiles shall be considered a 
+     * of the underlying transport, however profiles shall be considered a
      * match, if they would create connections that share the same attributes
-     * relevant to the transport setup.  Among others, this could include 
-     * address information (eg. host address) and transport layer 
-     * characteristics (eg. encryption levels). If a match is found, it 
+     * relevant to the transport setup.  Among others, this could include
+     * address information (eg. host address) and transport layer
+     * characteristics (eg. encryption levels). If a match is found, it
      * shall return true, or false otherwise.
      */
     public boolean is_match(Profile prof)
@@ -356,7 +370,7 @@ public class IIOPProfile
 
     /**
      * This attribute shall contain the GIOP version number that this
-     * profile supports. It is initialized each time an instance is 
+     * profile supports. It is initialized each time an instance is
      * created.
      */
     public org.omg.GIOP.Version version()
@@ -387,25 +401,35 @@ public class IIOPProfile
     {
         if (newHost != null)
         {
-            primaryAddress = new IIOPAddress 
-            (
-                newHost,
-                (newPort != -1) ? newPort
-                                : primaryAddress.getPort()
-            );
+            primaryAddress = new IIOPAddress
+                (
+                 newHost,
+                 (newPort != -1) ? newPort
+                 : primaryAddress.getPort()
+                 );
+
         }
         else if(newPort != -1)
         {
             primaryAddress = new IIOPAddress(primaryAddress.getIP(),
-                                              newPort);
+                                             newPort);
+        }
+        try
+        {
+            primaryAddress.configure(configuration);
+        }
+        catch( ConfigurationException ce)
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("ConfigurationException", ce );
         }
     }
 
-	public List getAlternateAddresses()
-	{
-		return components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
-		                                IIOPAddress.class);
-	}
+    public List getAlternateAddresses()
+    {
+        return components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                        IIOPAddress.class);
+    }
 
     public byte[] get_object_key()
     {
@@ -417,7 +441,7 @@ public class IIOPProfile
         return (SSL)components.getComponent( TAG_SSL_SEC_TRANS.value,
                                              SSLHelper.class );
     }
-    
+
     /**
      * Returns the port on which SSL is available according to this profile,
      * or -1 if SSL is not supported.
@@ -444,24 +468,24 @@ public class IIOPProfile
     {
         return components.getComponent(tag, helper);
     }
-    
+
     public void addComponent(int tag, Object data, Class helper)
     {
         components.addComponent(tag, data, helper);
     }
-    
+
     public void addComponent(int tag, byte[] data)
     {
         components.addComponent(tag, data);
     }
-    
+
     public TaggedProfile asTaggedProfile()
     {
         TaggedProfileHolder result = new TaggedProfileHolder();
         this.marshal(result, null);
         return result.value;
     }
-    
+
     /**
      * Returns a copy of this profile that is compatible with GIOP 1.0.
      */
@@ -472,7 +496,7 @@ public class IIOPProfile
         result.version.minor = 0;
         return result;
     }
-    
+
     public boolean equals(Object other)
     {
         if (other instanceof org.omg.ETF.Profile)
@@ -480,12 +504,12 @@ public class IIOPProfile
         else
             return false;
     }
-    
+
     public int hashCode()
     {
         return primaryAddress.hashCode();
     }
-    
+
     public String toString()
     {
         return primaryAddress.toString();

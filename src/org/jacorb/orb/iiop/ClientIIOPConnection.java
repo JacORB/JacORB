@@ -28,26 +28,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
+import org.apache.avalon.framework.configuration.*;
+
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
-import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.CSIIOP.CompoundSecMechListHelper;
-import org.omg.CSIIOP.Confidentiality;
-import org.omg.CSIIOP.DetectMisordering;
-import org.omg.CSIIOP.DetectReplay;
-import org.omg.CSIIOP.EstablishTrustInClient;
-import org.omg.CSIIOP.EstablishTrustInTarget;
-import org.omg.CSIIOP.Integrity;
-import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
-import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+
+import org.omg.CSIIOP.*;
 import org.omg.SSLIOP.SSL;
 import org.omg.SSLIOP.SSLHelper;
 import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
@@ -68,15 +56,17 @@ import org.omg.CORBA.TRANSIENT;
 
 public class ClientIIOPConnection
     extends IIOPConnection
+    implements Configurable
 {
     private IIOPProfile target_profile;
     private int timeout = 0;
 
     private boolean use_ssl  = false;
     private int     ssl_port = -1;
-
-    private Logger logger = Debug.getNamedLogger("jacorb.iiop.conn");
-
+    private int noOfRetries  = 5;
+    private int retryInterval = 0;
+    private boolean doSupportSSL = false;
+    private TransportManager transportManager;
 
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
@@ -86,28 +76,25 @@ public class ClientIIOPConnection
     private Exception exception = null;
 
     public ClientIIOPConnection()
+    {}
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
     {
-        super();
-
+        super.configure(configuration);
         //get the client-side timeout property value
-        String prop =
-            Environment.getProperty( "jacorb.connection.client.idle_timeout" );
 
-        if( prop != null )
-        {
-            try
-            {
-                timeout = Integer.parseInt( prop );
-            }
-            catch( NumberFormatException nfe )
-            {
-                if (logger.isErrorEnabled())
-                {
-                    logger.error("Unable to create int from string >" + prop + "< \n" +
-                                 "Please check property \"jacorb.connection.client.idle_timeout\"" );
-                }
-            }
-        }
+        timeout = 
+            configuration.getAttributeAsInteger("jacorb.connection.client.idle_timeout",0 );
+        noOfRetries = 
+            configuration.getAttributeAsInteger("jacorb.retries", 5);
+        retryInterval = 
+            configuration.getAttributeAsInteger("jacorb.retry_interval",500);
+        doSupportSSL =
+            configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
+        transportManager = 
+            this.configuration.getORB().getTransportManager();
+
     }
 
     public ClientIIOPConnection (ClientIIOPConnection other)
@@ -128,7 +115,7 @@ public class ClientIIOPConnection
      * is successfully established it shall store the used Profile data.
      *
      */
-    public synchronized void connect (org.omg.ETF.Profile server_profile, long time_out)
+    public synchronized void connect(org.omg.ETF.Profile server_profile, long time_out)
     {
         if( ! connected )
         {
@@ -149,7 +136,7 @@ public class ClientIIOPConnection
             {
                //user has specified no timout or infinite timeout (0)
                //so we can use retries
-               retries = Environment.noOfRetries();
+               retries = noOfRetries;
             }
             else
             {
@@ -194,21 +181,20 @@ public class ClientIIOPConnection
                 }
                 catch ( IOException c )
                 {
-                    Debug.output( 3, c );
+                    if (logger.isDebugEnabled())
+                        logger.debug("Exception", c );
 
                     //only sleep and print message if we're actually
                     //going to retry
                     retries--;
                     if( retries >= 0 )
                     {
-                       if (logger.isInfoEnabled())
-                       {
-                           logger.info( "Retrying to connect to " +
-                                      connection_info );
-                       }
+                        if (logger.isInfoEnabled())
+                            logger.info("Retrying to connect to " +
+                                        connection_info );
                         try
                         {
-                            Thread.sleep( Environment.retryInterval() );
+                            Thread.sleep( retryInterval );
                         }
                         catch( InterruptedException i )
                         {
@@ -243,7 +229,8 @@ public class ClientIIOPConnection
      * the target profile, starting with the primary IIOP address,
      * and then any alternate IIOP addresses that have been specified.
      */
-    private void createSocket(long time_out) throws IOException
+    private void createSocket(long time_out) 
+        throws IOException
     {
         List addressList = new ArrayList();
         addressList.add    (target_profile.getAddress());
@@ -259,7 +246,9 @@ public class ClientIIOPConnection
             {
                 IIOPAddress address = (IIOPAddress)addressIterator.next();
 
-                final SocketFactory factory = getSocketFactory();
+                final SocketFactory factory = 
+                    transportManager.getSocketFactory(); /// ??? FIXME , Andre ???
+
                 final String ipAddress = address.getIP();
                 final int port = (use_ssl) ? ssl_port : address.getPort();
                 connection_info = ipAddress + ":" + port;
@@ -303,38 +292,42 @@ public class ClientIIOPConnection
                    thread.setDaemon(true);
                    try
                    {
-                      synchronized (self)
-                      {
-                         thread.start();
-                         self.wait(time_out);
-                      }
+                       synchronized (self)
+                       {
+                           thread.start();
+                           self.wait(time_out);
+                       }
                    }
-                   catch (InterruptedException _ex) { }
+                   catch (InterruptedException _ex) 
+                   { }
+                   
                    if (socket == null)
                    {
-                      if (exception == null)
-                      {
-                         if (logger.isDebugEnabled())
-                {
-                           logger.debug("connect to " + connection_info + " with timeout=" + time_out + " timed out");
-                         }
-                         thread.interrupt();
-                         exception = new TIMEOUT("connection timeout of " + time_out + " milliseconds expired");
+                       if (exception == null)
+                       {
+                           if (logger.isDebugEnabled())
+                           {
+                               logger.debug("connect to " + connection_info + 
+                                            " with timeout=" + time_out + " timed out");
+                           }
+                           thread.interrupt();
+                           exception = 
+                               new TIMEOUT("connection timeout of " + time_out + " milliseconds expired");
+                       }
+                       else
+                       {      
+                           if (logger.isDebugEnabled())
+                           {
+                               logger.debug("connect to " + connection_info + " with timeout="
+                                            + time_out + " raised exception: " + exception.toString());
+                           }                                               
+                       }
+                   }
                 }
                 else
                 {
-                         if (logger.isDebugEnabled())
-                         {
-                           logger.debug("connect to " + connection_info + " with timeout="
-                                         + time_out + " raised exception: " + exception.toString());
-                         }
-                }
-            }
-                }
-                else
-                {
-                   //no timeout --> may hang forever!
-                   socket = factory.createSocket(ipAddress, port);
+                    //no timeout --> may hang forever!
+                    socket = factory.createSocket(ipAddress, port);
                 }
             }
             catch (Exception e)
@@ -345,20 +338,20 @@ public class ClientIIOPConnection
 
         if (exception != null)
         {
-           if( exception instanceof IOException )
-        {
-              throw (IOException)exception;
-        }
-           else if( exception instanceof org.omg.CORBA.TIMEOUT )
-        {
-              throw (org.omg.CORBA.TIMEOUT)exception;
-        }
-        else
-        {
-              //not expected, because all used methods just throw IOExceptions or TIMEOUT
-              //but... never say never ;o)
-               throw new IOException ( "Unexpected exception occured: " + exception.toString() );
-           }
+            if( exception instanceof IOException )
+            {
+                throw (IOException)exception;
+            }
+            else if( exception instanceof org.omg.CORBA.TIMEOUT )
+            {
+                throw (org.omg.CORBA.TIMEOUT)exception;
+            }
+            else
+            {
+                //not expected, because all used methods just throw IOExceptions or TIMEOUT
+                //but... never say never ;o)
+                throw new IOException ( "Unexpected exception occured: " + exception.toString() );
+            }
         }
     }
 
@@ -467,21 +460,17 @@ public class ClientIIOPConnection
         int client_supported = 0;
 
         //only read in the properties if ssl is really supported.
-        if(  Environment.isPropertyOn( "jacorb.security.support_ssl" ))
+        if( doSupportSSL )
         {
-            client_required = Environment.getIntProperty
-            (
-                "jacorb.security.ssl.client.required_options", 16
-            );
-            client_supported = Environment.getIntProperty
-            (
-                "jacorb.security.ssl.client.supported_options", 16
-            );
+            client_required =
+                configuration.getAttributeAsInteger("jacorb.security.ssl.client.required_options", 16);
+            client_supported =
+                configuration.getAttributeAsInteger("jacorb.security.ssl.client.supported_options",16);
         }
 
         if( tls != null && // server knows about ssl...
             ((tls.target_supports & minimum_options) != 0) && //...and "really" supports it
-            Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+            doSupportSSL && //client knows about ssl...
             ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
             ( ((tls.target_requires & minimum_options) != 0) || //server ...
               ((client_required & minimum_options) != 0))) //...or client require it
@@ -497,7 +486,7 @@ public class ClientIIOPConnection
         }
         else if( ssl != null && // server knows about ssl...
             ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
-            Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+            doSupportSSL && //client knows about ssl...
             ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
             ( ((ssl.target_requires & minimum_options) != 0) || //server ...
               ((client_required & minimum_options) != 0))) //...or client require it
@@ -515,7 +504,7 @@ public class ClientIIOPConnection
         //prevent client policy violation, i.e. opening plain TCP
         //connections when SSL is required
         else if( // server doesn't know ssl...
-                 Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+                 doSupportSSL && //client knows about ssl...
                  ((client_required & minimum_options) != 0)) //...and requires it
         {
             throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires SSL/TLS, but server doesn't support it" );
@@ -525,16 +514,6 @@ public class ClientIIOPConnection
             use_ssl = false;
             ssl_port = -1;
         }
-    }
-
-    private SocketFactory getSocketFactory()
-    {
-        return TransportManager.socket_factory;
-    }
-
-    private SocketFactory getSSLSocketFactory()
-    {
-        return TransportManager.ssl_socket_factory;
     }
 
 }// Client_TCP_IP_Transport

@@ -1,33 +1,27 @@
 package org.jacorb.test.notification;
 
 import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.servant.AbstractProxyConsumerI;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.jacorb.notification.servant.AbstractProxyConsumerI;
-import org.jacorb.notification.interfaces.FilterStage;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class MessageFactoryTest extends TestCase {
+public class MessageFactoryTest extends NotificationTestCase {
 
-    ORB orb_;
     MessageFactory messageFactory_;
     NotificationTestUtils testUtils_;
     Any testPerson_;
@@ -63,10 +57,8 @@ public class MessageFactoryTest extends TestCase {
 
     public void testNewEventAny() throws Exception {
         Message _notifyEvent = messageFactory_.newMessage(testPerson_);
+
         assertNotNull(_notifyEvent);
-
-        System.out.println(_notifyEvent);
-
     }
 
 
@@ -98,7 +90,7 @@ public class MessageFactoryTest extends TestCase {
 
 
     public void testWrappedStructuredEventToStructuredEvent() throws Exception {
-        Any _wrappedStructuredEvent = orb_.create_any();
+        Any _wrappedStructuredEvent = getORB().create_any();
 
         StructuredEventHelper.insert(_wrappedStructuredEvent, testStructured_);
 
@@ -147,12 +139,10 @@ public class MessageFactoryTest extends TestCase {
 
 
     public void setUp() throws Exception {
-        orb_ = ORB.init(new String[0], null);
-        POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
-        testUtils_ = new NotificationTestUtils(orb_);
+        testUtils_ = new NotificationTestUtils(getORB());
 
         messageFactory_ = new MessageFactory();
-        messageFactory_.init();
+        messageFactory_.configure(getConfiguration());
 
         testPerson_ = testUtils_.getTestPersonAny();
 
@@ -168,30 +158,16 @@ public class MessageFactoryTest extends TestCase {
 
         testStructured_.filterable_data = new Property[0];
 
-        testStructured_.remainder_of_body = orb_.create_any();
+        testStructured_.remainder_of_body = getORB().create_any();
     }
 
 
-    public void tearDown() throws Exception {
-        super.tearDown();
+    public MessageFactoryTest(String test, NotificationTestCaseSetup setup) {
+        super(test, setup);
     }
 
 
-    public MessageFactoryTest(String test) {
-        super(test);
-    }
-
-
-    public static Test suite() {
-        TestSuite suite;
-
-        suite = new TestSuite(MessageFactoryTest.class);
-
-        return suite;
-    }
-
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+    public static Test suite() throws Exception {
+        return NotificationTestCase.suite(MessageFactoryTest.class);
     }
 }

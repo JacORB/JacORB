@@ -410,13 +410,9 @@ jacorb.imr.backup_file=z:\backup.dat
 jacorb.imr.ior_file=/home/bwana/brose/public_html/ImR_Ref
 # Time (msecs) that the implementation will wait for a started server to register.
 jacorb.imr.timeout=
-jacorb.imr.no_of_poas=
-jacorb.imr.no_of_servers=
-# Host for IMR. This shouldn't normally be set
-# (the listener should start on the local host) but this is useful to force a host.
-#jacorb.imr.host=
-# Start IMR on a fixed port (equivilant to -p option) (for the IOR)
-jacorb.imr.port_number=
+
+# Host for ImR endpoint
+jacorb.imr.endpoint_host=
 # Port number for IMR endpoint
 jacorb.imr.endpoint_port_number=
 

@@ -1,52 +1,43 @@
 package org.jacorb.test.notification;
 
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.PortableServer.POAHelper;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.ConstraintEntry;
 import org.jacorb.notification.FilterFactoryImpl;
 import org.jacorb.notification.FilterImpl;
 import org.jacorb.notification.filter.FilterUtils;
-import org.jacorb.notification.filter.DynamicEvaluator;
 
 import java.util.Iterator;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class FilterImplTest extends TestCase {
+public class FilterImplTest extends NotificationTestCase {
 
-    /**
-     * the testling
-     */
     FilterImpl filter_;
 
     ApplicationContext appContext_;
 
     ////////////////////////////////////////
 
-    public FilterImplTest(String test) {
-        super(test);
+    public FilterImplTest(String test, NotificationTestCaseSetup setup) {
+        super(test, setup);
     }
 
     ////////////////////////////////////////
 
     public void setUp() throws Exception {
-        ORB _orb = ORB.init(new String[0], null);
-
         appContext_ =
-            new ApplicationContext(_orb, POAHelper.narrow(_orb.resolve_initial_references("RootPOA")));
+            new ApplicationContext(getORB(), getPOA() );
+
+        appContext_.configure(getConfiguration());
 
         filter_ = new FilterImpl(appContext_, FilterFactoryImpl.CONSTRAINT_GRAMMAR);
     }
@@ -54,6 +45,7 @@ public class FilterImplTest extends TestCase {
 
     public void tearDown() throws Exception {
         super.tearDown();
+
         appContext_.dispose();
     }
 
@@ -232,12 +224,7 @@ public class FilterImplTest extends TestCase {
     }
 
 
-    public static Test suite() {
-        return new TestSuite(FilterImplTest.class);
-    }
-
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+    public static Test suite() throws Exception {
+        return NotificationTestCase.suite(FilterImplTest.class);
     }
 }

@@ -20,3 +20,4 @@ jacorb.security.keystore_password=jsse_server_ks_pass
 # Read trusted certificates from the keystore
 jacorb.security.jsse.trustees_from_ks=on
 
+jacorb.security.jsse.log.verbosity=4

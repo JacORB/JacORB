@@ -23,7 +23,6 @@ package org.jacorb.notification;
 
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.ProxyEventListener;
-import org.jacorb.util.Debug;
 
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
@@ -32,21 +31,24 @@ import org.omg.CosNotifyFilter.FilterFactory;
 import org.apache.avalon.framework.logger.Logger;
 import org.omg.PortableServer.POA;
 import org.omg.CORBA.ORB;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.queue.EventQueueFactory;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class ChannelContext
+public class ChannelContext implements Configurable
 {
     private ORB orb_;
 
     private POA poa_;
 
     private MessageFactory messageFactory_;
-
-    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private EventChannelImpl eventChannelServant_;
 
@@ -58,7 +60,18 @@ public class ChannelContext
 
     private TaskProcessor taskProcessor_;
 
+    private EventQueueFactory eventQueueFactory_ = new EventQueueFactory();
+
     ////////////////////////////////////////
+
+    public void configure(Configuration configuration) throws ConfigurationException {
+        eventQueueFactory_.configure(configuration);
+    }
+
+    public EventQueueFactory getEventQueueFactory() {
+        return eventQueueFactory_;
+    }
+
 
     public TaskProcessor getTaskProcessor()
     {
@@ -116,11 +129,10 @@ public class ChannelContext
 
     public void setEventChannelServant(EventChannelImpl argEventChannelServant)
     {
-        logger_.debug("setEventChannelServant(" + argEventChannelServant + ")");
         if (argEventChannelServant == null)
-        {
-            throw new RuntimeException();
-        }
+            {
+                throw new RuntimeException();
+            }
         eventChannelServant_ = argEventChannelServant;
     }
 
@@ -149,6 +161,12 @@ public class ChannelContext
 
     public void setORB(ORB orb) {
         orb_ = orb;
+
+        try {
+            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

@@ -83,24 +83,60 @@
 
 
   <target name="compile-src-notification" 
-    depends="test-init, check-regexp" 
-    if="regexp.available">
+    depends="test-init" >
 
     <antcall target="jacorb-javac">
-      <param name="javac-includes" value="org/jacorb/test/notification/**"/>     
+      <param name="javac-includes"
+	value="org/jacorb/test/notification/**"/>     
+      <param name="javac-excludes" 
+	value="org/jacorb/test/notification/util/regexp/**"/>
       <param name="javac-src" value="${src}" />
       <param name="javac-sourcepath" value="${src}/generated" />
     </antcall>
 
+    <antcall target="compile-src-notification-regexp" />
   </target>
 
+  <target name="compile-src-notification-regexp"
+    depends="test-init, check-regexp, compile-src-notification-jdk14,
+    compile-src-notification-jakarta, compile-src-notification-gnu" />
+
+  <target name="compile-src-notification-jdk14"
+    if="available.regexp.jdk" >
+
+    <antcall target="jacorb-javac">
+      <param name="javac-includes"
+	value="org/jacorb/test/notification/util/regexp/JDK14*"/>     
+      <param name="javac-src" value="${src}" />
+    </antcall>
+  </target>
+
+  <target name="compile-src-notification-jakarta"
+    if="available.regexp.jakarta-regexp" >
+
+    <antcall target="jacorb-javac">
+      <param name="javac-includes"
+	value="org/jacorb/test/notification/util/regexp/Jakarta*"/>     
+      <param name="javac-src" value="${src}" />
+    </antcall>
+  </target>
+
+  <target name="compile-src-notification-gnu"
+    if="available.regexp.gnu" >
+
+    <antcall target="jacorb-javac">
+      <param name="javac-includes"
+	value="org/jacorb/test/notification/util/regexp/GNU*"/>     
+      <param name="javac-src" value="${src}" />
+    </antcall>
+  </target>
+  
 
   <target name="compile-src">
     <antcall target="jacorb-javac">
       <param name="javac-includes" value="**"/>
       <param name="javac-excludes" value="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**"/>
     </antcall>
-
     <antcall target="compile-src-notification" />
   </target>
 
@@ -125,7 +161,7 @@
 
 
    <target name="run" depends="build-all" >
-      <junit fork="yes" printsummary="withOutAndErr" showoutput="false">
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
@@ -429,6 +465,21 @@
       </antcall>
    </target>
 
+
+
+   <!-- ==================================================== -->
+   <!--                  run POA tests                       -->
+   <!-- ==================================================== -->
+
+
+   <target name="run-all-poa"
+           description="Run all Jacorb tests in the poa package and its subpackages">
+      <antcall target="run">
+         <param name="test" value="org.jacorb.test.poa.AllTest"/>
+      </antcall>
+   </target>
+
+
    <!-- ==================================================== -->
    <!--                  run rmi tests                       -->
    <!-- ==================================================== -->
@@ -518,20 +569,49 @@
    <!-- ==================================================== -->
 
 
-   <target name="run-all-notification"
-           description="Run all Jacorb tests in the notification package and its subpackages">
-      <antcall target="run">
-         <param name="test" value="org.jacorb.test.notification.AllTest"/>
-      </antcall>
-   </target>
+  <target name="run-all-notification"
+    description="Run all Jacorb tests in the notification package and its subpackages">
 
+    <antcall target="run">
+      <param name="test" value="org.jacorb.test.notification.AllTest"/>
+    </antcall>
+    
+    <antcall target="run-notification-regexp" />
+  </target>
+  
 
    <target name="run-all-notification-no-build"
-           description="Run all Jacorb tests in the notification package and its subpackages">
-      <antcall target="run-no-build">
-         <param name="test" value="org.jacorb.test.notification.AllTest"/>
-      </antcall>
+     description="Run all Jacorb tests in the notification package and its subpackages">
+
+    <antcall target="run-no-build">
+      <param name="test" value="org.jacorb.test.notification.AllTest"/>
+    </antcall>
+    
+    <antcall target="run-notification-regexp" />
    </target>
+
+
+  <target name="run-notification-regexp" depends="check-regexp,
+    run-notification-regexp-jdk14, run-notification-regexp-gnu,
+    run-notification-regexp-jakarta" />
+
+  <target name="run-notification-regexp-jdk14" if="available.regexp.jdk">
+    <antcall target="run-no-build" >
+      <param name="test" value="org.jacorb.test.notification.util.regexp.JDK14PatternWrapperTest" />
+    </antcall>
+  </target>
+    
+  <target name="run-notification-regexp-gnu" if="available.regexp.gnu">
+    <antcall target="run-no-build" >
+      <param name="test" value="org.jacorb.test.notification.util.regexp.GNUPatternWrapperTest" />
+    </antcall>
+  </target>
+
+  <target name="run-notification-regexp-jakarta" if="available.regexp.jakarta-regexp">
+    <antcall target="run-no-build" >
+      <param name="test" value="org.jacorb.test.notification.util.regexp.JakartaRegexpPatternWrapperTest" />
+    </antcall>
+  </target>
 
 
   <target name="run-all-notification-rebuild" 
@@ -572,6 +652,7 @@
       <param name="test" value="org.jacorb.test.notification.util.PackageTest"/>
     </antcall>
 
+    <antcall target="run-notification-regexp" />
   </target>
 
    <!-- ==================================================== -->

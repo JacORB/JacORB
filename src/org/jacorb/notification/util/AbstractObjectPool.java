@@ -25,10 +25,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.util.Debug;
-
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must
@@ -41,7 +41,8 @@ import org.apache.avalon.framework.logger.Logger;
  * @version $Id$
  */
 
-public abstract class AbstractObjectPool implements Runnable, Disposable
+public abstract class AbstractObjectPool
+    implements Runnable, Configurable
 {
     public static final boolean DEBUG = false;
 
@@ -70,7 +71,8 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
         startListCleaner();
     }
 
-    static synchronized void deregisterPool( AbstractObjectPool pool )
+
+    public static synchronized void deregisterPool( AbstractObjectPool pool )
     {
         sPoolsToLookAfter.remove( pool );
 
@@ -79,6 +81,7 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
             stopListCleaner();
         }
     }
+
 
     static class ListCleaner extends Thread
     {
@@ -127,7 +130,7 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
                 }
                 catch ( Throwable t )
                 {
-                    logger_.fatalError( "Error while cleaning Pool", t );
+//                     logger_.fatalError( "Error while cleaning Pool", t );
                 }
             }
         }
@@ -176,8 +179,6 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
         }
     }
 
-    static Logger logger_ = Debug.getNamedLogger( AbstractObjectPool.class.getName() );
-
     String name_;
 
     LinkedList pool_;
@@ -211,6 +212,19 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
      */
     int initialSize_;
 
+
+    protected Logger logger_;
+    private Configuration config_;
+
+    public void configure (Configuration conf)
+    {
+        this.config_ = conf;
+        logger_ =  ((org.jacorb.config.Configuration)conf).
+            getNamedLogger( getClass().getName() );
+        this.init();
+    }
+
+
     protected AbstractObjectPool(String name)
     {
         this( name,
@@ -242,7 +256,12 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
             for ( int x = 0; x < sizeIncrease_; ++x )
             {
                 Object _i = newInstance();
-
+                try {
+                    ((Configurable)_i).configure (this.config_);
+                } catch (ClassCastException cce) {
+                    // no worries, just don't configure
+                } catch (ConfigurationException ce) {
+                }
                 ++instanceCount_;
 
                 pool_.add( _i );
@@ -259,6 +278,12 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
         for ( int x = 0; x < initialSize_; ++x )
         {
             Object _i = newInstance();
+            try {
+                ((Configurable)_i).configure (this.config_);
+            } catch (ClassCastException cce) {
+                // no worries, just don't configure
+            } catch (ConfigurationException ce) {
+            }
 
             ++instanceCount_;
 
@@ -304,6 +329,8 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
 
         ++lendCount_;
 
+        //        logger_.debug("lendObject " + _ret);
+
         return _ret;
     }
 
@@ -312,6 +339,8 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
      */
     public void returnObject( Object o )
     {
+        //logger_.debug("returnObject " + o);
+
         ++returnCount_;
 
         if ( active_.remove( o ) )
@@ -333,9 +362,11 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
             }
         else
             {
+
                 // ignore
-                logger_.warn( "Object " + o + " was not in pool " + name_ +". multiple release?" );
+//                 logger_.warn( "Object " + o + " was not in pool " + name_ +". multiple release?" );
                 //                throw new RuntimeException();
+
             }
     }
 
@@ -362,5 +393,4 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
      */
     public void destroyObject( Object o )
     {}
-
 }

@@ -20,7 +20,7 @@ public class PixelImage  {
     private int height;
 
     /**
-      The constructor. Set up buffer. 
+      The constructor. Set up buffer.
 
       @param height the images height.
       @param width the images width.
@@ -68,7 +68,7 @@ public class PixelImage  {
     }
 
     /**
-     * gets the pixel buffer of this image. 
+     * gets the pixel buffer of this image.
      *
      * @return the pixel buffer.
      */
@@ -81,10 +81,10 @@ public class PixelImage  {
     }
 
     /**
-       draws a line in the image. The incremental line scan-conversion 
+       draws a line in the image. The incremental line scan-conversion
        algorithm is used (see "Computer Graphics"; Foley, vanDam,Feiner,Hughes).
        (x0,y0) is the starting point, (x1,y1) the ending point.
-       
+
      */
 
     public void drawLine(int x0,int y0, int x1, int y1,
@@ -146,6 +146,3 @@ public class PixelImage  {
 
 
 } // PixelImage
-
-
-

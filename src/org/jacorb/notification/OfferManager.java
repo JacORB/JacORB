@@ -29,10 +29,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -42,18 +38,14 @@ public class OfferManager
     extends EventTypeSet
     implements NotifyPublishOperations {
 
-    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     private List listeners_ = new ArrayList();
 
     ////////////////////////////////////////
-
     public void addListener(NotifyPublishOperations listener) {
         synchronized(listeners_) {
             listeners_.add(listener);
         }
     }
-
 
     public void removeListener(NotifyPublishOperations listener) {
         synchronized(listeners_) {
@@ -75,7 +67,7 @@ public class OfferManager
                 try {
                     _listener.offer_change(added, removed);
                 } catch (Throwable t) {
-                    logger_.error("unable to offer_change", t);
+                     logger_.error("unable to offer_change", t);
                 }
             }
         }
@@ -86,7 +78,7 @@ public class OfferManager
         try {
             changeSet(added, removed);
         } catch (InterruptedException e) {
-            logger_.fatalError("interrupted", e);
+             logger_.fatalError("interrupted", e);
 
             throw new UNKNOWN();
         }
@@ -97,7 +89,7 @@ public class OfferManager
         try {
             return getAllTypes();
         } catch (InterruptedException e) {
-            logger_.fatalError("interrupted", e);
+             logger_.fatalError("interrupted", e);
 
             throw new UNKNOWN();
         }

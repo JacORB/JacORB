@@ -3,7 +3,7 @@ package org.jacorb.security.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2000-2003  Gerald Brose.
+ *   Copyright (C) 2000-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -47,7 +47,6 @@ import iaik.x509.extensions.*;
 
 public class CertUtils
 {
-
     /**
      * @return - a self signed X509v3 public key certificate 
      *
@@ -58,12 +57,10 @@ public class CertUtils
      * and md5WithRSAEncryption for RSA keys
      */
     
-    public static iaik.x509.X509Certificate createPublicKeyCert(
-								iaik.asn1.structures.Name subject,
+    public static iaik.x509.X509Certificate createPublicKeyCert(iaik.asn1.structures.Name subject,
 								iaik.asn1.structures.Name issuer,
 								java.security.PublicKey subjectKey, 
-								java.security.PrivateKey privKey
-								)
+								java.security.PrivateKey privKey)
 	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
 	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
     {
@@ -94,7 +91,8 @@ public class CertUtils
 	    cert.sign(iaik.asn1.structures.AlgorithmID.md5WithRSAEncryption, 
 		      privKey);
 	else
-	    throw new java.security.InvalidKeyException("Unknown private key: " + privKey.getClass().getName());
+	    throw new java.security.InvalidKeyException("Unknown private key: " + 
+                                                        privKey.getClass().getName());
 
 	return cert;
     }
@@ -178,6 +176,8 @@ public class CertUtils
     }
 
     public static String getCertLabel(java.security.cert.X509Certificate cert)
+	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
+	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
     {
 	String label = getRoleName(cert);
 	if( label == null )
@@ -188,55 +188,57 @@ public class CertUtils
     }
 
     public static String getRoleName(java.security.cert.X509Certificate cert)
+	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
+	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
     {
-	try
-	{
-	    iaik.x509.X509Certificate c;
-
-	    try
-	    {
-		c = (iaik.x509.X509Certificate)cert;
-	    }
-	    catch( ClassCastException ccce )
-	    {
-		c = new iaik.x509.X509Certificate( cert.getEncoded());
-	    }
-
-	    if( !c.hasExtensions())
-		return null;
-
-	    c.checkValidity();
-	    
-	    for( Enumeration extensions = c.listExtensions(); extensions.hasMoreElements();)
-	    {
-		iaik.x509.V3Extension e = (iaik.x509.V3Extension)extensions.nextElement();
-		if( e instanceof SubjectAltName )
-		{
-		    SubjectAltName san = (SubjectAltName)e;
-		    GeneralNames gn = san.getGeneralNames();
-		    for( Enumeration g = gn.getNames(); g.hasMoreElements(); )
-		    {
-			GeneralName generalName = (GeneralName)g.nextElement();
-			if( generalName.getType() == GeneralName.rfc822Name )
-			{
-			    String value = (String)generalName.getName();
-			    if( value.startsWith("role:"))
-				return value.substring(5);;
-			}
-		    }
-		}
-	    }
-	    // nothing found
-	    return null;
-	}
-	catch( Exception e)
-	{
-	    e.printStackTrace();
-	    return null;
-	}
+        iaik.x509.X509Certificate c;
+        
+        try
+        {
+            c = (iaik.x509.X509Certificate)cert;
+        }
+        catch( ClassCastException ccce )
+        {
+            c = new iaik.x509.X509Certificate( cert.getEncoded());
+        }
+        
+        if( !c.hasExtensions())
+            return null;
+        
+        c.checkValidity();
+        
+        for( Enumeration extensions = c.listExtensions(); extensions.hasMoreElements();)
+        {
+            iaik.x509.V3Extension e = (iaik.x509.V3Extension)extensions.nextElement();
+            if( e instanceof SubjectAltName )
+            {
+                SubjectAltName san = (SubjectAltName)e;
+                GeneralNames gn = san.getGeneralNames();
+                for( Enumeration g = gn.getNames(); g.hasMoreElements(); )
+                {
+                    GeneralName generalName = (GeneralName)g.nextElement();
+                    if( generalName.getType() == GeneralName.rfc822Name )
+                    {
+                        String value = (String)generalName.getName();
+                        if( value.startsWith("role:"))
+                            return value.substring(5);;
+                    }
+                }
+            }
+        }
+        // nothing found
+        return null;
+// 	}
+// 	catch( Exception e)
+// 	{
+// 	    e.printStackTrace();
+// 	    return null;
+// 	}
     }
 
     public static boolean isRoleCert(java.security.cert.X509Certificate cert)
+	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
+	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
     {	
 	try
 	{
@@ -305,53 +307,40 @@ public class CertUtils
     public static boolean verifyCertificateChain ( java.security.cert.X509Certificate[] chain,
 						   java.security.KeyStore keyStore
 						 )
+	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
+	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException, 
+        java.security.NoSuchProviderException, java.security.KeyStoreException, 
+        java.security.SignatureException
     {
 	int len = chain.length;
-	try 
-	{
-	    chain[ len - 1 ].verify( chain [ len - 1 ].getPublicKey ());
+        chain[ len - 1 ].verify( chain [ len - 1 ].getPublicKey ());
 
-	    for ( int i = len - 1; i > 0; i-- ) {
-		org.jacorb.util.Debug.output( 3, "verifying chain[ " + (i-1) + " ]");
-		chain[ i - 1 ].verify( chain[ i ].getPublicKey ());
-	    }
-
-	    // this won't work: the name is not an alias.
-	    String alias = chain[ len - 1 ].getIssuerDN ().getName();
-	    int index = alias.indexOf ( "CN=" ) + 3;
-	    int l = alias.length ();
-	    org.jacorb.util.Debug.output(4, "index = " + index + " l = " + l );
-	    alias = alias.substring ( index, l  ); 
-	    org.jacorb.util.Debug.output(4, "check if " + alias + " is a trusted certificate entry in key store" );
-	    return keyStore.isCertificateEntry( alias );
-	} 
-	catch ( Exception ex ) 
-	{ 
-	    org.jacorb.util.Debug.output(3, "exection: " + ex.toString ());
-	    return false; 
-	}
-    }
-
-    public static java.security.cert.X509Certificate readCertificate(String fileName)
-    {
-	try 
-	{        
-            java.security.cert.CertificateFactory factory = 
-                java.security.cert.CertificateFactory.getInstance("X.509", "IAIK") ;
-            return (java.security.cert.X509Certificate)factory.generateCertificate( new FileInputStream( fileName ));
+        for ( int i = len - 1; i > 0; i-- ) 
+        {
+            chain[ i - 1 ].verify( chain[ i ].getPublicKey ());
         }
-	catch ( Exception ex ) 
-	{ 
-	    org.jacorb.util.Debug.output(1, ex);
-	    return null; 
-	}
+        
+        // this won't work: the name is not an alias.
+        String alias = chain[ len - 1 ].getIssuerDN ().getName();
+        int index = alias.indexOf ( "CN=" ) + 3;
+        int l = alias.length ();
+        alias = alias.substring ( index, l  ); 
+        return keyStore.isCertificateEntry( alias );
+    }
+    
+    public static java.security.cert.X509Certificate readCertificate(String fileName)
+	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
+	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException,
+        java.security.NoSuchProviderException, java.io.IOException
+    {
+        java.security.cert.CertificateFactory factory = 
+            java.security.cert.CertificateFactory.getInstance("X.509", "IAIK") ;
+        return (java.security.cert.X509Certificate)factory.generateCertificate( 
+            new FileInputStream( fileName ));
     }
 
 
 }
-
-
-
 
 
 

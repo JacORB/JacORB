@@ -22,6 +22,9 @@ package org.jacorb.ir;
 
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.TCKind;
+import org.omg.PortableServer.POA;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * Base class and factory for anonymous IDLType objects
@@ -35,7 +38,7 @@ public class IDLType
     implements org.omg.CORBA.IDLTypeOperations
 {
     protected org.omg.CORBA.TypeCode type;
-    
+
     public org.omg.CORBA.TypeCode type()
     {
         return type;
@@ -51,7 +54,8 @@ public class IDLType
     {
     }
 
-    private IDLType( TypeCode tc, org.omg.CORBA.Repository ir )
+    private IDLType( TypeCode tc, 
+                     org.omg.CORBA.Repository ir )
     {
         type = tc;
     }
@@ -60,34 +64,42 @@ public class IDLType
      * Factory method for IDLType objects
      */
     public static org.omg.CORBA.IDLType create( TypeCode tc, 
-                                                org.omg.CORBA.Repository ir )
+                                                org.omg.CORBA.Repository ir,
+                                                Logger logger,
+                                                POA poa )
     {
-        return create( tc, ir, false );
+        return create( tc, ir, false, logger, poa );
     }
 
 
     public static org.omg.CORBA.IDLType create( TypeCode tc, 
                                                 org.omg.CORBA.Repository ir,
-                                                boolean define)
+                                                boolean define,
+                                                Logger logger,
+                                                POA poa)
     {
-        org.jacorb.util.Debug.output(3, "IDLType create for tc kind " + 
-                                     tc.kind().value());
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("IDLType create for tc kind " + 
+                         tc.kind().value());
+        }
 
         if( tc == null ) // PIDLs
             return null;
 
         if( org.jacorb.orb.TypeCode.isRecursive(tc) )
         {
-            org.jacorb.util.Debug.output(2,"Placeholder for recursive sequence");
+            logger.debug("Placeholder for recursive sequence");
+
             try
             { 
                 return org.omg.CORBA.IDLTypeHelper.narrow( 
-                   RepositoryImpl.poa.servant_to_reference(
-                       new org.omg.CORBA.IDLTypePOATie( new IDLType( tc,ir ))));
+                    poa.servant_to_reference(
+                        new org.omg.CORBA.IDLTypePOATie( new IDLType( tc,ir ))));
             }
             catch( Exception e )
             { 
-                e.printStackTrace();
+                logger.error("Caught Exception", e);
             }
         }
 
@@ -95,112 +107,116 @@ public class IDLType
 
         switch (kind)
         {
-        case TCKind._tk_null: 
-        case TCKind._tk_void: 
-        case TCKind._tk_short: 
-        case TCKind._tk_long: 
-        case TCKind._tk_ushort:
-        case TCKind._tk_ulong: 
-        case TCKind._tk_float:
-        case TCKind._tk_double:
-        case TCKind._tk_boolean:
-        case TCKind._tk_char: 
-        case TCKind._tk_longlong: 
-        case TCKind._tk_ulonglong: 
-        case TCKind._tk_longdouble: 
-        case TCKind._tk_wchar: 
-        case TCKind._tk_octet:
-        case TCKind._tk_any: 
-        case TCKind._tk_TypeCode: 
-        case TCKind._tk_Principal: 
-            try
-            { 
-                PrimitiveDef pd = new PrimitiveDef( tc );
-                return org.omg.CORBA.PrimitiveDefHelper.narrow( 
-                     RepositoryImpl.poa.servant_to_reference(
+            case TCKind._tk_null: 
+            case TCKind._tk_void: 
+            case TCKind._tk_short: 
+            case TCKind._tk_long: 
+            case TCKind._tk_ushort:
+            case TCKind._tk_ulong: 
+            case TCKind._tk_float:
+            case TCKind._tk_double:
+            case TCKind._tk_boolean:
+            case TCKind._tk_char: 
+            case TCKind._tk_longlong: 
+            case TCKind._tk_ulonglong: 
+            case TCKind._tk_longdouble: 
+            case TCKind._tk_wchar: 
+            case TCKind._tk_octet:
+            case TCKind._tk_any: 
+            case TCKind._tk_TypeCode: 
+            case TCKind._tk_Principal: 
+                try
+                { 
+                    PrimitiveDef pd = new PrimitiveDef( tc );
+                    return org.omg.CORBA.PrimitiveDefHelper.narrow( 
+                        poa.servant_to_reference(
                             new org.omg.CORBA.PrimitiveDefPOATie( pd )));
-            }
-            catch( Exception e )
-            { 
-                e.printStackTrace();
-            }
-        case TCKind._tk_alias:
-        case TCKind._tk_struct: 
-        case TCKind._tk_except: 
-        case TCKind._tk_union:
-        case TCKind._tk_enum: 
-            try
-            {  
-                return org.omg.CORBA.IDLTypeHelper.narrow( ir.lookup_id( tc.id() ));
-            }
-            catch( Exception e )
-            { 
-                e.printStackTrace();
-                // does not happen here
-            }
-        case TCKind._tk_string: 
-            try
-            {
-                if( tc.length() == 0)
-                {
-                    return org.omg.CORBA.PrimitiveDefHelper.narrow( 
-                       RepositoryImpl.poa.servant_to_reference( 
-                          new org.omg.CORBA.PrimitiveDefPOATie( new PrimitiveDef( tc ))));
                 }
-                else
-                {
-                    return org.omg.CORBA.StringDefHelper.narrow( 
-                       RepositoryImpl.poa.servant_to_reference(
-                          new org.omg.CORBA.StringDefPOATie( new StringDef( tc ))));
+                catch( Exception e )
+                { 
+                    logger.error("Caught Exception", e);
                 }
-            }
-            catch( Exception e )
-            {
-                e.printStackTrace();
-                return null;
-            }
-        case TCKind._tk_wstring: 
-            try
-            {
-                if( tc.length() == 0)
-                {
-                    return org.omg.CORBA.PrimitiveDefHelper.narrow( 
-                       RepositoryImpl.poa.servant_to_reference( 
-                          new org.omg.CORBA.PrimitiveDefPOATie( new PrimitiveDef( tc ))));
+            case TCKind._tk_alias:
+            case TCKind._tk_struct: 
+            case TCKind._tk_except: 
+            case TCKind._tk_union:
+            case TCKind._tk_enum: 
+                try
+                {  
+                    return org.omg.CORBA.IDLTypeHelper.narrow( ir.lookup_id( tc.id() ));
                 }
-                else
-                {
-                    return org.omg.CORBA.WstringDefHelper.narrow( 
-                       RepositoryImpl.poa.servant_to_reference(
-                          new org.omg.CORBA.WstringDefPOATie( new WstringDef( tc ))));
+                catch( Exception e )
+                { 
+                    logger.error("Caught Exception", e);
+                    // does not happen here
                 }
-            }
-            catch( Exception e )
-            {
-                e.printStackTrace();
-                return null;
-            }
-        case TCKind._tk_fixed: 
-            try
-            {
-                return org.omg.CORBA.FixedDefHelper.narrow( 
-                     RepositoryImpl.poa.servant_to_reference(
-                        new org.omg.CORBA.FixedDefPOATie( new FixedDef( tc ))));
-            }
-            catch( Exception e )
-            {
-                e.printStackTrace();
-                return null;
-            }
-        case TCKind._tk_objref: 
+            case TCKind._tk_string: 
+                try
+                {
+                    if( tc.length() == 0)
+                    {
+                        return org.omg.CORBA.PrimitiveDefHelper.narrow( 
+                            poa.servant_to_reference( 
+                                new org.omg.CORBA.PrimitiveDefPOATie( new PrimitiveDef( tc ))));
+                    }
+                    else
+                    {
+                        return org.omg.CORBA.StringDefHelper.narrow( 
+                            poa.servant_to_reference(
+                                new org.omg.CORBA.StringDefPOATie( new StringDef( tc ))));
+                    }
+                }
+                catch( Exception e )
+                {
+                    logger.error("Caught Exception", e);
+                    return null;
+                }
+            case TCKind._tk_wstring: 
+                try
+                {
+                    if( tc.length() == 0)
+                    {
+                        return org.omg.CORBA.PrimitiveDefHelper.narrow( 
+                            poa.servant_to_reference( 
+                                new org.omg.CORBA.PrimitiveDefPOATie( new PrimitiveDef( tc ))));
+                    }
+                    else
+                    {
+                        return org.omg.CORBA.WstringDefHelper.narrow( 
+                            poa.servant_to_reference(
+                                new org.omg.CORBA.WstringDefPOATie( new WstringDef( tc ))));
+                    }
+                }
+                catch( Exception e )
+                {
+                    logger.error("Caught Exception", e);
+                    return null;
+                }
+            case TCKind._tk_fixed: 
+                try
+                {
+                    return org.omg.CORBA.FixedDefHelper.narrow( 
+                        poa.servant_to_reference(
+                            new org.omg.CORBA.FixedDefPOATie( new FixedDef( tc ))));
+                }
+                catch( Exception e )
+                {
+                    logger.error("Caught Exception", e);
+                    return null;
+                }
+            case TCKind._tk_objref: 
             {
                 try
                 {
-                    org.jacorb.util.Debug.output(3, "IDLType create for " + tc.id() );
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug("IDLType create for " + tc.id());
+                    }
+
                     if( tc.id().equals("IDL:omg.org/CORBA/Object:1.0"))
                     {
                         return org.omg.CORBA.PrimitiveDefHelper.narrow( 
-                            RepositoryImpl.poa.servant_to_reference(
+                            poa.servant_to_reference(
                                 new org.omg.CORBA.PrimitiveDefPOATie( new PrimitiveDef( tc ))));
                     }
                     else
@@ -210,43 +226,43 @@ public class IDLType
                 }
                 catch( Exception e )
                 { 
-                    e.printStackTrace();
+                    logger.error("Caught Exception", e);
                     return null;
                 }
             }
-        case TCKind._tk_sequence: 
-            try
-            {
-                SequenceDef sd = new SequenceDef( tc, ir );
-                if( define )
-                    sd.define();
-                return org.omg.CORBA.SequenceDefHelper.narrow( 
-                              RepositoryImpl.poa.servant_to_reference(
-                                     new org.omg.CORBA.SequenceDefPOATie( sd )));
-            }
-            catch( Exception e )
-            { 
-                e.printStackTrace();
+            case TCKind._tk_sequence: 
+                try
+                {
+                    SequenceDef sd = new SequenceDef( tc, ir, logger, poa );
+                    if( define )
+                        sd.define();
+                    return org.omg.CORBA.SequenceDefHelper.narrow( 
+                        poa.servant_to_reference(
+                            new org.omg.CORBA.SequenceDefPOATie( sd )));
+                }
+                catch( Exception e )
+                { 
+                    logger.error("Caught Exception", e);
+                    return null;
+                }
+            case TCKind._tk_array:
+                try
+                {
+                    ArrayDef ad = new ArrayDef( tc, ir, logger, poa );
+                    if( define )
+                        ad.define();
+                    return org.omg.CORBA.ArrayDefHelper.narrow( 
+                        poa.servant_to_reference(
+                            new org.omg.CORBA.ArrayDefPOATie( ad )));
+                }
+                catch( Exception e )
+                { 
+                    logger.error("Caught Exception", e);
+                    return null;
+                }
+            default: 
+                logger.warn("IDL type returns null for tc kind " + kind );
                 return null;
-            }
-        case TCKind._tk_array:
-            try
-            {
-                ArrayDef ad = new ArrayDef( tc, ir );
-                if( define )
-                    ad.define();
-                return org.omg.CORBA.ArrayDefHelper.narrow( 
-                         RepositoryImpl.poa.servant_to_reference(
-                             new org.omg.CORBA.ArrayDefPOATie( ad )));
-            }
-            catch( Exception e )
-            { 
-                e.printStackTrace();
-                return null;
-            }
-        default: 
-            org.jacorb.util.Debug.output(1,"WARNING! IDL type returns null for tc kind " + kind );
-            return null;
         }
     }
 }

@@ -20,10 +20,12 @@
 
 package org.jacorb.orb.giop;
 
+import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
+
 import java.io.*;
 
 import org.jacorb.orb.iiop.*;
-import org.jacorb.util.*;
 
 /**
  * @author Nicolas Noffke
@@ -44,9 +46,8 @@ public class ServerGIOPConnection
         0, 0, 0, 0 // message size, 0 because CloseConnection has no body
     };
 
-
     private GIOPConnectionManager manager = null;
-
+    private Logger logger = null;
     private boolean closeOnReadTimeout = false;
     private boolean delayClose = false;
 
@@ -58,11 +59,18 @@ public class ServerGIOPConnection
                                  GIOPConnectionManager manager )
     {
         super( profile, transport, request_listener, reply_listener, statistics_provider );
-
         this.manager = manager;
+    }
 
+
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        super.configure(configuration);
+        logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.giop.conn");
         delayClose =
-            Environment.isPropertyOn( "jacorb.connection.delay_close" );
+            configuration.getAttribute("jacorb.connection.delay_close","off").equals("on");
     }
 
 
@@ -153,7 +161,8 @@ public class ServerGIOPConnection
         }
         catch( org.omg.CORBA.COMM_FAILURE e )
         {
-            Debug.output( 1, e );
+            if (logger.isErrorEnabled())
+                logger.error("COMM_FAILURE" , e );
         }
         finally
         {

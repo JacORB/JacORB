@@ -28,7 +28,6 @@ import org.omg.IOP.CodecFactory;
 import java.util.*;
 
 import org.jacorb.orb.ORB;
-import org.jacorb.util.Debug;
 
 /**
  * This class represents the type of info object
@@ -225,7 +224,6 @@ public class ORBInitInfoImpl
         catch (Exception e)
         {
             //shouldn't happen anyway
-            Debug.output(4, e.getMessage());
         }
         return null;
     }

@@ -20,13 +20,14 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambrigde, MA 02139, USA.
  */
 
-import org.jacorb.util.Environment;
-
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.*;
 
 import java.util.*;
 import java.io.*;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 /**
  * The Interface Repository. 
@@ -44,22 +45,28 @@ import java.io.*;
 
 public class RepositoryImpl
     extends IRObject
-    implements org.omg.CORBA.RepositoryOperations
+    implements org.omg.CORBA.RepositoryOperations, Configurable
+
 {
     private String		classpath;
     private Hashtable		contained = new Hashtable();
     private Container[]         containers ;
     private Container           delegate ;
 
-    /** global variable for all IR objects */
-    public static  POA          poa;
-    public static  ClassLoader  loader;
+    private POA poa;
+    private ClassLoader loader;
 
     public static char 	        fileSeparator = 
         System.getProperty("file.separator").charAt(0);
  
     public static String 	pathSeparator = 
         System.getProperty("path.separator");
+
+    /** the configuration object for this IR instance */
+    private org.jacorb.config.Configuration configuration = null;
+
+    /** the IR logger instance */
+    private Logger logger = null;
 
     /**
      *  constructor to launch a repository with the contents of <tt>classpath</tt>
@@ -74,6 +81,7 @@ public class RepositoryImpl
                            //#else
                            //# ClassLoader loader )
                            //#endif
+        throws Exception
     {
         this.classpath = classpath;
         this.loader = loader;
@@ -93,50 +101,65 @@ public class RepositoryImpl
         containers = 
             new Container[ paths.length ];
 
+        org.omg.CORBA.Object obj;
+
+        org.omg.CORBA.ORB orb = 
+            org.omg.CORBA.ORB.init( new String[0], null );
+        
+        this.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
+
+        poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+        
+        org.omg.CORBA.Repository myRef = 
+            org.omg.CORBA.RepositoryHelper.narrow( 
+                poa.servant_to_reference( new org.omg.CORBA.RepositoryPOATie( this ) ) );
+        
+       
         for( int i = 0; strtok.hasMoreTokens(); i++ )
         {
             paths[i] =  strtok.nextToken();
-            org.jacorb.util.Debug.output(2, "found path: " + paths[i]);
-            containers[i] = new Container( this, paths[i], null );
+            
+            if (this.logger.isDebugEnabled())
+            {
+                logger.debug("found path: " + paths[i]);
+            }
+            
+            containers[i] = new Container( this, paths[i], null, 
+                                           loader, poa, logger );
         }
-
+        
         // dummy
         delegate = containers[0];
-
-        org.omg.CORBA.Object obj;
-
-        try
+        
+        PrintWriter out = new PrintWriter( new FileOutputStream( outfile ), true);
+        out.println( orb.object_to_string( myRef ) );
+        setReference( myRef );
+        out.close();
+        poa.the_POAManager().activate();
+        
+        if (this.logger.isInfoEnabled())
         {
             //#ifjdk 1.2
-                java.net.URL urls[] = loader.getURLs();
+            java.net.URL urls[] = loader.getURLs();
             //#else
             //# java.net.URL urls[] = new java.net.URL[0];
             //#endif
-            StringBuffer sb = new StringBuffer("IR configured for class path: ");
+            StringBuffer sb = 
+                new StringBuffer("IR configured for class path: ");
             for( int i = 0; i < urls.length; i++ )
             {
                 sb.append( urls[i].toString() + "\n");
             }
-
-            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( new String[0], null );
-            poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
-            org.omg.CORBA.Repository myRef = 
-                org.omg.CORBA.RepositoryHelper.narrow( 
-                  poa.servant_to_reference( new org.omg.CORBA.RepositoryPOATie( this ) ) );
             
-            PrintWriter out = new PrintWriter( new FileOutputStream( outfile ), true);
-            out.println( orb.object_to_string( myRef ) );
-            setReference( myRef );
-            out.close();
-            poa.the_POAManager().activate();
+            logger.info(sb.toString());
+        }
+    }
 
-            org.jacorb.util.Debug.output(1, sb.toString());
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-        }
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        this.logger = configuration.getNamedLogger("jacorb.ir");
     }
 
     // Repository
@@ -182,7 +205,11 @@ public class RepositoryImpl
 
     public org.omg.CORBA.Contained lookup_id( String search_id )
     {
-        org.jacorb.util.Debug.output(2, "IR lookup_id: " + search_id );
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("IR lookup_id: " + search_id );
+        }
+
         String name = idToScopedName( search_id );
         if( name == null )
             return null;
@@ -274,7 +301,11 @@ public class RepositoryImpl
 
     public org.omg.CORBA.Contained lookup( String name )
     {
-        org.jacorb.util.Debug.output(2, "IR lookup : " + name );
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("IR lookup : " + name );
+        }
+
         org.omg.CORBA.Contained result = null;
         for( int i = 0; i < containers.length; i++ )
         {
@@ -282,7 +313,7 @@ public class RepositoryImpl
             if( result != null )
                 break;
         }
-	return result;
+        return result;
     }
 
     /**
@@ -304,7 +335,10 @@ public class RepositoryImpl
 				org.omg.CORBA.DefinitionKind limit_type, 
 				boolean exclude_inherited )
     {
-        org.jacorb.util.Debug.output(2, "IR lookup_name: " + search_name );
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("IR lookup_name: " + search_name);
+        }
 
         org.omg.CORBA.Contained[] result = null;
         Vector intermediate = new Vector();
@@ -419,7 +453,11 @@ public class RepositoryImpl
 
     public void loadContents() 
     {
-        org.jacorb.util.Debug.output( 1, "Repository loads contents...");
+        if (this.logger.isInfoEnabled())
+        {
+            this.logger.info("Repository loads contents...");
+        }
+
         for( int i = 0; i < containers.length; i++ )
         {
             containers[i].loadContents();
@@ -428,7 +466,11 @@ public class RepositoryImpl
         {
             containers[i].define();
         }
-        org.jacorb.util.Debug.output( 1, "Repository contents loaded");
+
+        if (this.logger.isInfoEnabled())
+        {
+            this.logger.info("Repository contents loaded");
+        }
     }
 
     public org.omg.CORBA.ModuleDef create_module( String id, 

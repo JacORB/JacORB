@@ -20,15 +20,13 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public class NullContext implements ISASContext
+public class NullContext 
+    implements ISASContext
 {
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
 
     public String getMechOID() {
         return "";

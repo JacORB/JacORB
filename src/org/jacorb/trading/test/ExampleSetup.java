@@ -15,21 +15,29 @@ import java.io.*;
  * @author Nicolas Noffke
  */
 
-public class ExampleSetup{
-    public static void main(String[] args) {
-	try{
-	    if (args.length == 0){
+public class ExampleSetup
+{
+    public static void main(String[] args) 
+    {
+	try
+        {
+	    if (args.length == 0)
+            {
 		System.out.println("Usage: ExampleSetup <iorfile-stem>");
 		System.exit(0);
 	    }
+
 	    org.omg.CORBA.ORB _orb = org.omg.CORBA.ORB.init(args, null);
 
-	    BufferedReader in = new BufferedReader(new FileReader(new File(args[0] + "1")));
+	    BufferedReader in =
+                new BufferedReader(new FileReader(new File(args[0] + "1")));
 	    String ref = in.readLine();
 	    in.close();
 	    Lookup _lookup1 = LookupHelper.narrow(_orb.string_to_object(ref));
 	    Link _link1 = LinkHelper.narrow(_lookup1.link_if());
-	    ServiceTypeRepository _repos1 = ServiceTypeRepositoryHelper.narrow(_lookup1.type_repos());
+	    ServiceTypeRepository _repos1 = 
+                ServiceTypeRepositoryHelper.narrow(_lookup1.type_repos());
+
 	    Register _reg1 = RegisterHelper.narrow(_lookup1.register_if());
 
 
@@ -164,11 +172,6 @@ public class ExampleSetup{
     }
     
 } // jtrtest
-
-
-
-
-
 
 
 

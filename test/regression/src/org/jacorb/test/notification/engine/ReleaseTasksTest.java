@@ -32,7 +32,6 @@ import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.jacorb.test.notification.StructuredPullReceiver;
 import org.jacorb.test.notification.StructuredPushReceiver;
-import org.jacorb.util.Debug;
 
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
@@ -44,8 +43,6 @@ import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-
 
 /**
  * @author Alphonse Bendt
@@ -54,9 +51,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class ReleaseTasksTest extends NotificationTestCase
 {
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     EventChannelFactoryImpl factory_;
     EventChannelImpl eventChannelServant_;
     EventChannel eventChannel_;
@@ -73,11 +67,13 @@ public class ReleaseTasksTest extends NotificationTestCase
         eventChannel_ = EventChannelHelper.narrow(eventChannelServant_.activate());
     }
 
+
     public void tearDown() throws Exception {
         super.tearDown();
 
         factory_.dispose();
     }
+
 
     public void testAllTasksAreReleased() throws Exception {
         StructuredPushReceiver pushReceiver = new StructuredPushReceiver(this);
@@ -117,45 +113,19 @@ public class ReleaseTasksTest extends NotificationTestCase
         eventMock.validateRefCounter();
     }
 
-    /**
-     * Creates a new <code>ReleaseTasksTest</code> instance.
-     *
-     * @param name test name
-     */
+
     public ReleaseTasksTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite() throws Exception
     {
-        TestSuite _suite;
-
-        _suite = new TestSuite("");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames = TestUtils.getTestMethods( ReleaseTasksTest.class);
-
-        for (int x=0; x<methodNames.length; ++x) {
-            _suite.addTest(new ReleaseTasksTest(methodNames[x], _setup));
-        }
-
-        return _setup;
-    }
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite(ReleaseTasksTest.class);
     }
 }
+
 
 class MockFilterStage implements FilterStage {
 

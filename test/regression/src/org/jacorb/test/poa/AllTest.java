@@ -22,22 +22,23 @@ package org.jacorb.test.poa;
 
 import junit.framework.*;
 
-public class AllTest extends TestCase
+public class AllTest 
+    extends TestCase
 {
-   public AllTest (String name)
+   public AllTest(String name)
    {
-      super (name);
+      super(name);
    }
 
    public static Test suite ()
    {
-        TestSuite suite = new TestSuite ("All POA Tests");
+        TestSuite suite = new TestSuite("All POA Tests");
 
-        suite.addTest (org.jacorb.test.poa.ByteArrayKeyTest.suite());
-        suite.addTest (org.jacorb.test.poa.Deactivate.suite());
-        suite.addTest (org.jacorb.test.poa.QueueNoWaitTest.suite());
-        suite.addTest (org.jacorb.test.poa.QueueWaitTest.suite());
-        suite.addTest (org.jacorb.test.poa.POAActivateTest.suite());
+        suite.addTest(org.jacorb.test.poa.ByteArrayKeyTest.suite());
+        suite.addTest(org.jacorb.test.poa.Deactivate.suite());
+        suite.addTest(org.jacorb.test.poa.QueueNoWaitTest.suite());
+        suite.addTest(org.jacorb.test.poa.QueueWaitTest.suite());
+        suite.addTest(org.jacorb.test.poa.POAActivateTest.suite());
 
         return suite;
    }

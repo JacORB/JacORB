@@ -27,14 +27,12 @@ import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.util.QoSPropertySet;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
@@ -59,6 +57,8 @@ import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
@@ -71,18 +71,19 @@ public abstract class AbstractProxy
                QoSAdminOperations,
                FilterStage,
                Disposable,
-               ManageableServant
+               ManageableServant,
+               Configurable
 {
     private MappingFilter nullMappingFilterRef_;
 
     protected boolean isIDPublic_;
 
-    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
+    protected Logger logger_ = null;
 
     private SynchronizedBoolean connected_ = new SynchronizedBoolean(false);
 
-    protected QoSPropertySet qosSettings_ =
-        new QoSPropertySet(QoSPropertySet.PROXY_QOS);
+    protected QoSPropertySet qosSettings_;
+
 
     protected Integer id_;
 
@@ -102,26 +103,18 @@ public abstract class AbstractProxy
     * delegate for FilterAdminOperations
     */
     private FilterManager filterManager_;
-
     private SynchronizedBoolean disposed_ = new SynchronizedBoolean(false);
-
     private Runnable disposeHook_;
-
     private SynchronizedInt errorCounter_ = new SynchronizedInt(0);
-
     private POA poa_;
-
     private ORB orb_;
-
     private TaskProcessor taskProcessor_;
-
     private boolean isInterFilterGroupOperatorOR_;
-
     private boolean disposedProxyDisconnectsClient_;
-
     private org.omg.CORBA.Object client_;
-
     private SynchronizedBoolean active_ = new SynchronizedBoolean(true);
+
+    protected ChannelContext channelContext_;
 
     ////////////////////////////////////////
 
@@ -129,6 +122,8 @@ public abstract class AbstractProxy
                   ChannelContext channelContext)
     {
         admin_ = admin;
+
+        channelContext_ = channelContext;
 
         filterManager_ = new FilterManager(channelContext);
 
@@ -138,12 +133,27 @@ public abstract class AbstractProxy
 
         setTaskProcessor(channelContext.getTaskProcessor());
 
-        disposedProxyDisconnectsClient_ =
-            Environment.isPropertyOn(Configuration.DISPOSE_PROXY_CALLS_DISCONNECT,
-                                     Default.DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT);
-
         nullMappingFilterRef_ =
             MappingFilterHelper.narrow(getORB().string_to_object(getORB().object_to_string(null)));
+
+        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)channelContext.getORB();
+
+        this.configure(jorb.getConfiguration());
+    }
+
+
+    public void configure (Configuration conf)
+    {
+        logger_ = ((org.jacorb.config.Configuration)conf).
+            getNamedLogger(getClass().getName());
+
+        disposedProxyDisconnectsClient_ =
+            conf.getAttribute(Attributes.DISPOSE_PROXY_CALLS_DISCONNECT,
+                              Default.DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT).
+            equals ("on");
+        filterManager_.configure (conf);
+
+        qosSettings_ = new QoSPropertySet(conf, QoSPropertySet.PROXY_QOS);
     }
 
     ////////////////////////////////////////
@@ -576,7 +586,7 @@ public abstract class AbstractProxy
 
     protected void handleDisconnected(Disconnected e) {
         logger_.fatalError("Illegal state: Client think it's disconnected. "
-                           + "Proxy thinks it's connected. The Proxy will be destroyed.y", e);
+                           + "Proxy thinks it's connected. The Proxy will be destroyed.", e);
 
         dispose();
     }

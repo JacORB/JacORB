@@ -24,10 +24,12 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.io.*;
 
-import org.jacorb.util.Debug;
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.Any;
+import org.omg.PortableServer.POA;
+
+import org.apache.avalon.framework.logger.Logger;
 
 public class UnionDef
     extends TypedefDef
@@ -52,12 +54,22 @@ public class UnionDef
 
     private File 		                 my_dir;
     private String                       path;
+    private Logger logger;
+    private ClassLoader loader;
+    private POA poa;
 
     public UnionDef( Class c,
  					 String path,
-                    org.omg.CORBA.Container _defined_in,
-                     org.omg.CORBA.Repository ir )
+                     org.omg.CORBA.Container _defined_in,
+                     org.omg.CORBA.Repository ir,
+                     ClassLoader loader,
+                     Logger logger,
+                     POA poa )
     {
+        this.loader = loader;
+        this.logger = logger;
+        this.poa = poa;
+
         def_kind = org.omg.CORBA.DefinitionKind.dk_Union;
         containing_repository = ir;
         defined_in = _defined_in;
@@ -80,9 +92,9 @@ public class UnionDef
         Class helperClass;
         try
         {
-            helperClass = RepositoryImpl.loader.loadClass(classId + "Helper");
+            helperClass = this.loader.loadClass(classId + "Helper");
             id( (String)helperClass.getDeclaredMethod("id", null).invoke( null, null ));
-            type = TypeCodeUtil.getTypeCode( c, RepositoryImpl.loader, null, classId );
+            type = TypeCodeUtil.getTypeCode( c, this.loader, null, classId, this.logger );
             members = new org.omg.CORBA.UnionMember[ type.member_count() ];
             for( int i = 0; i < members.length; i++ )
             {
@@ -95,7 +107,7 @@ public class UnionDef
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            this.logger.error("Caught Exception", e);
         }
 	}
 
@@ -129,15 +141,18 @@ public class UnionDef
                 {
                     try
                     {
-                        org.jacorb.util.Debug.output(2, "Union " +name+ " tries " +
-                                                 full_name.replace('.', fileSeparator) +
-                                                 "Package" + fileSeparator +
-                                                 classes[j].substring( 0, classes[j].indexOf(".class")) );
+                        if (this.logger.isDebugEnabled())
+                        {
+                            this.logger.debug("Union " +name+ " tries " +
+                                              full_name.replace('.', fileSeparator) +
+                                              "Package" + fileSeparator +
+                                              classes[j].substring( 0, classes[j].indexOf(".class")));
+                        }
 
                         ClassLoader loader = getClass().getClassLoader();
                         if( loader == null )
                         {
-                            loader = RepositoryImpl.loader;
+                            loader = this.loader;
                         }
 
                         Class cl =
@@ -147,29 +162,39 @@ public class UnionDef
                                      ).replace( fileSeparator, '/') );
 
 
-                        Contained containedObject = Contained.createContained( cl,
-                                                                               path,
-                                                                               myReference,
-                                                                               containing_repository );
+                        Contained containedObject = 
+                            Contained.createContained( cl,
+                                                       path,
+                                                       myReference,
+                                                       containing_repository,
+                                                       this.logger,
+                                                       this.loader,
+                                                       this.poa);
                         if( containedObject == null )
                             continue;
 
                         org.omg.CORBA.Contained containedRef =
-                            Contained.createContainedReference(containedObject);
+                            Contained.createContainedReference(containedObject,
+                                                               this.logger,
+                                                               this.poa);
 
                         if( containedObject instanceof ContainerType )
                             ((ContainerType)containedObject).loadContents();
 
                         containedRef.move( myReference, containedRef.name(), containedRef.version() );
 
-                        org.jacorb.util.Debug.output(2, "Union " + full_name +
-                                                 " loads "+ containedRef.name() );
+                        if (this.logger.isDebugEnabled())
+                        {
+                            this.logger.debug("Union " + full_name +
+                                              " loads "+ containedRef.name());
+                        }
+
                         contained.put( containedRef.name() , containedRef );
                         containedLocals.put( containedRef.name(), containedObject );
                     }
                     catch ( Exception e )
                     {
-                        e.printStackTrace();
+                        this.logger.error("Caught Exception", e);
                     }
                 }
             }
@@ -179,10 +204,14 @@ public class UnionDef
 
     public void define()
     {
-		org.jacorb.util.Debug.output(2, "Union " + name +  " defining...");
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Union " + name +  " defining...");
+        }
 
         discriminator_type_def =
-            IDLType.create( discriminator_type, containing_repository );
+            IDLType.create( discriminator_type, containing_repository,
+                            this.logger, this.poa);
 
         for( Enumeration e = containedLocals.elements();
              e.hasMoreElements();
@@ -194,14 +223,19 @@ public class UnionDef
 			for( int i = 0; i < members.length; i++ )
 			{
 				members[i].type_def =
-					IDLType.create( members[i].type, containing_repository );
+					IDLType.create( members[i].type, containing_repository,
+                                    this.logger, this.poa );
 			}
 		}
 		catch ( Exception e )
 		{
-			e.printStackTrace();
+			this.logger.error("Caught Exception", e);
 		}
-        org.jacorb.util.Debug.output(2, "UnionDef " + name + " defined");
+
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("UnionDef " + name + " defined");
+        }
     }
 
     public org.omg.CORBA.UnionMember[] members()
@@ -318,7 +352,12 @@ public class UnionDef
         org.omg.CORBA.Contained top = (org.omg.CORBA.Contained)contained.get( top_level_name );
         if( top == null )
         {
-            org.jacorb.util.Debug.output(2,"Container " + this.name + " top " + top_level_name + " not found ");
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("Container " + this.name + " top " + 
+                                  top_level_name + " not found ");
+            }
+
             return null;
         }
 
@@ -335,7 +374,12 @@ public class UnionDef
             }
             else
             {
-                org.jacorb.util.Debug.output(2,"Container " + this.name +" " + scopedname + " not found, top " + top.getClass().getName());
+                if (this.logger.isDebugEnabled())
+                {
+                    this.logger.debug("Container " + this.name +" " + 
+                                      scopedname + " not found, top " + 
+                                      top.getClass().getName());
+                }
                 return null;
             }
         }

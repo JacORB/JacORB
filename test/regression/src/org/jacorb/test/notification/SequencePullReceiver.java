@@ -16,11 +16,7 @@ import org.omg.CosNotifyComm.SequencePullConsumerHelper;
 import org.omg.CosNotifyComm.SequencePullConsumerOperations;
 import org.omg.CosNotifyComm.SequencePullConsumerPOATie;
 
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-
 
 class SequencePullReceiver extends Thread implements SequencePullConsumerOperations, TestClientOperations
 {
@@ -28,7 +24,6 @@ class SequencePullReceiver extends Thread implements SequencePullConsumerOperati
     StructuredEvent[] event_ = null;
     boolean connected_;
     SequenceProxyPullSupplier pullSupplier_;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     boolean received_;
     long TIMEOUT = 1000;
     boolean error_;
@@ -78,7 +73,6 @@ class SequencePullReceiver extends Thread implements SequencePullConsumerOperati
         BooleanHolder _success = new BooleanHolder();
         _success.value = false;
         long _startTime = System.currentTimeMillis();
-        logger_.info("start receiver");
 
         try
         {

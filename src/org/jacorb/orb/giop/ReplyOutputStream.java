@@ -21,10 +21,11 @@ package org.jacorb.orb.giop;
  */
 
 import java.io.IOException;
+import org.apache.avalon.framework.logger.Logger;
+
 import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.*;
 import org.jacorb.orb.*;
-import org.jacorb.util.Debug;
 
 /**
  * @author Gerald Brose, FU Berlin 1999
@@ -35,11 +36,13 @@ public class ReplyOutputStream
     extends ServiceContextTransportingOutputStream
 {
     private boolean is_locate_reply = false;
+    private Logger logger;
 
     public ReplyOutputStream ( int request_id,
                                ReplyStatusType_1_2 reply_status,
                                int giop_minor,
-                               boolean is_locate_reply )
+                               boolean is_locate_reply,
+                               Logger logger)
     {
         super();
 
@@ -129,7 +132,7 @@ public class ReplyOutputStream
                         int status;
 
                         //_non_existent?
-                        if( r_in.read_boolean() )
+                        if (r_in.read_boolean())
                         {
                             //_non_existent == true
                             status = LocateStatusType_1_2._UNKNOWN_OBJECT;
@@ -153,25 +156,25 @@ public class ReplyOutputStream
                     case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
                     {
                         //uh oh, can't reply with exception
-
-                        Debug.output( 1, "ERROR: Received an exception when processing a LocateRequest" );
+                        if (logger.isErrorEnabled())
+                            logger.error("Received an exception when processing a LocateRequest" );
 
                         // GIOP prior to 1.2 doesn't have the status
                         // LOC_SYSTEM_EXCEPTION, so we have to return
                         // OBJECT_UNKNOWN (even if it may not be unknown)
                         lr_out =
-                        new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                     LocateStatusType_1_2._UNKNOWN_OBJECT,
-                                                     r_in.getGIOPMinor() );
+                            new LocateReplyOutputStream( r_in.rep_hdr.request_id,
+                                                         LocateStatusType_1_2._UNKNOWN_OBJECT,
+                                                         r_in.getGIOPMinor() );
                         break;
                     }
                     case ReplyStatusType_1_2._LOCATION_FORWARD :
                     {
 
                         lr_out =
-                        new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                     LocateStatusType_1_2._OBJECT_FORWARD,
-                                                     r_in.getGIOPMinor() );
+                            new LocateReplyOutputStream( r_in.rep_hdr.request_id,
+                                                         LocateStatusType_1_2._OBJECT_FORWARD,
+                                                         r_in.getGIOPMinor() );
 
 
                         //FIXME: it would be more efficient to copy
@@ -213,8 +216,8 @@ public class ReplyOutputStream
                     case ReplyStatusType_1_2._USER_EXCEPTION :
                     {
                         //uh oh, can't reply with user exception
-
-                        Debug.output( 1, "ERROR: Received an exception when processing a LocateRequest - mapping to UNKNOWN system exception" );
+                        if (logger.isErrorEnabled())
+                            logger.error("Received an exception when processing a LocateRequest - mapping to UNKNOWN system exception" );
 
                         lr_out =
                         new LocateReplyOutputStream( r_in.rep_hdr.request_id,

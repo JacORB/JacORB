@@ -21,7 +21,7 @@
 package org.jacorb.orb;
 
 import java.lang.reflect.*;
-import org.jacorb.util.Environment;
+import org.jacorb.util.ObjectUtil;
 
 public class SystemExceptionHelper
 {
@@ -50,9 +50,9 @@ public class SystemExceptionHelper
             {
                 Class c = null;
                 if( sb.toString().length() > 0 )
-                    c = Environment.classForName( sb.toString() + "." + sc );
+                    c = ObjectUtil.classForName( sb.toString() + "." + sc );
                 else
-                    c = Environment.classForName( sc );
+                    c = ObjectUtil.classForName( sc );
 
                 if( i < count-1)
                 {
@@ -148,7 +148,7 @@ public class SystemExceptionHelper
             org.omg.CORBA.CompletionStatusHelper.read(in);
 	try
 	{
-            Class ex = Environment.classForName( className );
+            Class ex = ObjectUtil.classForName( className );
 	    Constructor constr =
                 ex.getConstructor(
                                   new Class[]{ String.class,

@@ -21,7 +21,15 @@ package org.jacorb.ir;
  */
 
 import org.omg.CORBA.*;
+import org.omg.PortableServer.POA;
+
 import java.lang.reflect.*;
+
+import org.apache.avalon.framework.logger.Logger;
+
+/**
+ * @version $Id$
+ */
 
 public abstract class Contained
     extends IRObject
@@ -67,20 +75,23 @@ public abstract class Contained
     public static Contained createContained( Class c,
                                              String path,
                                              org.omg.CORBA.Container _defined_in,
-                                             org.omg.CORBA.Repository ir )
+                                             org.omg.CORBA.Repository ir,
+                                             Logger logger,
+                                             ClassLoader loader,
+                                             POA poa )
     {
         if( !class_init )
         {
             try
             {
                 intfClass =
-                    RepositoryImpl.loader.loadClass("org.omg.CORBA.Object");
+                    loader.loadClass("org.omg.CORBA.Object");
                 idlClass =
-                    RepositoryImpl.loader.loadClass("org.omg.CORBA.portable.IDLEntity");
+                    loader.loadClass("org.omg.CORBA.portable.IDLEntity");
                 stubClass =
-                    RepositoryImpl.loader.loadClass("org.omg.CORBA.portable.ObjectImpl");
+                    loader.loadClass("org.omg.CORBA.portable.ObjectImpl");
                 exceptClass =
-                    RepositoryImpl.loader.loadClass("org.omg.CORBA.UserException");
+                    loader.loadClass("org.omg.CORBA.UserException");
                 class_init = true;
             }
             catch ( ClassNotFoundException cnf )
@@ -100,7 +111,7 @@ public abstract class Contained
                 try
                 {
                     Class helperClass =
-                        RepositoryImpl.loader.loadClass(c.getName() + "Helper");
+                        loader.loadClass(c.getName() + "Helper");
 
                     if( helperClass == null )
                     {
@@ -108,7 +119,14 @@ public abstract class Contained
                     }
 
                     org.jacorb.ir.InterfaceDef idef =
-                        new org.jacorb.ir.InterfaceDef( c, helperClass, path, _defined_in, ir );
+                        new org.jacorb.ir.InterfaceDef( c, 
+                                                        helperClass, 
+                                                        path, 
+                                                        _defined_in, 
+                                                        ir,
+                                                        loader,
+                                                        poa,
+                                                        logger);
 
                     return idef;
                 }
@@ -123,7 +141,10 @@ public abstract class Contained
                 try
                 {
                     Field f = c.getDeclaredField("value");
-                    return new org.jacorb.ir.ConstantDef( c , _defined_in, ir );
+                    return new org.jacorb.ir.ConstantDef( c, 
+                                                          _defined_in, 
+                                                          ir,
+                                                          logger);
                 }
                 catch( NoSuchFieldException nsfe )
                 {
@@ -138,7 +159,12 @@ public abstract class Contained
             try
             {
             */
-                return new ExceptionDef(c, _defined_in, ir);
+                return new org.jacorb.ir.ExceptionDef(c, 
+                                                      _defined_in, 
+                                                      ir,
+                                                      loader,
+                                                      poa,
+                                                      logger);
                 /*
             }
             catch ( Exception e )
@@ -154,18 +180,34 @@ public abstract class Contained
             try
             {
                 Class helperClass =
-                    RepositoryImpl.loader.loadClass( c.getName()+"Helper");
+                    loader.loadClass( c.getName()+"Helper");
 
                 org.omg.CORBA.TypeCode tc =
                     (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod("type", null).invoke(null,null);
                 switch( tc.kind().value())
                 {
                 case org.omg.CORBA.TCKind._tk_struct:
-                    return new StructDef( c, path, _defined_in, ir );
+                    return new org.jacorb.ir.StructDef( c, 
+                                                        path, 
+                                                        _defined_in, 
+                                                        ir,
+                                                        logger,
+                                                        loader, 
+                                                        poa );
                 case org.omg.CORBA.TCKind._tk_enum:
-                    return new EnumDef( c, _defined_in, ir );
+                    return new org.jacorb.ir.EnumDef( 
+                                                     c, 
+                                                     _defined_in, 
+                                                     ir,
+                                                     loader );
                 case org.omg.CORBA.TCKind._tk_union:
-                    return new UnionDef( c, path,  _defined_in, ir );
+                    return new org.jacorb.ir.UnionDef( c, 
+                                                       path,  
+                                                       _defined_in, 
+                                                       ir,
+                                                       loader,
+                                                       logger, 
+                                                       poa);
                 default:
                     return null;
                 }
@@ -173,11 +215,11 @@ public abstract class Contained
             catch( ClassNotFoundException  e )
             {
                 // may happen for pseudo IDL
-                org.jacorb.util.Debug.output(2, e );
+                logger.warn("Caught Exception", e);
             }
             catch( Exception  e )
             {
-                e.printStackTrace();
+                logger.error("Caught Exception", e);
             }
             return null;
         }
@@ -189,7 +231,11 @@ public abstract class Contained
                     (org.omg.CORBA.TypeCode)c.getDeclaredMethod("type",null).invoke(null,null);
                 if( tc.kind() == org.omg.CORBA.TCKind.tk_alias )
                 {
-                    return new AliasDef(tc, _defined_in, ir );
+                    return new AliasDef(tc, 
+                                        _defined_in, 
+                                        ir, 
+                                        logger, 
+                                        poa);
                 }
             }
             catch( Exception  e )
@@ -203,7 +249,10 @@ public abstract class Contained
         }
     }
 
-    public static org.omg.CORBA.Contained createContainedReference( Contained containedObject )
+    public static org.omg.CORBA.Contained createContainedReference( 
+        Contained containedObject,
+        Logger logger,
+        POA poa )
     {
         if ( containedObject == null)
         {
@@ -247,16 +296,15 @@ public abstract class Contained
                 new org.omg.CORBA.ConstantDefPOATie( (org.omg.CORBA.ConstantDefOperations)containedObject );
             break;
         default:
-            org.jacorb.util.Debug.output(1,
-                           "WARNING, createContainedReference returns null for dk " +
-                                         containedObject.def_kind().value() );
+            logger.warn("WARNING, createContainedReference returns null for dk " +
+                        containedObject.def_kind().value() );
             return null;
         }
 
         try
         {
             org.omg.CORBA.Contained containedRef =
-                org.omg.CORBA.ContainedHelper.narrow(RepositoryImpl.poa.servant_to_reference( servant ));
+                org.omg.CORBA.ContainedHelper.narrow(poa.servant_to_reference( servant ));
 
             containedObject.setReference( containedRef );
             return containedRef;

@@ -23,13 +23,13 @@ package org.jacorb.orb.giop;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.PolicyError;
+import org.omg.CORBA.BAD_POLICY;
+import org.omg.CORBA.BAD_POLICY_VALUE;
+import org.omg.CORBA.LocalObject;
 
 import org.omg.PortableInterceptor.PolicyFactory;
-
 import org.omg.BiDirPolicy.*;
 
-import org.omg.CORBA.LocalObject;
-import org.jacorb.util.Debug;
 
 /**
  * BiDirPolicyFactory.java
@@ -54,9 +54,8 @@ public class BiDirPolicyFactory
     {
         if( type != BIDIRECTIONAL_POLICY_TYPE.value )
         {
-            Debug.output( 1, "ERROR: Invalid policy type of " + type );
-
-            throw new PolicyError();
+            throw new PolicyError("Invalid policy type of " + type, 
+                                  BAD_POLICY.value );
         }
         
         short value = BidirectionalPolicyValueHelper.extract( any );
@@ -64,9 +63,8 @@ public class BiDirPolicyFactory
         if( value != NORMAL.value &&
             value != BOTH.value )
         {
-            Debug.output( 1, "ERROR: Invalid value for BiDir policy of " + 
-                          value );
-            throw new PolicyError();
+            throw new PolicyError("Invalid value for BiDir policy of " + value, 
+                                  BAD_POLICY_VALUE.value);
         }
         
         return new BiDirPolicy( value );

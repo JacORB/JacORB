@@ -29,21 +29,18 @@ import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CosNaming.NamingContextExtPackage.*;
 
 import org.apache.avalon.framework.logger.Logger;
-
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
+import org.apache.avalon.framework.configuration.*;
 
 /**
- *      The actual implementation for the CORBAService Naming
+ *      The implementation for the CORBAService Naming
  *
- *      @author Gerald Brose, FU Berlin
+ *      @author Gerald Brose
  *      @version $Id$
- *
  */
 
 public class NamingContextImpl
     extends NamingContextExtPOA
-    implements java.io.Serializable
+    implements java.io.Serializable, Configurable
 {
     /** table of all name bindings in this contexts, ie. name -> obj ref. */
     private Hashtable names = new Hashtable();
@@ -51,8 +48,17 @@ public class NamingContextImpl
     /** table of all subordinate naming contexts, ie. name -> obj ref. */
     private Hashtable contexts = new Hashtable();
 
+    /** configuration */
+    private org.jacorb.config.Configuration configuration = null;
+
+    /** no tests of bound objects for existence */
+    private boolean noPing = false;
+
+    /** purge? */
+    private boolean doPurge = false;
+
     /** the logger used by the naming service implementation */
-    private static Logger logger = Debug.getNamedLogger("jacorb.naming");
+    private static Logger logger = null;
 
     /** the POAs used */
     transient private org.omg.PortableServer.POA poa;
@@ -61,6 +67,17 @@ public class NamingContextImpl
 
     private int child_count;
     private boolean destroyed = false;
+
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.naming");
+        doPurge = configuration.getAttribute("jacorb.naming.purge","off").equals("on");
+        noPing = configuration.getAttribute("jacorb.naming.noping","off").equals("on");
+    }
+
 
     /**
      *  bind a name (an array of name components) to an object
@@ -87,7 +104,7 @@ public class NamingContextImpl
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)names.get(n);
-                if( s._non_existent() )
+                if( isDead(s) )
                 {
                     rebind( n.components(), obj );
                     return;
@@ -98,7 +115,7 @@ public class NamingContextImpl
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)contexts.get(n);
-                if( s._non_existent() )
+                if( isDead(s) )
                 {
                     unbind( n.components());
                 }
@@ -244,7 +261,7 @@ public class NamingContextImpl
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)names.get(n);
-                if( s._non_existent() )
+                if( isDead(s) )
                 {
                     unbind( n.components());
                 }
@@ -255,7 +272,7 @@ public class NamingContextImpl
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)contexts.get(n);
-                if( s._non_existent() )
+                if( isDead(s) )
                 {
                     rebind_context( n.components(), obj );
                     return;
@@ -308,7 +325,7 @@ public class NamingContextImpl
     {
         // Check if object purging enabled
 
-        if (! Environment.isPropertyOn ("jacorb.naming.purge"))
+        if (! doPurge) 
         {
            return;
         }
@@ -319,7 +336,7 @@ public class NamingContextImpl
         {
             Name _n = (Name)n.nextElement();
 
-            if( ((org.omg.CORBA.Object)names.get( _n ))._non_existent() )
+            if( isDead(((org.omg.CORBA.Object)names.get( _n ))) )
             {
                 if (logger.isInfoEnabled())
                 {
@@ -341,7 +358,7 @@ public class NamingContextImpl
         for( Enumeration c = contexts.keys(); c.hasMoreElements(); )
         {
             Name _n = (Name)c.nextElement();
-            if( ((org.omg.CORBA.Object)contexts.get( _n ))._non_existent() )
+            if( isDead(((org.omg.CORBA.Object)contexts.get( _n ))) )
             {
                 if (logger.isInfoEnabled())
                 {
@@ -556,7 +573,7 @@ public class NamingContextImpl
                 NamingContextExtHelper.narrow((org.omg.CORBA.Object)contexts.get(n));
 
 
-            if ((next_context == null)||(next_context._non_existent()))
+            if ((next_context == null)||(isDead(next_context)))
             {
                 throw new NotFound(NotFoundReason.missing_node,nc);
             }
@@ -581,8 +598,7 @@ public class NamingContextImpl
             if (result == null)
                 throw new NotFound(NotFoundReason.missing_node, n.components());
             
-            if (! Environment.isPropertyOn ("jacorb.naming.noping") &&
-                result._non_existent())
+            if ( !noPing && isDead(result))
             {
                 throw new NotFound(NotFoundReason.missing_node, n.components());
             }
@@ -785,4 +801,20 @@ public class NamingContextImpl
     }
 
 
+    /**
+     * determine if non_existent
+     */
+
+    private boolean isDead(org.omg.CORBA.Object o)
+    {
+        boolean non_exist = true;
+        try
+        {
+            non_exist = o._non_existent();
+        } catch (org.omg.CORBA.SystemException e)
+        {
+            non_exist = true;
+        }
+        return non_exist;
+    }
 }

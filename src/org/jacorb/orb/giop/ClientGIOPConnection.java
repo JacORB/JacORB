@@ -23,7 +23,7 @@ package org.jacorb.orb.giop;
 import java.io.*;
 
 import org.jacorb.orb.iiop.*;
-import org.jacorb.util.*;
+import org.apache.avalon.framework.configuration.*;
 
 /**
  * @author Nicolas Noffke
@@ -32,6 +32,7 @@ import org.jacorb.util.*;
 
 public class ClientGIOPConnection
     extends GIOPConnection
+    implements Configurable
 {
     private boolean ignore_pending_messages_on_timeout = false;
 
@@ -42,11 +43,18 @@ public class ClientGIOPConnection
                                  StatisticsProvider statistics_provider )
     {
         super( profile, transport, request_listener, reply_listener, statistics_provider );
-
-        //default to "off" is handled internally by Environment.isPropertyOn()
-        ignore_pending_messages_on_timeout =
-            Environment.isPropertyOn("jacorb.connection.client.timeout_ignores_pending_messages");
     }
+
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        super.configure(configuration);
+
+        ignore_pending_messages_on_timeout =
+            configuration.getAttribute("jacorb.connection.client.timeout_ignores_pending_messages","off").equals("on");
+    }
+
 
     protected void readTimedOut()
     {

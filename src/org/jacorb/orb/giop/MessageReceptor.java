@@ -1,3 +1,5 @@
+package org.jacorb.orb.giop;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,10 +20,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.giop;
-
 import org.jacorb.util.threadpool.Consumer;
-import org.jacorb.util.*;
 
 /**
  * MessageReceptor.java
@@ -54,7 +53,6 @@ public class MessageReceptor
         }
         catch( Exception e )
         {
-            Debug.output( 3, e );
         }
     }    
 }// MessageReceptor

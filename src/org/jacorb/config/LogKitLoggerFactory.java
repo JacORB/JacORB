@@ -1,4 +1,4 @@
-package org.jacorb.util;
+package org.jacorb.config;
 
 /*
  *        JacORB - a free Java ORB
@@ -22,6 +22,7 @@ package org.jacorb.util;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.logger.LogKitLogger;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 import org.apache.log.*;
 import org.apache.log.format.*;
@@ -56,16 +57,14 @@ import java.io.*;
  * @since JacORB 2.0 beta 3
  */
 
-public class LogKitLoggerFactory
+class LogKitLoggerFactory
     implements LoggerFactory
 {
     private final static String DEFAULT_LOG_PATTERN =
         "[%.20{category}] %.7{priority} : %{message}\\n%{throwable}";
 
     private final static String name = "logkit";
-    private final static PatternFormatter logFormatter =
-        new PatternFormatter(Environment.getProperty("jacorb.log.default.log_pattern",
-                                                     DEFAULT_LOG_PATTERN));
+    private PatternFormatter logFormatter = null;
 
     /** default priority for loggers created with this factory */
     private int defaultPriority = 0;
@@ -85,57 +84,33 @@ public class LogKitLoggerFactory
     /** The default log file */
     private LogTarget defaultTarget = null;
 
-    public LogKitLoggerFactory()
+    private Configuration configuration = null;
+
+    public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
+        throws org.apache.avalon.framework.configuration.ConfigurationException
     {
-        String defaultPriorityString =
-            Environment.getProperty("jacorb.log.default.verbosity");
+        this.configuration = (Configuration)configuration;
 
-        append = Environment.isPropertyOn("jacorb.logfile.append");
+        defaultPriority = 
+            configuration.getAttributeAsInteger("jacorb.log.default.verbosity", 0);
 
+        append = 
+            configuration.getAttribute("jacorb.logfile.append","off").equals("on");
 
-        if (defaultPriorityString != null)
+        logFormatter = 
+            new PatternFormatter(configuration.getAttribute("jacorb.log.default.log_pattern",
+                                                            DEFAULT_LOG_PATTERN));
+        switch (defaultPriority)
         {
-            if (defaultPriorityString != null &&
-                defaultPriorityString.toUpperCase().equals("DEBUG"))
-            {
-                defaultPriorityString = "4";
-            }
-            else if (defaultPriorityString != null &&
-                     defaultPriorityString.toUpperCase().equals("INFO"))
-            {
-                defaultPriorityString = "3";
-            }
-            else if (defaultPriorityString != null &&
-                     defaultPriorityString.toUpperCase().equals("WARN"))
-            {
-                defaultPriorityString = "2";
-            }
-            else if (defaultPriorityString != null &&
-                     defaultPriorityString.toUpperCase().equals("ERROR"))
-            {
-                defaultPriorityString = "1";
-            }
-
-            try
-            {
-                defaultPriority = Integer.parseInt(defaultPriorityString);
-            }
-            catch (NumberFormatException nfe)
-            {
-                defaultPriority = -1;
-            }
-            switch (defaultPriority)
-            {
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    break;
-                default:
-                    throw new IllegalArgumentException("'" + defaultPriorityString + "' is an illegal"
-                                                       + " value for the property jacorb.log.default.verbosity. Valid values are 0->4.");
-            }
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                break;
+            default:
+                throw new ConfigurationException("'" + defaultPriority + "' is an illegal"
+                                                 + " value for the property jacorb.log.default.verbosity. Valid values are [0-4]");
         }
         consoleWriter = new OutputStreamWriter(System.err);
         consoleTarget = new WriterTarget(consoleWriter, logFormatter);
@@ -288,35 +263,20 @@ public class LogKitLoggerFactory
 
         while (!prefix.equals(""))
         {
-            String priorityString =
-                Environment.getProperty( prefix + ".log.verbosity");
+            String priorityString = null;
 
-            if (priorityString != null)
+            try
             {
-                priorityString = priorityString.trim();
-
-                if (priorityString != null &&
-                    priorityString.toUpperCase().equals("DEBUG"))
-                {
-                    priorityString = "4";
-                }
-                else if (priorityString != null &&
-                         priorityString.toUpperCase().equals("INFO"))
-                {
-                    priorityString = "3";
-                }
-                else if (priorityString != null &&
-                         priorityString.toUpperCase().equals("WARN"))
-                {
-                    priorityString = "2";
-                }
-                else if (priorityString != null &&
-                         priorityString.toUpperCase().equals("ERROR"))
-                {
-                    priorityString = "1";
-                }
-
-                return Integer.parseInt(priorityString);
+                int priorityForLogger = 
+                    configuration.getAttributeAsInteger( prefix + ".log.verbosity");
+                if (priorityForLogger > 4)
+                    priorityForLogger = 4;
+                else if (priorityForLogger < 0)
+                    priorityForLogger = 0;
+                return priorityForLogger;
+            }
+            catch( ConfigurationException ce )
+            {
             }
 
             if (prefix.lastIndexOf(".") >= 0)
@@ -329,6 +289,7 @@ public class LogKitLoggerFactory
             }
         }
 
+        // nothing found, return default
         return defaultPriority;
     }
 

@@ -21,21 +21,21 @@ class PrintServer
      * main
      */
 
-    static public void main (String argv[]) 
+    static public void main (String argv[])
     {
 	EventChannel channel = null;
 	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(argv, null);
 
-	try 
+	try
 	{
 	    // initialize POA, get naming and event service references
 	    POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA") );
 	    poa.the_POAManager().activate();
 
-	    NamingContextExt nc = 
-		NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));         
+	    NamingContextExt nc =
+		NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
 
-            EventChannelFactory factory = 
+            EventChannelFactory factory =
                 EventChannelFactoryHelper.narrow( orb.resolve_initial_references("NotificationService"));
 
             if( factory == null )
@@ -44,34 +44,33 @@ class PrintServer
                 System.exit(1);
             }
 
-            org.omg.CORBA.IntHolder idHolder = 
+            org.omg.CORBA.IntHolder idHolder =
                 new org.omg.CORBA.IntHolder();
-            
+
             Property[] qos = new Property[0];
             Property[] adm = new Property[0];
 
             channel = factory.create_channel(qos, adm, idHolder);
             nc.rebind( nc.to_name("office_event.channel"), channel );
 
-            System.out.println("Channel " + idHolder.value + 
+            System.out.println("Channel " + idHolder.value +
                                " created and bound to name office_event.channel.");
 
 	    // create a Printer object, implicitly activate it and advertise its presence
 	    PrinterImpl printer = new PrinterImpl( channel, orb, poa );
 	    printer.connect();
             System.out.println("Printer created and connected");
-           
+
 	    org.omg.CORBA.Object printerObj = poa.servant_to_reference( printer );
 	    nc.rebind( nc.to_name("Printer"), printerObj);
             System.out.println("Printer exported");
 
 	    // wait for requests
 	    orb.run();
-	} 
-	catch (Exception ex) 
-	{ 
+	}
+	catch (Exception ex)
+	{
 	    ex.printStackTrace();
-	}	
+	}
     }
 }
-

@@ -21,17 +21,25 @@ package org.jacorb.ir;
  */
 
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
+import org.apache.avalon.framework.logger.Logger;
 
 public class AliasDef
     extends TypedefDef
     implements org.omg.CORBA.AliasDefOperations
 {
     private org.omg.CORBA.IDLType original_type_def;
+    private Logger logger;
+    private POA poa;
 
     public AliasDef( org.omg.CORBA.TypeCode type,
                      org.omg.CORBA.Container defined_in,
-                     org.omg.CORBA.Repository containing_repository )
+                     org.omg.CORBA.Repository containing_repository,
+                     Logger logger,
+                     POA poa)
     {
+        this.logger = logger;
+        this.poa = poa;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Alias;
         this.type = type;
         this.containing_repository = containing_repository;
@@ -46,9 +54,13 @@ public class AliasDef
         }
         catch( Exception e )
         {
-            e.printStackTrace(); // should not happen
+            this.logger.error("Caught Exception", e); // should not happen
         }
-        org.jacorb.util.Debug.output( 2, "New AliasDef name: " + name() );
+        
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("New AliasDef name: " + name());
+        }
     }
 
     public org.omg.CORBA.IDLType original_type_def()
@@ -71,12 +83,14 @@ public class AliasDef
         {
             original_type_def( IDLType.create( type().content_type(),
                                                containing_repository,
-                                               true )
+                                               true,
+                                               this.logger,
+                                               this.poa)
                                );
         }
         catch( Exception e )
         {
-            e.printStackTrace(); // should not happen
+            this.logger.error("Caught Exception", e); // should not happen
         }
     }
 

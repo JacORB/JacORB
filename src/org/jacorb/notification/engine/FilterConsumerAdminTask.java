@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.FilterStage;
-import org.jacorb.notification.util.TaskExecutor;
+import org.jacorb.notification.engine.TaskExecutor;
 
 /**
  * @author Alphonse Bendt

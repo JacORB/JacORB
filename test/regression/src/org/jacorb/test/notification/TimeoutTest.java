@@ -24,12 +24,12 @@ package org.jacorb.test.notification;
 import java.util.Date;
 
 import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
+import org.jacorb.notification.servant.AbstractProxyConsumerI;
 import org.jacorb.util.Time;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
@@ -42,9 +42,6 @@ import org.omg.TimeBase.TimeTHelper;
 import org.omg.TimeBase.UtcTHelper;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.test.common.TestUtils;
 
 /**
  * @author Alphonse Bendt
@@ -53,16 +50,10 @@ import org.jacorb.test.common.TestUtils;
 
 public class TimeoutTest extends NotificationTestCase
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     MessageFactory messageFactory_;
     StructuredEvent structuredEvent_;
     EventChannel eventChannel_;
 
-    /**
-     *
-     * @param name test name
-     */
     public TimeoutTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
@@ -74,7 +65,7 @@ public class TimeoutTest extends NotificationTestCase
         eventChannel_ = getDefaultChannel();
 
         messageFactory_ = new MessageFactory();
-        messageFactory_.init();
+        messageFactory_.configure(getConfiguration());
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -162,11 +153,14 @@ public class TimeoutTest extends NotificationTestCase
         assertTrue(!_event.hasTimeout());
     }
 
+
     public void testAnyEventHasNoStopTime() throws Exception
     {
         Message _event = messageFactory_.newMessage(getORB().create_any());
+
         assertTrue(!_event.hasTimeout());
     }
+
 
     public void testStructuredEventWithTimeoutProperty() throws Exception
     {
@@ -180,37 +174,27 @@ public class TimeoutTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(Timeout.value, _any);
 
-        Message _event = messageFactory_.newMessage(structuredEvent_);
+        Message _event = messageFactory_.newMessage(structuredEvent_,
+                                                    new AbstractProxyConsumerI() {
+                                                        public boolean isStartTimeSupported() {
+                                                            return true;
+                                                        }
+
+                                                        public boolean isTimeOutSupported() {
+                                                            return true;
+                                                        }
+
+                                                        public FilterStage getFirstStage() {
+                                                            return null;
+                                                        }
+                                                        });
         assertTrue(_event.hasTimeout());
         assertEquals(_timeout, _event.getTimeout());
     }
 
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
     public static Test suite() throws Exception
     {
-        TestSuite _suite = new TestSuite();
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames = TestUtils.getTestMethods(TimeoutTest.class, "testSendEvent");
-
-        for (int x = 0; x < methodNames.length; ++x)
-        {
-            _suite.addTest(new TimeoutTest(methodNames[x], _setup));
-        }
-
-        return _setup;
-    }
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite(TimeoutTest.class);
     }
 }

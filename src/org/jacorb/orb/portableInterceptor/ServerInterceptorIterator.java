@@ -24,7 +24,6 @@ import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.UserException;
 
 import org.jacorb.orb.SystemExceptionHelper;
-import org.jacorb.util.Debug;
 
 /**
  * This class iterates over an array of
@@ -86,7 +85,6 @@ public class ServerInterceptorIterator
 
 	try
         {
-	    Debug.output(4,"Invoking SI " + interceptor.name());
 	    switch (op) 
             {
 	    case RECEIVE_REQUEST_SERVICE_CONTEXTS :
@@ -109,7 +107,6 @@ public class ServerInterceptorIterator
 	}
         catch (ForwardRequest _fwd)
         {
-	    Debug.output(4, _fwd);
 	    reverseDirection();
 	    op = SEND_OTHER;
 	
@@ -121,7 +118,6 @@ public class ServerInterceptorIterator
 	}
         catch (org.omg.CORBA.SystemException _sysex)
         {
-	    Debug.output(4, _sysex);
 	    reverseDirection();
 	    op = SEND_EXCEPTION;
 	    interceptor_ex = _sysex;
@@ -131,7 +127,6 @@ public class ServerInterceptorIterator
         catch (Throwable th)
         {
             th.printStackTrace();
-	    Debug.output(4,"ServerInterceptorIterator: Caught a " + th);
 	}
 
 	info.caller_op = op;

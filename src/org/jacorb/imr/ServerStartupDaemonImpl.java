@@ -30,8 +30,6 @@ package org.jacorb.imr;
  *
  */
 
-import org.jacorb.orb.ORB;
-import org.jacorb.util.*;
 import org.jacorb.util.threadpool.*;
 
 import java.lang.*;
@@ -40,54 +38,79 @@ import java.io.*;
 
 import org.omg.PortableServer.*;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 public class ServerStartupDaemonImpl
     extends org.jacorb.imr.ServerStartupDaemonPOA
 {
-    private static ORB orb = null;
+    private org.omg.CORBA.ORB orb = null;
     private static final String out_prefix = ">> ";
 
     private ThreadPool stdout_pool = null;
     private ThreadPool stderr_pool = null;
+
+    private Logger logger;
 
     /**
      * The constructor. It registers this daemon at the repository.
      *
      * @exception Exception any exception that is thrown inside is propagated upwards.
      */
-    public ServerStartupDaemonImpl()
-        throws Exception
+    public ServerStartupDaemonImpl(org.omg.CORBA.ORB orb)
     {
-        Registration _registration = null;
+        this.orb = orb;
+    }
 
-        _registration =
-        RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
-        if( _registration == null )
-            throw new RuntimeException("ImR not found");
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.logger = ((org.jacorb.config.Configuration) myConfiguration).getNamedLogger("jacorb.imr");
 
-        _this_object( orb );
+        try
+        {
+            Registration _registration = null;
 
-        HostInfo _me = new HostInfo(InetAddress.getLocalHost().getHostName(),_this(),
-                                    orb.object_to_string(_this()));
+            _registration =
+                RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
+            if( _registration == null )
+                throw new ConfigurationException("ImR not found");
 
-        _registration.register_host(_me);
+            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            poa.the_POAManager().activate();
+
+            ServerStartupDaemon ssd = 
+                ServerStartupDaemonHelper.narrow(poa.servant_to_reference(this));
+
+            HostInfo _me = new HostInfo(InetAddress.getLocalHost().getHostName(),
+                                        ssd,
+                                        orb.object_to_string(ssd));
+
+            _registration.register_host(_me);
+        }
+        catch (Exception e)
+        {
+            throw new ConfigurationException("Caught Exception", e);
+        }
 
         stdout_pool = new ThreadPool( new OutputForwarderFactory( new InputStreamSelector(){
-            public InputStream getInputStream( Process p )
-            {
-                return p.getInputStream();
-            }
-        }),
+                public InputStream getInputStream( Process p )
+                {
+                    return p.getInputStream();
+                }
+            }),
                                       100, //max threads
                                       10 );//max idle threads
 
         stderr_pool = new ThreadPool( new OutputForwarderFactory( new InputStreamSelector(){
-            public InputStream getInputStream( Process p )
-            {
-                return p.getErrorStream();
-            }
-        }),
+                public InputStream getInputStream( Process p )
+                {
+                    return p.getErrorStream();
+                }
+            }),
                                       100, //max threads
                                       10 );//max idle threads
+
     }
 
     /**
@@ -107,8 +130,8 @@ public class ServerStartupDaemonImpl
      * @param command The server startup command, i.e. the servers class name and
      * parameters for its main method. The interpreter is inserted automatically.
      *
-     * @exception org.jacorb.imr.ServerStartupDaemonPackage.ServerStartupFailed Runtime.exec
-     * failed to execute the command.
+     * @exception org.jacorb.imr.ServerStartupDaemonPackage.ServerStartupFailed
+     * Runtime.exec() failed to execute the command.
      */
 
     public void start_server(String command)
@@ -116,8 +139,10 @@ public class ServerStartupDaemonImpl
     {
         try
         {
-            Debug.output(4,
-                         "Starting: " + command );
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("Starting: " + command);
+            }
 
             Process _server = Runtime.getRuntime().exec( command );
 
@@ -126,7 +151,7 @@ public class ServerStartupDaemonImpl
         }
         catch (Exception _e)
         {
-            Debug.output(4, _e);
+            this.logger.debug("Caught Exception", _e);
             throw new ServerStartupFailed( _e.toString() );
         }
     }
@@ -138,18 +163,16 @@ public class ServerStartupDaemonImpl
     {
         try
         {
-            orb = (org.jacorb.orb.ORB) ORB.init( args, null );
-            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
-            poa.the_POAManager().activate();
-
-            ServerStartupDaemonImpl _ssd = new ServerStartupDaemonImpl();
+            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, null );
+            ServerStartupDaemonImpl _ssd = new ServerStartupDaemonImpl(orb);
+            _ssd.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
 
             orb.run();
         }
         catch( Exception _e )
         {
-            Debug.output(3, _e);
+            _e.printStackTrace();
+            System.exit(1);
         }
 
         System.exit(0);
@@ -182,9 +205,9 @@ public class ServerStartupDaemonImpl
 
             try
             {
-                // If we get null from readLine() we assume that the process has exited.
-                // Unfortunately there is no exception thrown when trying to read from
-                // a dead processes output stream.
+                // If we get null from readLine() we assume that the process
+                // has exited.  Unfortunately there is no exception thrown
+                // when trying to read from a dead processes output stream.
                 while((_line = _in.readLine()) != null)
                 {
                     System.out.println(out_prefix + _line);
@@ -194,11 +217,10 @@ public class ServerStartupDaemonImpl
             }
             catch( Exception _e )
             {
-                Debug.output(3, _e);
+                logger.debug("Caught Exception", _e);
             }
 
-            Debug.output( 4,
-                          "A server process exited" );
+            logger.debug("A server process exited");
         }
     }//OutputForwarder
 

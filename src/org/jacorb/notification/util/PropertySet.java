@@ -35,8 +35,6 @@ import org.omg.CosNotification.PropertyError;
 import org.omg.CosNotification.PropertyRange;
 import org.omg.CosNotification.QoSError_code;
 
-import org.jacorb.util.Debug;
-
 import org.apache.avalon.framework.logger.Logger;
 import java.util.Collections;
 
@@ -57,7 +55,7 @@ public abstract class PropertySet
 
     ////////////////////////////////////////
 
-    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
+    //    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private Map listeners_ = new HashMap();
 
@@ -169,9 +167,9 @@ public abstract class PropertySet
         for (int x = 0; x < props.length; ++x)
             {
                 if (ignoredNames_.contains(props[x].name)) {
-                    if (logger_.isDebugEnabled()) {
-                        logger_.debug("ignore property " + props[x].name);
-                    }
+//                     if (logger_.isDebugEnabled()) {
+//                         logger_.debug("ignore property " + props[x].name);
+//                     }
                     continue;
                 }
 
@@ -184,9 +182,9 @@ public abstract class PropertySet
 
                 properties_.put(props[x].name, props[x].value);
 
-                if (logger_.isDebugEnabled()) {
-                    logger_.debug("set " + props[x].name + " => " + props[x].value);
-                }
+//                 if (logger_.isDebugEnabled()) {
+//                     logger_.debug("set " + props[x].name + " => " + props[x].value);
+//                 }
 
                 if (listeners_.containsKey(props[x].name))
                     {
@@ -208,7 +206,7 @@ public abstract class PropertySet
                     }
                 catch (Exception e)
                     {
-                        logger_.error("exception in listener", e);
+//                         logger_.error("exception in listener", e);
                     }
             }
     }
@@ -224,11 +222,11 @@ public abstract class PropertySet
             {
                 if (!getValidNames().contains(props[x].name))
                     {
-                        if (logger_.isErrorEnabled()) {
-                            logger_.error("Property " + props[x].name + " is unknown");
+//                         if (logger_.isErrorEnabled()) {
+//                             logger_.error("Property " + props[x].name + " is unknown");
 
-                            logger_.error("valid name: " + getValidNames());
-                        }
+//                             logger_.error("valid name: " + getValidNames());
+//                         }
                         errorList.add(badProperty(props[x].name));
                     }
             }
@@ -277,4 +275,3 @@ public abstract class PropertySet
         return _ps;
     }
 }
-

@@ -22,26 +22,18 @@ package org.jacorb.test.notification.bugs;
 
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
-import org.jacorb.test.notification.StructuredPullReceiver;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
-import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.test.common.TestUtils;
 
 /**
  * Test to reveal bug reported by Matthew Leahy
@@ -54,9 +46,6 @@ import org.jacorb.test.common.TestUtils;
 
 public class MultipleDeliveryBugTest extends NotificationTestCase
 {
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     EventChannel channel_;
 
     public MultipleDeliveryBugTest (String name, NotificationTestCaseSetup setup)
@@ -73,21 +62,7 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        TestSuite _suite;
-
-        _suite = new TestSuite("Test of Structured EventChannel");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames = TestUtils.getTestMethods(MultipleDeliveryBugTest.class);
-
-        for (int x = 0; x < methodNames.length; ++x)
-        {
-            _suite.addTest(new MultipleDeliveryBugTest(methodNames[x], _setup));
-        }
-
-        return _setup;
+        return NotificationTestCase.suite("Test of Structured EventChannel", MultipleDeliveryBugTest.class);
     }
 
 
@@ -126,11 +101,4 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
 
         assertTrue(_receiver.isEventHandled());
     }
-
-
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
-    }
-
 }

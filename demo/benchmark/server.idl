@@ -12,12 +12,14 @@ module benchmark
 	typedef sequence<_Struct> structs;
 	typedef sequence<long> longs;
 	typedef sequence<octet> octets;
+	typedef sequence<string> strings;
 
 	interface bench {
 		void ping();
 		longs intTransfer(in longs l);
 		octets octetTransfer(in octets o);
 		structs structTransfer(in structs s);
+                strings stringTransfer(in strings str);
 	};
 };
 };

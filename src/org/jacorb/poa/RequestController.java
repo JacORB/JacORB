@@ -23,7 +23,6 @@ package org.jacorb.poa;
 import org.jacorb.poa.util.*;
 import org.jacorb.poa.except.*;
 
-import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
 
 import org.omg.PortableServer.POAManagerPackage.State;
@@ -31,6 +30,7 @@ import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantManager;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 import java.util.*;
 
@@ -39,10 +39,12 @@ import java.util.*;
  * requests out from the queue and will see that the necessary steps are taken.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.11, 10/26/99, RT $Id$
+ * @version $Id$
  */
+
 public final class RequestController
     extends Thread
+    implements Configurable
 {
     private POA 			poa;
     private org.jacorb.orb.ORB		orb;
@@ -56,8 +58,14 @@ public final class RequestController
     private static RPPoolManager 	singletonPoolManager;
     private static int count = 0;
 
+    /** the configuration object for this controller */
+    private org.jacorb.config.Configuration configuration = null;
+
     /** this controller's logger instance */
     private Logger                    logger;
+    private int threadPoolMin = 0;
+    private int threadPoolMax = 0;
+    private boolean configured = false;
 
     // stores all active requests
     private Hashtable 			activeRequestTable;
@@ -71,7 +79,6 @@ public final class RequestController
     private boolean 			waitForCompletionCalled;
     private boolean 			waitForShutdownCalled;
     private java.lang.Object 		queueLog = new java.lang.Object();
-    private String                      priorityProp = Environment.getProperty("jacorb.poa.thread_priority");
     private int                         threadPriority = Thread.MAX_PRIORITY;
 
     /**
@@ -88,33 +95,41 @@ public final class RequestController
 
     RequestController( POA _poa,
                        org.jacorb.orb.ORB _orb,
-                       AOM _aom,
-                       Logger _logger)
+                       AOM _aom)
     {
-        super ("RequestController-" + (++count));
+        super("RequestController-" + (++count));
         poa = _poa;
         aom = _aom;
         orb = _orb;
-        logger = _logger;
 
-        requestQueue = new RequestQueue(this, logger);
+        requestQueue = new RequestQueue(this);
+
         activeRequestTable =
-            poa.isSingleThreadModel() ? new Hashtable(1) : new Hashtable(Environment.threadPoolMax());
-        getPoolManager();
+            poa.isSingleThreadModel() ? 
+            new Hashtable(1) : 
+            new Hashtable(threadPoolMax);
+    }
 
-        if( priorityProp != null )
-        {
-            try
-            {
-                threadPriority = Integer.parseInt( priorityProp );
-            }
-            catch( NumberFormatException nfe )
-            {
-                logger.error( "ERROR: Can't create int from >" +
-                                       priorityProp + "<\n" +
-                              "Please check property \"jacorb.poa.thread_priority\"" );
-            }
-        }
+   
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = 
+            (org.jacorb.config.Configuration)myConfiguration;
+
+        logger = configuration.getNamedLogger("jacorb.poa.controller");
+
+        requestQueue.configure(myConfiguration);
+
+        threadPoolMin = 
+            configuration.getAttributeAsInteger("jacorb.poa.thread_pool_min", 5);
+
+        threadPoolMax = 
+            configuration.getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
+
+        threadPriority = 
+            configuration.getAttributeAsInteger("jacorb.poa.thread_priority", 
+                                                Thread.MAX_PRIORITY);
 
         if( threadPriority < Thread.MIN_PRIORITY )
             threadPriority = Thread.MIN_PRIORITY;
@@ -123,8 +138,12 @@ public final class RequestController
 
         setPriority(threadPriority);
         setDaemon(true);
+
+        configured = true;
+        getPoolManager();
         start();
     }
+
 
     void clearUpPool()
     {
@@ -200,6 +219,9 @@ public final class RequestController
 
     RPPoolManager getPoolManager()
     {
+        if (!configured)
+            throw new Error("Internal: not configured");
+
         if (poolManager == null)
         {
             if (poa.isSingleThreadModel())
@@ -210,15 +232,11 @@ public final class RequestController
                         new RPPoolManager(orb.getPOACurrent(), 1, 1, logger);
                 }
                 poolManager = singletonPoolManager;
-
             }
             else
             {
                 poolManager =
-                    new RPPoolManager(orb.getPOACurrent(),
-                                      Environment.threadPoolMin(),
-                                      Environment.threadPoolMax(),
-                                      logger);
+                    new RPPoolManager(orb.getPOACurrent(),threadPoolMin, threadPoolMax, logger);
             }
         }
         return poolManager;
@@ -252,7 +270,6 @@ public final class RequestController
 
         synchronized (this)
         {
-
             if (waitForCompletionCalled)
             {
                 /* state has changed to holding, discarding or inactive */
@@ -558,7 +575,6 @@ public final class RequestController
 
     synchronized void waitForObjectCompletion( byte[] oid )
     {
-
         ByteArrayKey oidbak = new ByteArrayKey( oid );
 
         while (activeRequestTable.contains(oidbak))
@@ -599,7 +615,7 @@ public final class RequestController
                 {
                     if (logger.isDebugEnabled())
                     {
-                        logger.debug("RequestController waits for queue");
+                        logger.debug("waiting for queue");
                     }
                     queueLog.wait();
                 }

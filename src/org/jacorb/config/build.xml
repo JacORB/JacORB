@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../etc/common.xml"> ]>
+
+<project name="config" default="all" basedir="../../../..">
+
+  <!-- ==================================================== -->
+  <!--             ORB build file                         -->
+  <!-- $Id$ -->
+  <!-- ==================================================== -->
+
+   &common;
+
+   <target name="all" depends="init,compile" description="Compile config files"/>
+
+   <target name="compile">
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/config/*.java"/>
+      </antcall>
+   </target>
+
+
+   <target name="clean">
+      <delete file="${src}/org/jacorb/orb/Reference.java"/>
+   </target>
+</project>

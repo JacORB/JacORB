@@ -35,11 +35,12 @@ import org.jacorb.notification.filter.EvaluationResult;
 
 public class EvaluationResultTest extends TestCase {
 
-    EvaluationResult evaluationResult_;
+    private EvaluationResult evaluationResult_;
 
     public void setUp() throws Exception {
         evaluationResult_ = new EvaluationResult();
     }
+
 
     public void testPlus() throws Exception {
         EvaluationResult a, b;
@@ -63,19 +64,24 @@ public class EvaluationResultTest extends TestCase {
         assertTrue(c.isFloat());
     }
 
+
     public void testSetString() throws Exception {
         evaluationResult_.setString("hallo");
+        assertEquals("hallo", evaluationResult_.getString());
     }
+
 
     public void testSetInt() throws Exception {
         evaluationResult_.setLong(1);
         assertTrue(evaluationResult_.getLong() == 1);
     }
 
+
     public void testSetFloat() throws Exception {
         evaluationResult_.setFloat(2f);
         assertTrue(evaluationResult_.getFloat() == 2f);
     }
+
 
     public void testSetBoolean() throws Exception {
         evaluationResult_ = EvaluationResult.BOOL_TRUE;
@@ -89,26 +95,15 @@ public class EvaluationResultTest extends TestCase {
         assertTrue(!evaluationResult_.getBool());
     }
 
-    /**
-     * Creates a new <code>EvaluationResultTest</code> instance.
-     *
-     * @param name test name
-     */
+
     public EvaluationResultTest(String name){
         super(name);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite(){
         TestSuite suite = new TestSuite(EvaluationResultTest.class);
 
         return suite;
     }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
 }

@@ -36,8 +36,8 @@ import org.omg.CosNotifyChannelAdmin.AdminNotFound;
  * @version $Id$
  */
 
-public class WhiteBoard 
-    extends IWhiteBoardPOA 
+public class WhiteBoard
+    extends IWhiteBoardPOA
     implements IWhiteBoardOperations, WhiteboardVars {
 
     // zur Erzeugung einer eindeutigen Id
@@ -45,7 +45,7 @@ public class WhiteBoard
 
     EventChannel channel_;
     FilterFactory filterFactory_;
-    
+
     // alle angemeldeten Workgroups
     protected Map workgroups_;
 
@@ -64,13 +64,13 @@ public class WhiteBoard
 	this(orb, channel, 400, 400);
     }
 
-    public WhiteBoard(ORB orb, 
+    public WhiteBoard(ORB orb,
 		      EventChannel channel,
-		      int xsize, 
+		      int xsize,
 		      int ysize) throws AdminLimitExceeded {
 
 	System.out.println("WhiteBoard.init()");
-	
+
 	_this(orb);
 	workgroups_ = new Hashtable();
 	clear();
@@ -93,31 +93,32 @@ public class WhiteBoard
 
 	Integer _id = new Integer(COUNT++);
 	System.out.println("workgroups: " + workgroups_ + ".put(" + _id + ", " + group);
-	
+
 	workgroups_.put(_id, group);
 
 	IRegistrationInfo _registrationInfo = new IRegistrationInfo();
 	_registrationInfo.workgroup_identifier = _id.intValue();
 
-	IntHolder 
-	    _supplierAdminId = new IntHolder(), 
+	IntHolder
+	    _supplierAdminId = new IntHolder(),
 	    _consumerAdminId = new IntHolder();
 
 	Filter _filter = null;
 	try {
 	    _filter = filterFactory_.create_filter("EXTENDED_TCL");
-	    
+
 	    ConstraintExp[] _constraints = new ConstraintExp[1];
 	    _constraints[0] = new ConstraintExp();
 	    _constraints[0].event_types = new EventType[] {new EventType(EVENT_DOMAIN, "*")};
 	    _constraints[0].constraint_expr = "$.header.variable_header(" + WORKGROUP_ID + ") != " + _id.intValue();
 
+
 	    _filter.add_constraints(_constraints);
 
-	    SupplierAdmin _supplierAdmin = 
+	    SupplierAdmin _supplierAdmin =
 		channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP, _supplierAdminId);
 
-	    ConsumerAdmin _consumerAdmin = 
+	    ConsumerAdmin _consumerAdmin =
 		channel_.new_for_consumers(InterFilterGroupOperator.AND_OP, _consumerAdminId);
 	    _consumerAdmin.add_filter(_filter);
 
@@ -136,7 +137,7 @@ public class WhiteBoard
 	    ig.printStackTrace();
 	} catch (InvalidConstraint ic) {
 	    ic.printStackTrace();
-	}
+        }
 	throw new RuntimeException();
     }
 
@@ -145,7 +146,7 @@ public class WhiteBoard
 
 	Integer _id = new Integer(workgroup);
 
-	LocalRegistrationInfo _info = 
+	LocalRegistrationInfo _info =
 	    (LocalRegistrationInfo)registrationInfo_.get(_id);
 
 	try {
@@ -155,8 +156,8 @@ public class WhiteBoard
 	}
 
 	return (workgroups_.remove(_id) != null);
-    }	
-    
+    }
+
     // Whiteboard lo"schen
     public void clear() {
 	//	updates_ = new Queue();
@@ -164,8 +165,8 @@ public class WhiteBoard
 
 } // WhiteBoard
 
-class Dispatcher 
-    extends Thread 
+class Dispatcher
+    extends Thread
     implements WhiteboardVars, StructuredPushSupplierOperations {
 
     boolean connected_ = false;
@@ -175,14 +176,14 @@ class Dispatcher
     ORB orb_;
     IntHolder myConsumerId_ = new IntHolder();
     static long SLEEP = 10000L;
-    
-    public Dispatcher(ORB orb, 
-		      WhiteBoard master, 
+
+    public Dispatcher(ORB orb,
+		      WhiteBoard master,
 		      SupplierAdmin supplierAdmin) throws AdminLimitExceeded {
 
 	master_ = master;
 	orb_ = orb;
-	myConsumer_ = 
+	myConsumer_ =
 	    StructuredProxyPushConsumerHelper.narrow(supplierAdmin.obtain_notification_push_consumer(ClientType.STRUCTURED_EVENT, myConsumerId_));
 	connected_ = tryConnect();
     }
@@ -231,7 +232,7 @@ class Dispatcher
 		    return;
 		}
 	    }
-	    
+
 	    if (!connected_) {
 		connected_ = tryConnect();
 		if (!connected_) {
@@ -251,7 +252,7 @@ class Dispatcher
 	    }
 	}
     }
-    
+
     public void disconnect_structured_push_supplier() {
 	connected_ = false;
     }

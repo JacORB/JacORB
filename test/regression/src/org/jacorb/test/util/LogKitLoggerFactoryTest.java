@@ -22,8 +22,8 @@ package org.jacorb.test.util;
 
 import java.util.Properties;
 
-import org.jacorb.util.Environment;
-import org.jacorb.util.LogKitLoggerFactory;
+import org.jacorb.config.Configuration;
+import org.apache.avalon.framework.logger.Logger;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -37,28 +37,10 @@ import junit.framework.TestSuite;
 
 public class LogKitLoggerFactoryTest extends TestCase
 {
-    static int defaultPriority;
-
-    static {
-        String defaultPriorityString =
-            Environment.getProperty("jacorb.log.default.verbosity");
-
-        if (defaultPriorityString != null)
-        {
-            try
-            {
-                defaultPriority = Integer.parseInt(defaultPriorityString);
-            }
-            catch (NumberFormatException nfe)
-            {
-                defaultPriority = 0;
-            }
-        }
-    }
-
     ////////////////////////////////////////
 
-    LogKitLoggerFactory factory;
+    Configuration config;
+    int defaultPriority = 0;
 
     ////////////////////////////////////////
 
@@ -80,33 +62,45 @@ public class LogKitLoggerFactoryTest extends TestCase
         props.setProperty("jacorb.trailingspace.test1", "INFO ");
         props.setProperty("jacorb.trailingspace.test2", "INFO");
 
-        Environment.addProperties(props);
+        config = new Configuration ("jacorb",props,null);
 
-        factory = new LogKitLoggerFactory();
+        defaultPriority = config.getAttributeAsInteger ("jacorb.log.default.verbosity",0);
     }
 
+    private int priorityFor(Logger l)
+    {
+        if (l.isDebugEnabled())
+            return 4;
+        else if (l.isInfoEnabled())
+            return 3;
+        else if (l.isWarnEnabled())
+            return 2;
+        else if (l.isErrorEnabled())
+            return 1;
+        return 0;
+    }
 
     public void testGetPriorityForNamedLogger() throws Exception
     {
-        assertEquals(defaultPriority, factory.getPriorityForNamedLogger("foologger"));
+        assertEquals(defaultPriority, priorityFor(config.getNamedLogger("foologger")));
 
-        assertEquals(2, factory.getPriorityForNamedLogger("jacorb"));
+        assertEquals(2, priorityFor(config.getNamedLogger("jacorb")));
 
-        assertEquals(2, factory.getPriorityForNamedLogger("jacorb.other_component"));
+        assertEquals(2, priorityFor(config.getNamedLogger("jacorb.other_component")));
 
-        assertEquals(2, factory.getPriorityForNamedLogger("jacorb.other_component.sub"));
+        assertEquals(2, priorityFor(config.getNamedLogger("jacorb.other_component.sub")));
 
 
-        assertEquals(3, factory.getPriorityForNamedLogger("jacorb.component"));
+        assertEquals(3, priorityFor(config.getNamedLogger("jacorb.component")));
 
-        assertEquals(3, factory.getPriorityForNamedLogger("jacorb.component.subcomponent2"));
+        assertEquals(3, priorityFor(config.getNamedLogger("jacorb.component.subcomponent2")));
 
-        assertEquals(4, factory.getPriorityForNamedLogger("jacorb.component.subcomponent"));
+        assertEquals(4, priorityFor(config.getNamedLogger("jacorb.component.subcomponent")));
 
-        assertEquals(4, factory.getPriorityForNamedLogger("jacorb.component.subcomponent.sub"));
+        assertEquals(4, priorityFor(config.getNamedLogger("jacorb.component.subcomponent.sub")));
 
-        assertEquals(factory.getPriorityForNamedLogger("jacorb.trailingspace.test1"),
-                     factory.getPriorityForNamedLogger("jacorb.trailingspace.test2"));
+        assertEquals(priorityFor(config.getNamedLogger("jacorb.trailingspace.test1")),
+                     priorityFor(config.getNamedLogger("jacorb.trailingspace.test2")));
     }
 
 

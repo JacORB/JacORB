@@ -19,12 +19,6 @@ import org.omg.CosNotifyComm.StructuredPullConsumerOperations;
 import org.omg.CosNotifyComm.StructuredPullConsumerPOATie;
 import org.omg.PortableServer.POA;
 
-import org.jacorb.util.Debug;
-
-import junit.framework.TestCase;
-import org.apache.avalon.framework.logger.Logger;
-
-
 public class StructuredPullReceiver
     extends Thread
     implements StructuredPullConsumerOperations, TestClientOperations {
@@ -34,7 +28,6 @@ public class StructuredPullReceiver
     POA poa_;
     boolean connected_;
     StructuredProxyPullSupplier pullSupplier_;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     boolean received_;
     long TIMEOUT = 2000;
     boolean error_;
@@ -86,14 +79,12 @@ public class StructuredPullReceiver
         BooleanHolder _success = new BooleanHolder();
         _success.value = false;
         long _startTime = System.currentTimeMillis();
-        logger_.info("start receiver");
 
         try {
             while (true) {
                 event_ = pullSupplier_.try_pull_structured_event(_success);
 
                 if (_success.value) {
-                    logger_.debug("Received Event");
                     received_ = true;
                     break;
                 }
@@ -101,7 +92,6 @@ public class StructuredPullReceiver
                 if (System.currentTimeMillis() < _startTime + TIMEOUT) {
                     Thread.yield();
                 } else {
-                    logger_.debug("Timeout");
                     received_ = false;
                     break;
                 }

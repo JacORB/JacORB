@@ -23,9 +23,6 @@ package org.jacorb.poa;
 import org.jacorb.poa.util.*;
 import org.jacorb.poa.except.*;
 
-import org.jacorb.util.Environment;
-import org.jacorb.util.Debug;
-
 import org.jacorb.orb.dsi.ServerRequest;
 
 import org.omg.PortableServer.*;
@@ -35,6 +32,7 @@ import org.omg.PortableServer.POAManagerPackage.State;
 import org.omg.BiDirPolicy.*;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 import java.util.*;
 
@@ -48,12 +46,18 @@ import java.util.*;
 
 public class POA
     extends _POALocalBase
+    implements Configurable
 {
     // my orb instance
     private org.jacorb.orb.ORB        orb;
 
+    /** the configuration object for this POA instance */
+    private org.jacorb.config.Configuration configuration = null;
+
     /** the POA logger instance */
-    private Logger logger = Debug.getNamedLogger("jacorb.poa");
+    private Logger logger = null;
+    private byte[] implName = null;
+    private byte[] serverId = null;
 
     /** used to hold the POA name for logging */
     private String logPrefix = "<unset>";
@@ -125,9 +129,11 @@ public class POA
     private java.lang.Object      unknownAdapterLog = new java.lang.Object();
     private boolean               unknownAdapterCalled;
 
-    private POA()
-    {
-    }
+    private boolean configured = false;
+
+//     private POA()
+//     {
+//     }
 
     private POA(org.jacorb.orb.ORB _orb,
                 String _name,
@@ -202,30 +208,63 @@ public class POA
             }
         }
 
+//         watermark = generateWatermark();
+
+//         aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logger) : null;
+
+//         // GB: modified
+//         requestController = new RequestController(this, orb, aom);
+//         poaManager.registerPOA(this);
+//         monitor = new POAMonitorLightImpl();
+
+//         monitor.init( this, aom,
+//                       requestController.getRequestQueue(),
+//                       requestController.getPoolManager(),
+//                       "POA " + name );
+
+//         monitor.openMonitor();
+//         if (poaListener != null)
+//             poaListener.poaCreated(this);
+    }
+
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.poa");
+
+        implName = 
+            configuration.getAttribute("jacorb.implname","standardImplName").getBytes();
+        serverId = 
+            String.valueOf((long)(Math.random()*9999999999L)).getBytes();      
+
         watermark = generateWatermark();
 
         aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logger) : null;
 
         // GB: modified
-        requestController = new RequestController(this, orb, aom, logger);
+        requestController = new RequestController(this, orb, aom);
+        requestController.configure(configuration);
 
         poaManager.registerPOA(this);
-
         monitor = new POAMonitorLightImpl();
         monitor.init( this, aom,
                       requestController.getRequestQueue(),
                       requestController.getPoolManager(),
-                      "POA " + name, logger );
+                      "POA " + name );
 
         monitor.openMonitor();
-
         if (poaListener != null)
             poaListener.poaCreated(this);
+
+        monitor.configure(configuration);
 
         if (logger.isDebugEnabled())
         {
             logger.debug("POA " + name + " ready");
         }
+        configured = true;
     }
 
 
@@ -237,6 +276,9 @@ public class POA
 
     public void _addPOAEventListener(EventListener listener)
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         if (listener instanceof POAListener)
             addPOAListener((POAListener)listener);
 
@@ -259,7 +301,10 @@ public class POA
     public org.jacorb.poa.POA _getChildPOA( String adapter_name )
         throws ParentIsHolding
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
+
+        checkDestructionApparent();
 
         POA child = (POA) childs.get(adapter_name);
 
@@ -367,6 +412,9 @@ public class POA
     public void _invoke(ServerRequest request)
         throws WrongAdapter
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         synchronized(poaDestructionLog)
         {
             checkDestructionApparent ();
@@ -444,12 +492,14 @@ public class POA
         /* the only policy value that differs from default */
         org.omg.CORBA.Policy [] policies= null;
 
-        policies= new org.omg.CORBA.Policy[1];
+        policies = new org.omg.CORBA.Policy[1];
 
         policies[0] =
-        new org.jacorb.poa.policy.ImplicitActivationPolicy(ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
+            new org.jacorb.poa.policy.ImplicitActivationPolicy(ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
+
         POA rootPOA =
-        new POA(orb, POAConstants.ROOT_POA_NAME, null, poaMgr, policies);
+            new POA(orb, POAConstants.ROOT_POA_NAME, null, poaMgr, policies);
+
         return rootPOA;
     }
 
@@ -475,6 +525,9 @@ public class POA
     public byte[] activate_object(Servant servant)
         throws ServantAlreadyActive, WrongPolicy
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         checkDestructionApparent ();
 
         if (!isRetain() || !isSystemId())
@@ -499,6 +552,9 @@ public class POA
     public void activate_object_with_id( byte[] oid, Servant servant )
         throws  ServantAlreadyActive, ObjectAlreadyActive, WrongPolicy
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         checkDestructionApparent ();
 
         if( oid == null )
@@ -642,12 +698,15 @@ public class POA
      * goes shutdown and this method will called (not spec.)
      */
 
-    public org.omg.PortableServer.POA create_POA(String adapter_name,
-                                                 org.omg.PortableServer.POAManager a_POAManager,
-                                                 org.omg.CORBA.Policy[] policies)
+    public org.omg.PortableServer.POA create_POA( String adapter_name,
+                                                  org.omg.PortableServer.POAManager a_POAManager,
+                                                  org.omg.CORBA.Policy[] policies)
         throws AdapterAlreadyExists, InvalidPolicy
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
+
+        checkDestructionApparent();
 
         String poa_name = POAUtil.maskStr(adapter_name);
 
@@ -679,7 +738,8 @@ public class POA
         synchronized (poaCreationLog)
         {
             if ((child = (POA)childs.get(poa_name)) != null &&
-                !child.isDestructionApparent()) {
+                !child.isDestructionApparent()) 
+            {
                 throw new AdapterAlreadyExists();
             }
             // wait for completion of a concurrent destruction process
@@ -688,12 +748,15 @@ public class POA
                 POA aChild;
                 while ((aChild = (POA)childs.get(poa_name)) != null)
                 {
-                    try {
+                    try 
+                    {
                         poaCreationLog.wait();  // notification is in unregisterChild
-                    } catch (InterruptedException e) {
+                    } 
+                    catch (InterruptedException e) {
                     }
                     // anyone else has won the race
-                    if (child != aChild) throw new AdapterAlreadyExists();
+                    if (child != aChild) 
+                        throw new AdapterAlreadyExists();
                 }
             }
 
@@ -701,12 +764,25 @@ public class POA
                 throw new org.omg.CORBA.BAD_INV_ORDER();
 
             POAManager aPOAManager =
-            a_POAManager == null ? new POAManager(orb) : (POAManager) a_POAManager;
-            child = new POA(orb, poa_name, this, aPOAManager, policyList);
+                a_POAManager == null ? new POAManager(orb) : (POAManager) a_POAManager;
+
+            child = 
+                new POA(orb, poa_name, this, aPOAManager, policyList);
+
+            try
+            {
+                child.configure(configuration);
+            }
+            catch (ConfigurationException e)
+            {
+                throw new org.omg.CORBA.INTERNAL(e.getMessage());
+            }
+
             // notify a poa listener
             try
             {
-                if (poaListener != null) poaListener.poaCreated(child);
+                if (poaListener != null) 
+                    poaListener.poaCreated(child);
             }
             catch (org.omg.CORBA.INTERNAL e)
             {
@@ -728,11 +804,14 @@ public class POA
     public org.omg.CORBA.Object create_reference (String intf_rep_id)
         throws WrongPolicy
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
 
-        if (!isSystemId ())
+        checkDestructionApparent();
+
+        if (!isSystemId())
         {
-            throw new WrongPolicy ();
+            throw new WrongPolicy();
         }
 
         return (getReference (generateObjectId (), intf_rep_id, false));
@@ -748,6 +827,9 @@ public class POA
                                                          String intf_rep_id)
         throws WrongPolicy
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         checkDestructionApparent();
 
         if (isSystemId() && !previouslyGeneratedObjectId (oid))
@@ -795,6 +877,9 @@ public class POA
     public synchronized void deactivate_object(byte[] oid)
         throws ObjectNotActive, WrongPolicy
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         if (!isRetain())
             throw new WrongPolicy();
 
@@ -813,6 +898,8 @@ public class POA
     public void destroy( boolean etherealize_objects,
                          boolean wait_for_completion )
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
 
         if (wait_for_completion && isInInvocationContext())
             throw new org.omg.CORBA.BAD_INV_ORDER();
@@ -889,12 +976,14 @@ public class POA
                                                 boolean activate_it)
         throws AdapterNonExistent
     {
-        checkDestructionApparent ();
+        checkDestructionApparent();
 
         String poa_name = POAUtil.maskStr(adapter_name);
 
-        POA child = (POA) childs.get(poa_name);
-        if (child == null || child.isDestructionApparent()) {
+        POA child = (POA)childs.get(poa_name);
+
+        if (child == null || child.isDestructionApparent()) 
+        {
 
             boolean successful = false;
 
@@ -979,7 +1068,10 @@ public class POA
     public Servant get_servant()
         throws NoServant, WrongPolicy
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
+
+        checkDestructionApparent();
 
         if (!isUseDefaultServant())
             throw new WrongPolicy();
@@ -993,7 +1085,10 @@ public class POA
     public org.omg.PortableServer.ServantManager get_servant_manager()
         throws WrongPolicy
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
+
+        checkDestructionApparent();
 
         if (!isUseServantManager())
             throw new WrongPolicy();
@@ -1017,9 +1112,9 @@ public class POA
         if (poaId == null)
         {
             byte[] impl_name =
-            POAUtil.maskId( (Environment.implName() != null) ?
-                            Environment.implName() :
-                            Environment.serverId() );
+                POAUtil.maskId( (implName != null) ?
+                                implName :
+                                serverId );
             int in_length = impl_name.length;
 
             byte[] poa_name = _getQualifiedName().getBytes();
@@ -1137,15 +1232,15 @@ public class POA
         org.omg.PortableServer.POAManagerPackage.State._ACTIVE ? true : false;
     }
 
-    protected void checkDestructionApparent ()
+    protected void checkDestructionApparent()
     {
-        if (isDestructionApparent ())
+        if (isDestructionApparent())
         {
             throw new org.omg.CORBA.OBJECT_NOT_EXIST ("POA destroyed");
         }
     }
 
-    protected static void checkNotLocal (org.omg.CORBA.Object obj)
+    protected static void checkNotLocal(org.omg.CORBA.Object obj)
         throws WrongAdapter
     {
         if (obj instanceof org.omg.CORBA.LocalObject)
@@ -1166,19 +1261,26 @@ public class POA
 
     protected boolean isDiscarding()
     {
-        return poaManager.get_state().value() == org.omg.PortableServer.POAManagerPackage.State._DISCARDING ? true : false;
+        return poaManager.get_state().value() == 
+            org.omg.PortableServer.POAManagerPackage.State._DISCARDING ? true : false;
     }
 
-    protected boolean isHolding() {
-        return poaManager.get_state().value() == org.omg.PortableServer.POAManagerPackage.State._HOLDING ? true : false;
+    protected boolean isHolding() 
+    {
+        return poaManager.get_state().value() == 
+            org.omg.PortableServer.POAManagerPackage.State._HOLDING ? true : false;
     }
 
-    protected boolean isImplicitActivation() {
-        return implicitActivationPolicy != null && implicitActivationPolicy.value() == ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION;
+    protected boolean isImplicitActivation() 
+    {
+        return implicitActivationPolicy != null && 
+            implicitActivationPolicy.value() == ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION;
     }
 
-    protected boolean isInactive() {
-        return poaManager.get_state().value() == org.omg.PortableServer.POAManagerPackage.State._INACTIVE ? true : false;
+    protected boolean isInactive() 
+    {
+        return poaManager.get_state().value() == 
+            org.omg.PortableServer.POAManagerPackage.State._INACTIVE ? true : false;
 
     }
 
@@ -1805,7 +1907,7 @@ public class POA
                 if (((LifespanPolicy) policies[i]).value() ==
                     LifespanPolicyValue.PERSISTENT)
                 {
-                    if ( Environment.implName() == null )
+                    if ( implName == null )
                     {
                         logger.fatalError("cannot create a persistent poa! (implname property is not used)");
                         return i;

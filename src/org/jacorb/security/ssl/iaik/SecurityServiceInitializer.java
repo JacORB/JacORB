@@ -26,8 +26,6 @@ import org.omg.PortableInterceptor.ORBInitInfoPackage.*;
 import org.omg.SecurityReplaceable.*;
 import org.omg.Security.*;
 
-import org.jacorb.util.Environment;
-
 /**
  * The SecurityServiceInitializer class is responsible for setting up
  * the secure access interceptors and reserving slots in PICurrent.
@@ -37,8 +35,8 @@ import org.jacorb.util.Environment;
  */
 
 public class SecurityServiceInitializer
-        extends org.omg.CORBA.LocalObject 
-        implements ORBInitializer
+    extends org.omg.CORBA.LocalObject 
+    implements ORBInitializer
 {    
     /**
     * This method registers the interceptors.

@@ -2,13 +2,11 @@ package org.jacorb.test.notification.node;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationException;
-import org.jacorb.notification.filter.etcl.AbstractTCLNode;
-import org.jacorb.notification.filter.etcl.ETCLComponentName;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.ParseException;
+import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.ETCLComponentName;
 import org.jacorb.notification.filter.etcl.StaticTypeChecker;
 import org.jacorb.notification.filter.etcl.StaticTypeException;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
@@ -16,6 +14,8 @@ import org.jacorb.notification.filter.etcl.TCLParser;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.NamedValue;
 import org.jacorb.test.notification.NamedValueSeqHelper;
+import org.jacorb.test.notification.NotificationTestCase;
+import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.jacorb.test.notification.NotificationTestUtils;
 import org.jacorb.test.notification.Person;
 import org.jacorb.test.notification.PersonHelper;
@@ -24,21 +24,14 @@ import org.jacorb.test.notification.TestUnion;
 import org.jacorb.test.notification.TestUnionHelper;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
-import antlr.RecognitionException;
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * JUnit TestCase. Test Parsing and Evaluation of various ETCL
@@ -48,15 +41,10 @@ import junit.framework.TestSuite;
  * @version $Id$
  */
 
-public class TCLTest extends TestCase
+public class TCLTest extends NotificationTestCase
 {
-
     ApplicationContext applicationContext_;
-    ORB orb_;
     NotificationTestUtils testUtils_;
-    DynamicEvaluator dynamicEvaluator_;
-    DynAnyFactory dynAnyFactory_;
-    MessageFactory notificationEventFactory_;
 
     //////////////////////////////////////////////////
     // the testdata
@@ -114,12 +102,12 @@ public class TCLTest extends TestCase
         lonv[ 0 ] = new NamedValue( "name", "value" );
         _t5.named_value_array( lonv );
 
-        testUnion_ = orb_.create_any();
-        testUnion1_ = orb_.create_any();
-        testUnion2_ = orb_.create_any();
-        testUnion3_ = orb_.create_any();
-        testUnion4_ = orb_.create_any();
-        testUnion5_ = orb_.create_any();
+        testUnion_ = getORB().create_any();
+        testUnion1_ = getORB().create_any();
+        testUnion2_ = getORB().create_any();
+        testUnion3_ = getORB().create_any();
+        testUnion4_ = getORB().create_any();
+        testUnion5_ = getORB().create_any();
 
         TestUnionHelper.insert( testUnion_, _t );
         TestUnionHelper.insert( testUnion1_, _t1 );
@@ -163,35 +151,27 @@ public class TCLTest extends TestCase
         _person.aliases = new String[] {"Alias0", "Alias1", "Alias2"};
         _person.numbers = new int[] {10, 20, 30, 40, 50};
 
-        testPerson_ = orb_.create_any();
+        testPerson_ = getORB().create_any();
         PersonHelper.insert( testPerson_, _person );
         return ( _person );
     }
 
     public void setUp() throws Exception
     {
-        orb_ = ORB.init( new String[ 0 ], null );
+        testUtils_ = new NotificationTestUtils( getORB() );
 
-        testUtils_ = new NotificationTestUtils( orb_ );
+        applicationContext_ = new ApplicationContext( getORB(), getPOA() );
 
-        POA _poa =
-            POAHelper.narrow( orb_.resolve_initial_references( "RootPOA" ) );
-
-        applicationContext_ = new ApplicationContext( orb_, _poa );
-
-        dynAnyFactory_ =
-            DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
-
-        dynamicEvaluator_ = new DynamicEvaluator(dynAnyFactory_ );
+        applicationContext_.configure(getConfiguration());
 
         Person _person = setUpPerson();
 
         setUpTestUnion( _person );
     }
 
-    public TCLTest( String name )
+    public TCLTest( String name, NotificationTestCaseSetup setup )
     {
-        super( name );
+        super( name, setup );
     }
 
     ////////////////////
@@ -694,14 +674,14 @@ public class TCLTest extends TestCase
     {
         StructuredEvent _structuredEvent = testUtils_.getStructuredEvent();
 
-        Any _any = orb_.create_any();
+        Any _any = getORB().create_any();
 
         _structuredEvent.header.variable_header = new Property[ 2 ];
 
         _any.insert_long( 10 );
         _structuredEvent.header.variable_header[ 0 ] = new Property( "long", _any );
 
-        _any = orb_.create_any();
+        _any = getORB().create_any();
         _any.insert_string( "text" );
         _structuredEvent.header.variable_header[ 1 ] = new Property( "string", _any );
 
@@ -716,13 +696,13 @@ public class TCLTest extends TestCase
     {
         StructuredEvent _structuredEvent = testUtils_.getStructuredEvent();
 
-        Any _any = orb_.create_any();
+        Any _any = getORB().create_any();
 
         Property[] _props = new Property[ 2 ];
         _any.insert_long( 10 );
         _props[ 0 ] = new Property( "long", _any );
 
-        _any = orb_.create_any();
+        _any = getORB().create_any();
         _any.insert_string( "text" );
         _props[ 1 ] = new Property( "string", _any );
 
@@ -746,7 +726,7 @@ public class TCLTest extends TestCase
         _nv[ 0 ] = new NamedValue( "name1", "value1" );
         _nv[ 1 ] = new NamedValue( "name2", "value2" );
 
-        Any _a = orb_.create_any();
+        Any _a = getORB().create_any();
         NamedValueSeqHelper.insert( _a, _nv );
         runEvaluation( _a, "$name1 == $(name1)" );
         runEvaluation( _a, "$name2 == $(name2)" );
@@ -796,13 +776,13 @@ public class TCLTest extends TestCase
 
     public void testPassOverUnnamedLayers() throws Exception
     {
-        Any _any = orb_.create_any();
+        Any _any = getORB().create_any();
         _any.insert_any( testPerson_ );
 
         runEvaluation( _any, "$.first_name == 'Firstname'" );
 
 
-        Any _any2 = orb_.create_any();
+        Any _any2 = getORB().create_any();
         _any2.insert_any( _any );
 
         runEvaluation( _any, "$.first_name == 'Firstname'" );
@@ -810,7 +790,7 @@ public class TCLTest extends TestCase
         runEvaluation( _any, "$ == 'FirstName'", "FALSE" );
 
 
-        Any _any3 = orb_.create_any();
+        Any _any3 = getORB().create_any();
         _any3.insert_long( 10 );
 
         runEvaluation( _any3, "$ == 10" );
@@ -829,7 +809,7 @@ public class TCLTest extends TestCase
     {
         runEvaluation( testPerson_, "$curtime._repos_id == 'IDL:omg.org/TimeBase/UtcT:1.0'" );
 
-        Any _timeAny = orb_.create_any();
+        Any _timeAny = getORB().create_any();
         UtcT _time = org.jacorb.util.Time.corbaTime();
         UtcTHelper.insert( _timeAny, _time );
 
@@ -888,12 +868,12 @@ public class TCLTest extends TestCase
 
     public void testWhiteboardExpr() throws Exception
     {
-        Any _any = orb_.create_any();
+        Any _any = getORB().create_any();
 
         StructuredEvent _event = testUtils_.getStructuredEvent();
         _event.header.variable_header = new Property[ 1 ];
 
-        Any _anyInt = orb_.create_any();
+        Any _anyInt = getORB().create_any();
         _anyInt.insert_long( 10 );
 
         _event.header.variable_header[ 0 ] =
@@ -911,22 +891,9 @@ public class TCLTest extends TestCase
 
     ////////////////////////////////////////
 
-    public static Test suite()
+    public static Test suite() throws Exception
     {
-        TestSuite suite;
-
-        suite = new TestSuite();
-
-        //suite.addTest(new TCLTest("testVariableCurtime"));
-
-        suite = new TestSuite( TCLTest.class );
-
-        return suite;
-    }
-
-    public static void main( String[] args )
-    {
-        junit.textui.TestRunner.run( suite() );
+        return NotificationTestCase.suite(TCLTest.class);
     }
 }
 

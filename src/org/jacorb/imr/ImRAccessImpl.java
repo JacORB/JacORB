@@ -64,7 +64,20 @@ public class ImRAccessImpl
         {
         }
 
-        if (result.reg == null || result.reg._non_existent())
+        boolean non_exist = true;
+        if (result.reg != null)
+        {
+            try
+            {
+                non_exist = result.reg._non_existent();
+            }
+            catch (org.omg.CORBA.SystemException e)
+            {
+                non_exist = true;
+            }
+        }
+
+        if (non_exist)
         {
             throw new INTERNAL ("Unable to resolve reference to ImR");
         }

@@ -22,8 +22,9 @@ package org.jacorb.ir;
 
 import java.util.*;
 
-import org.jacorb.util.Debug;
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
+import org.apache.avalon.framework.logger.Logger;
 
 public class ModuleDef
     extends Contained
@@ -34,17 +35,25 @@ public class ModuleDef
 
     private Container           delegate;
     private String 		path = null;
+    private Logger logger;
 
     public ModuleDef( String path,
                       String full_name,
                       org.omg.CORBA.Container def_in,
-                      org.omg.CORBA.Repository ir )
+                      org.omg.CORBA.Repository ir,
+                      ClassLoader loader,
+                      POA poa,
+                      Logger logger )
         throws INTF_REPOS
     {
+        this.logger = logger;
         this.path = path;
         this.full_name = full_name.replace(fileSeparator,'/');
 
-        org.jacorb.util.Debug.output(2, "New ModuleDef " + full_name + " path: " + path);
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("New ModuleDef " + full_name + " path: " + path);
+        }
 
         def_kind = org.omg.CORBA.DefinitionKind.dk_Module;
         if (ir == null)
@@ -57,7 +66,7 @@ public class ModuleDef
 
         try
         {
-            id( RepositoryID.toRepositoryID( full_name, false ));
+            id( RepositoryID.toRepositoryID( full_name, false, loader ));
             if( full_name.indexOf( fileSeparator ) > 0 )
             {
                 name( full_name.substring( full_name.lastIndexOf( fileSeparator ) + 1 ));
@@ -68,16 +77,24 @@ public class ModuleDef
                         ((org.omg.CORBA.Contained)defined_in).absolute_name() +
                         "::" + name();
 
-                    org.jacorb.util.Debug.output( 2, "New ModuleDef 1a) name " +
-                                                 name() + " absolute: " + absolute_name  );
+                    if (this.logger.isDebugEnabled())
+                    {
+                        this.logger.debug("New ModuleDef 1a) name " +
+                                          name() + " absolute: " + 
+                                          absolute_name);
+                    }
                 }
                 else
                 {
                     absolute_name = "::" + name();
-                    org.jacorb.util.Debug.output(2, "New ModuleDef 1b) name " +
-                                                 name() + " absolute: " +
-                                                 absolute_name + " defined_in : " +
-                                                 defined_in.getClass().getName());
+
+                    if (this.logger.isDebugEnabled())
+                    {
+                        this.logger.debug("New ModuleDef 1b) name " +
+                                          name() + " absolute: " +
+                                          absolute_name + " defined_in : " +
+                                          defined_in.getClass().getName());
+                    }
                 }
             }
             else
@@ -86,18 +103,21 @@ public class ModuleDef
                 name( full_name );
                 absolute_name = "::" + name();
 
-                org.jacorb.util.Debug.output(2, "New ModuleDef 2) name " +
-                                             name() +
-                                             " absolute:" + absolute_name  );
+                if (this.logger.isDebugEnabled())
+                {
+                    this.logger.debug("New ModuleDef 2) name " +
+                                      name() +
+                                      " absolute:" + absolute_name);
+                }
             }
-            delegate = new Container( this, path, full_name );
+            delegate = new Container( this, path, full_name, loader, poa, this.logger );
 
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            this.logger.error("Caught Exception", e);
             throw new INTF_REPOS( ErrorMsg.IR_Not_Implemented,
-                                                org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
     }
 
@@ -110,9 +130,17 @@ public class ModuleDef
 
     public void loadContents()
     {
-        org.jacorb.util.Debug.output( 2, "Module " + name() +  " loading...");
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Module " + name() +  " loading...");
+        }
+
         delegate.loadContents();
-        org.jacorb.util.Debug.output( 2, "Module " + name() +  " loaded");
+
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Module " + name() +  " loaded");
+        }
     }
 
     void define()
@@ -122,12 +150,17 @@ public class ModuleDef
 
     public  org.omg.CORBA.Contained lookup(/*ScopedName*/ String name)
     {
-        org.jacorb.util.Debug.output( 2, "Module " + this.name + " lookup " + name );
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Module " + this.name + " lookup " + name);
+        }
+
         return delegate.lookup(name);
     }
 
-    public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type,
-                                              boolean exclude_inherited)
+    public org.omg.CORBA.Contained[] contents(
+        org.omg.CORBA.DefinitionKind limit_type,
+        boolean exclude_inherited)
     {
         return delegate.contents(limit_type, exclude_inherited);
     }

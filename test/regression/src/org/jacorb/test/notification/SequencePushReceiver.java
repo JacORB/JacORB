@@ -18,13 +18,8 @@ import org.omg.CosNotifyComm.SequencePushConsumerHelper;
 import org.omg.CosNotifyComm.SequencePushConsumerOperations;
 import org.omg.CosNotifyComm.SequencePushConsumerPOATie;
 
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
-
 class SequencePushReceiver extends Thread implements SequencePushConsumerOperations, TestClientOperations
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     SequenceProxyPushSupplier pushSupplier_;
     boolean received_ = false;
     boolean connected_ = false;
@@ -63,7 +58,6 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
 
     public void disconnect_sequence_push_consumer()
     {
-        logger_.info("Disconnected!");
         connected_ = false;
     }
 

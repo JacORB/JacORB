@@ -22,6 +22,13 @@ public class benchImpl
     {
 	return myStruct;
     }
+
+    public String[] stringTransfer(String myString[]) 
+    {
+	return myString;
+    }
+
+
 }
 
 

@@ -1,7 +1,9 @@
+package org.jacorb.ir;
+
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,15 +20,17 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.ir;
-
-//import org.jacorb.orb.TypeCodeUtil;
-import org.jacorb.util.Debug;
-
 import java.lang.reflect.*;
 import java.util.*;
-import org.omg.CORBA.INTF_REPOS;
 
+import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
+
+import org.apache.avalon.framework.logger.Logger;
+
+/**
+ * @version $Id$
+ */
 
 public class ExceptionDef
     extends Contained
@@ -37,12 +41,20 @@ public class ExceptionDef
     private Class                        helperClass;
     private org.omg.CORBA.StructMember[] members;
     private Hashtable	                 contained = new Hashtable();
-
-
+    private Logger logger;
+    private ClassLoader loader;
+    private POA poa;
+  
     public ExceptionDef(Class c,
-			org.omg.CORBA.Container _defined_in,
-			org.omg.CORBA.Repository ir)
+                        org.omg.CORBA.Container _defined_in,
+                        org.omg.CORBA.Repository ir,
+                        ClassLoader loader,
+                        POA poa,
+                        Logger logger)
     {
+        this.logger = logger;
+        this.loader = loader;
+        this.poa = poa;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Exception;
         containing_repository = ir;
         defined_in = _defined_in;
@@ -72,10 +84,10 @@ public class ExceptionDef
                 absolute_name = "::" + name;
             }
 
-            helperClass = RepositoryImpl.loader.loadClass(classId + "Helper") ;
+            helperClass = this.loader.loadClass(classId + "Helper") ;
             id( (String)helperClass.getDeclaredMethod("id", null).invoke( null, null ));
             type =
-                TypeCodeUtil.getTypeCode(myClass, RepositoryImpl.loader, null, classId );
+                TypeCodeUtil.getTypeCode(myClass, this.loader, null, classId, this.logger );
             try
             {
                 members = new org.omg.CORBA.StructMember[ type.member_count() ];
@@ -88,13 +100,17 @@ public class ExceptionDef
             }
             catch( Exception e )
             {
-                e.printStackTrace();
+                this.logger.error("Caught Exception", e);
             }
-            org.jacorb.util.Debug.output(2, "ExceptionDef: " + absolute_name );
+
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("ExceptionDef: " + absolute_name);
+            }
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            this.logger.error("Caught Exception", e);
             throw new INTF_REPOS( ErrorMsg.IR_Not_Implemented,
                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
@@ -107,7 +123,10 @@ public class ExceptionDef
     {
         for( int i = 0; i < members.length; i++ )
         {
-            members[i].type_def = IDLType.create( members[i].type, containing_repository);
+            members[i].type_def = IDLType.create( members[i].type, 
+                                                  containing_repository,
+                                                  this.logger,
+                                                  this.poa);
         }
     }
 
@@ -307,16 +326,5 @@ public class ExceptionDef
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 

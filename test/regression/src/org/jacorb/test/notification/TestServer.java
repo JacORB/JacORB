@@ -26,20 +26,10 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
-
-
 /**
- * TestServer.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -50,11 +40,6 @@ public class TestServer
     {
         String _servantClassName = args[0];
         int _portToSendIorTo = Integer.parseInt(args[1]);
-
-        Logger _logger = Debug.getNamedLogger(TestServer.class.getName());
-
-        _logger.debug("Remote debug");
-        _logger.info("Remote info");
 
         try
             {
@@ -87,7 +72,7 @@ public class TestServer
         }
         catch( Throwable e )
             {
-                _logger.fatalError("Error starting TestServer", e);
+
             }
     }
 }

@@ -132,8 +132,8 @@ class IRBrowser
 	}		
 	if ( treeNode != null ) 
         {
-            // wenn Node ein AbstractContainer ist oder eine assoziierte TypeSystemNode besitzt, jeweils im treeView dorthin springen
-            org.jacorb.util.Debug.output( 2, "expanding Tree: " + treeNode);
+            // wenn Node ein AbstractContainer ist oder eine assoziierte
+            // TypeSystemNode besitzt, jeweils im treeView dorthin springen
             DefaultTreeModel treeModel = 
                 (DefaultTreeModel)treeView.getModel();
             TreePath fullTreePath = 
@@ -153,7 +153,7 @@ class IRBrowser
 
     private void handleException(Throwable exception) 
     {
-	org.jacorb.util.Debug.output( 2, exception);
+        exception.printStackTrace();
     }
 
     /**
@@ -443,9 +443,7 @@ class IRBrowser
 
     public void valueChanged (TreeSelectionEvent e ) 
     {
-	// contentTable nur bei einfacher Selection ändern
-	org.jacorb.util.Debug.output(4, "IRBrowser: valueChanged (Tree...)");
-
+        // contentTable nur bei einfacher Selection ändern
         DefaultMutableTreeNode treeNode = 
             (DefaultMutableTreeNode)e.getPath().getLastPathComponent();
 

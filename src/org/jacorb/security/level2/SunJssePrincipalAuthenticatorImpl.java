@@ -33,12 +33,10 @@ import org.omg.Security.*;
 import org.jacorb.util.*;
 
 import org.apache.avalon.framework.logger.Logger;
-
-
-//import org.jacorb.security.util.*;
+import org.apache.avalon.framework.configuration.*;
 
 /**
- * PrincipalAuthenticatorImpl
+ * SunJSSEPrincipalAuthenticatorImpl
  *
  * This simple authenticator just retrieves X.509v3 certificates
  * from a Java key store
@@ -49,14 +47,30 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class SunJssePrincipalAuthenticatorImpl
     extends org.omg.CORBA.LocalObject
-    implements org.omg.SecurityLevel2.PrincipalAuthenticator
+    implements org.omg.SecurityLevel2.PrincipalAuthenticator, Configurable
 {
     private Logger logger;
+    private String keyStoreLocation = null;
+    private String storePassphrase = null;
 
     public SunJssePrincipalAuthenticatorImpl()
     {
-        logger = Debug.getNamedLogger("jacorb.security.jsse");
     }
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        org.jacorb.config.Configuration configuration = 
+            (org.jacorb.config.Configuration)myConfiguration;
+
+        logger = configuration.getNamedLogger("jacorb.security.jsse");
+        keyStoreLocation =
+            configuration.getAttribute("jacorb.security.keystore", null);
+
+        String storePassphrase =
+            configuration.getAttribute("jacorb.security.keystore_password", null);
+    }
+
 
     public int[] get_supported_authen_methods(java.lang.String mechanism)
     {
@@ -79,40 +93,8 @@ public class SunJssePrincipalAuthenticatorImpl
 	try
 	{
 	    registerProvider();
-
-            String keyStoreLocation =
-                Environment.getProperty( "jacorb.security.keystore" );
-            if ( keyStoreLocation == null )
-            {
-                System.out.print("Please enter key store file name: ");
-                keyStoreLocation = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            String storePassphrase =
-                Environment.getProperty("jacorb.security.keystore_password");
-            if ( storePassphrase == null )
-            {
-                System.out.print("Please enter store pass phrase: ");
-                storePassphrase = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
             String alias = security_name;
-            if ( alias == null )
-            {
-                System.out.print("Please enter alias  name: ");
-                alias = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            String password = null;
-            if ( auth_data == null )
-            {
-                System.out.print("Please enter password: ");
-                password = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-            else
-            {
-                password = new String( auth_data );
-            }
+            String password = new String( auth_data );
 
             if (( keyStoreLocation == null ) ||
                 ( storePassphrase == null ) ||
@@ -122,55 +104,45 @@ public class SunJssePrincipalAuthenticatorImpl
                 return AuthenticationStatus.SecAuthFailure;
             }
 
-            java.security.KeyStore keyStore = java.security.KeyStore.getInstance("JKS"/*, "SUN"*/);
+            java.security.KeyStore keyStore = 
+                java.security.KeyStore.getInstance("JKS"/*, "SUN"*/);
+
             keyStore.load(new FileInputStream(keyStoreLocation), storePassphrase.toCharArray());
             //KeyStore keyStore =
             //    KeyStoreUtil.getKeyStore( keyStoreLocation,
             //                              storePassphrase.toCharArray() );
 
-            java.security.cert.Certificate[] cert_chain = keyStore.getCertificateChain( alias );
+            java.security.cert.Certificate[] cert_chain = 
+                keyStore.getCertificateChain( alias );
 
             if( cert_chain == null )
             {
                 if (logger.isErrorEnabled())
                 {
                     logger.error( "No keys found in keystore for alias \""+
-                              alias + "\"!" );
+                                  alias + "\"!" );
                 }
-
-                if( Environment.getProperty( "jacorb.security.default_user" ) != null )
-                {
-                    if (logger.isErrorEnabled())
-                    {
-                        logger.error("Please check property \"jacorb.security.default_user\"" );
-                    }
-                }
-
                 return org.omg.Security.AuthenticationStatus.SecAuthFailure;
             }
 
-            PrivateKey priv_key = (PrivateKey)
-                keyStore.getKey ( alias,
-                                  password.toCharArray() );
-
+            PrivateKey priv_key = 
+                (PrivateKey)keyStore.getKey( alias, password.toCharArray() );
 
             KeyAndCert k_a_c = new KeyAndCert( priv_key, cert_chain );
 
-            AttributeType type = new AttributeType
-                ( new ExtensibleFamily( (short) 0,
-                                        (short) 1 ),
-                  AccessId.value );
-
+            AttributeType type = 
+                new AttributeType( new ExtensibleFamily( (short) 0,
+                                                         (short) 1 ),
+                                   AccessId.value );
 
 
             SecAttributeManager attrib_mgr = SecAttributeManager.getInstance();
-            SecAttribute attrib = attrib_mgr.createAttribute( k_a_c,
-                                                              type );
+            SecAttribute attrib = attrib_mgr.createAttribute( k_a_c, type );
 
             CredentialsImpl credsImpl =
                 new CredentialsImpl( new SecAttribute[]{ attrib },
-                AuthenticationStatus.SecAuthSuccess,
-                InvocationCredentialsType.SecOwnCredentials);
+                                     AuthenticationStatus.SecAuthSuccess,
+                                     InvocationCredentialsType.SecOwnCredentials);
 
             /*
             credsImpl.accepting_options_supported( (short) Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ));
@@ -192,7 +164,7 @@ public class SunJssePrincipalAuthenticatorImpl
 	catch (Exception e)
 	{
             if (logger.isDebugEnabled())
-                logger.debug( "Exception: " + e.getMessage());
+                logger.debug( "Exception: " + e );
             
             if (logger.isInfoEnabled())
                 logger.info( "authentication failed" );

@@ -31,11 +31,9 @@ import org.jacorb.orb.*;
 import org.jacorb.util.*;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
-
-//#ifjdk 1.2
 import org.jacorb.imr.util.ImRManager;
-//#endif
 
 /**
  *  The name server application
@@ -48,11 +46,61 @@ import org.jacorb.imr.util.ImRManager;
 public class NameServer
 {
     private static org.omg.CORBA.ORB orb = null;
-    public static String name_delimiter = "/";
-    private static String filePrefix = "_nsdb";
+    private static org.jacorb.config.Configuration configuration = null;
 
     /** the specific logger for this component */
-    private static Logger logger = Debug.getNamedLogger("jacorb.naming");
+    private static Logger logger = null;
+
+    /** the file name int which the IOR will be stored */
+    private static String fileName = null;
+
+    private static String filePrefix = "_nsdb";
+    private static String commandSuffix = "";
+
+    /** if this value is != 0, the name server will automatically shut
+        down after the given time */
+    private static int time_out = 0;
+
+    static String name_delimiter = "/";
+
+
+    public static void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = 
+            configuration.getNamedLogger("jacorb.naming");
+
+        time_out = 
+            configuration.getAttributeAsInteger("jacorb.naming.time_out",0);
+
+        fileName = 
+            configuration.getAttribute("jacorb.naming.ior_filename", "");
+
+        /* which directory to store/load in? */
+        String directory = 
+            configuration.getAttribute("jacorb.naming.db_dir", "");
+        
+        if( !directory.equals("") )
+            filePrefix = directory + File.separatorChar + filePrefix;
+
+        if ( configuration.getAttribute("jacorb.use_imr","off").equals("on") )
+        {
+
+            // don't supply "imr_register", so a ns started by an imr_ssd
+            // won't try to register himself again.
+
+            String command = 
+                configuration.getAttribute("jacorb.java_exec", "") + commandSuffix;
+            
+            ImRManager.autoRegisterServer( orb, 
+                                           "StandardNS", 
+                                           command,
+                                           ImRManager.getLocalHostName(),
+                                           true); //edit existing
+        }       
+    }
+
 
     /**
      * The servant manager (servant activator) for the name server POA
@@ -62,11 +110,21 @@ public class NameServer
         extends _ServantActivatorLocalBase
     {
         private org.omg.CORBA.ORB orb = null;
+        private org.jacorb.config.Configuration configuration = null;
+        private Logger logger = null;
 
         public NameServantActivatorImpl(org.omg.CORBA.ORB orb)
         {
             this.orb = orb;
         }
+
+        public void configure(Configuration myConfiguration)
+            throws ConfigurationException
+        {
+            this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+            this.logger = configuration.getNamedLogger("jacorb.naming.activator");
+        }
+
 
         /**
          * @return - a servant initialized from a file
@@ -116,10 +174,19 @@ public class NameServer
 
             if( n == null )
             {
-                n = new NamingContextImpl();
+                n = new NamingContextImpl();               
             }
 
             n.init(adapter);
+            try
+            {
+                n.configure(configuration);
+            }
+            catch( ConfigurationException ce )
+            {
+                if (logger.isErrorEnabled())
+                    logger.error("ConfigurationException: " + ce.getMessage());
+            }
             return n;
         }
 
@@ -160,7 +227,7 @@ public class NameServer
 
     private static void usage()
     {
-        System.err.println("Usage: java org.jacorb.naming.NameServer [<ior_filename>] [-p <ns_port>] [-t <time_out> [imr_register] ]");
+        System.err.println("Usage: java org.jacorb.naming.NameServer [-Djacorb.naming.ior_filename=fname] [-Djacorb.naming.time_out=x][-Djacorb.use_imr=on/off][-Djacorb.naming.purge=on/off ]");
         System.exit(1);
     }
 
@@ -168,62 +235,14 @@ public class NameServer
 
     public static void main( String args[] )
     {
-        String port = null;
-        boolean imr_register = false;
-        String fileName = null;
-
         try
         {
-            /* get time out value if any */
-            int time_out = 0;
+            // TODO: is this correct? needs testing
+            commandSuffix = " org.jacorb.naming.NameServer";
 
-            if( args.length > 6 )
-            {
-                usage();
-            }
-
-            int idx = 0;
-
-            if( args.length > 0 )
-            {
-                if( !args[0].startsWith("-p"))
-                {
-                    fileName = args[0];
-                    idx++;
-                }
-
-                if( idx < args.length  && args[idx].startsWith("-p"))
-                {
-                    if( idx+1 < args.length )
-                    {
-                        port = args[ ++idx ];
-                        idx++;
-                    }
-                    else
-                        usage();
-                }
-
-                if( idx < args.length  && args[ idx ].startsWith("-t"))
-                {
-                    if( idx+1 < args.length )
-                    {
-                        try
-                        {
-                            time_out = Integer.parseInt( args[ ++idx] );
-                            idx++;
-                        }
-                        catch( NumberFormatException nf )
-                        {
-                        }
-                        if( idx +1 < args.length && args[idx +1].equals("imr_register") )
-                        {
-                            imr_register = true;
-                        }
-                    }
-                    else
-                        usage();
-                }
-            }
+            // translate any properties set on the commandline but after the 
+            // class name to a properties
+            java.util.Properties argProps = ObjectUtil.argsToProps( args );
 
             java.util.Properties props = new java.util.Properties();
             props.put("jacorb.implname", "StandardNS");
@@ -238,64 +257,18 @@ public class NameServer
             props.put("jacorb.orb.objectKeyMap.NameService",
                       "StandardNS/NameServer-POA/_root");
 
-            /*
-             * set a connection time out : after 10 secs. idle time,
-             * the adapter will close connections
-             */
-            if( Environment.getIntPropertyWithDefault( "jacorb.connection.server.timeout", -1 ) < 0 )
-            {
-                logger.debug( "Default server.timeout to 10000" );
-                props.put( "jacorb.connection.server.timeout", "10000" );
-            }
-
-            // If port not set on command line see if configured
-
-            if (port == null)
-            {
-                port = Environment.getProperty ("jacorb.naming.port");
-                if (port != null)
-                {
-                    try
-                    {
-                        Integer.parseInt (port);
-                    }
-                    catch (NumberFormatException ex)
-                    {
-                        port = null;
-                    }
-                }
-            }
-
-            if (port != null)
-            {
-                props.put ("OAPort", port);
-            }
-
-            /* which directory to store/load in? */
-
-            String directory =
-            org.jacorb.util.Environment.getProperty("jacorb.naming.db_dir");
-
-            if( directory != null )
-                filePrefix = directory + File.separatorChar + filePrefix;
+            /* any command line properties set _after_ the class name will also 
+               be considered */
+            props.putAll( argProps );
 
             /* intialize the ORB and Root POA */
-
             orb = org.omg.CORBA.ORB.init(args, props);
 
-            if ( org.jacorb.util.Environment.useImR() && imr_register)
-            {
-                //#ifjdk 1.2
-                // don't supply "imr_register", so a ns started by an imr_ssd
-                // won't try to register himself again.
-                String command = Environment.getProperty("jacorb.java_exec") +
-                " org.jacorb.naming.NameServer " + args[0] + " " + args[1];
+            Configuration config = 
+                ((org.jacorb.orb.ORB)orb).getConfiguration();
 
-                ImRManager.autoRegisterServer(orb, "StandardNS", command,
-                                              ImRManager.getLocalHostName(),
-                                              true); //edit existing
-                //#endif
-            }
+            /* configure the name service using the ORB configuration */
+            configure(config);
 
             org.omg.PortableServer.POA rootPOA =
             org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -320,6 +293,7 @@ public class NameServer
             NamingContextImpl.init(orb, rootPOA);
             NameServer.NameServantActivatorImpl servantActivator =
                 new NameServer.NameServantActivatorImpl( orb );
+            servantActivator.configure(config);
 
             nsPOA.set_servant_manager( servantActivator );
             nsPOA.the_POAManager().activate();
@@ -327,16 +301,14 @@ public class NameServer
             for (int i = 0; i < policies.length; i++)
                 policies[i].destroy();
 
-
             /* export the root context's reference to a file */
-
             byte[] oid = ( new String("_root").getBytes() );
             try
             {
                 org.omg.CORBA.Object obj =
                 nsPOA.create_reference_with_id( oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
 
-                if( fileName != null )
+                if( fileName != null && fileName.length() > 0 )
                 {
                     PrintWriter out =
                     new PrintWriter( new FileOutputStream( fileName ), true );
@@ -369,6 +341,11 @@ public class NameServer
             orb.shutdown( true );
 
             //      System.exit(0);
+        }
+        catch( ConfigurationException e )
+        {
+            e.printStackTrace();
+            usage();
         }
         catch( Exception e )
         {

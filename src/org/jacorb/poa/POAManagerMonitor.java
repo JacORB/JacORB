@@ -3,7 +3,7 @@ package org.jacorb.poa;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,7 +26,9 @@ package org.jacorb.poa;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.01, 12/08/99, RT
  */
-public interface POAManagerMonitor {
+public interface POAManagerMonitor 
+    extends  org.apache.avalon.framework.configuration.Configurable
+{
 	void addPOA(String name);
 	void closeMonitor();
 	void init(POAManager poaManager);
@@ -38,10 +40,4 @@ public interface POAManagerMonitor {
 	void setToHolding(boolean wait);
 	void setToInactive(boolean wait, boolean etherialize);
 }
-
-
-
-
-
-
 

@@ -23,10 +23,11 @@ package org.jacorb.ir;
 import java.lang.reflect.*;
 import java.util.*;
 
-import org.jacorb.util.Debug;
-
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.CORBA.Any;
+import org.omg.PortableServer.POA;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * JacORB implementation of IR ConstantDef objects
@@ -48,6 +49,8 @@ public class ConstantDef
     private org.omg.CORBA.ConstantDescription description;
     private boolean defined = false;
     org.omg.CORBA.Contained             myContainer;
+    private Logger logger;
+    private POA poa;
 
     /**
      * Constructor to create constants defined with an interface
@@ -55,8 +58,12 @@ public class ConstantDef
 
     public ConstantDef( Field field,
                         org.omg.CORBA.Container _defined_in,
-                        org.omg.CORBA.Repository _containing_repository )
+                        org.omg.CORBA.Repository _containing_repository,
+                        Logger logger,
+                        POA poa )
     {
+        this.logger = logger;
+        this.poa = poa;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Constant;
         containing_repository = _containing_repository;
         defined_in = _defined_in;
@@ -81,14 +88,20 @@ public class ConstantDef
 
         try
         {
-            typeCode = TypeCodeUtil.getTypeCode( field.getType(), null );
-            org.jacorb.util.Debug.output( 2, "New ConstantDef " + absolute_name());
+            typeCode = TypeCodeUtil.getTypeCode( field.getType(), 
+                                                 null, 
+                                                 this.logger );
+            
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("New ConstantDef " + absolute_name());
+            }
         }
         catch( ClassNotFoundException cnfe )
         {
-            org.jacorb.util.Debug.output( 0, "Error: ConstantDef " +
-                                          absolute_name() + " could not be created!");
-            cnfe.printStackTrace();
+            this.logger.error("Error: ConstantDef " +
+                              absolute_name() + " could not be created!",
+                              cnfe);
         }
     }
 
@@ -99,8 +112,10 @@ public class ConstantDef
 
     public ConstantDef( Class c,
                         org.omg.CORBA.Container _defined_in,
-                        org.omg.CORBA.Repository ir )
+                        org.omg.CORBA.Repository ir,
+                        Logger logger )
     {
+        this.logger = logger;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Constant;
         containing_repository = ir;
         defined_in = _defined_in;
@@ -124,7 +139,9 @@ public class ConstantDef
                 id = "IDL:" + name + ":" + version;
                 absolute_name = "::" + name;
             }
-            typeCode = TypeCodeUtil.getTypeCode( field.getType(), null );
+            typeCode = TypeCodeUtil.getTypeCode( field.getType(), 
+                                                 null, 
+                                                 this.logger );
         }
         catch ( Exception e )
         {
@@ -132,15 +149,24 @@ public class ConstantDef
             throw new INTF_REPOS( ErrorMsg.IR_Not_Implemented,
                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
-        org.jacorb.util.Debug.output( 2, "New ConstantDef " + absolute_name());
+
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("New ConstantDef " + absolute_name());
+        }
     }
 
 
     void define()
     {
-        org.jacorb.util.Debug.output( 2, "ConstantDef " + absolute_name() + " defining.");
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("ConstantDef " + absolute_name() + " defining.");
+        }
+
         value = (org.jacorb.orb.Any) orb.create_any();
-        type_def = IDLType.create( typeCode, containing_repository );
+        type_def = IDLType.create( typeCode, containing_repository,
+                                   this.logger, this.poa);
         if (typeCode == null)
         {
             throw new INTF_REPOS ("typeCode is null!");

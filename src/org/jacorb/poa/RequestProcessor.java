@@ -243,7 +243,7 @@ public class RequestProcessor
                 logger.warn("rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " incarnate: throwable was thrown (" +
-                            e.getMessage() + ")");
+                            e.getMessage() + ")", e);
             }
 
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage()));

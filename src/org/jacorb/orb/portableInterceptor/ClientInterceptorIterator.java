@@ -24,7 +24,7 @@ import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.UserException;
 
 import org.jacorb.orb.SystemExceptionHelper;
-import org.jacorb.util.Debug;
+
 /**
  * This class is an iterator over an array
  * of ClientRequestInterceptors.
@@ -36,7 +36,6 @@ import org.jacorb.util.Debug;
 public class ClientInterceptorIterator 
     extends RequestInterceptorIterator
 {
-
     public static final short SEND_REQUEST = 0;
     public static final short SEND_POLL = 1;
     public static final short RECEIVE_REPLY = 2;
@@ -80,9 +79,7 @@ public class ClientInterceptorIterator
 	info.caller_op = op;
 
 	try
-        {
-	    Debug.output( 4, "Invoking CI " + interceptor.name());
-	    
+        {	    
             switch (op) 
             {
 	    case SEND_REQUEST :
@@ -103,8 +100,6 @@ public class ClientInterceptorIterator
 	}
         catch (ForwardRequest _fwd)
         {
-	    Debug.output( 3, _fwd);
-
 	    reverseDirection();
 	    op = RECEIVE_OTHER;
 	
@@ -112,12 +107,9 @@ public class ClientInterceptorIterator
 
 	    info.forward_reference = _fwd.forward;
 	    interceptor_ex = _fwd;
-
 	}
         catch (org.omg.CORBA.SystemException _sysex)
         {
-	    Debug.output(3, _sysex);
-
 	    reverseDirection();
 	    op = RECEIVE_EXCEPTION;
 	    interceptor_ex = _sysex;
@@ -130,12 +122,10 @@ public class ClientInterceptorIterator
 	    }
             catch(org.omg.CORBA.TypeCodePackage.BadKind _bk)
             {
-		Debug.output(4, _bk);
 	    }
 	}
         catch (Throwable th)
         {
-	    Debug.output(3, "ClientInterceptorIterator: Caught a " + th);
 	}
       
 	info.caller_op = op;

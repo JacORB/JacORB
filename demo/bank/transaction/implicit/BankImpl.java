@@ -19,11 +19,14 @@ public class BankImpl
         this.orb = orb;
         this.poa = poa;
 
-        try{
+        try
+        {
             ts_current =  org.omg.CosTransactions.CurrentHelper.narrow(
                 orb.resolve_initial_references("TransactionCurrent"));
-        }catch (Exception e){
-            org.jacorb.util.Debug.output(2, e);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -37,7 +40,7 @@ public class BankImpl
         }
         catch( Exception e )
         {
-            org.jacorb.util.Debug.output(1,e);
+            e.printStackTrace();
             throw new org.omg.CORBA.UNKNOWN();
         }
     }

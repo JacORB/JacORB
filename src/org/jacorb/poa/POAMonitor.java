@@ -21,6 +21,7 @@ package org.jacorb.poa;
  */
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 /**
  * The POA monitor interface, known to the POA.
@@ -30,10 +31,14 @@ import org.apache.avalon.framework.logger.Logger;
  */
 
 public interface POAMonitor 
+    extends Configurable
 {
-	void changeState(String state);
-	void closeMonitor();
-	void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm,
-                  String prefix, Logger logger);
-	void openMonitor();
+    void changeState(String state);
+    
+    void closeMonitor();
+
+    void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm,
+              String prefix );
+
+    void openMonitor();
 }

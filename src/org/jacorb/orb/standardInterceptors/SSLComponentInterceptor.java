@@ -20,12 +20,13 @@
  */
 package org.jacorb.orb.standardInterceptors;
 
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.*;
 import org.omg.SSLIOP.*;
 
 import org.jacorb.orb.*;
-import org.jacorb.util.*;
 
 /**
  * This interceptor creates an ssl TaggedComponent
@@ -36,18 +37,36 @@ import org.jacorb.util.*;
 
 public class SSLComponentInterceptor
     extends org.omg.CORBA.LocalObject
-    implements IORInterceptor
+    implements IORInterceptor, Configurable
 {
     private ORB orb = null;
     private TaggedComponent tc = null;
+    private short supported = 0;
+    private short required = 0;
 
     public SSLComponentInterceptor( ORB orb )
-    {
+        throws ConfigurationException
+   {
         this.orb = orb;
+        configure( orb.getConfiguration());
+    }
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        supported = 
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
+                16); // 16 is the base as we take the string value as hex!
+
+        required = 
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
+                16);
+
     }
 
     // implementation of org.omg.PortableInterceptor.IORInterceptorOperations interface
-
     public String name()
     {
         return "SSLComponentCreator";
@@ -83,12 +102,6 @@ public class SSLComponentInterceptor
         {
             if( tc == null )
             {
-                short supported = (short)
-                    Environment.getIntProperty( "jacorb.security.ssl.server.supported_options", 16 );
-
-                short required = (short)
-                    Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 );
-
                 SSL ssl =
                     new SSL ( supported,
                               required,
@@ -120,7 +133,8 @@ public class SSLComponentInterceptor
         }
         catch (Exception e)
         {
-            Debug.output( 1, e);
+            // should not happen
+            e.printStackTrace();
         }
     }
 } // SSLComponentInterceptor

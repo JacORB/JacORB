@@ -28,7 +28,6 @@ import org.omg.PortableServer.*;
 import org.omg.PortableServer.POAPackage.*;
 import org.omg.PortableServer.CurrentPackage.NoContext;
 
-import org.jacorb.util.Debug;
 
 /**
  * JacORB-specific implementation of PortableServer.Servant
@@ -179,7 +178,6 @@ public class ServantDelegate
     public boolean non_existent(org.omg.PortableServer.Servant self)
     {
         check();
-        //org.jacorb.util.Debug.output(2,"ServantDelegate: non_existent: return false");
         return false;
     }
 
@@ -207,19 +205,12 @@ public class ServantDelegate
 
     public boolean is_a(org.omg.PortableServer.Servant self, String repid)
     {
-        org.jacorb.util.Debug.output( 3, "ServantDelegate: is a " +
-                                      repid + " ?");
-
         String [] intf = self._all_interfaces(poa(self), object_id(self));
 
         for( int i = 0; i < intf.length; i++)
         {
-            org.jacorb.util.Debug.output( 4, "ServantDelegate: is a compares with " + intf[i] );
-
             if( intf[i].equals(repid))
             {
-                org.jacorb.util.Debug.output( 4, "ServantDelegate: ! is a " +
-                                              intf[i] + "!");
                 return true;
             }
         }

@@ -23,17 +23,26 @@ package org.jacorb.orb;
 import java.net.*;
 
 import org.jacorb.orb.dns.DNSLookup;
+import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Andre Spiegel
  * @version $Id$
  */
 public class IIOPAddress 
+    implements Configurable
 {
     private String hostname = null; // dns name
     private String ip = null;       // dotted decimal
     private int port;               // 0 .. 65536
-    
+ 
+    private org.jacorb.config.Configuration configuration;
+    private boolean configured = true;
+    private DNSLookup lookup;
+    private Logger logger;
+
+
     /**
      * Creates a new IIOPAddress for <code>host</code> and <code>port</code>.
      * @param host either a DNS name, or a textual representation of a
@@ -45,6 +54,11 @@ public class IIOPAddress
      */
     public IIOPAddress(String host, int port)
     {
+        if (host.length() == 0 )
+            throw new IllegalArgumentException();
+
+        lookup = new DNSLookup();
+
         if (isIP(host))
             this.ip = host;
         else
@@ -54,13 +68,26 @@ public class IIOPAddress
             this.port = port + 65536;
         else
             this.port = port;
+
+        
     }
     
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+        logger = this.configuration.getNamedLogger("jacorb.iiop.address");
+        lookup.configure(configuration);
+        configured = true;
+    }
+
+
     public static IIOPAddress read(org.omg.CORBA.portable.InputStream in)
     {
         String host = in.read_string();
         short  port = in.read_ushort();
-        return new IIOPAddress(host, port);
+        IIOPAddress addr = new IIOPAddress(host, port);
+        return addr;
     }
     
     /**
@@ -111,6 +138,9 @@ public class IIOPAddress
      */    
     public String getIP()
     {
+        if (!configured)
+            throw new Error("unconfigured IIOPAddress!");
+
         if (ip == null)
         {
             try
@@ -136,7 +166,7 @@ public class IIOPAddress
     {
         if (hostname == null)
         {
-            hostname = DNSLookup.inverseLookup(ip);
+            hostname = lookup.inverseLookup(ip);
             if (hostname == null) 
                 hostname = ip;
         }

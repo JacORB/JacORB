@@ -25,7 +25,7 @@ import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.util.TaskExecutor;
+import org.jacorb.notification.engine.TaskExecutor;
 
 /**
  * @author Alphonse Bendt
@@ -49,11 +49,11 @@ public class TimerDeliverTask extends AbstractDeliverTask
         {
             getMessageConsumer().deliverPendingData();
         } else {
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("Nothing to do as the Target:"
-                              + getMessageConsumer()
-                              + " has no Pending Events.");
-            }
+//             if (logger_.isDebugEnabled()) {
+//                 logger_.debug("Nothing to do as the Target:"
+//                               + getMessageConsumer()
+//                               + " has no Pending Events.");
+//             }
 
             dispose();
         }

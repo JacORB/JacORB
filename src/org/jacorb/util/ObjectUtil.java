@@ -29,31 +29,243 @@ import java.util.*;
 
 public class ObjectUtil
 {
+    private static Class identityHashMapClass = null;
+    //for byte -> hexchar
+    private static final char[] lookup =
+        new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
     /**
      * @return the contents of the resource as a string, or null
      * if the contents of the resource could not be located using url
      */
     public static final String readURL( String url )
+        throws java.io.IOException
     {
+        java.net.URL u = new java.net.URL(url);
+        String line  = null;
+        java.io.BufferedReader in;
+        
+        in = new java.io.BufferedReader(new java.io.InputStreamReader(u.openStream()) );
+        line = in.readLine();
+        
+        in.close();
+        return line;
+    }
+
+    /**
+     * Returns the <code>Class</code> object for the class or interface
+     * with the given string name. This method is a replacement for
+     * <code>Class.forName(String name)</code>. Unlike
+     * <code>Class.forName(String name)</code> (which always uses the
+     * caller's loader or one of its ancestors), <code>classForName</code>
+     * uses a thread-specific loader that has no delegation relationship
+     * with the caller's loader. It attempts the load the desired class
+     * with the thread-specific context class loader and falls back to
+     * <code>Class.forName(String name)</code> only if the context class
+     * loader cannot load the class.
+     * <p>
+     * Loading a class with a loader that is not necessarily an ancestor
+     * of the caller's loader is a crucial thing in many scenarios. As an
+     * example, assume that JacORB was loaded by the boot class loader,
+     * and suppose that some code in JacORB contains a call
+     * <code>Class.forName(someUserClass)</code>. Such usage of
+     * <code>Class.forName</code> effectively forces the user to place
+     * <code>someUserClass</code> in the boot class path. If
+     * <code>classForName(someUserClass)</code> were used instead, the user
+     * class would be loaded by the context class loader, which by default
+     * is set to the system (CLASSPATH) classloader.
+     * <p>
+     * In this simple example above, the default setting of the context class
+     * loader allows classes in the boot classpath to reach classes in the
+     * system classpath. In other scenarios, the context class loader might
+     * be different from the system classloader. Middleware systems like
+     * servlet containers or EJB containers set the context class loader so
+     * that a given thread can reach user-provided classes that are not in
+     * the system classpath.
+     * <p>
+     * For maximum flexibility, <code>classForName</code> should replace
+     * <code>Class.forName(String name)</code> in nearly all cases.
+     *
+     * @param name the fully qualified name of a class
+     *
+     * @return the Class object for that class
+     *
+     * @throws IllegalArgumentException if <code>name</code> is null
+     * @throws ClassNotFoundException if the named class cannot be found
+     * @throws LinkageError if the linkage fails
+     * @throws ExceptionInInitializerError if the class initialization fails
+     */
+
+    public static Class classForName(String name)
+        throws ClassNotFoundException, IllegalArgumentException
+    {
+        if (name == null)
+            throw new IllegalArgumentException("Class name must not be null!");
         try
         {
-            java.net.URL u = new java.net.URL(url);
-            String line  = null;
-            java.io.BufferedReader in;
-
-            in = new java.io.BufferedReader(new java.io.InputStreamReader(u.openStream()) );
-            line = in.readLine();
-
-            in.close();
-            return line;
+            // Here we prefer classLoader.loadClass() over the three-argument
+            // form of Class.forName(), as the latter is reported to cause
+            // caching of stale Class instances (due to a buggy cache of
+            // loaded classes).
+            return Thread.currentThread().getContextClassLoader().loadClass(name);
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
-            Debug.output( 1, "ERROR: Could not read from URL " + url );
-            Debug.output( 3, e );
+            // As a fallback, we prefer Class.forName(name) because it loads
+            // array classes (i.e., it handles arguments like
+            // "[Lsome.class.Name;" or "[[I;", which classLoader.loadClass()
+            // does not handle).
+            return Class.forName(name);
+        }
+    }
+
+    /**
+     * Creates an IdentityHashMap, using either the JDK 1.4 class or
+     * JacORB's drop-in replacement class if the former is not available.
+     *
+     * @return a newly created IdentityHashMap instance
+     */
+    public static Map createIdentityHashMap()
+    {
+        if (identityHashMapClass == null)
+        {
+            try
+            {
+                identityHashMapClass =
+                    ObjectUtil.classForName("java.util.IdentityHashMap");
+            }
+            catch (ClassNotFoundException ex)
+            {
+                try
+                {
+                    identityHashMapClass =
+                        ObjectUtil.classForName("org.jacorb.util.IdentityHashMap");
+                }
+                catch (ClassNotFoundException e)
+                {
+                    throw new RuntimeException(e.toString());
+                }
+            }
+        }
+        try
+        {
+            return (Map)identityHashMapClass.newInstance();
+        }
+        catch (Exception exc)
+        {
+            throw new RuntimeException(exc.toString());
+        }
+    }
+
+    public static synchronized String bufToString( byte bs[],
+                                                   int start,
+                                                   int len)
+    {
+        StringBuffer result = new StringBuffer();
+        StringBuffer chars = new StringBuffer();
+        
+        for ( int i = start; i < (start + len); i++ )
+        {
+            if ((i % 16 ) == 0)
+            {
+                result.append( chars.toString() );
+                chars = new StringBuffer();
+            }
+            
+            chars.append( toAscii( bs[i] ));            
+            result.append(  toHex( bs[i] ));
+            
+            if ( (i % 4) == 3 )
+            {
+                chars.append( ' ' );
+                result.append( ' ' );
+            }
+        }
+        
+        if ( len % 16 != 0 )
+        {
+            int pad = 0;
+            int delta_bytes = 16 - (len % 16);
+            
+            //rest of line (no of bytes)
+            //each byte takes two chars plus one ws
+            pad = delta_bytes * 3;
+            
+            //additional whitespaces after four bytes
+            pad += (delta_bytes / 4);
+            
+            for ( int i = 0; i < pad; i++ )
+            {
+                chars.insert( 0, ' ' );
+            }
         }
 
-        return null;
+        result.append( chars.toString());
+        return result.toString();
     }
+
+
+    /**
+     * <code>toHex</code> converts a byte into a readable string.
+     *
+     * @param b a <code>byte</code> value
+     * @return a <code>String</code> value
+     */
+
+    public static final String toHex(byte b)
+    {
+        StringBuffer sb = new StringBuffer();
+
+        int upper = (b >> 4) & 0x0F;
+        sb.append( lookup[upper] );
+
+        int lower = b & 0x0F;
+        sb.append( lookup[lower] );
+
+        sb.append( ' ' );
+
+        return sb.toString();
+    }
+
+
+    public static final char toAscii(byte b)
+    {
+        if ( b > (byte) 31 &&  b < (byte) 127)
+        {
+            return (char) b;
+        }
+        else
+        {
+            return '.';
+        }
+    }
+
+    /**
+     * Convenience method to parse an argument vector (typically from
+     * the command line) and sets any arguments of the form "-Dy=x" 
+     * as values in a properties object.
+     */
+
+    public static java.util.Properties argsToProps(String[] args)
+    {
+        java.util.Properties props = new java.util.Properties();
+
+        for( int i = 0; i < args.length; i++ )
+        {
+            if (args[i].startsWith("-D"))
+            {
+                int idx = args[i].indexOf('=');
+                if (idx < 3 )
+                    continue;
+                String key = args[i].substring(2,idx);  
+
+                System.out.println("putting: " + key + "," + args[i].substring(idx+1));
+                props.put(key, args[i].substring(idx+1));
+            }
+        }
+        return props;
+    }
+
+
+
 
 }

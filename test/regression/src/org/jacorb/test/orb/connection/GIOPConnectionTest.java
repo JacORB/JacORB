@@ -23,8 +23,18 @@ import org.jacorb.orb.*;
 
 import junit.framework.*;
 
+import org.jacorb.config.Configuration;
+
 public class GIOPConnectionTest extends TestCase
 {
+
+    Configuration config;
+
+    public void setUp() throws Exception
+    {
+        config = new Configuration ("jacorb",null,null);
+    }
+
     public static junit.framework.TestSuite suite()
     {
         TestSuite suite = new TestSuite ("GIOPConnection Test");
@@ -281,6 +291,13 @@ public class GIOPConnectionTest extends TestCase
 
         GIOPConnectionManager giopconn_mg =
             new GIOPConnectionManager();
+        try
+        {
+            giopconn_mg.configure (config);
+        }
+        catch (Exception e)
+        {
+        }
 
         ServerGIOPConnection conn =
             giopconn_mg.createServerGIOPConnection( null,
@@ -352,6 +369,13 @@ public class GIOPConnectionTest extends TestCase
 
         GIOPConnectionManager giopconn_mg =
             new GIOPConnectionManager();
+        try
+        {
+            giopconn_mg.configure (config);
+        }
+        catch (Exception e)
+        {
+        }
 
         GIOPConnection conn =
             giopconn_mg.createServerGIOPConnection( null,
@@ -464,6 +488,13 @@ public class GIOPConnectionTest extends TestCase
 
         GIOPConnectionManager giopconn_mg =
             new GIOPConnectionManager();
+        try
+        {
+            giopconn_mg.configure (config);
+        }
+        catch (Exception e)
+        {
+        }
 
         GIOPConnection conn =
             giopconn_mg.createServerGIOPConnection( null,
@@ -537,6 +568,13 @@ public class GIOPConnectionTest extends TestCase
 
         GIOPConnectionManager giopconn_mg =
             new GIOPConnectionManager();
+        try
+        {
+            giopconn_mg.configure (config);
+        }
+        catch (Exception e)
+        {
+        }
 
         GIOPConnection conn =
             giopconn_mg.createServerGIOPConnection( null,
