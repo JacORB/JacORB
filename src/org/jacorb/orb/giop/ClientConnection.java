@@ -39,34 +39,31 @@ public class ClientConnection
     extends AbstractConnection
 {
     private int id_count = 0;
-    protected String connection_info = null;
-    protected InputStream in_stream;
-    BufferedOutputStream out_stream;
+    private String connection_info = null;
+    private InputStream in_stream;
+    private BufferedOutputStream out_stream;
 
     /** client-side socket timeout */
-    protected int timeout = 0;
+    private int timeout = 0;
 
-    protected ConnectionManager manager;
+    private ConnectionManager manager;
 
     /** write lock */
     public Object writeLock = new Object();
 
-    // repID -> object
-    protected Hashtable objects = new Hashtable();
-
     //contains RequestOutputStreams instead of byte[]
-    protected Hashtable buffers = new Hashtable();
+    private Hashtable buffers = new Hashtable();
 
-    protected Hashtable replies = new Hashtable();
-    protected boolean littleEndian;
+    private Hashtable replies = new Hashtable();
+    private boolean littleEndian;
 
     /* how many clients use this connection? */
-    protected int client_count = 0;
+    private int client_count = 0;
 
-    protected Socket mysock = null;
-    protected ReplyReceptor repReceptor;
+    private Socket mysock = null;
+    private ReplyReceptor repReceptor;
     private byte[] header = new byte[ Messages.MSG_HEADER_SIZE ];
-    protected SocketFactory socket_factory = null;
+    private SocketFactory socket_factory = null;
     
     private String target_host = null;
     private int target_port = -1;
@@ -441,7 +438,6 @@ public class ClientConnection
 	}
 
 	replies.clear();
-	objects.clear();
 
 	if( lost_replies > 0 )
 	    Debug.output( 2, "Lost " + lost_replies + 
@@ -587,14 +583,13 @@ public class ClientConnection
 	    {
 		Debug.output( 8, "receiveReply", buf );
 		Integer key = new Integer(Messages.getRequestId( buf, msg_type ));
-		org.omg.CORBA.Object o = (org.omg.CORBA.Object)objects.remove( key );
 
 		/* retrieve the ReplyInputStream that is waiting for this reply */
 
 		ReplyInputStream pending = (ReplyInputStream)replies.remove( key );
       
 		if( pending != null ) 
-		    pending.init( buf, o );
+		    pending.init( buf );
 		else 
 		    System.err.println("Serious Error! No pending request for reply " + 
                                        key );
@@ -640,7 +635,7 @@ public class ClientConnection
     public synchronized void reconnect()
 	throws org.omg.CORBA.COMM_FAILURE
     {	
-	Debug.output(1,"Trying to (re)connect to " + 
+	Debug.output(1,"Trying to connect to " + 
                      target_host + ':' + target_port );
 
 	int retries = Environment.noOfRetries();
@@ -680,7 +675,7 @@ public class ClientConnection
 */
 		manager.addConnection( this );
 
-		Debug.output( 1,"(Re)connected " + 
+		Debug.output( 1,"Connected " + 
                               (( isSSL() )? "via SSL " : "" ) 
                               + "to " + connection_info );
 
@@ -751,8 +746,7 @@ public class ClientConnection
      * writes the arguments of method calls to the output stream 
      */
     
-    public org.omg.CORBA.portable.InputStream sendRequest( org.omg.CORBA.Object o,
-							   RequestOutputStream os ) 
+    public org.omg.CORBA.portable.InputStream sendRequest( RequestOutputStream os ) 
 	throws org.omg.CORBA.COMM_FAILURE, org.omg.CORBA.IMP_LIMIT
     {
 
@@ -775,7 +769,6 @@ public class ClientConnection
 		    Integer key = new Integer( os.requestId() );
 		    //		    buffers.put( key, os );
 		    replies.put( key, rep );
-		    objects.put( key, o );
 		}
 
 		if (org.jacorb.util.Environment.verbosityLevel() > 4)
@@ -875,11 +868,6 @@ public class ClientConnection
     public Hashtable get_replies()
     {
 	return replies;
-    }
-
-    public Hashtable get_objects()
-    {
-	return objects;
     }
 
     public void writeDirectly(byte[] buffer,int len) 

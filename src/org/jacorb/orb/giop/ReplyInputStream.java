@@ -43,7 +43,6 @@ public class ReplyInputStream
     private boolean communicationException = false;
     private boolean remarshalException = false;
     private boolean timeoutException = false;
-    private org.omg.CORBA.Object target;
     public org.omg.GIOP.MessageHeader_1_0 msg_hdr=null;
 
     public ReplyInputStream( org.omg.CORBA.ORB orb, int request_id)
@@ -59,10 +58,9 @@ public class ReplyInputStream
      * for determining the correct interceptors)
      */
 
-    public synchronized void init( byte[] buf, org.omg.CORBA.Object target )
+    public synchronized void init( byte[] buf )
     {
 	super.buffer = buf;
-	this.target = target;
 	ready = true;
 	this.notify();
     }

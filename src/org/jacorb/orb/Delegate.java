@@ -733,7 +733,7 @@ public final class Delegate
         {          
             os.close(); 
 
-            rep = (ReplyInputStream) connection.sendRequest( self,ros );
+            rep = (ReplyInputStream) connection.sendRequest( ros );
  
             // devik: if tcs was not negotiated yet, in every context
             // we will send tcs wanted. After first such request was
