@@ -69,7 +69,7 @@ public class CallbackManager extends EventTypeSet implements Disposable
 
         if (logger_.isInfoEnabled())
         {
-            boolean success = removed != null;
+            boolean success = (removed != null);
             logger_.info("detach_callback: ID=" + id + " Success=" + success);
         }
     }
