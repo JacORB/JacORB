@@ -1,3 +1,205 @@
+2004-04-14  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* common/ClientServerSetup.java, common/TestServer.java,
+	orb/IIOPAddressServerImpl.java,
+	orb/connection/GIOPConnectionTest.java,
+	orb/etf/wiop/WIOPFactories.java,
+	util/LogKitLoggerFactoryTest.java: Incremental fix to work with
+	new configuration framework
+
+	* orb/AllTest.java, orb/CDRIOTest.java: Fix for non_existant test
+	and improved CDR performance
+
+	* orb/CDRIOTest.java: New file.
+
+2004-04-08  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/FilterTest.java,
+	notification/NotificationTestCase.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/engine/WaitRetryStrategyTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/node/TCLTest.java,
+	notification/perf/PerformanceTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java,
+	notification/util/CachingWildcardMapTest.java,
+	notification/util/ObjectPoolTest.java,
+	notification/util/WildcardMapTest.java: cleaned up testcode
+
+	* notification/AdminLimitTest.java,
+	notification/PropertyValidatorTest.java: removed static method
+	'initStatics' from AdminPropertySet and QoSPropertySet
+
+	* notification/OfferManagerTest.java,
+	notification/NotificationTestCase.java,
+	notification/AdminLimitTest.java, notification/AnyGenerator.java,
+	notification/ApplicationContextTest.java,
+	notification/CollectionsWrapperTest.java,
+	notification/CosEventChannelTest.java,
+	notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MappingFilterTest.java,
+	notification/MessageFactoryTest.java,
+	notification/MessageUtilsTest.java,
+	notification/NotificationEventTest.java,
+	notification/PackageTest.java,
+	notification/PropertyValidatorTest.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/TimeoutTest.java: more cleanup
+
+2004-04-07  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AdminLimitTest.java, notification/AllTest.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MappingFilterTest.java,
+	notification/MessageFactoryTest.java,
+	notification/MessageUtilsTest.java, notification/MockMessage.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/OfferManagerTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestServer.java, notification/TestUtils.java,
+	notification/TimeoutTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/engine/MockEventConsumer.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/node/EvaluationResultTest.java,
+	notification/node/TCLTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java,
+	notification/util/ThreadPoolTest.java,
+	notification/util/WildcardMapTest.java: moved to new Configuration
+	fixed testcases code cleanup
+
+2004-03-18  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AdminLimitTest.java: removed import
+
+	* util/LogKitLoggerFactoryTest.java: added testcase to see if
+	trailing space is removed from properties.  this problem only
+	occured on my FreeBSD box with jdk1.3.  no problem on linux
+	jdk1.4.1.
+
+2004-03-17  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AdminLimitTest.java,
+	notification/CallerResolver.java,
+	notification/EventChannelTest.java,
+	notification/MessageFactoryTest.java, notification/MockAdmin.java,
+	notification/MockMessage.java,
+	notification/SequenceEventChannelTest.java,
+	notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/TimeoutTest.java,
+	notification/engine/MockEventConsumer.java,
+	notification/engine/PackageTest.java,
+	notification/engine/PushOperationTest.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/engine/WaitRetryStrategyTest.java: reflect changed in
+	notification package
+
+	added tests
+
+2004-03-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* orb/value/ValueServerImpl.java, orb/value/ValueTest.java:
+	added test to reveal bug430
+
+	* notification/AdminLimitTest.java,
+	notification/PropertyValidatorTest.java,
+	notification/engine/MockEventConsumer.java,
+	notification/engine/PushToConsumerTest.java: reflect the changes
+	in notification package
+
+2004-02-27  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/StructuredEventChannelTest.java,
+	notification/NotificationTestCase.java: whitespace
+
+2004-02-25  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/PackageTest.java: (suite) added testcase
+
+	* notification/FilterTest.java: match on empty filter should
+	return false
+
+	* notification/MappingFilterTest.java: code cleanup
+
+	* notification/util/WildcardMapTest.java: added test
+
+	* notification/FilterTest.java: added testcase to reveal bug
+	reported by John Farrell
+	(news://news.gmane.org:119/200402251020.28515.Farrell_John_W@cat.com)
+
+2004-02-24  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/FilterTest.java: added testcase to reveal bug
+	reported by John Farrell
+	news://news.gmane.org:119/200402241510.49869.Farrell_John_W@cat.com
+
+	* notification/FilterImplTest.java: whitespace
+
+2004-02-20  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/MockEventConsumer.java,
+	notification/engine/PushToConsumerTest.java: reflect changes in
+	notificaiton package
+
+	cleanup
+
+2004-02-19  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/bugs/MultipleDeliveryBugTest.java: cleaned up code
+
+	* notification/TestUtils.java: whitespace
+
+	removed superfluous code
+
+	* notification/AnyPushSender.java: whitespace
+
+	* notification/AnyPushReceiver.java:
+	(shutdown) did not call Admin.destroy()
+
+	whitespace
+
+	cleanup
+
+	* notification/FilterImplTest.java:
+	(testIteratorBug) added testcase to reveal bug
+	        (news://news.gmane.org:119/200402191446.17527.Farrell_John_W@cat.com)
+
+	(testIteratorThrowsException) added testcase
+
 2004-02-14  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
 	* notification/EventChannelFactoryTest.java: whitespace
