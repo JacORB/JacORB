@@ -52,8 +52,8 @@ public class ParsedIOR
     private static final char[] lookup =
     new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-    private IIOPProfile effectiveProfile = null;
-    private List profiles = new ArrayList();
+    private Profile effectiveProfile = null;
+    private List    profiles = new ArrayList();
 
     /** top-level tagged components, i.e. NOT part of IOP components. Other
      *  tagged components may be part of the profile bodies
@@ -65,10 +65,6 @@ public class ParsedIOR
     private IOR ior = null;
 
     private ORB orb = null;
-
-    private IIOPAddress iiopAddress = null;
-    private boolean use_ssl = false;
-    private boolean use_sas = false;
 
     private CodeSetComponentInfo cs_info = null;
     private Integer orbTypeId = null;
@@ -293,7 +289,7 @@ public class ParsedIOR
         {
             IIOPProfile p =
                 new IIOPProfile (addr.profile().profile_data);
-            addr.object_key( p.getObjectKey() );
+            addr.object_key( p.get_object_key() );
         }
         else if( addr.discriminator() == ReferenceAddr.value )
         {
@@ -587,7 +583,7 @@ public class ParsedIOR
 
     public byte[] get_object_key()
     {
-        return effectiveProfile.getObjectKey();
+        return effectiveProfile.get_object_key();
     }
 
     public List getProfiles()
@@ -831,8 +827,12 @@ public class ParsedIOR
         Object result = components.getComponent (tag, helper);
         if (result != null)
             return result;
+        else if (effectiveProfile instanceof IIOPProfile)
+            return ((IIOPProfile)effectiveProfile).getComponent (tag, helper);
         else
-            return effectiveProfile.getComponent (tag, helper);
+            // TODO Should there be a component access mechanism for all
+            //      ETF profiles?  Clarify with OMG.
+            return null;
     }
 
     private static class LongHelper
@@ -848,8 +848,15 @@ public class ParsedIOR
         Object result = components.getComponent (tag, LongHelper.class);
         if (result != null)
             return (Integer)result;
+        else if (effectiveProfile instanceof IIOPProfile)
+        {
+            IIOPProfile p = (IIOPProfile)effectiveProfile;
+            return (Integer)p.getComponent (tag, LongHelper.class);
+        }
         else
-            return (Integer)effectiveProfile.getComponent (tag, LongHelper.class);
+            // TODO Should there be a component access mechanism for all
+            //      ETF profiles?  Clarify with OMG.
+            return null;
     }
 
     /**
