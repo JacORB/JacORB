@@ -30,33 +30,40 @@ public final class MinorCodes {
     // BAD_CONTEXT exception minor codes
     // BAD_INV_ORDER exception minor codes
     // BAD_OPERATION exception minor codes
+
     // BAD_PARAM exception minor codes
+    public static final int NO_SUCH_PROFILE = 29;
+    
     // BAD_TYPECODE exception minor codes
     // BOUNDS exception minor codes
     // COMM_FAILURE exception minor codes
     // DATA_CONVERSION exception minor codes
+    // FREE_MEM exception minor codes
     // IMP_LIMIT exception minor codes
+    // INITIALIZE exception minor codes
     // INTF_REPOS exception minor codes
     // INTERNAL exception minor codes
     // INV_FLAG exception minor codes
     // INV_IDENT exception minor codes
     // INV_OBJREF exception minor codes
+
+    // INV_POLICY exception minor codes
+    public static final int NO_SUCH_POLICY = 3;    
+    
     // MARSHAL exception minor codes
     // NO_MEMORY exception minor codes
-    // FREE_MEM exception minor codes
     // NO_IMPLEMENT exception minor codes
 
     // NO_PERMISSION exception minor codes
-    public static final int SAS_CSS_FAILURE             = ORBConstants.VMCID + 1;
-    public static final int SAS_ATLAS_FAILURE           = ORBConstants.VMCID + 2;
-    public static final int SAS_TSS_FAILURE             = ORBConstants.VMCID + 3;
+    public static final int SAS_CSS_FAILURE     = ORBConstants.VMCID + 1;
+    public static final int SAS_ATLAS_FAILURE   = ORBConstants.VMCID + 2;
+    public static final int SAS_TSS_FAILURE     = ORBConstants.VMCID + 3;
 
     // NO_RESOURCES exception minor codes
     // NO_RESPONSE exception minor codes
     // OBJ_ADAPTER exception minor codes
-    // INITIALIZE exception minor codes
+    // OBJECT_NOT_EXIST exception minor codes
     // PERSIST_STORE exception minor codes
     // TRANSIENT exception minor codes
     // UNKNOWN exception minor codes
-    // OBJECT_NOT_EXIST  exception minor codes
 } ;
