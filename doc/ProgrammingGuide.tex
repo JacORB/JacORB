@@ -2943,7 +2943,7 @@ the presence of the following property, which can be added by the usual ways
 
 \begin{verbatim}
    org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=
-       org.jacorb.orb.connection.BiDirConnectionInitializer
+       org.jacorb.orb.giop.BiDirConnectionInitializer
 \end{verbatim}
 
 If this property is present on ORB startup, the corresponding policy factory
@@ -3509,7 +3509,7 @@ data.
 
 \begin{small}
 \begin{verbatim}
-package org.jacorb.orb.connection;
+package org.jacorb.orb.giop;
 
 public interface SelectionStrategy
 {
@@ -3567,8 +3567,8 @@ an event.
 
 JacORB comes with two pre-implemented strategies: least frequently used and
 least recently used. LFU and LRU are implemented by the classes {\tt
-  org.jacorb.orb.con\-nection.L[F|R]USelectionStrategyImpl} and {\tt
-  org.jacorb.orb.connection. L[F|R]U\-Statistics\-ProviderImpl}.
+  org.jacorb.orb.giop.L[F|R]USelectionStrategyImpl} and {\tt
+  org.jacorb.orb.giop. L[F|R]U\-Statistics\-ProviderImpl}.
 
 \subsection{Configuration}
 \label{connection_management_config}
