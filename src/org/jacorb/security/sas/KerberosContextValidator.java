@@ -29,7 +29,7 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class KerberosContextValidator implements ISASContextValidator
 {
-	private GSSManager manager = GSSManager.getInstance();
+	private GSSManager manager = GSSManager.getInstance(); 
 	private GSSContext context = null;
 
     public boolean validate(ServerRequestInfo ri, byte[] contextToken) {
