@@ -434,24 +434,23 @@ public class CDRInputStream
  	    pos+=remainder;
  	}
         
-        // the following is the inlined version of for(..){value[j] = read_longlong();}
-
 	if (littleEndian)
         {
             for(int j=offset; j < offset+length; j++)
             {
-                value[j] = ((long) _read4int(littleEndian,buffer,pos) & 0xFFFFFFFFL) + 
-                    ((long) _read4int(littleEndian,buffer,pos+4) << 32);	    
+                value[j] = ( (long) read_long() & 0xFFFFFFFFL) + 
+                            ((long) read_long() << 32);
             }
         }
         else
         {
             for(int j=offset; j < offset+length; j++)
             {
-                value[j] = ((long) _read4int(littleEndian,buffer,pos) << 32) +
-                    ((long) _read4int(littleEndian,buffer,pos+4) & 0xFFFFFFFFL) ;
+                value[j] = ((long) read_long() << 32) + 
+                            ((long) read_long() & 0xFFFFFFFFL);
             }
         }
+
 	pos += 8 * length;
 	index += 8 * length;
     }
