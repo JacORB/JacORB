@@ -106,13 +106,15 @@ public class Configuration
      * Factory method
      */
 
-    public static Configuration getConfiguration(Properties props, ORB orb)
+    public static Configuration getConfiguration(Properties props, 
+                                                 ORB orb,
+                                                 boolean isApplet)
         throws ConfigurationException
     {
         // determine the ORBId, if set, so we can locate the corresponding
         // configuration
         String orbID = "jacorb"; // default id 
-        String myOrbID = System.getProperty("ORBid");
+        String myOrbID = isApplet ? null : System.getProperty("ORBid");
 
         if( props != null )
         {
@@ -132,7 +134,7 @@ public class Configuration
                 orbID = myOrbID;
         }
 
-        return new Configuration(orbID, props, orb);
+        return new Configuration(orbID, props, orb, isApplet);
     }
 
 
@@ -141,12 +143,24 @@ public class Configuration
      * into ORB.init()
      */
 
-    private Configuration(String name, Properties orbProperties, ORB orb)
+    private Configuration(String name, 
+                          Properties orbProperties, 
+                          ORB orb,
+                          boolean isApplet)
         throws ConfigurationException
     {
         super(name);
         this.orb = orb;
-        init(name, orbProperties);
+        
+        if (isApplet)
+        {
+            initApplet(name, orbProperties);
+        }
+        else
+        {
+            init(name, orbProperties);
+        }
+
         initLogging();
     }
 
@@ -330,6 +344,126 @@ public class Configuration
        }
 
     }
+
+    /**
+     * loads properties via classloader. 
+     *
+     * Properties are loaded in the following order, with later properties
+     * overriding earlier ones: 1) Properties from ORB.init(), to get
+     * properties that affect further property loading 2) orb.properties 3)
+     * specific configuration file for the ORB (if any) 4) the ORB properties
+     * set in the client code and passed in through ORB.init().  (Note that
+     * these will thus always take effect!)
+     *
+     * @param name the name for the ORB instance, may not be null. 
+     */
+
+    private void initApplet(String name, Properties orbProperties)
+        throws ConfigurationException
+   {
+       if( name == null )
+           throw new ConfigurationException("Illegal null value for ORB name!");
+       boolean loaded = false;
+
+       // 1) load system properties to grab any command line properties
+       //    that will influence further property loading
+       setAttributes(orbProperties);
+
+       int logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
+                                            DEFAULT_LOG_LEVEL);
+       
+       // 2) look for orb.properties
+       // look for common properties files on the classpath next
+       Properties commonProps = 
+           loadPropertiesFromClassPath( COMMON_PROPS );
+       
+       if (commonProps!= null)
+       {
+           loaded = true;
+           setAttributes(commonProps);
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
+                                            DEFAULT_LOG_LEVEL);
+           if (logLevel > 2)
+               System.out.println("[ base configuration loaded from classpath " + 
+                                    COMMON_PROPS + " ]");
+       }
+       
+ 
+       // 3) look for specific properties file
+       String propFileName = name + fileSuffix;
+       Properties orbConfig = loadPropertiesFromClassPath(propFileName );
+       
+       if (orbConfig!= null)
+       {
+           setAttributes(orbConfig);
+           loaded = true;
+
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
+                                            DEFAULT_LOG_LEVEL);
+           if (logLevel > 2)
+               System.out.println("[ configuration " + name + 
+                                  " loaded from classpath " + propFileName + 
+                                  " ]");
+       }
+       else
+       {
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
+                                            DEFAULT_LOG_LEVEL);
+           if (logLevel > 0)
+               System.err.println("[ File " + propFileName + 
+                                  " for configuration " + name + 
+                                  " not found in classpath]");
+       }
+       
+       // 4) look for additional custom properties files
+       List customPropFileNames = getAttributeList("custom.props");
+
+       if (!customPropFileNames.isEmpty())
+       {
+           for (Iterator iter = customPropFileNames.iterator(); iter.hasNext();)
+           {
+                String fileName = ((String)iter.next());
+                Properties customProps = loadPropertiesFromClassPath(fileName);
+                if (customProps!= null)
+                {
+                    setAttributes(customProps);
+                    loaded = true;
+
+                    logLevel = 
+                        getAttributeAsInteger("jacorb.config.log.verbosity",
+                                              DEFAULT_LOG_LEVEL);
+                    if (logLevel > 2)
+                        System.out.println(
+                            "[ custom properties loaded from classpath " + 
+                            fileName + " ]");
+                }
+                else
+                {
+                    if (logLevel > 0)
+                        System.err.println(
+                            "[ custom properties " + fileName + 
+                            "not found in classpath ]");
+                }
+           }
+       }
+       
+       // 5) load properties passed to ORB.init(), these will override any
+       // settings in config files or system properties!
+       if (orbProperties != null)
+       {
+           loaded = true;
+           setAttributes(orbProperties);
+       }
+
+       if (!loaded)
+       {
+           // print a warning....
+           System.out.println(
+               "[ No configuration properties found for configuration " + 
+               name + " ]");
+       }
+    }
+
 
     /**
      * set attributes of this configuration using properties
