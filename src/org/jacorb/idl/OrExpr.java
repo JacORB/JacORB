@@ -25,18 +25,18 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.*;
 import java.io.PrintWriter;
 
-class OrExpr 
-    extends IdlSymbol
+class OrExpr
+        extends IdlSymbol
 {
+
     public OrExpr or_expr = null;
     public XorExpr xor_expr;
 
-    public OrExpr(int num)
+    public OrExpr( int num )
     {
-	super(num);
+        super( num );
     }
 
     public void setDeclaration( ConstDecl declared_in )
@@ -44,65 +44,68 @@ class OrExpr
         xor_expr.setDeclaration( declared_in );
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	if( or_expr != null ){
-	    or_expr.print(ps);
-	    ps.print(" | ");
-	}
-	xor_expr.print(ps);
-	ps.flush();
+        if( or_expr != null )
+        {
+            or_expr.print( ps );
+            ps.print( " | " );
+        }
+        xor_expr.print( ps );
+        ps.flush();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	if( pack_name.length() > 0 )
-	    pack_name = new String( s + "." + pack_name );
-	else
-	    pack_name = s;
-	if( or_expr != null ){
-	    or_expr.setPackage(s);
-	}
-	xor_expr.setPackage( s);
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
+            pack_name = new String( s + "." + pack_name );
+        else
+            pack_name = s;
+        if( or_expr != null )
+        {
+            or_expr.setPackage( s );
+        }
+        xor_expr.setPackage( s );
     }
 
-    public void parse()  
+    public void parse()
     {
-	if( or_expr != null ){
-	    or_expr.parse();
-	}
-	xor_expr.parse();
-	}
+        if( or_expr != null )
+        {
+            or_expr.parse();
+        }
+        xor_expr.parse();
+    }
 
     int pos_int_const()
     {
-	return xor_expr.pos_int_const();
+        return xor_expr.pos_int_const();
     }
 
-    public String  value() 
+    public String value()
     {
-	String x = "";
-	if( or_expr != null )
+        String x = "";
+        if( or_expr != null )
         {
-	    x = or_expr.value() + " | ";
-	}
-	return x + xor_expr.value();
+            x = or_expr.value() + " | ";
+        }
+        return x + xor_expr.value();
     }
 
-    public String toString() 
+    public String toString()
     {
-	String x = "";
-	if( or_expr != null )
+        String x = "";
+        if( or_expr != null )
         {
-	    x = or_expr + " | ";
-	}
-	return x + xor_expr;
+            x = or_expr + " | ";
+        }
+        return x + xor_expr;
     }
 
     public str_token get_token()
     {
-	return xor_expr.get_token();
+        return xor_expr.get_token();
     }
 
 }

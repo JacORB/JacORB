@@ -28,78 +28,80 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class BaseType 
-    extends SimpleTypeSpec
+class BaseType
+        extends SimpleTypeSpec
 {
-    public BaseType(int num) 
+
+    public BaseType( int num )
     {
-	super(num);
+        super( num );
     }
 
     /** ignore, these types don't need to know their package */
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
     }
 
     public TypeSpec typeSpec()
     {
-	return type_spec.typeSpec();
-    }	
+        return type_spec.typeSpec();
+    }
 
     public boolean basic()
     {
-	return type_spec.basic();
+        return type_spec.basic();
     }
 
-    public boolean isSwitchType ()
+    public boolean isSwitchType()
     {
-	return
-        (
-            type_spec instanceof SwitchTypeSpec &&
-            ((SwitchTypeSpec)type_spec).isSwitchable ()
-        );
+        return
+                (
+                type_spec instanceof SwitchTypeSpec &&
+                ( (SwitchTypeSpec)type_spec ).isSwitchable()
+                );
     }
 
-    public void parse()         
-    {}
+    public void parse()
+    {
+    }
 
     public static boolean isBasicName( String typeName )
     {
         return ( typeName.startsWith( "long" ) ||
-                 typeName.startsWith( "int" ) ||
-                 typeName.startsWith( "short" ) ||
-                 typeName.startsWith( "float" ) ||
-                 typeName.startsWith( "double" ) ||
-                 typeName.startsWith( "byte" ) ||
-                 typeName.startsWith( "boolean" ) ||
-                 typeName.startsWith( "char" ) ||
-                 typeName.startsWith( "string" ) );
+                typeName.startsWith( "int" ) ||
+                typeName.startsWith( "short" ) ||
+                typeName.startsWith( "float" ) ||
+                typeName.startsWith( "double" ) ||
+                typeName.startsWith( "byte" ) ||
+                typeName.startsWith( "boolean" ) ||
+                typeName.startsWith( "char" ) ||
+                typeName.startsWith( "string" ) );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	enclosing_symbol = s;
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        enclosing_symbol = s;
     }
 
     /** the "kind of TypeCode" for this type */
 
     public int getTCKind()
     {
-	return ((BaseType)type_spec).getTCKind();
+        return ( (BaseType)type_spec ).getTCKind();
     }
 
-    protected String typeCodeExpressionSkeleton(int kind)
+    protected String typeCodeExpressionSkeleton( int kind )
     {
-	return "org.omg.CORBA.ORB.init().get_primitive_tc(" 
-	    + "org.omg.CORBA.TCKind.from_int(" + kind + "))";
+        return "org.omg.CORBA.ORB.init().get_primitive_tc("
+                + "org.omg.CORBA.TCKind.from_int(" + kind + "))";
     }
 
     public String getTypeCodeExpression()
     {
-	return typeCodeExpressionSkeleton(getTCKind());
+        return typeCodeExpressionSkeleton( getTCKind() );
     }
 
     public String toString()
@@ -112,7 +114,7 @@ class BaseType
 
     public String typeName()
     {
-	return type_spec.typeName();
+        return type_spec.typeName();
     }
 
     public String id()
@@ -120,7 +122,7 @@ class BaseType
         return "IDL:*primitive*:1.0";
     }
 
-    public void print(PrintWriter ps) 
+    public void print( PrintWriter ps )
     {
     }
 

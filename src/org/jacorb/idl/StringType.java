@@ -25,131 +25,133 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class StringType 
-    extends TemplateTypeSpec  
+class StringType
+        extends TemplateTypeSpec
 {
+
     public ConstExpr max = null;
     private int length = 0;
     private boolean wide = false;
 
-    public StringType(int num)
+    public StringType( int num )
     {
-	super(num);
+        super( num );
     }
 
     public boolean isWide()
     {
-	return wide;
+        return wide;
     }
 
     public void setWide()
     {
-	wide = true;
+        wide = true;
     }
 
     public Object clone()
     {
-	StringType s = new StringType(new_num());
-	s.max = max;
-	if( wide )
-	    s.setWide();
-	s.parse();
-	return s;
+        StringType s = new StringType( new_num() );
+        s.max = max;
+        if( wide )
+            s.setWide();
+        s.parse();
+        return s;
     }
 
     public String typeName()
     {
-	return "java.lang.String";
+        return "java.lang.String";
     }
 
     public TypeSpec typeSpec()
     {
-	return this;
+        return this;
     }
 
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " 
-                                       + name );
-	enclosing_symbol = s;
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for "
+                    + name );
+        enclosing_symbol = s;
     }
 
-    public void print(java.io.PrintWriter pw)
-    {}
-
-    public void setPackage( String s)
+    public void print( java.io.PrintWriter pw )
     {
-        s = parser.pack_replace(s);
-	if( max != null )
-	    max.setPackage(s);
+    }
+
+    public void setPackage( String s )
+    {
+        s = parser.pack_replace( s );
+        if( max != null )
+            max.setPackage( s );
     }
 
     public String toString()
     {
-	return typeName();
+        return typeName();
     }
 
     public String holderName()
     {
-	return "org.omg.CORBA.StringHolder";
+        return "org.omg.CORBA.StringHolder";
     }
 
     public String getTypeCodeExpression()
     {
-	if( wide )
-	    return "org.omg.CORBA.ORB.init().create_wstring_tc(" + length + ")";
-	else
-	    return "org.omg.CORBA.ORB.init().create_string_tc(" + length + ")";
+        if( wide )
+            return "org.omg.CORBA.ORB.init().create_wstring_tc(" + length + ")";
+        else
+            return "org.omg.CORBA.ORB.init().create_string_tc(" + length + ")";
     }
 
 
-    public String printReadExpression(String strname)
+    public String printReadExpression( String strname )
     {
-	if( wide )
-	    return  strname + ".read_wstring()";
-	else
-	    return strname + ".read_string()";
+        if( wide )
+            return strname + ".read_wstring()";
+        else
+            return strname + ".read_string()";
     }
 
-    public String printReadStatement(String var_name, String strname)
+    public String printReadStatement( String var_name, String strname )
     {
-	if( wide )
-	    return var_name + "=" + strname + ".read_wstring();";
-	else
-	    return var_name + "=" + strname + ".read_string();";
+        if( wide )
+            return var_name + "=" + strname + ".read_wstring();";
+        else
+            return var_name + "=" + strname + ".read_string();";
     }
 
-    public String printWriteStatement(String var_name, String strname)
+    public String printWriteStatement( String var_name, String strname )
     {
-	if( wide )
-	    return strname + ".write_wstring("+var_name+");";
-	else
-	    return strname + ".write_string("+var_name+");";
+        if( wide )
+            return strname + ".write_wstring(" + var_name + ");";
+        else
+            return strname + ".write_string(" + var_name + ");";
     }
 
 
     public String printInsertExpression()
     {
-	if( wide )
+        if( wide )
             return "insert_wstring";
-	else
+        else
             return "insert_string";
     }
 
     public String printExtractExpression()
     {
-	if( wide )
+        if( wide )
             return "extract_wstring";
-	else
+        else
             return "extract_string";
     }
 
-    public void parse() 	 
+    public void parse()
     {
-	if( max != null )
-	    length = max.pos_int_const();
+        if( max != null )
+            length = max.pos_int_const();
     }
 }
 

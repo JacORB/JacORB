@@ -26,40 +26,40 @@
 
 package org.jacorb.idl;
 
-import java.util.Vector;
 import java.util.Enumeration;
-import java.io.*;
+import java.util.Vector;
 
 class MemberList
-    extends SymbolList
+        extends SymbolList
 {
+
     Vector extendVector = new Vector();
     private TypeDeclaration containingType;
     private boolean parsed = false;
 
-    public MemberList(int num)
+    public MemberList( int num )
     {
-        super(num);
+        super( num );
     }
 
-    public void setContainingType (TypeDeclaration t)
+    public void setContainingType( TypeDeclaration t )
     {
         containingType = t;
         Enumeration e = v.elements();
-        for(; e.hasMoreElements(); )
+        for( ; e.hasMoreElements(); )
         {
             Member m = (Member)e.nextElement();
-            m.setContainingType (t);
+            m.setContainingType( t );
         }
     }
 
-    public void parse()          
+    public void parse()
     {
-        if( parsed)
-            throw new RuntimeException("Compiler error: MemberList already parsed!");
+        if( parsed )
+            throw new RuntimeException( "Compiler error: MemberList already parsed!" );
 
         Enumeration e = v.elements();
-        for(; e.hasMoreElements(); )
+        for( ; e.hasMoreElements(); )
         {
             Member m = (Member)e.nextElement();
             m.setExtendVector( extendVector );
@@ -80,16 +80,17 @@ class MemberList
 
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-	    System.err.println("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName());
-            throw new RuntimeException("Compiler Error: trying to reassign container");
+            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
+
+            throw new RuntimeException( "Compiler Error: trying to reassign container" );
         }
 
         enclosing_symbol = s;
 
-        for(Enumeration e = v.elements(); e.hasMoreElements(); )
+        for( Enumeration e = v.elements(); e.hasMoreElements(); )
         {
             Member m = (Member)e.nextElement();
-            m.setEnclosingSymbol(s);
+            m.setEnclosingSymbol( s );
         }
     }
 

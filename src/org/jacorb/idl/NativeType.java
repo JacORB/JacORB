@@ -25,112 +25,114 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.io.*;
+import java.io.PrintWriter;
 
-class NativeType 
-    extends TypeDeclaration
+class NativeType
+        extends TypeDeclaration
 {
+
     SimpleDeclarator declarator;
 
-    public NativeType(int num)
+    public NativeType( int num )
     {
-	super(num);
-	pack_name = "";
+        super( num );
+        pack_name = "";
     }
 
     public Object clone()
     {
-	NativeType nt = new NativeType(new_num());
-	nt.declarator = this.declarator;
-	nt.pack_name = this.pack_name;
-	return nt;
+        NativeType nt = new NativeType( new_num() );
+        nt.declarator = this.declarator;
+        nt.pack_name = this.pack_name;
+        return nt;
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	enclosing_symbol = s;
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        enclosing_symbol = s;
     }
 
     public TypeDeclaration declaration()
     {
-	return this;
+        return this;
     }
 
     public String typeName()
     {
-	if( pack_name.length() > 0 )
-	    return ScopedName.unPseudoName( pack_name+"." + name );
-	else
-	    return ScopedName.unPseudoName( name ) ;
+        if( pack_name.length() > 0 )
+            return ScopedName.unPseudoName( pack_name + "." + name );
+        else
+            return ScopedName.unPseudoName( name );
     }
 
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	if( pack_name.length() > 0 )
-	    pack_name = new String( s + "." + pack_name );
-	else
-	    pack_name = s;
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
+            pack_name = new String( s + "." + pack_name );
+        else
+            pack_name = s;
     }
 
     public boolean basic()
     {
-	return true;
-    } 
+        return true;
+    }
 
     public String toString()
     {
-	return typeName();
+        return typeName();
     }
 
-    public void set_included(boolean i)
+    public void set_included( boolean i )
     {
-	included = i;
+        included = i;
     }
 
     public void parse()
-	
+
     {
-	// don't parse the declarator as that would define its
-	// name which is to be defined as part of this type name
+        // don't parse the declarator as that would define its
+        // name which is to be defined as part of this type name
 
-	name = declarator.name();
-	is_pseudo = true;
+        name = declarator.name();
+        is_pseudo = true;
 
-	ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
-	try
-	{
-	    ctspec.c_type_spec = this;
-	    NameTable.define( full_name(), "native" );
-	    TypeMap.typedef( full_name(), ctspec );
-	} 
-	catch ( NameAlreadyDefined n )
-	{
-	    parser.fatal_error("Name already defined" , token) ;
-	}		
+        ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
+        try
+        {
+            ctspec.c_type_spec = this;
+            NameTable.define( full_name(), "native" );
+            TypeMap.typedef( full_name(), ctspec );
+        }
+        catch( NameAlreadyDefined n )
+        {
+            parser.fatal_error( "Name already defined", token );
+        }
     }
 
     public String holderName()
     {
-	return typeName() + "Holder";
+        return typeName() + "Holder";
     }
 
 
-    public String printReadExpression(String Streamname)
+    public String printReadExpression( String Streamname )
     {
-	return full_name() + "Helper.read(" + Streamname +")" ;
+        return full_name() + "Helper.read(" + Streamname + ")";
     }
 
-    public String printWriteStatement(String var_name, String Streamname)
+    public String printWriteStatement( String var_name, String Streamname )
     {
-	return full_name() + "Helper.write(" + Streamname +"," + var_name + ");";
+        return full_name() + "Helper.write(" + Streamname + "," + var_name + ");";
     }
 
-    public void print(PrintWriter ps)
-    {}
+    public void print( PrintWriter ps )
+    {
+    }
 
 }
 

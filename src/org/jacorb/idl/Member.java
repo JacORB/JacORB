@@ -26,12 +26,14 @@ package org.jacorb.idl;
  *
  */
 
-import java.io.*;
-import java.util.*;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Vector;
 
-class Member 
-    extends Declaration
+class Member
+        extends Declaration
 {
+
     public TypeSpec type_spec;
     public SymbolList declarators;
     public Vector extendVector;
@@ -39,237 +41,237 @@ class Member
 
     public Declarator declarator;
 
-    public Member(int num)
+    public Member( int num )
     {
-	super(num);
+        super( num );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	if( pack_name.length() > 0 )
-	    pack_name = new String( s + "." + pack_name );
-	else
-	    pack_name = s;
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
+            pack_name = new String( s + "." + pack_name );
+        else
+            pack_name = s;
 
-	type_spec.setPackage(s);
-	declarators.setPackage(s);
+        type_spec.setPackage( s );
+        declarators.setPackage( s );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	enclosing_symbol = s;
-	type_spec.setEnclosingSymbol(s);
-	for( Enumeration e = declarators.v.elements(); e.hasMoreElements();)
-	    ((Declarator)e.nextElement()).setEnclosingSymbol(s);	
+        enclosing_symbol = s;
+        type_spec.setEnclosingSymbol( s );
+        for( Enumeration e = declarators.v.elements(); e.hasMoreElements(); )
+            ( (Declarator)e.nextElement() ).setEnclosingSymbol( s );
     }
 
 
-    public void setContainingType (TypeDeclaration t)
+    public void setContainingType( TypeDeclaration t )
     {
-	containingType = t;
-    }
-
-    /** 
-     * must be set by MemberList before parsing 
-     */
-    public void setExtendVector(Vector v)
-    {
-	extendVector = v;
+        containingType = t;
     }
 
     /**
-     * Creates a new Member that is similar to this one, 
+     * must be set by MemberList before parsing
+     */
+    public void setExtendVector( Vector v )
+    {
+        extendVector = v;
+    }
+
+    /**
+     * Creates a new Member that is similar to this one,
      * but only for declarator d.
      */
-    public Member extractMember (Declarator d)
+    public Member extractMember( Declarator d )
     {
-        Member result = new Member (new_num());
+        Member result = new Member( new_num() );
         result.declarator = d;
         return result;
     }
 
     /**
      *	Parsing members means creating new members for definitions
-     *   with more than one declarator. 
+     *   with more than one declarator.
      */
-    public void parse () 	
+    public void parse()
     {
-	boolean clone_and_parse = true;
+        boolean clone_and_parse = true;
 
-	if( extendVector == null )
-	    throw new RuntimeException("Compiler Error: extendVector not set!");
+        if( extendVector == null )
+            throw new RuntimeException( "Compiler Error: extendVector not set!" );
 
-	if (type_spec.typeSpec() instanceof ScopedName) 
-	{
-	    token = type_spec.typeSpec().get_token();
+        if( type_spec.typeSpec() instanceof ScopedName )
+        {
+            token = type_spec.typeSpec().get_token();
             String name = type_spec.typeSpec().toString();
 
-	    type_spec = ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
-            enclosing_symbol.addImportedName (name, type_spec);
+            type_spec = ( (ScopedName)type_spec.typeSpec() ).resolvedTypeSpec();
+            enclosing_symbol.addImportedName( name, type_spec );
 
-	    clone_and_parse = false;
-	    if( type_spec instanceof ConstrTypeSpec )
-	    {
-		if( ((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec instanceof StructType )
-		{
-		    //	System.out.println("Type " + containingType.typeName() + " contains type " + ((ConstrTypeSpec)type_spec.typeSpec()).typeName());
-		    if(
-		       ((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec.typeName().equals(containingType.typeName())
-		       )
-		    {
-			parser.fatal_error("Illegal type recursion (use sequence<" + 
-					   containingType.typeName()+ "> instead)", token);
-		    }
-		}
-	    }
-            
+            clone_and_parse = false;
+            if( type_spec instanceof ConstrTypeSpec )
+            {
+                if( ( (ConstrTypeSpec)type_spec.typeSpec() ).c_type_spec instanceof StructType )
+                {
+                    //	System.out.println("Type " + containingType.typeName() + " contains type " + ((ConstrTypeSpec)type_spec.typeSpec()).typeName());
+                    if(
+                            ( (ConstrTypeSpec)type_spec.typeSpec() ).c_type_spec.typeName().equals( containingType.typeName() )
+                    )
+                    {
+                        parser.fatal_error( "Illegal type recursion (use sequence<" +
+                                containingType.typeName() + "> instead)", token );
+                    }
+                }
+            }
 
-	} 
-	else if( type_spec.typeSpec() instanceof SequenceType )
-	{
-	    TypeSpec ts = ((SequenceType)type_spec.typeSpec()).elementTypeSpec().typeSpec();
+
+        }
+        else if( type_spec.typeSpec() instanceof SequenceType )
+        {
+            TypeSpec ts = ( (SequenceType)type_spec.typeSpec() ).elementTypeSpec().typeSpec();
             SequenceType seqTs = (SequenceType)type_spec.typeSpec();
             while( ts instanceof SequenceType )
             {
                 seqTs = (SequenceType)ts;
-                ts = ((SequenceType)ts.typeSpec()).elementTypeSpec().typeSpec();
+                ts = ( (SequenceType)ts.typeSpec() ).elementTypeSpec().typeSpec();
             }
 
-            //           if( ts.typeName().equals( containingType.typeName()) || 
-            if( ScopedName.isRecursionScope( ts.typeName() ))
-	    {
-		seqTs.setRecursive();
-	    }
-	}
+            //           if( ts.typeName().equals( containingType.typeName()) ||
+            if( ScopedName.isRecursionScope( ts.typeName() ) )
+            {
+                seqTs.setRecursive();
+            }
+        }
         else if( type_spec instanceof ConstrTypeSpec )
         {
             type_spec.parse();
         }
 
         String tokName = null;
-        if (token != null && token.line_val != null)
+        if( token != null && token.line_val != null )
         {
-            tokName = token.line_val.trim ();
-            if (tokName.length () == 0)
+            tokName = token.line_val.trim();
+            if( tokName.length() == 0 )
             {
                 tokName = null;
             }
         }
 
-	for (Enumeration e = declarators.v.elements(); e.hasMoreElements();)
-	{
-	    Declarator d = (Declarator)e.nextElement();
-            String dName = d.name ();
+        for( Enumeration e = declarators.v.elements(); e.hasMoreElements(); )
+        {
+            Declarator d = (Declarator)e.nextElement();
+            String dName = d.name();
 
-            if (tokName != null)
+            if( tokName != null )
             {
-                if (dName.equalsIgnoreCase (tokName))
+                if( dName.equalsIgnoreCase( tokName ) )
                 {
-                    parser.fatal_error ("Declarator " + dName + 
-                        " already defined in scope.", token);
+                    parser.fatal_error( "Declarator " + dName +
+                            " already defined in scope.", token );
                 }
             }
 
-	    // we don't parse the declarator itself
-	    // as that would result in its name getting defined
-	    // we define the declarator's name as a type name indirectly
-	    // through the cloned type specs.
+            // we don't parse the declarator itself
+            // as that would result in its name getting defined
+            // we define the declarator's name as a type name indirectly
+            // through the cloned type specs.
 
-	    Member m = extractMember (d);
- 
-	    TypeSpec ts = type_spec.typeSpec();
+            Member m = extractMember( d );
 
-	    /* create a separate type spec copy for every declarator 
-	       if the type spec is a new type definition, i.e. a
-	       struct, enum, union, sequence or the declarator is
-	       an array declarator
-	    */
+            TypeSpec ts = type_spec.typeSpec();
 
-	    //			if( clone_and_parse && !(ts instanceof BaseType) )
-	    if( clone_and_parse || d.d instanceof ArrayDeclarator )
-	    {
-		/* arrays need special treatment */
+            /* create a separate type spec copy for every declarator
+               if the type spec is a new type definition, i.e. a
+               struct, enum, union, sequence or the declarator is
+               an array declarator
+            */
 
-		if( d.d instanceof ArrayDeclarator )
-		{
-		    ts = new ArrayTypeSpec( new_num(), ts, (ArrayDeclarator)d.d, pack_name );
-		    ts.parse();
-		}
-		else if( !(ts instanceof BaseType))
-		{
-		    ts = (TypeSpec)ts.clone();
-                    if( !(ts instanceof ConstrTypeSpec) )
-                        ts.set_name( d.name());
+            //			if( clone_and_parse && !(ts instanceof BaseType) )
+            if( clone_and_parse || d.d instanceof ArrayDeclarator )
+            {
+                /* arrays need special treatment */
 
-		    /* important: only parse type specs once (we do it for the last 
-		       declarator only) */
-		    if( !e.hasMoreElements() )
-			ts.parse();
-		}
-	    }
+                if( d.d instanceof ArrayDeclarator )
+                {
+                    ts = new ArrayTypeSpec( new_num(), ts, (ArrayDeclarator)d.d, pack_name );
+                    ts.parse();
+                }
+                else if( !( ts instanceof BaseType ) )
+                {
+                    ts = (TypeSpec)ts.clone();
+                    if( !( ts instanceof ConstrTypeSpec ) )
+                        ts.set_name( d.name() );
+
+                    /* important: only parse type specs once (we do it for the last
+                       declarator only) */
+                    if( !e.hasMoreElements() )
+                        ts.parse();
+                }
+            }
 
             //            else
-            if( ! (d.d instanceof ArrayDeclarator) )
+            if( !( d.d instanceof ArrayDeclarator ) )
             {
                 try
                 {
-                    NameTable.define( containingType + "." + d.name() , 
-                                      "declarator" );
+                    NameTable.define( containingType + "." + d.name(),
+                            "declarator" );
                 }
                 catch( NameAlreadyDefined nad )
                 {
-                    parser.fatal_error ("Declarator " + d.name() + 
-                        " already defined in scope.", token);
+                    parser.fatal_error( "Declarator " + d.name() +
+                            " already defined in scope.", token );
                 }
             }
 
-	    /* if the type spec is a scoped name, it is already parsed and
-	     * the type name is defined
-	     */  
-	    //			if( clone_and_parse )
-	    //				ts.parse();
+            /* if the type spec is a scoped name, it is already parsed and
+             * the type name is defined
+             */
+            //			if( clone_and_parse )
+            //				ts.parse();
 
-	    m.type_spec = ts;
-	    m.pack_name = this.pack_name;
-	    m.name = this.name;
-	    extendVector.addElement( m );
-	}
-	declarators = null;
+            m.type_spec = ts;
+            m.pack_name = this.pack_name;
+            m.name = this.name;
+            extendVector.addElement( m );
+        }
+        declarators = null;
     }
 
     /**
-     *	
+     *
      */
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	member_print( ps, "\tpublic ");
+        member_print( ps, "\tpublic " );
     }
 
     /**
-     *	
+     *
      */
 
-    public void member_print(PrintWriter ps, String prefix)
+    public void member_print( PrintWriter ps, String prefix )
     {
-	/* only print members that are not interfaces */
+        /* only print members that are not interfaces */
 
-	if( (type_spec.typeSpec() instanceof ConstrTypeSpec && 
-             !((((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec.declaration() 
-                instanceof Interface) ||
-               (((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec.declaration() 
-                instanceof Value))) ||
-	    type_spec.typeSpec() instanceof SequenceType || 
-	    type_spec.typeSpec() instanceof ArrayTypeSpec )
-	{
-	    type_spec.print(ps); 
-	}
+        if( ( type_spec.typeSpec() instanceof ConstrTypeSpec &&
+                !( ( ( (ConstrTypeSpec)type_spec.typeSpec() ).c_type_spec.declaration()
+                instanceof Interface ) ||
+                ( ( (ConstrTypeSpec)type_spec.typeSpec() ).c_type_spec.declaration()
+                instanceof Value ) ) ) ||
+                type_spec.typeSpec() instanceof SequenceType ||
+                type_spec.typeSpec() instanceof ArrayTypeSpec )
+        {
+            type_spec.print( ps );
+        }
 
-	if( type_spec.typeSpec() instanceof StringType )
-            ps.print( prefix + type_spec.toString() + " " + declarator.toString() + " = \"\";" ); 
+        if( type_spec.typeSpec() instanceof StringType )
+            ps.print( prefix + type_spec.toString() + " " + declarator.toString() + " = \"\";" );
         else
-            ps.print( prefix + type_spec.toString() + " " + declarator.toString() + ";" ); 
+            ps.print( prefix + type_spec.toString() + " " + declarator.toString() + ";" );
     }
 
     public TypeSpec typeSpec()

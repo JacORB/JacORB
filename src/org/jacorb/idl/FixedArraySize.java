@@ -26,18 +26,19 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class FixedArraySize 
-    extends IdlSymbol 
+class FixedArraySize
+        extends IdlSymbol
 {
+
     public PosIntConst pos_int_const;
 
-    public FixedArraySize(int num)
+    public FixedArraySize( int num )
     {
-        super(num);
+        super( num );
     }
 
-    public void parse() 
-         
+    public void parse()
+
     {
         pos_int_const.parse();
     }
@@ -47,14 +48,14 @@ class FixedArraySize
         return pos_int_const.value();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        pos_int_const.setPackage(s);
+        pos_int_const.setPackage( s );
     }
 }
 

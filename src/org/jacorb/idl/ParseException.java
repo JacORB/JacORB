@@ -28,18 +28,18 @@ package org.jacorb.idl;
  */
 
 public class ParseException
-    extends RuntimeException
+        extends RuntimeException
 {
+
     public ParseException()
     {
     }
-    
-    public ParseException(String reason)
+
+    public ParseException( String reason )
     {
         super( reason );
     }
 
-    
 
 }
 

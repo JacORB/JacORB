@@ -1,4 +1,4 @@
- package org.jacorb.idl;
+package org.jacorb.idl;
 
 /*
  *        JacORB - a free Java ORB
@@ -20,33 +20,34 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
 
 /**
  * @author Gerald Brose
- * @version $Id$ 
+ * @version $Id$
  */
 
-class AddExpr 
-    extends IdlSymbol
+class AddExpr
+        extends IdlSymbol
 {
+
     public AddExpr add_expr = null;
     public String operator;
     public MultExpr mult_expr;
 
-    public AddExpr(int num){
-        super(num);
+    public AddExpr( int num )
+    {
+        super( num );
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
         if( add_expr != null )
         {
-            add_expr.print(ps);
+            add_expr.print( ps );
             ps.print( operator );
-        } 
-        mult_expr.print(ps);
+        }
+        mult_expr.print( ps );
     }
 
 
@@ -55,20 +56,21 @@ class AddExpr
         mult_expr.setDeclaration( declared_in );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        if( add_expr != null ){
-            add_expr.setPackage(s);
+        if( add_expr != null )
+        {
+            add_expr.setPackage( s );
         }
-        mult_expr.setPackage( s);
+        mult_expr.setPackage( s );
     }
 
-    public void parse()  
+    public void parse()
     {
         if( add_expr != null )
         {
@@ -83,7 +85,7 @@ class AddExpr
         if( add_expr != null )
         {
             int z = add_expr.pos_int_const();
-            if( operator.equals("-"))
+            if( operator.equals( "-" ) )
                 z *= -1;
             return z + y;
         }
@@ -91,7 +93,7 @@ class AddExpr
             return y;
     }
 
-    public String  value() 
+    public String value()
     {
         String x = "";
         if( add_expr != null )
@@ -102,7 +104,7 @@ class AddExpr
     }
 
 
-    public String  toString() 
+    public String toString()
     {
         String x = "";
         if( add_expr != null )
@@ -114,7 +116,7 @@ class AddExpr
 
     public str_token get_token()
     {
-	return mult_expr.get_token();
+        return mult_expr.get_token();
     }
 }
 

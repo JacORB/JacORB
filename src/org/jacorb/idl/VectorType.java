@@ -20,7 +20,6 @@
 
 package org.jacorb.idl;
 
-import java.io.*;
 
 /**
  * Common super class for arrays and sequences
@@ -31,14 +30,15 @@ import java.io.*;
  */
 
 
-public abstract class VectorType 
-    extends TemplateTypeSpec
+public abstract class VectorType
+        extends TemplateTypeSpec
 {
+
     TypeSpec type_spec;
 
-    public VectorType(int num)
+    public VectorType( int num )
     {
-	super(num);
+        super( num );
     }
 
     /**
@@ -47,96 +47,96 @@ public abstract class VectorType
 
     public TypeSpec elementTypeSpec()
     {
-	TypeSpec t = type_spec.typeSpec();
+        TypeSpec t = type_spec.typeSpec();
 
-	/* if the element type is scoped name that refers to another
-	   type spec, we have to retrieve that. If that type spec is
-	   a base type or a string, we have to return it, otherwise
-	   we return the scoped type name.
-	*/
+        /* if the element type is scoped name that refers to another
+           type spec, we have to retrieve that. If that type spec is
+           a base type or a string, we have to return it, otherwise
+           we return the scoped type name.
+        */
 
-	if( t instanceof ScopedName )
-	{
-	    t = ((ScopedName)t).resolvedTypeSpec().typeSpec();
-	}
-	return t;
+        if( t instanceof ScopedName )
+        {
+            t = ( (ScopedName)t ).resolvedTypeSpec().typeSpec();
+        }
+        return t;
     }
 
 
     public void setTypeSpec( SimpleTypeSpec sts )
     {
-	type_spec = sts;
+        type_spec = sts;
     }
 
     /**
      * @returns this sequences Java type name, i.e., the element type with
-     * "[]" appended. 
+     * "[]" appended.
      */
 
     public String typeName()
     {
         String name;
 
-	if( type_spec.typeSpec() instanceof ScopedName )
-	{
-	    name =  
-                ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec().toString();
-	}
-	else
-	{
-	    name = type_spec.toString();
-	}
+        if( type_spec.typeSpec() instanceof ScopedName )
+        {
+            name =
+                    ( (ScopedName)type_spec.typeSpec() ).resolvedTypeSpec().toString();
+        }
+        else
+        {
+            name = type_spec.toString();
+        }
 
-	return name + "[]";
+        return name + "[]";
     }
 
 
-    public String printReadExpression(String streamname)
+    public String printReadExpression( String streamname )
     {
-	return helperName() +  ".read(" + streamname +")"; 
+        return helperName() + ".read(" + streamname + ")";
     }
 
 
     protected String elementTypeExpression()
-    {        
+    {
         TypeSpec ts = type_spec.typeSpec();
 
         if( ts instanceof AliasTypeSpec )
         {
             return type_spec.full_name() + "Helper.type()";
         }
-        else if ( ts instanceof BaseType || 
-                  ts instanceof TypeCodeTypeSpec ||
-                  ts instanceof ConstrTypeSpec || // for value types
-                  ts instanceof TemplateTypeSpec  )
+        else if( ts instanceof BaseType ||
+                ts instanceof TypeCodeTypeSpec ||
+                ts instanceof ConstrTypeSpec || // for value types
+                ts instanceof TemplateTypeSpec )
         {
-            return ts.getTypeCodeExpression() ;
+            return ts.getTypeCodeExpression();
         }
         else
         {
-            return ts.typeName()  + "Helper.type()";
+            return ts.typeName() + "Helper.type()";
         }
     }
 
     public String elementTypeName()
-    {        
+    {
         TypeSpec ts = type_spec;
         if( ts instanceof ScopedName )
         {
-            Environment.output( 1, "elementTypeName is outer ScopedName");
-            ts = ((ScopedName)type_spec.type_spec).resolvedTypeSpec();
+            Environment.output( 1, "elementTypeName is outer ScopedName" );
+            ts = ( (ScopedName)type_spec.type_spec ).resolvedTypeSpec();
 
             while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
             {
                 if( ts instanceof ScopedName )
                 {
-                    Environment.output( 1, "elementTypeName is inner Alias");
-                    ts = ((ScopedName)ts).resolvedTypeSpec();
+                    Environment.output( 1, "elementTypeName is inner Alias" );
+                    ts = ( (ScopedName)ts ).resolvedTypeSpec();
                 }
-                if( ts instanceof AliasTypeSpec )          
+                if( ts instanceof AliasTypeSpec )
                 {
-                    Environment.output( 1, "elementTypeName is inner Alias");
-                    ts = ((AliasTypeSpec)ts).originalType();
+                    Environment.output( 1, "elementTypeName is inner Alias" );
+                    ts = ( (AliasTypeSpec)ts ).originalType();
                 }
             }
         }
@@ -149,15 +149,10 @@ public abstract class VectorType
     public abstract String helperName();
 
 
-
     public String toString()
     {
         return typeName();
     }
-
-
-
-
 
 
 }

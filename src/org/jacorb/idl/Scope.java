@@ -28,7 +28,8 @@ package org.jacorb.idl;
 
 public interface Scope
 {
-    public void setScopeData(ScopeData data);
+
+    public void setScopeData( ScopeData data );
 
     public ScopeData getScopeData();
 

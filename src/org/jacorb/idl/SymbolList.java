@@ -20,69 +20,71 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class SymbolList 
-    extends IdlSymbol
+class SymbolList
+        extends IdlSymbol
 {
+
     public Vector v;
 
-    public SymbolList(int num)
+    public SymbolList( int num )
     {
-        super(num);
+        super( num );
         v = new Vector();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-        if( pack_name.length() > 0  )
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
         Enumeration e = v.elements();
-        for(; e.hasMoreElements(); )
-            ((IdlSymbol)e.nextElement()).setPackage(s);
+        for( ; e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).setPackage( s );
     }
 
-    public void parse() 
-                 
+    public void parse()
+
     {
         Enumeration e = v.elements();
-        for(; e.hasMoreElements(); )
-            ((IdlSymbol)e.nextElement()).parse();
+        for( ; e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).parse();
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
         Enumeration e = v.elements();
-        if(e.hasMoreElements())
-            ((IdlSymbol)e.nextElement()).print(ps);
-        
-        for(; e.hasMoreElements();)
+        if( e.hasMoreElements() )
+            ( (IdlSymbol)e.nextElement() ).print( ps );
+
+        for( ; e.hasMoreElements(); )
         {
-            ps.print(",");
-            ((IdlSymbol)e.nextElement()).print(ps);
+            ps.print( "," );
+            ( (IdlSymbol)e.nextElement() ).print( ps );
         }
     }
 
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
-                Enumeration e = v.elements();
+        Enumeration e = v.elements();
 
-        if(e.hasMoreElements())
+        if( e.hasMoreElements() )
             sb.append( (IdlSymbol)e.nextElement() );
-        
-        for(; e.hasMoreElements();)
+
+        for( ; e.hasMoreElements(); )
         {
-            sb.append(","+ (IdlSymbol)e.nextElement() );
+            sb.append( "," + (IdlSymbol)e.nextElement() );
         }
         return sb.toString();
     }

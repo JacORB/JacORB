@@ -26,23 +26,26 @@ package org.jacorb.idl;
  */
 
 
-class IllegalRedefinition 
-    extends NameAlreadyDefined 
+class IllegalRedefinition
+        extends NameAlreadyDefined
 {
+
     public String oldDef;
     public String newDef;
 
-    public IllegalRedefinition(){}
+    public IllegalRedefinition()
+    {
+    }
 
     public IllegalRedefinition( String s )
     {
-	super( s );
+        super( s );
         newDef = s;
     }
 
-    public IllegalRedefinition( String oldDef,  String newDef )
+    public IllegalRedefinition( String oldDef, String newDef )
     {
-	super( oldDef );
+        super( oldDef );
         this.oldDef = oldDef;
         this.newDef = newDef;
     }

@@ -25,113 +25,112 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.Vector;
-import java.util.Enumeration;
-import java.io.*;
+import java.io.PrintWriter;
 
 class Value
-    extends TypeDeclaration
+        extends TypeDeclaration
 {
+
     private Value value;
 
-    public Value(int num) 
+    public Value( int num )
     {
-	super(num);
-	pack_name = "";
+        super( num );
+        pack_name = "";
     }
 
     public Object clone()
     {
-	return value.clone();
+        return value.clone();
     }
 
-    public void setValue ( Value value)
+    public void setValue( Value value )
     {
         this.value = value;
     }
 
     public TypeDeclaration declaration()
     {
-	return value;
+        return value;
     };
 
     public String typeName()
     {
-	return value.typeName();
+        return value.typeName();
     }
 
 
     /**
-     * @returns a string for an expression of type TypeCode 
+     * @returns a string for an expression of type TypeCode
      * 			that describes this type
      */
 
     public String getTypeCodeExpression()
     {
-	return value.getTypeCodeExpression();
+        return value.getTypeCodeExpression();
     }
 
     public boolean basic()
     {
-	return value.basic();
-    } 
-
-    public void setPackage( String s)
-    {
-        s = parser.pack_replace(s);
-	value.setPackage(s);
+        return value.basic();
     }
 
-    public void set_included(boolean i)
+    public void setPackage( String s )
     {
-	included = i;
-	value.set_included(i);
+        s = parser.pack_replace( s );
+        value.setPackage( s );
     }
 
-    public void parse() 	 
+    public void set_included( boolean i )
     {
-	value.parse();
+        included = i;
+        value.set_included( i );
+    }
+
+    public void parse()
+    {
+        value.parse();
     }
 
     public String holderName()
     {
-	return value.holderName();
+        return value.holderName();
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	value.print( ps );
+        value.print( ps );
     }
 
     public String toString()
     {
-	return value.toString();
+        return value.toString();
     }
- 
+
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	{
-	    System.err.println("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName());
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	}
-	enclosing_symbol = s;
-	value.setEnclosingSymbol(s);
+        if( enclosing_symbol != null && enclosing_symbol != s )
+        {
+            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        }
+        enclosing_symbol = s;
+        value.setEnclosingSymbol( s );
     }
 
-    public String printReadExpression(String streamname)
+    public String printReadExpression( String streamname )
     {
-	return value.printReadExpression( streamname);
+        return value.printReadExpression( streamname );
     }
 
-    public String printReadStatement(String var_name, String streamname)
+    public String printReadStatement( String var_name, String streamname )
     {
-	return value.printReadStatement( var_name, streamname );
+        return value.printReadStatement( var_name, streamname );
     }
 
-    public String printWriteStatement(String var_name, String streamname)
+    public String printWriteStatement( String var_name, String streamname )
     {
-	return value.printWriteStatement(var_name, streamname);
+        return value.printWriteStatement( var_name, streamname );
     }
 
 }

@@ -26,10 +26,11 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.*;
+import java.util.Hashtable;
 
 public class ScopeData
 {
+
     public Hashtable versionMap = new Hashtable();
 
 }

@@ -19,27 +19,26 @@
  */
 
 
-
 package org.jacorb.idl;
 
-import java.io.PrintWriter;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class AnyType 
-    extends BaseType
+class AnyType
+        extends BaseType
 {
-    public AnyType(int num)
+
+    public AnyType( int num )
     {
-        super(num);
+        super( num );
     }
 
     public Object clone()
     {
-        return new AnyType( new_num());
+        return new AnyType( new_num() );
     }
 
     public String typeName()
@@ -51,10 +50,11 @@ class AnyType
     {
         return this;
     }
+
     public boolean basic()
     {
         return false;
-    } 
+    }
 
     public String toString()
     {
@@ -66,21 +66,22 @@ class AnyType
         return "org.omg.CORBA.AnyHolder";
     }
 
-    public void parse() 
-		 
-    {}
+    public void parse()
+
+    {
+    }
 
     public int getTCKind()
     {
         return 11;
     }
 
-    public String printReadExpression(String strname)
+    public String printReadExpression( String strname )
     {
         return strname + ".read_any()";
     }
 
-    public String printWriteStatement(String var_name, String strname)
+    public String printWriteStatement( String var_name, String strname )
     {
         return strname + ".write_any(" + var_name + ");";
     }

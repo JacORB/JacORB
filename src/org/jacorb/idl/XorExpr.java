@@ -20,31 +20,33 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class XorExpr 
-    extends IdlSymbol
+class XorExpr
+        extends IdlSymbol
 {
+
     public XorExpr xor_expr = null;
     public AndExpr and_expr;
 
-    public XorExpr(int num){
-        super(num);
+    public XorExpr( int num )
+    {
+        super( num );
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-        if( xor_expr != null ){
-            xor_expr.print(ps);
-            ps.print(" ^ ");
+        if( xor_expr != null )
+        {
+            xor_expr.print( ps );
+            ps.print( " ^ " );
         }
-        and_expr.print(ps);
+        and_expr.print( ps );
     }
 
     public void setDeclaration( ConstDecl declared_in )
@@ -52,20 +54,21 @@ class XorExpr
         and_expr.setDeclaration( declared_in );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        if( xor_expr != null ){
-            xor_expr.setPackage(s);
+        if( xor_expr != null )
+        {
+            xor_expr.setPackage( s );
         }
-        and_expr.setPackage( s);
+        and_expr.setPackage( s );
     }
 
-    public void parse()  
+    public void parse()
     {
         if( xor_expr != null )
         {
@@ -79,16 +82,17 @@ class XorExpr
         return and_expr.pos_int_const();
     }
 
-    public String  value() 
+    public String value()
     {
         String x = "";
-        if( xor_expr != null ){
+        if( xor_expr != null )
+        {
             x = xor_expr.value() + "^";
         }
         return x + and_expr.value();
     }
 
-    public String toString() 
+    public String toString()
     {
         String x = "";
         if( xor_expr != null )
@@ -100,7 +104,7 @@ class XorExpr
 
     public str_token get_token()
     {
-	return and_expr.get_token();
+        return and_expr.get_token();
     }
 }
 

@@ -25,90 +25,88 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.*;
-import java.io.*;
 
-
-class TypeMap 
+class TypeMap
 {
-    static java.util.Hashtable typemap = new java.util.Hashtable(5000);
+
+    static java.util.Hashtable typemap = new java.util.Hashtable( 5000 );
 
 
     public static void init()
     {
         typemap.clear();
-	typemap.put( "org.omg.CORBA.Object", new ObjectTypeSpec( IdlSymbol.new_num()) );
-	typemap.put( "org.omg.CORBA.TypeCode", new TypeCodeTypeSpec( IdlSymbol.new_num()) );
-	typemap.put( "CORBA.Object", new ObjectTypeSpec( IdlSymbol.new_num()) );
-	typemap.put( "CORBA.TypeCode", new TypeCodeTypeSpec( IdlSymbol.new_num()) );
+        typemap.put( "org.omg.CORBA.Object", new ObjectTypeSpec( IdlSymbol.new_num() ) );
+        typemap.put( "org.omg.CORBA.TypeCode", new TypeCodeTypeSpec( IdlSymbol.new_num() ) );
+        typemap.put( "CORBA.Object", new ObjectTypeSpec( IdlSymbol.new_num() ) );
+        typemap.put( "CORBA.TypeCode", new TypeCodeTypeSpec( IdlSymbol.new_num() ) );
     }
 
     // return the type spec associated with a name, if any
 
     public static TypeSpec map( String name )
     {
-	return (TypeSpec)typemap.get(name);
+        return (TypeSpec)typemap.get( name );
     }
 
     /**
      * define a new name for a type spec
      */
 
-    public static void typedef( String name, TypeSpec type ) 
-	throws NameAlreadyDefined
+    public static void typedef( String name, TypeSpec type )
+            throws NameAlreadyDefined
     {
-	Environment.output(3,"Typedef'ing " + name +
-                           //                           type.typeName() + 
-                           " , hash: " + type.hashCode() );
+        Environment.output( 3, "Typedef'ing " + name +
+                //                           type.typeName() +
+                " , hash: " + type.hashCode() );
 
-	if( typemap.containsKey( name ))
-	{
-	    // actually: throw new NameAlreadyDefined();
-	    // but we get better error messages if we leave 
-	    // this to later stages 
-	    ;
-	}
-	else
-	{
-	    if( type.typeSpec() instanceof ScopedName )
-	    {
-		if(  ((ScopedName)type.typeSpec()).resolvedTypeSpec() != null )
-		    typemap.put( name, ((ScopedName)type.typeSpec()).resolvedTypeSpec() );
-		else
-		    typemap.put( name, type.typeSpec() );
-		//Environment.output(3," resolved " + ((ScopedName)type.typeSpec()).resolvedTypeSpec()); 
-	    } 
-	    else 
-	    {
-		typemap.put( name, type.typeSpec() );
-		//Environment.output(3,""+ type.typeSpec() ); 
-	    }
-	}
+        if( typemap.containsKey( name ) )
+        {
+            // actually: throw new NameAlreadyDefined();
+            // but we get better error messages if we leave
+            // this to later stages
+            ;
+        }
+        else
+        {
+            if( type.typeSpec() instanceof ScopedName )
+            {
+                if( ( (ScopedName)type.typeSpec() ).resolvedTypeSpec() != null )
+                    typemap.put( name, ( (ScopedName)type.typeSpec() ).resolvedTypeSpec() );
+                else
+                    typemap.put( name, type.typeSpec() );
+                //Environment.output(3," resolved " + ((ScopedName)type.typeSpec()).resolvedTypeSpec());
+            }
+            else
+            {
+                typemap.put( name, type.typeSpec() );
+                //Environment.output(3,""+ type.typeSpec() );
+            }
+        }
     }
 
-    public static void replaceForwardDeclaration( String name, 
-                                                  TypeSpec type ) 
+    public static void replaceForwardDeclaration( String name,
+                                                  TypeSpec type )
     {
-	if( typemap.containsKey( name ))
-	{
-	    typemap.remove( name );
-	    try
-	    {
-		typedef( name, type );
-	    } 
-	    catch ( NameAlreadyDefined nad )
-	    {
-		// serious error, should never happen
-		nad.printStackTrace();
-                org.jacorb.idl.parser.fatal_error( "TypeMap.replaceForwardDeclaration, serious error!", null);
-	    }
-	}
-	else
-	    throw new RuntimeException("Could not find forward declaration!");
+        if( typemap.containsKey( name ) )
+        {
+            typemap.remove( name );
+            try
+            {
+                typedef( name, type );
+            }
+            catch( NameAlreadyDefined nad )
+            {
+                // serious error, should never happen
+                nad.printStackTrace();
+                org.jacorb.idl.parser.fatal_error( "TypeMap.replaceForwardDeclaration, serious error!", null );
+            }
+        }
+        else
+            throw new RuntimeException( "Could not find forward declaration!" );
     }
 
 
-}	
+}
 
 
 

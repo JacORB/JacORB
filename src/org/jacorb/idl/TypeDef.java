@@ -25,33 +25,34 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.Vector;
+import java.io.PrintWriter;
 import java.util.Enumeration;
-import java.io.*;
+import java.util.Vector;
 
-class TypeDef 
-    extends TypeDeclaration
+class TypeDef
+        extends TypeDeclaration
 {
+
     public TypeDeclarator type_declarator;
     private Vector typeSpecs = new Vector();
 
-    public TypeDef(int num)
+    public TypeDef( int num )
     {
-        super(num);
+        super( num );
         pack_name = "";
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        type_declarator.setPackage( s);
+        type_declarator.setPackage( s );
     }
 
-    public void set_included(boolean i)
+    public void set_included( boolean i )
     {
         included = i;
     }
@@ -60,27 +61,27 @@ class TypeDef
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println("was " + enclosing_symbol.getClass().getName() + 
-                               " now: " + s.getClass().getName());
-            throw new RuntimeException("Compiler Error: trying to reassign container for " + 
-                                       name );
+            System.err.println( "was " + enclosing_symbol.getClass().getName() +
+                    " now: " + s.getClass().getName() );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " +
+                    name );
         }
         enclosing_symbol = s;
-        type_declarator.setEnclosingSymbol(s);  
+        type_declarator.setEnclosingSymbol( s );
     }
 
-    public void parse()          
+    public void parse()
     {
         for( Enumeration e = type_declarator.declarators.v.elements();
-             e.hasMoreElements();)
+             e.hasMoreElements(); )
         {
-            Declarator d = (Declarator)e.nextElement();            
+            Declarator d = (Declarator)e.nextElement();
             d.escapeName();
 
             try
             {
-                AliasTypeSpec alias = 
-                    new AliasTypeSpec((TypeSpec)type_declarator.type_spec());
+                AliasTypeSpec alias =
+                        new AliasTypeSpec( (TypeSpec)type_declarator.type_spec() );
 
                 /* arrays need special treatment */
 
@@ -91,44 +92,44 @@ class TypeDef
                     // we define the declarator's name as a type name indirectly
                     // through the cloned type specs.
 
-                    alias = new AliasTypeSpec( new ArrayTypeSpec( 
-                                        new_num(), alias.originalType(), 
-                                        (ArrayDeclarator)d.d, pack_name )
-                                               );
+                    alias = new AliasTypeSpec( new ArrayTypeSpec(
+                            new_num(), alias.originalType(),
+                            (ArrayDeclarator)d.d, pack_name )
+                    );
                     alias.parse();
                 }
                 else
                 {
-                    if(!(e.hasMoreElements()))
+                    if( !( e.hasMoreElements() ) )
                         alias.parse();
                 }
-                alias.set_name( d.name());
+                alias.set_name( d.name() );
                 alias.setPackage( pack_name );
                 alias.setEnclosingSymbol( enclosing_symbol );
-                alias.set_token( d.d.get_token());
+                alias.set_token( d.d.get_token() );
                 alias.set_included( included );
 
-                typeSpecs.addElement(alias);
-                NameTable.define(d.full_name(), "type");
+                typeSpecs.addElement( alias );
+                NameTable.define( d.full_name(), "type" );
                 TypeMap.typedef( d.full_name(), alias );
-            } 
-            catch ( NameAlreadyDefined n )
+            }
+            catch( NameAlreadyDefined n )
             {
-                parser.error( "TypeDef'd name " + d.name() + 
-                              " already defined. ", d.token);
+                parser.error( "TypeDef'd name " + d.name() +
+                        " already defined. ", d.token );
             }
         }
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-        if( included && !generateIncluded() )      
+        if( included && !generateIncluded() )
             return;
 
         for( Enumeration e = typeSpecs.elements();
-             e.hasMoreElements();)
+             e.hasMoreElements(); )
         {
-            ((AliasTypeSpec)e.nextElement()).print(ps);
+            ( (AliasTypeSpec)e.nextElement() ).print( ps );
         }
 
     }

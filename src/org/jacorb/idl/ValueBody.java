@@ -20,17 +20,17 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
+import java.util.Enumeration;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class ValueBody 
-    extends InterfaceBody
+class ValueBody
+        extends InterfaceBody
 {
+
     public ValueAbsDecl myAbsValue;
 
     ValueBody( int num )
@@ -41,12 +41,12 @@ class ValueBody
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	enclosing_symbol = s;
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        enclosing_symbol = s;
 
-	for(Enumeration e = v.elements(); e.hasMoreElements(); )
-	    ((IdlSymbol)e.nextElement()).setEnclosingSymbol( myAbsValue );
+        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).setEnclosingSymbol( myAbsValue );
     }
 
 }

@@ -1,5 +1,5 @@
 package org.jacorb.idl;
- 
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,35 +21,34 @@ package org.jacorb.idl;
  */
 
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
 
 /**
  * @author Gerald Brose
  * @version $Id$
-*/
+ */
 
-class AndExpr 
-    extends IdlSymbol
+class AndExpr
+        extends IdlSymbol
 {
+
     public AndExpr and_expr = null;
     public ShiftExpr shift_expr;
 
-    public AndExpr(int num)
+    public AndExpr( int num )
     {
-        super(num);
+        super( num );
     }
 
 
-
-    public void print(PrintWriter ps )
+    public void print( PrintWriter ps )
     {
         if( and_expr != null )
         {
-            and_expr.print(ps);
-            ps.print(" & ");
+            and_expr.print( ps );
+            ps.print( " & " );
         }
-        shift_expr.print(ps);
+        shift_expr.print( ps );
     }
 
 
@@ -58,9 +57,9 @@ class AndExpr
         shift_expr.setDeclaration( declared_in );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
@@ -68,12 +67,12 @@ class AndExpr
 
         if( and_expr != null )
         {
-            and_expr.setPackage(s);
+            and_expr.setPackage( s );
         }
-        shift_expr.setPackage( s);
+        shift_expr.setPackage( s );
     }
 
-    public void parse()  
+    public void parse()
     {
         if( and_expr != null )
         {
@@ -87,7 +86,7 @@ class AndExpr
         return shift_expr.pos_int_const();
     }
 
-    public String  value() 
+    public String value()
     {
         String x = "";
         if( and_expr != null )
@@ -97,7 +96,7 @@ class AndExpr
         return x + shift_expr.value();
     }
 
-    public String  toString() 
+    public String toString()
     {
         String x = "";
         if( and_expr != null )
@@ -109,7 +108,7 @@ class AndExpr
 
     public str_token get_token()
     {
-	return shift_expr.get_token();
+        return shift_expr.get_token();
     }
 
 }

@@ -21,8 +21,9 @@ package org.jacorb.idl;
  */
 
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
  * Base class for all classes of the abstract syntax tree
@@ -31,10 +32,11 @@ import java.io.*;
  * @version $Id$
  */
 
-class IdlSymbol 
-    extends java_cup.runtime.symbol
-    implements java.io.Serializable
+class IdlSymbol
+        extends java_cup.runtime.symbol
+        implements java.io.Serializable
 {
+
     private static int num = 10000;
     public String pack_name = "";
     String name = "";
@@ -50,68 +52,68 @@ class IdlSymbol
 
     String typeName;
 
-    protected static final char fileSeparator = 
-	System.getProperty("file.separator").charAt(0);
+    protected static final char fileSeparator =
+            System.getProperty( "file.separator" ).charAt( 0 );
 
-    public IdlSymbol(int num)
+    public IdlSymbol( int num )
     {
-	super(num);
-	inhibitionFlag = parser.getInhibitionState();
+        super( num );
+        inhibitionFlag = parser.getInhibitionState();
     }
 
-    public void set_included(boolean i)
+    public void set_included( boolean i )
     {
-	included = i;
+        included = i;
     }
 
     public boolean is_included()
     {
-	return included;
+        return included;
     }
 
     public void set_pseudo()
     {
-	is_pseudo = true;
+        is_pseudo = true;
     }
 
     public boolean is_pseudo()
     {
-	return is_pseudo;
+        return is_pseudo;
     }
 
     public void set_token( str_token i )
     {
-	token = i;
-	if( token != null )
-	{
-	    if( token.pragma_prefix.equals("omg.org"))
-	    {
-		omg_package_prefix = "org.omg.";
-	    }
-	    set_name(token.str_val);
-	}
+        token = i;
+        if( token != null )
+        {
+            if( token.pragma_prefix.equals( "omg.org" ) )
+            {
+                omg_package_prefix = "org.omg.";
+            }
+            set_name( token.str_val );
+        }
     }
 
     public str_token get_token()
     {
-	return token;
+        return token;
     }
 
     public String name()
     {
-	return name;
+        return name;
     }
 
     /**
      * A number of IDL constructs need to have their names
      * checked for clashes with name reserved by Java or
-     * the Java Language Mapping. 
+     * the Java Language Mapping.
      */
 
     public void escapeName()
     {
-        if( ! name.startsWith("_") &&
-            lexer.strictJavaEscapeCheck( name ))
+        if( !name.startsWith( "_" ) &&
+                lexer.strictJavaEscapeCheck( name ) )
         {
             name = "_" + name;
         }
@@ -119,58 +121,58 @@ class IdlSymbol
 
     public boolean isEscaped()
     {
-        return (name().startsWith ("_"));
+        return ( name().startsWith( "_" ) );
     }
 
-    public String deEscapeName ()
+    public String deEscapeName()
     {
-       String tmp = name ();
+        String tmp = name();
 
-       if (tmp.startsWith ("_"))
-       {
-          tmp = tmp.substring (1);
-       }
+        if( tmp.startsWith( "_" ) )
+        {
+            tmp = tmp.substring( 1 );
+        }
 
-       return tmp;
+        return tmp;
     }
-	
+
     public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	if( pack_name.length() > 0 )
-	    pack_name =  s + "." + pack_name;
-	else
-	    pack_name =  s;
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
+            pack_name = s + "." + pack_name;
+        else
+            pack_name = s;
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " 
-                                       + name );
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for "
+                    + name );
 
-	Environment.output(5,"Symbol " + name + " of type " + 
-                           getClass().getName() + " enclosed by symbol " + 
-                           s.getClass().getName());
+        Environment.output( 5, "Symbol " + name + " of type " +
+                getClass().getName() + " enclosed by symbol " +
+                s.getClass().getName() );
 
-	enclosing_symbol = s;
+        enclosing_symbol = s;
     }
 
     public IdlSymbol getEnclosingSymbol()
     {
-	return enclosing_symbol;
+        return enclosing_symbol;
     }
 
     public static int new_num()
     {
-	return num++;
+        return num++;
     }
 
     /** the name of this symbol */
 
     public void set_name( String n )
     {
-	name = n;
+        name = n;
     }
 
     /**
@@ -179,15 +181,15 @@ class IdlSymbol
 
     String full_name()
     {
-	if( name.length() == 0 ) 
-	    return null;
+        if( name.length() == 0 )
+            return null;
 
-	if( pack_name.length() > 0 )
-	{	
-	    return pack_name + "." + name;
-	}
-	else
-	    return name;
+        if( pack_name.length() > 0 )
+        {
+            return pack_name + "." + name;
+        }
+        else
+            return name;
     }
 
     /**
@@ -197,19 +199,19 @@ class IdlSymbol
 
     String javaName()
     {
-	if( name.length() == 0 ) 
-	    return null;
-	if( pack_name.length() > 0 )
-	{
-            if(! pack_name.startsWith("org.omg") )
-            {	
+        if( name.length() == 0 )
+            return null;
+        if( pack_name.length() > 0 )
+        {
+            if( !pack_name.startsWith( "org.omg" ) )
+            {
                 return omg_package_prefix + pack_name + "." + name;
             }
             else
                 return pack_name + "." + name;
-	}
-	else
-	    return name;
+        }
+        else
+            return name;
     }
 
     /**
@@ -219,40 +221,40 @@ class IdlSymbol
 
     public String omgPrefix()
     {
-	return omg_package_prefix;
+        return omg_package_prefix;
     }
 
 
     /** empty parse */
 
     public void parse()
-        throws ParseException
+            throws ParseException
     {
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	throw new java.lang.RuntimeException("--abstract--!");
+        throw new java.lang.RuntimeException( "--abstract--!" );
     }
 
     public void printImport( PrintWriter ps )
     {
-	if( !pack_name.equals(""))
-	{
-	    for( Enumeration e = parser.import_list.elements(); e.hasMoreElements();)
-	    {
-		ps.println("import " + (String)e.nextElement() + ";");
-	    }
+        if( !pack_name.equals( "" ) )
+        {
+            for( Enumeration e = parser.import_list.elements(); e.hasMoreElements(); )
+            {
+                ps.println( "import " + (String)e.nextElement() + ";" );
+            }
 
             ps.println();
 
-	    for( Enumeration e = imports.keys(); e.hasMoreElements();)
-	    {
+            for( Enumeration e = imports.keys(); e.hasMoreElements(); )
+            {
                 String name = (String)e.nextElement();
-		ps.println("import " + name + ";");
+                ps.println( "import " + name + ";" );
             }
             ps.println();
-	}
+        }
     }
 
     /**
@@ -260,13 +262,13 @@ class IdlSymbol
      * name to  the  generated  Java class's  import  list, which  is
      * necessary in case the mapped code is in the unnamed package.
      *
-     * @param alias the name of the alias 
+     * @param alias the name of the alias
      */
 
     public void addImportedAlias( String alias )
     {
         Environment.output( 2, "addImportedAlias " + alias );
-        if( alias.indexOf( '.' ) < 0 && !BaseType.isBasicName( alias ))
+        if( alias.indexOf( '.' ) < 0 && !BaseType.isBasicName( alias ) )
         {
             imports.put( alias + "Helper", "" );
         }
@@ -277,28 +279,28 @@ class IdlSymbol
      * nameHelper to the generated  Java class's import list, which is
      * necessary in case the mapped code is in the unnamed package.
      *
-     * @param name 
+     * @param name
      */
 
     public void addImportedName( String name )
     {
         Environment.output( 2, "addImportedName " + name );
-        if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName(name))
-            addImportedName (name, null);
+        if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
+            addImportedName( name, null );
     }
 
-    public void addImportedName (String name, TypeSpec type)
+    public void addImportedName( String name, TypeSpec type )
     {
-        if (name.indexOf ('.') < 0 && !BaseType.isBasicName (name))
+        if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
             // If we have a typedef for a basic type we only want
             // to import the helper class.
 
-            if ((type == null) || !BaseType.isBasicName (type.toString ()))
+            if( ( type == null ) || !BaseType.isBasicName( type.toString() ) )
             {
-                imports.put (name, "");
+                imports.put( name, "" );
             }
-            imports.put (name + "Helper", "");
+            imports.put( name + "Helper", "" );
         }
     }
 
@@ -308,12 +310,12 @@ class IdlSymbol
      * list,  which is  necessary in  case the mapped  code is  in the
      * unnamed package.
      *
-     * @param name 
+     * @param name
      */
 
     public void addImportedNameHolder( String name )
     {
-        if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName(name))
+        if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
             imports.put( name, "" );
             imports.put( name + "Helper", "" );
@@ -323,34 +325,34 @@ class IdlSymbol
 
     public void setPrintPhaseNames()
     {
-//          Environment.doAssert( parser.done_parsing, 
+//          Environment.doAssert( parser.done_parsing,
 //                                "Parser not done parsing yet.");
 
-	if( pack_name.length() > 0 )
-	{
-            typeName = ScopedName.unPseudoName( pack_name +"." + name );
-	    if( !typeName.startsWith("org.omg") )
-	    {	
+        if( pack_name.length() > 0 )
+        {
+            typeName = ScopedName.unPseudoName( pack_name + "." + name );
+            if( !typeName.startsWith( "org.omg" ) )
+            {
                 typeName = omg_package_prefix + typeName;
-	    }	           
-            pack_name = typeName.substring( 0, typeName.lastIndexOf("."));
-	}
-	else
-	    typeName = ScopedName.unPseudoName( name );
+            }
+            pack_name = typeName.substring( 0, typeName.lastIndexOf( "." ) );
+        }
+        else
+            typeName = ScopedName.unPseudoName( name );
 
-        Environment.output(2, "setPrintPhaseNames: pack_name " + 
-                           pack_name +", name " + name + 
-                           " typename " + typeName );
+        Environment.output( 2, "setPrintPhaseNames: pack_name " +
+                pack_name + ", name " + name +
+                " typename " + typeName );
     }
-    
-    public void printIdMethod(PrintWriter ps)
-    {
-	//System.out.println("Symbol " + full_name() + " (" + this.hashCode() + ") has prefix: " + pragmaPrefix );
 
-	ps.println("\tpublic static String id()");
-	ps.println("\t{");
-	ps.println("\t\treturn \"" + id() + "\";");
-	ps.println("\t}");
+    public void printIdMethod( PrintWriter ps )
+    {
+        //System.out.println("Symbol " + full_name() + " (" + this.hashCode() + ") has prefix: " + pragmaPrefix );
+
+        ps.println( "\tpublic static String id()" );
+        ps.println( "\t{" );
+        ps.println( "\t\treturn \"" + id() + "\";" );
+        ps.println( "\t}" );
     }
 
     /**
@@ -359,14 +361,14 @@ class IdlSymbol
 
     String id()
     {
-        Environment.output(2, "Id for name " + name );
+        Environment.output( 2, "Id for name " + name );
         IdlSymbol enc = enclosing_symbol;
         StringBuffer sb = new StringBuffer();
 
         if( _id == null )
         {
             //	    while( enc != null && enc.getEnclosingSymbol() != null )
-            while( enc != null  )
+            while( enc != null )
             {
                 str_token t = enc.get_token();
                 if( t == null )
@@ -377,7 +379,7 @@ class IdlSymbol
 
                 if( token != null )
                 {
-                    if(  t.pragma_prefix.equals( token.pragma_prefix ) )
+                    if( t.pragma_prefix.equals( token.pragma_prefix ) )
                     {
                         String enclosingName = enc.name;
                         // if the enclosing symbol is a module, its name
@@ -386,17 +388,17 @@ class IdlSymbol
                         // name as part of the RepositoryId, however.
                         if( enc instanceof Module )
                         {
-                            String enclosingModuleName = 
-                                ((Module)enc).originalModuleName();
+                            String enclosingModuleName =
+                                    ( (Module)enc ).originalModuleName();
 
-                            if( !enclosingModuleName.startsWith("org" ))
-                                enclosingName = ((Module)enc).originalModuleName();
+                            if( !enclosingModuleName.startsWith( "org" ) )
+                                enclosingName = ( (Module)enc ).originalModuleName();
 
                             // remove leading "_" in repository Ids
                             if( enc.isEscaped() )
-                                enclosingName = enclosingName.substring(1);
+                                enclosingName = enclosingName.substring( 1 );
                         }
-                        sb.insert( 0, enclosingName + "/");
+                        sb.insert( 0, enclosingName + "/" );
                         enc = enc.getEnclosingSymbol();
                     }
                     else
@@ -409,54 +411,54 @@ class IdlSymbol
             }
 
             if( isEscaped() )
-                sb.append(name.substring(1));
+                sb.append( name.substring( 1 ) );
             else
                 sb.append( name );
 
-			
+
             if( token != null && token.pragma_prefix.length() > 0 )
             {
-                _id = "IDL:" +  token.pragma_prefix + "/" + sb.toString().replace('.', '/') + ":" + version();
+                _id = "IDL:" + token.pragma_prefix + "/" + sb.toString().replace( '.', '/' ) + ":" + version();
             }
             else
             {
-                _id = "IDL:" + sb.toString().replace('.', '/') + ":" + version();
-				//		_id = org.jacorb.orb.ir.RepositoryID.toRepositoryID( full_name());
+                _id = "IDL:" + sb.toString().replace( '.', '/' ) + ":" + version();
+                //		_id = org.jacorb.orb.ir.RepositoryID.toRepositoryID( full_name());
             }
         }
-        Environment.output(2, "Id for name " + name + " is " + _id );
+        Environment.output( 2, "Id for name " + name + " is " + _id );
         return _id;
     }
-	
+
     private String version()
     {
         IdlSymbol enc = this;
         String tmp;
-        
-	if( _version == null )
-	{
+
+        if( _version == null )
+        {
             while( true )
             {
-                while( enc != null && !(enc instanceof Scope)  )
+                while( enc != null && !( enc instanceof Scope ) )
                 {
                     enc = enc.getEnclosingSymbol();
                 }
                 if( enc != null )
                 {
-                    ScopeData sd = ((Scope)enc).getScopeData();
+                    ScopeData sd = ( (Scope)enc ).getScopeData();
                     if( sd == null )
                     {
                         org.jacorb.idl.parser.fatal_error( "ScopeDate null for " + name + " " +
-                                                           this.getClass().getName(), null );
+                                this.getClass().getName(), null );
                     }
                     Hashtable h = sd.versionMap;
 
                     // check for version settings in this sope
-                    tmp  = (String)h.get( name );
+                    tmp = (String)h.get( name );
                     if( tmp != null )
                     {
                         _version = tmp;
-                        break;                    
+                        break;
                     }
                     enc = enc.getEnclosingSymbol();
                 }
@@ -474,20 +476,20 @@ class IdlSymbol
 
             while( true )
             {
-                while( enc != null && !(enc instanceof Scope)  )
+                while( enc != null && !( enc instanceof Scope ) )
                 {
                     enc = enc.getEnclosingSymbol();
                 }
                 if( enc != null )
                 {
                     // check for version settings in this sope
-                    Hashtable h = ((Scope)enc).getScopeData().versionMap;
-                    tmp  = (String)h.get( name );
+                    Hashtable h = ( (Scope)enc ).getScopeData().versionMap;
+                    tmp = (String)h.get( name );
 
                     if( tmp != null )
                     {
-                        lexer.emit_error("Version for " + name + 
-                                         " already declared!", enc.get_token() );
+                        lexer.emit_error( "Version for " + name +
+                                " already declared!", enc.get_token() );
                         break;
                     }
                     else
@@ -499,18 +501,18 @@ class IdlSymbol
                 }
             }
 
-	}
-	return _version;
+        }
+        return _version;
     }
 
 
-    /** 
+    /**
      * access to parser state (e.g. options)
      */
 
     protected boolean generateIncluded()
     {
-	return parser.generateIncluded() && !(inhibitionFlag);
+        return parser.generateIncluded() && !( inhibitionFlag );
     }
 
 

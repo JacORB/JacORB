@@ -29,15 +29,28 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class Truncatable 
-    extends IdlSymbol 
+class Truncatable
+        extends IdlSymbol
 {
+
     ScopedName scopedName = null;
 
-    public Truncatable(int num) 
+    public Truncatable( int num )
     {
-        super(num);
+        super( num );
     }
+
+    public void print( java.io.PrintWriter ps )
+    {
+        ps.print( toString() );
+    }
+
+    public String toString()
+    {
+        return "truncatable " + scopedName.toString();
+    }
+
+
 }
 
 

@@ -20,48 +20,50 @@
 
 package org.jacorb.idl;
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class InitDecl 
-    extends Declaration
+class InitDecl
+        extends Declaration
 {
+
     public Vector paramDecls;
     public IdlSymbol myValue;
 
-    public InitDecl(int num)
+    public InitDecl( int num )
     {
-	super(num);
-	paramDecls = new Vector();
+        super( num );
+        paramDecls = new Vector();
     }
 
     public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
 
-	if( pack_name.length() > 0 )
-	    pack_name = new String( s + "." + pack_name );
-	else
-	    pack_name = s;
+        if( pack_name.length() > 0 )
+            pack_name = new String( s + "." + pack_name );
+        else
+            pack_name = s;
 
-	for( Enumeration e = paramDecls.elements(); 
+        for( Enumeration e = paramDecls.elements();
              e.hasMoreElements();
-             ((ParamDecl)e.nextElement()).setPackage(s)
-             )
-	    ;
+             ( (ParamDecl)e.nextElement() ).setPackage( s )
+                )
+            ;
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " 
-                                       + name );
-	enclosing_symbol = s;
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for "
+                    + name );
+        enclosing_symbol = s;
     }
 
     public void parse()
@@ -69,64 +71,63 @@ class InitDecl
         myValue = enclosing_symbol;
 
 
-	try
-	{
-	    NameTable.define( full_name(), "factory" );
-	} 
-	catch ( NameAlreadyDefined nad )
-	{
-	    parser.error("Factory "+full_name()+" already defined", token);
-	}
+        try
+        {
+            NameTable.define( full_name(), "factory" );
+        }
+        catch( NameAlreadyDefined nad )
+        {
+            parser.error( "Factory " + full_name() + " already defined", token );
+        }
 
-	for( Enumeration e = paramDecls.elements(); e.hasMoreElements(); )
+        for( Enumeration e = paramDecls.elements(); e.hasMoreElements(); )
         {
             ParamDecl param = (ParamDecl)e.nextElement();
             param.parse();
             try
             {
-                NameTable.define( full_name() + "."+
-                                  param.simple_declarator.name(), 
-                                  "argument" );
-            } 
-            catch ( NameAlreadyDefined nad )
-            {
-                parser.error("Argument "+ param.simple_declarator.name()  + 
-                             " already defined in operation " + full_name(), 
-                             token);
+                NameTable.define( full_name() + "." +
+                        param.simple_declarator.name(),
+                        "argument" );
             }
-        }	
+            catch( NameAlreadyDefined nad )
+            {
+                parser.error( "Argument " + param.simple_declarator.name() +
+                        " already defined in operation " + full_name(),
+                        token );
+            }
+        }
     }
 
 
-    public void print(PrintWriter ps, String type_name)
-    {		
-        ps.print("\t" + type_name + " " + name + "( ");
+    public void print( PrintWriter ps, String type_name )
+    {
+        ps.print( "\t" + type_name + " " + name + "( " );
 
-	Enumeration e = paramDecls.elements();
+        Enumeration e = paramDecls.elements();
 
-	if(e.hasMoreElements())
-	    ((ParamDecl)e.nextElement()).print(ps);
+        if( e.hasMoreElements() )
+            ( (ParamDecl)e.nextElement() ).print( ps );
 
-	for(; e.hasMoreElements();)
-	{
-	    ps.print(", ");
-	    ((ParamDecl)e.nextElement()).print(ps);
-	}
-	ps.println(");");
+        for( ; e.hasMoreElements(); )
+        {
+            ps.print( ", " );
+            ( (ParamDecl)e.nextElement() ).print( ps );
+        }
+        ps.println( ");" );
     }
 
 
     public String name()
     {
-	return name;
+        return name;
     }
 
 
     public String opName()
     {
-	return name();
+        return name();
     }
-
 
 
 }

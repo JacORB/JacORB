@@ -26,12 +26,10 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.util.GlobPatternMapper;
 import org.apache.tools.ant.util.SourceFileScanner;
+
 import java.io.File;
 import java.io.IOException;
-
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +40,8 @@ import java.util.List;
  * @author Wei-ju Wu
  * @version 1.0
  */
-public class JacIDL extends MatchingTask {
+public class JacIDL extends MatchingTask
+{
 
     private File _destdir;
     private File _srcdir;
@@ -62,70 +61,76 @@ public class JacIDL extends MatchingTask {
 
     private List _defines = new ArrayList();
     private List _undefines = new ArrayList();
-    private File _compileList[] = new File[0];
+    private File _compileList[] = new File[ 0 ];
 
-    public JacIDL() {
-	
-	parser.command_line = null;
-	parser.import_list = new java.util.Vector();
-	parser.pack_replace = new java.util.Hashtable();
-	parser.scopes = new java.util.Stack();
-	parser.include_state = false;
-	_destdir = new File(".");
-	_srcdir = new File(".");
-	_packageprefix = null;
-	_parseonly = false;
-	_globalimport = false;
-	_generateir = false;
-	_noskel = false;
-	_nostub = false;
-	_generateincluded = false;
-	_debuglevel = 0;
+    public JacIDL()
+    {
+
+        parser.command_line = null;
+        parser.import_list = new java.util.Vector();
+        parser.pack_replace = new java.util.Hashtable();
+        parser.scopes = new java.util.Stack();
+        parser.include_state = false;
+        _destdir = new File( "." );
+        _srcdir = new File( "." );
+        _packageprefix = null;
+        _parseonly = false;
+        _globalimport = false;
+        _generateir = false;
+        _noskel = false;
+        _nostub = false;
+        _generateincluded = false;
+        _debuglevel = 0;
     }
 
     /**
      * Set the destination directory.
      * @param dir the destination directory
      */
-    public void setDestdir(File dir) {
+    public void setDestdir( File dir )
+    {
 
-	_destdir = dir;
+        _destdir = dir;
     }
 
     /**
      * Set the source directory.
      * @param dir the source directory
      */
-    public void setSrcdir(File dir) {
+    public void setSrcdir( File dir )
+    {
 
-	_srcdir = dir;
+        _srcdir = dir;
     }
 
     /**
      * Set the include path for the idl compiler.
      * @param path the include path
      */
-    public void setIncludepath(Path path) {
+    public void setIncludepath( Path path )
+    {
 
-    	_includepath = path;
+        _includepath = path;
     }
 
     /**
      * Set the prefix to prepend to the package names.
      * @param prefix the prefix
      */
-    public void setPackageprefix(String prefix) {
+    public void setPackageprefix( String prefix )
+    {
 
-    	_packageprefix = prefix;
+        _packageprefix = prefix;
     }
 
     /**
      * Set the debug level.
      * @param level the debug level
      */
-    public void setDebuglevel(int level) {
+    public void setDebuglevel( int level )
+    {
 
-    	_debuglevel = level;
+        _debuglevel = level;
     }
 
     // ****************************************************************
@@ -136,90 +141,98 @@ public class JacIDL extends MatchingTask {
      * Set the flag to generate the interface repository files.
      * @param flag the flag
      */
-    public void setGenerateir(boolean flag) {
+    public void setGenerateir( boolean flag )
+    {
 
-	_generateir = flag;
+        _generateir = flag;
     }
 
     /**
      * Set the flag to generate all files.
      * @param flag the flag
      */
-    public void setAll(boolean flag) {
+    public void setAll( boolean flag )
+    {
 
-	_generateincluded = flag;
+        _generateincluded = flag;
     }
 
     /**
      * Set the flag to parse the idl only.
      * @param flag the flag
      */
-    public void setParseonly(boolean flag) {
+    public void setParseonly( boolean flag )
+    {
 
-    	_parseonly = flag;
+        _parseonly = flag;
     }
 
     /**
      * Set the flag to use global imports.
      * @param flag the flag
      */
-    public void setGlobalimport(boolean flag) {
+    public void setGlobalimport( boolean flag )
+    {
 
-    	_globalimport = flag;
+        _globalimport = flag;
     }
 
     /**
      * Set the flag to leave out skeleton generation.
      * @param flag the flag
      */
-    public void setNoskel(boolean flag) {
+    public void setNoskel( boolean flag )
+    {
 
-    	_noskel = flag;
+        _noskel = flag;
     }
 
     /**
      * Set the flag to leave out stub generation.
      * @param flag the flag
      */
-    public void setNostub(boolean flag) {
+    public void setNostub( boolean flag )
+    {
 
-    	_nostub = flag;
+        _nostub = flag;
     }
 
     /**
      * Set the flag to use sloppy forwards.
      * @param flag the flag
      */
-    public void setSloppyforward(boolean flag) {
+    public void setSloppyforward( boolean flag )
+    {
 
-    	_sloppyforward = flag;
+        _sloppyforward = flag;
     }
 
     /**
      * Set the flag to use sloppy names.
      * @param flag the flag
      */
-    public void setSloppynames(boolean flag) {
+    public void setSloppynames( boolean flag )
+    {
 
-    	_sloppynames = flag;
+        _sloppynames = flag;
     }
 
     // ****************************************************************
     // **** Nested elements
     // ******************************
 
-    public void addDefine(org.apache.tools.ant.types.Environment.Variable
-    			  def)
+    public void addDefine( org.apache.tools.ant.types.Environment.Variable
+            def )
     {
-    	// The variable can only be evaluated in the execute() method
-	_defines.add(def);
+        // The variable can only be evaluated in the execute() method
+        _defines.add( def );
     }
 
-    public void addUndefine(org.apache.tools.ant.types.Environment.Variable
-    			    def)
+    public void addUndefine( org.apache.tools.ant.types.Environment.Variable
+            def )
     {
-    	// The variable can only be evaluated in the execute() method
-	_undefines.add(def);
+        // The variable can only be evaluated in the execute() method
+        _undefines.add( def );
     }
 
     // *****************************************************************
@@ -228,218 +241,250 @@ public class JacIDL extends MatchingTask {
      * The execute() method of the task.
      * @throws BuildException
      */
-    public void execute() throws BuildException {
+    public void execute() throws BuildException
+    {
 
-	parser myparser = new parser();
-	Class parserClass = parser.class;
+        parser myparser = new parser();
+        Class parserClass = parser.class;
 
-	Environment.verbosityLevel(_debuglevel);
-	try {
-	    // ***********************************
-	    // **** setup parser arguments
-	    // ***********************************
-	    // generate included files. This field ist private and
-	    // has to be set by reflection
-	    Field generateIncludedField =
-	    	parserClass.getDeclaredField("generateIncluded");
-	    generateIncludedField.setAccessible(true);
-	    generateIncludedField.setBoolean(null, _generateincluded);
+        Environment.verbosityLevel( _debuglevel );
+        try
+        {
+            // ***********************************
+            // **** setup parser arguments
+            // ***********************************
+            // generate included files. This field ist private and
+            // has to be set by reflection
+            Field generateIncludedField =
+                    parserClass.getDeclaredField( "generateIncluded" );
+            generateIncludedField.setAccessible( true );
+            generateIncludedField.setBoolean( null, _generateincluded );
 
-	} catch (NoSuchFieldException nsfex) {
+        }
+        catch( NoSuchFieldException nsfex )
+        {
 
-	    nsfex.printStackTrace();
+            nsfex.printStackTrace();
 
-	} catch (SecurityException sex) {
+        }
+        catch( SecurityException sex )
+        {
 
-	    sex.printStackTrace();
+            sex.printStackTrace();
 
-	} catch (IllegalAccessException iaex) {
+        }
+        catch( IllegalAccessException iaex )
+        {
 
-	    iaex.printStackTrace();
-	}
+            iaex.printStackTrace();
+        }
 
-	// set destination directory
-	if (dirExists(_destdir)) {
+        // set destination directory
+        if( dirExists( _destdir ) )
+        {
 
-	    parser.out_dir = _destdir.getPath();
+            parser.out_dir = _destdir.getPath();
 
-	} else if (_destdir != null) {
+        }
+        else if( _destdir != null )
+        {
 
             // Fehlerbehandlung
-	    throw new BuildException("output directory \"" + _destdir +
-		    		     "\" does not exist or " +
-				     "is not a directory", location);
-	}
-	  
-	// generate interface repository
-	parser.generateIR = _generateir;
+            throw new BuildException( "output directory \"" + _destdir +
+                    "\" does not exist or " +
+                    "is not a directory", location );
+        }
 
-	// global import
-	parser.global_import = _globalimport;
+        // generate interface repository
+        parser.generateIR = _generateir;
 
-	// parse only
-	parser.parse_only = _parseonly;
+        // global import
+        parser.global_import = _globalimport;
 
-	// no skeletons 
-	parser.generate_skeletons = (!_noskel);
+        // parse only
+        parser.parse_only = _parseonly;
 
-	// no stubs 
-	parser.generate_stubs = (!_nostub);
+        // no skeletons
+        parser.generate_skeletons = ( !_noskel );
 
-	// sloppy forwards
-	parser.sloppy = _sloppyforward;
+        // no stubs
+        parser.generate_stubs = ( !_nostub );
 
-	// sloppy names
-	parser.strict_names = (!_sloppynames);
+        // sloppy forwards
+        parser.sloppy = _sloppyforward;
 
-	// include path
-	if (_includepath != null) {
-	    	
-	    // Check path
-	    String includeList[] = _includepath.list();
-	    for (int i=0;i<includeList.length;i++) {
+        // sloppy names
+        parser.strict_names = ( !_sloppynames );
 
-	    	File incDir = project.resolveFile(includeList[i]);
-		if (!incDir.exists()) {
-		    
-		    throw new BuildException("include directory \"" +
-		    	incDir.getPath() + "\" does not exist !", location);
-		}
-	    }
-	    GlobalInputStream.setIncludePath(_includepath.toString());
-	}
+        // include path
+        if( _includepath != null )
+        {
 
-	// package prefix
-	if (_packageprefix != null && _packageprefix.length() > 0) {
+            // Check path
+            String includeList[] = _includepath.list();
+            for( int i = 0; i < includeList.length; i++ )
+            {
 
-	   parser.package_prefix = _packageprefix;
-	}
+                File incDir = project.resolveFile( includeList[ i ] );
+                if( !incDir.exists() )
+                {
 
-	// setup input file lists
-	resetFileLists();
-	DirectoryScanner ds = getDirectoryScanner(_srcdir);
-	String files[] = ds.getIncludedFiles();
-	//log("files: "+files);
-	scanFiles(files);
+                    throw new BuildException( "include directory \"" +
+                            incDir.getPath() + "\" does not exist !", location );
+                }
+            }
+            GlobalInputStream.setIncludePath( _includepath.toString() );
+        }
 
-	// ***********************************
-	// **** invoke parser
-	// ***********************************
-	// invoke the parser for parsing the files that were
-	// specified in the task specification
-	/*
-	if (_includepath != null) log("includepath: "+_includepath.toString());
-	log("generateir: "+_generateir);
-	log("noskel: "+_noskel);
-	log("nostub: "+_nostub);
-	log("packageprefix: "+_packageprefix);
-	if (_destdir != null) log("destdir: "+_destdir.getPath());
-	*/
-	try {
-	    if (_compileList != null) {
+        // package prefix
+        if( _packageprefix != null && _packageprefix.length() > 0 )
+        {
 
-	      	for (int i = 0 ; i < _compileList.length ; i++ ) {
+            parser.package_prefix = _packageprefix;
+        }
 
-		    // setup the parser
-		    String fileName = _compileList[i].getPath();
-		    log("processing idl file: "+fileName);
-	  	    Environment.output(4, fileName);
-	  	    GlobalInputStream.init();
-	  	    GlobalInputStream.setInput(fileName);
-		    lexer.reset();
-		    NameTable.init();
-		    ConstDecl.init();
-		    TypeMap.init();
-		    setupDefines();
+        // setup input file lists
+        resetFileLists();
+        DirectoryScanner ds = getDirectoryScanner( _srcdir );
+        String files[] = ds.getIncludedFiles();
+        //log("files: "+files);
+        scanFiles( files );
 
-		    myparser = new parser();
-	  	    myparser.parse();
-	        }
-	    }
+        // ***********************************
+        // **** invoke parser
+        // ***********************************
+        // invoke the parser for parsing the files that were
+        // specified in the task specification
+        /*
+        if (_includepath != null) log("includepath: "+_includepath.toString());
+        log("generateir: "+_generateir);
+        log("noskel: "+_noskel);
+        log("nostub: "+_nostub);
+        log("packageprefix: "+_packageprefix);
+        if (_destdir != null) log("destdir: "+_destdir.getPath());
+        */
+        try
+        {
+            if( _compileList != null )
+            {
 
-	} catch (IOException ioex) {
-	    
-	    ioex.printStackTrace();
+                for( int i = 0; i < _compileList.length; i++ )
+                {
 
-	} catch (Exception ex) {
+                    // setup the parser
+                    String fileName = _compileList[ i ].getPath();
+                    log( "processing idl file: " + fileName );
+                    Environment.output( 4, fileName );
+                    GlobalInputStream.init();
+                    GlobalInputStream.setInput( fileName );
+                    lexer.reset();
+                    NameTable.init();
+                    ConstDecl.init();
+                    TypeMap.init();
+                    setupDefines();
 
-	    ex.printStackTrace();
-	}
+                    myparser = new parser();
+                    myparser.parse();
+                }
+            }
+
+        }
+        catch( IOException ioex )
+        {
+
+            ioex.printStackTrace();
+
+        }
+        catch( Exception ex )
+        {
+
+            ex.printStackTrace();
+        }
     }
 
     /**
      * Clear the list of files to be compiled and copied..
      */
-    protected void resetFileLists() {
-        _compileList = new File[0];
+    protected void resetFileLists()
+    {
+        _compileList = new File[ 0 ];
     }
 
     /**
      * Scans the directory looking for source files to be compiled.
      * The results are returned in the class variable compileList
      */
-    protected void scanFiles(String files[]) throws BuildException {
+    protected void scanFiles( String files[] ) throws BuildException
+    {
 
-	File file;
+        File file;
 
-	// TODO: create an own pattern mapper
-	GlobPatternMapper m = new GlobPatternMapper();
-	m.setFrom("*.idl");
-	m.setTo("*.java");
-	SourceFileScanner sfs = new SourceFileScanner(this);
-	File[] newfiles= sfs.restrictAsFiles(files, _srcdir, _destdir, m);
-	_compileList = new File[newfiles.length];
+        // TODO: create an own pattern mapper
+        GlobPatternMapper m = new GlobPatternMapper();
+        m.setFrom( "*.idl" );
+        m.setTo( "*.java" );
+        SourceFileScanner sfs = new SourceFileScanner( this );
+        File[] newfiles = sfs.restrictAsFiles( files, _srcdir, _destdir, m );
+        _compileList = new File[ newfiles.length ];
 
-  	for (int i=0;i<newfiles.length;i++) {
-	    
-	    log("scan file: "+newfiles[i].getPath());
-	    file = newfiles[i];
-	    if (!file.exists()) {
-	    	
-		throw new BuildException("The input file \""+file.getPath()+
-					  "\" does not exist !");
-	    }
-	    _compileList[i] = file;
-	}
+        for( int i = 0; i < newfiles.length; i++ )
+        {
+
+            log( "scan file: " + newfiles[ i ].getPath() );
+            file = newfiles[ i ];
+            if( !file.exists() )
+            {
+
+                throw new BuildException( "The input file \"" + file.getPath() +
+                        "\" does not exist !" );
+            }
+            _compileList[ i ] = file;
+        }
 
     }
 
-    public File[] getFileList() {
+    public File[] getFileList()
+    {
 
         return _compileList;
     }
 
-    private static boolean fileExists(String filename) {
+    private static boolean fileExists( String filename )
+    {
 
-	if (filename == null || filename.length() == 0) return false;
-    	File file = new File(filename);
-	return (file.exists() && file.isFile());
+        if( filename == null || filename.length() == 0 ) return false;
+        File file = new File( filename );
+        return ( file.exists() && file.isFile() );
     }
 
-    private static boolean dirExists(File dir) {
+    private static boolean dirExists( File dir )
+    {
 
-	return (dir.exists() && dir.isDirectory());
+        return ( dir.exists() && dir.isDirectory() );
     }
 
-    private void setupDefines() {
-    	
-	org.apache.tools.ant.types.Environment.Variable prop;
-	String value;
+    private void setupDefines()
+    {
 
-	for (int i=0;i<_defines.size();i++) {
+        org.apache.tools.ant.types.Environment.Variable prop;
+        String value;
 
-	    prop = (org.apache.tools.ant.types.Environment.Variable)
-	    	    _defines.get(i);   
-	    value = prop.getValue();
-	    if (value == null) value = "1";
-	    lexer.define(prop.getKey(), value);
-	}
-	for (int i=0;i<_undefines.size();i++) {
+        for( int i = 0; i < _defines.size(); i++ )
+        {
 
-	    prop = (org.apache.tools.ant.types.Environment.Variable)
-	    	    _undefines.get(i);   
-	    lexer.undefine(prop.getKey());
-	}
+            prop = (org.apache.tools.ant.types.Environment.Variable)
+                    _defines.get( i );
+            value = prop.getValue();
+            if( value == null ) value = "1";
+            lexer.define( prop.getKey(), value );
+        }
+        for( int i = 0; i < _undefines.size(); i++ )
+        {
+
+            prop = (org.apache.tools.ant.types.Environment.Variable)
+                    _undefines.get( i );
+            lexer.undefine( prop.getKey() );
+        }
     }
 }
 

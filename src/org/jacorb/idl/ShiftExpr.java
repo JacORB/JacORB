@@ -25,26 +25,29 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
 
-class ShiftExpr 
-    extends IdlSymbol
+class ShiftExpr
+        extends IdlSymbol
 {
+
     public ShiftExpr shift_expr = null;
     public AddExpr add_expr;
     public String operator;
 
-    public ShiftExpr(int num){
-        super(num);
+    public ShiftExpr( int num )
+    {
+        super( num );
     }
 
-    public void print(PrintWriter ps){
-        if( shift_expr != null ){
-            shift_expr.print(ps);
+    public void print( PrintWriter ps )
+    {
+        if( shift_expr != null )
+        {
+            shift_expr.print( ps );
             ps.print( operator );
-        } 
-        add_expr.print(ps);
+        }
+        add_expr.print( ps );
     }
 
 
@@ -53,22 +56,24 @@ class ShiftExpr
         add_expr.setDeclaration( declared_in );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        if( shift_expr != null ){
-            shift_expr.setPackage(s);
+        if( shift_expr != null )
+        {
+            shift_expr.setPackage( s );
         }
-        add_expr.setPackage( s);
+        add_expr.setPackage( s );
     }
 
-    public void parse()  
+    public void parse()
     {
-        if( shift_expr != null ){
+        if( shift_expr != null )
+        {
             shift_expr.parse();
         }
         add_expr.parse();
@@ -79,7 +84,7 @@ class ShiftExpr
         return add_expr.pos_int_const();
     }
 
-    public String  value() 
+    public String value()
     {
         String x = "";
         if( shift_expr != null )
@@ -89,7 +94,7 @@ class ShiftExpr
         return x + add_expr.value();
     }
 
-    public String toString() 
+    public String toString()
     {
         String x = "";
         if( shift_expr != null )
@@ -101,7 +106,7 @@ class ShiftExpr
 
     public str_token get_token()
     {
-	return add_expr.get_token();
+        return add_expr.get_token();
     }
 }
 

@@ -25,26 +25,27 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class IntType 
-    extends BaseType 
-    implements SwitchTypeSpec 
+class IntType
+        extends BaseType
+        implements SwitchTypeSpec
 {
+
     public boolean unsigned = false;
 
-    public IntType(int num)
+    public IntType( int num )
     {
-	super(num);
+        super( num );
     }
 
     public void setUnsigned()
     {
         unsigned = true;
         if( type_spec != null )
-          ((IntType)type_spec).setUnsigned();
+            ( (IntType)type_spec ).setUnsigned();
     }
 
-    public boolean isSwitchable ()
+    public boolean isSwitchable()
     {
-       return true;
+        return true;
     }
 }

@@ -25,24 +25,25 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.Vector;
+import java.io.PrintWriter;
 import java.util.Enumeration;
-import java.io.*;
+import java.util.Vector;
 
-class ArrayDeclarator 
-    extends Declarator 
+class ArrayDeclarator
+        extends Declarator
 {
+
     public SymbolList fixed_array_size_list;
     private int[] dimensions = null;
 
-    public ArrayDeclarator(int num)
+    public ArrayDeclarator( int num )
     {
-	super(num);
+        super( num );
     }
 
     public String name()
     {
-	return name;
+        return name;
     }
 
     /**
@@ -51,26 +52,26 @@ class ArrayDeclarator
 
     public void escapeName()
     {
-        if( ! name.startsWith("_") &&
-            lexer.strictJavaEscapeCheck( name ))
+        if( !name.startsWith( "_" ) &&
+                lexer.strictJavaEscapeCheck( name ) )
         {
             name = "_" + name;
         }
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	if( pack_name.length() > 0 )
-	    pack_name = new String( s + "." + pack_name );
-	else
-	    pack_name = s;
-	
-	for( Enumeration e = fixed_array_size_list.v.elements(); e.hasMoreElements();((FixedArraySize)e.nextElement()).setPackage(s));
-		
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
+            pack_name = new String( s + "." + pack_name );
+        else
+            pack_name = s;
+
+        for( Enumeration e = fixed_array_size_list.v.elements(); e.hasMoreElements(); ( (FixedArraySize)e.nextElement() ).setPackage( s ) ) ;
+
     }
 
-    /** 
+    /**
      * only needed to overwrite the delegating full_name()
      * method from superclass Declarator, identical to method in
      * class IdlSymbol
@@ -78,74 +79,74 @@ class ArrayDeclarator
 
     String full_name()
     {
-	if( name.length() == 0 ) 
-	    return null;
-	if( pack_name.length() > 0 )
-	    return pack_name + "." + name;
-	else
-	    return name;
+        if( name.length() == 0 )
+            return null;
+        if( pack_name.length() > 0 )
+            return pack_name + "." + name;
+        else
+            return name;
     }
 
-    public void parse() 
+    public void parse()
     {
-        for( Enumeration e = fixed_array_size_list.v.elements(); 
+        for( Enumeration e = fixed_array_size_list.v.elements();
              e.hasMoreElements();
-             ((FixedArraySize)e.nextElement()).parse()
-             )
+             ( (FixedArraySize)e.nextElement() ).parse()
+                )
             ;
 
-	for( Enumeration e = fixed_array_size_list.v.elements(); 
+        for( Enumeration e = fixed_array_size_list.v.elements();
              e.hasMoreElements();
-             )
-	    ((FixedArraySize)e.nextElement()).parse();
+                )
+            ( (FixedArraySize)e.nextElement() ).parse();
     }
 
-    public void define() 	
+    public void define()
     {
-	try
-	{
-	    NameTable.define(full_name(), "type");
-	} 
-	catch ( NameAlreadyDefined p )
-	{
-	    //parser.error("Array declarator " + 
-	    //	full_name() + " already declared",p_info);
-	}
+        try
+        {
+            NameTable.define( full_name(), "type" );
+        }
+        catch( NameAlreadyDefined p )
+        {
+            //parser.error("Array declarator " +
+            //	full_name() + " already declared",p_info);
+        }
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	enclosing_symbol = s;
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        enclosing_symbol = s;
     }
 
     public IdlSymbol getEnclosingSymbol()
     {
-	return enclosing_symbol;
+        return enclosing_symbol;
     }
 
     public int[] dimensions()
     {
-	if( dimensions == null )
-	{
-	    Vector dynlist = new Vector();
-	    for( Enumeration e = fixed_array_size_list.v.elements(); e.hasMoreElements();)
-		dynlist.addElement( new Integer( ((FixedArraySize)e.nextElement()).value()) );
-	    dimensions = new int[dynlist.size()];
-	    for( int i = 0; i < dimensions.length; i++ )
-		dimensions[i] = ((Integer)dynlist.elementAt(i)).intValue();
+        if( dimensions == null )
+        {
+            Vector dynlist = new Vector();
+            for( Enumeration e = fixed_array_size_list.v.elements(); e.hasMoreElements(); )
+                dynlist.addElement( new Integer( ( (FixedArraySize)e.nextElement() ).value() ) );
+            dimensions = new int[ dynlist.size() ];
+            for( int i = 0; i < dimensions.length; i++ )
+                dimensions[ i ] = ( (Integer)dynlist.elementAt( i ) ).intValue();
 
-	}
-	return dimensions;
+        }
+        return dimensions;
     }
 
     public String toString()
     {
-	return name();
+        return name();
     }
 
-    public void print( PrintWriter ps)
+    public void print( PrintWriter ps )
     {
     }
 

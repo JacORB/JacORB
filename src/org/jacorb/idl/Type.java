@@ -23,28 +23,29 @@ package org.jacorb.idl;
 /**
  * This class delegates calls to another Type-object to
  * mimick inheritance.
- * 
+ *
  * @author Gerald Brose
- * @version $Id$	
+ * @version $Id$
  */
 
 
-public interface Type 
-    extends java.lang.Cloneable
+public interface Type
+        extends java.lang.Cloneable
 {
+
     public String typeName();
-    
+
     public boolean basic();
 
     public String getTypeCodeExpression();
-    
+
     public String holderName();
-    
-    public String printReadExpression(String streamname);
 
-    public String printReadStatement(String var_name, String streamname);
+    public String printReadExpression( String streamname );
 
-    public String printWriteStatement(String var_name, String streamname);
+    public String printReadStatement( String var_name, String streamname );
+
+    public String printWriteStatement( String var_name, String streamname );
 
 }
 

@@ -31,20 +31,21 @@ package org.jacorb.idl;
  * @author  Gerald Brose
  */
 
-public class fixed_token 
-    extends java_cup.runtime.long_token 
-    implements java.io.Serializable
+public class fixed_token
+        extends java_cup.runtime.long_token
+        implements java.io.Serializable
 {
+
     public java.math.BigDecimal fixed_val;
 
-    /** 
-     * Full constructor. 
+    /**
+     * Full constructor.
      */
 
-    public fixed_token(int term_num, java.math.BigDecimal f)
+    public fixed_token( int term_num, java.math.BigDecimal f )
     {
-	super(term_num);
-	fixed_val = f;
+        super( term_num );
+        fixed_val = f;
     }
 
 }

@@ -26,73 +26,75 @@ package org.jacorb.idl;
  */
 
 
-class OctetType 
-    extends BaseType
+class OctetType
+        extends BaseType
 {
-    public OctetType(int num)
+
+    public OctetType( int num )
     {
-	super(num);
+        super( num );
     }
 
     public Object clone()
     {
-	return new OctetType( new_num());
+        return new OctetType( new_num() );
     }
 
     public String typeName()
     {
-	return "byte";
+        return "byte";
     }
 
     public TypeSpec typeSpec()
     {
-	return this;
+        return this;
     }
 
     public String toString()
     {
-	return typeName();
+        return typeName();
     }
 
     public boolean basic()
     {
-	return true;
-    } 
+        return true;
+    }
 
     public int getTCKind()
     {
-	return 10;
+        return 10;
     }
 
-    public void parse() 
-		 
-    {}
+    public void parse()
+
+    {
+    }
 
 
     public String holderName()
     {
-	return "org.omg.CORBA.ByteHolder";
+        return "org.omg.CORBA.ByteHolder";
     }
 
 
     public String printReadExpression( String strname )
     {
-	return strname + ".read_octet()";
+        return strname + ".read_octet()";
     }
 
     public String printWriteStatement( String var_name, String strname )
     {
-	return strname + ".write_octet("+var_name+");";
+        return strname + ".write_octet(" + var_name + ");";
     }
 
     public String printInsertExpression()
     {
-	return "insert_octet";
+        return "insert_octet";
     }
 
     public String printExtractExpression()
     {
-	return "extract_octet";
+        return "extract_octet";
     }
 
 }

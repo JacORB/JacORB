@@ -22,29 +22,30 @@ package org.jacorb.idl;
 
 /**
  * @version $Id$
- */ 
+ */
 
-class ElementSpec  
-    extends IdlSymbol 
+class ElementSpec
+        extends IdlSymbol
 {
-    public TypeSpec t = new TypeSpec(new_num());
+
+    public TypeSpec t = new TypeSpec( new_num() );
     public Declarator d = null;
     private UnionType containingUnion;
 
     public ElementSpec( int num )
     {
-	super(num);
+        super( num );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	if( pack_name.length() > 0 )
-	    pack_name = new String( s + "." + pack_name );
-	else
-	    pack_name = s;
-	t.setPackage(s);
-        d.setPackage(s);
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
+            pack_name = new String( s + "." + pack_name );
+        else
+            pack_name = s;
+        t.setPackage( s );
+        d.setPackage( s );
     }
 
     public void setUnion( UnionType ut )
@@ -54,69 +55,68 @@ class ElementSpec
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	t.setEnclosingSymbol( s );
-	d.setEnclosingSymbol( s );
+        t.setEnclosingSymbol( s );
+        d.setEnclosingSymbol( s );
     }
 
-    public void parse() 		 
+    public void parse()
     {
-	if( t.typeSpec() instanceof TemplateTypeSpec ||
-	    t.typeSpec() instanceof ConstrTypeSpec )
-	{
-	    t.parse();
+        if( t.typeSpec() instanceof TemplateTypeSpec ||
+                t.typeSpec() instanceof ConstrTypeSpec )
+        {
+            t.parse();
             if( t.typeSpec() instanceof SequenceType )
             {
-                TypeSpec ts = ((SequenceType)t.typeSpec()).elementTypeSpec().typeSpec();
+                TypeSpec ts = ( (SequenceType)t.typeSpec() ).elementTypeSpec().typeSpec();
                 SequenceType seqTs = (SequenceType)t.typeSpec();
                 while( ts instanceof SequenceType )
                 {
                     seqTs = (SequenceType)ts;
-                    ts = ((SequenceType)ts.typeSpec()).elementTypeSpec().typeSpec();
+                    ts = ( (SequenceType)ts.typeSpec() ).elementTypeSpec().typeSpec();
                 }
 
 
                 //                if( ts.typeName().equals( containingUnion.typeName() ) ||
-                if( ScopedName.isRecursionScope( ts.typeName() ))
+                if( ScopedName.isRecursionScope( ts.typeName() ) )
                 {
-                    ((SequenceType)seqTs.typeSpec()).setRecursive();
+                    ( (SequenceType)seqTs.typeSpec() ).setRecursive();
                 }
             }
-	}
-	else if( t.typeSpec() instanceof ScopedName )
-	{
-	    TypeSpec ts = ((ScopedName)t.typeSpec()).resolvedTypeSpec();
-            if( ts.typeName().equals( containingUnion.typeName() ))
+        }
+        else if( t.typeSpec() instanceof ScopedName )
+        {
+            TypeSpec ts = ( (ScopedName)t.typeSpec() ).resolvedTypeSpec();
+            if( ts.typeName().equals( containingUnion.typeName() ) )
             {
-                parser.error("Illegal recursion in union " + containingUnion.full_name(), token);
+                parser.error( "Illegal recursion in union " + containingUnion.full_name(), token );
             }
 
             containingUnion.addImportedName( ts.typeName() );
 
-	    if( ts != null ) 
-		t = ts;
-	} 
+            if( ts != null )
+                t = ts;
+        }
 
         try
         {
-            NameTable.define( containingUnion.full_name() + "." + d.name(), "declarator");
+            NameTable.define( containingUnion.full_name() + "." + d.name(), "declarator" );
         }
         catch( NameAlreadyDefined nad )
         {
-            parser.error("Declarator " + d.name() + 
-                         " already defined in union " + containingUnion.full_name(), token);
+            parser.error( "Declarator " + d.name() +
+                    " already defined in union " + containingUnion.full_name(), token );
         }
         //        d.parse();
     }
 
-    public void print(java.io.PrintWriter ps)
-    {	
-	if( t.typeSpec() instanceof TemplateTypeSpec  ||
-	    t.typeSpec() instanceof ConstrTypeSpec )
-	{
-	    t.print(ps);
-	}
+    public void print( java.io.PrintWriter ps )
+    {
+        if( t.typeSpec() instanceof TemplateTypeSpec ||
+                t.typeSpec() instanceof ConstrTypeSpec )
+        {
+            t.print( ps );
+        }
     }
-
 
 
 }

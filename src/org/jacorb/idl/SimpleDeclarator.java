@@ -25,22 +25,19 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.Vector;
-import java.util.Enumeration;
-import java.io.*;
 
-class SimpleDeclarator 
-    extends Declarator 
+class SimpleDeclarator
+        extends Declarator
 {
 
-    public SimpleDeclarator(int num)
+    public SimpleDeclarator( int num )
     {
-	super(num);
+        super( num );
     }
 
     public String name()
     {
-	return name;
+        return name;
     }
 
     /**
@@ -49,60 +46,60 @@ class SimpleDeclarator
 
     public void escapeName()
     {
-        if( ! name.startsWith("_") &&
-            lexer.strictJavaEscapeCheck( name ))
+        if( !name.startsWith( "_" ) &&
+                lexer.strictJavaEscapeCheck( name ) )
         {
             name = "_" + name;
         }
     }
 
-    public void parse() 	 
-    {        
-	try
-	{
-	    NameTable.define( full_name(), "declarator");
-	} 
-	catch (NameAlreadyDefined p )
-	{
-	    parser.error("Declarator name " + full_name() + 
-                         " already declared in this scope.", token);
-	}
+    public void parse()
+    {
+        try
+        {
+            NameTable.define( full_name(), "declarator" );
+        }
+        catch( NameAlreadyDefined p )
+        {
+            parser.error( "Declarator name " + full_name() +
+                    " already declared in this scope.", token );
+        }
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	enclosing_symbol = s;
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        enclosing_symbol = s;
     }
 
     public IdlSymbol getEnclosingSymbol()
     {
-	return enclosing_symbol;
+        return enclosing_symbol;
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	if( pack_name.length() > 0 )
-	    pack_name = new String( s + "." + pack_name );
-	else
-	    pack_name = s;
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
+            pack_name = new String( s + "." + pack_name );
+        else
+            pack_name = s;
     }
 
     String full_name()
     {
-	if( name.length() == 0 ) 
-	    return null;
-	if( pack_name.length() > 0 )
-	    return pack_name + "." + name;
-	else
-	    return name;
+        if( name.length() == 0 )
+            return null;
+        if( pack_name.length() > 0 )
+            return pack_name + "." + name;
+        else
+            return name;
     }
 
     public String toString()
     {
-	return name;
+        return name;
     }
 }
 

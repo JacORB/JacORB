@@ -28,33 +28,34 @@ import java.io.PrintWriter;
  */
 
 class PrimaryExpr
-    extends IdlSymbol
+        extends IdlSymbol
 {
+
     public IdlSymbol symbol;
 
     private boolean contained = false;
     private ConstDecl declared_in;
 
-    public PrimaryExpr(int num)
+    public PrimaryExpr( int num )
     {
-        super(num);
+        super( num );
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-        if( symbol instanceof ConstExpr)
+        if( symbol instanceof ConstExpr )
         {
-            ps.print("(");
-            symbol.print(ps);
-            ps.print(")");
+            ps.print( "(" );
+            symbol.print( ps );
+            ps.print( ")" );
         }
-        else if( symbol instanceof ScopedName)
+        else if( symbol instanceof ScopedName )
         {
-            ps.print(((ScopedName)symbol).resolvedName() );
+            ps.print( ( (ScopedName)symbol ).resolvedName() );
             //            ps.print( ConstDecl.namedValue( (ScopedName)symbol));
         }
         else // Literal
-            symbol.print(ps);
+            symbol.print( ps );
     }
 
     public void parse()
@@ -66,61 +67,61 @@ class PrimaryExpr
     {
         this.declared_in = declared_in;
         if( symbol instanceof Literal )
-            ((Literal)symbol).setDeclaration( declared_in );
+            ( (Literal)symbol ).setDeclaration( declared_in );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
 
-        symbol.setPackage( s);
+        symbol.setPackage( s );
     }
 
     int pos_int_const()
     {
-        if( symbol instanceof ConstExpr)
+        if( symbol instanceof ConstExpr )
         {
-            return ((ConstExpr)symbol).pos_int_const();
+            return ( (ConstExpr)symbol ).pos_int_const();
         }
-        else if( symbol instanceof ScopedName)
+        else if( symbol instanceof ScopedName )
         {
-            return Integer.parseInt( ConstDecl.namedValue( (ScopedName)symbol));
+            return Integer.parseInt( ConstDecl.namedValue( (ScopedName)symbol ) );
         }
         else
-            return Integer.parseInt( ((Literal)symbol).toString ());
+            return Integer.parseInt( ( (Literal)symbol ).toString() );
     }
 
     public String value()
     {
-        if( symbol instanceof ConstExpr)
+        if( symbol instanceof ConstExpr )
         {
-            return "(" + ((ConstExpr)symbol).value()+")";
+            return "(" + ( (ConstExpr)symbol ).value() + ")";
         }
-        else if( symbol instanceof ScopedName)
+        else if( symbol instanceof ScopedName )
         {
-            return ConstDecl.namedValue( (ScopedName)symbol);
+            return ConstDecl.namedValue( (ScopedName)symbol );
         }
         else
-            return ((Literal)symbol).toString ();
+            return ( (Literal)symbol ).toString();
     }
 
     public String toString()
     {
-        if( symbol instanceof ConstExpr)
+        if( symbol instanceof ConstExpr )
         {
-            return "(" + ((ConstExpr)symbol).toString()+")";
+            return "(" + ( (ConstExpr)symbol ).toString() + ")";
         }
-        else if( symbol instanceof ScopedName)
+        else if( symbol instanceof ScopedName )
         {
-            return ((ScopedName)symbol).resolvedName();
+            return ( (ScopedName)symbol ).resolvedName();
         }
         else
         {
-            return ((Literal)symbol).toString ();
+            return ( (Literal)symbol ).toString();
         }
     }
 

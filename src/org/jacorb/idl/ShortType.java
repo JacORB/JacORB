@@ -25,12 +25,13 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class ShortType 
-    extends IntType 
+class ShortType
+        extends IntType
 {
-    public ShortType(int num) 
+
+    public ShortType( int num )
     {
-        super(num);
+        super( num );
     }
 
     public String typeName()
@@ -51,12 +52,12 @@ class ShortType
     public int getTCKind()
     {
         if( unsigned )
-            return  4; //_tk_ushort
+            return 4; //_tk_ushort
         else
             return 2; // _tk_short
     }
 
-    public String toString() 
+    public String toString()
     {
         return typeName();
     }
@@ -67,7 +68,7 @@ class ShortType
     }
 
 
-    public String printReadExpression(String ps)
+    public String printReadExpression( String ps )
     {
         if( unsigned )
             return ps + ".read_ushort()";
@@ -75,7 +76,7 @@ class ShortType
             return ps + ".read_short()";
     }
 
-    public String printReadStatement(String var_name, String ps)
+    public String printReadStatement( String var_name, String ps )
     {
         if( unsigned )
             return var_name + "=" + ps + ".read_ushort();";
@@ -83,14 +84,14 @@ class ShortType
             return var_name + "=" + ps + ".read_short();";
     }
 
-    public String printWriteStatement(String var_name, String ps)
+    public String printWriteStatement( String var_name, String ps )
     {
         if( unsigned )
             return ps + ".write_ushort(" + var_name + ");";
         else
             return ps + ".write_short(" + var_name + ");";
     }
-    
+
     public String printInsertExpression()
     {
         if( unsigned )

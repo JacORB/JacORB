@@ -25,64 +25,63 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.Vector;
-import java.util.Enumeration;
-import java.io.*;
+import java.io.PrintWriter;
 
 
-class Definition 
-    extends IdlSymbol
+class Definition
+        extends IdlSymbol
 {
+
     private Declaration declaration;
 
-    public Definition(int num)
+    public Definition( int num )
     {
-	super(num);
-	pack_name = "";	
+        super( num );
+        pack_name = "";
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-		super.setPackage(s);
-		declaration.setPackage(s);
+        s = parser.pack_replace( s );
+        super.setPackage( s );
+        declaration.setPackage( s );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	{
-	    System.err.println("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName());
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	}
-	enclosing_symbol = s;
-	declaration.setEnclosingSymbol(s);
+        if( enclosing_symbol != null && enclosing_symbol != s )
+        {
+            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        }
+        enclosing_symbol = s;
+        declaration.setEnclosingSymbol( s );
     }
 
     public Declaration get_declaration()
     {
-	return declaration;
+        return declaration;
     }
 
     public void set_declaration( Declaration d )
     {
-	declaration = d;
+        declaration = d;
     }
 
-    public void set_included(boolean i)
+    public void set_included( boolean i )
     {
-	included = i;
-	declaration.set_included(i);
+        included = i;
+        declaration.set_included( i );
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	declaration.print(ps);
-    }	
+        declaration.print( ps );
+    }
 
-    public void parse()        
+    public void parse()
     {
-	declaration.parse();
+        declaration.parse();
     }
 }
 

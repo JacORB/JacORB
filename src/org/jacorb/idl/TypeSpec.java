@@ -20,8 +20,8 @@
 
 package org.jacorb.idl;
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
+import java.util.Set;
 
 /**
  * @author Gerald Brose
@@ -30,169 +30,170 @@ import java.io.*;
 
 
 public class TypeSpec
-    extends IdlSymbol
+        extends IdlSymbol
 {
+
     protected String alias = null;
     public TypeSpec type_spec;
 
-    public TypeSpec(int num) 
+    public TypeSpec( int num )
     {
-	super(num);
+        super( num );
     }
 
     public Object clone()
-    { 
-	TypeSpec ts = new TypeSpec(new_num());
-	ts.type_spec = (TypeSpec)type_spec.clone();
-	return ts;
+    {
+        TypeSpec ts = new TypeSpec( new_num() );
+        ts.type_spec = (TypeSpec)type_spec.clone();
+        return ts;
     }
 
     public String typeName()
     {
-	return type_spec.typeName();
+        return type_spec.typeName();
     }
 
-    public String idlTypeName ()
+    public String idlTypeName()
     {
-       return typeName ();
+        return typeName();
     }
 
     public TypeSpec typeSpec()
     {
-	return type_spec.typeSpec();
+        return type_spec.typeSpec();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	type_spec.setPackage(s);
+        s = parser.pack_replace( s );
+        type_spec.setPackage( s );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	enclosing_symbol = s;
-	type_spec.setEnclosingSymbol(s);
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        enclosing_symbol = s;
+        type_spec.setEnclosingSymbol( s );
     }
 
     public boolean basic()
     {
-	// debug: System.out.println("TypeSpec class is: " + this.getClass().getName() );
-	return type_spec.basic();
-    } 
+        // debug: System.out.println("TypeSpec class is: " + this.getClass().getName() );
+        return type_spec.basic();
+    }
 
-    public void set_constr(TypeDeclaration td)
+    public void set_constr( TypeDeclaration td )
     {
-	ConstrTypeSpec c = new ConstrTypeSpec( new_num());
-	c.c_type_spec = td;
-	type_spec = c;
+        ConstrTypeSpec c = new ConstrTypeSpec( new_num() );
+        c.c_type_spec = td;
+        type_spec = c;
     }
 
     public void parse()
-        throws ParseException
+            throws ParseException
     {
-	type_spec.parse();
+        type_spec.parse();
     }
 
     public String toString()
     {
-	try
-	{
-	    return type_spec.toString();
-	} 
-	catch ( NullPointerException np) 
-	{
-	    np.printStackTrace();
-            org.jacorb.idl.parser.fatal_error( "Compiler Error for " + 
-                                               type_spec + " " + typeName(), null );
-	}
-	return null;
+        try
+        {
+            return type_spec.toString();
+        }
+        catch( NullPointerException np )
+        {
+            np.printStackTrace();
+            org.jacorb.idl.parser.fatal_error( "Compiler Error for " +
+                    type_spec + " " + typeName(), null );
+        }
+        return null;
     }
 
-    public String getTypeCodeExpression (Set knownTypes)
+    public String getTypeCodeExpression( Set knownTypes )
     {
-        if (type_spec instanceof ConstrTypeSpec)
-            return type_spec.getTypeCodeExpression (knownTypes);
+        if( type_spec instanceof ConstrTypeSpec )
+            return type_spec.getTypeCodeExpression( knownTypes );
         else
             return getTypeCodeExpression();
     }
 
     /**
-     * @returns a string for an expression of type TypeCode 
+     * @returns a string for an expression of type TypeCode
      * 			that describes this type
      */
     public String getTypeCodeExpression()
     {
-	return type_spec.getTypeCodeExpression();
+        return type_spec.getTypeCodeExpression();
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	if( !included )
-	    type_spec.print(ps);
+        if( !included )
+            type_spec.print( ps );
     }
 
     public String holderName()
     {
-	return type_spec.holderName();
+        return type_spec.holderName();
     }
 
     /* helpers are not generated for base types, so
        there is no equivalent method to return helper
        names here. Such an operation is really only
        necessary for sequence types as a sequence's
-       helper is named according to the sequence's 
+       helper is named according to the sequence's
        element type
     */
 
-    public String printReadExpression(String streamname)
+    public String printReadExpression( String streamname )
     {
-	return type_spec.printReadExpression( streamname);
+        return type_spec.printReadExpression( streamname );
     }
 
-    public String printReadStatement(String var_name, String streamname)
+    public String printReadStatement( String var_name, String streamname )
     {
-	return var_name + "=" + printReadExpression(streamname) + ";";
+        return var_name + "=" + printReadExpression( streamname ) + ";";
     }
 
-    public String printWriteStatement(String var_name, String streamname)
+    public String printWriteStatement( String var_name, String streamname )
     {
-	return type_spec.printWriteStatement(var_name, streamname);
+        return type_spec.printWriteStatement( var_name, streamname );
     }
 
     public String printInsertExpression()
     {
-	return type_spec.printInsertExpression();
+        return type_spec.printInsertExpression();
     }
 
     public String printExtractExpression()
     {
-	return type_spec.printExtractExpression();
+        return type_spec.printExtractExpression();
     }
 
-    /** 
-	for use by subclasses when generating helper classes. Writes common
-	methods for all helpers to the helper class file. Must becalled after 
-	beginning th class definition itself
-    */
+    /**
+     for use by subclasses when generating helper classes. Writes common
+     methods for all helpers to the helper class file. Must becalled after
+     beginning th class definition itself
+     */
 
-    public static void printHelperClassMethods(String className, PrintWriter ps, String type)
+    public static void printHelperClassMethods( String className, PrintWriter ps, String type )
     {
-	ps.println("\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)");
-	ps.println("\t{");
-	ps.println("\t\tany.type(type());");
-	ps.println("\t\twrite( any.create_output_stream(),s);");
-	ps.println("\t}");
+        ps.println( "\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)" );
+        ps.println( "\t{" );
+        ps.println( "\t\tany.type(type());" );
+        ps.println( "\t\twrite( any.create_output_stream(),s);" );
+        ps.println( "\t}" );
 
-	ps.println("\tpublic static " + type + " extract (final org.omg.CORBA.Any any)");
-	ps.println("\t{");
-	ps.println("\t\treturn read(any.create_input_stream());");
-	ps.println("\t}");
+        ps.println( "\tpublic static " + type + " extract (final org.omg.CORBA.Any any)" );
+        ps.println( "\t{" );
+        ps.println( "\t\treturn read(any.create_input_stream());" );
+        ps.println( "\t}" );
 
-	ps.println("\tpublic static org.omg.CORBA.TypeCode type()");
-	ps.println("\t{");
-	ps.println("\t\treturn _type;");
-	ps.println("\t}");
+        ps.println( "\tpublic static org.omg.CORBA.TypeCode type()" );
+        ps.println( "\t{" );
+        ps.println( "\t\treturn _type;" );
+        ps.println( "\t}" );
     }
 }

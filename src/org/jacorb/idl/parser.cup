@@ -1001,8 +1001,6 @@ value ::=
                {: 
                         RESULT.setValue (vbx);
                 :}
-        | ABSTRACT VALUETYPE ID:i 
-        | VALUETYPE ID:i 
         ;
 
 
@@ -1023,6 +1021,12 @@ value_abs_dcl ::=
                         b.set_name(i.str_val);  
                         b.myAbsValue = RESULT;
                         b.setEnclosingSymbol(RESULT);
+                        RESULT.set_token (i);
+                :}
+        | ABSTRACT VALUETYPE ID:i 
+                {:
+                        RESULT.name = i.str_val;
+                        RESULT.set_token (i);
                 :}
         ;
 
@@ -1033,7 +1037,7 @@ value_body ::=
                         RESULT.v = (Vector)vb.v.clone();
                         RESULT.v.insertElementAt(e,0);
                 :}
-        | empty
+          | empty
                 {: RESULT.commit(); :} 
                 // so that the i_body knows its vector is complete
         ;
@@ -1048,6 +1052,12 @@ value_dcl ::=
                         RESULT.setValueElements (ve);
                         RESULT.isCustomMarshalled (true);
                 :}
+        | VALUETYPE ID:i
+                {:
+                        RESULT.name = i.str_val;
+                        RESULT.set_token (i);
+                        RESULT.isCustomMarshalled (false);
+                :} 
         | VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
                 {:
                         RESULT.name = i.str_val;
@@ -1059,9 +1069,10 @@ value_dcl ::=
        ;
 
 value_inheritance_spec ::= 
-          COLON truncatable:t COMMA scopename_list:vn 
+          COLON truncatable:t scopename_list:vn 
                 {:                        
-                        RESULT.truncatable = t;      
+                        RESULT.truncatable = t;
+                        RESULT.truncatable.scopedName = (ScopedName)vn.v.remove(0);
                         RESULT.v = (Vector)vn.v.clone(); 
                 :}
         | COLON scopename_list:vn 
@@ -1072,9 +1083,10 @@ value_inheritance_spec ::=
                 {:
                         RESULT.supports = (Vector)interface_names.v.clone(); 
                 :}
-        | COLON truncatable:t COMMA scopename_list:vn SUPPORTS scopename_list:interface_names
+        | COLON truncatable:t scopename_list:vn SUPPORTS scopename_list:interface_names
                 {:      
                         RESULT.truncatable = t;      
+                        RESULT.truncatable.scopedName = (ScopedName)vn.v.remove(0);
                         RESULT.v = (Vector)vn.v.clone(); 
                         RESULT.supports = (Vector)interface_names.v.clone(); 
                 :}
@@ -1086,11 +1098,7 @@ value_inheritance_spec ::=
         | empty
         ;      
 
-truncatable ::=
-          TRUNCATABLE scopename:s 
-          {: 
-                RESULT.scopedName = s; 
-          :} 
+truncatable ::= TRUNCATABLE 
         ;      
 
 value_elements ::=

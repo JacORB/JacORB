@@ -27,17 +27,18 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class ConstExpr 
-    extends IdlSymbol
+class ConstExpr
+        extends IdlSymbol
 {
+
     public OrExpr or_expr;
-    
-    public ConstExpr(int num)
+
+    public ConstExpr( int num )
     {
-        super(num);
+        super( num );
     }
 
-    public void parse() 
+    public void parse()
     {
         or_expr.parse();
     }
@@ -47,7 +48,7 @@ class ConstExpr
         or_expr.setDeclaration( declared_in );
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
         or_expr.print( ps );
     }
@@ -62,25 +63,25 @@ class ConstExpr
         //        return value();
         return or_expr.toString();
     }
-    
+
     public str_token get_token()
     {
-	return or_expr.get_token();
+        return or_expr.get_token();
     }
 
 
-    public String value() 
+    public String value()
     {
         return or_expr.value();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        or_expr.setPackage(s);
+        or_expr.setPackage( s );
     }
 }

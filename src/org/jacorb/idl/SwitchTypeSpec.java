@@ -30,5 +30,6 @@ package org.jacorb.idl;
 
 interface SwitchTypeSpec
 {
-   public boolean isSwitchable ();
+
+    public boolean isSwitchable();
 }

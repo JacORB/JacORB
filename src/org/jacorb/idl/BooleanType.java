@@ -26,18 +26,19 @@ package org.jacorb.idl;
  */
 
 
-class BooleanType 
-    extends BaseType 
-    implements SwitchTypeSpec 
+class BooleanType
+        extends BaseType
+        implements SwitchTypeSpec
 {
-    public BooleanType(int num)
+
+    public BooleanType( int num )
     {
-        super(num);
+        super( num );
     }
 
     public String typeName()
     {
-        return "boolean" ;
+        return "boolean";
     }
 
     public TypeSpec typeSpec()
@@ -48,7 +49,7 @@ class BooleanType
     public boolean basic()
     {
         return true;
-    } 
+    }
 
     public int getTCKind()
     {
@@ -61,37 +62,38 @@ class BooleanType
         return typeName();
     }
 
-    public void parse() 
-		 
-    {}
+    public void parse()
+
+    {
+    }
 
     public String holderName()
     {
         return "org.omg.CORBA.BooleanHolder";
     }
 
-    public String printReadExpression(String strname)
+    public String printReadExpression( String strname )
     {
         return strname + ".read_boolean()";
     }
 
 
-    public String printWriteStatement(String var_name, String strname)
+    public String printWriteStatement( String var_name, String strname )
     {
-        return strname + ".write_boolean("+var_name+");";
+        return strname + ".write_boolean(" + var_name + ");";
     }
 
     public String printInsertExpression()
     {
-	return "insert_boolean";
+        return "insert_boolean";
     }
 
     public String printExtractExpression()
     {
-	return "extract_boolean";
+        return "extract_boolean";
     }
 
-    public boolean isSwitchable ()
+    public boolean isSwitchable()
     {
         return true;
     }

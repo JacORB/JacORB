@@ -26,60 +26,63 @@ package org.jacorb.idl;
  */
 
 
-class FloatType 
-    extends FloatPtType 
+class FloatType
+        extends FloatPtType
 {
-    public FloatType(int num)
+
+    public FloatType( int num )
     {
-	super(num);
+        super( num );
     }
+
     public String typeName()
     {
-	return "float";
+        return "float";
     }
 
     public TypeSpec typeSpec()
     {
-	return this;
+        return this;
     }
+
     public boolean basic()
     {
-	return true;
-    } 
+        return true;
+    }
 
     public int getTCKind()
     {
-	return 6;
+        return 6;
     }
 
     public String toString()
     {
-	return typeName();
+        return typeName();
     }
 
     public String holderName()
     {
-	return "org.omg.CORBA.FloatHolder";
+        return "org.omg.CORBA.FloatHolder";
     }
 
-    public String printReadExpression(String strname)
+    public String printReadExpression( String strname )
     {
-	return strname + ".read_float()";
+        return strname + ".read_float()";
     }
 
-    public String printWriteStatement(String var_name, String strname)
+    public String printWriteStatement( String var_name, String strname )
     {
-	return strname + ".write_float("+var_name+");";
+        return strname + ".write_float(" + var_name + ");";
     }
 
     public String printInsertExpression()
     {
-	return "insert_float";
+        return "insert_float";
     }
 
     public String printExtractExpression()
     {
-	return "extract_float";
+        return "extract_float";
     }
 }
 

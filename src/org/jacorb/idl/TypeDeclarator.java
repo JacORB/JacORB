@@ -21,39 +21,41 @@ package org.jacorb.idl;
  */
 
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
+import java.util.Enumeration;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class TypeDeclarator 
-    extends IdlSymbol 
+class TypeDeclarator
+        extends IdlSymbol
 {
+
     public TypeSpec type_spec;
     public SymbolList declarators;
 
-    public TypeDeclarator(int num)
+    public TypeDeclarator( int num )
     {
-        super(num);
+        super( num );
     }
-    public void setPackage( String s)
+
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-        type_spec.setPackage(s);
+        s = parser.pack_replace( s );
+        type_spec.setPackage( s );
         for( Enumeration e = declarators.v.elements();
-             e.hasMoreElements();)
+             e.hasMoreElements(); )
         {
             Declarator d = (Declarator)e.nextElement();
-            d.setPackage( s);
+            d.setPackage( s );
         }
     }
 
-    public void parse()          
+    public void parse()
     {
-        throw new RuntimeException("This method may not be used!");
+        throw new RuntimeException( "This method may not be used!" );
         /*
           declarators.parse();
           type_spec.parse();
@@ -70,27 +72,27 @@ class TypeDeclarator
         return type_spec.typeName();
     }
 
-    public void print( PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-        type_spec.print(ps);
-        for( Enumeration e = declarators.v.elements(); e.hasMoreElements();)
-            ((Declarator)e.nextElement()).print(ps);
+        type_spec.print( ps );
+        for( Enumeration e = declarators.v.elements(); e.hasMoreElements(); )
+            ( (Declarator)e.nextElement() ).print( ps );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
         enclosing_symbol = s;
-        type_spec.setEnclosingSymbol(s);
-        for( Enumeration e = declarators.v.elements(); e.hasMoreElements();)
-            ((Declarator)e.nextElement()).setEnclosingSymbol(s);        
+        type_spec.setEnclosingSymbol( s );
+        for( Enumeration e = declarators.v.elements(); e.hasMoreElements(); )
+            ( (Declarator)e.nextElement() ).setEnclosingSymbol( s );
     }
 
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
-        sb.append(type_spec.toString());
-        for( Enumeration e = declarators.v.elements(); e.hasMoreElements();)
-            sb.append((Declarator)e.nextElement());
+        sb.append( type_spec.toString() );
+        for( Enumeration e = declarators.v.elements(); e.hasMoreElements(); )
+            sb.append( (Declarator)e.nextElement() );
         return sb.toString();
     }
 

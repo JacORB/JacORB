@@ -20,31 +20,33 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class ValueInheritanceSpec  
-    extends SymbolList 
+class ValueInheritanceSpec
+        extends SymbolList
 {
+
     /** the value types (both abstract and stateful) inherited by this
-        value type */
-    public Vector v; 
+     value type */
+    public Vector v;
 
     /** the IDL interfaces inherited ("supported") by this value type */
-    public Vector supports; 
+    public Vector supports;
 
-    /** if the value type this belongs to is truncatable to the single
-        stateful ancestor value type */
+    /** if the value type this spec belongs to is truncatable to the
+     single stateful ancestor value type */
     public Truncatable truncatable = null;
 
-    public ValueInheritanceSpec(int num)
+    public ValueInheritanceSpec( int num )
     {
-        super(num);
+        super( num );
         v = new Vector();
         supports = new Vector();
     }
@@ -52,10 +54,12 @@ class ValueInheritanceSpec
     public String[] getTruncatableIds()
     {
         if( truncatable == null )
-            return new String[0];
+        {
+            return new String[ 0 ];
+        }
         else
         {
-            return new String[]{ truncatable.scopedName.toString() };
+            return new String[]{truncatable.scopedName.toString()};
         }
     }
 
@@ -69,50 +73,66 @@ class ValueInheritanceSpec
         return supports.elements();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-        if( pack_name.length() > 0  )
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        Enumeration e = v.elements();
-        for(; e.hasMoreElements(); )
-            ((IdlSymbol)e.nextElement()).setPackage(s);
+
+        if( truncatable != null )
+            truncatable.scopedName.setPackage( s );
+
+        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).setPackage( s );
+
+        for( Enumeration e = supports.elements(); e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).setPackage( s );
     }
 
-    public void parse()                  
+    public void parse()
     {
         Enumeration e = v.elements();
-        for(; e.hasMoreElements(); )
-            ((IdlSymbol)e.nextElement()).parse();
+        for( ; e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).parse();
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-        Enumeration e = v.elements();
-        if(e.hasMoreElements())
-            ((IdlSymbol)e.nextElement()).print(ps);
-        
-        for(; e.hasMoreElements();)
-        {
-            ps.print(",");
-            ((IdlSymbol)e.nextElement()).print(ps);
-        }
+        ps.print( toString() );
     }
 
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
+
+        if( truncatable != null )
+            sb.append( truncatable.toString() + " " );
+
         Enumeration e = v.elements();
 
-        if(e.hasMoreElements())
-            sb.append( (IdlSymbol)e.nextElement() );
-        
-        for(; e.hasMoreElements();)
+        if( e.hasMoreElements() )
+            sb.append( (IdlSymbol)e.nextElement() + " " );
+
+        for( ; e.hasMoreElements(); )
         {
-            sb.append(","+ (IdlSymbol)e.nextElement() );
+            sb.append( "," + (IdlSymbol)e.nextElement() + " " );
         }
+
+        Enumeration s = supports.elements();
+        if( s.hasMoreElements() )
+        {
+            sb.append( "supports " );
+            ( (IdlSymbol)s.nextElement() ).toString();
+        }
+
+        for( ; s.hasMoreElements(); )
+        {
+            sb.append( "," );
+            ( (IdlSymbol)s.nextElement() ).toString();
+        }
+
         return sb.toString();
     }
 }

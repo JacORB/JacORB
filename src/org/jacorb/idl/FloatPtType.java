@@ -25,19 +25,19 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.io.PrintWriter;
 
-class FloatPtType 
-    extends BaseType 
+class FloatPtType
+        extends BaseType
 {
-    public FloatPtType(int num)
+
+    public FloatPtType( int num )
     {
-	super(num);
+        super( num );
     }
 
     public String holderName()
     {
-	return type_spec.holderName();
+        return type_spec.holderName();
     }
 }
 

@@ -20,7 +20,7 @@
 
 package org.jacorb.idl;
 
-/** 
+/**
  * PositionInfo are used to group information about the current
  * position in the input file. It is created by the lexer but
  * also includes information about the current input stream that
@@ -29,25 +29,27 @@ package org.jacorb.idl;
  * to the including file)
  */
 
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
 
-public class PositionInfo 
+public class PositionInfo
 {
+
     public String line = "";
     public int line_no = 0;
-    public int line_pos = 0;    
+    public int line_pos = 0;
     public String pragma_prefix = "";
     public File file;
     public InputStream stream;
 
-   
-    public PositionInfo( int _line_no, int _char_pos, 
-			 String prefix, String _line )
+
+    public PositionInfo( int _line_no, int _char_pos,
+                         String prefix, String _line )
     {
-	line_no = _line_no;
-	line_pos = _char_pos;
-	pragma_prefix = prefix;
-	line = _line;
+        line_no = _line_no;
+        line_pos = _char_pos;
+        pragma_prefix = prefix;
+        line = _line;
     }
 
 }

@@ -31,10 +31,11 @@ package org.jacorb.idl;
  * @author  Gerald Brose
  */
 
-public class str_token 
-    extends java_cup.runtime.str_token 
-    implements java.io.Serializable
+public class str_token
+        extends java_cup.runtime.str_token
+        implements java.io.Serializable
 {
+
     public String str_val;
     public String line_val;
     public int line_no;
@@ -43,25 +44,25 @@ public class str_token
     public String fileName = "";
 
     /** Full constructor. */
-    public str_token( int term_num, String v, 
+    public str_token( int term_num, String v,
                       PositionInfo p, String _fileName )
     {
-	/* super class does most of the work */
-	super(term_num);
+        /* super class does most of the work */
+        super( term_num );
 
-	str_val = v;
-	line_val = p.line;
-	line_no = p.line_no;
-	char_pos = p.line_pos;
-	pragma_prefix = p.pragma_prefix;
-	fileName = _fileName;
+        str_val = v;
+        line_val = p.line;
+        line_no = p.line_no;
+        char_pos = p.line_pos;
+        pragma_prefix = p.pragma_prefix;
+        fileName = _fileName;
     }
 
     /** Constructor for value defaulting to an empty string. */
-    public str_token(int term_num)
+    public str_token( int term_num )
     {
-	this(term_num, "", lexer.getPosition(), 
-	     GlobalInputStream.currentFile().getName());
+        this( term_num, "", lexer.getPosition(),
+                GlobalInputStream.currentFile().getName() );
     }
 
 

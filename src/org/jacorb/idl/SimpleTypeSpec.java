@@ -25,12 +25,13 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class SimpleTypeSpec 
-    extends TypeSpec
+class SimpleTypeSpec
+        extends TypeSpec
 {
-    public SimpleTypeSpec(int num) 
+
+    public SimpleTypeSpec( int num )
     {
-	super(num);
+        super( num );
     }
 
 }

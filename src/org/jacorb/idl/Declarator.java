@@ -20,8 +20,7 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
 
 /**
  * @author Gerald Brose
@@ -29,35 +28,36 @@ import java.io.*;
  */
 
 class Declarator
-    extends IdlSymbol
+        extends IdlSymbol
 {
+
     public Declarator d;
 
-    public Declarator(int num)
+    public Declarator( int num )
     {
-	super(num);
+        super( num );
     }
 
     public String name()
     {
-	return d.name();
+        return d.name();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	d.setPackage(s);
+        s = parser.pack_replace( s );
+        d.setPackage( s );
     }
 
-    public void set_included(boolean i)
+    public void set_included( boolean i )
     {
-	included = i;
-	d.set_included(i);
+        included = i;
+        d.set_included( i );
     }
 
     String full_name()
     {
-	return d.full_name();
+        return d.full_name();
     }
 
     /**
@@ -69,26 +69,27 @@ class Declarator
         d.escapeName();
     }
 
-    public void parse() 
+    public void parse()
     {
-	d.parse();
+        d.parse();
     }
 
-    public void print( PrintWriter ps)
-    {}
+    public void print( PrintWriter ps )
+    {
+    }
 
     public String toString()
     {
-	return d.toString();
+        return d.toString();
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	d.setEnclosingSymbol(s);
+        d.setEnclosingSymbol( s );
     }
 
     public IdlSymbol getEnclosingSymbol()
     {
-	return d.getEnclosingSymbol();
+        return d.getEnclosingSymbol();
     }
 }

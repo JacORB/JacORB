@@ -21,50 +21,51 @@ package org.jacorb.idl;
  */
 
 
-import java.util.Vector;
+import java.io.PrintWriter;
 import java.util.Enumeration;
-import java.io.*;
+import java.util.Vector;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class Spec 
-    extends IdlSymbol
+class Spec
+        extends IdlSymbol
 {
+
     public Vector definitions;
 
-    public Spec(int num)
+    public Spec( int num )
     {
-	super(num);
-	definitions = new Vector();
+        super( num );
+        definitions = new Vector();
     }
 
-    public void parse() 		 
+    public void parse()
     {
         Enumeration e = definitions.elements();
-        for(; e.hasMoreElements(); )
-            ((IdlSymbol)e.nextElement()).parse();
+        for( ; e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).parse();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	Enumeration e = definitions.elements();
-	while( e.hasMoreElements() )
-	{
-	    IdlSymbol i = (IdlSymbol)e.nextElement();
-	    i.setPackage( s);
-	}
+        s = parser.pack_replace( s );
+        Enumeration e = definitions.elements();
+        while( e.hasMoreElements() )
+        {
+            IdlSymbol i = (IdlSymbol)e.nextElement();
+            i.setPackage( s );
+        }
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	Enumeration e = definitions.elements();
-	while( e.hasMoreElements() )
-            ((IdlSymbol)e.nextElement()).print(ps);
-    }	
+        Enumeration e = definitions.elements();
+        while( e.hasMoreElements() )
+            ( (IdlSymbol)e.nextElement() ).print( ps );
+    }
 }
 
 

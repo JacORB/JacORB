@@ -20,33 +20,34 @@
 
 package org.jacorb.idl;
 
-import java.util.Vector;
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.Enumeration;
-import java.io.*;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class EnumType 
-    extends TypeDeclaration 
-    implements SwitchTypeSpec 
+class EnumType
+        extends TypeDeclaration
+        implements SwitchTypeSpec
 {
+
     public SymbolList enumlist;
-    int const_counter = 0;    
+    int const_counter = 0;
     private boolean written = false;
     private boolean parsed = false;
 
-    public EnumType(int num)
+    public EnumType( int num )
     {
-        super(num);
+        super( num );
         pack_name = "";
     }
 
     public Object clone()
     {
-        EnumType et = new EnumType( new_num());
+        EnumType et = new EnumType( new_num() );
         et.enumlist = this.enumlist;
         et.typeName = this.typeName;
         et.pack_name = this.pack_name;
@@ -72,7 +73,7 @@ class EnumType
      * @overrides  set_included from TypeDeclaration
      */
 
-    public void set_included(boolean i)
+    public void set_included( boolean i )
     {
         included = i;
     }
@@ -91,9 +92,9 @@ class EnumType
         return true;
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
@@ -103,13 +104,13 @@ class EnumType
     public void setEnclosingSymbol( IdlSymbol s )
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
-            throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
         enclosing_symbol = s;
     }
 
-    public void parse() 
+    public void parse()
     {
-        if (parsed)
+        if( parsed )
         {
             return;
         }
@@ -129,56 +130,56 @@ class EnumType
             // define scopes, but their element identifiers are scoped.
             // for the Java mapping, we need to get the enum type name
             // back as it defines the class name where the constants
-            // are defined. Therefore, an additional mapping in 
+            // are defined. Therefore, an additional mapping in
             // ScopedName is required.
 
-            String prefix = (pack_name.length() > 0 ? pack_name + "." : "");
+            String prefix = ( pack_name.length() > 0 ? pack_name + "." : "" );
 
-            for( Enumeration e = enumlist.v.elements(); e.hasMoreElements();)
+            for( Enumeration e = enumlist.v.elements(); e.hasMoreElements(); )
             {
                 enum_ident = (String)e.nextElement();
                 try
                 {
                     NameTable.define( prefix + enum_ident, "enum label" );
-                    ScopedName.enumMap( prefix + enum_ident, full_name() + 
-                                        "." +  enum_ident );
+                    ScopedName.enumMap( prefix + enum_ident, full_name() +
+                            "." + enum_ident );
                 }
-                catch (NameAlreadyDefined p )
+                catch( NameAlreadyDefined p )
                 {
-                    parser.error("Identifier " + enum_ident + 
-                                 " already defined \n" + 
-                                 "(Enums don't define new scopes in IDL)", 
-                                 token );
-                }           
+                    parser.error( "Identifier " + enum_ident +
+                            " already defined \n" +
+                            "(Enums don't define new scopes in IDL)",
+                            token );
+                }
             }
-        } 
-        catch (NameAlreadyDefined p )
+        }
+        catch( NameAlreadyDefined p )
         {
-            parser.error ("Enum " + full_name() + " already defined", token );
+            parser.error( "Enum " + full_name() + " already defined", token );
         }
     }
 
     public String className()
     {
-	String fullName = typeName();
-	if( fullName.indexOf('.') > 0 )
-	{
-	    return fullName.substring( fullName.lastIndexOf('.') + 1 );
-	} 
-	else 
-	{
-	    return fullName;
-	}
+        String fullName = typeName();
+        if( fullName.indexOf( '.' ) > 0 )
+        {
+            return fullName.substring( fullName.lastIndexOf( '.' ) + 1 );
+        }
+        else
+        {
+            return fullName;
+        }
     }
 
-    public String printReadExpression(String streamname)
+    public String printReadExpression( String streamname )
     {
-        return  toString()+ "Helper.read(" + streamname +")" ;
+        return toString() + "Helper.read(" + streamname + ")";
     }
 
-    public String printWriteStatement(String var_name, String streamname)
+    public String printWriteStatement( String var_name, String streamname )
     {
-        return toString() + "Helper.write("+streamname+ "," +var_name+");";
+        return toString() + "Helper.write(" + streamname + "," + var_name + ");";
     }
 
     public String holderName()
@@ -189,166 +190,166 @@ class EnumType
     public String getTypeCodeExpression()
     {
         StringBuffer sb = new StringBuffer();
-        sb.append("org.omg.CORBA.ORB.init().create_enum_tc(" + 
-                  typeName() + "Helper.id(),\"" + className()+ "\",");
+        sb.append( "org.omg.CORBA.ORB.init().create_enum_tc(" +
+                typeName() + "Helper.id(),\"" + className() + "\"," );
 
-        sb.append("new String[]{");
+        sb.append( "new String[]{" );
 
-        for( Enumeration e = enumlist.v.elements(); e.hasMoreElements();)
+        for( Enumeration e = enumlist.v.elements(); e.hasMoreElements(); )
         {
-            sb.append("\"" + (String)e.nextElement() + "\"");
+            sb.append( "\"" + (String)e.nextElement() + "\"" );
             if( e.hasMoreElements() )
-                sb.append(",");
+                sb.append( "," );
         }
-        sb.append("})");
-        return  sb.toString(); 
-    }
-   
-
-    private void printClassComment(String className, PrintWriter ps)
-    {
-	ps.println("/**");
-	ps.println(" *\tGenerated from IDL definition of enum " + 
-                    "\"" + className + "\"" );
-        ps.println(" *\t@author JacORB IDL compiler ");
-        ps.println(" */\n");
+        sb.append( "})" );
+        return sb.toString();
     }
 
-    private void printHolderClass (String className, PrintWriter ps)
+
+    private void printClassComment( String className, PrintWriter ps )
     {
-        if( !pack_name.equals(""))
-            ps.println("package " + pack_name + ";" );
+        ps.println( "/**" );
+        ps.println( " *\tGenerated from IDL definition of enum " +
+                "\"" + className + "\"" );
+        ps.println( " *\t@author JacORB IDL compiler " );
+        ps.println( " */\n" );
+    }
+
+    private void printHolderClass( String className, PrintWriter ps )
+    {
+        if( !pack_name.equals( "" ) )
+            ps.println( "package " + pack_name + ";" );
 
         printClassComment( className, ps );
 
-        ps.println("public final class " + className + "Holder");
-        ps.println("\timplements org.omg.CORBA.portable.Streamable");
-        ps.println("{");
+        ps.println( "public final class " + className + "Holder" );
+        ps.println( "\timplements org.omg.CORBA.portable.Streamable" );
+        ps.println( "{" );
 
-        ps.println("\tpublic " + className + " value;\n");
+        ps.println( "\tpublic " + className + " value;\n" );
 
-        ps.println("\tpublic " + className + "Holder ()");
-        ps.println("\t{");
-        ps.println("\t}");
+        ps.println( "\tpublic " + className + "Holder ()" );
+        ps.println( "\t{" );
+        ps.println( "\t}" );
 
-        ps.println("\tpublic " + className + "Holder (final " + className + " initial)");
-        ps.println("\t{");
-        ps.println("\t\tvalue = initial;");
-        ps.println("\t}");
+        ps.println( "\tpublic " + className + "Holder (final " + className + " initial)" );
+        ps.println( "\t{" );
+        ps.println( "\t\tvalue = initial;" );
+        ps.println( "\t}" );
 
-        ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
-        ps.println("\t{");
-        ps.println("\t\treturn " + className + "Helper.type ();");
-        ps.println("\t}");
+        ps.println( "\tpublic org.omg.CORBA.TypeCode _type ()" );
+        ps.println( "\t{" );
+        ps.println( "\t\treturn " + className + "Helper.type ();" );
+        ps.println( "\t}" );
 
-        ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream in)");
-        ps.println("\t{");
-        ps.println("\t\tvalue = " + className + "Helper.read (in);");
-        ps.println("\t}");
+        ps.println( "\tpublic void _read (final org.omg.CORBA.portable.InputStream in)" );
+        ps.println( "\t{" );
+        ps.println( "\t\tvalue = " + className + "Helper.read (in);" );
+        ps.println( "\t}" );
 
-        ps.println("\tpublic void _write (final org.omg.CORBA.portable.OutputStream out)");
-        ps.println("\t{");
-        ps.println("\t\t" + className + "Helper.write (out,value);");
-        ps.println("\t}");
+        ps.println( "\tpublic void _write (final org.omg.CORBA.portable.OutputStream out)" );
+        ps.println( "\t{" );
+        ps.println( "\t\t" + className + "Helper.write (out,value);" );
+        ps.println( "\t}" );
 
-        ps.println("}");
+        ps.println( "}" );
     }
 
-    private void printHelperClass(String className, PrintWriter ps)
+    private void printHelperClass( String className, PrintWriter ps )
     {
-        if( !pack_name.equals(""))
-            ps.println("package " + pack_name + ";" );
+        if( !pack_name.equals( "" ) )
+            ps.println( "package " + pack_name + ";" );
 
         printClassComment( className, ps );
 
-        ps.println("public final class " + className + "Helper");
-        ps.println("{");
+        ps.println( "public final class " + className + "Helper" );
+        ps.println( "{" );
 
-        ps.println("\tprivate static org.omg.CORBA.TypeCode _type = "+getTypeCodeExpression()+";");
+        ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";" );
 
         String type = typeName();
-        TypeSpec.printHelperClassMethods(className, ps, type);
-        printIdMethod(ps);
+        TypeSpec.printHelperClassMethods( className, ps, type );
+        printIdMethod( ps );
 
-        ps.println("\tpublic static " + className + " read (final org.omg.CORBA.portable.InputStream in)");
-        ps.println("\t{");
-        ps.println("\t\treturn " + className + ".from_int( in.read_long());");
-        ps.println("\t}");
+        ps.println( "\tpublic static " + className + " read (final org.omg.CORBA.portable.InputStream in)" );
+        ps.println( "\t{" );
+        ps.println( "\t\treturn " + className + ".from_int( in.read_long());" );
+        ps.println( "\t}" );
 
-        ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream out, final " + className + " s)");
-        ps.println("\t{");
-        ps.println("\t\tout.write_long(s.value());");
-        ps.println("\t}");
-        ps.println("}");
+        ps.println( "\tpublic static void write (final org.omg.CORBA.portable.OutputStream out, final " + className + " s)" );
+        ps.println( "\t{" );
+        ps.println( "\t\tout.write_long(s.value());" );
+        ps.println( "\t}" );
+        ps.println( "}" );
     }
 
     /** print the class that maps the enum */
 
-    private void printEnumClass(String className, PrintWriter pw)
+    private void printEnumClass( String className, PrintWriter pw )
     {
-        if( !pack_name.equals(""))
-            pw.println("package " + pack_name + ";" );
+        if( !pack_name.equals( "" ) )
+            pw.println( "package " + pack_name + ";" );
 
         printClassComment( className, pw );
 
-        pw.println("public final class " + className);
-        pw.println("\timplements org.omg.CORBA.portable.IDLEntity\n{");
+        pw.println( "public final class " + className );
+        pw.println( "\timplements org.omg.CORBA.portable.IDLEntity\n{" );
 
-        pw.println("\tprivate int value = -1;");
+        pw.println( "\tprivate int value = -1;" );
 
-        for( Enumeration e = enumlist.v.elements(); e.hasMoreElements();)
+        for( Enumeration e = enumlist.v.elements(); e.hasMoreElements(); )
         {
             String label = (String)e.nextElement();
-            pw.println("\tpublic static final int _" + label + " = "+ (const_counter++) + ";");
-            pw.println("\tpublic static final " + name + " " + label + " = new "+name+"(_"+label+");");
+            pw.println( "\tpublic static final int _" + label + " = " + ( const_counter++ ) + ";" );
+            pw.println( "\tpublic static final " + name + " " + label + " = new " + name + "(_" + label + ");" );
         }
-        pw.println("\tpublic int value()");
-        pw.println("\t{");
-        pw.println("\t\treturn value;");
-        pw.println("\t}");
+        pw.println( "\tpublic int value()" );
+        pw.println( "\t{" );
+        pw.println( "\t\treturn value;" );
+        pw.println( "\t}" );
 
-        pw.println("\tpublic static " + name + " from_int(int value)");
-        pw.println("\t{");
-        pw.println("\t\tswitch (value) {");
+        pw.println( "\tpublic static " + name + " from_int(int value)" );
+        pw.println( "\t{" );
+        pw.println( "\t\tswitch (value) {" );
 
-        for( Enumeration e = enumlist.v.elements(); e.hasMoreElements();)
+        for( Enumeration e = enumlist.v.elements(); e.hasMoreElements(); )
         {
             String label = (String)e.nextElement();
-            pw.println("\t\t\tcase _" + label + ": return "+label+";");
+            pw.println( "\t\t\tcase _" + label + ": return " + label + ";" );
         }
-        pw.println("\t\t\tdefault: throw new org.omg.CORBA.BAD_PARAM();");
-        pw.println("\t\t}");
-        pw.println("\t}");
+        pw.println( "\t\t\tdefault: throw new org.omg.CORBA.BAD_PARAM();" );
+        pw.println( "\t\t}" );
+        pw.println( "\t}" );
 
-        pw.println("\tprotected " + name + "(int i)");
-        pw.println("\t{");
-        pw.println("\t\tvalue = i;");
-        pw.println("\t}");
-        
+        pw.println( "\tprotected " + name + "(int i)" );
+        pw.println( "\t{" );
+        pw.println( "\t\tvalue = i;" );
+        pw.println( "\t}" );
+
 //          pw.println("\tpublic boolean equals( java.lang.Object other )");
 //          pw.println("\t{");
 //          pw.println("\t\treturn ( other instanceof " + className + " ) && value == ((" + className + " )other).value();");
 //          pw.println("\t}");
-//  
+//
 //          pw.println("\tpublic int hashCode()");
 //          pw.println("\t{");
 //          pw.println("\t\treturn ( \"" + pack_name + "." + className + "\" + value()).hashCode();");
 //          pw.println("\t}");
 
-        pw.println("\tjava.lang.Object readResolve()"); 
-        pw.println("\tthrows java.io.ObjectStreamException");
-        pw.println("\t{");
-        pw.println("\t\treturn from_int( value() );");
-        pw.println("\t}");
-        pw.println("}");
+        pw.println( "\tjava.lang.Object readResolve()" );
+        pw.println( "\tthrows java.io.ObjectStreamException" );
+        pw.println( "\t{" );
+        pw.println( "\t\treturn from_int( value() );" );
+        pw.println( "\t}" );
+        pw.println( "}" );
     }
 
 
     /** generate required classes */
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	setPrintPhaseNames();
+        setPrintPhaseNames();
 
         /** no code generation for included definitions */
         if( included && !generateIncluded() )
@@ -362,43 +363,43 @@ class EnumType
         try
         {
             String className = className();
-        
-            String path = parser.out_dir + fileSeparator + pack_name.replace('.', fileSeparator );
+
+            String path = parser.out_dir + fileSeparator + pack_name.replace( '.', fileSeparator );
             File dir = new File( path );
             if( !dir.exists() )
             {
-                if( !dir.mkdirs())
+                if( !dir.mkdirs() )
                 {
-                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );	
+                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
                 }
             }
-        
+
             /** print the mapped java class */
 
             String fname = className + ".java";
-            PrintWriter decl_ps = new PrintWriter(new java.io.FileWriter(new File(dir,fname)));
+            PrintWriter decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
             printEnumClass( className, decl_ps );
             decl_ps.close();
 
             /** print the holder class */
 
             fname = className + "Holder.java";
-            decl_ps = new PrintWriter(new java.io.FileWriter(new File(dir,fname)));
+            decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
             printHolderClass( className, decl_ps );
             decl_ps.close();
 
             /** print the helper class */
 
             fname = className + "Helper.java";
-            decl_ps = new PrintWriter(new java.io.FileWriter(new File(dir,fname)));
+            decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
             printHelperClass( className, decl_ps );
             decl_ps.close();
 
             written = true;
-        } 
-        catch ( java.io.IOException i )
+        }
+        catch( java.io.IOException i )
         {
-            System.err.println("File IO error");
+            System.err.println( "File IO error" );
             i.printStackTrace();
         }
     }
@@ -408,8 +409,8 @@ class EnumType
         return typeName();
     }
 
-    public boolean isSwitchable ()
+    public boolean isSwitchable()
     {
-       return true;
+        return true;
     }
 }

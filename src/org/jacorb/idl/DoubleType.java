@@ -26,16 +26,18 @@ package org.jacorb.idl;
  */
 
 
-class DoubleType 
-    extends FloatPtType 
+class DoubleType
+        extends FloatPtType
 {
-    public DoubleType(int num)
+
+    public DoubleType( int num )
     {
-        super(num);
+        super( num );
     }
+
     public String typeName()
     {
-        return "double" ;
+        return "double";
     }
 
     public TypeSpec typeSpec()
@@ -46,7 +48,7 @@ class DoubleType
     public boolean basic()
     {
         return true;
-    } 
+    }
 
     public int getTCKind()
     {
@@ -63,24 +65,24 @@ class DoubleType
         return "org.omg.CORBA.DoubleHolder";
     }
 
-    public String printReadExpression(String strname)
+    public String printReadExpression( String strname )
     {
         return strname + ".read_double()";
     }
 
-    public String printWriteStatement(String var_name, String strname)
+    public String printWriteStatement( String var_name, String strname )
     {
-        return strname + ".write_double("+var_name+");";
+        return strname + ".write_double(" + var_name + ");";
     }
 
     public String printInsertExpression()
     {
-	return "insert_double";
+        return "insert_double";
     }
 
     public String printExtractExpression()
     {
-	return "extract_double";
+        return "extract_double";
     }
 
 }

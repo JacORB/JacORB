@@ -20,7 +20,6 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
 import java.io.PrintWriter;
 
 /**
@@ -28,20 +27,22 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class UnaryExpr 
-    extends IdlSymbol
+class UnaryExpr
+        extends IdlSymbol
 {
+
     public String unary_op = "";
     public PrimaryExpr primary_expr;
 
-    public UnaryExpr(int num)
+    public UnaryExpr( int num )
     {
-        super(num);
+        super( num );
     }
-    public void print(PrintWriter ps)
+
+    public void print( PrintWriter ps )
     {
-        ps.print( unary_op);
-        primary_expr.print(ps);
+        ps.print( unary_op );
+        primary_expr.print( ps );
     }
 
     public void setDeclaration( ConstDecl declared_in )
@@ -49,17 +50,17 @@ class UnaryExpr
         primary_expr.setDeclaration( declared_in );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        primary_expr.setPackage( s);
+        primary_expr.setPackage( s );
     }
 
-    public void parse()  
+    public void parse()
     {
         primary_expr.parse();
     }
@@ -67,28 +68,30 @@ class UnaryExpr
     int pos_int_const()
     {
         int y = primary_expr.pos_int_const();
-        if( ! unary_op.equals("") ){
-            if( unary_op.equals("-"))
+        if( !unary_op.equals( "" ) )
+        {
+            if( unary_op.equals( "-" ) )
                 return y * -1;
-            else 
+            else
                 return y;
-        } else
+        }
+        else
             return y;
     }
 
-    public String  value() 
+    public String value()
     {
         return unary_op + primary_expr.value();
     }
 
-    public String toString() 
+    public String toString()
     {
         return unary_op.toString() + primary_expr.toString();
     }
 
     public str_token get_token()
     {
-	return primary_expr.get_token();
+        return primary_expr.get_token();
     }
 
 

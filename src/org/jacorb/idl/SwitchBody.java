@@ -20,11 +20,14 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
-class SwitchBody 
-    extends IdlSymbol
+class SwitchBody
+        extends IdlSymbol
 {
+
     /** holds case list */
     Vector caseListVector = new Vector();
 
@@ -33,18 +36,18 @@ class SwitchBody
 
     public SwitchBody( int num )
     {
-	super(num);
+        super( num );
     }
 
     public void setTypeSpec( TypeSpec s )
     {
-	ts = s;
-	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
-	{
-	    Case c = (Case)e.nextElement();
-	    c.setPackage(pack_name );
-	    c.setTypeSpec(s);
-	}
+        ts = s;
+        for( Enumeration e = caseListVector.elements(); e.hasMoreElements(); )
+        {
+            Case c = (Case)e.nextElement();
+            c.setPackage( pack_name );
+            c.setTypeSpec( s );
+        }
     }
 
     /**
@@ -55,46 +58,46 @@ class SwitchBody
     public void setUnion( UnionType ut )
     {
         myUnion = ut;
-	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
-	{
-	    Case c = (Case)e.nextElement();
-	    c.setUnion( ut );
+        for( Enumeration e = caseListVector.elements(); e.hasMoreElements(); )
+        {
+            Case c = (Case)e.nextElement();
+            c.setUnion( ut );
         }
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	enclosing_symbol = s;
-	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
-	    ((IdlSymbol)e.nextElement()).setEnclosingSymbol( s );
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        enclosing_symbol = s;
+        for( Enumeration e = caseListVector.elements(); e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).setEnclosingSymbol( s );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	if( pack_name.length() > 0 )
-	    pack_name = new String( s + "." + pack_name );
-	else
-	    pack_name = s;
-       
-	if( ts != null )
-	    ts.setPackage( s);
+        s = parser.pack_replace( s );
+        if( pack_name.length() > 0 )
+            pack_name = new String( s + "." + pack_name );
+        else
+            pack_name = s;
+
+        if( ts != null )
+            ts.setPackage( s );
     }
 
     /**
      * do the parsing
      */
 
-    public void parse() 		 
-    {        
+    public void parse()
+    {
         Hashtable usedLabelNames = new Hashtable();
 
-	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
+        for( Enumeration e = caseListVector.elements(); e.hasMoreElements(); )
         {
             Case theCase = (Case)e.nextElement();
-	    theCase.parse();
+            theCase.parse();
 
             // get all case labels and check for duplicates
 
@@ -102,35 +105,35 @@ class SwitchBody
 
             for( int i = 0; i < labels.length; i++ )
             {
-                if( labels[i] != null ) // null means default
+                if( labels[ i ] != null ) // null means default
                 {
-                    IdlSymbol sym = 
-                        (IdlSymbol)usedLabelNames.get(labels[i].toString());
+                    IdlSymbol sym =
+                            (IdlSymbol)usedLabelNames.get( labels[ i ].toString() );
 
                     if( sym != null )
-                    {                    
-                        parser.error("Duplicate case label <" + 
-                                     sym.toString() + ">", sym.get_token() );
+                    {
+                        parser.error( "Duplicate case label <" +
+                                sym.toString() + ">", sym.get_token() );
                     }
-                    
-                    usedLabelNames.put( labels[i].toString(), labels[i] );
+
+                    usedLabelNames.put( labels[ i ].toString(), labels[ i ] );
                 }
             }
         }
         usedLabelNames.clear();
 
-	ts.parse();
+        ts.parse();
         myUnion.addImportedName( ts.typeName() );
-        
+
     }
 
-    public void print(java.io.PrintWriter ps)
-    {	
-	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
-	{
-	    Case c = (Case)e.nextElement();
-	    c.print(ps);
-	}
+    public void print( java.io.PrintWriter ps )
+    {
+        for( Enumeration e = caseListVector.elements(); e.hasMoreElements(); )
+        {
+            Case c = (Case)e.nextElement();
+            c.print( ps );
+        }
     }
 
 }

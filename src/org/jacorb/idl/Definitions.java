@@ -20,62 +20,63 @@
 
 package org.jacorb.idl;
 
-import java.util.Vector;
+import java.io.PrintWriter;
 import java.util.Enumeration;
-import java.io.*;
+import java.util.Vector;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class Definitions 
-    extends SymbolList
+class Definitions
+        extends SymbolList
 {
-    public Definitions(int num)
+
+    public Definitions( int num )
     {
-	super(num);
-	v = new Vector();
-	Enumeration e = v.elements();
+        super( num );
+        v = new Vector();
+        Enumeration e = v.elements();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-	Enumeration e = v.elements();
-	for(; e.hasMoreElements(); )
-	{
-	    IdlSymbol i = (IdlSymbol)e.nextElement();
-	    i.setPackage(s);
-	}
+        s = parser.pack_replace( s );
+        Enumeration e = v.elements();
+        for( ; e.hasMoreElements(); )
+        {
+            IdlSymbol i = (IdlSymbol)e.nextElement();
+            i.setPackage( s );
+        }
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-	if( enclosing_symbol != null && enclosing_symbol != s )
-	{
-	    System.err.println("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName());
-	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
-	}
-	enclosing_symbol = s;
-	for(Enumeration e = v.elements(); e.hasMoreElements(); )
-	    ((IdlSymbol)e.nextElement()).setEnclosingSymbol( s );
+        if( enclosing_symbol != null && enclosing_symbol != s )
+        {
+            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        }
+        enclosing_symbol = s;
+        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).setEnclosingSymbol( s );
     }
 
-    public void set_included(boolean i)
+    public void set_included( boolean i )
     {
-	included = i;
-	Enumeration e = v.elements();
-	for(; e.hasMoreElements(); )
-	    ((IdlSymbol)e.nextElement()).set_included(i);
+        included = i;
+        Enumeration e = v.elements();
+        for( ; e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).set_included( i );
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
-	Enumeration e = v.elements();
-	for(; e.hasMoreElements(); )
-	    ((IdlSymbol)e.nextElement()).print(ps);
-    }	
+        Enumeration e = v.elements();
+        for( ; e.hasMoreElements(); )
+            ( (IdlSymbol)e.nextElement() ).print( ps );
+    }
 }
 
 

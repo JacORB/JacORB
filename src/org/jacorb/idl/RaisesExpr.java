@@ -20,31 +20,34 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
 import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class RaisesExpr 
-    extends IdlSymbol
+class RaisesExpr
+        extends IdlSymbol
 {
+
     public Vector nameList;
 
-    public RaisesExpr(int num)
+    public RaisesExpr( int num )
     {
-        super(num);
+        super( num );
         nameList = new Vector();
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
-        for( Enumeration e = nameList.elements();       
+        s = parser.pack_replace( s );
+        for( Enumeration e = nameList.elements();
              e.hasMoreElements();
-             ((ScopedName)e.nextElement()).setPackage(s))
+             ( (ScopedName)e.nextElement() ).setPackage( s ) )
             ;
     }
 
@@ -55,33 +58,33 @@ class RaisesExpr
 
     public String[] getExceptionNames()
     {
-        String[] result = new String[nameList.size()];
+        String[] result = new String[ nameList.size() ];
         Enumeration e = nameList.elements();
-        for( int i = 0; i < result.length; i++)
+        for( int i = 0; i < result.length; i++ )
         {
-            result[i] = ((ScopedName)e.nextElement()).toString();
+            result[ i ] = ( (ScopedName)e.nextElement() ).toString();
         }
         return result;
     }
 
     public String[] getExceptionIds()
     {
-        String[] result = new String[nameList.size()];
+        String[] result = new String[ nameList.size() ];
         Enumeration e = nameList.elements();
-        for( int i = 0; i < result.length; i++)
+        for( int i = 0; i < result.length; i++ )
         {
-            result[i] = ((ScopedName)e.nextElement()).id();
+            result[ i ] = ( (ScopedName)e.nextElement() ).id();
         }
-        return result;    
+        return result;
     }
 
     public String[] getExceptionClassNames()
     {
-        String[] result = new String[nameList.size()];
+        String[] result = new String[ nameList.size() ];
         Enumeration e = nameList.elements();
-        for( int i = 0; i < result.length; i++)
+        for( int i = 0; i < result.length; i++ )
         {
-            result[i] = ((ScopedName)e.nextElement()).toString();
+            result[ i ] = ( (ScopedName)e.nextElement() ).toString();
         }
         return result;
     }
@@ -89,14 +92,14 @@ class RaisesExpr
     public void parse()
     {
         Hashtable h = new Hashtable(); // for removing duplicate exception names
-        for( Enumeration e = nameList.elements(); e.hasMoreElements();)
+        for( Enumeration e = nameList.elements(); e.hasMoreElements(); )
         {
             ScopedName name = null;
             try
             {
                 name = (ScopedName)e.nextElement();
                 TypeSpec ts = name.resolvedTypeSpec();
-                if( ((StructType)((ConstrTypeSpec)ts).declaration()).isException())
+                if( ( (StructType)( (ConstrTypeSpec)ts ).declaration() ).isException() )
                 {
                     h.put( name.resolvedName(), name );
                     continue; // ok
@@ -108,15 +111,15 @@ class RaisesExpr
                 // any type cast errors
                 // ex.printStackTrace();
             }
-            parser.fatal_error("Illegal type in raises clause: " + 
-                                     name.toString(), token);
+            parser.fatal_error( "Illegal type in raises clause: " +
+                    name.toString(), token );
         }
-        // remove duplicate exceptions, i.e. ScopedNames that, when 
+        // remove duplicate exceptions, i.e. ScopedNames that, when
         // fully qualified, point to the same exception declaration
         nameList = new Vector();
-        for( Enumeration e = h.keys(); e.hasMoreElements();)
+        for( Enumeration e = h.keys(); e.hasMoreElements(); )
         {
-            nameList.addElement( h.get( (String)e.nextElement()));
+            nameList.addElement( h.get( (String)e.nextElement() ) );
         }
         h.clear();
         String[] classes = getExceptionClassNames();
@@ -125,21 +128,21 @@ class RaisesExpr
 
         for( int i = 0; i < classes.length; i++ )
         {
-            myInterface.addImportedName( classes[i] );
+            myInterface.addImportedName( classes[ i ] );
         }
     }
 
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
         Enumeration e = nameList.elements();
-        if(e.hasMoreElements())
+        if( e.hasMoreElements() )
         {
-            ps.print(" throws " +  ((ScopedName)e.nextElement()));
+            ps.print( " throws " + ( (ScopedName)e.nextElement() ) );
         }
-        for(; e.hasMoreElements();)
+        for( ; e.hasMoreElements(); )
         {
-            ps.print("," + ((ScopedName)e.nextElement()));
+            ps.print( "," + ( (ScopedName)e.nextElement() ) );
         }
     }
 }

@@ -22,20 +22,21 @@ package org.jacorb.idl;
 
 /**
  * @author Gerald Brose
- * @version $Id$ 
+ * @version $Id$
  */
 
-class PosIntConst 
-    extends IdlSymbol
+class PosIntConst
+        extends IdlSymbol
 {
+
     public ConstExpr const_expr;
 
-    public PosIntConst(int num)
+    public PosIntConst( int num )
     {
-        super(num);
+        super( num );
     }
 
-    public void parse() 
+    public void parse()
     {
         const_expr.parse();
     }
@@ -52,14 +53,14 @@ class PosIntConst
     }
 
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        const_expr.setPackage(s);
+        const_expr.setPackage( s );
     }
 }
 

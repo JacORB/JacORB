@@ -20,33 +20,34 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.PrintWriter;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class MultExpr 
-    extends IdlSymbol
+class MultExpr
+        extends IdlSymbol
 {
+
     public String operator;
     public MultExpr mult_expr = null;
     public UnaryExpr unary_expr;
 
-    public MultExpr(int num)
+    public MultExpr( int num )
     {
-        super(num);
+        super( num );
     }
- 
-    public void print(PrintWriter ps)
+
+    public void print( PrintWriter ps )
     {
-        if( mult_expr != null ){
-            mult_expr.print(ps);
+        if( mult_expr != null )
+        {
+            mult_expr.print( ps );
             ps.print( operator );
-        } 
-        unary_expr.print(ps);
+        }
+        unary_expr.print( ps );
     }
 
 
@@ -55,22 +56,24 @@ class MultExpr
         unary_expr.setDeclaration( declared_in );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
-        if( mult_expr != null ){
-            mult_expr.setPackage(s);
+        if( mult_expr != null )
+        {
+            mult_expr.setPackage( s );
         }
-        unary_expr.setPackage( s);
+        unary_expr.setPackage( s );
     }
 
-    public void parse()  
+    public void parse()
     {
-        if( mult_expr != null ){
+        if( mult_expr != null )
+        {
             mult_expr.parse();
         }
         unary_expr.parse();
@@ -79,19 +82,20 @@ class MultExpr
     int pos_int_const()
     {
         int y = unary_expr.pos_int_const();
-        if( mult_expr != null ){
+        if( mult_expr != null )
+        {
             int z = mult_expr.pos_int_const();
-            if( operator.equals("*"))
+            if( operator.equals( "*" ) )
                 y *= z;
-            else if( operator.equals("/"))
+            else if( operator.equals( "/" ) )
                 y /= z;
-            else if( operator.equals("%"))
+            else if( operator.equals( "%" ) )
                 y %= z;
-        } 
+        }
         return y;
     }
-    
-    public String  value() 
+
+    public String value()
     {
         String x = "";
         if( mult_expr != null )
@@ -101,7 +105,7 @@ class MultExpr
         return x + unary_expr.value();
     }
 
-    public String toString() 
+    public String toString()
     {
         String x = "";
         if( mult_expr != null )
@@ -113,7 +117,7 @@ class MultExpr
 
     public str_token get_token()
     {
-	return unary_expr.get_token();
+        return unary_expr.get_token();
     }
 
 }

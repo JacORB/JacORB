@@ -20,16 +20,17 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
+import java.util.Enumeration;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-class Case 
-    extends IdlSymbol 
+class Case
+        extends IdlSymbol
 {
+
     /** the labels for this case */
     public SymbolList case_label_list = null;
 
@@ -46,29 +47,29 @@ class Case
 
     public Case( int num )
     {
-        super(num);
+        super( num );
     }
 
-    public void setPackage( String s)
+    public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );
         else
             pack_name = s;
 
-        element_spec.setPackage(s);
+        element_spec.setPackage( s );
         Enumeration e = case_label_list.v.elements();
 
-        for(; e.hasMoreElements(); )
+        for( ; e.hasMoreElements(); )
         {
             IdlSymbol sym = (IdlSymbol)e.nextElement();
             if( sym != null )
-                sym.setPackage(s);
+                sym.setPackage( s );
         }
 
         if( type_spec != null )
-            type_spec.setPackage( s);
+            type_spec.setPackage( s );
     }
 
     /**
@@ -84,20 +85,20 @@ class Case
     public void setEnclosingSymbol( IdlSymbol s )
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
-            throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
 
         enclosing_symbol = s;
         element_spec.setEnclosingSymbol( s );
     }
 
 
-    public void setTypeSpec( TypeSpec s)
-    { 
+    public void setTypeSpec( TypeSpec s )
+    {
         // and enum type name if necessary
-//          if(s.type_spec instanceof ConstrTypeSpec) 
+//          if(s.type_spec instanceof ConstrTypeSpec)
 //          {
 //              enum_type_name = ((ConstrTypeSpec)s.type_spec).typeName();
-//          } 
+//          }
 //          else if( s.type_spec instanceof ScopedName )
 //          {
 //              TypeSpec ts=((ScopedName)s.type_spec).resolvedTypeSpec();
@@ -106,7 +107,7 @@ class Case
 //              {
 //                  if( ts instanceof ScopedName )
 //                      ts = ((ScopedName)ts).resolvedTypeSpec();
-//                  if( ts instanceof AliasTypeSpec )          
+//                  if( ts instanceof AliasTypeSpec )
 //                      ts = ((AliasTypeSpec)ts).originalType();
 //              }
 
@@ -120,39 +121,39 @@ class Case
     private String enumTypeName()
     {
         // and enum type name if necessary
-        if( type_spec.type_spec instanceof ConstrTypeSpec) 
+        if( type_spec.type_spec instanceof ConstrTypeSpec )
         {
-            return ((ConstrTypeSpec)type_spec.type_spec).full_name();
+            return ( (ConstrTypeSpec)type_spec.type_spec ).full_name();
             //typeName();
-        } 
+        }
         else if( type_spec.type_spec instanceof ScopedName )
         {
-            TypeSpec ts = ((ScopedName)type_spec.type_spec).resolvedTypeSpec();
+            TypeSpec ts = ( (ScopedName)type_spec.type_spec ).resolvedTypeSpec();
 
             while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
             {
                 if( ts instanceof ScopedName )
-                    ts = ((ScopedName)ts).resolvedTypeSpec();
-                if( ts instanceof AliasTypeSpec )          
-                    ts = ((AliasTypeSpec)ts).originalType();
+                    ts = ( (ScopedName)ts ).resolvedTypeSpec();
+                if( ts instanceof AliasTypeSpec )
+                    ts = ( (AliasTypeSpec)ts ).originalType();
             }
 
             if( ts instanceof ConstrTypeSpec )
-                return ((ConstrTypeSpec)ts).c_type_spec.full_name();
+                return ( (ConstrTypeSpec)ts ).c_type_spec.full_name();
         }
         // all else
         return null;
     }
 
 
-    public void parse()          
+    public void parse()
     {
         element_spec.parse();
 
-        labels = new IdlSymbol[case_label_list.v.size()];
+        labels = new IdlSymbol[ case_label_list.v.size() ];
         int label_idx = 0;
 
-        for( Enumeration e = case_label_list.v.elements(); 
+        for( Enumeration e = case_label_list.v.elements();
              e.hasMoreElements(); )
         {
             IdlSymbol sym = (IdlSymbol)e.nextElement();
@@ -165,44 +166,44 @@ class Case
             TypeSpec ts = type_spec.typeSpec();
 
             if( sym != null )
-            { 
+            {
                 // null means "default" label in union
-                if( ((ConstExpr)sym).or_expr.xor_expr.and_expr.shift_expr.add_expr.
-                    mult_expr.unary_expr.primary_expr.symbol instanceof Literal )
+                if( ( (ConstExpr)sym ).or_expr.xor_expr.and_expr.shift_expr.add_expr.
+                        mult_expr.unary_expr.primary_expr.symbol instanceof Literal )
                 {
-                    Literal literal = 
-                        (Literal)((ConstExpr)sym).or_expr.xor_expr.and_expr.shift_expr.add_expr.mult_expr.unary_expr.primary_expr.symbol;
+                    Literal literal =
+                            (Literal)( (ConstExpr)sym ).or_expr.xor_expr.and_expr.shift_expr.add_expr.mult_expr.unary_expr.primary_expr.symbol;
 
-                    if ( ts instanceof ScopedName )
+                    if( ts instanceof ScopedName )
                     {
                         while( ts instanceof ScopedName )
                         {
-                            ts = ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
+                            ts = ( (ScopedName)type_spec.typeSpec() ).resolvedTypeSpec();
                             if( ts instanceof AliasTypeSpec )
-                                ts = ((AliasTypeSpec)ts).originalType();
+                                ts = ( (AliasTypeSpec)ts ).originalType();
                         }
                     }
 
                     /* make sure  that case  label  and discriminator
                        value are compatible */
-                    
-                    if( 
-                       (!(ts instanceof BooleanType || 
-                          ts instanceof IntType || 
-                          ts instanceof CharType || 
-                          ( ts instanceof BaseType && ((BaseType)ts).isSwitchType())
-                          )
-                        )
-                        || 
-                        ( ts instanceof BooleanType &&
-                        !(literal.string.equals("true") || literal.string.equals("false")))
-                       ||
-                       ( ts instanceof CharType &&
-                         !literal.string.startsWith("'") )
-                        )
+
+                    if(
+                            ( !( ts instanceof BooleanType ||
+                            ts instanceof IntType ||
+                            ts instanceof CharType ||
+                            ( ts instanceof BaseType && ( (BaseType)ts ).isSwitchType() )
+                            )
+                            )
+                            ||
+                            ( ts instanceof BooleanType &&
+                            !( literal.string.equals( "true" ) || literal.string.equals( "false" ) ) )
+                            ||
+                            ( ts instanceof CharType &&
+                            !literal.string.startsWith( "'" ) )
+                    )
                     {
-                        parser.error("Illegal case label <" + literal.string + 
-                                     "> for switch type " + type_spec.typeName(), token);
+                        parser.error( "Illegal case label <" + literal.string +
+                                "> for switch type " + type_spec.typeName(), token );
                         return; // abort parsing the case here (we'd get other errors)
                     }
 
@@ -210,12 +211,12 @@ class Case
                     {
                         try
                         {
-                            int testme = Integer.parseInt( literal.string ); 
+                            int testme = Integer.parseInt( literal.string );
                         }
                         catch( NumberFormatException ne )
                         {
-                            parser.error("Illegal case label <" + literal.string + 
-                                         "> for integral switch type " + type_spec.typeName(), token);
+                            parser.error( "Illegal case label <" + literal.string +
+                                    "> for integral switch type " + type_spec.typeName(), token );
                             return;
                         }
                     }
@@ -224,37 +225,37 @@ class Case
 
             // if the switch type for the union we're part of
             // is an enumeration type, the enum type name has
-            // been set. 
+            // been set.
 
             if( enumTypeName() == null )
-            { 
+            {
                 // no enum
-                if( sym != null ) 
-                { 
+                if( sym != null )
+                {
                     // null means "default" label in union
                     sym.parse();
-                } 
-            } 
-            else 
-            {     
+                }
+            }
+            else
+            {
                 // case label const expressions refer to enum values
-                if( sym != null ) 
-                { 
+                if( sym != null )
+                {
                     // now, if this is not the default case label...
                     // get the case label (a const expr) as a scoped name
-                    ScopedName sn = 
-                        (ScopedName)((ConstExpr)sym).or_expr.xor_expr.and_expr.
-                        shift_expr.add_expr.mult_expr.unary_expr.primary_expr.symbol;
+                    ScopedName sn =
+                            (ScopedName)( (ConstExpr)sym ).or_expr.xor_expr.and_expr.
+                            shift_expr.add_expr.mult_expr.unary_expr.primary_expr.symbol;
 
                     // replace the original case label by a new, fully
                     // scoped name for the enum type value
 
-                    int idx = case_label_list.v.indexOf(sym);
+                    int idx = case_label_list.v.indexOf( sym );
                     sym = new ScopedName( new_num() );
-                    ((ScopedName)sym).setId( sn.typeName );
+                    ( (ScopedName)sym ).setId( sn.typeName );
                     sym.setPackage( pack_name );
                     sym.parse();
-                    case_label_list.v.setElementAt(sym,idx);
+                    case_label_list.v.setElementAt( sym, idx );
                 }
             }
         } // for
@@ -262,14 +263,14 @@ class Case
 
     IdlSymbol[] getLabels()
     {
-        Environment.doAssert( labels != null, "Case labels not initialized!");
+        Environment.doAssert( labels != null, "Case labels not initialized!" );
         return labels;
     }
-    
 
-    public void print(java.io.PrintWriter ps)
-    {   
-        element_spec.print(ps);
+
+    public void print( java.io.PrintWriter ps )
+    {
+        element_spec.print( ps );
     }
 
 

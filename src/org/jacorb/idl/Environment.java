@@ -20,25 +20,24 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
 
 public final class Environment
 {
+
     private static int _verbosity = 0;
 
-    public static final int verbosityLevel() 
-    { 
-        return _verbosity; 
+    public static final int verbosityLevel()
+    {
+        return _verbosity;
     }
 
-    public static final void verbosityLevel(int level) 
-    { 
-        _verbosity = level; 
+    public static final void verbosityLevel( int level )
+    {
+        _verbosity = level;
     }
 
-        
-    public static void printTrace(int msg_level)
+
+    public static void printTrace( int msg_level )
     {
         if( msg_level > _verbosity )
         {
@@ -53,69 +52,69 @@ public final class Environment
         }
     }
 
-    public static final void output(int msg_level, String msg) 
+    public static final void output( int msg_level, String msg )
     {
-	if( msg_level > _verbosity ) 
-            return;		
-        
+        if( msg_level > _verbosity )
+            return;
+
         System.out.println( "   [ " + msg + " ]" );
     }
 
-    public static void output(int msg_level, String name, byte bs[])
+    public static void output( int msg_level, String name, byte bs[] )
     {
-        output(msg_level, name, bs, bs.length);
-    }
-	
-    public static void output(int msg_level, String name, byte bs[], int len)
-    {
-        if ( msg_level > _verbosity)
-            return;
-        
-        System.out.print("\nHexdump ["+name+"] len=" + len + ","+ bs.length);
-        String chars="";
-        for (int i=0; i<len; i++)
-        {
-            if (0 == i%16)
-            {
-                System.out.println(chars); 
-                chars="";
-            }
-            chars += toAscii(bs[i]);
-            System.out.print(toHex(bs[i]));
-            if(3 == i%4 ) 
-            { 
-                chars +=" "; 
-                System.out.print(" "); 
-            }
-        }
-        System.out.println(chars);
+        output( msg_level, name, bs, bs.length );
     }
 
-    public static final String toHex(byte b)
+    public static void output( int msg_level, String name, byte bs[], int len )
     {
-        int n1 = (b & 0xff) / 16;
-        int n2 = (b & 0xff) % 16;
-        char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
-        char c2 = (char)(n2>9 ? ('A'+(n2-10)) : ('0'+n2));
-        return ""+ c1 + c2 +" ";
+        if( msg_level > _verbosity )
+            return;
+
+        System.out.print( "\nHexdump [" + name + "] len=" + len + "," + bs.length );
+        String chars = "";
+        for( int i = 0; i < len; i++ )
+        {
+            if( 0 == i % 16 )
+            {
+                System.out.println( chars );
+                chars = "";
+            }
+            chars += toAscii( bs[ i ] );
+            System.out.print( toHex( bs[ i ] ) );
+            if( 3 == i % 4 )
+            {
+                chars += " ";
+                System.out.print( " " );
+            }
+        }
+        System.out.println( chars );
     }
-	
-    public static final char toAscii(byte b)
+
+    public static final String toHex( byte b )
     {
-        if (b > (byte)31 && b < (byte)127)
-            return (char)b; 
-        else 
+        int n1 = ( b & 0xff ) / 16;
+        int n2 = ( b & 0xff ) % 16;
+        char c1 = (char)( n1 > 9 ? ( 'A' + ( n1 - 10 ) ) : ( '0' + n1 ) );
+        char c2 = (char)( n2 > 9 ? ( 'A' + ( n2 - 10 ) ) : ( '0' + n2 ) );
+        return "" + c1 + c2 + " ";
+    }
+
+    public static final char toAscii( byte b )
+    {
+        if( b > (byte)31 && b < (byte)127 )
+            return (char)b;
+        else
             return '.';
     }
-	
-    public static final void output(int msg_level, Throwable e) 
+
+    public static final void output( int msg_level, Throwable e )
     {
-        if ( msg_level > _verbosity)
+        if( msg_level > _verbosity )
             return;
-		
-        System.out.println("############################ StackTrace ############################");
-        e.printStackTrace(System.out);
-        System.out.println("####################################################################");
+
+        System.out.println( "############################ StackTrace ############################" );
+        e.printStackTrace( System.out );
+        System.out.println( "####################################################################" );
     }
 
     /** throws an myAssertion violation exception if the boolean expression
@@ -123,19 +122,19 @@ public final class Environment
      *  @param expression the expression to be checked
      *  @param msg_level the message level of the myAssertion
      *  @param msg the message to be printed
-     *  @exception AssertionViolation 
+     *  @exception AssertionViolation
      */
 
-    public static void doAssert(int msg_level, boolean expression, String msg)
+    public static void doAssert( int msg_level, boolean expression, String msg )
     {
-        if( msg_level <= _verbosity)
+        if( msg_level <= _verbosity )
         {
-            if (! expression) 
-                throw new RuntimeException("AssertionViolation: " + msg);
+            if( !expression )
+                throw new RuntimeException( "AssertionViolation: " + msg );
         }
     }
 
-    public static void doAssert(boolean expression, String msg)
+    public static void doAssert( boolean expression, String msg )
     {
         doAssert( 1, expression, msg );
     }

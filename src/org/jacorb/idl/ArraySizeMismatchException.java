@@ -20,13 +20,18 @@
 
 package org.jacorb.idl;
 
-public class ArraySizeMismatchException extends java.lang.RuntimeException {
+public class ArraySizeMismatchException extends java.lang.RuntimeException
+{
 
-	public ArraySizeMismatchException(){;}
+    public ArraySizeMismatchException()
+    {
+        ;
+    }
 
-	public ArraySizeMismatchException( String s ){
-		super( s );
-	}
+    public ArraySizeMismatchException( String s )
+    {
+        super( s );
+    }
 }
 
 

@@ -26,61 +26,63 @@ package org.jacorb.idl;
  */
 
 
-class FixedPointConstType 
-    extends BaseType
+class FixedPointConstType
+        extends BaseType
 {
-    public FixedPointConstType(int num)
+
+    public FixedPointConstType( int num )
     {
-	super(num);
+        super( num );
     }
 
     public Object clone()
     {
-	return new FixedPointConstType( new_num());
+        return new FixedPointConstType( new_num() );
     }
 
     public String typeName()
     {
-	return "java.math.BigDecimal";
+        return "java.math.BigDecimal";
     }
 
     public TypeSpec typeSpec()
     {
-	return this;
+        return this;
     }
 
     public String toString()
     {
-	return typeName();
+        return typeName();
     }
 
     public boolean basic()
     {
-	return true;
-    } 
+        return true;
+    }
 
     public int getTCKind()
     {
-	return 28;
+        return 28;
     }
 
-    public void parse() 
-    {}
+    public void parse()
+    {
+    }
 
     public String holderName()
     {
-	return "org.omg.CORBA.FixedHolder";
+        return "org.omg.CORBA.FixedHolder";
     }
 
 
-    public String printReadExpression(String strname)
+    public String printReadExpression( String strname )
     {
-	return strname + ".read_fixed()";
+        return strname + ".read_fixed()";
     }
 
-    public String printWriteStatement(String var_name, String strname)
+    public String printWriteStatement( String var_name, String strname )
     {
-	return strname + ".write_fixed("+var_name+");";
+        return strname + ".write_fixed(" + var_name + ");";
     }
 }
 
