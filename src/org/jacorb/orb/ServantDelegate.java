@@ -210,7 +210,7 @@ public class ServantDelegate
         org.jacorb.util.Debug.output( 3, "ServantDelegate: is a " +
                                       repid + " ?");
 
-        String [] intf = self._all_interfaces(null, null);
+        String [] intf = self._all_interfaces(poa(self), object_id(self));
 
         for( int i = 0; i < intf.length; i++)
         {

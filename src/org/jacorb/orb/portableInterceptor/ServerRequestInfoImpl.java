@@ -87,9 +87,9 @@ public class ServerRequestInfoImpl
     public void setServant(Servant servant)
     {
         this.servant = servant;
-
-        adapter_id = ((org.jacorb.poa.POA) servant._poa()).getPOAId();   
-        String[] all_ifs = servant._all_interfaces(null, null);
+        org.jacorb.poa.POA poa = (org.jacorb.poa.POA) servant._poa();
+        adapter_id = poa.getPOAId();
+        String[] all_ifs = servant._all_interfaces(poa, servant._object_id());
         target_most_derived_interface = all_ifs[0];
     }
 
