@@ -41,8 +41,6 @@ public class ScopedName
 
     private static Stack recursionStack = new Stack();
 
-    private static org.apache.log.Logger staticLogger = parser.getLogger();
-
     /**
      *  Interfaces define a new scope, but since we can't do that
      *	in Java, this kind of scope is called a 'pseudo scope' and

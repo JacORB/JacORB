@@ -27,8 +27,9 @@ package org.jacorb.idl;
 
 
 class DoubleType
-        extends FloatPtType
+    extends FloatPtType
 {
+    private boolean isLongDouble = false;
 
     public DoubleType( int num )
     {
@@ -38,6 +39,11 @@ class DoubleType
     public String typeName()
     {
         return "double";
+    }
+
+    public void setLongDouble()
+    {
+        isLongDouble = true;
     }
 
     public TypeSpec typeSpec()

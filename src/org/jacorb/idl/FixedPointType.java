@@ -31,7 +31,6 @@ import java.io.PrintWriter;
 public class FixedPointType
     extends TemplateTypeSpec
 {
-
     public ConstExpr digit_expr = null;
     public ConstExpr scale_expr = null;
     private int digits = 0;
