@@ -338,7 +338,7 @@ public class RequestProcessor
                             " invocation: throwable was thrown, " +
                             e.getMessage());
             }
-            request.setSystemException(new org.omg.CORBA.UNKNOWN());
+            request.setSystemException(new org.omg.CORBA.UNKNOWN(e.getMessage()));
             /* which system exception I should raise? */
         }
     }
