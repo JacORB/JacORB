@@ -1586,23 +1586,41 @@ public final class ORB
                 if (ValueFactory.class.isAssignableFrom (result))
                     return (ValueFactory)instantiate (result);
                 else
-                {
-                    // ...or create a factory on the fly
-                    final Class impl = result;
-                    return new ValueFactory() {
-                        public java.io.Serializable read_value
-                        (org.omg.CORBA_2_3.portable.InputStream is)
-                        {
-                            StreamableValue value = 
-                                (StreamableValue)instantiate (impl);
-                            value._read (is);
-                            return value;
-                        }
-                    };
-                }
+                    // ... or create a factory on the fly
+                    return new JacORBValueFactory (result);
             else
                 return null;
         }
+    }
+
+    /**
+     * Internal value factory class.  This can be used for any value
+     * implementation that has a no-arg constructor.
+     */
+    private class JacORBValueFactory 
+        implements org.omg.CORBA.portable.ValueFactory
+    {
+        private Class implementationClass;
+
+        public JacORBValueFactory (Class c)
+        {
+            implementationClass = c;
+        }
+
+        public java.io.Serializable read_value 
+          (org.omg.CORBA_2_3.portable.InputStream is)
+        {
+            StreamableValue value =
+                (StreamableValue)instantiate (implementationClass);
+
+            // Register the object even before reading its state.
+            // This is essential for recursive values.
+            ((org.jacorb.orb.CDRInputStream)is).register_value (value);
+
+            value._read (is);
+            return value;
+        }
+
     }
 
     /**
