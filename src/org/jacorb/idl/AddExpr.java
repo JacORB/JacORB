@@ -49,9 +49,10 @@ class AddExpr
         mult_expr.print(ps);
     }
 
-    public void setContained( boolean contained )
+
+    public void setDeclaration( ConstDecl declared_in )
     {
-        mult_expr.setContained( contained );
+        mult_expr.setDeclaration( declared_in );
     }
 
     public void setPackage( String s)

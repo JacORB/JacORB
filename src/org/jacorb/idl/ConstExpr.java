@@ -42,9 +42,9 @@ class ConstExpr
         or_expr.parse();
     }
 
-    public void setContained( boolean contained )
+    public void setDeclaration( ConstDecl declared_in )
     {
-        or_expr.setContained( contained );
+        or_expr.setDeclaration( declared_in );
     }
 
     public void print(PrintWriter ps)

@@ -44,9 +44,9 @@ class UnaryExpr
         primary_expr.print(ps);
     }
 
-    public void setContained( boolean contained )
+    public void setDeclaration( ConstDecl declared_in )
     {
-        primary_expr.setContained( contained );
+        primary_expr.setDeclaration( declared_in );
     }
 
     public void setPackage( String s)

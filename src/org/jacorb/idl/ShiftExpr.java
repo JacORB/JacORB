@@ -47,9 +47,10 @@ class ShiftExpr
         add_expr.print(ps);
     }
 
-    public void setContained( boolean contained )
+
+    public void setDeclaration( ConstDecl declared_in )
     {
-        add_expr.setContained( contained );
+        add_expr.setDeclaration( declared_in );
     }
 
     public void setPackage( String s)

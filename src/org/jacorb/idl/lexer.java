@@ -1179,9 +1179,9 @@ public class lexer
                         }
                         
                         return new float_token(sym.FLOAT_NUMBER, 
-                                               Float.valueOf( value.toString() + "." + 
+                                               Float.valueOf( value.toString() + 
+                                                              "." + 
                                                               fraction.toString()).floatValue());
-
                     }
 
                     if( next_char == 'd' || next_char == 'D' )
@@ -1200,8 +1200,8 @@ public class lexer
                     if( fraction == null )
                     {
                         /* integer */
-                        return new int_token(sym.NUMBER, 
-                                             Integer.parseInt( value.toString()));
+                        return new int_token( sym.NUMBER, 
+                                              Integer.parseInt( value.toString()));
                     }
                     else
                     {                   

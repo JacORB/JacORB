@@ -1185,14 +1185,46 @@ primary_expr ::=
 
 // #24 + 25
 literal ::=
-          NUMBER:n {: RESULT.string = "" + n.int_val; :}
-        | QUOTE CH:c QUOTE {: RESULT.string = "\'" + c.char_val + "\'"; :}
-//      | QUOTE ID:i QUOTE {: RESULT.string = "\'" + i.str_val + "\'"; :}
-        | string_literal:s {: RESULT.string = s.string; :}
-        | FIXED_NUMBER:f {: RESULT.string = "" + f.fixed_val; :}
-        | FLOAT_NUMBER:n {: RESULT.string = "" + n.float_val ; :}
-        | TRUE {: RESULT.string = "true"; :}
-        | FALSE {: RESULT.string = "false"; :}
+          NUMBER:n 
+                {: 
+                        RESULT.string = "" + n.int_val; 
+                        RESULT.token = n;
+                :}
+        | QUOTE CH:c QUOTE 
+                {:
+                        RESULT.string = "\'" + c.char_val + "\'"; 
+                        RESULT.token = n;
+                :}
+//      | QUOTE ID:i QUOTE 
+                {: 
+                        RESULT.string = "\'" + i.str_val + "\'"; 
+                        RESULT.token = n;
+                :}
+        | string_literal:s 
+                {: 
+                        RESULT.string = s.string; 
+                        RESULT.token = n;
+                :}
+        | FIXED_NUMBER:f 
+                {: 
+                        RESULT.string = "" + f.fixed_val; 
+                        RESULT.token = n;
+                :}
+        | FLOAT_NUMBER:n 
+                {: 
+                        RESULT.string = "" + n.float_val ; 
+                        RESULT.token = n;
+                :}
+        | TRUE 
+                {: 
+                        RESULT.string = "true"; 
+                        RESULT.token = n;
+                :}
+        | FALSE 
+                {: 
+                        RESULT.string = "false"; 
+                        RESULT.token = n;
+                :}
         ;
 
 string_literal ::=

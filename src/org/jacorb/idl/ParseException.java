@@ -33,6 +33,14 @@ public class ParseException
     public ParseException()
     {
     }
+    
+    public ParseException(String reason)
+    {
+        super( reason );
+    }
+
+    
+
 }
 
 

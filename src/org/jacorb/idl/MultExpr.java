@@ -49,9 +49,10 @@ class MultExpr
         unary_expr.print(ps);
     }
 
-    public void setContained( boolean contained )
+
+    public void setDeclaration( ConstDecl declared_in )
     {
-        unary_expr.setContained( contained );
+        unary_expr.setDeclaration( declared_in );
     }
 
     public void setPackage( String s)

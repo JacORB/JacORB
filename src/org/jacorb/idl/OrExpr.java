@@ -39,9 +39,9 @@ class OrExpr
 	super(num);
     }
 
-    public void setContained( boolean contained )
+    public void setDeclaration( ConstDecl declared_in )
     {
-        xor_expr.setContained( contained );
+        xor_expr.setDeclaration( declared_in );
     }
 
     public void print(PrintWriter ps)
