@@ -34,7 +34,7 @@ public class ObjectUtil
      * if the contents of the resource could not be located using url
      */
     public static final String readURL( String url )
-        throws IOException
+        throws java.io.IOException
     {
         java.net.URL u = new java.net.URL(url);
         String line  = null;
