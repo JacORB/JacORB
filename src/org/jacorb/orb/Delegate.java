@@ -644,7 +644,7 @@ public final class Delegate
 
     public int hashCode()
     {
-        return toString().hashCode();
+        return getIDString().hashCode();
     }
 
     public int hashCode(org.omg.CORBA.Object self)
@@ -1064,11 +1064,23 @@ public final class Delegate
         }
     }
 
-    public boolean is_equivalent(org.omg.CORBA.Object self,
-                                 org.omg.CORBA.Object obj )
+    public boolean is_equivalent (org.omg.CORBA.Object self,
+                                  org.omg.CORBA.Object obj)
     {
-        return self.toString().equals( obj.toString());
-        //    return  hashCode() == obj.hashCode();
+        boolean result = true;
+
+        if (self != obj)
+        {
+            ParsedIOR pior = new ParsedIOR (obj.toString ());
+            result = getIDString().equals (pior.getIDString ());
+        }
+
+        return result;
+    }
+
+    public String getIDString ()
+    {
+       return (getParsedIOR().getIDString ());
     }
 
     /** 

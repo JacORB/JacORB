@@ -619,6 +619,21 @@ public class ParsedIOR
 	return ior.type_id;
     }
 
+    public String getIDString ()
+    {
+        StringBuffer buff = new StringBuffer (getTypeId ());
+        buff.append (":");
+        byte[] key = get_object_key ();
+
+	for (int j = 0; j < key.length; j++)
+        {
+            buff.append (lookup [(key[j] >> 4) & 0xF]);
+            buff.append (lookup [(key[j]     ) & 0xF]);
+        }
+
+        return (buff.toString ());
+    }
+
     public boolean isNull()
     {
 	return ( ior.type_id.equals("") && ( ior.profiles.length == 0 ));
