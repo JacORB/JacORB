@@ -3076,6 +3076,108 @@ and asynchronous invocations, we describe them in a separate section
 
 \chapter{\label{qos}Quality of Service}
 
+\section{Timing Policies}
+
+For each CORBA request four different points in time can be specified:
+
+\begin{description}
+\item[Request Start Time] the time after which the request may be
+  delivered to its target
+\item[Request End Time] the time after which the request may no longer
+  be delivered to its target
+\item[Reply Start Time] the time after which the reply may be delivered
+  to the client
+\item[Reply End Time] the time after which the reply may no longer be
+  delivered to the client
+\end{description}
+
+Each of these points in time can be specified on a per-object level as
+a client-side override policy: \emph{RequestStartTimePolicy},
+\emph{RequestEndTimePolicy}, \emph{ReplyStartTimePolicy}, and
+\emph{ReplyEndTimePolicy} (see below for concrete code examples).
+
+Each of these policies specifies an absolute time, which means that
+they will usually have to be set again for each individual
+request.  As a convenience, there are two additional policies that
+allow you to specify a \emph{relative} time for \emph{Request End
+Time} and \emph{Reply End Time}; they are called
+\emph{RelativeRequestTimeoutPolicy} and
+\emph{RelativeRoundtripTimeoutPolicy}, respectively.  These timeouts
+are simply more convenient ways for expressing these two times;
+before each individual invocation, the ORB computes absolute times
+from them (measured from the start of the invocation at the client
+side) and handles them just as if an absolute \emph{Request End Time}
+or \emph{Reply End Time} had been specified.  We will therefore only
+discuss the four absolute timing policies below.
+
+All of these policies apply to synchronous and asynchronous
+invocations alike.
+
+\begin{figure}[htb]
+  \begin{center}
+    \includegraphics[width=17cm]{Timing.png}
+  \end{center}
+\caption{Timing Policies in JacORB}
+\label{fig:timing}
+\end{figure}
+
+Figure \ref{fig:timing} shows how JacORB interprets the timing
+policies in the course of a single request.  
+
+\begin{itemize}
+\item As soon as the ORB receives control (prior to marshalling), it
+converts any \emph{RelativeRequestTimeoutPolicy} or
+\emph{RelativeRoundtripTimeoutPolicy} to an absolute value, by adding
+the relative value to the current system time.
+
+\item The ORB then checks whether \emph{Request End Time} or
+\emph{Reply End Time} have already elapsed.  If so, no invocation is
+made, and an {\tt org.omg.CORBA.TIMEOUT} is thrown to the client.
+
+\item After the ORB has sent the request, it waits until \emph{Reply
+End Time} has elapsed.  If it receives no reply before that, the
+request is discarded and an {\tt org.omg.CORBA.TIMEOUT} thrown to the
+client.  (JacORB does not currently cancel the outstanding request, it
+simply discards the reply, should one arrive after the timeout has
+elapsed.)
+
+\item On the server side (before demarshalling), the ORB checks
+whether \emph{Request End Time} or \emph{Reply End Time} have already
+elapsed.  If so, the request is not delivered to the target, and an
+{\tt org.omg.CORBA.TIMEOUT} thrown back to the client.
+
+\item If the request proceeds, the ORB waits until its \emph{Reply
+Start Time} has been reached, if one was specified, and has not
+already elapsed.  After that, the request is delivered to the target.
+
+\item After the target has returned control to the ORB, it checks
+whether \emph{Reply End Time} has already elapsed.  If it has, the ORB
+sends an {\tt org.omg.CORBA.TIMEOUT} back to the client, rather than
+the actual reply.
+
+\item If the reply arrives at the client before \emph{Reply End Time}
+has elapsed, the ORB waits until \emph{Reply Start Time} has been
+reached, if one was specified, and has not already elapsed.  After
+that, the reply is delivered back to the client.
+
+\end{itemize}
+
+The bottom line of this is that for a simple, per-invocation timeout,
+you should specify a \emph{RelativeRoundtripTimeoutPolicy}.  Note
+that since this relative time is converted into an absolute time, and
+also checked on the server side, the clocks on both the server and
+the client need to be synchronized at least to the same order of
+magnitude as the desired timeout.
+
+[code examples to follow]
+
+
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Connection Management and Connection Timeouts}
@@ -3085,7 +3187,7 @@ JacORB offers a certain level of control over connections and timeouts. You
 can 
 \begin{itemize}
 \item set connection idle timeouts.
-\item set request timeouts. 
+\item set request timing. 
 \item set the maximum number of accepted TCP/IP connections on the server.
 \end{itemize}
 
@@ -3099,11 +3201,9 @@ no pending replies, will stay open. The corresponding properties are {\tt
 not set, connections will stay open indefinitely (or until the OS decides to
 close them).
 
-Request timeouts control how long to wait until a request is considered to be
-lost. When set via the property {\tt jacorb.client.pending\_reply\_timeout},
-all requests of the so-configured ORB will time out after the given number of
-microseconds. When such a timeout occurs, a {\tt org.omg.CORBA. IMP\_LIMIT}
-exception will be thrown.
+Request timing controls how long an individual request may take to
+complete.  The programmer can specify this using QoS policies,
+discussed in chapter \ref{qos}.
 
 \section{Connection Management}
 \label{connection_management}
