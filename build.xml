@@ -121,23 +121,26 @@
       value="${basedir}" />
 
 
-      <replace file="bin/jaco.bat" token="@@@CLASSPATH@@@" value="${jacobat.classpath}"/>
+    <replace file="bin/jaco.bat" token="@@@CLASSPATH@@@" 
+             value="${jacobat.classpath}"/>
+    <replace file="bin/jaco.bat" token="@@@JACORB_HOME@@@"
+             value="${basedir}" />    
 
-      <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
-         value="${basedir}" />
-      <replace file="bin/jaco" token="@@@JRE_HOME@@@"
-         value="${java.home}" />
-      <replace file="bin/jaco" token="@@@CLASSPATH@@@"
-         value="${jaco.classpath}" />
-      <chmod perm="ugo+rx">
-         <fileset dir="bin">
-            <include name="*" />
-            <exclude name="*.bat" />
-            <exclude name="*.exe" />
-            <exclude name="*.conf" />
-            <exclude name="*template*" />
-         </fileset>
-      </chmod>
+    <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
+             value="${basedir}" />
+    <replace file="bin/jaco" token="@@@JRE_HOME@@@"
+             value="${java.home}" />
+    <replace file="bin/jaco" token="@@@CLASSPATH@@@"
+             value="${jaco.classpath}" />
+    <chmod perm="ugo+rx">
+      <fileset dir="bin">
+        <include name="*" />
+        <exclude name="*.bat" />
+        <exclude name="*.exe" />
+        <exclude name="*.conf" />
+        <exclude name="*template*" />
+      </fileset>
+    </chmod>
    </target>
 
    <!-- This target creates a jar file that contains the -->
