@@ -344,7 +344,9 @@ parser code
 
     private static void version()
     {
-        System.out.println("JacORB IDL compiler V" + compiler_version + ",\n   (C) Gerald Brose, FU Berlin, " + yearString + ".");
+        System.out.println("JacORB IDL compiler V" +  compiler_version + 
+                           ",\n   (C) Gerald Brose, FU Berlin/XTRADYNE Technologies, " + 
+                           yearString + ".");
     }
 
     /* override error routines */
