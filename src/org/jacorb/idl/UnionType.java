@@ -996,7 +996,6 @@ class UnionType
         ps.println( "\t\t{" );
         ps.println( "\t\t\torg.omg.CORBA.UnionMember[] members = new org.omg.CORBA.UnionMember[" + labels + "];" );
         ps.println( "\t\t\torg.omg.CORBA.Any label_any;" );
-        int mi = 0;
 
         TypeSpec label_t = switch_type_spec.typeSpec();
 
@@ -1009,6 +1008,7 @@ class UnionType
         }
 
         label_t = label_t.typeSpec();
+        int mi = switch_body.caseListVector.size () - 1;
 
         for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements(); )
         {
@@ -1069,7 +1069,7 @@ class UnionType
                     throw new Error( "Compiler error: unrecognized label type: " + label_t.typeName() );
                 }
 
-                ps.print( "\t\t\tmembers[" + ( mi++ ) + "] = new org.omg.CORBA.UnionMember (\"" + d.deEscapeName() + "\", label_any, " );
+                ps.print( "\t\t\tmembers[" + ( mi-- ) + "] = new org.omg.CORBA.UnionMember (\"" + d.deEscapeName() + "\", label_any, " );
 
                 if( t instanceof ConstrTypeSpec )
                 {
