@@ -913,7 +913,8 @@ public class CDROutputStream
         tcMap.clear();
     }
 
-    private final void write_TypeCode(org.omg.CORBA.TypeCode value, Hashtable tcMap)
+    private final void write_TypeCode(org.omg.CORBA.TypeCode value, 
+                                      Hashtable tcMap)
     {
         /* remember the buffer position this TC gets written at. This
            is necessary if nested TCs are recursively defined by refererring
@@ -923,20 +924,21 @@ public class CDROutputStream
         int start_pos = pos;
         int _kind = ((TypeCode)value)._kind();
 
-        Debug.output(4,"Write Type code of kind " + _kind  );
         try
         {
 
             if( ((TypeCode)value).is_recursive() &&
                 tcMap.containsKey( value.id()) )
             {
-                Debug.output(4,"Write recursive Type code for id " +
-                                         value.id() + " pos " +
-                                         (((Integer)tcMap.get( value.id())).intValue() - pos ) );
+//                  Debug.output(4,"Write recursive Type code for id " +
+//                                           value.id() + " pos " +
+//                                           (((Integer)tcMap.get( value.id())).intValue() - pos ) );
+
                 // recursive TypeCode
                 write_long( -1 ); // recursion marker
                 int curr = pos; // that's where we will be in a second...
-                int negative_offset = ((Integer) tcMap.get( value.id())).intValue() - curr;
+                int negative_offset = 
+                    ((Integer) tcMap.get( value.id())).intValue() - curr;
                 write_long( negative_offset  );
                 return;
             }
@@ -984,7 +986,6 @@ public class CDROutputStream
                     write_long(_mc);
                     for( int i = 0; i < _mc; i++)
                     {
-                        Debug.output(3,"struct member name " +  value.member_name(i)  );
                         write_string( value.member_name(i) );
                         write_TypeCode( value.member_type(i), tcMap );
                     }
@@ -1178,18 +1179,20 @@ public class CDROutputStream
     //      }
 
     /** to be called from Any */
-    public  final void write_value( org.omg.CORBA.TypeCode tc, CDRInputStream in)
+    public  final void write_value( org.omg.CORBA.TypeCode tc, 
+                                    CDRInputStream in)
     {
         Hashtable tcMap = new Hashtable();
         write_value( tc, in, tcMap );
         tcMap.clear();
     }
 
-    private final void write_value( org.omg.CORBA.TypeCode tc, CDRInputStream in, Hashtable tcMap)
+    private final void write_value( org.omg.CORBA.TypeCode tc, 
+                                    CDRInputStream in, 
+                                    Hashtable tcMap)
     {
         Debug.assert( tc != null, "Illegal null pointer for TypeCode");
         int kind = ((TypeCode)tc)._kind();
-        Debug.output(3, "CDROutput.write_value kind " + kind );
 
         //int kind = tc.kind().value();
         switch (kind)
@@ -1279,7 +1282,6 @@ public class CDROutputStream
                 {
                     int len = in.read_long();
                     write_long(len);
-        Debug.output(4,"Write_value, sequence of length " + len  );
                     int s_kind = ((TypeCode)tc.content_type())._kind();
                     if( s_kind == TCKind._tk_octet )
                     {
@@ -1458,10 +1460,11 @@ public class CDROutputStream
                             {
                                 if( i != def_idx)
                                 {
-                                    int label = tc.member_label(i).create_input_stream().read_long();
-                                /* we have to use the any's input stream because enums are not 
+                                    int label = 
+                                        tc.member_label(i).create_input_stream().read_long();
+                                /*  we  have to  use  the any's  input
+                                   stream   because   enums  are   not
                                    inserted as longs */
-                                    Debug.output(10, "label: " +label + " switch: " + s );
 
                                     if( s == label)
                                     {
