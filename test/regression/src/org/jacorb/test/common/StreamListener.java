@@ -41,6 +41,7 @@ public class StreamListener extends Thread
     {
         this.in = new BufferedReader(new InputStreamReader(stream));
         this.id = id;
+        setDaemon (true);
     }
 
     /**
@@ -95,6 +96,8 @@ public class StreamListener extends Thread
             catch (IOException ex)
             {
                 System.out.println("IOException reading from server: " + ex);
+                System.out.println("StreamListener exiting");
+                break;
             }
         }
     }
