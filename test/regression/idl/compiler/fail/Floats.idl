@@ -1,0 +1,17 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            module Floats
+            {
+                // incorrect, must not be accepted:
+                 const double cd02= 14;
+            };
+         };
+      };
+   };
+};

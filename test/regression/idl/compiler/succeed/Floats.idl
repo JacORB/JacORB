@@ -1,0 +1,41 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            module Floats
+            {
+                typedef long double array_longDouble[2];
+
+                const float FF = 0.0;
+                
+                typedef float myFloat;
+                
+                const myFloat mFF = 0.0;
+
+                // test cases by Martin Both
+                
+                const double cd01= 1.4;
+                const double cd01b= 1.4e-3;
+                const double cd01c= 1.4E-3;
+                // incorrect, must not be accepted:
+                // const double cd02= 14;
+                const double cd03= 14e-3;
+                const double cd04= 14E+1;
+                const double cd05= 14E2;
+                const double cd06= 14.;
+                const double cd07= .14;
+                const double cd08= 14.E3;
+                const double cd10= -14.E3;
+                const double cd11= +14.E3;
+                // incorrect, must not be accepted:
+                // const double cd12= 14e;
+
+            };
+         };
+      };
+   };
+};
