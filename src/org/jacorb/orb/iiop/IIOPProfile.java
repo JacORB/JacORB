@@ -164,13 +164,19 @@ public class IIOPProfile extends _ProfileLocalBase
             throw new RuntimeException ("error cloning profile: " + e);
         }
     }
-    
+
     public Object clone() throws CloneNotSupportedException
     {
-        IIOPProfile result = (IIOPProfile)super.clone();
+        IIOPProfile result = (IIOPProfile)super.clone();  // bitwise copy
 
         result.version = new org.omg.GIOP.Version (this.version.major,
                                                    this.version.minor);
+
+        // No need to make a deep copy of the primaryAddress, because
+        // the address can safely be shared between this IIOPProfile
+        // and the clone.  This way, both will profit from any subsequent
+        // DNS resolution of that address.
+
         if (this.objectKey != null)
         {
             result.objectKey = new byte [this.objectKey.length];
