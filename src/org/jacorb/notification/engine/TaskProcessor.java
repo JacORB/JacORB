@@ -51,36 +51,37 @@ public class TaskProcessor implements Disposable
     private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     class TimeoutTask
-                implements Runnable,
-                Message.MessageStateListener
+        implements Runnable,
+                   Message.MessageStateListener
     {
         Object timerRegistration_;
-        Message event_;
+        Message message_;
 
-        TimeoutTask( Message event )
+        TimeoutTask( Message message )
         {
-            event_ = event;
+            message_ = message;
 
-            event_.setMessageStateListener( this );
+            message_.setMessageStateListener( this );
 
             timerRegistration_ =
-                executeTaskAfterDelay( event.getTimeout(), this );
+                executeTaskAfterDelay( message.getTimeout(), this );
         }
 
         public void actionLifetimeChanged( long timeout )
         {
-            cancelTask( timerRegistration_ );
+            ClockDaemon.cancel( timerRegistration_ );
+            //            cancelTask( timerRegistration_ );
 
             timerRegistration_ =
-                executeTaskAfterDelay( event_.getTimeout(), this );
+                executeTaskAfterDelay( message_.getTimeout(), this );
         }
 
         public void run()
         {
             logger_.debug("run Timeout");
 
-            event_.setMessageStateListener( null );
-            event_.actionTimeout();
+            message_.removeMessageStateListener();
+            message_.actionTimeout();
         }
     }
 
@@ -252,7 +253,7 @@ public class TaskProcessor implements Disposable
 
                 fireEventDiscarded( event );
 
-                return ;
+                return;
             }
             else
             {
@@ -260,7 +261,7 @@ public class TaskProcessor implements Disposable
             }
         }
 
-        if ( event.hasStartTime() )
+        if ( event.hasStartTime() ) // && event.getStartTime().getTime() <= System.currentTimeMillis() )
         {
             new DeferedStartTask( event );
         }
@@ -304,9 +305,8 @@ public class TaskProcessor implements Disposable
      * FilterTask for execution
      */
     void scheduleOrExecuteFilterTask( AbstractFilterTask task )
-    throws InterruptedException
+        throws InterruptedException
     {
-
         if ( isFilterTaskQueued() )
         {
             scheduleFilterTask( task );
@@ -322,9 +322,8 @@ public class TaskProcessor implements Disposable
      * Scheduling if possible.
      */
     public void scheduleOrExecutePushToConsumerTask( AbstractDeliverTask task )
-    throws InterruptedException
+        throws InterruptedException
     {
-
         if ( isDeliverTaskQueued() )
         {
             schedulePushToConsumerTask( task );
@@ -340,8 +339,12 @@ public class TaskProcessor implements Disposable
      * Schedule a PushToConsumerTask for execution.
      */
     public void schedulePushToConsumerTask( AbstractDeliverTask task )
-    throws InterruptedException
+        throws InterruptedException
     {
+        if (logger_.isDebugEnabled()) {
+            logger_.debug("schedulePushToConsumerTask(" + task + ")");
+        }
+
         deliverPool_.execute( task );
     }
 
@@ -352,7 +355,6 @@ public class TaskProcessor implements Disposable
     void schedulePushToConsumerTask( AbstractDeliverTask[] tasks )
     throws InterruptedException
     {
-
         for ( int x = 0; x < tasks.length; ++x )
         {
             schedulePushToConsumerTask( tasks[ x ] );
@@ -368,9 +370,8 @@ public class TaskProcessor implements Disposable
      * TimerEventSupplier
      */
     public void scheduleTimedPullTask( TimerEventSupplier dest )
-    throws InterruptedException
+        throws InterruptedException
     {
-
         PullFromSupplierTask _task = new PullFromSupplierTask();
 
         _task.setTaskFinishHandler( nullFinishHandler_ );
@@ -388,9 +389,8 @@ public class TaskProcessor implements Disposable
      * deliverPendingEvents on the specified EventConsumer
      */
     public void scheduleTimedPushTask( EventConsumer consumer )
-    throws InterruptedException
+        throws InterruptedException
     {
-
         TimerDeliverTask _task = new TimerDeliverTask();
 
         _task.setEventConsumer( consumer );
@@ -413,7 +413,6 @@ public class TaskProcessor implements Disposable
                                            Runnable task,
                                            boolean startImmediately )
     {
-
         return getClockDaemon().executePeriodically( intervall,
                 task,
                 startImmediately );
@@ -457,7 +456,9 @@ public class TaskProcessor implements Disposable
 
     void backoffEventConsumer(EventConsumer ec)
     {
-        logger_.debug("backoffEventConsumer " + ec);
+        if (logger_.isDebugEnabled()) {
+            logger_.debug("backoffEventConsumer " + ec);
+        }
 
         Runnable runEnableTask = new EnableEventConsumer(ec);
 
@@ -470,9 +471,11 @@ public class TaskProcessor implements Disposable
     }
 
     void fireEventDiscarded( Any a )
-    {}
+    {
+    }
 
     void fireEventDiscarded( StructuredEvent e )
-    {}
+    {
+    }
 
 }
