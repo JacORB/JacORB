@@ -1700,26 +1700,20 @@ public final class ORB
         implements org.omg.CORBA.portable.ValueFactory
     {
         private Class implementationClass;
-
+    
         public JacORBValueFactory (Class c)
         {
             implementationClass = c;
         }
-
+    
         public java.io.Serializable read_value
           (org.omg.CORBA_2_3.portable.InputStream is)
         {
             StreamableValue value =
                 (StreamableValue)instantiate (implementationClass);
-
-            // Register the object even before reading its state.
-            // This is essential for recursive values.
-            ((org.jacorb.orb.CDRInputStream)is).register_value (value);
-
-            value._read (is);
-            return value;
+            return is.read_value(value);
         }
-
+    
     }
 
     /**
