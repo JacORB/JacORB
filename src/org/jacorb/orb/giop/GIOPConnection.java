@@ -30,6 +30,7 @@ import org.omg.ETF.*;
 
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.BufferManager;
+import org.jacorb.orb.iiop.*;
 import org.jacorb.util.*;
 
 
@@ -46,8 +47,8 @@ import org.jacorb.util.*;
 public abstract class GIOPConnection
     extends java.io.OutputStream
 {
-    protected org.omg.ETF.Profile profile = null;
-    protected Transport transport = null;
+    protected org.omg.ETF.Profile    profile   = null;
+    protected org.omg.ETF.Connection transport = null;
 
     private RequestListener request_listener = null;
     private ReplyListener reply_listener = null;
@@ -101,7 +102,7 @@ public abstract class GIOPConnection
     protected StatisticsProvider statistics_provider = null;
 
     public GIOPConnection( org.omg.ETF.Profile profile,
-                           Transport transport,
+                           org.omg.ETF.Connection transport,
                            RequestListener request_listener,
                            ReplyListener reply_listener,
                            StatisticsProvider statistics_provider )
@@ -194,7 +195,7 @@ public abstract class GIOPConnection
         this.connection_listener = connection_listener;
     }
 
-    public final Transport getTransport()
+    public final org.omg.ETF.Connection getTransport()
     {
         return transport;
     }
@@ -743,8 +744,8 @@ public abstract class GIOPConnection
 
     public final boolean isSSL()
     {
-        if (transport instanceof TCP_IP_Transport)
-            return ((TCP_IP_Transport)transport).isSSL();
+        if (transport instanceof IIOPConnection)
+            return ((IIOPConnection)transport).isSSL();
         else
             return false;
     }

@@ -468,13 +468,10 @@ import org.omg.PortableServer.POA;
                         ssl_socket_factory.switchToClientMode( socket );
                     }
 
-                    Transport transport =
-                        transport_manager.createServerTransport( socket, is_ssl );
-
                     GIOPConnection connection =
                         giop_connection_manager.createServerGIOPConnection(
                             null,
-                            transport,
+                            transport_manager.createServerTransport( socket, is_ssl ),
                             request_listener,
                             reply_listener );
 

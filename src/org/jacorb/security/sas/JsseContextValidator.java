@@ -37,6 +37,7 @@ import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.security.level2.*;
 import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.connection.*;
 
 import javax.net.ssl.SSLSocket;
@@ -78,8 +79,8 @@ public class JsseContextValidator implements ISASContextValidator
             return null;
         }
 
-        Server_TCP_IP_Transport transport =
-            (Server_TCP_IP_Transport) connection.getTransport();
+        ServerIIOPConnection transport =
+            (ServerIIOPConnection) connection.getTransport();
 
         SSLSocket sslSocket = (SSLSocket) transport.getSocket();
         try

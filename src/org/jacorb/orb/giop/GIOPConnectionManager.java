@@ -84,7 +84,7 @@ public class GIOPConnectionManager
 
     public ServerGIOPConnection createServerGIOPConnection( 
         org.omg.ETF.Profile profile,
-        Transport transport,
+        org.omg.ETF.Connection transport,
         RequestListener request_listener,
         ReplyListener reply_listener )
     {
@@ -154,7 +154,7 @@ public class GIOPConnectionManager
 
     public GIOPConnection createClientGIOPConnection( 
         org.omg.ETF.Profile profile,
-        Transport transport,
+        org.omg.ETF.Connection transport,
         RequestListener request_listener,
         ReplyListener reply_listener )
     {

@@ -147,12 +147,10 @@ public class ClientConnectionManager
 
         if (c == null)
         {
-            Transport transport = transport_manager.createClientTransport();
-
             GIOPConnection connection = 
                 giop_connection_manager.createClientGIOPConnection( 
                     profile,
-                    transport,
+                    transport_manager.createClientTransport(),
                     request_listener,
                     null );
             

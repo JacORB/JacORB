@@ -79,20 +79,17 @@ public class TransportManager
 
     }
 
-    public Transport createClientTransport()
+    public org.omg.ETF.Connection createClientTransport()
     {
-        return new Client_TCP_IP_Transport();
+        return new ClientIIOPConnection();
     }
 
-    public Transport createServerTransport( Socket socket,
-                                            boolean is_ssl )
+    public org.omg.ETF.Connection createServerTransport( Socket socket,
+                                                         boolean is_ssl )
         throws IOException
     {
-        Transport transport = 
-            new Server_TCP_IP_Transport( socket, 
+        return new ServerIIOPConnection( socket, 
                                          is_ssl );
-
-        return transport;
     }
 }
 

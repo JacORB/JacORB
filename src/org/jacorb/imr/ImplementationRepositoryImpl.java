@@ -1250,7 +1250,7 @@ public class ImplementationRepositoryImpl
                 Socket socket = server_socket.accept();
                 socket.setSoTimeout( timeout );
 
-                Transport transport =
+                org.omg.ETF.Connection transport =
                     transport_manager.createServerTransport( socket,
                                                              false ); //no ssl
 

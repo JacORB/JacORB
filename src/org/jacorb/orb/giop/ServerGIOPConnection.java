@@ -22,6 +22,7 @@ package org.jacorb.orb.connection;
 
 import java.io.*;
 
+import org.jacorb.orb.iiop.*;
 import org.jacorb.util.*;
 
 /**
@@ -51,7 +52,7 @@ public class ServerGIOPConnection
     private boolean delayClose = false;
 
     public ServerGIOPConnection( org.omg.ETF.Profile profile,
-                                 Transport transport,
+                                 org.omg.ETF.Connection transport,
                                  RequestListener request_listener,
                                  ReplyListener reply_listener,
                                  StatisticsProvider statistics_provider,
@@ -104,9 +105,9 @@ public class ServerGIOPConnection
                 statistics_provider.flushed();
             }
 
-            if( delayClose && transport instanceof TCP_IP_Transport )
+            if( delayClose && transport instanceof IIOPConnection )
             {
-                ((TCP_IP_Transport)transport).turnOnFinalTimeout();
+                ((IIOPConnection)transport).turnOnFinalTimeout();
             }
             else
             {
