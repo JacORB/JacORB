@@ -1,5 +1,7 @@
 package org.jacorb.orb;
 
+import java.net.*;
+
 /**
  * @author Andre Spiegel
  * @version $Id$
@@ -24,6 +26,22 @@ public class IIOPAddress
         short  port = in.read_ushort();
         return new IIOPAddress (host, port);
     }
+    
+    private static String rawIP (String host)
+    {
+        try
+        {
+            /** make sure we have a raw IP address here */
+            InetAddress inet_addr = 
+                InetAddress.getByName( host );
+                
+            return inet_addr.getHostAddress();
+        }
+        catch( UnknownHostException uhe )
+        {
+            throw new org.omg.CORBA.TRANSIENT("Unknown host " + host);
+        }
+    }
 
     public String getHost()
     {
@@ -46,8 +64,22 @@ public class IIOPAddress
             return false;
     }
     
+    public int hashCode()
+    {
+        return host.hashCode() + port;
+    }
+    
     public String toString()
     {
         return host + ":" + port;
+    }
+    
+    public byte[] toCDR()
+    {
+    	CDROutputStream out = new CDROutputStream();
+    	out.beginEncapsulatedArray();
+    	out.write_string (host);
+    	out.write_ushort ((short)port);
+    	return out.getBufferCopy();
     }
 }
