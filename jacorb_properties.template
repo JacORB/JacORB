@@ -450,6 +450,16 @@ jacorb.poa.thread_pool_min=5
 jacorb.poa.queue_max=100
 
 
+##################################
+#                                #
+#   Name service Configuration   #
+#                                #
+##################################
+
+# Whether non active references are purged from name service
+# when list operation is invoked.
+
+jacorb.naming.purge=on
 
 ########################################
 #                                      #

@@ -288,8 +288,15 @@ public class NamingContextImpl
      *  non-existent objects
      */
 
-    private void cleanup()
+    private void cleanup ()
     {
+        // Check if object purging enabled
+
+        if (! Environment.isPropertyOn ("jacorb.naming.purge"))
+        {
+           return;
+        }
+
         Vector deletionVector = new Vector();
 
         for( Enumeration n = names.keys(); n.hasMoreElements(); )
@@ -329,7 +336,6 @@ public class NamingContextImpl
             deletionVector.removeAllElements();
         }
     }
-
 
     public void destroy()
         throws NotEmpty
