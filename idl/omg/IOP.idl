@@ -1,9 +1,9 @@
-#pragma prefix "omg.org"
-
 #ifndef _IOP_IDL_
 #define _IOP_IDL_
 
 #include <orb.idl>
+
+#pragma prefix "omg.org"
 
 module IOP
 { 

@@ -4,6 +4,8 @@
 #include <CosContainment.idl>
 #include <CosCompoundLifeCycle.idl>
 
+#pragma prefix "omg.org"
+
 module CosLifeCycleContainment {
 
         interface Relationship : 

@@ -2,7 +2,11 @@
 // (part of formal/00-04-01)
 // CORBA 2.3, Chapter 10
 
+#pragma prefix "omg.org"
+
+
 // Forward references to Chapter 10, CORBA_InterfaceRepository.idl
+#pragma prefix "omg.org"
 
     interface AliasDef;
     interface ArrayDef;

@@ -6,6 +6,7 @@
 
 #include <orb.idl>
 
+#pragma prefix "omg.org"
 
 module CosPersistencePID {
 

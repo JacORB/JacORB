@@ -4,6 +4,8 @@
 #include <CosLifeCycle.idl>
 #include <CosStream.idl>
 
+#pragma prefix "omg.org"
+
 module CosExternalization {
                 exception InvalidFileNameError{};
                 exception ContextAlreadyRegistered{};

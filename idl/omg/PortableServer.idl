@@ -7,7 +7,7 @@
 
 #pragma prefix "omg.org"
 
-#include <Corba.idl>
+#include <orb.idl>
 
 module PortableServer
 {

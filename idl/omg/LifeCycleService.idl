@@ -3,6 +3,8 @@
 
 #include <CosLifeCycle.idl> 
 
+#pragma prefix "omg.org"
+
 module LifeCycleService {
 
         typedef sequence <CosLifeCycle::NameValuePair> PolicyList;
