@@ -31,14 +31,18 @@ gerald.brose@acm.org
         - Object Service implementations
                 - Interoperable Naming Service (with graphical interface)
                 - Trading Service (extension of Mark Spruiell's JTrader)
-                - Event Service
+                - Notification and Event Service (by Alphonse Bendt)
                 - Transaction, collection and concurrency services
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft
                     Ltd., Ukraine,taras@deka.kp.km.ua)
+               
 
 
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
+
+2.0 beta 1
+==========
 
       - Logging:
         - Added property 'jacorb.logfile.append' to support appending to 
@@ -78,6 +82,12 @@ gerald.brose@acm.org
       - IMR:
         - Added property 'jacorb.imr.endpoint_port_number' for port IMR 
           runs on.
+
+      - IDL Compiler: 
+                - fixed inheritance error (bug #345)
+                - now using the Aoachae logkit loggin API
+
+      - Notification Services: now included! HOT!
 
 1.4.1
 =====
