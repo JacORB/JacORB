@@ -315,17 +315,8 @@ public class SequenceProxyPushSupplierImpl
 
     private boolean configureMaxBatchSize()
     {
-        int _maxBatchSize;
-
-        if (qosSettings_.containsKey(MaximumBatchSize.value))
-        {
-            _maxBatchSize = qosSettings_.get( MaximumBatchSize.value ).extract_long();
-        }
-        else
-        {
-            _maxBatchSize = Environment.getIntPropertyWithDefault(Configuration.MAX_BATCH_SIZE,
-                            Default.DEFAULT_MAX_BATCH_SIZE);
-        }
+        int _maxBatchSize =
+            qosSettings_.get( MaximumBatchSize.value ).extract_long();
 
         if ( maxBatchSize_ != _maxBatchSize )
         {

@@ -22,7 +22,7 @@ package org.jacorb.notification.queue;
  */
 
 import org.jacorb.notification.conf.Configuration;
-import org.jacorb.notification.servant.QoSPropertySet;
+import org.jacorb.notification.util.QoSPropertySet;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
@@ -100,13 +100,8 @@ public class EventQueueFactory
 
     public static EventQueue newEventQueue( QoSPropertySet qosProperties ) throws UnsupportedQoS
     {
-        int maxEventsPerConsumer =
-            Environment.getIntPropertyWithDefault( Configuration.MAX_EVENTS_PER_CONSUMER,
-                                                   Default.DEFAULT_MAX_EVENTS_PER_CONSUMER );
-
         String orderPolicy = Environment.getProperty( Configuration.ORDER_POLICY,
                                                       Default.DEFAULT_ORDER_POLICY );
-
 
         String discardPolicy = Environment.getProperty( Configuration.DISCARD_POLICY,
                                                         Default.DEFAULT_DISCARD_POLICY );
@@ -115,11 +110,8 @@ public class EventQueueFactory
 
         short shortDiscardPolicy = discardPolicyNameToValue( discardPolicy );
 
-        if ( qosProperties.containsKey( MaxEventsPerConsumer.value ) )
-        {
-            maxEventsPerConsumer =
-                qosProperties.get( MaxEventsPerConsumer.value ).extract_long();
-        }
+        int maxEventsPerConsumer =
+            qosProperties.get( MaxEventsPerConsumer.value ).extract_long();
 
         if ( qosProperties.containsKey( OrderPolicy.value ) )
         {

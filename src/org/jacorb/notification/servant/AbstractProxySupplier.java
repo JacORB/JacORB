@@ -49,6 +49,8 @@ import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
 import java.util.List;
 import org.omg.CosNotifyComm.NotifyPublish;
+import org.jacorb.notification.util.PropertySet;
+import org.jacorb.notification.util.PropertySetListener;
 
 /**
  * Abstract base class for ProxySuppliers.
