@@ -1864,16 +1864,16 @@ repository.
 
 Until CORBA 2.3, objects could only be passed using reference
 semantics: there was no way to specify that object state should be
-copied along with an object reference. A further restrictions of the
-earlier CORBA version were that all non-object types (structs, unions,
+copied along with an object reference. A further restriction of the
+earlier CORBA versions was that all non-object types (structs, unions,
 sequences, etc.) were {\em values}, so you could not use, e.g. a
-reference to struct to construct a graph of structure values that
-contains shared nodes. Finally, there was no inheritance between
+reference-to-struct to construct a graph of structure values that
+contained shared nodes. Finally, there was no inheritance between
 structs.
 
-All these shortcomings are addressed the {\em objects-by-value} (OBV)
+All these shortcomings are addressed by the {\em objects-by-value} (OBV)
 chapters of the CORBA specification: the addition of stateful
-valuetypes supports copy semantics for objects and inheritance for
+value types supports copy semantics for objects and inheritance for
 structs, boxed value types introduce reference semantics for base
 types, and abstract interfaces determine whether an argument is sent
 by-value or by-reference by the argument's runtime type. The
@@ -1881,24 +1881,25 @@ introduction of OBV into CORBA presented a major shift in the CORBA
 philosophy, which had been to strictly avoid any dependence on
 implementation details (state, in particular). It also added a
 considerable amount of marshaling complexity and interoperability
-problems. (As a personal note: Even in CORBA 2.6, the OBV marshalling
+problems. (As a personal note: Even in CORBA 2.6, the OBV marshaling
 sections are still not particularly precise...)
 
-Beginning with the 1.4 beta releases, JacORB added OBV support.
-However, the value type support in JacORB is not yet complete: while
-the IDL compiler accepts all of the value type IDL syntax, the runtime
-system does not support abstract valuetypes, and the marshalling of
-truncatable value types does not yet meet all the standard's
-requirements (and should thus be called ``beta''). Boxed value types
-and simple regular value types (including value type inheritance) work
-as prescribed in the standard.
+JacORB 2.0 implements most of the OBV specification.  Boxed value
+types and regular value types work as prescribed in the standard
+(including value type inheritance, recursive value types, and
+factories).  Still missing in the current implementation is run-time
+support for abstract value types (although the compiler does accept
+the corresponding IDL syntax), and the marshaling of truncatable
+value types does not yet meet all the standard's requirements (and
+should thus be called ``beta'').
 
 \section{Example}
 
-The remainder of this chapter presents a simple value type example,
-which is part of the demo programs in the JacORB distribution. The
-demo shows the use of boxed value types and a simple stateful value
-type. Here's the IDL definition from {\tt demo/value/server.idl}:
+To illustrate the use of various kinds of value types, here's an
+example which is also part of the demo programs in the JacORB
+distribution.  The demo shows the use of boxed value types and a
+recursive stateful value type. Here's the IDL definition from {\tt
+demo/value/server.idl}:
 
 \begin{verbatim}
 module demo {
@@ -1921,9 +1922,9 @@ module demo {
 };
 \end{verbatim}
 
-From the definition of the  boxed valuetype {\tt boxedLong} and
+From the definition of the  boxed value type {\tt boxedLong} and
 {\tt boxedString}, the IDL generates the following Java class, which
-is simply a holder vor the long value. No mapped class is generated
+is simply a holder for the long value. No mapped class is generated
 for the boxed string value type.
 
 \begin{verbatim}
@@ -1946,10 +1947,8 @@ public class boxedLong
 }
 \end{verbatim}
 
-\subsubsection{Reference Semantics}
-
 The boxed value definitions in IDL above permit uses of non-object
-types that are not possible with IDL primitive type. In particular, it
+types that are not possible with IDL primitive types. In particular, it
 is possible to pass Java {\tt null} references where a value of a
 boxed value type is expected. For example, we can call the operation
 {\tt receive\_long} and pass one initialized {\tt boxedLong} value and
@@ -1965,7 +1964,7 @@ code:
 \end{verbatim}
 
 With a regular {\tt long} parameter, a {\tt null} reference would have
-resulted in a {\tt BAD\_PARAM} exception. With boxed valuetypes, this
+resulted in a {\tt BAD\_PARAM} exception. With boxed value types, this
 usage is entirely legal and the result string returned from the {\tt
   ValueServer} object is {\tt ``one or two null values''}.
 
@@ -1976,6 +1975,121 @@ value, but they cannot both refer to the same value. This means that
 when one of the variables is changed, the other one retains its
 orignal value. With shared values that are {\em referenced}, both
 variables would always point to the same value.
+
+The stateful value type {\tt Node} is implemented by the programmer in
+a class {\tt NodeImpl} (see the JacORB distribution for the actual
+code).  The relationship between this implementation class and the
+corresponding IDL definition is not entirely trivial, and we will
+discuss it in detail below.
+
+\section{Factories}
+
+When an instance of a (regular) value type is marshaled over the wire
+and arrives at a server, a class that implements this value type must
+be found, so that a Java object can be created to hold the state
+information.  For interface types, which are only passed by
+reference, something similar is accomplished by the POA, which
+accepts remote calls to the interface and delivers them to a local
+implementation class (the \emph{servant}).  For value type instances,
+there is no such thing as a POA, because they cannot be called
+remotely.  Thus, the ORB needs a different mechanism to know which
+Java implementation class corresponds to a given IDL value type.
+
+The CORBA standard introduces \emph{value factories} to achieve this.
+Getting your value factories right can be anywhere from trivial to
+tricky (we will cover the details in a minute), and so the standard
+suggests that ORBs also provide convenience mechanisms to relieve
+programmers from writing value factories if possible.  JacORB's
+convenience mechanism is straightforward:
+
+\begin{quotation}
+\noindent \emph{If the implementation class for an IDL value type A is named
+  AImpl, resides in the same package as A, and has a no-argument
+constructor, then no value factory is needed for that type.}
+\end{quotation}
+
+In other words, if your implementation class follows the common naming
+convention (``...Impl''), and it provides a no-arg constructor
+so that the ORB can instantiate it, then the ORB has all that it
+needs to (a) find the implementation class, and (b) create an instance
+of it (which is then initialized with the unmarshaled state from the
+wire).
+
+This mechanism ought to save you from having to write a value factory
+99\% of them time.  It works for all kinds of regular value types,
+including those with inheritance, and recursive types (where a type
+has members of its own type).
+
+If you do need more control over the instance creation process, or the
+unmarshaling from the wire, you can write your own value factory
+class and register it with the ORB using {\tt
+ORB.register\_value\_factory(}\emph{repository\_id, factory}{\tt)}.
+The \emph{factory} object needs to implement the interface {\tt
+org.omg.CORBA.portable.ValueFactory}, which requires a single method:
+
+\begin{verbatim}
+   public Serializable read_value (InputStream is);
+\end{verbatim}
+
+When an instance of type \emph{repository\_id} arrives over the wire,
+the ORB calls the {\tt read\_value()} method, which must unmarshal the
+data from the input stream, create an instance of the appropriate
+implementation class from it, and return that.
+
+The easiest way to implement this method is to create an instance of
+the implementation class, and call the {\tt \_read()} method on it,
+which is defined in the abstract superclass generated by JacORB:
+
+\begin{verbatim}
+   public Serializable read_value (InputStream is) {
+     A result = new AImpl();
+     result._read (is);
+     return result;
+   }
+\end{verbatim}
+
+The {\tt \_read()} method contains all the necessary unmarshaling
+logic for objects of type A.  However, this method won't work as
+expected for complex value graphs with \emph{back references}: if the
+state of a value type instance $a$ contains an object that has a
+reference to $a$ itself, that is a ``back reference'', and the
+reference-sharing semantics of value types require the ORB to
+reproduce this reference structure faithfully upon unmarshaling.
+However, while the state of the object $a$ is unmarshaled, $a$
+itself is not yet finished, and so the back reference would have
+nothing to point to.  For this reason, we must register the
+implementation object with the unmarshaling engine, \emph{after} it
+has been created, but \emph{before} its state is actually read:
+
+\begin{verbatim}
+   public Serializable read_value (InputStream is) {
+     A result = new AImpl();
+
+     // register the instance
+     ((org.jacorb.orb.CDRInputStream)is).register_value (result);
+
+     result._read (is);
+     return result;
+   }
+\end{verbatim}
+
+({\tt register\_value()} is a JacORB-specific extension, there is no
+standard CORBA mechanism for this.)
+
+The value factory must be registered with the ORB using {\tt
+register\_value\_factory()}, as shown above.  As a special
+convenience (defined in the CORBA standard), if the value factory
+class for type {\tt A} is called {\tt ADefaultFactory}, then the ORB
+will find it automatically and use it, unless a different factory has
+been explicitly registered.
+
+It sometimes causes confusion that you can also define \emph{factory
+methods} in a value type's IDL.  These factory methods are completely
+unrelated to the unmarshaling mechanism discussed above; they are
+simply a portable means to declare what kinds of ``constructors'' a
+value type implementation should have.  They are purely for local use,
+but since they are ``factories'', the corresponding methods must also
+be implemented in the type's {\tt ValueFactory} implementation.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3221,7 +3335,7 @@ Figure \ref{fig:timing} shows how JacORB interprets the timing
 policies in the course of a single request.
 
 \begin{itemize}
-\item As soon as the ORB receives control (prior to marshalling), it
+\item As soon as the ORB receives control (prior to marshaling), it
 converts any \emph{RelativeRequestTimeoutPolicy} or
 \emph{RelativeRoundtripTimeoutPolicy} to an absolute value, by adding
 the relative value to the current system time.
@@ -3237,7 +3351,7 @@ thrown to the client.  (JacORB does not currently cancel the
 outstanding request, it simply discards the reply, should one arrive
 after the timeout has elapsed.)
 
-\item On the server side (before demarshalling), the ORB checks
+\item On the server side (before demarshaling), the ORB checks
 whether \emph{Request End Time} or \emph{Reply End Time} have already
 elapsed.  If so, the request is not delivered to the target, and an
 {\tt org.omg.CORBA.TIMEOUT} is thrown back to the client.
