@@ -321,7 +321,8 @@ public class ClientConnection
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn("Received an unknown reply");
+                logger.warn("Received reply for unknown request id: " +
+                    key);
             }
         }
     }
@@ -352,7 +353,8 @@ public class ClientConnection
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn("Received an unknown reply");
+                logger.warn("Received reply for unknown request id: " +
+                    key);
             }
         }
     }
