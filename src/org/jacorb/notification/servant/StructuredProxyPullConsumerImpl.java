@@ -21,7 +21,6 @@ package org.jacorb.notification.servant;
  *
  */
 
-
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
