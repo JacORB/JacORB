@@ -3,7 +3,7 @@ package org.jacorb.orb.portableInterceptor;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose, Nicolas Noffke
+ *   Copyright (C) 1997-2004 Gerald Brose, Nicolas Noffke
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
