@@ -72,6 +72,7 @@
       = = = = = = = = = = = = = = = = = -->
 	<macrodef name="jacorb-javac">
     		<attribute name="javac-includes" />
+                <attribute name="javac-encoding" default="ISO-8859-1" />
     		<attribute name="javac-excludes" default="" />
     		<attribute name="javac-src" default="${src}" />
     		<attribute name="javac-sourcepath" default="sourcepath.base" />
@@ -81,6 +82,7 @@
         		<echo message="Compiling for ${ant.project.name}"/>
         
         		<javac srcdir="@{javac-src}"
+               encoding="@{javac-encoding}"
                destdir="${classdir}"
                debug="${debug}"
                classpathref="@{javac-classpathref}"
