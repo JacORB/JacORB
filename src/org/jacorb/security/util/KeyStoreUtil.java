@@ -58,7 +58,21 @@ public class KeyStoreUtil
 	throws 	java.io.IOException, KeyStoreException, NoSuchAlgorithmException,
 	CertificateException
     {
-	FileInputStream in = new FileInputStream(file_name);
+        //try unchanged name first
+        File f = new File( file_name );
+        
+        if( ! f.exists() )
+        {
+            //try to prepend home dir
+            String name = 
+                System.getProperty( "user.home" ) +
+                System.getProperty( "file.separator" ) +
+                file_name;
+
+            f = new File( name );
+        }
+
+	FileInputStream in = new FileInputStream( f );
 
 	KeyStore ks;
 	//	ks = KeyStore.getInstance("jks");
