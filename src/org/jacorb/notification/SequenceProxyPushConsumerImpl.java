@@ -40,22 +40,20 @@ import org.omg.PortableServer.Servant;
  */
 
 public class SequenceProxyPushConsumerImpl
-            extends StructuredProxyPushConsumerImpl
-            implements SequenceProxyPushConsumerOperations
+    extends StructuredProxyPushConsumerImpl
+    implements SequenceProxyPushConsumerOperations
 {
 
     private SequencePushSupplier mySequencePushSupplier_;
 
-    private List subsequentDestinations_;
-
-    public SequenceProxyPushConsumerImpl( SupplierAdminTieImpl supplierAdminServant,
+    public SequenceProxyPushConsumerImpl( SupplierAdminTieImpl supplierAdmin,
                                           ApplicationContext appContext,
                                           ChannelContext channelContext,
                                           PropertyManager adminProperties,
                                           PropertyManager qosProperties,
                                           Integer key )
     {
-        super( supplierAdminServant,
+        super( supplierAdmin,
                appContext,
                channelContext,
                adminProperties,
@@ -79,7 +77,8 @@ public class SequenceProxyPushConsumerImpl
         }
     }
 
-    public void connect_sequence_push_supplier( SequencePushSupplier supplier ) throws AlreadyConnected
+    public void connect_sequence_push_supplier( SequencePushSupplier supplier )
+        throws AlreadyConnected
     {
         if ( connected_ )
         {
@@ -118,5 +117,4 @@ public class SequenceProxyPushConsumerImpl
 
         return thisServant_;
     }
-
 }
