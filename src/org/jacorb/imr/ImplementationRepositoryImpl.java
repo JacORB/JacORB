@@ -65,6 +65,8 @@ public class ImplementationRepositoryImpl
     private int object_activation_sleep = 50;
 
     private boolean allow_auto_register = false;
+    private boolean check_object_liveness = false;
+
     /**
      * The constructor.
      * It builds up the server table and starts up the SocketListener thread.
@@ -139,6 +141,16 @@ public class ImplementationRepositoryImpl
             _tmp = _tmp.toLowerCase();            
 
             allow_auto_register = "on".equals( _tmp );
+        }
+
+        _tmp = 
+            Environment.getProperty("jacorb.imr.check_object_liveness");
+        
+        if( _tmp != null )
+        {
+            _tmp = _tmp.toLowerCase();            
+            
+            check_object_liveness = "on".equals( _tmp );
         }
     
 	listener = new SocketListener();
@@ -1132,6 +1144,31 @@ public class ImplementationRepositoryImpl
 		    }
 		}		
 	    }
+            
+            //test, if the object is alive
+            if( check_object_liveness )
+            {
+                try
+                {
+                    org.omg.CORBA.Object _object = 
+                        orb.string_to_object(
+                            (new ParsedIOR( _ior )).getIORString());
+                    
+                    if( _object._non_existent() )
+                    {
+
+                        sendSysException(new org.omg.CORBA.TRANSIENT("object not reachable"));
+                        return;
+                    }
+                }
+                catch( Exception e )
+                {
+                    e.printStackTrace();
+                    //TODO: Also set server to "down"?
+                    sendSysException(new org.omg.CORBA.TRANSIENT("object not reachable"));
+                    return;                
+                }
+            }
 
 	    try
             {
