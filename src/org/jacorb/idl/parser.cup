@@ -489,7 +489,6 @@ parser code
         System.out.println("\t-backend classname\t\tuse classname as code generator");
         System.out.println("\t-i2jpackage x:a.b.c\t replace IDL package name x by a.b.c in generated Java code (e.g. CORBA:org.omg.CORBA)");
         System.out.println("\t-i2jpackagefile <filename>\t replace IDL package names using list from <filename>. Format as above.");
-        System.out.println("\t-j2me\t\tgenerate J2ME/CLDC1.0 compliant stubs");
         System.out.println("\t-ir\t\tgenerate information required by the Interface Repository");
         System.out.println("\t-nofinal\tgenerated Java code will contain no final class definitions");
         System.out.println("\t-unchecked_narrow\t\tuse unchecked_narrow in generated code for IOR parameters in operations");
