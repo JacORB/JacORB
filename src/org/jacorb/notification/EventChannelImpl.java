@@ -70,9 +70,10 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -160,14 +161,20 @@ public class EventChannelImpl
      * Channel
      */
     private int maxNumberOfSuppliers_;
+
     private ChannelContext channelContext_;
+
     private SubscriptionManager subscriptionManager_ =
         new SubscriptionManager();
+
     private OfferManager offerManager_ = new OfferManager();
-    private AdminPropertySet adminSettings_ = new AdminPropertySet();
-    private QoSPropertySet qosSettings_ =
-        new QoSPropertySet(QoSPropertySet.CHANNEL_QOS);
+
+    private AdminPropertySet adminSettings_;
+
+    private QoSPropertySet qosSettings_;
+
     private List listAdminEventListeners_ = new ArrayList();
+
     private Runnable disposeHook_;
 
     private ProxyEventListener proxyConsumerEventListener_ =
@@ -236,18 +243,25 @@ public class EventChannelImpl
     }
 
 
-    public void configure (Configuration conf)
+    public void configure (Configuration conf) throws ConfigurationException
     {
-        this.configuration_ = conf;
+        configuration_ = conf;
+
         logger_ = ((org.jacorb.config.Configuration)conf).
             getNamedLogger( getClass().getName());
+
         lazyDefaultAdminInit_ =
             conf.getAttribute (Attributes.LAZY_DEFAULT_ADMIN_INIT,
                                Default.DEFAULT_LAZY_DEFAULT_ADMIN_INIT).
             equals ("on");
 
-        subscriptionManager_.configure (conf);
-        offerManager_.configure (conf);
+        subscriptionManager_.configure(conf);
+
+        offerManager_.configure(conf);
+
+        adminSettings_ = new AdminPropertySet(conf);
+
+        qosSettings_ = new QoSPropertySet(conf, QoSPropertySet.CHANNEL_QOS);
     }
 
     ////////////////////////////////////////

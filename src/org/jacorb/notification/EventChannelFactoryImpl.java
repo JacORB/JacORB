@@ -35,12 +35,11 @@ import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventChannelEvent;
 import org.jacorb.notification.interfaces.EventChannelEventListener;
-import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.servant.ManageableServant;
+import org.jacorb.notification.util.AdminPropertySet;
+import org.jacorb.notification.util.PatternWrapper;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.QoSPropertySet;
-import org.jacorb.notification.util.PatternWrapper;
-import org.jacorb.notification.queue.EventQueueFactory;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
@@ -75,9 +74,10 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -164,14 +164,13 @@ public class EventChannelFactoryImpl
         try {
             setUpDefaultFilterFactory(_filterFactoryConf);
         } catch (InvalidName ex) {
+            logger_.error("FilterFactory setup failed", ex);
         }
 
         staticURL_ = conf.getAttribute(Attributes.FILTER_FACTORY,
                                        Default.DEFAULT_FILTER_FACTORY);
-        AdminPropertySet.initStatics (conf);
-
-        QoSPropertySet.initStatics (conf);
     }
+
 
     public void setDestroyMethod(Runnable destroyMethod) {
         destroyMethod_ = destroyMethod;
@@ -381,7 +380,8 @@ public class EventChannelFactoryImpl
                UnsupportedQoS,
                ObjectNotActive,
                WrongPolicy,
-               ServantAlreadyActive
+               ServantAlreadyActive,
+               ConfigurationException
     {
         if (logger_.isInfoEnabled() ) {
             logger_.debug( "create channel_servant id=" + channelID );
@@ -390,14 +390,14 @@ public class EventChannelFactoryImpl
         // check QoS and Admin Settings
 
         AdminPropertySet _adminSettings =
-            new AdminPropertySet();
+            new AdminPropertySet(config_);
 
         _adminSettings.set_admin( administrativeProperties );
 
         QoSPropertySet _qosSettings =
-            new QoSPropertySet( QoSPropertySet.ADMIN_QOS);
-        _qosSettings.set_qos(qualitiyOfServiceProperties);
+            new QoSPropertySet( config_, QoSPropertySet.ADMIN_QOS);
 
+        _qosSettings.set_qos(qualitiyOfServiceProperties);
 
         if (logger_.isDebugEnabled() )
         {

@@ -70,8 +70,8 @@ public class QoSPropertySet extends PropertySet
     public static final int ADMIN_QOS = 1;
     public static final int PROXY_QOS = 2;
 
-    private static Property[] sDefaultChannelQoS_;
-    private static Property[] sDefaultAdminQoS_;
+    private Property[] defaultChannelQoS_;
+    private Property[] defaultAdminQoS_;
 
     private static final HashSet sValidChannelQoSNames_;
     private static final HashSet sValidAdminQoSNames_;
@@ -85,7 +85,7 @@ public class QoSPropertySet extends PropertySet
     static final Any eventReliabilityHigh_;
 
     static Any orderPolicyLow_;
-    static Any orderPolicyDefault_;
+    Any orderPolicyDefault_;
     static Any orderPolicyHigh_;
 
     static Any discardPolicyLow_;
@@ -95,13 +95,13 @@ public class QoSPropertySet extends PropertySet
     static Any priorityDefault_;
     static Any priorityHigh_;
 
-    static Any maxEventsPerConsumerLow_;
-    static Any maxEventsPerConsumerDefault_;
-    static Any maxEventsPerConsumerHigh_;
+    Any maxEventsPerConsumerLow_;
+    Any maxEventsPerConsumerDefault_;
+    Any maxEventsPerConsumerHigh_;
 
-    static Any timeoutHigh_;
-    static Any timeoutDefault_;
-    static Any timeoutLow_;
+    Any timeoutHigh_;
+    Any timeoutDefault_;
+    Any timeoutLow_;
 
     private static final Any trueAny;
     private static final Any falseAny;
@@ -189,11 +189,10 @@ public class QoSPropertySet extends PropertySet
         priorityHigh_.insert_short(Short.MAX_VALUE);
 
         ////////////////////
-
     }
 
 
-    public static void initStatics (Configuration conf)
+    private void configure (Configuration conf)
     {
         int _maxEventsPerConsumerDefault =
             conf.getAttributeAsInteger( Attributes.MAX_EVENTS_PER_CONSUMER,
@@ -255,7 +254,7 @@ public class QoSPropertySet extends PropertySet
 
         ////////////////////
 
-        sDefaultChannelQoS_ = new Property[] {
+        defaultChannelQoS_ = new Property[] {
             new Property(EventReliability.value, eventReliabilityLow_),
             new Property(ConnectionReliability.value,
                          connectionReliabilityLow_),
@@ -271,7 +270,7 @@ public class QoSPropertySet extends PropertySet
                          _maxBatchSizeDefault)
         };
 
-        sDefaultAdminQoS_ = new Property[] {
+        defaultAdminQoS_ = new Property[] {
             new Property(ConnectionReliability.value,
                          connectionReliabilityLow_),
             new Property(Priority.value, priorityDefault_),
@@ -284,7 +283,6 @@ public class QoSPropertySet extends PropertySet
                          _isStartTimeSupportedDefault),
             new Property(MaximumBatchSize.value, _maxBatchSizeDefault)
         };
-
     }
 
     ////////////////////////////////////////
@@ -293,9 +291,11 @@ public class QoSPropertySet extends PropertySet
 
     ////////////////////////////////////////
 
-    public QoSPropertySet(int type)
+    public QoSPropertySet(Configuration configuration, int type)
     {
         super();
+
+        configure(configuration);
 
         init(type);
     }
@@ -308,12 +308,12 @@ public class QoSPropertySet extends PropertySet
             case CHANNEL_QOS:
                 validNames_ = sValidChannelQoSNames_;
 
-                set_qos(sDefaultChannelQoS_);
+                set_qos(defaultChannelQoS_);
                 break;
             case ADMIN_QOS:
                 validNames_ = sValidAdminQoSNames_;
 
-                set_qos(sDefaultAdminQoS_);
+                set_qos(defaultAdminQoS_);
                 break;
             case PROXY_QOS:
                 validNames_ = sValidProxyQoSNames_;

@@ -54,10 +54,8 @@ public class AdminLimitTest extends NotificationTestCase
 
     public void setUp() throws Exception
     {
-        QoSPropertySet.initStatics( getConfiguration() );
-
         QoSPropertySet qosSettings_ =
-            new QoSPropertySet(QoSPropertySet.ADMIN_QOS);
+            new QoSPropertySet(getConfiguration(), QoSPropertySet.ADMIN_QOS);
 
         channelContext_ = new ChannelContext();
         channelContext_.setTaskProcessor(new TaskProcessor());

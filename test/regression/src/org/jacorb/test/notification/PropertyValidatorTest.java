@@ -31,7 +31,9 @@ public class PropertyValidatorTest
 
     public QoSPropertySet createInstance() throws Exception
     {
-        return new QoSPropertySet(QoSPropertySet.CHANNEL_QOS);
+        QoSPropertySet _props = new QoSPropertySet(getConfiguration(), QoSPropertySet.CHANNEL_QOS);
+
+        return _props;
     }
 
 
@@ -39,16 +41,7 @@ public class PropertyValidatorTest
     {
         super.setUp();
 
-        QoSPropertySet.initStatics(getConfiguration());
-
         propertyvalidator = createInstance();
-    }
-
-
-    public void tearDown() throws Exception
-    {
-        propertyvalidator = null;
-        super.tearDown();
     }
 
 

@@ -36,9 +36,10 @@ import java.util.List;
 
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
-import org.jacorb.notification.util.PropertySet;
 
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
  * @author Alphonse Bendt
@@ -46,24 +47,39 @@ import org.apache.avalon.framework.configuration.Configuration;
  */
 
 public class AdminPropertySet
-    extends PropertySet
-{
+    extends PropertySet {
+
     private static HashSet sAdminPropertyNames_;
 
     private static ORB sOrb_ = ORB.init();
 
-    private static Property[] sDefaultProperties_;
+    private Property[] defaultProperties_;
 
-    public static void initStatics (Configuration conf)
-    {
-        sAdminPropertyNames_ = new java.util.HashSet();
+    static {
+        sAdminPropertyNames_ = new HashSet();
 
         sAdminPropertyNames_.add(MaxQueueLength.value);
         sAdminPropertyNames_.add(MaxConsumers.value);
         sAdminPropertyNames_.add(MaxSuppliers.value);
         sAdminPropertyNames_.add(RejectNewEvents.value);
+    }
 
-        //////////////////////////////
+    ////////////////////////////////////////
+
+    private HashSet validNames_ = sAdminPropertyNames_;
+
+    ////////////////////////////////////////
+
+    public AdminPropertySet(Configuration configuration) throws ConfigurationException
+    {
+        super();
+
+        configure(configuration);
+    }
+
+    ////////////////////////////////////////
+
+    private void configure(Configuration conf) throws ConfigurationException {
 
         int _maxConsumersDefault =
             conf.getAttributeAsInteger(Attributes.MAX_NUMBER_CONSUMERS,
@@ -101,33 +117,22 @@ public class AdminPropertySet
 
         //////////////////////////////
 
-        sDefaultProperties_ = new Property[] {
+        defaultProperties_ = new Property[] {
             new Property(MaxConsumers.value, _maxConsumersDefaultAny),
             new Property(MaxSuppliers.value, _maxSuppliersDefaultAny),
             new Property(MaxQueueLength.value, _maxQueueLengthAny),
             new Property(RejectNewEvents.value, _rejectNewEventsAny)
         };
+
+        set_admin(defaultProperties_);
     }
 
-    ////////////////////////////////////////
 
-    private java.util.HashSet validNames_ = sAdminPropertyNames_;
-
-    ////////////////////////////////////////
-
-    public AdminPropertySet()
-    {
-        super();
-
-        set_admin(sDefaultProperties_);
-    }
-
-    ////////////////////////////////////////
-
-    public java.util.HashSet getValidNames()
+    public HashSet getValidNames()
     {
         return validNames_;
     }
+
 
     public void set_admin(Property[] ps)
     {
@@ -143,7 +148,7 @@ public class AdminPropertySet
 
     public void validate_admin(Property[] ps) throws UnsupportedAdmin
     {
-        java.util.List _errors = new java.util.ArrayList();
+        List _errors = new ArrayList();
 
         checkPropertyExistence(ps, _errors);
 
