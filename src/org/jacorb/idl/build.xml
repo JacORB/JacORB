@@ -7,6 +7,8 @@
    &common;
 
    <target name="all" depends="init">
+      <replace file="${src}/org/jacorb/idl/parser.java" token="java_cup.runtime"
+         value="org.jacorb.idl.runtime" />
       <antcall target="jacorb-javac">
          <param name="javac-includes" value="org/jacorb/idl/**/*.java"/>
       </antcall>

@@ -20,7 +20,7 @@
 
 package org.jacorb.idl;
 
-import java_cup.runtime.*;
+import org.jacorb.idl.runtime.*;
 
 import java.util.*;
 
@@ -1132,7 +1132,7 @@ public class lexer
      */
 
     public static token next_token()
-            throws java.io.IOException
+        throws java.io.IOException
     {
         parser.set_included( GlobalInputStream.includeState() );
         token result = real_next_token();
@@ -1140,7 +1140,7 @@ public class lexer
     }
 
     private static void swallow_whitespace()
-            throws java.io.IOException
+        throws java.io.IOException
     {
         /* look for white space */
         while( next_char == ' ' || next_char == '\t' || next_char == '\n' ||

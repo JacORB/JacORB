@@ -26,14 +26,14 @@ package org.jacorb.idl;
  *  as attributes.  It maintains that value in the public
  *  field str_val.
  *
- * @see java_cup.runtime.str_token
+ * @see org.jacorb.idl.runtime.str_token
  * @version $Id$
  * @author  Gerald Brose
  */
 
 public class str_token
-        extends java_cup.runtime.str_token
-        implements java.io.Serializable
+    extends org.jacorb.idl.runtime.str_token
+    implements java.io.Serializable
 {
 
     public String str_val;

@@ -21,8 +21,8 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
-import java_cup.runtime.long_token;
-import java_cup.runtime.int_token;
+import org.jacorb.idl.runtime.long_token;
+import org.jacorb.idl.runtime.int_token;
 import java.math.BigInteger;
 
 /**
@@ -36,7 +36,7 @@ class Literal
     private static BigInteger maximum;
     public String string;
     public boolean wide;
-    public java_cup.runtime.token token;
+    public org.jacorb.idl.runtime.token token;
 
     private ConstDecl declared_in;
 
@@ -147,7 +147,7 @@ class Literal
                              ( token != null? token.getClass().getName() :"<no token>" ) );
 
             if( ts instanceof FloatPtType &&
-                    !( token instanceof java_cup.runtime.float_token ) )
+                    !( token instanceof org.jacorb.idl.runtime.float_token ) )
             {
                 parser.error( "Expecting float/double constant!" );
             }
@@ -164,7 +164,7 @@ class Literal
             }
             else if( ( ts instanceof LongType ) || ( ts instanceof ShortType ) )
             {
-                if( token instanceof java_cup.runtime.long_token )
+                if( token instanceof org.jacorb.idl.runtime.long_token )
                 {
                     parser.error( "Illegal assignment from long long" );
                 }
@@ -176,7 +176,7 @@ class Literal
     {
         String result = string;
 
-        if (token instanceof java_cup.runtime.long_token)
+        if (token instanceof org.jacorb.idl.runtime.long_token)
         {
             if (string.indexOf( '.' ) > 0 )
             {

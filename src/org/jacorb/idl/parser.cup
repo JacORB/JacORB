@@ -2,7 +2,7 @@ package org.jacorb.idl;
 
 import java.io.*;
 import java.util.*;
-import java_cup.runtime.*;
+import org.jacorb.idl.runtime.*;
 
 import org.apache.log.*;
 import org.apache.log.format.*;
@@ -12,7 +12,7 @@ import org.apache.log.output.io.*;
  *
  * JavaCup Specification for CORBA IDL, to be processed like this:
  * java java_cup.Main < parser.cup
- *
+ * 
  * @author Gerald Brose <mailto:gerald.brose@acm.org>
  *
  * $Id$
@@ -81,7 +81,7 @@ parser code
     private static int activeParseThreads;
 
     private static Logger logger;
-    private static Writer logWriter;
+    private static Writer logStreamWriter = null;
 
     /*  a la CORBA 2.4, allow forward declarations that remain undefined */
     public static boolean sloppy = false;
@@ -118,14 +118,26 @@ parser code
 
         String pattern = "[%.11{category}] %.7{priority} : %{message}\\n%{throwable}";
         PatternFormatter formatter = new PatternFormatter( pattern );
-        logWriter = new OutputStreamWriter( System.err );
-        WriterTarget writerTarget = new WriterTarget( logWriter, formatter );
         logger = Hierarchy.getDefaultHierarchy().getLoggerFor("jacorb.idl");
         logger.setPriority( Priority.ERROR );
+
+        // check if the environment's logStream has been set
+        Writer logWriter;
+        if( logStreamWriter != null )
+        {
+            logWriter = logStreamWriter;
+        }
+        else
+        {
+            OutputStream outStream = System.err;
+            logWriter = new OutputStreamWriter( outStream );
+        }
+        WriterTarget writerTarget = new WriterTarget( logWriter, formatter );
         logger.setLogTargets( new LogTarget[] { writerTarget } );
 
         parser.openScope();
     }
+
 
     public static void main( String argv[] )
     {
@@ -160,13 +172,22 @@ parser code
         return false;
     }
 
-
     public static boolean compile( String argv[] )
+        throws Exception
+    {
+        return compile( argv, null );   
+    }
+
+    public static boolean compile( String argv[], StringWriter logWriter )
         throws Exception
     {
         BufferedReader in = null;
 
+        if (logWriter!= null)
+              logStreamWriter = logWriter;
+
         init();
+
         Hashtable tmpDefines = new Hashtable();
         Hashtable tmpUnDefines = new Hashtable();
 
@@ -720,7 +741,7 @@ scan with
  * "Object" is listed as reserved in the OMG spec.
  */
 
-terminal java_cup.runtime.token
+terminal org.jacorb.idl.runtime.token
   ABSTRACT, ANY, ATTRIBUTE, BOOLEAN, CASE, CHAR, CONST, CONTEXT, CUSTOM,
   DEFAULT, DOUBLE, ENUM, EXCEPTION, FACTORY, FALSE, FIXED, FLOAT, IN,
   INOUT, INTERFACE, LOCAL, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT,
@@ -740,19 +761,19 @@ terminal org.jacorb.idl.str_token ID;
  * merely to prevent its usage as an integer type.
  */
 
-terminal java_cup.runtime.char_token CH;
-terminal java_cup.runtime.int_token  NUMBER;
-terminal java_cup.runtime.long_token LONG_NUMBER;
-terminal java_cup.runtime.float_token  FLOAT_NUMBER;
+terminal org.jacorb.idl.runtime.char_token CH;
+terminal org.jacorb.idl.runtime.int_token  NUMBER;
+terminal org.jacorb.idl.runtime.long_token LONG_NUMBER;
+terminal org.jacorb.idl.runtime.float_token  FLOAT_NUMBER;
 terminal fixed_token  FIXED_NUMBER;
 
-non terminal java_cup.runtime.symbol context_expr, string_literal_list;
+non terminal org.jacorb.idl.runtime.symbol context_expr, string_literal_list;
 
-non terminal java_cup.runtime.symbol empty;
+non terminal org.jacorb.idl.runtime.symbol empty;
 
-non terminal java_cup.runtime.int_token op_attribute;
-non terminal java_cup.runtime.int_token param_attribute;
-non terminal java_cup.runtime.str_token unary_op;
+non terminal org.jacorb.idl.runtime.int_token op_attribute;
+non terminal org.jacorb.idl.runtime.int_token param_attribute;
+non terminal org.jacorb.idl.runtime.str_token unary_op;
 
 non terminal Spec specification;
 non terminal Definition definition;
