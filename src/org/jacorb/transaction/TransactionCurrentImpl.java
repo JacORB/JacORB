@@ -36,14 +36,20 @@ public class TransactionCurrentImpl
         contexts = new Hashtable();
         timeouts = new Hashtable();
 
-        try{
+        try
+        {
             NamingContextExt nc = 
                 NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
             NameComponent [] name = new NameComponent[1];
             name[0] = new NameComponent( "TransactionService", "service");
             factory = TransactionFactoryHelper.narrow(nc.resolve(name));    
-        }catch (Exception e){
+        }
+        catch (Exception e)
+        {
+            org.jacorb.util.Debug.output( 1, "Unable to obtain Transaction Service reference. Giving up." );
             org.jacorb.util.Debug.output(2, e);
+
+            System.exit( -1 );
         }
     }
 
