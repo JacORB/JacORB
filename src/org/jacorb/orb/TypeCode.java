@@ -79,6 +79,12 @@ public class TypeCode
         {
             primitive_tcs[i] = new TypeCode(i);
         }   
+
+        // not actually primitive, but as a courtesy to Sun's JDK, which
+        // insists on calling get_primitive_tc with an argument kind of
+        // tk_object
+        primitive_tcs[14] = new TypeCode( "IDL:omg.org/CORBA/Object:1.0", "Object" );
+
         primitive_tcs[18] = new TypeCode( 18, 0 );
 
         for( int i = 23; i < 29; i++ )
