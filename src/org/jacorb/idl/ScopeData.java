@@ -30,27 +30,6 @@ import java.util.*;
 
 public class ScopeData
 {
-
     public Hashtable versionMap = new Hashtable();
-
+    public Hashtable idMap = new Hashtable();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
