@@ -1287,7 +1287,14 @@ public final class ORB
 
     public String object_to_string( org.omg.CORBA.Object obj)
     {
-        return obj.toString();
+        Object delegate = 
+            ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate();
+        if (delegate instanceof org.jacorb.orb.Delegate)
+            return delegate.toString();
+        else
+            throw new Error("Argument has a delegate whose class is "
+                            + delegate.getClass().getName()
+                            + ", a org.jacorb.orb.Delegate was expected");
     }
 
     public void perform_work() 
