@@ -103,7 +103,6 @@ public class ProxyPullSupplierImpl
   {
     if ( connected )
     {
-      myEventChannel.disconnect_pull_supplier( this );
       if ( myPullConsumer != null )
       {
         myPullConsumer.disconnect_pull_consumer();
