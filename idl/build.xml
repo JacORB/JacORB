@@ -126,6 +126,15 @@
               tofile="${src}/generated/org/omg/CORBA/SetOverrideType.java"
               overwrite="yes"
       />
+      <copy file="${src}/java_mapping/CORBA/TRANSACTION_MODE.java"
+         tofile="${src}/generated/org/omg/CORBA/TRANSACTION_MODE.java"
+      />
+      <copy file="${src}/java_mapping/CORBA/TRANSACTION_UNAVAILABLE.java"
+         tofile="${src}/generated/org/omg/CORBA/TRANSACTION_UNAVAILABLE.java"
+      />
+     <copy file="${src}/java_mapping/CORBA/CODESET_INCOMPATIBLE.java"
+         tofile="${src}/generated/org/omg/CORBA/CODESET_INCOMPATIBLE.java"
+      />
    </target>
 
 
