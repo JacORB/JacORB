@@ -231,6 +231,7 @@ public final class BufferManager
                     }
                     // Else return the cached buffer
                     result = bufferMax;
+                    bufferMax = null;
                 }
             }
             catch (OutOfMemoryError e)
