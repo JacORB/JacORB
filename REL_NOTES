@@ -50,6 +50,8 @@ gerald.brose@acm.org
                  for handling recursive TypeCodes.
                - Implementation of Request interface now throws BAD_INV_ORDER
                  exception when appropriate.
+               - The work_pending and perform_work operations now throw
+                 BAD_INV_ORDER if the ORB has been shutdown.
          - Portable Interceptors:
                - Fix so that interceptors registered with an ORB initializer
                  are also applied to any objects registered as initial
