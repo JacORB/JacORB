@@ -60,6 +60,7 @@ public class JacIDL
     private boolean _includestate;
     private boolean _nofinal;
     private boolean _ami_callback;
+    private boolean _force_overwrite;
 
     private List _defines = new ArrayList();
     private List _undefines = new ArrayList();
@@ -71,14 +72,15 @@ public class JacIDL
         parser.pack_replace = new Hashtable();
         parser.scopes = new java.util.Stack();
         parser.include_state = false;
-        _destdir = new File( "." );
-        _srcdir = new File( "." );
+        _destdir = new File(".");
+        _srcdir = new File(".");
         _parseonly = false;
         _generateir = false;
         _noskel = false;
         _nostub = false;
         _generateincluded = false;
         _nofinal = false;
+        _force_overwrite = false;
         _ami_callback = false;
         _debuglevel = 0;
     }
@@ -87,7 +89,7 @@ public class JacIDL
      * Set the destination directory.
      * @param dir the destination directory
      */
-    public void setDestdir( File dir )
+    public void setDestdir(File dir)
     {
 
         _destdir = dir;
@@ -97,7 +99,7 @@ public class JacIDL
      * Set the source directory.
      * @param dir the source directory
      */
-    public void setSrcdir( File dir )
+    public void setSrcdir(File dir)
     {
 
         _srcdir = dir;
@@ -107,7 +109,7 @@ public class JacIDL
      * Set the include path for the idl compiler.
      * @param path the include path
      */
-    public void setIncludepath( Path path )
+    public void setIncludepath(Path path)
     {
 
         _includepath = path;
@@ -118,7 +120,7 @@ public class JacIDL
      * Set the debug level.
      * @param level the debug level
      */
-    public void setDebuglevel( int level )
+    public void setDebuglevel(int level)
     {
 
         _debuglevel = level;
@@ -132,7 +134,7 @@ public class JacIDL
      * Set the flag to generate the interface repository files.
      * @param flag the flag
      */
-    public void setGenerateir( boolean flag )
+    public void setGenerateir(boolean flag)
     {
 
         _generateir = flag;
@@ -142,7 +144,7 @@ public class JacIDL
      * Set the flag to use the omg package prefix
      * @param flag the flag
      */
-    public void setOmgprefix( boolean flag )
+    public void setOmgprefix(boolean flag)
     {
         _omgprefix = flag;
     }
@@ -151,7 +153,7 @@ public class JacIDL
      * Set the flag to generate all files.
      * @param flag the flag
      */
-    public void setAll( boolean flag )
+    public void setAll(boolean flag)
     {
 
         _generateincluded = flag;
@@ -161,7 +163,7 @@ public class JacIDL
      * Set the flag to parse the idl only.
      * @param flag the flag
      */
-    public void setParseonly( boolean flag )
+    public void setParseonly(boolean flag)
     {
 
         _parseonly = flag;
@@ -172,7 +174,7 @@ public class JacIDL
      * Set the flag to leave out skeleton generation.
      * @param flag the flag
      */
-    public void setNoskel( boolean flag )
+    public void setNoskel(boolean flag)
     {
 
         _noskel = flag;
@@ -182,7 +184,7 @@ public class JacIDL
      * Set the flag to leave out stub generation.
      * @param flag the flag
      */
-    public void setNostub( boolean flag )
+    public void setNostub(boolean flag)
     {
 
         _nostub = flag;
@@ -192,7 +194,7 @@ public class JacIDL
      * Set the flag to use sloppy forwards.
      * @param flag the flag
      */
-    public void setSloppyforward( boolean flag )
+    public void setSloppyforward(boolean flag)
     {
 
         _sloppyforward = flag;
@@ -202,7 +204,7 @@ public class JacIDL
      * Set the flag to use sloppy names.
      * @param flag the flag
      */
-    public void setSloppynames( boolean flag )
+    public void setSloppynames(boolean flag)
     {
 
         _sloppynames = flag;
@@ -221,27 +223,36 @@ public class JacIDL
     /**
      * Sets the flag to generate AMI callbacks.
      */
-    public void setAmi_callback( boolean flag )
+    public void setAmi_callback(boolean flag)
     {
         _ami_callback = flag;
+    }
+
+    /**
+     * Sets the flag to overwrite existing files.
+     */
+
+    public void setForceOverwrite(boolean flag)
+    {
+        _force_overwrite = flag;
     }
 
     // ****************************************************************
     // **** Nested elements
     // ******************************
 
-    public void addDefine( org.apache.tools.ant.types.Environment.Variable
-            def )
+    public void addDefine(org.apache.tools.ant.types.Environment.Variable
+                           def)
     {
         // The variable can only be evaluated in the execute() method
-        _defines.add( def );
+        _defines.add(def);
     }
 
-    public void addUndefine( org.apache.tools.ant.types.Environment.Variable
-            def )
+    public void addUndefine(org.apache.tools.ant.types.Environment.Variable
+                             def)
     {
         // The variable can only be evaluated in the execute() method
-        _undefines.add( def );
+        _undefines.add(def);
     }
 
     // *****************************************************************
@@ -257,7 +268,7 @@ public class JacIDL
         parser.init ();
 
         // set destination directory
-        if ( ! _destdir.exists ())
+        if (! _destdir.exists ())
         {
             _destdir.mkdirs ();
         }
@@ -273,16 +284,16 @@ public class JacIDL
         parser.parse_only = _parseonly;
 
         // no skeletons
-        parser.generate_skeletons = ( !_noskel );
+        parser.generate_skeletons = (!_noskel);
 
         // no stubs
-        parser.generate_stubs = ( !_nostub );
+        parser.generate_stubs = (!_nostub);
 
         // sloppy forwards
         parser.sloppy = _sloppyforward;
 
         // sloppy names
-        parser.strict_names = ( !_sloppynames );
+        parser.strict_names = (!_sloppynames);
 
         // nofinal
         parser.setGenerateFinalCode(!_nofinal);
@@ -290,38 +301,41 @@ public class JacIDL
         // AMI callback model
         parser.generate_ami_callback = _ami_callback;
 
+        // AMI callback model
+        parser.forceOverwrite = _force_overwrite;
+
         // include path
-        if( _includepath != null )
+        if (_includepath != null)
         {
 
             // Check path
             String includeList[] = _includepath.list();
-            for( int i = 0; i < includeList.length; i++ )
+            for (int i = 0; i < includeList.length; i++)
             {
 
-                File incDir = project.resolveFile( includeList[ i ] );
-                if( !incDir.exists() )
+                File incDir = project.resolveFile(includeList[ i ]);
+                if (!incDir.exists())
                 {
 
-                    throw new BuildException( "include directory \"" +
-                            incDir.getPath() + "\" does not exist !", location );
+                    throw new BuildException("include directory \"" +
+                                              incDir.getPath() + "\" does not exist !", location);
                 }
             }
-            GlobalInputStream.setIncludePath( _includepath.toString() );
+            GlobalInputStream.setIncludePath(_includepath.toString());
         }
 
         // omg package prefix
-        if( _omgprefix )
+        if (_omgprefix)
         {
             parser.package_prefix = "org.omg";
         }
 
         // setup input file lists
         resetFileLists();
-        DirectoryScanner ds = getDirectoryScanner( _srcdir );
+        DirectoryScanner ds = getDirectoryScanner(_srcdir);
         String files[] = ds.getIncludedFiles();
         //log("files: "+files);
-        scanFiles( files );
+        scanFiles(files);
 
         // ***********************************
         // **** invoke parser
@@ -330,18 +344,18 @@ public class JacIDL
         // specified in the task specification
         try
         {
-            if( _compileList != null )
+            if (_compileList != null)
             {
 
-                for( int i = 0; i < _compileList.length; i++ )
+                for (int i = 0; i < _compileList.length; i++)
                 {
 
                     // setup the parser
                     String fileName = _compileList[ i ].getPath();
-                    log( "processing idl file: " + fileName );
+                    log("processing idl file: " + fileName);
 
                     GlobalInputStream.init();
-                    GlobalInputStream.setInput( fileName );
+                    GlobalInputStream.setInput(fileName);
                     lexer.reset();
                     NameTable.init();
                     ConstDecl.init();
@@ -354,12 +368,12 @@ public class JacIDL
             }
 
         }
-        catch( IOException ioex )
+        catch (IOException ioex)
         {
             ioex.printStackTrace();
             throw new BuildException();
         }
-        catch( Exception ex )
+        catch (Exception ex)
         {
             ex.printStackTrace();
             throw new BuildException();
@@ -378,27 +392,27 @@ public class JacIDL
      * Scans the directory looking for source files to be compiled.
      * The results are returned in the class variable compileList
      */
-    protected void scanFiles( String files[] ) throws BuildException
+    protected void scanFiles(String files[]) throws BuildException
     {
         File file;
 
         // TODO: create an own pattern mapper
         GlobPatternMapper m = new GlobPatternMapper();
-        m.setFrom( "*.idl" );
-        m.setTo( "*.java" );
-        SourceFileScanner sfs = new SourceFileScanner( this );
-        File[] newfiles = sfs.restrictAsFiles( files, _srcdir, _destdir, m );
+        m.setFrom("*.idl");
+        m.setTo("*.java");
+        SourceFileScanner sfs = new SourceFileScanner(this);
+        File[] newfiles = sfs.restrictAsFiles(files, _srcdir, _destdir, m);
         _compileList = new File[ newfiles.length ];
 
-        for( int i = 0; i < newfiles.length; i++ )
+        for (int i = 0; i < newfiles.length; i++)
         {
-            log( "scan file: " + newfiles[ i ].getPath() );
+            log("scan file: " + newfiles[ i ].getPath());
             file = newfiles[ i ];
-            if( !file.exists() )
+            if (!file.exists())
             {
 
-                throw new BuildException( "The input file \"" + file.getPath() +
-                        "\" does not exist !" );
+                throw new BuildException("The input file \"" + file.getPath() +
+                                          "\" does not exist !");
             }
             _compileList[ i ] = file;
         }
@@ -410,41 +424,40 @@ public class JacIDL
         return _compileList;
     }
 
-    private static boolean fileExists( String filename )
+    private static boolean fileExists(String filename)
     {
 
-        if( filename == null || filename.length() == 0 ) return false;
-        File file = new File( filename );
-        return ( file.exists() && file.isFile() );
+        if (filename == null || filename.length() == 0) return false;
+        File file = new File(filename);
+        return (file.exists() && file.isFile());
     }
 
-    private static boolean dirExists( File dir )
+    private static boolean dirExists(File dir)
     {
 
-        return ( dir.exists() && dir.isDirectory() );
+        return (dir.exists() && dir.isDirectory());
     }
 
     private void setupDefines()
     {
-
         org.apache.tools.ant.types.Environment.Variable prop;
         String value;
 
-        for( int i = 0; i < _defines.size(); i++ )
+        for (int i = 0; i < _defines.size(); i++)
         {
-
             prop = (org.apache.tools.ant.types.Environment.Variable)
-                    _defines.get( i );
+                _defines.get(i);
             value = prop.getValue();
-            if( value == null ) value = "1";
-            lexer.define( prop.getKey(), value );
+            if (value == null) 
+                value = "1";
+            lexer.define(prop.getKey(), value);
         }
-        for( int i = 0; i < _undefines.size(); i++ )
+        for (int i = 0; i < _undefines.size(); i++)
         {
 
             prop = (org.apache.tools.ant.types.Environment.Variable)
-                    _undefines.get( i );
-            lexer.undefine( prop.getKey() );
+                _undefines.get(i);
+            lexer.undefine(prop.getKey());
         }
     }
 }
