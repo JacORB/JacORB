@@ -37,7 +37,7 @@ public interface EventQueue
 {
 
     /**
-     * get the next event from this queue. which particular event is
+     * get the next Message from this queue. which particular event is
      * selected depends on the underlying implementation.
      *
      * @param wait a <code>boolean</code> value. If this parameter is
@@ -45,24 +45,25 @@ public interface EventQueue
      * available. If the parameter is set to false the queue will
      * return false in case it is empty.
      *
-     * @return a <code>NotificationEvent</code> value
-     *
      * @exception InterruptedException
      */
-    Message getEvent( boolean wait ) throws InterruptedException;
+    Message getEvent( boolean wait )
+        throws InterruptedException;
 
     /**
      * get up to <code>n</code> events from this queue.
      */
-    Message[] getEvents( int n, boolean wait ) throws InterruptedException;
+    Message[] getEvents( int n, boolean wait )
+        throws InterruptedException;
 
     /**
-     * get all events from this queue.
+     * get all Messages from this queue.
      */
-    Message[] getAllEvents( boolean wait ) throws InterruptedException;
+    Message[] getAllEvents( boolean wait )
+        throws InterruptedException;
 
     /**
-     * put a NotificationEvent into this queue.
+     * put a Message into this queue.
      */
     void put( Message event );
 
