@@ -348,7 +348,9 @@ class InterfaceBody
 
     /** print methods to the stub file */
 
-    public void printStubMethods(PrintWriter ps, String classname, boolean locality_constraint)
+    public void printStubMethods(PrintWriter ps, 
+                                 String classname,
+                                 boolean locality_constraint)
     {
 	Operation [] ops = getMethods();
 	if( ops.length > 0 )

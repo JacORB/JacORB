@@ -169,35 +169,40 @@ class NameTable
         } 
         else
         {
-            //h.put( name, "operation" );
+            h.put( name, "operation" );
             operationSources.put( name, inheritedFrom );
         }
     }
 
     /**
      *  define a shadowed name, i.e. an inherited name
-     *  @throw NameAlreadyDefined if the name is already defined
+     *  @throw NameAlreadyDefined if a name is already defined
      */
 
-    private static void defineShadows(Hashtable shadowEntries) 
+    private static void defineShadows( Hashtable shadowEntries ) 
         throws NameAlreadyDefined 
     {
+        String firstViolation = null;
         for( Enumeration e = shadowEntries.keys(); e.hasMoreElements();)
         {
             String name = (String)e.nextElement();
             String kind = (String)shadowEntries.get(name);
             if( h.containsKey( name ) )
             {
-                throw new NameAlreadyDefined(name);
+                firstViolation = name;
             } 
             else 
             {
                 h.put( name, kind );
                 Environment.output( 4, "Put shadow " +  name);
                 shadows.put( name, "" );
+                if( kind.equals("operation"))
+                    operationSources.put( name, name.substring( 0, name.lastIndexOf(".") ));
             }
-            if( kind.equals("operation"))
-                operationSources.put( name, name.substring( 0, name.lastIndexOf(".") ));
+        }
+        if( firstViolation != null )
+        {
+            throw new NameAlreadyDefined( firstViolation );
         }
     }
 
