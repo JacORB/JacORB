@@ -75,25 +75,29 @@ public class Server_TCP_IP_Transport
         return socket;
     }
 
-    public synchronized void closeCompletely()
-        throws IOException
+    public synchronized void close()
     {
-        //ignore the reasons since this transport can never be
-        //reestablished.
         if( socket != null )
         {
-            socket.close();
-
-            //this will cause exceptions when trying to read from
-            //the streams. Better than "nulling" them.
-            if( in_stream != null )
+            try
             {
-                in_stream.close();
+                socket.close();
+
+                //this will cause exceptions when trying to read from
+                //the streams. Better than "nulling" them.
+                if( in_stream != null )
+                {
+                    in_stream.close();
+                }
+
+                if( out_stream != null )
+                {
+                    out_stream.close();
+                }
             }
-
-            if( out_stream != null )
+            catch (IOException ex)
             {
-                out_stream.close();
+                throw to_COMM_FAILURE (ex);
             }
             
             socket = null;
@@ -101,12 +105,6 @@ public class Server_TCP_IP_Transport
             Debug.output( 2, "Closed server-side transport to " +
                           connection_info );
         }
-    }
-
-    public void closeAllowReopen()
-        throws IOException
-    {
-        throw new org.omg.CORBA.BAD_OPERATION();
     }
 
     public boolean waitUntilConnected()
