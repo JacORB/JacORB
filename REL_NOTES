@@ -48,6 +48,9 @@ gerald.brose@acm.org
          - JacORB classes directory no longer needed in CLASSPATH to
            build JacORB.
 
+   - GIOP: Added missing functionality to handle LocateRequests and
+           LocateReplies.
+
 1.4 beta 4:
 ===========
 
