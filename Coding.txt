@@ -1,76 +1,138 @@
 Gerald Brose
 
+gerald.brose@acm.org
 
-                   JacORB Coding Conventions
-                   =========================
 
-The goal of this little style guide is enhance code readability by
-using a common style. Coding style in the JacORB project is not meant
-a way of expressing oneself's views on aesthetics, but a means of
-communication between physically distributed
-developers. Performance-related code obfuscation should be limited to
-a few sensitive places - and explained in comments!)
+            JacORB Coding Conventions
+	    =========================
 
-A useful tool is astyle (http://astyle.sourceforge.net/), which can be
-used to format source code:
+JacORB uses the Apache Jakarta Coding Styl, which is based on the Sun
+coding conventions for Java. Please see 
+http://jakarta.apache.org/turbine/common/code-standards.html for
+reference.
 
-       astyle -j -s4 -b -P --convert-tabs --break-blocks 
+(Re-formatting):
+===============
 
-1) Use (plenty of) whitespace to make the text more readable.
--------------------------------------------------------------
+The astyle tool (http://astyle.sourceforge.net/) can be used to format 
+source code. Note, however, that astyle will not *remove* whitespace, 
+e.g., within brackets.
+
+You can use the following lines as your .astylerc file:
+
+--- begin .astylerc file ----
+
+#
+# .astylerc file for JacORB, meant to reflect Apache Java Coding
+# conventions
+#
+
+# default parsing is of java files
+mode=java
+
+# brackets should be attached to pre-bracket lines
+brackets=attach
+
+# set 4 spaces per indent
+indent=spaces=4
+
+# indent switch blocks
+indent-switches
+
+# suffix of original files should be .orig
+suffix=.orig
+
+# Break brackets from their pre-block statements (i.e. ANSI C, C++ style)
+brackets=break
+
+# Insert space padding around operators only:
+pad=oper
+
+# Convert tabs to spaces.
+convert-tabs
+
+--- end .astylerc file ----
+
+
+To use astyle from within Emacs, make sure astyle is in your
+PATH. Then add the following to your .emacs file (found on
+the 'Net):
+
+
+(defvar astyle-command "astyle")
+
+(defun astyle-region (start end)
+   "Run astyle on region, formatting it in a pleasant way."
+   (interactive "r")
+   (save-excursion
+     (shell-command-on-region start end astyle-command nil t)
+     (indent-region start end nil)))
+
+(defun astyle-buffer ()
+   "Run astyle on whole buffer, formatting it in a pleasant way."
+   (interactive)
+   (save-excursion
+     (astyle-region (point-min) (point-max))))
+
+(add-hook 'c-mode-common-hook
+             '(lambda ()
+                (define-key c-mode-map "\C-cr"  'astyle-region)
+                (define-key c-mode-map "\C-cb"  'astyle-buffer)
+                (define-key c++-mode-map "\C-cr"  'astyle-region)
+                (define-key c++-mode-map "\C-cb"  'astyle-buffer)
+                (define-key jde-mode-map "\C-cr"  'astyle-region)
+                (define-key jde-mode-map "\C-cb"  'astyle-buffer)))
+
+
+
+General rules
+=============
+
+
+1) Use whitespace to make the text more readable.
 
     a) indentation: 4 spaces, no tabs!
 
     b) Open curly brackets on a *new* line without further indentation
 
-       if( x )
+       if (x)
        {
        }
 
-     
     c) always write the body of an if-, for-, while- ... statmement 
        on a new line, never on the same!
 
-       for( ;; )
+       for (;;)
        {
 	  ...
        }
 
-    d) write: x = y, not: x=y, it's simpler and faster to read!
+    d) write: x = y, not: x=y
 
-    e) Include extra spaces between parenthesis and expression, and
-       around operators
-
+    e) Include extra spaces around operators,
        For example:
  
-             calculate( foo );
-             a = b * c;
+             a = b * c
 
     f) No spaces between method names and opening brackets, e.g:
  
-             a.method( arg1 );
+             a.method(arg1);
 
-             public int myMethod( int param 1, ... )
+             public int myMethod(int param 1, ...)
 
-       Reason: Instantaneaously makes clear that something is a method
-       call and not a field access.
-
-    g) break lines that get too long (around column 100).
+    g) break lines that get too long  (around column 100)
 
     h) insert empty lines freely wherever you think it helps.
 
 
 2) Comments:
-------------
+    - as much as you can:
+         javadoc public and package local methods and fields!!!
+         javadoc private and protected ones also
+    - add javadoc wherever you modify code and you know what you are
+    doing 
 
-    - as much as you can, 
-         public and package local methods and fields!!!
-         private and protected ones also
+3) Place the JacORB LGPL license header on all files.
 
-    - add javadoc wherever you modify code
-
-3) Place the JacORB LGPL license header on all files
-----------------------------------------------------
 
 [ More suggestions? ... ]
-
