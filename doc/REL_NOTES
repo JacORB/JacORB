@@ -17,6 +17,7 @@
         - GIOP 1.2, Bidirectional GIOP
         - ETF
         - POA
+        - QoS (timing policies, sync scope)
         - AMI (callback model)
         - OBV
         - DynAny
