@@ -51,12 +51,40 @@ public class RequestQueue
         logTrace = _logTrace;
     }
 
+    /**
+     * Adds a request to this queue.  The properties
+     * <code>jacorb.poa.queue_{min,max,wait}</code> specify what happens
+     * when the queue is full, i.e. when it already contains
+     * <code>queue_max</code> requests.  If <code>queue_wait</code> is
+     * <i>off</i>, then this method does not add the request and throws a 
+     * <code>ResourceLimitReachedException</code>.  If <code>queue_wait</code>
+     * is <i>on</i>, then this method blocks until no more than
+     * <code>queue_min</code> requests are in the queue; it then adds the
+     * request, and returns.
+     */
     protected synchronized void add(ServerRequest request)
         throws ResourceLimitReachedException
     {
-        if (queue.size() == Environment.queueMax())
+        if (queue.size() >= Environment.queueMax())
         {
-            throw new ResourceLimitReachedException();
+            if (Environment.queueWait())
+            {
+                while (queue.size() > Environment.queueMin())
+                {
+                    try
+                    {
+                        this.wait();
+                    }
+                    catch (InterruptedException ex)
+                    {
+                        // ignore
+                    }   
+                }
+            }
+            else
+            {
+                throw new ResourceLimitReachedException();
+            }
         }
         queue.addElement(request);
 
@@ -89,6 +117,7 @@ public class RequestQueue
                 result = (ServerRequest) en.nextElement();
                 if (result.requestId() == rid) {
                     queue.removeElement(result);
+                    this.notifyAll();
                     // notify a queue listener
                     if (queueListener != null) queueListener.requestRemovedFromQueue(result, queue.size());
                     return result;
@@ -110,6 +139,7 @@ public class RequestQueue
         if (!queue.isEmpty()) {
             ServerRequest result = (ServerRequest) queue.elementAt(0);
             queue.removeElementAt(0);
+            this.notifyAll();
             // notify a queue listener
             if (queueListener != null) queueListener.requestRemovedFromQueue(result, queue.size());
             return result;
@@ -120,6 +150,7 @@ public class RequestQueue
         if (!queue.isEmpty()) {
             ServerRequest result = (ServerRequest) queue.lastElement();
             queue.removeElementAt(queue.size()-1);
+            this.notifyAll();
             // notify a queue listener
             if (queueListener != null) queueListener.requestRemovedFromQueue(result, queue.size());
             return result;
