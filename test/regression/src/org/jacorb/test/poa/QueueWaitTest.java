@@ -198,7 +198,13 @@ public class QueueWaitTest extends CallbackTestCase
             if (h.exceptionReceived)
                 fail ("should not have raised an exception");
         }
-        try { Thread.sleep (1000); } catch (InterruptedException ex) {}
+        try 
+        { 
+            Thread.sleep (1000); 
+        } 
+        catch (InterruptedException ex) 
+        {}
+
         if (h.exceptionReceived)
             fail ("should not have raised an exception");
     }

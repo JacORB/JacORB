@@ -41,9 +41,11 @@ public class QueueNoWaitTest extends CallbackTestCase
         props.setProperty ("jacorb.poa.queue_min", "1");
         props.setProperty ("jacorb.poa.queue_wait", "off");
 
-        ClientServerSetup setup = new ClientServerSetup
-            ( suite, "org.jacorb.test.orb.CallbackServerImpl",
-              null, props );
+        ClientServerSetup setup = 
+            new ClientServerSetup( suite, 
+                                   "org.jacorb.test.orb.CallbackServerImpl",
+                                   null, 
+                                   props );
 
         suite.addTest( new QueueNoWaitTest( "test_warm_up", setup ) );
         suite.addTest( new QueueNoWaitTest( "test_overrun", setup ) );
@@ -174,6 +176,7 @@ public class QueueNoWaitTest extends CallbackTestCase
         class Holder {
             public boolean exceptionReceived = false;
         }
+
         final Holder h = new Holder();
         
         ReplyHandler handler = new ReplyHandler()
@@ -195,9 +198,16 @@ public class QueueNoWaitTest extends CallbackTestCase
         {
             ( ( _CallbackServerStub ) server )
                     .sendc_delayed_ping( ref( handler ), 10 );
-            if (h.exceptionReceived) return;
+            if (h.exceptionReceived) 
+                return;
         }
-        try { Thread.sleep (1000); } catch (InterruptedException ex) {}
+
+        try 
+        { 
+            Thread.sleep (1000); 
+        }
+        catch (InterruptedException ex) 
+        {}
         if (!h.exceptionReceived)
             fail ("should have raised a TRANSIENT exception");
     }
