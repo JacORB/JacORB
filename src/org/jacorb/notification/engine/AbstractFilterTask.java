@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.jacorb.notification.interfaces.FilterStage;
+import java.util.Iterator;
 
 /**
  * Abstract Base Class for FilterTask.
@@ -35,6 +36,7 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 abstract class AbstractFilterTask extends AbstractTask
 {
+    private static final boolean ASSERT = false;
 
     /**
      * Template for internal use.
@@ -51,7 +53,29 @@ abstract class AbstractFilterTask extends AbstractTask
      * child FilterStages for which evaluation was successful. these
      * Stages are to be eval'd by the next Task.
      */
-    protected List listOfFilterStageToBeProcessed_ = new Vector();
+    private List listOfFilterStageToBeProcessed_ = new Vector();
+
+    protected boolean isFilterStageListEmpty() {
+        return listOfFilterStageToBeProcessed_.isEmpty();
+    }
+
+    protected void addFilterStage(FilterStage s) {
+        listOfFilterStageToBeProcessed_.add(s);
+    }
+
+    protected void addFilterStage(List s) {
+        if (ASSERT) {
+            Iterator i = s.iterator();
+
+            while(i.hasNext()) {
+                if (! (i.next() instanceof FilterStage) ) {
+                    throw new IllegalArgumentException();
+                }
+            }
+        }
+
+        listOfFilterStageToBeProcessed_.addAll(s);
+    }
 
     /**
      * set the FilterStages for the next run.
@@ -78,7 +102,7 @@ abstract class AbstractFilterTask extends AbstractTask
         listOfFilterStageToBeProcessed_.clear();
     }
 
-    public void reset()
+    public synchronized void reset()
     {
         super.reset();
 
