@@ -647,7 +647,7 @@ public final class Any
         if( value instanceof org.jacorb.orb.CDROutputStream )
         {
             //System.out.println("Any.create_input_stream()");
-            return new org.jacorb.orb.CDRInputStream(orb, ((CDROutputStream)value).getBufferCopy());
+            return new org.jacorb.orb.CDRInputStream( orb, ((CDROutputStream)value).getBufferCopy());
         }
         else
         {
