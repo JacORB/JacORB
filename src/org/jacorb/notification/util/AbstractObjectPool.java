@@ -109,6 +109,9 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
             modified = true;
             if (sPoolsToLookAfter.isEmpty())
             {
+                // this cleans up the asArray_ array for the GC.
+                getAllPools();
+                
                 stopListCleaner();
             }
         }
