@@ -347,7 +347,7 @@ public class ReplyReceiver extends ReplyPlaceholder
         public org.omg.CORBA.portable.OutputStream createReply() 
         {
             // the latest possible time at which we can do this
-            delegate.ensureReplyStartTime();
+            Time.waitFor (delegate.getReplyStartTime());
             return null;
         }
         
