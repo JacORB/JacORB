@@ -53,8 +53,8 @@ gerald.brose@acm.org
 
         - SSL Support changes:
                    - Dropped direct support for the separately
-                     downloadable jsse1.0.2 (please see SSL chapter in
-                     the Programming Guide).
+                     downloadable jsse1.0.2 (please see
+                     README.jsse_1_0_2 in the sun_jsse dir).
 
                    - Added support for the JDK 1.4, which now also
                      includes generic access to the peers certificates
