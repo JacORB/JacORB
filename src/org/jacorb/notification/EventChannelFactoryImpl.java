@@ -522,14 +522,38 @@ public class EventChannelFactoryImpl
 
     public void shutdown( ShutdownCallback cb )
     {
-        int _numberOfChannels;
+
+        // estimate shutdown time.
+        // during shutdown disconnect must be called on every
+        // connected client. in worst case the client is not
+        // acccessible anymore and disconnect raises TRANSIENT. as
+        // this could take some time request some more time from the
+        // WrapperManager who is initiating the shutdown.
+
+        int _numberOfClients = 0;
 
         synchronized(allChannelsLock_) {
-            _numberOfChannels = allChannels_.size();
+            Iterator i = allChannels_.entrySet().iterator();
+            while (i.hasNext()) {
+                EventChannelImpl _channel = (EventChannelImpl)((Map.Entry)i.next()).getValue();
+
+                _numberOfClients += _channel.getNumberOfConnectedClients();
+            }
+        }
+
+        // TODO fetch this from somewhere?
+        int _connectionTimeout = 4000;
+
+        int _estimatedShutdowntime = _numberOfClients * _connectionTimeout;
+
+        if (logger_.isInfoEnabled()) {
+            logger_.info("Connected Clients: " + _numberOfClients );
+            logger_.info("Connection Timeout: " + _connectionTimeout + " ms");
+            logger_.info("Estimated Shutdowntime: " + _estimatedShutdowntime + " ms");
         }
 
         // estimate 4000ms shutdowntime per channel
-        cb.needTime( _numberOfChannels * 4000 );
+        cb.needTime( _estimatedShutdowntime );
 
         logger_.info( "NotificationService is going down" );
 
@@ -802,6 +826,7 @@ public class EventChannelFactoryImpl
         int channels = 0;
         String nameId = null;
         String nameKind = "";
+        boolean doStartMemoryProfiler = false;
 
         Logger _logger = Debug.getNamedLogger( EventChannelFactoryImpl.class.getName() + ".init" );
 
@@ -863,6 +888,9 @@ public class EventChannelFactoryImpl
                     {
                         nameId = name;
                     }
+                }
+                else if ( args[ i ].equals( "-memoryInfo" ) ) {
+                    doStartMemoryProfiler = true;
                 }
                 else
                 {
@@ -976,6 +1004,10 @@ public class EventChannelFactoryImpl
         _orbThread.setDaemon( false );
 
         _orbThread.start();
+
+//         if (doStartMemoryProfiler) {
+//             MemoryProfiler.startProfiler();
+//         }
 
         _logger.info("NotificationService up");
 
