@@ -51,6 +51,8 @@ public final class ORB
 {
     private static final String versionString = "1.4 beta 2";
     private static final String dateString = "20 Nov 2001";
+    private static final String nullIORString =
+       "IOR:00000000000000010000000000000000";
 
     /** "initial" references */
     private Hashtable initial_references = new Hashtable();
@@ -1522,6 +1524,16 @@ public final class ORB
 
     public String object_to_string( org.omg.CORBA.Object obj)
     {
+        if (obj == null)
+        {
+            return nullIORString;
+        }
+
+        if (obj instanceof org.omg.CORBA.LocalObject)
+        {
+           throw new org.omg.CORBA.MARSHAL ("Attempt to stringify a local object");
+        }
+
         Object delegate = 
             ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate();
         if (delegate instanceof org.jacorb.orb.Delegate)
