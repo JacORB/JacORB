@@ -96,8 +96,6 @@ public final class DynUnion
          }
 
          select_member();
-         org.jacorb.util.Debug.output( 3, "DynUnion.ctor(), member == null? " + 
-                                       ( member == null ));
       }
       catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
       {
