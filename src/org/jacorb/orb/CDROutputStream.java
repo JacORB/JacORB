@@ -335,21 +335,18 @@ public class CDROutputStream
 
         if ( remainder != align )
         {
-            //clear padding areas. This is necessary for all those
-            //cases, where the resulting byte array is interpreted as
-            //a string for comparation purposes.
-            
-            //at maximum, there are 8 bytes of padding. the following
-            //is (supposed to be :-) faster than using a for-loop
-            buffer[ pos     ] = (byte) 0;
-            buffer[ pos + 1 ] = (byte) 0;
-            buffer[ pos + 2 ] = (byte) 0;
-            buffer[ pos + 3 ] = (byte) 0;
-            buffer[ pos + 4 ] = (byte) 0;
-            buffer[ pos + 5 ] = (byte) 0;
-            buffer[ pos + 6 ] = (byte) 0;
-            buffer[ pos + 7 ] = (byte) 0;
-            
+            // Clear padding areas. This is necessary for all those
+            // cases, where the resulting byte array is interpreted as
+            // a string for comparation purposes.
+
+            // Done in loop so as not to overrun end of buffer
+
+            int topad = Math.min (buffer.length - pos, 8);
+            for (int j = 0; j < topad; j++)
+            {
+                buffer[ pos + j ] = (byte) 0;
+            }
+
             index += remainder;
             pos += remainder;
         }
