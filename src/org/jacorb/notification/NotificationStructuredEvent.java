@@ -21,21 +21,32 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CORBA.ORB;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CORBA.Any;
-import org.omg.CosNotification.StructuredEventHelper;
-import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.TCLNode;
-import org.jacorb.notification.node.DotOperator;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.node.ComponentName;
+import org.jacorb.notification.node.EvaluationResult;
+import org.jacorb.util.Time;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.AnyHolder;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StartTime;
+import org.omg.CosNotification.StopTime;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotification.StructuredEventHelper;
+import org.omg.CosNotification.Timeout;
+import org.omg.CosNotifyFilter.Filter;
+import org.omg.CosNotifyFilter.MappingFilter;
+import org.omg.CosNotifyFilter.UnsupportedFilterableData;
+import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.CORBA.TypeCodePackage.BadKind;
-import org.jacorb.notification.node.DynamicTypeException;
-import org.jacorb.notification.node.RuntimeVariableNode;
+import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.omg.TimeBase.TimeTHelper;
+import org.omg.TimeBase.UtcT;
+import org.omg.TimeBase.UtcTHelper;
 
 /**
  * Adapt a StructuredEvent to the NotificationEvent Interface.
@@ -46,10 +57,13 @@ import org.jacorb.notification.node.RuntimeVariableNode;
 
 class NotificationStructuredEvent extends NotificationEvent
 {
-
     private Any anyValue_;
     private StructuredEvent structuredEventValue_;
     private String constraintKey_;
+
+    private Date startTime_;
+    private Date stopTime_;
+
 
     NotificationStructuredEvent( ApplicationContext appContext )
     {
@@ -63,14 +77,20 @@ class NotificationStructuredEvent extends NotificationEvent
         constraintKey_ = 
 	    FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
 					   structuredEventValue_.header.fixed_header.event_type.type_name );
+
+	parseQosSettings();
     }
 
     public void reset()
     {
         super.reset();
+
 	anyValue_ = null;
         structuredEventValue_ = null;
         constraintKey_ = null;
+	startTime_ = null;
+	stopTime_ = null;
+
     }
 
     public int getType()
@@ -134,4 +154,78 @@ class NotificationStructuredEvent extends NotificationEvent
 	throw new EvaluationException();
     }
 
+    private void parseQosSettings() {
+	Property[] props = toStructuredEvent().header.variable_header;
+
+	for (int x=0; x < props.length; ++x) {
+	    if (StartTime.value.equals(props[x].name)) {
+		startTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
+	    } else if (StopTime.value.equals(props[x].name)) {
+		stopTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
+	    } else if (Timeout.value.equals(props[x].name)) {
+		setTimeout(TimeTHelper.extract(props[x].value));
+	    }
+	}
+    }
+
+    public static long unixTime(UtcT corbaTime) {
+	long _unixTime = (corbaTime.time - Time.UNIX_OFFSET) / 10000;
+
+	if (corbaTime.tdf != 0) {
+	    _unixTime = _unixTime - (corbaTime.tdf * 60000);
+	}
+
+	return _unixTime;
+    }
+
+    public boolean hasStartTime() {
+	return startTime_ != null;
+    }
+
+    public Date getStartTime() {
+	return startTime_;
+    }
+
+    public boolean hasStopTime() {
+	return stopTime_ != null;
+    }
+
+    public Date getStopTime() {
+	return stopTime_;
+    }
+
+    public boolean match(FilterStage destination) {
+	List _filterList = destination.getFilters();
+
+        if ( _filterList.isEmpty() )
+        {
+            return true;
+        }
+
+        Iterator _allFilters = _filterList.iterator();
+
+        while ( _allFilters.hasNext() )
+        {
+            try
+            {
+                Filter _filter = ( Filter )
+                                 ( ( KeyedListEntry ) _allFilters.next() ).getValue();
+
+                if ( _filter.match_structured( toStructuredEvent() ) )
+                {
+                    return true;
+                }
+            }
+            catch ( UnsupportedFilterableData ufd )
+            {
+                // error means false
+            }
+        }
+
+        return false;
+    }
+
+    public boolean match(MappingFilter filter, AnyHolder value) throws UnsupportedFilterableData {
+	return filter.match_structured(toStructuredEvent(), value);
+    }
 }

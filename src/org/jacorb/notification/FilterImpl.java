@@ -21,24 +21,24 @@ package org.jacorb.notification;
  *
  */
 
-import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
-import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.jacorb.notification.evaluate.FilterConstraint;
+
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.evaluate.FilterConstraint;
 import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.node.DynamicTypeException;
-import org.jacorb.notification.util.WildcardMap;
 import org.jacorb.notification.util.CachingWildcardMap;
+import org.jacorb.notification.util.WildcardMap;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
-import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyComm.NotifySubscribe;
@@ -52,9 +52,10 @@ import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+
+import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
+import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 
 /**
  * FilterImpl.java
@@ -158,6 +159,8 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected int constraintIdPool_ = 0;
 
+    public static final int NO_CONSTRAINT = Integer.MIN_VALUE;
+
     protected ORB orb_;
 
     protected ApplicationContext applicationContext_;
@@ -170,8 +173,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected NotificationEventFactory notificationEventFactory_;
 
-    public FilterImpl( String constraintGrammar,
-		       ApplicationContext applicationContext )
+    public FilterImpl(ApplicationContext applicationContext, String constraintGrammar)
     {
         super();
 
@@ -629,8 +631,8 @@ public class FilterImpl extends FilterPOA implements Disposable
     }
 
     // readers
-    boolean match(EvaluationContext evaluationContext, 
-		  NotificationEvent event ) throws UnsupportedFilterableData
+    int match(EvaluationContext evaluationContext, 
+	      NotificationEvent event ) throws UnsupportedFilterableData
     {
         try
         {
@@ -658,7 +660,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
                             if ( _result )
                             {
-                                return true;
+				return _entry.getConstraintId();
                             }
                         }
                         catch ( EvaluationException e )
@@ -678,7 +680,7 @@ public class FilterImpl extends FilterPOA implements Disposable
                     logger_.info( "Filter has no Expressions" );
                 }
 
-                return false;
+                return NO_CONSTRAINT;
             }
             finally
             {
@@ -688,11 +690,15 @@ public class FilterImpl extends FilterPOA implements Disposable
         catch ( InterruptedException ie )
         {
             Thread.currentThread().interrupt();
-            return false;
+            return NO_CONSTRAINT;
         }
     }
 
-    public boolean match( Any anyEvent ) throws UnsupportedFilterableData
+    public boolean match( Any anyEvent ) throws UnsupportedFilterableData {
+	return match_internal( anyEvent ) != NO_CONSTRAINT;
+    }
+
+    public int match_internal( Any anyEvent ) throws UnsupportedFilterableData
     {
 	logger_.debug("match()");
 
@@ -715,7 +721,11 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 
-    public boolean match_structured( StructuredEvent structuredEvent )
+    public boolean match_structured( StructuredEvent structuredevent) throws UnsupportedFilterableData {
+	return match_structured_internal(structuredevent) != NO_CONSTRAINT;
+    }
+
+    public int match_structured_internal( StructuredEvent structuredEvent )
     throws UnsupportedFilterableData
     {
 
@@ -741,7 +751,7 @@ public class FilterImpl extends FilterPOA implements Disposable
     }
 
     public boolean match_typed( Property[] properties )
-    throws UnsupportedFilterableData
+	throws UnsupportedFilterableData
     {
 
         return false;
@@ -780,4 +790,4 @@ public class FilterImpl extends FilterPOA implements Disposable
             e.printStackTrace();
         }
     }
-} // FilterImpl
+}

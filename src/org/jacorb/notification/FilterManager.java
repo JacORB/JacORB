@@ -21,13 +21,14 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterAdminOperations;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.Iterator;
-import java.util.Collections;
+
+import org.omg.CosNotifyFilter.Filter;
+import org.omg.CosNotifyFilter.FilterAdminOperations;
+import org.omg.CosNotifyFilter.FilterNotFound;
 
 /**
  * FilterManager.java

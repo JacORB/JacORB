@@ -21,36 +21,35 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.FilterStage;
-import java.util.Vector;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
+
+import org.jacorb.notification.interfaces.FilterStage;
 
 /**
- * Handle the Filtering of ConsumerAdmin and ProxySupplier Filters.
+ * FilterConsumerAdminTask.java
+ *
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class FilterOutgoingTask extends FilterTaskBase {
+public class FilterConsumerAdminTask extends FilterTaskBase 
+{
+    private static final FilterStage[] NO_CURRENT_FILTER_STAGE = new FilterStage[0];
 
     /**
-     * this List contains FilterStages which hava a EventConsumer associated.
+     * this List contains FilterStages (ProxySuppliers) which hava a EventConsumer associated.
      */
     protected List listOfFilterStageWithEventConsumer_ = new Vector();
-
-    /** flag to determine wether we are filtering the SupplierProxy or
-     * the ConsumerAdmin. The Initial value is true (Evaluate the ConsumerAdmin).
-     */
-    private boolean filterAdmin_ = true;
 
     /**
      * Initialize this FilterOutgoingTask with the Configuration of
      * another FilterTask.
      */
     public void setFilterStage(FilterTaskBase other) {
-	arrayCurrentFilterStage_ = other.getMatchingFilterStage();
+	arrayCurrentFilterStage_ = other.getFilterStageToBeProcessed();
     }
 
     /**
@@ -67,60 +66,35 @@ public class FilterOutgoingTask extends FilterTaskBase {
 
     public void reset() {
 	super.reset();
+
 	clearFilterStagesWithEventConsumer();
-	arrayCurrentFilterStage_ = null;
-	filterAdmin_ = true;
+	arrayCurrentFilterStage_ = NO_CURRENT_FILTER_STAGE;
     }
 
-    public void doWork() {
-	if (filterAdmin_) {
-	    filterAdmin();
-	} else {
-	    filterProxy();
-	}
-    }
-
-    private void filterAdmin() {
+    public void doWork() throws InterruptedException {
 	filter();
-	filterAdmin_ = false;
-	setStatus(RESCHEDULE);
-    }
 
-    private void filterProxy() {
-	filter();
 	setStatus(DONE);
     }
 
-    private void filter() {
+    private void filter() throws InterruptedException {
+
 	for (int x = 0; x < arrayCurrentFilterStage_.length; ++x) {
 
-	    if (Thread.currentThread().isInterrupted()) {
-		logger_.debug("interrupted !!!");
-		return;
-	    }
+	    checkInterrupt();
 
-	    boolean _forward = false;
+	    boolean _filterForCurrentFilterStageMatched = false;
 
 	    if (!arrayCurrentFilterStage_[x].isDisposed()) {
 
-		_forward = 
-		    FilterTaskUtils.filterEvent(arrayCurrentFilterStage_[x], event_);
+		_filterForCurrentFilterStageMatched = 
+		    event_.match(arrayCurrentFilterStage_[x]);
 
-	    } else {
-		if (logger_.isDebugEnabled()) {
-		    logger_.debug("skip Destination: "
-				  + arrayCurrentFilterStage_[x]
-				  + " cause its disposed");
-		}
-	    }
+	    } 
 
-	    if (_forward) {
+	    if (_filterForCurrentFilterStageMatched) {
 
-		List _subsequentDests = 
-		    arrayCurrentFilterStage_[x].getSubsequentFilterStages();
-
-		// check all subsequent destinations
-		if (filterAdmin_ && arrayCurrentFilterStage_[x].hasOrSemantic()) {
+		if (arrayCurrentFilterStage_[x].hasOrSemantic()) {
 
 		    // if the subsequent destinations
 		    // InterFilterGroupOperator equals OR_OP
@@ -133,32 +107,34 @@ public class FilterOutgoingTask extends FilterTaskBase {
 
 		} else {
 
-		    // the subsequent destination filters need to be eval'd
+		    // the Filters of the ProxySupplier need to be
+		    // eval'd
 
-		    matchingFilterStage_.
+		    listOfFilterStageToBeProcessed_.
 			addAll(arrayCurrentFilterStage_[x].getSubsequentFilterStages());
 
 		}
 		
-	    } else if (filterAdmin_) {
+	    } else { 
 
-		// no filter matched. we have to check all subsequent
+		// no filter matched at all. we have to check all subsequent
 		// destinations if one of them has
 		// InterFilterGroupOperator.OR_OP enabled. In this
-		// Case add it to the result set.
+		// Case add it to the list of ProxySupplier to be
+		// eval'd by the next task.
 
 		Iterator _i = 
 		    arrayCurrentFilterStage_[x].getSubsequentFilterStages().iterator();
+
 		while (_i.hasNext()) {
 		    FilterStage _n = (FilterStage) _i.next();
 		    if (_n.hasOrSemantic()) {
-			if (logger_.isDebugEnabled()) {
-			    logger_.debug("add " + _n);
-			}
-			matchingFilterStage_.add(_n);
+
+			listOfFilterStageToBeProcessed_.add(_n);
+
 		    }
 		}
 	    }
 	}
     }
-} 
+}

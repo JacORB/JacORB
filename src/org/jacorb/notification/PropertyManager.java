@@ -21,18 +21,17 @@ package org.jacorb.notification;
  *
  */
 
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
-import java.util.Iterator;
-import java.util.Hashtable;
-import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAny;
+import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
 
 /**
  * PropertyManager.java

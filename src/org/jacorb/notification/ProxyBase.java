@@ -24,6 +24,7 @@ package org.jacorb.notification;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
 import org.jacorb.notification.interfaces.Disposable;
@@ -63,16 +64,15 @@ public abstract class ProxyBase implements FilterAdminOperations,
 					   FilterStage,
 					   Disposable {
     
-    public final static Integer NO_KEY = null;
+    protected final static Integer NO_KEY = null;
+
+    protected Logger logger_ = 
+	Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
     protected List proxyDisposedEventListener_;
     protected NotificationEventFactory notificationEventFactory_;
     protected POA poa_;
     protected ORB orb_;
-
-    protected Logger logger_ = 
-	Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
-
     protected boolean connected_;
     protected ChannelContext channelContext_;
     protected ApplicationContext applicationContext_;
@@ -85,6 +85,8 @@ public abstract class ProxyBase implements FilterAdminOperations,
     private ProxyType proxyType_;
     private boolean hasOrSemantic_;
     protected Servant thisServant_;
+    protected MappingFilter lifetimeFilter_;
+    protected MappingFilter priorityFilter_;
 
     protected ProxyBase(AdminBase admin,
 			ApplicationContext appContext,
@@ -134,10 +136,7 @@ public abstract class ProxyBase implements FilterAdminOperations,
 		}
 	    }
 	}
-	logger_.debug("addProxyDisposedEventListener(" + listener + ")");
-	if (listener == null) {
-	    throw new RuntimeException();
-	}
+
 	proxyDisposedEventListener_.add(listener);
     }
     
@@ -213,20 +212,22 @@ public abstract class ProxyBase implements FilterAdminOperations,
 
     public void priority_filter(MappingFilter filter) 
     {
+	priorityFilter_ = filter;
     }
 
     public MappingFilter priority_filter() 
     {
-	return null;
+	return priorityFilter_;
     }
 
     public MappingFilter lifetime_filter() 
     {
-	return null;
+	return lifetimeFilter_;
     }
     
     public void lifetime_filter(MappingFilter filter) 
     {
+	lifetimeFilter_ = filter;
     }
     
     public EventType[] obtain_offered_types(ObtainInfoMode obtaininfomode) 
@@ -319,4 +320,21 @@ public abstract class ProxyBase implements FilterAdminOperations,
     public boolean isConnected() {
 	return connected_;
     }
-}// ProxyBase
+
+    public boolean hasLifetimeFilter() {
+	return lifetimeFilter_ != null;
+    }
+
+    public boolean hasPriorityFilter() {
+	return priorityFilter_ != null;
+    }
+
+    public MappingFilter getLifetimeFilter() {
+	return lifetimeFilter_;
+    }
+
+    public MappingFilter getPriorityFilter() {
+	return priorityFilter_;
+    }
+
+}

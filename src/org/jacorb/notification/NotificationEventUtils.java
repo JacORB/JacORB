@@ -21,6 +21,8 @@ package org.jacorb.notification;
  *
  */
 
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.node.ArrayOperator;
 import org.jacorb.notification.node.AssocOperator;
@@ -28,16 +30,13 @@ import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.node.IdentValue;
 import org.jacorb.notification.node.ImplicitOperator;
 import org.jacorb.notification.node.ImplicitOperatorNode;
+import org.jacorb.notification.node.NumberValue;
 import org.jacorb.notification.node.TCLNode;
 import org.jacorb.notification.node.UnionPositionOperator;
 import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.jacorb.notification.node.NumberValue;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
-import org.omg.CORBA.ORB;
 
 /**
  * NotificationEventUtils.java

@@ -21,11 +21,10 @@ package org.jacorb.notification.engine;
  *
  */
 
-import java.util.Vector;
 import java.util.List;
+import java.util.Vector;
+
 import org.jacorb.notification.interfaces.FilterStage;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
 
 /**
  * Abstract Base Class for FilterTask.
@@ -48,9 +47,9 @@ abstract class FilterTaskBase extends TaskBase {
 
     /**
      * child FilterStages for which evaluation was successful. these
-     * Stages are to be eval'd in the next run.
+     * Stages are to be eval'd by the next Task.
      */
-    protected List matchingFilterStage_ = new Vector();
+    protected List listOfFilterStageToBeProcessed_ = new Vector();
 
     /**
      * set the FilterStages for the next run.
@@ -62,18 +61,21 @@ abstract class FilterTaskBase extends TaskBase {
     /**
      * get the matching FilterStages of the previous run.
      */
-    public FilterStage[] getMatchingFilterStage() {
-	return (FilterStage[]) matchingFilterStage_.toArray(FILTERSTAGE_ARRAY_TEMPLATE);
+    public FilterStage[] getFilterStageToBeProcessed() {
+	return (FilterStage[]) listOfFilterStageToBeProcessed_.toArray(FILTERSTAGE_ARRAY_TEMPLATE);
     }
     
     /**
      * clear the result of the previous run.
      */
-    public void clearMatchingFilterStage() {
-	matchingFilterStage_.clear();
+    public void clearFilterStageToBeProcessed() {
+	listOfFilterStageToBeProcessed_.clear();
     }
 
     public void reset() {
-	clearMatchingFilterStage();
+	super.reset();
+
+	clearFilterStageToBeProcessed();
     }
+
 }

@@ -25,7 +25,10 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
+
+import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
+import org.omg.CosNotification.BestEffort;
 import org.omg.CosNotification.ConnectionReliability;
 import org.omg.CosNotification.DiscardPolicy;
 import org.omg.CosNotification.EventReliability;
@@ -36,6 +39,7 @@ import org.omg.CosNotification.MaxSuppliers;
 import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.PacingInterval;
+import org.omg.CosNotification.Persistent;
 import org.omg.CosNotification.Priority;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertyError;
@@ -49,9 +53,6 @@ import org.omg.CosNotification.StopTimeSupported;
 import org.omg.CosNotification.Timeout;
 import org.omg.CosNotification.UnsupportedAdmin;
 import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CORBA.Any;
-import org.omg.CosNotification.BestEffort;
-import org.omg.CosNotification.Persistent;
 
 /**
  * PropertyValidator.java

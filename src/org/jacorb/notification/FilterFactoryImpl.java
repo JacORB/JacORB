@@ -21,20 +21,20 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CosNotifyFilter.FilterFactoryPOA;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.InvalidGrammar;
-import org.omg.CosNotifyFilter.MappingFilter;
+import java.io.IOException;
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.util.LogConfiguration;
 import org.omg.CORBA.Any;
-import org.omg.PortableServer.POA;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
-import org.jacorb.notification.interfaces.Disposable;
-import org.omg.PortableServer.POAHelper;
-import java.io.IOException;
-import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
+import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
-import org.jacorb.notification.util.LogConfiguration;
+import org.omg.CosNotifyFilter.FilterFactoryPOA;
+import org.omg.CosNotifyFilter.InvalidGrammar;
+import org.omg.CosNotifyFilter.MappingFilter;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
 /**
  * FilterFactoryImpl.java
@@ -56,7 +56,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
     private FilterFactory thisRef_;
 
     public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive {
-	super();	
+	super();
 
 	LogConfiguration.getInstance().configure();
 
@@ -74,6 +74,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
 		    _orb.run();
 		}
 	    });
+
 	t.setDaemon(true);
 	t.start();
     }
@@ -85,24 +86,45 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
 	isApplicationContextCreatedHere_ = false;
     }
 
-    public Filter create_filter(String grammar) throws InvalidGrammar {
-	if (CONSTRAINT_GRAMMAR.equals(grammar)) {
-	    Filter _filter;
+    public Filter create_filter(String grammar) 
+	throws InvalidGrammar {
 
-	    FilterImpl _filterServant = new FilterImpl(CONSTRAINT_GRAMMAR, 
-						       applicationContext_);
+	FilterImpl _servant = create_filter_servant(grammar);
+	
+	Filter _filter = _servant._this(applicationContext_.getOrb());
+	    
+	return _filter;
+    }
+
+    FilterImpl create_filter_servant(String grammar) 
+	throws InvalidGrammar {
+
+	if (CONSTRAINT_GRAMMAR.equals(grammar)) {
+
+	    FilterImpl _filterServant = new FilterImpl(applicationContext_, CONSTRAINT_GRAMMAR);
 
 	    _filterServant.init();
-	    _filter = _filterServant._this(applicationContext_.getOrb());
 	    
-	    return _filter;
+	    return _filterServant;
 	}
-	throw new InvalidGrammar();
+	throw new InvalidGrammar("Constraint Language '" 
+				 + grammar 
+				 + "' is not supported. Try one of the following: " 
+				 + CONSTRAINT_GRAMMAR);
     }
 
     public MappingFilter create_mapping_filter(String grammar, 
 					       Any any) throws InvalidGrammar {
-	return null;
+
+	FilterImpl _filterImpl = create_filter_servant(grammar);
+
+	MappingFilterImpl _mappingFilterServant = new MappingFilterImpl(applicationContext_,
+									_filterImpl,
+									any);
+
+	MappingFilter _filter = _mappingFilterServant._this(applicationContext_.getOrb());
+
+	return _filter;
     }
 
     public void dispose() {
@@ -110,7 +132,6 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
 	    applicationContext_.getOrb().shutdown(true);
 	    applicationContext_.dispose();
 	}
-
     }
 
     public FilterFactory getFilterFactory() {

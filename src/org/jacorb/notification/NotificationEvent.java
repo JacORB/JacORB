@@ -21,19 +21,23 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
-import org.omg.CosNotification.StructuredEvent;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.EvaluationResult;
+import java.util.Date;
+
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Poolable;
-import org.jacorb.notification.evaluate.EvaluationException;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
-import org.jacorb.notification.node.RuntimeVariableNode;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.DynamicTypeException;
+import org.jacorb.notification.node.EvaluationResult;
+import org.jacorb.notification.node.RuntimeVariableNode;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.AnyHolder;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyFilter.MappingFilter;
+import org.omg.CosNotifyFilter.UnsupportedFilterableData;
+import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
@@ -49,6 +53,12 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 public abstract class NotificationEvent extends Poolable
 {
+
+    public interface NotificationEventStateListener {
+	public void actionLifetimeChanged(long lifetime);
+    }
+
+    private boolean disposed_ = false;
 
     public static final int TYPE_ANY = 0;
     public static final int TYPE_STRUCTURED = 1;
@@ -67,6 +77,10 @@ public abstract class NotificationEvent extends Poolable
     protected boolean consumerAdminFiltered_;
     protected boolean proxySupplierFiltered_;
     protected FilterStage currentFilterStage_;
+
+    protected NotificationEventStateListener notificationEventStateListener_;
+
+    private long timeOut_ = -1;
 
     ////////////////////////////////////////
 
@@ -121,7 +135,9 @@ public abstract class NotificationEvent extends Poolable
 
     public void reset()
     {
+	disposed_ = false;
         currentFilterStage_ = null;
+	timeOut_ = -1;
     }
 
     /**
@@ -169,12 +185,13 @@ public abstract class NotificationEvent extends Poolable
 	       EvaluationException,
 	       InvalidValue,
 	       DynamicTypeException
-    {
-	logger_.debug("evaluateShorthand");
-	
+    {	
         EvaluationResult _ret = null;
         String _completePath = componentRootNode.getComponentName();
-	logger_.debug("CompletePath: " + _completePath);
+	
+	if (logger_.isDebugEnabled()) {
+	    logger_.debug("Extract " + _completePath);
+	}
 
         _ret = context.lookupResult( _completePath );
 
@@ -188,20 +205,18 @@ public abstract class NotificationEvent extends Poolable
 							     context, 
 							     runtimeVariable.toString());
 	    }
-		
 	    context.storeResult( _completePath, _ret);
-
         }
 
         return _ret;
     }
 
-    abstract public EvaluationResult extractFilterableData(EvaluationContext context,
+    public abstract EvaluationResult extractFilterableData(EvaluationContext context,
 							   ComponentName componentRootNode,
 							   String variable) 
 	throws EvaluationException;
 
-    abstract public EvaluationResult extractVariableHeader(EvaluationContext context,
+    public abstract EvaluationResult extractVariableHeader(EvaluationContext context,
 							   ComponentName componentRootNode,
 							   String variable) 
 	throws EvaluationException;
@@ -252,5 +267,56 @@ public abstract class NotificationEvent extends Poolable
 
         return _ret;
     }
+
+    public boolean hasStartTime() {
+	return false;
+    }
+
+    public Date getStartTime() {
+	return null;
+    }
+
+    public boolean hasStopTime() {
+	return false;
+    }
+
+    public Date getStopTime() {
+	return null;
+    }
+
+    public boolean hasTimeout() {
+	return timeOut_ != -1;
+    }
+
+    public long getTimeout() {
+	return timeOut_;
+    }
+
+    public void setTimeout(long timeout) {
+	timeOut_ = timeout;
+
+	if (notificationEventStateListener_ != null) {
+	    notificationEventStateListener_.actionLifetimeChanged(timeout);
+	}
+    }
+
+    public void setPriority(long priority) {
+    }
+
+    public void setNotificationEventStateListener(NotificationEventStateListener l) {
+	notificationEventStateListener_ = l;
+    }
+    
+    public synchronized boolean isDisposable() {
+	return disposed_;
+    }
+
+    public synchronized void setDisposable() {
+	disposed_ = true;
+    }
+
+    public abstract boolean match(FilterStage filterStage);
+
+    public abstract boolean match(MappingFilter filter, AnyHolder value) throws UnsupportedFilterableData;
 }
 

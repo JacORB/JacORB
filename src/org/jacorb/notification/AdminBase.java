@@ -21,11 +21,13 @@ package org.jacorb.notification;
  *
  */
 
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
 import org.jacorb.notification.interfaces.Disposable;
@@ -44,11 +46,12 @@ import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
+import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
+import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
-import org.omg.PortableServer.Servant;
 
 /**
  * Abstract Baseclass for Adminobjects.
@@ -72,8 +75,7 @@ public abstract class AdminBase
     protected ApplicationContext applicationContext_;
 
     protected int id_ = 0;
-    protected int filterIdPool_ = -1;
-    protected int proxyIdPool_ = Integer.MIN_VALUE + 1;
+    protected int proxyIdPool_ = -1;
     protected Integer key_;
     protected FilterManager filterManager_;
 
@@ -83,8 +85,7 @@ public abstract class AdminBase
     protected Map pushServants_;
 
     protected Map allProxies_;
-
-    private Map servantCache_ = new Hashtable();
+    private Map servantCache_ = Collections.EMPTY_MAP;
 
     protected Logger logger_ =
         Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
@@ -101,15 +102,11 @@ public abstract class AdminBase
         return applicationContext_.getNotificationEventFactory();
     }
 
-    /**
-     */
     protected EventChannelImpl getChannelServant()
     {
         return channelContext_.getEventChannelServant();
     }
 
-    /**
-     */
     protected EventChannel getChannel()
     {
         return channelContext_.getEventChannel();
@@ -472,5 +469,21 @@ public abstract class AdminBase
                 ( ( ProxyCreationRequestEventListener ) _i.next() ).actionProxyCreationRequest( _event );
             }
         }
+    }
+
+    public boolean hasLifetimeFilter() {
+	return false;
+    }
+
+    public boolean hasPriorityFilter() {
+	return false;
+    }
+
+    public MappingFilter getLifetimeFilter() {
+	return null;
+    }
+
+    public MappingFilter getPriorityFilter() {
+	return null;
     }
 }

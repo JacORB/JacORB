@@ -21,31 +21,27 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.TimerEventSupplier;
-import org.omg.CosEventComm.Disconnected;
+import org.jacorb.notification.interfaces.Poolable;
+import org.jacorb.notification.util.ObjectPoolBase;
 
 /**
- * PullFromSupplierTask.java
+ * TaskPoolBase.java
+ *
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class PullFromSupplierTask extends TaskBase {
-
-    private TimerEventSupplier target_;
-
-    public void setTarget(TimerEventSupplier target) {
-	target_ = target;
+abstract class TaskPoolBase extends ObjectPoolBase {
+    
+    public void passivateObject( Object o )
+    {
+	( ( Poolable ) o ).reset();
+    }
+    
+    public void activateObject( Object o )
+    {
+	( ( Poolable ) o ).setObjectPool( this );
     }
 
-    public void doWork() throws Disconnected {
-	target_.runPullEvent();
-	setStatus(DONE);
-    }
-
-    public void reset() {
-	super.reset();
-	target_ = null;
-    }
 }

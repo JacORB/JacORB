@@ -21,16 +21,21 @@ package org.jacorb.notification.engine;
  *
  */
 
-import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
+import java.util.Date;
+
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
-import org.jacorb.util.Environment;
-import org.jacorb.notification.Properties;
 import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.Properties;
+import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.TimerEventConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
-import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.util.ThreadPool;
+import org.jacorb.util.Environment;
+import org.omg.CORBA.Any;
+import org.omg.CosNotification.StructuredEvent;
+
+import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 
 /**
  *
@@ -45,6 +50,63 @@ public class TaskProcessor implements Disposable {
 
     private Logger logger_ = 
 	Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+
+    class TimeoutTask 
+	implements Runnable, 
+		   NotificationEvent.NotificationEventStateListener {
+	
+	Object timerRegistration_;
+	NotificationEvent event_;
+
+	TimeoutTask(NotificationEvent event) {
+	    event_ = event;
+	    
+	    event_.setNotificationEventStateListener(this);
+
+	    timerRegistration_ = executeTaskAfterDelay(event.getTimeout(), this);
+	}
+
+	public void actionLifetimeChanged(long timeout) {
+	    cancelTask(timerRegistration_);
+	    timerRegistration_ = executeTaskAfterDelay(event_.getTimeout(), this);
+	}
+
+	public void run() {
+	    event_.setDisposable();
+
+	    event_.setNotificationEventStateListener(null);
+	}
+    }
+
+    class DeferedStopTask implements Runnable {
+	Object timerRegistration_;
+	NotificationEvent event_;
+	
+	DeferedStopTask(NotificationEvent event) {
+	    event_ = event;
+
+	    timerRegistration_ = executeTaskAt(event.getStopTime(), this);
+	}
+	
+	public void run() {
+	    event_.setDisposable();
+	}
+    }
+
+    class DeferedStartTask implements Runnable {
+	
+	Object timerRegistration_;
+	NotificationEvent event_;
+	
+	DeferedStartTask(NotificationEvent event) {
+	    event_ = event;
+	    timerRegistration_ = executeTaskAt(event.getStartTime(), this);
+	}
+
+	public void run() {
+	    processEventInternal(event_);
+	}
+    }
 
     private TaskErrorHandler nullErrorHandler_ = new TaskErrorHandler() {
 	    public void handleTaskError(Task task, Throwable error) {
@@ -121,20 +183,48 @@ public class TaskProcessor implements Disposable {
      * be interrupted pending Events will be discarded.
      */
     public void dispose() {
-	logger_.info("dispose called");
+	logger_.info("dispose");
 
 	clockDaemon_.shutDown();
 	filterPool_.dispose();
 	deliverPool_.dispose();
 	taskConfigurator_.dispose();
 
-	logger_.info("dispose - complete");
+	logger_.debug("dispose - complete");
     }
 
     /**
      * begin to process a NotificationEvent
      */
     public void processEvent(NotificationEvent event) {
+	if (event.hasTimeout()) {
+	    new TimeoutTask(event);
+	}
+
+	if (event.hasStopTime()) {
+
+	    if (event.getStopTime().getTime() <= System.currentTimeMillis()) {
+
+		fireEventDiscarded(event);
+
+		return;
+	    } else {
+		new DeferedStopTask(event);
+	    }
+	}
+
+	if (event.hasStartTime()) {
+	    new DeferedStartTask(event);
+	} else {
+	    processEventInternal(event);
+	}
+    }
+
+
+    /**
+     * begin to process a NotificationEvent
+     */
+    public void processEventInternal(NotificationEvent event) {
 	logger_.debug("processEvent");
 
 	FilterTaskBase _task = taskConfigurator_.newFilterIncomingTask(event);
@@ -146,6 +236,7 @@ public class TaskProcessor implements Disposable {
 	}
     }
 
+
     /**
      * Schedule a FilterTask for execution.
      */
@@ -156,6 +247,7 @@ public class TaskProcessor implements Disposable {
 
 	filterPool_.execute(task);
     }
+
 
     /**
      * Schedule a FilterTask for execution. Bypass Queuing if
@@ -187,6 +279,7 @@ public class TaskProcessor implements Disposable {
 	}
     }
 
+
     /**
      * Schedule a PushToConsumerTask for execution.
      */
@@ -198,6 +291,7 @@ public class TaskProcessor implements Disposable {
 	deliverPool_.execute(task);
     }
 
+
     /**
      * Schedule an array of PushToConsumerTask for execution.
      */
@@ -208,6 +302,7 @@ public class TaskProcessor implements Disposable {
 	    schedulePushToConsumerTask(tasks[x]);
 	}
     }
+
 
     /**
      * Schedule ProxyPullConsumer for pull-Operation.
@@ -228,6 +323,7 @@ public class TaskProcessor implements Disposable {
 	deliverPool_.execute(_task);
     }
 
+
     /**
      * Schedule ProxyPushSupplier for push-Operation.
      * A SequenceProxyPushSuppliers need to push Events regularely to its
@@ -246,6 +342,7 @@ public class TaskProcessor implements Disposable {
 	deliverPool_.execute(_task);
     }
 
+
     /**
      * access the Clock Daemon instance.
      */
@@ -253,16 +350,45 @@ public class TaskProcessor implements Disposable {
 	return clockDaemon_;
     }
 
-    public Object registerPeriodicTask(long intervall, 
-				       Runnable task, 
-				       boolean startImmediately) {
-
+    public Object executeTaskPeriodically(long intervall, 
+					  Runnable task, 
+					  boolean startImmediately) {
+	
 	return getClockDaemon().executePeriodically(intervall, 
 						    task, 
 						    startImmediately);
     }
 
-    public void unregisterTask(Object id) {
-	getClockDaemon().cancel(id);
+    public void cancelTask(Object id) {
+	ClockDaemon.cancel(id);
     }
+
+    private Object executeTaskAfterDelay(long delay, Runnable task) {
+	return clockDaemon_.executeAfterDelay(delay, task);
+    }
+
+    private Object executeTaskAt(Date startTime, Runnable task) {
+	return clockDaemon_.executeAt(startTime, task);
+    }
+
+    void fireEventDiscarded(NotificationEvent event) {
+	switch(event.getType()) {
+	case NotificationEvent.TYPE_ANY:
+	    fireEventDiscarded(event.toAny());
+	    break;
+	case NotificationEvent.TYPE_STRUCTURED:
+	    fireEventDiscarded(event.toStructuredEvent());
+	    break;
+	default:
+	    throw new RuntimeException();
+	}
+    }
+
+    void fireEventDiscarded(Any a) {
+    }
+
+    void fireEventDiscarded(StructuredEvent e) {
+    }
+
 }
+
