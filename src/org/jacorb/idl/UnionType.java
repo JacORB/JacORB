@@ -388,7 +388,8 @@ class UnionType
 		
 	    }
 	    else
-		System.err.println("Something went wrong in UnionType, could not identify switch type " + switch_type_spec.type_spec );
+		System.err.println("Something went wrong in UnionType, could not identify switch type " + 
+                                   switch_type_spec.type_spec );
 	    
 	}
 
@@ -468,7 +469,11 @@ class UnionType
 	    pw.println("\tpublic "+c.element_spec.t.typeName()+
 		       " "+c.element_spec.d.name()+"()");
 	    pw.println("\t{");
-	    pw.print("\t\tif( discriminator != " );
+
+            if( switch_is_enum )
+                pw.print("\t\tif( !discriminator.equals( ");
+            else
+                pw.print("\t\tif( discriminator != " );
 
 	    for( int i = 0; i < caseLabelNum; i++ )
 	    {
@@ -476,9 +481,17 @@ class UnionType
 		    pw.print( defaultStr  );
 		else
 		    pw.print( label[i]  );
+
 		if( i < caseLabelNum-1 )
-		    pw.print(" && discriminator != ");
+                {
+                    if( switch_is_enum )
+                        pw.print(") && !discriminator.equals( ");
+                    else
+                        pw.print(" && discriminator != ");
+                }
 	    }
+            if( switch_is_enum )
+                pw.print(")");
 
 	    pw.println(")\n\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();");
 	    pw.println("\t\treturn " + c.element_spec.d.name() + ";");
@@ -489,6 +502,7 @@ class UnionType
 	    pw.println("\tpublic void "+c.element_spec.d.name()+
 		       "( "+c.element_spec.t.typeName()+" _x )");
 	    pw.println("\t{");
+
 	    pw.print("\t\tdiscriminator = ");
 
 	    if( label[0] == null )
@@ -505,7 +519,12 @@ class UnionType
 			   c.element_spec.t.typeName()+" _x )");
 		pw.println("\t{");
 
-		pw.print("\t\tif( _discriminator != ");
+
+                if( switch_is_enum )
+                    pw.print("\t\tif( ! _discriminator.equals( ");
+                else
+                    pw.print("\t\tif( _discriminator != ");
+
 		for( int i = 0; i < caseLabelNum; i++ )
 		{
 		    if( label[i] != null )  
@@ -513,9 +532,18 @@ class UnionType
 		    else
 			pw.print(defaultStr );
 
-		    if( i < caseLabelNum-1 )
-			pw.print(" && _discriminator != ");
+                    if( i < caseLabelNum-1 )
+                    {
+                        if( switch_is_enum )
+                            pw.print(") && !discriminator.equals( ");
+                        else
+                            pw.print(" && _discriminator != ");
+                    }
+
 		}
+                if( switch_is_enum )
+                    pw.print(")");
+
 		pw.println(")\n\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();");
 		pw.println("\t\tdiscriminator = _discriminator;");
 		pw.println("\t\t" + c.element_spec.d.name() + " = _x;");
