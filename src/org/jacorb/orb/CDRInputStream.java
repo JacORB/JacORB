@@ -1297,12 +1297,15 @@ public class CDRInputStream
     }
 
     /** 
-     * to be called from Any 
+     * called from Any 
      */
 
-    final void read_value
-        (final org.omg.CORBA.TypeCode tc, final CDROutputStream out)
-    {
+   final void read_value
+   (
+       final org.omg.CORBA.TypeCode tc,
+       final org.omg.CORBA.portable.OutputStream out
+   )
+   {
 	int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
 
 	switch (kind)

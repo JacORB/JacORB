@@ -744,29 +744,28 @@ public final class Any
         case TCKind._tk_enum:
         case TCKind._tk_union:
         case TCKind._tk_alias:
-            if(! (orb instanceof org.jacorb.orb.ORB ))
+            if(! (orb instanceof org.jacorb.orb.ORB) )
                 value = new CDROutputStream();
             else
                 value = new CDROutputStream(orb);
-            ((CDRInputStream)input).read_value(type, (CDROutputStream)value);
-
+            ((CDROutputStream)value).write_value(type, input);
             break;
         case TCKind._tk_value:
             insert_Value 
                 (((org.omg.CORBA_2_3.portable.InputStream)input).read_value());
             break;
         case TCKind._tk_abstract_interface:
-	    java.lang.Object obj = 
-		((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
-	    if (obj instanceof org.omg.CORBA.Object)
-		insert_Object((org.omg.CORBA.Object)obj);
-	    else
-		insert_Value((java.io.Serializable)obj);
-            break;
+           java.lang.Object obj = 
+              ((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
+           if (obj instanceof org.omg.CORBA.Object)
+              insert_Object((org.omg.CORBA.Object)obj);
+           else
+              insert_Value((java.io.Serializable)obj);
+           break;
         default:
             throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
         }
-        //        org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
+        //org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
     }
 
     public void write_value( org.omg.CORBA.portable.OutputStream output )
@@ -855,7 +854,7 @@ public final class Any
                     CDRInputStream in = 
                         new CDRInputStream( orb, internal_buf );
 
-                    ((CDROutputStream)output).write_value( typeCode, in );                    
+                    in.read_value( typeCode, output );
                 }
                 break;
             } 
