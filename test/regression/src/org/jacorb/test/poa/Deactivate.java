@@ -15,7 +15,7 @@ public class Deactivate extends TestCase
 
    public static Test suite()
    {
-      TestSuite suite = new TestSuite ("POA Tests");
+      TestSuite suite = new TestSuite ("Deactivation");
 
       suite.addTest (new Deactivate ("test_deactivate"));
 
