@@ -585,9 +585,10 @@ public class RequestProcessor
             controller.returnResult(request);
                         
             start = false;
+            clear();
+
             // give back the processor into the pool
             poolManager.releaseProcessor(this);
-            clear();
         }
     }
 
