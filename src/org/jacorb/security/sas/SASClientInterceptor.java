@@ -22,11 +22,11 @@ package org.jacorb.security.sas;
 
 import java.util.Hashtable;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
-import org.jacorb.util.Debug;
 import org.omg.ATLAS.ATLASProfile;
 import org.omg.ATLAS.ATLASProfileHelper;
 import org.omg.ATLAS.AuthTokenData;
@@ -75,6 +75,9 @@ public class SASClientInterceptor
     protected Codec codec = null;
     protected String name = null;
 
+	/** the logger used by the naming service implementation */
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+
     protected byte[] contextToken = new byte[0];
     protected boolean useStateful = true;
     protected Hashtable atlasCache = new Hashtable();
@@ -94,7 +97,7 @@ public class SASClientInterceptor
                           Class c = org.jacorb.util.Environment.classForName(creatorClass);
 			  contextCreator = (ISASContextCreator)c.newInstance();
 			} catch (Exception e) {
-			  Debug.output("Could not instantiate class " + creatorClass + ": " + e);
+			  logger.error("Could not instantiate class " + creatorClass + ": " + e);
 			}
 		}
     }
@@ -128,11 +131,11 @@ public class SASClientInterceptor
         }
 		catch (BAD_PARAM e)
 		{
-			Debug.output("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+ri.operation());
+			logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+ri.operation());
 		}
 		catch (Exception e)
 		{
-			Debug.output("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
+			logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
 		}
         if (csmList == null) return;
 
@@ -141,7 +144,7 @@ public class SASClientInterceptor
 		
         long client_context_id = 0;
         if (useStateful) client_context_id = connection.cacheSASContext("css".getBytes());
-        if (client_context_id < 0) Debug.output("New SAS Context: " + (-client_context_id));
+        if (client_context_id < 0) logger.info("New SAS Context: " + (-client_context_id));
 
         // get ATLAS tokens
         AuthorizationElement[] authorizationList = getATLASTokens(orb, csmList);
@@ -165,8 +168,7 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            Debug.output("Could not set security service context: " + e);
-            e.printStackTrace();
+			logger.warn("Could not set security service context: " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not set security service context: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
     }
@@ -189,7 +191,7 @@ public class SASClientInterceptor
 		}
 		catch (Exception e)
 		{
-			Debug.output("No SAS security context found: "+e);
+			logger.debug("No SAS security context found: "+e);
 		}
         if (ctx == null) return;
         try
@@ -199,7 +201,7 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            Debug.output("Could not parse SAS reply: " + e);
+            logger.warn("Could not parse SAS reply: " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
@@ -236,7 +238,7 @@ public class SASClientInterceptor
 		}
 		catch (Exception e)
 		{
-			Debug.output("Could not find SAS reply: "+e);
+			logger.debug("Could not find SAS reply: "+e);
 		}
         if (ctx == null) return;
         try
@@ -246,7 +248,7 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            Debug.output("Could not parse SAS reply: " + e);
+            logger.warn("Could not parse SAS reply: " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
@@ -315,9 +317,10 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            Debug.output("Error parsing ATLAS from IOR: " + e);
+            logger.warn("Error parsing ATLAS from IOR: " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing ATLAS from IOR: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
+		logger.debug("AtlasProfile = " + atlasProfile);
         if (atlasProfile == null) return new AuthorizationElement[0];
         String cacheID = new String(atlasProfile.the_cache_id);
         String locator = atlasProfile.the_locator.the_url();
@@ -339,12 +342,12 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            Debug.output("Could not find ATLAS server " + locator + ": " + e);
+            logger.warn("Could not find ATLAS server " + locator + ": " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not find ATLAS server: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         if (dispenser == null)
         {
-            Debug.output("Could not find ATLAS server " + locator);
+			logger.warn("Could not find ATLAS server " + locator);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not find ATLAS server", MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
 
@@ -355,7 +358,7 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            Debug.output("Error getting ATLAS tokens from server " + locator + ": " + e);
+			logger.warn("Error getting ATLAS tokens from server " + locator + ": " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error getting ATLAS tokens from server: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         synchronized (atlasCache)

@@ -20,13 +20,8 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.Security.*;
-import org.omg.PortableInterceptor.*;
-import org.jacorb.util.*;
-import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.orb.giop.*;
-import org.omg.GSSUP.*;
+import org.omg.GSSUP.InitialContextToken;
+import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class GssUpContextValidator implements ISASContextValidator
 {

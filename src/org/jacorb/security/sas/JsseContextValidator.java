@@ -20,30 +20,23 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-//import org.omg.PortableInterceptor.*;
-//import org.omg.PortableInterceptor.ORBInitInfoPackage.*;
-//import org.omg.SecurityReplaceable.*;
-import org.omg.Security.*;
-//import org.omg.IOP.*;
-//import org.omg.IOP.CodecFactoryPackage.*;
-//import org.jacorb.util.*;
-import org.omg.SecurityLevel2.*;
-
-//import org.jacorb.util.Environment;
-import org.omg.PortableInterceptor.*;
 import java.security.cert.X509Certificate;
-
-import org.jacorb.util.*;
-import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-import org.jacorb.security.level2.*;
-import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.orb.iiop.*;
-import org.jacorb.orb.giop.*;
 
 import javax.net.ssl.SSLSocket;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.orb.giop.GIOPConnection;
+import org.jacorb.orb.iiop.ServerIIOPConnection;
+import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
+import org.jacorb.util.Debug;
+import org.omg.PortableInterceptor.ServerRequestInfo;
+
 public class JsseContextValidator implements ISASContextValidator
 {
+	/** the logger used by the naming service implementation */
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+
     private X509Certificate client_cert = null;
 
     public boolean validate(ServerRequestInfo ri, byte[] contextToken) {
@@ -70,7 +63,7 @@ public class JsseContextValidator implements ISASContextValidator
         // lookup for context
         if (connection == null)
         {
-            Debug.output( 3, "target has no connection!");
+            logger.warn("target has no connection!");
             return null;
         }
 

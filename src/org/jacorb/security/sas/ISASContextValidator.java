@@ -20,15 +20,6 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-//import org.omg.PortableInterceptor.*;
-//import org.omg.PortableInterceptor.ORBInitInfoPackage.*;
-//import org.omg.SecurityReplaceable.*;
-//import org.omg.Security.*;
-//import org.omg.IOP.*;
-//import org.omg.IOP.CodecFactoryPackage.*;
-//import org.jacorb.util.*;
-
-//import org.jacorb.util.Environment;
 import org.omg.PortableInterceptor.*;
 
 public interface ISASContextValidator

@@ -20,16 +20,20 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import sun.security.jgss.spi.*;
-import org.ietf.jgss.*;
-import java.security.*;
-import java.io.*;
-import org.omg.GSSUP.*;
-import org.jacorb.util.*;
-import org.omg.IOP.*;
-import org.omg.IOP.CodecFactoryPackage.*;
-import org.jacorb.orb.portableInterceptor.*;
-import org.omg.CORBA.Any;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.Provider;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.ietf.jgss.ChannelBinding;
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.MessageProp;
+import org.ietf.jgss.Oid;
+
+import sun.security.jgss.spi.GSSContextSpi;
+import sun.security.jgss.spi.GSSCredentialSpi;
+import sun.security.jgss.spi.GSSNameSpi;
 
 /**
  * This is the GSS-API Sercurity Provider Interface (SPI) for the GSSUP Context
@@ -40,6 +44,9 @@ import org.omg.CORBA.Any;
 
 public final class GSSUPContextSpi implements GSSContextSpi
 {
+	/** the logger used by the naming service implementation */
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+
     private Provider provider = null;
     private Oid mechOid = null;
     private int lifetime;
@@ -213,7 +220,7 @@ public final class GSSUPContextSpi implements GSSContextSpi
         }
         catch (Exception e)
         {
-            Debug.output( 1, "Error acceptSecContext: " + e);
+            logger.error("Error acceptSecContext: " + e);
         }
         return null;
     }

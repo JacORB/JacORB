@@ -20,12 +20,16 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import sun.security.jgss.spi.*;
-import org.ietf.jgss.*;
-import java.security.*;
-import org.omg.GSSUP.*;
+import java.security.Provider;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.Oid;
 import org.omg.CORBA.Any;
-import org.jacorb.util.*;
+import org.omg.GSSUP.InitialContextToken;
+import org.omg.GSSUP.InitialContextTokenHelper;
+
+import sun.security.jgss.spi.GSSNameSpi;
 
 /**
  * This is the GSS-API Sercurity Provider Interface (SPI) for the GSSUP Name
@@ -36,6 +40,8 @@ import org.jacorb.util.*;
 
 public final class GSSUPNameSpi implements GSSNameSpi
 {
+	/** the logger used by the naming service implementation */
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
 
     private Provider provider;
     private Oid mechOid;
@@ -59,7 +65,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
             }
             catch (Exception e)
             {
-                Debug.output(1, "Error decoding for GSSNameSpi: " + e);
+                logger.error("Error decoding for GSSNameSpi: " + e);
                 subject = new InitialContextToken(new byte[0], new byte[0], new byte[0]);
             }
         }
@@ -81,7 +87,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            Debug.output(1, "Error encoding for GSSNameSpi: " + e);
+            logger.error("Error encoding for GSSNameSpi: " + e);
         }
         return out;
     }
@@ -98,7 +104,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            Debug.output(1, "Error encoding for GSSNameSpi: " + e);
+            logger.error("Error encoding for GSSNameSpi: " + e);
         }
         return out;
     }
@@ -112,7 +118,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            Debug.output(1, "Error decoding for GSSNameSpi: " + e);
+            logger.error("Error decoding for GSSNameSpi: " + e);
         }
         return null;
     }
@@ -139,7 +145,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            Debug.output(1, "Error encoding for GSSNameSpi: " + e);
+            logger.error("Error encoding for GSSNameSpi: " + e);
         }
         return out;
     }
@@ -160,7 +166,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            Debug.output(1, "Error encoding for GSSNameSpi: " + e);
+            logger.error("Error encoding for GSSNameSpi: " + e);
         }
         return new String(out);
     }

@@ -20,9 +20,14 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import sun.security.jgss.spi.*;
-import org.ietf.jgss.*;
-import java.security.*;
+import java.security.Provider;
+
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.Oid;
+
+import sun.security.jgss.spi.GSSCredentialSpi;
+import sun.security.jgss.spi.GSSNameSpi;
 
 /**
  * This is the GSS-API Sercurity Provider Interface (SPI) for the GSSUP Credential
