@@ -165,13 +165,14 @@ public class Client
 		    int size = 1;
 		    System.out.println("\n Results are average times in msecs for "
 				       + loop+ " round trips\n");
-		    System.out.println(" Size of array   Ping   Array of int Array of struct");
-		    System.out.println(" ============= ======== ============ ===============");
+		    System.out.println("  Array size     Ping   [] int [] byte [] struct");
+		    System.out.println(" ============= ======== ====== ======= ===========");
 
 		    for (int i = 0; i < 6; i++ ) 
 		    {
 			System.out.print("\t"+size);
 			int myInt[] = new int[size];
+			byte myByte[] = new byte[size];
 			Struct myStruct[] = new Struct[size];
 			for( int si = 0; si < size; si++)
 			{
@@ -194,6 +195,14 @@ public class Client
 
 			stopTime = System.currentTimeMillis();
 			System.out.print("\t"+((stopTime - startTime) / (float)loop));
+
+			startTime = System.currentTimeMillis();
+			nb = loop;
+			while (nb-- > 0)
+			    server.octetTransfer( myByte );
+
+			stopTime = System.currentTimeMillis();
+			System.out.print("\t"+((stopTime - startTime) / (float)loop));
 			startTime = System.currentTimeMillis();
 
 			nb = loop;
@@ -201,7 +210,7 @@ public class Client
 			    server.structTransfer(myStruct);
 
 			stopTime = System.currentTimeMillis();
-			System.out.println("\t\t"+((stopTime - startTime) / (float)loop));
+			System.out.println("\t"+((stopTime - startTime) / (float)loop));
 			size = size*10;
 		    }
 		    System.out.println("\n#### Exiting auto-mode ####\n");
