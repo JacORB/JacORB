@@ -1,14 +1,10 @@
 #pragma prefix "jacorb.org"
 
-module test {
-    module orb {
-        module connection {
-            interface TestIf {
-                
-                void op();
-                
-                oneway void onewayOp();
-            };
-        };
-    };
+module Tests {
+
+  interface TestIf {
+    void op();
+    oneway void onewayOp();
+  };
+
 };
