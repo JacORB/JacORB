@@ -245,6 +245,11 @@ class Member
         else
             ps.print( prefix + type_spec.toString() + " " + declarator.toString() + ";" ); 
     }
+
+    public TypeSpec typeSpec()
+    {
+        return type_spec.typeSpec();
+    }
 }
 
 
