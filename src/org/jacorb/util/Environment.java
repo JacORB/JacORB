@@ -429,11 +429,8 @@ public class Environment
 	}
         else    if( varName.equals("_charset_flags"))
             _charset_flags = Integer.parseInt(o);
-        else    if( varName.equals("_keyStore")) {
-            String home = _props.getProperty("user.home");
-            String sep = _props.getProperty("file.separator");
-            _keyStore = home + sep + o;
-        }
+        else    if( varName.equals("_keyStore"))
+            _keyStore = _props.getProperty("user.home");
         else    if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
         else    if ( varName.equals ( "_support_ssl")) // gb
