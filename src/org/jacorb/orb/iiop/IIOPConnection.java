@@ -139,9 +139,6 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
         }
     }
 
-    // implementation of org.jacorb.orb.connection.Transport interface
-
-
     public void write (boolean is_first,
                        boolean is_last, 
                        byte[] data,
