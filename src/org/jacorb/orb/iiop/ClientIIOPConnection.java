@@ -408,14 +408,6 @@ public class ClientIIOPConnection
             ssl_port = tls.addresses[0].port;
             if (ssl_port < 0) ssl_port += 65536;
         }
-        //prevent client policy violation, i.e. opening plain TCP
-        //connections when SSL is required
-        else if( tls == null && // server doesn't know ssl...
-                 Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
-                 ((client_required & minimum_options) != 0)) //...and requires it
-        {
-            throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires TLS, but server doesn't support it" );
-        }
         else if( ssl != null && // server knows about ssl...
             ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
             Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
@@ -435,11 +427,11 @@ public class ClientIIOPConnection
         }
         //prevent client policy violation, i.e. opening plain TCP
         //connections when SSL is required
-        else if( ssl == null && // server doesn't know ssl...
+        else if( // server doesn't know ssl...
                  Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
                  ((client_required & minimum_options) != 0)) //...and requires it
         {
-            throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires SSL, but server doesn't support it" );
+            throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires SSL/TLS, but server doesn't support it" );
         }
         else
         {
