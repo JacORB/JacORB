@@ -16,13 +16,13 @@ authentication schemes, that is mutual authentication or server-only.
 For more details on the configuration, please see the corresponding
 chapter in the programming guide.
  
-        How to run this demo?
+        How to run this demo with IAIK JCE/SSL ?
         ---------------------
 For the server:
-$> jaco -Dcustom.props=server_props demo.ssl.Server ior
+$> jaco -Dcustom.props=iaik_server_props demo.ssl.Server ior
 
 For the client:
-$> jaco -Dcustom.props=client_props demo.ssl.Client ior
+$> jaco -Dcustom.props=iaik_client_props demo.ssl.Client ior
 
        Running this demo with Sun JSSE (SDK 1.4+)
        ------------------------------------------
@@ -104,3 +104,9 @@ Certificate fingerprints:
          SHA1: 5A:3D:BD:63:FD:06:1C:7A:A1:95:F3:A0:4B:C4:BF:56:F1:D8:65:5F
 Trust this certificate? [no]:  y
 Certificate was added to keystore
+
+              Note on the IAIK CA Keystore
+              ----------------------------
+
+The keystore password for the the iaik_ca_ks is iaik_ca_ks_pass.
+The alias within the keystore is iaik_ca_alias and its password is iaik_ca_alias_pass. 
