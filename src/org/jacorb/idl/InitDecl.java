@@ -96,7 +96,10 @@ class InitDecl
         }
     }
 
-
+    /**
+     * Prints the method's signature, for inclusion in the
+     * factory interface.
+     */
     public void print( PrintWriter ps, String type_name )
     {
         ps.print( "\t" + type_name + " " + name + "( " );
@@ -114,6 +117,42 @@ class InitDecl
         ps.println( ");" );
     }
 
+    /**
+     * Prints the Helper method that corresponds to this factory method.
+     */
+    public void printHelperMethod( PrintWriter ps, String type_name )
+    {
+        ps.print( "\tpublic static " + type_name + " " + name + "( " );
+        ps.print( "org.omg.CORBA.ORB orb" );
+
+        for ( Enumeration e = paramDecls.elements();
+              e.hasMoreElements(); )
+        {
+            ps.print( ", " );
+            ( (ParamDecl)e.nextElement() ).print( ps );
+        }
+        ps.println (" )");
+        
+        ps.println ("\t{");
+        ps.println ("\t\t" + type_name + "ValueFactory f = "
+                    + "( " + type_name + "ValueFactory )"
+                    + "((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory(id());");
+        ps.println ("\t\tif (f == null)");
+        ps.println ("\t\t\tthrow new org.omg.CORBA.MARSHAL( "
+                    + "1, org.omg.CORBA.CompletionStatus.COMPLETED_NO );");
+        ps.print   ("\t\treturn f." + name + "( ");
+        
+        for ( Enumeration e = paramDecls.elements();
+              e.hasMoreElements(); )
+        {
+            ps.print (( (ParamDecl)e.nextElement() ).simple_declarator );
+            if (e.hasMoreElements()) ps.print (", ");
+        }
+
+        ps.println (" );");
+
+        ps.println ("\t}");        
+    }
 
     public String name()
     {
