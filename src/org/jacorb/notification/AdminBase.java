@@ -348,7 +348,14 @@ public abstract class AdminBase
             while ( _i.hasNext() )
             {
                 logger_.info( "dispose pushServant" );
-                ( ( Disposable ) _i.next() ).dispose();
+
+		try {
+		    ( ( Disposable ) _i.next() ).dispose();
+		} catch (Exception e) {
+		    logger_.warn("Error disposing a PushServant", e);
+		}
+
+		_i.remove();
             }
 
             pushServants_.clear();
@@ -360,7 +367,13 @@ public abstract class AdminBase
             while ( _i.hasNext() )
             {
                 logger_.info( "dispose pullServant" );
-                ( ( Disposable ) _i.next() ).dispose();
+
+		try {
+		    ( ( Disposable ) _i.next() ).dispose();
+		} catch (Exception e) {
+		    logger_.warn("Error disposing a PullServant", e);
+		}
+
                 _i.remove();
             }
 
