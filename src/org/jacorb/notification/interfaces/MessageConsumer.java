@@ -92,7 +92,7 @@ public interface MessageConsumer extends Disposable {
     /**
      * access the current error count for this MessageConsumer.
      */
-    int getErrorCounter();
+    //int getErrorCounter();
 
 
     /**
@@ -106,11 +106,16 @@ public interface MessageConsumer extends Disposable {
      * error count exeeds the threshold the MessageConsumer will be
      * disconnected.
      */
-    int getErrorThreshold();
+    //int getErrorThreshold();
 
 
     /**
      * check if this MessageConsumer is still valid.
      */
     boolean isDisposed();
+    
+    /**
+     * 
+     */
+    boolean isRetryAllowed();
 }
