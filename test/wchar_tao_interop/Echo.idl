@@ -1,0 +1,11 @@
+        interface GoodDay {
+            
+            string hello_simple();
+            
+            wstring hello_wide( in wstring msg );            
+            
+            exception WStringException { wstring why; };
+
+            void test() raises (WStringException);
+        };
+               

@@ -1,0 +1,16 @@
+module test
+{
+    module wchar_seq {
+
+        typedef sequence<wchar> wcharSeq;
+
+        interface TestIf {
+
+            wcharSeq test_wchar_seq( in wcharSeq argin, 
+                                     out wcharSeq argout, 
+                                     inout wcharSeq arginout );
+        };
+               
+    };
+
+};
