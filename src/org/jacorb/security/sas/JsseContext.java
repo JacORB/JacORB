@@ -170,7 +170,7 @@ public class JsseContext implements ISASContext
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
 	 */
-	public byte[] createContext(ClientRequestInfo ri) {
+	public byte[] createClientContext(ClientRequestInfo ri) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -178,7 +178,7 @@ public class JsseContext implements ISASContext
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
 	 */
-	public String getCreatedPrincipal() {
+	public String getClientPrincipal() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -197,5 +197,25 @@ public class JsseContext implements ISASContext
 	public String getValidatedPrincipal() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#initClient()
+	 */
+	public void initClient() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#initTarget()
+	 */
+	public void initTarget() {
+		// TODO Auto-generated method stub
+		
+	}
+    
+	public String getMechOID() {
+		return "";
 	}
 }

@@ -21,6 +21,7 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.GSSUP.GSSUPMechOID;
 import org.omg.GSSUP.InitialContextToken;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
@@ -36,11 +37,15 @@ public class GssUpContext implements ISASContext
 		GssUpContext.username = username;
 		GssUpContext.password = password;
     }
+    
+    public String getMechOID() {
+    	return GSSUPMechOID.value.substring(4);
+    }
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
 	 */
-	public byte[] createContext(ClientRequestInfo ri) {
+	public byte[] createClientContext(ClientRequestInfo ri) {
 		byte[] contextToken = org.jacorb.security.sas.GSSUPNameSpi.encode(username, password, "");
 		return contextToken;
 	}
@@ -48,7 +53,7 @@ public class GssUpContext implements ISASContext
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
 	 */
-	public String getCreatedPrincipal() {
+	public String getClientPrincipal() {
 		return username;
 	}
 
@@ -66,5 +71,17 @@ public class GssUpContext implements ISASContext
 	public String getValidatedPrincipal() {
 		if (initialContextToken == null) return null;
 		return new String(initialContextToken.username);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#initClient()
+	 */
+	public void initClient() {
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#initTarget()
+	 */
+	public void initTarget() {
 	}
 }

@@ -28,6 +28,7 @@ import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
 import org.jacorb.orb.CDRInputStream;
+import org.omg.CSI.KRB5MechOID;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
@@ -42,8 +43,25 @@ public class KerberosContext implements ISASContext
 
 	//private GSSManager gssManager = GSSManager.getInstance(); 
 	private GSSContext validatedContext = null;
+	private GSSCredential targetCreds = null;
+	private GSSCredential clientCreds = null;
+	
+	public void initClient() {
+		String principal = "";
+		try {
+			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
+			GSSManager gssManager = GSSManager.getInstance();
+			clientCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
+		} catch (Exception e) {
+			logger.warn("Error getting created principal: "+e);
+		}
+	}
+    
+	public String getMechOID() {
+		return KRB5MechOID.value.substring(4);
+	}
 
-	public byte[] createContext(ClientRequestInfo ri) {
+	public byte[] createClientContext(ClientRequestInfo ri) {
 		byte[] contextToken = new byte[0];
 		try {
 			TaggedComponent tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
@@ -55,7 +73,8 @@ public class KerberosContext implements ISASContext
 			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
 			GSSManager gssManager = GSSManager.getInstance();
 			GSSName myPeer = gssManager.createName(target, null, krb5Oid);
-			GSSContext myContext = gssManager.createContext(myPeer, krb5Oid, null, GSSContext.DEFAULT_LIFETIME);
+			if (clientCreds == null) clientCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
+			GSSContext myContext = gssManager.createContext(myPeer, krb5Oid, clientCreds, GSSContext.INDEFINITE_LIFETIME);
 			contextToken = myContext.initSecContext(contextToken, 0, contextToken.length);
 		} catch (Exception e) {
 			logger.error("Error creating Kerberos context: "+e);
@@ -63,25 +82,37 @@ public class KerberosContext implements ISASContext
 		return contextToken;
     }
     
-	public String getCreatedPrincipal() {
+	public String getClientPrincipal() {
 		String principal = "";
 		try {
-			GSSManager gssManager = GSSManager.getInstance();
 			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
-			GSSCredential myCred = gssManager.createCredential(null, GSSCredential.DEFAULT_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
-			principal = myCred.getName().toString();
+			GSSManager gssManager = GSSManager.getInstance();
+			if (clientCreds == null) clientCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
+			principal = clientCreds.getName().toString();
 		} catch (Exception e) {
 			logger.error("Error getting created principal: "+e);
 		}
 		return principal;
+	}
+    
+	public void initTarget() {
+		try {
+			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
+			GSSManager gssManager = GSSManager.getInstance();
+			if (targetCreds == null) targetCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.ACCEPT_ONLY);
+		} catch (GSSException e) {
+			logger.warn("Error accepting Kerberos context: "+e);
+		}
 	}
 
 	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
 		byte[] token = null;
 		
 		try {
+			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
 			GSSManager gssManager = GSSManager.getInstance();
-			validatedContext = gssManager.createContext((GSSCredential)null);
+			if (targetCreds == null) targetCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.ACCEPT_ONLY);
+			validatedContext = gssManager.createContext(targetCreds);
 			token = validatedContext.acceptSecContext(contextToken, 0, contextToken.length);
 		} catch (GSSException e) {
 			logger.error("Error accepting Kerberos context: "+e);

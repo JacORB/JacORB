@@ -1,9 +1,7 @@
-package org.jacorb.security.sas;
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2002-2003 Gerald Brose
+ *   Copyright (C) 1999-2003 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,21 +16,37 @@ package org.jacorb.security.sas;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
+package org.jacorb.security.sas;
 
+import org.jacorb.sasPolicy.SASPolicyValuesHelper;
+import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.PolicyError;
+import org.omg.PortableInterceptor.PolicyFactory;
 
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ServerRequestInfo;
-
-public interface ISASContext
+public class SASPolicyFactory extends org.omg.CORBA.LocalObject implements PolicyFactory
 {
-	public String getMechOID();
-	
-	public void initClient();
-	public byte[] createClientContext(ClientRequestInfo ri);
-	public String getClientPrincipal();
-	
-	public void initTarget();
-	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken);
-	public String getValidatedPrincipal();
+ 
+    public SASPolicyFactory()
+    {
+    }
+
+    public Policy create_policy( int type, Any value )
+        throws PolicyError
+    {
+        if( type != SAS_POLICY_TYPE.value )
+            throw new PolicyError();
+
+        return new SASPolicyImpl( SASPolicyValuesHelper.extract( value ));
+
+    }
 }
+
+
+
+
+
+

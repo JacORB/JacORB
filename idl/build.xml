@@ -668,7 +668,7 @@
    <!--                       CORBA                          -->
    <!-- ==================================================== -->
 
-   <target name="jacorb" depends="imr, proxy"/>
+   <target name="jacorb" depends="imr, proxy, sasPolicy"/>
 
    <target name="imr">
       <jacidl srcdir="${idl}/jacorb"
@@ -692,6 +692,20 @@
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${src}/generated"/>
          <param name="javac-includes" value="org/jacorb/proxy/**"/>
+      </antcall>
+   </target>
+
+
+   <target name="sasPolicy">
+      <jacidl srcdir="${idl}/jacorb"
+              destdir="${src}/generated"
+              sloppynames="true"
+              generateir="true"
+              includepath="${idl}/omg"
+              includes="SASPolicy.idl"/>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/jacorb/sasPolicy/**"/>
       </antcall>
    </target>
 </project>

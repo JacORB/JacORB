@@ -1,6 +1,6 @@
 KerberosClient 
 {
-	com.sun.security.auth.module.Krb5LoginModule required storeKey=true useTicketCache=true debug=true;
+	com.sun.security.auth.module.Krb5LoginModule required debug=true;
 };
 
 KerberosService 

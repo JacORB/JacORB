@@ -20,29 +20,27 @@
  */
 package org.jacorb.orb.standardInterceptors;
 
-import java.net.URLDecoder;
-import java.util.StringTokenizer;
-
 import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.Oid;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
+import org.jacorb.orb.portableInterceptor.IORInfoImpl;
+import org.jacorb.sasPolicy.ATLASPolicy;
+import org.jacorb.sasPolicy.ATLASPolicyValues;
+import org.jacorb.sasPolicy.ATLAS_POLICY_TYPE;
+import org.jacorb.sasPolicy.SASPolicy;
+import org.jacorb.sasPolicy.SASPolicyValues;
+import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
 import org.jacorb.security.sas.ISASContext;
-import org.jacorb.util.Environment;
 import org.omg.ATLAS.ATLASLocator;
 import org.omg.ATLAS.ATLASProfile;
 import org.omg.ATLAS.ATLASProfileHelper;
 import org.omg.ATLAS.SCS_ATLAS;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CSIIOP.AS_ContextSec;
 import org.omg.CSIIOP.CompoundSecMech;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
-import org.omg.CSIIOP.Confidentiality;
-import org.omg.CSIIOP.DelegationByClient;
-import org.omg.CSIIOP.EstablishTrustInClient;
-import org.omg.CSIIOP.EstablishTrustInTarget;
-import org.omg.CSIIOP.IdentityAssertion;
-import org.omg.CSIIOP.Integrity;
 import org.omg.CSIIOP.SAS_ContextSec;
 import org.omg.CSIIOP.ServiceConfiguration;
 import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
@@ -55,6 +53,7 @@ import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.IORInfo;
 import org.omg.PortableInterceptor.IORInterceptor;
+import org.omg.PortableInterceptor.ORBInitInfo;
 
 /**
  * This interceptor creates an sas TaggedComponent
@@ -68,16 +67,16 @@ public class SASComponentInterceptor
     implements IORInterceptor
 {
 	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.IOR");
 
     private ORB orb = null;
     private Codec codec = null;
     private TaggedComponent tc = null;
     private ISASContext sasContext = null;
 
-    public SASComponentInterceptor( ORB orb )
+    public SASComponentInterceptor(ORBInitInfo info)
     {
-        this.orb = orb;
+		orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
         try
         {
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
@@ -120,70 +119,52 @@ public class SASComponentInterceptor
 
     public void establish_components(IORInfo info)
     {
+    	// see if SAS policy is set
+    	if (sasContext == null) return;
+    	SASPolicyValues sasValues = null;
+    	try {
+    		SASPolicy policy = (SASPolicy)((IORInfoImpl)info).get_effective_policy(SAS_POLICY_TYPE.value);
+    		if (policy != null) sasValues = policy.value();
+    	} catch (BAD_PARAM e) {
+    		logger.debug("No SAS Policy");
+    	} catch (Exception e) {
+    		logger.warn("Error fetching SAS policy: "+e);
+    	}
+    	if (sasValues == null) return;
+    	if (sasValues.targetRequires == 0 && sasValues.targetSupports == 0) return;
+
+		ATLASPolicyValues atlasValues = null;
+		try {
+			ATLASPolicy policy = (ATLASPolicy)info.get_effective_policy(ATLAS_POLICY_TYPE.value);
+			if (policy != null) atlasValues = policy.value();
+		} catch (BAD_PARAM e) {
+			logger.debug("No ATLAS Policy");
+		} catch (Exception e) {
+			logger.warn("Error fetching ATLAS policy: "+e);
+		}
+    	
+    	// generate SAS tag
         try
         {
             if( tc == null )
             {
-                // parse required association options
-				String targetSupportsNames = Environment.getProperty( "jacorb.security.sas.tss.target_supports", "" );
-                short targetSupports = (short)0;
-                StringTokenizer nameTokens = new StringTokenizer(targetSupportsNames, ":;, ");
-                while (nameTokens.hasMoreTokens())
-                {
-                    String token = nameTokens.nextToken();
-                    if (token.equals("Integrity")) targetSupports |= Integrity.value;
-                    else if (token.equals("Confidentiality"))        targetSupports |= Confidentiality.value;
-                    else if (token.equals("EstablishTrustInTarget")) targetSupports |= EstablishTrustInTarget.value;
-                    else if (token.equals("EstablishTrustInClient")) targetSupports |= EstablishTrustInClient.value;
-                    else if (token.equals("IdentityAssertion"))      targetSupports |= IdentityAssertion.value;
-                    else if (token.equals("DelegationByClient"))     targetSupports |= DelegationByClient.value;
-                    else org.jacorb.util.Debug.output("Unknown SAS Association Taken: " + token);
-                }
-				String targetRequiresNames = Environment.getProperty( "jacorb.security.sas.tss.target_requires", "" );
-                short targetRequires = (short)0;
-                nameTokens = new StringTokenizer(targetRequiresNames, ":;, ");
-                while (nameTokens.hasMoreTokens())
-                {
-                    String token = nameTokens.nextToken();
-                    if (token.equals("Integrity")) targetRequires |= Integrity.value;
-                    else if (token.equals("Confidentiality"))        targetRequires |= Confidentiality.value;
-                    else if (token.equals("EstablishTrustInTarget")) targetRequires |= EstablishTrustInTarget.value;
-                    else if (token.equals("EstablishTrustInClient")) targetRequires |= EstablishTrustInClient.value;
-                    else if (token.equals("IdentityAssertion"))      targetRequires |= IdentityAssertion.value;
-                    else if (token.equals("DelegationByClient"))     targetRequires |= DelegationByClient.value;
-                    else org.jacorb.util.Debug.output("Unknown SAS Association Taken: " + token);
-                }
-
                 // for now, no transport mechanizms
                 TaggedComponent transportMech = new TaggedComponent(TAG_NULL_TAG.value, new byte[0]);
 
                 // the AS_ContextSec
-                byte[] targetName = new byte[0];
-                if (sasContext != null) {
-                	targetName = sasContext.getCreatedPrincipal().getBytes();
-                } else {
-                	targetName = Environment.getProperty( "jacorb.security.sas.tss.target_name").getBytes();
-                }
-
-                short asTargetSupports = targetSupports;
-                short asTargetRequires = targetRequires;
-
-                // the SAS_ContextSec
-				String atlasURL = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.url");
-				if (atlasURL != null) atlasURL = URLDecoder.decode(atlasURL);
-                String atlasCache = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.cacheid");
+                byte[] targetName = sasContext.getClientPrincipal().getBytes();
                 ServiceConfiguration[] serviceConfiguration = null;
-                if (atlasURL == null)
+                if (atlasValues == null)
                 {
                     serviceConfiguration = new ServiceConfiguration[0];
                 }
                 else
                 {
-                    if (atlasCache == null) atlasCache = "";
+                    if (atlasValues.atlasCache == null) atlasValues.atlasCache = "";
                     ATLASLocator atlasLoc = new ATLASLocator();
-                    atlasLoc.the_url(atlasURL);
+                    atlasLoc.the_url(atlasValues.atlasURL);
                     ATLASProfile profile = new ATLASProfile();
-                    profile.the_cache_id = atlasCache.getBytes();
+                    profile.the_cache_id = atlasValues.atlasCache.getBytes();
                     profile.the_locator = atlasLoc;
                     byte[] cdrProfile = new byte[0];
                     org.omg.CORBA.Any any = orb.create_any();
@@ -197,16 +178,10 @@ public class SASComponentInterceptor
                 // create the security mech list
                 boolean useStateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.stateful", "true")).booleanValue();
                 CompoundSecMech[] compoundSecMech = new CompoundSecMech[1];
-                String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism.oid");
-                byte[] clientAuthenticationMech;
-                if (mechOID == null) {
-                    clientAuthenticationMech = new byte[0];
-                } else {
-                  Oid oid = new Oid(mechOID);
-                  clientAuthenticationMech = oid.getDER();
-                }
-                AS_ContextSec asContextSec = new AS_ContextSec(asTargetSupports, asTargetRequires, clientAuthenticationMech, targetName);
-                compoundSecMech[0] = new CompoundSecMech(targetRequires, transportMech, asContextSec, sasContextSec);
+                Oid oid = new Oid(sasContext.getMechOID());
+				byte[] clientAuthenticationMech = oid.getDER();
+                AS_ContextSec asContextSec = new AS_ContextSec(sasValues.targetSupports, sasValues.targetRequires, clientAuthenticationMech, targetName);
+                compoundSecMech[0] = new CompoundSecMech(sasValues.targetRequires, transportMech, asContextSec, sasContextSec);
                 CompoundSecMechList compoundSecMechList = new CompoundSecMechList(useStateful, compoundSecMech);
 
                 // export to tagged component

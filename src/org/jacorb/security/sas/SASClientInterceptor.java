@@ -77,7 +77,7 @@ public class SASClientInterceptor
     protected String name = null;
 
 	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.CSS");
 
     protected byte[] contextToken = new byte[0];
     protected boolean useStateful = true;
@@ -103,6 +103,8 @@ public class SASClientInterceptor
 		}
 		if (sasContext == null) {
 			logger.error("Could not load SAS context class: "+contextClass);
+		} else {
+			sasContext.initClient();
 		}
     }
 
@@ -137,13 +139,16 @@ public class SASClientInterceptor
         }
 		catch (BAD_PARAM e)
 		{
-			logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+ri.operation());
+			logger.debug("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+ri.operation());
 		}
 		catch (Exception e)
 		{
 			logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
 		}
         if (csmList == null) return;
+        if (csmList.mechanism_list[0].as_context_mech.target_supports == 0 &&
+			csmList.mechanism_list[0].as_context_mech.target_requires == 0)
+			return;
 
         // ask connection for client_context_id
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
@@ -163,7 +168,7 @@ public class SASClientInterceptor
             {
                 IdentityToken identityToken = new IdentityToken();
                 identityToken.absent(true);
-                if (sasContext != null) contextToken = sasContext.createContext(ri);
+                if (sasContext != null) contextToken = sasContext.createClientContext(ri);
                 msg = makeEstablishContext(orb, -client_context_id, authorizationList, identityToken, contextToken);
             }
             else
@@ -194,12 +199,14 @@ public class SASClientInterceptor
         }
 		catch (BAD_PARAM e)
 		{
+			logger.debug("No SAS security context found: "+ri.operation());
 		}
 		catch (Exception e)
 		{
-			logger.debug("No SAS security context found: "+e);
+			logger.warn("No SAS security context found: "+e);
 		}
         if (ctx == null) return;
+        
         try
         {
             Any msg = codec.decode( ctx.context_data );
@@ -241,12 +248,14 @@ public class SASClientInterceptor
         }
 		catch (BAD_PARAM e)
 		{
+			logger.debug("No SAS security context found (exception): "+ri.operation());
 		}
 		catch (Exception e)
 		{
-			logger.debug("Could not find SAS reply: "+e);
+			logger.warn("No SAS security context found (exception): "+e);
 		}
         if (ctx == null) return;
+        
         try
         {
             Any msg = codec.decode( ctx.context_data );

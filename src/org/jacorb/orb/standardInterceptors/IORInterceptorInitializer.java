@@ -20,7 +20,6 @@
  */
 package org.jacorb.orb.standardInterceptors;
 
-import java.lang.reflect.Constructor;
 import org.omg.PortableInterceptor.*;
 import org.jacorb.orb.*;
 import org.jacorb.util.Environment;
@@ -60,27 +59,6 @@ public class IORInterceptorInitializer
                 Environment.hasProperty( "jacorb.security.ssl.server.required_options" ))
             {
                 info.add_ior_interceptor(new SSLComponentInterceptor(orb));
-            }
-
-            if( Environment.isPropertyOn( "jacorb.security.support_sas" ))
-            {
-                try
-                {
-                    Class sas = Environment.classForName (
-                        "org.jacorb.orb.standardInterceptors.SASComponentInterceptor");
-                    Constructor csas = sas.getConstructor
-                        (new Class[] { orb.getClass () });
-
-                    info.add_ior_interceptor
-                    (
-                        (IORInterceptor)csas.newInstance (new Object[] {orb})
-                    );
-                }
-                catch (Exception e)
-                {
-                    org.jacorb.util.Debug.output (1, "Unable to instantiate SASComponentInterceptor");
-                    org.jacorb.util.Debug.output (1, e);
-                }
             }
 
             int giop_minor =
