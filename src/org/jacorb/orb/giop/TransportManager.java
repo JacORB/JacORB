@@ -164,7 +164,11 @@ public class TransportManager
     {
         try
         {
-            Class c = Class.forName (className);
+            // Use the context class loader, because JacORB might be
+            // on the bootclasspath, and the external transport on the
+            // normal classpath.
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            Class c = cl.loadClass (className);
             return (Factories)c.newInstance();
         }
         catch (Exception e)
