@@ -212,7 +212,7 @@ jacorb.security.keystore=.keystore
 jacorb.security.keystore_password=jacorb
 
 # qualified classname of access decision object
-jacorb.security.access_decision=jacorb.security.level2.AccessDecisionImpl
+jacorb.security.access_decision=org.jacorb.security.level2.AccessDecisionImpl
 
 # list of qualified classnames of principal authenticator objects,
 # separated by commas (no whitespaces!). The first entry (that can
