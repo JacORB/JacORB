@@ -11,7 +11,7 @@
   &common;
 
    <target name="local_init">
-       <property name="name" value="foobar"/>
+       <property name="name" value="XYZ"/>
        <property name="relative_src" value="test/${name}"/>
        <property name="srcdir" value="${basedir}/${relative_src}"/>
    </target>
