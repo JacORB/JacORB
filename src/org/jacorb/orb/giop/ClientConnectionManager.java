@@ -197,15 +197,17 @@ public class ClientConnectionManager
 
     public synchronized void addConnection( GIOPConnection connection )
     {
-        Client_TCP_IP_Transport t = (Client_TCP_IP_Transport)connection.getTransport();
-        InternetIOPProfile profile = t.get_server_profile(); 
+        org.omg.ETF.Profile profile = connection.getTransport().get_server_profile();
             
         if( !connections.containsKey( profile ))
         {
 
-            ClientConnection c = 
-                new ClientConnection( connection, orb, this, 
-                                      profile.getAddress().toString(), false );
+            ClientConnection c = new ClientConnection
+            ( 
+                connection, orb, this, 
+                ((InternetIOPProfile)profile).getAddress().toString(), 
+                false 
+            );
 
             //this is a bit of a hack: the bidirectional client
             //connections have to persist until their underlying GIOP
