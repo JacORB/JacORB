@@ -143,7 +143,11 @@ public class Environment
 
     /** root logger instance for JacORB */
     private static LoggerFactory loggerFactory = null;
+
+    /**  logger factory used to create loggers */
     private static org.apache.avalon.framework.logger.Logger logger = null;
+
+    /**  default class name for logger factory */
     private static String loggerFactoryClzName = "org.jacorb.util.LogKitLoggerFactory";
 
     static
@@ -458,7 +462,12 @@ public class Environment
     }
 
     /**
-     * set up the root logger etc.
+     * Set up JacORB logging. Will create logger factory and root
+     * logger object according to configuration parameters. The value
+     * of the property <tt>jacorb.log.loggerFactory</tt> determines the
+     * logger factory class name that is used to create the root logger.
+     *
+     * @since 2.0 beta 3 
      */
 
     private static void initLogging()
@@ -1067,6 +1076,11 @@ public class Environment
         }
     }
 
+    /**
+     * quick hack to avoid calling <code>Class.forName()</code>
+     * (needs refinement)
+     */
+
     public static Class classForName(String name) 
         throws ClassNotFoundException, IllegalArgumentException
     {
@@ -1081,6 +1095,11 @@ public class Environment
             return Class.forName(name);
         }
     }
+
+    /**
+     * @return the default logger factory
+     * @since JacORB 2.0 beta 3
+     */
 
     public static LoggerFactory getLoggerFactory()
     {
