@@ -177,7 +177,7 @@ public final class Any
 
             }
             default:
-                throw new RuntimeException ("Cannot compare anys with type kind " + kind);
+                throw new BAD_TYPECODE("Cannot compare anys with TypeCode kind " + kind);
         } 
     }
 
@@ -487,6 +487,18 @@ public final class Any
         typeCode = (new org.omg.CORBA.FixedHolder(_value))._type();
     }
 
+    public void insert_fixed(java.math.BigDecimal _value, org.omg.CORBA.TypeCode type) 
+    // ??       throws org.omg.CORBA.BAD_INV_ORDER 
+    {
+        org.omg.CORBA.TypeCode tc = (new org.omg.CORBA.FixedHolder(_value))._type();
+        if ( ! type.equal( tc ) )
+        {
+           throw new BAD_TYPECODE("The TypeCode does not describe the fixed point type");
+        }
+        value = _value;
+        typeCode = type;
+    }
+
     public java.math.BigDecimal extract_fixed () 
     {
         checkExtract (TCKind._tk_fixed, "Cannot extract fixed");
@@ -497,13 +509,6 @@ public final class Any
         return (java.math.BigDecimal)value;
     }
         
-    public void insert_fixed(java.math.BigDecimal _value, org.omg.CORBA.TypeCode type) 
-    // ??       throws org.omg.CORBA.BAD_INV_ORDER 
-    {
-        value = _value;
-        typeCode = type;
-    }
-
     // obj refs
 
     public void insert_Object (org.omg.CORBA.Object o)
@@ -772,7 +777,7 @@ public final class Any
               insert_Value((java.io.Serializable)obj);
            break;
         default:
-            throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
+            throw new BAD_TYPECODE("Cannot handle TypeCode with kind " + kind);
         }
         //org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
     }
@@ -873,7 +878,7 @@ public final class Any
             catch( Exception e )
             {
                 e.printStackTrace();
-                throw new RuntimeException( e.getMessage());
+                throw new INTERNAL( e.getMessage());
             }
 //          case TCKind._tk_alias:
 //              try
@@ -900,7 +905,7 @@ public final class Any
                 .write_abstract_interface (value);
             break;
         default:
-            throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
+            throw new BAD_TYPECODE("Cannot handle TypeCode with kind " + kind);
         }
     }
 
