@@ -188,7 +188,7 @@
       <jacidl generateir="true"
               srcdir="${idl}"
               ami_callback="${callback.idl}"
-              destdir="${src}/generated"
+              destdir="${testdir}/generated"
               includes="${file.idl}"/>
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${testdir}/generated"/>
