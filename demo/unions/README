@@ -6,7 +6,7 @@
         ant
 
     Run NamingServer:
-        ns[.bat] -Djacorb.naming.ior_filename=/path/to/NS_Ref
+        ns -Djacorb.naming.ior_filename=/path/to/NS_Ref
 
     Run Server:
         jaco demo.unions.Server
