@@ -28,47 +28,43 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 public class GssUpContext implements ISASContext
 {
 	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+	private static String username = null;
+	private static String password = null;
     private InitialContextToken initialContextToken = null;
-
-    public boolean validate(ServerRequestInfo ri, byte[] contextToken) {
-        initialContextToken = org.jacorb.security.sas.GSSUPNameSpi.decode(contextToken);
-        return true;
-    }
-
-    public String getPrincipalName() {
-        if (initialContextToken == null) return null;
-        return new String(initialContextToken.username);
+    
+    public static void setUsernamePassword(String username, String password) {
+		GssUpContext.username = username;
+		GssUpContext.password = password;
     }
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
 	 */
 	public byte[] createContext(ClientRequestInfo ri) {
-		// TODO Auto-generated method stub
-		return null;
+		byte[] contextToken = org.jacorb.security.sas.GSSUPNameSpi.encode(username, password, "");
+		return contextToken;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
 	 */
 	public String getCreatedPrincipal() {
-		// TODO Auto-generated method stub
-		return null;
+		return username;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
 	 */
 	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
-		// TODO Auto-generated method stub
-		return false;
+		initialContextToken = org.jacorb.security.sas.GSSUPNameSpi.decode(contextToken);
+		return true;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
 	 */
 	public String getValidatedPrincipal() {
-		// TODO Auto-generated method stub
-		return null;
+		if (initialContextToken == null) return null;
+		return new String(initialContextToken.username);
 	}
 }

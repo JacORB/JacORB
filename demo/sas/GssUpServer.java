@@ -18,12 +18,12 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class Server extends SASDemoPOA
+public class GssUpServer extends SASDemoPOA
 {
 
     private ORB orb;
 
-    public Server(ORB orb)
+    public GssUpServer(ORB orb)
     {
         this.orb = orb;
     }
@@ -57,10 +57,11 @@ public class Server extends SASDemoPOA
 
         try
         {
+			GssUpContext.setUsernamePassword("Server", "");
             ORB orb = ORB.init( args, null );
             POA poa = (POA) orb.resolve_initial_references( "RootPOA" );
             poa.the_POAManager().activate();
-            org.omg.CORBA.Object demo = poa.servant_to_reference( new Server( orb ));
+            org.omg.CORBA.Object demo = poa.servant_to_reference( new GssUpServer( orb ));
             PrintWriter pw = new PrintWriter( new FileWriter( args[ 0 ] ));
             pw.println( orb.object_to_string( demo ));
             pw.flush();

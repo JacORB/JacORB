@@ -1,61 +1,46 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../etc/common.xml"> ]>
+
 <project name="demo" default="all" basedir="../..">
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
+    &common;
+
+   <target name="sas.init">
 	<property name="name" value="sas"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg -ir -d ${dirs.base}/demo/${name}/generated"/>
-      <available classname="com.tagish.auth.Utils" property="jaas.modules.present" />       
+        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
+	<property name="include" value="${dirs.base}/idl/omg"/>
    </target>
 
-   <target name="all" depends="compile,jaas" />
-
-
-   <target name="compile" depends="idl">
-	<javac srcdir="${dirs.base}/demo/${name}/generated"
+   <target name="all" depends="sas.init,idl">
+	<javac srcdir="${dirs.base}/demo/${name}/generated/"
                destdir="${classdir}"
-	       includes="demo/${name}/**/*.java"
+	       includes="**/*.java"
 	        />
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
 	       includes="demo/${name}/*.java"
-		  excludes="demo/${name}/JAASClient.java,demo/${name}/LoginCallbackHandler.java,demo/${name}/NT_*.java"
 	        />
    </target>
 
-   <target name="jaas" if="jaas.modules.present">
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-	       includes="demo/${name}/JAASClient.java,demo/${name}/LoginCallbackHandler.java,demo/${name}/NT_*.java"
-	        />
+   <target name="idl" depends="sas.init,load-taskdef">
+        <mkdir dir="${dest}" />
+        <jacidl srcdir="demo/${name}"
+                destdir="${dest}"
+                includepath="${include}"
+	        includes="*.idl"/>
    </target>
 
-   <target name="testJAAS" unless="jaas.modules.present">
-        <echo message="JAAS Modules classes are not present!"/> 
-        <echo message="Please add the corresponding jar file to your classpath" />
-   </target>
-
-   <target name="idl" depends="init">
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
-              classpath="${lib}/idl.jar;${java.class.path}">
-
-	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/server.idl"/>
-         </java>
-   </target>
-
-   <target name="clean" depends="init">
-	   <delete dir="${classdir}/demo/${name}"/>
-	   <delete dir="${dirs.base}/demo/${name}/generated"/>
+   <target name="clean" depends="sas.init">
+           <delete dir="${classdir}/demo/${name}"/>
+           <delete dir="${dest}"/>
    </target>
 
 </project>

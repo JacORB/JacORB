@@ -3,6 +3,7 @@ package demo.sas;
 import java.io.*;
 import java.util.*;
 import org.omg.CORBA.*;
+import org.jacorb.security.sas.GssUpContext;
 import org.jacorb.util.*;
 
 /**
@@ -26,7 +27,11 @@ public class GssUpClient
 
         try
 	{
-            // initialize the ORB.
+ 
+			// set security credentials
+			GssUpContext.setUsernamePassword(args[1], args[2]);
+
+           // initialize the ORB.
             ORB orb = ORB.init( args, null );
 
             // get the server
@@ -47,10 +52,6 @@ public class GssUpClient
             org.omg.CORBA.Object obj = orb.string_to_object( br.readLine() );
             br.close();
             SASDemo demo = SASDemoHelper.narrow( obj );
-
-            // set security credentials
-            byte[] contextToken = org.jacorb.security.sas.GSSUPNameSpi.encode(args[1], args[2], "");
-            org.jacorb.security.sas.SASClientInitializer.setContextToken(contextToken);
 
             //call single operation
             demo.printSAS();
