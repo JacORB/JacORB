@@ -28,9 +28,10 @@ public class ORBDomainImpl
 
     /** 
      *  creates an orb domain.
-     *  The domain is initially empty, contains no policies
+     *  The domain is initially empty, contains no policies,
      *  and its name is the empty  string.
      */
+
     public ORBDomainImpl()
     {
         this(null, null, "");
@@ -44,12 +45,11 @@ public class ORBDomainImpl
      *                        members of the domain 
      */
 
-    public ORBDomainImpl(org.omg.CORBA.Object[] initialMembers)
+    public ORBDomainImpl( org.omg.CORBA.Object[] initialMembers )
     {
-        this(initialMembers, null, "");
+        this( initialMembers, null, "");
     }
- 
- 
+  
   
     /** creates an orb domain.
      *  The newly created domain contains the list of initial members,
@@ -74,8 +74,8 @@ public class ORBDomainImpl
                          String                 name) 
     {
         super(initialMembers, initialPolicies, name);
-        theLocalDomains= new Hashtable(30);
-        theCache= new ODMCache();
+        theLocalDomains = new Hashtable(30);
+        theCache = new ODMCache();
     }
 
 
@@ -125,8 +125,9 @@ public class ORBDomainImpl
      */
     public org.jacorb.orb.domain.Domain _this()
     {
-        Debug.output(Debug.DOMAIN | Debug.DEBUG1, "ORBDomainImpl._this()");
-        Debug.assert(1, theTie != null, "ORBDomainPOATie._this: the tie has not been set (is null)");
+        Debug.output( Debug.DOMAIN | Debug.DEBUG1, "ORBDomainImpl._this()");
+        Debug.assert( 1, theTie != null, 
+                      "ORBDomainPOATie._this: the tie has not been set (is null)");
         return theTie._this();
     }
   
@@ -174,8 +175,7 @@ public class ORBDomainImpl
     public Domain[] getDomains(org.omg.CORBA.Object obj)
     { 
         // synchronized (_memberLock)
-        {
-    
+        {    
             Domain domain;
             Domain result[];
             // check cache
@@ -296,17 +296,6 @@ public class ORBDomainImpl
     }
 
 } // ORBDomainImpl
-
-
-
-
-
-
-
-
-
-
-
 
 
 

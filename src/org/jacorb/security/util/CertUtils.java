@@ -342,7 +342,7 @@ public class CertUtils
         }
 	catch ( Exception ex ) 
 	{ 
-	    org.jacorb.util.Debug.output(3, "exection: " + ex.toString ());
+	    org.jacorb.util.Debug.output(3, "exception: " + ex.toString ());
 	    return null; 
 	}
     }

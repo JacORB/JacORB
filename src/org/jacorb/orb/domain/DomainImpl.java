@@ -71,6 +71,9 @@ public class DomainImpl
     /** the list of parent domains of this domain */
     protected Hashtable _parents   = new Hashtable();
   
+    /** the list of membership listeners for this domain */
+    private Vector listeners = new Vector();
+
     public final static int UNDEF = -1;
 
     // ***** constructors *****
@@ -130,8 +133,9 @@ public class DomainImpl
 
         // set members
         if (initialMembers != null)
-        { // insert member asynchronously
-            Thread thread= new MemberListInserter(this, initialMembers);
+        { 
+            // insert member asynchronously
+            Thread thread = new MemberListInserter(this, initialMembers);
             thread.start();
         }
         //   for (int i=0; i<initialMembers.length; i++)  
@@ -360,12 +364,14 @@ public class DomainImpl
 
     // *********              MetaPolicyManager interface operations
 
-    /** sets a meta policy.
+    /** 
+     *  sets a meta policy.
      *  @param pol the meta policy to be set in this domain
      *  @exception PolicyTypeAlreadyDefined if there is 
      *             already a meta policy of type 
      *             pol.policy_type() valid in this domain
      */
+
     public void setMetaPolicy(org.jacorb.orb.domain.MetaPolicy pol) 
         throws org.jacorb.orb.domain.PolicyTypeAlreadyDefined
     {
@@ -431,29 +437,30 @@ public class DomainImpl
     // policy operations
 
 
-    /** retrieves a domain policy. The retrived policy applies to this
-     *  domain.
-     *  The type of policy is indicated by the "policy_type" parameter.
-     *  @param policy_type the type of policy to be retrieved
-     *  @exception INV_POLICY if this domain currently doesn't have 
-     *             a policy of the type "policy type"
-     *  @return policy the policy of type "policy_type" which 
-     *             applies to this domain
+    /** 
+     *  retrieves a policy which  applies to this domain.  The type of
+     *  policy is indicated by the "policy_type" parameter.
+     *
+     *  @param     policy_type the type of policy to be retrieved
+     *  @exception INV_POLICY if this domain doesn't have 
+     *                a policy of the type "policy type"
+     *  @return    the policy of type "policy_type"
      */
 
     public org.omg.CORBA.Policy get_domain_policy(int policy_type) 
     {
-
         Policy result= null;
 
         java.lang.Object hashResult = 
             _policies.get(new Integer (policy_type) );
+
         if (hashResult != null)  
-            result= (org.omg.CORBA.Policy) hashResult; // main case
+            result = (org.omg.CORBA.Policy) hashResult; // main case
         else
             // policy not found in this domain
-            throw (new INV_POLICY("DM.get_domain_policy: this domain " + this
-                                  +"doesn't have a policy of type " + policy_type));	
+            throw new INV_POLICY("DM.get_domain_policy: this domain " + 
+                                 this +"doesn't have a policy of type " + 
+                                 policy_type);
     
         return result;
     } // get_domain_policy
@@ -471,7 +478,8 @@ public class DomainImpl
      *  @param policy_type the type of policy to be retrieved
      *  @exception INV_POLICY if this domain and none of its 
      *       parent domains have  a policy of the type "policy type"
-     *  @see org.jacorb.orb.domain.DomainImpl#get_domain_policy */
+     *  @see org.jacorb.orb.domain.DomainImpl#get_domain_policy 
+     */
 
     public org.omg.CORBA.Policy getEffectiveDomainPolicy(int policy_type) 
     {
@@ -508,11 +516,14 @@ public class DomainImpl
     /** 
      * lists the direct object members of this domain. 
      */
+
     public org.omg.CORBA.Policy[] getPolicies()
     { 
         Enumeration objectEnum= _policies.elements();
         // convert Enumeration to array
-        org.omg.CORBA.Policy[] result= new org.omg.CORBA.Policy[_policies.size()];
+        org.omg.CORBA.Policy[] result = 
+            new org.omg.CORBA.Policy[_policies.size()];
+
         int i= 0;
         while ( objectEnum.hasMoreElements() ) 
         {
@@ -523,7 +534,10 @@ public class DomainImpl
     } // getPoliecies
 
 
-    /** returns the number of policies. */
+    /**
+     * returns the number of policies. 
+     */
+
     public int getPolicyCount() 
     {
         return _policies.size(); 
@@ -641,7 +655,7 @@ public class DomainImpl
     public void set_domain_policy(org.omg.CORBA.Policy pol) 
         throws org.jacorb.orb.domain.PolicyTypeAlreadyDefined 
     {    
-        int key= pol.policy_type();
+        int key = pol.policy_type();
         if ( _policies.containsKey( new Integer (key) ) ) 
             // Debug.output(1,"Domain.set_domain_policy:overwriting policy of type "+key);
             throw new PolicyTypeAlreadyDefined(key);
@@ -747,7 +761,10 @@ public class DomainImpl
 
     // ***** object member operations *****
 
-    /** inserts a member object into this domain. */
+    /** 
+     * inserts a member object into this domain. 
+     */
+
     public void insertMember(org.omg.CORBA.Object obj)
     { 
         synchronized (_memberLock)
@@ -759,7 +776,7 @@ public class DomainImpl
                 return;
             }
 
-            Domain group[]= getDomains(obj); // retrieve old domain group
+            Domain group[] = getDomains(obj); // retrieve old domain group
 
             // create auto name
             _NameCount++;
@@ -776,14 +793,20 @@ public class DomainImpl
 	
             // update odms of group: unreliable multicast
             for ( int i= 0; i < group.length; i++)
+            {
                 try
                 {
                     group[i].addToMapping(obj, self);
                 }
-                catch (org.omg.CORBA.COMM_FAILURE failure) { continue; }
+                catch (org.omg.CORBA.COMM_FAILURE failure) 
+                { 
+                    continue; 
+                }
+            }
 	
             // inform all orb domain caches of changed membership
             invalidateORBDomainCaches(obj, getRootDomain(), new Hashtable());
+            notifyListenersAdd( obj ); 
         }
     } // insertMember
 
@@ -823,6 +846,7 @@ public class DomainImpl
 
             // inform all orb domain caches of changed membership
             invalidateORBDomainCaches(obj, getRootDomain(), new Hashtable());
+            notifyListenersRemove( obj ); 
         }
     
     } // deleteMember
@@ -873,10 +897,11 @@ public class DomainImpl
             {
                 // only return valid elements
                 // result[counter]= (org.omg.CORBA.Object) objectEnum.nextElement();
-                obj= (org.omg.CORBA.Object) objectEnum.nextElement();
+                obj = (org.omg.CORBA.Object) objectEnum.nextElement();
 
                 if (obj._non_existent()) // check if object is still alive
-                { // remove 
+                { 
+                    // remove 
                     Debug.output(Debug.DOMAIN | Debug.INFORMATION, 
                                  "DomainImpl.get"
                                  +"Members: removing a invalid object reference from domain members");
@@ -2448,6 +2473,48 @@ public class DomainImpl
                                  + object);
     }
 
+
+  public void addMembershipListener( MembershipListener listener )
+  {
+    listeners.addElement( listener );
+  }
+
+  public void removeMembershipListener( MembershipListener listener )
+  {
+    listeners.removeElement( listener );
+  }
+
+
+  private void notifyListenersAdd(org.omg.CORBA.Object object)
+  {
+    for( int i = listeners.size()-1 ; i >= 0; i-- )
+    {
+      try
+      {
+        ((MembershipListener)listeners.elementAt(i)).memberAdded(object);
+      }
+      catch( org.omg.CORBA.SystemException s )
+      {
+        listeners.removeElementAt( i );
+      }
+    }
+  }
+
+  private void notifyListenersRemove(org.omg.CORBA.Object object)
+  {
+    for( int i = listeners.size()-1 ; i >= 0; i-- )
+    {
+      try
+      {
+        ((MembershipListener)listeners.elementAt(i)).memberRemoved(object);
+      }
+      catch( org.omg.CORBA.SystemException s )
+      {
+        listeners.removeElementAt( i );
+      }
+    }
+  }
+  
 } // DomainImpl
 
 

@@ -4,14 +4,14 @@ import java.lang.reflect.*;
 
 public class SystemExceptionHelper
 {
-    private static final String className ( String repId )
+    private static final String className( String repId )
     {
         // cut "IDL:" and version
         String id_base = repId.substring(4, repId.lastIndexOf(':'));
 	return ir2scopes("org.omg",id_base.substring(7));
     }
 
-    private static final String ir2scopes (String prefix, String s) 
+    private static final String ir2scopes( String prefix, String s ) 
     {
         if( s.indexOf("/") < 0)
             return s;
@@ -85,7 +85,7 @@ public class SystemExceptionHelper
     }
 
 
-    public static void insert(org.omg.CORBA.Any any,org.omg.CORBA.SystemException  s)
+    public static void insert(org.omg.CORBA.Any any, org.omg.CORBA.SystemException  s)
     {
 	any.type( type( s ));
 	write( any.create_output_stream(), s);
@@ -142,7 +142,8 @@ public class SystemExceptionHelper
 	}		    
     }
 
-    public static void write(org.omg.CORBA.portable.OutputStream out, org.omg.CORBA.SystemException s)
+    public static void write(org.omg.CORBA.portable.OutputStream out, 
+                             org.omg.CORBA.SystemException s)
     {	    
 	out.write_string(repId(s.getClass()));
 	out.write_long(s.minor);

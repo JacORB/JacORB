@@ -146,42 +146,43 @@ public class Environment
 
     private static void _init()
     {
-        String home = null;
-        String sep = null;
-        String lib = null;
-
         try
         {
             /* load system properties to get home dir and file separator */
 
-            _props = new Properties(System.getProperties());
-            home = _props.getProperty("user.home");
-            sep = _props.getProperty("file.separator");
-            lib = _props.getProperty("java.home");
+            _props = new Properties( System.getProperties() );
+            
+            String customPropertyFileName = _props.getProperty("custom.props");
+            String home = _props.getProperty("user.home");
+            String sep = _props.getProperty("file.separator");
+            String lib = _props.getProperty("java.home");
 
             /* look for home directory config files first */
 
             propertiesFiles.addElement(home + sep + propertiesFile1);
             propertiesFiles.addElement(home + sep + propertiesFile2);
             
-            /* look config files in "." */
+            /* look for config files in "." */
 
             propertiesFiles.addElement(propertiesFile1);
             propertiesFiles.addElement(propertiesFile2);
 
             
-            /* look config files in java.home/lib */
+            /* look for config files in java.home/lib */
 
             propertiesFiles.addElement(lib + sep + "lib" + sep + propertiesFile1);
             propertiesFiles.addElement(lib + sep + "lib" + sep + propertiesFile2);
 
 
             boolean loaded = false;
-            for(int i=0; !loaded && i<propertiesFiles.size(); ++i) 
+            for( int i=0; !loaded && i < propertiesFiles.size(); ++i ) 
             {
                 try 
                 {
-                    _props.load(new BufferedInputStream(new FileInputStream((String)propertiesFiles.elementAt(i))));
+                    _props.load( 
+                          new BufferedInputStream( 
+                               new FileInputStream(
+                                    (String)propertiesFiles.elementAt( i ) )));
                     loaded = true;
                 } 
                 catch ( Exception e ) 
@@ -190,9 +191,30 @@ public class Environment
                 } 
             }
 
+            /*  load additional  properties from  a  custom properties
+                file in  addition to the ones loaded  from the various
+                jacorb.properties files.  This is loadded last so that
+                its    properties    override    any    settings    in
+                jacorb.properties files 
+            */
+
+            if( customPropertyFileName != null )
+            { 
+                try 
+                {
+                    _props.load( 
+                           new BufferedInputStream( 
+                                 new FileInputStream( customPropertyFileName )));
+                } 
+                catch ( IOException e ) 
+                {                    
+                }
+            }
+
             /* we have to refresh system properties here because otherwise
                command line options would be overriden by properties from 
                files */
+
             merge( _props, System.getProperties());
 
             //   _props.putAll(System.getProperties()); 

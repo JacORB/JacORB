@@ -432,25 +432,25 @@ public class BrowserFrame
 
 
 
-
-
     /** updates the models of the two lists, the member list and the policy list
      *  @param parent the domain which holds the data for both views
      */
+
     private void updateListModels(Domain parent)
     {
-        memberListRoot= new MemberListRootNode(parent);
-        DefaultTreeModel model= new DefaultTreeModel(memberListRoot);
+        memberListRoot = new MemberListRootNode(parent);
+        DefaultTreeModel model = new DefaultTreeModel(memberListRoot);
         memberList.setModel(model);
 
-        policyListRoot= new PolicyListRootNode(parent);
+        policyListRoot = new PolicyListRootNode(parent);
         DefaultTreeModel policyModel= new DefaultTreeModel(policyListRoot);
         policyList.setModel(policyModel);
     } // initListViews
 
 
     public org.omg.CORBA.ORB getORB()
-    { // delegate
+    { 
+        // delegate
         return theSharedData.getORB();
     }
 
@@ -1186,17 +1186,19 @@ public class BrowserFrame
         org.omg.CORBA.Object obj= null;
         Debug.assert(1, memberListRoot != null, "root of member list is null");
 
-        int i= memberList.getMinSelectionRow();
-        if (i < 0) return; // nothing selected
-        Debug.output(Debug.DOMAIN | 4, "selected index is " + i);
+        int i = memberList.getMinSelectionRow();
+        if( i < 0 ) 
+            return; // nothing selected
 
-        MemberListLeafNode node= (MemberListLeafNode) memberListRoot.getChildAt(i);
-        obj= node.getObject();
+        Debug.output( Debug.DOMAIN | 4, "selected index is " + i);
+
+        MemberListLeafNode node = (MemberListLeafNode)memberListRoot.getChildAt(i);
+        obj = node.getObject();
 
         try
         {
-            Domain domain= memberListRoot.getDomain();
-            domain.deleteMember(obj);;
+            Domain domain = memberListRoot.getDomain();
+            domain.deleteMember(obj);
 
             // if the above call fails, the buffer is not written
             // copy into buffer

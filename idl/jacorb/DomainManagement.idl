@@ -7,7 +7,7 @@
 
 #include <orb.idl> 
 module org {
-module jacorb {
+  module jacorb {
     module orb {
         module domain { // domain management
 
@@ -25,6 +25,18 @@ module jacorb {
             typedef sequence <Domain> DomainList;
             typedef sequence <Object> ObjectList;
             typedef sequence <CORBA::PolicyType> PolicyTypeList;
+
+
+            // for listeners that want to be informed of changes
+            // in domain membership. Some policies might want to
+            // know so that they can update displayed information
+            // in specialized editors
+
+            interface MembershipListener
+            {
+                oneway void memberRemoved(in Object exMember);
+                oneway void memberAdded(in Object newbie);               
+            };
 
 
             /***** Domain *****/
@@ -74,7 +86,11 @@ module jacorb {
                 // list all object members
                 ObjectList    getMembers(); 
                 unsigned long getMemberCount();
-                
+
+                // add and remove listeners
+                void addMembershipListener( in MembershipListener listener );
+                void removeMembershipListener( in MembershipListener listener );
+
             }; // Domain
 
             interface ORBDomain : Domain
@@ -162,6 +178,8 @@ module jacorb {
 
             }; // Membership
    
+
+
             interface DomainFactory 
             {
                 // Creates  a Domain object  with "initialMembers"
