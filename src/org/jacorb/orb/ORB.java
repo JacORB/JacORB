@@ -2011,6 +2011,14 @@ public final class ORB
         return interceptor_manager;
     }
 
+    public TransportManager getTransportManager()
+    {
+        if (transport_manager == null)
+        {
+            transport_manager = new TransportManager (this);
+        }
+        return transport_manager;
+    }
 
     /* DII helper methods */
 
