@@ -123,15 +123,6 @@ security,  be advised  that setting  up  and managing  (or finding)  a
 properly administered CA is essential for the overall security of your
 system.
 
-Finally,  note that  key  stores  are normally  used  only for  client
-authentication in JacORB.   Servers may, but need not,  have their own
-keys and  passwords because server authentication is  optional and not
-mandatory like  client authentication. Technically,  this is achieved
-by  exchanging the  client  and server  roles  at SSL  setup. This  is
-entirely  transparent to  applications, of  course, but  might prevent
-interoperation  with other ORBs  over SSL  if their  SSL setup  is not
-prepared to handle this role change.
-
 \subsection{Step--By--Step certificate creation}
 In  order to  generate  a  simple public  key  infrastructure you  can
 perform the following steps:
