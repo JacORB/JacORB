@@ -30,7 +30,7 @@ public class PushToConsumerTask extends AbstractDeliverTask
 {
     private static int sCount = 0;
 
-    private int id_ = ++sCount;
+    private final int id_ = ++sCount;
 
     ////////////////////
 
@@ -46,16 +46,12 @@ public class PushToConsumerTask extends AbstractDeliverTask
         {
             logger_.debug( this
                            + ".push "
-                           + message_
+                           + getMessage()
                            + " to "
                            + getMessageConsumer() );
         }
 
-        getMessageConsumer().deliverMessage( message_ );
-
-        message_.dispose();
-
-        dispose();
+        getMessageConsumer().deliverMessage( getMessage() );
     }
 
 

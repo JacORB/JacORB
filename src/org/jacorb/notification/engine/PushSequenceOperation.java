@@ -30,9 +30,9 @@ import org.omg.CosNotifyComm.SequencePushConsumer;
  */
 public class PushSequenceOperation implements PushOperation {
 
-    private SequencePushConsumer sequencePushConsumer_;
+    private final SequencePushConsumer sequencePushConsumer_;
 
-    private StructuredEvent[] structuredEvents_;
+    private final StructuredEvent[] structuredEvents_;
 
     public PushSequenceOperation(SequencePushConsumer pushConsumer,
                                  StructuredEvent[] structuredEvents) {

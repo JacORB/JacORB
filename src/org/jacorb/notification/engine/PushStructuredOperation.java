@@ -30,7 +30,7 @@ import org.omg.CosNotifyComm.StructuredPushConsumerOperations;
  */
 public class PushStructuredOperation extends MessagePushOperation {
 
-    private StructuredPushConsumerOperations pushConsumer_;
+    private final StructuredPushConsumerOperations pushConsumer_;
 
     public PushStructuredOperation(StructuredPushConsumerOperations pushConsumer, Message message) {
         super(message);

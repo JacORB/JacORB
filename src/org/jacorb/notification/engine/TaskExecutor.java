@@ -1,5 +1,3 @@
-package org.jacorb.notification.engine;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,116 +19,18 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.Disposable;
+package org.jacorb.notification.engine;
 
-import EDU.oswego.cs.dl.util.concurrent.DirectExecutor;
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.CallbackingDisposable;
+
 import EDU.oswego.cs.dl.util.concurrent.Executor;
-import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
-import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
-import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class TaskExecutor implements Executor, Disposable
+public interface TaskExecutor extends Executor, Disposable, CallbackingDisposable
 {
-    private static final TaskExecutor DIRECT_EXECUTOR = new TaskExecutor("Direct", 0);
-
-    private Executor executor_;
-
-    private LinkedQueue channel_;
-
-    ////////////////////////////////////////
-
-    public static TaskExecutor getDefaultExecutor()
-    {
-        return DIRECT_EXECUTOR;
-    }
-
-    ////////////////////////////////////////
-
-    public TaskExecutor(final String name, int numberOfThreads)
-    {
-        this(name, numberOfThreads, false);
-    }
-
-    public TaskExecutor(final String name, int numberOfThreads, boolean mayDie)
-    {
-        if (numberOfThreads < 0)
-        {
-            throw new IllegalArgumentException();
-        }
-        else if (numberOfThreads == 0)
-        {
-            executor_ = new DirectExecutor();
-
-            //                 if (logger_.isInfoEnabled() ) {
-            //                     logger_.info( "Created ThreadPool " + name + ": DirectExecutor");
-            //                 }
-        }
-        else
-        {
-            ThreadFactory _threadFactory = new ThreadFactory()
-            {
-                private int counter_ = 0;
-
-                public synchronized Thread newThread(Runnable task)
-                {
-                    Thread _thread = new Thread(task);
-
-                    _thread.setDaemon(true);
-                    _thread.setName(name + "#" + (counter_++));
-
-                    return _thread;
-                }
-            };
-
-            channel_ = new LinkedQueue();
-
-            PooledExecutor _executor = new PooledExecutor(channel_);
-
-            _executor.setThreadFactory(_threadFactory);
-            if (!mayDie)
-            {
-                _executor.setKeepAliveTime(-1);
-            }
-            _executor.createThreads(numberOfThreads);
-
-            executor_ = _executor;
-
-            //                 if (logger_.isInfoEnabled()) {
-            //                     logger_.info( "Created ThreadPool " + name + ": Threads=" +
-            // numberOfThreads );
-            //                 }
-        }
-    }
-
-    ////////////////////////////////////////
-
-    public boolean isTaskQueued()
-    {
-        if (channel_ != null)
-        {
-            return !channel_.isEmpty();
-        }
-
-        return false;
-    }
-
-    public void dispose()
-    {
-        if (executor_ instanceof PooledExecutor)
-        {
-            ((PooledExecutor) executor_).shutdownNow();
-            ((PooledExecutor) executor_).interruptAll();
-        }
-    }
-
-    public void execute(Runnable r) throws InterruptedException
-    {
-        executor_.execute(r);
-    }
+    boolean isTaskQueued();
 }
-

@@ -21,7 +21,6 @@ package org.jacorb.notification.engine;
  *
  */
 
-
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -37,17 +36,19 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
 
     ////////////////////////////////////////
 
-    FilterSupplierAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+    public FilterSupplierAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
+    {
         super(te, tp, tc);
     }
 
     ////////////////////////////////////////
 
-    public String toString() {
+    public String toString()
+    {
         return "[FilterSupplierAdminTask#" + id_ + "]";
     }
 
-    public void setSkip( boolean skip )
+    public void setSkip(boolean skip)
     {
         skip_ = skip;
     }
@@ -59,36 +60,35 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
         skip_ = false;
     }
 
-    public void doWork() throws InterruptedException
+    public void doFilter() throws InterruptedException
     {
-        boolean _forward = filter();
+        final boolean _forward = filter();
 
-        if (_forward) {
-            getTaskFactory().newFilterConsumerAdminTask( this ).schedule();
+        if (_forward)
+        {
+            getTaskFactory().newFilterConsumerAdminTask(this).schedule();
         }
-
-        dispose();
     }
 
     private boolean filter()
     {
-        boolean _forward = false;
+        final boolean _forward;
 
-        // eval attached filters. as an Event passes only 1
+        // process attached filters. as an Event passes only 1
         // SupplierAdmin we can assume constant array size here
 
-        if ( !skip_ )
+        if (!skip_)
         {
-            _forward = message_.match( arrayCurrentFilterStage_[ 0 ] );
+            _forward = getMessage().match(arrayCurrentFilterStage_[0]);
         }
         else
         {
             _forward = true;
         }
 
-        if ( _forward )
+        if (_forward)
         {
-            addFilterStage( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+            addFilterStage(arrayCurrentFilterStage_[0].getSubsequentFilterStages());
         }
 
         return _forward;

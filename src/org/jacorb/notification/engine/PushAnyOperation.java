@@ -30,7 +30,7 @@ import org.omg.CosEventComm.PushConsumer;
  */
 public class PushAnyOperation extends MessagePushOperation {
 
-    private PushConsumer pushConsumer_;
+    private final PushConsumer pushConsumer_;
 
     public PushAnyOperation(PushConsumer pushConsumer, Message message) {
         super(message);

@@ -29,7 +29,7 @@ import org.omg.CosEventComm.Disconnected;
  */
 public abstract class MessagePushOperation implements PushOperation {
 
-    protected Message message_;
+    protected final Message message_;
 
     public MessagePushOperation(Message message) {
         message_ = (Message)message.clone();

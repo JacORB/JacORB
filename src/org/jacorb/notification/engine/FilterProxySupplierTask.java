@@ -39,8 +39,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 {
     static class AlternateMessageMap
     {
-
-        private Map alternateMessages_;
+        private final Map alternateMessages_;
 
         //////////////////////////////
 
@@ -86,7 +85,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
     ////////////////////////////////////////
 
-    AlternateMessageMap changedMessages_ = new AlternateMessageMap();
+    final AlternateMessageMap changedMessages_ = new AlternateMessageMap();
 
     private static int sCount = 0;
 
@@ -94,7 +93,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
     ////////////////////////////////////////
 
-    FilterProxySupplierTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
+    public FilterProxySupplierTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
     {
         super(te, tp, tc);
     }
@@ -106,38 +105,19 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         return "[FilterProxySupplierTask#" + id_ + "]";
     }
 
-    /**
-     * Initialize this FilterOutgoingTask with the Configuration of another
-     * FilterTask.
-     */
-    public void setFilterStage(AbstractFilterTask task)
-    {
-        arrayCurrentFilterStage_ = task.getFilterStageToBeProcessed();
-    }
-
     public void reset()
     {
         super.reset();
 
-        arrayCurrentFilterStage_ = null;
+        arrayCurrentFilterStage_ = EMPTY_FILTERSTAGE;
         changedMessages_.clear();
     }
 
-    public void doWork() throws InterruptedException
+    public void doFilter() throws InterruptedException
     {
-        if (arrayCurrentFilterStage_.length > 0)
-        {
-            filter();
+        filter();
 
-            AbstractDeliverTask.scheduleTasks(getTaskFactory().newPushToConsumerTask(this));
-        }
-        else
-        {
-            logger_.debug("No Consumer connected");
-            
-            message_.dispose();
-        }
-        dispose();
+        AbstractDeliverTask.scheduleTasks(getTaskFactory().newPushToConsumerTask(this));
     }
 
     private Message updatePriority(int indexOfCurrentEvent, Message m)
@@ -153,7 +133,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
             if (priorityMatch)
             {
-                _currentMessage = (Message) message_.clone();
+                _currentMessage = (Message) getMessage().clone();
 
                 _currentMessage.setPriority(_priorityFilterResult.value.extract_long());
             }
@@ -176,13 +156,13 @@ public class FilterProxySupplierTask extends AbstractFilterTask
                     arrayCurrentFilterStage_[indexOfCurrentFilterStage].getLifetimeFilter(),
                     _lifetimeFilterResult);
 
-            if (lifetimeMatch && (_currentEvent == message_))
+            if (lifetimeMatch && (_currentEvent == getMessage()))
             {
                 // LifeTime Mapping Filter matched and current Message
                 // was not copied yet. This depends on the fact that
                 // updatePriority was run before.
 
-                _currentEvent = (Message) message_.clone();
+                _currentEvent = (Message) getMessage().clone();
 
                 _currentEvent.setTimeout(_lifetimeFilterResult.value.extract_long());
             }
@@ -199,13 +179,11 @@ public class FilterProxySupplierTask extends AbstractFilterTask
     {
         for (int x = 0; x < arrayCurrentFilterStage_.length; ++x)
         {
-
             boolean _forward = false;
 
             if (!arrayCurrentFilterStage_[x].isDisposed())
             {
-
-                Message _currentMessage = message_;
+                Message _currentMessage = getMessage();
 
                 if (arrayCurrentFilterStage_[x].hasPriorityFilter())
                 {
@@ -217,7 +195,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
                     _currentMessage = updateTimeout(x, _currentMessage);
                 }
 
-                if (_currentMessage != message_)
+                if (_currentMessage != getMessage())
                 {
                     // MappingFilter attached to a particular
                     // FilterStage did change (Timeout or Priority)

@@ -1,5 +1,3 @@
-package org.jacorb.notification.engine;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,9 +19,8 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.jacorb.notification.interfaces.Disposable;
+package org.jacorb.notification.engine;
+
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 
@@ -31,279 +28,23 @@ import org.jacorb.notification.interfaces.Message;
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class TaskFactory implements Disposable,Configurable
+public interface TaskFactory
 {
-    private TaskProcessor taskProcessor_;
+    public abstract Schedulable newFilterProxyConsumerTask(Message message);
 
-    private AbstractTaskPool filterProxyConsumerTaskPool_ =
-        new AbstractTaskPool("FilterProxyConsumerTaskPool")
-        {
-            public Object newInstance()
-            {
-                return new FilterProxyConsumerTask(taskProcessor_.getFilterTaskExecutor(),
-                                                   taskProcessor_,
-                                                   TaskFactory.this);
-            }
-        };
+    public abstract Schedulable newFilterSupplierAdminTask(FilterProxyConsumerTask t);
 
+    public abstract Schedulable newFilterConsumerAdminTask(FilterSupplierAdminTask t);
 
-    private AbstractTaskPool filterSupplierAdminTaskPool_ =
-        new AbstractTaskPool("FilterSupplierAdminTaskPool")
-        {
-            public Object newInstance()
-            {
-                return new FilterSupplierAdminTask(taskProcessor_.getFilterTaskExecutor(),
-                                                   taskProcessor_,
-                                                   TaskFactory.this);
-            }
-        };
-
-
-    private AbstractTaskPool filterConsumerAdminTaskPool_ =
-        new AbstractTaskPool("FilterConsumerAdminTaskPool")
-        {
-            public Object newInstance()
-            {
-                return new FilterConsumerAdminTask(taskProcessor_.getFilterTaskExecutor(),
-                                                   taskProcessor_,
-                                                   TaskFactory.this);
-            }
-        };
-
-
-    private AbstractTaskPool filterProxySupplierTaskPool_ =
-        new AbstractTaskPool("FilterProxySupplierTaskPool")
-        {
-            public Object newInstance()
-            {
-                return new FilterProxySupplierTask(taskProcessor_.getFilterTaskExecutor(),
-                                                   taskProcessor_,
-                                                   TaskFactory.this);
-            }
-        };
-
-
-    private AbstractTaskPool deliverTaskPool_ =
-        new AbstractTaskPool("PushToConsumerTaskPool")
-        {
-            public Object newInstance()
-            {
-                PushToConsumerTask _task = new PushToConsumerTask(taskProcessor_);
-
-                return _task;
-            }
-        };
+    public abstract Schedulable newFilterProxySupplierTask(FilterConsumerAdminTask task);
 
     ////////////////////////////////////////
-
-    public TaskFactory( TaskProcessor taskProcessor )
-    {
-        taskProcessor_ = taskProcessor;
-    }
-
-    ////////////////////////////////////////
-
-    public void configure(Configuration conf)
-    {
-        filterProxyConsumerTaskPool_.configure(conf);
-        filterProxySupplierTaskPool_.configure(conf);
-        filterConsumerAdminTaskPool_.configure(conf);
-        filterSupplierAdminTaskPool_.configure(conf);
-
-        deliverTaskPool_.configure(conf);
-    }
-
-
-    public void dispose()
-    {
-        filterProxyConsumerTaskPool_.dispose();
-        filterProxySupplierTaskPool_.dispose();
-        filterConsumerAdminTaskPool_.dispose();
-        filterSupplierAdminTaskPool_.dispose();
-
-        deliverTaskPool_.dispose();
-    }
-
-    ////////////////////////////////////////
-
-    ////////////////////////////////////////
-    // Factory methods for FilterProxyConsumerTasks
-
-    private FilterProxyConsumerTask newFilterProxyConsumerTask() {
-        return (FilterProxyConsumerTask)filterProxyConsumerTaskPool_.lendObject();
-    }
-
-
-    FilterProxyConsumerTask newFilterProxyConsumerTask( Message message )
-    {
-        FilterProxyConsumerTask task = newFilterProxyConsumerTask();
-
-        task.setMessage( message );
-
-        task.setCurrentFilterStage( new FilterStage[] { message.getInitialFilterStage() } );
-
-        return task;
-    }
-
-    ////////////////////////////////////////
-
-    ////////////////////////////////////////
-    // Factory methods for FilterSupplierAdminTasks
-    ////////////////////////////////////////
-
-    private FilterSupplierAdminTask newFilterSupplierAdminTask() {
-        return (FilterSupplierAdminTask)filterSupplierAdminTaskPool_.lendObject();
-    }
-
-
-    FilterSupplierAdminTask newFilterSupplierAdminTask( FilterProxyConsumerTask t )
-    {
-        FilterSupplierAdminTask task = newFilterSupplierAdminTask();
-
-        // TODO this really should be an assertion
-        if (t.getFilterStageToBeProcessed().length != 1) {
-            throw new RuntimeException();
-        }
-
-        task.setMessage( t.removeMessage() );
-
-        task.setCurrentFilterStage( t.getFilterStageToBeProcessed() );
-
-        task.setSkip( t.getSkip() );
-
-        return task;
-    }
-
-    ////////////////////////////////////////
-
-    ////////////////////////////////////////
-    // Factory methods for FilterConsumerAdminTasks
-    ////////////////////////////////////////
-
-    private FilterConsumerAdminTask newFilterConsumerAdminTask() {
-        return (FilterConsumerAdminTask)filterConsumerAdminTaskPool_.lendObject();
-    }
-
-    FilterConsumerAdminTask newFilterConsumerAdminTask( FilterSupplierAdminTask t )
-    {
-        FilterConsumerAdminTask task = newFilterConsumerAdminTask();
-
-        task.setMessage(t.removeMessage());
-
-        task.setCurrentFilterStage( t.getFilterStageToBeProcessed() );
-
-        return task;
-    }
-
-    ////////////////////////////////////////
-
-    ////////////////////////////////////////
-    // Factory methods for FilterProxySupplierTasks
-    ////////////////////////////////////////
-
-    private FilterProxySupplierTask newFilterProxySupplierTask() {
-        return (FilterProxySupplierTask)filterProxySupplierTaskPool_.lendObject();
-    }
-
-    FilterProxySupplierTask newFilterProxySupplierTask( FilterConsumerAdminTask task )
-    {
-        FilterProxySupplierTask _newTask = newFilterProxySupplierTask();
-
-        _newTask.setMessage(task.removeMessage());
-
-        FilterStage[] _filterStageList = task.getFilterStageToBeProcessed();
-
-        _newTask.setCurrentFilterStage( _filterStageList );
-
-        return _newTask;
-    }
-
-    ////////////////////////////////////////
-
-    ////////////////////////////////////////
-    // Factory methods for AbstractDeliverTasks
-    ////////////////////////////////////////
-
-    AbstractDeliverTask[] newPushToConsumerTask(FilterStage[] nodes,
-                                                Message event) {
-
-        return newPushToConsumerTask(nodes, event, FilterProxySupplierTask.EMPTY_MAP);
-
-    }
-
-
-    /**
-     * Create a Array of PushToConsumerTask.
-     *
-     * @param seqFilterStageWithMessageConsumer Array of FilterStages
-     * that have an MessageConsumer attached.
-     *
-     * @param defaultMessage the Message that is to be
-     * delivered by the created PushToConsumerTask. This method gains
-     * possession of the Message.
-     *
-     * @param map alternate Messages that should be used for
-     * specific MessageConsumers.
-     *
-     * @return a <code>PushToConsumerTask[]</code> value
-     */
-    private AbstractDeliverTask[] newPushToConsumerTask(FilterStage [] filterStagesWithMessageConsumer,
-                                                        Message defaultMessage,
-                                                        FilterProxySupplierTask.AlternateMessageMap map) {
-
-        AbstractDeliverTask[] _seqPushToConsumerTask =
-            new AbstractDeliverTask[ filterStagesWithMessageConsumer.length ];
-
-        for ( int x = 0; x < filterStagesWithMessageConsumer.length; ++x )
-            {
-                _seqPushToConsumerTask[ x ] =
-                    ( AbstractDeliverTask ) deliverTaskPool_.lendObject();
-
-                _seqPushToConsumerTask[ x ]
-                    .setMessageConsumer( filterStagesWithMessageConsumer[ x ].getMessageConsumer() );
-
-                Message _alternateEvent =
-                    map.getAlternateMessage(filterStagesWithMessageConsumer[x]);
-
-                if ( _alternateEvent != null ) {
-
-                    _seqPushToConsumerTask[ x ].setMessage( _alternateEvent );
-
-                } else {
-                    if (x == 0) {
-                        // the first Message can be simply
-                        // used as this method gains possession of the
-                        // Message
-                        _seqPushToConsumerTask[x].setMessage(defaultMessage);
-                    } else {
-                        // all following Messages must be copied
-                        _seqPushToConsumerTask[x].setMessage((Message)defaultMessage.clone());
-                    }
-                }
-            }
-        return _seqPushToConsumerTask;
-    }
-
+    
+    public abstract AbstractDeliverTask[] newPushToConsumerTask(FilterStage[] nodes, Message event);
 
     /**
      * factory method to create PushToConsumer Tasks. The Tasks are
      * initialized with the data taken from a FilterProxySupplierTask.
      */
-    AbstractDeliverTask[] newPushToConsumerTask( FilterProxySupplierTask task )
-    {
-        AbstractDeliverTask[] _deliverTasks;
-
-        Message _notificationEvent =
-            task.removeMessage();
-
-        FilterStage[] _seqFilterStageToBeProcessed =
-            task.getFilterStageToBeProcessed();
-
-        _deliverTasks = newPushToConsumerTask(_seqFilterStageToBeProcessed,
-                                              _notificationEvent,
-                                              task.changedMessages_);
-
-        return _deliverTasks;
-    }
+    public abstract AbstractDeliverTask[] newPushToConsumerTask(FilterProxySupplierTask task);
 }

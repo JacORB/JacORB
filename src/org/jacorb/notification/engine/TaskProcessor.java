@@ -24,7 +24,6 @@ package org.jacorb.notification.engine;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.MessageSupplier;
-import org.jacorb.notification.servant.AbstractProxySupplier;
 
 /**
  * @author Alphonse Bendt
@@ -36,16 +35,7 @@ public interface TaskProcessor
 {
     TaskFactory getTaskFactory();
 
-
     long getBackoutInterval ();
-
-    /**
-     * configure a AbstractProxySupplier to use a TaskExecutor
-     * dependent on the settings for the current Channel.
-     *
-     * @todo remove dependency from class AbstractProxySupplier
-     */
-     void configureTaskExecutor(AbstractProxySupplier proxySupplier);
 
 
     TaskExecutor getFilterTaskExecutor();

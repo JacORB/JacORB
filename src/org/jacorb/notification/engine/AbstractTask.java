@@ -21,72 +21,41 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.AbstractPoolable;
-import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.util.AbstractPoolable;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public abstract class AbstractTask
-    extends AbstractPoolable
-    implements Runnable
+public abstract class AbstractTask extends AbstractPoolable implements Runnable, Schedulable
 {
-    protected Message message_;
-
-    private TaskProcessor taskProcessor_;
+    private final TaskProcessor taskProcessor_;
 
     private TaskExecutor executor_;
 
     ////////////////////
 
-    protected AbstractTask(TaskProcessor tp) {
+    protected AbstractTask(TaskProcessor tp)
+    {
         taskProcessor_ = tp;
     }
 
     ////////////////////
 
-    protected TaskExecutor getTaskExecutor() {
+    protected TaskExecutor getTaskExecutor()
+    {
         return executor_;
     }
 
-
-    protected void setTaskExecutor(TaskExecutor taskExecutor) {
+    protected void setTaskExecutor(TaskExecutor taskExecutor)
+    {
         executor_ = taskExecutor;
     }
 
-
-    protected TaskProcessor getTaskProcessor() {
+    protected TaskProcessor getTaskProcessor()
+    {
         return taskProcessor_;
-    }
-
-    /**
-     * set the Message for this Task to use.
-     */
-    public void setMessage( Message event )
-    {
-        if ( message_ != null )
-        {
-            throw new RuntimeException( "remove old first" );
-        }
-
-        message_ = event;
-    }
-
-    public Message removeMessage()
-    {
-        Message _event = message_;
-
-        message_ = null;
-
-        return _event;
-    }
-
-
-    public Message copyMessage()
-    {
-        return ( Message ) message_.clone();
     }
 
 
@@ -95,7 +64,11 @@ public abstract class AbstractTask
      */
     public abstract void doWork() throws Exception;
 
-
+    protected boolean isRunnable()
+    {
+        return true;
+    }
+    
     /**
      * template method.
      * <ol>
@@ -106,89 +79,63 @@ public abstract class AbstractTask
     {
         try
         {
-            if ( message_ == null || !isMessageInvalid() )
+            if (isRunnable())
             {
                 doWork();
             }
-            else if ( isMessageInvalid() )
-            {
-                dispose();
-
-                return;
-            }
-        }
-        catch ( Throwable t )
+        } catch (Throwable t)
         {
-            handleTaskError( this, t );
+            handleTaskError(this, t);
+        } finally
+        {
+            dispose();
         }
     }
-
 
     abstract void handleTaskError(AbstractTask t, Throwable error);
 
-
-    public void reset()
-    {
-        message_ = null;
-    }
-
-
-    private boolean isMessageInvalid()
-    {
-        return (message_ != null && message_.isInvalid());
-    }
-
-
+    
     protected void checkInterrupt() throws InterruptedException
     {
-        if ( Thread.currentThread().isInterrupted() || message_.isInvalid() )
+        if (Thread.currentThread().isInterrupted())
         {
             throw new InterruptedException();
         }
     }
 
-
     /**
      * Run this Task on its configured Executor.
-     *
-     * @param directRunAllowed this param specified if its allowed to
-     * run this Task on the calling Thread.
-     * @exception InterruptedException if an error occurs
+     * 
+     * @param directRunAllowed
+     *            this param specified if its allowed to run this Task on the calling Thread.
+     * @exception InterruptedException
+     *                if an error occurs
      */
-    protected void schedule(boolean directRunAllowed)
-        throws InterruptedException
+    protected void schedule(boolean directRunAllowed) throws InterruptedException
     {
-        if (directRunAllowed) {
-            run();
-        } else {
-            executor_.execute(this);
-        }
+        schedule(executor_, directRunAllowed);
     }
-
 
     /**
      * Run this Task on the provided Executor.
-     *
-     * @param executor a <code>TaskExecutor</code> value
-     * @param directRunAllowed a <code>boolean</code> value
-     * @exception InterruptedException if an error occurs
+     * 
+     * @param executor
+     *            a <code>TaskExecutor</code> value
+     * @param directRunAllowed
+     *            a <code>boolean</code> value
+     * @exception InterruptedException
+     *                if an error occurs
      */
-    protected void schedule(TaskExecutor executor,
-                            boolean directRunAllowed)
-        throws InterruptedException
+    protected void schedule(TaskExecutor executor, boolean directRunAllowed)
+            throws InterruptedException
     {
-        if (directRunAllowed) {
+        if (directRunAllowed)
+        {
             run();
-        } else {
+        }
+        else
+        {
             executor.execute(this);
         }
-    }
-
-    abstract public void schedule() throws InterruptedException;
-    
-    public void dispose() {
-        super.dispose();
-        
-        reset();
     }
 }

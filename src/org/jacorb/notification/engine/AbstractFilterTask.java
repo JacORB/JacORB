@@ -31,67 +31,71 @@ import org.jacorb.notification.interfaces.FilterStage;
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-abstract class AbstractFilterTask extends AbstractTask
+public abstract class AbstractFilterTask extends AbstractMessageTask
 {
-    private TaskFactory taskFactory_;
+    private final TaskFactory taskFactory_;
 
     /**
      * for debugging purpose.
      */
     private static final boolean STRICT_CHECKING = true;
 
-
     /**
-     * Template for internal use.
+     * empty default value for field arrayCurrentFilterStage_. its used instead of null
      */
-    protected static final FilterStage[] FILTERSTAGE_ARRAY_TEMPLATE =
-        new FilterStage[ 0 ];
-
+    protected static final FilterStage[] EMPTY_FILTERSTAGE = new FilterStage[0];
 
     /**
      * FilterStages to process.
      */
     protected FilterStage[] arrayCurrentFilterStage_;
 
-
     /**
-     * child FilterStages for which evaluation was successful. these
-     * Stages are to be eval'd by the next Task. As each Task is
-     * processed by one Thread at a time unsynchronized ArrayList can
-     * be used here.
+     * child FilterStages for which evaluation was successful. these Stages are to be eval'd by the
+     * next Task. As each Task is processed by one Thread at a time unsynchronized ArrayList can be
+     * used here.
      */
-    private List listOfFilterStageToBeProcessed_ = new ArrayList();
+    private final List listOfFilterStageToBeProcessed_ = new ArrayList();
 
     ////////////////////
 
-    AbstractFilterTask(TaskExecutor executor, TaskProcessor tp, TaskFactory tc)
+    protected AbstractFilterTask(TaskExecutor executor, TaskProcessor tp, TaskFactory tc)
     {
         super(tp);
 
         setTaskExecutor(executor);
 
         taskFactory_ = tc;
+
+        arrayCurrentFilterStage_ = EMPTY_FILTERSTAGE;
     }
 
     ////////////////////
 
-    protected TaskFactory getTaskFactory() {
-        return taskFactory_;
+    public final void doWork() throws InterruptedException
+    {
+        if (arrayCurrentFilterStage_.length > 0)
+        {
+            doFilter();
+        }
     }
 
+    protected abstract void doFilter() throws InterruptedException;
+
+    protected TaskFactory getTaskFactory()
+    {
+        return taskFactory_;
+    }
 
     protected boolean isFilterStageListEmpty()
     {
         return listOfFilterStageToBeProcessed_.isEmpty();
     }
 
-
     protected void addFilterStage(FilterStage s)
     {
         listOfFilterStageToBeProcessed_.add(s);
     }
-
 
     protected void addFilterStage(List s)
     {
@@ -101,7 +105,7 @@ abstract class AbstractFilterTask extends AbstractTask
 
             while (i.hasNext())
             {
-                if (! (i.next() instanceof FilterStage) )
+                if (!(i.next() instanceof FilterStage))
                 {
                     throw new IllegalArgumentException();
                 }
@@ -110,25 +114,21 @@ abstract class AbstractFilterTask extends AbstractTask
         listOfFilterStageToBeProcessed_.addAll(s);
     }
 
-
     /**
      * set the FilterStages for the next run.
      */
-    public void setCurrentFilterStage( FilterStage[] currentFilterStage )
+    public void setCurrentFilterStage(FilterStage[] currentFilterStage)
     {
         arrayCurrentFilterStage_ = currentFilterStage;
     }
-
 
     /**
      * get the matching FilterStages of the previous run.
      */
     public FilterStage[] getFilterStageToBeProcessed()
     {
-        return ( FilterStage[] )
-               listOfFilterStageToBeProcessed_.toArray( FILTERSTAGE_ARRAY_TEMPLATE );
+        return (FilterStage[]) listOfFilterStageToBeProcessed_.toArray(EMPTY_FILTERSTAGE);
     }
-
 
     /**
      * clear the result of the previous run.
@@ -138,7 +138,6 @@ abstract class AbstractFilterTask extends AbstractTask
         listOfFilterStageToBeProcessed_.clear();
     }
 
-
     public synchronized void reset()
     {
         super.reset();
@@ -146,32 +145,19 @@ abstract class AbstractFilterTask extends AbstractTask
         clearFilterStageToBeProcessed();
     }
 
-
     public void handleTaskError(AbstractTask task, Throwable error)
     {
-       logger_.fatalError( "Error while Filtering in Task:" + task, error );
+        logger_.fatalError("Error while Filtering in Task:" + task, error);
     }
-
 
     /**
      * Schedule this Task on its default Executor for execution.
      */
-    public void schedule() throws InterruptedException{
+    public void schedule() throws InterruptedException
+    {
         // as all FilterTasks share their Executor, queuing of this
         // Task can be avoided if there are no other Tasks to run.
         // in this case this Task will be run immediately.
         schedule(!getTaskExecutor().isTaskQueued());
     }
-
-//     public final void dispose() {
-//         super.dispose();
-
-// //         synchronized(this) {
-// //             if (disposed_) {
-// //                 throw new RuntimeException("may only be disposed once");
-// //             }
-
-// //             disposed_ = true;
-// //         }
-//     }
 }

@@ -78,11 +78,14 @@ public class WaitRetryStrategy extends RetryStrategy
             try {
                 pushOperation_.invokePush();
 
+                dispose();
+                
                 return;
             } catch (Throwable error) {
                 remoteExceptionOccured(error);
             }
         }
+        throw new RetryException("no more retries possible");
     }
 }
 

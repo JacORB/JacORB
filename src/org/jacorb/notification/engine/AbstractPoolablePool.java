@@ -21,26 +21,26 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.util.AbstractObjectPool;
+import org.jacorb.notification.util.AbstractPoolable;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public abstract class AbstractTaskPool extends AbstractObjectPool
+public abstract class AbstractPoolablePool extends AbstractObjectPool
 {
-    public AbstractTaskPool(String name, int a, int b, int c, int d) {
-        super(name, a, b, c, d);
+    public AbstractPoolablePool(String name, int threshold, int increase, int initial, int maxsize) {
+        super(name, threshold, increase, initial, maxsize);
     }
 
 
-    public AbstractTaskPool(String name) {
+    public AbstractPoolablePool(String name) {
         super(name);
     }
 
-
+    
     public void passivateObject( Object o )
     {
         ( ( AbstractPoolable ) o ).reset();

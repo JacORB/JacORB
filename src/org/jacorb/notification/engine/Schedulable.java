@@ -1,9 +1,7 @@
-package org.jacorb.notification.engine;
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,13 +16,16 @@ package org.jacorb.notification.engine;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
+
+package org.jacorb.notification.engine;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public interface TaskProcessorDependency {
-    void setTaskProcessor(TaskProcessor taskProcessor);
+public interface Schedulable
+{
+    void schedule() throws InterruptedException;
 }

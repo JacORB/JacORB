@@ -29,7 +29,7 @@ import org.omg.CosEventComm.Disconnected;
  */
 public class PushTypedOperation implements PushOperation {
 
-    private Request request_;
+    private final Request request_;
 
     public PushTypedOperation(Request request) {
         request_ = request;

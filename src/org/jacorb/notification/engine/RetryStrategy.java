@@ -45,21 +45,20 @@ public abstract class RetryStrategy implements Disposable
 
     ////////////////////////////////////////
 
-    public void dispose() {
+    public void dispose()
+    {
         pushOperation_.dispose();
     }
-
 
     protected boolean isRetryAllowed()
     {
         return messageConsumer_.isRetryAllowed();
     }
 
-
-    protected void remoteExceptionOccured(Throwable error)
-        throws RetryException
+    protected void remoteExceptionOccured(Throwable error) throws RetryException
     {
-        if (isFatalException(error)) {
+        if (isFatalException(error))
+        {
             messageConsumer_.dispose();
             dispose();
 
@@ -79,25 +78,27 @@ public abstract class RetryStrategy implements Disposable
         waitUntilNextTry();
     }
 
-
-    public static boolean isFatalException(Throwable error) {
-        if (error instanceof OBJECT_NOT_EXIST) {
+    public static boolean isFatalException(Throwable error)
+    {
+        if (error instanceof OBJECT_NOT_EXIST)
+        {
             return true;
-        } else if (error instanceof Disconnected) {
+        }
+        else if (error instanceof Disconnected)
+        {
             return true;
         }
         return false;
     }
 
-
     protected abstract long getTimeToWait();
-
 
     public final void retry() throws RetryException
     {
-        if (isRetryAllowed()) {
+        if (isRetryAllowed())
+        {
             waitUntilNextTry();
-            
+
             retryInternal();
         }
     }
@@ -110,9 +111,13 @@ public abstract class RetryStrategy implements Disposable
 
         try
         {
-            Thread.sleep(timeToWait );
+            if (timeToWait > 0)
+            {
+                Thread.sleep(timeToWait);
+            }
+        } catch (InterruptedException ignored)
+        {
+            // ignored
         }
-        catch (InterruptedException ignored)
-        {}
     }
 }

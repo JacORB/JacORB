@@ -34,21 +34,18 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 public class FilterConsumerAdminTask extends AbstractFilterTask
 {
-    private static final FilterStage[] NO_CURRENT_FILTER_STAGE = new FilterStage[0];
-
     private static int sCount = 0;
 
     private int id_ = ++sCount;
 
     /**
-     * this List contains FilterStages (ProxySuppliers) which have a
-     * MessageConsumer associated.
+     * this List contains FilterStages (ProxySuppliers) which have a MessageConsumer associated.
      */
-    protected List listOfFilterStageWithMessageConsumer_ = new ArrayList();
+    private final List listOfFilterStageWithMessageConsumer_ = new ArrayList();
 
     ////////////////////////////////////////
 
-    FilterConsumerAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
+    public FilterConsumerAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
     {
         super(te, tp, tc);
     }
@@ -61,21 +58,11 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
     }
 
     /**
-     * Initialize this FilterOutgoingTask with the Configuration of another
-     * FilterTask.
-     */
-    public void setFilterStage(AbstractFilterTask other)
-    {
-        arrayCurrentFilterStage_ = other.getFilterStageToBeProcessed();
-    }
-
-    /**
      * access the FilterStages that have a Event Consumer associated.
      */
     public FilterStage[] getFilterStagesWithMessageConsumer()
     {
-        return (FilterStage[]) listOfFilterStageWithMessageConsumer_
-                .toArray(FILTERSTAGE_ARRAY_TEMPLATE);
+        return (FilterStage[]) listOfFilterStageWithMessageConsumer_.toArray(EMPTY_FILTERSTAGE);
     }
 
     private void clearFilterStagesWithMessageConsumer()
@@ -88,25 +75,14 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
         super.reset();
 
         clearFilterStagesWithMessageConsumer();
-        arrayCurrentFilterStage_ = NO_CURRENT_FILTER_STAGE;
+        arrayCurrentFilterStage_ = EMPTY_FILTERSTAGE;
     }
 
-    public void doWork() throws InterruptedException
+    public void doFilter() throws InterruptedException
     {
-        logger_.debug("doWork");
-        
-        if (arrayCurrentFilterStage_.length > 0)
-        {
-            filter();
+        filter();
 
-            pushToConsumers();
-        } else {
-            logger_.debug("No ConsumerAdmin connected");
-            
-            message_.dispose();
-        }
-
-        dispose();
+        pushToConsumers();
     }
 
     private void pushToConsumers() throws InterruptedException
@@ -118,19 +94,16 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
         FilterStage[] _filterStagesWithMessageConsumer = getFilterStagesWithMessageConsumer();
 
-        AbstractFilterTask _filterTaskToBeScheduled = null;
-
         if (_filterStagesWithMessageConsumer.length > 0)
         {
-            AbstractDeliverTask[] _listOfPushToConsumerTaskToBeScheduled = null;
-
-            _listOfPushToConsumerTaskToBeScheduled = getTaskFactory().newPushToConsumerTask(
-                    _filterStagesWithMessageConsumer, copyMessage());
+            AbstractDeliverTask[] _listOfPushToConsumerTaskToBeScheduled = getTaskFactory()
+                    .newPushToConsumerTask(_filterStagesWithMessageConsumer, copyMessage());
 
             AbstractDeliverTask.scheduleTasks(_listOfPushToConsumerTaskToBeScheduled);
         }
 
-        _filterTaskToBeScheduled = getTaskFactory().newFilterProxySupplierTask(this);
+        Schedulable _filterTaskToBeScheduled = _filterTaskToBeScheduled = getTaskFactory()
+                .newFilterProxySupplierTask(this);
 
         _filterTaskToBeScheduled.schedule();
     }
@@ -145,7 +118,7 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
             if (!arrayCurrentFilterStage_[x].isDisposed())
             {
-                _filterForCurrentFilterStageMatched = message_.match(arrayCurrentFilterStage_[x]);
+                _filterForCurrentFilterStageMatched = getMessage().match(arrayCurrentFilterStage_[x]);
             }
 
             if (_filterForCurrentFilterStageMatched)

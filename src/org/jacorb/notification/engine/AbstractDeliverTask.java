@@ -28,13 +28,14 @@ import org.jacorb.notification.interfaces.MessageConsumer;
  * @version $Id$
  */
 
-public abstract class AbstractDeliverTask extends AbstractTask
+public abstract class AbstractDeliverTask extends AbstractMessageTask
 {
     private MessageConsumer messageConsumer_;
 
     ////////////////////
 
-    protected AbstractDeliverTask(TaskProcessor tp) {
+    protected AbstractDeliverTask(TaskProcessor tp)
+    {
         super(tp);
     }
 
@@ -42,7 +43,7 @@ public abstract class AbstractDeliverTask extends AbstractTask
 
     public static void scheduleTasks(AbstractDeliverTask[] tasks) throws InterruptedException
     {
-        for ( int x = 0; x < tasks.length; ++x )
+        for (int x = 0; x < tasks.length; ++x)
         {
             tasks[x].schedule(false);
         }
@@ -57,18 +58,15 @@ public abstract class AbstractDeliverTask extends AbstractTask
         messageConsumer_ = null;
     }
 
-
     protected MessageConsumer getMessageConsumer()
     {
         return messageConsumer_;
     }
 
-
-    public void setMessageConsumer( MessageConsumer messageConsumer )
+    public void setMessageConsumer(MessageConsumer messageConsumer)
     {
         messageConsumer_ = messageConsumer;
     }
-
 
     public void handleTaskError(AbstractTask task, Throwable error)
     {
@@ -77,25 +75,24 @@ public abstract class AbstractDeliverTask extends AbstractTask
         throw new RuntimeException();
     }
 
-
     /**
-     * override default schedule to use the TaskExecutor provided
-     * by the current MessageConsumer.
+     * override default schedule to use the TaskExecutor provided by the current MessageConsumer.
      */
-    protected void schedule(boolean directRunAllowed) throws InterruptedException {
+    protected void schedule(boolean directRunAllowed) throws InterruptedException
+    {
         schedule(getTaskExecutor(), directRunAllowed);
     }
 
-
-    public void schedule() throws InterruptedException {
+    public void schedule() throws InterruptedException
+    {
         schedule(!getTaskExecutor().isTaskQueued());
     }
-
 
     /**
      * override to use the TaskExecutor provided by the current MessageConsumer
      */
-    protected TaskExecutor getTaskExecutor() {
+    protected TaskExecutor getTaskExecutor()
+    {
         return getMessageConsumer().getExecutor();
     }
 }
