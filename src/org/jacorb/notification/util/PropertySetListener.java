@@ -1,4 +1,4 @@
-package org.jacorb.notification.servant;
+package org.jacorb.notification.util;
 
 /*
  *        JacORB - a free Java ORB

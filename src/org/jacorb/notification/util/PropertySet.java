@@ -1,4 +1,4 @@
-package org.jacorb.notification.servant;
+package org.jacorb.notification.util;
 
 /*
  *        JacORB - a free Java ORB
@@ -38,6 +38,7 @@ import org.omg.CosNotification.QoSError_code;
 import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
+import java.util.Collections;
 
 /**
  * @author Alphonse Bendt
@@ -46,17 +47,17 @@ import org.apache.avalon.framework.logger.Logger;
 
 public abstract class PropertySet
 {
-    static ORB orb_ = ORB.init();
+    protected static final ORB sORB = ORB.init();
 
-    static final PropertyError[] PROPERTY_ERROR_ARRAY_TEMPLATE =
+    protected static final PropertyError[] PROPERTY_ERROR_ARRAY_TEMPLATE =
         new PropertyError[0];
 
-    static final PropertyRange EMPTY_PROPERTY_RANGE =
-        new PropertyRange(orb_.create_any(), orb_.create_any());
+    protected static final PropertyRange EMPTY_PROPERTY_RANGE =
+        new PropertyRange(sORB.create_any(), sORB.create_any());
 
     ////////////////////////////////////////
 
-    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
+    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private Map listeners_ = new HashMap();
 
@@ -65,6 +66,8 @@ public abstract class PropertySet
     private Map properties_ = new HashMap();
 
     private Property[] arrayView_ = null;
+
+    private HashSet ignoredNames_ = new HashSet();
 
     ////////////////////////////////////////
 
@@ -77,6 +80,16 @@ public abstract class PropertySet
     }
 
     ////////////////////////////////////////
+
+    protected void addToIgnoredProps(String propertyName) {
+        ignoredNames_.add(propertyName);
+    }
+
+
+    protected boolean removeFromIgnoredProps(String propertyName) {
+        return ignoredNames_.remove(propertyName);
+    }
+
 
     public void addPropertySetListener(String[] props, PropertySetListener listener)
     {
@@ -125,22 +138,27 @@ public abstract class PropertySet
     }
 
 
+    public Map toMap()
+    {
+        return Collections.unmodifiableMap(properties_);
+    }
+
+
     public String toString()
     {
         return properties_.toString();
     }
 
 
-    public boolean containsKey(String key)
+    public boolean containsKey(String propertyName)
     {
-        return properties_.containsKey(key);
+        return properties_.containsKey(propertyName);
     }
 
 
-    public Any get
-        (String key)
+    public Any get(String propertyName)
     {
-        return (Any)properties_.get(key);
+        return (Any)properties_.get(propertyName);
     }
 
 
@@ -150,6 +168,13 @@ public abstract class PropertySet
 
         for (int x = 0; x < props.length; ++x)
             {
+                if (ignoredNames_.contains(props[x].name)) {
+                    if (logger_.isDebugEnabled()) {
+                        logger_.debug("ignore property " + props[x].name);
+                    }
+                    continue;
+                }
+
                 Any _oldValue = null;
 
                 if (properties_.containsKey(props[x].name))
@@ -159,7 +184,9 @@ public abstract class PropertySet
 
                 properties_.put(props[x].name, props[x].value);
 
-                logger_.debug("set " + props[x].name + " => " + props[x].value);
+                if (logger_.isDebugEnabled()) {
+                    logger_.debug("set " + props[x].name + " => " + props[x].value);
+                }
 
                 if (listeners_.containsKey(props[x].name))
                     {
@@ -186,19 +213,32 @@ public abstract class PropertySet
             }
     }
 
+
     abstract HashSet getValidNames();
 
-    protected void checkPropertyExistence(Property[] p, List errorList)
+
+    protected void checkPropertyExistence(Property[] props,
+                                          List errorList)
     {
-        for (int x = 0; x < p.length; ++x)
+        for (int x = 0; x < props.length; ++x)
             {
-                if (!getValidNames().contains(p[x].name))
+                if (!getValidNames().contains(props[x].name))
                     {
-                        errorList.add(new PropertyError(QoSError_code.BAD_PROPERTY,
-                                                        p[x].name,
-                                                        new PropertyRange(orb_.create_any(), orb_.create_any())));
+                        if (logger_.isErrorEnabled()) {
+                            logger_.error("Property " + props[x].name + " is unknown");
+
+                            logger_.error("valid name: " + getValidNames());
+                        }
+                        errorList.add(badProperty(props[x].name));
                     }
             }
+    }
+
+
+    protected PropertyError badProperty(String name) {
+        return new PropertyError(QoSError_code.BAD_PROPERTY,
+                                 name,
+                                 EMPTY_PROPERTY_RANGE);
     }
 
 
@@ -222,4 +262,19 @@ public abstract class PropertySet
 
         return _map;
     }
+
+
+    public static Property[] map2Props(Map props) {
+        Property[] _ps = new Property[props.size()];
+
+        Iterator i = props.keySet().iterator();
+        int x = 0;
+        while (i.hasNext())
+            {
+                String _key = (String)i.next();
+                _ps[x++] = new Property(_key, (Any)props.get(_key));
+            }
+        return _ps;
+    }
 }
+
