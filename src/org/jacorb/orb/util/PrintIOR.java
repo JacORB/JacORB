@@ -20,14 +20,12 @@
 
 package org.jacorb.orb.util;
 
-import java.text.NumberFormat;
 import org.jacorb.orb.connection.CodeSet;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.*;
+import java.util.*;
 
 import org.omg.IOP.*;
-import org.omg.GIOP.*;
-import org.omg.IIOP.*;
 import org.omg.SSLIOP.*;
 import org.omg.CSIIOP.*;
 import org.omg.CONV_FRAME.*;
@@ -113,20 +111,20 @@ public class PrintIOR
         System.out.println("------IOR components-----");
         System.out.println("TypeId\t:\t" + ior.type_id );
 
-        org.omg.IIOP.ProfileBody_1_1[] profiles =  pior.getProfileBodies();
+        List profiles = pior.getProfiles();
 
         System.out.println("TAG_INTERNET_IOP Profiles:");
-        for( int i = 0; i < profiles.length; i++ )
+        for( int i = 0; i < profiles.size(); i++ )
         {
             System.out.print("\tProfile Id   :  ");
 
-            org.omg.IIOP.ProfileBody_1_1 pb = profiles[i];
+            InternetIOPProfile p = (InternetIOPProfile)profiles.get(i);
             System.out.println("\tIIOP Version :  " +
-                               (int)pb.iiop_version.major + "." +
-                               (int)pb.iiop_version.minor);
+                               (int)p.version().major + "." +
+                               (int)p.version().minor);
 
-            System.out.println("\tHost\t:\t" + pb.host);
-            int port = pb.port;
+            System.out.println("\tHost\t:\t" + p.getAddress().getHost());
+            int port = p.getAddress().getPort();
             if( port < 0 )
                 port += 65536;
 
@@ -144,26 +142,26 @@ public class PrintIOR
             dumpHex( pior.get_object_key() );
             System.out.println();
 
-            if ( pb.iiop_version.minor >= ( char ) 1 )
+            if ( p.version().minor >= ( char ) 1 )
             {
-                if( pb.components.length > 0 )
+                if( p.getComponents().size() > 0 )
                     System.out.println("\t-- Found " +
-                                       pb.components.length +
+                                       p.getComponents().size() +
                                        " Tagged Components--" );
 
-                printTaggedComponents( pb.components );
+                printTaggedComponents( p.getComponents().asArray() );
             }
             System.out.print("\n");
         }
 
-        TaggedComponent[] multiple_components = pior.getMultipleComponents();
+        TaggedComponentList multiple_components = pior.getMultipleComponents();
 
-        if( multiple_components.length > 0 )
+        if( multiple_components.size() > 0 )
         {
             System.out.println("Components in MULTIPLE_COMPONENTS profile: " +
-                               multiple_components.length );
+                               multiple_components.size() );
 
-            printTaggedComponents( multiple_components );
+            printTaggedComponents( multiple_components.asArray() );
         }
 
     }
@@ -238,7 +236,7 @@ public class PrintIOR
                     case TAG_TLS_SEC_TRANS.value:
                         System.out.println("TAG_TLS_SEC_TRANS");
                         break;
-                 	  case TAG_NULL_TAG.value:
+                          case TAG_NULL_TAG.value:
                         System.out.println("TAG_NULL_TAG");
                         break;
                    default:
