@@ -1,0 +1,4 @@
+CLASSPATH=../../../classes
+export CLASSPATH
+
+jaco demo.notification.office.PrintServer
