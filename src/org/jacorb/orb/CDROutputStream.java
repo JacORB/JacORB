@@ -1180,8 +1180,19 @@ public class CDROutputStream
             try
             {
                 int length = tc.length();
-                for( int i = 0; i < length; i++ )
-                    write_value( tc.content_type(), in);
+                int a_kind = ((org.jacorb.orb.TypeCode)tc.content_type())._kind();
+                if( a_kind == TCKind._tk_octet )
+                {
+                    check( length );
+                    in.read_octet_array( buffer, pos, length);
+                    index+= length;
+                    pos += length;
+                }
+                else
+                {
+                    for( int i = 0; i < length; i++ )
+                        write_value( tc.content_type(), in);
+                }
             } 
             catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
             {} 
@@ -1191,8 +1202,19 @@ public class CDROutputStream
             {
                 int len = in.read_long();
                 write_long(len);
-                for( int i = 0; i < len; i++ )
-                    write_value( tc.content_type(), in);
+                int s_kind = ((org.jacorb.orb.TypeCode)tc.content_type())._kind();
+                if( s_kind == TCKind._tk_octet )
+                {
+                    check( len );
+                    in.read_octet_array( buffer, pos, len );
+                    index+= len;
+                    pos += len;
+                }
+                else
+                {
+                    for( int i = 0; i < len; i++ )
+                        write_value( tc.content_type(), in);
+                }
             } 
             catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
             break;
@@ -1346,16 +1368,16 @@ public class CDROutputStream
                     {
                         int s = in.read_long();
                         write_long(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        for( int i = 0 ; i < tc.member_count(); i++ )
                         {
-                            if(i != def_idx)
+                            if( i != def_idx)
                             {
                                 int label = tc.member_label(i).create_input_stream().read_long();
                                 /* we have to use the any's input stream because enums are not 
                                    inserted as longs */
                                 org.jacorb.util.Debug.output(10, "label: " +label + " switch: " + s );
 
-                                if(s == tc.member_label(i).create_input_stream().read_long())
+                                if( s == label)
                                 {
                                     member_idx = i;
                                     break;
@@ -1380,16 +1402,25 @@ public class CDROutputStream
                             }           
                         }
                         break;
-                    }           default:
+                    }           
+                default:
                         throw new RuntimeException("Unfinished implementation for unions in anys, sorry.");
                 }
+
+                // write the member or default value, if any
+                // (if the union has no explicit default but the
+                // the case labels do not cover the range of 
+                // possible discriminator values, there may be
+                // several "implicit defaults" without associated
+                // union values.
+
                 if( member_idx != -1 )
                 {
-                    write_value( tc.member_type(member_idx), in);
+                    write_value( tc.member_type( member_idx ), in);
                 }
-                else
+                else if( def_idx != -1 )
                 {
-                    write_value( tc.member_type(def_idx),in);
+                    write_value( tc.member_type( def_idx ), in);
                 }
             } 
             catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
