@@ -55,6 +55,8 @@ public class CDROutputStream
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
 
+    /** can be set on using property */
+    private boolean use_BOM = false;
     private BufferManager bufMgr = null;
 
     private int resize_factor = 1;
@@ -95,6 +97,7 @@ public class CDROutputStream
     {
         bufMgr = BufferManager.getInstance();
         buffer = bufMgr.getBuffer( MEM_BUF_SIZE );
+        use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
    }
 
     /** 
@@ -108,6 +111,7 @@ public class CDROutputStream
         this.orb = orb;
         bufMgr = BufferManager.getInstance();
         buffer = bufMgr.getBuffer( NET_BUF_SIZE );
+        use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
     }
         
 
@@ -466,13 +470,9 @@ public class CDROutputStream
             
         }
         
-        //size indicator ulong + length in chars( i.e. bytes for type char)
-        int size = 4 + s.length();
-
-        if( giop_minor < 2 )
-        {
-            size += 1; //terminating NUL char
-        }
+        // size indicator ulong + length in chars( i.e. bytes for type char)
+        // incl. terminating NUL char
+        int size = 4 + s.length() + 1;
 
         check( size, 4 );
             
@@ -488,16 +488,13 @@ public class CDROutputStream
         
         index += s.length();
         
-        if( giop_minor < 2 )
-        {
-            buffer[ pos++ ] = (byte) 0; //terminating NUL char
-            index++;
-        }
+        buffer[ pos++ ] = (byte) 0; //terminating NUL char
+        index++;
     }
 
     public final void write_wchar( char c )
     {
-        write_wchar( c, true );
+        write_wchar( c, use_BOM );
     }
 
     private final void write_wchar( char c, boolean write_bom )
@@ -609,7 +606,7 @@ public class CDROutputStream
         index += 4;                 // reserve for length indicator
 
         //the byte order marker
-        if( giop_minor == 2 )
+        if( giop_minor == 2 && use_BOM )
         {
             //big endian encoding
             buffer[ pos++ ] = (byte) 0xFE;
