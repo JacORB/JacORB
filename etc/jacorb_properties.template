@@ -482,11 +482,6 @@ jacorb.ssl.socket_factory=org.jacorb.security.ssl.iaik.SSLSocketFactory
 #jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
 jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.iaik.SSLServerSocketFactory
 
-# exchange ssl client server roles to enforce client authentication, but
-# attention: this causes problems with peers that not prepared to handle
-# this role change
-jacorb.security.change_ssl_roles=off
-
 # IIOP/SSL parameters (numbers are hex values, without the leading "0x"):
 # NoProtection = 1
 # EstablishTrustInClient = 40
