@@ -170,6 +170,8 @@ public class TypedProxyPushSupplierImpl
 
             try {
                 _request.invoke();
+                
+                resetErrorCounter();
             } catch (Throwable t) {
                 PushTypedOperation _failedOperation = new PushTypedOperation(_request);
 

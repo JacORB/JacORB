@@ -76,6 +76,8 @@ public class ProxyPushSupplierImpl
                         logger_.debug("pushConsumer.push(Any)");
 
                         pushConsumer_.push(message.toAny());
+                        
+                        resetErrorCounter();
                     } catch (Throwable e) {
                         PushAnyOperation _failedOperation =
                             new PushAnyOperation(pushConsumer_, (Message)message.clone());

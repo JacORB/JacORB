@@ -134,11 +134,11 @@ public class SequenceProxyPushSupplierImpl
     }
 
 
-    private void deliverPendingMessages(boolean force)
+    private void deliverPendingMessages(boolean flush)
     {
         Message[] _messages;
 
-        if (force)
+        if (flush)
         {
             _messages = getAllMessages();
         }
@@ -162,6 +162,8 @@ public class SequenceProxyPushSupplierImpl
 
             try {
                 sequencePushConsumer_.push_structured_events( _structuredEvents );
+                
+                resetErrorCounter();
             } catch (Throwable e) {
                 PushSequenceOperation _failedOperation =
                     new PushSequenceOperation(sequencePushConsumer_, _structuredEvents);

@@ -93,6 +93,8 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
                 try
                 {
                     pushConsumer_.push_structured_event(message.toStructuredEvent());
+                    
+                    resetErrorCounter();
                 } catch (Throwable e)
                 {
                     PushStructuredOperation _failedOperation = new PushStructuredOperation(

@@ -55,8 +55,6 @@ public class PushToConsumerTask extends AbstractDeliverTask
 
         message_.dispose();
 
-        getMessageConsumer().resetErrorCounter();
-
         dispose();
     }
 
