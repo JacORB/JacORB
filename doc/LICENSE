@@ -35,9 +35,9 @@ the CopyOnWriteArrayList and ConcurrentReaderHashMap classes are
 adapted from Sun JDK source code. These are copyright of Sun
 Microsystems, Inc, and are used with their kind permission."
 
-This product includes software copyrighed by TanukiSoftware, according
-to the Tanuki license reproduced below.
-
+This product includes software copyrighted by TanukiSoftware
+(http://wrapper.tanukisoftware.org), according to the Tanuki license
+reproduced below. 
 
 
 =====================================================================
@@ -574,16 +574,16 @@ That's all there is to it!
 =================================================================
 
 
-Copyright (c) 1999, 2003 TanukiSoftware.org
+Copyright (c) 1999, 2004 Tanuki Software
 
 Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without 
-restriction, including without limitation the rights to use, 
-copy, modify, merge, publish, distribute, sub-license, and/or 
-sell copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following 
-conditions:
+obtaining a copy of the Java Service Wrapper and associated
+documentation files (the "Software"), to deal in the Software
+without  restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sub-license,
+and/or sell copies of the Software, and to permit persons to
+whom the Software is furnished to do so, subject to the
+following conditions:
 
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
@@ -597,3 +597,20 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
+
+Portions of the Software have been derived from source code
+developed by Silver Egg Technology under the following license:
+
+Copyright (c) 2001 Silver Egg Technology
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without 
+restriction, including without limitation the rights to use, 
+copy, modify, merge, publish, distribute, sub-license, and/or 
+sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following 
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
