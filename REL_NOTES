@@ -87,6 +87,9 @@ gerald.brose@acm.org
          - Background saving thread
            Duplicate POA/Impl name fix
            New property jacorb.imr.port_number to configure a fixed port.
+   - Tools:
+         - New 'fixior' utility provided to patch port and host information
+           into an IOR.
 
 1.4 beta 4:
 ===========

@@ -1,0 +1,132 @@
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1997-2002  Gerald Brose.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+package org.jacorb.orb.util;
+
+import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.orb.ParsedIOR;
+import org.jacorb.orb.*;
+
+import org.omg.IOP.*;
+import org.omg.GIOP.*;
+import org.omg.IIOP.*;
+import org.omg.SSLIOP.*;
+import org.omg.CSIIOP.*;
+import org.omg.CONV_FRAME.*;
+
+import java.io.*;
+
+/**
+ * Utility class to patch host and port information into an IOR.
+ *
+ * @author Steve Osselton
+ */
+
+public class FixIOR 
+{
+    public static void main (String args[])
+        throws Exception
+    {
+        org.omg.CORBA.ORB orb;
+        String iorString;
+        BufferedReader br;
+        BufferedWriter bw;
+        CDRInputStream is;
+        CDROutputStream os;
+        ParsedIOR pior;
+        IOR ior;
+        TaggedProfile[] profiles;
+        ProfileBody_1_0 body10;
+        ProfileBody_1_1 body11;
+    
+        if (args.length != 4)
+        {
+            System.err.println ("Usage: FixIOR ior_file ior_out_file host port");
+            System.exit( 1 );
+        }
+
+        orb = org.omg.CORBA.ORB.init (args, null);
+
+        // Read in IOR from file
+
+        br = new BufferedReader (new FileReader (args[0]));
+        iorString = br.readLine ();
+        br.close ();
+    
+        if (! iorString.startsWith ("IOR:"))
+        {
+            System.err.println ("IOR must be in the standard IOR URL scheme");
+            System.exit (1);
+        }
+
+        // Parse IOR and set port/host information
+
+        pior = new ParsedIOR (iorString);
+        ior = pior.getIOR ();
+        profiles = ior.profiles;
+
+        // Iterate through IIOP profiles setting host and port
+
+        for (int i = 0; i < profiles.length; i++)
+        {
+            if (profiles[i].tag == TAG_INTERNET_IOP.value)
+            {
+                is = new CDRInputStream (orb, profiles[i].profile_data);
+                body10 = ProfileBody_1_0Helper.read (is);
+                is.close ();
+
+                os = new CDROutputStream ();
+                os.beginEncapsulatedArray ();
+                
+                if (body10.iiop_version.minor > 0)
+                {
+                    is = new CDRInputStream (orb, profiles[i].profile_data);
+                    body11 = ProfileBody_1_1Helper.read (is);
+                    is.close ();
+
+                    body11.host = args[2];
+                    body11.port = Short.parseShort (args[3]);
+
+                    ProfileBody_1_1Helper.write (os, body11);
+                }
+                else
+                {
+                    body10.host = args[2];
+                    body10.port = Short.parseShort (args[3]);
+
+                    ProfileBody_1_0Helper.write (os, body10);
+                }
+                profiles[i].profile_data = os.getBufferCopy ();
+            }
+        }
+
+        pior = new ParsedIOR (ior);
+        
+        // Write out new IOR to file
+        
+        bw = new BufferedWriter (new OutputStreamWriter (new FileOutputStream (args[1])));
+        bw.write (pior.getIORString ());
+        bw.close ();
+    }
+
+    private FixIOR ()
+    {
+    }
+}
