@@ -6,6 +6,7 @@ import org.omg.CORBA.*;
 import org.jacorb.orb.ORB;
 import org.jacorb.poa.POA;
 import java.util.Vector;
+import java.util.Hashtable;
 /**
  * This class represents the type of info object
  * that will be passed to the IORInterceptors. <br>
@@ -21,15 +22,18 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
   Vector components_iiop_profile = null;
   Vector components_multi_profile = null;
 
+  private Hashtable policy_overrides = null;
   private ORB orb = null;
   private POA poa = null;
   
   public IORInfoImpl(ORB orb, POA poa,
 		     Vector components_iiop_profile,
-		     Vector components_multi_profile) {
+		     Vector components_multi_profile,
+                     Hashtable policy_overrides) {
 
     this.components_iiop_profile = components_iiop_profile;
     this.components_multi_profile = components_multi_profile;
+    this.policy_overrides = policy_overrides;
 
     this.orb = orb;
     this.poa = poa;
@@ -58,8 +62,10 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
       throw new INV_POLICY("No PolicyFactory for type " + type + 
 			   " has been registered!", 2,
 			   CompletionStatus.COMPLETED_MAYBE);
-    
-    return poa.getPolicy(type);
+    Policy policy = null;
+    if (policy_overrides != null)
+	policy = (Policy)policy_overrides.get(new Integer(type));
+    return (policy != null) ? policy : poa.getPolicy(type);
   }
 } // IORInfoImpl
 
