@@ -65,7 +65,7 @@ public class OpDecl
         this.paramDecls  = new Vector (paramDecls);
         this.raisesExpr  = raisesExpr;
         setEnclosingSymbol (myInterface);
-        setPackage (myInterface.full_name());
+        this.pack_name   = myInterface.pack_name;
     }
 
     /**
