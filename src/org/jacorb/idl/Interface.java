@@ -300,7 +300,7 @@ class Interface
     /**
      *  Open a PrintWriter to write to the .java file for typeName.
      */
-    private PrintWriter openOutput( String typeName )
+    protected PrintWriter openOutput( String typeName )
     {
         String path =
           parser.out_dir + fileSeparator + pack_name.replace( '.', fileSeparator );
@@ -326,13 +326,13 @@ class Interface
         }   
     }
 
-    private void printPackage (PrintWriter ps) 
+    protected void printPackage (PrintWriter ps) 
     {
         if (!pack_name.equals (""))
-            ps.println ("package" + pack_name + ";\n");
+            ps.println ("package " + pack_name + ";\n");
     }
 
-    private void printClassComment( String className, PrintWriter ps )
+    protected void printClassComment( String className, PrintWriter ps )
     {
         ps.println( "/**" );
         ps.println( " *\tGenerated from IDL definition of interface " +
@@ -345,7 +345,7 @@ class Interface
      *  If this interface inherits from classes in the unnamed package,
      *  generate explicit import statements for them.
      */    
-    private void printSuperclassImports( PrintWriter ps )
+    protected void printSuperclassImports( PrintWriter ps )
     {
         if( inheritanceSpec.v.size() > 0 )
         {
@@ -365,18 +365,18 @@ class Interface
      *  generate the signature interface
      */
 
-    private void printInterface( String classname )
+    protected void printInterface()
     {
-        PrintWriter ps = openOutput( classname );
+        PrintWriter ps = openOutput( name );
         printPackage( ps );
-        printClassComment( classname, ps );
+        printClassComment( name, ps );
         printSuperclassImports( ps );
 
         //printImport(ps);
 
         if( is_pseudo  )
         {
-            ps.println( "public abstract class " + classname );
+            ps.println( "public abstract class " + name );
 
             if( inheritanceSpec.v.size() > 0 )
             {
@@ -409,7 +409,7 @@ class Interface
         }
         else
         {
-            ps.println( "public interface " + classname );
+            ps.println( "public interface " + name );
 
             if( is_abstract )
             {
@@ -417,7 +417,7 @@ class Interface
             }
             else
             {
-                ps.print( "\textends " + classname + "Operations" );
+                ps.print( "\textends " + name + "Operations" );
 
                 if( is_local )
                 {
@@ -465,15 +465,15 @@ class Interface
      * generate the operations Java interface (not for pseudo interfaces)
      */
 
-    private void printOperations( String classname )
+    protected void printOperations()
     {
-        PrintWriter ps = openOutput( classname + "Operations" );
+        PrintWriter ps = openOutput( name + "Operations" );
         printPackage( ps );
-        printClassComment( classname, ps );
+        printClassComment( name, ps );
         printSuperclassImports( ps );
         printImport( ps );
 
-        ps.println( "public interface " + classname + "Operations" );
+        ps.println( "public interface " + name + "Operations" );
         if( inheritanceSpec.v.size() > 0 )
         {
             ps.print( "\textends " );
@@ -500,55 +500,55 @@ class Interface
     }
 
 
-    private void printHolder( String classname )
+    protected void printHolder()
     {
-        PrintWriter ps = openOutput( classname + "Holder" );
+        PrintWriter ps = openOutput( name + "Holder" );
         printPackage( ps );
-        printClassComment( classname, ps );
+        printClassComment( name, ps );
 
-        ps.print( "public" + parser.getFinalString() + " class " + classname + "Holder" );
+        ps.print( "public" + parser.getFinalString() + " class " + name + "Holder" );
         ps.print( "\timplements org.omg.CORBA.portable.Streamable" );
 
         ps.println( "{" );
-        ps.println( "\t public " + classname + " value;" );
+        ps.println( "\t public " + name + " value;" );
 
-        ps.println( "\tpublic " + classname + "Holder ()" );
+        ps.println( "\tpublic " + name + "Holder ()" );
         ps.println( "\t{" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic " + classname + "Holder (final " + classname + " initial)" );
+        ps.println( "\tpublic " + name + "Holder (final " + name + " initial)" );
         ps.println( "\t{" );
         ps.println( "\t\tvalue = initial;" );
         ps.println( "\t}" );
 
         ps.println( "\tpublic org.omg.CORBA.TypeCode _type ()" );
         ps.println( "\t{" );
-        ps.println( "\t\treturn " + classname + "Helper.type ();" );
+        ps.println( "\t\treturn " + name + "Helper.type ();" );
         ps.println( "\t}" );
 
         ps.println( "\tpublic void _read (final org.omg.CORBA.portable.InputStream in)" );
         ps.println( "\t{" );
-        ps.println( "\t\tvalue = " + classname + "Helper.read (in);" );
+        ps.println( "\t\tvalue = " + name + "Helper.read (in);" );
         ps.println( "\t}" );
 
         ps.println( "\tpublic void _write (final org.omg.CORBA.portable.OutputStream _out)" );
         ps.println( "\t{" );
-        ps.println( "\t\t" + classname + "Helper.write (_out,value);" );
+        ps.println( "\t\t" + name + "Helper.write (_out,value);" );
         ps.println( "\t}" );
 
         ps.println( "}" );
         ps.close();
     }
 
-    private void printHelper( String className )
+    protected void printHelper()
     {
-        PrintWriter ps = openOutput( className + "Helper" );
+        PrintWriter ps = openOutput( name + "Helper" );
         printPackage( ps );
         printImport( ps );
 
-        printClassComment( className, ps );
+        printClassComment( name, ps );
 
-        ps.println( "public" + parser.getFinalString() + " class " + className + "Helper" );
+        ps.println( "public" + parser.getFinalString() + " class " + name + "Helper" );
         ps.println( "{" );
 
         ps.println( "\tpublic static void insert (final org.omg.CORBA.Any any, final " + typeName() + " s)" );
@@ -570,7 +570,7 @@ class Interface
 
         printIdMethod( ps );
 
-        ps.println( "\tpublic static " + className + " read (final org.omg.CORBA.portable.InputStream in)" );
+        ps.println( "\tpublic static " + name + " read (final org.omg.CORBA.portable.InputStream in)" );
         ps.println( "\t{" );
         if( is_local )
         {
@@ -639,7 +639,7 @@ class Interface
         ps.close();
     }
 
-    private String[] get_ids()
+    protected String[] get_ids()
     {
         if( ids == null )
         {
@@ -693,14 +693,14 @@ class Interface
      * generates a stub class for this Interface
      */
 
-    private void printStub( String classname )
+    protected void printStub()
     {
-        PrintWriter ps = openOutput( classname + "Stub" );
+        PrintWriter ps = openOutput( "_" + name + "Stub" );
         printPackage( ps );
         printImport( ps );
-        printClassComment( classname, ps );
+        printClassComment( name, ps );
 
-        ps.println( "public class _" + classname + "Stub" );
+        ps.println( "public class _" + name + "Stub" );
         ps.println( "\textends org.omg.CORBA.portable.ObjectImpl" );
 
         ps.println( "\timplements " + javaName() );
@@ -719,23 +719,23 @@ class Interface
 
         ps.print( "\tpublic final static java.lang.Class _opsClass = " );
         if( !pack_name.equals( "" ) ) ps.print( pack_name + "." );
-        ps.println( classname + "Operations.class;" );
+        ps.println( name + "Operations.class;" );
 
-        body.printStubMethods( ps, classname, is_local );
+        body.printStubMethods( ps, name, is_local );
 
         ps.println( "}" );
         ps.close();
     }
 
-    private void printImplSkeleton( String classname )
+    protected void printImplSkeleton()
     {
-        PrintWriter ps = openOutput( classname + "POA" );
+        PrintWriter ps = openOutput( name + "POA" );
         printPackage( ps );
-        printClassComment( classname, ps );
+        printClassComment( name, ps );
 
         printImport( ps );
 
-        ps.print( "public abstract class " + classname + "POA" );
+        ps.print( "public abstract class " + name + "POA" );
         ps.println( "\n\textends org.omg.PortableServer.Servant" );
         ps.println( "\timplements org.omg.CORBA.portable.InvokeHandler, " + javaName() + "Operations" );
         ps.println( "{" );
@@ -781,28 +781,28 @@ class Interface
      * print the stream-based skeleton class
      */
 
-    private void printTieSkeleton( String classname )
+    protected void printTieSkeleton()
     {
-        PrintWriter ps = openOutput( classname + "POATie" );
+        PrintWriter ps = openOutput( name + "POATie" );
         printPackage( ps );
         ps.println( "import org.omg.PortableServer.POA;" );
         printImport( ps );
 
-        printClassComment( classname, ps );
+        printClassComment( name, ps );
 
-        ps.println( "public class " + classname + "POATie" );
-        ps.println( "\textends " + classname + "POA" );
+        ps.println( "public class " + name + "POATie" );
+        ps.println( "\textends " + name + "POA" );
         ps.println( "{" );
 
-        ps.println( "\tprivate " + classname + "Operations _delegate;\n" );
+        ps.println( "\tprivate " + name + "Operations _delegate;\n" );
         ps.println( "\tprivate POA _poa;" );
 
-        ps.println( "\tpublic " + classname + "POATie(" + classname + "Operations delegate)" );
+        ps.println( "\tpublic " + name + "POATie(" + name + "Operations delegate)" );
         ps.println( "\t{" );
         ps.println( "\t\t_delegate = delegate;" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic " + classname + "POATie(" + classname + "Operations delegate, POA poa)" );
+        ps.println( "\tpublic " + name + "POATie(" + name + "Operations delegate, POA poa)" );
         ps.println( "\t{" );
         ps.println( "\t\t_delegate = delegate;" );
         ps.println( "\t\t_poa = poa;" );
@@ -818,12 +818,12 @@ class Interface
         ps.println( "\t\treturn " + javaName() + "Helper.narrow(_this_object(orb));" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic " + classname + "Operations _delegate()" );
+        ps.println( "\tpublic " + name + "Operations _delegate()" );
         ps.println( "\t{" );
         ps.println( "\t\treturn _delegate;" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic void _delegate(" + classname + "Operations delegate)" );
+        ps.println( "\tpublic void _delegate(" + name + "Operations delegate)" );
         ps.println( "\t{" );
         ps.println( "\t\t_delegate = delegate;" );
         ps.println( "\t}" );
@@ -845,16 +845,16 @@ class Interface
         ps.close();
     }
 
-    private void printIRHelper( String className )
+    protected void printIRHelper()
     {
-        PrintWriter ps = openOutput( className + "IRHelper" );
+        PrintWriter ps = openOutput( name + "IRHelper" );
         printPackage( ps );
         ps.println( "\n/**" );
         ps.println( " * This class contains generated Interface Repository information." );
         ps.println( " * @author JacORB IDL compiler." );
         ps.println( " */" );
 
-        ps.println( "\npublic class " + className + "IRHelper" );
+        ps.println( "\npublic class " + name + "IRHelper" );
         ps.println( "{" );
 
         ps.println( "\tpublic static java.util.Hashtable irInfo = new java.util.Hashtable();" );
@@ -871,18 +871,18 @@ class Interface
         ps.close();
     }
 
-    private void printLocalBase( String className )
+    protected void printLocalBase()
     {
-        PrintWriter ps = openOutput( className + "LocalBase" );
+        PrintWriter ps = openOutput( name + "LocalBase" );
         printPackage( ps );
         ps.println( "\n/**" );
-        ps.println( " * Abstract base class for implenentations of local interface " + className );
+        ps.println( " * Abstract base class for implenentations of local interface " + name );
         ps.println( " * @author JacORB IDL compiler." );
         ps.println( " */" );
 
-        ps.println( "\npublic abstract class _" + className + "LocalBase" );
+        ps.println( "\npublic abstract class _" + name + "LocalBase" );
         ps.println( "\textends org.omg.CORBA.LocalObject" );
-        ps.println( "\timplements " + className);
+        ps.println( "\timplements " + name);
         ps.println( "{" );
         ps.print( "\tprivate String[] _type_ids = {" );
         String[] ids = get_ids();
@@ -899,33 +899,33 @@ class Interface
     }
 
 
-    private void printLocalTie( String classname )
+    protected void printLocalTie()
     {
-        PrintWriter ps = openOutput( classname + "LocalTie" );
+        PrintWriter ps = openOutput( name + "LocalTie" );
         printPackage( ps );
         ps.println( "import org.omg.PortableServer.POA;" );
         printImport( ps );
 
-        printClassComment( classname, ps );
+        printClassComment( name, ps );
 
-        ps.println( "public class " + classname + "LocalTie" );
-        ps.println( "\textends _" + classname + "LocalBase" );
+        ps.println( "public class " + name + "LocalTie" );
+        ps.println( "\textends _" + name + "LocalBase" );
         ps.println( "{" );
 
-        ps.println( "\tprivate " + classname + "Operations _delegate;\n" );
+        ps.println( "\tprivate " + name + "Operations _delegate;\n" );
         ps.println( "\tprivate POA _poa;" );
 
-        ps.println( "\tpublic " + classname + "LocalTie(" + classname + "Operations delegate)" );
+        ps.println( "\tpublic " + name + "LocalTie(" + name + "Operations delegate)" );
         ps.println( "\t{" );
         ps.println( "\t\t_delegate = delegate;" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic " + classname + "Operations _delegate()" );
+        ps.println( "\tpublic " + name + "Operations _delegate()" );
         ps.println( "\t{" );
         ps.println( "\t\treturn _delegate;" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic void _delegate(" + classname + "Operations delegate)" );
+        ps.println( "\tpublic void _delegate(" + name + "Operations delegate)" );
         ps.println( "\t{" );
         ps.println( "\t\t_delegate = delegate;" );
         ps.println( "\t}" );
@@ -945,38 +945,38 @@ class Interface
         // divert output into individual .java files
         if (body != null) // forward declaration
         {
-            printInterface(name);
+            printInterface();
             if (!is_pseudo)
             {
                 if (!is_abstract)
                 {
-                    printOperations(name);
+                    printOperations();
 
                     //TO BE DONE: helpers and holders should also
                     //be generated for abstract interfaces, but
                     //what should these look like? IDL/Java 2.4
                     //RTF does not seem to be consistent here...
 
-                    printHelper(name);
-                    printHolder(name);
+                    printHelper();
+                    printHolder();
                 }
                 if (parser.generate_stubs && !is_local && !is_abstract)
                 {
-                    printStub(name);
+                    printStub();
                 }
                 if (parser.generate_skeletons && !is_local && !is_abstract)
                 {
-                    printImplSkeleton(name);
-                    printTieSkeleton(name);
+                    printImplSkeleton();
+                    printTieSkeleton();
                 }
                 if (parser.generateIR)
                 {
-                    printIRHelper(name);
+                    printIRHelper();
                 }
                 if (is_local)
                 {
-                    printLocalBase(name);
-                    printLocalTie(name);
+                    printLocalBase();
+                    printLocalTie();
                 }
             }
 
