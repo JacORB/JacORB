@@ -1,7 +1,7 @@
 gerald.brose@acm.org
 
 
-                JacORB 1.3 RELEASE NOTES
+                JacORB 1.4 RELEASE NOTES
 
                       www.jacorb.org
         ________________________________________
@@ -13,49 +13,45 @@ gerald.brose@acm.org
         - 100% Java, no native code
         - fully multithreaded, very good performance
 
-        - IDL compile, complies to rev. 2.3 of the Java language mapping
+        - IDL compiler, complies to rev. 2.3 of the Java language mapping
         - DII, DSI, native IIOP
-        - POA (by Reimo Tiedemann)
+        - POA
+       ´- OBV
         - DynAny
         - Implementation Repository with GUI 
-                (by Nicolas Noffke)
         - Interface Repository with GUI 
-                (by Gerald Brose and Joerg von Frantzius)
         - Applet support and HTTP tunneling 
-                (by Sebastian Mueller)
-        - IIOP 1.1 and Code set support 
-                (by Martin Devera)
+        - IIOP 1.2 Code set support 
         - IIOP over SSL 
-                (by Gerald Brose and Nicolas Noffke)
+        - Bidirectional GIOP
         - Portable Interceptors, for service context passing)
-                (by Nicolas Noffke)
-        - Domain Management (by Herbert Kiefer)
+        - Domain Management
 
         - Object Service implementations
                 - Interoperable Naming Service (with graphical interface)
-
-                - Trading Service (extension of Mark Spruiell's JTrader 
-                     by Nicolas Noffke)
-                - event service
-
-                - transaction, collection and concurrency service
+                - Trading Service (extension of Mark Spruiell's JTrader)
+                - Event Service
+                - Transaction, collection and concurrency services
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft 
                     Ltd., Ukraine,taras@deka.kp.km.ua)
-
- Roadmap:
-
-        - OBV, GIOP 1.2, BiDirectional GIOP
 
 
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-1.?.?? (going to be 1.4)
+1.4 beta 1:
 
-        - bug fixes in Any (equals()) and TypeCode (equivalent)
-
-        - modified DynAnys to not touch a POA and to work with aliased
-          types
+        - bug fixes:
+                in Any (equals()) and TypeCode (equivalent)
+                marshalling streams: 
+                        recursive and repeated TypeCodes
+                DynAnys: 
+                        diverse bugs, e.g., treat aliesd types correctly
+                        made implementations purely local
+                IDL compiler: 
+                        name resolution bugs
+                POA and ORB: 
+                        memory leaks, local invocations
 
         - modified the property "jacorb.security.keystore". It now allows
           three ways of specifying the keystore location:
@@ -67,7 +63,9 @@ gerald.brose@acm.org
         - Using the standard SSL mode now allows mutual authentication,
           which previously was only possible using the role change mode.
 
-        - IDL compiler bug fixes
+        - OBV support added
+
+        - GIOP 1.2 and bidirectional GIOP
 
 1.3.30
 
