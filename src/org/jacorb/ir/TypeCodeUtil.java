@@ -50,7 +50,8 @@ public class TypeCodeUtil
             cache.put( "org.omg.CORBA.TypeCode",new TypeCode( TCKind._tk_TypeCode));
             cache.put( "org.omg.CORBA.Principal",new TypeCode( TCKind._tk_Principal));
             cache.put( "org.omg.CORBA.Object", 
-                       new TypeCode( "IDL:omg.org/CORBA/Object:1.0", 
+                       new TypeCode( TCKind._tk_objref,
+                                     "IDL:omg.org/CORBA/Object:1.0", 
                                      "IDL:omg.org/CORBA/Object:1.0" ));
  
     }
