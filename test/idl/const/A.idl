@@ -1,8 +1,0 @@
-
-    typedef long MyType;
-
-    const MyType Entry1 = 1;
-    const MyType Entry2 = 2;
-    const MyType Entry3 = 3;
-
-

@@ -1,9 +1,0 @@
-
-/**
- * This interface defines an operation, one of whose
- * arguments is of an unknown type. 
- * RESULT: SUCCESS
- */
-interface Paul {
-  void foo( in long arg1, in ::No::Such::Thing arg2 );
-};
