@@ -290,7 +290,7 @@ class OpDecl
                 }
             }
 
-            if( opAttribute == 0 &&
+            if( opAttribute == NO_ATTRIBUTE &&
                     !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
             {
                 ps.println( "\t\t\t\treturn _result;" );
@@ -390,6 +390,66 @@ class OpDecl
         ps.println( "\t}\n" ); // end method
     }
 
+    public void print_sendc_Method( PrintWriter ps,
+                                    String classname )
+    {
+        /* in some cases generated name have an underscore prepended for the
+           mapped java name. On the wire, we must use the original name */
+
+        String idl_name = ( name.startsWith( "_" ) ? name.substring( 1 ) : name );
+
+        ps.print( "\tpublic void sendc_" + name + "(" );
+        
+        ps.print( "AMI_" + classname + "Handler ami_handler" );
+
+        for ( Iterator i = paramDecls.iterator(); i.hasNext(); )
+        {
+            ParamDecl p = ( ParamDecl ) i.next();
+            if ( p.paramAttribute != ParamDecl.MODE_OUT )
+            {
+                ps.print( ", " );
+                p.print( ps );
+            }
+        }
+
+        ps.print( ")" );
+        ps.println( "\n\t{" );
+        ps.println( "\t\twhile(true)" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\ttry" );
+        ps.println( "\t\t\t{" );
+        ps.print( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request( \"" + idl_name + "\"," );
+
+        if( opAttribute == NO_ATTRIBUTE )
+            ps.println( " true);" );
+        else
+            ps.println( " false);" );
+
+        //  arguments..
+
+        for( Iterator i = paramDecls.iterator(); i.hasNext(); )
+        {
+            ParamDecl p = ( (ParamDecl)i.next() );
+            if( p.paramAttribute != ParamDecl.MODE_OUT ) 
+                ps.println( "\t\t\t\t" + p.printWriteStatement( "_os" ) );
+        }
+
+        //ps.println( "\t\t\t\t_invoke(_os, ami_handler);" );
+        ps.println( "\t\t\t\t((org.jacorb.orb.Delegate)_get_delegate()).invoke(this, _os, ami_handler);" );
+        ps.println( "\t\t\t\treturn;");
+
+        /* catch exceptions */
+
+        ps.println( "\t\t\t}" );
+        ps.println( "\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx ){}" );
+        ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
+        ps.println( "\t\t\t{" );
+        ps.println( "\t\t\t\tString _id = _ax.getId();" );
+        ps.println( "\t\t\t}" );
+
+        ps.println( "\t\t}\n" ); // end while
+        ps.println( "\t}\n" ); // end method
+    }
 
     public void printDelegatedMethod( PrintWriter ps )
     {

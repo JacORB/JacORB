@@ -242,7 +242,7 @@ class Method
                 ps.println( "\t\t\ttry" );
                 ps.println( "\t\t\t{" );
                 ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request(\"_set_" + name + "\",true);" );
-                ps.print( "\t\t\t\t" + parameterType.typeSpec().printWriteStatement( "a", "_os" ) );
+                ps.println( "\t\t\t\t" + parameterType.typeSpec().printWriteStatement( "a", "_os" ) );
                 ps.println( "\t\t\t\t_is = _invoke(_os);" );
                 ps.println( "\t\t\t\treturn;" );
                 ps.println( "\t\t\t}" );
@@ -280,6 +280,118 @@ class Method
             ps.println( "\t\t\t\treturn;" );
             ps.println( "\t\t\t}" );
             if( !is_local ) ps.println( "\t\t}\n" );
+            ps.println( "\t}\n" );
+        }
+    }
+
+//      public void printLocalMethod(PrintWriter ps, String classname)
+//      {
+//  	ps.print("\tpublic ");
+
+
+//  	if( resultType != null )
+//  	{
+//  	    ps.print( resultType.typeName() );
+//  	    ps.println( " " + name  + "()");
+//  	    ps.println("\t{");
+//  	    ps.println("\t\torg.omg.CORBA.portable.ServantObject so = _servant_preinvoke( \"_get_" + name + "\", " + classname + "Operations.class);");
+
+//  	    ps.println("\t\tif( so == null )");
+//  	    ps.println("\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");");
+//  	    ps.println("\t\t" + classname + "Operations localServant = (" + classname + "Operations)so.servant;");
+
+//  	    ps.println("\t\t\t" + resultType + " result;");
+
+//  	    ps.println("\t\ttry");
+//  	    ps.println("\t\t{");
+//  	    ps.println("\t\t\tresult = localServant." + name + "();");
+//  	    ps.println("\t\t}");
+//  	    ps.println("\t\tfinally");
+//  	    ps.println("\t\t{");
+//  	    ps.println("\t\t\t_servant_postinvoke(so);");
+//  	    ps.println("\t\t}");
+//  	    ps.println("\t\treturn result;");
+//  	}
+//  	else
+//  	{
+//  	    /** modifier */
+
+//  	    ps.print("void " + name + "(" + parameterType.toString() );
+//  	    ps.println(" a)");
+//  	    ps.println("\t{");
+//  	    ps.println("\t\torg.omg.CORBA.portable.ServantObject so = _servant_preinvoke( \"_get_" + name + "\", " + classname + "Operations.class);");
+
+//  	    ps.println("\t\tif( so == null )");
+//  	    ps.println("\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");");
+
+//  	    ps.println("\t\ttry");
+//  	    ps.println("\t\t{");
+//  	    ps.println("\t\t\t" + classname + "Operations localServant = (" + classname + "Operations)so.servant;");
+//  	    ps.println("\t\t}");
+//  	    ps.println("\t\tfinally");
+//  	    ps.println("\t\t{");
+//  	    ps.println("\t\t\t_servant_postinvoke(so);");
+//  	    ps.println("\t\t}");
+//  	}
+
+//  	ps.println("\t}\n");
+//      }
+
+
+    public void print_sendc_Method( PrintWriter ps, 
+                                    String classname )
+    {
+        ps.print( "\tpublic void sendc_" );
+
+        if( resultType != null )
+        {
+            // accessor method
+            ps.print  ( "get_" + name );
+            ps.println( "(AMI_" + classname + "Handler ami_handler)" );
+            ps.println( "\t{" );
+            ps.println( "\t\twhile(true)" );
+            ps.println( "\t\t{" );
+
+            ps.println( "\t\t\ttry" );
+            ps.println( "\t\t\t{" );
+            ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request(\"_get_" + name + "\",true);" );
+            //ps.println( "\t\t\t\t_invoke(_os, ami_handler);" );
+            ps.println( "\t\t\t\t((org.jacorb.orb.Delegate)_get_delegate()).invoke(this, _os, ami_handler);" );
+            ps.println( "\t\t\t\treturn;" );
+            ps.println( "\t\t\t}" );
+            ps.println( "\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx ){}" );
+            ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
+            ps.println( "\t\t\t{" );
+            ps.println( "\t\t\t\tString _id = _ax.getId();" );
+            ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+            ps.println( "\t\t\t}" );
+            ps.println( "\t\t}" );
+            ps.println( "\t}\n" );
+        }
+        else
+        {
+            // modifier
+            ps.print   ( "set_" + name );
+            ps.print   ( "(AMI_" + classname + "Handler ami_handler, " );
+            ps.println ( parameterType.toString() + " attr_" + name + ")");
+            ps.println( "\t{" );
+            ps.println( "\t\twhile(true)" );
+            ps.println( "\t\t{" );
+            ps.println( "\t\t\ttry" );
+            ps.println( "\t\t\t{" );
+            ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request(\"_set_" + name + "\",true);" );
+            ps.println( "\t\t\t\t" + parameterType.typeSpec().printWriteStatement( "attr_" + name, "_os" ) );
+            //ps.println( "\t\t\t\t_invoke(_os, ami_handler);" );
+            ps.println( "\t\t\t\t((org.jacorb.orb.Delegate)_get_delegate()).invoke(this, _os, ami_handler);" );
+            ps.println( "\t\t\t\treturn;" );
+            ps.println( "\t\t\t}" );
+            ps.println( "\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx ){}" );
+            ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
+            ps.println( "\t\t\t{" );
+            ps.println( "\t\t\t\tString _id = _ax.getId();" );
+            ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+            ps.println( "\t\t\t}" );
+            ps.println( "\t\t}" );
             ps.println( "\t}\n" );
         }
     }
