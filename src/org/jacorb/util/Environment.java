@@ -384,6 +384,8 @@ public class Environment
         else if (_props.getProperty(jacorbPrefix+"logfile") != null)
             logFileName = _props.getProperty(jacorbPrefix+"logfile");
                     
+        readValue("_verbosity","verbosity",jacorbPrefix+"verbosity");
+
         if (logFileName != null && !logFileName.equals ("")) 
         {
             // Comvert $implname postfix to implementation name
@@ -411,7 +413,10 @@ public class Environment
             try 
             {
                 _log_file_out = new PrintWriter(new FileOutputStream(logFileName));
-                System.out.println("Write output to log file \""+logFileName+"\"");
+                if (_verbosity > 0)
+                {
+                   System.out.println("Write output to log file \""+logFileName+"\"");
+                }
             }
             catch (java.io.IOException ioe) 
             {
@@ -427,7 +432,6 @@ public class Environment
         readValue("_orb_domain_filename","ds",jacorbPrefix+"orb_domain.filename");
         readValue("_default_domains","ds",jacorbPrefix+"poa.default_domains");
 
-        readValue("_verbosity","verbosity",jacorbPrefix+"verbosity");
         readValue("_locate_on_bind","locate_on_bind",jacorbPrefix+"locate_on_bind");
         readValue("_cache_references","reference_caching",jacorbPrefix+"reference_caching");
 
