@@ -34,6 +34,10 @@ fi
 # make path full qualified
 WRAPPER_HOME=`cd "$WRAPPER_HOME" && pwd`
 
+if [ -z "$WRAPPER_CMD" -o ! -x "$WRAPPER_CMD" ] ; then
+    WRAPPER_CMD=$WRAPPER_HOME"/bin/wrapper"
+fi
+
 WRAPPER_LIB="$WRAPPER_HOME"/lib
 
 if [ ! -d "$WRAPPER_LIB" ] ; then
