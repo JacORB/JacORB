@@ -1,3 +1,5 @@
+module demo
+{
 module benchmark 
 {
     typedef sequence<octet> OctetSeq;
@@ -7,5 +9,5 @@ module benchmark
         void opOctetSeqOut(out OctetSeq argout);
         void opOctetSeqInOut(inout OctetSeq arginout);
     };
-
+};
 };

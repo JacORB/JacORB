@@ -1,3 +1,5 @@
+module demo {
+
 module benchmark 
 {
     // escaping Struct because IDL won't let Struct
@@ -17,5 +19,5 @@ module benchmark
 		octets octetTransfer(in octets o);
 		structs structTransfer(in structs s);
 	};
-
+};
 };

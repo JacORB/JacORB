@@ -1,53 +1,56 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../common.xml"> ]>
+
 <project name="demo" default="all" basedir="../..">
+
+  &common;
+
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
-   <property name="name" value="benchmark"/>
-   <property name="dirs.base" value="${basedir}"/>
-   <property name="classdir" value="${dirs.base}/classes"/>
-   <property name="lib" value="${dirs.base}/lib"/>
-   <property name="include" value="${dirs.base}/idl"/>
-   <property name="idlflags" value="-I${include}/omg -p demo -d ${dirs.base}/demo/${name}/generated"/>
+   <target name="benchmark.init" depends="init">
+	<property name="name" value="benchmark"/>
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
+	<property name="include" value="${dirs.base}/idl/omg"/>
    </target>
 
-   <target name="all" depends="init,idl">
-   <javac srcdir="${dirs.base}/demo/${name}/generated"
+   <target name="all" depends="benchmark.init,idl">
+	<javac srcdir="${dest}"
                destdir="${classdir}"
-          optimize="on"
-          includes="**/*.java"
-           />
-   <javac srcdir="${dirs.base}"
+	       includes="**/*.java"
+	        />
+
+	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
-          optimize="on"
-          includes="demo/${name}/*.java"
-           />
-   </target>
-
-   <target name="idl" depends="init">
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
-              classpath="${lib}/idl.jar;${java.class.path}">
-         <arg line="${idlflags} 
-         ${dirs.base}/demo/${name}/server.idl"/>
-         </java>
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
-              classpath="${lib}/idl.jar;${java.class.path}">
-         <arg line="${idlflags} 
-         ${dirs.base}/demo/${name}/octetServer.idl"/>
-         </java>
+	       includes="demo/${name}/*.java"
+	        />
    </target>
 
 
-   <target name="clean" depends="init">
-      <echo message="${name}"/>
-      <delete dir="${classdir}/demo/${name}"/>
-      <delete dir="${dirs.base}/demo/${name}/generated"/>
+   <target name="idl" depends="benchmark.init,load-taskdef">
+        <mkdir dir="${dest}" />
+        <jacidl srcdir="demo/${name}"
+                destdir="${dest}"
+                includepath="${include}"
+	        includes="*.idl"/>
+   </target>
+
+
+
+   <target name="clean" depends="benchmark.init">
+           <delete dir="${classdir}/demo/benchmark"/>
+           <delete dir="${dest}"/>
    </target>
 
 </project>
+
+
+
+
+
