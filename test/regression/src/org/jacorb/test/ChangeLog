@@ -1,3 +1,55 @@
+2003-08-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/rmi/AllTest.java (suite): Fix name.
+
+	* orb/AllTest.java (suite): Hook the ETF tests into the general
+	sequence.
+
+	* orb/etf/AllTest.java (suite): Seven new test cases.
+
+	* orb/etf/C_WIOP_S_WIOP.java (setUp): Reset
+	WIOPFactories.transportInUse.
+	(tearDown): Overridden to do the same.
+	(suite): Change name, it must not contain colons and/or commas.
+	Otherwise, Eclipse just won't see the tests happening.
+
+	* orb/etf/C_IIOP_S_WIOP.java,
+	orb/etf/C_IIOP_WIOP_S_IIOP_WIOP.java,
+	orb/etf/C_IIOP_WIOP_S_WIOP_IIOP.java,
+	orb/etf/C_WIOP_IIOP_S_WIOP_IIOP.java,
+	orb/etf/C_WIOP_S_IIOP_WIOP.java, orb/etf/ProfileSelectorTest.java,
+	orb/etf/README, orb/etf/ServerListenerTest.java,
+	orb/etf/WIOPSelector.java: Initial revision.
+
+	* orb/etf/wiop/WIOPFactories.java: Add comment.
+
+	* common/StreamListener.java (c'tor): Make it a daemon.
+	(run): Exit on IOException.
+
+	* common/ClientServerSetup.java (setUp): Reset client Environment.
+
+2003-08-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/BiDirServerImpl.java (main):
+	Write the server IOR to standard output again,
+	not to a file.
+
+	* common/ClientServerSetup.java (errListener, outListener): New fields.
+	(setUp): Use them to grab the server's IOR, and show its
+	output.
+	(tearDown): Don't attempt to read server's output, we're
+	doing that on the fly now.
+
+	* common/TestServer.java (main):
+	Write the server IOR to standard output again,
+	not to a file.
+
+	* common/StreamListener.java: Initial revision.
+
+2003-08-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* ChangeLog: Initial revision.
+
 2003-08-02  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
 	* orb/etf/C_WIOP_S_WIOP.java: changed non-qualified import to
