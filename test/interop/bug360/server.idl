@@ -1,0 +1,102 @@
+module test
+{
+    module interop
+    {
+        module bug360
+        {     
+            interface onewayPushConsumer {
+                
+		oneway void onewayPush(in any data);
+		void synchronousPush(in any data);
+            };
+		
+	enum Enum1 {
+		E1Axxxxxxxxxxxxxxxxxxxxx,
+		E1B,
+		E1C,
+		E1D,
+		E1E,
+		E1F,
+		E1G,
+		E1H,
+		E1I,
+		E1JX,
+		E1KX,
+		E1LX,
+		E1MX,
+		E1Lastxxxxxxxxxxxxx
+	};    
+
+	enum Enum2xxxxxxxxxxxx {
+		E2Axxxxxxxxxxxxxxxxxx,
+		E2Bxxxxxxxx,
+		E2Cxxxxxx,
+		E2Dxxxxxxxxxxxxx
+	};
+
+	enum Enum3xxxxxxxxxxxxxxxx {
+		E3Axxxxxxxxxxxxxxxxxxxxxx,
+		E3Bxxxxxxxxxxx,
+		E3Cxxxxxxxxxxx,
+		E3Dxxxxxxxxxxxxxxxxx
+	};
+
+	enum Enum4xxxxxxxxxxxxx {
+		E4Axxxxxxxxxxxxxxxxxxx,
+		E4Bxxxxxxx,
+		E4Cxxxxxxxxxxx,
+		E4Dxxxxxxxx,
+		E4Exxxxxxxxxxxxxx
+	};
+
+	enum Enum5xxxxxxxx {
+		E5Axxxxxxxxxxxxxx,
+		E5Bxxxxxxxx,
+		E5Cxxxxxxxxx,
+		E5Dxxxxxxx,
+		E5Exxx,
+		E5Fxxxxx,
+		E5Gxxxxxxx,
+		E5Hxxxxxxxxx
+	};
+
+	enum Enum6xxxxxxxxxxxxxxxxx {
+		E6Axxxxxxxxxxxxxxxxxxxxxxx,
+		E6Bxxxxxxxxxxxxx,
+		E6Cxxxxxxxxxxxxx,
+		E6Dxxxxxxxxxxxxxxxxxx
+	};
+	
+	
+
+	struct Struct3 {
+		Enum5xxxxxxxx			S3F1xxxx;
+		float					S3F2xxxxxxx;
+		float					S3F3xxxxxxx;
+		Enum6xxxxxxxxxxxxxxxxx	S3F4xxxxxxx;
+	};
+
+	struct Struct2 {
+		Enum1		S2F1xxxxxxxxxxx;
+		unsigned long				S2F2xxxxxxx;
+		float						S23;
+		Enum2xxxxxxxxxxxx			S2F4xxxxxxxx;
+		float						S2F5xxx;
+		float						S2F6x;
+		Enum2xxxxxxxxxxxx			S2F7xxxxxxxx;
+		Enum3xxxxxxxxxxxxxxxx		S2F8xxxxxxxxxxxx;
+		float						S2F9xxx;
+		Enum4xxxxxxxxxxxxx			S2F10xxxxxxxx;
+		Struct3	S2F11xxxxxx;
+	};
+
+	struct Struct1 {
+		unsigned long	s1F1;
+		Struct2	s1F2;
+	};
+
+
+	
+	};
+    };
+};
