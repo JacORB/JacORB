@@ -24,6 +24,7 @@ import java.io.*;
 import java.util.*;
 
 import org.omg.CORBA.*;
+import org.omg.CORBA.portable.IDLEntity;
 
 import org.jacorb.util.*;
 import org.jacorb.orb.connection.CodeSet;
@@ -98,6 +99,16 @@ public class CDRInputStream
     protected byte[] buffer = null;
     protected int pos = 0;
     protected int index = 0;
+
+    /** Last value tag read had the chunking bit on */
+    private boolean chunkedValue = false;
+
+    /** Nesting level of chunked valuetypes */
+    private int valueNestingLevel = 0;
+
+    /** Ending position of the current chunk */
+    private int chunk_end_pos = -1;   // -1 means we're not within a chunk
+
 
     /**
      * for this stream to be able to return a live object reference, a
@@ -185,6 +196,52 @@ public class CDRInputStream
 			   ((_buffer[_pos + 1] & 0xff) << 0));
     }
 
+    private final int _read_long ()
+    {
+	int result;
+
+	result = _read4int (littleEndian, buffer, pos);
+
+	index += 4;
+	pos += 4;
+	return result;
+    }
+
+    private final void handle_chunking()
+    {
+        if (pos == chunk_end_pos)
+        {
+            chunk_end_pos = -1;
+            int saved_pos = pos;
+            int saved_index = index;
+            int tag = read_long();
+
+            if (tag < 0) {
+
+                // tag is an end tag
+
+                Debug.myAssert(-tag <= valueNestingLevel,
+                               "received end tag " + tag 
+                               + " with value nesting level " 
+                               + valueNestingLevel);
+                valueNestingLevel = - tag;
+                valueNestingLevel--;
+            }
+            else if (tag < 0x7fffff00) 
+            {
+                // tag is the chunk size tag of another chunk
+
+                chunk_end_pos = pos + tag;
+            }
+            else // (tag >= 0x7fffff00)
+            {
+                // tag is the value tag of a nested value
+
+                pos = saved_pos;      // "unread" the value tag
+                index = saved_index;
+            }
+        }
+    }
 
     protected final void skip (final int distance)
     {
@@ -310,6 +367,7 @@ public class CDRInputStream
 
     public final boolean read_boolean()
     {
+        handle_chunking();
         index++;
         byte bb = buffer[pos++];
 
@@ -330,6 +388,7 @@ public class CDRInputStream
     public final void read_boolean_array
     (final boolean[] value, final int offset, final int length)
     {
+        handle_chunking();
         byte bb;
         for (int j = offset; j < offset + length; j++)
         {
@@ -354,6 +413,7 @@ public class CDRInputStream
 
     public final char read_char ()
     {
+        handle_chunking();
         index++;
         return (char)(0xff & buffer[pos++]);
     }
@@ -361,6 +421,7 @@ public class CDRInputStream
     public final void read_char_array
     (final char[] value, final int offset, final int length)
     {
+        handle_chunking();
         for (int j = offset; j < offset + length; j++)
         {
             index++;
@@ -384,6 +445,8 @@ public class CDRInputStream
 
     public final java.math.BigDecimal read_fixed()
     {
+        handle_chunking();
+
         StringBuffer sb = new StringBuffer();
 
         int b = buffer[pos++];
@@ -420,14 +483,25 @@ public class CDRInputStream
     public final void read_float_array
     (final float[] value, final int offset, final int length)
     {
+        handle_chunking();
+
+	int remainder = 4 - (index % 4);
+	if (remainder != 4)
+	{
+	    index += remainder;
+	    pos += remainder;
+	}
+
         for (int j = offset; j < offset + length; j++)
         {
-            value[j] = Float.intBitsToFloat (read_long ());
+            value[j] = Float.intBitsToFloat (_read_long ());
         }
     }
 
     public final int read_long ()
     {
+        handle_chunking();
+
 	int result;
 
 	int remainder = 4 - (index % 4);
@@ -447,6 +521,8 @@ public class CDRInputStream
     public final void read_long_array
     (final int[] value, final int offset, final int length)
     {
+        handle_chunking();
+
 	int remainder = 4 - (index % 4);
 	if (remainder != 4)
 	{
@@ -466,6 +542,8 @@ public class CDRInputStream
 
     public final long read_longlong ()
     {
+        handle_chunking();
+
  	int remainder = 8 - (index % 8);
  	if (remainder != 8)
  	{
@@ -475,17 +553,19 @@ public class CDRInputStream
 
 	if (littleEndian)
         {
-	    return ((long) read_long() & 0xFFFFFFFFL) + ((long) read_long() << 32);
+	    return ((long) _read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
         }
 	else
         {
-	    return ((long) read_long() << 32) + ((long) read_long() & 0xFFFFFFFFL);
+	    return ((long) _read_long() << 32) + ((long) _read_long() & 0xFFFFFFFFL);
         }
     }
 
     public final void read_longlong_array
     (final long[] value, final int offset, final int length)
     {
+        handle_chunking();
+
  	int remainder = 8 - (index % 8);
  	if (remainder != 8)
  	{
@@ -497,16 +577,16 @@ public class CDRInputStream
         {
             for(int j=offset; j < offset+length; j++)
             {
-                value[j] = ( (long) read_long() & 0xFFFFFFFFL) +
-                    ((long) read_long() << 32);
+                value[j] = ( (long) _read_long() & 0xFFFFFFFFL) +
+                    ((long) _read_long() << 32);
             }
         }
         else
         {
             for(int j=offset; j < offset+length; j++)
             {
-                value[j] = ((long) read_long() << 32) +
-                    ((long) read_long() & 0xFFFFFFFFL);
+                value[j] = ((long) _read_long() << 32) +
+                    ((long) _read_long() & 0xFFFFFFFFL);
             }
         }
 
@@ -551,6 +631,7 @@ public class CDRInputStream
 
     public final byte read_octet ()
     {
+        handle_chunking();
 	index++;
 	return buffer[pos++];
     }
@@ -558,6 +639,7 @@ public class CDRInputStream
     public final void read_octet_array
     (final byte[] value, final int offset, final int length)
     {
+        handle_chunking();
 	System.arraycopy (buffer,pos,value,offset,length);
 	index += length;
 	pos += length;
@@ -575,6 +657,8 @@ public class CDRInputStream
 
     public final short read_short ()
     {
+        handle_chunking();
+
 	int remainder = 2 - (index % 2);
 	if (remainder != 2)
 	{
@@ -591,6 +675,8 @@ public class CDRInputStream
     public final void read_short_array
     (final short[] value, final int offset, final int length)
     {
+        handle_chunking();
+
         int remainder = 2 - (index % 2);
 
         if (remainder != 2)
@@ -610,6 +696,8 @@ public class CDRInputStream
 
     public final String read_string()
     {
+        handle_chunking();
+
         int remainder = 4 - (index % 4);
         if( remainder != 4 )
         {
@@ -968,6 +1056,8 @@ public class CDRInputStream
 
     public final int read_ulong ()
     {
+        handle_chunking();
+
 	int result;
 
 	int remainder = 4 - (index % 4);
@@ -987,6 +1077,8 @@ public class CDRInputStream
     public final void read_ulong_array
     (final int[] value, final int offset, final int length)
     {
+        handle_chunking();
+
 	int remainder = 4 - (index % 4);
 	if (remainder != 4)
 	{
@@ -1005,6 +1097,8 @@ public class CDRInputStream
 
     public final long read_ulonglong ()
     {
+        handle_chunking();
+
  	int remainder = 8 - (index % 8);
  	if (remainder != 8)
  	{
@@ -1014,17 +1108,19 @@ public class CDRInputStream
 
 	if (littleEndian)
         {
-	    return ((long) read_long() & 0xFFFFFFFFL) + ((long) read_long() << 32);
+	    return ((long) _read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
         }
 	else
         {
-	    return ((long) read_long() << 32) + ((long) read_long() & 0xFFFFFFFFL);
+	    return ((long) _read_long() << 32) + ((long) _read_long() & 0xFFFFFFFFL);
         }
     }
 
     public final void read_ulonglong_array
     (final long[] value, final int offset, final int length)
     {
+        handle_chunking();
+
  	int remainder = 8 - (index % 8);
  	if (remainder != 8)
  	{
@@ -1036,16 +1132,16 @@ public class CDRInputStream
         {
             for (int j = offset; j < offset+length; j++)
             {
-                value[j] = ( (long) read_long() & 0xFFFFFFFFL) +
-                    ((long) read_long() << 32);
+                value[j] = ( (long) _read_long() & 0xFFFFFFFFL) +
+                    ((long) _read_long() << 32);
             }
         }
         else
         {
             for (int j = offset; j < offset+length; j++)
             {
-                value[j] = ((long) read_long() << 32) +
-                    ((long) read_long() & 0xFFFFFFFFL);
+                value[j] = ((long) _read_long() << 32) +
+                    ((long) _read_long() & 0xFFFFFFFFL);
             }
         }
 
@@ -1054,6 +1150,8 @@ public class CDRInputStream
 
     public final short read_ushort ()
     {
+        handle_chunking();
+
 	int remainder = 2 - (index % 2);
 	if (remainder != 2)
 	{
@@ -1070,6 +1168,8 @@ public class CDRInputStream
     public final void read_ushort_array
     (final short[] value, final int offset, final int length)
     {
+        handle_chunking();
+
         int remainder = 2 - (index % 2);
 
         if (remainder != 2)
@@ -1089,6 +1189,8 @@ public class CDRInputStream
 
     public final char read_wchar ()
     {
+        handle_chunking();
+
         if (giop_minor == 2)
         {
             //ignore size indicator
@@ -1220,12 +1322,15 @@ public class CDRInputStream
     public final void read_wchar_array
     (final char[] value, final int offset, final int length)
     {
+        handle_chunking();
 	for(int j=offset; j < offset+length; j++)
 	    value[j] = read_wchar(); // inlining later...
     }
 
     public final String read_wstring()
     {
+        handle_chunking();
+
 	int remainder = 4 - (index % 4);
 	if( remainder != 4 )
 	{
@@ -1687,8 +1792,9 @@ public class CDRInputStream
             return null;
 
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
-
-        tag = tag & 0xfffffffe;
+	chunkedValue = ((tag & 8) != 0);
+ 
+        tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
             throw new org.omg.CORBA.MARSHAL ("missing value type information");
@@ -1726,8 +1832,9 @@ public class CDRInputStream
         }
 
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
-
-        tag = tag & 0xfffffffe;
+	chunkedValue = ((tag & 8) != 0);
+ 
+        tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
         {
@@ -1781,12 +1888,13 @@ public class CDRInputStream
         }
 
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
-
-        tag = tag & 0xfffffffe;
+	chunkedValue = ((tag & 8) != 0);
+ 
+        tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
         {
-            return read_untyped_value ( new String[]{ org.jacorb.ir.RepositoryID.repId (clz) },
+            return read_untyped_value ( new String[]{ ValueHandler.getRMIRepositoryID (clz) },
                                         start_offset, codebase);
         }
         else if (tag == 0x7fffff02)
@@ -1828,8 +1936,9 @@ public class CDRInputStream
         }
 
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
-
-        tag = tag & 0xfffffffe;
+	chunkedValue = ((tag & 8) != 0);
+ 
+        tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
         {
@@ -1864,6 +1973,13 @@ public class CDRInputStream
                                                      final String codebase)
     {
         java.io.Serializable result = null;
+
+	if ( chunkedValue || valueNestingLevel > 0 ) 
+        {
+	    valueNestingLevel++;
+            int chunk_size_tag = read_long();
+            chunk_end_pos = pos + chunk_size_tag;
+        }
 
         for( int r = 0; r < repository_ids.length; r++ )
         {
@@ -1940,8 +2056,68 @@ public class CDRInputStream
                         c = ValueHandler.loadClass(className, codebase, null);
                     }
 
-                    result = ValueHandler.readValue(this, index, c,
-                                                    repository_ids[r], null);
+                    if (IDLEntity.class.isAssignableFrom(c)) 
+                    {
+                        java.lang.reflect.Method readMethod = null;
+                        if (c != org.omg.CORBA.Any.class) 
+                        {
+                            String helperClassName = c.getName() + "Helper";
+                            
+                            try 
+                            {
+                                Class helperClass = 
+                                    c.getClassLoader().loadClass(
+                                                              helperClassName);
+                                Class[] paramTypes = { 
+                                    org.omg.CORBA.portable.InputStream.class 
+                                };
+                                readMethod = 
+                                    helperClass.getMethod("read", paramTypes);
+                            }
+                            catch (ClassNotFoundException e) 
+                            {
+                                throw new org.omg.CORBA.MARSHAL(
+                                    "Error loading class " + helperClassName 
+                                    + ": " + e);
+                            }
+                            catch (NoSuchMethodException e) 
+                            {
+                                throw new org.omg.CORBA.MARSHAL(
+                                    "No write method in helper class " 
+                                    + helperClassName + ": " + e);
+                            }
+                        }
+
+                        if (readMethod == null) 
+                        {
+                            result = read_any();
+                        }
+                        else 
+                        {
+                            try 
+                            {
+                                result = 
+                                    (java.io.Serializable) readMethod.invoke(
+                                            null, 
+                                            new java.lang.Object[] { this });
+                            }
+                            catch (IllegalAccessException e) 
+                            {
+                                throw new org.omg.CORBA.MARSHAL(
+                                    "Internal error: " + e);
+                            }
+                            catch (java.lang.reflect.InvocationTargetException e) 
+                            {
+                                throw new org.omg.CORBA.MARSHAL(
+                                    "Exception unmarshaling IDLEntity: " 
+                                    + e.getTargetException());
+                            }
+                        }
+                    }
+                    else
+                        result = ValueHandler.readValue(this, index, c,
+                                                        repository_ids[r], 
+                                                        null);
                 }
                 catch (ClassNotFoundException e)
                 {
@@ -2164,6 +2340,7 @@ public class CDRInputStream
     {
         valueMap.put (new Integer (currentValueIndex), value);
     }
+
 
     //      public void finalize()
     //      {
