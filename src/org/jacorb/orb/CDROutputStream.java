@@ -60,7 +60,6 @@ public class CDROutputStream
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
 
-    private int resize_factor = 1;
     private int encaps_start = -1;
 
     /**
@@ -131,11 +130,14 @@ public class CDROutputStream
 
     private static boolean useBOM = false;
     private static boolean useIndirection = true;
+    private static boolean chunkCustomRmiValuetypes = false;
 
     static
     {
         useBOM = Environment.isPropertyOn ("jacorb.use_bom");
         useIndirection = Environment.isPropertyOff ("jacorb.interop.indirection_encoding_disable");
+        chunkCustomRmiValuetypes =
+                Environment.isPropertyOn("jacorb.interop.chunk_custom_rmi_valuetypes");
     }
 
     private class DeferredWriteFrame
@@ -155,8 +157,6 @@ public class CDROutputStream
        }
     }
 
-    private final static String null_ior_str =
-        "IOR:00000000000000010000000000000000";
     private final static org.omg.IOP.IOR null_ior =
         new org.omg.IOP.IOR("", new org.omg.IOP.TaggedProfile[0]);
 
@@ -1787,7 +1787,6 @@ public class CDROutputStream
                 {
                     int len = in.read_long();
                     write_long(len);
-                    int s_kind = ((TypeCode)tc.content_type())._kind();
 
                     org.omg.CORBA.TypeCode content_tc = tc.content_type();
                     for( int i = 0; i < len; i++ )
@@ -2375,7 +2374,8 @@ public class CDROutputStream
             }
             else
             {
-                if (ValueHandler.isCustomMarshaled(cls))
+                if (chunkCustomRmiValuetypes
+                        && ValueHandler.isCustomMarshaled(cls))
                     chunkingFlag = 0x00000008;
                 write_value_header( repository_ids, codebase );
                 start_chunk();
