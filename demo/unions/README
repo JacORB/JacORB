@@ -1,0 +1,20 @@
+Objective:
+    This is a simple example shows how to use unions in sending(in) and 
+    receiving(out) as parameters.
+    
+How to Run:
+    Compile:
+        ant
+    Run NamingServer:
+        ns.bat c:/prahalad/NS_Ref
+    Run Server:
+        jacotemplate.bat demo.unions.Server
+    Run Client:
+        jacotemplate.bat demo.unions.Client
+Note:
+    Make sure ns.bat is using jacotemplate.bat because there is no jaco.bat in
+    this cvs version of the JacORB.
+
+    Make sure that jacorb.properties is in place(in the current dir) and has 
+    the name server reference such as -
+    ORBInitRef.NameService=file:/c:/prahalad/NS_Ref
