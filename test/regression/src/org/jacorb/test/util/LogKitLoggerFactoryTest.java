@@ -22,12 +22,11 @@ package org.jacorb.test.util;
 
 import java.util.Properties;
 
-import org.jacorb.config.Configuration;
-import org.apache.avalon.framework.logger.Logger;
-
-import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.config.Configuration;
 
 /**
  *  Unit Test for class LogKitLoggerFactory
@@ -40,8 +39,8 @@ public class LogKitLoggerFactoryTest
 {
     ////////////////////////////////////////
 
-    Configuration config;
-    int defaultPriority = 0;
+    private Configuration config;
+    private int defaultPriority = 0;
 
     ////////////////////////////////////////
 
@@ -64,7 +63,7 @@ public class LogKitLoggerFactoryTest
         props.setProperty("jacorb.trailingspace.test1", "INFO ");
         props.setProperty("jacorb.trailingspace.test2", "INFO");
 
-        config =  Configuration.getConfiguration(props,null);
+        config =  Configuration.getConfiguration(props, null, false);
 
         defaultPriority = config.getAttributeAsInteger("jacorb.log.default.verbosity",0);
     }
@@ -85,7 +84,6 @@ public class LogKitLoggerFactoryTest
     public void testGetPriorityForNamedLogger() 
         throws Exception
     {
-
         assertEquals(defaultPriority, priorityFor(config.getNamedLogger("foologger")));
 
         assertEquals(2, priorityFor(config.getNamedLogger("jacorb")));
@@ -114,11 +112,4 @@ public class LogKitLoggerFactoryTest
 
         return suite;
     }
-
-
-    public static void main(String[] args)
-    {
-        junit.textui.TestRunner.run(suite());
-    }
-
 }
