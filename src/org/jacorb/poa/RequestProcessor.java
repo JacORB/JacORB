@@ -38,6 +38,7 @@ import org.omg.PortableServer.ServantLocator;
 import org.omg.PortableServer.DynamicImplementation;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 
+import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.portable.InvokeHandler;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.PortableInterceptor.*;
@@ -425,6 +426,26 @@ public class RequestProcessor
 
         //org.jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre invoke");
 
+        Time.waitFor (request.getRequestStartTime());
+        
+        // TODO: The exception replies below should also trigger interceptors.
+        // Requires some re-arranging of the entire method.
+        if (Time.hasPassed (request.getRequestEndTime()))
+        {
+            request.setSystemException 
+                (new org.omg.CORBA.TIMEOUT ("Request End Time exceeded",
+                                            0, CompletionStatus.COMPLETED_NO));
+            return;
+        }
+        if (Time.hasPassed (request.getReplyEndTime()))
+        {
+            request.setSystemException
+                (new org.omg.CORBA.TIMEOUT ("Reply End Time exceeded",
+                                            0, CompletionStatus.COMPLETED_NO));
+            return;
+        }
+                                                
+
         if (servantManager != null)
         {
             if (servantManager instanceof org.omg.PortableServer.ServantActivator)
@@ -484,6 +505,11 @@ public class RequestProcessor
             //org.jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre post invoke");
             invokePostInvoke();
         }
+   
+        if (Time.hasPassed (request.getReplyEndTime()))
+            request.setSystemException
+                (new org.omg.CORBA.TIMEOUT ("Reply End Time exceeded after invocation",
+                                            0, CompletionStatus.COMPLETED_YES));
    
         if (info != null)
         {
@@ -624,6 +650,7 @@ public class RequestProcessor
       return request.getConnection();
       }
     */
+    
 }
 
 
