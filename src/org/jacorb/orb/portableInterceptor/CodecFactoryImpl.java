@@ -36,28 +36,26 @@ import org.omg.CORBA.ORB;
  * @version $Id$
  */
 
-public class CodecFactoryImpl extends org.omg.CORBA.LocalObject 
-  implements CodecFactory {
-
-  private ORB orb = null;
+public class CodecFactoryImpl 
+    extends org.omg.CORBA.LocalObject 
+    implements CodecFactory 
+{
+    private ORB orb = null;
   
-  public CodecFactoryImpl(ORB orb) {
-    this.orb = orb;
-  }
+    public CodecFactoryImpl(ORB orb) 
+    {
+        this.orb = orb;
+    }
 
-  // implementation of org.omg.IOP.CodecFactoryOperations interface
-  public Codec create_codec(Encoding enc) throws UnknownEncoding {
-    if (enc.format == ENCODING_CDR_ENCAPS.value)
-      if (enc.major_version == 1)
-	if (enc.minor_version == 0)
-	  return new Codec_CDR_1_0_Impl(orb);
-	else
-	  throw new UnknownEncoding();
-      else
-	throw new UnknownEncoding();
-    else
-      throw new UnknownEncoding();
-  }  
+    /**
+     * implementation of org.omg.IOP.CodecFactoryOperations interface
+     */
+
+    public Codec create_codec(Encoding enc) 
+        throws UnknownEncoding 
+    {
+        return new CodecImpl( orb, enc );
+    }  
 } // CodecFactoryImpl
 
 
