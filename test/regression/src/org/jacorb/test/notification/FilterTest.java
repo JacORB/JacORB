@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.jacorb.notification.FilterFactoryImpl;
+import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -14,23 +15,15 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.CosNotifyFilter.FilterFactoryHelper;
 
-import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
-import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.util.Debug;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
- * FilterTest.java
- *
- *
- * Created: Sat Oct 12 20:50:59 2002
- *
  * @author Alphonse Bendt
+ * @author John Farrell
  * @version $Id$
  */
 
@@ -44,6 +37,8 @@ public class FilterTest extends TestCase {
 
     FilterFactory factory_;
 
+    Filter filter_;
+
     Any testPerson_;
 
     NotificationTestUtils testUtils_;
@@ -53,10 +48,6 @@ public class FilterTest extends TestCase {
     ORB orb_;
 
     ////////////////////////////////////////
-
-    public FilterTest(String name, NotificationTestCaseSetup setup) {
-        super(name);
-    }
 
     public FilterTest(String name) {
         super(name);
@@ -76,6 +67,8 @@ public class FilterTest extends TestCase {
         testUtils_ = new NotificationTestUtils(orb_);
 
         testPerson_ = testUtils_.getTestPersonAny();
+
+        filter_ = factory_.create_filter("EXTENDED_TCL");
     }
 
 
@@ -92,60 +85,91 @@ public class FilterTest extends TestCase {
      * create remote filter object and invoke match operation on it
      */
     public void testMatch() throws Exception {
-        Filter _filter = factory_.create_filter("EXTENDED_TCL");
-
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
 
         _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
-        ConstraintInfo[] _info = _filter.add_constraints(_constraintExp);
+        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
 
         // this should match
-        assertTrue(_filter.match(testPerson_));
+        assertTrue(filter_.match(testPerson_));
     }
 
 
     public void testMatchEmptyFilter() throws Exception {
-        Filter _filter = factory_.create_filter("EXTENDED_TCL");
-
         // TODO match or not ???
-        assertTrue(_filter.match(testPerson_));
+        assertTrue(filter_.match(testPerson_));
+    }
+
+
+    public void testMatch_EventTypes_IsEmpty() throws Exception {
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+        EventType[] _eventType = new EventType[0];
+
+        _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
+        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+
+        // this should match
+        assertTrue(filter_.match(testPerson_));
+    }
+
+
+    public void testMatch_EventType_IsEmptyString() throws Exception {
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+        EventType[] _eventType =
+            new EventType[] {
+                new EventType("", "")
+            };
+
+        _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
+        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+
+        // this should match
+        assertTrue(filter_.match(testPerson_));
+    }
+
+
+    public void testMatch_FilterString_IsEmpty() throws Exception {
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+        EventType[] _eventType =
+            new EventType[] {
+                new EventType("*", "*")
+            };
+
+        _constraintExp[0] = new ConstraintExp(_eventType, "");
+        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+
+        // this should match
+        assertTrue(filter_.match(testPerson_));
     }
 
 
     public void testMatchModify() throws Exception {
-        Filter _filter = factory_.create_filter("EXTENDED_TCL");
-
-        // add a filter
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
         _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'something'");
-        ConstraintInfo[] _info = _filter.add_constraints(_constraintExp);
+        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
 
         // oops wrong
-        assertTrue(!_filter.match(testPerson_));
+        assertTrue(!filter_.match(testPerson_));
 
         // modify the filter
         _info[0].constraint_expression.constraint_expr = "$.first_name == 'firstname'";
-        _filter.modify_constraints(new int[0], _info);
+        filter_.modify_constraints(new int[0], _info);
 
         // this one should match
-        assertTrue(_filter.match(testPerson_));
+        assertTrue(filter_.match(testPerson_));
     }
 
 
-    public void testCreateFilter() throws Exception {
-        Filter _filter = factory_.create_filter("EXTENDED_TCL");
-
-        assertEquals("EXTENDED_TCL", _filter.constraint_grammar());
+    public void testConstraintGrammar() throws Exception {
+        assertEquals("EXTENDED_TCL", filter_.constraint_grammar());
     }
 
 
     public void testAddConstraints() throws Exception {
-        Filter _filter = factory_.create_filter("EXTENDED_TCL");
-
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
 
         EventType[] _eventType = new EventType[1];
@@ -153,7 +177,7 @@ public class FilterTest extends TestCase {
         String _expression = "1 + 1";
         _constraintExp[0] = new ConstraintExp(_eventType, _expression);
 
-        ConstraintInfo[] _info = _filter.add_constraints(_constraintExp);
+        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
 
         assertTrue(_info.length == 1);
         assertTrue(_info[0].constraint_expression.event_types.length == 1);
@@ -164,8 +188,6 @@ public class FilterTest extends TestCase {
 
 
     public void testDeleteConstraints() throws Exception {
-        Filter _filter = factory_.create_filter("EXTENDED_TCL");
-
         ConstraintExp[] _constraintExp = new ConstraintExp[2];
 
         EventType[] _eventType = new EventType[1];
@@ -177,7 +199,7 @@ public class FilterTest extends TestCase {
         _eventType[0] = new EventType("domain2", "name");
         _constraintExp[1] = new ConstraintExp(_eventType, _expression2);
 
-        ConstraintInfo[] _info = _filter.add_constraints(_constraintExp);
+        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
 
         assertTrue(_info.length == 2);
         assertTrue(_info[0].constraint_expression.event_types.length == 1);
@@ -186,9 +208,9 @@ public class FilterTest extends TestCase {
 
         int[] _delete = {_info[0].constraint_id};
 
-        _filter.modify_constraints(_delete, new ConstraintInfo[0]);
+        filter_.modify_constraints(_delete, new ConstraintInfo[0]);
 
-        ConstraintInfo[] _info2 = _filter.get_all_constraints();
+        ConstraintInfo[] _info2 = filter_.get_all_constraints();
         assertTrue(_info2.length == 1);
         assertEquals(_info[1].constraint_id, _info2[0].constraint_id);
 
@@ -204,15 +226,13 @@ public class FilterTest extends TestCase {
      *
      */
     public void testModifyConcurrent() throws Exception {
-        Filter _filter = factory_.create_filter("EXTENDED_TCL");
+        FilterRead _fr1 = new FilterRead(this, filter_, 100);
+        FilterRead _fr2 = new FilterRead(this, filter_, 100);
+        FilterRead _fr3 = new FilterRead(this, filter_, 100);
+        FilterRead _fr4 = new FilterRead(this, filter_, 100);
 
-        FilterRead _fr1 = new FilterRead(this, _filter, 100);
-        FilterRead _fr2 = new FilterRead(this, _filter, 100);
-        FilterRead _fr3 = new FilterRead(this, _filter, 100);
-        FilterRead _fr4 = new FilterRead(this, _filter, 100);
-
-        FilterModify _mod1 = new FilterModify(this, _filter, "true", 50);
-        FilterModify _mod2 = new FilterModify(this, _filter, "false", 50);
+        FilterModify _mod1 = new FilterModify(this, filter_, "true", 50);
+        FilterModify _mod2 = new FilterModify(this, filter_, "false", 50);
 
         _fr1.start();
         _fr2.start();
@@ -232,22 +252,6 @@ public class FilterTest extends TestCase {
     }
 
 
-    public void testMatchEmptyEventTypes() throws Exception {
-        Filter _filter = factory_.create_filter("EXTENDED_TCL");
-
-        // add some filter data
-        ConstraintExp[] _constraintExp = new ConstraintExp[1];
-        EventType[] _eventType = new EventType[0];
-
-        _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
-        ConstraintInfo[] _info = _filter.add_constraints(_constraintExp);
-
-        // this should match
-        assertTrue(_filter.match(testPerson_));
-    }
-
-
-
     public static Test suite() throws Exception {
         TestSuite _suite = new TestSuite(FilterTest.class);
 
@@ -259,6 +263,8 @@ public class FilterTest extends TestCase {
         junit.textui.TestRunner.run(suite());
     }
 }
+
+//////////////////////////////////////////////////
 
 class FilterRead extends Thread {
     Filter filter_;
@@ -319,6 +325,8 @@ class FilterRead extends Thread {
     }
 }
 
+////////////////////////////////////////
+
 class CounterMap {
     Map counters_ = new Hashtable();
 
@@ -348,6 +356,8 @@ class CounterMap {
         return counters_.values().iterator();
     }
 }
+
+////////////////////////////////////////
 
 class Counter {
     int counter_ = 0;
