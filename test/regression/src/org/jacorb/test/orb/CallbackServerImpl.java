@@ -43,7 +43,7 @@ public class CallbackServerImpl extends CallbackServerPOA
         return p2.value;
     }
 
-    private void delay( long time )
+    private synchronized void delay( long time )
     {
         try
         {
