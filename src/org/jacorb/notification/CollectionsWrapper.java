@@ -32,64 +32,42 @@ import java.util.Collections;
  * provides a simple wrapper around java.util.Collections. Notification
  * Service uses the Method Collections.singletonList. This method is not
  * available in a pre 1.3 JDK.
- * this wrapper checks if the Method singletonList is available and uses it
- * if so. if unavailable an alternative implementation is used.
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class JDK13CollectionsWrapper {
+public class CollectionsWrapper {
 
-    private static final boolean JDK13_AVAILABLE;
+    interface CollectionsOperations {
+	public List singletonList(Object o);
+    }
  
-    static {
-	boolean available;
+    private static CollectionsOperations delegate_;
 
+    static {
+	boolean jdk13available;
+
+	String className;
+	
 	try {
 	    Collections.class.getMethod("singletonList", new Class[] {Object.class});
 
-	    available = true;
+	    className = "org.jacorb.notification.JDK13Collections";
 	} catch (Exception e) {
-	    available = false;
+	    className = "org.jacorb.notification.JacORBCollections";
 	}
-
-	JDK13_AVAILABLE = available;
+	
+	try {
+	    Class clazz = Class.forName(className);
+	    delegate_ = (CollectionsOperations)clazz.newInstance();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
     }
 
     public static List singletonList(Object o) {
-	if (JDK13_AVAILABLE) {
-	    return Collections.singletonList(o);
-	} else {
-	    return new SingletonList(o);
-	}
+	return delegate_.singletonList(o);
     }
 
-    private static class SingletonList extends AbstractList
-	implements RandomAccess, Serializable {
-
-	private final Object singletonElement_;
-
-	SingletonList(Object element) {
-	    singletonElement_ = element;
-	}
-
-	public int size() {
-	    return 1;
-	}
-
-	public boolean contains(Object object) {
-	    if (object == null && singletonElement_ == null) {
-		return true;
-	    }
-	    return object.equals(singletonElement_);
-	}
-
-	public Object get(int index) {
-	    if (index != 0) {
-		throw new IndexOutOfBoundsException("Index: " + index);
-	    }
-	    return singletonElement_;
-	}
-    }
 } 

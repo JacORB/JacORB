@@ -43,9 +43,14 @@
   </target>
 
 
-  <target name="check-environment">
-    <antcall target="check-regexp" />
+  <target name="check-jdk">
+    <condition property="build.jdk12"  >
+      <istrue value="${notification.build.jdk12}" />
+    </condition>
   </target>
+
+
+  <target name="check-environment" depends="check-regexp,check-jdk" />
 
 
   <target name="notification.init" depends="init, check-environment">
@@ -61,8 +66,6 @@
     <path id="antlr.classpath">
 	<pathelement path="${basedir}/lib/antlr.jar" />
     </path>
-
-    <antcall target="whats-my-classpath" />
 
   </target>
 
@@ -142,7 +145,9 @@
     depends="notification.init, 
              check-regexp,
              notification.compile.regexp.gnu, 
-             notification.compile.regexp.jdk" >
+             notification.compile.regexp.jdk,
+             notification.compile.collections.jacorb,
+             notification.compile.collections.jdk" >
 
     <antcall target="jacorb-javac">
 
@@ -151,7 +156,9 @@
 
       <param name="javac-excludes"
         value="org/jacorb/notification/util/GNUPatternWrapper.java, 
-               org/jacorb/notification/util/JDK14PatternWrapper.java" />
+               org/jacorb/notification/util/JDK14PatternWrapper.java,
+	       org/jacorb/notification/JDK13Collections.java,
+	       org/jacorb/notification/JacORBCollections.java" />
 
     </antcall>
   </target>
@@ -172,6 +179,26 @@
 	value="org/jacorb/notification/util/PatternWrapper.java, 
                org/jacorb/notification/util/JDK14PatternWrapper.java"/>
       </antcall>
+  </target>
+
+
+  <target name="notification.compile.collections.jacorb"
+    if="build.jdk12" depends="notification.init">
+    <echo message="Compiling for JDK1.2" />
+    <antcall target="jacorb-javac">
+      <param name="javac-includes"
+	value="org/jacorb/notification/JacORBCollections.java"/>
+    </antcall>
+  </target>
+
+
+  <target name="notification.compile.collections.jdk"
+    unless="build.jdk12" depends="notification.init">
+    <echo message="Compiling for JDK1.3+" />
+    <antcall target="jacorb-javac">
+      <param name="javac-includes"
+	value="org/jacorb/notification/JDK13Collections.java"/>
+    </antcall>    
   </target>
 
 

@@ -113,7 +113,7 @@ public class StructuredProxyPullConsumerImpl
                         }
 
                         ;
-        subsequentDestinations_ = JDK13CollectionsWrapper.singletonList( myAdmin_ );
+        subsequentDestinations_ = CollectionsWrapper.singletonList( myAdmin_ );
     }
 
     public void disconnect_structured_pull_consumer()

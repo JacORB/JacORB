@@ -175,7 +175,7 @@ public class ProxyPushSupplierImpl
     }
 
     public List getSubsequentFilterStages() {
-	return JDK13CollectionsWrapper.singletonList(this);
+	return CollectionsWrapper.singletonList(this);
     }
 
     public EventConsumer getEventConsumer() {

@@ -86,7 +86,7 @@ public class ProxyPushConsumerImpl
     {
         setProxyType( ProxyType.PUSH_ANY );
         connected = false;
-        subsequentDestinations_ = JDK13CollectionsWrapper.singletonList( myAdmin_ );
+        subsequentDestinations_ = CollectionsWrapper.singletonList( myAdmin_ );
     }
 
     public void disconnect_push_consumer()

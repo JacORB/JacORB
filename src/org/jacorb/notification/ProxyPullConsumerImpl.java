@@ -143,7 +143,7 @@ public class ProxyPullConsumerImpl
 	    };
 
         connected_ = false;
-        subsequentDestinations_ = JDK13CollectionsWrapper.singletonList( myAdmin_ );
+        subsequentDestinations_ = CollectionsWrapper.singletonList( myAdmin_ );
     }
 
     public void disconnect_pull_consumer()
