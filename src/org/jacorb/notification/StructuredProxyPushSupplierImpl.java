@@ -24,6 +24,7 @@ package org.jacorb.notification;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -33,11 +34,11 @@ import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
-import org.omg.CosNotifyComm.StructuredPushConsumer;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
+import org.omg.CosNotifyComm.StructuredPushConsumer;
+import org.omg.PortableServer.Servant;
 
 /**
  * StructuredProxyPushSupplierImpl.java
