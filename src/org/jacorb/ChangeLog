@@ -1,3 +1,47 @@
+2003-04-24  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/Transport.java (closeCompletely,
+	closeAllowReopen): Replace with a plain close(), to comply with
+	ETF.
+
+	* orb/connection/Client_TCP_IP_Transport.java: Add "copy"
+	constructor.
+	(closeAllowReopen): Remove.
+	(closeCompletely): Renamed to close().
+
+	* orb/connection/Server_TCP_IP_Transport.java (closeAllowReopen):
+	Remove; it wasn't allowed to be called anyway.
+	(closeCompletely): Renamed to close().
+
+	* orb/connection/TCP_IP_Transport.java: Add "copy" constructor.
+
+	* orb/connection/ClientGIOPConnection.java (closeAllowReopen):
+	Close the transport completely and create a new, unconnected one.
+
+	* orb/connection/ServerGIOPConnection.java (sendCloseConnection):
+	Call transport.close().
+
+	* orb/connection/GIOPConnection.java (closeCompletely): Call
+	transport.close().
+
+2003-04-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/TCP_IP_Transport.java (isSSL): New abstract
+	method, pushed down from TCP_IP_Transport.
+
+	* orb/connection/Transport.java (isSSL): Push down to TCP_IP_Transport.
+
+	* orb/connection/GIOPConnection.java (isSSL): If this is not a
+	TCP_IP_Transport, return false.
+
+2003-04-23  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ReplyReceiver.java: Fix jdk122 javac problem - modify
+	accessors (java bug 4116802)
+
+	* orb/connection/ServerGIOPConnection.java: Fix for jdk122
+	compilation (java 4280591 bug)
+
 2003-04-23  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/connection/GIOPConnection.java (inbuf, msg_header): New
