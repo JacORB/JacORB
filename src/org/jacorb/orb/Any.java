@@ -86,8 +86,15 @@ public final class Any
 
     public boolean equal(org.omg.CORBA.Any a)
     {   
+        if( a == null )
+        {
+            org.jacorb.util.Debug.output( 3, "Any.equal(), a == null"); 
+            return false;
+        }
+
         if( !typeCode.equal( a.type()) )
             return false;
+
         else
         {
             int kind = kind().value();
@@ -489,9 +496,20 @@ public final class Any
         typeCode = orb.create_interface_tc( typeId , name );
     }
 
-    public void insert_Object(org.omg.CORBA.Object o, org.omg.CORBA.TypeCode type)
+    public void insert_Object( org.omg.CORBA.Object o, 
+                               org.omg.CORBA.TypeCode type)
     { 
-        orb = ((org.omg.CORBA.portable.ObjectImpl)o)._orb();
+        if( type.kind().value() != TCKind._tk_objref )
+            tc_error("Illegal, non-object TypeCode!"); 
+
+        if( value == null )
+        {
+            orb = org.omg.CORBA.ORB.init();
+        }
+        else
+        {
+            orb = ((org.omg.CORBA.portable.ObjectImpl)o)._orb();
+        }
         value = o;
         typeCode = type;
     }
