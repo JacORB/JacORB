@@ -56,10 +56,16 @@ public class CDRInputStream
     private boolean closed = false;
 
     /**
-     * Maps indexes within the buffer (java.lang.Integer) to the values that 
-     * appear at these indexes.
+     * Maps indices within the buffer (java.lang.Integer) to the values that 
+     * appear at these indices.
      */
     private Hashtable valueMap = new Hashtable();
+
+    /**
+     * Maps indices within the buffer (java.lang.Integer) to repository ids
+     * that appear at these indices.
+     */
+    private Hashtable repIdMap = new Hashtable();
 
     public boolean littleEndian = false;
 	
@@ -1184,6 +1190,8 @@ public class CDRInputStream
         int tag = read_long();
         if (tag == 0x7fffff00)
             throw new org.omg.CORBA.MARSHAL ("missing value type information");
+        else if (tag == 0x7fffff02)
+            return read_typed_value();
         else
             return read_special_value (tag);
     }
@@ -1200,6 +1208,8 @@ public class CDRInputStream
             valueMap.put (new Integer (index), result);
             return result;
         } 
+        else if (tag == 0x7fffff02)
+            return read_typed_value();
         else
             return read_special_value (tag);
     }
@@ -1222,6 +1232,47 @@ public class CDRInputStream
         } 
         else 
             return read_special_value (tag);
+    }
+
+    private java.io.Serializable read_typed_value() 
+    {
+        int index = pos - 4;
+        String repId = read_repository_id();
+        org.omg.CORBA.portable.ValueFactory factory =
+            ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory (repId);
+        java.io.Serializable result = factory.read_value (this);
+        valueMap.put (new Integer (index), result);
+        return result;
+    }
+
+    /**
+     * Reads a RepositoryID from the buffer, either directly or via
+     * indirection.
+     */
+    private String read_repository_id() 
+    {
+        int tag = read_long();
+        if (tag == 0xffffffff)  
+        {
+            // indirection
+            int index = read_long();
+            index = index + pos - 4;
+            String repId = (String)repIdMap.get (new Integer(index));
+            if (repId == null)
+                throw 
+                 new org.omg.CORBA.MARSHAL ("stale RepositoryID indirection");
+            else
+                return repId;
+        }
+        else
+        {
+            // a new id
+            pos -= 4;
+            int index = pos;
+            String repId = read_string();
+            repIdMap.put (new Integer(index), repId);
+            return repId;
+        }
     }
 
     private java.io.Serializable read_special_value (int tag) {
