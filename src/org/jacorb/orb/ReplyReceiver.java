@@ -26,8 +26,8 @@ import org.jacorb.orb.connection.ReplyPlaceholder;
 import org.jacorb.util.*;
 
 import org.omg.GIOP.*;
+import org.omg.Messaging.ExceptionHolder;
 import org.omg.CORBA.SystemException;
-import org.omg.CORBA._AliasDefStub;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.InvokeHandler;
@@ -99,15 +99,53 @@ public class ReplyReceiver extends ReplyPlaceholder
 
     private void performCallback ( ReplyInputStream reply )
     {
-        // TODO: exception replies
+        // TODO: Call interceptors.
+        
+        ServantObject so = delegate.servant_preinvoke( replyHandler,
+                                                       operation,
+                                                       InvokeHandler.class );
+        try
+        {
+            switch ( reply.getStatus().value() )
+            {
+                case ReplyStatusType_1_2._NO_EXCEPTION:
+                {                                                    
+                    ((InvokeHandler)so.servant)._invoke( operation,
+                                                         reply,
+                                                         dummyResponseHandler );
+                    break;
+                }
+                case ReplyStatusType_1_2._USER_EXCEPTION:
+                case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
+                {
+                    ExceptionHolderImpl holder = 
+                        new ExceptionHolderImpl( reply );
 
-        ServantObject so = delegate.servant_preinvoke (replyHandler,
-                                                       operation, 
-                                                       InvokeHandler.class);
-        ( (InvokeHandler)so.servant )._invoke ( operation,
-                                                reply,
-                                                dummyResponseHandler ); 
-        delegate.servant_postinvoke( replyHandler, so );
+                    org.omg.CORBA_2_3.ORB orb = 
+                        ( org.omg.CORBA_2_3.ORB ) delegate.orb( null );
+                    orb.register_value_factory
+                        ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
+                          new ExceptionHolderFactory() );
+
+                    CDRInputStream input = 
+                        new CDRInputStream( orb, holder.marshal() );
+
+                    ((InvokeHandler)so.servant)._invoke( operation + "_excep",
+                                                         input,
+                                                         dummyResponseHandler );
+                    break;                
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            Debug.output( Debug.IMPORTANT, 
+                          "Exception during callback: " + e );
+        }
+        finally
+        {
+            delegate.servant_postinvoke( replyHandler, so );
+        }
     }
 
     /**
@@ -222,7 +260,7 @@ public class ReplyReceiver extends ReplyPlaceholder
 
         return new ApplicationException( id, reply );
     }
-
+    
     private static class DummyResponseHandler 
         implements org.omg.CORBA.portable.ResponseHandler
     {
@@ -234,6 +272,18 @@ public class ReplyReceiver extends ReplyPlaceholder
         public org.omg.CORBA.portable.OutputStream createExceptionReply() 
         {
             return null;
+        }
+    }
+    
+    private static class ExceptionHolderFactory
+        implements org.omg.CORBA.portable.ValueFactory
+    {
+        public java.io.Serializable read_value
+                        ( org.omg.CORBA_2_3.portable.InputStream is )
+        {
+            ExceptionHolder result = new ExceptionHolderImpl();
+            result._read( is );
+            return result;
         }
     }
 
