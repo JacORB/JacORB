@@ -1,0 +1,29 @@
+#include <orb.idl>
+
+module org
+{
+  module jacorb
+  {
+    module test
+    {
+      module bugs
+      {
+      	module bug228
+      	{
+			valuetype Sample
+			{
+				public long alpha;
+				public double beta;
+				public string gamma;
+				
+				factory init_1 ();
+				factory init_2 (in long alpha, 
+				                in double beta,
+				                in string gamma);      	
+			};
+      	};
+      };
+    };
+  };
+};
+      
