@@ -141,7 +141,7 @@ public class ClientServerSetup extends TestSetup {
         serverexec.append( ' ' );
         serverexec.append( getTestServerMain() );
         serverexec.append( ' ' );
-        serverexec.append( servantName + "\"");
+        serverexec.append( servantName );
 
         System.out.println( "Execing: " + serverexec.toString() );
 
