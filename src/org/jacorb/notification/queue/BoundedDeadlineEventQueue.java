@@ -21,13 +21,12 @@ package org.jacorb.notification.queue;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
 
 import EDU.oswego.cs.dl.util.concurrent.Heap;
 
@@ -38,9 +37,11 @@ import EDU.oswego.cs.dl.util.concurrent.Heap;
 
 public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
 {
-
     private Heap heap_;
+
     private long counter_ = 0;
+
+    ////////////////////////////////////////
 
     public BoundedDeadlineEventQueue( int maxSize,
                                       EventQueueOverflowStrategy overflowStrategy )
@@ -55,10 +56,13 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         heap_ = new Heap( maxSize, QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
     }
 
+    ////////////////////////////////////////
+
     protected Message getNextElement()
     {
         return getEarliestTimeout();
     }
+
 
     protected Message getOldestElement()
     {
@@ -80,6 +84,7 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
 
         return _oldest.event_;
     }
+
 
     protected Message getYoungestElement()
     {
@@ -104,10 +109,12 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         return _youngest.event_;
     }
 
+
     protected Message getEarliestTimeout()
     {
         return ( ( HeapEntry ) heap_.extract() ).event_;
     }
+
 
     protected Message getLeastPriority()
     {
@@ -132,9 +139,10 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         return _leastPriority.event_;
     }
 
+
     protected Message[] getElements( int max )
     {
-        List _events = new Vector();
+        List _events = new ArrayList();
         Object _element;
 
         while ( ( _element = heap_.extract() ) != null && ( _events.size() <= max ) )
@@ -146,15 +154,17 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
                _events.toArray( QueueUtil.NOTIFICATION_EVENT_ARRAY_TEMPLATE );
     }
 
+
     protected void addElement( Message event )
     {
         heap_.insert( new HeapEntry( event, counter_++ ) );
     }
 
+
     private List getAllElementsInternal()
     {
 
-        Vector _events = new Vector();
+        List _events = new ArrayList();
         Object _element;
 
         while ( ( _element = heap_.extract() ) != null )
@@ -165,6 +175,7 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         return _events;
 
     }
+
 
     protected Message[] getAllElements()
     {
@@ -185,10 +196,12 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         return _ret;
     }
 
+
     public boolean isEmpty()
     {
         return ( getSize() == 0 );
     }
+
 
     public int getSize()
     {
