@@ -36,7 +36,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 
 public class TaskExecutor implements Executor, Disposable
 {
-    private static TaskExecutor DIRECT_EXECUTOR = new TaskExecutor("Direct", 0);
+    private static final TaskExecutor DIRECT_EXECUTOR = new TaskExecutor("Direct", 0);
 
     //     private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 

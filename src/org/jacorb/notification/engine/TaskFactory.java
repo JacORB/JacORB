@@ -161,6 +161,7 @@ public class TaskFactory implements Disposable,Configurable
     {
         FilterSupplierAdminTask task = newFilterSupplierAdminTask();
 
+        // TODO this really should be an assertion
         if (t.getFilterStageToBeProcessed().length != 1) {
             throw new RuntimeException();
         }

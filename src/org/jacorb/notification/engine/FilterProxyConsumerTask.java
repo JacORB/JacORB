@@ -31,8 +31,8 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
 public class FilterProxyConsumerTask extends AbstractFilterTask
 {
-    private static int COUNT = 0;
-    private int id_ = ++COUNT;
+    private static int sCount = 0;
+    private int id_ = ++sCount;
 
     private boolean orSemantic_ = false;
 

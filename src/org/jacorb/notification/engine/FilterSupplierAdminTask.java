@@ -29,9 +29,9 @@ package org.jacorb.notification.engine;
 
 public class FilterSupplierAdminTask extends AbstractFilterTask
 {
-    private static int COUNT = 0;
+    private static int sCount = 0;
 
-    private int id_ = ++COUNT;
+    private int id_ = ++sCount;
 
     private boolean skip_ = false;
 

@@ -37,9 +37,9 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
     private static final FilterStage[] NO_CURRENT_FILTER_STAGE =
         new FilterStage[ 0 ];
 
-    private static int COUNT = 0;
+    private static int sCount = 0;
 
-    private int id_ = ++COUNT;
+    private int id_ = ++sCount;
 
     /**
      * this List contains FilterStages (ProxySuppliers) which have a

@@ -81,8 +81,8 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
     AlternateMessageMap changedMessages_ = new AlternateMessageMap();
 
-    private static int COUNT = 0;
-    private int id_ = ++COUNT;
+    private static int sCount = 0;
+    private int id_ = ++sCount;
 
     ////////////////////////////////////////
 
