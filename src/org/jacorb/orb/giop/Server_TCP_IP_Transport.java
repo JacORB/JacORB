@@ -35,13 +35,10 @@ import org.jacorb.util.Debug;
  * @version $Id$
  */
 
-public class Server_TCP_IP_Transport 
-    extends TCP_IP_Transport 
+public class Server_TCP_IP_Transport
+    extends TCP_IP_Transport
 {
-    private Socket socket = null;
-    private boolean is_ssl = false;
-
-    private String connection_info = null;
+    private boolean is_ssl;
 
     public Server_TCP_IP_Transport( Socket socket,
                                     boolean is_ssl )
@@ -55,7 +52,7 @@ public class Server_TCP_IP_Transport
 
         in_stream = socket.getInputStream();
         out_stream = new BufferedOutputStream(socket.getOutputStream());
-        
+
         connection_info = socket.getInetAddress().getHostName() +
             ':' + socket.getPort();
 
@@ -77,8 +74,22 @@ public class Server_TCP_IP_Transport
         //reestablished.
         if( socket != null )
         {
+            try
+            {
+                java.lang.reflect.Method method
+                = (socket.getClass().getMethod ("shutdownOutput", new Class [0]));
+                method.invoke (socket, new java.lang.Object[0]);
+
+                method = (socket.getClass().getMethod ("shutdownInput", new Class [0]));
+                method.invoke (socket, new java.lang.Object[0]);
+            }
+            catch (Throwable ex)
+            {
+                // If Socket does not support shutdownOutput method (i.e JDK < 1.3)
+            }
+
             socket.close();
-                
+
             //this will cause exceptions when trying to read from
             //the streams. Better than "nulling" them.
             if( in_stream != null )
@@ -90,10 +101,6 @@ public class Server_TCP_IP_Transport
             {
                 out_stream.close();
             }
-
-            //not jdk1.2
-            //socket.shutdownInput();
-            //socket.shutdownOutput();
         }
 
         Debug.output( 2, "Closed connection (server-side) " +
@@ -101,7 +108,7 @@ public class Server_TCP_IP_Transport
 
         throw new CloseConnectionException();
     }
-    
+
     protected void waitUntilConnected()
         throws IOException
     {
@@ -118,5 +125,3 @@ public class Server_TCP_IP_Transport
         return is_ssl;
     }
 }// Server_TCP_IP_Transport
-
-
