@@ -320,7 +320,6 @@ public class SASClientInterceptor
             logger.warn("Error parsing ATLAS from IOR: " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing ATLAS from IOR: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
-		logger.debug("AtlasProfile = " + atlasProfile);
         if (atlasProfile == null) return new AuthorizationElement[0];
         String cacheID = new String(atlasProfile.the_cache_id);
         String locator = atlasProfile.the_locator.the_url();
