@@ -33,7 +33,9 @@ public class RepositoryID
 
     public static String className ( String repId )
     {
-        if (repId.startsWith ("IDL:"))
+        if (repId.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+	    return "java.lang.String";
+        else if (repId.startsWith ("IDL:"))
         {
             // cut "IDL:" and version
             // and swap "org.omg" if necessary
@@ -114,7 +116,7 @@ public class RepositoryID
             else
                 return "IDL:" + scopesToIR(className) + ":1.0" ;
         }
-        else
+	else    
             return javax.rmi.CORBA.Util.createValueHandler()
                      .getRMIRepositoryID (c);
     }
@@ -155,7 +157,10 @@ public class RepositoryID
         {
             try 
             {
-                return repId (Class.forName (className));
+ 	        //return repId (Class.forName (className));
+ 	        ClassLoader contextClassLoader = 
+ 		    Thread.currentThread().getContextClassLoader();
+ 	        return repId (contextClassLoader.loadClass (className));
             }
             catch (ClassNotFoundException e)
             {
