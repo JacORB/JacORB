@@ -166,7 +166,13 @@ made, and an {\tt org.omg.CORBA.TIMEOUT} is thrown to the client.
 that, the request is discarded and an {\tt org.omg.CORBA.TIMEOUT}
 thrown to the client.  (JacORB does not currently cancel the
 outstanding request, it simply discards the reply, should one arrive
-after the timeout has elapsed.)
+after the timeout has elapsed.)\footnote{Note that if there is no
+  connection to the server yet, other timeouts are applied first,
+configured by the properties {\tt
+  jacorb.connection.client.connect\_timeout} and {\tt
+  jacorb.retries}.  If connection establishment fails, control does
+not return to the client until these timeouts have expired, even if
+this is later than \emph{Reply End Time}.}
 
 \item On the server side (before demarshaling), the ORB checks whether
 the \emph{Request End Time} has already elapsed.  If so, the request
@@ -206,6 +212,7 @@ that, the reply is delivered back to the client.
 The bottom line of this is that for a simple, per-invocation timeout,
 you should specify a \mbox{\emph{RelativeRoundtripTimeoutPolicy}}.
 
+\clearpage{}
 \subsection*{Programming}
 
 In CORBA, points of time are specified to an accuracy of 100~ns, using
@@ -259,6 +266,8 @@ catch (PolicyError e)
     ...
 }
 \end{verbatim}
+
+\clearpage{}
 
 Using the constructors of JacORB's implementations of policy values,
 this becomes less verbose:
