@@ -1,7 +1,10 @@
 package org.jacorb.orb;
 
+import java.util.*;
+
 import org.omg.ETF.*;
 import org.omg.IOP.*;
+import org.omg.SSLIOP.*;
 
 /**
  * @author Andre Spiegel
@@ -38,6 +41,14 @@ public class InternetIOPProfile extends _ProfileLocalBase
                                          : new TaggedComponentList();
     }
 
+    public InternetIOPProfile (IIOPAddress address, byte[] objectKey)
+    {
+        this.version        = new org.omg.GIOP.Version ((byte)1, (byte)2);
+        this.primaryAddress = address;
+        this.objectKey      = objectKey;
+        this.components     = new TaggedComponentList();
+    }
+
     public void marshal (TaggedProfileHolder tagged_profile,
                          TaggedComponentSeqHolder components)
     {
@@ -46,7 +57,7 @@ public class InternetIOPProfile extends _ProfileLocalBase
 
     public int hash()
     {
-        return 0;  // allowable implementation, no hashing supported
+        return hashCode();
     }
 
     public Profile copy()
@@ -56,7 +67,14 @@ public class InternetIOPProfile extends _ProfileLocalBase
 
     public boolean is_match(Profile prof)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        if (prof instanceof InternetIOPProfile)
+        {
+            InternetIOPProfile other = (InternetIOPProfile)prof;
+            return this.primaryAddress.equals (other.primaryAddress)
+               &&  this.getAlternateAddresses().equals(other.getAlternateAddresses());
+        }
+        else
+            return false;
     }
 
     public org.omg.GIOP.Version version()
@@ -69,9 +87,21 @@ public class InternetIOPProfile extends _ProfileLocalBase
         return primaryAddress;
     }
 
+	public List getAlternateAddresses()
+	{
+		return components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
+		                                IIOPAddress.class);
+	}
+
     public byte[] getObjectKey()
     {
         return objectKey;
+    }
+
+    public SSL getSSL()
+    {
+        return (SSL)components.getComponent( TAG_SSL_SEC_TRANS.value,
+                                             SSLHelper.class );
     }
 
     public TaggedComponentList getComponents()
@@ -89,4 +119,18 @@ public class InternetIOPProfile extends _ProfileLocalBase
         return new TaggedProfile (TAG_INTERNET_IOP.value,
                                   data);
     }
+    
+    public boolean equals (Object other)
+    {
+        if (other instanceof org.omg.ETF.Profile)
+            return is_match ((org.omg.ETF.Profile)other);
+        else
+            return false;
+    }
+    
+    public int hashCode()
+    {
+        return primaryAddress.hashCode();
+    }
+    
 }
