@@ -284,7 +284,6 @@ parser code
         catch( Exception e )
         {
             System.err.println( "Error: " + e.getMessage());
-            e.printStackTrace ();
             org.jacorb.idl.Environment.output( 2, e );
             usage(argv, e.getMessage());
         }
