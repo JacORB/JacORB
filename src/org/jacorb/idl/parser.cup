@@ -886,15 +886,15 @@ scopename ::=
 value ::=
           value_dcl:vd
                {: 
-                        RESULT.value_decl = vd;
+                        RESULT.setValueDeclaration( vd );
                 :}
         | value_abs_dcl:vad
                {: 
-                        RESULT.value_decl = vad;
+                        RESULT.setValueDeclaration( vad );
                 :}
         | value_box_dcl:vbx
                {: 
-                        RESULT.value_decl = vbx;
+                        RESULT.setValueDeclaration( vbx );
                 :}
         | ABSTRACT VALUETYPE ID:i 
         | VALUETYPE ID:i 
