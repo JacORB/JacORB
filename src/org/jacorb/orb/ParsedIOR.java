@@ -360,109 +360,6 @@ public class ParsedIOR
     }
 
     /**
-     * Init must be deferred from the constructor because it must be
-     * possible to have IORs without an effective profile. The
-     * exception may only be thrown on the first invocation of that
-     * reference.
-     */
-
-    public void init()
-    {
-        if( isNull() )
-            throw new org.omg.CORBA.INV_OBJREF( "Trying to use NULL reference" );
-
-        if (effectiveProfile == null)
-        {
-            throw new org.omg.CORBA.INV_OBJREF( "No TAG_INTERNET_IOP found in object_reference" );
-        }
-
-        int port = effectiveProfile.getAddress().getPort();
-
-        CompoundSecMechList sas
-            = (CompoundSecMechList)effectiveProfile.getComponent
-                                           (TAG_CSI_SEC_MECH_LIST.value,
-                                            CompoundSecMechListHelper.class);
-        if (sas != null)
-            use_sas = true;
-
-        SSL ssl = (SSL)effectiveProfile.getComponent
-                                           (TAG_SSL_SEC_TRANS.value,
-                                            SSLHelper.class);
-        if( sas != null &&
-            ssl != null )
-        {
-            ssl.target_requires |= sas.mechanism_list[0].target_requires;
-        }
-
-        // SSL usage is decided the following way: At least one side
-        // must require it. Therefore, we first check if it is
-        // supported by both sides, and then if it is required by at
-        // least one side. The distinction between
-        // EstablishTrustInTarget and EstablishTrustInClient is
-        // handled at the socket factory layer.
-
-        //the following is used as a bit mask to check, if any of
-        //these options are set
-        int minimum_options =
-            Integrity.value |
-            Confidentiality.value |
-            DetectReplay.value |
-            DetectMisordering.value |
-            EstablishTrustInTarget.value |
-            EstablishTrustInClient.value;
-
-        int client_required = 0;
-        int client_supported = 0;
-
-        //only read in the properties if ssl is really supported.
-        if(  Environment.isPropertyOn( "jacorb.security.support_ssl" ))
-        {
-            client_required =
-                Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 );
-
-            client_supported =
-                Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 );
-        }
-
-        if( ssl != null && // server knows about ssl...
-            ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
-            Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
-            ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
-            ( ((ssl.target_requires & minimum_options) != 0) || //server ...
-              ((client_required & minimum_options) != 0))) //...or client require it
-        {
-            Debug.output( 1, "Selecting SSL for connection");
-            use_ssl = true;
-            port = ssl.port;
-        }
-        //prevent client policy violation, i.e. opening plain TCP
-        //connections when SSL is required
-        else if( ssl == null && // server doesn't know ssl...
-                 Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
-                 ((client_required & minimum_options) != 0)) //...and requires it
-        {
-            throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires SSL, but server doesn't support it" );
-        }
-        else
-        {
-            use_ssl = false;
-        }
-
-        iiopAddress = new IIOPAddress (effectiveProfile.getAddress().getHost(),
-                                       port);
-    }
-
-    public boolean useSSL()
-    {
-        return use_ssl;
-    }
-
-    public boolean useSAS()
-    {
-        return use_sas;
-    }
-
-    /**
      * When multiple internet IOP tags are present, they will probably
      * have different versions, we will use the highest version
      * between 0 and 1.
@@ -695,11 +592,6 @@ public class ParsedIOR
     public Profile getEffectiveProfile()
     {
         return effectiveProfile;
-    }
-
-    public IIOPAddress getIIOPAddress()
-    {
-        return iiopAddress;
     }
 
     public String getTypeId()
