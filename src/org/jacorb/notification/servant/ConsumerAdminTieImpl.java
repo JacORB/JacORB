@@ -392,6 +392,11 @@ public class ConsumerAdminTieImpl
     }
 
 
+    public void actionProxyCreationRequest( ProxyEvent event)
+    {
+    }
+
+
     public void actionProxyDisposed( ProxyEvent event )
     {
         listManager_.actionSourceModified();

@@ -35,10 +35,10 @@ import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.jacorb.notification.util.AdminPropertySet;
+import org.jacorb.notification.util.QoSPropertySet;
 import org.jacorb.util.Debug;
 
 import org.omg.CORBA.OBJECT_NOT_EXIST;
@@ -62,8 +62,6 @@ import org.omg.PortableServer.Servant;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.util.QoSPropertySet;
-import org.jacorb.notification.util.AdminPropertySet;
 
 /**
  * Abstract Baseclass for Adminobjects.
@@ -86,12 +84,12 @@ public abstract class AbstractAdmin
 
     ////////////////////////////////////////
 
-    protected Logger logger_ =
-        Debug.getNamedLogger( getClass().getName() );
-
     protected OfferManager offerManager_;
 
     protected SubscriptionManager subscriptionManager_;
+
+    protected final Logger logger_ =
+        Debug.getNamedLogger( getClass().getName() );
 
     protected final Object modifyProxiesLock_ = new Object();
 
@@ -113,17 +111,13 @@ public abstract class AbstractAdmin
 
     private FilterManager filterManager_;
 
-    private SynchronizedInt proxyIdPool_ = new SynchronizedInt(0);
+    private final SynchronizedInt proxyIdPool_ = new SynchronizedInt(0);
 
-    private QoSPropertySet qosSettings_ = new QoSPropertySet(QoSPropertySet.ADMIN_QOS);
+    private final QoSPropertySet qosSettings_ = new QoSPropertySet(QoSPropertySet.ADMIN_QOS);
 
-    private AdminPropertySet adminSettings_ = new AdminPropertySet();
+    private final SynchronizedBoolean disposed_ = new SynchronizedBoolean(false);
 
-    private SynchronizedBoolean disposed_ = new SynchronizedBoolean(false);
-
-    private List proxyCreationRequestEventListeners_ = new ArrayList();
-
-    private List proxyEventListener_ = new ArrayList();
+    private final List proxyEventListener_ = new ArrayList();
 
     /**
      * hook that is run during dispose
@@ -131,6 +125,9 @@ public abstract class AbstractAdmin
     private Runnable disposeHook_;
 
     ////////////////////////////////////////
+
+    protected AbstractAdmin() {
+    }
 
     protected AbstractAdmin(ChannelContext channelContext)
     {
@@ -407,7 +404,7 @@ public abstract class AbstractAdmin
     }
 
 
-    abstract Servant getServant();
+    public abstract Servant getServant();
 
 
     public Integer getID()
@@ -422,34 +419,18 @@ public abstract class AbstractAdmin
     }
 
 
-    public void addProxyCreationEventListener( ProxyCreationRequestEventListener listener )
-    {
-        synchronized(proxyCreationRequestEventListeners_) {
-            proxyCreationRequestEventListeners_.add( listener );
-        }
-    }
-
-
-    public void removeProxyCreationEventListener( ProxyCreationRequestEventListener listener )
-    {
-        synchronized(proxyCreationRequestEventListeners_) {
-            proxyCreationRequestEventListeners_.remove( listener );
-        }
-    }
-
-
     protected void fireCreateProxyRequestEvent() throws AdminLimitExceeded
     {
-        synchronized( proxyCreationRequestEventListeners_ ) {
-            ProxyCreationRequestEvent _event =
-                new ProxyCreationRequestEvent( this );
+        synchronized( proxyEventListener_ ) {
+            ProxyEvent _event =
+                new ProxyEvent( this );
 
-            Iterator _i = proxyCreationRequestEventListeners_.iterator();
+            Iterator _i = proxyEventListener_.iterator();
 
             while ( _i.hasNext() )
                 {
-                    ProxyCreationRequestEventListener _listener;
-                    _listener = ( ProxyCreationRequestEventListener ) _i.next();
+                    ProxyEventListener _listener;
+                    _listener = ( ProxyEventListener ) _i.next();
                     _listener.actionProxyCreationRequest( _event );
                 }
         }
@@ -649,10 +630,10 @@ public abstract class AbstractAdmin
     }
 
 
-    public void removeProxyEventListener( ProxyEventListener l )
+    public void removeProxyEventListener( ProxyEventListener listener )
     {
         synchronized(proxyEventListener_) {
-            proxyEventListener_.remove( l );
+            proxyEventListener_.remove( listener );
         }
     }
 
@@ -699,6 +680,7 @@ public abstract class AbstractAdmin
                 public void run() {
                     synchronized(lock) {
                         map.remove(proxy.getID());
+
                         fireProxyRemoved(proxy);
                     }
                 }
