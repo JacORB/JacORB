@@ -66,36 +66,47 @@ public class ParsedIOR
      * factory method
      */
 
-    public static IOR createIOR( String typeId, 
-                                 ProfileBody_1_0 profileBody )
+    public static IOR createObjectIOR( String host,
+                                       short port,
+                                       byte[] object_key,
+                                       int giop_minor )
     {
 	IOR ior = new IOR();
-	ior.type_id = typeId;
-	ior.profiles = new TaggedProfile[2];
+	ior.type_id = "IDL:org.omg/CORBA/Object:1.0";//"org.omg/CORBA/Object";
+	ior.profiles = new TaggedProfile[1];
 
 	ior.profiles[0] = new TaggedProfile();
 	ior.profiles[0].tag = 0; // IIOP
 
-	CDROutputStream out = new CDROutputStream();
-        out.beginEncapsulatedArray();
-	ProfileBody_1_0Helper.write( out, profileBody );
-	ior.profiles[0].profile_data = out.getBufferCopy();
+        if( giop_minor == 0 )
+        {
+            ProfileBody_1_0 pb1_0 = 
+                new ProfileBody_1_0( new org.omg.IIOP.Version( (byte) 1, 
+                                                               (byte) 0 ), 
+                                     host,
+                                     port,
+                                     object_key );    
+            
+            CDROutputStream out = new CDROutputStream();
+            out.beginEncapsulatedArray();
+            ProfileBody_1_0Helper.write( out, pb1_0 );
+            ior.profiles[0].profile_data = out.getBufferCopy();
+        }
+        else //GIOP 1.1 or 1.2
+        {
+            ProfileBody_1_1 pb1_1 = 
+                new ProfileBody_1_1( new org.omg.IIOP.Version( (byte) 1, 
+                                                               (byte) giop_minor ),
+                                     host,
+                                     port,
+                                     object_key,
+                                     new TaggedComponent[0] );
 
-	ior.profiles[1] = new TaggedProfile();
-	ior.profiles[1].tag = 0; // IIOP
-
-        ProfileBody_1_1 pb1_1 = 
-            new ProfileBody_1_1( new org.omg.IIOP.Version( (byte) 1, 
-                                                           (byte) 2 ),
-                                 profileBody.host,
-                                 profileBody.port,
-                                 profileBody.object_key,
-                                 new TaggedComponent[0] );
-
-	out = new CDROutputStream();
-        out.beginEncapsulatedArray();
-	ProfileBody_1_1Helper.write( out, pb1_1 );
-	ior.profiles[1].profile_data = out.getBufferCopy();
+            CDROutputStream out = new CDROutputStream();
+            out.beginEncapsulatedArray();
+            ProfileBody_1_1Helper.write( out, pb1_1 );
+            ior.profiles[0].profile_data = out.getBufferCopy();
+        }
 
 	return ior;
     }
@@ -465,7 +476,11 @@ public class ParsedIOR
                                      (short) address.port,
                                      corbaLoc.getKey());
 
-	    ior = createIOR( "IDL:org.omg/CORBA/Object:1.0", profile_body);
+	    ior = createObjectIOR( address.host,
+                                   (short) address.port,
+                                   corbaLoc.getKey(),
+                                   address.minor );
+            //"IDL:org.omg/CORBA/Object:1.0", profile_body);
 	}
 	decode( ior );
     }
