@@ -12,34 +12,34 @@ import org.omg.CosNaming.*;
 
 public class ChannelServer
 {
-    static public void main( String[] argv ) 
+  static public void main( String[] argv )
+  {
+    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(argv, null);
+    try
     {
-	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(argv, null);
-	try 
-	{           
-	    org.omg.PortableServer.POA poa = 
-		org.omg.PortableServer.POAHelper.narrow(
-                         orb.resolve_initial_references("RootPOA"));
+      org.omg.PortableServer.POA poa =
+          org.omg.PortableServer.POAHelper.narrow(
+              orb.resolve_initial_references("RootPOA"));
 
-	    EventChannelImpl channel = new EventChannelImpl(orb,poa);
+      NamingContextExt nc =
+          NamingContextExtHelper.narrow(
+              orb.resolve_initial_references("NameService"));
 
-	    poa.the_POAManager().activate();
+      EventChannelImpl channel = new EventChannelImpl(orb,poa);
 
-	    org.omg.CORBA.Object o = poa.servant_to_reference(channel);
+      poa.the_POAManager().activate();
 
-	    NamingContextExt nc = 
-                NamingContextExtHelper.narrow(
-                      orb.resolve_initial_references("NameService"));
-	
-	    nc.bind(nc.to_name("eventchannel.example"), o);
-	    orb.run();
-	} 
-	catch ( Exception e) 
-	{
-	    e.printStackTrace();
-	}
+      org.omg.CORBA.Object o = poa.servant_to_reference(channel);
 
+      nc.bind(nc.to_name("eventchannel.example"), o);
+
+      orb.run();
     }
+    catch( Exception e)
+    {
+      e.printStackTrace();
+    }
+  }
 }
 
 

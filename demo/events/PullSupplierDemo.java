@@ -13,99 +13,96 @@ import org.omg.CosEventComm.*;
 import org.omg.CORBA.Any;
 
 
-class PullSupplierDemo
-    extends Thread
-    implements PullSupplierOperations
+class PullSupplierDemo extends Thread implements PullSupplierOperations
 {
-    Any event = null;
+  Any event = null;
 
-    public PullSupplierDemo()
+  public PullSupplierDemo()
+  {
+    start();
+  }
+
+  public void disconnect_pull_supplier()
+  {
+    System.out.println("Bye.");
+  }
+
+  static public void main (String argv[]) 
+  {
+    org.omg.CosEventChannelAdmin.EventChannel e = null;
+    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(argv, null);
+
+    try
     {
-	start();
+      NamingContextExt nc = 
+              NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService")); 
+      e = EventChannelHelper.narrow(nc.resolve(nc.to_name("eventchannel.example")));
+    }
+    catch( Exception ex )
+    {
+      ex.printStackTrace();
     }
 
-    public void disconnect_pull_supplier()
+    SupplierAdmin supplierAdmin = e.for_suppliers();
+    ProxyPullConsumer proxyPullConsumer = 
+            supplierAdmin.obtain_pull_consumer();
+
+    try
     {
-	System.out.println("Bye.");
-    }
+      org.omg.PortableServer.POA poa = 
+              org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-    static public void main (String argv[]) 
+      PullSupplierPOATie pt = new PullSupplierPOATie( new PullSupplierDemo());
+      pt._this_object(orb);
+      org.omg.CORBA.Object o = poa.servant_to_reference( pt );
+
+      poa.the_POAManager().activate();
+
+      proxyPullConsumer.connect_pull_supplier( PullSupplierHelper.narrow(o) );
+    }
+    catch( Exception ex )
     {
-	org.omg.CosEventChannelAdmin.EventChannel	e = null;
-	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(argv, null);
-
-	try 
-	{
-	    NamingContextExt nc = 
-		NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));	
-	    e = EventChannelHelper.narrow(nc.resolve(nc.to_name("eventchannel.example")));
-	} 
-	catch (Exception ex) 
-	{ 
-	    ex.printStackTrace();
-	}			
-
-	SupplierAdmin supplierAdmin = e.for_suppliers();
-	ProxyPullConsumer proxyPullConsumer = 
-	    supplierAdmin.obtain_pull_consumer();
-
-	try
-	{
-	    org.omg.PortableServer.POA poa = 
-		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
-	    PullSupplierPOATie pt = new PullSupplierPOATie( new PullSupplierDemo());
-	    pt._this_object(orb);
-	    org.omg.CORBA.Object o = poa.servant_to_reference( pt );
-
-	    poa.the_POAManager().activate();
-
-	    proxyPullConsumer.connect_pull_supplier( PullSupplierHelper.narrow(o) );
-	} 
-	catch ( Exception ex )
-	{
-	    ex.printStackTrace();
-	}
+      ex.printStackTrace();
     }
+  }
 
-    public Any pull() 
-	throws Disconnected
+  public Any pull() throws Disconnected
+  {
+    System.out.println("I m being pulled.");
+    event = org.omg.CORBA.ORB.init().create_any();
+    event.insert_string("Pull.");
+    return event;
+  }
+
+  public void run()
+  {
+    // do something
+    while( true )
     {
-	System.out.println("I m being pulled.");
-	event = org.omg.CORBA.ORB.init().create_any();
-	event.insert_string("Pull.");
-	return event;
+      try
+      {
+        synchronized( this )
+        {
+          wait(); 
+        }
+      }
+      catch( Exception e )
+      {
+        disconnect_pull_supplier();
+      }
     }
-
-    public void run()
-    {
-	// do something
-	while( true )
-	{
-	    try 
-	    {  
-		synchronized( this )
-		{
-		    wait(); 
-		}
-	    } 
-	    catch ( Exception e )
-	    {
-		disconnect_pull_supplier();
-	    }
-	}
-    }
+  }
 
 
-    public Any try_pull( org.omg.CORBA.BooleanHolder has_event) 
-	throws Disconnected 
-    {
-	System.out.println("I m being try_pulled.");
-	event = org.omg.CORBA.ORB.init().create_any();
-	event.insert_string("TryPull.");
-	has_event.value = true;
-	return event;
-    }
+  public Any try_pull( org.omg.CORBA.BooleanHolder has_event) 
+      throws Disconnected 
+  {
+    System.out.println("I m being try_pulled.");
+    event = org.omg.CORBA.ORB.init().create_any();
+    event.insert_string("TryPull.");
+    has_event.value = true;
+    return event;
+  }
 }
 
 
