@@ -27,7 +27,7 @@ import java_cup.runtime.char_token;
 import java_cup.runtime.float_token;
 
 /** 
- *  This  class implements  a small scanner  (aka lexical  analyzer or
+ *  This  class implements  a  scanner  (aka lexical  analyzer or
  *  lexer) for  IDL. The scanner reads characters  from a global input
  *  stream  and returns integers corresponding to  the terminal number
  *  of the next token.  Once the end of input is reached the EOF token
@@ -116,7 +116,7 @@ public class lexer
     protected static boolean in_string = false;
 
     /** Count of total errors detected so far. */
-    public static int error_count = 0;
+    static int error_count = 0;
 
     /** Count of warnings issued so far */
     public static int warning_count = 0;
@@ -152,7 +152,7 @@ public class lexer
         throws java.io.IOException
     {
         /* set up standard symbols */
-        defines.put("JACORB_IDL_1_3","");
+        defines.put("JACORB_IDL_1_4","");
 
         /* set up the keyword table */
 
@@ -421,8 +421,9 @@ public class lexer
 
     public static void emit_error(String message)
     {
-        System.err.println( GlobalInputStream.currentFile().getAbsolutePath() + 
-                            ", line: "+current_line +
+        System.err.println( "Error in file: " + 
+                            GlobalInputStream.currentFile().getAbsolutePath() + 
+                            ",\nline: "+current_line +
                             "(" +current_position + "): " + message);
 
         System.err.println("\t" + line.toString() );
@@ -440,8 +441,8 @@ public class lexer
             System.err.println( "Error in " + t.fileName + ", line:" + t.line_no + 
                                 "(" + t.char_pos + "): " + message );
             System.err.println("\t" + t.line_val );
+            error_count++;
         }
-        error_count++;
     }
 
 
@@ -460,7 +461,7 @@ public class lexer
     }
 
 
-    public static void emit_warn(String message, str_token t)
+    public static void emit_warn( String message, str_token t)
     {
         if( t == null )
         {
@@ -471,8 +472,8 @@ public class lexer
             System.err.println( "Warning at " + t.fileName + ", line:" + t.line_no + "(" + 
                                 t.char_pos + "): " + message );
             System.err.println("\t" + t.line_val );
+            warning_count++;
         }
-        error_count++;
     }
 
 
@@ -868,11 +869,14 @@ public class lexer
 
 
     /** 
-     *  Process an identifier.  Identifiers begin with a letter, underscore,
-     *  or dollar sign, which is followed by zero or more letters, numbers,
-     *  underscores or dollar signs.  This routine returns a str_token suitable
-     *  for return by the scanner or null, if the string that was read expanded to
-     *  a symbol that was #defined. In this case, the symbol is expanded in place
+     *  Process  an identifier.   
+     *  <P>
+     *  Identifiers  begin with a letter, underscore,  or dollar sign,
+     *  which   is  followed  by  zero  or   more  letters,  numbers,
+     *  underscores or dollar signs.  This routine returns a str_token
+     *  suitable for return by the scanner or null, if the string that
+     *  was read expanded to a symbol that was #defined. In this case,
+     *  the symbol is expanded in place 
      */
 
     protected static token do_symbol() 
