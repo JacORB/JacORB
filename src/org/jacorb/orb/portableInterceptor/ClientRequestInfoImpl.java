@@ -62,6 +62,58 @@ public class ClientRequestInfoImpl
         super();
     }
 
+    public ClientRequestInfoImpl
+                      ( org.jacorb.orb.ORB orb,
+                        org.jacorb.orb.connection.RequestOutputStream ros,
+                        org.omg.CORBA.Object self,
+                        org.jacorb.orb.Delegate delegate,
+                        org.jacorb.orb.ParsedIOR piorOriginal,
+                        org.jacorb.orb.connection.ClientConnection connection )
+    {
+         this.orb = orb;
+         this.operation = ros.operation();
+         this.response_expected = ros.response_expected();
+         this.received_exception = orb.create_any();
+
+         if ( ros.getRequest() != null )
+             this.setRequest( ros.getRequest() );
+
+         this.effective_target = self;
+
+         org.jacorb.orb.ParsedIOR pior = delegate.getParsedIOR();
+
+         if ( piorOriginal != null )
+             this.target = orb._getObject( piorOriginal );
+         else
+             this.target = self;
+
+         this.effective_profile = pior.getEffectiveProfile();
+
+         // bnv: simply call pior.getProfileBody()
+         org.omg.IIOP.ProfileBody_1_1 _body = pior.getProfileBody();
+
+         if ( _body != null )
+             this.effective_components = _body.components;
+
+         if ( this.effective_components == null )
+         {
+             this.effective_components = new org.omg.IOP.TaggedComponent[ 0 ];
+         }
+
+         this.delegate = delegate;
+
+         this.request_id = ros.requestId();
+         InterceptorManager manager = orb.getInterceptorManager();
+
+         this.current = manager.getCurrent();
+
+         //allow interceptors access to request output stream
+         this.request_os = ros;
+
+         //allow (BiDir) interceptor to inspect the connection
+         this.connection = connection;  
+    }
+
     public void setRequest(org.jacorb.orb.dii.Request request)
     {    
         arguments = new org.omg.Dynamic.Parameter[request.arguments.count()];
