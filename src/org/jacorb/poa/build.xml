@@ -25,7 +25,6 @@
    </target>
 
    <target name="gui" if="swing.present">
-	   <echo message="util"/>
 	<javac srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/poa/gui/**.java,org/jacorb/poa/gui/**/**.java"

@@ -42,7 +42,6 @@
    </target>
 
    <target name="check1" if="iaik.present">
-        <echo message="generating util"/>
 	<javac srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/security/util/*.java"

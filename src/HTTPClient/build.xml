@@ -14,7 +14,6 @@
    </target>
 
    <target name="all" depends="init">
-   <echo message="src ${src}"/>
 	<javac srcdir="${src}"
                destdir="${classdir}"
 	       includes="HTTPClient/*.java,HTTPClient/**/*.java"
