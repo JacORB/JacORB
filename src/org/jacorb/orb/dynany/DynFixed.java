@@ -154,12 +154,13 @@ public final class DynFixed
          {
             throw new InvalidValue();
          }
+         anyRepresentation.insert_fixed( fixed_value, tc );
       }
       catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
       {
+          bk.printStackTrace();
          // should never happen
       }
-      anyRepresentation.insert_fixed( fixed_value );
       return( ! truncate );
    }
    
