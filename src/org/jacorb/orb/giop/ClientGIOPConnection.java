@@ -55,18 +55,9 @@ public class ClientGIOPConnection
         }
     }
 
-    /**
-     * We're server side and can't reopen, therefore close completely
-     * if stream closed.
-     */
     public void streamClosed()
     {
-        /**
-         * We're server side and can't reopen, therefore close completely
-         * if stream closed.
-         */
         closeAllowReopen();
-
         super.streamClosed();
     }
 
@@ -74,11 +65,13 @@ public class ClientGIOPConnection
     {
         try
         {
-            synchronized (connect_sync )
+            synchronized (connect_sync)
             {
                 getWriteLock();
                 transport.close();
-                transport = new ClientIIOPConnection ((ClientIIOPConnection)transport);
+                // We expect that the same transport can be reconnected
+                // after a close, something that the ETF draft isn't
+                // particularly clear about.
             }
         }
         finally
