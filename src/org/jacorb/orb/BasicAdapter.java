@@ -454,6 +454,7 @@ public class BasicAdapter
 
                     if( timeout > 0 )
                     {
+                        Debug.output( 3, "Socket timeout: " + timeout );
                         socket.setSoTimeout(timeout);
                     }
 

@@ -61,7 +61,6 @@ public class Server_TCP_IP_Transport
 
         Debug.output( 2, "Opened new server-side TCP/IP transport to " +
                       connection_info );
-
     }
 
     public Socket getSocket()
@@ -72,6 +71,8 @@ public class Server_TCP_IP_Transport
     protected void close( int reason )
         throws IOException
     {
+        Debug.output( 2, "Closing TCP connection, reason " + reason );
+
         //ignore the reasons since this transport can never be
         //reestablished.
         if( socket != null )
@@ -95,7 +96,7 @@ public class Server_TCP_IP_Transport
             //socket.shutdownOutput();
         }
 
-        Debug.output( 2, "Closed server-side TCP/IP transport to " +
+        Debug.output( 2, "Closed connection (server-side) " +
                       connection_info );
 
         throw new CloseConnectionException();

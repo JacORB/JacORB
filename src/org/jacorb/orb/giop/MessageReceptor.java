@@ -37,8 +37,7 @@ public class MessageReceptor
     implements Consumer  
 {
     public MessageReceptor()
-    {
-        
+    {        
     }
     
     // implementation of org.jacorb.util.threadpool.Consumer interface
@@ -63,7 +62,3 @@ public class MessageReceptor
         }
     }    
 }// MessageReceptor
-
-
-
-

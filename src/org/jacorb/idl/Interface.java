@@ -268,7 +268,9 @@ class Interface
     {
         if( parser.get_pending( full_name() ) != null )
         {
-            parser.fatal_error( full_name() + " is forward declared and still pending!", token );
+            parser.fatal_error( full_name() + 
+                                " is forward declared and still pending!", 
+                                token );
         }
         else if( body == null )
         {
@@ -387,17 +389,20 @@ class Interface
             }
         }
         ps.println( "\n{" );
+
+        // body can be null for forward declaration
         if( body != null )
         {
-            // forward declaration
-            body.printConstants( ps );
             body.printInterfaceMethods( ps );
 
             // for an abstract interface, the generated abstract class contains
             // the operation signatures since there is no separate signature
             // interface
             if( is_abstract )
+            {
+                body.printConstants( ps );
                 body.printOperationSignatures( ps );
+            }
         }
         ps.println( "}" );
     }
@@ -457,6 +462,9 @@ class Interface
         if( body != null )
         {
             // forward declaration
+            ps.println( "\t/* constants */" );
+            body.printConstants( ps );
+            ps.println( "\t/* operations  */" );
             body.printOperationSignatures( ps );
         }
         ps.println( "}" );
@@ -980,11 +988,14 @@ class Interface
                         ps = new PrintWriter( new java.io.FileWriter( new File( dir,
                                 name +
                                 "POA.java" ) ) );
+
                         printImplSkeleton( name, ps );
                         ps.close();
 
-                        ps = new PrintWriter( new java.io.FileWriter( new File( dir, name +
-                                "POATie.java" ) ) );
+                        ps = new PrintWriter( 
+                                new java.io.FileWriter( 
+                                    new File( dir, 
+                                              name + "POATie.java" ) ) );
                         printTieSkeleton( name, ps );
                         ps.close();
                     }
