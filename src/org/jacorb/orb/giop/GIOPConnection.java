@@ -209,7 +209,8 @@ public final class GIOPConnection
                 ReplyOutputStream out = 
                     new ReplyOutputStream( Messages.getRequestId( message ),
                                            ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                           giop_minor );
+                                           giop_minor,
+					   false );//no locate reply
                 
                 SystemExceptionHelper.write( out, 
                       new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));

@@ -31,7 +31,10 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import org.omg.GIOP.ReplyStatusType_1_2;
+import org.omg.GIOP.LocateStatusType_1_2;
+
 import org.omg.CORBA.NO_PERMISSION;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.CompletionStatus;
 
 import org.omg.CONV_FRAME.CodeSetContext;
@@ -85,7 +88,8 @@ public class ServerRequestListener
             ReplyOutputStream out = 
                 new ReplyOutputStream( in.req_hdr.request_id,
                                        ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                       in.getGIOPMinor() );
+                                       in.getGIOPMinor(),
+				       false); //no locate reply
 
             Debug.output( 2, "About to reject request because connection is not SSL.");
         
@@ -122,8 +126,55 @@ public class ServerRequestListener
         
         in.setCodeSet( connection.getTCS(), connection.getTCSW() );
 
-        ServerRequest server_request = 
-            new ServerRequest( orb, in, connection );
+        ServerRequest server_request = null;
+
+	try
+	{
+	    server_request = 
+		new ServerRequest( orb, in, connection );
+	}
+	catch( org.jacorb.poa.except.POAInternalError pie )
+	{
+	    Debug.output( 1, "WARNING: Received a request with a non-jacorb object key" );
+
+	    if( in.isLocateRequest() )
+	    {
+		LocateReplyOutputStream lr_out =
+		    new LocateReplyOutputStream(in.req_hdr.request_id,
+						LocateStatusType_1_2._UNKNOWN_OBJECT,
+						in.getGIOPMinor() );
+
+		try
+		{
+		    connection.sendMessage( lr_out );
+		}
+		catch( IOException e )
+		{
+		    Debug.output( 1, e );
+		}        
+	    }
+	    else
+	    {
+		ReplyOutputStream out = 
+		    new ReplyOutputStream( in.req_hdr.request_id,
+					   ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+					   in.getGIOPMinor(),
+					   false );//no locate reply
+
+		SystemExceptionHelper.write( out, new OBJECT_NOT_EXIST( 0, CompletionStatus.COMPLETED_NO ));
+
+		try
+		{
+		    connection.sendMessage( out );
+		}
+		catch( IOException e )
+		{
+		    Debug.output( 1, e );
+		}        
+	    }
+
+	    return;
+	}
 
         orb.getBasicAdapter().replyPending();
 
@@ -133,12 +184,8 @@ public class ServerRequestListener
     public void locateRequestReceived ( byte[] request,
                                        GIOPConnection connection )
     {
-        /*
-        LocateRequest server_request = 
-            new LocateRequest( orb, request, connection );
-
-        deliverRequest( server_request );
-        */
+	//for the time being, map to normal request
+	requestReceived( request, connection );
     }
 
     

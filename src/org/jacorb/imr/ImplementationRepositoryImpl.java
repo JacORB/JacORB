@@ -1080,7 +1080,8 @@ public class ImplementationRepositoryImpl
 	    ReplyOutputStream out = 
                 new ReplyOutputStream( request_id,
                                        org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
-                                       giop_minor );
+                                       giop_minor,
+				       false );
 
 	    // The typecode is for org.omg.CORBA.Object, but avoiding 
             // creation of new ObjectHolder Instance.
@@ -1187,7 +1188,8 @@ public class ImplementationRepositoryImpl
 	    ReplyOutputStream out = 
                 new ReplyOutputStream( request_id,
                                        org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                      giop_minor );
+				       giop_minor,
+				       false );
 	    
 	    SystemExceptionHelper.write( out, sys_ex );
 

@@ -34,7 +34,6 @@ public class LocateReplyOutputStream
 {
     public LocateReplyOutputStream ( int request_id, 
 				     int status, 
-                                     org.omg.CORBA.Object arg,
                                      int giop_minor )
     {
         super();
@@ -56,16 +55,14 @@ public class LocateReplyOutputStream
                 //would be to go low-level and write directly to the
                 //stream
 
-                /*
                 //GIOP 1.1
                 LocateReplyHeader_1_0 repl_hdr = 
                     new LocateReplyHeader_1_0( request_id,
                                                LocateStatusType_1_0.from_int( status ));
 
-                LocateReplyHeader_1_0Helper.write( out, repl_hdr );
+                LocateReplyHeader_1_0Helper.write( this, repl_hdr );
                
                 break;
-                */
             }
             case 2 :
             {
@@ -83,12 +80,6 @@ public class LocateReplyOutputStream
                 throw new Error( "Unknown GIOP minor: " + giop_minor );
             }
         }
-        
-	if( status == LocateStatusType_1_2._OBJECT_FORWARD || 
-            status == LocateStatusType_1_2._OBJECT_FORWARD_PERM )
-	{
-	    write_Object( arg );
-	} 
     }
 }
 

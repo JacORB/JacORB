@@ -213,6 +213,10 @@ public final class Delegate
                     
                     switch( lris.rep_hdr.locate_status.value() )
                     {
+                        case LocateStatusType_1_2._UNKNOWN_OBJECT :
+                        {
+                            throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
+                        }
                         case LocateStatusType_1_2._OBJECT_HERE :
                         {
                             Debug.output(3,"object here");
@@ -221,22 +225,41 @@ public final class Delegate
                         }
                         case LocateStatusType_1_2._OBJECT_FORWARD :
                         {
+			    //fall through
+                        }
+                        case LocateStatusType_1_2._OBJECT_FORWARD_PERM :
+                        {
+			    //_OBJECT_FORWARD_PERM is actually more or
+			    //less deprecated
                             Debug.output(3,"Locate Reply: Forward");
                             
                             rebind( orb.object_to_string( lris.read_Object()) );
                             
                             break;
                         }
-                        case LocateStatusType_1_2._UNKNOWN_OBJECT :
+                        case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION :
                         {
-                            throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
-                        }
+			    throw SystemExceptionHelper.read( lris );
+
+			    //break;
+			}
+                        case LocateStatusType_1_2._LOC_NEEDS_ADDRESSING_MODE :
+                        {
+			    throw new org.omg.CORBA.NO_IMPLEMENT( "Server responded to LocateRequest with a status of LOC_NEEDS_ADDRESSING_MODE, but this isn't yet implemented by JacORB" );
+
+			    //break;
+			}
                         default :
                         {
                             throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.rep_hdr.locate_status.value());
                         }
                     }
                 }
+		catch( org.omg.CORBA.SystemException se )
+		{
+		    //rethrow
+		    throw se;
+		}
                 catch( Exception e )
                 {
                     Debug.output( 1, e );
