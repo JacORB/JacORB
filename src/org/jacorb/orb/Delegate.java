@@ -1451,15 +1451,16 @@ public final class Delegate
 
                     return so;
                 }
-                catch ( Throwable e )
-                {
-                    Debug.output( 2, e );
-                }
-
+            }
+            catch ( Throwable e )
+            {
+                Debug.output( 2, e );
             }
 
-            return null;
         }
+
+        return null;
+    }
 
         /**
          * used only by ORB.getConnection ( Delegate ) when diverting
