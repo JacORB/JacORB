@@ -280,12 +280,16 @@ public class ClientConnection
         }
     }
 
+    /**
+     * called from Delegate/ConnectionManagement etc.
+     */
+
     public void close()
     {
         connection.close();
     }
 
-    /*
+    /**
      * Operations from ReplyListener
      */
 
@@ -378,9 +382,11 @@ public class ClientConnection
     }
 
 
-    /*
+    /**
      * Operations from ConnectionListener
+     * used for upcalls from GIOPConnection
      */
+
     public void connectionClosed()
     {
         if( ! client_initiated )
@@ -395,6 +401,11 @@ public class ClientConnection
 
         streamClosed();
     }
+
+    /**
+     * the transport has been
+     * removed underneath the GIOP layer
+     */ 
 
     public void streamClosed()
     {
