@@ -1,3 +1,43 @@
+2005-03-25  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/FilterFactoryImpl.java,
+	notification/container/FilterFactoryComponentAdapter.java,
+	notification/filter/DefaultFilterFactoryDelegate.java,
+	notification/filter/FilterFactoryImpl.java,
+	notification/filter/IFilterFactoryDelegate.java (FilterFactoryImpl):
+	split in Impl and Delegate and introduced internal interface
+
+	* notification/filter/AbstractFilter.java (ConstraintIterator):
+	factored out common code
+
+2005-03-25  Benoit Pelletier  <benoit.pelletier@objectweb.org>
+
+	* orb/Delegate.java: (is_a): Fix stub suffix ("Stub"->"_Stub"),
+	fixing bug #585.  Allow the load of stub with 'org.omg.stub'
+	prefix, fixing bug #586.
+
+	* orb/config/Configuration.java: Remove print message when
+	jacorb.properties is not found in '.' dir, fixing bug #587.
+	
+	* orb/dynany/DynAny.java,
+	orb/dynany/DynAnyFactoryImpl.java,
+	orb/dynany/DynArray.java,
+	orb/dynany/DynEnum.java,
+	orb/dynany/DynSequence.java,
+	orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java:
+	Pass the right ORB instance to DynXxx instance, fixing bug #584.
+	
+2005-03-20  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/queue/BoundedFifoEventQueue.java (*Test): added
+	tests to see if getAllMessages really removes all fetched elements
+	from the queried queue.
+	(BoundedFifoEventQueue.getAllMessages): bugfix. fetched elements
+	were not removed from the queue. This causes messages to be
+	delivered multiple times.  Thanks to Ling Yun for reporting
+	(http://lists.spline.inf.fu-berlin.de/pipermail/jacorb-developer/2005-March/007168.html)
+
 2005-03-08  Andre Spiegel  <spiegel@gnu.org>
 
 	* idl/UnionType.java, idl/ValueBoxDecl.java (printHelperClass):
