@@ -1,0 +1,75 @@
+
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            module Longs
+            {
+               const long long LLONG_NEG = -922337203685477580;
+               const long long LLONG_POS = 9223372036854775807;
+               const long long LLONG_POS_WITH_SIGN = +9223372036854775807;
+               const long LONG_VALUE = -2147483648;
+
+               const long long LLONG_POS_WITH_ADDITION = 10 + +9223372036854775107;
+               const long long LLONG_POS_WITH_SIGN_SUBTRACTION = ~ ( +214 + (-10) - -72233720368 ) ;
+               const long long LLONG_SUBTRACTION_WITH_TILDE = ~ -92233720368 - -50;
+
+               const long LONG_NEG = -214;
+               const long LONG_COPY = LONG_NEG;
+               const long TILDE = ~214;
+               const long LONG_POS_WITH_SIGN = +214;
+
+               const long LONG_POS_WITH_SIGN_ARITHMETIC = ~ ( +214 + (-10) + LONG_NEG ) ;
+               const long LONG_SUBTRACTION = 24 - 10;
+
+               const long LONG_MULTIPLICATION = -2147 * 10 / LONG_NEG;
+               // long double not supported by java at moment
+               // const long double LONG_DOUBLE = 0.343 * +9223372036854775107;
+
+
+               typedef unsigned long LONG_UNSIGNED;
+               typedef LONG_UNSIGNED LONG_UNSIGNED_NESTED1;
+               typedef LONG_UNSIGNED_NESTED1 LONG_UNSIGNED_NESTED_NESTED1;
+
+               const LONG_UNSIGNED_NESTED_NESTED1 UnsignedValue1 = 2233720368;
+               const LONG_UNSIGNED_NESTED_NESTED1 UnsignedValue2 = 0xf0000000;
+               const unsigned long UnsignedValue3 = 3720883688;
+
+               typedef unsigned long long LLONG_UNSIGNED;
+               typedef LLONG_UNSIGNED LLONG_UNSIGNED_NESTED1;
+               typedef LLONG_UNSIGNED_NESTED1 LLONG_UNSIGNED_NESTED_NESTED1;
+
+               const LLONG_UNSIGNED_NESTED_NESTED1 UnsignedValue4 = 72233720368;
+               const LLONG_UNSIGNED_NESTED_NESTED1 UnsignedValue5 = 0xf0000000;
+               const unsigned long long UnsignedValue6 = 3720883688;
+               const unsigned long long UnsignedValue7 = 18446744073709551615;
+               const unsigned long long UnsignedValue8 = 9223372036854775808;
+               
+               // test IDL for bug #320
+               const  long  OneK = 1024;
+               const  long  MaxLimit1 = 3 * OneK;
+               const  long  MaxLimit2 = 3 + OneK;
+               const  long  MaxLimit3 = OneK / 3;
+               const  long  MaxLimit4 = OneK - 3;
+
+               struct DataBlock
+               {
+                   string<30>        Id;
+                   long              BufferSize;
+                   // the following choked in 1.4.1 (bug #320) and must compile now:
+                   char              Buffer1[MaxLimit1]; 
+                   char              Buffer2[MaxLimit2]; 
+                   char              Buffer3[MaxLimit3]; 
+                   char              Buffer4[MaxLimit4]; 
+               };
+
+            };
+         };
+      };
+   };
+};
