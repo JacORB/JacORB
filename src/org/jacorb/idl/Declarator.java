@@ -24,13 +24,12 @@ import java.io.PrintWriter;
 
 /**
  * @author Gerald Brose
- * @version 1.0, December 1998
+ * @version $Id$
  */
 
-class Declarator
-        extends IdlSymbol
+public class Declarator
+    extends IdlSymbol
 {
-
     public Declarator d;
 
     public Declarator( int num )
