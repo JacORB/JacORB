@@ -23,8 +23,8 @@ package org.jacorb.notification;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +41,7 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.util.Debug;
 
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
@@ -52,55 +53,59 @@ public class FilterManager
     implements FilterAdminOperations,
                SubscriptionChangeListener
 {
-    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
-    protected ChannelContext channelContext_;
-
-    protected List filters_;
-
-    protected List filtersReadOnlyView_;
-
-    protected int filterIdPool_ = 0;
-
-    protected Map filterId2callbackId_ = new Hashtable();
-
-    ////////////////////////////////////////
-
     public static final FilterManager EMPTY_FILTER_MANAGER =
-        new FilterManager( Collections.EMPTY_LIST );
+        new FilterManager( Collections.EMPTY_MAP );
+
+    private static final Integer[] INTEGER_ARRAY_TEMPLATE = new Integer[0];
 
     ////////////////////////////////////////
 
-    protected FilterManager( List list )
-    {
-        filters_ = list;
+    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
-        filtersReadOnlyView_ = Collections.unmodifiableList( filters_ );
+    private ChannelContext channelContext_;
+
+    private Map filters_;
+
+    private Object filtersLock_;
+
+    private boolean filtersModified_;
+
+    private List filtersReadOnlyView_;
+
+    private SynchronizedInt filterIdPool_ = new SynchronizedInt(0);
+
+    private Map filterId2callbackId_ = new Hashtable();
+
+    ////////////////////////////////////////
+
+    protected FilterManager( Map filters )
+    {
+        filters_ = filters;
+
+        filtersLock_ = filters;
+
+        filtersModified_ = true;
     }
 
 
     public FilterManager(ChannelContext channelContext)
     {
-        this( new ArrayList() );
+        this( new HashMap() );
 
         channelContext_ = channelContext;
     }
 
     ////////////////////////////////////////
 
-    protected int getFilterId()
+    private Integer getFilterId()
     {
-        return ++filterIdPool_;
+        return new Integer(filterIdPool_.increment());
     }
 
 
     public int add_filter( Filter filter )
     {
-        int _key = getFilterId();
-
-        KeyedListEntry _entry = new KeyedListEntry( _key, filter );
-
-        filters_.add( _entry );
+        Integer _key = getFilterId();
 
         if (logger_.isWarnEnabled()) {
             try {
@@ -110,72 +115,89 @@ public class FilterManager
             } catch (Exception e) {}
         }
 
-        return _key;
+        synchronized(filtersLock_) {
+            filters_.put(_key, filter);
+
+            filtersModified_ = true;
+        }
+
+        return _key.intValue();
     }
 
 
     public void remove_filter( int filterId ) throws FilterNotFound
     {
-        Iterator _i = filters_.iterator();
+        Integer _key = new Integer(filterId);
 
-        while ( _i.hasNext() )
-        {
-            KeyedListEntry _entry = ( KeyedListEntry ) _i.next();
-
-            if ( _entry.getKey() == filterId )
-            {
-                _i.remove();
-                return ;
+        synchronized(filtersLock_) {
+            if (filters_.containsKey(_key)) {
+                filters_.remove(_key);
+                filtersModified_ = true;
+            } else {
+                throw new FilterNotFound("Filter with ID=" + _key + " does not exist");
             }
         }
-
-        throw new FilterNotFound();
     }
 
 
     public Filter get_filter( int filterId ) throws FilterNotFound
     {
-        Iterator _i = filters_.iterator();
+        Integer _key = new Integer(filterId);
 
-        while ( _i.hasNext() )
-        {
-            KeyedListEntry _entry = ( KeyedListEntry ) _i.next();
+        Filter _filter;
 
-            if ( _entry.getKey() == filterId )
-            {
-                return ( Filter ) _entry.getValue();
-            }
+        synchronized (filtersLock_) {
+            _filter = (Filter)filters_.get(_key);
         }
 
-        throw new FilterNotFound();
+        if (_filter == null) {
+            throw new FilterNotFound("Filter with ID=" + _key + " does not exist");
+        } else {
+            return _filter;
+        }
     }
 
 
     public int[] get_all_filters()
     {
-        int[] _allKeys = new int[ filters_.size() ];
+        Integer[] _keys;
 
-        Iterator _i = filters_.iterator();
-        int x = 0;
-
-        while ( _i.hasNext() )
-        {
-            KeyedListEntry _entry = ( KeyedListEntry ) _i.next();
-            _allKeys[ x++ ] = _entry.getKey();
+        synchronized(filtersLock_) {
+            _keys = (Integer[])filters_.keySet().toArray(INTEGER_ARRAY_TEMPLATE);
         }
 
-        return _allKeys;
+        int[] _intKeys = new int[ _keys.length ];
+
+        for (int x=0; x<_keys.length; ++x) {
+            _intKeys[x] = _keys[x].intValue();
+        }
+
+        return _intKeys;
     }
 
 
     public void remove_all_filters()
     {
-        filters_.clear();
+        synchronized(filtersLock_) {
+            filters_.clear();
+            filtersModified_ = true;
+        }
     }
 
 
     public List getFilters()
     {
+        synchronized(filtersLock_) {
+            if (filtersModified_) {
+                List _filterReadOnlyView = new ArrayList();
+
+                _filterReadOnlyView.addAll(filters_.values());
+
+                filtersReadOnlyView_ = Collections.unmodifiableList(_filterReadOnlyView);
+
+                filtersModified_ = false;
+            }
+        }
         return filtersReadOnlyView_;
     }
 
@@ -220,7 +242,9 @@ interface SubscriptionChangeListener {
 }
 
 
-class FilterCallback extends NotifySubscribePOA implements Disposable {
+class FilterCallback
+    extends NotifySubscribePOA
+    implements Disposable {
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
