@@ -29,9 +29,8 @@ import java.io.PrintWriter;
  */
 
 public class AliasTypeSpec
-        extends TypeSpec
+    extends TypeSpec
 {
-
     public TypeSpec originalType = null;
     private boolean written = false;
 
@@ -160,16 +159,36 @@ public class AliasTypeSpec
     {
         TypeSpec ts = originalType.typeSpec();
 
+        String tc_name;
+
+        if( ts instanceof TemplateTypeSpec )
+        {
+            if( ts instanceof VectorType && ((VectorType)ts).typedefd() )
+            {
+                tc_name = full_name() + "Helper.type()";                
+            }
+            else
+            {
+                tc_name = originalType.getTypeCodeExpression();
+            }
+        }
+        else if( ts instanceof BaseType ||
+            ts instanceof ConstrTypeSpec || // for value types
+            ts instanceof ObjectTypeSpec ||
+            ts instanceof AliasTypeSpec ||
+            ts instanceof TypeCodeTypeSpec )
+        {
+            tc_name = originalType.getTypeCodeExpression();
+        }
+        else
+        {
+            tc_name = ts.typeName() + "Helper.type()";
+        }
+
         return "org.omg.CORBA.ORB.init().create_alias_tc( " +
-                full_name() + "Helper.id(), \"" + name + "\"," +
-                ( ts instanceof TemplateTypeSpec ||
-                ts instanceof BaseType ||
-                ts instanceof ConstrTypeSpec || // for value types
-                ts instanceof ObjectTypeSpec ||
-                ts instanceof AliasTypeSpec ||
-                ts instanceof TypeCodeTypeSpec ?
-                originalType.getTypeCodeExpression() :
-                ts.typeName() + "Helper.type()" ) + " )";
+            full_name() + "Helper.id(), \"" + name + "\"," + tc_name + " )";
+
+ 
         //            originalType.getTypeCodeExpression() + ")";
     }
 

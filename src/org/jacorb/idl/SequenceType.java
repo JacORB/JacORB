@@ -34,7 +34,6 @@ import java.io.PrintWriter;
 public class SequenceType
         extends VectorType
 {
-
     private boolean written = false;
 
     /** used to generate unique name vor local variables */

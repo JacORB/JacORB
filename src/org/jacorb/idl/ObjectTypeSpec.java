@@ -27,7 +27,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 
 public class ObjectTypeSpec
-        extends TypeSpec
+    extends TypeSpec
 {
 
     public ObjectTypeSpec( int num )
