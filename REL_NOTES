@@ -38,6 +38,11 @@ gerald.brose@acm.org
 
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
+        - Sockets:
+                Support has been added for configurable socket factories.
+                An additional factory has been provided that supports the
+                use of ports from a configurable range to support firewall
+                traversal.
 
         - Initial References:
                 Support has been added for resolving object references from
