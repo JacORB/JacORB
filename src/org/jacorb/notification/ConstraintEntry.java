@@ -55,7 +55,7 @@ public class ConstraintEntry
 
     ////////////////////////////////////////
 
-    class EventTypeWrapper implements EventTypeIdentifier
+    static class EventTypeWrapper implements EventTypeIdentifier
     {
         EventType et_;
         String constraintKey_;
