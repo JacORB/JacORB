@@ -463,18 +463,22 @@ public final class ORB
         List profiles     = new ArrayList();
         Map  componentMap = new HashMap();
         
-        Profile profile = basicAdapter.getEndpointProfile();
-        profile.set_object_key (objectKey);
-        profiles.add (profile);
-        
-        TaggedComponentList profileComponents = new TaggedComponentList();
-        profileComponents.addComponent (create_ORB_TYPE_ID());
-        componentMap.put (new Integer (profile.tag()), profileComponents);
-
-        // use proxy or ImR address if necessary
-        if (profile instanceof IIOPProfile)
+        for (Iterator i = basicAdapter.getEndpointProfiles().iterator();
+             i.hasNext();)
         {
-            patchAddress ((IIOPProfile)profile, repId, _transient);   
+            Profile profile = (Profile)i.next();
+            profile.set_object_key (objectKey);
+            profiles.add (profile);
+        
+            TaggedComponentList profileComponents = new TaggedComponentList();
+            profileComponents.addComponent (create_ORB_TYPE_ID());
+            componentMap.put (new Integer (profile.tag()), profileComponents);
+
+            // use proxy or ImR address if necessary
+            if (profile instanceof IIOPProfile)
+            {
+                patchAddress ((IIOPProfile)profile, repId, _transient);   
+            }
         }
 
         TaggedComponentList multipleComponents = new TaggedComponentList();
@@ -499,21 +503,26 @@ public final class ORB
         }
 
         // add GIOP 1.0 profile if necessary
-        if (   (profile instanceof IIOPProfile) 
+        IIOPProfile iiopProfile = findIIOPProfile (profiles);
+        if (   (iiopProfile != null) 
             && (   Environment.giopMinorVersion() == 0
                 || Environment.giopAdd_1_0_Profiles()))
         {
-            Profile profile_1_0 = ((IIOPProfile)profile).to_GIOP_1_0();
+            Profile profile_1_0 = iiopProfile.to_GIOP_1_0();
             profiles.add (profile_1_0);
             
             // shuffle all components over into the multiple components profile
-            multipleComponents.addAll (((IIOPProfile)profile).getComponents());
-            multipleComponents.addAll (profileComponents);
+            TaggedComponentList iiopComponents =
+                (TaggedComponentList)componentMap.get 
+                                       (new Integer (TAG_INTERNET_IOP.value));
+
+            multipleComponents.addAll (iiopProfile.getComponents());
+            multipleComponents.addAll (iiopComponents);
 
             // if we only want GIOP 1.0, remove the other profile
             if (Environment.giopMinorVersion() == 0) 
             {
-                profiles.remove (profile);
+                profiles.remove (iiopProfile);
             }           
         }
 
@@ -557,6 +566,22 @@ public final class ORB
             out.getBufferCopy()
         );
     }
+
+    /**
+     * Finds the first IIOPProfile in the given List of Profiles,
+     * and returns it.  If no such profile is found, this method
+     * returns null.
+     */    
+    private IIOPProfile findIIOPProfile (List profiles)
+    {
+        for (Iterator i = profiles.iterator(); i.hasNext();)
+        {
+            Profile p = (Profile)i.next();
+            if (p instanceof IIOPProfile)
+                return (IIOPProfile)p;
+        }
+        return null;
+    }   
 
     /**
      * Called from within getReference (below) and set_policy_override
