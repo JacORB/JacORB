@@ -36,7 +36,7 @@ public final class Version
 
     public static final String version = shortVersion;
 
-    public static final String date = "March 2002";
+    public static final String date = "June 2002";
 
     public static final String longVersion = version + ", " + date;
 
