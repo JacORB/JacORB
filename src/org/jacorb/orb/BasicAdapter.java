@@ -491,8 +491,15 @@ public class BasicAdapter
                         socket.setSoTimeout(timeout);
                     }
 
+                    if( is_ssl )
+                    {
+                        // the operation does both the check and the
+                        // switch (if necessary)
+                        ssl_socket_factory.switchToClientMode( socket );
+                    }
+
                     Transport transport = 
-                        new Server_TCP_IP_Transport( socket, is_ssl );
+                        new Server_TCP_IP_Transport( socket, is_ssl );                    
 
                     GIOPConnection connection = 
                         new GIOPConnection( transport,
