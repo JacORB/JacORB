@@ -271,8 +271,6 @@ public class QoSPropertySet extends PropertySet
 
     ////////////////////////////////////////
 
-    private int type_;
-
     private HashSet validNames_;
 
     ////////////////////////////////////////
@@ -280,8 +278,6 @@ public class QoSPropertySet extends PropertySet
     public QoSPropertySet(int type)
     {
         super();
-
-        type_ = type;
 
         init(type);
     }
