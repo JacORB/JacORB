@@ -258,15 +258,6 @@ jacorb.giop.add_1_0_profiles=off
 #OAIAddr=1.2.3.4
 #OAPort=4711
 
-################################
-#                              #
-#   Appligator Configuration   #
-#                              #
-################################
-# if your applets don't need appligator, switch this off
-jacorb.use_appligator=off
-
-
 
 ############################
 #                          #
