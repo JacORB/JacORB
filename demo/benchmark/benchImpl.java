@@ -9,6 +9,11 @@ public class benchImpl
 	return myInt;
     }
 
+    public byte[] octetTransfer( byte mybytes[]) 
+    {
+	return mybytes;
+    }
+
     public void ping()
     {}
 
