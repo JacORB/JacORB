@@ -24,10 +24,12 @@ package org.jacorb.notification.jmx;
 import java.util.Properties;
 
 import org.jacorb.notification.AbstractChannelFactory;
+import org.jacorb.notification.FilterFactoryImpl;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
+ * @version $Id: EventChannelFactoryControl.java,v 1.1 2004/08/19 09:35:06
+ *          alphonse.bendt Exp $
  */
 public class EventChannelFactoryControl implements EventChannelFactoryMBean
 {
@@ -41,6 +43,10 @@ public class EventChannelFactoryControl implements EventChannelFactoryMBean
 
     private final static String STOPPED = "Stopped";
 
+    private final static String IOR_DEFAULT = "IOR:0";
+
+    private final static String CORBALOC_DEFAULT = "not running";
+
     public String start()
     {
         if (factory_ != null)
@@ -51,9 +57,9 @@ public class EventChannelFactoryControl implements EventChannelFactoryMBean
         try
         {
             Properties props = new Properties();
-
-            factory_ = AbstractChannelFactory.newFactory(props);
-
+			
+			factory_ = AbstractChannelFactory.newFactory(props);
+			
             return STARTED;
         } catch (Exception e)
         {
@@ -71,5 +77,15 @@ public class EventChannelFactoryControl implements EventChannelFactoryMBean
             return STOPPED;
         }
         return NOT_RUNNING;
+    }
+
+    public String getIOR()
+    {
+        return (factory_ != null) ? factory_.getIOR() : IOR_DEFAULT;
+    }
+
+    public String getCorbaloc()
+    {
+        return (factory_ != null) ? factory_.getCorbaLoc() : CORBALOC_DEFAULT;
     }
 }

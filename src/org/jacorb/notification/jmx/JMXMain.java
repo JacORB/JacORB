@@ -31,46 +31,171 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.tanukisoftware.wrapper.WrapperListener;
+import org.tanukisoftware.wrapper.WrapperManager;
+import org.tanukisoftware.wrapper.jmx.WrapperManagerMBean;
+import org.tanukisoftware.wrapper.jmx.WrapperManagerTestingMBean;
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class JMXMain
+public class JMXMain implements WrapperListener
 {
-    public JMXMain()
+    private ObjectName notificationServiceName;
+    
+    private MBeanServer server;
+
+    private JMXConnectorServer cntorServer;
+
+    private Thread jmxConnectorRunner;
+
+    private JMXMain() throws Exception {
+        notificationServiceName = ObjectName.getInstance("NotificationService:mbean=EventChannelFactory");
+    }
+    
+    
+    public Integer start(String[] args)
     {
+        init(args);
+
+        return null;
+    }
+
+    public int stop(int code)
+    {
+        try
+        {
+            server.invoke(notificationServiceName, "stop", null, null);
+            cntorServer.stop();
+        } catch (Exception e)
+        {
+            return 1;
+        }
+        return 0;
+    }
+
+    public void controlEvent(int event)
+    {
+        if (WrapperManager.isControlledByNativeWrapper())
+        {
+            // The Wrapper will take care of this event
+        }
+        else
+        {
+            // We are not being controlled by the Wrapper, so
+            //  handle the event ourselves.
+
+            if ((event == WrapperManager.WRAPPER_CTRL_C_EVENT)
+                    || (event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT)
+                    || (event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT))
+            {
+                org.tanukisoftware.wrapper.WrapperManager.stop(0);
+            }
+        }
+    }
+
+    private void init(String[] args)
+    {
+        try
+        {
+            server = MBeanServerFactory.createMBeanServer();
+
+            JMXServiceURL address = getServiceURL();
+
+            // The environment map, null in this case
+            Map environment = null;
+
+            // Create the JMXCconnectorServer
+            cntorServer = 
+                JMXConnectorServerFactory.newJMXConnectorServer(address, environment,
+                    server);
+
+            registerNotificationService();
+
+            registerWrapperManager();
+
+            //registerWrapperManagerTesting();
+
+            //        Start the JMXConnectorServer
+            jmxConnectorRunner = new Thread()
+            {
+                public void run()
+                {
+                    try
+                    {
+                        cntorServer.start();
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            jmxConnectorRunner.setName("JMX Connector Runner");
+
+            jmxConnectorRunner.start();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            
+            throw new RuntimeException();
+        }
+    }
+
+    private JMXServiceURL getServiceURL() throws Exception
+    {
+        ObjectName namingName = ObjectName.getInstance("naming:type=rmiregistry");
+        server.createMBean("mx4j.tools.naming.NamingService", namingName, null);
+        System.err.println("Starting NamingService");
+        
+        server.invoke(namingName, "start", null, null);
+        int namingPort = ((Integer) server.getAttribute(namingName, "Port")).intValue();
+
+        String jndiPath = "/jmxconnector";
+
+        JMXServiceURL address = new JMXServiceURL(
+                "service:jmx:rmi://localhost/jndi/rmi://localhost:" + namingPort + jndiPath);
+        return address;
+    }
+
+    private void registerNotificationService() throws Exception
+    {
+        System.err.println("Registering NotificationService MBean");
+        
+        StandardMBean bean = new StandardMBean(new EventChannelFactoryControl(),
+                EventChannelFactoryMBean.class);
+
+        server.registerMBean(bean, notificationServiceName);
+    }
+
+    private void registerWrapperManager() throws Exception
+    {
+        if (!WrapperManager.isControlledByNativeWrapper()) {
+            return;
+        }
+        
+        System.err.println("Registering WrapperMBean");
+        
+        ObjectName wrapperManagerName = ObjectName
+                .getInstance("JavaServiceWrapper:service=WrapperManager");
+        StandardMBean wrapperManagerBean = new StandardMBean(
+                new org.tanukisoftware.wrapper.jmx.WrapperManager(), WrapperManagerMBean.class);
+        server.registerMBean(wrapperManagerBean, wrapperManagerName);
+    }
+
+    private void registerWrapperManagerTesting() throws Exception
+    {
+        ObjectName wrapperManagerTestingName = ObjectName
+                .getInstance("JavaServiceWrapper:service=WrapperManagerTesting");
+        StandardMBean wrapperManagerTestingBean = new StandardMBean(
+                new org.tanukisoftware.wrapper.jmx.WrapperManagerTesting(),
+                WrapperManagerTestingMBean.class);
+        server.registerMBean(wrapperManagerTestingBean, wrapperManagerTestingName);
     }
 
     public static void main(String[] args) throws Exception
     {
-        MBeanServer server = MBeanServerFactory.createMBeanServer();
-
-        ObjectName name = new ObjectName("NotificationService:mbean=EventChannelFactory");
-        
-        StandardMBean bean = new StandardMBean(new EventChannelFactoryControl(),
-                EventChannelFactoryMBean.class);
-     
-        server.registerMBean(bean, name);
-        
-        ObjectName namingName = ObjectName.getInstance("naming:type=rmiregistry");
-        server.createMBean("mx4j.tools.naming.NamingService", namingName, null);
-        server.invoke(namingName, "start", null, null);
-        int namingPort = ((Integer)server.getAttribute(namingName, "Port")).intValue();        
-
-        String jndiPath = "/jmxconnector";
-
-        //        The environment map, null in this case
-        Map environment = null;
-        
-        JMXServiceURL address = 
-            new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:" + namingPort + jndiPath);
-        
-        //        Create the JMXCconnectorServer
-        JMXConnectorServer cntorServer = 
-            JMXConnectorServerFactory.newJMXConnectorServer(address,
-                environment, server);
-
-        //        Start the JMXConnectorServer
-        cntorServer.start();     
-   }
+        WrapperManager.start(new JMXMain(), args);
+    }
 }

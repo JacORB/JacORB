@@ -29,4 +29,6 @@ public interface EventChannelFactoryMBean
 {
     String start();
     String stop();
+    String getIOR();
+    String getCorbaloc();
 }
