@@ -200,10 +200,6 @@ public class TaskProcessor
                     return _t;
                 }
             });
-
-        taskFactory_ = new TaskFactory( this );
-
-        taskFactory_.init();
     }
 
     public void configure (Configuration conf)
@@ -246,6 +242,9 @@ public class TaskProcessor
                                                + Attributes.THREADPOLICY
                                                + "\" is invalid");
         }
+        taskFactory_ = new TaskFactory( this );
+
+        taskFactory_.init();
     }
 
 
