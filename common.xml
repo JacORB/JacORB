@@ -93,7 +93,15 @@
 </target>
 
 <target name="check-sourcepath" unless="javac-sourcepath">
-  <property name="javac-sourcepath" value="" />
+
+  <pathconvert property="cp.default" targetos="${architecture}">
+    <path>
+      <pathelement location="${src}" />
+      <pathelement location="${src}/generated" />
+    </path>
+  </pathconvert>
+
+  <property name="javac-sourcepath" value="${cp.default}" />
 </target>
 
 
