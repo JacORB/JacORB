@@ -82,7 +82,7 @@ public class BiDirServerImpl extends BiDirServerPOA
             org.omg.CORBA.Object o =
                 bidir_poa.servant_to_reference(new BiDirServerImpl());
 
-            System.out.println (orb.object_to_string(o));
+            System.out.println ("SERVER IOR: " + orb.object_to_string(o));
             System.out.flush();
 
             orb.run();
