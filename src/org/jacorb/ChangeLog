@@ -1,3 +1,119 @@
+2003-04-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/InternetIOPProfile.java (clone): New method.
+	(copy): Use it.
+	(marshal): Implemented.
+	(data): Field removed, we can now marshal ourselves.
+	(c'tor): Don't store data.
+	(asTaggedProfile): Marshal on the fly.
+
+2003-04-28  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Add missing null parameter
+
+	* orb/connection/ClientGIOPConnection.java: Remove exception catch
+
+2003-04-27  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/GIOPConnectionManager.java (statistics_provider_class):
+	New field.
+	(GIOPConnectionManager): Decide whether we should use
+	StatisticsProviders.
+	(getStatisticsProvider): New method.
+	(createServerGIOPConnection): Use it.
+	(createClientGIOPConnection): Use correct constructor
+	arguments (but DON'T actually pass a StatisticsProvider to the
+	connection).
+
+	* orb/connection/ServerGIOPConnection.java (c'tor): New
+	StatisticsProvider argument.
+	(sendCloseConnection): Call the StatisticsProvider for flush().
+
+	* orb/connection/ClientGIOPConnection.java (c'tor): New
+	StatisticsProvider argument.
+
+	* orb/connection/GIOPConnection.java (statistics_provider): New field.
+	(c'tor): Initialize it with argument.
+	(getStatisticsProvider): Return it.
+	(getMessage, sendMessage, write): Use it.
+
+	* orb/connection/TransportManager.java (statistics_provider_class):
+	Field removed.
+	(c'tor): Don't write to it.
+	(createClientTransport, createServerTransport): Don't
+	create StatisticsProviders; this is now done at the
+	GIOP level.
+
+	* orb/connection/Client_TCP_IP_Transport.java (c'tor):
+	Remove StatisticsProvider argument.
+	(connect): Don't notify, there's nobody waiting anymore.
+
+	* orb/connection/Server_TCP_IP_Transport.java (c'tor):
+	Remove StatisticsProvider argument.
+
+	* orb/connection/TCP_IP_Transport.java (statistics_provider):
+	Field removed.
+	(getStatisticsProvider): Accessor removed.
+	(c'tors): Remove StatisticsProvider handling.
+	(flush, write): Don't collect statistics, this is now done
+	one layer above.
+
+	* orb/connection/Transport.java (getStatisticsProvider,
+	turnOnFinalTimeout): Remove non-ETF methods.
+
+	* orb/connection/ServerGIOPConnection.java (sendCloseConnection):
+	Use this.write(), not transport.write().
+
+	* orb/connection/GIOPConnection.java (connect_sync): New field.
+	(waitUntilConnected): New method.
+	(getMessage): Use it.
+	(write): Connect if necessary, and notify.
+	(closeCompletely): Notify.
+
+	* orb/connection/Client_TCP_IP_Transport.java (waitUntilConnected):
+	Removed.
+	(close): Don't notify.
+	(closed): Field removed.
+
+	* orb/connection/Server_TCP_IP_Transport.java (waitUntilConnected):
+	Remove.
+
+	* orb/connection/TCP_IP_Transport.java (write): Don't call connect.
+
+	* orb/connection/Transport.java (waitUntilConnected): Remove; this
+	is now done at the GIOP level.
+
+2003-04-26  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/InternetIOPProfile.java (toString): New method.
+
+	* orb/connection/BiDirConnectionServerInterceptor.java 
+	(receive_request_service_contexts):
+	Use the ListenPoint profiles as keys for the connection, not the
+	connection's profile itself.
+
+	* orb/connection/ClientConnectionManager.java (addConnection): Add
+	a second form that takes a Profile argument, redefine the first in
+	terms of the second.
+
+	* orb/connection/Client_TCP_IP_Transport.java (connected): Remove
+	field, it is now in the superclass.
+	(connect): Make signature ETF-compliant, although the arguments
+	are still ignored.
+
+	* orb/connection/Server_TCP_IP_Transport.java (c'tor): Set
+	connected in superclass to true.
+	(close): Set connected to false.
+	(connect): Make signature ETF-compliant.
+
+	* orb/connection/TCP_IP_Transport.java (connected, is_connected):
+	New protected field and accessor method.
+	(connect): Remove abstract non-ETF method.
+	(write): Call ETF connect(), with dummy arguments.
+
+	* orb/connection/Transport.java (connect, is_connected): New ETF
+	methods.
+
 2003-04-24  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/connection/Transport.java (closeCompletely,
