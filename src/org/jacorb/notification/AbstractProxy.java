@@ -126,18 +126,12 @@ public abstract class AbstractProxy implements FilterAdminOperations,
 
     abstract public Servant getServant();
 
-    public void addProxyDisposedEventListener(ProxyEventListener listener)
+    public synchronized void addProxyDisposedEventListener(ProxyEventListener listener)
     {
         if (proxyDisposedEventListener_ == null)
-        {
-            synchronized (this)
             {
-                if (proxyDisposedEventListener_ == null)
-                {
-                    proxyDisposedEventListener_ = new Vector();
-                }
+                proxyDisposedEventListener_ = new Vector();
             }
-        }
 
         proxyDisposedEventListener_.add(listener);
     }
@@ -269,7 +263,7 @@ public abstract class AbstractProxy implements FilterAdminOperations,
         return filterManager_.getFilters();
     }
 
-    synchronized public void dispose()
+    public void dispose()
     {
         if (logger_.isDebugEnabled())
         {
