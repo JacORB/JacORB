@@ -863,7 +863,7 @@ class Interface
 
     protected void printLocalBase()
     {
-        PrintWriter ps = openOutput( name + "LocalBase" );
+        PrintWriter ps = openOutput( "_" + name + "LocalBase" );
         printPackage( ps );
         ps.println( "\n/**" );
         ps.println( " * Abstract base class for implenentations of local interface " + name );
