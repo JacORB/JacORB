@@ -207,7 +207,7 @@ public class ImplementationRepositoryImpl
      * <code>server</code> has been registered.
      */
     public void set_server_down(String server)
-        throws UnknownServerName 
+        throws UnknownServerName
     {
         Debug.output(4, "ImR: server " + server + " is going down... ");
 
@@ -345,7 +345,7 @@ public class ImplementationRepositoryImpl
      * to the daemon.
      */
     public void register_host(HostInfo host)
-        throws IllegalHostName, InvalidSSDRef 
+        throws IllegalHostName, InvalidSSDRef
     {
 
         if (host.name == null || host.name.length() == 0)
@@ -354,7 +354,7 @@ public class ImplementationRepositoryImpl
         try
         {
             host.ssd_ref.get_system_load();
-        } 
+        }
         catch (Exception _e)
         {
             Debug.output(4, _e);
@@ -398,7 +398,7 @@ public class ImplementationRepositoryImpl
      *
      * @return an array containing all known hosts.
      */
-    public HostInfo[] list_hosts() 
+    public HostInfo[] list_hosts()
     {
         return server_table.getHosts();
     }
@@ -409,7 +409,7 @@ public class ImplementationRepositoryImpl
      *
      * @return an array containing all registered servers.
      */
-    public ServerInfo[] list_servers() 
+    public ServerInfo[] list_servers()
     {
         ServerInfo [] servers;
 
@@ -550,7 +550,7 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.AdminPackage.UnknownServerName a server with <code>name</code>
      * has not been registered.
      */
-    public void edit_server(String name, String command, String host) 
+    public void edit_server(String name, String command, String host)
         throws UnknownServerName
     {
         updatePending = true;
@@ -584,8 +584,8 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> has not been registered.
      */
-    public void hold_server(String name) 
-        throws UnknownServerName 
+    public void hold_server(String name)
+        throws UnknownServerName
     {
         ImRServerInfo _server = server_table.getServer(name);
         _server.holding = true;
@@ -597,8 +597,8 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> has not been registered.
      */
-    public void release_server(String name) 
-        throws UnknownServerName 
+    public void release_server(String name)
+        throws UnknownServerName
     {
         ImRServerInfo _server = server_table.getServer(name);
         _server.release();
@@ -621,7 +621,7 @@ public class ImplementationRepositoryImpl
      * Save the server table to a backup file.
      * @exception org.jacorb.imr.AdminPackage.FileOpFailed something went wrong.
      */
-    public void save_server_table() 
+    public void save_server_table()
         throws FileOpFailed
     {
         if (table_file_backup != null)
@@ -831,7 +831,6 @@ public class ImplementationRepositoryImpl
         }
         catch (Exception _e)
         {
-            _e.printStackTrace();
             usage();
         }
 
