@@ -35,17 +35,20 @@ import java.io.*;
  * JacORB logger factory that creates named Avalon loggers with logkit
  * as the underlying log mechanism. <BR> The semantics here is that any
  * names logger retrieved using the logkit naming conventions for
- * nested loggers will inherit its parent loggers log target, e.g., a
- * logger retrieved for <code>jacorb.naming</code> inherits the root
- * logger's target (ie. <code>System.err</code>, or a file.
+ * nested loggers will inherit its parent loggers log target e.g., a
+ * logger retrieved for <code>jacorb.naming</code>
+ * inherits the root logger's target (ie. <code>System.err</code>, or
+ * a file.
  * <P>
- * Log priorities for new loggers are set implicitly to either the
- * value of this factory's <code>defaultPriority</code> field, or via
+ * Log priorities for new loggers are also inherited from the parent
+ * logger. If no parent logger is available the priority defaults to the
+ * value of this factory's <code>defaultPriority</code> field. The
+ * priorities for loggers can be set via
  * configuration properties that have the same name as the requested
  * logger, plus a suffix of <code>.log.verbosity</code>.
  * <P>
- * The priority for all loggers that do not have a specific <name>.log.verbosity 
- * prop defined will be set to the value of the jacorb.log.default.verbosity 
+ * The priority for all loggers that do not have a specific <name>.log.verbosity
+ * prop defined will be set to the value of the jacorb.log.default.verbosity
  * property, if it's set. If not, the default is 0.
  *
  * @author Gerald Brose
@@ -56,9 +59,13 @@ import java.io.*;
 public class LogKitLoggerFactory
     implements LoggerFactory
 {
+    private final static String DEFAULT_LOG_PATTERN =
+        "[%.20{category}] %.7{priority} : %{message}\\n%{throwable}";
+
     private final static String name = "logkit";
     private final static PatternFormatter logFormatter =
-        new PatternFormatter("[%.20{category}] %.7{priority} : %{message}\\n%{throwable}");
+        new PatternFormatter(Environment.getProperty("jacorb.log.default.log_pattern",
+                                                     DEFAULT_LOG_PATTERN));
 
     /** default priority for loggers created with this factory */
     private int defaultPriority = 0;
@@ -70,45 +77,43 @@ public class LogKitLoggerFactory
     private boolean append = false;
 
     /** the writer for console logging */
-    private Writer consoleWriter = null;
+    private Writer consoleWriter;
+
 
     /** this target for console logging */
-    private LogTarget consoleTarget =
-       new WriterTarget(consoleWriter, logFormatter);
-
+    private LogTarget consoleTarget;
 
 
     public LogKitLoggerFactory()
     {
-        String defaultPriorityString = 
+        String defaultPriorityString =
             Environment.getProperty("jacorb.log.default.verbosity");
 
         append = Environment.isPropertyOn("jacorb.logfile.append");
 
         if (defaultPriorityString != null)
         {
-           try
-           {
-               defaultPriority = Integer.parseInt(defaultPriorityString);
-           }
-           catch (NumberFormatException nfe)
-           {
-               defaultPriority = -1;
-           }
-           switch (defaultPriority)
-           {
-               case 0:
-               case 1:
-               case 2:
-               case 3:
-               case 4:
-                   break;
-               default:
-                   throw new IllegalArgumentException("'" + defaultPriorityString + "' is an illegal"
-                   + " value for the property jacorb.log.default.verbosity. Valid values are 0->4.");
-           }
+            try
+            {
+                defaultPriority = Integer.parseInt(defaultPriorityString);
+            }
+            catch (NumberFormatException nfe)
+            {
+                defaultPriority = -1;
+            }
+            switch (defaultPriority)
+            {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    break;
+                default:
+                    throw new IllegalArgumentException("'" + defaultPriorityString + "' is an illegal"
+                                                       + " value for the property jacorb.log.default.verbosity. Valid values are 0->4.");
+            }
         }
-
         consoleWriter = new OutputStreamWriter(System.err);
         consoleTarget = new WriterTarget(consoleWriter, logFormatter);
     }
@@ -207,24 +212,27 @@ public class LogKitLoggerFactory
     {
         Object o = namedLoggers.get(name);
 
-        if( o != null )
+        if ( o != null )
+        {
             return (Logger)o;
+        }
 
         org.apache.log.Logger logger =
             Hierarchy.getDefaultHierarchy().getLoggerFor(name);
 
-        String priorityString = Environment.getProperty( name + ".log.verbosity");
-
-        int priority = defaultPriority;
-
-        if (priorityString != null)
-            priority = Integer.parseInt(priorityString);
+        int priority = getPriorityForNamedLogger(name);
 
         logger.setPriority(intToPriority(priority));
 
         if (target != null )
         {
+            // LogTarget was provided by caller
             logger.setLogTargets( new LogTarget[] { target } );
+        }
+        else
+        {
+            // use default LogTarget
+            logger.setLogTargets(new LogTarget[] { consoleTarget } );
         }
 
         Logger result = new LogKitLogger(logger);
@@ -232,6 +240,43 @@ public class LogKitLoggerFactory
         namedLoggers.put(name, result);
 
         return result;
+    }
+
+
+    /**
+     * return the priority for a named logger. if no priority is
+     * specified for the requested name the priority of the first
+     * matching parent logger is returned.
+     * If there's no parent logger the factory default is returned.
+     *
+     * @param name the name of a logger
+     * @return the priority for that logger
+     */
+    public int getPriorityForNamedLogger(String name)
+    {
+        String prefix = name;
+
+        while (!prefix.equals(""))
+        {
+            String priorityString =
+                Environment.getProperty( prefix + ".log.verbosity");
+
+            if (priorityString != null)
+            {
+                return Integer.parseInt(priorityString);
+            }
+
+            if (prefix.lastIndexOf(".") >= 0)
+            {
+                prefix = prefix.substring(0, prefix.lastIndexOf("."));
+            }
+            else
+            {
+                prefix = "";
+            }
+        }
+
+        return defaultPriority;
     }
 
 
