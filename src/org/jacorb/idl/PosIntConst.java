@@ -21,6 +21,9 @@ package org.jacorb.idl;
  */
 
 /**
+ * Represents positive integer constants, used in array sizes and
+ * sequence bounds declarations.
+ *
  * @author Gerald Brose
  * @version $Id$
  */
@@ -29,7 +32,7 @@ class PosIntConst
     extends IdlSymbol
 {
     private int value = -1;
-    public ConstExpr const_expr;
+    ConstExpr const_expr;
 
     public PosIntConst( int num )
     {
@@ -39,7 +42,15 @@ class PosIntConst
     void setExpression( ConstExpr const_expr )
     {
         this.const_expr = const_expr;
+    }
+
+    public void parse()
+    {
         const_expr.parse();
+    }
+
+    public int value()
+    {        
         if( value == -1 )
         {
             value = const_expr.pos_int_const();
@@ -47,14 +58,6 @@ class PosIntConst
                 throw new ParseException("Integer constant value must be greater 0.", 
                                          this.myPosition );
         }
-    }
-
-    public void parse()
-    {
-    }
-
-    public int value()
-    {        
         return value;
     }
 
