@@ -78,11 +78,13 @@ public class FilterConstraint
             constraint_ = constraintExp.constraint_expr;
             rootNode_ = TCLParser.parse( constraintExp.constraint_expr );
 
-            TCLCleanUp _cleanUp = new TCLCleanUp();
-            _cleanUp.fix( rootNode_ );
+            if (rootNode_ != null) {
+                TCLCleanUp _cleanUp = new TCLCleanUp();
+                _cleanUp.fix( rootNode_ );
 
-            StaticTypeChecker _checker = new StaticTypeChecker();
-            _checker.check( rootNode_ );
+                StaticTypeChecker _checker = new StaticTypeChecker();
+                _checker.check( rootNode_ );
+            }
 
             return;
         }
@@ -107,6 +109,10 @@ public class FilterConstraint
                                       Message event )
         throws EvaluationException
     {
+        if (rootNode_ == null) {
+            return EvaluationResult.BOOL_TRUE;
+        }
+
         if (logger_.isDebugEnabled() ) {
             logger_.debug("evaluate()" + rootNode_.toStringTree());
         }
