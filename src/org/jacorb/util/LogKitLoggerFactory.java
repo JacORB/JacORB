@@ -33,7 +33,16 @@ import java.io.*;
 
 /**
  * JacORB logger factory that creates named Avalon loggers with logkit
- * as the actual mechanism
+ * as the underlying log mechanism. <BR> The semantics here is that any 
+ * names logger retrieved using the logkit naming conventions for
+ * nested loggers will inherit its parent loggers log target, e.g., a
+ * logger retrieved for <code>jacorb.naming</code> inherits the root
+ * logger's target (ie. <code>System.err</code>, or a file.
+ * <P>
+ * Log priorities for new loggers are set implicitly to either the 
+ * value of this factory's <code>defaultPriority</code> field, or via
+ * configuration properties that have the same name as the requested 
+ * logger, plus a suffix of <code>.log.verbosity</code>.
  *
  * @author Gerald Brose 
  * @version $Id$
@@ -64,31 +73,43 @@ class LogKitLoggerFactory
         consoleWriter = new OutputStreamWriter(System.err);
     }
 
+    /**  
+     * set the default log priority applied to all loggers on creation, 
+     * if no specific log verbosity property exists for the logger.
+     */
+
     public void setDefaultPriority(int priority)
     {
         defaultPriority = priority;
     }
 
     /**
-     * @return the name of the actual logging mechanism, here "logkit"
+     * @return the name of the actual, underlying logging mechanism, 
+     * here "logkit"
      */
+
     public final String getLoggingBackendName()
     {
         return name;
     }
 
     /**
-     * @return a Logger for a given name and which inherits its log
-     * targets from its ancestors in the logging hierarchy
+     * @param name the name of the logger, which also functions 
+     *        as a log category
+     * @return a Logger for a given name 
      */
+
     public Logger getNamedLogger(String name)
     {
         return getNamedLogger(name, null);
     }
 
     /**
-     * @return a Logger for a given name and which logs to the console (System.err)
+     * @param name the name of the logger, which also functions 
+     *        as a log category
+     * @return a root console logger for a logger name hierarchy
      */
+
     public Logger getNamedRootLogger(String name)
     {
         LogTarget target = new WriterTarget(consoleWriter, logFormatter);
@@ -97,11 +118,16 @@ class LogKitLoggerFactory
 
 
     /**
-     * @return a Logger for a given name with a given priority and
-     * which logs to the a file log target until the log has size
-     * maxLogSize, at which time the log will be rotated. A maxLogSize
-     * of 0 means unlimited.  
+     * @param name the name of the logger, which also functions 
+     *        as a log category
+     * @param logFileName the name of the file to log to
+     * @param maxLogSize maximum size of the log file. When this size is reached
+     *        the log file will be rotated and a new log file created. A value of 0
+     *        means the log file size is unlimited.
+     * 
+     * @return the new logger. 
      */
+
     public Logger getNamedLogger(String name, String logFileName, long maxLogSize)
         throws IOException
     { 
@@ -133,8 +159,11 @@ class LogKitLoggerFactory
 
 
     /**
-     * @return a Logger for a given name with a given priority and
-     * a given log target. Will log to console if target is null
+     * @param name the name of the logger, which also functions 
+     *        as a log category
+     * @param the log target for the new logger. If null, the new logger 
+     *        will log to System.err
+     * @return the logger 
      */
     public Logger getNamedLogger(String name, LogTarget target)
     {
