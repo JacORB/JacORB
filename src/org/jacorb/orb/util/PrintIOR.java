@@ -306,6 +306,7 @@ public class PrintIOR
             new CDRInputStream( (org.omg.CORBA.ORB)null, 
                                 taggedComponent.component_data );
 
+        is.openEncapsulatedArray();
         String codebase = is.read_string();
 
         System.out.println( "\t\tCodebase: " + codebase );

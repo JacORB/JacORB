@@ -351,6 +351,7 @@ public class ParsedIOR
 	    CDRInputStream is =
 		new CDRInputStream( orb, 
                                    taggedComponents[i].component_data);
+	    is.openEncapsulatedArray();
 	    return is.read_string();
 	}
         return null;
