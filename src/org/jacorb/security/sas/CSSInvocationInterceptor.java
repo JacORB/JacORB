@@ -37,6 +37,7 @@ import org.jacorb.orb.connection.ClientConnection;
 import org.omg.IOP.*;
 import org.omg.CSI.*;
 import org.omg.CSIIOP.*;
+import org.omg.ATLAS.*;
 
 /**
  * This is the SAS Client Security Service (CSS) Interceptor
@@ -55,6 +56,8 @@ public class CSSInvocationInterceptor
 
     private Codec codec = null;
     private String name = null;
+
+    private Hashtable atlasCache = new Hashtable();
 
     public CSSInvocationInterceptor(Codec codec)
     {
@@ -78,7 +81,14 @@ public class CSSInvocationInterceptor
     public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri) throws org.omg.PortableInterceptor.ForwardRequest
     {
         // see if target requires protected requests by looking into the IOR
-        TaggedComponent tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
+        TaggedComponent tc = null;
+        try
+        {
+            tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
+        }
+        catch (Exception e)
+        {
+        }
         if (tc == null) return;
         org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
 
@@ -104,6 +114,10 @@ public class CSSInvocationInterceptor
         long client_context_id = connection.cacheSASContext(contextToken);
         if (client_context_id < 0) Debug.output(1, "New SAS Context: " + (-client_context_id));
 
+        // get ATLAS tokens
+        AuthorizationElement[] authorizationList = getATLASTokens(orb, tc);
+System.out.println("Authorized list size = " + authorizationList.length);
+
         // establish the security context
         try
         {
@@ -112,7 +126,7 @@ public class CSSInvocationInterceptor
             {
                 IdentityToken identityToken = new IdentityToken();
                 identityToken.absent(true);
-                msg = makeEstablishContext(orb, -client_context_id, new AuthorizationElement[0], identityToken, contextToken);
+                msg = makeEstablishContext(orb, -client_context_id, authorizationList, identityToken, contextToken);
             }
             else
             {
@@ -235,6 +249,79 @@ public class CSSInvocationInterceptor
         Any any = orb.create_any();
         SASContextBodyHelper.insert( any, contextBody );
         return any;
+    }
+
+    private AuthorizationElement[] getATLASTokens(org.omg.CORBA.ORB orb, TaggedComponent tc) throws org.omg.CORBA.NO_PERMISSION
+    {
+        // find the ATLAS profile in the IOR
+        ATLASProfile atlasProfile = null;
+        try
+        {
+            //Any any = orb.create_any();
+            //any = codec.decode(tc.component_data);
+            //CompoundSecMechList compoundSecMechList = CompoundSecMechListHelper.extract(any);
+            CDRInputStream is = new CDRInputStream( orb, tc.component_data);
+            is.openEncapsulatedArray();
+            CompoundSecMechList compoundSecMechList = CompoundSecMechListHelper.read( is );
+            ServiceConfiguration authorities[] = compoundSecMechList.mechanism_list[0].sas_context_mech.privilege_authorities;
+            for (int i = 0; i < authorities.length; i++)
+            {
+                if (authorities[i].syntax != SCS_ATLAS.value) continue;
+                Any any = codec.decode(authorities[i].name);
+                atlasProfile = ATLASProfileHelper.extract(any);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.output(1, "Error parsing ATLAS from IOR: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION();
+        }
+        if (atlasProfile == null) return new AuthorizationElement[0];
+        String cacheID = new String(atlasProfile.the_cache_id);
+        String locator = atlasProfile.the_locator.the_url();
+
+        // see if the tokens are in the ATLAS cache
+        synchronized (atlasCache)
+        {
+            if (atlasCache.containsKey(cacheID))
+            {
+System.out.println("3 found cached tokens");
+                return ((AuthTokenData)atlasCache.get(cacheID)).auth_token;
+            }
+        }
+
+        // contact the ATLAS server and get the credentials
+        AuthTokenDispenser dispenser = null;
+        try {
+            org.omg.CORBA.Object obj = orb.string_to_object(locator);
+            dispenser = AuthTokenDispenserHelper.narrow(obj);
+        }
+        catch (Exception e)
+        {
+            Debug.output(1, "Could not find ATLAS server " + locator + ": " + e);
+            throw new org.omg.CORBA.NO_PERMISSION();
+        }
+        if (dispenser == null)
+        {
+            Debug.output(1, "Could not find ATLAS server " + locator);
+            throw new org.omg.CORBA.NO_PERMISSION();
+        }
+
+        AuthTokenData data = null;
+        try
+        {
+            data = dispenser.get_my_authorization_token();
+        }
+        catch (Exception e)
+        {
+            Debug.output(1, "error getting ATLAS tokens from server " + locator + ": " + e);
+            throw new org.omg.CORBA.NO_PERMISSION();
+        }
+        synchronized (atlasCache)
+        {
+            atlasCache.put(cacheID, data);
+        }
+        return data.auth_token;
     }
 
 }

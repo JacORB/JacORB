@@ -27,14 +27,14 @@
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
 	       includes="demo/${name}/*.java"
-		  excludes="demo/${name}/JAASClient.java,demo/${name}/LoginCallbackHandler.java"
+		  excludes="demo/${name}/JAASClient.java,demo/${name}/LoginCallbackHandler.java,demo/${name}/NT_*.java"
 	        />
    </target>
 
    <target name="jaas" if="jaas.modules.present">
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
-	       includes="demo/${name}/JAASClient.java,demo/${name}/LoginCallbackHandler.java"
+	       includes="demo/${name}/JAASClient.java,demo/${name}/LoginCallbackHandler.java,demo/${name}/NT_*.java"
 	        />
    </target>
 

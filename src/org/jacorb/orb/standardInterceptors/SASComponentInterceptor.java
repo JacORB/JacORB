@@ -24,9 +24,11 @@ import java.util.*;
 
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.*;
+import org.omg.IOP.CodecFactoryPackage.*;
 import org.omg.CSIIOP.*;
 import org.omg.GSSUP.*;
 import org.ietf.jgss.*;
+import org.omg.ATLAS.*;
 
 import org.jacorb.orb.*;
 import org.jacorb.util.*;
@@ -43,11 +45,22 @@ public class SASComponentInterceptor
     implements IORInterceptor
 {
     private ORB orb = null;
+    private Codec codec = null;
     private TaggedComponent tc = null;
 
     public SASComponentInterceptor( ORB orb )
     {
         this.orb = orb;
+        try
+        {
+            Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
+            CodecFactory codec_factory = (CodecFactory) orb.resolve_initial_references("CodecFactory");
+            codec = codec_factory.create_codec(encoding);
+        }
+        catch (Exception e)
+        {
+            Debug.output( Debug.SECURITY | Debug.IMPORTANT, e);
+        }
     }
 
     // implementation of org.omg.PortableInterceptor.IORInterceptorOperations interface
@@ -97,17 +110,54 @@ public class SASComponentInterceptor
                 short asTargetRequires = targetRequires;
 
                 // the SAS_ContextSec
-                ServiceConfiguration[] serviceConfiguration = { new ServiceConfiguration(0, new byte[0]) };
+                String atlasURL = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.url");
+                String atlasCache = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.cacheid");
+                ServiceConfiguration[] serviceConfiguration = null;
+                if (atlasURL == null)
+                {
+                    serviceConfiguration = new ServiceConfiguration[0];
+                }
+                else
+                {
+                    if (atlasCache == null) atlasCache = "";
+                    ATLASLocator atlasLoc = new ATLASLocator();
+                    atlasLoc.the_url(atlasURL);
+                    ATLASProfile profile = new ATLASProfile();
+                    profile.the_cache_id = atlasCache.getBytes();
+                    profile.the_locator = atlasLoc;
+                    byte[] cdrProfile = new byte[0];
+                    //try
+                    //{
+                        org.omg.CORBA.Any any = orb.create_any();
+                        ATLASProfileHelper.insert( any, profile );
+                        cdrProfile = codec.encode(any);
+                    //}
+                    //catch (UnknownEncoding unknownEncoding)
+                    //{
+                    //    Debug.output( Debug.SECURITY | Debug.IMPORTANT, unknownEncoding);
+                    //}
+                    serviceConfiguration = new ServiceConfiguration[1];
+                    serviceConfiguration[0] = new ServiceConfiguration(SCS_ATLAS.value, cdrProfile);
+                }
                 SAS_ContextSec sasContextSec = new SAS_ContextSec((short)0, (short)0, serviceConfiguration, new byte[0][0], 0);
 
                 // create the security mech list
-                Oid[] mechs = org.jacorb.security.sas.TSSInitializer.gssManager.getMechs();
-                CompoundSecMech[] compoundSecMech = new CompoundSecMech[mechs.length-1];
-                for (int i = 1; i < mechs.length; i++)
+                int mechCnt = 0;
+                for (int i = 1; i <= 16; i++)
                 {
-                  byte[] clientAuthenticationMech = mechs[i].getDER();
-                  AS_ContextSec asContextSec = new AS_ContextSec(asTargetSupports, asTargetRequires, clientAuthenticationMech, targetName);
-                  compoundSecMech[i-1] = new CompoundSecMech(targetRequires, transportMech, asContextSec, sasContextSec);
+                    String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".oid");
+                    if (mechOID != null) mechCnt++;
+                }
+                CompoundSecMech[] compoundSecMech = new CompoundSecMech[mechCnt];
+                mechCnt = 0;
+                for (int i = 1; i <= 16; i++)
+                {
+                    String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".oid");
+                    if (mechOID == null) continue;
+                    Oid oid = new Oid(mechOID);
+                    byte[] clientAuthenticationMech = oid.getDER();
+                    AS_ContextSec asContextSec = new AS_ContextSec(asTargetSupports, asTargetRequires, clientAuthenticationMech, targetName);
+                    compoundSecMech[mechCnt++] = new CompoundSecMech(targetRequires, transportMech, asContextSec, sasContextSec);
                 }
                 CompoundSecMechList compoundSecMechList = new CompoundSecMechList(false, compoundSecMech);
 
@@ -116,6 +166,9 @@ public class SASComponentInterceptor
                 sasDataStream.beginEncapsulatedArray();
                 CompoundSecMechListHelper.write( sasDataStream , compoundSecMechList );
                 tc = new TaggedComponent( TAG_CSI_SEC_MECH_LIST.value, sasDataStream.getBufferCopy() );
+                //org.omg.CORBA.Any any = orb.create_any();
+                //CompoundSecMechListHelper.insert( any, compoundSecMechList );
+                //tc = new TaggedComponent( TAG_CSI_SEC_MECH_LIST.value, codec.encode(any) );
             }
 
             info.add_ior_component_to_profile (tc, TAG_INTERNET_IOP.value);

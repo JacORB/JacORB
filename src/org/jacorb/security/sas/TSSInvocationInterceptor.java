@@ -59,7 +59,6 @@ public class TSSInvocationInterceptor
     private int sourceNameSlotID = -1;
     private int sasReplySlotID = -1;
 
-
     public TSSInvocationInterceptor(org.jacorb.orb.ORB orb, Codec codec, int sourceNameSlotID, int sasReplySlotID)
     {
         this.orb = orb;
@@ -85,7 +84,7 @@ public class TSSInvocationInterceptor
     public void receive_request( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        System.out.println("receive_request");
+        //System.out.println("receive_request");
     }
 
 
@@ -97,31 +96,51 @@ public class TSSInvocationInterceptor
         GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
         long client_context_id = 0;
         byte[] contextToken = null;
+
+        // parse service context
+        GSSManager gssManager = null;
         try
         {
-            // parse service context
-            GSSManager gssManager = TSSInitializer.gssManager;
+            gssManager = TSSInitializer.gssManager;
             ServiceContext ctx = ri.get_request_service_context(SecurityAttributeService);
             Any ctx_any = codec.decode( ctx.context_data );
             contextBody = SASContextBodyHelper.extract(ctx_any);
+        }
+        catch (Exception e)
+        {
+            Debug.output(1, "Could not parse service context: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("Error parsing service context");
+        }
 
-            // process MessageInContext
-            if (contextBody.discriminator() == MTMessageInContext.value)
+        // process MessageInContext
+        if (contextBody.discriminator() == MTMessageInContext.value)
+        {
+            MessageInContext msg = null;
+            try
             {
-                MessageInContext msg = contextBody.in_context_msg();
+                msg = contextBody.in_context_msg();
                 client_context_id = msg.client_context_id;
                 contextToken = connection.getSASContext(msg.client_context_id);
-                if (contextToken == null)
-                {
-                    Debug.output(1, "Could not find cached context: " + msg.client_context_id);
-                    throw new org.omg.CORBA.NO_PERMISSION();
-                }
             }
-
-            // process EstablishContext
-            if (contextBody.discriminator() == MTEstablishContext.value)
+            catch (Exception e)
             {
-                EstablishContext msg = contextBody.establish_msg();
+                Debug.output(1, "Could not parse service MessageInContext: " + e);
+                throw new org.omg.CORBA.NO_PERMISSION("Error parsing MessageInContext");
+            }
+            if (contextToken == null)
+            {
+                Debug.output(1, "Could not parse service MessageInContext: " + msg.client_context_id);
+                throw new org.omg.CORBA.NO_PERMISSION("Error parsing MessageInContext");
+            }
+        }
+
+        // process EstablishContext
+        if (contextBody.discriminator() == MTEstablishContext.value)
+        {
+            EstablishContext msg = null;
+            try
+            {
+                msg = contextBody.establish_msg();
                 client_context_id = msg.client_context_id;
 
                 // verify context
@@ -130,32 +149,39 @@ public class TSSInvocationInterceptor
                 context.acceptSecContext(msg.client_authentication_token, 0, msg.client_authentication_token.length);
                 GSSName sourceName = context.getSrcName();
                 contextToken = sourceName.toString().getBytes();
-                if (contextToken == null)
-                {
-                    Debug.output(1, "Could not find cached context: " + msg.client_context_id);
-                    throw new org.omg.CORBA.NO_PERMISSION();
-                }
-
-                // cache context
-                connection.cacheSASContext(msg.client_context_id, contextToken);
+            }
+            catch (Exception e)
+            {
+                Debug.output(1, "Could not parse service EstablishContext: " + e);
+                e.printStackTrace();
+                throw new org.omg.CORBA.NO_PERMISSION("Error parsing EstablishContext");
+            }
+            if (contextToken == null)
+            {
+                Debug.output(1, "Could not parse service EstablishContext: " + msg.client_context_id);
+                throw new org.omg.CORBA.NO_PERMISSION("Error parsing EstablishContext");
             }
 
+            // cache context
+            connection.cacheSASContext(msg.client_context_id, contextToken);
+        }
+
+        // set slots
+        try
+        {
             Any source_any = orb.create_any();
             source_any.insert_string(new String(contextToken));
+            //Any tokens_any = orb.create_any();
+            //tokens_any.insert_string(new String(contextToken));
             ri.set_slot( sourceNameSlotID, source_any);
+            //ri.set_slot( authTokensSlotID, source_any);
             ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id, true));
-        }
-        catch (GSSException e)
-        {
-            Debug.output(1, "Error parsing service context: " + e+": "+e.getMajorString()+": "+e.getMinorString());
-            try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, e.getMajor(), e.getMinor(), contextToken)); } catch (Exception ee) {}
-            throw new org.omg.CORBA.NO_PERMISSION("Error parsing service context");
         }
         catch (Exception e)
         {
-            Debug.output(1, "Error parsing service context: " + e);
+            Debug.output(1, "Error insert service context into slots: " + e);
             try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
-            throw new org.omg.CORBA.NO_PERMISSION("Error parsing service context");
+            throw new org.omg.CORBA.NO_PERMISSION("Error insert service context into slots");
         }
     }
 

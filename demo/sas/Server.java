@@ -10,7 +10,7 @@ import org.omg.CORBA.ORB;
 import org.ietf.jgss.*;
 import org.jacorb.util.*;
 
-import org.jacorb.security.level2.*;
+//import org.jacorb.security.level2.*;
 
 /**
  * This is the server part of the sas demo. It demonstrates

@@ -637,9 +637,16 @@
       includes="**/omg/GSSUP.idl"
       destdir="${src}/generated"/>
 
+      <jacidl generateir="true"
+      srcdir="idl"
+      packageprefix="org.omg"
+      includepath="${basedir}/idl/omg"
+      includes="**/omg/ATLAS.idl"
+      destdir="${src}/generated"/>
+
       <javac debug="${debug}" srcdir="${src}/generated"
              destdir="${classdir}"
-             includes="org/omg/CSI/**,org/omg/CSIIOP/**,org/omg/GSSUP/**"
+             includes="org/omg/CSI/**,org/omg/CSIIOP/**,org/omg/GSSUP/**,org/omg/ATLAS/**"
       />
    </target>
 

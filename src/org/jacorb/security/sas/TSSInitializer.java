@@ -45,6 +45,7 @@ public class TSSInitializer
 {
     public static GSSManager gssManager = GSSManager.getInstance();
     public static int sourceNameSlotID = -1;
+    public static int authTokensSlotID = -1;
     public static int sasReplySlotID = -1;
 
     /**
@@ -73,6 +74,7 @@ public class TSSInitializer
         try
         {
             sourceNameSlotID = info.allocate_slot_id();
+            authTokensSlotID = info.allocate_slot_id();
             sasReplySlotID = info.allocate_slot_id();
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
             Codec codec = info.codec_factory().create_codec(encoding);
