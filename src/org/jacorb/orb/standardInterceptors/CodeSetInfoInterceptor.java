@@ -20,35 +20,35 @@ public class CodeSetInfoInterceptor
 
     public CodeSetInfoInterceptor(ORB orb) 
     {
-	// create the info
-	org.omg.CONV_FRAME.CodeSetComponentInfo cs_info =
-	    new org.omg.CONV_FRAME.CodeSetComponentInfo();
+        // create the info
+        org.omg.CONV_FRAME.CodeSetComponentInfo cs_info =
+            new org.omg.CONV_FRAME.CodeSetComponentInfo();
 		
-	// fill the info
-	cs_info.ForCharData = 
+        // fill the info
+        cs_info.ForCharData = 
             new org.omg.CONV_FRAME.
                 CodeSetComponent( CodeSet.getTCSDefault(), 
                                   new int[] { CodeSet.getConversionDefault() } );
 
-	cs_info.ForWcharData = 
+        cs_info.ForWcharData = 
             new org.omg.CONV_FRAME.
                 CodeSetComponent( CodeSet.getTCSWDefault(), 
-                              new int[] { CodeSet.UTF8 } );
+                                  new int[] { CodeSet.UTF8 } );
 			
-	// encapsulate it into TaggedComponent
-	CDROutputStream os = new CDROutputStream( orb );
-	os.beginEncapsulatedArray();
-	org.omg.CONV_FRAME.CodeSetComponentInfoHelper.write( os, cs_info );
+        // encapsulate it into TaggedComponent
+        CDROutputStream os = new CDROutputStream( orb );
+        os.beginEncapsulatedArray();
+        org.omg.CONV_FRAME.CodeSetComponentInfoHelper.write( os, cs_info );
 
-	tagc = 
-	    new org.omg.IOP.TaggedComponent( org.omg.IOP.TAG_CODE_SETS.value,
+        tagc = 
+            new org.omg.IOP.TaggedComponent( org.omg.IOP.TAG_CODE_SETS.value,
                                              os.getBufferCopy());
-	os.close();
+        os.close();
     }
 
     public String name()
     {
-	return "CodeSetInfoComponentCreator";
+        return "CodeSetInfoComponentCreator";
     }
 
     public void destroy()
@@ -66,11 +66,11 @@ public class CodeSetInfoInterceptor
     public void establish_components( IORInfo info ) 
     {    
 
-	info.add_ior_component_to_profile( tagc, 
-                                           org.omg.IOP.TAG_INTERNET_IOP.value );
+        info.add_ior_component_to_profile( tagc, 
+                                           org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value );
 
-//  	org.jacorb.util.Debug.output( Debug.INTERCEPTOR | 3, 
-//               "CodeSetInfoCreator added TaggedComponent to TAG_MULTIPLE_COMPONENTS profile");
+        //  	org.jacorb.util.Debug.output( Debug.INTERCEPTOR | 3, 
+        //               "CodeSetInfoCreator added TaggedComponent to TAG_MULTIPLE_COMPONENTS profile");
       
     }
 }
