@@ -3,20 +3,10 @@
 module org {
   module jacorb {
     module notification {
-
-      struct StaticEventChannelFactoryInfo {
-	string corbaloc;
-	long port;
-	string hostname;
-	boolean filterfactory_running;
-	string filterfactory_url;
-      };
-
       interface JacORBEventChannelFactory:
-	::CosNotifyChannelAdmin::EventChannelFactory
+		::CosNotifyChannelAdmin::EventChannelFactory
       {
-	StaticEventChannelFactoryInfo get_static_info();
-	void destroy();
+		void destroy();
       };
     };
   };
