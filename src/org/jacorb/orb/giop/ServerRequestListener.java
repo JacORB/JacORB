@@ -86,6 +86,8 @@ public class ServerRequestListener
                 new ReplyOutputStream( in.req_hdr.request_id,
                                        ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                        in.getGIOPMinor() );
+
+            Debug.output( 2, "About to reject request because connection is not SSL.");
         
             SystemExceptionHelper.write( out, 
                   new NO_PERMISSION( 3, CompletionStatus.COMPLETED_NO ));
