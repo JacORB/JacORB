@@ -38,6 +38,14 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+1.4.1
+=====
+
+   - bug fixes:
+         - ORB:
+               - Reverted to old (1.3) IOR format to maintain backwards
+                 compatability.
+
 1.4.0
 =====
 
@@ -100,7 +108,6 @@ gerald.brose@acm.org
          - Added property "jacorb.orb.objectKeyMap" to map object keys to
            arbitrary (hopefully readable) strings, which in turn permit
            the construction of short and simple corbaloc: IORs
-
          - (Re-)Added support for UTF-8 for IDL types char and string
 
    - DynAny:

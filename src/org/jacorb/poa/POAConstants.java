@@ -26,37 +26,33 @@ package org.jacorb.poa;
  * @author Reimo Tiedemann, FU Berlin
  * @version $Id$
  */
-public class POAConstants {
+public class POAConstants
+{
+    /* request queue */ 
+    public final static int QUEUE_CAPACITY_INI = 10;
+    public final static int QUEUE_CAPACITY_INC = 10;
 
-	/* request queue */ 
-	public final static int QUEUE_CAPACITY_INI = 10;
-	public final static int QUEUE_CAPACITY_INC = 10;
+    /* shutdown states */
+    public final static int NOT_CALLED = 0;
+    public final static int SHUTDOWN_IN_PROGRESS = 1;
+    public final static int DESTRUCTION_APPARENT = 2;
+    public final static int DESTRUCTION_COMPLETE = 3;
 
-	/* shutdown states */
-	public final static int NOT_CALLED = 0;
-	public final static int SHUTDOWN_IN_PROGRESS = 1;
-	public final static int DESTRUCTION_APPARENT = 2;
-	public final static int DESTRUCTION_COMPLETE = 3;
-	
-	/* separator char for qualified poa names */
-	public final static String OBJECT_KEY_SEPARATOR = "/";
-	public final static byte   OBJECT_KEY_SEP_BYTE = OBJECT_KEY_SEPARATOR.getBytes()[0];
-	
-	public final static byte MASK_BYTE = (byte) '&';
-	public final static byte MASK_MASK_BYTE = (byte) '&';
-	public final static byte SEPA_MASK_BYTE = (byte) '%';
-			
-	/* root POA name */
-	public final static String ROOT_POA_NAME = "RootPOA";
+    /* separator char for qualified poa names */
+    public final static String OBJECT_KEY_SEPARATOR = "/";
+    public final static byte   OBJECT_KEY_SEP_BYTE = OBJECT_KEY_SEPARATOR.getBytes()[0];
 
-	/* poa states */
-	public static int ACTIVE = 0;
-	public static int HOLDING = 1;
-	public static int DISCARDING = 2;
-	public static int INACTIVE = 3;
-	public static int DESTROYED = 4;
+    public final static byte MASK_BYTE = (byte) '&';
+    public final static byte MASK_MASK_BYTE = (byte) '&';
+    public final static byte SEPA_MASK_BYTE = (byte) '%';
 
-   /* object key bit flags */
-   public static byte PERSISTENT = 0x01;
+    /* root POA name */
+    public final static String ROOT_POA_NAME = "RootPOA";
+
+    /* poa states */
+    public final static int ACTIVE = 0;
+    public final static int HOLDING = 1;
+    public final static int DISCARDING = 2;
+    public final static int INACTIVE = 3;
+    public final static int DESTROYED = 4;
 }
-

@@ -839,16 +839,6 @@ public final class Delegate
                         Debug.output( 2, "Delegate: JacORB IOR detected" );
 
                         byte[] object_key = getParsedIOR().get_object_key();
-                        byte flag = POAUtil.extractKeyFlag( object_key );
-
-                        // only lookup ImR if object is persistent
-                        if ( ! POAUtil.isPersistent( flag ) )
-                        {
-                            Debug.output( 2, "Delegate: object is transient" );
-                            throw cfe;
-                        }
-
-                        Debug.output( 2, "Delegate: object is persistent" );
 
                         // No backup IOR so it may be that the ImR is down
                         // Attempt to resolve the ImR again to see if it has

@@ -128,38 +128,17 @@ public final class POAUtil
         return "unknown";
     }
 
-
-    /**
-     * extracts the object key flag from the specified object key
-     */
-
-    public static byte extractKeyFlag(byte[] object_key)
-    {
-        return object_key[0];
-    }
-
-    /**
-     * determine if the key flag indicates persistence
-     */
-
-    public static boolean isPersistent(byte flag)
-    {
-        return ((flag & POAConstants.PERSISTENT) == POAConstants.PERSISTENT);
-    }
-
     /**
      * extracts the impl name from a specified object key
      */
 
     public static String extractImplName(byte[] object_key) 
     {
-        // skip the first byte because it is not part of the POA name
-
-        for (int i = 1; i < object_key.length; i++) 
+        for (int i = 0; i < object_key.length; i++) 
         {
             if( object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE ) 
             {
-                byte[] result = IdUtil.extract(object_key, 1, i-1);
+                byte[] result = IdUtil.extract(object_key, 0, i);
                 return unmaskStr( new String(result) );
             }
         }
