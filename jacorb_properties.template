@@ -18,7 +18,7 @@
 # displayed (because the services aren't up yet). These exceptions
 # are handled properly and cause no harm!
 
-#ORBInitRef.NameService=corbaloc::160.45.110.41:38693/StandardNS/NameServer%2DPOA/_root
+#ORBInitRef.NameService=corbaloc::160.45.110.41:38693/StandardNS/NameServer-POA/_root
 #ORBInitRef.NameService=file:/c:/NS_Ref
 ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
@@ -389,9 +389,12 @@ jacorb.imr.ior_file=/home/bwana/brose/public_html/ImR_Ref
 jacorb.imr.timeout=
 jacorb.imr.no_of_poas=
 jacorb.imr.no_of_servers=
-# Start IMR on a fixed port (equivilant to -p option)
+# Host for IMR. This shouldn't normally be set
+# (the listener should start on the local host) but this is useful to force a host.
+#jacorb.imr.host=
+# Start IMR on a fixed port (equivilant to -p option) (for the IOR)
 jacorb.imr.port_number=
-# Port number for IMR endpoint (for IMR IOR)
+# Port number for IMR endpoint
 jacorb.imr.endpoint_port_number=
 
 # how many millisecs should the imr wait, until a connection from an
