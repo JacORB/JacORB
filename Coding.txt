@@ -6,7 +6,7 @@ gerald.brose@acm.org
             JacORB Coding Conventions
 	    =========================
 
-JacORB uses the Apache Jakarta Coding Styl, which is based on the Sun
+JacORB uses the Apache Jakarta Coding Style, which is based on the Sun
 coding conventions for Java. Please see 
 http://jakarta.apache.org/turbine/common/code-standards.html for
 reference.
@@ -129,8 +129,8 @@ General rules
     - as much as you can:
          javadoc public and package local methods and fields!!!
          javadoc private and protected ones also
-    - add javadoc wherever you modify code and you know what you are
-    doing 
+    - add javadoc wherever you modify code (and you know what you are
+      doing ;-) )
 
 3) Place the JacORB LGPL license header on all files.
 
