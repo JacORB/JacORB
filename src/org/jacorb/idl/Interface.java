@@ -303,7 +303,7 @@ class Interface
         }
         //printImport(ps);
 
-        if( is_pseudo )
+        if( is_pseudo  )
         {
             ps.println( "public abstract class " + classname );
 
@@ -339,19 +339,26 @@ class Interface
         else
         {
             ps.println( "public interface " + classname );
-            ps.print( "\textends " + classname + "Operations" );
-
-            if( is_local )
-            {
-                // Cannot extend LocalObject as required by specification as this is
-                // an abstract class rather than an interface. Looking at RTF work it
-                // seems a new interface 'LocalInterface' will be used for this purpose.
-
-                ps.print( ", org.omg.CORBA.Object" );
+            
+            if( is_abstract )
+            {               
+                ps.print( "\textends org.omg.CORBA.portable.IDLEntity");
             }
             else
             {
-                ps.print( ", org.omg.CORBA.Object, org.omg.CORBA.portable.IDLEntity" );
+                ps.print( "\textends " + classname + "Operations" );
+                
+                if( is_local )
+                {
+                    // Looking at RTF work it
+                    // seems a new interface 'LocalInterface' will be used for this purpose.
+                    
+                    ps.print( ", org.omg.CORBA.LocalInterface, org.omg.CORBA.portable.IDLEntity" );
+                }
+                else
+                {
+                    ps.print( ", org.omg.CORBA.Object, org.omg.CORBA.portable.IDLEntity" );
+                }
             }
 
             if( inheritanceSpec.v.size() > 0 )
@@ -369,6 +376,12 @@ class Interface
             // forward declaration
             body.printConstants( ps );
             body.printInterfaceMethods( ps );
+
+            // for an abstract interface, the generated abstract class contains
+            // the operation signatures since there is no separate signature
+            // interface
+            if( is_abstract )
+                body.printOperationSignatures( ps );
         }
         ps.println( "}" );
     }
@@ -806,6 +819,33 @@ class Interface
         ps.println( "}" );
     }
 
+    private void printLocalBase( String className, PrintWriter ps )
+    {
+        if( !pack_name.equals( "" ) )
+            ps.println( "package " + pack_name + ";" );
+
+        ps.println( "\n/**" );
+        ps.println( " * Abstract base class for implenentations of local interface " + className );
+        ps.println( " * @author JacORB IDL compiler." );
+        ps.println( " */" );
+
+        ps.println( "\npublic abstract class _" + className + "LocalBase" );
+        ps.println( "\textends org.omg.CORBA.LocalObject" );
+        ps.println( "\timplements " + className);
+        ps.println( "{" );
+        ps.print( "\tprivate String[] _type_ids = {" );
+        String[] ids = get_ids();
+        for( int i = 0; i < ids.length - 1; i++ )
+            ps.print( "\"" + ids[ i ] + "\"," );
+        ps.println( "\"" + ids[ ids.length - 1 ] + "\"};" );
+
+        ps.print( "\tpublic String[] _ids()" );
+        ps.println( "\t{" );
+        ps.println( "\t\treturn(String[])_type_ids.clone();" );
+        ps.println( "\t}" );
+        ps.println( "}" );
+    }
+
 
     public void print( PrintWriter _ps )
     {
@@ -837,27 +877,38 @@ class Interface
 
                 if( !is_pseudo )
                 {
+                    if( !is_abstract )
+                    {
+                        ps = new PrintWriter( 
+                                 new java.io.FileWriter( new File( dir, name +
+                                                                   "Operations.java" ) ) );
+                        // are we in the unnamed package?
+                        printOperations( name, ps );
+                        ps.close();
 
-                    ps = new PrintWriter( new java.io.FileWriter( new File( dir, name +
-                            "Operations.java" ) ) );
-                    // are we in the unnamed package?
-                    printOperations( name, ps );
-                    ps.close();
+                        // Helper 
 
-                    // Helper
+                        //TO BE DONE: helpers and holders should also
+                        //be generated for abstract interfaces, but
+                        //what should these look like? IDL/Java 2.4
+                        //RTF does not seem to be consistent here...
 
-                    ps = new PrintWriter( new java.io.FileWriter( new File( dir, name +
-                            "Helper.java" ) ) );
-                    printHelper( name, ps );
-                    ps.close();
+                        ps = new PrintWriter( 
+                                 new java.io.FileWriter( new File( dir, name +
+                                                                   "Helper.java" ) ) );
+                        printHelper( name, ps );
+                        ps.close();
+                    
+                        // Holder file
 
-                    // Holder file
+                        ps = new PrintWriter( 
+                                 new java.io.FileWriter( new File( dir, name + "Holder.java" ) ) );
 
-                    ps = new PrintWriter( new java.io.FileWriter( new File( dir, name + "Holder.java" ) ) );
-                    printHolder( name, ps );
-                    ps.close();
+                        printHolder( name, ps );
+                        ps.close();
+                    }
 
-                    if( parser.generate_stubs && !is_local )
+                    if( parser.generate_stubs && !is_local && !is_abstract )
                     {
                         // Stub
                         ps = new PrintWriter( new java.io.FileWriter( new File( dir, "_" +
@@ -866,7 +917,7 @@ class Interface
                         ps.close();
                     }
 
-                    if( parser.generate_skeletons && !is_local )
+                    if( parser.generate_skeletons && !is_local && !is_abstract )
                     {
                         // Skeletons
 
@@ -888,8 +939,17 @@ class Interface
                                 "IRHelper.java" ) ) );
                         printIRHelper( name, ps );
                         ps.close();
-
                     }
+
+                    if( is_local )
+                    {
+                        ps = new PrintWriter( new java.io.FileWriter( new File( dir, "_" + name +
+                                "LocalBase.java" ) ) );
+                        printLocalBase( name, ps );
+                        ps.close();
+                    }
+
+
                 }
 
                 /* print class files for interface local definitions */

@@ -28,9 +28,8 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 
 class ConstrTypeSpec
-        extends TypeSpec
+    extends TypeSpec
 {
-
     public TypeDeclaration c_type_spec;
     private boolean parsed = false;
 

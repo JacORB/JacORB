@@ -28,9 +28,8 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 
 class Value
-        extends TypeDeclaration
+    extends TypeDeclaration
 {
-
     private Value value;
 
     public Value( int num )

@@ -24,15 +24,16 @@ package org.jacorb.idl;
 import java.io.File;
 import java.io.PrintWriter;
 
+import java.util.*;
+
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
 class ValueBoxDecl
-        extends Value
+    extends Value
 {
-
     private boolean written = false;
     private boolean parsed = false;
 
@@ -177,17 +178,30 @@ class ValueBoxDecl
      * @returns a string for an expression of type TypeCode that describes this type
      */
 
+    public String getTypeCodeExpression( Set knownTypes )
+    {
+        if( knownTypes.contains( this ) )
+        {
+            return this.getRecursiveTypeCodeExpression();
+        }
+        else
+        {
+            knownTypes.add( this );
+            StringBuffer sb = new StringBuffer();
+            String className = boxTypeName();
+            if( className.indexOf( '.' ) > 0 )
+                className = className.substring( className.lastIndexOf( '.' ) + 1 );
+            sb.append( "org.omg.CORBA.ORB.init().create_value_box_tc(" +
+                       helperName() + ".id(),\"" + className + "\"," +
+                       typeSpec.typeSpec().getTypeCodeExpression() + ")" );
+
+            return sb.toString();
+        }
+    }
+
     public String getTypeCodeExpression()
     {
-        StringBuffer sb = new StringBuffer();
-        String className = boxTypeName();
-        if( className.indexOf( '.' ) > 0 )
-            className = className.substring( className.lastIndexOf( '.' ) + 1 );
-        sb.append( "org.omg.CORBA.ORB.init().create_value_box_tc(" +
-                helperName() + ".id(),\"" + className + "\"," +
-                typeSpec.typeSpec().getTypeCodeExpression() + ")" );
-
-        return sb.toString();
+        return this.getTypeCodeExpression( new HashSet() ); 
     }
 
     private void printHolderClass( String className, PrintWriter ps )

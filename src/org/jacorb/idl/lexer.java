@@ -793,11 +793,6 @@ public class lexer
                     String id = get_string();
                     // do something with it
                 }
-                else if( name.equals( "local" ) )
-                {
-                    /* proprietary pragma of the JacORB IDL compiler */
-                    // parser.setLocalityContraint();
-                }
                 else if( name.equals( "inhibit_code_generation" ) )
                 {
                     /* proprietary pragma of the JacORB IDL compiler */

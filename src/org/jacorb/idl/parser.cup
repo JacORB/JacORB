@@ -33,7 +33,7 @@ parser code
     public static Stack scopes = new Stack();
 
     public static String currentVersion = "";
-    public static String compiler_version = "1.4 beta 4, March 2002";
+    public static String compiler_version = "1.4 beta 5, May 2002";
 
     private static final String yearString = "1997-2002";
    

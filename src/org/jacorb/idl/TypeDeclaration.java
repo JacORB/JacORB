@@ -84,7 +84,7 @@ class TypeDeclaration
      */
     public String getTypeCodeExpression( Set knownTypes )
     {
-        if( type_decl instanceof ValueDecl )
+        if( type_decl instanceof Value )
             return type_decl.getTypeCodeExpression( knownTypes );
         else
             return type_decl.getTypeCodeExpression();
