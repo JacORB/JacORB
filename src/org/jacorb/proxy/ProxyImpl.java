@@ -39,6 +39,7 @@ import org.jacorb.orb.*;
 class ProxyImpl extends ProxyPOA
 {
     private static final String[] IDS = {"IDL:org/jacorb/proxy/Proxy:1.0"};
+    private static final String DEFAULT_ID = "Appligator";
 
     private static final int HDR_SIZE = 12;
 
@@ -53,33 +54,56 @@ class ProxyImpl extends ProxyPOA
 
     public static void main (String[] args)
     {
-        if (args.length != 2)
+        boolean dynamic = false;
+
+        if (args.length < 2 || args.length > 3)
         {
-            System.err.println ("usage: appligator <port> <IOR-File>");
-            System.exit (1);
+            usage ();
+        }
+
+        if (args.length == 3)
+        {
+            if (! args[2].equals ("-dynamic"))
+            {
+                usage ();
+            }
+            dynamic = true;
         }
 
         java.util.Properties props = new java.util.Properties ();
 
-        props.put ("OAPort", args[0] );
+        props.put ("OAPort", args[0]);
         props.put ("org.omg.PortableInterceptor.ORBInitializerClass."
             + "org.jacorb.proxy.ProxyServerInitializer", "");
         props.put ("jacorb.implname", "Appligator");
 
         ORB orb = org.omg.CORBA.ORB.init (args, props);
 
-        ProxyImpl proxyimpl = new ProxyImpl (orb, args[1]);
+        ProxyImpl proxyimpl = new ProxyImpl (orb, args[1], dynamic);
 
         orb.run ();
     }
 
-    public ProxyImpl (ORB orb, String filelocation)
+    private static void usage ()
     {
-        NamingContextExt nc = null;
+        System.err.println ("usage: appligator <port> <IOR-File> [-dynamic]");
+        System.exit (1);
+    }
+
+    public ProxyImpl (ORB orb, String filelocation, boolean dynamic)
+    {
         org.omg.CORBA.Object forwarderRef = null;
         org.omg.CORBA.Object obj;
+        String idString;
+        String name;
+        byte[] id;
 
         this.orb = (org.jacorb.orb.ORB) orb;
+
+        // Use default id if not configured
+
+        idString = Environment.getProperty ("jacorb.ProxyServer.ID", DEFAULT_ID);
+        id = idString.getBytes ();
 
         try
         {
@@ -87,7 +111,7 @@ class ProxyImpl extends ProxyPOA
             POA forwarderPOA;
             POAManager poaMgr;
             Servant forwarder;
-            org.omg.CORBA.Policy[] policies = new org.omg.CORBA.Policy[3];
+            org.omg.CORBA.Policy[] policies = new org.omg.CORBA.Policy[4];
 
             obj = orb.resolve_initial_references ("RootPOA");
             rootPOA = POAHelper.narrow (obj);
@@ -100,6 +124,17 @@ class ProxyImpl extends ProxyPOA
             policies[2] = rootPOA.create_servant_retention_policy
                 (ServantRetentionPolicyValue.NON_RETAIN);
 
+            if (dynamic)
+            {
+                policies[3] = rootPOA.create_id_assignment_policy
+                    (IdAssignmentPolicyValue.SYSTEM_ID);
+            }
+            else
+            {
+                policies[3] = rootPOA.create_id_assignment_policy
+                    (IdAssignmentPolicyValue.USER_ID);
+            }
+
             forwarderPOA = rootPOA.create_POA ("FORWARDER_POA", poaMgr, policies);
 
             for (int i =0; i < policies.length; i++)
@@ -108,9 +143,19 @@ class ProxyImpl extends ProxyPOA
             }
 
             forwarder = new ProxyEntry (orb);
-            forwarderRef = rootPOA.servant_to_reference (forwarder);
-
             forwarderPOA.set_servant (forwarder);
+
+            // Get reference to proxy either using fixed or system assigned id
+
+            if (dynamic)
+            {
+                forwarderRef = rootPOA.servant_to_reference (forwarder);
+            }
+            else
+            {
+                forwarderRef = forwarderPOA.create_reference_with_id (id, IDS[0]);
+            }
+
             poaMgr.activate ();
         }
         catch (Exception ex)
@@ -130,35 +175,42 @@ class ProxyImpl extends ProxyPOA
             Debug.output (1, "Could not write IOR File: " + filelocation);
         }
 
-        try
-        {
-            obj = orb.resolve_initial_references ("NameService");
-            nc = NamingContextExtHelper.narrow (obj);
-        }
-        catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-        {
-            Debug.output (2, ex);
-        }
+        // See if configured to register in name service
 
-        if (nc == null)
+        name = Environment.getProperty ("jacorb.ProxyServer.Name", "");
+        if (name.length () > 0)
         {
-            Debug.output (1, "Name service not present. Trying without");
-        }
-        else
-        {
+            NamingContextExt nc = null;
             try
             {
-               nc.rebind (nc.to_name ("proxyserver"), forwarderRef);
+                obj = orb.resolve_initial_references ("NameService");
+                nc = NamingContextExtHelper.narrow (obj);
             }
-            catch (org.omg.CORBA.UserException ex)
+            catch (org.omg.CORBA.ORBPackage.InvalidName ex)
             {
-               // Should not happen
+                Debug.output (2, ex);
             }
-            catch (org.omg.CORBA.SystemException ex)
-            {
-               // Server not actually running or otherwise unavailable
 
-               Debug.output (1, "Failed to register with name server");
+            if (nc == null)
+            {
+                Debug.output (1, "Name service not present. Trying without");
+            }
+            else
+            {
+                try
+                {
+                    nc.rebind (nc.to_name (name), forwarderRef);
+                }
+                catch (org.omg.CORBA.UserException ex)
+                {
+                    // Should not happen
+                }
+                catch (org.omg.CORBA.SystemException ex)
+                {
+                    // Server not actually running or otherwise unavailable
+    
+                    Debug.output (1, "Failed to register with name server");
+                }
             }
         }
     }
@@ -420,8 +472,7 @@ class ProxyImpl extends ProxyPOA
 
             synchronized (delegate)
             {
-
-                // Get buffer copy. Cannot get buffer direct as will
+                // Get buffer copy. Cannot get buffer direct as may
                 // be delayed writes for byte arrays.
 
                 outbuff = reqos.getBufferCopy ();
