@@ -23,6 +23,7 @@ package org.jacorb.orb.portableInterceptor;
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.*;
 import org.omg.CORBA.*;
+import org.omg.ETF.Profile;
 
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.MinorCodes;
@@ -41,7 +42,7 @@ import java.util.*;
  */
 
 public class IORInfoImpl extends org.omg.CORBA.LocalObject 
-                         implements IORInfo
+                         implements IORInfoExt
 {
     /**
      * Maps profile tags to component lists (Integer -> TaggedComponentList).
@@ -52,14 +53,17 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
   
     private ORB orb = null;
     private POA poa = null;
+    private List _profiles = null;
   
     public IORInfoImpl (ORB orb, POA poa, 
-                        Map components, Map policy_overrides)
+                        Map components, Map policy_overrides,
+                        List profiles)
     {
         this.orb = orb;
         this.poa = poa;
         this.components = components;
         this.policy_overrides = policy_overrides;
+        this._profiles = profiles;
     }
 
     /**
@@ -121,6 +125,97 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
             }
             return (policy != null) ? policy : poa.getPolicy(type);
         }
+    }
+
+    /**
+     * This method adds a further profile to an IOR.
+     * By using this method it is possible to append e.g. further IIOP
+     * profiles. The added profile is marshalled after all profiles
+     * already existing in profile list.
+     * @param profile       the profile to add
+     */
+    public void add_profile(Profile profile)
+    {
+       if( _profiles != null )
+       {
+          _profiles.add(profile);
+       }
+
+    }
+
+    /**
+     * This method returns the number of profiles of the given type.
+     * The returned value can be used to iterate over the existing
+     * profiles of given type (get_profile()).
+     * @param tag     profile tag, e.g. TAG_INTERNET_IOP.value
+     * @return        number of profiles of given tag
+     */
+    public int get_number_of_profiles(int tag)
+    {
+       int retVal = 0;
+       for (int i=0; i < _profiles.size(); i++)
+       {
+           Profile p = (Profile) _profiles.get(i);
+           if ( p.tag() == tag )
+              retVal++;
+       }
+       return retVal;
+    }
+
+    /**
+     * Returns the profile with the given tag at the given position.
+     * Following rule must apply to parameter position:<p>
+     * <code> 0 <= position < get_number_of_profiles(tag) </code><p>
+     * @param tag        tag of profile, e.g. TAG_INTERNET_IOP.value
+     * @param position   position in IOR
+     * @return           profile
+     * @excception       ArrayIndexOutOfBoundsException if position is
+     *                   out of range
+     */
+    public org.omg.ETF.Profile get_profile(int tag, int position)
+    {
+       int cnt = position;
+       Profile retVal = null;
+       for (int i=0; i < _profiles.size(); i++)
+       {
+           Profile p = (Profile) _profiles.get(i);
+           if ( p.tag() == tag && cnt == 0)
+           {
+              retVal = p;
+              break;
+           }
+           else
+           {
+              cnt--;
+           }
+       }
+       if( retVal == null )
+         throw new ArrayIndexOutOfBoundsException("no profile with tag=" + tag + " at position" + position);
+
+       return retVal;
+    }
+
+    /**
+     * Returns the first profile with the given tag (position == 0).
+     * If no profile with given tag exists, null is returned.
+     * @param tag        tag of profile, e.g. TAG_INTERNET_IOP.value
+     * @return           first profile or null if no profile with given
+     *                   tag exists
+     */
+    public org.omg.ETF.Profile get_profile(int tag)
+    {
+       Profile retVal = null;
+       for (int i=0; i < _profiles.size(); i++)
+       {
+           Profile p = (Profile) _profiles.get(i);
+           if ( p.tag() == tag )
+           {
+              retVal = p;
+              break;
+           }
+       }
+       return retVal;
+
     }
 
 }
