@@ -49,22 +49,19 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 public class AdminLimitTest extends NotificationTestCase
 {
-    ConsumerAdminImpl consumerAdmin_;
-    ChannelContext channelContext_;
+    private ConsumerAdminImpl consumerAdmin_;
 
     public void setUp() throws Exception
     {
         QoSPropertySet _qosSettings =
             new QoSPropertySet(getConfiguration(), QoSPropertySet.ADMIN_QOS);
 
-        channelContext_ = getChannelContext();
-
-        channelContext_.setEventChannel(getDefaultChannel());
+        getChannelContext().setEventChannel(getDefaultChannel());
 
         consumerAdmin_ =
             new ConsumerAdminImpl();
 
-        channelContext_.resolveDependencies(consumerAdmin_);
+        getChannelContext().resolveDependencies(consumerAdmin_);
 
         consumerAdmin_.set_qos(_qosSettings.get_qos());
     }
