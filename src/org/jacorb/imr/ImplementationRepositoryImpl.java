@@ -56,7 +56,19 @@ import java.lang.reflect.Method;
 public class ImplementationRepositoryImpl
     extends ImplementationRepositoryPOA
 {
+    /**
+     * <code>default_port</code> is the port number for the IMR. It may be fixed
+     * by the jacorb.imr.endpoint_port_number configuration property.
+     */
     private static int default_port;
+    /**
+     * <code>default_host</code> is the host name for the IMR. It defaults to
+     * localhost. It may be set by jacorb.imr.host configuration property.
+     */
+    private static String default_host;
+    /**
+     * <code>orb</code> is the ORB instance for the IMR.
+     */
     private static org.omg.CORBA.ORB orb;
 
     private File table_file;
@@ -734,7 +746,6 @@ public class ImplementationRepositoryImpl
 
         System.setProperty ("jacorb.implname", "the_ImR");
         System.setProperty ("jacorb.use_imr", "off");
-
         try
         {
             for (int i = 0; i < args.length ; i++)
@@ -813,22 +824,21 @@ public class ImplementationRepositoryImpl
             usage();
         }
 
-
         // If port hasn't been set try retrieving from the Environment
         if (default_port == 0)
         {
-            port = Environment.getProperty ("jacorb.imr.port_number");
+            port = Environment.getProperty ("jacorb.imr.endpoint_port_number");
 
             if (port != null && port.length () > 0)
             {
                 default_port = Integer.parseInt(port);
 
                 Debug.output
-                    (Debug.IMR | Debug.INFORMATION, "ImR: Using port number " + default_port);
+                    (Debug.IMR | Debug.INFORMATION, "ImR: Using endpoint port number " + default_port);
             }
         }
 
-        port = Environment.getProperty ("jacorb.imr.endpoint_port_number");
+        port = Environment.getProperty ("jacorb.imr.port_number");
 
         if (port != null && port.length () > 0)
         {
@@ -836,17 +846,31 @@ public class ImplementationRepositoryImpl
             props.setProperty ("OAPort", port);
 
             Debug.output
-                (Debug.IMR | Debug.INFORMATION, "ImR: Using endpoint port number " + port);
+                (Debug.IMR | Debug.INFORMATION, "ImR: Using port number " + port);
+        }
+
+        default_host = Environment.getProperty ("jacorb.imr.host");
+
+        if (default_host != null && default_host.length() > 0)
+        {
+            Debug.output
+                (Debug.IMR | Debug.INFORMATION, "ImR: Using host address " + default_host);
+
+            if( props == null )
+            {
+                props = new java.util.Properties ();
+            }
+            props.setProperty ("OAIAddr", default_host);
         }
 
         // table file not specified, try via property
         if (_table_file_str == null){
             _table_file_str = Environment.getProperty("jacorb.imr.table_file");
 
-            if (_table_file_str == null){
-                System.out.println("WARNING: No file for the server table specified!");
-                System.out.println("Property jacorb.imr.table_file or use the -f switch");
-                System.out.println("Will create \"table.dat\" in current directory, if necessary");
+            if (_table_file_str == null)
+            {
+                Debug.output( 1, "WARNING: No file for the server table specified! Configure the property jacorb.imr.table_file or use the -f switch");
+                Debug.output( 1, "Will create \"table.dat\" in current directory, if necessary");
                 _table_file_str = "table.dat";
             }
         }
@@ -857,7 +881,7 @@ public class ImplementationRepositoryImpl
         if ( ! _table_file.exists ())
         {
             _new_table = true;
-            System.out.println("Table file " + _table_file_str + " does not exist - autocreating it.");
+            Debug.output( 1, "Table file " + _table_file_str + " does not exist - autocreating it.");
             try
             {
                 _table_file.createNewFile ();
@@ -872,21 +896,18 @@ public class ImplementationRepositoryImpl
         {
             if (_table_file.isDirectory ())
             {
-                System.out.println("ERROR: The table file is a directory!");
-                System.out.println("Please check " + _table_file.getAbsolutePath());
-                System.out.println("Property jacorb.imr.table_file or use the -f switch");
+                Debug.output(1, "ERROR: The table file is a directory! Please check " + _table_file.getAbsolutePath());
                 System.exit (-1);
             }
             if (! _table_file.canRead())
             {
-                System.out.println("ERROR: The table file is not readable!");
-                System.out.println("Please check " + _table_file.getAbsolutePath());
+                Debug.output(1, "ERROR: The table file is not readable! Please check " + _table_file.getAbsolutePath());
                 System.exit(-1);
             }
             if (! _table_file.canWrite())
             {
-                System.out.println("WARNING: The table file is not writable!");
-                System.out.println("Please check " + _table_file.getAbsolutePath());
+                Debug.output(1, "WARNING: The table file is not writable! Please check " + _table_file.getAbsolutePath());
+                System.exit(-1);
             }
         }
 
@@ -907,7 +928,7 @@ public class ImplementationRepositoryImpl
             _backup_file_str = Environment.getProperty("jacorb.imr.backup_file");
             if (_backup_file_str == null || _backup_file_str.length() == 0)
             {
-                System.out.println("WARNING: No backup file specified!. No backup file will be created.");
+                Debug.output( 1, "WARNING: No backup file specified!. No backup file will be created.");
             }
         }
         if (_backup_file_str != null)
@@ -918,7 +939,7 @@ public class ImplementationRepositoryImpl
             if ( ! _backup_file.exists ())
             {
                 _new_table = true;
-                System.out.println("Backup file " + _backup_file_str + " does not exist - autocreating it.");
+                Debug.output( 1, "Backup file " + _backup_file_str + " does not exist - autocreating it.");
                 try
                 {
                     _backup_file.createNewFile ();
@@ -933,26 +954,23 @@ public class ImplementationRepositoryImpl
             {
                 if (_backup_file.isDirectory ())
                 {
-                    System.out.println("ERROR: The backup file is a directory!");
-                    System.out.println("Please check " + _backup_file.getAbsolutePath());
-                    System.out.println("Property jacorb.imr.table_file or use the -f switch");
+                    Debug.output( 1, "ERROR: The backup file is a directory! Please check " + _backup_file.getAbsolutePath());
                     System.exit (-1);
                 }
                 if (! _backup_file.canRead())
                 {
-                    System.out.println("ERROR: The backup file is not readable!");
-                    System.out.println("Please check " + _backup_file.getAbsolutePath());
+                    Debug.output( 1, "ERROR: The backup file is not readable! Please check " + _backup_file.getAbsolutePath());
                     System.exit(-1);
                 }
                 if (! _backup_file.canWrite())
                 {
-                    System.out.println("WARNING: The backup file is not writable!");
-                    System.out.println("Please check " + _backup_file.getAbsolutePath());
+                    Debug.output( 1, "WARNING: The backup file is not writable! Please check " + _backup_file.getAbsolutePath());
+                    System.exit(-1);
                 }
             }
         }
 
-        orb = org.omg.CORBA.ORB.init( args, null );
+        orb = org.omg.CORBA.ORB.init( args, props );
 
         //Write IOR to file
         try{
@@ -993,8 +1011,7 @@ public class ImplementationRepositoryImpl
         {
             Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 
-            System.out.println("ERROR: Failed to write IOR to file.\nPlease check the path.");
-            System.out.println("Property jacorb.imr.ior_file or -i <file> switch");
+            Debug.output( 1, "ERROR: Failed to write IOR to file.\nPlease check the path." );
             System.exit(-1);
         }
 
@@ -1156,7 +1173,28 @@ public class ImplementationRepositoryImpl
                 transport_manager =
                 new TransportManager( (org.jacorb.orb.ORB) orb );
 
-                address = InetAddress.getLocalHost().toString();
+                // First deal with DNS; if we are not using DNS do fallback.
+                if( default_host != null && default_host.length() > 0 )
+                {
+                    address =
+                    org.jacorb.orb.dns.DNSLookup.inverseLookup( InetAddress.getByName( default_host ) );
+                }
+                else
+                {
+                    address =
+                    org.jacorb.orb.dns.DNSLookup.inverseLookup( InetAddress.getLocalHost() );
+                }
+                if( address == null )
+                {
+                    if( default_host != null && default_host.length() > 0 )
+                    {
+                        address = default_host;
+                    }
+                    else
+                    {
+                        address = InetAddress.getLocalHost().toString();
+                    }
+                }
 
                 if( address.indexOf("/") >= 0 )
                     address = address.substring(address.indexOf("/") + 1);
