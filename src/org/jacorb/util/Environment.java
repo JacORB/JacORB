@@ -136,6 +136,8 @@ public class Environment
     private static SimpleDateFormat dateFormatter;
     private static SimpleDateFormat timeFormatter;
 
+    private static boolean strict_check_on_tc_creation;
+
     static
     {
         _init();
@@ -401,6 +403,8 @@ public class Environment
         }
         else    if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
+        else if( varName.equals("strict_check_on_tc_creation"))
+            strict_check_on_tc_creation = (o.equalsIgnoreCase("on")? true : false);
     }
 
     private static void readValues()
@@ -488,7 +492,7 @@ public class Environment
         readValue("_use_appligator_for_applications", jacorbPrefix+"use_appligator_for_applications", null);
         readValue("_use_httptunneling_for",jacorbPrefix+"use_httptunneling_for", null);
 
-        readValue("_impl_name","implname",jacorbPrefix+"implname");
+        readValue("strict_check_on_tc_creation","strict_check_on_tc_creation",jacorbPrefix+"interop.strict_check_on_tc_creation");
     }
 
     public static void rollLog ()
@@ -516,6 +520,7 @@ public class Environment
     }
 
     // value getters
+    public static final  boolean getStrictCheckOnTypecodeCreation() { return strict_check_on_tc_creation; }
     public static final  boolean isMonitoringOn() { return _monitoring_on;   }
     public static final  Properties jacorbProperties() { return _props;   }
     public static final  PrintWriter logFileOut() {     return _log_file_out;  }
