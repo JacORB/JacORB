@@ -82,20 +82,19 @@ public class BiDirConnectionClientInterceptor
                 {
                     points = new ListenPoint[]{ lp };
                 }
-            
+
                 BiDirIIOPServiceContext b = 
                     new BiDirIIOPServiceContext( points );
                 org.omg.CORBA.Any any = orb.create_any();
                 BiDirIIOPServiceContextHelper.insert( any, b );
                 
-                try
-                {
-                    bidir_ctx = new ServiceContext( BI_DIR_IIOP.value,
-                                                    codec.encode( any ));
-                }
-                catch( org.omg.IOP_N.CodecPackage.InvalidTypeForEncoding itfe )
-                {
-                }
+                CDROutputStream cdr_out = new CDROutputStream();
+
+                cdr_out.beginEncapsulatedArray();
+                BiDirIIOPServiceContextHelper.write( cdr_out, b );
+
+                bidir_ctx = new ServiceContext( BI_DIR_IIOP.value,
+                                                cdr_out.getBufferCopy() );
             }
             
             ri.add_request_service_context( bidir_ctx, true );
