@@ -608,6 +608,7 @@ jacorb.naming.noping=on
 # Port on which to run service
 
 # jacorb.naming.port=
+jacorb.naming.ior_filename=c:/NS_Ref
 
 ########################################
 #                                      #
