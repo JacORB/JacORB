@@ -39,6 +39,13 @@ class Definition
         super( num );
         pack_name = "";
     }
+    
+    public Definition (Declaration d)
+    {
+        super (new_num());
+        pack_name = "";
+        this.declaration = d;
+    }
 
     public void setPackage( String s )
     {
