@@ -146,7 +146,6 @@ public class BasicAdapter
              Factories f = (Factories)i.next();
              Listener l = f.create_listener (null, (short)0, (short)0);
              l.set_handle(this);
-             ((Configurable)l).configure(configuration);
              listeners.add (l);
         }
 
