@@ -75,7 +75,7 @@ public final class Delegate
         this reference is to a local object */
     private boolean resolved_locality = false;
 
-    private Hashtable pending_replies = new Hashtable();
+    private Set     pending_replies      = new HashSet();
     private Barrier pending_replies_sync = new Barrier();
 
     private Object bind_sync = new Object();
@@ -155,6 +155,10 @@ public final class Delegate
         doNotCheckExceptions = _donotcheckexceptions;
     }
 
+    public boolean doNotCheckExceptions()
+    {
+        return doNotCheckExceptions;
+    }
 
     /**
      * Method to determine if this delegate is the delegate for the ImR.
@@ -225,16 +229,15 @@ public final class Delegate
                                                        connection.getId(),
                                                        ( int ) _pior.getProfileBody().iiop_version.minor );
 
-                    ReplyPlaceholder place_holder = new ReplyPlaceholder();
+                    LocateReplyReceiver receiver = 
+                        new LocateReplyReceiver();
 
                     connection.sendRequest( lros,
-                                            place_holder,
+                                            receiver,
                                             lros.getRequestId(),
                                             true ); //response expected
 
-
-                    LocateReplyInputStream lris =
-                        ( LocateReplyInputStream ) place_holder.getInputStream();
+                    LocateReplyInputStream lris = receiver.getReply();
 
                     switch ( lris.rep_hdr.locate_status.value() )
                     {
@@ -306,7 +309,7 @@ public final class Delegate
         }
     }
 
-    private void rebind( String object_reference )
+    public void rebind( String object_reference )
     {
         synchronized ( bind_sync )
         {
@@ -323,7 +326,12 @@ public final class Delegate
         }
     }
 
-    private void rebind( ParsedIOR p )
+    public void rebind( org.omg.CORBA.Object o )
+    {
+        rebind ( orb.object_to_string( o ) );
+    }
+
+    public void rebind( ParsedIOR p )
     {
         synchronized ( bind_sync )
         {
@@ -698,96 +706,69 @@ public final class Delegate
     }
 
     /**
-     * invoke an operation using this object reference by sending 
-     * the request marshalled in the OutputStream
+     * Invokes an asynchronous operation using this object reference by
+     * sending the request marshalled in the OutputStream.  The reply
+     * will be directed to the supplied ReplyHandler.
      */
-
-    public org.omg.CORBA.portable.InputStream invoke( org.omg.CORBA.Object self,
-            org.omg.CORBA.portable.OutputStream os )
-    throws ApplicationException, RemarshalException
+    public void invoke( org.omg.CORBA.Object self,
+                        org.omg.CORBA.portable.OutputStream os,
+                        org.omg.Messaging.ReplyHandler replyHandler )
+      throws ApplicationException, RemarshalException
     {
-        ClientRequestInfoImpl info = null;
-        RequestOutputStream ros = null;
-        boolean useInterceptors = orb.hasClientRequestInterceptors ();
+        // discard result, it is always null
+        invoke_internal (self, os, replyHandler, true);
+    }
 
-        ros = ( RequestOutputStream ) os;
+    /**
+     * Invokes a synchronous operation using this object reference 
+     * by sending the request marshalled in the OutputStream.
+     * @return the reply, if a reply is expected for this request.
+     * If no reply is expected, returns null.
+     */
+    public org.omg.CORBA.portable.InputStream invoke
+                                       ( org.omg.CORBA.Object self,
+                                         org.omg.CORBA.portable.OutputStream os )
+      throws ApplicationException, RemarshalException
+    {
+        return invoke_internal (self, os, null, false);
+    }
 
-        if ( useInterceptors )
+    /**
+     * Internal implementation of both invoke() methods.  Note that
+     * the boolean argument <code>async</code> is necessary to differentiate
+     * between synchronous and asynchronous calls, because the ReplyHandler
+     * can be null even for an asynchronous call.
+     */
+    private org.omg.CORBA.portable.InputStream invoke_internal
+                               ( org.omg.CORBA.Object self,
+                                 org.omg.CORBA.portable.OutputStream os,
+                                 org.omg.Messaging.ReplyHandler replyHandler,
+                                 boolean async )
+        throws ApplicationException, RemarshalException
+    {
+        RequestOutputStream ros      = ( RequestOutputStream ) os;
+        ReplyReceiver       receiver = null;
+
+        ClientInterceptorHandler interceptors = 
+            new ClientInterceptorHandler ( orb, ros, self, this, 
+                                           piorOriginal, connection );
+
+        interceptors.handle_send_request();
+
+        try 
         {
-            //set up info object
-            info = new ClientRequestInfoImpl();
-            info.orb = orb;
-            info.operation = ros.operation();
-            info.response_expected = ros.response_expected();
-            info.received_exception = orb.create_any();
-
-            if ( ros.getRequest() != null )
-                info.setRequest( ros.getRequest() );
-
-            info.effective_target = self;
-
-            ParsedIOR pior = getParsedIOR();
-
-            if ( piorOriginal != null )
-                info.target = orb._getObject( piorOriginal );
-            else
-                info.target = self;
-
-            info.effective_profile = pior.getEffectiveProfile();
-
-            // bnv: simply call pior.getProfileBody()
-            org.omg.IIOP.ProfileBody_1_1 _body = pior.getProfileBody();
-
-            if ( _body != null )
-                info.effective_components = _body.components;
-
-            if ( info.effective_components == null )
+            if ( !ros.response_expected() )  // oneway op
             {
-                info.effective_components = new org.omg.IOP.TaggedComponent[ 0 ];
+                connection.sendRequest ( ros, false );
+                interceptors.handle_receive_other ( SUCCESSFUL.value );
+                return null;
             }
-
-            info.delegate = this;
-
-            info.request_id = ros.requestId();
-            InterceptorManager manager = orb.getInterceptorManager();
-
-            info.current = manager.getCurrent();
-
-            //allow interceptors access to request output stream
-            info.request_os = ros;
-
-            //allow (BiDir) interceptor to inspect the connection
-            info.connection = connection;
-
-            invokeInterceptors( info, ClientInterceptorIterator.SEND_REQUEST );
-
-            //add service contexts to message
-            Enumeration ctx = info.getRequestServiceContexts();
-
-            while ( ctx.hasMoreElements() )
+            else  // response expected, synchronous or asynchronous
             {
-                ros.addServiceContext( ( ServiceContext ) ctx.nextElement() );
-            }
-
-        }
-
-        ReplyPlaceholder placeholder = null;
-
-        try
-        {
-            if ( ros.response_expected() )
-            {
-                placeholder = new ReplyPlaceholder();
-
-                //store pending replies, so in the case of a
-                //LocationForward a RemarshalException can be thrown
-                //to *all* waiting threads.
-
-                synchronized ( pending_replies )
-                {
-                    pending_replies.put( placeholder, placeholder );
-                }
-
+                receiver = new ReplyReceiver ( this,
+                                               ros.operation(),
+                                               interceptors,
+                                               replyHandler );
                 synchronized ( bind_sync )
                 {
                     if ( ros.getConnection() == connection )
@@ -795,341 +776,127 @@ public final class Delegate
                         //RequestOutputStream has been created for
                         //exactly this connection
                         connection.sendRequest( ros,
-                                                placeholder,
+                                                receiver,
                                                 ros.requestId(),
                                                 true ); // response expected
                     }
                     else
                     {
-                        //RequestOutputStream has been created for
-                        //other connection, so try again.
+                        // RequestOutputStream has been created for
+                        // another connection, so try again
                         throw new RemarshalException();
                     }
-
                 }
-
             }
-            else
-            {
-                connection.sendRequest( ros,
-                                        false ); // no response expected
-            }
-
         }
         catch ( org.omg.CORBA.SystemException cfe )
         {
-            if ( useInterceptors && ( info != null ) )
-            {
-                SystemExceptionHelper.insert( info.received_exception, cfe );
-
-                try
-                {
-                    info.received_exception_id =
-                        SystemExceptionHelper.type( cfe ).id();
-                }
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind _bk )
-                {
-                    Debug.output( 2, _bk );
-                }
-
-                info.reply_status = SYSTEM_EXCEPTION.value;
-
-                invokeInterceptors( info,
-                                    ClientInterceptorIterator.RECEIVE_EXCEPTION );
-            }
-
+            interceptors.handle_receive_exception ( cfe );
+            
             if ( cfe instanceof org.omg.CORBA.TRANSIENT )
             {
-                //if the exception is a TRANSIENT then we may want to retry
-
-                synchronized ( bind_sync )
+                // The exception is a TRANSIENT, so try rebinding.
+                if ( try_rebind() )
                 {
-                    if ( piorOriginal != null )
-                    {
-                        Debug.output( 2, "Delegate: falling back to original IOR" );
-
-                        //keep last failed ior to detect forwarding loops
-                        piorLastFailed = getParsedIOR();
-
-                        //rebind to the original ior
-                        rebind( piorOriginal );
-
-                        //clean up and start fresh
-                        piorOriginal = null;
-
-                        //now cause this invocation to be repeated by the
-                        //caller of invoke(), i.e. the stub
-                        throw new RemarshalException();
-                    }
-                    else if ( Environment.useImR() && ! isImR )
-                    {
-                        Integer orbTypeId = getParsedIOR().getORBTypeId();
-
-                        // only lookup ImR if IOR is generated by JacORB
-                        if ( orbTypeId == null ||
-                                orbTypeId.intValue() != ORBConstants.JACORB_ORB_ID )
-                        {
-                            Debug.output( 2, "Delegate: foreign IOR detected" );
-                            throw cfe;
-                        }
-
-                        Debug.output( 2, "Delegate: JacORB IOR detected" );
-
-                        byte[] object_key = getParsedIOR().get_object_key();
-
-                        // No backup IOR so it may be that the ImR is down
-                        // Attempt to resolve the ImR again to see if it has
-                        // come back up at a different address
-                        Debug.output( 2, "Delegate: attempting to contact ImR" );
-
-                        ImRAccess imr = null;
-
-                        try
-                        {
-                            imr = ( ImRAccess ) Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
-                            imr.connect( orb );
-                        }
-                        catch ( Exception e )
-                        {
-                            Debug.output( 2, "Delegate: failed to contact ImR" );
-                            throw cfe;
-                        }
-
-                        //create a corbaloc URL to use to contact the server
-                        StringBuffer corbaloc = new StringBuffer( "corbaloc:iiop:" );
-
-                        corbaloc.append( imr.getImRHost() );
-
-                        corbaloc.append( ":" );
-
-                        corbaloc.append( imr.getImRPort() );
-
-                        corbaloc.append( "/" );
-
-                        corbaloc.append( CorbaLoc.parseKey( object_key ) );
-
-                        //rebind to the new IOR
-                        rebind( new ParsedIOR( corbaloc.toString() ) );
-
-                        //clean up and start fresh
-                        piorOriginal = null;
-
-                        //now cause this invocation to be repeated by the
-                        //caller of invoke(), i.e. the stub
-                        throw new RemarshalException();
-                    }
-
+                    throw new RemarshalException();
                 }
-
             }
 
             throw cfe;
         }
 
-        /* look at the result stream now */
-
-        if ( placeholder != null )
+        if ( !async && receiver != null )
         {
-            //response is expected
-
-            ReplyInputStream rep = null;
-
-            try
-            {
-                //this blocks until the reply arrives
-                rep = ( ReplyInputStream ) placeholder.getInputStream();
-
-                //this will check the reply status and throw arrived
-                //exceptions
-                if ( !doNotCheckExceptions )
-                    rep.checkExceptions();
-
-                if ( useInterceptors && ( info != null ) )
-                {
-                    ReplyHeader_1_2 _header = rep.rep_hdr;
-
-                    if ( _header.reply_status.value() == ReplyStatusType_1_2._NO_EXCEPTION )
-                    {
-                        info.reply_status = SUCCESSFUL.value;
-
-                        info.setReplyServiceContexts( _header.service_context );
-
-                        //the case that invoke was called from
-                        //dii.Request._invoke() will be handled inside
-                        //of dii.Request._invoke() itself, because the
-                        //result will first be available there
-                        if ( ros.getRequest() == null )
-                        {
-                            InterceptorManager manager = orb.getInterceptorManager();
-                            info.current = manager.getCurrent();
-
-                            //allow interceptors access to reply input stream
-                            info.reply_is = rep;
-
-                            invokeInterceptors( info,
-                                                ClientInterceptorIterator.RECEIVE_REPLY );
-                        }
-                        else
-                            ros.getRequest().setInfo( info );
-                    }
-
-                }
-
-                return rep;
-            }
-            catch ( RemarshalException re )
-            {
-                //wait, until the thread that received the actual
-                //ForwardRequest rebound this Delegate
-                pending_replies_sync.waitOnBarrier();
-
-                throw re;
-            }
-            catch ( org.omg.PortableServer.ForwardRequest f )
-            {
-                if ( useInterceptors && ( info != null ) )
-                {
-                    info.reply_status = LOCATION_FORWARD.value;
-                    info.setReplyServiceContexts( rep.rep_hdr.service_context );
-
-                    info.forward_reference = f.forward_reference;
-
-                    //allow interceptors access to reply input stream
-                    info.reply_is = rep;
-
-                    invokeInterceptors( info,
-                                        ClientInterceptorIterator.RECEIVE_OTHER );
-                }
-
-                /* retrieve the forwarded IOR and bind to it */
-
-                //make other threads, that have unreturned replies, wait
-                pending_replies_sync.lockBarrier();
-
-                //tell every pending request to remarshal
-                //they will be blocked on the barrier
-                synchronized ( pending_replies )
-                {
-                    for ( Enumeration e = pending_replies.elements();
-                            e.hasMoreElements(); )
-                    {
-                        ReplyPlaceholder r =
-                            ( ReplyPlaceholder ) e.nextElement();
-
-                        r.retry
-                        ();
-                    }
-
-                }
-
-                //do the actual rebind
-                rebind( orb.object_to_string( f.forward_reference ) );
-
-                //now other threads can safely remarshal
-                pending_replies_sync.openBarrier();
-
-                throw new RemarshalException();
-            }
-            catch ( SystemException _sys_ex )
-            {
-                if ( useInterceptors && ( info != null ) )
-                {
-                    info.reply_status = SYSTEM_EXCEPTION.value;
-
-                    info.setReplyServiceContexts( rep.rep_hdr.service_context );
-
-                    SystemExceptionHelper.insert( info.received_exception, _sys_ex );
-
-                    try
-                    {
-                        info.received_exception_id =
-                            SystemExceptionHelper.type( _sys_ex ).id();
-                    }
-                    catch ( org.omg.CORBA.TypeCodePackage.BadKind _bk )
-                    {
-                        Debug.output( 2, _bk );
-                    }
-
-                    //allow interceptors access to reply input stream
-                    info.reply_is = rep;
-
-                    invokeInterceptors( info,
-                                        ClientInterceptorIterator.RECEIVE_EXCEPTION );
-                }
-
-                throw _sys_ex;
-            }
-            catch ( ApplicationException _user_ex )
-            {
-                if ( useInterceptors && ( info != null ) )
-                {
-                    info.reply_status = USER_EXCEPTION.value;
-                    info.setReplyServiceContexts( rep.rep_hdr.service_context );
-
-                    info.received_exception_id = _user_ex.getId();
-
-                    rep.mark( 0 );
-
-                    try
-                    {
-                        ApplicationExceptionHelper.insert( info.received_exception, _user_ex );
-                    }
-                    catch ( Exception _e )
-                    {
-                        Debug.output( 2, _e );
-
-                        SystemExceptionHelper.insert( info.received_exception,
-                                                      new org.omg.CORBA.UNKNOWN( _e.getMessage() ) );
-                    }
-
-                    try
-                    {
-                        rep.reset();
-                    }
-                    catch ( Exception _e )
-                    {
-                        //shouldn't happen anyway
-                        Debug.output( 2, _e );
-                    }
-
-                    //allow interceptors access to reply input stream
-                    info.reply_is = rep;
-
-                    invokeInterceptors( info,
-                                        ClientInterceptorIterator.RECEIVE_EXCEPTION );
-                }
-
-                throw _user_ex;
-            }
-            finally
-            {
-                //reply returned (with whatever result)
-                synchronized ( pending_replies )
-                {
-                    if ( placeholder != null )
-                    {
-                        pending_replies.remove( placeholder );
-                    }
-
-                }
-
-            }
-
+            // Synchronous invocation, response expected.
+            // This call blocks until the reply arrives.
+            return receiver.getReply();
         }
         else
         {
-            if ( useInterceptors && ( info != null ) )
-            {
-                //oneway call
-                info.reply_status = SUCCESSFUL.value;
-
-                invokeInterceptors( info, ClientInterceptorIterator.RECEIVE_OTHER );
-            }
-
-            return null; //call was oneway
+            return null;
         }
-
     }
+
+    private boolean try_rebind()
+    {
+        synchronized ( bind_sync )
+        {
+            if ( piorOriginal != null )
+            {
+                Debug.output( 2, "Delegate: falling back to original IOR" );
+
+                //keep last failed ior to detect forwarding loops
+                piorLastFailed = getParsedIOR();
+
+                //rebind to the original ior
+                rebind( piorOriginal );
+
+                //clean up and start fresh
+                piorOriginal = null;
+
+                return true;
+            }
+            else if ( Environment.useImR() && ! isImR )
+            {
+                Integer orbTypeId = getParsedIOR().getORBTypeId();
+
+                // only lookup ImR if IOR is generated by JacORB
+                if ( orbTypeId == null ||
+                        orbTypeId.intValue() != ORBConstants.JACORB_ORB_ID )
+                {
+                    Debug.output( 2, "Delegate: foreign IOR detected" );
+                    return false;
+                }
+
+                Debug.output( 2, "Delegate: JacORB IOR detected" );
+
+                byte[] object_key = getParsedIOR().get_object_key();
+
+                // No backup IOR so it may be that the ImR is down
+                // Attempt to resolve the ImR again to see if it has
+                // come back up at a different address
+                Debug.output( 2, "Delegate: attempting to contact ImR" );
+
+                ImRAccess imr = null;
+
+                try
+                {
+                    imr = ( ImRAccess ) Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
+                    imr.connect( orb );
+                }
+                catch ( Exception e )
+                {
+                    Debug.output( 2, "Delegate: failed to contact ImR" );
+                    return false;
+                }
+
+                //create a corbaloc URL to use to contact the server
+                StringBuffer corbaloc = new StringBuffer( "corbaloc:iiop:" );
+
+                corbaloc.append( imr.getImRHost() );
+
+                corbaloc.append( ":" );
+
+                corbaloc.append( imr.getImRPort() );
+
+                corbaloc.append( "/" );
+
+                corbaloc.append( CorbaLoc.parseKey( object_key ) );
+
+                //rebind to the new IOR
+                rebind( new ParsedIOR( corbaloc.toString() ) );
+
+                //clean up and start fresh
+                piorOriginal = null;
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }        
 
     public void invokeInterceptors( ClientRequestInfoImpl info, short op )
     throws RemarshalException
@@ -1636,6 +1403,26 @@ public final class Delegate
             return getParsedIOR().getCodebaseComponent();
         }
 
+        public Set get_pending_replies()
+        {
+            return pending_replies;
+        }
+
+        public void lockBarrier()
+        {
+             pending_replies_sync.lockBarrier();
+        }
+        
+        public void waitOnBarrier()
+        {
+            pending_replies_sync.waitOnBarrier();
+        }            
+
+        public void openBarrier()
+        {
+            pending_replies_sync.openBarrier();
+        }
+
         private class Barrier
         {
             private boolean is_open = true;
@@ -1652,13 +1439,10 @@ public final class Delegate
                     {
                         //ignore
                     }
-
                 }
-
             }
 
             public synchronized void lockBarrier()
-
             {
                 is_open = false;
             }
