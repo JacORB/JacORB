@@ -23,6 +23,7 @@ package org.jacorb.orb.giop;
 import java.io.*;
 import org.omg.GIOP.*;
 import org.jacorb.orb.*;
+import org.omg.IOP.ServiceContext;
 
 /**
  * @author Gerald Brose, FU Berlin 1999
@@ -30,13 +31,29 @@ import org.jacorb.orb.*;
  *
  */
 
-public class Messages 
+public class Messages
 {
-    /** GIOP message header size constant */
-    public static int MSG_HEADER_SIZE = 12;
+    /**
+     * <code>MSG_HEADER_SIZE</code> is the GIOP message header size constant.
+     */
+    static final int MSG_HEADER_SIZE = 12;
 
-    private static org.omg.IOP.ServiceContext[] service_context = 
-	new org.omg.IOP.ServiceContext[0]; 
+    /**
+     * The <code>service_context</code> array is to align the data following this
+     * array on an 8 byte boundary.  This allows for adding service
+     * contexts to the header without having to remarshal everything
+     * that follows. There are already 12 bytes on the stream (the GIOP
+     * message header), so the next possible 8 byte boundary is
+     * 16. This is reached by adding an array of length 0, because that
+     * will only write a ulong for the length (0), which consumes 4
+     * bytes.
+     *
+     *  This is only necessary for GIOP 1.0/1.1, because in 1.2, the
+     *  service_context array is the last attribute of the
+     *  [Request|Reply]Header, and the body is per spec aligned to an 8
+     *  byte boundary.
+     */
+    static final ServiceContext[] service_context = new ServiceContext[0];
 
     /**
      * Skips over a number of service contexts in a GIOP reply message.
@@ -49,28 +66,28 @@ public class Messages
      *
      * @return the index of the octet following the service context
      */
-    private static int skipServiceContext(byte[] buf, 
-                                          int offset, 
+    private static int skipServiceContext(byte[] buf,
+                                          int offset,
                                           int length,
-                                          boolean little_endian ) 
+                                          boolean little_endian )
     {
 
         int pos = offset;
 
-        for( int i = 0; i < length; i++) 
+        for( int i = 0; i < length; i++)
         {
             // Skip the context ID long
             pos += 4;
 
             // Skip the octet sequence
             pos = skipSequence( buf, pos, 1, little_endian );
-            
+
             //next is context id long.
-            //it has to be aligned to 4 bytes            
+            //it has to be aligned to 4 bytes
             int diff = pos % 4;
             if( diff != 0 )
             {
-                pos += ( 4 - diff );            
+                pos += ( 4 - diff );
             }
         }
 
@@ -87,13 +104,13 @@ public class Messages
      * @param endianness 0 for big-endian, 1 for little-endian
      *
      * @return the index of the octet following the sequence
-     */     
-    private static final int skipSequence( byte[] buf, 
-                                           int offset, 
+     */
+    private static final int skipSequence( byte[] buf,
+                                           int offset,
                                            int element_size,
-                                           boolean little_endian ) 
+                                           boolean little_endian )
     {
- 
+
         int length = readULong( buf, offset, little_endian );
 
         return offset + 4 + length * element_size;
@@ -112,14 +129,14 @@ public class Messages
         if( giop_minor == 2 )
         {
             //GIOP 1.2
-            
-            if( msg_type == MsgType_1_1._Request || 
-                msg_type == MsgType_1_1._LocateRequest ||  
-                msg_type == MsgType_1_1._Reply || 
+
+            if( msg_type == MsgType_1_1._Request ||
+                msg_type == MsgType_1_1._LocateRequest ||
+                msg_type == MsgType_1_1._Reply ||
                 msg_type == MsgType_1_1._LocateReply ||
                 msg_type == MsgType_1_1._CancelRequest ||
                 msg_type == MsgType_1_1._Fragment )
-            {   
+            {
                 //easy for GIOP 1.2, it's right after the message
                 //header
                 request_id = readULong( buf, MSG_HEADER_SIZE, little_endian );
@@ -132,38 +149,38 @@ public class Messages
         }
         else if( giop_minor == 0 || giop_minor == 1 )
         {
-            if( msg_type == MsgType_1_1._Request || 
+            if( msg_type == MsgType_1_1._Request ||
                 msg_type == MsgType_1_1._Reply )
             {
                 // service contexts are the first entry in the header
-                
+
                 //get the number of individual service contexts
-                int service_ctx_length = readULong( buf, 
-                                                    MSG_HEADER_SIZE, 
+                int service_ctx_length = readULong( buf,
+                                                    MSG_HEADER_SIZE,
                                                     little_endian );
 
                 if( service_ctx_length == 0 )
                 {
                     //array of length 0, so request id folows the
                     //array length entry
-                    
-                    request_id = readULong( buf, 
-                                            MSG_HEADER_SIZE + 4, 
-                                            little_endian ); 
+
+                    request_id = readULong( buf,
+                                            MSG_HEADER_SIZE + 4,
+                                            little_endian );
                 }
                 else
                 {
                     //get the first index after the contexts array
-                    int pos = skipServiceContext( buf, 
-                                                  MSG_HEADER_SIZE + 4, // 4 bytes is ulong 
-                                                  service_ctx_length, 
+                    int pos = skipServiceContext( buf,
+                                                  MSG_HEADER_SIZE + 4, // 4 bytes is ulong
+                                                  service_ctx_length,
                                                   little_endian );
 
-                    //the request id follows the body 
+                    //the request id follows the body
                     request_id = readULong( buf, pos, little_endian );
                 }
             }
-            else if( msg_type == MsgType_1_1._LocateRequest || 
+            else if( msg_type == MsgType_1_1._LocateRequest ||
                      msg_type == MsgType_1_1._LocateReply )
             {
                 //easy, it's right after the message header
@@ -174,18 +191,18 @@ public class Messages
                 throw new Error( "Messages of type " +
                                  msg_type + " don't have request ids" );
             }
-        } 
-        
+        }
+
         return request_id;
     }
 
     public static final int getMsgSize( byte[] buf )
     {
         return readULong( buf, 8, isLittleEndian( buf ) );
-    }   
+    }
 
-    public static final int readULong( byte[] buf, 
-                                       int pos, 
+    public static final int readULong( byte[] buf,
+                                       int pos,
                                        boolean little_endian )
     {
 	if( little_endian )
@@ -202,8 +219,8 @@ public class Messages
 		    ( (buf[pos+2] & 0xff) <<  8) +
 		    ( (buf[pos+3] & 0xff) <<  0));
         }
-    }    
-    
+    }
+
     public static final boolean isLittleEndian( byte[] buf )
     {
         //this is new for GIOP 1.1/1.2
@@ -215,7 +232,7 @@ public class Messages
         //this is new for GIOP 1.1/1.2
         return (0x02 & buf[6]) != 0;
     }
-    
+
     public static final int getMsgType( byte[] buf )
     {
         return buf[7];
@@ -230,21 +247,15 @@ public class Messages
     {
         return buf[5];
     }
-    
+
     public static final boolean responseExpected( byte flags )
     {
         return flags == (byte)0x01 || flags == (byte)0x03;
     }
-    
+
     public static final byte responseFlags( boolean response_expected )
     {
         return (byte) (response_expected ? 0x03 : 0x00);
     }
-    
+
 }
-
-
-
-
-
-

@@ -41,23 +41,6 @@ public class ServiceContextTransportingOutputStream
     extends MessageOutputStream
 {
     /**
-     * The <code>service_context</code> array is to align the data following this
-     * array on an 8 byte boundary.  This allows for adding service
-     * contexts to the header without having to remarshal everything
-     * that follows. There are already 12 bytes on the stream (the GIOP
-     * message header), so the next possible 8 byte boundary is
-     * 16. This is reached by adding an array of length 0, because that
-     * will only write a ulong for the length (0), which consumes 4
-     * bytes.
-     *
-     *  This is only necessary for GIOP 1.0/1.1, because in 1.2, the
-     *  service_context array is the last attribute of the
-     *  [Request|Reply]Header, and the body is per spec aligned to an 8
-     *  byte boundary.
-     */
-    protected static ServiceContext[] service_context = new ServiceContext[0];
-
-    /**
      * <code>header_end</code> represents the end of the GIOP message header.
      * Only valid if header_padding != 0
      */

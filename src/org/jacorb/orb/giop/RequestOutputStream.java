@@ -109,7 +109,7 @@ public class RequestOutputStream
             case 0 :
             {
                 // GIOP 1.0 inlining
-		org.omg.IOP.ServiceContextListHelper.write( this , service_context );
+		org.omg.IOP.ServiceContextListHelper.write( this , Messages.service_context );
 		write_ulong( request_id);
 		write_boolean( response_expected );
 		write_long( object_key.length );
@@ -123,7 +123,7 @@ public class RequestOutputStream
             case 1 :
             {
                 //GIOP 1.1
-		org.omg.IOP.ServiceContextListHelper.write( this , service_context );
+		org.omg.IOP.ServiceContextListHelper.write( this , Messages.service_context );
 		write_ulong( request_id);
 		write_boolean( response_expected );
 		write_long( object_key.length );
@@ -169,7 +169,7 @@ public class RequestOutputStream
 		write_octet_array( reserved,0,3 );
 		org.omg.GIOP.TargetAddressHelper.write( this, addr );
 		write_string( operation );
-		org.omg.IOP.ServiceContextListHelper.write( this, service_context );
+		org.omg.IOP.ServiceContextListHelper.write( this, Messages.service_context );
 
                 markHeaderEnd(); //use padding if GIOP minor == 2
 
@@ -249,6 +249,4 @@ public class RequestOutputStream
         return new ServiceContext (org.omg.IOP.INVOCATION_POLICIES.value,
                                    out.getBufferCopy());
     }
-
-
 }

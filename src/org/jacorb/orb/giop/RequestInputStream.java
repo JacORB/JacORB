@@ -25,67 +25,66 @@ import org.omg.GIOP.*;
 import org.omg.IOP.ServiceContext;
 
 /**
- * 
+ *
  * @author Gerald Brose, FU Berlin
  * @version $Id$
- * 
+ *
  */
 
 public class RequestInputStream
     extends ServiceContextTransportingInputStream
 {
     private static byte[] reserved = new byte[3];
-    private static ServiceContext[] ctx = new ServiceContext[0];
 
     private boolean is_locate_request = false;
 
     public RequestHeader_1_2 req_hdr = null;
-    
+
     public RequestInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
-	super( orb,  buf );
+  super( orb,  buf );
 
-	if( Messages.getMsgType( buffer ) == MsgType_1_1._Request )
+  if( Messages.getMsgType( buffer ) == MsgType_1_1._Request )
         {
             switch( giop_minor )
-            { 
-                case 0 : 
+            {
+                case 0 :
                 {
                     //GIOP 1.0
-                    RequestHeader_1_0 hdr = 
+                    RequestHeader_1_0 hdr =
                         RequestHeader_1_0Helper.read( this );
 
                     TargetAddress addr = new TargetAddress();
                     addr.object_key( hdr.object_key );
 
-                    req_hdr = 
+                    req_hdr =
                         new RequestHeader_1_2( hdr.request_id,
                                                Messages.responseFlags( hdr.response_expected ),
                                                reserved,
                                                addr, //target
-                                               hdr.operation, 
+                                               hdr.operation,
                                                hdr.service_context );
                     break;
                 }
-                case 1 : 
+                case 1 :
                 {
                     //GIOP 1.1
-                    RequestHeader_1_1 hdr = 
+                    RequestHeader_1_1 hdr =
                         RequestHeader_1_1Helper.read( this );
 
                     TargetAddress addr = new TargetAddress();
                     addr.object_key( hdr.object_key );
 
-                    req_hdr = 
+                    req_hdr =
                         new RequestHeader_1_2( hdr.request_id,
                                                Messages.responseFlags( hdr.response_expected ),
                                                reserved,
                                                addr, //target
-                                               hdr.operation, 
+                                               hdr.operation,
                                                hdr.service_context );
                     break;
                 }
-                case 2 : 
+                case 2 :
                 {
                     //GIOP 1.2
                     req_hdr = RequestHeader_1_2Helper.read( this );
@@ -103,56 +102,56 @@ public class RequestInputStream
         else if( Messages.getMsgType( buffer ) == MsgType_1_1._LocateRequest )
         {
             switch( giop_minor )
-            { 
-                case 0 : 
+            {
+                case 0 :
                 {
                     //GIOP 1.0 = GIOP 1.1, fall through
                 }
-                case 1 : 
+                case 1 :
                 {
                     //GIOP 1.1
-                    LocateRequestHeader_1_0 locate_req_hdr = 
+                    LocateRequestHeader_1_0 locate_req_hdr =
                         LocateRequestHeader_1_0Helper.read( this );
 
                     TargetAddress addr = new TargetAddress();
                     addr.object_key( locate_req_hdr.object_key );
 
-                    req_hdr = 
-                        new RequestHeader_1_2( locate_req_hdr.request_id, 
-                                               (byte) 0x03,//response_expected 
+                    req_hdr =
+                        new RequestHeader_1_2( locate_req_hdr.request_id,
+                                               (byte) 0x03,//response_expected
                                                reserved,
-                                               addr, 
-                                               "_non_existent", 
-                                               ctx ); 
+                                               addr,
+                                               "_non_existent",
+                                               Messages.service_context );
                     break;
                 }
-                case 2 : 
+                case 2 :
                 {
                     //GIOP 1.2
-                    LocateRequestHeader_1_2 locate_req_hdr = 
+                    LocateRequestHeader_1_2 locate_req_hdr =
                         LocateRequestHeader_1_2Helper.read( this );
-                
+
                     ParsedIOR.unfiyTargetAddress( locate_req_hdr.target );
-                    req_hdr = 
-                        new RequestHeader_1_2( locate_req_hdr.request_id, 
-                                               (byte) 0x03,//response_expected 
+                    req_hdr =
+                        new RequestHeader_1_2( locate_req_hdr.request_id,
+                                               (byte) 0x03,//response_expected
                                                reserved,
-                                               locate_req_hdr.target, 
-                                               "_non_existent", 
-                                               ctx ); 
+                                               locate_req_hdr.target,
+                                               "_non_existent",
+                                               Messages.service_context );
                     break;
                 }
-                default : 
+                default :
                 {
                     throw new Error( "Unknown GIOP minor version: " + giop_minor );
                 }
             }
 
-	    is_locate_request = true;
+      is_locate_request = true;
         }
         else
         {
-	    throw new Error( "Error: not a request!" );
+      throw new Error( "Error: not a request!" );
         }
     }
 
@@ -165,30 +164,28 @@ public class RequestInputStream
                 return req_hdr.service_context[i];
             }
         }
-        
+
         return null;
     }
 
     public boolean isLocateRequest()
     {
-	return is_locate_request;
+        return is_locate_request;
     }
 
-    public void finalize()
+    protected void finalize() throws Throwable
     {
-	try
-	{
-	    close();
-	}
-	catch( java.io.IOException iox )
-	{
-	    //ignore
-	}
+        try
+        {
+            close();
+        }
+        catch( java.io.IOException iox )
+        {
+            //ignore
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 }
-
-
-
-
-
-

@@ -48,14 +48,14 @@ public class ReplyOutputStream
 	this.is_locate_reply = is_locate_reply;
 
         setGIOPMinor( giop_minor );
- 
+
         writeGIOPMsgHeader( MsgType_1_1._Reply,
                             giop_minor );
-        
+
         switch( giop_minor )
         {
             case 0 :
-            { 
+            {
                 // GIOP 1.0 Reply == GIOP 1.1 Reply, fall through
             }
             case 1 :
@@ -66,17 +66,17 @@ public class ReplyOutputStream
                 //times
 
                 //GIOP 1.1
-//                  ReplyHeader_1_0 repl_hdr = 
+//                  ReplyHeader_1_0 repl_hdr =
 //                      new ReplyHeader_1_0( alignment_ctx,
 //                                           request_id,
 //                                           ReplyStatusType_1_0.from_int( reply_status.value() ));
 //                  ReplyHeader_1_0Helper.write( this, repl_hdr );
-               
+
                 // inlining for performance
 
-		org.omg.IOP.ServiceContextListHelper.write(this , service_context );
+		org.omg.IOP.ServiceContextListHelper.write(this , Messages.service_context );
 		write_ulong( request_id );
-		org.omg.GIOP.ReplyStatusType_1_0Helper.write( this, 
+		org.omg.GIOP.ReplyStatusType_1_0Helper.write( this,
                                                               ReplyStatusType_1_0.from_int( reply_status.value() ));
 
                 break;
@@ -84,7 +84,7 @@ public class ReplyOutputStream
             case 2 :
             {
                 //GIOP 1.2
-//                  ReplyHeader_1_2 repl_hdr = 
+//                  ReplyHeader_1_2 repl_hdr =
 //                      new ReplyHeader_1_2( request_id,
 //                                           reply_status,
 //                                           alignment_ctx );
@@ -94,11 +94,11 @@ public class ReplyOutputStream
                 // more inlining
 
 		write_ulong( request_id );
-		org.omg.GIOP.ReplyStatusType_1_2Helper.write(this, 
+		org.omg.GIOP.ReplyStatusType_1_2Helper.write(this,
                                                              reply_status);
 
 
-		org.omg.IOP.ServiceContextListHelper.write( this, service_context );
+		org.omg.IOP.ServiceContextListHelper.write( this, Messages.service_context );
 
                 markHeaderEnd(); //use padding if minor 2
 
@@ -108,7 +108,7 @@ public class ReplyOutputStream
             {
                 throw new Error( "Unknown GIOP minor: " + giop_minor );
             }
-        }        
+        }
     }
 
     public void write_to( GIOPConnection conn )
@@ -141,7 +141,7 @@ public class ReplyOutputStream
 			    //_non_existent == false
 			    status = LocateStatusType_1_2._OBJECT_HERE;
 			}
-			
+
 			lr_out = new LocateReplyOutputStream( r_in.rep_hdr.request_id,
 							      status,
 							      r_in.getGIOPMinor() );
@@ -161,7 +161,7 @@ public class ReplyOutputStream
 			// GIOP prior to 1.2 doesn't have the status
 			// LOC_SYSTEM_EXCEPTION, so we have to return
 			// OBJECT_UNKNOWN (even if it may not be unknown)
-			lr_out = 
+			lr_out =
 			    new LocateReplyOutputStream( r_in.rep_hdr.request_id,
 							 LocateStatusType_1_2._UNKNOWN_OBJECT,
 							 r_in.getGIOPMinor() );
@@ -169,8 +169,8 @@ public class ReplyOutputStream
 		    }
 		    case ReplyStatusType_1_2._LOCATION_FORWARD :
 		    {
-			
-			lr_out = 
+
+			lr_out =
 			    new LocateReplyOutputStream( r_in.rep_hdr.request_id,
 							 LocateStatusType_1_2._OBJECT_FORWARD,
 							 r_in.getGIOPMinor() );
@@ -180,10 +180,10 @@ public class ReplyOutputStream
 			//the body part of this buffer to the new
 			//buffer
 			lr_out.write_IOR( org.omg.IOP.IORHelper.read( r_in ));
-			
+
 			break;
 		    }
-		}		
+		}
 	    }
 	    else
 	    {
@@ -205,7 +205,7 @@ public class ReplyOutputStream
 			    //_non_existent == false
 			    status = LocateStatusType_1_2._OBJECT_HERE;
 			}
-			
+
 			lr_out = new LocateReplyOutputStream( r_in.rep_hdr.request_id,
 							      status,
 							      r_in.getGIOPMinor() );
@@ -217,21 +217,21 @@ public class ReplyOutputStream
 			//uh oh, can't reply with user exception
 
 			Debug.output( 1, "ERROR: Received an exception when processing a LocateRequest - mapping to UNKNOWN system exception" );
-			
-			lr_out = 
+
+			lr_out =
 			    new LocateReplyOutputStream( r_in.rep_hdr.request_id,
 							 LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION,
 							 r_in.getGIOPMinor() );
 
-			SystemExceptionHelper.write( lr_out, 
+			SystemExceptionHelper.write( lr_out,
 						     new org.omg.CORBA.UNKNOWN() );
-			
+
 		    }
 		    case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
 		    {
-			
 
-			lr_out = 
+
+			lr_out =
 			    new LocateReplyOutputStream( r_in.rep_hdr.request_id,
 							 LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION,
 							 r_in.getGIOPMinor() );
@@ -244,8 +244,8 @@ public class ReplyOutputStream
 		    }
 		    case ReplyStatusType_1_2._LOCATION_FORWARD :
 		    {
-			
-			lr_out = 
+
+			lr_out =
 			    new LocateReplyOutputStream( r_in.rep_hdr.request_id,
 							 LocateStatusType_1_2._OBJECT_FORWARD,
 							 r_in.getGIOPMinor() );
@@ -255,31 +255,17 @@ public class ReplyOutputStream
 			//the body part of this buffer to the new
 			//buffer
 			lr_out.write_IOR( org.omg.IOP.IORHelper.read( r_in ));
-			
+
 			break;
 		    }
-		}		
+		}
 	    }
-	    
-	    lr_out.write_to( conn );
-	}
+
+                    lr_out.write_to( conn );
+        }
 	else
 	{
 	    super.write_to( conn );
 	}
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
