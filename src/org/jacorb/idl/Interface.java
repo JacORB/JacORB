@@ -47,6 +47,12 @@ class Interface
     /* IR information that would otherwise be lost */
     private Hashtable irInfoTable = new Hashtable();
 
+    /* <code>abstractInterfaces</code> is to keep a record of those interfaces
+     * that are abstract so any inheriting interface know what to inherit from.
+     */
+    private static HashSet abstractInterfaces;
+
+
     public Interface( int num )
     {
         super( num );
@@ -195,6 +201,21 @@ class Interface
         escapeName();
 
         ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
+
+        if( is_abstract )
+        {
+            if( logger.isDebugEnabled() )
+            {
+                logger.debug
+                    ( "Adding " + full_name() + " to abstract interface list" );
+            }
+            if( abstractInterfaces == null )
+            {
+                abstractInterfaces = new HashSet();
+            }
+            abstractInterfaces.add( full_name() );
+        }
+
         try
         {
             ScopedName.definePseudoScope( full_name() );
@@ -491,11 +512,27 @@ class Interface
         {
             ps.print( "\textends " );
             Enumeration e = inheritanceSpec.v.elements();
-            ps.print( (ScopedName)e.nextElement() + "Operations" );
-            for( ; e.hasMoreElements(); )
+
+            do
             {
-                ps.print( ", " + (ScopedName)e.nextElement() + "Operations" );
+                ScopedName sne =  (ScopedName)e.nextElement();
+
+                // See description of abstractInterfaces for logic here.
+                if( abstractInterfaces != null &&
+                    abstractInterfaces.contains( sne.toString() ) )
+                {
+                    ps.print( sne );
+                }
+                else
+                {
+                    ps.print( sne + "Operations" );
+                }
+                if( e.hasMoreElements() )
+                {
+                    ps.print( " , " );
+                }
             }
+            while ( e.hasMoreElements() );
             ps.print( "\n" );
         }
 

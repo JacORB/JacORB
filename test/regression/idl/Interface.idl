@@ -27,6 +27,15 @@ module org
                   RefPackage get_nested_package ();
                };
 
+               abstract interface BaseObject
+               {
+                  boolean getStatus();
+               };
+
+               interface DomainObject : BaseObject
+               {
+                  string getDomain();
+               };
             };
          };
       };
