@@ -43,8 +43,7 @@ public abstract class AbstractPoolable implements Disposable, Configurable
 
     public void configure (Configuration conf)
     {
-        logger_ =  ((org.jacorb.config.Configuration)conf).
-            getNamedLogger( getClass().getName() );
+        logger_ = ((org.jacorb.config.Configuration)conf).getNamedLogger( getClass().getName() );
     }
 
     /**
