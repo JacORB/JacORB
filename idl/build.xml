@@ -247,16 +247,29 @@
    </target>
 
    <target name="portableserver" depends="init,load-taskdef">
+     <delete
+      file="${src}/generated/org/omg/PortableServer/POAOperations.java"/>
+     <delete
+      file="${src}/generated/org/omg/PortableServer/POA.java"/>
+     <delete
+      file="${src}/generated/org/omg/PortableServer/POAManagerPackage/State.java"/>
+     <delete
+      file="${src}/generated/org/omg/PortableServer/CurrentOperations.java"/>
+
       <jacidl generateir="true"
               noskel="true"
               srcdir="idl"
               omgprefix="true"
+              forceOverwrite="true"
               includepath="${idl}/omg"
               includes="omg/PortableServer.idl"
               destdir="${src}/generated"/>
+
+
       <jacidl generateir="true"
               srcdir="idl"
               omgprefix="true"
+              forceOverwrite="true"
               includepath="${idl}/omg"
               includes="**/omg/BiDirPolicy.idl"
               destdir="${src}/generated"/>
