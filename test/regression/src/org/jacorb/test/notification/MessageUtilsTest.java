@@ -52,7 +52,8 @@ public class MessageUtilsTest extends TestCase
 
     }
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        super.tearDown();
         appContext_.dispose();
     }
 

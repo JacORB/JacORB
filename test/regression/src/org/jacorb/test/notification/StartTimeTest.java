@@ -99,6 +99,7 @@ public class StartTimeTest extends TestCase
     }
 
     public void tearDown() throws Exception {
+        super.tearDown();
         notificationEventFactory_.dispose();
         applicationContext_.dispose();
     }

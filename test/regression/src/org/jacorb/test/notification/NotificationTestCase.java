@@ -21,22 +21,15 @@ package org.jacorb.test.notification;
  *
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
-import org.apache.log.format.PatternFormatter;
-import org.apache.log.output.io.StreamTarget;
-import org.apache.log.LogTarget;
-import org.apache.log.Priority;
 import org.omg.CORBA.ORB;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.omg.PortableServer.POA;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+import org.omg.PortableServer.POA;
+
 import org.jacorb.notification.EventChannelFactoryImpl;
-import java.lang.Process;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
 
 /**
  *  Unit Test for class NotificationTestCase.java
@@ -78,7 +71,7 @@ public class NotificationTestCase extends TestCase {
     }
 
     public EventChannelFactory getLocalEventChannelFactory() throws Exception {
-        factoryServant_ = new EventChannelFactoryImpl();
+        factoryServant_ = EventChannelFactoryImpl.newFactory();
 
         return EventChannelFactoryHelper.narrow(factoryServant_._this(getORB()));
     }

@@ -32,6 +32,7 @@ public class EventChannelFactoryTest
     }
 
     public void tearDown() throws Exception {
+        super.tearDown();
         factory_.dispose();
         orb.shutdown(true);
     }

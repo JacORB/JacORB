@@ -80,7 +80,9 @@ public class AdminLimitTest extends TestCase {
         events_ = new Vector();
     }
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        super.tearDown();
+
         appContext_.dispose();
     }
 

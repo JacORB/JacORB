@@ -76,7 +76,8 @@ public class NotificationEventTest extends TestCase {
         testStructured_ = testUtils_.getStructuredEvent();
     }
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        super.tearDown();
         appContext_.dispose();
     }
 

@@ -116,7 +116,8 @@ public class NotificationEventFactoryTest extends TestCase {
         testStructured_.remainder_of_body = orb_.create_any();
     }
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        super.tearDown();
         appContext_.dispose();
     }
 

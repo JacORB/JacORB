@@ -45,6 +45,8 @@ public class FilterTest extends TestCase {
 
     FilterFactoryImpl factoryServant_;
 
+    ORB orb_;
+
     public FilterTest(String name, NotificationTestCaseSetup setup) {
         super(name);
     }
@@ -60,16 +62,19 @@ public class FilterTest extends TestCase {
 
         factory_ = factoryServant_.getFilterFactory();
 
-        ORB _orb = ORB.init(new String[0], null);
+        orb_ = ORB.init(new String[0], null);
 
-        testUtils_ = new NotificationTestUtils(_orb);
+        testUtils_ = new NotificationTestUtils(orb_);
 
         testPerson_ = testUtils_.getTestPersonAny();
     }
 
     public void tearDown() throws Exception {
-        factoryServant_.dispose();
         super.tearDown();
+
+        orb_.shutdown(true);
+
+        factoryServant_.dispose();
     }
 
     /**

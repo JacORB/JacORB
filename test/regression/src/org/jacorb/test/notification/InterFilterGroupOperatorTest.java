@@ -65,249 +65,250 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase {
     Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
     public void setUp() throws Exception {
-	factory_ = getEventChannelFactory();
+        factory_ = getEventChannelFactory();
 
-	testPerson_ = getTestUtils().getTestPersonAny();
+        testPerson_ = getTestUtils().getTestPersonAny();
 
-	// setup a channel
-	channelId_ = new IntHolder();
-	channel_ = factory_.create_channel(new Property[0], new Property[0], channelId_);
+        // setup a channel
+        channelId_ = new IntHolder();
+        channel_ = factory_.create_channel(new Property[0], new Property[0], channelId_);
 
-	trueFilter_ = channel_.default_filter_factory().create_filter("EXTENDED_TCL");
+        trueFilter_ = channel_.default_filter_factory().create_filter("EXTENDED_TCL");
 
-	ConstraintExp[] _constraintExp = new ConstraintExp[1];
-	EventType[] _eventType = new EventType[1];
-	_eventType[0] = new EventType("*", "*");
-	String _expression = "TRUE";
-	_constraintExp[0] = new ConstraintExp(_eventType, _expression);
-	ConstraintInfo[] _info = trueFilter_.add_constraints(_constraintExp);
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+        EventType[] _eventType = new EventType[1];
+        _eventType[0] = new EventType("*", "*");
+        String _expression = "TRUE";
+        _constraintExp[0] = new ConstraintExp(_eventType, _expression);
+        ConstraintInfo[] _info = trueFilter_.add_constraints(_constraintExp);
 
-	falseFilter_ = channel_.default_filter_factory().create_filter("EXTENDED_TCL");
-	_constraintExp = new ConstraintExp[1];
-	_eventType = new EventType[1];
-	_eventType[0] = new EventType("*", "*");
-	_expression = "FALSE";
-	_constraintExp[0] = new ConstraintExp(_eventType, _expression);
-	_info = falseFilter_.add_constraints(_constraintExp);
+        falseFilter_ = channel_.default_filter_factory().create_filter("EXTENDED_TCL");
+        _constraintExp = new ConstraintExp[1];
+        _eventType = new EventType[1];
+        _eventType[0] = new EventType("*", "*");
+        _expression = "FALSE";
+        _constraintExp[0] = new ConstraintExp(_eventType, _expression);
+        _info = falseFilter_.add_constraints(_constraintExp);
     }
 
     public void tearDown() {
-	channel_.destroy();
+        super.tearDown();
+        channel_.destroy();
     }
 
     public void testTrueORFalse_NoneOrNone() throws Exception {
-	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-	AnyPushReceiver _receiver = new AnyPushReceiver(this);
-	_sender.connect(getSetup(),channel_,true);
-	_receiver.connect(getSetup(), channel_, true);
-	
-	_sender.addProxyFilter(trueFilter_);
-	_sender.addAdminFilter(falseFilter_);
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        _sender.connect(getSetup(),channel_,true);
+        _receiver.connect(getSetup(), channel_, true);
 
-	Thread _senderThread = new Thread(_sender);
-	Thread _receiverThread = new Thread(_receiver);
+        _sender.addProxyFilter(trueFilter_);
+        _sender.addAdminFilter(falseFilter_);
 
-	_receiverThread.start();
-	_senderThread.start();
+        Thread _senderThread = new Thread(_sender);
+        Thread _receiverThread = new Thread(_receiver);
 
-	_senderThread.join();
-	_receiverThread.join();
+        _receiverThread.start();
+        _senderThread.start();
 
-	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should have received something", _receiver.isEventHandled());
+        _senderThread.join();
+        _receiverThread.join();
+
+        assertTrue("Error while sending", !_sender.error_);
+        assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
     public void testFalseORTrue_NoneOrNone() throws Exception {
-	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-	AnyPushReceiver _receiver = new AnyPushReceiver(this);
-	_sender.connect(getSetup(),channel_,true);
-	_receiver.connect(getSetup(), channel_, true);
-	
-	_sender.addProxyFilter(falseFilter_);
-	_sender.addAdminFilter(trueFilter_);
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        _sender.connect(getSetup(),channel_,true);
+        _receiver.connect(getSetup(), channel_, true);
 
-	Thread _senderThread = new Thread(_sender);
-	Thread _receiverThread = new Thread(_receiver);
+        _sender.addProxyFilter(falseFilter_);
+        _sender.addAdminFilter(trueFilter_);
 
-	_receiverThread.start();
-	_senderThread.start();
+        Thread _senderThread = new Thread(_sender);
+        Thread _receiverThread = new Thread(_receiver);
 
-	_senderThread.join();
-	_receiverThread.join();
+        _receiverThread.start();
+        _senderThread.start();
 
-	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should have received something", _receiver.isEventHandled());
+        _senderThread.join();
+        _receiverThread.join();
+
+        assertTrue("Error while sending", !_sender.error_);
+        assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
     public void testTrueANDFalse_NoneOrNone() throws Exception {
-	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-	AnyPushReceiver _receiver = new AnyPushReceiver(this);
-	_sender.connect(getSetup(),channel_,false);
-	_receiver.connect(getSetup(), channel_, true);
-	
-	_sender.addProxyFilter(trueFilter_);
-	_sender.addAdminFilter(falseFilter_);
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        _sender.connect(getSetup(),channel_,false);
+        _receiver.connect(getSetup(), channel_, true);
 
-	Thread _senderThread = new Thread(_sender);
-	Thread _receiverThread = new Thread(_receiver);
+        _sender.addProxyFilter(trueFilter_);
+        _sender.addAdminFilter(falseFilter_);
 
-	_receiverThread.start();
-	_senderThread.start();
+        Thread _senderThread = new Thread(_sender);
+        Thread _receiverThread = new Thread(_receiver);
 
-	_senderThread.join();
-	_receiverThread.join();
+        _receiverThread.start();
+        _senderThread.start();
 
-	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should have received something", !_receiver.isEventHandled());
+        _senderThread.join();
+        _receiverThread.join();
+
+        assertTrue("Error while sending", !_sender.error_);
+        assertTrue("Should have received something", !_receiver.isEventHandled());
     }
 
     public void testFalseANDTrue_NoneOrNone() throws Exception {
-	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-	AnyPushReceiver _receiver = new AnyPushReceiver(this);
-	_sender.connect(getSetup(),channel_,false);
-	_receiver.connect(getSetup(), channel_, true);
-	
-	_sender.addProxyFilter(falseFilter_);
-	_sender.addAdminFilter(trueFilter_);
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        _sender.connect(getSetup(),channel_,false);
+        _receiver.connect(getSetup(), channel_, true);
 
-	Thread _senderThread = new Thread(_sender);
-	Thread _receiverThread = new Thread(_receiver);
+        _sender.addProxyFilter(falseFilter_);
+        _sender.addAdminFilter(trueFilter_);
 
-	_receiverThread.start();
-	_senderThread.start();
+        Thread _senderThread = new Thread(_sender);
+        Thread _receiverThread = new Thread(_receiver);
 
-	_senderThread.join();
-	_receiverThread.join();
+        _receiverThread.start();
+        _senderThread.start();
 
-	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should have received something", !_receiver.isEventHandled());
+        _senderThread.join();
+        _receiverThread.join();
+
+        assertTrue("Error while sending", !_sender.error_);
+        assertTrue("Should have received something", !_receiver.isEventHandled());
     }
 
     public void testNoneOrNone_TrueORFalse() throws Exception {
-	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-	AnyPushReceiver _receiver = new AnyPushReceiver(this);
-	_sender.connect(getSetup(),channel_,true);
-	_receiver.connect(getSetup(), channel_, true);
-	
-	_receiver.addProxyFilter(falseFilter_);
-	_receiver.addAdminFilter(trueFilter_);
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        _sender.connect(getSetup(),channel_,true);
+        _receiver.connect(getSetup(), channel_, true);
 
-	Thread _senderThread = new Thread(_sender);
-	Thread _receiverThread = new Thread(_receiver);
+        _receiver.addProxyFilter(falseFilter_);
+        _receiver.addAdminFilter(trueFilter_);
 
-	_receiverThread.start();
-	_senderThread.start();
+        Thread _senderThread = new Thread(_sender);
+        Thread _receiverThread = new Thread(_receiver);
 
-	_senderThread.join();
-	_receiverThread.join();
+        _receiverThread.start();
+        _senderThread.start();
 
-	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should have received something", _receiver.isEventHandled());
+        _senderThread.join();
+        _receiverThread.join();
+
+        assertTrue("Error while sending", !_sender.error_);
+        assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
     public void testNoneOrNone_FalseORTrue() throws Exception {
-	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-	AnyPushReceiver _receiver = new AnyPushReceiver(this);
-	_sender.connect(getSetup(),channel_,true);
-	_receiver.connect(getSetup(), channel_, true);
-	
-	_receiver.addProxyFilter(trueFilter_);
-	_receiver.addAdminFilter(falseFilter_);
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        _sender.connect(getSetup(),channel_,true);
+        _receiver.connect(getSetup(), channel_, true);
 
-	Thread _senderThread = new Thread(_sender);
-	Thread _receiverThread = new Thread(_receiver);
+        _receiver.addProxyFilter(trueFilter_);
+        _receiver.addAdminFilter(falseFilter_);
 
-	_receiverThread.start();
-	_senderThread.start();
+        Thread _senderThread = new Thread(_sender);
+        Thread _receiverThread = new Thread(_receiver);
 
-	_senderThread.join();
-	_receiverThread.join();
+        _receiverThread.start();
+        _senderThread.start();
 
-	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should have received something", _receiver.isEventHandled());
+        _senderThread.join();
+        _receiverThread.join();
+
+        assertTrue("Error while sending", !_sender.error_);
+        assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
     public void testNoneOrNone_TrueANDFalse() throws Exception {
-	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-	AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(this);
 
-	_sender.connect(getSetup(),channel_,true);
+        _sender.connect(getSetup(),channel_,true);
 
-	_receiver.connect(getSetup(), channel_, false);
-	
-	_receiver.addProxyFilter(falseFilter_);
-	_receiver.addAdminFilter(trueFilter_);
+        _receiver.connect(getSetup(), channel_, false);
 
-	Thread _senderThread = new Thread(_sender);
-	Thread _receiverThread = new Thread(_receiver);
+        _receiver.addProxyFilter(falseFilter_);
+        _receiver.addAdminFilter(trueFilter_);
 
-	_receiverThread.start();
-	_senderThread.start();
+        Thread _senderThread = new Thread(_sender);
+        Thread _receiverThread = new Thread(_receiver);
 
-	_senderThread.join();
-	_receiverThread.join();
+        _receiverThread.start();
+        _senderThread.start();
 
-	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should have received something", !_receiver.isEventHandled());
+        _senderThread.join();
+        _receiverThread.join();
+
+        assertTrue("Error while sending", !_sender.error_);
+        assertTrue("Should have received something", !_receiver.isEventHandled());
     }
 
     public void testNoneOrNone_FalseANDTrue() throws Exception {
-	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-	AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(this);
 
-	_sender.connect(getSetup(),channel_,true);
+        _sender.connect(getSetup(),channel_,true);
 
-	_receiver.connect(getSetup(), channel_, false);
-	
-	_receiver.addProxyFilter(trueFilter_);
-	_receiver.addAdminFilter(falseFilter_);
+        _receiver.connect(getSetup(), channel_, false);
 
-	Thread _senderThread = new Thread(_sender);
-	Thread _receiverThread = new Thread(_receiver);
+        _receiver.addProxyFilter(trueFilter_);
+        _receiver.addAdminFilter(falseFilter_);
 
-	_receiverThread.start();
-	_senderThread.start();
+        Thread _senderThread = new Thread(_sender);
+        Thread _receiverThread = new Thread(_receiver);
 
-	_senderThread.join();
-	_receiverThread.join();
+        _receiverThread.start();
+        _senderThread.start();
 
-	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should have received something", !_receiver.isEventHandled());
+        _senderThread.join();
+        _receiverThread.join();
+
+        assertTrue("Error while sending", !_sender.error_);
+        assertTrue("Should have received something", !_receiver.isEventHandled());
     }
 
 
-    /** 
+    /**
      * Creates a new <code>InterFilterGroupOperatorTest</code> instance.
      *
      * @param name test name
      */
     public InterFilterGroupOperatorTest (String name, NotificationTestCaseSetup setup){
-	super(name, setup);
+        super(name, setup);
     }
 
     /**
      * @return a <code>TestSuite</code>
      */
     public static Test suite() throws Exception {
-	TestSuite _suite = new TestSuite("Test of InterFilterGroupOperator Functionality");
-	
-	NotificationTestCaseSetup _setup =
-	    new NotificationTestCaseSetup(_suite);
-	
-	String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(InterFilterGroupOperatorTest.class);
+        TestSuite _suite = new TestSuite("Test of InterFilterGroupOperator Functionality");
 
-	for (int x=0; x<methodNames.length; ++x) {
-	    _suite.addTest(new InterFilterGroupOperatorTest(methodNames[x], _setup));
-	}
+        NotificationTestCaseSetup _setup =
+            new NotificationTestCaseSetup(_suite);
 
-	return _setup;
+        String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(InterFilterGroupOperatorTest.class);
+
+        for (int x=0; x<methodNames.length; ++x) {
+            _suite.addTest(new InterFilterGroupOperatorTest(methodNames[x], _setup));
+        }
+
+        return _setup;
     }
 
-    /** 
-     * Entry point 
-     */ 
+    /**
+     * Entry point
+     */
     public static void main(String[] args) throws Exception {
-	junit.textui.TestRunner.run(suite());
+        junit.textui.TestRunner.run(suite());
     }
 
 }
