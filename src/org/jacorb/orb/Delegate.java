@@ -625,7 +625,7 @@ public final class Delegate
         else
             return -1;
     }
-
+    
     /**
      * @deprecated Deprecated by CORBA 2.3
      */
@@ -1273,39 +1273,8 @@ public final class Delegate
             {
             }
         }
-        ensureReplyStartTime();
+        Time.waitFor (getReplyStartTime());
     }
-
-    /**
-     * This method blocks until the ReplyStartTime has been reached.
-     * If no ReplyStartTime is defined, or it has already passed,
-     * then this method returns immediately.
-     */
-    public void ensureReplyStartTime()
-    {
-        UtcT replyStartTime = getReplyStartTime();
-        if (replyStartTime != null)
-        {
-            long delta = Time.millisTo (replyStartTime);
-            if (delta > 0)
-            {
-                Object lock = new Object();
-                synchronized (lock)
-                {
-                    try
-                    {
-                        lock.wait (delta);
-                    }
-                    catch (InterruptedException e)
-                    {
-                        Debug.output 
-                            (Debug.ORB_MISC | Debug.IMPORTANT,
-                            "interrupted while waiting for reply start time");
-                    }
-                }
-            }
-        }
-    }        
 
     public synchronized org.omg.CORBA.Request request( org.omg.CORBA.Object self,
 
@@ -1335,7 +1304,7 @@ public final class Delegate
         // Compute the deadlines for this request based on any absolute or
         // relative timing policies that have been specified.  Compute this
         // now, because it is the earliest possible time, and therefore any
-        // relative values will cover the entire invocation.
+        // relative timeouts will cover the entire invocation.
         
         long request = getRelativeRequestTimeout();
         UtcT requestEndTime = Time.earliest (Time.corbaFuture (request),
