@@ -857,18 +857,18 @@ public class CDRInputStream
 	case 0xffffffff:
 	    /* recursive TC */
 	    int negative_offset = read_long();
-            String recursiveId = 
-                (String)tcMap.get( new Integer( pos -4-1 + negative_offset ) );
+       String recursiveId = 
+          (String)tcMap.get( new Integer( pos - 4 - 1 + negative_offset ) );
 
-            Debug.myAssert( recursiveId != null,
-                          "No recursive TypeCode! (pos: " + 
-                          (pos-4-1+negative_offset) + ")");
-
+       Debug.myAssert( recursiveId != null,
+                       "No recursive TypeCode! (pos: " + 
+                       (pos-4-1+negative_offset) + ")");
             
-	    org.omg.CORBA.TypeCode rec_tc = 
-                orb.create_recursive_tc( recursiveId );
+       //org.omg.CORBA.TypeCode rec_tc = orb.create_recursive_tc( recursiveId );
+       org.omg.CORBA.TypeCode rec_tc =
+          (org.omg.CORBA.TypeCode) recursiveTCMap.get (recursiveId);
 
-            // Debug.output(4, "** found type code in map " + recursiveId );
+       // Debug.output(4, "** found type code in map " + recursiveId );
 
 	    return rec_tc;
 	default:
