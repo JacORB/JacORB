@@ -20,7 +20,7 @@
  */
 package org.jacorb.collection.util;
 
-import java.util.*; 
+import java.util.*;
 
 public class DynArray 
 {
