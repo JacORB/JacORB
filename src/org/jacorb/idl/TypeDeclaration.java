@@ -79,8 +79,8 @@ public class TypeDeclaration
 
 
     /**
-     *	we have to be able to distinguish between explicitly typedef'd
-     *	type names and anonymously defined type names
+     *  we have to be able to distinguish between explicitly typedef'd
+     *  type names and anonymously defined type names
      */
 
     public void markTypeDefd( String alias )
@@ -92,7 +92,7 @@ public class TypeDeclaration
     {
         if( type_decl == null )
             return "org.omg.CORBA.ORB.init().create_recursive_tc "
-                    + "(\"" + id() + "\")";
+            + "(\"" + id() + "\")";
         else
             return type_decl.getRecursiveTypeCodeExpression();
     }
@@ -113,7 +113,7 @@ public class TypeDeclaration
 
     /**
      * @return a string for an expression of type TypeCode
-     * 			that describes this type
+     *     that describes this type
      */
     public String getTypeCodeExpression()
     {
@@ -195,7 +195,7 @@ public class TypeDeclaration
 //      }
 
     /**
-     */ 
+     */
 
     public void accept( IDLTreeVisitor visitor )
     {
@@ -204,6 +204,3 @@ public class TypeDeclaration
 
 
 }
-
-
-

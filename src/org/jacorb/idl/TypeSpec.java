@@ -128,7 +128,7 @@ public class TypeSpec
         {
             np.printStackTrace();
             org.jacorb.idl.parser.fatal_error( "Compiler Error for " +
-                    type_spec + " " + typeName(), null );
+                                               type_spec + " " + typeName(), null );
         }
         return null;
     }
@@ -143,7 +143,7 @@ public class TypeSpec
 
     /**
      * @return a string for an expression of type TypeCode
-     * 			that describes this type
+     *     that describes this type
      */
     public String getTypeCodeExpression()
     {
@@ -197,7 +197,7 @@ public class TypeSpec
     /**
      * for use by subclasses when generating helper classes. Writes
      * common methods for all helpers to the helper class file. Must
-     * be called after beginning the class definition itself 
+     * be called after beginning the class definition itself
      */
 
     static void printHelperClassMethods( PrintWriter ps, String type )
@@ -227,6 +227,3 @@ public class TypeSpec
 
 
 }
-
-
-

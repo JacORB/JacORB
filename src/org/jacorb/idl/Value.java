@@ -61,7 +61,7 @@ public class Value
 
     /**
      * @return a string for an expression of type TypeCode
-     * 			that describes this type
+     * that describes this type
      */
 
     public String getTypeCodeExpression()
@@ -136,7 +136,7 @@ public class Value
     }
 
     /**
-     */ 
+     */
 
     public void accept( IDLTreeVisitor visitor )
     {
@@ -145,10 +145,3 @@ public class Value
 
 
 }
-
-
-
-
-
-
-

@@ -75,8 +75,8 @@ public class GlobalInputStream
      */
 
     public static boolean isMoreRecentThan(File other)
-    {       
-        return (parser.forceOverwrite || 
+    {
+        return (parser.forceOverwrite ||
                  (other.lastModified() < currentFile.lastModified())) ;
     }
 
@@ -164,7 +164,7 @@ public class GlobalInputStream
                 }
 
                 if (logger.isInfoEnabled())
-		 logger.info("opening " + dir + File.separator + fname);
+                    logger.info("opening " + dir + File.separator + fname);
                 currentFile = new File(dir + File.separator + fname);
             }
             else
@@ -285,4 +285,3 @@ public class GlobalInputStream
     }
 
 }
-

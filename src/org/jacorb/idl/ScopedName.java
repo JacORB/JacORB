@@ -42,9 +42,9 @@ public class ScopedName
     private static Stack recursionStack = new Stack();
 
     /**
-     *  Interfaces define a new scope, but since we can't do that
-     *	in Java, this kind of scope is called a 'pseudo scope' and
-     *	is just prepended to the interface name
+     * Interfaces define a new scope, but since we can't do that
+     * in Java, this kind of scope is called a 'pseudo scope' and
+     * is just prepended to the interface name
      */
 
     public static void definePseudoScope( String name )
@@ -97,7 +97,7 @@ public class ScopedName
         }
 
         java.util.StringTokenizer strtok =
-                new java.util.StringTokenizer( head, "." );
+        new java.util.StringTokenizer( head, "." );
         String scopes[] = new String[ strtok.countTokens() ];
 
         for( int i = 0; strtok.hasMoreTokens(); scopes[ i++ ] = strtok.nextToken() )
@@ -134,7 +134,7 @@ public class ScopedName
         if( tail != null )
             newHead.append( "." + tail );
         // debug: System.out.println("Unpseudo returns: " +
-        // 	newHead.toString());
+        //   newHead.toString());
         return newHead.toString();
 
     }
@@ -198,7 +198,7 @@ public class ScopedName
     public void setId( String _id )
     {
         if( logger.isInfoEnabled() )
-		 logger.info( "ScopedName.setId " + _id );
+            logger.info( "ScopedName.setId " + _id );
 
         typeName = _id;
         escapeName();
@@ -218,8 +218,8 @@ public class ScopedName
                 if( lexer.strictJavaEscapeCheck( typeName.substring( typeName.lastIndexOf( '.' ) + 1 )))
                 {
                     typeName =
-                        typeName.substring( 0, typeName.lastIndexOf( '.' ) + 1 ) +
-                        "_" + typeName.substring( typeName.lastIndexOf( '.' ) + 1 );
+                    typeName.substring( 0, typeName.lastIndexOf( '.' ) + 1 ) +
+                    "_" + typeName.substring( typeName.lastIndexOf( '.' ) + 1 );
                 }
             }
             else
@@ -228,7 +228,7 @@ public class ScopedName
                     typeName = "_" + typeName;
             }
             if( logger.isInfoEnabled() )
-		 logger.info( "ScopedName.escapeName " + typeName );
+                logger.info( "ScopedName.escapeName " + typeName );
         }
     }
 
@@ -299,7 +299,7 @@ public class ScopedName
     private String resolvedName( String pack_name, String s )
     {
         if( logger.isInfoEnabled() )
-		 logger.info( "Resolve " + pack_name + ":" + s );
+            logger.info( "Resolve " + pack_name + ":" + s );
 
         boolean global = false;
 
@@ -328,16 +328,16 @@ public class ScopedName
             String unmap = unMap( ( !global? pack_name + "." : "" ) + result );
 
             if( logger.isInfoEnabled() )
-		 logger.info( "resolve, " + 
-                              ( !global? pack_name + "." : "" ) + result + 
-                              " was in name table, returning " + unmap + 
-                              " suffix: " + suffix );
+                logger.info( "resolve, " +
+                             ( !global? pack_name + "." : "" ) + result +
+                             " was in name table, returning " + unmap +
+                             " suffix: " + suffix );
 
             return unmap + suffix;
         }
 
         java.util.StringTokenizer strtok =
-            new java.util.StringTokenizer( s, "." );
+        new java.util.StringTokenizer( s, "." );
         String s_scopes[] = new String[ strtok.countTokens() ];
 
         for( int i = 0; strtok.hasMoreTokens(); i++ )
@@ -369,7 +369,7 @@ public class ScopedName
                     String unmap2 = unMap( result );
 
                     if( logger.isInfoEnabled() )
-		 logger.info( "resolve b, " + result + " was in name table, returning " +  unmap2 + " suffix: " + suffix );
+                        logger.info( "resolve b, " + result + " was in name table, returning " +  unmap2 + " suffix: " + suffix );
                     return unmap2 + suffix;
                 }
             }
@@ -379,7 +379,7 @@ public class ScopedName
         // MOVED (Don Busch)
 
         java.util.StringTokenizer p_strtok =
-                new java.util.StringTokenizer( pack_name, "." );
+        new java.util.StringTokenizer( pack_name, "." );
         String p_scopes[] = new String[ p_strtok.countTokens() ];
 
         for( int i = 0; p_strtok.hasMoreTokens(); i++ )
@@ -411,7 +411,7 @@ public class ScopedName
             int i;
 
             int m = s_scopes.length < p_scopes.length ?
-                    s_scopes.length : p_scopes.length;
+            s_scopes.length : p_scopes.length;
 
             if( m > 1 )
             {
@@ -438,14 +438,14 @@ public class ScopedName
         {
             prefix = parser.package_prefix + ".";
             java.util.StringTokenizer prefix_strtok =
-                    new java.util.StringTokenizer( prefix, "." );
+            new java.util.StringTokenizer( prefix, "." );
             String prefix_scopes[] = new String[ prefix_strtok.countTokens() ];
 
             for( int i = 0; prefix_strtok.hasMoreTokens(); i++ )
                 prefix_scopes[ i ] = prefix_strtok.nextToken();
 
             while( start_index < prefix_scopes.length &&
-                    prefix_scopes[ start_index ].equals( p_scopes[ start_index ] ) )
+                   prefix_scopes[ start_index ].equals( p_scopes[ start_index ] ) )
                 start_index++;
         }
 
@@ -467,7 +467,7 @@ public class ScopedName
 
         while( !NameTable.defined( prefix + buf.toString() ) )
         {
-//  	    System.out.println("sub = " + sub + ", Looking at " +  prefix +  buf.toString()  + " hash: " + (new String (prefix + buf.toString())).hashCode() );
+//        System.out.println("sub = " + sub + ", Looking at " +  prefix +  buf.toString()  + " hash: " + (new String (prefix + buf.toString())).hashCode() );
             if( sub > p_scopes.length )
             {
                 parser.fatal_error( "Undefined name: " + pack_name + "." + s, token );
@@ -544,11 +544,11 @@ public class ScopedName
         TypeSpec x = null;
 
         while( y != null && !( y instanceof ScopedName )
-                && !( y instanceof ConstrTypeSpec ) )
+               && !( y instanceof ConstrTypeSpec ) )
         {
             x = y;
             y = y.typeSpec();
-            if( x.equals( y ) ) 
+            if( x.equals( y ) )
                 break; // necessary?
         }
 
@@ -699,7 +699,6 @@ public class ScopedName
     {
         TypeSpec t = resolvedTypeSpec();
         return ( ( t instanceof SwitchTypeSpec ) &&
-                ( (SwitchTypeSpec)t ).isSwitchable() );
+                 ( (SwitchTypeSpec)t ).isSwitchable() );
     }
 }
-
