@@ -171,7 +171,7 @@ public class StructType
         if (parsed)
         {
             // there are occasions where the compiler may try to parse
-            // a struct type spec for a second time, viz if the struct is 
+            // a struct type spec for a second time, viz if the struct is
             // referred to through a scoped name in another struct member.
             // that's not a problem, but we have to skip parsing again!
             // (Gerald: introduced together with the fix for bug #84).
@@ -308,8 +308,8 @@ public class StructType
 
     private void printHolderClass(String className, PrintWriter ps)
     {
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         if (!pack_name.equals(""))
             ps.println("package " + pack_name + ";");
@@ -354,8 +354,8 @@ public class StructType
 
     private void printHelperClass(String className, PrintWriter ps)
     {
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         if (!pack_name.equals(""))
             ps.println("package " + pack_name + ";\n");
@@ -456,8 +456,8 @@ public class StructType
 
     private void printStructClass(String className, PrintWriter ps)
     {
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         String fullClassName = className;
 
@@ -571,8 +571,8 @@ public class StructType
         ps.println("}");
     }
 
-    /** 
-     * Generates code from this AST class 
+    /**
+     * Generates code from this AST class
      *
      * @param ps not used, the necessary output streams to classes
      * that receive code (e.g., helper and holder classes for the
@@ -598,7 +598,7 @@ public class StructType
 
         if (!written)
         {
-            // guard against recursive entries, which can happen due to 
+            // guard against recursive entries, which can happen due to
             // containments, e.g., an alias within an interface that refers
             // back to the interface
             written = true;
@@ -670,4 +670,3 @@ public class StructType
 
 
 }
-

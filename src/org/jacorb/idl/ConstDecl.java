@@ -242,8 +242,8 @@ class ConstDecl extends Declaration
                 if (logger.isDebugEnabled())
                     logger.debug("ConstDecl.print " + fname);
 
-                if (parser.checkJdk14 && pack_name.equals(""))
-                    parser.fatal_error
+                if (Environment.JAVA14 && pack_name.equals(""))
+                    lexer.emit_warn
                         ("No package defined for " + className + " - illegal in JDK1.4", token);
                 if (!pack_name.equals(""))
                     pw.println("package " + pack_name + ";");
@@ -307,4 +307,3 @@ class ConstDecl extends Declaration
         }
     }
 }
-

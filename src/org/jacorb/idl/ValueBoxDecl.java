@@ -207,8 +207,8 @@ public class ValueBoxDecl
 
     private void printHolderClass(String className, PrintWriter ps)
     {
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         if (!pack_name.equals(""))
             ps.println("package " + pack_name + ";");
@@ -249,8 +249,8 @@ public class ValueBoxDecl
 
     private void printHelperClass(String className, PrintWriter ps)
     {
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         if (!pack_name.equals(""))
             ps.println("package " + pack_name + ";");
@@ -317,8 +317,8 @@ public class ValueBoxDecl
     {
         String fullClassName = className;
 
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         if (!pack_name.equals(""))
         {
@@ -428,7 +428,7 @@ public class ValueBoxDecl
 
 
     /**
-     */ 
+     */
 
     public void accept(IDLTreeVisitor visitor)
     {
@@ -437,4 +437,3 @@ public class ValueBoxDecl
 
 
 }
-

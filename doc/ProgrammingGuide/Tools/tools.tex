@@ -44,10 +44,6 @@ backend.  The default code generator \\
 \> \>  (c.f. API documentation). Custom generators must implement the
 interface\\
 \> \> {\tt org.jacorb.idl.IDLTreeVisitor}\\
-\>  -jdk14 \>  do extra checks for generating JDK1.4 code.\\
-\> \> (Checks that no  classes are generated to the unnamed package,
-from which \\
-\> \> JDK 1.4 does not let you import.\\ 
 \>  -i x \> (deprecated) generated Java classes will contain an  "import
 x;" statement \\
 \> \> (default is off)\\
@@ -264,7 +260,7 @@ This command patches host and port information into an IOR file.
 \cmdline{fixior <host> <port> <ior\_file> }
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

@@ -167,8 +167,8 @@ public class AliasTypeSpec
         if (originalType instanceof ScopedName)
         {
             if (logger.isDebugEnabled())
-                logger.debug(" Alias " + name + 
-                             " has scoped name orig Type : " + 
+                logger.debug(" Alias " + name +
+                             " has scoped name orig Type : " +
                              ((ScopedName)originalType).toString());
 
             originalType = ((ScopedName)originalType).resolvedTypeSpec();
@@ -234,21 +234,21 @@ public class AliasTypeSpec
 
         if (!written)
         {
-            // guard against recursive entries, which can happen due to 
+            // guard against recursive entries, which can happen due to
             // containments, e.g., an alias within an interface that refers
             // back to the interface
             written = true;
 
             try
-            {                
-                if (!(originalType.typeSpec() instanceof StringType) && 
+            {
+                if (!(originalType.typeSpec() instanceof StringType) &&
                     !(originalType.typeSpec() instanceof SequenceType) &&
                     ! originalTypeWasScopedName &&
-                    !(originalType instanceof ConstrTypeSpec &&  
+                    !(originalType instanceof ConstrTypeSpec &&
                        ((ConstrTypeSpec)originalType).declaration() instanceof Interface )
                    )
                 {
-                    // only print local type definitions, not just 
+                    // only print local type definitions, not just
                     // scoped names (references to other defs), which would
                     // lead to loops!
                     originalType.print(ps);
@@ -272,15 +272,15 @@ public class AliasTypeSpec
 
                 String fname = null;
                 PrintWriter decl_ps = null;
-                
-                if ( originalType instanceof TemplateTypeSpec 
+
+                if ( originalType instanceof TemplateTypeSpec
                       && !(originalType instanceof StringType))
                 {
-                    // print the holder class 
+                    // print the holder class
 
                     fname = className + "Holder.java";
                     File f = new File(dir, fname);
-            
+
                     if (GlobalInputStream.isMoreRecentThan(f))
                     {
                         decl_ps = new PrintWriter(new java.io.FileWriter(f));
@@ -291,7 +291,7 @@ public class AliasTypeSpec
 
                 fname = className + "Helper.java";
                 File f = new File(dir, fname);
-            
+
                 if (GlobalInputStream.isMoreRecentThan(f))
                 {
                     // print the helper class
@@ -395,8 +395,8 @@ public class AliasTypeSpec
 
     private void printHolderClass(String className, PrintWriter ps)
     {
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         if (!pack_name.equals(""))
             ps.println("package " + pack_name + ";");
@@ -444,8 +444,8 @@ public class AliasTypeSpec
 
     private void printHelperClass(String className, PrintWriter ps)
     {
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         if (!pack_name.equals(""))
             ps.println("package " + pack_name + ";");
@@ -513,4 +513,3 @@ public class AliasTypeSpec
 
 
 }
-

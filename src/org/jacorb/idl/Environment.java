@@ -25,6 +25,16 @@ package org.jacorb.idl;
 public final class Environment
 {
     private static int verbosity = 0;
+    /**
+     * <code>JAVA14</code> denotes whether we are using JDK 1.4.
+     */
+    static boolean JAVA14 = false;
+
+    static
+    {
+        String javaVer = System.getProperty ("java.version");
+        JAVA14 = (javaVer.indexOf ("1.4") != -1);
+    }
 
     /**
      * called by the parser to set the verbosity level

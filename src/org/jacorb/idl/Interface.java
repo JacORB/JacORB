@@ -304,7 +304,7 @@ public class Interface
                     // unwind any typedef's interface names
                     while (resolvedTSpec instanceof AliasTypeSpec )
                     {
-                        resolvedTSpec = 
+                        resolvedTSpec =
                             ((AliasTypeSpec)resolvedTSpec).originalType();
                     }
 
@@ -312,7 +312,7 @@ public class Interface
                     {
                         if (logger.isDebugEnabled())
                         {
-                            logger.debug("Illegal inheritance spec, not a constr. type but " + 
+                            logger.debug("Illegal inheritance spec, not a constr. type but " +
                                          resolvedTSpec.getClass() + ", name " + name );
                         }
                         parser.fatal_error("Illegal inheritance spec (not a constr. type): " +
@@ -431,8 +431,8 @@ public class Interface
 
     protected void printPackage (PrintWriter ps)
     {
-        if (parser.checkJdk14 && pack_name.equals(""))
-            parser.fatal_error
+        if (Environment.JAVA14 && pack_name.equals(""))
+            lexer.emit_warn
                 ("No package defined for " + name + " - illegal in JDK1.4", token);
 
         if (!pack_name.equals (""))
@@ -1376,4 +1376,3 @@ public class Interface
 
 
 }
-
