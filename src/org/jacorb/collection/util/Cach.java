@@ -42,9 +42,9 @@ public class Cach{
     }
 /* ------------------------------------------------------------------------- */
     public Object getElement( Object key ){
-        Enumeration enum = data.elements();
-        while( enum.hasMoreElements() ){
-            Node n =(Node)enum.nextElement();
+        Enumeration enumeration = data.elements();
+        while( enumeration.hasMoreElements() ){
+            Node n =(Node)enumeration.nextElement();
             if( n.key == key ){
                 data.removeElement( n );
                 data.insertElementAt( n, 0 );

@@ -97,10 +97,10 @@ public class ORBInitInfoImpl
 
     private void merge(Vector target, Hashtable source)
     {
-        Enumeration enum = source.elements();
+        Enumeration enumeration = source.elements();
 
-        while(enum.hasMoreElements())
-            target.addElement(enum.nextElement());
+        while(enumeration.hasMoreElements())
+            target.addElement(enumeration.nextElement());
     }
 
     public Vector getClientInterceptors()

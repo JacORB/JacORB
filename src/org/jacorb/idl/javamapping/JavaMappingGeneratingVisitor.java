@@ -217,10 +217,10 @@ public class JavaMappingGeneratingVisitor
      * 
      */
 
-    public void visitEnum( EnumType enum )
+    public void visitEnum( EnumType enumType )
     {
 
-        for( Enumeration e = enum.enumlist.elements(); e.hasMoreElements(); )
+        for( Enumeration e = enumType.enumlist.elements(); e.hasMoreElements(); )
         {
             // 
         }

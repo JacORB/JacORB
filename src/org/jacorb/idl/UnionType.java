@@ -443,7 +443,7 @@ public class UnionType
             {
                 // find a "default" for char
 
-                Enumeration enum;
+                Enumeration enumeration;
                 String charStr;
                 boolean matched = false;
                 short val;
@@ -453,10 +453,10 @@ public class UnionType
                 for (short s = 0; s < 256; s++)
                 {
                     matched = false;
-                    enum = allCaseLabels.elements ();
-                    while (enum.hasMoreElements ())
+                    enumeration = allCaseLabels.elements ();
+                    while (enumeration.hasMoreElements ())
                     {
-                        charStr = (String) enum.nextElement ();
+                        charStr = (String) enumeration.nextElement ();
 
                         // Remove quotes from char string 'x'
 

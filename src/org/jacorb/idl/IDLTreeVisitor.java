@@ -77,7 +77,7 @@ public interface IDLTreeVisitor
 
     void visitUnion( UnionType union );
 
-    void visitEnum( EnumType enum );
+    void visitEnum( EnumType enumType );
 
 
     void visitNative( NativeType _native );

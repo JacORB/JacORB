@@ -532,12 +532,12 @@ public class ValueDecl
                 }
 
                 // go through supported interfaces
-                Enumeration enum = inheritanceSpec.getSupportedInterfaces();
-                if (enum.hasMoreElements())
+                Enumeration enumeration = inheritanceSpec.getSupportedInterfaces();
+                if (enumeration.hasMoreElements())
                 {
-                    for(; enum.hasMoreElements();)
+                    for(; enumeration.hasMoreElements();)
                     {
-                        ScopedName sne = (ScopedName)enum.nextElement();
+                        ScopedName sne = (ScopedName)enumeration.nextElement();
                         implementsBuffer.append (", " + sne);
                         if (Interface.abstractInterfaces == null ||
                             !Interface.abstractInterfaces.contains (sne.toString()))

@@ -87,9 +87,9 @@ class CollectionImpl
     };
 /* ------------------------------------------------------------------------- */
     public synchronized int remove_all() {
-        Enumeration enum = iterators.elements();
-        while( enum.hasMoreElements() ){
-            PositionalIteratorImpl i = (PositionalIteratorImpl)enum.nextElement();
+        Enumeration enumeration = iterators.elements();
+        while( enumeration.hasMoreElements() ){
+            PositionalIteratorImpl i = (PositionalIteratorImpl)enumeration.nextElement();
             i.invalidate();
         }
         int count = data.size();
@@ -139,9 +139,9 @@ class CollectionImpl
     };
 /* ------------------------------------------------------------------------- */
     public synchronized void destroy() {
-        Enumeration enum = iterators.elements();
-        while( enum.hasMoreElements() ){
-            PositionalIteratorImpl i = (PositionalIteratorImpl)enum.nextElement();
+        Enumeration enumeration = iterators.elements();
+        while( enumeration.hasMoreElements() ){
+            PositionalIteratorImpl i = (PositionalIteratorImpl)enumeration.nextElement();
             i.destroy();
         };
         try {
@@ -215,9 +215,9 @@ class CollectionImpl
 /* ------------------------------------------------------------------------- */
     public synchronized PositionalIteratorImpl check_iterator( org.omg.CosCollection.Iterator iter ) throws IteratorInvalid {
         PositionalIteratorImpl i = null;
-        Enumeration enum=iterators.elements();
-        while( enum.hasMoreElements() ){
-            i=(PositionalIteratorImpl)enum.nextElement();
+        Enumeration enumeration=iterators.elements();
+        while( enumeration.hasMoreElements() ){
+            i=(PositionalIteratorImpl)enumeration.nextElement();
             try {
                 if( i.get_servant() == ( poa.reference_to_servant( iter ) ) ){
                     return (PositionalIteratorImpl)i;
@@ -268,9 +268,9 @@ class CollectionImpl
     };
 /* ------------------------------------------------------------------------- */
     protected void element_inserted( int pos ) {
-        Enumeration enum = iterators.elements();
-        while( enum.hasMoreElements() ){
-            PositionalIteratorImpl i = (PositionalIteratorImpl)enum.nextElement();
+        Enumeration enumeration = iterators.elements();
+        while( enumeration.hasMoreElements() ){
+            PositionalIteratorImpl i = (PositionalIteratorImpl)enumeration.nextElement();
             if( i.is_valid() ){
                 int p = i.get_pos();
                 if( p >= pos ) {
@@ -281,9 +281,9 @@ class CollectionImpl
     };
 /* ------------------------------------------------------------------------- */
     protected void element_removed( int pos, Any old ){
-        Enumeration enum = iterators.elements();
-        while( enum.hasMoreElements() ){
-            PositionalIteratorImpl i = (PositionalIteratorImpl)enum.nextElement();
+        Enumeration enumeration = iterators.elements();
+        while( enumeration.hasMoreElements() ){
+            PositionalIteratorImpl i = (PositionalIteratorImpl)enumeration.nextElement();
             if( i.is_valid() ){
                 int p = i.get_pos();
                 if( p == pos ){

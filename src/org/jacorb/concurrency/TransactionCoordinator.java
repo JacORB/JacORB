@@ -138,9 +138,9 @@ class TransactionCoordinator extends ResourcePOA /* implements Runnable */ {
         }
     };
     public void run() {
-        Enumeration enum = locksets.elements();
-        while( enum.hasMoreElements() ){
-            LockCoordinatorImpl lc = (LockCoordinatorImpl)enum.nextElement();
+        Enumeration enumeration = locksets.elements();
+        while( enumeration.hasMoreElements() ){
+            LockCoordinatorImpl lc = (LockCoordinatorImpl)enumeration.nextElement();
             lc.drop_locks();
             try {
                 byte [] ObjId = poa.servant_to_id( lc );

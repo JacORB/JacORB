@@ -146,10 +146,10 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
         related.addElement( which );
     };
     synchronized boolean attempt_lock( TransactionCoordinator tc, lock_mode mode ){
-        Enumeration enum = locks.elements();
+        Enumeration enumeration = locks.elements();
         TransactionLocks current_transaction_locks = null;
-        while( enum.hasMoreElements() ){
-            TransactionLocks lock = (TransactionLocks) enum.nextElement();
+        while( enumeration.hasMoreElements() ){
+            TransactionLocks lock = (TransactionLocks) enumeration.nextElement();
             if( lock.current == tc ){
                 current_transaction_locks = lock;
                 continue;
@@ -187,9 +187,9 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
         boolean rc = false;
         boolean do_recursive = false;
         Vector executed = new Vector();
-        Enumeration enum = queue.elements();
-        while( enum.hasMoreElements() ){
-            Request r = (Request)enum.nextElement();
+        Enumeration enumeration = queue.elements();
+        while( enumeration.hasMoreElements() ){
+            Request r = (Request)enumeration.nextElement();
             synchronized( r.current ){
                 try {
                     check_status( r.current );
@@ -227,9 +227,9 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
                 rc = true;
             }
         };
-        enum = executed.elements();
-        while( enum.hasMoreElements() ){
-            queue.removeElement( enum.nextElement() );
+        enumeration = executed.elements();
+        while( enumeration.hasMoreElements() ){
+            queue.removeElement( enumeration.nextElement() );
         }
         if( do_recursive ){
             attempt_lock_from_queue();
@@ -249,21 +249,21 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
     };
     synchronized void transaction_finished( TransactionCoordinator tc ){
         Vector executed = new Vector();
-        Enumeration enum;
+        Enumeration enumeration;
         boolean do_notify = false;
         synchronized( queue ){
-            enum = queue.elements();
-            while( enum.hasMoreElements() ){
-                Request r = (Request)enum.nextElement();
+            enumeration = queue.elements();
+            while( enumeration.hasMoreElements() ){
+                Request r = (Request)enumeration.nextElement();
                 if( r.current == tc ){
                     r.state = LockSetFactoryImpl.ROLLBACK;
                     executed.addElement( r );
                 }
             }
             if( executed.size() > 0 ) {
-                enum = executed.elements();
-                while( enum.hasMoreElements() ){
-                    queue.removeElement( enum.nextElement() );
+                enumeration = executed.elements();
+                while( enumeration.hasMoreElements() ){
+                    queue.removeElement( enumeration.nextElement() );
                 }
                 do_notify = true;
             }
@@ -275,30 +275,30 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
             }
         }
         if( related.size() > 0 ) {
-            enum = related.elements();
-            while( enum.hasMoreElements() ){
-                TransactionalLockSet ls = (TransactionalLockSet)enum.nextElement();
+            enumeration = related.elements();
+            while( enumeration.hasMoreElements() ){
+                TransactionalLockSet ls = (TransactionalLockSet)enumeration.nextElement();
                 ls.get_coordinator( tc.get_coordinator() ).drop_locks();
             }
         }
     };
     public void print(){
-        Enumeration enum;
+        Enumeration enumeration;
         System.out.println("\n=============================================================================");
         System.out.println(" LOCKS"+locks.size() );
         System.out.println("-----------------------------------------------------------------------------");
         synchronized ( queue ) {
-            enum = locks.elements();
-            while( enum.hasMoreElements() ){
-                TransactionLocks r = (TransactionLocks)enum.nextElement();
+            enumeration = locks.elements();
+            while( enumeration.hasMoreElements() ){
+                TransactionLocks r = (TransactionLocks)enumeration.nextElement();
                 System.out.println( r.toString() );
             }
             System.out.println("\n-----------------------------------------------------------------------------");
             System.out.println(" QUEUE"+queue.size() );
             System.out.println("-----------------------------------------------------------------------------");
-            enum = queue.elements();
-            while( enum.hasMoreElements() ){
-               Request r = (Request)enum.nextElement();
+            enumeration = queue.elements();
+            while( enumeration.hasMoreElements() ){
+               Request r = (Request)enumeration.nextElement();
                System.out.println( r.toString() );
            }
         };
@@ -310,9 +310,9 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
             check_active();
             is_active = false;
             if( locks.size() > 0 ){
-                Enumeration enum = locks.elements();
-                while( enum.hasMoreElements() ){
-                    TransactionLocks ls = (TransactionLocks)enum.nextElement();
+                Enumeration enumeration = locks.elements();
+                while( enumeration.hasMoreElements() ){
+                    TransactionLocks ls = (TransactionLocks)enumeration.nextElement();
                     if( ls.any_locks() ){
                         throw new RuntimeException("LockExists");
                     }

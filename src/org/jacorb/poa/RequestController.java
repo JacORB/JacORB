@@ -451,7 +451,7 @@ public final class RequestController
 
     public void run()
     {
-        State state;
+        org.omg.PortableServer.POAManagerPackage.State state;
         ServerRequest request;
         org.omg.CORBA.OBJ_ADAPTER closed_connection_exception =
             new org.omg.CORBA.OBJ_ADAPTER("connection closed: adapter inactive");

@@ -100,9 +100,9 @@ public class LockSetFactoryImpl extends LockSetFactoryPOA {
     }
 /* -------------------------------------------------------------------------- */
     synchronized void remove_me( TransactionalLockSetImpl i_am ){
-        Enumeration enum = coordinators.elements();
-        while( enum.hasMoreElements() ){
-            TransactionCoordinator tc = (TransactionCoordinator)enum.nextElement();
+        Enumeration enumeration = coordinators.elements();
+        while( enumeration.hasMoreElements() ){
+            TransactionCoordinator tc = (TransactionCoordinator)enumeration.nextElement();
             tc.remove_coordinator( i_am );
         }
         try {

@@ -1828,16 +1828,16 @@ public class POA
         checkDestructionApparent();
 
         int i = 0;
-        Enumeration enum;
+        Enumeration enumeration;
         org.omg.PortableServer.POA[] children;
 
         synchronized (poaCreationLog)
         {
             children = new org.omg.PortableServer.POA[childs.size()];
-            enum = childs.elements();
-            while (enum.hasMoreElements())
+            enumeration = childs.elements();
+            while (enumeration.hasMoreElements())
             {
-                children[i] = (org.omg.PortableServer.POA) enum.nextElement();
+                children[i] = (org.omg.PortableServer.POA) enumeration.nextElement();
                 i++;
             }
         }
