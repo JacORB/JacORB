@@ -543,7 +543,7 @@ non terminal InterfaceBody interface_body;
 non terminal Definition export;
 non terminal ScopedName scopename;
 
-non terminal ValueDecl value;
+non terminal ValueDeclaration value;
 non terminal ValueBoxDecl value_box_dcl;
 non terminal IdlSymbol value_abs_dcl;
 non terminal IdlSymbol value_body;
