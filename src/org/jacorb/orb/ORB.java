@@ -21,7 +21,7 @@ package org.jacorb.orb;
  */
 
 import java.util.*;
-import java.io.*;  
+import java.io.*;
 import java.applet.Applet;
 import java.lang.reflect.*;
 
@@ -88,7 +88,7 @@ public final class ORB
     /** command like args */
     public String[] _args;
         
-    public  java.applet.Applet applet;
+    public java.applet.Applet applet;
 
     /* for run() and shutdown()  */
     private Object orb_synch = new java.lang.Object();
@@ -358,7 +358,7 @@ public final class ORB
     
 
     /**
-     * Tests, if a policy factory is present for the given type.
+     * Tests if a policy factory is present for the given type.
      * This method is (right now) only called by the Info-Objects
      * of the portableInterceptor implementation to avoid running
      * into exceptions.
@@ -370,14 +370,14 @@ public final class ORB
                 policy_factories.containsKey( new Integer(type)) );
     }
 
-    public  org.omg.CORBA.ContextList create_context_list()
+    public org.omg.CORBA.ContextList create_context_list()
     {
-        return null;
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
-    public  org.omg.CORBA.Environment create_environment()
+    public org.omg.CORBA.Environment create_environment()
     {
-        return null;
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     public org.omg.CORBA.portable.OutputStream create_output_stream()
@@ -615,19 +615,14 @@ public final class ORB
         return _ior;
     }
 
-    public org.omg.CORBA.Current get_current ()
-    {
-        throw new org.omg.CORBA.NO_IMPLEMENT ("ORB get_current operation deprecated");
-    }
-
     public org.omg.CORBA.Context get_default_context ()
     {
-        return null;
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     public org.omg.CORBA.Request get_next_response ()
     {
-        return null;
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     /**
@@ -709,7 +704,7 @@ public final class ORB
     public boolean isApplet()
     {
         return applet != null;
-        //        return applet != null && Environment.useAppligator();
+        //return applet != null && Environment.useAppligator();
     }
 
 
@@ -722,8 +717,7 @@ public final class ORB
     {
         Vector v = new Vector();
 
-        for( Enumeration e = initial_references.keys(); e.hasMoreElements(); v.add( e.nextElement()))
-            ;
+        for( Enumeration e = initial_references.keys(); e.hasMoreElements(); v.add( e.nextElement() ) );
 
         String [] initial_services = 
             new String[ services.length + v.size()];
@@ -731,8 +725,6 @@ public final class ORB
         v.copyInto( initial_services );
 
         System.arraycopy( services, 0, initial_services, v.size(), services.length );
-        
-
         return initial_services;
     }
 
@@ -814,14 +806,13 @@ public final class ORB
         }
     }
 
-    public  boolean poll_next_response()
+    public boolean poll_next_response()
     {
-        return false;
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
 
-    public void referenceCreated(org.omg.CORBA.Object o)
-    {}
+    public void referenceCreated(org.omg.CORBA.Object o) {}
 
     public boolean get_service_information( short service_type,
                                             org.omg.CORBA.ServiceInformationHolder service_information) 
@@ -842,7 +833,7 @@ public final class ORB
         //              return true;
         //          }
         //          else return false;
-        return false;
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
     
     /**
@@ -1128,7 +1119,7 @@ public final class ORB
         {
             synchronized( orb_synch )
             {
-                while( run  )
+                while( run )
                 {
                     orb_synch.wait();
                 }
@@ -1141,12 +1132,14 @@ public final class ORB
         Debug.output(4,"ORB run, exit");
     }
 
-    public  void send_multiple_requests_deferred(org.omg.CORBA.Request[] req)
+    public void send_multiple_requests_deferred(org.omg.CORBA.Request[] req)
     {
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
-    public  void send_multiple_requests_oneway(org.omg.CORBA.Request[] req)
+    public void send_multiple_requests_oneway(org.omg.CORBA.Request[] req)
     {
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     /**
@@ -1214,7 +1207,7 @@ public final class ORB
         }
 
 
-	connectionManager = new ConnectionManager(this);
+        connectionManager = new ConnectionManager(this);
 	
         String s = Environment.getProperty( "jacorb.hashtable_class" );
         if( s == null || s.length() == 0 )
@@ -1274,16 +1267,15 @@ public final class ORB
 
     }
 
-
-    protected void set_parameters( java.applet.Applet app, 
-				   java.util.Properties  props )
+    protected void set_parameters
+        ( java.applet.Applet app, java.util.Properties  props )
     {
         applet = app;
         _props = props;
 
         Environment.addProperties( props );
 
-	connectionManager = new ConnectionManager(this);
+        connectionManager = new ConnectionManager(this);
 	
         String s = Environment.getProperty( "jacorb.hashtable_class" );
         if( s == null || s.length() == 0 )
@@ -1512,6 +1504,16 @@ public final class ORB
     }
 
     /**
+     * always return a ValueDef or throw BAD_PARAM if not repid of a value
+     */
+   
+    public org.omg.CORBA.Object get_value_def(String repid)
+        throws org.omg.CORBA.BAD_PARAM
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
+    /**
      * called by org.jacorb.poa.RequestProcessor
      */
 
@@ -1527,7 +1529,7 @@ public final class ORB
             }
             catch( org.omg.CORBA.BAD_INV_ORDER bio )
             {
-                // only set the delegate if it has not been set already                
+                // only set the delegate if it has not been set already
                 org.jacorb.orb.ServantDelegate delegate = 
                     new org.jacorb.orb.ServantDelegate( this );
                 ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
@@ -1568,11 +1570,12 @@ public final class ORB
 
     public void perform_work() 
     {     
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     public boolean work_pending() 
     {     
-        return false;
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     public ValueFactory register_value_factory (String id, 
@@ -1840,8 +1843,7 @@ public final class ORB
         return new org.jacorb.orb.NamedValue (name, value, flags);
     }
 
-    public org.omg.CORBA.NVList create_operation_list
-        (org.omg.CORBA.Object obj)
+    public org.omg.CORBA.NVList create_operation_list (org.omg.CORBA.Object obj)
     {
         org.omg.CORBA.OperationDef oper;
 
