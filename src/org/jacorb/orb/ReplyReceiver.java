@@ -100,19 +100,25 @@ public class ReplyReceiver extends ReplyPlaceholder
     private void performCallback ( ReplyInputStream reply )
     {
         // TODO: Call interceptors.
+
+        org.omg.CORBA.portable.Delegate replyHandlerDelegate = 
+            ( ( org.omg.CORBA.portable.ObjectImpl ) replyHandler )
+                                                         ._get_delegate();
         
-        ServantObject so = delegate.servant_preinvoke( replyHandler,
-                                                       operation,
-                                                       InvokeHandler.class );
+        ServantObject so = 
+            replyHandlerDelegate.servant_preinvoke( replyHandler,
+                                                    operation,
+                                                    InvokeHandler.class );
         try
         {
             switch ( reply.getStatus().value() )
             {
                 case ReplyStatusType_1_2._NO_EXCEPTION:
                 {                                                    
-                    ((InvokeHandler)so.servant)._invoke( operation,
-                                                         reply,
-                                                         dummyResponseHandler );
+                    ((InvokeHandler)so.servant)
+                        ._invoke( operation,
+                                  reply,
+                                  dummyResponseHandler );
                     break;
                 }
                 case ReplyStatusType_1_2._USER_EXCEPTION:
@@ -122,7 +128,8 @@ public class ReplyReceiver extends ReplyPlaceholder
                         new ExceptionHolderImpl( reply );
 
                     org.omg.CORBA_2_3.ORB orb = 
-                        ( org.omg.CORBA_2_3.ORB ) delegate.orb( null );
+                        ( org.omg.CORBA_2_3.ORB )replyHandlerDelegate
+                                                              .orb( null );
                     orb.register_value_factory
                         ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
                           new ExceptionHolderFactory() );
@@ -130,9 +137,10 @@ public class ReplyReceiver extends ReplyPlaceholder
                     CDRInputStream input = 
                         new CDRInputStream( orb, holder.marshal() );
 
-                    ((InvokeHandler)so.servant)._invoke( operation + "_excep",
-                                                         input,
-                                                         dummyResponseHandler );
+                    ((InvokeHandler)so.servant)
+                        ._invoke( operation + "_excep",
+                                  input,
+                                  dummyResponseHandler );
                     break;                
                 }
             }
@@ -144,7 +152,7 @@ public class ReplyReceiver extends ReplyPlaceholder
         }
         finally
         {
-            delegate.servant_postinvoke( replyHandler, so );
+            replyHandlerDelegate.servant_postinvoke( replyHandler, so );
         }
     }
 
