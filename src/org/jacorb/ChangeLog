@@ -1,3 +1,58 @@
+2004-05-06  Gerald Brose  <gerald.brose@acm.org>
+
+	* config/Configuration.java: pretty printing only
+
+	* orb/BasicAdapter.java:
+	(return_result) removed superflous synchronization for better scalability.
+
+2004-05-05  David R. Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASTargetInterceptor.java, security/sas/GssUpContext.java, security/sas/SASClientInterceptor.java, security/sas/GSSUPNameSpi.java:
+	Fixes for SAS
+
+2004-05-04  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/util/PingObject.java:
+	(main) was completely broken and never returned okay.
+
+2004-05-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/RequestController.java (getPoolManager):
+	Pass the configuration to the RPPoolManager.
+
+	* poa/RPPoolManager.java (configuration): New field.
+	(c'tor): Set it from new parameter.
+	(addProcessor): Configure the RequestProcessor after
+	creating it.
+
+	* poa/RequestProcessor.java (checkReplyEndTime): New field.
+	(configure): New method, sets the above from the new
+	property jacorb.poa.check_reply_end_time.
+	(process): Only check reply end time if the above property
+	is set.
+
+	* orb/giop/GIOPConnection.java (configure): Rename property to
+	jacorb.connection.client.connect_timeout, for consistency.
+
+	* orb/iiop/ClientIIOPConnection.java (connect):
+	Don't ignore the retry count if a timeout for
+	connection establishment has been set.
+
+	* orb/giop/GIOPConnection.java (configure):
+	Use new property jacorb.connection.connect_timeout,
+	rather than jacorb.connection.client.pending_reply_timeout.
+
+2004-04-30  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/ORB.java:
+	Added code to configure the object key map with name/value pairs now stored in attributes of the Configuration. This restores the functionality previously supplied by the Environment.getProperties() method.
+
+2004-04-30  Gerald Brose  <gerald.brose@acm.org>
+
+	* config/Configuration.java, orb/ORB.java:
+	added check for reserved ORBids ("jacorb" and "orb"), moved these
+	to Configuration.getConfiguration
+
 2004-04-30  Phil Mesnier  <mesnier_p@ociweb.com>
 
 	* orb/ORB.java: Added code to configure the object key map with
