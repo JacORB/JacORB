@@ -32,11 +32,11 @@ public class SystemExceptionHelper
 	return ir2scopes("org.omg",id_base.substring(7));
     }
 
-    private static final String ir2scopes( String prefix, String s ) 
+    private static final String ir2scopes( String prefix, String s )
     {
         if( s.indexOf("/") < 0)
             return s;
-        java.util.StringTokenizer strtok = 
+        java.util.StringTokenizer strtok =
             new java.util.StringTokenizer( s, "/" );
 
         int count = strtok.countTokens();
@@ -77,14 +77,14 @@ public class SystemExceptionHelper
     {
         String className = c.getName();
 	String body = className.substring(7);
-	return "IDL:omg.org/" + scopesToIR(body) + ":1.0";        
+	return "IDL:omg.org/" + scopesToIR(body) + ":1.0";
     }
 
     private static final String scopesToIR( String s )
     {
         if( s.indexOf(".") < 0)
             return s;
-        java.util.StringTokenizer strtok = 
+        java.util.StringTokenizer strtok =
             new java.util.StringTokenizer( s, "." );
         String scopes[] = new String[strtok.countTokens()];
         for( int i = 0; strtok.hasMoreTokens(); i++ ){
@@ -119,7 +119,7 @@ public class SystemExceptionHelper
 	name = name.substring(name.lastIndexOf('.') + 1);
 	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init();
 
-        org.omg.CORBA.TypeCode _type = 
+        org.omg.CORBA.TypeCode _type =
             orb.create_struct_tc(
                                  "IDL:omg.org/CORBA/" + name + ":1.0",
                                  name,
@@ -144,43 +144,33 @@ public class SystemExceptionHelper
     {
 	String className = className(in.read_string());
 	int minor = in.read_long();
-	org.omg.CORBA.CompletionStatus completed = 
+	org.omg.CORBA.CompletionStatus completed =
             org.omg.CORBA.CompletionStatusHelper.read(in);
 	try
 	{
             Class ex = Environment.classForName( className );
-	    Constructor constr = 
-                ex.getConstructor( 
-                                  new Class[]{ String.class, 
-                                               int.class, 
+	    Constructor constr =
+                ex.getConstructor(
+                                  new Class[]{ String.class,
+                                               int.class,
                                                org.omg.CORBA.CompletionStatus.class});
 
 	    return (org.omg.CORBA.SystemException)constr.newInstance(
                            new Object[]{"This exception was reported by the server, it is only re-thrown here.",
-                                        new Integer(minor), 
+                                        new Integer(minor),
                                         completed});
 	}
 	catch (Exception e )
 	{
-	    //debug:
-	    //e.printStackTrace();
 	    throw new org.omg.CORBA.UNKNOWN(className);
-	}		    
+	}
     }
 
-    public static void write(org.omg.CORBA.portable.OutputStream out, 
+    public static void write(org.omg.CORBA.portable.OutputStream out,
                              org.omg.CORBA.SystemException s)
-    {	    
+    {
 	out.write_string(repId(s.getClass()));
 	out.write_long(s.minor);
 	org.omg.CORBA.CompletionStatusHelper.write(out,s.completed);
     }
 }
-
-
-
-
-
-
-
-
