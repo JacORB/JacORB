@@ -980,7 +980,7 @@ public final class Delegate
 
                 try
                 {
-                    imr = ImRAccessImpl.connect (orb);
+                    imr = ImRAccessImpl.connect(orb);
                 }
                 catch ( Exception e )
                 {
@@ -1385,7 +1385,7 @@ public final class Delegate
                   }
                }
             }
-           poa.removeLocalRequest ();
+           poa.removeLocalRequest();
         }
         orb.getPOACurrent()._removeContext( Thread.currentThread() );
     }
@@ -1401,12 +1401,15 @@ public final class Delegate
     {
         if (poa == null)
         {
-            resolvePOA (self);
+            resolvePOA(self);
         }
 
         if (poa != null)
         {
-            poa.addLocalRequest ();
+            // remember that a local request is outstanding. On
+            //  any exit through an exception, this must be cleared again, 
+            // otherwise the POA will hangon destruction (bug #400).
+            poa.addLocalRequest();
 
             ServantObject so = new ServantObject();
 
@@ -1416,14 +1419,35 @@ public final class Delegate
                      poa.useDefaultServant() )
                 {
                     // no ServantManagers, but AOM use
-                    so.servant = poa.reference_to_servant( self );
+                    try
+                    {
+                        so.servant = poa.reference_to_servant( self );
+                    }
+                    catch( WrongAdapter e )
+                    {
+                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
+                        poa.removeLocalRequest();
+                        throw new OBJ_ADAPTER( "WrongAdapter caught when converting servant to reference. " + e );
+                    }
+                    catch( WrongPolicy e )
+                    {
+                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
+                        poa.removeLocalRequest();
+                        throw new OBJ_ADAPTER("WrongPolicy caught" + e );
+                    }
+                    catch( ObjectNotActive e )
+                    {
+                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
+                        poa.removeLocalRequest();
+                        throw new org.omg.CORBA.OBJECT_NOT_EXIST();
+                    }                    
                 }
                 else if ( poa.isUseServantManager() )
                 {
                     byte [] oid =
                     POAUtil.extractOID( getParsedIOR().get_object_key() );
                     org.omg.PortableServer.ServantManager sm =
-                    poa.get_servant_manager();
+                        poa.get_servant_manager();
 
                     if ( poa.isRetain() )
                     {
@@ -1440,7 +1464,7 @@ public final class Delegate
                                 ( org.omg.PortableServer.ServantActivator ) sm ;
                             org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
                             so.servant = sa.incarnate( oid, poa );
-                            orb.set_delegate (so.servant);
+                            orb.set_delegate(so.servant);
                         }
                     }
                     else
@@ -1467,17 +1491,11 @@ public final class Delegate
                     System.err.println ("Internal error: we should have gotten to this piece of code!");
                 }
             }
-            catch( WrongAdapter e )
-            {
-                throw new OBJ_ADAPTER( "WrongAdapter caught when converting servant to reference. " + e );
-            }
             catch( WrongPolicy e )
             {
+                //  exit on an error condition, but need to clean up first (added to fix bug #400)
+                poa.removeLocalRequest();
                 throw new OBJ_ADAPTER( "WrongPolicy caught" + e );
-            }
-            catch( ObjectNotActive e )
-            {
-                throw new OBJ_ADAPTER( "ObjectNotActive caught when converting servant to reference. " + e );
             }
             catch( org.omg.PortableServer.ForwardRequest e )
             {
@@ -1493,6 +1511,8 @@ public final class Delegate
             {
                 Debug.output(1, "Warning: expected " + expectedType +
                              " got " + so.servant.getClass() );
+
+                poa.removeLocalRequest();
                 return null;
             }
             else
