@@ -26,66 +26,76 @@ import org.jacorb.idl.ParseException;
 
 
 /**
- * Long.java
+ * FloatTest.java
  *
  * IDL parse tests.
  *
  */
 
-public class LongTest extends TestCase
+public class FloatTest 
+    extends TestCase
 {
-   public LongTest (String name)
-   {
-      super (name);
-   }
+    private static  String outdir = 
+    ((String)System.getProperty ("testdir")).concat("/src/generated");
+    
+    private static  String testdir = 
+    ((String)System.getProperty ("testdir")).concat("/idl/compiler/");
+
+
+    public FloatTest (String name)
+    {
+        super( name );
+    }
 
 
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("Long Tests");
-      suite.addTest (new LongTest ("testLongParseGood"));
-      suite.addTest (new LongTest ("testLongParseFail1"));
-      suite.addTest (new LongTest ("testLongParseFail2"));
-
+      TestSuite suite = new TestSuite("Float Tests");
+      suite.addTest( new FloatTest("testFloatParseGood"));
+      suite.addTest( new FloatTest("testFloatParseFail1"));
+      suite.addTest( new FloatTest("testFloatParseFail2"));
       return suite;
    }
 
 
    /**
     */
-   public void testLongParseGood ()
+   public void testFloatParseGood ()
    {
       String file[] = new String[3];
       file[0] = "-d";
-      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/Long.idl");
+      file[1] = outdir;
+      file[2] = testdir.concat( "succeed/Floats.idl");
 
-      assertTrue ("Compiled Long.idl", org.jacorb.idl.parser.compileAndHandle (file));
+      assertTrue( "Compiled succeed/Floats.idl", 
+                  org.jacorb.idl.parser.compileAndHandle( file ) );
    }
 
 
    /**
     */
-   public void testLongParseFail1 ()
+   public void testFloatParseFail1()
    {
       String file[] = new String[3];
       file[0] = "-d";
-      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/Long_Fail1.idl");
+      file[1] = outdir;
+      file[2] = testdir.concat("fail/Floats.idl");
 
-      assertTrue ("Compiled Long_Fail1.idl", org.jacorb.idl.parser.compileAndHandle (file)==false);
+      assertFalse( "Compiled fail/Floats.idl",
+                   org.jacorb.idl.parser.compileAndHandle(file) );
    }
 
 
    /**
     */
-   public void testLongParseFail2 ()
+   public void testFloatParseFail2()
    {
       String file[] = new String[3];
       file[0] = "-d";
-      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/Long_Fail2.idl");
+      file[1] = outdir;
+      file[2] = testdir.concat ("fail/Floats2.idl");
 
-      assertTrue ("Compiled Long_Fail2.idl", org.jacorb.idl.parser.compileAndHandle (file)==false);
+      assertFalse( "Compiled fail/Floats2.idl", 
+                   org.jacorb.idl.parser.compileAndHandle(file) );
    }
 }

@@ -43,9 +43,9 @@ public class MiscTest extends TestCase
     public static Test suite ()
     {
         TestSuite suite = new TestSuite ("Misc Tests");
+
         suite.addTest (new MiscTest ("testMiscParseGood1"));
         suite.addTest (new MiscTest ("testMiscParseGood2"));
-        suite.addTest (new MiscTest ("testMiscParseFail1"));
         suite.addTest (new MiscTest ("testMiscParseGood3"));
         suite.addTest (new MiscTest ("testMiscParseGood4"));
         suite.addTest (new MiscTest ("testMiscParseGood5"));
@@ -54,26 +54,6 @@ public class MiscTest extends TestCase
         suite.addTest (new MiscTest ("testMiscParseGood8"));
         suite.addTest (new MiscTest ("testMiscParseGood9"));
         suite.addTest (new MiscTest ("testMiscParseGood10"));
-        suite.addTest (new MiscTest ("testMiscParseFail2"));
-        suite.addTest (new MiscTest ("testMiscParseFail3"));
-        suite.addTest (new MiscTest ("testMiscParseFail4"));
-        suite.addTest (new MiscTest ("testMiscParseFail5"));
-        suite.addTest (new MiscTest ("testMiscParseFail6"));
-        suite.addTest (new MiscTest ("testMiscParseFail6"));
-        suite.addTest (new MiscTest ("testMiscParseFail7"));
-        suite.addTest (new MiscTest ("testMiscParseFail8"));
-        suite.addTest (new MiscTest ("testMiscParseFail9"));
-        suite.addTest (new MiscTest ("testMiscParseFail10"));
-        suite.addTest (new MiscTest ("testMiscParseFail11"));
-        suite.addTest (new MiscTest ("testMiscParseFail12"));
-        suite.addTest (new MiscTest ("testMiscParseFail13"));
-        suite.addTest (new MiscTest ("testMiscParseFail14"));
-        suite.addTest (new MiscTest ("testMiscParseFail15"));
-        suite.addTest (new MiscTest ("testMiscParseFail16"));
-        suite.addTest (new MiscTest ("testMiscParseFail17"));
-        suite.addTest (new MiscTest ("testMiscParseFail18"));
-        suite.addTest (new MiscTest ("testMiscParseFail19"));
-        suite.addTest (new MiscTest ("testMiscParseGood11"));
         suite.addTest (new MiscTest ("testMiscParseGood12"));
         suite.addTest (new MiscTest ("testMiscParseGood13"));
         suite.addTest (new MiscTest ("testMiscParseGood14"));
@@ -83,7 +63,6 @@ public class MiscTest extends TestCase
         suite.addTest (new MiscTest ("testMiscParseGood18"));
         suite.addTest (new MiscTest ("testMiscParseGood19"));
         suite.addTest (new MiscTest ("testMiscParseGood20"));
-        suite.addTest (new MiscTest ("testMiscParseFail20"));
 
         return suite;
     }
@@ -94,7 +73,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/basetypes.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/basetypes.idl");
 
         assertTrue ("Compiled basetypes.idl", org.jacorb.idl.parser.compileAndHandle  (file));
     }
@@ -105,21 +84,11 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/inherit.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/inherit.idl");
 
         assertTrue ("Compiled inherit.idl", org.jacorb.idl.parser.compileAndHandle (file));
     }
 
-
-    public void testMiscParseFail1 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/defined.idl");
-
-        assertTrue("Compiled defined.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
 
 
     public void testMiscParseGood3 ()
@@ -128,7 +97,7 @@ public class MiscTest extends TestCase
         file[0] = "-DBLUB";
         file[1] = "-d";
         file[2] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[3] = ((String)System.getProperty ("testdir")).concat ("/idl/defined.idl");
+        file[3] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/defined.idl");
 
         assertTrue ("Compiled defined.idl", org.jacorb.idl.parser.compileAndHandle (file));
     }
@@ -140,7 +109,7 @@ public class MiscTest extends TestCase
         file[0] = "-I" + ((String)System.getProperty ("testdir") ) + "/../../idl/omg";
         file[1] = "-d";
         file[2] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[3] = ((String)System.getProperty ("testdir")).concat ("/idl/Interoperability.idl");
+        file[3] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/Interoperability.idl");
         assertTrue ("Compiled Interoperability.idl", org.jacorb.idl.parser.compileAndHandle (file));
     }
 
@@ -150,7 +119,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/reopen.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/reopen.idl");
         assertTrue ("Compiled reopen.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
@@ -161,7 +130,7 @@ public class MiscTest extends TestCase
         file[0] = "-all";
         file[1] = "-d";
         file[2] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[3] = ((String)System.getProperty ("testdir")).concat ("/idl/include.idl");
+        file[3] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/include.idl");
         assertTrue ("Compiled include.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
@@ -171,7 +140,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/names.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/names.idl");
         assertTrue ("Compiled names.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
@@ -180,7 +149,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/raises.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/raises.idl");
         assertTrue ("Compiled raise.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
@@ -189,7 +158,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/scope.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/scope.idl");
         assertTrue ("Compiled scope.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
@@ -199,190 +168,9 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/typedefdStruct.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/typedefdStruct.idl");
         assertTrue ("Compiled ex1.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
-
-
-    public void testMiscParseFail2 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badenum1.idl");
-        assertTrue("Compiled badenum1.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail3 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badex1.idl");
-        assertTrue("Compiled badex1.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail4 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badex2.idl");
-        assertTrue("Compiled badex2.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail5 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badintf1.idl");
-        assertTrue("Compiled badintf1.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail6 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badop1.idl");
-        assertTrue("Compiled badop1.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail7 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badop2.idl");
-        assertTrue("Compiled badop2.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail8 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badop3.idl");
-        assertTrue("Compiled badop3.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-   }
-
-
-    public void testMiscParseFail9 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badop4.idl");
-        assertTrue("Compiled badop4.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail10 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badop5.idl");
-        assertTrue("Compiled badop5.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail11 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badop6.idl");
-        assertTrue("Compiled badop6.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail12 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badop7.idl");
-        assertTrue("Compiled badop7.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail13 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badop8.idl");
-        assertTrue("Compiled badop8.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail14 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badraises1.idl");
-        assertTrue("Compiled badraises1.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail15 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badstruct.idl");
-        assertTrue("Compiled badstruct.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail16 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/badstruct2.idl");
-        assertTrue("Compiled badstruct2.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail17 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/forwardUndefined.idl");
-        assertTrue ("Compiled forward1.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail18 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/interfaceInheritsFromStruct.idl");
-        assertTrue ("Compiled inherit1.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
-
-    public void testMiscParseFail19 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/interfaceInheritsFromUndefined.idl");
-        assertTrue ("Compiled inherit2.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
-
 
 
     public void testMiscParseGood12 ()
@@ -390,7 +178,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succed/reservedJavaWordRename.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/reservedJavaWordRename.idl");
         assertTrue ("Compiled reservedJavaWordRename.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
@@ -400,7 +188,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succed/scoping1.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/scoping1.idl");
         assertTrue ("Compiled scoping1.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
@@ -409,7 +197,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succed/scoping2.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/scoping2.idl");
         assertTrue ("Compiled scoping2.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
     public void testMiscParseGood15 ()
@@ -417,7 +205,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succed/scoping3.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/scoping3.idl");
         assertTrue ("Compiled scoping3.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
     public void testMiscParseGood16 ()
@@ -425,7 +213,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succed/scoping4.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/scoping4.idl");
         assertTrue ("Compiled scoping4.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
     public void testMiscParseGood17 ()
@@ -433,7 +221,7 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succed/scoping8.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/scoping8.idl");
         assertTrue ("Compiled scoping8.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
     public void testMiscParseGood18 ()
@@ -441,15 +229,16 @@ public class MiscTest extends TestCase
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succed/scoping10.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/scoping10.idl");
         assertTrue ("Compiled scoping10.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
+
     public void testMiscParseGood19 ()
     {
         String file[] = new String[3];
         file[0] = "-d";
         file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succed/ReservedWord.idl");
+        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/ReservedWord.idl");
         assertTrue ("Compiled ReservedWord.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
@@ -459,16 +248,9 @@ public class MiscTest extends TestCase
         file[0] = "-DDefB";
         file[1] = "-d";
         file[2] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[3] = ((String)System.getProperty ("testdir")).concat ("/idl/Ping1.idl");
+        file[3] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/Ping1.idl");
         assertTrue ("Compiled Ping1.idl", org.jacorb.idl.parser.compileAndHandle(file));
     }
 
-    public void testMiscParseFail20 ()
-    {
-        String file[] = new String[3];
-        file[0] = "-d";
-        file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-        file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Ping1.idl");
-        assertTrue ("Compiled Ping1.idl (for failure)", org.jacorb.idl.parser.compileAndHandle(file)==false);
-    }
+
 }

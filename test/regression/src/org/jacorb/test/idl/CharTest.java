@@ -56,7 +56,7 @@ public class CharTest extends TestCase
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Char.idl");
+      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/Char.idl");
 
       assertTrue ("Compiled Char.idl", org.jacorb.idl.parser.compileAndHandle (file));
    }

@@ -58,7 +58,7 @@ public class PragmaTest extends TestCase
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Pragma.idl");
+      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/Pragma.idl");
 
       assertTrue ("Compiled Pragma.idl", org.jacorb.idl.parser.compileAndHandle (file));
    }
@@ -69,7 +69,7 @@ public class PragmaTest extends TestCase
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Pragma_Fail1.idl");
+      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/Pragma_Fail1.idl");
 
       assertTrue("Compiled Pragma_Fail1.idl", org.jacorb.idl.parser.compileAndHandle  (file)==false);
    }
@@ -80,7 +80,7 @@ public class PragmaTest extends TestCase
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Pragma_Fail2.idl");
+      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/Pragma_Fail2.idl");
 
       assertTrue("Compiled Pragma_Fail2.idl", org.jacorb.idl.parser.compileAndHandle(file)==false);
    }
