@@ -101,13 +101,15 @@ jacorb.orb.print_version=on
 #                                #
 ##################################
 
-# use (java) jacorb.util.CAD to generate an apropriate
-# verbosity level
-# 0 = off
-# 1 = important messages and exceptions
-# 2 = informational messages and exceptions
-# >= 3 = debug-level output (may confuse the unaware user :-)
-jacorb.verbosity=1
+# log levels:
+#
+# 0 = fatal errors only = "almost off" (FATAL ERRORS)
+# 1 = non-fatal errors and exceptions (ERROR)
+# 2 = important messages (WARN)
+# 3 = informational messages and exceptions (INFO)
+# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
+jacorb.verbosity=3
+
 
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
