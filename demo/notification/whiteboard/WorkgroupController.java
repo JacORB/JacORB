@@ -35,28 +35,28 @@ import org.omg.CORBA.ORB;
  */
 
 public interface WorkgroupController {
-    
-    public void drawLine(int x0, 
-			 int y0, 
-			 int x1, 
-			 int y1, 
-			 int red, 
-			 int green, 
-			 int blue);
 
-    public void drawLineLocal(int x0, 
-			      int y0, 
-			      int x1, 
-			      int y1, 
-			      int red, 
-			      int green, 
-			      int blue,
-			      int brushsize);
+    public void drawLine(int x0,
+                         int y0,
+                         int x1,
+                         int y1,
+                         int red,
+                         int green,
+                         int blue);
+
+    public void drawLineLocal(int x0,
+                              int y0,
+                              int x1,
+                              int y1,
+                              int red,
+                              int green,
+                              int blue,
+                              int brushsize);
 
     public void updateWholeImage(int[] data);
 
     public PixelImage getImage();
-    
+
     public void clearAll();
 
     public void clearAllLocal();
@@ -74,4 +74,5 @@ public interface WorkgroupController {
     public int getWorkgroupId();
 
     public void exit();
+
 }// WorkgroupController
