@@ -102,8 +102,8 @@ public class RPPoolManager
             {
                 pool.removeElement(rps[i]);
                 unused_size--;
-				current._removeContext(rps[i]);
-                rps[i].stop();
+                current._removeContext(rps[i]);
+                rps[i].end();
             }
         }
         inUse = false;
@@ -122,7 +122,7 @@ public class RPPoolManager
      * returns the size of the processor pool (used and unused processors)
      */
 
-    protected int getPoolSize()
+    protected synchronized int getPoolSize()
     {
         return unused_size;
     }
