@@ -303,8 +303,7 @@ public class FilterImpl extends FilterPOA implements Disposable
                             _entry.getEventTypeIdentifier( _y );
 
                         List _listOfConstraintEvaluator =
-                            ( List ) wildcardMap_.
-                            getNoExpansion( _eventTypeIdentifier );
+                            ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier.getConstraintKey() );
 
                         if ( _listOfConstraintEvaluator == null )
                         {
@@ -403,7 +402,7 @@ public class FilterImpl extends FilterPOA implements Disposable
                             _deletedEntry.getEventTypeIdentifier( _y );
 
                         List _listOfConstraintEvaluator =
-                            ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier );
+                            ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier.getConstraintKey() );
 
                         Iterator _i = _listOfConstraintEvaluator.iterator();
 
@@ -438,7 +437,7 @@ public class FilterImpl extends FilterPOA implements Disposable
                             _entry.getEventTypeIdentifier( _y );
 
                         List _listOfConstraintEvaluator =
-                            ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier );
+                            ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier.getConstraintKey() );
 
                         //    if (_listOfConstraintEvaluator == null) {
                         //        _listOfConstraintEvaluator = new LinkedList();

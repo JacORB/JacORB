@@ -257,7 +257,7 @@ class FilterCallback extends NotifySubscribePOA implements Disposable {
         try {
             filter_.detach_callback(callbackId_);
         } catch (CallbackNotFound e) {
-
+            logger_.error("error during detach", e);
         }
     }
 
@@ -267,8 +267,8 @@ class FilterCallback extends NotifySubscribePOA implements Disposable {
         throws InvalidEventType {
 
         subscriptionChangeListener_.subscriptionChangedForFilter(filterId,
-                                                                eventTypeArray,
-                                                                eventTypeArray1);
+                                                                 eventTypeArray,
+                                                                 eventTypeArray1);
     }
 
 

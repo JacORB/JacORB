@@ -22,18 +22,12 @@ package org.jacorb.notification;
  */
 
 /**
- * KeyedListEntry.java
- *
- *
- * Created: Thu Jan 09 15:10:42 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class KeyedListEntry
 {
-
     private int key_;
 
     int getKey()

@@ -21,10 +21,11 @@ package org.jacorb.notification;
  *
  */
 
+import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.AbstractPoolable;
+import org.jacorb.notification.servant.AbstractProxyConsumerI;
 import org.jacorb.notification.util.AbstractObjectPool;
 
 import org.omg.CORBA.Any;
@@ -79,7 +80,8 @@ public class MessageFactory implements Disposable
         structuredEventMessagePool_.init();
     }
 
-    public void dispose() {
+    public void dispose()
+    {
         structuredEventMessagePool_.dispose();
         anyMessagePool_.dispose();
     }
@@ -100,13 +102,17 @@ public class MessageFactory implements Disposable
 
 
     public Message newMessage( StructuredEvent event,
-                               FilterStage firstStage )
+                               AbstractProxyConsumerI consumer )
     {
-        Message _mesg = newMessage( event );
+        StructuredEventMessage _mesg = ( StructuredEventMessage ) structuredEventMessagePool_.lendObject();
 
-        _mesg.setInitialFilterStage( firstStage );
+        _mesg.setFilterStage( consumer.getFirstStage() );
 
-        return _mesg;
+        _mesg.setStructuredEventValue( event ,
+                                       consumer.isStartTimeSupported(),
+                                       consumer.isTimeOutSupported());
+
+        return _mesg.getHandle();
     }
 
     ////////////////////////////////////////
@@ -126,10 +132,9 @@ public class MessageFactory implements Disposable
 
     public Message newMessage( StructuredEvent event )
     {
-        StructuredEventMessage _mesg =
-            ( StructuredEventMessage ) structuredEventMessagePool_.lendObject();
+        StructuredEventMessage _mesg = ( StructuredEventMessage ) structuredEventMessagePool_.lendObject();
 
-        _mesg.setStructuredEventValue( event );
+        _mesg.setStructuredEventValue( event , false, false);
 
         return _mesg.getHandle();
     }

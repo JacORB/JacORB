@@ -22,15 +22,10 @@ package org.jacorb.notification;
  */
 
 /**
- * EventTypeIdentifier.java
- *
- *
- * Created: Tue Oct 22 20:20:00 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 interface EventTypeIdentifier {
-    
+    String getConstraintKey();
 }

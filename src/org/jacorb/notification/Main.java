@@ -52,6 +52,7 @@ public class Main implements WrapperListener
         catch ( Exception e )
         {
             e.printStackTrace();
+
             return new Integer( 1 );
         }
     }
@@ -69,7 +70,6 @@ public class Main implements WrapperListener
 
                 public void shutdownComplete()
                 {}
-
             };
 
         application_.shutdown( cb );
