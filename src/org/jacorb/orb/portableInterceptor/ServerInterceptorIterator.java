@@ -114,10 +114,7 @@ public class ServerInterceptorIterator
 	    reverseDirection();
 	    op = SEND_OTHER;
 	
-	    if (_fwd.permanent)
-		info.reply_status = LOCATION_FORWARD_PERMANENT.value;
-	    else
-		info.reply_status = LOCATION_FORWARD.value;
+            info.reply_status = LOCATION_FORWARD.value;
 
 	    info.forward_reference = _fwd.forward;
 

@@ -88,10 +88,7 @@ public class ClientInterceptorIterator
 	    reverseDirection();
 	    op = RECEIVE_OTHER;
 	
-	    if (_fwd.permanent)
-		info.reply_status = LOCATION_FORWARD_PERMANENT.value;
-	    else
-		info.reply_status = LOCATION_FORWARD.value;
+            info.reply_status = LOCATION_FORWARD.value;
 
 	    info.forward_reference = _fwd.forward;
 	    interceptor_ex = _fwd;
