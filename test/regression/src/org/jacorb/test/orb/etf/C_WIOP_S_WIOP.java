@@ -1,7 +1,5 @@
 package org.jacorb.test.orb.etf;
 
-import org.jacorb.test.common.ClientServerTestCase;
-
 /*
  *        JacORB  - a free Java ORB
  *
@@ -25,6 +23,7 @@ import org.jacorb.test.common.ClientServerTestCase;
 import java.util.*;
 
 import junit.framework.*;
+import junit.extensions.*;
 
 import org.jacorb.test.common.*;
 import org.jacorb.test.*;
@@ -45,12 +44,18 @@ public class C_WIOP_S_WIOP extends ClientServerTestCase
     
     public void setUp() throws Exception
     {
+        WIOPFactories.transportInUse = false;
         server = BasicServerHelper.narrow( setup.getServerObject() );
+    }
+
+    public void tearDown() throws Exception
+    {
+        WIOPFactories.transportInUse = false;
     }
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite ("Client: WIOP, Server: WIOP");
+        TestSuite suite = new TestSuite ("Client WIOP Server WIOP");
         
         Properties props = new Properties();
         props.setProperty("jacorb.transport.factories",
@@ -71,5 +76,7 @@ public class C_WIOP_S_WIOP extends ClientServerTestCase
         server.ping();
         assertTrue (WIOPFactories.transportInUse);
     }
+
+
 
 }
