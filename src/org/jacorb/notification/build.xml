@@ -210,7 +210,7 @@
 
       <param name="javac-excludes"
         value="org/jacorb/notification/util/GNUPatternWrapper.java, 
-               org/jacorb/notification/util/JDK14PatternWrapper.java />
+               org/jacorb/notification/util/JDK14PatternWrapper.java" />
 
     </antcall>
   </target>
