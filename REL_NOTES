@@ -38,6 +38,27 @@ gerald.brose@acm.org
 
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
+1.4 beta 2:
+        - bug fixes
+                ImR: used wrong name for property jacorb.implname
+
+        - Added compatibility to the JDK 1.4
+        
+        - Portable Interceptors: 
+                   - Adapted to new IDL which requires interceptors 
+                     to implement operation destroy().
+
+                   - Merged module IOP_N (Codecs, etc.) into module 
+                     IOP for JDK 1.4 compatibility.
+
+        - SSL Support changes:
+                   - Dropped direct support for the separately
+                     downloadable jsse1.0.2 (please see SSL chapter in
+                     the Programming Guide).
+
+                   - Added support for the JDK 1.4, which now also
+                     includes generic access to the peers certificates
+                     via our partial Security Level 2 implementation.
 
 1.4 beta 1:
 
