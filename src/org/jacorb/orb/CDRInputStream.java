@@ -193,8 +193,7 @@ public class CDRInputStream
 
 	index = ei.index + size;
 
-	Debug.output(8,"Closing Encapsulation at pos: " + pos  + " littleEndian now: " + littleEndian + ",  index now " + index );
-	//+ "\nnext bytes: " + buffer[pos] + " " + buffer[pos+1] + " " + buffer[pos+2]);
+        //	Debug.output(8,"Closing Encapsulation at pos: " + pos  + " littleEndian now: " + littleEndian + ",  index now " + index );
     }
 
     /** 
@@ -214,14 +213,14 @@ public class CDRInputStream
 
 	encaps_stack.push(new EncapsInfo(old_endian, index, pos, size ));
 
-        Debug.output(8,"Opening Encapsulation at pos: " + _pos + " size: " + size);
-	// Debug.output(8,"( saved " + (index ) + " littleEndian was : " + old_endian + " previously");
+        //        Debug.output(8,"Opening Encapsulation at pos: " + _pos + " size: " + size);
         openEncapsulatedArray();	
     }
 
     public final void openEncapsulatedArray()
     {
-        /* reset index to zero, i.e. align relative to the beginning of the encaps. */
+        /* reset index  to zero, i.e. align relative  to the beginning
+           of the encaps. */
 	resetIndex();
 	littleEndian = read_boolean();	
     }
@@ -613,7 +612,8 @@ public class CDRInputStream
     {
 	int start_pos = pos;
 	int kind = read_long();
-	Debug.output(4,"Read Type code of kind " + kind + " at pos: " + start_pos );
+        //  	Debug.output( 4, "Read Type code of kind " + 
+        //                        kind + " at pos: " + start_pos );
 
 	String id, name;
 	String[] member_names;
@@ -694,30 +694,36 @@ public class CDRInputStream
 	    return orb.create_enum_tc(id, name, member_names);
 	case TCKind._tk_union:
 	    {
-		Debug.output(4, "TC Union at pos" + 
-                             pos, buffer, pos, buffer.length );
+                //		Debug.output(4, "TC Union at pos" + 
+                //           pos, buffer, pos, buffer.length );
 
 		openEncapsulation();
 		id = read_string();
-                tcMap.put( new Integer(start_pos), id ); // remember this TC's id and start_pos
+
+                // remember this TC's id and start_pos
+                tcMap.put( new Integer(start_pos), id ); 
 
 		name = read_string();
-		Debug.output(4, "TC Union has name " + name + " at pos" + pos );
-		org.omg.CORBA.TypeCode discriminator_type = read_TypeCode(tcMap);
+//  		Debug.output(4, "TC Union has name " + 
+//                               name + " at pos" + pos );
+		org.omg.CORBA.TypeCode discriminator_type = 
+                    read_TypeCode(tcMap);
 
 		int default_index = read_long();
-		Debug.output(4, "TC Union has default idx: " +  
-                             default_index +  "  (at pos " + pos );
+
+//  		Debug.output(4, "TC Union has default idx: " +  
+//                               default_index +  "  (at pos " + pos );
 
 		member_count = read_long();
 
-		Debug.output(4, "TC Union has " + member_count + 
-                             " members at pos " + pos );
+                //  Debug.output(4, "TC Union has " + member_count + 
+                //               " members at pos " + pos );
+
 		UnionMember[] union_members = new UnionMember[member_count];
 		for( int i = 0; i < member_count; i++)
 		{
-		    Debug.output(4, "Member " + i + "in  union " + 
-                                 id + " , " + name + ", start reading TC at pos " + pos );
+		    // Debug.output(4, "Member " + i + "in  union " + 
+                    //             id + " , " + name + ", start reading TC at pos " + pos );
 		    org.omg.CORBA.Any label = orb.create_any();
 		    
 		    if( i == default_index )
@@ -728,23 +734,16 @@ public class CDRInputStream
 		    else 
 		    {
 			label.read_value( this,discriminator_type  );
-
-			Debug.output(4, "non-default discr.: " + 
-                                     ((org.jacorb.orb.Any)label).type().kind().value() + 
-                                     " " + ((org.jacorb.orb.Any)label).value() );
 		    }
-		    Debug.output(4, "Member " + i + 
-                                 "  start to read name at pos " + pos ); 
+ 
 		    String mn = read_string();
-		    Debug.output(4, "Member " + i + " , read name at pos " + 
-                                 pos + " : " + mn); 
+
 		    union_members[i] = 
                         new UnionMember( mn, label, read_TypeCode(tcMap), null);
-		    Debug.output(4, "Member " + i + " created " ); 
 		}		
 		closeEncapsulation();
-		result_tc = orb.create_union_tc( id, name, discriminator_type, union_members );
-		Debug.output(4, "Done with union " + id + " at pos " + pos ); 
+		result_tc = 
+                    orb.create_union_tc( id, name, discriminator_type, union_members );
 		return result_tc;
 	    }
 	case TCKind._tk_string: 
@@ -807,7 +806,9 @@ public class CDRInputStream
 	case 0xffffffff:
 	    /* recursive TC */
 	    int negative_offset = read_long();
-            String recursiveId = (String)tcMap.get( new Integer( pos -4 + negative_offset ) );
+            String recursiveId = 
+                (String)tcMap.get( new Integer( pos -4 + negative_offset ) );
+
             Debug.assert( recursiveId != null,
                           "Could not resolve for recursive TypeCode!");
 	    org.omg.CORBA.TypeCode rec_tc = 
@@ -816,10 +817,6 @@ public class CDRInputStream
 	    return rec_tc;
 	default:
 	    // error, dump buffer contents for diagnosis
-            Debug.output( 2, 
-                          "CDRInputStream Buffer Content",
-                          buffer);
-            Debug.output(2, "Pos : " + pos ); 
 	    throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
 	}
     }
@@ -1187,7 +1184,6 @@ public class CDRInputStream
 	    try
 	    {
 		int len = read_long();
-        org.jacorb.util.Debug.output(4,"Read_value, sequence of length " + len  );
 		out.write_long(len);
 		for( int i = 0; i < len; i++ )
 		    read_value( tc.content_type(), out, tcMap);
@@ -1226,7 +1222,6 @@ public class CDRInputStream
                 tcMap.put( tc.id(), tc );
 		org.omg.CORBA.TypeCode disc = tc.discriminator_type();
 		int def_idx = tc.default_index();
-		Debug.output(4, "Union Default index " + def_idx ); 
 		int member_idx = -1;
 		switch( disc.kind().value() )
 		{
@@ -1371,8 +1366,6 @@ public class CDRInputStream
 		case TCKind._tk_enum:
 		    {
 			int s = read_long();
-                        Debug.output(10, 
-                                     "Input  switch: " + s + " at pos " + pos );
 			out.write_long(s);
 			for( int i = 0 ; i < tc.member_count() ; i++)
 			{
@@ -1380,8 +1373,6 @@ public class CDRInputStream
 			    {
 				int label = 
                                     tc.member_label(i).create_input_stream().read_long();
-
-				Debug.output( 10, "Input label: " +label + " switch: " + s );
 				if(s == label)
 				{
 				    member_idx = i;
