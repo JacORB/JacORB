@@ -72,10 +72,10 @@ public class ORBSingleton
      * @throw org.omg.CORBA.BAD_PARAM
      */
 
-    private void checkTCName( String name )
+    private void checkTCName (String name)
         throws BAD_PARAM
     {
-        if( name != null )
+        if (name != null)
         {
             // note that legal names can be empty
             if( name.length() > 0 )
@@ -83,20 +83,20 @@ public class ORBSingleton
                 // check that name begins with an ASCII char
                 if( !legalStartChar( name.charAt(0)) )
                 {
-                    throw new BAD_PARAM("Illegal IDL name", 15, 
+                    throw new BAD_PARAM("Illegal IDL name: " + name, 15, 
                                         CompletionStatus.COMPLETED_NO );    
                 }
                 for( int i = 0; i < name.length(); i++ )
                 {
                     if( ! legalNameChar( name.charAt(i) ))
-                        throw new BAD_PARAM("Illegal IDL name", 15, 
+                        throw new BAD_PARAM("Illegal IDL name: " + name, 15, 
                                             CompletionStatus.COMPLETED_NO );  
                 }
             }       
         }
         else
         {
-            throw new BAD_PARAM("Illegal IDL name", 15, 
+            throw new BAD_PARAM("Illegal null IDL name", 15, 
                                 CompletionStatus.COMPLETED_NO );    
         }
     }
