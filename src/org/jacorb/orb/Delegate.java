@@ -836,33 +836,40 @@ public final class Delegate
               
                 throw _sys_ex;          
             }
-            catch(ApplicationException _user_ex){
-                if (use_interceptors && (info != null)){
+            catch(ApplicationException _user_ex)
+            {
+                if (use_interceptors && (info != null))
+                {
                     info.reply_status = USER_EXCEPTION.value;
                     info.setReplyServiceContexts(rep.getHeader().service_context);
             
                     info.received_exception_id  = _user_ex.getId();
             
                     rep.mark(0);
-                    try{
+                    try
+                    {
                         ApplicationExceptionHelper.insert(info.received_exception, _user_ex);
-                    }catch(Exception _e){
+                    }
+                    catch(Exception _e)
+                    {
                         org.jacorb.util.Debug.output(2, _e);
               
                         SystemExceptionHelper.insert(info.received_exception, 
                                                      new org.omg.CORBA.UNKNOWN(_e.getMessage()));
                     }
-                    try{
+                    try
+                    {
                         rep.reset();
-                    }catch (Exception _e){
+                    }
+                    catch (Exception _e)
+                    {
                         //shouldn't happen anyway
                         org.jacorb.util.Debug.output(2, _e);
                     }
     
                     invokeInterceptors(info,
                                        ClientInterceptorIterator.RECEIVE_EXCEPTION);
-                }
-    
+                }    
                 throw _user_ex;          
             }
             finally
@@ -1019,8 +1026,8 @@ public final class Delegate
         decrementClientCount();
         if( noMoreClients() )
         {
-            org.jacorb.util.Debug.output(2, "releasing connection to " + adport );
             ((org.jacorb.orb.ORB)orb)._release( this );
+            org.jacorb.util.Debug.output(2, "releasing a delegate connected to " + adport );
 
             if( bound )
                 unbind();
