@@ -449,6 +449,49 @@ public class IIOPProfile
     }
 
     /**
+     * If there is a component tagged with TAG_CSI_SEC_MECH_LIST,
+     * get the SSL port from this component. Return the SSL port in the
+     * TAG_TLS_SEC_TRANS component encapsulated into the transport_mech 
+     * field of the first CompoundSecMech of the CSI_SEC_MECH_LIST.
+     * Return -1 if there is no component tagged with TAG_CSI_SEC_MECH_LIST
+     * or if this component specifies no SSL port.
+     */
+    public int getTLSPortFromCSIComponent()
+    {
+        CompoundSecMechList csmList =
+            (CompoundSecMechList)components.getComponent(
+                                            TAG_CSI_SEC_MECH_LIST.value, 
+                                            CompoundSecMechListHelper.class);
+        if (csmList != null && csmList.mechanism_list.length > 0) 
+        {
+            byte[] tlsSecTransData = 
+                csmList.mechanism_list[0].transport_mech.component_data; 
+            CDRInputStream in = 
+                new CDRInputStream((org.omg.CORBA.ORB)null, tlsSecTransData);
+            try
+            {
+                in.openEncapsulatedArray();
+                TLS_SEC_TRANS tls = TLS_SEC_TRANSHelper.read(in);
+                if (tls.addresses.length > 0)
+                {
+                    int ssl_port = tls.addresses[0].port;
+                    if (ssl_port != 0)
+                    {
+                        if (ssl_port < 0) 
+                            ssl_port += 65536;
+                        return ssl_port;
+                    }
+                }
+            }
+            catch ( Exception ex )
+            {
+            }
+        }
+        return -1;
+
+    }
+
+    /**
      * Returns the port on which SSL is available according to this profile,
      * or -1 if SSL is not supported.
      */
@@ -456,7 +499,7 @@ public class IIOPProfile
     {
         SSL ssl = getSSL();
         if (ssl == null)
-            return -1;
+            return getTLSPortFromCSIComponent();
         else
         {
             int port = ssl.port;
