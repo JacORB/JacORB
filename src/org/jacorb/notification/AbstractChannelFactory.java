@@ -766,7 +766,7 @@ public abstract class AbstractChannelFactory
         throws Exception
     {
         if ( nameId == null ) {
-            throw new ConfigurationException(Attributes.REGISTER_NAME_ID + "is null. This attributes needs to be non null if a reference should be registered in the NameService.");
+            return;
         }
 
         namingContext_ =
