@@ -106,6 +106,7 @@ gerald.brose@acm.org
                         - Fix for large fixed constant values.
                         - Fix for constant enum values.
                         - Fix for format checking of fixed point types.
+                        - Fix for code generation for local interfaces.
                 Any:
                         - Fix for equal operation on aliased types.
                         - Fix for equal operation on wchar type.
