@@ -93,7 +93,7 @@ jacorb.outbuf_size=2048
 # they are explicitely deleted by calling _release(). This is useful
 # for persistent and long-living CORBA objects.
 #
-#jacorb.hashtable_class=jacorb.util.WeakHashtable
+#jacorb.hashtable_class=org.jacorb.util.WeakHashtable
 #
 jacorb.hashtable_class=java.util.Hashtable
 
@@ -128,7 +128,7 @@ jacorb.use_appligator=off
 #   Please leave them in!  #
 #                          #
 ############################
-org.omg.PortableInterceptor.ORBInitializerClass.standard_init=jacorb.orb.standardInterceptors.IORInterceptorInitializer
+org.omg.PortableInterceptor.ORBInitializerClass.standard_init=org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
 
 
@@ -155,7 +155,7 @@ jacorb.implname=StandardImplName
 # This is supposed to be a generic startup string for everything
 # that calls Runtime.exec(). Might be replaced by jaco[.bat].
 #
-jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=jacorb.orb.ORBSingleton
+jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
 
 
 
@@ -167,7 +167,7 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -Dorg.omg.CORBA.OR
 
 # For using SSL, this interceptor *must* be set. Otherwise, it can
 # be left commented out.
-#org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=jacorb.security.ssl.SecurityServiceInitializer
+#org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
 
 #
 # numbers are hex values (omitting leading 0x)
@@ -195,13 +195,13 @@ jacorb.security.access_decision=jacorb.security.level2.AccessDecisionImpl
 # separated by commas (no whitespaces!). The first entry (that can
 # be successfully created) will be available through the
 # principal_authenticator property.
-jacorb.security.principal_authenticator=jacorb.security.level2.PrincipalAuthenticatorImpl
+jacorb.security.principal_authenticator=org.jacorb.security.level2.PrincipalAuthenticatorImpl
 
 # the qualified classname of the ssl socket factory class
-jacorb.ssl.socket_factory=jacorb.security.ssl.SSLSocketFactory
+jacorb.ssl.socket_factory=org.jacorb.security.ssl.SSLSocketFactory
 
 # the qualified classname of the ssl server socket factory class
-jacorb.ssl.server_socket_factory=jacorb.security.ssl.SSLServerSocketFactory
+jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.SSLServerSocketFactory
 
 # exchange ssl client server roles to enforce client authentication, but 
 # attention: this causes problems with peers that not prepared to handle this role change
