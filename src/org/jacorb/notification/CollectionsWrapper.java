@@ -95,9 +95,15 @@ public class CollectionsWrapper
 
         public boolean contains( Object object )
         {
-            if ( object == null && singletonElement_ == null )
-            {
-                return true;
+            if (singletonElement_ == null) {
+                if ( object == null )
+                    {
+                        return true;
+                    }
+                else
+                    {
+                        return false;
+                    }
             }
 
             return object.equals( singletonElement_ );
