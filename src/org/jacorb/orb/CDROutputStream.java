@@ -33,7 +33,7 @@ import org.omg.PortableServer.*;
 /**
  * @author Gerald Brose,  1999
  * @version $Id$
- * 
+ *
  * A stream for CDR marshalling.
  *
  */
@@ -42,9 +42,6 @@ public class CDROutputStream
     extends org.omg.CORBA_2_3.portable.OutputStream
 {
     static int instances = 0;
-
-    /** for statistics */
-    //    private int copies = 0;
 
     /** needed for alignment purposes */
     private int index = 0;
@@ -79,7 +76,7 @@ public class CDROutputStream
 
     /**
      * Maps all value objects that have already been written to this stream
-     * to their position within the buffer.  The position is stored as 
+     * to their position within the buffer.  The position is stored as
      * a java.lang.Integer.
      */
     private Map valueMap = new HashMap();
@@ -87,20 +84,20 @@ public class CDROutputStream
     /**
      * Maps all repository ids that have already been written to this
      * stream to their position within the buffer.  The position is
-     * stored as a java.lang.Integer.  
+     * stored as a java.lang.Integer.
      */
     private Map repIdMap = new HashMap();
 
     /**
      * Maps all codebase strings that have already been written to this
      * stream to their position within the buffer.  The position is
-     * stored as a java.lang.Integer.  
+     * stored as a java.lang.Integer.
      */
     private Map codebaseMap = new HashMap();
 
     /** remember the starting position of a chunk. Since chunks are not nested,
         only one variable is needed */
-    private int chunk_start = -1; 
+    private int chunk_start = -1;
 
 
     private class DeferredWriteFrame
@@ -110,7 +107,7 @@ public class CDROutputStream
         public int length = 0;
         public byte[] buf = null;
 
-        public DeferredWriteFrame( int write_pos, int start, 
+        public DeferredWriteFrame( int write_pos, int start,
                                    int length, byte[] buf )
         {
             this.write_pos = write_pos;
@@ -123,9 +120,9 @@ public class CDROutputStream
     private List deferredArrayQueue = new Vector();
 
 
-    private final static String null_ior_str = 
+    private final static String null_ior_str =
         "IOR:00000000000000010000000000000000";
-    private final static org.omg.IOP.IOR null_ior = 
+    private final static org.omg.IOP.IOR null_ior =
         new org.omg.IOP.IOR("", new org.omg.IOP.TaggedProfile[0]);
 
     private org.omg.CORBA.ORB orb = null;
@@ -133,10 +130,10 @@ public class CDROutputStream
     //public access, so derived classes can access this field
     public int giop_minor = 2;
 
-    /** 
+    /**
      * OutputStreams created using  the empty constructor are used for
      * in  memory marshaling, but do  not use the  ORB's output buffer
-     * manager 
+     * manager
      */
 
     public CDROutputStream()
@@ -147,8 +144,8 @@ public class CDROutputStream
         instances++;
     }
 
-    /** 
-     * OutputStreams created using this constructor 
+    /**
+     * OutputStreams created using this constructor
      * are used also for in memory marshaling, but do use the
      * ORB's output buffer manager
      */
@@ -163,8 +160,8 @@ public class CDROutputStream
         instances++;
 
     }
-        
-    /** 
+
+    /**
      *  Class constructor setting the buffer size for the message
      *  and the character encoding sets
      */
@@ -177,14 +174,14 @@ public class CDROutputStream
 
     public org.omg.CORBA.ORB orb ()
     {
-        if (orb == null) 
+        if (orb == null)
             orb = org.omg.CORBA.ORB.init();
         return orb;
     }
 
 
     /**
-     * write the contents of this CDR stream to the output stream, 
+     * write the contents of this CDR stream to the output stream,
      * includes all deferred writes (e.g., for byte arrays)...
      * called by, e.g. GIOPConnection to write directly to the
      * wire.
@@ -196,8 +193,8 @@ public class CDROutputStream
         int write_idx = start;
         int read_idx = start;
 
-        // needed to calculate the actual read position in the 
-        // current buffer, 
+        // needed to calculate the actual read position in the
+        // current buffer,
         int skip_count = 0;
 
         int list_idx = 0;
@@ -208,19 +205,19 @@ public class CDROutputStream
 
         if( deferredArrayQueue.size() > 0 )
         {
-            // find the first frame that falls within the current window, 
+            // find the first frame that falls within the current window,
             // i.e. that need s to be written
             next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
 
             // skip all frames beginning before the current start pos, but
-            // record their length 
+            // record their length
             while( next_frame.write_pos < start && list_idx < deferredArrayQueue.size() )
             {
-                skip_count += next_frame.length; 
+                skip_count += next_frame.length;
                 next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
             }
 
-            // skip 
+            // skip
             if( next_frame.write_pos < start && list_idx >= deferredArrayQueue.size() )
             {
                 skip_count += next_frame.length;
@@ -228,7 +225,7 @@ public class CDROutputStream
             }
         }
 
-//          Debug.myAssert( 1, skip_count <= read_idx, " skip count " + 
+//          Debug.myAssert( 1, skip_count <= read_idx, " skip count " +
 //                          skip_count + " > read_idx " + read_idx + "  !");
 
         while( write_idx < start + length )
@@ -238,8 +235,8 @@ public class CDROutputStream
             {
                 Debug.myAssert( next_frame.length <= start + length - write_idx,
                                 "Deferred array does not fit!!!");
-                    
-                // write a frame, i.e. a byte array 
+
+                // write a frame, i.e. a byte array
                 out.write( next_frame.buf, next_frame.start, next_frame.length );
 
                 // advance
@@ -263,15 +260,15 @@ public class CDROutputStream
             if( write_idx < start + length )
             {
                 // write data that was previously marshaled
-                
+
                 int write_now =
-                    Math.min( start + length, 
+                    Math.min( start + length,
                               ( next_frame != null ? next_frame.write_pos : start + length ));
 
                 write_now -= write_idx; // calculate length
 
-                // 
-                out.write( buffer, read_idx-skip_count , write_now ); 
+                //
+                out.write( buffer, read_idx-skip_count , write_now );
 
                 // advance
                 read_idx += write_now;
@@ -296,11 +293,11 @@ public class CDROutputStream
         return giop_minor;
     }
 
-    public void close() 
+    public void close()
     {
         if( closed )
             throw new Error("Stream already closed!");
-        
+
         closed = true;
     }
 
@@ -309,9 +306,8 @@ public class CDROutputStream
         if( released )
 	{
 	    return;
-            //throw new Error("Stream already released!");
 	}
-	
+
         if( bufMgr != null )
         {
             bufMgr.returnBuffer( buffer );
@@ -320,7 +316,6 @@ public class CDROutputStream
         deferredArrayQueue.clear ();
         deferred_writes = 0;
         released = true;
-        //        Debug.output(1,"Outbuf copies " + copies );
     }
 
     /**
@@ -363,8 +358,8 @@ public class CDROutputStream
             pos += remainder;
         }
     }
-        
-    /** 
+
+    /**
      * check whether the current buffer is big enough to receive
      * i more bytes. If it isn't, get a bigger buffer.
      */
@@ -389,8 +384,6 @@ public class CDROutputStream
             {
                 new_buf = bufMgr.getBuffer( pos+i+2 );
                 System.arraycopy( buffer, 0, new_buf, 0, pos );
-                // copies++;
-
                 bufMgr.returnBuffer( buffer );
             }
             buffer = new_buf;
@@ -406,20 +399,20 @@ public class CDROutputStream
         buf[_pos+3] = (byte) (value        & 0xFF);
     }
 
-    /** 
+    /**
      *  Start a CDR encapsulation. All subsequent writes
      *  will place data in the encapsulation until
      *  endEncapsulation is called. This will write
-     *  the size of the encapsulation. 
+     *  the size of the encapsulation.
      */
 
     public final void beginEncapsulation ()
-    {        
-        // align to the next four byte boundary 
+    {
+        // align to the next four byte boundary
         // as a preparation for writing the size
         // integer (which we don't know before the
         // encapsulation is closed)
-                
+
         check(8,4);
 
         // leave 4 bytes for the encaps. size that
@@ -431,13 +424,13 @@ public class CDROutputStream
         /* Because encapsulations can be nested, we need to
            remember the beginnning of the enclosing
            encapsulation (or -1 if we are in the outermost encapsulation)
-           Also, remember the current index and the indirection maps because 
+           Also, remember the current index and the indirection maps because
            we need to restore these when closing the encapsulation */
 
-        encaps_stack.push(new EncapsInfo(index, encaps_start, 
+        encaps_stack.push(new EncapsInfo(index, encaps_start,
                                          valueMap, repIdMap, codebaseMap));
 
-        // set up new indirection maps for this encapsulation 
+        // set up new indirection maps for this encapsulation
 
         valueMap = new HashMap();
         repIdMap = new HashMap();
@@ -460,7 +453,7 @@ public class CDROutputStream
         /* set the index for alignment to 0, i.e. align relative to the
            beginning of the encapsulation */
         resetIndex();
-        
+
         // byte_order flag set to FALSE
 
         buffer[pos++] = 0;
@@ -469,7 +462,7 @@ public class CDROutputStream
 
     /**
      * Terminate the encapsulation by writing its length
-     * to its beginning. 
+     * to its beginning.
      */
 
     public final void endEncapsulation()
@@ -502,7 +495,7 @@ public class CDROutputStream
 
     public byte[] getBufferCopy()
     {
-        ByteArrayOutputStream bos = 
+        ByteArrayOutputStream bos =
             new ByteArrayOutputStream();
 
         try
@@ -542,7 +535,7 @@ public class CDROutputStream
         return pos + deferred_writes;
     }
 
-    public void reset() 
+    public void reset()
     {
         deferredArrayQueue.clear();
         pos = 0;
@@ -555,7 +548,7 @@ public class CDROutputStream
 	release();
     }
 
-    public final void skip (final int step) 
+    public final void skip (final int step)
     {
         pos += step;
         index += step;
@@ -573,7 +566,7 @@ public class CDROutputStream
     public final void increaseSize (final  int amount)
     {
         pos += amount;
-        
+
         check( amount );
     }
 
@@ -582,10 +575,10 @@ public class CDROutputStream
         bufMgr.returnBuffer( buffer );
 
         buffer = b;
-        
+
         reset();
     }
-    
+
     // For appligator
 
     public void setBufferWithoutReset (byte[] b, int size)
@@ -594,7 +587,7 @@ public class CDROutputStream
         buffer = b;
         pos = size;
     }
-    
+
     /**************************************************
      * The following operations are from OutputStream *
      **************************************************/
@@ -641,7 +634,7 @@ public class CDROutputStream
         }
     }
 
-  
+
     /**
      * Writes char according to specified encoding.
      */
@@ -649,74 +642,74 @@ public class CDROutputStream
     {
         check( 1 );
 
-        int too_large_mask = 
-            (codeSet == CodeSet.ISO8859_1)? 
+        int too_large_mask =
+            (codeSet == CodeSet.ISO8859_1)?
             0xFF00 : //ISO8859-1
             0xFF80; //UTF-8
 
         if( (c & too_large_mask) != 0 )//Are there any 1s in the MSB?
         {
             throw new org.omg.CORBA.MARSHAL(
-                "char (" + c + 
+                "char (" + c +
                 ") out of range for " +
                 CodeSet.csName( codeSet) );
         }
 
-        index++; 
+        index++;
         buffer[ pos++ ] = (byte) c;
     }
 
     public final void write_char_array
         (final char[] value, final int offset, final int length)
     {
-        if( value == null ) 
+        if( value == null )
             throw new org.omg.CORBA.MARSHAL( "Null References" );
 
         //no alignment necessary
         check( length );
 
-        int too_large_mask = 
-            (codeSet == CodeSet.ISO8859_1)? 
+        int too_large_mask =
+            (codeSet == CodeSet.ISO8859_1)?
             0xFF00 : //ISO8859-1
             0xFF80; //UTF-8
 
-        
-        for( int i = offset; i < offset+length; i++) 
+
+        for( int i = offset; i < offset+length; i++)
         {
             if( (value[i] & too_large_mask) != 0 )
             {
                 throw new org.omg.CORBA.MARSHAL(
-                    "char (" + value[i] + 
-                    ") out of range for " + 
+                    "char (" + value[i] +
+                    ") out of range for " +
                     CodeSet.csName( codeSet ));
             }
-                
+
             buffer[ pos++ ] = (byte) value[i];
         }
-        
-        index += length; 
-    }         
-        
+
+        index += length;
+    }
+
     public final void write_string (final String s)
     {
         if( s == null )
         {
             throw new org.omg.CORBA.MARSHAL("Null References");
         }
-        
+
         // size indicator ulong + length in chars( i.e. bytes for type char)
         // incl. terminating NUL char
         int size = 4 + s.length() + 1;
         check( size, 4 );
-            
-        _write4int( buffer, pos, size - 4 ); // write length indicator        
+
+        _write4int( buffer, pos, size - 4 ); // write length indicator
         pos += 4;
 
-        int too_large_mask = 
-            (codeSet == CodeSet.ISO8859_1)? 
+        int too_large_mask =
+            (codeSet == CodeSet.ISO8859_1)?
             0xFF00 : //ISO8859-1
             0xFF80; //UTF-8
-        
+
         char ch;
         for (int i = 0; i < s.length (); i++)
         {
@@ -724,14 +717,14 @@ public class CDROutputStream
             if ((ch & too_large_mask) != 0)
             {
                 throw new org.omg.CORBA.MARSHAL(
-                    "char (" + buffer[ pos-1 ] + 
-                    ") out of range for " + 
+                    "char (" + buffer[ pos-1 ] +
+                    ") out of range for " +
                     CodeSet.csName( codeSet ) );
             }
 
             buffer[pos++] = (byte) ch;
         }
-                
+
         buffer[ pos++ ] = (byte) 0; //terminating NUL char
         index += size;
     }
@@ -750,7 +743,7 @@ public class CDROutputStream
         {
             case CodeSet.UTF8 :
             {
-                if( c <= 0x007F ) 
+                if( c <= 0x007F )
                 {
                     if( giop_minor == 2 && write_length_indicator )
                     {
@@ -758,9 +751,9 @@ public class CDROutputStream
                         write_octet( (byte) 1 );
                     }
 
-                    buffer[ pos++ ] = (byte) c; 
-                } 
-                else if( c > 0x07FF ) 
+                    buffer[ pos++ ] = (byte) c;
+                }
+                else if( c > 0x07FF )
                 {
                     if( giop_minor == 2 && write_length_indicator )
                     {
@@ -772,9 +765,9 @@ public class CDROutputStream
                     buffer[pos++]=(byte)(0x80 | ((c >>  6) & 0x3F));
                     buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
 
-                    index += 3; 
-                } 
-                else 
+                    index += 3;
+                }
+                else
                 {
                     if( giop_minor == 2 && write_length_indicator )
                     {
@@ -785,7 +778,7 @@ public class CDROutputStream
                     buffer[pos++]=(byte)(0xC0 | ((c >>  6) & 0x1F));
                     buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
 
-                    index += 2; 
+                    index += 2;
                 }
                 break;
             }
@@ -804,8 +797,8 @@ public class CDROutputStream
                         //big endian encoding
                         buffer[ pos++ ] = (byte) 0xFE;
                         buffer[ pos++ ] = (byte) 0xFF;
-                        
-                        index += 2; 
+
+                        index += 2;
                     }
 
                     //write unaligned
@@ -821,7 +814,7 @@ public class CDROutputStream
 
                 break;
             }
-            default : 
+            default :
             {
                 throw new Error("Bad codeset: " + codeSet);
             }
@@ -831,7 +824,7 @@ public class CDROutputStream
     public final void write_wchar_array
         (final char[] value, final int offset, final int length)
     {
-        if( value == null ) 
+        if( value == null )
             throw new org.omg.CORBA.MARSHAL("Null References");
 
         check( length * 3 );
@@ -839,20 +832,20 @@ public class CDROutputStream
         for( int i = offset; i < offset+length; i++)
             write_wchar( value[i] );
     }
-        
+
     public final void write_wstring (final String s)
-    {      
-        if( s == null ) 
+    {
+        if( s == null )
         {
             throw new org.omg.CORBA.MARSHAL("Null References");
         }
-                
+
         //size ulong + no of bytes per char (max 3 if UTF-8) +
         //terminating NUL
         check( 4 + s.length() * 3 + 3, 4);
 
         int startPos = pos;         // store position for length indicator
-        pos += 4; 
+        pos += 4;
         index += 4;                 // reserve for length indicator
 
         //the byte order marker
@@ -861,12 +854,12 @@ public class CDROutputStream
             //big endian encoding
             buffer[ pos++ ] = (byte) 0xFE;
             buffer[ pos++ ] = (byte) 0xFF;
-            
-            index += 2;             
+
+            index += 2;
         }
 
         // write characters in current wide encoding, add null terminator
-        for( int i = 0; i < s.length(); i++ ) 
+        for( int i = 0; i < s.length(); i++ )
         {
             write_wchar( s.charAt(i), false, false ); //no BOM
         }
@@ -876,7 +869,7 @@ public class CDROutputStream
             //terminating NUL char
             write_wchar( (char)0, false, false ); //no BOM
         }
-                        
+
         int str_size = 0;
         if( giop_minor == 2 )
         {
@@ -917,9 +910,9 @@ public class CDROutputStream
         }
 
         /* align to 8 byte boundary */
-                
+
         check(7 + length*8, 8);
-        
+
         if( value != null )
         {
             for( int i = offset; i < offset+length; i++ )
@@ -939,8 +932,8 @@ public class CDROutputStream
         }
     }
 
-    public final void write_fixed (final java.math.BigDecimal value) 
-    {    
+    public final void write_fixed (final java.math.BigDecimal value)
+    {
         String v = value.unscaledValue().toString ();
         byte [] representation;
         int b, c;
@@ -956,7 +949,7 @@ public class CDROutputStream
         {
             representation = new byte[ v.length()/2 +1];
             representation[0] = 0x00;
-     
+
             for( int i = 0; i < v.length(); i++ )
             {
                 c = Character.digit(v.charAt(i), 10);
@@ -978,14 +971,14 @@ public class CDROutputStream
         }
         b = representation[representation.length-1] << 4;
 
-        representation[representation.length-1] = 
+        representation[representation.length-1] =
             (byte)((value.signum() < 0 )? (b | 0xD) : (b | 0xC));
 
         check(representation.length);
         System.arraycopy(representation,0,buffer,pos,representation.length);
         index += representation.length;
         pos += representation.length;
-        
+
     }
 
     public final void write_float (final float value)
@@ -1004,9 +997,9 @@ public class CDROutputStream
         }
 
         /* align to 4 byte boundary */
-                
+
         check(3 + length*4,4);
-        
+
         if( value != null )
         {
             for( int i = offset; i < offset+length; i++ )
@@ -1040,15 +1033,15 @@ public class CDROutputStream
         /* align to 4 byte boundary */
 
         check(3 + length*4,4);
-        
-        
+
+
         int remainder = 4 - (index % 4);
         if (remainder != 4)
         {
             index += remainder;
             pos+=remainder;
         }
-        
+
         if( value != null )
         {
             for( int i = offset; i < offset+length; i++ )
@@ -1117,10 +1110,10 @@ public class CDROutputStream
         else
         {
             if( value instanceof org.omg.CORBA.LocalObject )
-                throw new org.omg.CORBA.MARSHAL("Attempt to serialize a locality-constrained object.");     
-            org.omg.CORBA.portable.ObjectImpl obj = 
+                throw new org.omg.CORBA.MARSHAL("Attempt to serialize a locality-constrained object.");
+            org.omg.CORBA.portable.ObjectImpl obj =
                 (org.omg.CORBA.portable.ObjectImpl)value;
-            org.omg.IOP.IORHelper.write(this,  
+            org.omg.IOP.IORHelper.write(this,
                                         ((Delegate)obj._get_delegate()).getIOR()  );
         }
     }
@@ -1137,7 +1130,7 @@ public class CDROutputStream
             org.omg.IOP.IORHelper.write(this, ior);
         }
     }
-    ////////////////////////////////////////////// NEW!    
+    ////////////////////////////////////////////// NEW!
 
     public final void write_octet (final byte value)
     {
@@ -1160,8 +1153,8 @@ public class CDROutputStream
       }
 */
 
-    public final void write_octet_array( final byte[] value, 
-                                         final int offset, 
+    public final void write_octet_array( final byte[] value,
+                                         final int offset,
                                          final int length)
     {
         if( value != null )
@@ -1190,7 +1183,7 @@ public class CDROutputStream
     public final void write_short (final short value)
     {
         check(3,2);
-        
+
         buffer[pos]   = (byte)((value >>  8) & 0xFF);
         buffer[pos+1] = (byte)(value & 0xFF);
         index += 2; pos+=2;
@@ -1209,14 +1202,14 @@ public class CDROutputStream
         /* align to 2-byte boundary */
 
         check(2*length + 3);
-        
+
         int remainder = 2 - (index % 2);
         if (remainder != 2)
         {
             index += remainder;
             pos+=remainder;
         }
-        
+
         if( value != null )
         {
             for( int i = offset; i < offset+length; i++ )
@@ -1242,9 +1235,9 @@ public class CDROutputStream
         try
         {
             write_long( -1 ); // recursion marker
-            int negative_offset = 
+            int negative_offset =
                ((Integer) tcMap.get( value.id())).intValue() - pos - 4;
-            
+
             write_long( negative_offset );
         }
         catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
@@ -1274,7 +1267,7 @@ public class CDROutputStream
          else
          {
             // regular TypeCodes
-            switch( _kind ) 
+            switch( _kind )
             {
             case 0:
             case 1:
@@ -1296,21 +1289,22 @@ public class CDROutputStream
             case 26:
                write_long( _kind  );
                break;
-            case TCKind._tk_objref: 
+            case TCKind._tk_objref:
                write_long( _kind  );
                beginEncapsulation();
                write_string( value.id() );
                write_string( value.name() );
                endEncapsulation();
                break;
-            case TCKind._tk_struct: 
+            case TCKind._tk_struct:
             case TCKind._tk_except:
-               if( tcMap.containsKey( value.id())) 
+               if (Environment.indirectionEncoding () &&
+                   tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
                else
-               {         
+               {
                   write_long( _kind  );
                   tcMap.put( value.id(), new Integer( pos ) );
                   recursiveTCMap.put(  value.id(), value );
@@ -1329,7 +1323,8 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_enum:
-               if( tcMap.containsKey( value.id())) 
+               if (Environment.indirectionEncoding () &&
+                   tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1352,7 +1347,8 @@ public class CDROutputStream
                   break;
                }
             case TCKind._tk_union:
-               if( tcMap.containsKey( value.id())) 
+               if (Environment.indirectionEncoding () &&
+                   tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1370,12 +1366,12 @@ public class CDROutputStream
                   write_long( value.default_index());
                   _mc = value.member_count();
                   write_long(_mc);
-                  for( int i = 0; i < _mc; i++)       
+                  for( int i = 0; i < _mc; i++)
                   {
                      if( i == value.default_index() )
                      {
                         write_octet((byte)0);
-                     } 
+                     }
                      else
                      {
                         value.member_label(i).write_value( this );
@@ -1386,18 +1382,18 @@ public class CDROutputStream
                   endEncapsulation();
                }
                break;
-            case TCKind._tk_wstring: 
-            case TCKind._tk_string: 
+            case TCKind._tk_wstring:
+            case TCKind._tk_string:
                write_long( _kind  );
                write_long(value.length());
                break;
-            case TCKind._tk_fixed: 
+            case TCKind._tk_fixed:
                write_long( _kind  );
                write_ushort( value.fixed_digits() );
                write_short( value.fixed_scale() );
                break;
-            case TCKind._tk_array: 
-            case TCKind._tk_sequence: 
+            case TCKind._tk_array:
+            case TCKind._tk_sequence:
                write_long( _kind  );
                beginEncapsulation();
                //                      if( ((TypeCode)value.content_type()).is_recursive())
@@ -1410,10 +1406,11 @@ public class CDROutputStream
                write_long(value.length());
                endEncapsulation();
                break;
-            case TCKind._tk_alias: 
-               if( tcMap.containsKey( value.id())) 
+            case TCKind._tk_alias:
+               if (Environment.indirectionEncoding () &&
+                   tcMap.containsKey (value.id ()))
                {
-                  writeRecursiveTypeCode( value, tcMap ); 
+                  writeRecursiveTypeCode( value, tcMap );
                }
                else
                {
@@ -1428,8 +1425,9 @@ public class CDROutputStream
                   endEncapsulation();
                }
                break;
-            case TCKind._tk_value: 
-               if( tcMap.containsKey( value.id())) 
+            case TCKind._tk_value:
+               if (Environment.indirectionEncoding () &&
+                   tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1452,7 +1450,7 @@ public class CDROutputStream
                   write_long(_mc);
                   for( int i = 0; i < _mc; i++)
                   {
-                     Debug.output(3,"value member name " +  
+                     Debug.output(3,"value member name " +
                                   value.member_name(i)  );
 
                      write_string( value.member_name(i) );
@@ -1462,8 +1460,9 @@ public class CDROutputStream
                   endEncapsulation();
                }
                break;
-            case TCKind._tk_value_box: 
-               if( tcMap.containsKey( value.id())) 
+            case TCKind._tk_value_box:
+               if (Environment.indirectionEncoding () &&
+                   tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1480,8 +1479,9 @@ public class CDROutputStream
                   endEncapsulation();
                }
                break;
-            case TCKind._tk_abstract_interface: 
-               if( tcMap.containsKey( value.id()) )
+            case TCKind._tk_abstract_interface:
+               if (Environment.indirectionEncoding () &&
+                   tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1496,17 +1496,17 @@ public class CDROutputStream
                   endEncapsulation();
                }
                break;
-            default: 
+            default:
                throw new org.omg.CORBA.MARSHAL ("Cannot handle TypeCode with kind: " + _kind);
             }
          }
       }
       catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
-      { 
+      {
          bk.printStackTrace();
       }
       catch (org.omg.CORBA.TypeCodePackage.Bounds b)
-      { 
+      {
          b.printStackTrace();
       }
       catch (java.io.IOException ioe)
@@ -1520,14 +1520,14 @@ public class CDROutputStream
         write_long (value);
     }
 
-    public final void write_ulong_array 
+    public final void write_ulong_array
         (final int[] value, final int offset, final int length)
     {
         write_long_array (value, offset, length);
     }
 
     public final void write_ulonglong (final long value)
-    {        
+    {
         write_longlong (value);
     }
 
@@ -1548,7 +1548,7 @@ public class CDROutputStream
         write_short_array (value, offset, length);
     }
 
-    /** 
+    /**
      * called from Any
      */
 
@@ -1561,11 +1561,11 @@ public class CDROutputStream
            throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
         }
         int kind = ((TypeCode)tc)._kind();
- 
+
         //int kind = tc.kind().value();
         switch (kind)
         {
-            case TCKind._tk_null: 
+            case TCKind._tk_null:
             case TCKind._tk_void:
                 break;
             case TCKind._tk_boolean:
@@ -1579,7 +1579,7 @@ public class CDROutputStream
                 break;
             case TCKind._tk_octet:
                 write_octet( in.read_octet());
-                break;          
+                break;
             case TCKind._tk_short:
                 write_short( in.read_short());
                 break;
@@ -1612,16 +1612,16 @@ public class CDROutputStream
                 break;
             case TCKind._tk_Principal:
                 throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-            case TCKind._tk_objref: 
+            case TCKind._tk_objref:
                 write_Object( in.read_Object());
                 break;
-            case TCKind._tk_string: 
+            case TCKind._tk_string:
                 write_string( in.read_string());
                 break;
-            case TCKind._tk_wstring: 
+            case TCKind._tk_wstring:
                 write_wstring( in.read_wstring());
                 break;
-            case TCKind._tk_array: 
+            case TCKind._tk_array:
                 try
                 {
                     int length = tc.length();
@@ -1638,11 +1638,11 @@ public class CDROutputStream
                         for( int i = 0; i < length; i++ )
                             write_value( tc.content_type(), in );
                     }
-                } 
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-                {} 
+                {}
                 break;
-            case TCKind._tk_sequence: 
+            case TCKind._tk_sequence:
                 try
                 {
                     int len = in.read_long();
@@ -1652,25 +1652,25 @@ public class CDROutputStream
                     org.omg.CORBA.TypeCode content_tc = tc.content_type();
                     for( int i = 0; i < len; i++ )
                         write_value(  content_tc, in );
-                    
-                } 
+
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
                 {
                     b.printStackTrace();
-                } 
+                }
                 break;
             case TCKind._tk_except:
                 write_string( in.read_string());
                 // don't break, fall through to ...
-            case TCKind._tk_struct: 
+            case TCKind._tk_struct:
             {
                 try
                 {
                     for( int i = 0; i < tc.member_count(); i++)
                         write_value( tc.member_type(i), in );
-                } 
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-                {} 
+                {}
                 catch ( org.omg.CORBA.TypeCodePackage.Bounds b )
                 {}
                 break;
@@ -1683,7 +1683,7 @@ public class CDROutputStream
             case TCKind._tk_union:
             {
                 try
-                {       
+                {
                     TypeCode disc = (TypeCode) tc.discriminator_type();
                     disc = disc.originalType ();
                     int def_idx = tc.default_index();
@@ -1704,7 +1704,7 @@ public class CDROutputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }           
+                                }
                             }
                             break;
                         }
@@ -1721,7 +1721,7 @@ public class CDROutputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }           
+                                }
                             }
                             break;
                         }
@@ -1806,7 +1806,7 @@ public class CDROutputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }           
+                                }
                             }
                             break;
                         }
@@ -1818,7 +1818,7 @@ public class CDROutputStream
                             {
                                 if( i != def_idx)
                                 {
-                                    int label = 
+                                    int label =
                                         tc.member_label(i).create_input_stream().read_long();
                                 /*  we  have to  use  the any's  input
                                    stream   because   enums  are   not
@@ -1829,7 +1829,7 @@ public class CDROutputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }           
+                                }
                             }
                             break;
                         }
@@ -1846,10 +1846,10 @@ public class CDROutputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }           
+                                }
                             }
                             break;
-                        }           
+                        }
                         default:
                            throw new org.omg.CORBA.MARSHAL
                                ("Invalid union discriminator type: " + disc);
@@ -1857,7 +1857,7 @@ public class CDROutputStream
 
                     // write the member or default value, if any
                     // (if the union has no explicit default but the
-                    // the case labels do not cover the range of 
+                    // the case labels do not cover the range of
                     // possible discriminator values, there may be
                     // several "implicit defaults" without associated
                     // union values.
@@ -1870,8 +1870,8 @@ public class CDROutputStream
                     {
                         write_value( tc.member_type( def_idx ), in );
                     }
-                } 
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk ){} 
+                }
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk ){}
                 catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
                 //            recursiveTCStack.pop();
                 break;
@@ -1881,26 +1881,26 @@ public class CDROutputStream
                 try
                 {
                     write_value( tc.content_type(), in );
-                } 
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+                }
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){}
                 break;
             }
             case 0xffffffff:
             {
                 try
                 {
-                    org.omg.CORBA.TypeCode _tc = 
+                    org.omg.CORBA.TypeCode _tc =
                         (org.omg.CORBA.TypeCode)recursiveTCMap.get(tc.id());
                     if( _tc == null )
                     {
                         throw new org.omg.CORBA.MARSHAL("Recursive TypeCode not found for " + tc.id());
                     }
                     write_value( _tc , in );
-                } 
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
                 {
                     b.printStackTrace();
-                } 
+                }
                 break;
             }
             default:
@@ -1912,10 +1912,10 @@ public class CDROutputStream
      * Writes the serialized state of `value' to this stream.
      */
 
-    public void write_value (final java.io.Serializable value) 
+    public void write_value (final java.io.Serializable value)
     {
         if (!write_special_value (value))
-            write_value_internal (value, 
+            write_value_internal (value,
                                   RepositoryID.repId (value.getClass()));
     }
 
@@ -1939,7 +1939,7 @@ public class CDROutputStream
     }
 
     public void write_value (final java.io.Serializable value,
-                             final java.lang.Class clz) 
+                             final java.lang.Class clz)
     {
         if (!write_special_value (value))
         {
@@ -1964,10 +1964,10 @@ public class CDROutputStream
 
     /**
      * If `value' is null, or has already been written to this stream,
-     * then this method writes that information to the stream and returns 
+     * then this method writes that information to the stream and returns
      * true, otherwise does nothing and returns false.
      */
-    private boolean write_special_value (final java.io.Serializable value) 
+    private boolean write_special_value (final java.io.Serializable value)
     {
         if (value == null)
         {
@@ -1975,10 +1975,10 @@ public class CDROutputStream
             write_long (0x00000000);
             return true;
         }
-        else 
+        else
         {
             Integer index = (Integer)valueMap.get (value);
-            if (index != null) 
+            if (index != null)
             {
 
                 // value has already been written -- make an indirection
@@ -2005,7 +2005,7 @@ public class CDROutputStream
             // a correctly aligned one, i.e., the actual writing position
             int remainder = 4 - (index % 4);
             if ( remainder != 4 )
-            {                
+            {
                 index += remainder;
                 pos += remainder;
             }
@@ -2035,7 +2035,7 @@ public class CDROutputStream
             // a correctly aligned one
             int remainder = 4 - (index % 4);
             if ( remainder != 4 )
-            {                
+            {
                 index += remainder;
                 pos += remainder;
             }
@@ -2057,7 +2057,7 @@ public class CDROutputStream
      */
     private void write_value_header (final String[] repository_ids)
     {
-        if (repository_ids != null) 
+        if (repository_ids != null)
         {
             if( repository_ids.length > 1 )
             {
@@ -2088,10 +2088,10 @@ public class CDROutputStream
 
     private void write_value_header
         (final String[] repository_ids, final String codebase)
-    { 
-	if (codebase != null) 
+    {
+	if (codebase != null)
 	{
-	    if ( repository_ids != null ) 
+	    if ( repository_ids != null )
 	    {
                 if( repository_ids.length > 1 )
                 {
@@ -2114,7 +2114,7 @@ public class CDROutputStream
                     write_repository_id (repository_ids[0]);
                 }
 	    }
-	    else 
+	    else
 	    {
 		write_long (0x7fffff01);
 		write_codebase(codebase);
@@ -2125,7 +2125,7 @@ public class CDROutputStream
     }
 
     /**
-     * This method does the actual work of writing `value' to this 
+     * This method does the actual work of writing `value' to this
      * stream.  If `repository_id' is non-null, then it is used as
      * the type information for `value' (possibly via indirection).
      * If `repository_id' is null, `value' is written without
@@ -2134,21 +2134,21 @@ public class CDROutputStream
      * by write_special_value().
      */
     private void write_value_internal (final java.io.Serializable value,
-                                       final String repository_id) 
+                                       final String repository_id)
     {
         valueMap.put (value, new Integer(pos));
 
-        if (value.getClass() == String.class) 
+        if (value.getClass() == String.class)
 	{
             // special handling for strings required according to spec
-	    String[] repository_ids = 
+	    String[] repository_ids =
 		(repository_id == null) ? null : new String[]{ repository_id };
 	    write_value_header( repository_ids );
 	    write_wstring((String)value);
 	}
         else if (value instanceof org.omg.CORBA.portable.StreamableValue)
 	{
-            org.omg.CORBA.portable.StreamableValue streamable = 
+            org.omg.CORBA.portable.StreamableValue streamable =
                 (org.omg.CORBA.portable.StreamableValue)value;
 
 	    write_value_header( streamable._truncatable_ids() );
@@ -2157,11 +2157,11 @@ public class CDROutputStream
 //              if( streamable._truncatable_ids().length() > 1 ) // truncatable -> chunked
 //                  end_chunk();
 	}
-        else 
+        else
         {
-	    String[] repository_ids = 
+	    String[] repository_ids =
 		(repository_id == null) ? null : new String[]{ repository_id };
-	    String codebase = 
+	    String codebase =
 		ValueHandler.getCodebase(value.getClass());
 	    write_value_header( repository_ids, codebase );
             ValueHandler.writeValue (this, value);
@@ -2173,7 +2173,7 @@ public class CDROutputStream
      * after chunking was used.
      */
 
-    private void write_end_tag( final java.io.Serializable value ) 
+    private void write_end_tag( final java.io.Serializable value )
     {
         ;
     }
@@ -2189,8 +2189,8 @@ public class CDROutputStream
         {
             end_chunk();
         }
-         
-        // remeber where we are right now, 
+
+        // remeber where we are right now,
         chunk_start = pos;
         write_long( 0 ); // insert four bytes here as a place-holder
                                  // need to go back later and insert size
@@ -2226,11 +2226,11 @@ public class CDROutputStream
      * Writes an abstract interface to this stream. The abstract interface is
      * written as a union with a boolean discriminator, which is true if the
      * union contains a CORBA object reference, or false if the union contains
-     * a value. 
+     * a value.
      */
-    public void write_abstract_interface (final java.lang.Object object) 
+    public void write_abstract_interface (final java.lang.Object object)
     {
-	if (object instanceof org.omg.CORBA.Object) 
+	if (object instanceof org.omg.CORBA.Object)
 	{
 	    write_boolean(true);
 	    write_Object((org.omg.CORBA.Object)object);
