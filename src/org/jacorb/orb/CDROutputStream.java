@@ -138,17 +138,10 @@ public class CDROutputStream
         buffer = buf;
     }
 
-
-    // rmic-generated generated stubs call this method.
-    // Before adding this implementation I was getting NO_IMPLEMENT 
-    // exceptions on calls to this method. After I added it I started getting
-    // NO_IMPLEMENT exceptions on calls to org.jacorb.orb.Any.insert_Value()
     public org.omg.CORBA.ORB orb ()
     {
-        if (orb != null)
-            return orb;
-	else
-	    return new ORBSingleton();
+        if (orb == null) orb = org.omg.CORBA.ORB.init();
+        return orb;
     }
 
     public void setCodeSet( int codeSet, int codeSetWide )
@@ -1480,7 +1473,14 @@ public class CDROutputStream
         if (!write_special_value (value))
         {
             valueMap.put (value, new Integer(pos));
-            write_long (0x7fffff00); // no codebase, no type information
+            if (value instanceof org.omg.CORBA.portable.IDLEntity)
+                write_long (0x7fffff00);
+            else
+            {
+                // repository id is required for RMI: types
+                write_long (0x7fffff02);
+                write_repository_id (RepositoryID.repId (value.getClass()));
+            }
             factory.write_value (this, value);
         }
     }
@@ -1538,6 +1538,26 @@ public class CDROutputStream
     }
 
     /**
+     * Writes `repository_id' to this stream, perhaps via indirection.
+     */
+    private void write_repository_id (String repository_id)
+    {
+        Integer index = (Integer)repIdMap.get (repository_id);
+        if (index == null)
+        {
+            // a new repository id -- write it
+            repIdMap.put (repository_id, new Integer(pos));
+            write_string (repository_id);
+        }
+        else
+        {
+            // a previously written repository id -- make an indirection
+            write_long (0xffffffff);
+            write_long (index.intValue() - pos);
+        }
+    }
+
+    /**
      * This method does the actual work of writing `value' to this 
      * stream.  If `repository_id' is non-null, then it is used as
      * the type information for `value' (possibly via indirection).
@@ -1553,19 +1573,7 @@ public class CDROutputStream
         if (repository_id != null) 
         {
             write_long (0x7fffff02);
-            Integer index = (Integer)repIdMap.get (repository_id);
-            if (index == null)
-            {
-                // a new repository id -- write it
-                repIdMap.put (repository_id, new Integer(pos));
-                write_string (repository_id);
-            }
-            else
-            {
-                // a previously written repository id -- make an indirection
-                write_long (0xffffffff);
-                write_long (index.intValue() - pos);
-            }
+            write_repository_id (repository_id);
         }
         else
             write_long (0x7fffff00);
