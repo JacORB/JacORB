@@ -60,6 +60,13 @@ gerald.brose@acm.org
                - Fix restarting server on fixed port [223].
                - Fix when pinging objects to prevent 'non-jacorb object' warning.
                - Fix multiple pings in replyNewLocation
+         - DII:
+               - Fix for client connection timeout with deferred requests.
+   - ORB:
+         - Two new client timeout policies to replace jacorb.connection.client_timeout:
+		- jacorb.client.pending_reply_timeout - For request timeout
+		- jacorb.connection.client_idle_timeout - For connection timeout
+
 
 1.4.0
 =====
