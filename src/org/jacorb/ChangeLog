@@ -1,6 +1,6 @@
 2004-01-03  Andre Spiegel  <spiegel@gnu.org>
 
-	* orb/Delegate.java (set_policy_override): Comment out code that
+	* orb/Delegate.java (set_policy_override): Remove code that
 	recreates the ParsedIOR each time, because that makes it point to
 	the local POA instead of the remote one.  Fix for bug 408.
 
