@@ -9,7 +9,7 @@ public class Client
     {
 	try
 	{
-	    Bank bank;
+	    TheBank bank;
 	    AccountManager acc_mgr;
 	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
 		
@@ -28,9 +28,9 @@ public class Client
 	    System.out.println("Acc1 : " + a1.balance() );
 	    System.out.println("Acc2 : " + a2.balance() );
 
-	    if( ((org.omg.CORBA.Object)acc_mgr)._is_a(BankHelper.id())) 
+	    if( ((org.omg.CORBA.Object)acc_mgr)._is_a(TheBankHelper.id())) 
 	    {
-		bank = BankHelper.narrow(acc_mgr );		
+		bank = TheBankHelper.narrow(acc_mgr );		
 	
 		System.out.println("> Transfer 100,- from Acc 1 to Acc 2.");
 		bank.transfer(a1, a2, 100);

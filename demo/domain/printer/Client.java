@@ -8,14 +8,14 @@ public class Client
     { 
 	try
 	{
-	    Printer printer;
+	    ThePrinter printer;
 	    Spooler spooler;
 	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
 
 	    NamingContextExt nc = NamingContextExtHelper.narrow(
 								orb.resolve_initial_references("NameService"));
 	    
-	    printer= PrinterHelper.narrow(nc.resolve(nc.to_name("printer.example")));
+	    printer= ThePrinterHelper.narrow(nc.resolve(nc.to_name("printer.example")));
 	    spooler= SpoolerHelper.narrow(nc.resolve(nc.to_name("spooler.example")));
 
 	    // generate data file

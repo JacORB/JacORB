@@ -32,7 +32,7 @@ public class Client
     {
         try
         {
-            Bank bank;
+            TheBank bank;
             AccountManager acc_mgr;
             java.util.Properties props = 
                 new java.util.Properties();
@@ -62,7 +62,7 @@ public class Client
             System.out.println("Acc1 : " + a1.balance() );
             System.out.println("Acc2 : " + a2.balance() );
 
-            bank = BankHelper.narrow(acc_mgr );		
+            bank = TheBankHelper.narrow(acc_mgr );		
 		
             boolean ok = false;
             do{

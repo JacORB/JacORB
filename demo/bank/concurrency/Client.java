@@ -10,7 +10,7 @@ public class Client
     {
 	try
 	{
-	    Bank bank;
+	    TheBank bank;
 	    AccountManager acc_mgr;
             TransactionFactory transactionFactory;
 	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
@@ -36,9 +36,9 @@ public class Client
 	    System.out.println("Acc1 : " + a1.get_balance(control) );
 	    System.out.println("Acc2 : " + a2.get_balance(control) );
 
-	    if( ((org.omg.CORBA.Object)acc_mgr)._is_a("IDL:demo/transaction/Bank:1.0")) 
+	    if( ((org.omg.CORBA.Object)acc_mgr)._is_a("IDL:demo/transaction/TheBank:1.0")) 
 	    {
-		bank = BankHelper.narrow(acc_mgr );		
+		bank = TheBankHelper.narrow(acc_mgr );		
 	
 		System.out.println("> Transfer 100,- from Acc 1 to Acc 2.");
 		bank.transfer(a1, a2, 100);

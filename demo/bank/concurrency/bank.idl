@@ -12,7 +12,7 @@ module demo {
 		    Account open(in string name, in float initial_deposit);
             };
 	    
-	    interface Bank: AccountManager {
+	    interface TheBank: AccountManager {
 		    void transfer( in Account source, 
 				   in Account destination, 
 				   in float amount )

@@ -8,7 +8,7 @@ import org.omg.CosNaming.*;
 import java.io.*;
 
 public class BankImpl 
-    extends BankPOA
+    extends TheBankPOA
 {
     private ORB orb;
     private org.omg.PortableServer.POA poa;

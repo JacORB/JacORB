@@ -1,4 +1,5 @@
 package demo.domain.printer;
+
 /**
  * PrinterImpl.java
  * Created: Fri Sep  8 19:11:26 2000
@@ -7,18 +8,19 @@ package demo.domain.printer;
  * @version $Revision$
  */
 
-public class PrinterImpl extends PrinterPOA 
+public class PrinterImpl 
+    extends ThePrinterPOA 
 {
   
-  public PrinterImpl() 
-  {}
+    public PrinterImpl() 
+    {}
 
-  /** pseudo prints data. */
-  public void printFile(java.lang.String data)
-  {
-    // dummy 
-    System.out.println("PrinterImpl.printFile:  printing file with "
-		       + data.length() + " bytes.");
-  } // printFile
+    /** pseudo prints data. */
+    public void printFile(java.lang.String data)
+    {
+        // dummy 
+        System.out.println("PrinterImpl.printFile:  printing file with "
+                           + data.length() + " bytes.");
+    } // printFile
 
 } // PrinterImpl

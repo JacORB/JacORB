@@ -39,7 +39,7 @@ public class Server
             nc.bind(name, poa.servant_to_reference( lsf ));
 
             org.omg.CORBA.Object o = 
-                poa.servant_to_reference(new BankImpl(orb,poa));
+                poa.servant_to_reference( new BankImpl(orb,poa));
             name[0] = new NameComponent( "DigiBank", "server");
             nc.bind(name, o);
 

@@ -7,7 +7,8 @@ module domain
     { 
       typedef string FileContent;
       typedef long   Price; 
-      interface Printer
+
+      interface ThePrinter
 	{
 	  void printFile(in FileContent data);
 	};
@@ -15,10 +16,10 @@ module domain
       interface Spooler
 	{
 	  // only gets the price of printing data on printer
-	  Price getPriceOfPrintJob(in Printer printer, in FileContent data);
+	  Price getPriceOfPrintJob(in ThePrinter printer, in FileContent data);
 	  
 	  // prints data on printer 
-	  Price       doPrintJob(in Printer printer, in FileContent data);
+	  Price       doPrintJob(in ThePrinter printer, in FileContent data);
 	};
     };
 };
