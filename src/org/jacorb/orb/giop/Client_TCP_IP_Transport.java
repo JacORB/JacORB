@@ -174,7 +174,19 @@ public class Client_TCP_IP_Transport
     {
         if( connected && socket != null )
         {
-            socket.shutdownOutput ();
+            // Try and invoke socket.shutdownOutput via reflection
+
+            try
+            {
+                java.lang.reflect.Method method 
+                    = (socket.getClass().getMethod ("shutdownOutput", new Class [0]));
+                method.invoke (socket, new java.lang.Object[0]);
+            }
+            catch (Throwable ex)
+            {
+                // If Socket does not support shutdownOutput method (i.e JDK < 1.3)
+            }
+
             socket.close ();
             
             //this will cause exceptions when trying to read from
