@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.jacorb.notification.servant.AdminPropertySet;
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.EventChannelImpl;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.servant.QoSPropertySet;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
@@ -70,16 +70,16 @@ import org.apache.avalon.framework.logger.Logger;
  */
 
 public abstract class AbstractAdmin
-            implements QoSAdminOperations,
-            FilterAdminOperations,
-            FilterStage,
-            ManageableServant
+    implements QoSAdminOperations,
+               FilterAdminOperations,
+               FilterStage,
+               ManageableServant
 {
     /**
      * the default InterFilterGroupOperator used.
      */
     protected static final InterFilterGroupOperator
-    DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
+        DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
 
     protected static final int NO_ID = 0;
 
@@ -119,6 +119,10 @@ public abstract class AbstractAdmin
     protected boolean disposed_ = false;
 
     protected List seqProxyCreationRequestEventListener_ = new Vector();
+
+    protected OfferManager offerManager_;
+
+    protected SubscriptionManager subscriptionManager_;
 
     ////////////////////////////////////////
 
@@ -280,7 +284,7 @@ public abstract class AbstractAdmin
 
     public void validate_qos( Property[] aPropertySeq,
                               NamedPropertyRangeSeqHolder propertyRangeSeqHolder )
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT("The method validate_qos is not supported yet");
     }
@@ -452,6 +456,16 @@ public abstract class AbstractAdmin
     }
 
 
+    public void setOfferManager(OfferManager offerManager) {
+        offerManager_ = offerManager;
+    }
+
+
+    public void setSubscriptionManager(SubscriptionManager subscriptionManager) {
+        subscriptionManager_ = subscriptionManager;
+    }
+
+
     protected AbstractProxy getProxy(int key) throws ProxyNotFound
     {
         Integer _key = new Integer(key);
@@ -534,4 +548,9 @@ public abstract class AbstractAdmin
             }
     }
 
+
+    protected void configureManagers(AbstractProxy servant) {
+        servant.setOfferManager(offerManager_);
+        servant.setSubscriptionManager(subscriptionManager_);
+    }
 }

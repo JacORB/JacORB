@@ -22,7 +22,6 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.ChannelContext;
-
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
@@ -42,6 +41,8 @@ import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
+import org.omg.CosNotifyComm.NotifyPublishHelper;
+import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.PortableServer.Servant;
 import org.omg.TimeBase.TimeTHelper;
@@ -63,6 +64,8 @@ public class SequenceProxyPushSupplierImpl
      */
     private SequencePushConsumer sequencePushConsumer_;
 
+    private NotifyPublishOperations offerListener_;
+
     /**
      * maximum queue size before a delivery is forced.
      */
@@ -82,20 +85,19 @@ public class SequenceProxyPushSupplierImpl
      * this callback is called by the TimerDaemon. Check if there are
      * pending Events and deliver them to the Consumer. As there's only one
      * TimerDaemon its important to
-     * block it only a minimal amount of time. Therefor the Callback
-     * should not do the actual delivery. Instead schedule a
-     * DeliverTask for this Supplier.
+     * block the daemon only a minimal amount of time. Therefor the Callback
+     * does not do the actual delivery. Instead a
+     * DeliverTask is scheduled for this Supplier.
      */
     private Runnable timerCallback_;
-
-    //    private boolean delivering_;
 
     final TaskProcessor engine_;
 
     ////////////////////////////////////////
 
     public SequenceProxyPushSupplierImpl( AbstractAdmin myAdminServant,
-                                          ChannelContext channelContext) throws UnsupportedQoS
+                                          ChannelContext channelContext)
+        throws UnsupportedQoS
     {
         super( myAdminServant,
                channelContext);
@@ -131,6 +133,7 @@ public class SequenceProxyPushSupplierImpl
 
         configurePacingInterval();
     }
+
 
     // overwrite
     public void deliverMessage( Message event )
@@ -168,6 +171,7 @@ public class SequenceProxyPushSupplierImpl
             logger_.debug( "Not connected" );
         }
     }
+
 
     /**
      * overrides the superclass version.
@@ -221,8 +225,8 @@ public class SequenceProxyPushSupplierImpl
 
     // new
     public void connect_sequence_push_consumer( SequencePushConsumer consumer )
-    throws AlreadyConnected,
-                TypeError
+        throws AlreadyConnected,
+               TypeError
     {
         logger_.debug( "connect_sequence_push_consumer" );
 
@@ -235,14 +239,19 @@ public class SequenceProxyPushSupplierImpl
         connected_ = true;
         active_ = true;
 
+        try {
+            offerListener_ = NotifyPublishHelper.narrow(consumer);
+        } catch (Throwable t) {}
+
+
         startCronJob();
     }
 
 
     // overwrite
     public void resume_connection()
-    throws NotConnected,
-                ConnectionAlreadyActive
+        throws NotConnected,
+               ConnectionAlreadyActive
     {
         if ( !connected_ )
         {
@@ -266,8 +275,8 @@ public class SequenceProxyPushSupplierImpl
 
 
     public void suspend_connection()
-    throws NotConnected,
-                ConnectionAlreadyInactive
+        throws NotConnected,
+               ConnectionAlreadyInactive
     {
         super.suspend_connection();
         stopCronJob();
@@ -384,4 +393,8 @@ public class SequenceProxyPushSupplierImpl
         return thisServant_;
     }
 
+
+    NotifyPublishOperations getOfferListener() {
+        return offerListener_;
+    }
 }

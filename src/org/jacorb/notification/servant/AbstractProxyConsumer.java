@@ -21,29 +21,33 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.servant.PropertySet;
-import org.jacorb.notification.servant.PropertySetListener;
+import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.BAD_QOS;
+import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Priority;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StartTimeSupported;
 import org.omg.CosNotification.StopTimeSupported;
 import org.omg.CosNotification.Timeout;
+import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotifyComm.NotifyPublishOperations;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
 import java.util.List;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
-import org.jacorb.notification.CollectionsWrapper;
-import org.jacorb.notification.interfaces.MessageConsumer;
 
 /**
  * @author Alphonse Bendt
@@ -51,9 +55,12 @@ import org.jacorb.notification.interfaces.MessageConsumer;
  */
 
 abstract class AbstractProxyConsumer
-            extends AbstractProxy
-            implements AbstractProxyConsumerI
+    extends AbstractProxy
+    implements AbstractProxyConsumerI,
+               NotifyPublishOperations
 {
+    private final static EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
+
     private TaskProcessor taskProcessor_;
 
     private SynchronizedBoolean isStartTimeSupported_ = new SynchronizedBoolean(true);
@@ -61,6 +68,8 @@ abstract class AbstractProxyConsumer
     private SynchronizedBoolean isStopTimeSupported_ = new SynchronizedBoolean(true);
 
     private List subsequentDestinations_;
+
+    private NotifySubscribeOperations subscriptionListener_;
 
     ////////////////////////////////////////
 
@@ -215,5 +224,76 @@ abstract class AbstractProxyConsumer
     {
         return false;
     }
+
+
+    public void offer_change(EventType[] added,
+                             EventType[] removed)
+        throws InvalidEventType
+    {
+        offerManager_.offer_change(added, removed);
+    }
+
+
+    public EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode)
+    {
+        EventType[] _subscriptionTypes = EMPTY_EVENT_TYPE_ARRAY;
+
+        switch(obtainInfoMode.value()) {
+        case ObtainInfoMode._ALL_NOW_UPDATES_ON:
+            registerListener();
+            _subscriptionTypes = subscriptionManager_.obtain_subscription_types();
+            break;
+        case ObtainInfoMode._ALL_NOW_UPDATES_OFF:
+            _subscriptionTypes = subscriptionManager_.obtain_subscription_types();
+            removeListener();
+            break;
+        case ObtainInfoMode._NONE_NOW_UPDATES_ON:
+            registerListener();
+            break;
+        case ObtainInfoMode._NONE_NOW_UPDATES_OFF:
+            removeListener();
+            break;
+        default:
+            throw new IllegalArgumentException("Illegal ObtainInfoMode " + obtainInfoMode.value() );
+        }
+
+        return _subscriptionTypes;
+    }
+
+
+    private void registerListener() {
+        if (subscriptionListener_ == null) {
+            final NotifySubscribeOperations _listener = getSubscriptionListener();
+
+            if (_listener != null) {
+
+                subscriptionListener_ = new NotifySubscribeOperations() {
+                        public void subscription_change(EventType[] added, EventType[] removed) {
+                            try {
+                                _listener.subscription_change(added, removed);
+                            } catch (NO_IMPLEMENT e) {
+                                logger_.info("Listener does not support subscription_change. remove it.", e);
+                                removeListener();
+                            } catch (InvalidEventType e) {
+                                logger_.error("invalid event type", e);
+                            }
+                        }
+                    };
+
+                subscriptionManager_.addListener(subscriptionListener_);
+            }
+        }
+    }
+
+
+    private void removeListener() {
+        if (subscriptionListener_ != null) {
+            subscriptionManager_.removeListener(subscriptionListener_);
+            subscriptionListener_ = null;
+        }
+    }
+
+
+    abstract NotifySubscribeOperations getSubscriptionListener();
 }
 

@@ -21,8 +21,6 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.servant.PropertySet;
-import org.jacorb.notification.servant.PropertySetListener;
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
@@ -33,14 +31,20 @@ import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.TaskExecutor;
 import org.jacorb.util.Environment;
 
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CosNotification.DiscardPolicy;
+import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdminHelper;
+import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
+import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotifyComm.NotifyPublishOperations;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
 import java.util.List;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdminHelper;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 
 /**
  * Abstract base class for ProxySuppliers.
@@ -56,9 +60,13 @@ import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
  */
 
 public abstract class AbstractProxySupplier
-            extends AbstractProxy
-            implements MessageConsumer
+    extends AbstractProxy
+    implements MessageConsumer,
+               NotifySubscribeOperations
+
 {
+    private final static EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
+
     private TaskExecutor taskExecutor_;
 
     private Disposable disposeTaskExecutor_;
@@ -72,6 +80,8 @@ public abstract class AbstractProxySupplier
      * Message Queue.
      */
     private Object pendingEventsLock_ = new Object();
+
+    private NotifyPublishOperations offerListener_;
 
     ////////////////////////////////////////
 
@@ -321,4 +331,76 @@ public abstract class AbstractProxySupplier
         return ConsumerAdminHelper.narrow(myAdmin_.activate());
     }
 
+
+    final public void subscription_change(EventType[] added,
+                                          EventType[] removed)
+        throws InvalidEventType
+    {
+        subscriptionManager_.subscription_change(added, removed);
+    }
+
+
+    final public EventType[] obtain_offered_types(ObtainInfoMode obtainInfoMode)
+    {
+        logger_.debug("obtain_offered_types " + obtainInfoMode.value() );
+
+        EventType[] _offeredTypes = EMPTY_EVENT_TYPE_ARRAY;
+
+        switch(obtainInfoMode.value()) {
+        case ObtainInfoMode._ALL_NOW_UPDATES_ON:
+            registerListener();
+            _offeredTypes = offerManager_.obtain_offered_types();
+            break;
+        case ObtainInfoMode._ALL_NOW_UPDATES_OFF:
+            _offeredTypes = offerManager_.obtain_offered_types();
+            removeListener();
+            break;
+        case ObtainInfoMode._NONE_NOW_UPDATES_ON:
+            registerListener();
+            break;
+        case ObtainInfoMode._NONE_NOW_UPDATES_OFF:
+            removeListener();
+            break;
+        default:
+            throw new IllegalArgumentException("Illegal ObtainInfoMode");
+        }
+
+        return _offeredTypes;
+    }
+
+
+    private void registerListener() {
+        if (offerListener_ == null) {
+            final NotifyPublishOperations _listener = getOfferListener();
+
+            if (_listener != null) {
+
+                offerListener_ = new NotifyPublishOperations() {
+                        public void offer_change(EventType[] added, EventType[] removed) {
+                            try {
+                                _listener.offer_change(added, removed);
+                            } catch (NO_IMPLEMENT e) {
+                                logger_.info("Listener does not support offer_change. remove it.", e);
+                                removeListener();
+                            } catch (InvalidEventType e) {
+                                logger_.error("invalid event type", e);
+                            }
+                        }
+                    };
+
+                offerManager_.addListener(offerListener_);
+            }
+        }
+    }
+
+
+    private void removeListener() {
+        if (offerListener_ != null) {
+            offerManager_.removeListener(offerListener_);
+            offerListener_ = null;
+        }
+    }
+
+
+    abstract NotifyPublishOperations getOfferListener();
 }

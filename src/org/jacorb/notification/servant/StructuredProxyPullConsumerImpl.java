@@ -21,15 +21,12 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.List;
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.util.Environment;
 
@@ -48,6 +45,8 @@ import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
+import org.omg.CosNotifyComm.NotifySubscribeHelper;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.CosNotifyComm.StructuredPullSupplier;
 import org.omg.PortableServer.Servant;
 
@@ -70,7 +69,9 @@ public class StructuredProxyPullConsumerImpl
 
     protected boolean active_ = true;
 
-    private StructuredPullSupplier mySupplier_;
+    private StructuredPullSupplier pullSupplier_;
+
+    private NotifySubscribeOperations subscriptionListener_;
 
     private Object taskId_;
 
@@ -134,7 +135,7 @@ public class StructuredProxyPullConsumerImpl
     }
 
 
-    public synchronized void connect_structured_pull_supplier( StructuredPullSupplier structuredPullSupplier )
+    public synchronized void connect_structured_pull_supplier( StructuredPullSupplier pullSupplier )
         throws AlreadyConnected
     {
         if ( connected_ )
@@ -145,7 +146,12 @@ public class StructuredProxyPullConsumerImpl
         connected_ = true;
         active_ = true;
 
-        mySupplier_ = structuredPullSupplier;
+        pullSupplier_ = pullSupplier;
+
+        try {
+            subscriptionListener_ = NotifySubscribeHelper.narrow(pullSupplier);
+        } catch (Throwable t) {}
+
         startTask();
     }
 
@@ -202,7 +208,7 @@ public class StructuredProxyPullConsumerImpl
         {
             if (!connected_ || !active_)
             {
-                return ;
+                return;
             }
         }
 
@@ -238,7 +244,7 @@ public class StructuredProxyPullConsumerImpl
         {
             pullSync_.acquire();
 
-            _event = mySupplier_.try_pull_structured_event( _hasEvent );
+            _event = pullSupplier_.try_pull_structured_event( _hasEvent );
         }
         finally
         {
@@ -260,9 +266,9 @@ public class StructuredProxyPullConsumerImpl
         if ( connected_ )
         {
             stopTask();
-            mySupplier_.disconnect_structured_pull_supplier();
+            pullSupplier_.disconnect_structured_pull_supplier();
 
-            mySupplier_ = null;
+            pullSupplier_ = null;
             connected_ = false;
         }
     }
@@ -285,7 +291,7 @@ public class StructuredProxyPullConsumerImpl
         if ( taskId_ != null )
         {
             getTaskProcessor()
-            .cancelTask( taskId_ );
+                .cancelTask( taskId_ );
 
             taskId_ = null;
         }
@@ -306,5 +312,10 @@ public class StructuredProxyPullConsumerImpl
     public org.omg.CORBA.Object activate()
     {
         return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
+    }
+
+
+    NotifySubscribeOperations getSubscriptionListener() {
+        return subscriptionListener_;
     }
 }

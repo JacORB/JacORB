@@ -28,6 +28,8 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerPOATie;
+import org.omg.CosNotifyComm.NotifySubscribeHelper;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.CosNotifyComm.SequencePullSupplier;
 import org.omg.PortableServer.Servant;
 
@@ -40,11 +42,12 @@ import org.jacorb.notification.interfaces.Message;
  */
 
 public class SequenceProxyPullConsumerImpl
-            extends StructuredProxyPullConsumerImpl
-            implements SequenceProxyPullConsumerOperations
+    extends StructuredProxyPullConsumerImpl
+    implements SequenceProxyPullConsumerOperations
 {
-
     private SequencePullSupplier sequencePullSupplier_;
+
+    private NotifySubscribeOperations subscriptionListener_;
 
     ////////////////////////////////////////
 
@@ -64,8 +67,9 @@ public class SequenceProxyPullConsumerImpl
         dispose();
     }
 
+
     public synchronized void connect_sequence_pull_supplier( SequencePullSupplier sequencePullSupplier )
-    throws AlreadyConnected
+        throws AlreadyConnected
     {
         if ( connected_ )
         {
@@ -77,6 +81,10 @@ public class SequenceProxyPullConsumerImpl
 
         sequencePullSupplier_ = sequencePullSupplier;
 
+        try {
+            subscriptionListener_ = NotifySubscribeHelper.narrow(sequencePullSupplier);
+        } catch (Throwable t) {}
+
         startTask();
     }
 
@@ -85,8 +93,8 @@ public class SequenceProxyPullConsumerImpl
      * override superclass impl
      */
     protected void runPullEventInternal()
-    throws InterruptedException,
-                Disconnected
+        throws InterruptedException,
+               Disconnected
     {
         BooleanHolder _hasEvent = new BooleanHolder();
         _hasEvent.value = false;
@@ -140,5 +148,10 @@ public class SequenceProxyPullConsumerImpl
         }
 
         return thisServant_;
+    }
+
+
+    NotifySubscribeOperations getSubscriptionListener() {
+        return subscriptionListener_;
     }
 }

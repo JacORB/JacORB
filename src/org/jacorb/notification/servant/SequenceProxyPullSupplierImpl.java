@@ -36,6 +36,8 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
+import org.omg.CosNotifyComm.NotifyPublishHelper;
+import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.SequencePullConsumer;
 import org.omg.PortableServer.Servant;
 
@@ -60,13 +62,14 @@ public class SequenceProxyPullSupplierImpl
 
     private SequencePullConsumer sequencePullConsumer_;
 
+    private NotifyPublishOperations offerListener_;
+
     ////////////////////////////////////////
 
     public SequenceProxyPullSupplierImpl( AbstractAdmin myAdminServant,
                                           ChannelContext channelContext)
         throws UnsupportedQoS
     {
-
         super( myAdminServant,
                channelContext );
 
@@ -85,6 +88,10 @@ public class SequenceProxyPullSupplierImpl
 
         connected_ = true;
         sequencePullConsumer_ = consumer;
+
+        try {
+            offerListener_ = NotifyPublishHelper.narrow(consumer);
+        } catch (Throwable t) {}
     }
 
 
@@ -182,5 +189,10 @@ public class SequenceProxyPullSupplierImpl
         }
 
         return thisServant_;
+    }
+
+
+    NotifyPublishOperations getOfferListener() {
+        return offerListener_;
     }
 }

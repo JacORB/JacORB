@@ -21,23 +21,21 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.Collections;
-import java.util.List;
 
-import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.interfaces.Message;
+
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerPOATie;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyComm.NotifySubscribeHelper;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.CosNotifyComm.StructuredPushSupplier;
 import org.omg.PortableServer.Servant;
-
-import org.jacorb.notification.*;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 
 /**
  * @author Alphonse Bendt
@@ -48,7 +46,9 @@ public class StructuredProxyPushConsumerImpl
     extends AbstractProxyConsumer
     implements StructuredProxyPushConsumerOperations {
 
-    private StructuredPushSupplier myPushSupplier_;
+    private StructuredPushSupplier pushSupplier_;
+
+    private NotifySubscribeOperations subscriptionListener_;
 
     ////////////////////////////////////////
 
@@ -82,10 +82,10 @@ public class StructuredProxyPushConsumerImpl
 
     protected void disconnectClient() {
         if (connected_) {
-            if (myPushSupplier_ != null) {
+            if (pushSupplier_ != null) {
                 connected_ = false;
-                myPushSupplier_.disconnect_structured_push_supplier();
-                myPushSupplier_ = null;
+                pushSupplier_.disconnect_structured_push_supplier();
+                pushSupplier_ = null;
             }
         }
     }
@@ -97,8 +97,11 @@ public class StructuredProxyPushConsumerImpl
         if (connected_) {
             throw new AlreadyConnected();
         }
+
         connected_ = true;
-        myPushSupplier_ = structuredPushSupplier;
+        pushSupplier_ = structuredPushSupplier;
+
+        subscriptionListener_ = NotifySubscribeHelper.narrow(structuredPushSupplier);
     }
 
 
@@ -112,5 +115,10 @@ public class StructuredProxyPushConsumerImpl
 
     public org.omg.CORBA.Object activate() {
         return ProxyConsumerHelper.narrow( getServant()._this_object(getORB()) );
+    }
+
+
+    NotifySubscribeOperations getSubscriptionListener() {
+        return subscriptionListener_;
     }
 }

@@ -24,9 +24,9 @@ package org.jacorb.notification.servant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.ProxyEvent;
@@ -34,12 +34,12 @@ import org.jacorb.notification.interfaces.ProxyEventListener;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.UNKNOWN;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumer;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
-import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxyConsumer;
 import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyNotFound;
@@ -49,10 +49,6 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdminOperations;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminPOATie;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.PortableServer.Servant;
-import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CORBA.UNKNOWN;
-import org.omg.CORBA.NO_IMPLEMENT;
-import java.util.Map;
 
 /**
  * @author Alphonse Bendt
@@ -104,11 +100,12 @@ public class SupplierAdminTieImpl
         return thisCorbaRef_;
     }
 
-    public void offer_change( EventType[] eventType1,
-                              EventType[] eventType2 )
+
+    public void offer_change( EventType[] added,
+                              EventType[] removed )
         throws InvalidEventType
     {
-        throw new NO_IMPLEMENT();
+        offerManager_.offer_change(added, removed);
     }
 
     // Implementation of org.omg.CosNotifyChannelAdmin.SupplierAdminOperations
@@ -184,6 +181,8 @@ public class SupplierAdminTieImpl
                 throw new BAD_PARAM("ClientType: " + clientType.value() + " unknown");
             }
 
+        configureManagers(_servant);
+
         configureNotifyStyleID(_servant);
 
         intHolder.value = _servant.getKey().intValue();
@@ -209,7 +208,9 @@ public class SupplierAdminTieImpl
         throws AdminLimitExceeded
     {
         try {
-            AbstractProxy _servant = obtain_notification_push_consumer_servant( clienttype, intholder );
+            AbstractProxy _servant =
+                obtain_notification_push_consumer_servant( clienttype, intholder );
+
             Integer _key = _servant.getKey();
 
             _servant.preActivate();
@@ -257,6 +258,8 @@ public class SupplierAdminTieImpl
             default:
                 throw new BAD_PARAM();
             }
+
+        configureManagers(_servant);
 
         configureNotifyStyleID(_servant);
 

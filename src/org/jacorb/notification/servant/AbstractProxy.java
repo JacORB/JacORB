@@ -28,7 +28,8 @@ import java.util.List;
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.servant.QoSPropertySet;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
@@ -43,15 +44,11 @@ import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.QoSAdminOperations;
 import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
@@ -69,7 +66,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public abstract class AbstractProxy
     implements FilterAdminOperations,
-               NotifyPublishOperations,
                QoSAdminOperations,
                FilterStage,
                Disposable,
@@ -103,6 +99,10 @@ public abstract class AbstractProxy
     protected Integer key_;
 
     protected AbstractAdmin myAdmin_;
+
+    protected OfferManager offerManager_;
+
+    protected SubscriptionManager subscriptionManager_;
 
     /**
      * delegate for FilterAdminOperations
@@ -149,6 +149,16 @@ public abstract class AbstractProxy
     }
 
     ////////////////////////////////////////
+
+    public void setOfferManager(OfferManager m) {
+        offerManager_ = m;
+    }
+
+
+    public void setSubscriptionManager(SubscriptionManager m) {
+        subscriptionManager_ = m;
+    }
+
 
     public void setDisposeHook(Runnable hook) {
         disposeHook_ = hook;
@@ -258,15 +268,9 @@ public abstract class AbstractProxy
 
     ////////////////////////////////////////
 
-    public EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode)
-    {
-        throw new NO_IMPLEMENT();
-    }
-
-
     public void validate_event_qos(Property[] qosProps,
                                    NamedPropertyRangeSeqHolder propSeqHolder)
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT();
     }
@@ -274,7 +278,7 @@ public abstract class AbstractProxy
 
     public void validate_qos(Property[] props,
                              NamedPropertyRangeSeqHolder propertyRange)
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
         qosSettings_.validate_qos(props, propertyRange);
     }
@@ -289,22 +293,6 @@ public abstract class AbstractProxy
     public Property[] get_qos()
     {
         return qosSettings_.get_qos();
-    }
-
-
-    public void offer_change(EventType[] eventTypes,
-                             EventType[] eventTypes2)
-    throws InvalidEventType
-    {
-        throw new NO_IMPLEMENT();
-    }
-
-
-    public void subscription_change(EventType[] eventType,
-                                    EventType[] eventType2)
-    throws InvalidEventType
-    {
-        throw new NO_IMPLEMENT();
     }
 
 
@@ -329,12 +317,6 @@ public abstract class AbstractProxy
     public void lifetime_filter(MappingFilter filter)
     {
         lifetimeFilter_ = filter;
-    }
-
-
-    public EventType[] obtain_offered_types(ObtainInfoMode obtaininfomode)
-    {
-        throw new NO_IMPLEMENT();
     }
 
 

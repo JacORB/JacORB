@@ -39,6 +39,8 @@ import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyComm.NotifyPublishHelper;
+import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -47,10 +49,9 @@ import org.omg.PortableServer.Servant;
  */
 
 public class ProxyPullSupplierImpl
-            extends AbstractProxySupplier
-            implements ProxyPullSupplierOperations
+    extends AbstractProxySupplier
+    implements ProxyPullSupplierOperations
 {
-
     private static final Any sUndefinedAny;
 
     static {
@@ -62,6 +63,8 @@ public class ProxyPullSupplierImpl
     ////////////////////////////////////////
 
     private PullConsumer pullConsumer_ = null;
+
+    private NotifyPublishOperations offerListener_;
 
     ////////////////////////////////////////
 
@@ -122,9 +125,8 @@ public class ProxyPullSupplierImpl
 
 
     public Any try_pull (BooleanHolder hasEvent)
-    throws Disconnected
+        throws Disconnected
     {
-
         checkConnected();
 
         Any event = sUndefinedAny;
@@ -164,9 +166,8 @@ public class ProxyPullSupplierImpl
 
 
     public void connect_any_pull_consumer(PullConsumer consumer)
-    throws AlreadyConnected
+        throws AlreadyConnected
     {
-
         logger_.info("connect any_pull_consumer");
 
         if (connected_)
@@ -176,6 +177,11 @@ public class ProxyPullSupplierImpl
 
         connected_ = true;
         pullConsumer_ = consumer;
+
+        try {
+            offerListener_ = NotifyPublishHelper.narrow(pullConsumer_);
+        } catch (Throwable t) {
+        }
     }
 
 
@@ -230,5 +236,10 @@ public class ProxyPullSupplierImpl
     public org.omg.CORBA.Object activate()
     {
         return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
+    }
+
+
+    NotifyPublishOperations getOfferListener() {
+        return offerListener_;
     }
 }

@@ -34,12 +34,13 @@ import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
+import org.omg.CosNotifyComm.NotifyPublishHelper;
+import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
 import org.omg.PortableServer.Servant;
 
@@ -53,6 +54,8 @@ public class StructuredProxyPushSupplierImpl
     implements StructuredProxyPushSupplierOperations
 {
     private StructuredPushConsumer pushConsumer_;
+
+    private NotifyPublishOperations offerListener_;
 
     protected boolean active_;
 
@@ -129,6 +132,10 @@ public class StructuredProxyPushSupplierImpl
         pushConsumer_ = consumer;
         connected_ = true;
         active_ = true;
+
+        try {
+            offerListener_ = NotifyPublishHelper.narrow(consumer);
+        } catch (Throwable t) {}
     }
 
 
@@ -260,5 +267,10 @@ public class StructuredProxyPushSupplierImpl
 
     public org.omg.CORBA.Object activate() {
         return ProxySupplierHelper.narrow( getServant()._this_object(getORB()) );
+    }
+
+
+    NotifyPublishOperations getOfferListener() {
+        return offerListener_;
     }
 }

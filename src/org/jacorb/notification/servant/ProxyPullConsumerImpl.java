@@ -20,14 +20,11 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.List;
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.util.Environment;
 
@@ -42,11 +39,13 @@ import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyComm.NotifySubscribeHelper;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 /**
  * @author Alphonse Bendt
@@ -54,13 +53,15 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
  */
 
 public class ProxyPullConsumerImpl
-            extends AbstractProxyConsumer
-            implements ProxyPullConsumerOperations,
-            TimerEventSupplier
+    extends AbstractProxyConsumer
+    implements ProxyPullConsumerOperations,
+               TimerEventSupplier
 {
     private Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
 
-    private PullSupplier myPullSupplier_;
+    private PullSupplier pullSupplier_;
+
+    private NotifySubscribeOperations subscriptionListener_;
 
     private boolean active_ = false;
 
@@ -146,12 +147,12 @@ public class ProxyPullConsumerImpl
 
     protected void disconnectClient()
     {
-        if ( myPullSupplier_ != null )
+        if ( pullSupplier_ != null )
         {
             stopTask();
 
-            myPullSupplier_.disconnect_pull_supplier();
-            myPullSupplier_ = null;
+            pullSupplier_.disconnect_pull_supplier();
+            pullSupplier_ = null;
 
             connected_ = false;
             active_ = false;
@@ -227,7 +228,7 @@ public class ProxyPullConsumerImpl
 
             long _start = System.currentTimeMillis();
 
-            event = myPullSupplier_.try_pull( hasEvent );
+            event = pullSupplier_.try_pull( hasEvent );
 
             runTime_ += System.currentTimeMillis() - _start;
         }
@@ -260,8 +261,14 @@ public class ProxyPullConsumerImpl
         {
             connected_ = true;
             active_ = true;
-            myPullSupplier_ = pullSupplier;
+            pullSupplier_ = pullSupplier;
             startTask();
+
+            try {
+                subscriptionListener_ = NotifySubscribeHelper.narrow(pullSupplier_);
+            } catch (Throwable t) {
+
+            }
         }
     }
 
@@ -324,5 +331,10 @@ public class ProxyPullConsumerImpl
     public int getSuccessfulPullCounter()
     {
         return successfulPull_;
+    }
+
+
+    NotifySubscribeOperations getSubscriptionListener() {
+        return subscriptionListener_;
     }
 }

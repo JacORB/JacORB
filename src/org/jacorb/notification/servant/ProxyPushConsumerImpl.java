@@ -21,17 +21,19 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.ChannelContext;
-
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
+import org.omg.CosEventComm.PushSupplier;
 import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyComm.NotifySubscribeHelper;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -40,10 +42,12 @@ import org.omg.PortableServer.Servant;
  */
 
 public class ProxyPushConsumerImpl
-            extends AbstractProxyConsumer
-            implements ProxyPushConsumerOperations
+    extends AbstractProxyConsumer
+    implements ProxyPushConsumerOperations
 {
-    private org.omg.CosEventComm.PushSupplier myPushSupplier;
+    private PushSupplier pushSupplier_;
+
+    private NotifySubscribeOperations subscriptionListener_;
 
     ////////////////////////////////////////
 
@@ -77,10 +81,10 @@ public class ProxyPushConsumerImpl
 
     protected void disconnectClient()
     {
-        if ( myPushSupplier != null )
+        if ( pushSupplier_ != null )
         {
-            myPushSupplier.disconnect_push_supplier();
-            myPushSupplier = null;
+            pushSupplier_.disconnect_push_supplier();
+            pushSupplier_ = null;
         }
     }
 
@@ -104,7 +108,7 @@ public class ProxyPushConsumerImpl
 
 
     public void connect_any_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
-    throws AlreadyConnected
+        throws AlreadyConnected
     {
         logger_.info( "connect any_push_supplier" );
 
@@ -113,8 +117,12 @@ public class ProxyPushConsumerImpl
             throw new AlreadyConnected();
         }
 
-        myPushSupplier = pushSupplier;
+        pushSupplier_ = pushSupplier;
         connected_ = true;
+
+        try {
+            subscriptionListener_ = NotifySubscribeHelper.narrow(pushSupplier_);
+        } catch (Throwable t) {}
     }
 
 
@@ -133,4 +141,10 @@ public class ProxyPushConsumerImpl
     {
         return ProxyConsumerHelper.narrow( getServant()._this_object(getORB()) );
     }
+
+
+    NotifySubscribeOperations getSubscriptionListener() {
+        return subscriptionListener_;
+    }
+
 }

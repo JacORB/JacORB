@@ -30,16 +30,18 @@ import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
+import org.omg.CosEventComm.PushConsumer;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOATie;
-import org.omg.PortableServer.Servant;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyComm.NotifyPublishHelper;
+import org.omg.CosNotifyComm.NotifyPublishOperations;
+import org.omg.PortableServer.Servant;
 
 /**
  * @author Alphonse Bendt
@@ -50,7 +52,9 @@ public class ProxyPushSupplierImpl
     extends AbstractProxySupplier
     implements ProxyPushSupplierOperations
 {
-    private org.omg.CosEventComm.PushConsumer myPushConsumer_;
+    private PushConsumer pushConsumer_;
+
+    private NotifyPublishOperations offerListener_;
 
     private boolean enabled_;
 
@@ -87,10 +91,10 @@ public class ProxyPushSupplierImpl
 
     protected void disconnectClient()
     {
-        if (myPushConsumer_ != null)
+        if (pushConsumer_ != null)
         {
-            myPushConsumer_.disconnect_push_consumer();
-            myPushConsumer_ = null;
+            pushConsumer_.disconnect_push_consumer();
+            pushConsumer_ = null;
             connected_ = false;
         }
     }
@@ -104,7 +108,7 @@ public class ProxyPushSupplierImpl
             {
                 if (active_ && enabled_)
                 {
-                    myPushConsumer_.push(event.toAny());
+                    pushConsumer_.push(event.toAny());
 
                     event.dispose();
                 }
@@ -126,7 +130,7 @@ public class ProxyPushSupplierImpl
     }
 
 
-    public void connect_any_push_consumer(org.omg.CosEventComm.PushConsumer pushConsumer)
+    public void connect_any_push_consumer(PushConsumer pushConsumer)
         throws AlreadyConnected
     {
 
@@ -140,9 +144,13 @@ public class ProxyPushSupplierImpl
             throw new BAD_PARAM();
         }
 
-        myPushConsumer_ = pushConsumer;
+        pushConsumer_ = pushConsumer;
         connected_ = true;
         active_ = true;
+
+        try {
+            offerListener_ = NotifyPublishHelper.narrow(pushConsumer);
+        } catch (Throwable t) {}
     }
 
 
@@ -191,7 +199,7 @@ public class ProxyPushSupplierImpl
         {
             try
             {
-                myPushConsumer_.push(_events[x].toAny());
+                pushConsumer_.push(_events[x].toAny());
             }
             catch (Disconnected e)
             {
@@ -255,5 +263,10 @@ public class ProxyPushSupplierImpl
     public org.omg.CORBA.Object activate()
     {
         return ProxyPushSupplierHelper.narrow( getServant()._this_object(getORB()) );
+    }
+
+
+    NotifyPublishOperations getOfferListener() {
+        return offerListener_;
     }
 }
