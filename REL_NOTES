@@ -1,9 +1,10 @@
-Gerald Brose
-brose@inf.fu-berlin.de
+gerald.brose@acm.org
 
 
-           JacORB 1.3 RELEASE NOTES
-        ____________________________________
+                JacORB 1.3 RELEASE NOTES
+
+                      www.jacorb.org
+        ________________________________________
 
  Features
 
@@ -40,10 +41,6 @@ brose@inf.fu-berlin.de
                 - transaction, collection and concurrency service
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft 
                     Ltd., Ukraine,taras@deka.kp.km.ua)
-
- Missing:
-
-        - OBV, GIOP 1.2
 
  Roadmap:
 
