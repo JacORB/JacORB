@@ -1184,6 +1184,7 @@ value_box_dcl ::=
                 {:
                         RESULT.name = i.str_val;
                         RESULT.typeSpec = ts;
+                        RESULT.set_token(i);
                 :}
         ;
 
