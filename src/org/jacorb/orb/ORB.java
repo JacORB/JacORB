@@ -60,7 +60,6 @@ public final class ORB
     private org.jacorb.poa.POA rootpoa;
     private org.jacorb.poa.Current poaCurrent;
     private BasicAdapter basicAdapter;
-    private Current current;
     private org.omg.SecurityLevel2.Current securityCurrent = null;
 
     /** interceptor handling */
@@ -607,17 +606,17 @@ public final class ORB
         return _ior;
     }
 
-    public org.omg.CORBA.Current get_current()
+    public org.omg.CORBA.Current get_current ()
     {
-        return current;
+        throw new org.omg.CORBA.NO_IMPLEMENT ("Current deprecated");
     }
 
-    public  org.omg.CORBA.Context get_default_context()
+    public  org.omg.CORBA.Context get_default_context ()
     {
         return null;
     }
 
-    public org.omg.CORBA.Request get_next_response()
+    public org.omg.CORBA.Request get_next_response ()
     {
         return null;
     }

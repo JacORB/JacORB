@@ -540,9 +540,9 @@ public class CDRInputStream
 	//  value[j] = read_octet(); // inlining later...
     }
 
-    public final org.omg.CORBA.Principal read_Principal()
+    public final org.omg.CORBA.Principal read_Principal ()
     {
-	throw new org.omg.CORBA.NO_IMPLEMENT();
+	throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
     }
 
     /**
@@ -1204,8 +1204,7 @@ public class CDRInputStream
 	    out.write_TypeCode( read_TypeCode());
 	    break;
 	case TCKind._tk_Principal:
-	    out.write_Principal( read_Principal());
-	    break;
+	    throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
 	case TCKind._tk_objref: 
 	    out.write_Object( read_Object());
 	    break;
