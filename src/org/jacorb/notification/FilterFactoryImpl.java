@@ -27,15 +27,13 @@ import org.omg.CosNotifyFilter.InvalidGrammar;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CORBA.Any;
 import org.omg.PortableServer.POA;
-import org.omg.CosNotifyFilter.FilterHelper;
-import org.omg.PortableServer.POAPackage.ServantNotActive;
-import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.CORBA.ORB;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.CORBA.ORBPackage.InvalidName;
+import org.jacorb.notification.interfaces.Disposable;
+import org.omg.PortableServer.POAHelper;
+import org.apache.log.Priority;
+import java.io.IOException;
+import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
 /**
  * FilterFactoryImpl.java
@@ -47,16 +45,37 @@ import org.omg.CORBA.ORBPackage.InvalidName;
  * @version $Id$
  */
 
-public class FilterFactoryImpl extends FilterFactoryPOA {
+public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
 
     public static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
-    
-    protected ORB orb_;
+
     protected ApplicationContext applicationContext_;
+
+    public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive {
+	super();
+
+	//	EventChannelFactoryImpl.setLogFile("filterImpl.log", "org.jacorb.notification", Priority.DEBUG);
+
+	final ORB _orb = ORB.init(new String[0], null);
+	POA _poa = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));
+	applicationContext_ = new ApplicationContext(_orb, _poa, true);
+
+	_this(_orb);
+
+	_poa.the_POAManager().activate();
+
+	Thread t = new Thread(new Runnable() {
+		public void run() {
+		    _orb.run();
+		}
+	    });
+	t.setDaemon(true);
+	t.start();
+    }
 
     public FilterFactoryImpl(ApplicationContext applicationContext) throws InvalidName {
 	super();
-	orb_ = applicationContext.getOrb();
+
 	applicationContext_ = applicationContext;
     }
 
@@ -68,7 +87,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA {
 						       applicationContext_);
 
 	    _filterServant.init();
-	    _filter = _filterServant._this(orb_);
+	    _filter = _filterServant._this(applicationContext_.getOrb());
 	    
 	    return _filter;
 	}
@@ -80,4 +99,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA {
 	return null;
     }
 
-}// FilterFactoryImpl
+    public void dispose() {
+    }
+
+}

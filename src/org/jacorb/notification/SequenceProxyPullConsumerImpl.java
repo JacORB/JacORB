@@ -36,107 +36,133 @@ import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerPOATie;
  * SequenceProxyPullConsumerImpl.java
  *
  *
- * Created: Sat Jan 11 17:10:48 2003
- *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class SequenceProxyPullConsumerImpl 
-    extends StructuredProxyPullConsumerImpl 
-    implements SequenceProxyPullConsumerOperations {
+public class SequenceProxyPullConsumerImpl
+            extends StructuredProxyPullConsumerImpl
+            implements SequenceProxyPullConsumerOperations
+{
 
     private SequencePullSupplier sequencePullSupplier_;
 
-    public SequenceProxyPullConsumerImpl(SupplierAdminTieImpl supplierAdminServant,
-					 ApplicationContext appContext,
-					 ChannelContext channelContext,
-					 PropertyManager adminProperties,
-					 PropertyManager qosProperties,
-					 Integer key) {
-	super(supplierAdminServant,
-	      appContext,
-	      channelContext,
-	      adminProperties,
-	      qosProperties,
-	      key);
+    public SequenceProxyPullConsumerImpl( SupplierAdminTieImpl supplierAdminServant,
+                                          ApplicationContext appContext,
+                                          ChannelContext channelContext,
+                                          PropertyManager adminProperties,
+                                          PropertyManager qosProperties,
+                                          Integer key )
+    {
+        super( supplierAdminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties,
+               key );
 
-	setProxyType(ProxyType.PULL_SEQUENCE);
+        setProxyType( ProxyType.PULL_SEQUENCE );
     }
 
-    public void disconnect_sequence_pull_consumer() {
-	dispose();
-	stopTask();
+    public void disconnect_sequence_pull_consumer()
+    {
+        dispose();
+        stopTask();
     }
 
-    public void connect_sequence_pull_supplier(SequencePullSupplier sequencePullSupplier) 
-	throws AlreadyConnected {
+    public void connect_sequence_pull_supplier( SequencePullSupplier sequencePullSupplier )
+    throws AlreadyConnected
+    {
 
-	if (connected_) {
-	    throw new AlreadyConnected();
-	}
-	connected_ = true;
-	active_ = true;
+        if ( connected_ )
+        {
+            throw new AlreadyConnected();
+        }
 
-	sequencePullSupplier_ = sequencePullSupplier;
-	startTask();
+        connected_ = true;
+        active_ = true;
+
+        sequencePullSupplier_ = sequencePullSupplier;
+        startTask();
     }
 
-    public void runPullEvent() {
-	runSequence();
+    public void runPullEvent()
+    {
+        runSequence();
     }
 
-    public void runSequence() {
-	BooleanHolder _hasEvent = new BooleanHolder();
-	StructuredEvent[] _events = null;
-	synchronized(this) {
-	    if (connected_ && active_) {
-		try {
-		    _hasEvent.value = false;
-		    _events = sequencePullSupplier_.try_pull_structured_events(1, _hasEvent);
-		} catch (UserException e) {
-		    connected_ = false;
-		    return;
-		} catch (SystemException e) {
-		    connected_ = false;
-		    return;
-		}
+    public void runSequence()
+    {
+        BooleanHolder _hasEvent = new BooleanHolder();
+        StructuredEvent[] _events = null;
 
-		if (_hasEvent.value) {
-		    for (int x=0; x<_events.length; ++x) {
-			NotificationEvent _notifyEvent = 
-			    notificationEventFactory_.newEvent(_events[x], this);
+        synchronized ( this )
+        {
+            if ( connected_ && active_ )
+            {
+                try
+                {
+                    _hasEvent.value = false;
+                    _events = sequencePullSupplier_.try_pull_structured_events( 1, _hasEvent );
+                }
+                catch ( UserException e )
+                {
+                    connected_ = false;
+                    return ;
+                }
+                catch ( SystemException e )
+                {
+                    connected_ = false;
+                    return ;
+                }
 
-			channelContext_.dispatchEvent(_notifyEvent);
-		    }
-		}
-	    }
-	}
+                if ( _hasEvent.value )
+                {
+                    for ( int x = 0; x < _events.length; ++x )
+                    {
+                        NotificationEvent _notifyEvent =
+                            notificationEventFactory_.newEvent( _events[ x ], this );
+
+                        channelContext_.dispatchEvent( _notifyEvent );
+                    }
+                }
+            }
+        }
     }
 
-    protected void disconnectClient() {
-	if (connected_) {
-	    if (sequencePullSupplier_ != null) {
-		sequencePullSupplier_.disconnect_sequence_pull_supplier();
-		sequencePullSupplier_ = null;
-	    }
-	}
-	connected_ = false;
+    protected void disconnectClient()
+    {
+        if ( connected_ )
+        {
+            if ( sequencePullSupplier_ != null )
+            {
+                sequencePullSupplier_.disconnect_sequence_pull_supplier();
+                sequencePullSupplier_ = null;
+            }
+        }
+
+        connected_ = false;
     }
 
-    public void dispose() {
-	super.dispose();
+    public void dispose()
+    {
+        super.dispose();
     }
 
-    public Servant getServant() {
-	if (thisServant_ == null) {
-	    synchronized(this) {
-		if (thisServant_ == null) {
-		    thisServant_ = new SequenceProxyPullConsumerPOATie(this);
-		}
-	    }
-	}
-	return thisServant_;
+    public Servant getServant()
+    {
+        if ( thisServant_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( thisServant_ == null )
+                {
+                    thisServant_ = new SequenceProxyPullConsumerPOATie( this );
+                }
+            }
+        }
+
+        return thisServant_;
     }
-    
-}// SequenceProxyPullConsumerImpl
+
+}

@@ -26,6 +26,7 @@ import antlr.Token;
 /** 
  * A simple node to represent DOT  
  */
+
 public class DotOperator extends TCLNode {
 
     DotOperator() {

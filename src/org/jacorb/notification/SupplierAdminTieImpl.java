@@ -21,7 +21,15 @@ package org.jacorb.notification;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.ProxyEvent;
+import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumer;
@@ -34,16 +42,9 @@ import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyNotFound;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminOperations;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CORBA.BAD_PARAM;
-import java.util.List;
-import java.util.Vector;
-import org.jacorb.notification.interfaces.Disposable;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminPOATie;
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.PortableServer.Servant;
-import org.jacorb.notification.interfaces.ProxyDisposedEventListener;
-import org.jacorb.notification.interfaces.ProxyDisposedEvent;
 
 /**
  * SupplierAdminImpl.java
@@ -58,13 +59,15 @@ import org.jacorb.notification.interfaces.ProxyDisposedEvent;
 public class SupplierAdminTieImpl
             extends AdminBase
             implements SupplierAdminOperations,
-            Disposable,
-            ProxyDisposedEventListener
+            Disposable
+		       //            ProxyEventListener
 {
 
     private SupplierAdminPOATie thisServant_;
     private SupplierAdmin thisRef_;
     private List eventStyleServants_ = new Vector();
+
+    private List listProxyEventListener_ = new ArrayList();
 
     SupplierAdminTieImpl( ApplicationContext appContext,
                           ChannelContext channelContext,
@@ -139,15 +142,6 @@ public class SupplierAdminTieImpl
     // Implementation of org.omg.CosNotifyChannelAdmin.SupplierAdminOperations
 
     /**
-     * Describe <code>destroy</code> method here.
-     *
-     */
-    public void destroy()
-    {
-        dispose();
-    }
-
-    /**
      * Describe <code>pull_consumers</code> method here.
      *
      * @return an <code>int[]</code> value
@@ -198,6 +192,8 @@ public class SupplierAdminTieImpl
             ProxyConsumerHelper.narrow( _servant.getServant()._this_object( getOrb() ) );
 
         allProxies_.put( _key, _proxyConsumer );
+
+	fireProxyCreated(_servant);
 
         return _proxyConsumer;
     }
@@ -264,7 +260,7 @@ public class SupplierAdminTieImpl
             _servant.setOrSemantic( true );
         }
 
-        _servant.addProxyDisposedEventListener( this );
+	//        _servant.addProxyDisposedEventListener( this );
         _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxyConsumerListener() );
 
         return _servant;
@@ -291,8 +287,8 @@ public class SupplierAdminTieImpl
 
 
     public ProxyConsumer obtain_notification_push_consumer( ClientType clienttype,
-            IntHolder intholder )
-    throws AdminLimitExceeded
+							    IntHolder intholder )
+	throws AdminLimitExceeded
     {
 
         ProxyBase _servant = obtain_notification_push_consumer_servant( clienttype, intholder );
@@ -302,6 +298,8 @@ public class SupplierAdminTieImpl
             ProxyConsumerHelper.narrow( _servant.getServant()._this_object( getOrb() ) );
 
         allProxies_.put( _key, _proxyConsumer );
+
+	fireProxyCreated(_servant);
 
         return _proxyConsumer;
     }
@@ -366,7 +364,7 @@ public class SupplierAdminTieImpl
             _servant.setOrSemantic( true );
         }
 
-        _servant.addProxyDisposedEventListener( this );
+	//        _servant.addProxyDisposedEventListener( this );
         _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxyConsumerListener() );
 
         logger_.debug( "obtain_notification_push_consumer() => " + _servant );
@@ -393,13 +391,15 @@ public class SupplierAdminTieImpl
 
         _servant.setFilterManager( FilterManager.EMPTY );
         eventStyleServants_.add( _servant );
-        _servant.addProxyDisposedEventListener( this );
+	//        _servant.addProxyDisposedEventListener( this );
 
         Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie( _servant );
         _servant.setServant( _tie );
 
         ProxyPullConsumer _ret =
             org.omg.CosEventChannelAdmin.ProxyPullConsumerHelper.narrow( _tie._this_object( getOrb() ) );
+
+	fireProxyCreated(_servant);
 
         return _ret;
     }
@@ -420,13 +420,15 @@ public class SupplierAdminTieImpl
 
         _servant.setFilterManager( FilterManager.EMPTY );
         eventStyleServants_.add( _servant );
-        _servant.addProxyDisposedEventListener( this );
+	//        _servant.addProxyDisposedEventListener( this );
 
         Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPushConsumerPOATie( _servant );
         _servant.setServant( _tie );
 
         ProxyPushConsumer _ret =
             org.omg.CosEventChannelAdmin.ProxyPushConsumerHelper.narrow( _tie._this_object( getOrb() ) );
+
+	fireProxyCreated(_servant);
 
         return _ret;
     }
@@ -457,6 +459,24 @@ public class SupplierAdminTieImpl
         }
 
         eventStyleServants_.clear();
+
+	listProxyEventListener_.clear();
+    }
+
+    void fireProxyRemoved(ProxyBase b) {
+	Iterator i = listProxyEventListener_.iterator();
+	ProxyEvent e = new ProxyEvent(b);
+	while (i.hasNext()) {
+	    ((ProxyEventListener)i.next()).actionProxyDisposed(e);
+	}
+    }
+
+    void fireProxyCreated(ProxyBase b) {
+	Iterator i = listProxyEventListener_.iterator();
+	ProxyEvent e = new ProxyEvent(b);
+	while (i.hasNext()) {
+	    ((ProxyEventListener)i.next()).actionProxyCreated(e);
+	}
     }
 
     /**
@@ -493,6 +513,8 @@ public class SupplierAdminTieImpl
         {
             eventStyleServants_.remove( pb );
         }
+
+	fireProxyRemoved(pb);
     }
 
     public boolean hasOrSemantic()
@@ -500,7 +522,15 @@ public class SupplierAdminTieImpl
         return false;
     }
 
-    public void actionProxyDisposed( ProxyDisposedEvent e )
-    {}
+    public void addProxyEventListener(ProxyEventListener l) {
+	listProxyEventListener_.add(l);
+    }
 
-} // SupplierAdminImpl
+    public void removeProxyEventListener(ProxyEventListener l) {
+	listProxyEventListener_.remove(l);
+    }
+
+//     public void actionProxyDisposed( ProxyEvent e )
+//     {}
+
+}

@@ -22,36 +22,33 @@ package org.jacorb.notification.engine;
  */
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
-import EDU.oswego.cs.dl.util.concurrent.DirectExecutor;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
-import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
-import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
-import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
+import org.jacorb.util.Environment;
+import org.jacorb.notification.Properties;
 import org.jacorb.notification.NotificationEvent;
 import org.jacorb.notification.interfaces.TimerEventConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.util.ThreadPool;
 
 /**
  *
- *
- * Created: Thu Nov 14 22:07:32 2002
- *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class TaskProcessor {
+public class TaskProcessor implements Disposable {
+
+    final static int DEFAULT_FILTER_POOL_WORKERS = 2;
+    final static int DEFAULT_DELIVER_POOL_WORKERS = 4;
 
     private Logger logger_ = 
 	Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
-
     private TaskErrorHandler nullErrorHandler_ = new TaskErrorHandler() {
 	    public void handleTaskError(Task task, Throwable error) {
-		logger_.debug("Error in Task: " + task);
-		error.printStackTrace();
+		logger_.error("Error in Task: " + task, error);
 	    }
 	};
 
@@ -61,48 +58,12 @@ public class TaskProcessor {
 	    }
 	};
 
-    private boolean active_;
-
-    private Executor filterPool_;
-    private LinkedQueue filterTaskQueue_;
-
-    private Executor deliverPool_;
-    private LinkedQueue deliverTaskQueue_;
+    private ThreadPool filterPool_;
+    private ThreadPool deliverPool_;
 
     private ClockDaemon clockDaemon_;
     private TaskConfigurator taskConfigurator_;
 
-    /**
-     * ThreadFactory for the FilterThreadPool. 
-     * The ThreadFactory sets Daemon status for the created Threads
-     * and assigns a humanreadable name.
-     */
-    protected ThreadFactory filterThreadFactory_ = new ThreadFactory() {
-	    private int counter_ = 0;
-	    public synchronized Thread newThread(Runnable task) {
-		Thread _t = new Thread(task);
-		_t.setDaemon(true);
-		_t.setName("FilterThread#" + (counter_++));
-		
-		return _t;
-	    }
-	};
-
-    /**
-     * ThreadFactory for the DeliverThreadPool. 
-     * The ThreadFactory sets Daemon status for the created Threads
-     * and assigns a humanreadable name.
-     */
-    protected ThreadFactory deliverThreadFactory_ = new ThreadFactory() {
-	    private int counter_ = 0;
-	    public synchronized Thread newThread(Runnable task) {
-		Thread _t = new Thread(task);
-		_t.setDaemon(true);
-		_t.setName("DeliverThread#" + (counter_++));
-		
-		return _t;
-	    }
-	};
     
     ////////////////////////////////////////
 
@@ -113,53 +74,44 @@ public class TaskProcessor {
      * Set up TaskConfigurator
      */ 
     public TaskProcessor() {
-	// TODO this should be a user configurable
-
-	boolean _filterThreaded = true;
-	boolean _deliverThreaded = false;
+	logger_.info("create TaskProcessor");
 
 	clockDaemon_ = new ClockDaemon();
+	
+	filterPool_ = 
+	    new ThreadPool("FilterThread", 
+			   getNumberFromProperty(Properties.FILTER_POOL_WORKERS, 
+						 DEFAULT_FILTER_POOL_WORKERS));
 
-	PooledExecutor _executor;
-	if (_filterThreaded) {
-	    filterTaskQueue_ = new LinkedQueue();
-	    _executor = new PooledExecutor(filterTaskQueue_);
-	    filterPool_ = _executor;
-	    _executor.setThreadFactory(filterThreadFactory_);
-	    _executor.setKeepAliveTime(-1); // live forever
-	    _executor.createThreads(2); // preallocate x threads
-	} else {
-	    filterPool_ = new DirectExecutor();
-	}
-
-	if (_deliverThreaded) {
-	    int _initialPoolSize = 4;
-
-	    deliverTaskQueue_ = new LinkedQueue();
-	    _executor = new PooledExecutor(deliverTaskQueue_);
-	    deliverPool_ = _executor;
-	    _executor.setThreadFactory(deliverThreadFactory_);
-	    _executor.setKeepAliveTime(-1); // live forever
-	    _executor.setMinimumPoolSize(_initialPoolSize);
-	    _executor.createThreads(_initialPoolSize); // preallocate x treads
-	} else {
-	    deliverPool_ = new DirectExecutor();
-	}
+	deliverPool_ = 
+	    new ThreadPool("DeliverThread", 
+			   getNumberFromProperty(Properties.DELIVER_POOL_WORKERS,
+						 DEFAULT_DELIVER_POOL_WORKERS));
 	
 	taskConfigurator_ = new TaskConfigurator(this);
 	taskConfigurator_.init();
-
-	active_ = true;
-    }    
+    }
 
     ////////////////////////////////////////
 
+    private int getNumberFromProperty(String propertyName, int defaultValue) {
+	if ( Environment.getProperty(propertyName) == null) {
+	    return defaultValue;
+	}
+
+	try {
+	    return Integer.parseInt(Environment.getProperty(propertyName));
+	} catch (NumberFormatException e) {
+	    return defaultValue;
+	}
+    }
+
     boolean isFilterTaskQueued() {
-	return (!filterTaskQueue_.isEmpty());
+	return (filterPool_.isTaskQueued());
     }
 
     boolean isDeliverTaskQueued() {
-	return (!deliverTaskQueue_.isEmpty());
+	return (deliverPool_.isTaskQueued());
     }
 
     /**
@@ -168,27 +120,23 @@ public class TaskProcessor {
      * allocated ressources will be freed. As the active Threads will
      * be interrupted pending Events will be discarded.
      */
-    private void shutdown() {
-	active_ = false;
+    public void dispose() {
+	logger_.info("dispose called");
 
-	if (filterPool_ instanceof PooledExecutor) {
-	    ((PooledExecutor) filterPool_).shutdownNow();
-	    ((PooledExecutor) filterPool_).interruptAll();
-	}
-
-	if (deliverPool_ instanceof PooledExecutor) {
-	    ((PooledExecutor) deliverPool_).shutdownNow();
-	    ((PooledExecutor) deliverPool_).interruptAll();
-	}
-	
 	clockDaemon_.shutDown();
-	logger_.info("shutdown - complete");
+	filterPool_.dispose();
+	deliverPool_.dispose();
+	taskConfigurator_.dispose();
+
+	logger_.info("dispose - complete");
     }
 
     /**
      * begin to process a NotificationEvent
      */
     public void processEvent(NotificationEvent event) {
+	logger_.debug("processEvent");
+
 	FilterTaskBase _task = taskConfigurator_.newFilterIncomingTask(event);
 	
 	try {
@@ -203,6 +151,8 @@ public class TaskProcessor {
      */
     void scheduleFilterTask(FilterTaskBase task) 
 	throws InterruptedException {
+
+	logger_.debug("scheduleFilterTask");
 
 	filterPool_.execute(task);
     }
@@ -243,6 +193,8 @@ public class TaskProcessor {
     void schedulePushToConsumerTask(PushToConsumerTask task) 
 	throws InterruptedException {
 
+	logger_.debug("schedulePushToConsumerTask");
+
 	deliverPool_.execute(task);
     }
 
@@ -267,13 +219,13 @@ public class TaskProcessor {
     public void scheduleTimedPullTask(TimerEventSupplier dest) 
 	throws InterruptedException {
 
-	PullFromSupplierTask _t = new PullFromSupplierTask();
+	PullFromSupplierTask _task = new PullFromSupplierTask();
 
-	_t.setTaskFinishHandler(nullFinishHandler_);
-	_t.setTaskErrorHandler(nullErrorHandler_);
-	_t.setTarget(dest);
+	_task.setTaskFinishHandler(nullFinishHandler_);
+	_task.setTaskErrorHandler(nullErrorHandler_);
+	_task.setTarget(dest);
 
-	deliverPool_.execute(_t);
+	deliverPool_.execute(_task);
     }
 
     /**

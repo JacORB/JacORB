@@ -26,16 +26,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
-import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.interfaces.AdminEventListener;
+import org.jacorb.notification.interfaces.AdminEvent;
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
+import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
+import org.jacorb.notification.interfaces.ProxyEvent;
+import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
+import org.omg.CosNotification.MaxConsumers;
+import org.omg.CosNotification.MaxSuppliers;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedAdmin;
 import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
@@ -44,15 +54,7 @@ import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
-import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
-import org.omg.CosNotification.MaxConsumers;
-import org.omg.CosNotification.MaxSuppliers;
-import org.jacorb.notification.interfaces.ProxyDisposedEventListener;
-import org.jacorb.notification.interfaces.ProxyDisposedEvent;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
-import org.apache.log.Hierarchy;
-import org.jacorb.notification.interfaces.FilterStage;
+import java.util.ArrayList;
 
 /**
  * @author Alphonse Bendt
@@ -66,7 +68,11 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
     private ORB myOrb_ = null;
     private POA myPoa_ = null;
 
-    private EventChannel thisEventChannel_;
+    private String ior_;
+
+    private int myKey_;
+
+    private EventChannel thisRef_;
     private FilterFactory defaultFilterFactory_;
     private EventChannelFactoryImpl myFactoryServant_;
     private EventChannelFactory myFactory_;
@@ -98,17 +104,19 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
     protected PropertyManager adminProperties_;
     protected PropertyManager qosProperties_;
 
+    protected List listAdminEventListeners_ = new ArrayList();
+
     ProxyCreationRequestEventListener getCreateProxyEventListener()
     {
         return proxyCreationEventListener_;
     }
 
-    ProxyDisposedEventListener getRemoveProxyConsumerListener()
+    ProxyEventListener getRemoveProxyConsumerListener()
     {
         return proxyConsumerDisposedListener_;
     }
 
-    ProxyDisposedEventListener getRemoveProxySupplierListener()
+    ProxyEventListener getRemoveProxySupplierListener()
     {
         return proxySupplierDisposedListener_;
     }
@@ -141,11 +149,14 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
     /**
      * ProxyDisposedEventListener as an anonymous inner class.
      */
-    private ProxyDisposedEventListener proxyConsumerDisposedListener_ =
-        new ProxyDisposedEventListener()
+    private ProxyEventListener proxyConsumerDisposedListener_ =
+        new ProxyEventListener()
         {
+	    public void actionProxyCreated( ProxyEvent e) {
+		// No Op
+	    }
 
-            public void actionProxyDisposed( ProxyDisposedEvent e )
+            public void actionProxyDisposed( ProxyEvent e )
             {
                 --numberOfConsumers_;
             }
@@ -154,11 +165,15 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
     /**
      * ProxyDisposedEventListener as an anonymous inner class.
      */
-    private ProxyDisposedEventListener proxySupplierDisposedListener_ =
-        new ProxyDisposedEventListener()
+    private ProxyEventListener proxySupplierDisposedListener_ =
+        new ProxyEventListener()
         {
 
-            public void actionProxyDisposed( ProxyDisposedEvent e )
+	    public void actionProxyCreated(ProxyEvent e) {
+		// No OP
+	    }
+
+            public void actionProxyDisposed( ProxyEvent e )
             {
                 --numberOfSuppliers_;
             }
@@ -209,6 +224,30 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         return ++consumerIdPool_;
     }
 
+    private void fireNewAdmin(AdminBase b) {
+	Iterator i = listAdminEventListeners_.iterator();
+	AdminEvent e = new AdminEvent(b);
+	while (i.hasNext()) {
+	    ((AdminEventListener)i.next()).actionAdminCreated(e);
+	}
+    }
+
+    private void fireDestroyAdmin(AdminBase b) {
+	Iterator i = listAdminEventListeners_.iterator();
+	AdminEvent e = new AdminEvent(b);
+	while (i.hasNext()) {
+	    ((AdminEventListener)i.next()).actionAdminDestroyed(e);
+	}
+    }
+
+    public void addAdminEventListener(AdminEventListener l) {
+	listAdminEventListeners_.add(l);
+    }
+
+    public void removeAdminEventListener(AdminEventListener l) {
+	listAdminEventListeners_.remove(l);
+    }
+
     ConsumerAdminTieImpl getDefaultConsumerAdminServant()
     {
         if ( defaultConsumerAdminImpl_ == null )
@@ -222,6 +261,8 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
                                                   channelContext_,
                                                   adminProperties_,
                                                   qosProperties_ );
+
+		    fireNewAdmin(defaultConsumerAdminImpl_);
 
 		    synchronized(refreshAdminListLock_) {
 			allConsumerAdmins_.add( defaultConsumerAdminImpl_ );
@@ -248,6 +289,8 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
                                                   channelContext_,
                                                   adminProperties_,
                                                   qosProperties_ );
+
+		    fireNewAdmin(defaultSupplierAdminImpl_);
 
                     if ( logger_.isDebugEnabled() )
                     {
@@ -370,7 +413,9 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 	ConsumerAdminTieImpl _consumerAdminTieImpl = 
 	    new_for_consumers_servant( filterGroupOperator, intHolder );
 
-        return _consumerAdminTieImpl.getConsumerAdmin();
+	fireNewAdmin(_consumerAdminTieImpl);
+	
+	return _consumerAdminTieImpl.getConsumerAdmin();
     }
 
     ConsumerAdminTieImpl new_for_consumers_servant( InterFilterGroupOperator filterGroupOperator,
@@ -382,12 +427,13 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
         PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
 
-        ConsumerAdminTieImpl _consumerAdminServant = new ConsumerAdminTieImpl( applicationContext_,
-                channelContext_,
-                _adminProperties,
-                _qosProperties,
-                intHolder.value,
-                filterGroupOperator );
+        ConsumerAdminTieImpl _consumerAdminServant = 
+	    new ConsumerAdminTieImpl( applicationContext_,
+				      channelContext_,
+				      _adminProperties,
+				      _qosProperties,
+				      intHolder.value,
+				      filterGroupOperator );
 
         Integer _key = new Integer( intHolder.value );
 
@@ -407,10 +453,13 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
     {
 
 
-        SupplierAdmin _supplierAdmin =
-            new_for_suppliers_servant( filterGroupOperator, intHolder ).getSupplierAdmin();
+        SupplierAdminTieImpl _supplierAdmin =
+            new_for_suppliers_servant( filterGroupOperator, intHolder );
 
-        return _supplierAdmin;
+	fireNewAdmin(_supplierAdmin);
+
+        return _supplierAdmin.getSupplierAdmin();
+
     }
 
     SupplierAdminTieImpl new_for_suppliers_servant( InterFilterGroupOperator filterGroupOperator,
@@ -424,12 +473,13 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
         PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
 
-        SupplierAdminTieImpl _supplierAdminServant = new SupplierAdminTieImpl( applicationContext_,
-                channelContext_,
-                _adminProperties,
-                _qosProperties,
-                intHolder.value,
-                filterGroupOperator );
+        SupplierAdminTieImpl _supplierAdminServant = 
+	    new SupplierAdminTieImpl( applicationContext_,
+				      channelContext_,
+				      _adminProperties,
+				      _qosProperties,
+				      intHolder.value,
+				      filterGroupOperator );
 
         _supplierAdminServant.addProxyCreationEventListener( getCreateProxyEventListener() );
 
@@ -437,7 +487,6 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 
         return _supplierAdminServant;
     }
-
 
     public void removeAdmin( AdminBase admin )
     {
@@ -464,6 +513,8 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
             allConsumerAdmins_.remove( admin );
 	    adminListDirty_ = true;
         }
+	
+	fireDestroyAdmin(admin);
     }
 
     public ConsumerAdmin get_consumeradmin( int identifier )
@@ -521,11 +572,13 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
     /**
      * EventChannel constructor.
      */
-    EventChannelImpl( ApplicationContext appContext,
+    EventChannelImpl( int key,  
+		      ApplicationContext appContext,
                       ChannelContext channelContext,
                       Map qosProperties,
                       Map adminProperties )
     {
+	myKey_ = key;
 
         if ( adminProperties.containsKey( MaxConsumers.value ) )
         {
@@ -573,6 +626,8 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         {
             myPoa_ = applicationContext_.getPoa();
             myPoa_.the_POAManager().activate();
+
+	    ior_ = myOrb_.object_to_string(myPoa_.servant_to_reference(this));
         }
         catch ( Exception e )
         {
@@ -634,9 +689,10 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 
     public void dispose()
     {
-        logger_.info( "dispose()" );
-
+        logger_.info( "dispose" );
         logger_.info( "dispose default consumer admin" );
+
+	myFactoryServant_.removeEventChannelServant(getKey());
 
         if ( defaultConsumerAdmin_ != null )
         {
@@ -644,8 +700,6 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
             defaultConsumerAdminImpl_ = null;
             defaultConsumerAdmin_ = null;
         }
-
-        logger_.info( "ok" );
 
         logger_.info( "dispose default supplier admin" );
 
@@ -656,9 +710,6 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
             defaultSupplierAdmin_ = null;
         }
 
-        logger_.info( "ok" );
-
-        logger_.info( "iterating list" );
         Iterator _i = consumerAdminServants_.values().iterator();
 
         while ( _i.hasNext() )
@@ -679,6 +730,8 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 
         consumerAdminDestroy();
         supplierAdminDestroy();
+
+	listAdminEventListeners_.clear();
         //        releaseServant(this);
     }
 
@@ -713,11 +766,6 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
             e.printStackTrace();
             return null;
         }
-    }
-
-    public void dispatchEvent( NotificationEvent event )
-    {
-        channelContext_.getTaskProcessor().processEvent( event );
     }
 
     /**
@@ -791,5 +839,25 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
                 in.remove();
             }
         }
+    }
+
+    public int getKey() {
+	return myKey_;
+    }
+
+    EventChannel getEventChannel() {
+	if (thisRef_ == null) {
+	    synchronized(this) {
+		if (thisRef_ == null) {
+		    thisRef_ = _this( applicationContext_.getOrb() );
+
+		}
+	    }
+	}
+	return thisRef_;
+    }
+
+    public String getIOR() {
+	return ior_;
     }
 }

@@ -27,7 +27,7 @@ package org.jacorb.notification.interfaces;
  *
  * Created: Wed Feb 12 15:11:59 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -43,4 +43,4 @@ public class FrameworkEvent {
 	return source_;
     }
     
-}// FrameworkEvent
+}

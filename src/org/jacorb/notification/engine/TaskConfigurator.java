@@ -30,18 +30,16 @@ import org.jacorb.notification.interfaces.Poolable;
 import org.jacorb.notification.util.ObjectPoolBase;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.TRANSIENT;
+import org.jacorb.notification.interfaces.Disposable;
 
 /**
  * TaskConfigurator.java
- *
- *
- * Created: Thu Nov 14 21:08:24 2002
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class TaskConfigurator
+public class TaskConfigurator implements Disposable
 {
     class PushToConsumerTaskErrorHandler implements TaskErrorHandler
     {
@@ -52,8 +50,8 @@ public class TaskConfigurator
             {
 		
                 // push operation caused a OBJECT_NOT_EXIST Exception
+		// default strategy is to
                 // destroy the ProxySupplier
-
                 PushToConsumerTask _pushToConsumerTask = 
 		    ( PushToConsumerTask ) task;
 		
@@ -99,7 +97,6 @@ public class TaskConfigurator
 		    logger_.debug("removeNotificationEvent().release");
                     ( ( TaskBase ) task ).removeNotificationEvent().release();
 
-		    logger_.debug("task");
                     ( ( Poolable ) task ).release();
                     break;
 
@@ -123,7 +120,6 @@ public class TaskConfigurator
 
     class FilterTaskFinishHandler implements TaskFinishHandler
     {
-
         public void handleTaskFinished( Task task )
         {
 
@@ -147,7 +143,7 @@ public class TaskConfigurator
                         // if we are filtering Outgoing events its
                         // possible that deliveries can be made as soon as
                         // the ConsumerAdmin Filters are eval'd
-                        // (InterFilterGroupOperator) 
+                        // (if InterFilterGroupOperator.OR_OP is set !) 
 
                         FilterOutgoingTask _outgoingTask = 
 			    ( FilterOutgoingTask ) task;
@@ -227,32 +223,23 @@ public class TaskConfigurator
         }
     }
 
-    TaskProcessor taskProcessor_;
+    ////////////////////////////////////////
+    //
 
     final Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );    
 
-    TaskErrorHandler filterTaskErrorHandler_ = new FilterTaskErrorHandler();
+    private TaskProcessor taskProcessor_;
 
-    TaskFinishHandler deliverTaskFinishHandler_ = new PushToConsumerTaskFinishHandler();
+    private TaskErrorHandler filterTaskErrorHandler_ = new FilterTaskErrorHandler();
 
-    TaskFinishHandler filterTaskFinishHandler_ = new FilterTaskFinishHandler();
+    private TaskFinishHandler deliverTaskFinishHandler_ = new PushToConsumerTaskFinishHandler();
 
-    TaskErrorHandler deliverTaskErrorHandler_ = new PushToConsumerTaskErrorHandler();
+    private TaskFinishHandler filterTaskFinishHandler_ = new FilterTaskFinishHandler();
 
-    public TaskConfigurator( TaskProcessor taskProcessor )
-    {
-        taskProcessor_ = taskProcessor;
-    }
+    private TaskErrorHandler deliverTaskErrorHandler_ = new PushToConsumerTaskErrorHandler();
 
-    public void init()
-    {
-        filterIncomingTaskPool_.init();
-        filterOutgoingTaskPool_.init();
-        deliverTaskPool_.init();
-    }
-
-    ObjectPoolBase filterIncomingTaskPool_ = new ObjectPoolBase()
+    private ObjectPoolBase filterIncomingTaskPool_ = new ObjectPoolBase()
             {
                 public Object newInstance()
                 {
@@ -272,7 +259,7 @@ public class TaskConfigurator
                 }
             };
 
-    ObjectPoolBase filterOutgoingTaskPool_ = new ObjectPoolBase()
+    private ObjectPoolBase filterOutgoingTaskPool_ = new ObjectPoolBase()
             {
                 public Object newInstance()
                 {
@@ -290,7 +277,7 @@ public class TaskConfigurator
                 }
             };
 
-    ObjectPoolBase deliverTaskPool_ =
+    private ObjectPoolBase deliverTaskPool_ =
         new ObjectPoolBase()
         {
             public Object newInstance()
@@ -311,6 +298,28 @@ public class TaskConfigurator
 		_p.setObjectPool( this );
             }
         };
+
+    ////////////////////////////////////////
+
+    public TaskConfigurator( TaskProcessor taskProcessor )
+    {
+        taskProcessor_ = taskProcessor;
+    }
+
+    ////////////////////////////////////////
+
+    public void init()
+    {
+        filterIncomingTaskPool_.init();
+        filterOutgoingTaskPool_.init();
+        deliverTaskPool_.init();
+    }
+
+    public void dispose() {
+	filterIncomingTaskPool_.dispose();
+	filterOutgoingTaskPool_.dispose();
+	deliverTaskPool_.dispose();
+    }
 
     /**
      * factory method for a new FilterIncomingTask instance. uses
@@ -349,7 +358,7 @@ public class TaskConfigurator
      * factory method to create PushToConsumer Tasks. The Tasks are
      * initialized with the data taken from a FilterOutgoingTask.
      */
-    PushToConsumerTask[] newPushToConsumerTask( FilterOutgoingTask task )
+    private PushToConsumerTask[] newPushToConsumerTask( FilterOutgoingTask task )
     {
 
         PushToConsumerTask[] _deliverTasks;
@@ -369,8 +378,8 @@ public class TaskConfigurator
      * initialized with a NotificationEvent and the EventConsumers
      * associated to some FilterStages
      */
-    PushToConsumerTask[] newPushToConsumerTask( NotificationEvent event,
-						FilterStage[] nodes )
+    private PushToConsumerTask[] newPushToConsumerTask( NotificationEvent event,
+							FilterStage[] nodes )
     {
 
         PushToConsumerTask _deliverTasks[] = new PushToConsumerTask[ nodes.length ];
@@ -390,7 +399,7 @@ public class TaskConfigurator
         return _deliverTasks;
     }
 
-    FilterOutgoingTask newFilterOutgoingTask( FilterIncomingTask task )
+    private FilterOutgoingTask newFilterOutgoingTask( FilterIncomingTask task )
     {
         FilterOutgoingTask _newTask =
             ( FilterOutgoingTask ) filterOutgoingTaskPool_.lendObject();

@@ -77,8 +77,7 @@ public class ProxyPullSupplierImpl
 	      appContext,
 	      channelContext, 
 	      adminProperties,
-	      qosProperties
-);
+	      qosProperties);
 
 	init(appContext);
     }
@@ -95,22 +94,28 @@ public class ProxyPullSupplierImpl
 	      channelContext, 
 	      adminProperties,
 	      qosProperties,
-	      key
-);
+	      key);
 
 	init(appContext);
     }
 
-    private void init(ApplicationContext appContext) {
-	setProxyType(ProxyType.PULL_ANY);
-        connected_ = false;
+    private Any getUndefinedAny() {
 	if (sUndefinedAny == null) {
 	    synchronized(getClass()) {
 		if (sUndefinedAny == null) {
-		    sUndefinedAny = appContext.getOrb().create_any();
+		    sUndefinedAny = applicationContext_.getOrb().create_any();
+		    //    sUndefinedAny.insert_octet((byte)0);
 		}
 	    }
 	}
+	return sUndefinedAny;
+    }
+
+    private void init(ApplicationContext appContext) {
+	logger_.debug("init");
+
+	setProxyType(ProxyType.PULL_ANY);
+        connected_ = false;
     }
 
     public void disconnect_pull_supplier() {
@@ -147,23 +152,26 @@ public class ProxyPullSupplierImpl
     public Any try_pull (BooleanHolder hasEvent)
         throws Disconnected {
 
+	logger_.debug("try_pull");
+
         if (!connected_) { 
 	    throw new Disconnected(); 
 	}
 
-        Any event = null;
+        Any event = getUndefinedAny();
+	hasEvent.value = false;
 
         synchronized(pendingEvents_) {
             if (!pendingEvents_.isEmpty()) {
                 event = (Any)pendingEvents_.getFirst();
                 pendingEvents_.remove(event);
                 hasEvent.value = true;
-                return event;
-            } else {
-                hasEvent.value = false;
-                return sUndefinedAny;
             }
         }
+	
+	logger_.debug("try_pull returns: " + event);
+
+	return event;
     }
 
     /**

@@ -49,7 +49,7 @@ public class GtOperator extends TCLNode {
 	_left = left().evaluate(context);
 	_right = right().evaluate(context);
 
-	int _comp = _left.compareTo(context, _right);
+	int _comp = _left.compareTo(_right);
 
 	if (_comp == -1 || _comp == 0) {
 	    return EvaluationResult.BOOL_FALSE;

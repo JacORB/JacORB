@@ -111,6 +111,8 @@
       targetos="${architecture}"
       refid="notification.classpath" />
 
+    <property name="debug" value="true" />
+
   </target>
 
 
@@ -130,7 +132,7 @@
 
   <!-- default target -->
   <target name="notification.all" 
-    depends="notification.init, antlr, tcl, server" />
+    depends="notification.init, antlr, server" />
 
   <!-- ====== -->
   <!-- Parser -->
@@ -170,7 +172,7 @@
       <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/comp-lexer.g" />
     </java>
 
-    <echo message="The Warnings 'Redefinition of token in token {...}: TOKEN' can be ignored" />
+    <echo message="The Warnings 'Redefinition of token in tokens {...}: TOKEN' can be ignored" />
     
     <java classname="antlr.Tool" fork="yes" failonerror="yes" classpathref="notification.classpath">
       <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/tcl.g" />
@@ -184,25 +186,13 @@
     -->
   </target>
 
-  <!-- compile generated parser -->
+  <!-- compile generated parser and AST Classes -->
   <target name="antlr.compile" depends="notification.init, notification.idl, antlr.generate">
     <antcall target="jacorb-javac">
       <param name="javac-includes"
-	value="org/jacorb/notification/node/**,generated/org/jacorb/notification/parser/**" />
+	value="org/jacorb/notification/node/*.java, generated/org/jacorb/notification/parser/*.java" />
     </antcall>
   </target> 
-
-
-  <!-- ==== -->
-
-  <target name="tcl" depends="antlr, tcl.compile" />
-
-  <target name="tcl.compile" depends="notification.init">
-    <antcall target="jacorb-javac">
-      <param name="javac-includes"
-	value="org/jacorb/notification/evaluate/**" />
-    </antcall>
-  </target>
 
   <target name="server" depends="notification.init, server.compile" />
 
@@ -216,15 +206,11 @@
     <antcall target="jacorb-javac">
 
       <param name="javac-includes"
-	value="org/jacorb/notification/**.java, 
-	       org/jacorb/notification/util/**.java,
-	       org/jacorb/notification/interfaces/**.java,
-	       org/jacorb/notification/engine/**.java,
-	       org/jacorb/notification/evaluate/**.java" />
+	value="org/jacorb/notification/**/*.java" />
 
       <param name="javac-excludes"
         value="org/jacorb/notification/util/GNUPatternWrapper.java, 
-               org/jacorb/notification/util/JDK14PatternWrapper.java" />
+               org/jacorb/notification/util/JDK14PatternWrapper.java />
 
     </antcall>
   </target>
@@ -303,21 +289,6 @@
 	includes="org/jacorb/notification/**/*.*" />
     </delete>
 
-  </target>
-
-  <target name="jar" depends="notification.init" >
-    <delete file="${lib}/notification.jar" />
-      
-    <jar jarfile="${lib}/notification.jar"
-      basedir="${classdir}"
-      includes="org/jacorb/notification/**" />
-
-  </target>
-
-  <target name="deploy" depends="jar" >
-    <copy file="${lib}/notification.jar"
-      todir="/nfs/voyager/home/alf/JacORB/lib"
-      overwrite="true" />
   </target>
 
 </project>

@@ -21,12 +21,8 @@ package org.jacorb.notification.node;
  *
  */
 
-import org.jacorb.notification.node.TCLNode;
-import org.jacorb.notification.evaluate.FilterConstraint;
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.NotificationEvent;
-import antlr.Token;
-import org.jacorb.notification.node.DynamicTypeException;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.jacorb.notification.evaluate.EvaluationException;
@@ -43,7 +39,8 @@ import org.jacorb.notification.parser.TCLParser;
  * @version $Id$
  */
 
-public class DomainNameShorthandNode extends ComponentName {
+public class DomainNameShorthandNode 
+    extends ComponentName {
 
     static TCLNode expandedPath_;
     static final String COMP_NAME = "$.header.fixed_header.event_type.domain_name";
@@ -59,7 +56,6 @@ public class DomainNameShorthandNode extends ComponentName {
     }
 
     public DomainNameShorthandNode() {
-
 	setName("DomainNameShorthandNode");
     } // DomainNameShorthandNode constructor
 
@@ -98,7 +94,6 @@ public class DomainNameShorthandNode extends ComponentName {
 	    break;
 	case NotificationEvent.TYPE_STRUCTURED:
 	    String _domainName = _event.toStructuredEvent().header.fixed_header.event_type.domain_name;
-	    logger_.debug("Got result: " + _domainName);
 	    _result.setString(_domainName);
 	    break;
 	default:

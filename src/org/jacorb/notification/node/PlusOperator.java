@@ -61,26 +61,13 @@ public class PlusOperator extends TCLNode {
 	       InconsistentTypeCode, EvaluationException  {
 
 	EvaluationResult _left = left().evaluate(context);
+
 	if (unary_) {
 	    return _left;
 	}
-	EvaluationResult _right = right().evaluate(context);
-	EvaluationResult _ret = new EvaluationResult();
 
-	if (_left.isFloat() ||
-	    _right.isFloat() ) {
+	return EvaluationResult.plus(_left, right().evaluate(context));
 
-	    float _l, _r;
-	    _l = _left.getFloat();
-	    _r = _right.getFloat();
-	    _ret.setFloat(_l + _r);
-	} else {
-	    int _l, _r;
-	    _l = _left.getInt();
-	    _r = _right.getInt();
-	    _ret.setInt(_l + _r);
-	}
-	return _ret;
     }
 
     public boolean isStatic() {

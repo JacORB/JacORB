@@ -22,17 +22,18 @@ package org.jacorb.notification.interfaces;
  */
 
 /**
- * ProxyDisposedEventListener.java
+ * AdminEventListener.java
  *
  *
- * Created: Wed Feb 12 15:15:13 2003
+ * Created: Mon Jun  2 12:42:37 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface ProxyDisposedEventListener {
+public interface AdminEventListener 
+{
+    void actionAdminCreated(AdminEvent e);
 
-    void actionProxyDisposed(ProxyDisposedEvent event);
-    
-}// ProxyDisposedEventListener
+    void actionAdminDestroyed(AdminEvent e);
+}

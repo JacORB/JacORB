@@ -21,12 +21,8 @@ package org.jacorb.notification.node;
  *
  */
 
-import antlr.BaseAST;
 import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
 import org.jacorb.notification.EvaluationContext;
-import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
@@ -63,7 +59,9 @@ public class AssocOperator extends TCLNode {
     }
 
     public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	((TCLNode)getNextSibling()).acceptPostOrder(visitor);
+	if (getNextSibling() != null) {
+	    ((TCLNode)getNextSibling()).acceptPostOrder(visitor);
+	}
 	visitor.visitAssoc(this);
     }
 

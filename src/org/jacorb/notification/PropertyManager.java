@@ -40,7 +40,7 @@ import org.apache.log.Hierarchy;
  *
  * Created: Tue Feb 04 14:47:50 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 

@@ -255,6 +255,4 @@ public class StructuredProxyPullSupplierImpl
     {
         return !pendingEvents_.isEmpty();
     }
-
-
-} // StructuredProxyPullSupplierImpl
+} 

@@ -95,6 +95,10 @@ abstract public class TCLVisitor {
     {
     }
 
+    public void visitLte(LteOperator lt) throws VisitorException 
+    {
+    }
+
     public void visitGt(GtOperator gt) throws VisitorException 
     {
     }
@@ -132,4 +136,8 @@ abstract public class TCLVisitor {
     public void visitIn(InOperator in) throws VisitorException 
     {
     }
+
+    public void visitGteOperator(GteOperator o) throws VisitorException {}
+
+    public void visitRuntimeVariable(RuntimeVariableNode r) throws VisitorException {}
 }

@@ -29,9 +29,13 @@ import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Poolable;
 import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.FilterUtils;
 import org.apache.log.Logger;
 import org.apache.log.Hierarchy;
+import org.jacorb.notification.node.RuntimeVariableNode;
+import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+import org.jacorb.notification.node.DynamicTypeException;
+import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 /**
  * NotificationEvent.java
@@ -39,7 +43,7 @@ import org.apache.log.Hierarchy;
  *
  * Created: Tue Oct 22 20:16:33 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -72,55 +76,6 @@ public abstract class NotificationEvent extends Poolable
     }
 
     ////////////////////////////////////////
-
-    public abstract EventTypeIdentifier getEventTypeIdentifier();
-
-    /**
-     * Extracts a value out of this NotificationEvent. Extract the
-     * Value denoted by the ComponentOperator Node out of this
-     * NotificationEvent. The EvaluationContext is used to cache and
-     * lookup results.
-     *
-     * @param evaluationContext an <code>EvaluationContext</code> value
-     * @param c a <code>ComponentOperator</code> value
-     * @return an <code>EvaluationResult</code> value
-     * @exception EvaluationException if an error occurs
-     */
-    public abstract EvaluationResult evaluate( EvaluationContext evaluationContext,
-					       ComponentName c )
-	throws EvaluationException;
-
-    
-    /**
-     * Check if the denoted Union value has a Default
-     * Discriminator. Check if the Union value denoted by the
-     * ComponentOperator Nodes value has a Default Discriminator.
-     *
-     * @param evaluationContext an <code>EvaluationContext</code> value
-     * @param c a <code>ComponentOperator</code> value
-     * @return an <code>EvaluationResult</code> value
-     * @exception EvaluationException if an error occurs
-     */
-    public abstract EvaluationResult hasDefault( EvaluationContext evaluationContext, 
-						 ComponentName c )
-	throws EvaluationException;
-
-
-    /**
-     * Check if a Value exists in this Event. Check if the Value
-     * denoted by the ComponentOperator Node 
-     * exists in this Event.
-     *
-     * @param component a <code>ComponentOperator</code> that denotes
-     * a Path within an Event.
-     *
-     * @return an boolean <code>EvaluationResult</code> value.
-     *
-     * @exception EvaluationException if an error occurs during Evaluation.
-     */
-    public abstract EvaluationResult testExists( EvaluationContext evaluationContext,
-						 ComponentName component )
-	throws EvaluationException;
 
     /**
      * get the Constraint Key for this Event. The Constraint Key is
@@ -206,5 +161,96 @@ public abstract class NotificationEvent extends Poolable
         return currentFilterStage_;
     }
 
-} // NotificationEvent
+    public EvaluationResult extractValue(EvaluationContext context,
+					 ComponentName componentRootNode,
+					 RuntimeVariableNode runtimeVariable ) 	
+	throws InconsistentTypeCode,
+	       TypeMismatch,
+	       EvaluationException,
+	       InvalidValue,
+	       DynamicTypeException
+    {
+	logger_.debug("evaluateShorthand");
+	
+        EvaluationResult _ret = null;
+        String _completePath = componentRootNode.getComponentName();
+	logger_.debug("CompletePath: " + _completePath);
+
+        _ret = context.lookupResult( _completePath );
+
+        if ( _ret == null )
+        {
+	    _ret = runtimeVariable.evaluate(context);
+	    
+	    if (componentRootNode.right() != null) {
+		_ret = NotificationEventUtils.extractFromAny(componentRootNode.right(), 
+							     _ret.getAny(), 
+							     context, 
+							     runtimeVariable.toString());
+	    }
+		
+	    context.storeResult( _completePath, _ret);
+
+        }
+
+        return _ret;
+    }
+
+    abstract public EvaluationResult extractFilterableData(EvaluationContext context,
+							   ComponentName componentRootNode,
+							   String variable) 
+	throws EvaluationException;
+
+    abstract public EvaluationResult extractVariableHeader(EvaluationContext context,
+							   ComponentName componentRootNode,
+							   String variable) 
+	throws EvaluationException;
+
+
+    public EvaluationResult extractValue( EvaluationContext evaluationContext,
+					  ComponentName componentRootNode )
+	throws InconsistentTypeCode,
+	       TypeMismatch,
+	       EvaluationException,
+	       InvalidValue
+    {
+        EvaluationResult _ret = null;
+        String _completePath = componentRootNode.getComponentName();
+
+        if ( logger_.isDebugEnabled() )
+        {
+            logger_.debug( "extractValue path: " + componentRootNode.toStringTree() );
+            logger_.debug( "complete path is: " + _completePath );
+        }
+
+        _ret = evaluationContext.lookupResult( _completePath );
+
+	logger_.debug("Cache lookup: " + _ret);
+
+        if ( _ret == null )
+        {
+	    _ret = NotificationEventUtils.extractFromAny(componentRootNode.left(), 
+							 toAny(), 
+							 evaluationContext, 
+							 componentRootNode.toString());
+
+            // Cache the EvaluationResult
+            if ( _ret != null )
+            {
+                if ( logger_.isDebugEnabled() )
+                {
+                    logger_.debug( "Cache Result: " + _completePath + " => " + _ret );
+                }
+
+                evaluationContext.storeResult( _completePath, _ret );
+            }
+        }
+        else
+        {
+            logger_.debug( "Result Cache HIT" + _ret);
+        }
+
+        return _ret;
+    }
+}
 

@@ -47,14 +47,11 @@ import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplier;
 import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.PortableServer.Servant;
-import org.jacorb.notification.interfaces.ProxyDisposedEventListener;
-import org.jacorb.notification.interfaces.ProxyDisposedEvent;
+import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.jacorb.notification.interfaces.ProxyEvent;
 
 /**
  * ConsumerAdminImpl.java
- *
- *
- * Created: Sat Oct 12 23:43:18 2002
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -64,7 +61,7 @@ public class ConsumerAdminTieImpl
             extends AdminBase
             implements ConsumerAdminOperations,
             Disposable,
-            ProxyDisposedEventListener
+            ProxyEventListener
 {
 
     List eventStyleServants_ = new Vector();
@@ -104,18 +101,13 @@ public class ConsumerAdminTieImpl
 
     public Servant getServant()
     {
-        logger_.debug( "getServant()" );
-
         if ( thisServant_ == null )
         {
-	    logger_.debug( " == null");
             synchronized ( thisServantLock_ )
             {
-		logger_.debug( "synchronized ...");
                 if ( thisServant_ == null )
                 {
-                    thisServant_ = new ConsumerAdminPOATie( this );		
-		    logger_.debug( "thisServant_ = " + thisServant_);
+                    thisServant_ = new ConsumerAdminPOATie( this );
                 }
             }
         }
@@ -149,10 +141,6 @@ public class ConsumerAdminTieImpl
                                      EventType[] eventType2 ) throws InvalidEventType
         {}
 
-    public void destroy()
-    {
-        dispose();
-    }
 
     public ProxySupplier get_proxy_supplier( int n ) throws ProxyNotFound
     {
@@ -547,12 +535,16 @@ public class ConsumerAdminTieImpl
         return filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP;
     }
 
-    public void actionProxyDisposed( ProxyDisposedEvent event )
+    public void actionProxyDisposed( ProxyEvent event )
     {
         synchronized ( this )
         {
             proxyListDirty_ = true;
         }
+    }
+
+    public void actionProxyCreated(ProxyEvent e) {
+	// NO Op
     }
 
 } // ConsumerAdminImpl

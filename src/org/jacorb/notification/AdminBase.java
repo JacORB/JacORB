@@ -304,6 +304,12 @@ public abstract class AdminBase
     {
     }
 
+    public void destroy()
+    {
+        dispose();
+    }
+    
+
     public synchronized void dispose()
     {
         if ( !disposed_ )

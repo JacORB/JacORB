@@ -43,6 +43,7 @@ import org.omg.DynamicAny.DynStruct;
 import org.omg.DynamicAny.DynStructHelper;
 import org.omg.DynamicAny.DynUnion;
 import org.omg.DynamicAny.DynUnionHelper;
+import org.omg.CosNotification.Property;
 
 /**
  * IdentifierEvaluator.java
@@ -297,6 +298,23 @@ public class DynamicEvaluator
         }
     }
 
+    public Any evaluatePropertyList(Property[] list, String name) {
+	logger_.debug("evaluatePropertyList " + list);
+	logger_.debug("list length: " + list.length);
+
+	for (int x=0; x<list.length; ++x) {
+
+	    if (logger_.isDebugEnabled()) {
+		logger_.debug(x + ": " + list[x].name + " => " + list[x].value);
+	    }
+
+	    if (name.equals(list[x].name)) {
+		return list[x].value;
+	    }
+	}
+	return null;
+    }
+
     /**
      * extract a named value out of a sequence of name/value pairs.
      */
@@ -488,7 +506,7 @@ public class DynamicEvaluator
             EvaluationResult _r = 
 		_resultExtractor.extractFromAny( _currentComponent.to_any() );
 
-            if ( element.compareTo( context, _r ) == 0 )
+            if ( element.compareTo( _r ) == 0 )
             {
                 return EvaluationResult.BOOL_TRUE;
             }
@@ -610,8 +628,9 @@ public class DynamicEvaluator
             return evaluateIdentifier( any.get_any(), _strippedIdentifier );
 
         default:
-            logger_.debug( "? " + any.type() );
-            throw new RuntimeException();
+            logger_.debug( "unknown " + any.type() );
+	    return null;
+	    //            throw new RuntimeException();
         }
 
         if ( logger_.isDebugEnabled() )

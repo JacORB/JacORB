@@ -49,7 +49,7 @@ public class GteOperator extends TCLNode {
 	_left = left().evaluate(context);
 	_right = right().evaluate(context);
 
-	int _comp = _left.compareTo(context, _right);
+	int _comp = _left.compareTo( _right);
 
 	if (_comp == -1) {
 	    return EvaluationResult.BOOL_FALSE;
@@ -66,9 +66,21 @@ public class GteOperator extends TCLNode {
 	return getClass().getName();
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {}
+    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
+	left().acceptInOrder(visitor);
+	visitor.visitGteOperator(this);
+	right().acceptInOrder(visitor);
+    }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {}
+    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
+	left().acceptPostOrder(visitor);
+	right().acceptPostOrder(visitor);
+	visitor.visitGteOperator(this);
+    }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {}
+    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
+	visitor.visitGteOperator(this);
+	left().acceptPreOrder(visitor);
+	right().acceptPreOrder(visitor);
+    }
 }

@@ -30,13 +30,9 @@ import org.omg.CosNotification.EventHeader;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.evaluate.EvaluationException;
-import org.omg.CORBA.TypeCodePackage.BadKind;
-import org.jacorb.notification.node.TCLNode;
-import org.jacorb.notification.node.IdentValue;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.jacorb.notification.node.DynamicTypeException;
 
 /**
  * Adapt an Any to the NotificationEvent Interface.
@@ -45,11 +41,13 @@ import org.jacorb.notification.node.DynamicTypeException;
  * @version $Id$
  */
 
-class NotificationAnyEvent extends NotificationEvent
+public class NotificationAnyEvent extends NotificationEvent
 {
 
     private static final Property[] sFilterableData;
+
     private static final EventHeader sEventHeader;
+
     private static final String sAnyKey =
         FilterUtils.calcConstraintKey( "", "%ANY" );
 
@@ -66,16 +64,16 @@ class NotificationAnyEvent extends NotificationEvent
     /**
      * the wrapped value
      */
-    private Any anyValue_;
+    protected Any anyValue_;
 
     /**
      * the wrapped Any converted to a StructuredEvent
      */
-    private StructuredEvent structuredEventValue_;
+    protected StructuredEvent structuredEventValue_;
 
     ////////////////////////////////////////
 
-    NotificationAnyEvent( ApplicationContext appContext )
+    public NotificationAnyEvent( ApplicationContext appContext )
     {
         super( appContext );
     }
@@ -92,11 +90,6 @@ class NotificationAnyEvent extends NotificationEvent
         super.reset();
         anyValue_ = null;
         structuredEventValue_ = null;
-    }
-
-    public EventTypeIdentifier getEventTypeIdentifier()
-    {
-        return null;
     }
 
     public int getType()
@@ -122,7 +115,7 @@ class NotificationAnyEvent extends NotificationEvent
                     structuredEventValue_ = new StructuredEvent();
                     structuredEventValue_.header = sEventHeader;
                     structuredEventValue_.filterable_data = sFilterableData;
-                    structuredEventValue_.remainder_of_body = anyValue_;
+                    structuredEventValue_.remainder_of_body = toAny();
                 }
             }
         }
@@ -135,103 +128,27 @@ class NotificationAnyEvent extends NotificationEvent
         return sAnyKey;
     }
 
-    public EvaluationResult testExists( EvaluationContext evaluationContext,
-                                        ComponentName op )
-    throws EvaluationException
-    {
-
-        try
-        {
-            evaluate( evaluationContext, op );
-            return EvaluationResult.BOOL_TRUE;
-        }
-        catch ( EvaluationException e )
-        {
-            return EvaluationResult.BOOL_FALSE;
-        }
+    public EvaluationResult extractFilterableData(EvaluationContext context,
+						  ComponentName root,
+						  String v) {
+	try {
+	    return extractValue(context, root);
+	} catch (InconsistentTypeCode e) {
+	} catch (TypeMismatch e) {
+	} catch (InvalidValue e) {
+	} catch (EvaluationException e) {}
+	return null;
     }
 
-    public EvaluationResult hasDefault( EvaluationContext evaluationContext,
-                                        ComponentName op )
-    throws EvaluationException
-    {
-
-        try
-        {
-            EvaluationResult _er = evaluate( evaluationContext, op );
-            Any _any = _er.getAny();
-
-            if ( evaluationContext.getDynamicEvaluator().hasDefaultDiscriminator( _any ) )
-            {
-                return EvaluationResult.BOOL_TRUE;
-            }
-            else
-            {
-                return EvaluationResult.BOOL_FALSE;
-            }
-        }
-        catch ( BadKind bk )
-        {
-            throw NotificationEventUtils.getException( bk );
-        }
-    }
-
-    public EvaluationResult evaluate( EvaluationContext evaluationContext, ComponentName op )
-    throws EvaluationException
-    {
-
-        try
-        {
-            TCLNode _left = ( TCLNode ) op.left();
-            Any _res;
-            EvaluationResult _ret = null;
-
-            if ( _left == null )
-            {
-                return evaluationContext.getResultExtractor().extractFromAny( anyValue_ );
-            }
-
-            switch ( _left.getType() )
-            {
-
-            case TCLNode.IDENTIFIER:
-                IdentValue _iv = ( IdentValue ) _left;
-
-                _ret = NotificationEventUtils.evaluateShorthand( evaluationContext,
-                        anyValue_,
-                        op,
-                        _iv );
-
-                break;
-
-            case TCLNode.DOT:
-                _ret = NotificationEventUtils.evaluateComponent( evaluationContext,
-                        anyValue_,
-                        op );
-
-                break;
-
-            default:
-                throw new RuntimeException();
-            }
-
-            return _ret;
-        }
-        catch ( TypeMismatch tm )
-        {
-            throw NotificationEventUtils.getException( tm );
-        }
-        catch ( InconsistentTypeCode itc )
-        {
-            throw NotificationEventUtils.getException( itc );
-        }
-        catch ( InvalidValue iv )
-        {
-            throw NotificationEventUtils.getException( iv );
-        }
-        catch ( DynamicTypeException d )
-        {
-            throw NotificationEventUtils.getException( d );
-        }
+    public EvaluationResult extractVariableHeader(EvaluationContext context,
+						  ComponentName root,
+						  String v) throws EvaluationException {
+	try {
+	    return extractValue(context, root);
+	} catch (InconsistentTypeCode e) {
+	} catch (TypeMismatch e) {
+	} catch (InvalidValue e) {
+	} catch (EvaluationException e) {}
+	return null;
     }
 }

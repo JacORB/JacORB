@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,20 +20,19 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
-import antlr.BaseAST;
-import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
-import org.omg.CORBA.TCKind;
 import org.jacorb.notification.EvaluationContext;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.jacorb.notification.evaluate.EvaluationException;
+import antlr.Token;
 
-/** A simple node to represent MINUS operation */
+/** 
+ * A simple node to represent MINUS operation 
+ * @version $Id$
+ */
+
 public class MinusOperator extends TCLNode {
 
     boolean unary_;
@@ -60,32 +61,15 @@ public class MinusOperator extends TCLNode {
 	       InconsistentTypeCode,
 	       EvaluationException {
 
-	EvaluationResult _ret = new EvaluationResult();
-	EvaluationResult _left = left().evaluate(context);
-	EvaluationResult _right = null;
+	if (unary_) {
+	    
+	    return EvaluationResult.unaryMinus(left().evaluate(context));
 
-	if (!unary_) {
-	  _right  = right().evaluate(context);
-	}
-
-	if (unary_ && _left.isFloat()) {
-	    _ret.setFloat(- _left.getFloat() );
-	} else if (unary_ && !_left.isFloat()) {
-	    _ret.setInt( - _left.getInt() );
-	} else if (_left.isFloat() ||
-		   _right.isFloat()) {
-
-	    float _l, _r;
-	    _l = _left.getFloat();
-	    _r = _right.getFloat();
-	    _ret.setFloat(_l - _r);
 	} else {
-	    int _l, _r;
-	    _l = left().evaluate(context).getInt();
-	    _r = right().evaluate(context).getInt();
-	    _ret.setInt(_l - _r);
+	    
+	    return EvaluationResult.minus(left().evaluate(context), 
+					  right().evaluate(context));
 	}
-	return _ret;
     }
 
     public void acceptInOrder(TCLVisitor visitor) throws VisitorException {

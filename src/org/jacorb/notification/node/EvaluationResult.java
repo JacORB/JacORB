@@ -31,14 +31,13 @@ import org.omg.CORBA.TypeCodePackage.Bounds;
 import org.jacorb.notification.util.ObjectPoolBase;
 import org.apache.log.Logger;
 import org.apache.log.Hierarchy;
+import org.omg.CORBA.TCKind;
+import java.lang.reflect.Field;
 
 /**
  * EvaluationResult.java
  *
- *
- * Created: Sat Jul 06 02:08:43 2002
- *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -60,6 +59,10 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	Hierarchy.getDefaultHierarchy().getLoggerFor(EvaluationResult.class.getName());
 
     private boolean isFloat_;
+    private boolean isLong_;
+
+    private int typeCode_;
+
     private Object value_;
     private Any any_;
 
@@ -81,57 +84,70 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	any_ = null;
     }
 
+    public boolean isLongLong() {
+	return typeCode_ == TCKind._tk_longlong;
+    }
+
+    public boolean isDouble() {
+	return typeCode_ == TCKind._tk_double;
+    }
+
     public boolean isFloat() {
-	return isFloat_;
+	return typeCode_ == TCKind._tk_float;
+    }
+
+    public boolean isLong() {
+	return typeCode_ == TCKind._tk_long;
+    }
+    
+    public boolean isString() {
+	return typeCode_ == TCKind._tk_string;
     }
 
     public void setString(String s) {
 	setValue(s);
+	typeCode_ = TCKind._tk_string;
     }
 
     public void setFloat(float f) {
 	setFloat(new Double(f));
     }
 
+    public void setFloat(double d) {
+	setFloat(new Double(d));
+    }
+
     public void setFloat(Double d) {
 	isFloat_ = true;
 	setValue(d);
+	typeCode_ = TCKind._tk_float;
     }
 
-    public void setInt(int i) {
-	setInt(new Double(i));
+    public void setLongLong(long l) {
+	setLongLong(new Double(l));
     }
 
-    public void setInt(Double i) {
-	isFloat_ = false;
-	setValue(i);
+    public void setLongLong(Double d) {
+	setValue(d);
+	typeCode_ = TCKind._tk_longlong;
     }
 
-    // TODO test was am schnellsten geht
-    // try catch, instanceOf, membervariable
-    public int getInt() throws DynamicTypeException {
-	int _n;
+    public void setLong(int l) {
+	setLong(new Double(l));
+    }
 
-	if (getValue() != null) {
-	    try {
-		return ((Double)getValue()).intValue();
-	    } catch (ClassCastException c) {}
-	    
-	    try {
-		return ((Boolean)getValue()).booleanValue() ? 1 : 0;
-	    } catch (ClassCastException c2) {}
-	    
-	    try {
-		String _s = (String)getValue();
-		if (_s.length() == 1) {
-		    return _s.charAt(0);
-		}
-	    } catch (ClassCastException c3) {}
+    public void setLong(Double d) {
+	setValue(d);
+	typeCode_ = TCKind._tk_long;
+    }
 
-	} else if (any_ != null) {
-	    return any_.extract_long();
-	}
-	throw new DynamicTypeException();
+    public void setDouble(Double d) {
+	setValue(d);
+	typeCode_ = TCKind._tk_double;
+    }
+
+    public void setDouble(double d) {
+	setDouble(new Double(d));
     }
 
     public String getString() throws DynamicTypeException {
@@ -141,6 +157,68 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	    throw new DynamicTypeException();
 	}
     }
+
+    public long getLongLong() throws DynamicTypeException {
+	try {
+	    return ((Double)getValue()).longValue();
+	} catch (ClassCastException e) {}
+
+	try {
+	    return ((Boolean)getValue()).booleanValue() ? 1l : 0;
+	} catch (ClassCastException e) {}
+
+	try {
+	    String _s = (String)getValue();
+	    if (_s.length() == 1) {
+		return _s.charAt(0);
+	    }
+	} catch (ClassCastException e) {}
+
+	throw new DynamicTypeException();
+    }
+
+    public int getLong() throws DynamicTypeException {
+	if (getValue() != null) {
+	    try {
+		return ((Double)getValue()).intValue();
+	    } catch (ClassCastException e) {}
+
+	    try {
+		return ((Boolean)getValue()).booleanValue() ? 1 : 0;
+	    } catch (ClassCastException e) {}
+
+	    try {
+		String _s = (String)getValue();
+		if (_s.length() == 1) {
+		    return _s.charAt(0);
+		}
+	    } catch (ClassCastException e) {}
+	    
+	} else {
+	    return any_.extract_long();
+	}
+	throw new DynamicTypeException();
+    }
+
+    public double getDouble() throws DynamicTypeException {
+	try {
+	    return ((Double)getValue()).doubleValue();
+	} catch (ClassCastException e) {}
+
+	try {
+	    return ((Boolean)getValue()).booleanValue() ? 1d : 0;
+	} catch (ClassCastException e) {}
+
+	try {
+	    String _s = (String)getValue();
+	    if (_s.length() == 1) {
+		return _s.charAt(0);
+	    }
+	} catch (ClassCastException e) {}
+
+	throw new DynamicTypeException();
+    }
+
 
     public float getFloat() throws DynamicTypeException {
 	try {
@@ -165,6 +243,7 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	try {
 	    return ((Boolean)getValue()).booleanValue();
 	} catch (ClassCastException c) {}
+
 	throw new DynamicTypeException();
     }
 
@@ -174,6 +253,7 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	} else {
 	    setValue(Boolean.FALSE);
 	}
+	typeCode_ = TCKind._tk_boolean;
     }
 
     public Any getAny() {
@@ -184,12 +264,23 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	any_ = any;
     }
 
+    static String typeCodeToName(int x) {
+	try {
+	    Field[] _fields = TCKind.class.getDeclaredFields();
+	    
+	    return _fields[x].getName();
+	} catch (Exception e) {
+	    return "unknown: " + x;
+	}
+    }
+
     public String toString() {
 	StringBuffer _buffer = new StringBuffer("{");
 
 	_buffer.append(getValue());
-
-	_buffer.append("/any=");
+	_buffer.append(";TC=");
+	_buffer.append(typeCodeToName(typeCode_));
+	_buffer.append(";any=");
 	_buffer.append(any_);
 	_buffer.append("}");
 
@@ -197,14 +288,15 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
     }
 
     public boolean equals(Object o) {
+	logger_.debug(toString() + ".equals(" + o + ")");
+
 	if (o instanceof EvaluationResult) {
 	    return (((EvaluationResult)o).getValue().equals(getValue()));
 	}
 	return super.equals(o);
     }
 
-    public int compareTo(EvaluationContext context, 
-			 EvaluationResult other) throws DynamicTypeException, 
+    public int compareTo(EvaluationResult other) throws DynamicTypeException, 
 							EvaluationException {
 
 	int _ret = Integer.MAX_VALUE;
@@ -214,6 +306,8 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	}
 
 	if (getValue() == null && any_ != null && other.getValue() instanceof String) {
+	    logger_.debug("case 1");
+
 	    try {
 		String _l = any_.type().member_name(0);
 		String _r = other.getString();
@@ -222,11 +316,10 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	    } catch (BadKind bk) {
 	    } catch (Bounds bounds) {
 	    }
-	} else if (getValue() instanceof String || other.getValue() instanceof String) {
-	    String _l = getString();
-	    String _r = other.getString();
+	} else if (isString() || other.isString()) {
 
-	    _ret = _l.compareTo(_r);
+	    _ret = getString().compareTo(other.getString());
+
 	    if (_ret < -1) {
 		_ret = -1;
 	    } else if (_ret > 1) {
@@ -245,8 +338,8 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	    }
 
 	} else {
-	    int _l = getInt();
-	    int _r = other.getInt();
+	    int _l = getLong();
+	    int _r = other.getLong();
 
 	    if (_l < _r) {
 		_ret =  -1;
@@ -268,6 +361,151 @@ public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 	return new ImmutableEvaluationResultWrapper(er);
     }
 
+    public static EvaluationResult plus(EvaluationResult left, 
+					EvaluationResult right) throws DynamicTypeException {
+
+	EvaluationResult _res = new EvaluationResult();
+
+	if (left.isDouble() ||
+
+	    right.isDouble()) {
+	    _res.setDouble(left.getDouble() + right.getDouble());
+
+	} else if (left.isFloat() ||
+		   right.isFloat()) {
+
+	    _res.setFloat(left.getDouble() + right.getDouble());
+
+	} else if (left.isLongLong() ||
+		   right.isLongLong()) {
+
+	    _res.setLongLong(left.getLongLong() + right.getLongLong());
+
+	} else if (left.isLong() ||
+		   right.isLong()) {
+
+	    _res.setLong(left.getLong() + right.getLong());
+
+	} else {
+	    throw new DynamicTypeException();
+	}
+
+	return _res;
+    }
+
+    public static EvaluationResult minus(EvaluationResult left, 
+					 EvaluationResult right) 
+	throws DynamicTypeException {
+
+	EvaluationResult _res = new EvaluationResult();
+
+	if (left.isDouble() ||
+
+	    right.isDouble()) {
+	    _res.setDouble(left.getDouble() - right.getDouble());
+
+	} else if (left.isFloat() ||
+		   right.isFloat()) {
+
+	    _res.setFloat(left.getDouble() - right.getDouble());
+
+	} else if (left.isLongLong() ||
+		   right.isLongLong()) {
+
+	    _res.setLongLong(left.getLongLong() - right.getLongLong());
+
+	} else if (left.isLong() ||
+		   right.isLong()) {
+
+	    _res.setLong(left.getLong() - right.getLong());
+
+	} else {
+	    throw new DynamicTypeException();
+	}
+
+	return _res;
+    }
+
+    static public EvaluationResult unaryMinus(EvaluationResult r) throws DynamicTypeException {
+	EvaluationResult _ret = new EvaluationResult();
+
+	if (r.isFloat()) {
+	    _ret.setFloat(- r.getFloat() );
+	} else { // (r.isFloat()) {
+	    _ret.setDouble( - r.getDouble() );
+	}
+
+	return _ret;
+
+    }
+
+    static public EvaluationResult div(EvaluationResult left,
+				       EvaluationResult right) throws DynamicTypeException {
+
+	EvaluationResult _res = new EvaluationResult();
+
+
+	if (left.isDouble() ||
+
+	    right.isDouble()) {
+	    _res.setDouble(left.getDouble() / right.getDouble());
+
+	} else if (left.isFloat() ||
+		   right.isFloat()) {
+
+	    _res.setFloat(left.getDouble() / right.getDouble());
+
+	} else if (left.isLongLong() ||
+		   right.isLongLong()) {
+
+	    _res.setLongLong(left.getLongLong() / right.getLongLong());
+
+	} else if (left.isLong() ||
+		   right.isLong()) {
+
+	    _res.setLong(left.getLong() / right.getLong());
+
+	} else {
+	    throw new DynamicTypeException();
+	}
+
+	return _res;
+
+    }
+
+    static public EvaluationResult mult(EvaluationResult left, 
+					EvaluationResult right)
+	throws DynamicTypeException {
+	
+	EvaluationResult _res = new EvaluationResult();
+
+	if (left.isDouble() ||
+
+	    right.isDouble()) {
+	    _res.setDouble(left.getDouble() * right.getDouble());
+
+	} else if (left.isFloat() ||
+		   right.isFloat()) {
+
+	    _res.setFloat(left.getDouble() * right.getDouble());
+
+	} else if (left.isLongLong() ||
+		   right.isLongLong()) {
+
+	    _res.setLongLong(left.getLongLong() * right.getLongLong());
+
+	} else if (left.isLong() ||
+		   right.isLong()) {
+
+	    _res.setLong(left.getLong() * right.getLong());
+
+	} else {
+	    throw new DynamicTypeException();
+	}
+	
+	return _res;
+    }
+
 }// EvaluationResult
 
 class ImmutableEvaluationResultWrapper extends EvaluationResult {
@@ -282,15 +520,11 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult {
 			 EvaluationResult evaluationResult) throws DynamicTypeException, 
 								   EvaluationException {
 
-	return delegate_.compareTo(evaluationContext, evaluationResult);
+	return delegate_.compareTo(evaluationResult);
     }
 
     public Object getValue() {
 	return delegate_.getValue();
-    }
-
-    public int getInt() throws DynamicTypeException {
-	return delegate_.getInt();
     }
 
     public float getFloat() throws DynamicTypeException {
@@ -309,8 +543,20 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult {
 	return delegate_.getString();
     }
 
+    public boolean isString() {
+	return delegate_.isString();
+    }
+
+    public boolean isLong() {
+	return delegate_.isLong();
+    }
+
     public boolean isFloat() {
 	return delegate_.isFloat();
+    }
+
+    public boolean isDouble() {
+	return delegate_.isDouble();
     }
 
     public boolean getBool() throws DynamicTypeException {

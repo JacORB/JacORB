@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.BaseAST;
 import antlr.Token;
@@ -56,7 +57,13 @@ public class ExistOperator extends TCLNode {
 	    break;
 	case DOLLAR:
 	    ComponentName _op = (ComponentName)left();
-	    return _event.testExists(context,_op);
+	    try {
+		_op.evaluate(context);
+		return EvaluationResult.BOOL_TRUE;
+	    } catch (EvaluationException e) {
+		return EvaluationResult.BOOL_FALSE;
+	    }
+	    //	    return _event.testExists(context,_op);
 	}
 	throw new RuntimeException();
     }

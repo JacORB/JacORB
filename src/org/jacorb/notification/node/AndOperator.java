@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.Token;
 import org.omg.CORBA.TCKind;
@@ -51,6 +52,7 @@ public class AndOperator extends TCLNode {
 	boolean _l, _r;
 
 	_l = left().evaluate(context).getBool();
+
 	if (!_l) {
 	    return EvaluationResult.BOOL_FALSE;
 	}

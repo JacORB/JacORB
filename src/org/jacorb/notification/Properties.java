@@ -1,5 +1,3 @@
-package org.jacorb.notification.engine;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,43 +19,23 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.TimerEventConsumer;
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
+package org.jacorb.notification;
 
 /**
- *
- *
- * Created: Thu Jan 30 01:31:47 2003
+ * Properties.java
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class TimerDeliverTask extends TaskBase {
+public interface Properties 
+{
 
-    private TimerEventConsumer target_;
-    
-    public void setTimedDeliverTarget(TimerEventConsumer target) {
-	target_ = target;
-    }
+    public static final String FILTER_POOL_WORKERS = "jacorb.notification.filter_pool_workers";
 
-    public void doWork() throws Disconnected, NotConnected {
-	if (target_.hasPendingEvents()) {
+    public static final String DELIVER_POOL_WORKERS = "jacorb.notification.deliver_pool_workers";
 
-	    target_.deliverPendingEvents();
-
-	    if (target_.hasPendingEvents()) {
-		setStatus(RESCHEDULE);
-	    } else {
-		setStatus(DONE);
-	    }
-	}
-    }
-
-    public void reset() {
-	super.reset();
-	target_ = null;
-    }
+    public static final String PULL_CONSUMER_POLLINTERVALL = 
+	"jacorb.notification.pull_consumer_pollintervall";
 
 }

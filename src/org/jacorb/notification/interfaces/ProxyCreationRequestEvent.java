@@ -28,12 +28,14 @@ import org.jacorb.notification.AdminBase;
  *
  * Created: Wed Feb 12 18:19:14 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ProxyCreationRequestEvent extends FrameworkEvent {
+
     public ProxyCreationRequestEvent(AdminBase admin) {
 	super(admin);
     }
+
 }

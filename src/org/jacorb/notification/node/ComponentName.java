@@ -21,19 +21,20 @@ package org.jacorb.notification.node;
  *
  */
 
-import antlr.BaseAST;
 import antlr.Token;
-import antlr.collections.AST;
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.NotificationEventUtils;
 
-/** A simple node to represent COMPONENT operation */
+/** 
+ * a simple node to represent COMPONENT Name
+ *
+ * @version $Id$
+ */
 
 public class ComponentName extends TCLNode
 {
@@ -58,21 +59,43 @@ public class ComponentName extends TCLNode
                 InvalidValue,
                 EvaluationException
     {
+	EvaluationResult _ret;
         NotificationEvent _event = context.getNotificationEvent();
 
+	TCLNode _left = (TCLNode) left();
+
+	if (_left == null) {
+	    return context.getResultExtractor().extractFromAny( _event.toAny() );
+	}
+
+	switch (_left.getType()) {
+
+	case TCLNode.RUNTIME_VAR:
+	    RuntimeVariableNode _var = ( RuntimeVariableNode ) _left;
+	    
+	    _ret = _event.extractValue( context,
+					this,
+					_var );
+	    
+	    break;
+	    
+	case TCLNode.DOT:
+	case TCLNode.ASSOC:
+	    _ret = _event.extractValue(context,
+				       this );
+
+	    break;
+	default:
+	    throw new RuntimeException("Unexpected Nodetype: " 
+				       + TCLNode.getNameForType(_left.getType()));
+	}
+
         if ( logger_.isDebugEnabled() )
         {
-            logger_.debug( "Eval: " + _event.getClass().getName() );
+            logger_.debug( "Result: " + _ret );
         }
 
-        EvaluationResult _r = _event.evaluate( context, this );
-
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "Result: " + _r.getClass().getName() );
-        }
-
-        return _r;
+        return _ret;
     }
 
     public String toString()

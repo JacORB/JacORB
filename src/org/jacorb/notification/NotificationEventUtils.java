@@ -21,37 +21,27 @@ package org.jacorb.notification;
  *
  */
 
-import java.util.Hashtable;
-import java.util.Map;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.node.ArrayOperator;
 import org.jacorb.notification.node.AssocOperator;
-import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.node.IdentValue;
 import org.jacorb.notification.node.ImplicitOperator;
 import org.jacorb.notification.node.ImplicitOperatorNode;
 import org.jacorb.notification.node.TCLNode;
 import org.jacorb.notification.node.UnionPositionOperator;
-import org.jacorb.notification.node.DomainNameShorthandNode;
-import org.jacorb.notification.node.EventNameShorthandNode;
-import org.jacorb.notification.node.TypeNameShorthandNode;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.jacorb.notification.node.NumberValue;
 import org.apache.log.Logger;
 import org.apache.log.Hierarchy;
-import org.jacorb.notification.node.DynamicTypeException;
+import org.omg.CORBA.ORB;
 
 /**
  * NotificationEventUtils.java
  *
- *
- * Created: Thu May 10 16:30:04 2001
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -63,97 +53,39 @@ public class NotificationEventUtils
     static Logger logger_ =
         Hierarchy.getDefaultHierarchy().getLoggerFor( NotificationEventUtils.class.getName() );
 
-    private static Map shortHandOperators_ = new Hashtable();
-    private static boolean error_;
-
-    static 
-    {
-	
-	TCLNode _root;
-
-	_root = new DomainNameShorthandNode();
-	shortHandOperators_.put( DomainNameShorthandNode.SHORT_NAME,
-                                     _root );
-	
-	_root = new TypeNameShorthandNode();
-	shortHandOperators_.put( TypeNameShorthandNode.SHORT_NAME,
-				 _root );
-	
-	_root = new EventNameShorthandNode();
-	shortHandOperators_.put( EventNameShorthandNode.SHORT_NAME,
-				 _root );
-
-    }
-
-    static EvaluationResult evaluateShorthand( EvaluationContext evaluationContext,
-					       Any event,
-					       ComponentName comp,
-					       IdentValue ident )
-	throws InconsistentTypeCode,
-	       TypeMismatch,
-	       EvaluationException,
-	       InvalidValue,
-	       DynamicTypeException
-    {
-        EvaluationResult _ret = null;
-        String _completePath = comp.getComponentName();
-        _ret = evaluationContext.lookupResult( _completePath );
-
-        if ( _ret == null )
-        {
-            ComponentName _expandedOperator =
-                ( ComponentName ) shortHandOperators_.get( ident.getIdentifier() );
-
-	    _ret = _expandedOperator.evaluate( evaluationContext );
-
-            evaluationContext.storeResult( _completePath, _ret );
-        }
-
-        return _ret;
-    }
-
-    static EvaluationResult evaluateComponent( EvaluationContext evaluationContext,
-					       Any event,
-					       ComponentName comp )
+    public static EvaluationResult extractFromAny(TCLNode operator,
+						  Any event, 
+						  EvaluationContext evaluationContext,
+						  String rootName) 	
 	throws InconsistentTypeCode,
 	       TypeMismatch,
 	       EvaluationException,
 	       InvalidValue
     {
-        EvaluationResult _ret = null;
-        String _completePath = comp.getComponentName();
 
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "evaluate Component: " + comp.toStringTree() );
-            logger_.debug( "complete path is: " + _completePath );
-        }
+	logger_.debug("rootname: " + rootName);
+	logger_.debug("value " + event);
 
-        _ret = evaluationContext.lookupResult( _completePath );
+	EvaluationResult _ret = null;
+	Any _result = null;
+	TCLNode _operator = operator;
+	Any _valueCursor = event;
 
-        if ( _ret == null )
-        {
-            Any _result = null;
-            TCLNode _operator = ( TCLNode ) comp.left();
-            Any _valueCursor = event;
-
-            StringBuffer _path = new StringBuffer(comp.toString());
-	    _path.append(_operator.toString());
-
-            while ( _operator.hasNextSibling() )
-            {
-                _operator = ( TCLNode ) _operator.getNextSibling();
-
+	StringBuffer _path = new StringBuffer(rootName);
+	
+	while ( _operator!= null)
+            {				
                 _path.append(_operator.toString());
-
+		
                 if ( logger_.isDebugEnabled() )
-                {
-                    logger_.debug( "current path: " + _path.toString() );
-                    logger_.debug( "next operator is:" + _operator.toString() );
-                }
-
+		    {
+			logger_.debug( "current path: " + _path.toString() );
+			logger_.debug( "current operator is: " + _operator.toString() );
+			logger_.debug( "current cursor: " + _valueCursor);
+		    }
+		
                 _result = evaluationContext.lookupAny( _path.toString() );
-
+		
                 if ( _result == null )
                 {
                     switch ( _operator.getType() )
@@ -196,7 +128,7 @@ public class NotificationEventUtils
                         break;
 
                     case TCLNode.NUMBER:
-                        logger_.debug( "evaluateByPosition()" );
+                        logger_.debug( "eval by position" );
 
 			int _pos = ((NumberValue) _operator).getNumber().intValue();
 
@@ -208,22 +140,15 @@ public class NotificationEventUtils
                         break;
 
                     case TCLNode.IMPLICIT:
-                        logger_.debug( "evaluate implicit operator" );
                         ImplicitOperator _op = ( ( ImplicitOperatorNode ) _operator ).getOperator();
 
                         if ( logger_.isDebugEnabled() )
                         {
-                            logger_.debug( "Operator is " + _op );
-                            logger_.debug( "Cursor: " + _valueCursor );
-                            logger_.debug( "DynamicEvaluator: " 
-					   + evaluationContext.getDynamicEvaluator() );
+                            logger_.debug( "Implicit Operator: " + _op );
+                            logger_.debug( "Cursor => " + _valueCursor );
                         }
 
-                        _result = 
-			    NotificationEventUtils.
-			    evaluateImplicit( evaluationContext.getDynamicEvaluator(),
-					      _op,
-					      _valueCursor );
+                        _result = _op.evaluateImplicit(evaluationContext, _valueCursor);
 
                         _ret = evaluationContext.getResultExtractor().extractFromAny( _result );
 
@@ -255,8 +180,8 @@ public class NotificationEventUtils
                         break;
 
                     default:
-
-                        throw new RuntimeException("unknown operator");
+                        throw new RuntimeException("unknown operator: " 
+						   + TCLNode.getNameForType(_operator.getType()));
                     }
                 }
                 else
@@ -269,6 +194,7 @@ public class NotificationEventUtils
                     evaluationContext.storeAny( _path.toString(), _result );
                     _valueCursor = _result;
                 }
+		_operator = (TCLNode)_operator.getNextSibling();
             }
 
             // Create the EvaluationResult
@@ -279,62 +205,8 @@ public class NotificationEventUtils
                 logger_.debug( "extracted: " + _ret );
             }
 
-            // Cache the EvaluationResult
-            if ( _ret != null )
-            {
-
-                if ( logger_.isDebugEnabled() )
-                {
-                    logger_.debug( "Cache Result: " + _completePath + " => " + _ret );
-                }
-
-                evaluationContext.storeResult( _completePath, _ret );
-            }
-        }
-        else
-        {
-            logger_.debug( "Result Cache HIT" );
-        }
-
-        return _ret;
-    }
-
-    static Any evaluateImplicit( DynamicEvaluator evaluator,
-				 ImplicitOperator op,
-				 Any value ) throws EvaluationException
-    {
-
-        try
-        {
-            if ( op == ImplicitOperatorNode.OPERATOR_DISCRIM )
-            {
-                return evaluator.evaluateDiscriminator( value );
-            }
-            else if ( op == ImplicitOperatorNode.OPERATOR_TYPE_ID )
-            {
-                return evaluator.evaluateTypeName( value );
-            }
-            else if ( op == ImplicitOperatorNode.OPERATOR_REPO_ID )
-            {
-                return evaluator.evaluateRepositoryId( value );
-            }
-            else if ( op == ImplicitOperatorNode.OPERATOR_LENGTH )
-            {
-                return evaluator.evaluateListLength( value );
-            }
-            else
-            {
-                throw getException();
-            }
-        }
-        catch ( BadKind bk )
-        {
-            throw getException( bk );
-        }
-        catch ( InconsistentTypeCode itc )
-        {
-            throw getException( itc );
-        }
+	    
+	    return _ret;
     }
 
     public static EvaluationException getException( Exception e )
@@ -348,4 +220,4 @@ public class NotificationEventUtils
         return new EvaluationException();
     }
 
-} // NotificationEventUtils
+}

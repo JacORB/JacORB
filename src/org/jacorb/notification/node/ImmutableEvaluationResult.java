@@ -27,7 +27,7 @@ package org.jacorb.notification.node;
  *
  * Created: Thu Jan 02 15:48:45 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 

@@ -54,6 +54,7 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.apache.log.Logger;
 import org.apache.log.Hierarchy;
+import EDU.oswego.cs.dl.util.concurrent.Sync;
 
 /**
  * FilterImpl.java
@@ -153,8 +154,6 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected ReadWriteLock constraintsLock_;
 
-    protected Map eventTypeMap_;
-
     private String constraintGrammar_;
 
     protected int constraintIdPool_ = 0;
@@ -172,13 +171,14 @@ public class FilterImpl extends FilterPOA implements Disposable
     protected NotificationEventFactory notificationEventFactory_;
 
     public FilterImpl( String constraintGrammar,
-                ApplicationContext applicationContext )
+		       ApplicationContext applicationContext )
     {
         super();
 
+        constraintGrammar_ = constraintGrammar;
+
         applicationContext_ = applicationContext;
         orb_ = applicationContext.getOrb();
-        constraintGrammar_ = constraintGrammar;
 
         notificationEventFactory_ =
             applicationContext.getNotificationEventFactory();
@@ -190,7 +190,6 @@ public class FilterImpl extends FilterPOA implements Disposable
         constraints_ = new Hashtable();
         constraintsLock_ = new WriterPreferenceReadWriteLock();
         wildcardMap_ = new CachingWildcardMap(4);
-        eventTypeMap_ = new Hashtable();
     }
 
     public void init()
@@ -462,10 +461,10 @@ public class FilterImpl extends FilterPOA implements Disposable
 	throws ConstraintNotFound
     {
         ConstraintInfo[] _constraintInfo = new ConstraintInfo[ ids.length ];
-
+	Sync _lock = constraintsLock_.readLock();
         try
         {
-            constraintsLock_.readLock().acquire();
+            _lock.acquire();
 
             try
             {
@@ -488,7 +487,7 @@ public class FilterImpl extends FilterPOA implements Disposable
             }
             finally
             {
-                constraintsLock_.readLock().release();
+                _lock.release();
             }
         }
         catch ( InterruptedException ie )
@@ -574,6 +573,7 @@ public class FilterImpl extends FilterPOA implements Disposable
     public Iterator getIterator( Object key )
     {
         Object[] _entries = wildcardMap_.getWithExpansion( key );
+
         return new ConstraintIterator( _entries );
     }
 
@@ -587,7 +587,7 @@ public class FilterImpl extends FilterPOA implements Disposable
         Object[] arrayOfLists_;
         Iterator current_;
         int listCursor = 0;
-        int arrayCursor_ = 0;
+        int currentListIdx_ = 0;
 
         ConstraintIterator( Object[] arrayOfLists )
         {
@@ -601,7 +601,7 @@ public class FilterImpl extends FilterPOA implements Disposable
                 }
             }
 
-            current_ = ( ( List ) arrayOfLists_[ arrayCursor_ ] ).iterator();
+            current_ = ( ( List ) arrayOfLists_[ currentListIdx_ ] ).iterator();
         }
 
         public boolean hasNext()
@@ -613,9 +613,9 @@ public class FilterImpl extends FilterPOA implements Disposable
         {
             Object _ret = current_.next();
 
-            if ( !current_.hasNext() && arrayCursor_ < arrayOfLists_.length - 1 )
+            if ( !current_.hasNext() && currentListIdx_ < arrayOfLists_.length - 1 )
             {
-                current_ = ( ( List ) arrayOfLists_[ ++arrayCursor_ ] ).iterator();
+                current_ = ( ( List ) arrayOfLists_[ ++currentListIdx_ ] ).iterator();
             }
 
             return _ret;

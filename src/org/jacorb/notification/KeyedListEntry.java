@@ -31,34 +31,42 @@ package org.jacorb.notification;
  * @version $Id$
  */
 
-public class KeyedListEntry {
+public class KeyedListEntry
+{
 
     private int key_;
 
-    int getKey() {
-	return key_;
+    int getKey()
+    {
+        return key_;
     }
 
     private Object value_;
 
-    public Object getValue() {
-	return value_;
+    public Object getValue()
+    {
+        return value_;
     }
 
-    public KeyedListEntry(int key, Object value) {
-	value_ = value;
-	key_ = key;
-    }
-    
-    public boolean equals(Object o) {
-	if (o instanceof KeyedListEntry) {
-	    return ((KeyedListEntry)o).getKey() == key_;
-	}
-	return false;
+    public KeyedListEntry( int key, Object value )
+    {
+        value_ = value;
+        key_ = key;
     }
 
-    public int hashCode() {
-	return key_;
+    public boolean equals( Object o )
+    {
+        if ( o instanceof KeyedListEntry )
+        {
+            return ( ( KeyedListEntry ) o ).getKey() == key_;
+        }
+
+        return false;
     }
 
-}// KeyedListEntry
+    public int hashCode()
+    {
+        return key_;
+    }
+
+}

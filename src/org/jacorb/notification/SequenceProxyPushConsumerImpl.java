@@ -42,7 +42,7 @@ import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerPOATie;
  *
  * Created: Sat Jan 11 17:06:27 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 

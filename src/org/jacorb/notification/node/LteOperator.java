@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.BaseAST;
 import antlr.Token;
@@ -49,7 +50,7 @@ public class LteOperator extends TCLNode {
 	_left = left().evaluate(context);
 	_right = right().evaluate(context);
 
-	int _comp = _left.compareTo(context, _right);
+	int _comp = _left.compareTo( _right);
 
 	if (_comp == 1 ) {
 	    return EvaluationResult.BOOL_FALSE;
@@ -67,12 +68,20 @@ public class LteOperator extends TCLNode {
     }
 
     public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-
+	left().acceptInOrder(visitor);
+	visitor.visitLte(this);
+	right().acceptInOrder(visitor);
     }
 
     public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
+	left().acceptPostOrder(visitor);
+	right().acceptPostOrder(visitor);
+	visitor.visitLte(this);
     }
 
     public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
+	visitor.visitLte(this);
+	left().acceptPreOrder(visitor);
+	right().acceptPreOrder(visitor);
     }
 }

@@ -28,7 +28,6 @@ import org.omg.CosNotification.StructuredEventHelper;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.TCLNode;
-import org.jacorb.notification.node.IdentValue;
 import org.jacorb.notification.node.DotOperator;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
@@ -36,6 +35,7 @@ import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.jacorb.notification.node.DynamicTypeException;
+import org.jacorb.notification.node.RuntimeVariableNode;
 
 /**
  * Adapt a StructuredEvent to the NotificationEvent Interface.
@@ -44,118 +44,94 @@ import org.jacorb.notification.node.DynamicTypeException;
  * @version $Id$
  */
 
-class NotificationStructuredEvent extends NotificationEvent {
+class NotificationStructuredEvent extends NotificationEvent
+{
 
     private Any anyValue_;
     private StructuredEvent structuredEventValue_;
+    private String constraintKey_;
 
-    NotificationStructuredEvent(ApplicationContext appContext) {
-	super(appContext);
-	anyValue_ = applicationContext_.getOrb().create_any();
+    NotificationStructuredEvent( ApplicationContext appContext )
+    {
+        super( appContext );
     }
 
-    public void setStructuredEventValue(StructuredEvent event) {
-	structuredEventValue_ = event;
-	StructuredEventHelper.insert(anyValue_, structuredEventValue_);
+    public void setStructuredEventValue( StructuredEvent event )
+    {
+        structuredEventValue_ = event;
+
+        constraintKey_ = 
+	    FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
+					   structuredEventValue_.header.fixed_header.event_type.type_name );
     }
 
-    public void reset() {
-	super.reset();
-	anyValue_ = applicationContext_.getOrb().create_any();;
-	structuredEventValue_ = null;
+    public void reset()
+    {
+        super.reset();
+	anyValue_ = null;
+        structuredEventValue_ = null;
+        constraintKey_ = null;
     }
 
-    public EventTypeIdentifier getEventTypeIdentifier() {
-	return null;
+    public int getType()
+    {
+        return TYPE_STRUCTURED;
     }
 
-    public int getType() {
-	return TYPE_STRUCTURED;
-    }
-
-    public Any toAny() {
-	return anyValue_;
-    }
-
-    public StructuredEvent toStructuredEvent() {
-	return structuredEventValue_;
-    }
-
-    public EvaluationResult evaluate(EvaluationContext evaluationContext,
-				     ComponentName op) throws EvaluationException {
-	try {
-	    TCLNode _left = (TCLNode)op.left();
-	    EvaluationResult _ret = null;
-
-	    switch(_left.getType()) {
-	    case TCLNode.IDENTIFIER:
-		IdentValue _iv = (IdentValue)_left;
-		
-		_ret = 
-		    NotificationEventUtils.evaluateShorthand(evaluationContext, 
-							     anyValue_, 
-							     op, 
-							     _iv);
-
-		break;
-	    case TCLNode.DOT:
-		DotOperator _dot = (DotOperator)_left;
-		_ret = NotificationEventUtils.evaluateComponent(evaluationContext, 
-								anyValue_, 
-								op);
-		break;
-	    default:
-		throw new RuntimeException("Unexpected Node: " + _left.getClass().getName());
+    public Any toAny()
+    {
+	if (anyValue_ == null) {
+	    synchronized(this) {
+		if (anyValue_ == null) {
+		    anyValue_ = applicationContext_.getOrb().create_any();
+		    StructuredEventHelper.insert( anyValue_, structuredEventValue_ );
+		}
 	    }
-	    return _ret;
-	} catch (TypeMismatch tm) {
-	    reThrowException(tm);
-	} catch (InconsistentTypeCode itc) {
-	    reThrowException(itc);
-	} catch (InvalidValue iv) {
-	    reThrowException(iv);
-	} catch (DynamicTypeException d) {
-	    reThrowException(d);
 	}
-	return null;
+        return anyValue_;
     }
 
-    public EvaluationResult testExists(EvaluationContext evaluationContext,
-				       ComponentName op) {
+    public StructuredEvent toStructuredEvent()
+    {
+        return structuredEventValue_;
+    }
+
+
+    public String getConstraintKey()
+    {
+        return constraintKey_;
+    }
+
+    public EvaluationResult extractFilterableData(EvaluationContext context,
+						  ComponentName root,
+						  String v) throws EvaluationException {
 	try {
-	    evaluate(evaluationContext, op);
-	    return EvaluationResult.BOOL_TRUE;
-	} catch (EvaluationException e) {
-	    return EvaluationResult.BOOL_FALSE;
+	    Any _a =
+		context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.filterable_data, v);
+	    return context.getResultExtractor().extractFromAny(_a);
+
+	} catch (InconsistentTypeCode e) {
+	} catch (TypeMismatch e) {
+	} catch (InvalidValue e) {
 	}
+	throw new EvaluationException();
+	
     }
 
-    public String getConstraintKey() {
-	return FilterUtils.calcConstraintKey(structuredEventValue_.header.fixed_header.event_type.domain_name,
-					     structuredEventValue_.header.fixed_header.event_type.type_name);
-    }
-    
-    public EvaluationResult hasDefault(EvaluationContext evaluationContext,
-				       ComponentName op) 
-	throws EvaluationException {
-
+    public EvaluationResult extractVariableHeader(EvaluationContext context,
+						  ComponentName root,
+						  String v) throws EvaluationException {
+	
 	try {
-	    EvaluationResult _er = evaluate(evaluationContext, op);
-	    Any _any = _er.getAny();
+	    Any _a = 
+		context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.header.variable_header, v);
 	    
-	    if (evaluationContext.getDynamicEvaluator().hasDefaultDiscriminator(_any)) {
-		return EvaluationResult.BOOL_TRUE;
-	    } else {
-		return EvaluationResult.BOOL_FALSE;
-	    }
-	} catch (BadKind bk) {
-	    throw NotificationEventUtils.getException(bk);
+		return context.getResultExtractor().extractFromAny(_a);
+	} catch (InconsistentTypeCode e) {
+	} catch (TypeMismatch e) {
+	} catch (InvalidValue e) {
 	}
+	throw new EvaluationException();
     }
 
-    static void reThrowException(Exception e) throws EvaluationException {
-	logger_.error("rethrow Exception:" , e);
-
-	throw new EvaluationException(e.getMessage());
-    }
 }

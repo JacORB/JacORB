@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,20 +20,19 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
-import antlr.BaseAST;
-import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
-import org.omg.CORBA.TCKind;
 import org.jacorb.notification.EvaluationContext;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.jacorb.notification.evaluate.EvaluationException;
+import antlr.Token;
 
-/** A simple node to represent MULT operation */
+/** 
+ * A simple node to represent MULT operation 
+ * @version $Id$
+ */
+
 public class MultOperator extends TCLNode {
 
     public MultOperator(Token tok) {
@@ -49,27 +50,8 @@ public class MultOperator extends TCLNode {
 	       InconsistentTypeCode,
 	       EvaluationException {
 
-	EvaluationResult _ret = new EvaluationResult();
-
-	EvaluationResult _left, _right;
-
-	_left = left().evaluate(context);
-	_right = right().evaluate(context);
-
-	if (_left.isFloat() ||
-	    _right.isFloat()) {
-
-	    float _l, _r;
-	    _l = _left.getFloat();
-	    _r = _right.getFloat();
-	    _ret.setFloat(_l * _r);
-	} else {
-	    int _l, _r;
-	    _l = _left.getInt();
-	    _r = _right.getInt();
-	    _ret.setInt(_l * _r);
-	}
-	return _ret;
+	return EvaluationResult.mult(left().evaluate(context),
+				     right().evaluate(context));
     }
 
     public String getName() {

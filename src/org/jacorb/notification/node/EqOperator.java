@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,13 +20,8 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
-import antlr.BaseAST;
 import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
-import org.omg.CORBA.TCKind;
 import org.jacorb.notification.EvaluationContext;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
@@ -45,16 +42,13 @@ public class EqOperator extends TCLNode {
 	       InconsistentTypeCode,
 	       EvaluationException {
 
-	logger_.debug("evaluate");
-	logger_.debug("left: " + left().getClass().getName());
-	logger_.debug("right: " + right());
-
 	EvaluationResult _left = left().evaluate(context);
 	EvaluationResult _right = right().evaluate(context);
 
-	if (_left.compareTo(context, _right) == 0) {
+	if (_left.compareTo( _right) == 0) {
 	    return EvaluationResult.BOOL_TRUE;
 	}
+
 	return EvaluationResult.BOOL_FALSE;
     }
 

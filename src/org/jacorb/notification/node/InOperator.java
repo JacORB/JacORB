@@ -21,10 +21,7 @@ package org.jacorb.notification.node;
  *
  */
 
-import antlr.BaseAST;
 import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;

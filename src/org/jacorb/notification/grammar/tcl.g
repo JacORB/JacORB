@@ -61,6 +61,8 @@ tokens {
     REPO_ID     <AST=org.jacorb.notification.node.ImplicitOperatorNode>;
 
     DEFAULT     <AST=org.jacorb.notification.node.DefaultOperator>;
+
+    RUNTIME_VAR;
 }
 
 {
@@ -178,7 +180,7 @@ component
     | DOT compDot
     | compArray
     | compAssoc
-    | IDENTIFIER compExt
+    | IDENTIFIER<AST=org.jacorb.notification.node.RuntimeVariableNode>{#IDENTIFIER.setType(RUNTIME_VAR);} compExt
     ;
 
 compExt

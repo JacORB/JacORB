@@ -26,7 +26,7 @@ package org.jacorb.notification.interfaces;
  *
  * Created: Sat Nov 30 19:05:03 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 

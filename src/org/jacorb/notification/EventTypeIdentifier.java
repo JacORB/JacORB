@@ -33,4 +33,4 @@ package org.jacorb.notification;
 
 interface EventTypeIdentifier {
     
-}// EventTypeIdentifier
+}

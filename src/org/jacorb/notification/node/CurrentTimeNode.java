@@ -21,21 +21,54 @@ package org.jacorb.notification.node;
  *
  */
 
-import org.omg.CORBA.Any;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.util.Time;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.TimeBase.UtcT;
+import org.omg.TimeBase.UtcTHelper;
 
 /**
- * Operator.java
+ * CurrentTimeNode.java
  *
  *
- * Created: Thu Oct 24 11:31:29 2002
+ * Created: Tue Apr 29 11:55:47 2003
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface ImplicitOperator {
-    Any evaluateImplicit(EvaluationContext context, Any value) throws EvaluationException;
-}
+public class CurrentTimeNode extends ComponentName {
+    
+    public static final String SHORT_NAME = "curtime";
+    static final String COMP_NAME = "$curtime";
+
+    ORB orb_;
+
+    public CurrentTimeNode(ORB orb) {
+	orb_ = orb;
+    }
+    
+    public EvaluationResult evaluate( EvaluationContext context )
+	throws DynamicTypeException,
+	       EvaluationException {
+
+	EvaluationResult _result = new EvaluationResult();
+	
+	UtcT _curtime = Time.corbaTime();
+
+	Any _curAny = orb_.create_any();
+
+	UtcTHelper.insert(_curAny, _curtime);
+
+	_result.addAny(_curAny);
+
+	return _result;
+    }
+
+    public String toString() {
+	return COMP_NAME;
+    }
+
+} // CurrentTimeNode

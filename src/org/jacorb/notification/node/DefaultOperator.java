@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,21 +20,16 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
-import antlr.BaseAST;
 import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
+import org.jacorb.notification.NotificationEvent;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TypeCodePackage.BadKind;
-import org.jacorb.notification.NotificationEvent;
 
 /** A simple node to represent DEFAULT operation */
 public class DefaultOperator extends TCLNode {
@@ -55,10 +52,16 @@ public class DefaultOperator extends TCLNode {
 	
 	NotificationEvent _event = context.getNotificationEvent();
 
-	EvaluationResult _r = 
-	    _event.hasDefault(context,(ComponentName)left());
-
-	return _r;
+	EvaluationResult _r = left().evaluate(context);
+	Any _a = _r.getAny();
+	try {
+	    if (context.getDynamicEvaluator().hasDefaultDiscriminator( _a )) {
+		return EvaluationResult.BOOL_TRUE;
+	    } 
+	} catch (BadKind e) {
+	    throw new EvaluationException();
+	}
+	return EvaluationResult.BOOL_FALSE;
     }
 
     public void acceptInOrder(TCLVisitor visitor) throws VisitorException {

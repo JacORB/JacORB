@@ -29,7 +29,7 @@ import org.jacorb.notification.ProxyBase;
  *
  * Created: Wed Feb 12 15:12:52 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -39,4 +39,4 @@ public class ProxyDisposedEvent extends FrameworkEvent {
 	super(proxy);
     }
     
-}// ProxyDisposedEvent
+}

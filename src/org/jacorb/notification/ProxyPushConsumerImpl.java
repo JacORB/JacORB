@@ -116,6 +116,8 @@ public class ProxyPushConsumerImpl
      */
     public void push( Any event ) throws Disconnected
     {
+	//	logger_.debug("push(Any)");
+
         if ( !connected )
         {
             throw new Disconnected();
@@ -124,7 +126,11 @@ public class ProxyPushConsumerImpl
         NotificationEvent _notifyEvent =
             notificationEventFactory_.newEvent( event, this );
 
+	//logger_.debug("createdEvent");
+
         channelContext_.dispatchEvent( _notifyEvent );
+
+	//logger_.debug("dispatchedEvent");
     }
 
     public void connect_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )

@@ -21,12 +21,8 @@ package org.jacorb.notification.node;
  *
  */
 
-import org.jacorb.notification.node.TCLNode;
-import org.jacorb.notification.evaluate.FilterConstraint;
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.NotificationEvent;
-import antlr.Token;
-import org.jacorb.notification.node.DynamicTypeException;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.jacorb.notification.evaluate.EvaluationException;
@@ -42,71 +38,82 @@ import org.jacorb.notification.parser.TCLParser;
  * @version $Id$
  */
 
-public class TypeNameShorthandNode extends ComponentName {
+public class TypeNameShorthandNode extends ComponentName
+{
 
     static TCLNode expandedPath_;
     static final String COMP_NAME = "$.header.fixed_header.event_type.type_name";
     public static final String SHORT_NAME = "type_name";
 
     static {
-	try {
-	    expandedPath_ = TCLParser.parse( COMP_NAME );
-	    expandedPath_.acceptInOrder( new TCLCleanUp() );
-	} catch (Exception e) {
-
-	}
+        try
+        {
+            expandedPath_ = TCLParser.parse( COMP_NAME );
+            expandedPath_.acceptInOrder( new TCLCleanUp() );
+        }
+        catch ( Exception e )
+        {
+        }
     }
 
-    public TypeNameShorthandNode() {
-	setName("TypeNameShorthandNode");
-    } 
-
-    public String getComponentName() {
-	return COMP_NAME;
-    }
-    
-    public void acceptInOrder(TCLVisitor v) {
-
+    public TypeNameShorthandNode()
+    {
+        setName( "TypeNameShorthandNode" );
     }
 
-    public void acceptPostOrder(TCLVisitor v) {
-
+    public String getComponentName()
+    {
+        return COMP_NAME;
     }
 
-    public void acceptPreOrder(TCLVisitor v) {
-
+    public void acceptInOrder( TCLVisitor v )
+    {
     }
 
-    public EvaluationResult evaluate( EvaluationContext context ) 
-
-	throws DynamicTypeException, 
-	       TypeMismatch, 
-	       InvalidValue, 
-	       InconsistentTypeCode, 
-	       EvaluationException {
-
-	logger_.debug("evaluate");
-
-	NotificationEvent _event = context.getNotificationEvent();
-	EvaluationResult _result = new EvaluationResult();
-
-	switch (_event.getType()) {
-	case NotificationEvent.TYPE_ANY:
-	    _result = expandedPath_.evaluate(context);
-	    break;
-	case NotificationEvent.TYPE_STRUCTURED:
-	    String _domainName = _event.toStructuredEvent().header.fixed_header.event_type.type_name;
-	    _result.setString(_domainName);
-	    break;
-	default:
-	    throw new RuntimeException();
-	}
-
-	return _result;
+    public void acceptPostOrder( TCLVisitor v )
+    {
     }
 
-    public String toString() {
-	return COMP_NAME;
+    public void acceptPreOrder( TCLVisitor v )
+    {
     }
 
-} 
+    public EvaluationResult evaluate( EvaluationContext context )
+
+	throws DynamicTypeException,
+	       TypeMismatch,
+	       InvalidValue,
+	       InconsistentTypeCode,
+	       EvaluationException
+    {
+        NotificationEvent _event = context.getNotificationEvent();
+        EvaluationResult _result;
+
+        switch ( _event.getType() )
+        {
+
+        case NotificationEvent.TYPE_ANY:
+            _result = expandedPath_.evaluate( context );
+            break;
+
+        case NotificationEvent.TYPE_STRUCTURED:
+            String _domainName = 
+		_event.toStructuredEvent().header.fixed_header.event_type.type_name;
+
+	    _result = new EvaluationResult();
+            _result.setString( _domainName );
+            break;
+
+        default:
+            throw new RuntimeException();
+        }
+
+        return _result;
+    }
+
+    public String toString()
+    {
+        return COMP_NAME;
+    }
+
+}
