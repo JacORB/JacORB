@@ -628,22 +628,21 @@ public class CDROutputStream
     {
         check( 1 );
 
-        if( codeSet == CodeSet.ISO8859_1 )
-        {
-            if( (c & 0xFF00) != 0 )//Are there any 1s in the MSB?
-            {
-                throw new org.omg.CORBA.MARSHAL("char (" + c + 
-                                                ") out of range for ISO8859_1");
-            }
+        int too_large_mask = 
+            (codeSet == CodeSet.ISO8859_1)? 
+            0xFF00 : //ISO8859-1
+            0xFF80; //UTF-8
 
-            index++; 
-            buffer[ pos++ ] = (byte) c;
-        }
-        else
+        if( (c & too_large_mask) != 0 )//Are there any 1s in the MSB?
         {
-            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
-                                             CodeSet.csName( codeSet ) );
+            throw new org.omg.CORBA.MARSHAL(
+                "char (" + c + 
+                ") out of range for " +
+                CodeSet.csName( codeSet) );
         }
+
+        index++; 
+        buffer[ pos++ ] = (byte) c;
     }
 
     public final void write_char_array
@@ -653,24 +652,26 @@ public class CDROutputStream
             throw new org.omg.CORBA.MARSHAL( "Null References" );
 
         check( length );
-        
-        if( codeSet != CodeSet.ISO8859_1 )
-        {
-            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
-                                             CodeSet.csName( codeSet ) );
-        }
 
+        int too_large_mask = 
+            (codeSet == CodeSet.ISO8859_1)? 
+            0xFF00 : //ISO8859-1
+            0xFF80; //UTF-8
+
+        
         for( int i = offset; i < offset+length; i++) 
         {
-            if( ( value[i] & 0xFF00 ) != 0 )//Are there any 1s in the MSB?
+            if( (value[i] & too_large_mask) != 0 )
             {
-                throw new org.omg.CORBA.MARSHAL("char (" + value[i] + 
-                                                ") out of range for ISO8859_1");
+                throw new org.omg.CORBA.MARSHAL(
+                    "char (" + value[i] + 
+                    ") out of range for " + 
+                    CodeSet.csName( codeSet ));
             }
-
+                
             buffer[ pos++ ] = (byte) value[i];
         }
-
+        
         index += length; 
     }         
         
@@ -680,13 +681,6 @@ public class CDROutputStream
         {
             throw new org.omg.CORBA.MARSHAL("Null References");
         }
-
-        if( codeSet != CodeSet.ISO8859_1 )
-        {
-            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
-                                             CodeSet.csName( codeSet ) );
-            
-        }
         
         // size indicator ulong + length in chars( i.e. bytes for type char)
         // incl. terminating NUL char
@@ -695,16 +689,24 @@ public class CDROutputStream
             
         _write4int( buffer, pos, size - 4 ); // write length indicator        
         pos += 4;
+
+        int too_large_mask = 
+            (codeSet == CodeSet.ISO8859_1)? 
+            0xFF00 : //ISO8859-1
+            0xFF80; //UTF-8
         
         char ch;
         for (int i = 0; i < s.length (); i++)
         {
             ch = s.charAt (i);
-            if ((ch & 0xFF00) != 0)
+            if ((ch & too_large_mask) != 0)
             {
-                throw new org.omg.CORBA.MARSHAL
-                    ("char (" + buffer[ pos-1 ] + ") out of range for ISO8859_1");
+                throw new org.omg.CORBA.MARSHAL(
+                    "char (" + buffer[ pos-1 ] + 
+                    ") out of range for " + 
+                    CodeSet.csName( codeSet ) );
             }
+
             buffer[pos++] = (byte) ch;
         }
                 
