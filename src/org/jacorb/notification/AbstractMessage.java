@@ -379,7 +379,7 @@ public abstract class AbstractMessage extends AbstractPoolable
      * internal Refcounter is zero the NotificationEvent is returned
      * to its pool.
      */
-    private synchronized void removeReference()
+    protected synchronized void removeReference()
     {
         if ( referenced_ > 0 )
         {
