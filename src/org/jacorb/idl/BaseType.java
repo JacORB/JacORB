@@ -52,9 +52,13 @@ class BaseType
 	return type_spec.basic();
     }
 
-    public boolean isSwitchType()
+    public boolean isSwitchType ()
     {
-	return ( type_spec instanceof SwitchTypeSpec );
+	return
+        (
+            type_spec instanceof SwitchTypeSpec &&
+            ((SwitchTypeSpec)type_spec).isSwitchable ()
+        );
     }
 
     public void parse()         

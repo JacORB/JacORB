@@ -21,31 +21,14 @@
 package org.jacorb.idl;
 
 /**
- * empty marker interface
+ * Marker interface for classes that may be valid union
+ * discriminator types. The isSwitchable operation returns
+ * whether the derived type is valid as a discriminator.
+ *
  * @author Gerald Brose
  */
 
-
 interface SwitchTypeSpec
 {
+   public boolean isSwitchable ();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

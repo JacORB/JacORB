@@ -47,10 +47,14 @@ public class TypeSpec
 	return ts;
     }
 
-
     public String typeName()
     {
 	return type_spec.typeName();
+    }
+
+    public String idlTypeName ()
+    {
+       return typeName ();
     }
 
     public String signature()

@@ -407,23 +407,8 @@ class EnumType
         return typeName();
     }
 
+    public boolean isSwitchable ()
+    {
+       return true;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

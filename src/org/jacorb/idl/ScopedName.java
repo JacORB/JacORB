@@ -692,18 +692,10 @@ class ScopedName
         return (recursionStack.search( typeName ) != -1);
     }
 
-
+    public boolean isSwitchable ()
+    {
+        TypeSpec t = resolvedTypeSpec ();
+        return ((t instanceof SwitchTypeSpec) &&
+                ((SwitchTypeSpec)t).isSwitchable ());
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -25,7 +25,6 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-
 class CharType 
     extends BaseType 
     implements SwitchTypeSpec 
@@ -58,6 +57,11 @@ class CharType
     public String typeName()
     {
 	return "char";
+    }
+
+    public String idlTypeName ()
+    {
+        return (wide ? "wchar" : "char");
     }
 
     public TypeSpec typeSpec()
@@ -125,5 +129,11 @@ class CharType
         else
             return "extract_char";
     }
-}
 
+    public boolean isSwitchable ()
+    {
+       // wchar is not a valid union discriminator type
+
+       return !wide;
+    }
+}

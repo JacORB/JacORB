@@ -170,62 +170,72 @@ class UnionType
 	return false;
     } 
 
-    public void parse() 
+    public void parse () 
     {
-        escapeName();
+        escapeName ();
 
-	try
-	{
-	    ScopedName.definePseudoScope( full_name());
-	    ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
-	    ctspec.c_type_spec = this;
-	    NameTable.define( full_name(), "type-union" );
-	    TypeMap.typedef( full_name(), ctspec );
-	    
-	    // check that a scoped name as switch type refers to 
-	    // a legal switch type 
+        try
+        {
+            ScopedName.definePseudoScope (full_name ());
+            ConstrTypeSpec ctspec = new ConstrTypeSpec (new_num ());
+            ctspec.c_type_spec = this;
+            NameTable.define (full_name (), "type-union");
+            TypeMap.typedef (full_name (), ctspec);
+    
+            // Resolve scoped names and aliases
 
-	    if( switch_type_spec.type_spec instanceof ScopedName )
-	    {
-		TypeSpec ts =
-                    ((ScopedName)switch_type_spec.type_spec).resolvedTypeSpec();
+            TypeSpec ts;
+            if (switch_type_spec.type_spec instanceof ScopedName)
+            {
+                ts = ((ScopedName)switch_type_spec.type_spec).resolvedTypeSpec ();
 
-		while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
-		{
-		    if( ts instanceof ScopedName )
-			ts = ((ScopedName)ts).resolvedTypeSpec();
-		    if( ts instanceof AliasTypeSpec )	   
-			ts = ((AliasTypeSpec)ts).originalType();
-		}
+                while (ts instanceof ScopedName || ts instanceof AliasTypeSpec)
+                {
+                   if (ts instanceof ScopedName)
+                   {
+                       ts = ((ScopedName)ts).resolvedTypeSpec ();
+                   }
+                   else
+                   {
+                       ts = ((AliasTypeSpec)ts).originalType ();
+                   }
+                }
+                addImportedName (switch_type_spec.typeName ());
+            }
+            else
+            {
+               ts = switch_type_spec.type_spec;
+            }
 
-		if( !( 
-		      ts instanceof SwitchTypeSpec 
-		      || 
-		      (( ts instanceof BaseType ) &&
-		       ( ((BaseType)ts).isSwitchType()) ) 
-		      ||
-		      (( ts instanceof ConstrTypeSpec ) && 
-		       (((ConstrTypeSpec)ts).c_type_spec instanceof EnumType )
-		       )
-		      ))
-		{
-		    parser.error("Illegal Switch Type: " + ts.typeName(), token);
-		}
+            // Check if valid discriminator type
 
-                addImportedName( switch_type_spec.typeName() );
-	    }
-	    switch_type_spec.parse();
-	    switch_body.setTypeSpec(switch_type_spec);
-            switch_body.setUnion(this);
+            if
+            (!(
+                ((ts instanceof SwitchTypeSpec) &&
+                (((SwitchTypeSpec)ts).isSwitchable ()))
+                ||
+                ((ts instanceof BaseType) &&
+                (((BaseType)ts).isSwitchType ()))
+                ||
+                ((ts instanceof ConstrTypeSpec) &&
+                (((ConstrTypeSpec)ts).c_type_spec instanceof EnumType))
+            ))
+            {
+                parser.error ("Illegal Switch Type: " + ts.idlTypeName (), token);
+            }
 
-            ScopedName.addRecursionScope( typeName() );
+            switch_type_spec.parse ();
+            switch_body.setTypeSpec (switch_type_spec);
+            switch_body.setUnion (this);
+
+            ScopedName.addRecursionScope (typeName ());
             switch_body.parse();
-            ScopedName.removeRecursionScope( typeName() );
-	} 
-	catch ( NameAlreadyDefined p )
-	{
-	    parser.error("Union " + full_name() + " already defined", token);
-	}
+            ScopedName.removeRecursionScope (typeName ());
+        } 
+        catch (NameAlreadyDefined p)
+        {
+            parser.error ("Union " + full_name () + " already defined", token);
+        }
     }
 
     /**

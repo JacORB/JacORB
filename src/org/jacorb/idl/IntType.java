@@ -43,9 +43,8 @@ class IntType
           ((IntType)type_spec).setUnsigned();
     }
 
+    public boolean isSwitchable ()
+    {
+       return true;
+    }
 }
-
-
-
-
-

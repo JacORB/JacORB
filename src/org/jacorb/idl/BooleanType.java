@@ -89,24 +89,10 @@ class BooleanType
     public String printExtractExpression()
     {
 	return "extract_boolean";
-    }}
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public boolean isSwitchable ()
+    {
+        return true;
+    }
+}
