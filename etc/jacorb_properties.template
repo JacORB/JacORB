@@ -136,6 +136,7 @@ jacorb.debug.dump_outgoing_messages=off
 # hexdump incoming messages
 jacorb.debug.dump_incoming_messages=off
 
+jacorb.util.tpool.log.verbosity=0
 
 ##################################################
 #                                                #
