@@ -1,7 +1,7 @@
 package demo.grid;
 
 import org.omg.CosNaming.*;
-
+import java.io.*;
 public class Client
 {
     public static void main(String args[]) 
@@ -23,11 +23,12 @@ public class Client
                     NamingContextExtHelper.narrow(
       		        orb.resolve_initial_references( "NameService" ));
 
+                nc.to_name("grid.example");
+
                 org.omg.CORBA.Object o = 
                     nc.resolve(nc.to_name("grid.example"));
 
 		grid = MyServerHelper.narrow(o);
-
 	    }
 
 	    short x = grid.height();
