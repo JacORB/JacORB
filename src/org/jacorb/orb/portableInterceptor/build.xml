@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="portableInterceptor" default="all" basedir="../../../..">
+<project name="portableInterceptor" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
   <!--          PortableInterceptor build file              -->
@@ -21,7 +21,7 @@
    <target name="all" depends="init">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/orb/portableInterceptor/*.java"
+	       includes="org/jacorb/orb/portableInterceptor/*.java"
 	       />
    </target>
 
