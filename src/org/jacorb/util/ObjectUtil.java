@@ -1,7 +1,5 @@
 package org.jacorb.util;
 
-import java.util.StringTokenizer;
-
 /*
  *        JacORB  - a free Java ORB
  *
@@ -58,44 +56,5 @@ public class ObjectUtil
         return null;
     }
 
- /**
-   * Converts a repository id of the form "IDL:A.B.C/X/Y/Z:1.0"
-   * into a java class name of the form "C.B.A.X.Y.Z"
-   */
-
-    public static final String reposIdToClassName (String id)
-    {
-        String name;
-        StringBuffer buf = new StringBuffer (id);
-
-        // Strip trailing version ":1.0"
-
-        buf.delete (id.lastIndexOf (':'), id.length ());
-
-        // Strip leading "IDL:"
-
-        buf.delete (0, 4);
-
-        // name is now in the form A.B.C/X/Y/Z
-
-        name = buf.toString ();
-        int slash = name.indexOf ('/');
-  
-        if (slash != -1)
-        {
-            String reverse = name.substring (0, slash); // "A.B.C"
-            String rest = name.substring (slash).replace ('/','.'); // ".X.Y.Z"
-  
-            StringTokenizer dots = new StringTokenizer (reverse, ".");
-            String correct = dots.nextToken ();
-            while (dots.hasMoreTokens ())
-            {
-               correct = dots.nextToken() + '.' + correct; // prepend
-            }
-            name = correct + rest;
-        }
-
-        return name;
-   }
 }
 
