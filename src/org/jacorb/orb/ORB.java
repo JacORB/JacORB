@@ -1294,9 +1294,13 @@ public final class ORB
             throw new org.omg.CORBA.BAD_PARAM("Argument must be of type org.omg.PortableServer.Servant");
         else
         {
-            // only set the delegate if it has not been set already
-            if( ((org.omg.PortableServer.Servant)wrapper)._get_delegate() == null )
+            try
             {
+                ((org.omg.PortableServer.Servant)wrapper)._get_delegate();
+            }
+            catch( org.omg.CORBA.BAD_INV_ORDER bio )
+            {
+                // only set the delegate if it has not been set already                
                 org.jacorb.orb.ServantDelegate delegate = 
                     new org.jacorb.orb.ServantDelegate( this );
                 ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
