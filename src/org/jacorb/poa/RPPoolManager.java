@@ -81,12 +81,12 @@ public class RPPoolManager
     private void addProcessor()
     {
         RequestProcessor rp = new RequestProcessor(this);
-        try 
+        try
         {
             rp.configure(this.configuration);
         } catch (ConfigurationException ex)
         {
-            throw new RuntimeException (ex);
+            throw new RuntimeException (ex.toString());
         }
         current._addContext(rp, rp);
         rp.setDaemon(true);
@@ -169,7 +169,7 @@ public class RPPoolManager
             {
                 logger.warn("Thread pool exhausted, consider increasing "
                           + "jacorb.poa.thread_pool_max (currently: "
-                          + max_pool_size + ")");   
+                          + max_pool_size + ")");
             }
             try
             {
