@@ -20,8 +20,8 @@ the notification server is done by running
 \subsection{Running as a NT Service or a UNIX Daemon}
 \label{sec:runn-notif-serv-1}
 
-With a little help from the
-\href{http://wrapper.tanukisoftware.org}{Java Service Wrapper} it is
+With a little help from
+\href{http://wrapper.tanukisoftware.org}{the Java Service Wrapper} it is
 easy to run the JacORB notification service as a Windows Service or as
 a UNIX daemon. 
 
@@ -123,23 +123,24 @@ PIDDIR="/var/run"
  possible to kill the application with CTRL-C. The final command,
  dump, will send a kill -3 signal to the wrapper causing the its JVM
  to do a full thread dump.  
-
-
-\paragraph{Running as a Daemon Process}
-\label{sec:running-as-daemon}
-
+ 
+ \paragraph{Running as a Daemon Process}
+ \label{sec:running-as-daemon}
+ 
  The application can be run as a detatched daemon process by executing
- the script using the start  command. 
+ the script using the \emph{start} command. 
 
  When running using the start  command, output from the JVM will only
- be visible by viewing the \texttt{NotifyService-Wrapper.log} file
- using \texttt{tail -f NotifyService-Wrapper.log}
+ be visible by viewing the logfile \texttt{NotifyService-Wrapper.log}
+ using \texttt{tail -f NotifyService-Wrapper.log}. The location of the
+ logfile can be configured in the wrapper configuration file
+ \texttt{bin/NotifyService-Wrapper.conf} 
 
  Because the application is running as a detatched process, it can not
  be terminated using CTRL-C and will continue to run even if the
  console is closed. 
-
- To stop the application rerun the script using the stop command.
+ 
+ To stop the application rerun the script using the \emph{stop} command.
 
  
  \paragraph{Installing The Application To Start on Reboot}
@@ -187,13 +188,200 @@ defined interface:
 \begin{verbatim}
   // get a reference to the notification service
   ORB orb = ORB.init(args, null);
-  org.omg.CORBA.Object o = orb.resolve_initial_references("NotificationService");
+  org.omg.CORBA.Object obj; 
+  obj = orb.resolve_initial_references("NotificationService");
   EventChannelFactory ecf = EventChannelHelper.narrow( o );
-  IntHolder cid = new IntHolder();
-  EventChannel ec = ecf.create_channel(new Property[0], new Property[0], cid);
+  IntHolder ih = new IntHolder();
+  Property[] p1 = new Property[0];
+  Property[] p2 = new Property[0];
+  EventChannel ec = ecf.create_channel(p1, p2, ih);
   ...
 \end{verbatim}
 }
+
+\section{Configuration}
+\label{sec:ntfy-configuration}
+
+Following is a brief description of the properties
+that control Notification Service behaviour.
+
+The Notification Service uses up to three Thread Pools with a configurable
+size. The first Thread Pool is used to process the filtering of the
+Messages. The second Thread Pool is used to deliver the Messages to the
+Consumers. The third Thread Pool us used to pull Messages from PullSuppliers. 
+
+\begin{small}
+  \begin{longtable}{|p{5cm}|p{7.5cm}|p{1.5cm}|p{1.5cm}|}
+    \caption{Notification Service Properties}\\
+    \hline
+    ~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description}
+    \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ & \hfill \textbf{Default} \endhead
+    \hline
+    \verb"filter."
+    \verb"thread_pool_size"\footnote{All notification service
+    properties share the common prefix \emph{jacorb.notification} which
+    is omitted here for the sake of space saving} &
+
+    This is the Size of the Thread Pool used to process the filters.
+    Increasing this value on a Multiprocessor machine or if Filters are on
+    a different machine than the Channel could increase the Filtering
+    Performance as multiple events can be processed concurrently. & 
+    
+    int $\geq$ 0 &
+
+    2 \\
+    \hline
+
+    \verb"proxysupplier."
+    \verb"thread_pool_size" &
+
+    This is the Size of the Thread Pool used to deliver the Messages to
+    the Consumers. By using the property
+    \texttt{proxysupplier.threadpolicy}\footnote{also abbreviated.}
+    it is also possible to use one Thread per ProxySupplier. &
+
+    int $\geq$ 0 & 
+    4 \\ \hline    
+
+    \verb"proxyconsumer."
+    \verb"thread_pool_size" &
+
+    Specifies the Size of the Thread Pool used to pull Messages from
+    PullSuppliers &
+
+    int $>=$ 0 & 
+
+    2 \\ \hline
+
+    \verb"proxysupplier."
+    \verb"threadpolicy" &
+
+    Specify which thread policy the ProxySuppliers should use to deliver
+    the Messages to its Consumers. Valid values are: 
+    \begin{description}     
+    \item[ThreadPool] a fixed number of threads is used. See property
+      \verb"proxysupplier."
+      \verb"thread_pool_size".
+
+    \item[ThreadPerProxy] Each ProxySupplier uses its own thread.
+      
+    \end{description} & 
+    string & Thread\-Pool \\ \hline
+
+    \verb"supplier."
+    \verb"poll_intervall" &
+
+    Specifies how often Messages should be pulled from a PullSupplier. The
+    value specifies the intervall between two pull-Operations. &
+
+    milli\-seconds & 1000 \\ \hline
+
+    \verb"supplier."
+    \verb"max_number" &
+
+    Specify the maximum number of Suppliers that may be connected to a
+    Channel at a time. If a Supplier tries to connect, while this
+    limit is exceeded, AdminLimitExceeded is raised. Note that this
+    property can also be set programatically via the \texttt{set\_admin}
+    operation. & int $>$ 0 & maximum int value \\ \hline
+
+    \verb"consumer"
+    \verb"max_number" &
+
+    Specify the maximum number of Consumers that may be connected to a
+    Channel at a time. If a Consumer tries to connect, while this
+    limit is exceeded, AdminLimitExceeded is raised. Note that this
+    property can also be set programatically via the
+    \texttt{set\_admin} operation. &
+
+    int $>$ 0 & maximum int value \\ \hline
+
+    \verb"max_events_"
+    \verb"per_consumer" &
+
+    Specifies how many Events a ProxySupplier at most should queue for a
+    consumer. If this number is exceeded Events are discarded according to
+    the DiscardPolicy configured for the ProxySupplier. &
+
+    int $>$ 0 & 100 \\ \hline
+
+    \verb"max_batch_size" &
+
+    Specifies the maximal number of Messages a SequencePushSupplier should
+    queue before a delivery to its connected SequencedPushConsumer is
+    forced. &
+
+    int $>=0$ & 1 \\ \hline
+
+    \verb"order_policy" &
+
+    Specify how events that are queued should be ordered. Valid values
+    are: 
+    \begin{itemize}
+    \item AnyOrder
+
+    \item PriorityOrder
+
+    \item DeadlineOrder
+
+    \item FifoOrder
+    \end{itemize} & 
+
+    string & Priority\-Order \\ \hline
+
+    \verb"discard_policy" &
+
+    Specifies which Events are discarded if more than the  
+    maximal number of events are queued for a consumer. 
+    Valid values are:
+    \begin{itemize}
+    \item AnyOrder
+
+    \item PriorityOrder
+
+    \item DeadlineOrder
+
+    \item FifoOrder
+
+    \item LifoOrder
+    \end{itemize} &
+
+    string & Priority\-Order \\ \hline
+       
+    \verb"consumer."
+    \verb"backout_interval" &
+
+    After a delivery to a Consumer has failed the Channel will pause
+    delivery to that Consumer for a while before retrying. This property
+    specifies how long a consumer should stay disabled. &
+
+    milli\-seconds & 1000 \\ \hline
+
+    \verb"consumer."
+    \verb"error_threshold" &
+
+    Each failed delivery to a consumer increments an errorcounter. If this
+    errorcounter exceeds the specified value the consumer is
+    disconnected from the channel. &
+
+    int $>=$ 0 & 3 \\ \hline
+
+    \verb"default_filter_factory" &
+
+    Specify which FilterFactory (\texttt{CosNotifyFilter::FilterFactory}) the
+    attribute \texttt{EventChannel::\-default\_filter\_factory} should be set to. 
+    Default value is \emph{builtin}. This special value implies that a
+    FilterFactory will be created during start of the EventChannel.
+    Its possible to set this property to a URL that points to another
+    \texttt{CosNotifyFilter::FilterFactory} object. In this case no FilterFactory
+    is started by the EventChannel. The URL is resolved by a call
+    to \texttt{ORB::string\_to\_object}. &
+
+    URL & builtin \\ \hline
+
+  \end{longtable}
+\end{small}
+
 
 %%% Local Variables: 
 %%% mode: latex
