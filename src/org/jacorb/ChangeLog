@@ -1,3 +1,56 @@
+2003-11-05  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/giop/GIOPConnection.java: Correct a boolean test in tryDiscard()
+
+2003-11-05  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/Any.java, orb/TypeCode.java: Fixes for bug #404:
+	 - Any.extract_Value() now handle value boxes and abstract interfaces
+	 - Any.read_value() and Any.write_value() now handle value boxes
+	 - TypeCode.create_tc was not treating Java arrays correctly
+	 - TypeCode.create_tc now works with abstract interfaces, IDLEntities,
+	   java.io.Serializable, java.io.Externalizable, and java.lang.Object.
+
+	* orb/CDRInputStream.java: Fixed typo in error message.
+
+2003-11-04  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/FilterImpl.java: removed unused import
+
+	* notification/node/DomainNameShorthandNode.java,
+	notification/node/EventNameShorthandNode.java,
+	notification/node/TypeNameShorthandNode.java: replaced logkit with
+	avalon logger
+
+2003-11-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPProfile.java (decode_corbaloc): Fix parsing of
+	protocol version numbers, thanks to Phil Mesnier.
+
+2003-11-03  Simon McQueen  <sm@prismtechnologies.com>
+
+	* notification/build.xml: This file is using its own javac target
+	- updated it to use version numbered 'wrapper' jar rather than
+	plain wrapper.jar.
+
+2003-11-03  Gerald Brose  <gerald.brose@acm.org>
+
+	* notification/build.xml: use version-numbered antlr jar file.
+
+2003-11-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* naming/NameServer.java (main): Use new property name
+	jacorb.connection.server.timeout.
+
+	* orb/iiop/IIOPListener.java (getServerTimeout): Change property
+	name to jacorb.connection.server.timeout.
+
+	* orb/BasicAdapter.java (timeout): Remove unused field.
+	(c'tor): Remove initialization code for that field.
+
+	* orb/giop/ClientGIOPConnection.java (closeAllowReopen): Reuse
+	existing transport, rather than cloning it.
+
 2003-11-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
 	* notification/AbstractAdmin.java,
