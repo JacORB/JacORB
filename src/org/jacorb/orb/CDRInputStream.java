@@ -1846,8 +1846,8 @@ public class CDRInputStream
         {
             throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
         }
-        int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
 
+	int kind = tc.kind().value();
 	switch (kind)
 	{
             case TCKind._tk_null:
