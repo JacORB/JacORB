@@ -8,7 +8,7 @@ gerald.brose@acm.org
 
  Features
 
-        - free CORBA 2.0 implementation (LGPL license)
+        - free CORBA 2.0/2.3 implementation (LGPL license)
 
         - 100% Java, no native code
         - fully multithreaded, very good performance
@@ -22,10 +22,9 @@ gerald.brose@acm.org
         - DynAny
         - Implementation Repository with GUI
         - Interface Repository with GUI
-        - Applet support and HTTP tunneling
+        - Applet support
 
         - Portable Interceptors (for service context passing)
-        - Domain Management
 
         - Object Service implementations
                 - Interoperable Naming Service (with graphical interface)
@@ -84,6 +83,9 @@ gerald.brose@acm.org
          - Added property "jacorb.suppress_no_props_warning" that will
            suppress the warning message when no properties file can be
            found (if set to "on").
+         - Added property "jacorb.orb.objectKeyMap" to map object keys to
+           arbitrary (hopefully readable) strings, which in turn permit
+           the construction of short and simple corbaloc: IORs
 
    - DynAny:
          - Implemented DynFixed interface.
@@ -105,6 +107,13 @@ gerald.brose@acm.org
          - Background saving thread implemented.
            New property jacorb.imr.port_number to configure a fixed port.
 
+   - Naming Service:
+         - added command line switch -p to make server come up on a given 
+           port (convenience)
+         - made the file name command line argument optional 
+         - Name Service can now be accessed using corbaloc: IORs with using
+           NameService as the object key
+
    - Tools:
          - New 'fixior' utility provided to patch port and host information
            into an IOR.
@@ -114,6 +123,11 @@ gerald.brose@acm.org
            definitions are not final.
          - Forward and multiple declaration of Unions, ValueTypes, Structs
            and Interfaces
+         - now compiles the complete set of IDL value type definitions
+
+   - Domain Management:
+         - removed this component to reduce code and library size since 
+           noone seems to use it
 
 1.4 beta 4:
 ===========
