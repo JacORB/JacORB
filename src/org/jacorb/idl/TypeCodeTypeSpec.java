@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -22,112 +22,94 @@ package org.jacorb.idl;
 
 /**
  * @author Gerald Brose
+ * @version $Id$
  */
 
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 import java.io.*;
 
 public class TypeCodeTypeSpec 
-	extends TypeSpec
-	{
+    extends TypeSpec
+{
 
-	public TypeCodeTypeSpec(int num) 
-	{
-		super(num);
-	}
+    public TypeCodeTypeSpec(int num) 
+    {
+        super(num);
+    }
 
-	public Object clone()
-	{ 
-		return this;
-	}
+    public Object clone()
+    { 
+        return this;
+    }
 
-	public String typeName()
-	{
-		return "org.omg.CORBA.TypeCode";
-	}
+    public String typeName()
+    {
+        return "org.omg.CORBA.TypeCode";
+    }
 
-	public String signature()
-	{
-		return "L" + typeName() + ";";
-	}
+    public String signature()
+    {
+        return "L" + typeName() + ";";
+    }
 
-	public TypeSpec typeSpec()
-	{
-		return this;
-	}
+    public TypeSpec typeSpec()
+    {
+        return this;
+    }
 
     public void setPackage( String s)
     {
         s = parser.pack_replace(s);
-	}
+    }
 
-	public boolean basic()
-	{
-		return true;
-	} 
+    public boolean basic()
+    {
+        return true;
+    } 
 
-	public void set_constr(TypeDeclaration td)
-	{
-	}
+    public void set_constr(TypeDeclaration td)
+    {
+    }
 
-	public void parse() 
+    public void parse() 
 		 
-	{
-	}
+    {
+    }
 
-	public String toString()
-	{
-		return typeName();
-	}
+    public String toString()
+    {
+        return typeName();
+    }
 
-	/**
-	 * @returns a string for an expression of type TypeCode 
-	 * 			that describes this type
-	 */
+    /**
+     * @returns a string for an expression of type TypeCode 
+     * 			that describes this type
+     */
 
-	public String getTypeCodeExpression()
-	{
-		return "org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_TypeCode)";
-	}
+    public String getTypeCodeExpression()
+    {
+        return "org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_TypeCode)";
+    }
 
-	public void print(PrintWriter ps)
-	{
-	}
+    public void print(PrintWriter ps)
+    {
+    }
 
-	public String holderName()
-	{
-		return typeName() + "Holder";
-	}
+    public String holderName()
+    {
+        return typeName() + "Holder";
+    }
 
-	public String printReadExpression(String streamname)
-	{
-		return streamname + ".read_TypeCode()" ;
-	}
+    public String printReadExpression(String streamname)
+    {
+        return streamname + ".read_TypeCode()" ;
+    }
 
-	public String printWriteStatement(String var_name,String streamname)
-	{
-		return streamname + ".write_TypeCode(" + var_name + ");";
-	}
+    public String printWriteStatement(String var_name,String streamname)
+    {
+        return streamname + ".write_TypeCode(" + var_name + ");";
+    }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

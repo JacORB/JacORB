@@ -85,6 +85,11 @@ class ConstrTypeSpec
 	return c_type_spec.typeName();
     }
 
+    public String full_name()
+    {
+	return c_type_spec.full_name();
+    }
+
     /**
      * @returns "org.omg." if the symbol has been declare inside a
      * scope with a pragma prefix of "omg.org"

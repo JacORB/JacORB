@@ -1,4 +1,3 @@
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -150,6 +149,7 @@ public class SequenceType
 
     public String getTypeCodeExpression()
     {
+        Environment.output( 2, "Sequence getTypeCodeExpression " + name );
 	String originalType = null;
 
 	if( recursive )
@@ -160,8 +160,12 @@ public class SequenceType
 	}
 	else
 	{
+            // TODO 
+
 	    originalType = "org.omg.CORBA.ORB.init().create_sequence_tc(" + 
-		length + ", " + elementTypeSpec().getTypeCodeExpression() + ")";
+		length + ", " + elementTypeExpression() + " )";
+            // length + ", " + elementTypeSpec().getTypeCodeExpression() + ")";
+
 	}
 	return originalType;           
     }
@@ -277,17 +281,27 @@ public class SequenceType
 	return sb.toString();
     }
 
+    private String elementTypeExpression()
+    {        
+        if( type_spec.typeSpec() instanceof AliasTypeSpec )
+        {
+            return type_spec.full_name() + "Helper.type()";
+        }
+        else if ( type_spec.typeSpec() instanceof BaseType || 
+                  type_spec.typeSpec() instanceof TypeCodeTypeSpec ||
+                  type_spec.typeSpec() instanceof TemplateTypeSpec  )
+        {
+            return type_spec.getTypeCodeExpression() ;
+        }
+        else
+        {
+            return type_spec.typeName()  + "Helper.type()";
+        }
+    }
 
     public String elementTypeName()
-    {
-	if( type_spec.typeSpec() instanceof ScopedName )
-	{
-	    return ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec().typeName();
-	}
-	else
-	{
-	    return type_spec.typeName();
-	}
+    {        
+        return type_spec.typeName();
     }
 
     public String holderName()
@@ -355,6 +369,11 @@ public class SequenceType
                 ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
 	    if( ts != null ) 
 		type_spec = ts;
+
+            if( type_spec instanceof AliasTypeSpec )
+                addImportedAlias( type_spec.full_name() );
+            else
+                addImportedName( type_spec.typeName() );
 
             addImportedName( type_spec.typeSpec().typeName());
 	}

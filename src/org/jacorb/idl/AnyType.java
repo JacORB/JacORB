@@ -24,13 +24,13 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-/**
+/**
  * @author Gerald Brose
  * @version $Id$
  */
 
 class AnyType 
-	extends BaseType
+    extends BaseType
 {
     public AnyType(int num)
     {
@@ -85,29 +85,7 @@ class AnyType
         return strname + ".write_any(" + var_name + ");";
     }
 
-    public String signature()
-    {
-        return "Lorg.omg.CORBA.Any";
-    }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

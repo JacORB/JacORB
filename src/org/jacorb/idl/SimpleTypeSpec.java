@@ -33,25 +33,6 @@ class SimpleTypeSpec
 	super(num);
     }
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -231,9 +231,11 @@ class IdlSymbol
 	{
 	    for( Enumeration e = parser.import_list.elements(); e.hasMoreElements();)
 	    {
-		ps.println(" import " + (String)e.nextElement() + ";");
+		ps.println("import " + (String)e.nextElement() + ";");
 	    }
+
             ps.println();
+
 	    for( Enumeration e = imports.keys(); e.hasMoreElements();)
 	    {
                 String name = (String)e.nextElement();
@@ -243,9 +245,36 @@ class IdlSymbol
 	}
     }
 
-    public void addImportedName (String name)
+    /**
+     * Called  by derived classes  to potentially add  the aliasHelper
+     * name to  the  generated  Java class's  import  list, which  is
+     * necessary in case the mapped code is in the unnamed package.
+     *
+     * @param alias the name of the alias 
+     */
+
+    public void addImportedAlias( String alias )
     {
-        addImportedName (name, null);
+        Environment.output( 2, "addImportedAlias " + alias );
+        if( alias.indexOf( '.' ) < 0 && !BaseType.isBasicName( alias ))
+        {
+            imports.put( alias + "Helper", "" );
+        }
+    }
+
+    /**
+     * Called by  derived classes to potentially add  the name and the
+     * nameHelper to the generated  Java class's import list, which is
+     * necessary in case the mapped code is in the unnamed package.
+     *
+     * @param name 
+     */
+
+    public void addImportedName( String name )
+    {
+        Environment.output( 2, "addImportedName " + name );
+        if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName(name))
+            addImportedName (name, null);
     }
 
     public void addImportedName (String name, TypeSpec type)
@@ -262,6 +291,15 @@ class IdlSymbol
             imports.put (name + "Helper", "");
         }
     }
+
+    /**
+     * Called by  derived classes  to potentially  add the  name, the
+     * nameHelper and nameHolder  to the generated Java class's import
+     * list,  which is  necessary in  case the mapped  code is  in the
+     * unnamed package.
+     *
+     * @param name 
+     */
 
     public void addImportedNameHolder( String name )
     {

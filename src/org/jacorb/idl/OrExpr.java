@@ -85,7 +85,7 @@ class OrExpr
 	String x = "";
 	if( or_expr != null )
         {
-	    x = or_expr.value() + "|";
+	    x = or_expr.value() + " | ";
 	}
 	return x + xor_expr.value();
     }
@@ -95,7 +95,7 @@ class OrExpr
 	String x = "";
 	if( or_expr != null )
         {
-	    x = or_expr + "|";
+	    x = or_expr + " | ";
 	}
 	return x + xor_expr;
     }
