@@ -140,8 +140,6 @@ public class EventChannelFactoryImpl
 
     private ApplicationContext applicationContext_;
 
-    private ChannelContext channelContextTemplate_;
-
     private SynchronizedInt eventChannelIDPool_;
 
     private Map allChannels_ = new HashMap();
