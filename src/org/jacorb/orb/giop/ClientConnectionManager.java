@@ -155,13 +155,15 @@ public class ClientConnectionManager
         // hasNoMoreClients now merged into decClients.
         if ( c.decClients() )
         {
+            c.close();
+
             connections.remove (c.getRegisteredProfile());
         }
     }
 
     /**
      * Only used by ClientConnection to unregister server-side of
-     * BiDir connection.  
+     * BiDir connection.
      */
     public synchronized void removeConnection(ClientConnection c)
     {

@@ -106,7 +106,7 @@ public class ClientConnection
     /**
      * Get the profile that was used for registering with the
      * ClientConnectionManager. In case of BiDirIIOP it is NOT equal
-     * to the transports profile.  
+     * to the transports profile.
      */
     public org.omg.ETF.Profile getRegisteredProfile()
     {
@@ -222,7 +222,6 @@ public class ClientConnection
 
         if (client_count == 0 )
         {
-            close();
             result = true;
         }
         return result;
