@@ -1,3 +1,5 @@
+package org.jacorb.orb.giop;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,9 +20,8 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.giop;
-
 import org.jacorb.orb.*;
+import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.*;
 import org.omg.IOP.ServiceContext;
 
@@ -42,9 +43,9 @@ public class RequestInputStream
 
     public RequestInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
-  super( orb,  buf );
+        super( orb,  buf );
 
-  if( Messages.getMsgType( buffer ) == MsgType_1_1._Request )
+        if( Messages.getMsgType( buffer ) == MsgType_1_1._Request )
         {
             switch( giop_minor )
             {
@@ -95,7 +96,7 @@ public class RequestInputStream
                     break;
                 }
                 default : {
-                    throw new Error( "Unknown GIOP minor version: " + giop_minor );
+                    throw new MARSHAL( "Unknown GIOP minor version: " + giop_minor );
                 }
             }
         }
@@ -143,15 +144,15 @@ public class RequestInputStream
                 }
                 default :
                 {
-                    throw new Error( "Unknown GIOP minor version: " + giop_minor );
+                    throw new MARSHAL( "Unknown GIOP minor version: " + giop_minor );
                 }
             }
 
-      is_locate_request = true;
+            is_locate_request = true;
         }
         else
         {
-      throw new Error( "Error: not a request!" );
+            throw new MARSHAL( "Error: not a request!" );
         }
     }
 

@@ -21,21 +21,32 @@ package org.jacorb.orb.giop;
  */
 
 import java.util.*;
-
-import org.omg.GIOP.*;
-import org.omg.IOP.*;
-import org.omg.Messaging.*;
-import org.omg.TimeBase.*;
-
-import org.jacorb.orb.*;
-import org.jacorb.util.*;
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.util.Time;
+import org.omg.CORBA.MARSHAL;
+import org.omg.CORBA.PrincipalHelper;
+import org.omg.GIOP.MsgType_1_1;
+import org.omg.GIOP.TargetAddress;
+import org.omg.GIOP.TargetAddressHelper;
+import org.omg.IOP.INVOCATION_POLICIES;
+import org.omg.IOP.ServiceContext;
+import org.omg.IOP.ServiceContextListHelper;
+import org.omg.Messaging.PolicyValue;
+import org.omg.Messaging.PolicyValueSeqHelper;
+import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_END_TIME_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_START_TIME_POLICY_TYPE;
+import org.omg.Messaging.SYNC_NONE;
+import org.omg.Messaging.SYNC_WITH_SERVER;
+import org.omg.Messaging.SYNC_WITH_TARGET;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+import org.omg.TimeBase.UtcT;
 
 /**
  * @author Gerald Brose, FU Berlin 1999
  * @version $Id$
  *
  */
-
 public class RequestOutputStream
     extends ServiceContextTransportingOutputStream
 {
@@ -44,7 +55,7 @@ public class RequestOutputStream
 
     private int request_id = -1;
     private boolean response_expected = true;
-    private short syncScope = org.omg.Messaging.SYNC_WITH_SERVER.value;
+    private short syncScope = SYNC_WITH_SERVER.value;
     private String operation = null;
 
     /**
@@ -109,28 +120,26 @@ public class RequestOutputStream
             case 0 :
             {
                 // GIOP 1.0 inlining
-                org.omg.IOP.ServiceContextListHelper.write( this , Messages.service_context );
+                ServiceContextListHelper.write( this , Messages.service_context );
                 write_ulong( request_id);
                 write_boolean( response_expected );
                 write_long( object_key.length );
                 write_octet_array( object_key, 0, object_key.length);
                 write_string( operation);
-                org.omg.CORBA.PrincipalHelper.write( this,
-                                                     principal);
+                PrincipalHelper.write( this, principal);
 
                 break;
             }
             case 1 :
             {
                 //GIOP 1.1
-                org.omg.IOP.ServiceContextListHelper.write( this , Messages.service_context );
+                ServiceContextListHelper.write( this , Messages.service_context );
                 write_ulong( request_id);
                 write_boolean( response_expected );
                 write_long( object_key.length );
                 write_octet_array( object_key, 0, object_key.length);
                 write_string( operation);
-                org.omg.CORBA.PrincipalHelper.write( this,
-                                                     principal);
+                PrincipalHelper.write( this, principal);
 
                 break;
             }
@@ -151,25 +160,25 @@ public class RequestOutputStream
                 {
                     switch (syncScope)
                     {
-                        case org.omg.Messaging.SYNC_NONE.value:
-                        case org.omg.Messaging.SYNC_WITH_TRANSPORT.value:
+                        case SYNC_NONE.value:
+                        case SYNC_WITH_TRANSPORT.value:
                         write_octet ((byte)0x00);
                         break;
-                        case org.omg.Messaging.SYNC_WITH_SERVER.value:
+                        case SYNC_WITH_SERVER.value:
                         write_octet ((byte)0x01);
                         break;
-                        case org.omg.Messaging.SYNC_WITH_TARGET.value:
+                        case SYNC_WITH_TARGET.value:
                         write_octet ((byte)0x03);
                         break;
                         default:
-                        throw new org.omg.CORBA.MARSHAL ("Invalid SYNC_SCOPE: " + syncScope);
+                        throw new MARSHAL ("Invalid SYNC_SCOPE: " + syncScope);
                     }
                 }
 
                 write_octet_array( reserved,0,3 );
-                org.omg.GIOP.TargetAddressHelper.write( this, addr );
+                TargetAddressHelper.write( this, addr );
                 write_string( operation );
-                org.omg.IOP.ServiceContextListHelper.write( this, Messages.service_context );
+                ServiceContextListHelper.write( this, Messages.service_context );
 
                 markHeaderEnd(); //use padding if GIOP minor == 2
 
@@ -177,7 +186,7 @@ public class RequestOutputStream
             }
             default :
             {
-                throw new Error( "Unknown GIOP minor: " + giop_minor );
+                throw new MARSHAL( "Unknown GIOP minor: " + giop_minor );
             }
         }
     }
@@ -226,7 +235,7 @@ public class RequestOutputStream
      * Returns the timing policies for this request as an array
      * of PolicyValues that can be propagated in a ServiceContext.
      */
-    private org.omg.Messaging.PolicyValue[] getTimingPolicyValues()
+    private PolicyValue[] getTimingPolicyValues()
     {
         List l = new ArrayList();
         if (requestStartTime != null)
@@ -246,7 +255,7 @@ public class RequestOutputStream
         CDROutputStream out = new CDROutputStream();
         out.beginEncapsulatedArray();
         PolicyValueSeqHelper.write(out, getTimingPolicyValues());
-        return new ServiceContext (org.omg.IOP.INVOCATION_POLICIES.value,
+        return new ServiceContext (INVOCATION_POLICIES.value,
                                    out.getBufferCopy());
     }
 }

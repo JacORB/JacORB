@@ -20,6 +20,7 @@ package org.jacorb.orb.giop;
  */
 
 import java.io.*;
+import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.*;
 import org.jacorb.orb.*;
 
@@ -77,7 +78,7 @@ public class LocateReplyOutputStream
             }
             default :
             {
-                throw new Error( "Unknown GIOP minor: " + giop_minor );
+                throw new MARSHAL( "Unknown GIOP minor: " + giop_minor );
             }
         }
     }

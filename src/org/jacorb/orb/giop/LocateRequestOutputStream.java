@@ -21,6 +21,7 @@ package org.jacorb.orb.giop;
  */
 
 import java.io.*;
+import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.*;
 import org.jacorb.orb.*;
 
@@ -34,8 +35,8 @@ public class LocateRequestOutputStream
     extends MessageOutputStream
 {
     private int request_id = -1;
-    
-    public LocateRequestOutputStream( byte[] object_key, 
+
+    public LocateRequestOutputStream( byte[] object_key,
                                       int request_id,
                                       int giop_minor )
     {
@@ -50,15 +51,15 @@ public class LocateRequestOutputStream
         switch( giop_minor )
         {
             case 0 :
-            { 
+            {
                 // GIOP 1.0 == GIOP 1.1, fall through
             }
             case 1 :
             {
                 //GIOP 1.1
-                LocateRequestHeader_1_0 req_hdr = 
+                LocateRequestHeader_1_0 req_hdr =
                     new LocateRequestHeader_1_0( request_id, object_key );
-                
+
                 LocateRequestHeader_1_0Helper.write( this, req_hdr );
 
                 break;
@@ -69,7 +70,7 @@ public class LocateRequestOutputStream
                 TargetAddress addr = new TargetAddress();
                 addr.object_key( object_key );
 
-                LocateRequestHeader_1_2 req_hdr = 
+                LocateRequestHeader_1_2 req_hdr =
                     new LocateRequestHeader_1_2( request_id, addr );
 
                 LocateRequestHeader_1_2Helper.write( this, req_hdr );
@@ -78,19 +79,13 @@ public class LocateRequestOutputStream
             }
             default :
             {
-                throw new Error( "Unknown GIOP minor: " + giop_minor );
+                throw new MARSHAL( "Unknown GIOP minor: " + giop_minor );
             }
         }
     }
-    
+
     public int getRequestId()
     {
         return request_id;
     }
 }
-
-
-
-
-
-

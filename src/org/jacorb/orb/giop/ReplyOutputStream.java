@@ -1,3 +1,5 @@
+package org.jacorb.orb.giop;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,12 +20,9 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.giop;
-
 import java.io.IOException;
-
+import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.*;
-
 import org.jacorb.orb.*;
 import org.jacorb.util.Debug;
 
@@ -32,7 +31,6 @@ import org.jacorb.util.Debug;
  * @version $Id$
  *
  */
-
 public class ReplyOutputStream
     extends ServiceContextTransportingOutputStream
 {
@@ -106,7 +104,7 @@ public class ReplyOutputStream
             }
             default :
             {
-                throw new Error( "Unknown GIOP minor: " + giop_minor );
+                throw new MARSHAL( "Unknown GIOP minor: " + giop_minor );
             }
         }
     }

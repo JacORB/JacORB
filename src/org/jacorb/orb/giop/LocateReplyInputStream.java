@@ -25,6 +25,7 @@ import org.jacorb.orb.*;
 import org.jacorb.orb.giop.*;
 
 import org.omg.GIOP.*;
+import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.RemarshalException;
 
@@ -46,46 +47,38 @@ public class LocateReplyInputStream
         //check message type
 	if( buffer[7] != (byte) MsgType_1_1._LocateReply )
         {
-	    throw new Error( "Error: not a reply!" );
+	    throw new MARSHAL("Not a reply!");
         }
-        
+
         switch( giop_minor )
-        { 
-            case 0 : 
+        {
+            case 0 :
             {
                 //GIOP 1.0 = GIOP 1.1, fall through
             }
-            case 1 : 
+            case 1 :
             {
 
                 //GIOP 1.1
-                LocateReplyHeader_1_0 hdr = 
+                LocateReplyHeader_1_0 hdr =
                     LocateReplyHeader_1_0Helper.read( this );
 
-                rep_hdr = 
+                rep_hdr =
                     new LocateReplyHeader_1_2( hdr.request_id,
                                                LocateStatusType_1_2.from_int( hdr.locate_status.value() ));
                 break;
             }
-            case 2 : 
+            case 2 :
             {
                 //GIOP 1.2
                 rep_hdr = LocateReplyHeader_1_2Helper.read( this );
 
                 break;
             }
-            default : 
+            default :
             {
-                throw new Error( "Unknown GIOP minor version: " + giop_minor );
+                throw new MARSHAL("Unknown GIOP minor version: " + giop_minor);
             }
         }
     }
 }
-
-
-
-
-
-
-
-

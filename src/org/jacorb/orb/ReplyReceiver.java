@@ -28,6 +28,7 @@ import org.jacorb.util.*;
 import org.omg.GIOP.*;
 import org.omg.Messaging.ExceptionHolder;
 import org.omg.TimeBase.UtcT;
+import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ApplicationException;
@@ -89,7 +90,7 @@ public class ReplyReceiver extends ReplyPlaceholder
         {
             timer = null;
         }
-        
+
         retry_on_failure = Environment.retryOnFailure();
     }
 
@@ -302,8 +303,8 @@ public class ReplyReceiver extends ReplyPlaceholder
             }
             default:
             {
-                throw new Error( "Received unexpected reply status: " +
-                                 status.value() );
+                throw new MARSHAL
+                    ("Received unexpected reply status: " + status.value() );
             }
         }
     }

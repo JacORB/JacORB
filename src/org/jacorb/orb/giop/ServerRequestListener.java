@@ -267,7 +267,7 @@ public class ServerRequestListener
 
             if( tmp_poa == null )
             {
-                throw new Error("request POA null!");
+                throw new org.omg.CORBA.INTERNAL("Request POA null!");
             }
             else
             {
