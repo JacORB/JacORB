@@ -603,6 +603,21 @@ jtrader.def_follow_policy=
 jtrader.max_follow_policy=
 jtrader.max_link_follow_policy=
 
+########################################################
+#                                                      #
+#   Notification configuration, please see             #
+#   src/org/jacorb/notification/README.PROPERTIES for  #
+#   explanation                                        #
+#                                                      #
+########################################################
+
+# integer values
+jacorb.notification.filter_pool_workers = 2
+jacorb.notification.deliver_pool_workers = 4
+
+# milliseconds
+jacorb.notification.pull_consumer_pollintervall = 1000
+
 # any other custom properties can be added here.
 # These are available through the API (call
 # jacorb.orb.Environment.getProperty())
