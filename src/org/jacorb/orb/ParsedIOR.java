@@ -493,14 +493,35 @@ public class ParsedIOR
         return null;
     }
 
-    /* instance part */
-
-    public ParsedIOR( String object_reference )
+    /**
+     * Creates a new <code>ParsedIOR</code> instance.
+     *
+     * @param object_reference a <code>String</code> value
+     * @param orb an <code>org.omg.CORBA.ORB</code> value
+     * @exception IllegalArgumentException if an error occurs
+     */
+    public ParsedIOR( String object_reference, org.omg.CORBA.ORB orb)
         throws IllegalArgumentException
     {
-        parse( object_reference );
+        if (orb instanceof ORB)
+        {
+            this.orb = (org.jacorb.orb.ORB)orb;
+            parse( object_reference );
+        }
+        else
+        {
+            throw new IllegalArgumentException
+                ("Construct ParsedIOR with full ORB not Singleton");
+        }
     }
 
+    /**
+     * Creates a new <code>ParsedIOR</code> instance.
+     *
+     * @param object_reference a <code>String</code> value
+     * @param orb an <code>org.jacorb.orb.ORB</code> value
+     * @exception IllegalArgumentException if an error occurs
+     */
     public ParsedIOR( String object_reference, ORB orb )
         throws IllegalArgumentException
     {
@@ -549,8 +570,8 @@ public class ParsedIOR
 
         // bnv: consults SSL tagged component
         SSL ssl = getSSLTaggedComponent( pb );
-        if( sas != null && 
-            ssl != null ) 
+        if( sas != null &&
+            ssl != null )
         {
             ssl.target_requires |= sas.mechanism_list[0].target_requires;
         }
@@ -646,7 +667,7 @@ public class ParsedIOR
                     //Debug.output( 4, "TAG_MULTIPLE_COMPONENTS found in IOR" );
 
                     CDRInputStream in =
-                        new CDRInputStream( (org.omg.CORBA.ORB)null,
+                        new CDRInputStream( orb,
                                             _ior.profiles[i].profile_data );
                     in.openEncapsulatedArray();
 
@@ -796,6 +817,12 @@ public class ParsedIOR
             {
                 org.omg.CORBA.Object obj =
                     orb.resolve_initial_references(corbaLoc.getKeyString());
+
+                if (obj == null)
+                {
+                    throw new IllegalArgumentException
+                        ("Unable to resolve reference for " + corbaLoc.getKeyString());
+                }
 
                 ior =
                     ((Delegate)((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate()).getIOR();
