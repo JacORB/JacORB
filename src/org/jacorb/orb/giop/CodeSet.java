@@ -63,18 +63,18 @@ public class CodeSet
 
     /**
      * This method compares the codesets in the component with our
-     * native codeset.  
+     * native codeset.
      */
     public static int selectTCS( CodeSetComponentInfo cs_info )
     {
-        int with_native = selectCodeSet( cs_info.ForCharData, 
+        int with_native = selectCodeSet( cs_info.ForCharData,
                                          getTCSDefault() );
-        
+
         if( with_native == -1 )
         {
             //no match with native codeset, so try with conversion
             //codeset
-            
+
             return selectCodeSet( cs_info.ForCharData, getConversionDefault() );
         }
         else
@@ -85,19 +85,19 @@ public class CodeSet
 
     /**
      * This method compares the wide codesets in the component with our
-     * native wide codeset.  
+     * native wide codeset.
      */
     public static int selectTCSW( CodeSetComponentInfo cs_info )
     {
-        int with_native = selectCodeSet( cs_info.ForWcharData, 
+        int with_native = selectCodeSet( cs_info.ForWcharData,
                                          getTCSWDefault() );
-        
+
         if( with_native == -1 )
         {
             //no match with native codeset, so try with conversion
             //codeset
-            
-            return selectCodeSet( cs_info.ForWcharData, 
+
+            return selectCodeSet( cs_info.ForWcharData,
                                   getConversionDefault() );
         }
         else
@@ -110,58 +110,51 @@ public class CodeSet
                                       int native_cs )
     {
         // check if we support server's native sets
-	if( cs_component.native_code_set == native_cs ) 
+        if( cs_component.native_code_set == native_cs )
         {
-	    return native_cs;
+            return native_cs;
         }
 
-	// is our native CS supported at server ?
-	for( int i = 0; i < cs_component.conversion_code_sets.length; i++ )
-	{
-	    if( cs_component.conversion_code_sets[i] == native_cs )
-            { 
-		return native_cs;
+        // is our native CS supported at server ?
+        for( int i = 0; i < cs_component.conversion_code_sets.length; i++ )
+        {
+            if( cs_component.conversion_code_sets[i] == native_cs )
+            {
+                return native_cs;
             }
-	}
-		
-	// can't find supported set ..
-	return -1;
+        }
+
+        // can't find supported set ..
+        return -1;
     }
 
     public static ServiceContext createCodesetContext( int tcs, int tcsw )
     {
         // encapsulate context
-	CDROutputStream os = new CDROutputStream();
-	os.beginEncapsulatedArray();
-	CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
+        CDROutputStream os = new CDROutputStream();
+        os.beginEncapsulatedArray();
+        CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
 
         return new ServiceContext( TAG_CODE_SETS.value,
                                    os.getBufferCopy() );
     }
-    
+
     public static CodeSetContext getCodeSetContext( ServiceContext[] contexts )
     {
         for( int i = 0; i < contexts.length; i++ )
         {
-	    if( contexts[i].context_id == TAG_CODE_SETS.value )
+            if( contexts[i].context_id == TAG_CODE_SETS.value )
             {
                 // TAG_CODE_SETS found, demarshall
-                CDRInputStream is = 
-                    new CDRInputStream( (org.omg.CORBA.ORB) null,
-                                        contexts[i].context_data );
+                CDRInputStream is =
+                new CDRInputStream( (org.omg.CORBA.ORB) null,
+                                    contexts[i].context_data );
                 is.openEncapsulatedArray();
 
                 return CodeSetContextHelper.read( is );
             }
-	}
+        }
 
-	return null; 
+        return null;
     }
 }
-
-
-
-
-
-
-

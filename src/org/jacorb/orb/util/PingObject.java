@@ -27,38 +27,38 @@ package org.jacorb.orb.util;
 import org.jacorb.orb.ParsedIOR;
 import java.io.*;
 
-public class PingObject 
+public class PingObject
 {
     public static void main( String args[] )
     {
-	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
-	String iorString = null;
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
+        String iorString = null;
 
-	if( args.length < 1 || args.length > 2 )
-	{
-	    System.err.println("Usage: java org.jacorb.orb.util.PingObject [ ior_str | -f filename ]");
-	    System.exit( 1 );
-	}
+        if( args.length < 1 || args.length > 2 )
+        {
+            System.err.println("Usage: java org.jacorb.orb.util.PingObject [ ior_str | -f filename ]");
+            System.exit( 1 );
+        }
 
-	if( args[0].equals("-f"))
-	{
-	    try
-	    {
-		BufferedReader br = new BufferedReader( new FileReader( args[1] ));
-		iorString = br.readLine();
-	    } 
-	    catch ( IOException ioe )
-	    {
-		ioe.printStackTrace();
-		System.exit(1);
-	    }
-	}
-	else
-	{
-	    iorString = args[0];
-	}
+        if( args[0].equals("-f"))
+        {
+            try
+            {
+                BufferedReader br = new BufferedReader( new FileReader( args[1] ));
+                iorString = br.readLine();
+            }
+            catch ( IOException ioe )
+            {
+                ioe.printStackTrace();
+                System.exit(1);
+            }
+        }
+        else
+        {
+            iorString = args[0];
+        }
 
-	org.omg.CORBA.Object o = orb.string_to_object( iorString );
+        org.omg.CORBA.Object o = orb.string_to_object( iorString );
 
         if( o == null )
         {
@@ -74,12 +74,6 @@ public class PingObject
             {
                 System.out.println("Object is alive! ");
             }
-	}
+        }
     }
 }
-
-
-
-
-
-
