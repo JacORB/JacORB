@@ -28,7 +28,7 @@ package org.jacorb.idl;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.Hashtable;
+import java.util.*;
 
 class ConstDecl
         extends Declaration

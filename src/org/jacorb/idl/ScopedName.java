@@ -29,8 +29,7 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
-import java.util.Hashtable;
-import java.util.Stack;
+import java.util.*;
 
 class ScopedName
     extends SimpleTypeSpec

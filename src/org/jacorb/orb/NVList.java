@@ -25,7 +25,7 @@ package org.jacorb.orb;
  * @version $Id$	
  */
 
-import java.util.Vector;
+import java.util.*;
 
 public class NVList
     extends org.omg.CORBA.NVList

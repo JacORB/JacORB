@@ -26,7 +26,7 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.Hashtable;
+import java.util.*;
 
 public class ScopeData
 {

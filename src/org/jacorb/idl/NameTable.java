@@ -29,22 +29,16 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.*;
 
 class NameTable
 {
 
-    private static java.util.Hashtable h =
-            new java.util.Hashtable( 10000 );
+    private static Hashtable h = new Hashtable( 10000 );
 
-    private static java.util.Hashtable shadows =
-            new java.util.Hashtable();
+    private static Hashtable shadows = new Hashtable();
 
-    private static java.util.Hashtable ancestors =
-            new java.util.Hashtable();
+    private static Hashtable ancestors = new Hashtable();
 
     /**
      key: operation name,
@@ -52,13 +46,11 @@ class NameTable
      necessary to track legal diamond inheritance of operations
      */
 
-    private static java.util.Hashtable operationSources =
-            new java.util.Hashtable();
+    private static Hashtable operationSources = new Hashtable();
 
     private static String s = "";
 
-    public static java.util.Hashtable parsed_interfaces =
-            new java.util.Hashtable();
+    public static Hashtable parsed_interfaces = new Hashtable();
 
     public static void init()
     {

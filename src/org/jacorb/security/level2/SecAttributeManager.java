@@ -30,7 +30,7 @@ package org.jacorb.security.level2;
  * @version $Id$
  */
 
-import java.util.Hashtable;
+import java.util.*;
 
 import org.omg.Security.*;
 

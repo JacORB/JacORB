@@ -20,7 +20,7 @@ package org.jacorb.proxy;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Hashtable;
+import java.util.*;
 import org.omg.PortableServer.*;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.*;

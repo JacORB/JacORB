@@ -24,8 +24,7 @@ import org.jacorb.poa.except.*;
  
 import org.omg.PortableServer.CurrentPackage.NoContext;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * This class provides access to the identity of the object on which a method 

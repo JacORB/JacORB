@@ -26,8 +26,7 @@ import org.jacorb.poa.except.*;
 import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
 
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  * This class will manage a queue of ServerRequest objects.

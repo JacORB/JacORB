@@ -25,7 +25,7 @@ package org.jacorb.orb.dii;
  * @version $Id$
  */
 
-import java.util.Vector;
+import java.util.*;
 
 public class ExceptionList 
 	extends org.omg.CORBA.ExceptionList 

@@ -22,7 +22,7 @@ package org.jacorb.poa;
  
 import org.jacorb.poa.except.*;
   
-import java.util.Vector;
+import java.util.*;
 
 /**
  * This class provides and manages a pool of ready started threads for

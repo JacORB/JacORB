@@ -31,9 +31,7 @@ import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  * This class maps object id's to servants and vice versa.

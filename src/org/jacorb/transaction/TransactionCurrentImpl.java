@@ -25,7 +25,7 @@ import org.omg.CosNaming.*;
 import org.omg.IOP.*;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.Any;
-import java.util.Hashtable;
+import java.util.*;
 
 /**
  * This class represents the transaction current.

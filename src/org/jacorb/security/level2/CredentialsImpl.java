@@ -25,7 +25,7 @@ import org.omg.Security.*;
 import org.omg.SecurityLevel2.*;
 
 import java.io.*;
-import java.util.Vector;
+import java.util.*;
 import java.math.BigInteger;
 
 

@@ -24,7 +24,7 @@ import org.omg.PortableInterceptor.*;
 import org.omg.SecurityLevel2.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-import java.util.Hashtable;
+import java.util.*;
 
 /**
  * ServerAccessDecisionInterceptor.java

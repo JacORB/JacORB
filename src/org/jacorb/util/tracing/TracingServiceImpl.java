@@ -25,8 +25,7 @@ package org.jacorb.util.tracing;
  * @version $Id$
  */
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 import org.jacorb.util.tracing.TracingServicePackage.*;
 
 import org.omg.CORBA.ORB;

@@ -25,8 +25,7 @@ import org.jacorb.util.Environment;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAManagerPackage.State;
 
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 import java.lang.Thread;
 
 /**

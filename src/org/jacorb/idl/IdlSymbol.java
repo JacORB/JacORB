@@ -22,8 +22,7 @@ package org.jacorb.idl;
 
 
 import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.*;
 
 /**
  * Base class for all classes of the abstract syntax tree

@@ -21,7 +21,7 @@
 package org.jacorb.idl;
 
 import java.io.PrintWriter;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Gerald Brose

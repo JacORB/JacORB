@@ -1,5 +1,5 @@
 package org.jacorb.trading.util;
-import java.util.Hashtable;
+import java.util.*;
 
 /**
  * TimeoutThread.java

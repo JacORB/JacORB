@@ -22,8 +22,7 @@ package org.jacorb.idl;
 
 import java_cup.runtime.*;
 
-import java.util.Hashtable;
-import java.util.Stack;
+import java.util.*;
 
 /**
  *  This  class implements  a  scanner  (aka lexical  analyzer or

@@ -27,12 +27,10 @@ import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.util.GlobPatternMapper;
 import org.apache.tools.ant.util.SourceFileScanner;
 
-import java.util.Vector;
+import java.util.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This is the idl compile task for using the idl compiler

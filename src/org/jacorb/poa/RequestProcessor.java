@@ -29,8 +29,7 @@ import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.connection.ReplyOutputStream;
 
 
-import java.util.Hashtable;
-import java.util.Enumeration;
+import java.util.*;
 
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantManager;
