@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+
+<project name="demo" default="all" basedir="../..">
+
+  <!-- ==================================================== -->
+  <!--             Demo build file                         -->
+  <!-- ==================================================== -->
+
+   <target name="init">
+	<property name="name" value="sas"/>
+	<!-- <property name="dirs.base" value="${basedir}"/> -->
+	<property name="dirs.base" value="/progra~1/JACORB_1_4_1"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<!-- <property name="lib" value="progra~1/jacorb_1_4_1/lib"/> -->
+	<property name="include" value="${dirs.base}/idl"/>
+	<property name="idlflags" value="-I${include}/omg -ir
+                  -d ${dirs.base}/demo/${name}/generated"/>
+
+        <available classname="iaik.x509.X509Certificate" 
+                   property="iaik.present" />
+   </target>
+
+   <target name="all" depends="compile" />
+
+   <target name="error" unless="iaik.present">
+        <echo message="IAIK JCE classes are not present!"/> 
+        <echo message="Please add the corresponding jar file to your classpath" />
+   </target>
+
+
+   <target name="compile" depends="idl">
+	<javac srcdir="${dirs.base}/demo/${name}/generated"
+               destdir="${classdir}"
+	       includes="demo/${name}/**/*.java"
+	        />
+	<javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+	       includes="demo/${name}/*.java"
+	        />
+   </target>
+
+   <target name="idl" depends="init">
+        <java classname="org.jacorb.idl.parser" 
+              fork="yes" 
+              classpath="${lib}/idl.jar;${java.class.path}">
+
+	      <arg line="${idlflags}
+	      ${dirs.base}/demo/${name}/server.idl"/>
+         </java>
+   </target>
+
+   <target name="clean" depends="init">
+	   <delete dir="${classdir}/demo/${name}"/>
+	   <delete dir="${dirs.base}/demo/${name}/generated"/>
+   </target>
+
+</project>
+
+
+
+
+

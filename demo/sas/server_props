@@ -1,0 +1,44 @@
+# This interceptor must be set if programs need access to
+# certificates using the CORBA Security API, SSL works also
+# without this interceptor
+
+#org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.iaik.SecurityServiceInitializer
+
+# IIOP/SSL parameters (numbers are decimal values):
+# EstablishTrustInClient = 40
+# EstablishTrustInTarget = 20
+# mutual authentication = 60
+
+#jacorb.security.support_ssl=off
+
+#jacorb.security.ssl.server.supported_options=61
+#jacorb.security.ssl.server.required_options=0
+
+# files with public key certs of trusted CAs
+#
+# WARNING: If no CA certs are present, the IAIK chain verifier will
+# accept ALL otherwise valid chains!
+#
+#jacorb.security.trustees=CA_cert
+
+# the name of the default key alias to look up in the keystore
+#jacorb.security.default_user=Ringo
+#jacorb.security.default_password=foo
+
+# the name and location of the keystore relative to the home or
+# current directory
+#jacorb.security.keystore=ringo_ks
+#jacorb.security.keystore_password=foo
+
+
+
+
+# DRR #
+# CSI Properties
+
+org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.sas.TSSInitializer
+jacorb.security.support_sas=on
+jacorb.security.sas.mechanism.1.oid=2.23.130.1.1.1
+jacorb.security.sas.mechanism.1.provider=org.jacorb.security.sas.GSSUPProvider
+jacorb.security.sas.server.target_requires=Integrity,Confidentiality,EstablishTrustInClient
+jacorb.security.sas.server.target_name=MyTarget
