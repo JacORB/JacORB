@@ -21,12 +21,15 @@
 package org.jacorb.idl;
 
 /**
- * PositionInfo are used to group information about the current
- * position in the input file. It is created by the lexer but
- * also includes information about the current input stream that
- * is stored here to make switching between input stream easier
- * for GlobalInputStream (when including another file or returning
- * to the including file)
+ * PositionInfo objects are records that group information about the
+ * current position in the input file. They are created by the lexer but
+ * also includes information about the current input stream that is
+ * stored here to make switching between input stream easier for
+ * GlobalInputStream (when including another file or returning to the
+ * including file) 
+ *
+ * @author Gerald Brose
+ * @version $Id$
  */
 
 import java.io.File;
@@ -34,7 +37,6 @@ import java.io.InputStream;
 
 public class PositionInfo
 {
-
     public String line = "";
     public int line_no = 0;
     public int line_pos = 0;
@@ -42,14 +44,22 @@ public class PositionInfo
     public File file;
     public InputStream stream;
 
-
-    public PositionInfo( int _line_no, int _char_pos,
-                         String prefix, String _line )
+    public PositionInfo( int _line_no, 
+                         int _char_pos,
+                         String prefix, 
+                         String _line, 
+                         File file)
     {
         line_no = _line_no;
         line_pos = _char_pos;
         pragma_prefix = prefix;
         line = _line;
+        this.file = file;
+    }
+
+    public String toString()
+    {
+        return file.getName() + ", line " + line_no + "(" + line_pos + ")";
     }
 
 }
