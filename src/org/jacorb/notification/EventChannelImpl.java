@@ -37,19 +37,20 @@ import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.AbstractAdmin;
-import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.servant.ConsumerAdminTieImpl;
 import org.jacorb.notification.servant.FilterStageListManager;
 import org.jacorb.notification.servant.ManageableServant;
+import org.jacorb.notification.servant.SupplierAdminTieImpl;
+import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.QoSPropertySet;
-import org.jacorb.notification.servant.SupplierAdminTieImpl;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
+import org.omg.CosNotification.EventReliability;
 import org.omg.CosNotification.MaxConsumers;
 import org.omg.CosNotification.MaxSuppliers;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
@@ -74,7 +75,6 @@ import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
-import org.omg.CosNotification.EventReliability;
 
 /**
  * @author Alphonse Bendt
@@ -178,49 +178,43 @@ public class EventChannelImpl
 
     private Runnable disposeHook_;
 
-    private ProxyCreationRequestEventListener proxyConsumerCreationListener_ =
-        new ProxyCreationRequestEventListener()
-        {
-            public void actionProxyCreationRequest( ProxyCreationRequestEvent event )
-                throws AdminLimitExceeded
-            {
-                addSupplier();
-            }
-        };
 
-    private ProxyCreationRequestEventListener proxySupplierCreationListener_ =
-        new ProxyCreationRequestEventListener()
+    private ProxyEventListener proxyConsumerEventListener_ =
+        new ProxyEventListener()
         {
-            public void actionProxyCreationRequest( ProxyCreationRequestEvent event )
+            public void actionProxyCreationRequest( ProxyEvent event )
                 throws AdminLimitExceeded
             {
                 addConsumer();
             }
-        };
 
-    private ProxyEventListener proxyConsumerDisposedListener_ =
-        new ProxyEventListener()
-        {
-            public void actionProxyCreated( ProxyEvent e)
+            public void actionProxyCreated( ProxyEvent event)
             {
                 // No Op
             }
 
-            public void actionProxyDisposed( ProxyEvent e )
+            public void actionProxyDisposed( ProxyEvent event )
             {
                 removeConsumer();
             }
         };
 
-    private ProxyEventListener proxySupplierDisposedListener_ =
+
+    private ProxyEventListener proxySupplierEventListener_ =
         new ProxyEventListener()
         {
-            public void actionProxyCreated(ProxyEvent e)
+            public void actionProxyCreationRequest( ProxyEvent event )
+                throws AdminLimitExceeded
+            {
+                addSupplier();
+            }
+
+            public void actionProxyCreated(ProxyEvent event)
             {
                 // No OP
             }
 
-            public void actionProxyDisposed( ProxyEvent e )
+            public void actionProxyDisposed( ProxyEvent event )
             {
                 removeSupplier();
             }
@@ -239,10 +233,6 @@ public class EventChannelImpl
         defaultFilterFactory_ = channelContext.getDefaultFilterFactory();
 
         channelContext_.setEventChannelServant(this);
-
-        channelContext_.setProxySupplierDisposedEventListener( proxySupplierDisposedListener_ );
-
-        channelContext_.setProxyConsumerDisposedEventListener( proxyConsumerDisposedListener_ );
 
         listManager_ = new FilterStageListManager() {
                 public void fetchListData(FilterStageListManager.List list) {
@@ -653,7 +643,7 @@ public class EventChannelImpl
             logger_.error("err", e);
         }
 
-        _admin.addProxyCreationEventListener( proxySupplierCreationListener_ );
+        _admin.addProxyEventListener( proxySupplierEventListener_ );
 
         final Integer _key = _admin.getID();
 
@@ -704,7 +694,7 @@ public class EventChannelImpl
             logger_.fatalError("error setting qos", e);
         }
 
-        _admin.addProxyCreationEventListener( proxyConsumerCreationListener_ );
+        _admin.addProxyEventListener( proxyConsumerEventListener_ );
 
         final Integer _key = _admin.getID();
 
@@ -1051,8 +1041,6 @@ public class EventChannelImpl
         Map _copy = new HashMap(qosSettings_.toMap());
 
         _copy.remove(EventReliability.value);
-
-        logger_.debug("createQoSPropsForAdmin" + _copy);
 
         return PropertySet.map2Props(_copy);
     }
