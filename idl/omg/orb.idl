@@ -162,9 +162,6 @@ module CORBA
 	PolicyErrorCode reason;
     };
 
-    exception UserException {};
-    pseudo interface ExceptionList {};
-
 };
 
 
