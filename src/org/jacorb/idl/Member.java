@@ -232,8 +232,11 @@ class Member
     {
 	/* only print members that are not interfaces */
 
-	if( type_spec.typeSpec() instanceof ConstrTypeSpec && 
-	    !(((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec.declaration() instanceof Interface)||
+	if( (type_spec.typeSpec() instanceof ConstrTypeSpec && 
+             !((((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec.declaration() 
+                instanceof Interface) ||
+               (((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec.declaration() 
+                instanceof Value))) ||
 	    type_spec.typeSpec() instanceof SequenceType || 
 	    type_spec.typeSpec() instanceof ArrayTypeSpec )
 	{
