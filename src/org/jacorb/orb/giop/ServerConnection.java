@@ -56,7 +56,8 @@ public class ServerConnection
     protected boolean isSSL;
     protected Socket mysock = null;
     private byte [] header = new byte[ Messages.MSG_HEADER_SIZE ];
-    
+
+    private ORB orb = null;
     /** 
      * dummy constructor
      */

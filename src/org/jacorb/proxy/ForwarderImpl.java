@@ -516,7 +516,7 @@ class ForwarderImpl
                 forwardMap.remove(uid);
                 ClientConnection c = 
                     mStub.getConnection();
-                c.releaseConnection();
+                orb.getConnectionManager().releaseConnection( c );
                 iorRefCnt.remove(IOR);
             }
             else

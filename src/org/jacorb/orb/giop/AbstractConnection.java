@@ -37,12 +37,6 @@ import org.jacorb.orb.factory.SocketFactory;
 
 public abstract class AbstractConnection 
 {
-    protected InputStream in_stream;
-    BufferedOutputStream out_stream;
-
-    public  org.jacorb.orb.ORB orb;
-    protected ConnectionManager manager;
-	
     /**
      * Connection OSF character formats.
      */
@@ -69,21 +63,6 @@ public abstract class AbstractConnection
      */
 
     private boolean tcsNegotiated = false;
-	
-    /**
-     * IIOP version active on the channel.
-     * @author devik
-     */
-
-    public org.omg.IIOP.Version IIOPVersion = 
-	new org.omg.IIOP.Version((byte)1,(byte)0);
-
-    /* how many clients use this connection? */
-    protected int client_count = 0;
-
-    protected Socket mysock = null;
-
-    private byte [] header = new byte[ Messages.MSG_HEADER_SIZE ];
 
     /**
      * Called by Delegate or setServerCodeSet in order to mark tcs on this
@@ -102,24 +81,6 @@ public abstract class AbstractConnection
     {
         return tcsNegotiated;
     }
-	
-    /** don't use, this is a temporary hack! */
-	
-    public Socket getSocket()
-    {
-        return mysock;
-    }		
-
-    public boolean connected()
-    {
-        return mysock != null;
-    }
-
-    public BufferedOutputStream get_out_stream()
-    {
-	return out_stream;
-    }
-
 }
 
 

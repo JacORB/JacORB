@@ -102,7 +102,7 @@ public class ReplyReceptor
             catch ( CloseConnectionException c ) 
             {
 	    	org.jacorb.util.Debug.output(3, "ReplyReceptor: CloseConnectionException");
-	    	master.closeConnection();
+	    	master._closeConnection();
                 break;
 	    }
             catch ( java.io.InterruptedIOException ioint ) 
@@ -118,7 +118,7 @@ public class ReplyReceptor
                 if( !isStopped() )
                 {
                     org.jacorb.util.Debug.output(3,e);
-                    master.closeConnection();
+                    master._closeConnection();
                 }
                 break;
 	    }

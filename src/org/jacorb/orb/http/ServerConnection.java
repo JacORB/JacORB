@@ -40,6 +40,9 @@ public final class ServerConnection
     Object requestwait = new Object();
     org.jacorb.orb.connection.http.httpserver.ServeConnection realCon;
     Socket mysock;
+    
+    private ORB orb = null;
+    private int client_count = 0;
    
     public ServerConnection( org.jacorb.orb.ORB orb, 
                              boolean is_ssl,

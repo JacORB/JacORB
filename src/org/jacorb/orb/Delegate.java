@@ -80,6 +80,7 @@ public final class Delegate
 
     private boolean locate_on_bind_performed = false;
 
+    private ConnectionManager conn_mg = null;
     /**
      * A general note on the synchronization concept
      *
@@ -105,6 +106,8 @@ public final class Delegate
         this.orb = orb;
         _pior = pior;
 
+        conn_mg = ((ORB) orb).getConnectionManager();
+
         initInterceptors();
     }
 
@@ -121,6 +124,8 @@ public final class Delegate
                                                 object_reference );
         }
 
+        conn_mg = ((ORB) orb).getConnectionManager();
+
         initInterceptors();
     }
 
@@ -128,6 +133,8 @@ public final class Delegate
     {
         this.orb = orb;
         _pior = new ParsedIOR( _ior );
+
+        conn_mg = ((ORB) orb).getConnectionManager();
 
         initInterceptors();
     }
@@ -166,13 +173,9 @@ public final class Delegate
                 Debug.output( 3, "Delegate bound to " + _pior.getAdPort() );
         
     
-            connection = 
-                ((ORB) orb).getConnectionManager().getConnection( this );
+            connection = conn_mg.getConnection( this );
+
             bound = true;
-        
-            //tell conn, that one more *instance* of delegate is bound
-            //to it            
-            connection.duplicate();
             
             /* The delegate could query the server for the object
              *  location using a GIOP locate request to make sure the
@@ -247,7 +250,7 @@ public final class Delegate
 
             if( connection != null )
             {
-                connection.releaseConnection();                
+                conn_mg.releaseConnection( connection );                
             }
 
             //to tell bind() that it has to take action
@@ -339,12 +342,13 @@ public final class Delegate
 
     public void finalize()
     {
-        ((org.jacorb.orb.ORB)orb)._release( this );
-
         if( connection != null )
         {
-            connection.releaseConnection();
+            conn_mg.releaseConnection( connection );
         }
+
+        ((org.jacorb.orb.ORB)orb)._release( this );
+
 
         Debug.output(3," Delegate gc'ed!");
     }

@@ -46,8 +46,6 @@ public class ClientConnection
     /** client-side socket timeout */
     protected int timeout = 0;
 
-    protected ConnectionManager manager;
-
     /** write lock */
     public Object writeLock = new Object();
 
@@ -68,6 +66,8 @@ public class ClientConnection
     private String target_host = null;
     private int target_port = -1;
 
+    private ORB orb = null;
+    private BufferManager buffer_mg = BufferManager.getInstance();
     
     /** 
      * dummy constructor
@@ -86,14 +86,13 @@ public class ClientConnection
      * @except <code>java.io.IOException</code> 
      */
 	
-    public ClientConnection ( ConnectionManager mgr, 
-                              String host,
+    public ClientConnection ( String host,
                               int port,
-                              SocketFactory socket_factory )
+                              SocketFactory socket_factory,
+                              ORB orb )
     {
         this.socket_factory = socket_factory;
-        manager = mgr;
-        orb = mgr.getORB();
+        this.orb = orb;
      
         target_host = host;
         target_port = port;
@@ -251,7 +250,7 @@ public class ClientConnection
 	// encapsulate context
 
 	CDROutputStream os = new CDROutputStream( orb );
-	os.write_boolean(false);
+	os.beginEncapsulatedArray();
 	org.omg.CONV_FRAME.CodeSetContextHelper.write(os,
 						      new org.omg.CONV_FRAME.CodeSetContext(TCS,TCSW));
 		
@@ -274,7 +273,7 @@ public class ClientConnection
      *	use releaseConnection.  
      */
 
-    public synchronized void closeConnection()
+    public synchronized void _closeConnection()
     {
 	Debug.output(1,"Closing connection to " + connection_info);
 	try
@@ -318,12 +317,8 @@ public class ClientConnection
 
 	mysock = null;
 
-	Debug.output(3,"Closing connection to " + 
-                     connection_info + " (sockets closed)");
-
-	manager.removeConnection( this );
- 
-	// connection_info = null;
+	Debug.output(4,"Closing connection to " + 
+                     connection_info + " (socket closed)");
 
 	if( replies.size() > 0 )
 	{
@@ -354,16 +349,19 @@ public class ClientConnection
         return id_count++; /* */
     }
 
-    protected synchronized void incUsers()
+    public void incClients()
     {
         client_count++;
     }
-
-    /** called by delegate when the delegate is duplicated */
-
-    public void duplicate()
+    
+    public void decClients()
     {
-        incUsers();
+        client_count--;
+    }
+
+    public boolean hasNoMoreClients()
+    {
+        return client_count == 0;
     }
 
     /** 
@@ -471,7 +469,7 @@ public class ClientConnection
 	    }
 	    
 	    int bufSize = msg_size + Messages.MSG_HEADER_SIZE;
-	    byte[] inbuf = BufferManager.getInstance().getBuffer(bufSize);
+	    byte[] inbuf = buffer_mg.getBuffer(bufSize);
 	    
 	    /* copy header */
 	    
@@ -588,6 +586,12 @@ public class ClientConnection
     public synchronized void reconnect()
 	throws org.omg.CORBA.COMM_FAILURE
     {	
+        //don't reconnect, if already connected
+        if( connected() )
+        {
+            return;
+        }
+
 	Debug.output(1,"Trying to connect to " + 
                      target_host + ':' + target_port );
 
@@ -602,12 +606,12 @@ public class ClientConnection
                 mysock = socket_factory.createSocket( target_host, 
                                                       target_port );
 
-		//mysock.setTcpNoDelay(true);
+		mysock.setTcpNoDelay(true);
 
                 if( timeout != 0 )
                 {
                     /* re-set the socket timeout */
-                    //mysock.setSoTimeout( timeout );
+                    mysock.setSoTimeout( timeout );
                 }
 
 		in_stream = 
@@ -616,17 +620,6 @@ public class ClientConnection
 		out_stream = 
 		    new BufferedOutputStream( mysock.getOutputStream(), 
 					      Environment.outBufSize() );
-
-/*
-		String ip = mysock.getInetAddress().getHostAddress();
-
-		if( ip.indexOf('/') > 0)
-		    ip = ip.substring( ip.indexOf('/') + 1 );
-
-		String host_and_port = ip + ":"+ mysock.getPort();
-		connection_info = host_and_port;
-*/
-		manager.addConnection( this );
 
 		Debug.output( 1,"Connected " + 
                               (( isSSL() )? "via SSL " : "" ) 
@@ -670,7 +663,7 @@ public class ClientConnection
      *	Release a connection. If called by the last client using
      *	this connection (using Stub._release()), it is closed.
      */
-
+    /*
     public synchronized void releaseConnection()
     {
         client_count--;
@@ -684,7 +677,7 @@ public class ClientConnection
                          connection_info );		
         }
     }
-
+    */
     /**
      *
      */
@@ -794,7 +787,7 @@ public class ClientConnection
 	{
 	    out_stream.write( Messages.closeConnectionMessage());
 	    out_stream.flush();
-	    closeConnection();
+	    _closeConnection();
 	} 
 	catch ( Exception e )
 	{

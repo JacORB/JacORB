@@ -46,14 +46,15 @@ public final class ClientConnection
     HTTPClient.HTTPResponse rsp;
     String host=null;
     int port;
+    
+    private ORB orb = null;
 
-    public ClientConnection( ConnectionManager mgr, 
-                             String _host, 
+    public ClientConnection( String _host, 
                              int _port,
-                             org.jacorb.orb.factory.SocketFactory factory )
+                             org.jacorb.orb.factory.SocketFactory factory,
+                             ORB orb )
     {
-        manager = mgr;
-        orb= mgr.getORB();
+        this.orb = orb;
         host=_host;
         port=_port;
         connection_info=host+":"+port;
@@ -87,11 +88,12 @@ public final class ClientConnection
 	
 	throw new java.io.EOFException();
     }
+
     public synchronized void closeConnection()
     {
-        manager.removeConnection( this );
         connected=false;
     }
+
     public boolean connected()
     {
         //		return connected;		

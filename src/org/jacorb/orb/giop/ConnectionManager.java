@@ -126,8 +126,8 @@ public class ConnectionManager
      * @param <code>String host_and_port</code> - in "host:xxx" notation
      * @return <code>Connection</code> */
 
-    public final ClientConnection _getConnection( String host_and_port, 
-                                                  boolean target_ssl )
+    public synchronized final ClientConnection _getConnection( String host_and_port, 
+                                                               boolean target_ssl )
         {
             if( host_and_port.indexOf('/') > 0)
             {
@@ -160,7 +160,7 @@ public class ConnectionManager
 
             if( c != null )
             {
-                if( !c.isSSL() )
+                if( ! c.isSSL() )
                 {
                     if( target_ssl )
                     {
@@ -199,10 +199,10 @@ public class ConnectionManager
                 if ( Environment.useHTTPTunneling( host ))
                 {
                     c = (ClientConnection)
-                        new org.jacorb.orb.connection.http.ClientConnection( this, 
-                                                                             host, 
+                        new org.jacorb.orb.connection.http.ClientConnection( host, 
                                                                              _port, 
-                                                                             socket_factory);
+                                                                             socket_factory,
+                                                                             orb );
                 }
                 else
                 {        
@@ -210,10 +210,10 @@ public class ConnectionManager
                     {               
                         if( target_ssl )
                         {
-                            c = new ClientConnection( this,
-                                                      host,
+                            c = new ClientConnection( host,
                                                       _port,
-                                                      ssl_socket_factory );
+                                                      ssl_socket_factory,
+                                                      orb );
                         }
                         else
                         {
@@ -227,25 +227,27 @@ public class ConnectionManager
                                 );
                             }
                             
-                            c = new ClientConnection( this,
-                                                      host,
+                            c = new ClientConnection( host,
                                                       _port,
-                                                      socket_factory );
+                                                      socket_factory,
+                                                      orb );
                         }
                     }
                     catch( SecurityException ace )
                     {
                         // could only happen, if called by applet
                         // ->connect must goto applethost
-                        c = new ClientConnection( this,
-                                                  orb.getApplet().getCodeBase().getHost(),
+                        c = new ClientConnection( orb.getApplet().getCodeBase().getHost(),
                                                   _port,
-                                                  ssl_socket_factory );
+                                                  socket_factory,
+                                                  orb );
                     }
                 }       
 
                 connections.put( c.getInfo(), c );
             }
+
+            c.incClients();
 
             return c;
         }
@@ -368,15 +370,18 @@ public class ConnectionManager
         }
 
 
-    public void removeConnection( ClientConnection e )
+    public synchronized void releaseConnection( ClientConnection c )
+    {
+        c.decClients();
+        
+        if( c.hasNoMoreClients() )
         {
-            connections.remove( e.getInfo() );
-        }
+            c._closeConnection();
 
-    public void addConnection( ClientConnection e )
-        {
-            connections.put( e.getInfo(), e );
+            connections.remove( c.getInfo() );
         }
+    }
+
 
 
     public void shutdown()
@@ -391,7 +396,7 @@ public class ConnectionManager
 
             for( Enumeration e = connections.elements(); e.hasMoreElements(); )
             {
-                ( (ClientConnection)e.nextElement()).closeConnection();
+                ( (ClientConnection)e.nextElement())._closeConnection();
             }
 
             Debug.output(3,"ConnectionManager shut down (all connections released)");
