@@ -34,7 +34,7 @@ class OpDecl
 {
     public static final int NO_ATTRIBUTE = 0;
     public static final int ONEWAY       = 1;
-    
+
     public int opAttribute; // either NO_ATTRIBUTE or ONEWAY
     public TypeSpec opTypeSpec;
     public Vector paramDecls;
@@ -49,9 +49,9 @@ class OpDecl
 
     /**
      *  Constructs a new OpDecl with the given characteristics.
-     */    
-    public OpDecl (IdlSymbol myInterface, 
-                   int opAttribute, 
+     */
+    public OpDecl (IdlSymbol myInterface,
+                   int opAttribute,
                    TypeSpec opTypeSpec,
                    String name,
                    List paramDecls,
@@ -65,8 +65,8 @@ class OpDecl
         this.paramDecls  = new Vector (paramDecls);
         this.raisesExpr  = raisesExpr;
         setEnclosingSymbol (myInterface);
-        setPackage (myInterface.full_name());    
-    } 
+        setPackage (myInterface.full_name());
+    }
 
     /**
      *  Constructs a normal (not oneway) operation with void return type
@@ -76,11 +76,11 @@ class OpDecl
                    String    name,
                    List      paramDecls)
     {
-        this (myInterface, 
-              NO_ATTRIBUTE, 
+        this (myInterface,
+              NO_ATTRIBUTE,
               new VoidTypeSpec (new_num()),
-              name, 
-              paramDecls, 
+              name,
+              paramDecls,
               new RaisesExpr (new_num()));
     }
 
@@ -173,18 +173,24 @@ class OpDecl
 //		 logger.warn( "addImportedName " + param.paramTypeSpec.toString()  );
 //                  myInterface.addImportedName( param.paramTypeSpec.toString() );
 //              }
-
             if( !(param.paramTypeSpec.typeSpec() instanceof BaseType ))
             {
-                
+
                 if( logger.isInfoEnabled() )
-		 logger.info( "classname: " + 
+		 logger.info( "classname: " +
                                     param.paramTypeSpec.typeSpec().getClass().getName() );
 
                 myInterface.addImportedName( param.paramTypeSpec.typeSpec().full_name(),
                                              param.paramTypeSpec.typeSpec() );
             }
+            if( param.paramTypeSpec.typeSpec() instanceof ConstrTypeSpec &&
+                ((ConstrTypeSpec )param.paramTypeSpec.typeSpec()).c_type_spec instanceof StructType &&
+                ((StructType )((ConstrTypeSpec )param.paramTypeSpec.typeSpec()).c_type_spec).exc == true )
+            {
+                parser.error( "Can't pass an exception as a parameter.");
+            }
         }
+
 
         if( opTypeSpec.typeSpec() instanceof ScopedName )
         {
@@ -279,7 +285,7 @@ class OpDecl
             for( e = paramDecls.elements(); e.hasMoreElements(); )
             {
                 ParamDecl p = ( (ParamDecl)e.nextElement() );
-                if( p.paramAttribute != ParamDecl.MODE_OUT ) 
+                if( p.paramAttribute != ParamDecl.MODE_OUT )
                     ps.println( "\t\t\t\t" + p.printWriteStatement( "_os" ) );
             }
 
@@ -411,7 +417,7 @@ class OpDecl
         String idl_name = ( name.startsWith( "_" ) ? name.substring( 1 ) : name );
 
         ps.print( "\tpublic void sendc_" + name + "(" );
-        
+
         ps.print( "AMI_" + classname + "Handler ami_handler" );
 
         for ( Iterator i = paramDecls.iterator(); i.hasNext(); )
@@ -442,7 +448,7 @@ class OpDecl
         for( Iterator i = paramDecls.iterator(); i.hasNext(); )
         {
             ParamDecl p = ( (ParamDecl)i.next() );
-            if( p.paramAttribute != ParamDecl.MODE_OUT ) 
+            if( p.paramAttribute != ParamDecl.MODE_OUT )
                 ps.println( "\t\t\t\t" + p.asIn().printWriteStatement( "_os" ) );
         }
 
@@ -482,7 +488,7 @@ class OpDecl
         ps.println( "\n\t{" );
 
 
-        if( opAttribute == NO_ATTRIBUTE && 
+        if( opAttribute == NO_ATTRIBUTE &&
             !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
         {
             ps.print( "\t\treturn " );
@@ -520,10 +526,10 @@ class OpDecl
             ParamDecl p = (ParamDecl)e.nextElement();
             TypeSpec ts = p.paramTypeSpec.typeSpec();
 
-            boolean is_wstring = 
+            boolean is_wstring =
                 ( ( ts instanceof StringType ) && ( ( (StringType)ts ).isWide() ) );
 
-            boolean is_wchar = 
+            boolean is_wchar =
                 ( ( ts instanceof CharType ) && ( ( (CharType)ts ).isWide() ) );
 
             if( p.paramAttribute == ParamDecl.MODE_IN )
@@ -785,9 +791,3 @@ class OpDecl
 
 
 }
-
-
-
-
-
-
