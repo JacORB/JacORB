@@ -27,7 +27,7 @@ module b {
     };
 };
 
-module CORBA 
+module CORBAScopeTest
 {
     typedef unsigned short ServiceType;
     typedef unsigned short ServiceOption;
@@ -40,8 +40,8 @@ module CORBA
 	dk_Module, dk_Operation, dk_Typedef,
 	dk_Alias, dk_Struct, dk_Union, dk_Enum,
 	dk_Primitive, dk_String, dk_Sequence, dk_Array,
-	dk_Repository, 
-	dk_Wstring, dk_Fixed, 
+	dk_Repository,
+	dk_Wstring, dk_Fixed,
 	dk_Value, dk_ValueVox, dk_ValueMember,
 	dk_native
     };
@@ -53,7 +53,7 @@ module CORBA
 	readonly attribute DefinitionKind def_kind;
 
 	// write interface
-	void destroy ();        
+	void destroy ();
 
         struct FullInterfaceDescription {
 #pragma version FullInterfaceDescription 2.3
