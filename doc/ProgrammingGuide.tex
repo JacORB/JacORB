@@ -21,7 +21,7 @@
 \title{JacORB 1.4 Programming Guide}
 
 \author{Gerald Brose, Nicolas Noffke\\
-\{gerald.brose,nicholas.noffke\}@xtradyne.com\\
+\{gerald.brose@xtradyne.com, nicolas.noffke@epost.de\}\\
 \\
 $Revision$
 }
@@ -2120,7 +2120,7 @@ tunneling.
 \section{Appligator Functionality}
 
 The Appligator is a GIOP proxy. When the Appligator is used, instead
-of a client calling direct to a server it calls to the Appligator
+of a client calling directly to a server it calls to the Appligator
 which then itself calls on to the server. This is all transparent as
 far as a client is concerned.  The basic mechanism of operation is as
 follows:
@@ -2142,7 +2142,7 @@ follows:
 \section{Using The Appligator}
 
 The Appligator can be run as a normal CORBA server via the
-'Appligator' shell script or batch file. The Appligator is configured
+'appligator' shell script or batch file. The Appligator is configured
 vis both command line arguments and properties stored in the ORB
 configuration file 'jacorb.properties'.  
 
@@ -3201,68 +3201,45 @@ file but write log output to different files." & file \\
 \verb"jacorb.giop_minor_vers"
 \verb"ion" & The GIOP minor version number to use for newly created IORs. Default is 2. & integer \\
 \hline
-\verb"jacorb.retries" & \verb"Number of retries if connection cannot"
-\verb"directly be established. Default is 5." & integer \\
+\verb"jacorb.retries" & Number of retries if connection cannot
+directly be established. Default is 5. & integer \\ 
 \hline
-\verb"jacorb.retry_interval" & \verb"Time in milliseconds to wait between"
-\verb"retries. Default is 500." & millisec. \\
+\verb"jacorb.retry_interval" & Time in milliseconds to wait between retries. Default is 500. & millisec. \\
 \hline
-\verb"jacorb.outbuf_size" & \verb"Size of network buffers for outgoing"
-\verb"messages in bytes. Default is 2048." & \verb"byte" \\
+\verb"jacorb.outbuf_size" & Size of network buffers for outgoing messages in bytes. Default is 2048. & \verb"byte" \\
 \hline
 \verb"jacorb.maxManagedBufSi"
-\verb"ze" & \verb"This is NOT the maximum buffer size"
-\verb"that can be used, but just the largest"
-\verb"size of buffers that will be kept and"
-\verb"managed. This value will be added to"
-\verb"an internal constant of 5, so the real"
-\verb"value in bytes is 2** (5 +"
-\verb"maxManagedBufSize - 1). You only need"
-\verb"to increase this value if you are"
-\verb"dealing with LOTS of LARGE data"
-\verb"structures. You may decrease it to"
-\verb"make the buffer manager release large"
-\verb"buffers immediately rather than"
-\verb"keeping them for later reuse. Default"
-\verb"is 18." & integer \\
+\verb"ze" & This is NOT the maximum buffer size that can be used, but
+just the largest size of buffers that will be kept and managed. This
+value will be added to an internal constant of 5, so the real value in
+bytes is 2** (5 + maxManagedBufSize - 1). You only need to increase
+this value if you are dealing with LOTS of LARGE data structures. You
+may decrease it to make the buffer manager release large buffers
+immediately rather than keeping them for later reuse. Default is 18. & integer \\
 \hline
 \verb"jacorb.connection.clie"
-\verb"nt_timeout" & \verb"Client-side timeout. This is set to"
-\verb"non-zero in order to stop blocking"
-\verb"after specified number of"
-\verb"milliseconds. Not set by default." & millisec. \\
+\verb"nt_timeout" & Client-side timeout. This is set to non-zero in
+order to stop blocking after specified number of milliseconds. Not set by default. & millisec. \\
 \hline
 \verb"jacorb.connection.serv"
-\verb"er_timeout" & \verb"Maximum time in milliseconds that a"
-\verb"server keeps a connection open if"
-\verb"nothing happens. Not set by default." & millisec. \\
+\verb"er_timeout" &  Maximum time in milliseconds that a server keeps
+a connection open if nothing happens. Not set by default. & millisec. \\
 \hline
 \verb"jacorb.reference_cachi"
-\verb"ng" & \verb"Whether or not JacORB caches objects"
-\verb"references. Not set by default." & boolean \\
+\verb"ng" &  Whether or not JacORB caches objects references. Not set by default. & boolean \\
 \hline
-\verb"jacorb.hashtable_class" & \verb"The following property specifies the"
-\verb"class which is used for reference"
-\verb"caching. WeakHashtable uses"
-\verb"WeakReferences, so entries get garbage"
-\verb"collected if only the Hashtable has a"
-\verb"reference to them. This is useful if"
-\verb"you have many references to"
-\verb"short-living non-persistent CORBA"
-\verb"objects. It is only available for java"
-\verb"1.2 and above. On the other hand the"
-\verb"standard Hashtable keeps the"
-\verb"references until they are explicitly"
-\verb"deleted by calling _release(). This is"
-\verb"useful for persistent and long-living"
-\verb"CORBA objects. Defaults to Hashtable." & class \\
+\verb"jacorb.hashtable_class" &  Specifies the class which is used for
+reference caching. WeakHashtable uses WeakReferences, so entries get
+garbage collected if only the Hashtable has a reference to
+them. Useful if you have many references to short-living
+non-persistent CORBA objects. On the other hand the standard Hashtable
+keeps the references until they are explicitly deleted by calling
+\_release(). This is useful for persistent and long-living CORBA objects. Defaults to Hashtable. & class \\
 \hline
-\verb"jacorb.use_bom" & \verb"Use GIOP 1.2 byte order markers, since"
-\verb"CORBA 2.4-5. Default is off." & boolean \\
+\verb"jacorb.use_bom" &  Use GIOP 1.2 byte order markers, since CORBA 2.4-5. Default is off. & boolean \\
 \hline
 \verb"jacorb.giop.add_1_0_pr"
-\verb"ofiles" & \verb"Add additional IIOP 1.0 profiles even"
-\verb"if using IIOP 1.2. Default is off." & boolean \\
+\verb"ofiles" &  Add additional IIOP 1.0 profiles even if using IIOP 1.2. Default is off. & boolean \\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
