@@ -35,6 +35,9 @@ import org.jacorb.orb.CDRInputStream;
 public class MessageInputStream 
     extends CDRInputStream 
 {
+	
+    public int msg_size = -1;
+    
     public MessageInputStream( org.omg.CORBA.ORB orb, byte[] buffer)
     {
         super( orb, buffer );
@@ -51,6 +54,8 @@ public class MessageInputStream
         setLittleEndian( Messages.isLittleEndian( buffer ));
 
         setGIOPMinor( Messages.getGIOPMinor( buffer ) );
+        
+        msg_size = Messages.getMsgSize( buffer );
 
         //skip the message header. Its attributes are read directly
         skip( Messages.MSG_HEADER_SIZE );	    

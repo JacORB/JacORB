@@ -11,5 +11,7 @@
 
 0x4A414301 - Padding Context (assigned by Nicolas, used in 
              org.jacorb.orb.connection.ServiceContextTransportingOutputStream)
+0x4A414302 - Target IOR Context (assigned by Sebastian, used in org.jacorb.proxy.*)
+
 
 

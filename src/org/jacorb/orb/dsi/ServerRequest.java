@@ -58,6 +58,8 @@ public class ServerRequest
 
     private org.jacorb.orb.ORB orb;
 
+    private boolean usePreconstructedReply = false; //for appligator
+ 
     private ServerRequestInfoImpl info = null;
 
     public ServerRequest( org.jacorb.orb.ORB orb, 
@@ -261,6 +263,25 @@ public class ServerRequest
     {
 	if( responseExpected() )
 	{
+		
+		//shortcut for appligator
+		if (usePreconstructedReply)
+		{
+			try{
+				connection.sendMessage( out );
+			}
+			catch ( Exception ioe )
+			{
+				Debug.output(2,ioe);
+				System.err.println("ServerRequest: Error replying to request!");
+			}
+			finally
+			{
+				return;
+			}
+
+    	 	}
+	
 	    Debug.output(6,"ServerRequest: reply to " + operation());
 
 	    try 
@@ -566,6 +587,11 @@ public class ServerRequest
     public GIOPConnection getConnection()
     {
 	return connection;
+    }
+    
+    public void setUsePreconstructedReply(boolean use)
+    {
+	usePreconstructedReply = use; 
     }
 
 }

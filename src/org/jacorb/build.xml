@@ -45,9 +45,9 @@
                  fork="yes"
                  classpath="${classpath}">
                  <arg line="${jidlflags} -sloppy_names"/>
-<!--
-                 <arg file="${include}/jacorb/Forwarder.idl"/>
--->
+
+                 <arg file="${include}/jacorb/Proxy.idl"/>
+
                  <arg file="${include}/jacorb/imr.idl"/>
                  <arg file="${include}/jacorb/channel.idl"/>
                  <arg file="${include}/jacorb/Tracing.idl"/>
@@ -86,7 +86,7 @@
    </target>
 
    <target name="subdirs"
-               depends="valuehandler,orb,utils,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
+               depends="valuehandler,orb,utils,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
    </target>
 
 <!--proxy-->

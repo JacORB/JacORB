@@ -23,7 +23,11 @@ public class AppletClient extends java.applet.Applet
                       "org.jacorb.orb.ORB");
 	    props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
-
+       	     props.put
+                ("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit",
+                 "demo.dii.ProxyClientInitializer");
+	
+            
 	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(this,props);
 
             //	orb = org.omg.CORBA.ORB.init((java.applet.Applet)this,null);

@@ -79,7 +79,7 @@ public class MessageOutputStream
         skip( Messages.MSG_HEADER_SIZE );
     }
 
-    protected void insertMsgSize( int size )
+    public void insertMsgSize( int size )
     {
         byte[] buffer = getInternalBuffer();
         
@@ -90,7 +90,7 @@ public class MessageOutputStream
         buffer[11] = (byte) (size        & 0xFF);
     }
 
-    protected void insertMsgSize()
+    public void insertMsgSize()
     {
         insertMsgSize( size() - Messages.MSG_HEADER_SIZE );
     }

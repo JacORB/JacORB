@@ -550,6 +550,20 @@ public class CDROutputStream
         
         reset();
     }
+    
+    //for appligator
+    public void setBufferWithoutReset( byte[] b )
+    {
+        bufMgr.returnBuffer( buffer );
+
+        buffer = b;
+    }
+    
+    //for appligator
+    public void setSize( int size)
+    {
+		pos = size;
+    }
 
     /**************************************************
      * The following operations are from OutputStream *

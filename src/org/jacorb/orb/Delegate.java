@@ -82,6 +82,7 @@ public final class Delegate
 
     private Hashtable policy_overrides = new Hashtable();
 
+    private boolean doNotCheckExceptions = false; //Setting for Appligator
     /**
      * A general note on the synchronization concept
      *
@@ -102,7 +103,7 @@ public final class Delegate
     public Delegate()
     {}
 
-    protected Delegate(org.omg.CORBA.ORB orb, ParsedIOR pior )
+    public Delegate(org.omg.CORBA.ORB orb, ParsedIOR pior )
     {
         this.orb = orb;
         _pior = pior;
@@ -112,7 +113,7 @@ public final class Delegate
         initInterceptors();
     }
 
-    protected Delegate(org.omg.CORBA.ORB orb, String object_reference ) 
+    public Delegate(org.omg.CORBA.ORB orb, String object_reference ) 
     {
         this.orb = orb;
         if ( object_reference.indexOf("IOR:") == 0)
@@ -130,7 +131,7 @@ public final class Delegate
         initInterceptors();
     }
 
-    protected Delegate(org.omg.CORBA.ORB orb, org.omg.IOP.IOR _ior )
+    public Delegate(org.omg.CORBA.ORB orb, org.omg.IOP.IOR _ior )
     {
         this.orb = orb;
         _pior = new ParsedIOR( _ior );
@@ -140,6 +141,12 @@ public final class Delegate
         initInterceptors();
     }
 
+    //special constructor for appligator
+    public Delegate(org.omg.CORBA.ORB orb, String object_reference, boolean _donotcheckexceptions )
+    {
+        this(orb, object_reference);
+        doNotCheckExceptions = _donotcheckexceptions; 
+    }
 
     public int _get_TCKind() 
     {
@@ -811,8 +818,9 @@ public final class Delegate
                 
                 //this will check the reply status and throw arrived
                 //exceptions
-                rep.checkExceptions();
-
+     		if (!doNotCheckExceptions)
+                	rep.checkExceptions();
+                	
                 if ( use_interceptors && (info != null) )
                 {
                     ReplyHeader_1_2 _header = rep.rep_hdr;

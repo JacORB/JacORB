@@ -1,29 +1,36 @@
 package demo.outparam;
 
-
-import org.omg.CORBA.*;
-import org.omg.CosNaming.*;
-
 /**
  * An example for using out paramters
  */ 
 
+import org.omg.CORBA.*;
+import org.omg.CosNaming.*;
+
 public class AppletClient 
     extends java.applet.Applet
 {
-
-    static org.omg.CORBA.ORB orb =null;
-
-    public void init(){
-	orb = org.omg.CORBA.ORB.init((java.applet.Applet)this,null);
-
+    public void init()
+    {
+	
 	try
-	{	
+	{
+	 
 
+	   java.util.Properties props = new java.util.Properties();
+	   props.put("org.omg.CORBA.ORBClass",
+                      "org.jacorb.orb.ORB");
+	   props.put("org.omg.CORBA.ORBSingletonClass",
+                      "org.jacorb.orb.ORBSingleton");
+       	   props.put
+                ("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit",
+                 "demo.dii.ProxyClientInitializer");
+	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(this,props);
+	    
 	    // get hold of the naming service
 	    NamingContextExt nc = 
                 NamingContextExtHelper.narrow(
-                        orb.resolve_initial_references("NameService"));
+                       orb.resolve_initial_references("NameService"));
 
 	    NameComponent [] name = 
                 new NameComponent[]{ 
@@ -59,6 +66,11 @@ public class AppletClient
 	    s.op4(sah);
 	    String my_array[] = sah.value;
 	    System.out.println("Array size: " + my_array.length );
+
+            StringHolder sh1 = new StringHolder();
+            String sh2 = s.op5( sh1 );
+            System.out.println( sh2 + " out: " + sh1.value );
+
 
 	    // an example for a sequence of sequences of sequences of string
 	    // 
@@ -97,8 +109,6 @@ public class AppletClient
 	    e.printStackTrace();
 	}
     }
-
-
 }
 
 
