@@ -1,24 +1,27 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../etc/common.xml"> ]>
+
 <project name="demo" default="all" basedir="../..">
+  &common;
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
+   <target name="unioninit" depends="init">
 	<property name="name" value="unions"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
+        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
 	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg  -d ${dirs.base}/demo/${name}/generated"/>
    </target>
 
-   <target name="all" depends="init,idl">
-	<javac srcdir="${dirs.base}/demo/${name}/generated"
+   <target name="all" depends="unioninit,idl">
+	<javac srcdir="${dest}"
                destdir="${classdir}"
-	       includes="demo/${name}/**/*.java"
+	       includes="**/*.java"
 	        />
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
@@ -26,19 +29,17 @@
 	        />
    </target>
 
-   <target name="idl" depends="init">
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
-              classpath="${lib}/idl.jar;${java.class.path}">
-
-	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/server.idl"/>
-         </java>
+   <target name="idl" depends="unioninit, load-taskdef">
+        <mkdir dir="${dest}" />
+        <jacidl srcdir="demo/${name}"
+                destdir="${dest}"
+                includepath="${include}"
+	        includes="*.idl"/>
    </target>
 
-   <target name="clean" depends="init" >
+   <target name="clean" depends="unioninit" >
 	   <delete dir="${classdir}/demo/${name}"/>
-	   <delete dir="${dirs.base}/demo/${name}/generated"/>
+	   <delete dir="${dest}"/>
    </target>
 
 </project>
