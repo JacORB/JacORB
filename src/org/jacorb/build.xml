@@ -77,7 +77,7 @@
 	       />
    </target>
 
-   <target name="WeakHashtable" if="java2.present" >
+   <target name="WeakHashtable" if="java2" >
    	<javac srcdir="${jsrc}"
                destdir="${classdir}" 
 	       includes="org/jacorb/util/WeakHashtable.java,org/jacorb/util/ThreadSystemProperties.java,org/jacorb/util/CapsuleThread.java"
@@ -99,7 +99,7 @@
    	<ant antfile="${jsrc}/org/jacorb/poa/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="ir" depends="init" if="java2.present">
+   <target name="ir" depends="init" if="java2">
    	<ant antfile="${jsrc}/org/jacorb/ir/build.xml"  dir="${basedir}"/>
    </target>
 
