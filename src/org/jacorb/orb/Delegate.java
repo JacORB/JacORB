@@ -1455,7 +1455,7 @@ public final class Delegate
                 }
                 else
                 {
-                    System.err.println("Internal error: we should have gotten to this piece of code!")
+                    System.err.println ("Internal error: we should have gotten to this piece of code!");
                 }
                 
                 if ( !expectedType.isInstance( so.servant ) )
