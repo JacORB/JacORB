@@ -389,6 +389,7 @@ parser code
                     {
                         prepareAndParse(argv[i]);
                     }
+                    continue;
                 }
                 if( argv[i].endsWith(".idl") )
                 {
@@ -456,7 +457,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i2jpackage x:y][-i2jpackagefile <filename>][-cldc10][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i2jpackage x:y][-i2jpackagefile <filename>][-cldc10][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax][-in inputfile] <filelist>");
     }
 
 
