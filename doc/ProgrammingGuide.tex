@@ -1,10 +1,10 @@
 \documentclass[12pt]{scrbook}
 
-\usepackage{a4wide}
-\usepackage{times}
-\usepackage{fancyhdr}
-% Note: next line required to enable longtable to work.
-\usepackage{longtable}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        %
+% Uncomment the follwing, if you want to use pdfTeX      %
+%                                                        % 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage[pdftex]{graphicx}
 \usepackage[pdftex,                %%% hyper-references for pdflatex
@@ -16,6 +16,27 @@ colorlinks=true,
 urlcolor = blue,
 citecolor = blue,
 urlcolor = blue]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        %
+% Uncomment the follwing, if you want to use plain LaTeX %
+%                                                        % 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{graphicx}
+%\newcommand{\href}[2]{{\tt #1}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        %
+% Common section for both plain LaTeX and pdfTex         %
+%                                                        % 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{a4wide}
+\usepackage{times}
+\usepackage{fancyhdr}
+% Note: next line required to enable longtable to work.
+\usepackage{longtable}
 
 \setcounter{secnumdepth}{2}
 
@@ -1019,7 +1040,7 @@ its contents. Figure \ref{fig:nameManager} gives a screen shot.
 \bigskip
 \begin{figure}[htb]
   \begin{center}
-    \includegraphics[width=11cm]{Nmgr1}
+    \includegraphics[width=10cm]{Nmgr1}
   \end{center}
 \caption{NameManager Screenshot}
 \label{fig:nameManager}
@@ -2076,7 +2097,7 @@ Figure \ref{fig:IRBrowser} gives a screen shot of the IR browser.
 \bigskip
 \begin{figure}[htb]
   \begin{center}
-    \includegraphics[width=11cm, angle=270]{IRBrowser}
+    \includegraphics[width=11cm]{IRBrowser}
 \end{center}
 \caption{IRBrowser Screenshot}
 \label{fig:IRBrowser}
@@ -3057,6 +3078,162 @@ and asynchronous invocations, we describe them in a separate section
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\chapter{Connection Management and Connection Timeouts}
+\label{connection_management_timeouts}
+
+JacORB offers a certain level of control over connections and timeouts. You
+can 
+\begin{itemize}
+\item set connection idle timeouts.
+\item set request timeouts. 
+\item set the maximum number of accepted TCP/IP connections on the server.
+\end{itemize}
+
+\section{Timeouts}
+\label{connection_timeouts}
+Connection idle timeouts can be set individually for the client and the
+server. They control how long an idle connection, i.e.~a connections that has
+no pending replies, will stay open. The corresponding properties are {\tt
+  jacorb.connection.client\_idle\_timeout} and {\tt
+  jacorb. connection.server\_timeout} and take their values as microseconds. If
+not set, connections will stay open indefinitely (or until the OS decides to
+close them).
+
+Request timeouts control how long to wait until a request is considered to be
+lost. When set via the property {\tt jacorb.client.pending\_reply\_timeout},
+all requests of the so-configured ORB will time out after the given number of
+microseconds. When such a timeout occurs, a {\tt org.omg.CORBA. IMP\_LIMIT}
+exception will be thrown.
+
+\section{Connection Management}
+\label{connection_management}
+
+When a client wants to invoke a remote object, it needs to send the request
+over a connection to the server. If the connection isn't present, it has to be
+created. In JacORB, this will only happen once for every combination of host
+name and port. Once the connection is established, all requests and replies
+bewteen client and server will use the same connection. This saves resources
+while adding a thin layer of necessary synchronization, and is the recommended
+approach of the OMG. Occasionally people have requested to allow for multiple
+connections to the same server, but nobody has yet presented a good argument
+that more connections would speed up things considerably.
+
+On the server side, the property {\tt
+  jacorb.connection.max\_server\_transports} allows to set the maximum number
+of TCP/IP connections that will be listened on for requests. When using a
+network sniffer or tools like netstat, more inbound TCP/IP connections than
+the configured number may be displayed. This is for the following reason:
+Whenever the connection limit is reached, JacORB tries to close existing idle
+connections (see the subsection below). This is done on the thread
+that accepts the new connections, so JacORB will not actively accept more
+connections. However, the ServerSocket is initialized with a backlog of 20.
+This means that 20 more connections will be quasi-accepted by the OS. Only the
+21st will be rejected right away.
+
+\subsection{Basics and Design}
+\label{connection_management_basics}
+Whenever there is the need to close an existing connection because of the
+connection limit, the question arises on which of the connection to close. To
+allow for maximum flexibility, JacORB provides the interface {\tt
+  SelectionStrategy} that allows for a custom way to select a connection to
+close. Because selecting a connection usually requires some sort of
+statistical data about the {\tt Transport}, the interface {\tt
+  StatisticsProvider} allows to implement a class that collects statistical
+data.
+
+\begin{small}
+\begin{verbatim}
+package org.jacorb.orb.connection;
+
+public interface SelectionStrategy
+{
+    public Transport selectForClose( java.util.List transports );
+}
+
+public interface StatisticsProvider 
+{
+    public void messageChunkSent( int size );
+    public void flushed();
+    public void messageReceived( int size );
+}
+\end{verbatim}
+\end{small}
+
+The interface {\tt SelectionStrategy} has only the single method of {\tt
+  selectForClose()}. This is called by the class {\tt TransportManager} when a
+{\tt Transport} needs to be closed. The argument is a {\tt List} containing
+objects of type {\tt Transport}. The call itself is synchronized in the {\tt
+  TransportManager}, so no additional synchronization has to be done by the
+implementor of {\tt SelectionStrategy}. When examining the {\tt Transport}s,
+the strategy can get hold of the {\tt StatisticsProvider} via the method {\tt
+  getStatisticsProvider()} of the interface {\tt Transport}. The strategy
+implementor should take care only to return idle connections. While the
+connection state is checked anyway while closing (it may have changed in the
+meantime), it seems to be more efficient to avoid cycling through the
+connections. When no suitable {\tt Transport} is available, the strategy may
+return {\tt null}. The {\tt TransportManager} will then wait for a
+configurable time, and try again. This goes on until a {\tt Transport} can be
+closed.
+  
+  The interface {\tt StatisticsProvider} is used to collect statistical data
+  about a {\tt Transport} and provide it to the {\tt SelectionStrategy}.
+  Because the nature of this data may vary, there is no standard access to the
+  data via the interface. Therefore, {\tt StatisticsProvider} and {\tt
+    SelectionStrategy} usually need to be implemented together. Whenever a new
+  {\tt Transport} is created\footnote{Currently, connection management is only
+    implemented for the server side. Therefore, only accepted {\tt Transport}s
+    will get a {\tt StatisticsProvider}}, a new {\tt StatisticsProvider}
+  object is instanciated and stored with the {\tt Transport}\footnote{This is
+    actually only done when a {\tt StatisticsProvider} is configured}. The
+  {\tt StatisticsProvider} interface is oriented along the mode of use of the
+  {\tt Transport}. For efficiency reasons, messages are not sent as one big
+  byte array. Instead, they are sent piecewise over the wire. When such a
+  chunk is sent, the method {\tt messageChunkSent(int size)} will be
+  called. After the message has been completely sent, method {\tt flush()} is
+  called. This whole process is synchronized, so all consecutive {\tt
+  messageChunkSent}s until a {\tt flush()} form a single message. Therefore,
+  no synchronization on this level is necessary. However, access to gathered
+  statistical date by the {\tt SelectionStrategy} is concurrent, so care has
+  to be taken. Receiving messages is done only on the whole, so there exists
+  only one method, {\tt messageReceived(int size)}, to notify the {\tt
+  StatisticsProvider} of such an event.
+
+JacORB comes with two pre-implemented strategies: least frequently used and
+least recently used. LFU and LRU are implemented by the classes {\tt
+  org.jacorb.orb.con\-nection.L[F|R]USelectionStrategyImpl} and {\tt
+  org.jacorb.orb.connection. L[F|R]U\-Statistics\-ProviderImpl}.
+
+\subsection{Configuration}
+\label{connection_management_config}
+To configure connection management, the following properties are provided:
+\begin{description}
+\item {\tt jacorb.connection.max\_server\_transports} This property sets the
+  maximum number of TCP/IP connections that will be listened on by the
+  server--side ORB.
+\item {\tt jacorb.connection.wait\_for\_idle\_interval} This property sets the
+  interval to wait until the next try is made to find an idle connection to
+  close. Value is in microseconds.
+\item {\tt jacorb.connection.selection\_strategy\_class} This property sets
+  the {\tt Selection\-Strategy}.
+\item {\tt jacorb.connection.statistics\_provider\_class} This property sets
+  the {\tt Statistics\-Provider}.
+\end{description}
+
+\subsection{Limitations}
+\label{connection_management_limitations}
+No sunshine without rain. When trying to close a connection, it is first
+checked that the connection is idle, i.e.~has no pending messages.
+Additionally, it is checked that no thread is currently reading from or
+writing to the socket. Since blocking IO is used, the reader thread blocks on
+the socket input stream until it has read data. The problem here is that there
+is no way to determine if data is available at the socket, but the thread just
+hasn't yet read it (or, is actually reading, but hasn't yet returned from the
+call). If a connection close happens at this time, the client will see that
+the connection is closed, but he hasn't yet received a reply.  Therefore, it
+will consider the message lost and usually throw an exception.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \chapter{JacORB utilities}
 
 In this chapter, we will briefly explain the executables that come
@@ -3364,6 +3541,24 @@ to configure JacORB are given in the following tables.
 \verb"jacorb.connection.clie"
 \verb"nt_timeout" & Client-side timeout. This is set to non-zero in order to stop blocking after specified number of milliseconds. Not set by default. & millisec. \\
 \hline
+\verb"jacorb.connection.max"
+\verb"_server_transports" & This property sets the
+  maximum number of TCP/IP connections that will be listened on by the
+  server--side ORB. Default is unlimited connections & integer \\
+\hline
+\verb"jacorb.connection.wait"
+\verb"_for_idle_interval" & This property sets the
+  interval to wait until the next try is made to find an idle connection to
+  close. Default is 500 & millisec.\\
+\hline
+\verb"jacorb.connection.sele"
+\verb"ction_strategy_class" & This property sets
+  the {\tt Selection\-Strategy} & class \\
+\hline
+\verb"jacorb.connection.stat"
+\verb"istics_provider_class" & This property sets
+  the {\tt Statistics\-Provider} & class \\
+\hline
 \verb"jacorb.connection.serv"
 \verb"er_timeout" & Maximum time in milliseconds that a server keeps a connection open if nothing happens. Not set by default. & millisec. \\
 \hline
@@ -3607,9 +3802,11 @@ A few limitations and known bugs (list is incomplete):
 
 \subsection*{Feedback and bug reports}
 
-Please mail bug reports as well as criticism and experience reports to:
-
-\verb+gerald.brose@acm.org+
+For bug reporting, please use our Bugzilla bugtracking database available at
+\href{http://www.jacorb.org/bugzilla}{http://www.jacorb.org/bugzilla}.  Please
+send problems as well as criticism and experience reports to our developer
+mailing list available from
+\href{http://www.jacorb.org/contact.html}{http://www.jacorb.org/contact.html}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 {
