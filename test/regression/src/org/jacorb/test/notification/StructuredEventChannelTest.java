@@ -87,8 +87,8 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
         testEvent_.remainder_of_body = getORB().create_any();
 
-        trueFilter_ = channel_.default_filter_factory().create_filter("EXTENDED_TCL");
-
+        trueFilter_ = createFilter();
+        
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
@@ -96,8 +96,8 @@ public class StructuredEventChannelTest extends NotificationTestCase
         _constraintExp[0] = new ConstraintExp(_eventType, "true");
         ConstraintInfo[] _info = trueFilter_.add_constraints(_constraintExp);
 
-        falseFilter_ = channel_.default_filter_factory().create_filter("EXTENDED_TCL");
-
+        falseFilter_ = createFilter();
+        
         _constraintExp = new ConstraintExp[1];
         _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
@@ -387,7 +387,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-
+    
     public static Test suite() throws Exception
     {
         return NotificationTestCase.suite("Test of Structured EventChannel",

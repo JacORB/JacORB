@@ -39,6 +39,7 @@ import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+import org.omg.CosNotifyFilter.Filter;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
@@ -79,6 +80,10 @@ public class NotificationTestCase extends TestCase
         }
     }
 
+    
+    public Filter createFilter() throws Exception {
+        return getDefaultChannel().default_filter_factory().create_filter("EXTENDED_TCL");
+    }
 
     public ORB getClientORB() {
         return getSetup().getClientORB();
