@@ -28,6 +28,10 @@ import org.jacorb.orb.connection.*;
 import org.jacorb.orb.portableInterceptor.*;
 
 import org.omg.GIOP.*;
+import org.omg.IOP.INVOCATION_POLICIES;
+import org.omg.IOP.ServiceContext;
+import org.omg.Messaging.*;
+import org.omg.TimeBase.*;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -41,6 +45,10 @@ public class ServerRequest
     private RequestInputStream in;
     private ReplyOutputStream out;	
     private GIOPConnection connection;
+    
+    private UtcT requestStartTime = null, 
+                 requestEndTime   = null, 
+                 replyEndTime     = null;
     
     private int status = ReplyStatusType_1_2._NO_EXCEPTION;
     private byte[] oid;
@@ -70,6 +78,9 @@ public class ServerRequest
 	this.orb = orb;
 	this.in = in;
 	connection = _connection;
+
+        getTimingPolicies();
+
         object_key = orb.mapObjectKey( in.req_hdr.target.object_key() );
 
 	oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
@@ -597,6 +608,59 @@ public class ServerRequest
     public void setUsePreconstructedReply(boolean use)
     {
 	usePreconstructedReply = use; 
+    }
+
+    /**
+     * If this request has a service context with timing policies,
+     * this method decodes them and puts them into the corresponding
+     * instance variables (requestStartTime, requestEndTime, replyEndTime).
+     */
+    private void getTimingPolicies()
+    {
+        ServiceContext ctx = in.getServiceContext(INVOCATION_POLICIES.value);
+        if (ctx != null)
+        {
+            CDRInputStream input = new CDRInputStream (null, ctx.context_data);
+            input.openEncapsulatedArray();
+            PolicyValue[] p = PolicyValueSeqHelper.read (input);
+            for (int i=0; i < p.length; i++)
+            {
+                if (p[i].ptype == REQUEST_START_TIME_POLICY_TYPE.value)
+                    requestStartTime = Time.fromCDR (p[i].pvalue);
+                else if (p[i].ptype == REQUEST_END_TIME_POLICY_TYPE.value)
+                    requestEndTime = Time.fromCDR (p[i].pvalue);
+                else if (p[i].ptype == REPLY_END_TIME_POLICY_TYPE.value)
+                    replyEndTime = Time.fromCDR (p[i].pvalue);
+            }
+        }
+    }
+
+    /**
+     * Returns the time after which a reply to this request may no longer
+     * be obtained or returned to the client; null if no such time has
+     * been specified.
+     */
+    public UtcT getReplyEndTime()
+    {
+        return replyEndTime;
+    }
+
+    /**
+     * Returns the time after which this request may no longer be
+     * delivered to its target; null if no such time has been specified.
+     */
+    public UtcT getRequestEndTime()
+    {
+        return requestEndTime;
+    }
+
+    /**
+     * Returns the time after which this request may be delivered to
+     * its target; null if no such time has been specified.
+     */
+    public UtcT getRequestStartTime()
+    {
+        return requestStartTime;
     }
 
 }
