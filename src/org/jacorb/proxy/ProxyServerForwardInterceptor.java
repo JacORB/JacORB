@@ -70,7 +70,7 @@ public class ProxyServerForwardInterceptor
         }
         catch (Exception e)
         {
-            e.printStackTrace ();
+            // Ignore. May be caused for example by ping operations.
         }
     }
 
