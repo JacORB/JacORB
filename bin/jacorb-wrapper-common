@@ -4,6 +4,36 @@
 # this script is sourced by other scripts
 # do not invoke directly
 
+if [ -z "$WRAPPER_HOME" -o ! -d "$WRAPPER_HOME" ] ; then
+    # try to find wrapper
+
+    if [ -z "$WRAPPER_CMD" -o ! -x "$WRAPPER_CMD" ] ; then
+	WRAPPER_CMD=`which wrapper 2> /dev/null`
+    fi
+
+    if [ -z "$WRAPPER_CMD" ] ; then
+	echo "Error: WRAPPER_HOME not set and wrapper is not available in PATH."
+	exit 1
+    fi
+    
+    # resolve links
+    while [ -h "$WRAPPER_CMD" ] ; do
+	ls=`ls -ld "$WRAPPER_CMD"`
+	link=`expr "$ls" : '.*-> \(.*\)$'`
+	if expr "$link" : '/.*' > /dev/null; then
+	    WRAPPER_CMD="$link"
+	else
+	    WRAPPER_CMD=`dirname "$PRG"`"/$link"
+	fi
+    done
+fi
+
+WRAPPER_HOME=`dirname "$WRAPPER_CMD"`/..
+WRAPPER_HOME=`cd "$WRAPPER_HOME" && pwd`
+WRAPPER_LIB="$WRAPPER_HOME"/lib
+WRAPPER_ARGS=wrapper.java.library.path.1="$WRAPPER_LIB"
+WRAPPER_ARGS="$WRAPPER_ARGS wrapper.java.classpath.1=""$WRAPPER_LIB""/wrapper.jar"
+
 # Get the fully qualified path to the script
 case $0 in
     /*)
@@ -101,7 +131,7 @@ console() {
     getpid
     if [ "X$pid" = "X" ]
     then
-        exec $CMDNICE $WRAPPER_CMD $WRAPPER_CONF wrapper.pidfile=$PIDFILE
+        exec $CMDNICE $WRAPPER_CMD $WRAPPER_CONF $WRAPPER_ARGS wrapper.pidfile=$PIDFILE
     else
         echo "$APP_LONG_NAME is already running."
         exit 1
@@ -113,7 +143,7 @@ start() {
     getpid
     if [ "X$pid" = "X" ]
     then
-        exec $CMDNICE $WRAPPER_CMD $WRAPPER_CONF wrapper.pidfile=$PIDFILE wrapper.daemonize=TRUE
+        exec $CMDNICE $WRAPPER_CMD $WRAPPER_CONF $WRAPPER_ARGS wrapper.pidfile=$PIDFILE wrapper.daemonize=TRUE
     else
         echo "$APP_LONG_NAME is already running."
         exit 1
