@@ -816,7 +816,6 @@ public final class ORB
         if( rootpoa == null )
         {
             rootpoa = org.jacorb.poa.POA._POA_init(this);
-            rootpoa._addPOAEventListener( this );
 
             basicAdapter = new BasicAdapter( this,
                                              rootpoa,
@@ -833,6 +832,7 @@ public final class ORB
                 throw new org.omg.CORBA.INITIALIZE("ConfigurationException: " + 
                                                    ce.getMessage() );
             }
+            rootpoa._addPOAEventListener( this );
 
         }
         return rootpoa;
