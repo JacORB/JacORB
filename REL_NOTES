@@ -55,6 +55,9 @@ gerald.brose@acm.org
                 IAIK SSL:
                         fixed bug that prevented mutual authentication
                         in non-role-change mode.         
+                Delegate/ImR:
+                        fixed bug that caused exceptions when multiple
+                        concurrent requests were issued to the ImR.
 
         - SSL support changes:                
 
