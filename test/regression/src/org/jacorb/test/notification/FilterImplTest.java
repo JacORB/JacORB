@@ -100,7 +100,7 @@ public class FilterImplTest extends TestCase {
         while (_i.hasNext()) {
             _count++;
             ConstraintEntry _e = (ConstraintEntry)_i.next();
-            assertEquals("1", _e.getConstraintEvaluator().getConstraint());
+            assertEquals("1", _e.getFilterConstraint().getConstraint());
         }
         assertTrue(_count == 2);
 
@@ -119,8 +119,8 @@ public class FilterImplTest extends TestCase {
         while (_i.hasNext()) {
             _count++;
             ConstraintEntry _e = (ConstraintEntry)_i.next();
-            assertTrue(_e.getConstraintEvaluator().getConstraint().equals("1") ||
-                       _e.getConstraintEvaluator().getConstraint().equals("2"));
+            assertTrue(_e.getFilterConstraint().getConstraint().equals("1") ||
+                       _e.getFilterConstraint().getConstraint().equals("2"));
         }
         assertTrue(_count == 4);
     }
@@ -153,8 +153,8 @@ public class FilterImplTest extends TestCase {
         while (_i.hasNext()) {
             _count++;
             ConstraintEntry _e = (ConstraintEntry)_i.next();
-            assertTrue(_e.getConstraintEvaluator().getConstraint().equals("1") ||
-                       _e.getConstraintEvaluator().getConstraint().equals("2"));
+            assertTrue(_e.getFilterConstraint().getConstraint().equals("1") ||
+                       _e.getFilterConstraint().getConstraint().equals("2"));
         }
         assertTrue(_count == 4);
 
@@ -169,7 +169,7 @@ public class FilterImplTest extends TestCase {
         while (_i.hasNext()) {
             _count++;
             ConstraintEntry _e = (ConstraintEntry)_i.next();
-            assertTrue(_e.getConstraintEvaluator().getConstraint().equals("1"));
+            assertTrue(_e.getFilterConstraint().getConstraint().equals("1"));
         }
         assertTrue(_count == 2);
     }
