@@ -29,6 +29,10 @@ import java.util.*;
 
 public class ObjectUtil
 {
+    private static Class identityHashMapClass = null;
+    //for byte -> hexchar
+    private static final char[] lookup =
+        new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
     /**
      * @return the contents of the resource as a string, or null
      * if the contents of the resource could not be located using url
@@ -112,6 +116,153 @@ public class ObjectUtil
             // does not handle).
             return Class.forName(name);
         }
+    }
+
+    /**
+     * Creates an IdentityHashMap, using either the JDK 1.4 class or
+     * JacORB's drop-in replacement class if the former is not available.
+     *
+     * @return a newly created IdentityHashMap instance
+     */
+    public static Map createIdentityHashMap()
+    {
+        if (identityHashMapClass == null)
+        {
+            try
+            {
+                identityHashMapClass =
+                    ObjectUtil.classForName("java.util.IdentityHashMap");
+            }
+            catch (ClassNotFoundException ex)
+            {
+                try
+                {
+                    identityHashMapClass =
+                        ObjectUtil.classForName("org.jacorb.util.IdentityHashMap");
+                }
+                catch (ClassNotFoundException e)
+                {
+                    throw new RuntimeException(e.toString());
+                }
+            }
+        }
+        try
+        {
+            return (Map)identityHashMapClass.newInstance();
+        }
+        catch (Exception exc)
+        {
+            throw new RuntimeException(exc.toString());
+        }
+    }
+
+    public static synchronized String bufToString( byte bs[],
+                                                   int start,
+                                                   int len)
+    {
+        StringBuffer result = new StringBuffer();
+        StringBuffer chars = new StringBuffer();
+        
+        for ( int i = start; i < (start + len); i++ )
+        {
+            if ((i % 16 ) == 0)
+            {
+                result.append( chars.toString() );
+                chars = new StringBuffer();
+            }
+            
+            chars.append( toAscii( bs[i] ));            
+            result.append(  toHex( bs[i] ));
+            
+            if ( (i % 4) == 3 )
+            {
+                chars.append( ' ' );
+                result.append( ' ' );
+            }
+        }
+        
+        if ( len % 16 != 0 )
+        {
+            int pad = 0;
+            int delta_bytes = 16 - (len % 16);
+            
+            //rest of line (no of bytes)
+            //each byte takes two chars plus one ws
+            pad = delta_bytes * 3;
+            
+            //additional whitespaces after four bytes
+            pad += (delta_bytes / 4);
+            
+            for ( int i = 0; i < pad; i++ )
+            {
+                chars.insert( 0, ' ' );
+            }
+        }
+
+        result.append( chars.toString());
+        return result.toString();
+    }
+
+
+    /**
+     * <code>toHex</code> converts a byte into a readable string.
+     *
+     * @param b a <code>byte</code> value
+     * @return a <code>String</code> value
+     */
+
+    public static final String toHex(byte b)
+    {
+        StringBuffer sb = new StringBuffer();
+
+        int upper = (b >> 4) & 0x0F;
+        sb.append( lookup[upper] );
+
+        int lower = b & 0x0F;
+        sb.append( lookup[lower] );
+
+        sb.append( ' ' );
+
+        return sb.toString();
+    }
+
+
+    public static final char toAscii(byte b)
+    {
+        if ( b > (byte) 31 &&  b < (byte) 127)
+        {
+            return (char) b;
+        }
+        else
+        {
+            return '.';
+        }
+    }
+
+    /**
+     * Convenience method to parse an argument vector (typically from
+     * the command line) and sets any arguments of the form "-Dy=x" 
+     * as values in a properties object.
+     */
+
+    public static java.util.Properties argsToProps(String[] args)
+    {
+        java.util.Properties props = new java.util.Properties();
+
+        for( int i = 0; i < args.length; i++ )
+        {
+            if (args[i].startsWith("-D"))
+            {
+                int idx = args[i].indexOf('=');
+                if (idx < 3 )
+                    continue;
+                String key = args[i].substring(2,idx);  
+
+                System.out.println("putting: " + key + "," + args[i].substring(idx+1));
+                props.put(key, args[i].substring(idx+1));
+            }
+        }
+        return props;
     }
 
 
