@@ -21,14 +21,16 @@ package org.jacorb.notification.node;
  *
  */
 
+
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.parser.TCLParser;
+import org.jacorb.util.Debug;
+
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.apache.log.Hierarchy;
 
 /**
  *
@@ -54,10 +56,8 @@ public class TypeNameShorthandNode extends ComponentName
         }
         catch ( Exception e )
         {
-            Hierarchy
-                .getDefaultHierarchy()
-                .getLoggerFor(TypeNameShorthandNode.class.getName())
-                .fatalError("No exception should ever occur at this point", e);
+            Debug.getNamedLogger(TypeNameShorthandNode.class.getName())
+            .fatalError("Unexpected Exception", e);
         }
     }
 
@@ -72,21 +72,18 @@ public class TypeNameShorthandNode extends ComponentName
     }
 
     public void acceptInOrder( AbstractTCLVisitor v )
-    {
-    }
+    {}
 
     public void acceptPostOrder( AbstractTCLVisitor v )
-    {
-    }
+    {}
 
     public void acceptPreOrder( AbstractTCLVisitor v )
-    {
-    }
+    {}
 
     public EvaluationResult evaluate( EvaluationContext context )
 
-        throws DynamicTypeException,
-               EvaluationException
+    throws DynamicTypeException,
+                EvaluationException
     {
         Message _event = context.getNotificationEvent();
         EvaluationResult _result;
@@ -94,20 +91,20 @@ public class TypeNameShorthandNode extends ComponentName
         switch ( _event.getType() )
         {
 
-        case Message.TYPE_ANY:
-            _result = expandedPath_.evaluate( context );
-            break;
+            case Message.TYPE_ANY:
+                _result = expandedPath_.evaluate( context );
+                break;
 
-        case Message.TYPE_STRUCTURED:
-            String _domainName =
-                _event.toStructuredEvent().header.fixed_header.event_type.type_name;
+            case Message.TYPE_STRUCTURED:
+                String _domainName =
+                    _event.toStructuredEvent().header.fixed_header.event_type.type_name;
 
-            _result = new EvaluationResult();
-            _result.setString( _domainName );
-            break;
+                _result = new EvaluationResult();
+                _result.setString( _domainName );
+                break;
 
-        default:
-            throw new RuntimeException();
+            default:
+                throw new RuntimeException();
         }
 
         return _result;
