@@ -39,6 +39,8 @@ import org.jacorb.util.*;
 
 public class ConnectionManager
 {    
+    public static final String FACTORY_PROP = "jacorb.net.socket_factory";
+
     private org.jacorb.orb.ORB orb = null;
 
     /** connection mgmt. */
@@ -52,26 +54,13 @@ public class ConnectionManager
 
     private MessageReceptorPool receptor_pool = null;
 
-    public ConnectionManager( ORB orb )
+    public ConnectionManager (ORB orb)
     {
         this.orb = orb;
-        
-        socket_factory = new SocketFactory(){
-                public Socket createSocket( String host,
-                                            int port )
-                    throws IOException, UnknownHostException
-                {
-                    return new Socket( host, port );
-                }
-                
-                public boolean isSSL( Socket socket )
-                {
-                    //this factory doesn't know about ssl
-                    return false;
-                }
-            };
-        
-        if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
+
+        socket_factory = SocketFactoryManager.getSocketFactory (orb);
+
+        if (Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
             String s = Environment.getProperty( "jacorb.ssl.socket_factory" );
             if( s == null || s.length() == 0 )
