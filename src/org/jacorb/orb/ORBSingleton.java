@@ -126,10 +126,12 @@ public class ORBSingleton
     private void checkTCMemberType( TypeCode tc )
         throws BAD_TYPECODE
     {
-        if( tc == null || 
-            tc.kind().value() == TCKind._tk_null ||
-            tc.kind().value() == TCKind._tk_void ||
-            tc.kind().value() == TCKind._tk_except
+        if( !(((org.jacorb.orb.TypeCode) tc).is_recursive ()) &&
+            (tc == null || 
+             tc.kind().value() == TCKind._tk_null ||
+             tc.kind().value() == TCKind._tk_void ||
+             tc.kind().value() == TCKind._tk_except
+             )
             )
         {
             throw new BAD_TYPECODE("Illegal member tc", 2, 
@@ -313,7 +315,7 @@ public class ORBSingleton
             }
             if( names.containsKey( members[i].name ) || fault )
             {
-                throw new BAD_PARAM("Illegal exception member name " + 
+                throw new BAD_PARAM("Illegal struct member name " + 
                                     members[i].name, 
                                     17, CompletionStatus.COMPLETED_NO );    
             }
@@ -323,9 +325,9 @@ public class ORBSingleton
 
         org.jacorb.orb.TypeCode tc = 
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_struct, 
-                                     id, 
-                                     name, 
-                                     members);
+                                         id, 
+                                         name, 
+                                         members);
         //        tc.resolve_recursion();
         return tc;
     }
@@ -341,18 +343,28 @@ public class ORBSingleton
     {
         checkTCRepositorId( id );
         checkTCName( name );
-        try
+
+        // check discriminator type
+
+        if (discriminator_type == null ||
+            !(discriminator_type.kind().value() == TCKind._tk_short ||
+              discriminator_type.kind().value() == TCKind._tk_long ||
+              discriminator_type.kind().value() == TCKind._tk_longlong ||
+              discriminator_type.kind().value() == TCKind._tk_ushort ||
+              discriminator_type.kind().value() == TCKind._tk_ulong  ||
+              discriminator_type.kind().value() == TCKind._tk_ulonglong ||
+              discriminator_type.kind().value() == TCKind._tk_char ||
+              discriminator_type.kind().value() == TCKind._tk_boolean ||
+              discriminator_type.kind().value() == TCKind._tk_enum
+              )
+            )
         {
-            checkTCMemberType( discriminator_type );
-        }
-        catch( BAD_PARAM bp1 )
-        {
-            throw new BAD_PARAM("Illegal discriminator type ",
-                                20, CompletionStatus.COMPLETED_NO );    
+            throw new BAD_PARAM("Illegal union discriminator type ",
+                                20, CompletionStatus.COMPLETED_NO );
         }
 
-        // check that member names are legal and unique
-        Hashtable names = new Hashtable() ;
+        // check that member names are legal (they do not need to be unique)
+        
         for( int i = 0; i < members.length; i++ )
         {
             boolean fault = false;
@@ -363,42 +375,43 @@ public class ORBSingleton
             }
             catch( BAD_PARAM bp )
             {
-                fault = true;
-            }
-            if( names.containsKey( members[i].name ) || fault )
-            {
-                throw new BAD_PARAM("Illegal exception member name " + 
+                throw new BAD_PARAM("Illegal union member name " + 
                                     members[i].name, 
                                     17, CompletionStatus.COMPLETED_NO );    
             }
-            names.put( members[i].name, "" );
+
+            // check that member type matches discriminator type or is default
+
             org.omg.CORBA.Any label = members[i].label;
-            if( ! discriminator_type.equivalent( label.type() ))
+            if (! discriminator_type.equivalent( label.type () ) &&
+                ! ( label.type().kind().value() == TCKind._tk_octet &&
+                    label.extract_octet() == (byte)0
+                    )
+                )
             {
-                throw new BAD_PARAM("Label type does not match discriminitor",
+                throw new BAD_PARAM("Label type does not match discriminator type",
                                     19, 
                                     CompletionStatus.COMPLETED_NO );
             }
 
             // check that member labels are unique
             
-            for( int j = 0; j < i-1; j++ )
+            for( int j = 0; j < i; j++ )
             {
-                if( label.equals( members[j].label ))
+                if( label.equal( members[j].label ))
                 {
-                    throw new BAD_PARAM("Duplicat case label", 
+                    throw new BAD_PARAM("Duplicate union case label", 
                                         18, 
                                         CompletionStatus.COMPLETED_NO );   
                 }
             }
         }
-        names.clear();
         
         org.jacorb.orb.TypeCode tc = 
-            new org.jacorb.orb.TypeCode( id, 
-                                         name,
-                                         discriminator_type, 
-                                         members);
+           new org.jacorb.orb.TypeCode( id, 
+                                        name,
+                                        discriminator_type, 
+                                        members);
         // tc.resolve_recursion();
         return tc;
     }
