@@ -106,7 +106,7 @@ public class ServerStartupDaemonImpl
         catch (Exception _e)
         {
 	    Debug.output(Debug.IMR | Debug.INFORMATION, _e);
-	    throw new ServerStartupFailed();
+	    throw new ServerStartupFailed( _e.toString() );
 	}
     }
 
