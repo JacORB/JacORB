@@ -36,6 +36,13 @@
          </java>
    </target>
 
+   <target name="rename" depends="init">
+        <replace dir="." token="XYZ">
+                 <include name="*.java"/>
+                 <include name="*.idl"/>
+        </replace>
+  </target>
+
    <target name="clean">
 	   <deltree dir="${classdir}/test/${name}"/>
 	   <deltree dir="${dirs.base}/test/${name}/generated"/>

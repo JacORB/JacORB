@@ -3,6 +3,8 @@ package test.XYZ;
 import java.io.*;
 import org.omg.CORBA.*;
 
+import org.jacorb.util.*;
+
 public class Client 
 {
     public static void main( String args[] ) 
@@ -47,8 +49,10 @@ public class Client
 
             br.close();
 
+            //narrow to test interface
             TestIf test = TestIfHelper.narrow( obj );
 
+            //call remote op
             test.op();
         }
         catch( Exception ex ) 

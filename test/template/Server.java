@@ -5,6 +5,7 @@ import java.io.*;
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
 
+import org.jacorb.util.*;
 
 public class Server 
     extends TestIfPOA

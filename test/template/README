@@ -1,0 +1,8 @@
+This is a simple template for testcases. 
+
+Usage:
+1.) Create a new dir under JacORB/tests.
+2.) Copy the contents of this dir to your new dir.
+3.) Adapt the "name" property in the build file.
+4.) Run "ant rename" to adapt Client.java, 
+    Server.java and server.idl automatically.
