@@ -34,7 +34,9 @@ public class RepositoryID
     public static String className (String repId)
     {
         if (repId.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+        {
 	    return "java.lang.String";
+        }
         else if (repId.startsWith ("IDL:"))
         {
             // cut "IDL:" and version
@@ -47,14 +49,19 @@ public class RepositoryID
                 return ir2scopes( "", id_base );
         }
         else if (repId.startsWith ("RMI:"))
+        {
             return repId.substring (4, repId.indexOf (':', 4));
+        }
         else
+        {
             throw new RuntimeException ("unrecognized RepositoryID: " + repId);
+        }
     }
 
     /**
      * @return java.lang.String
      */
+
     private static String ir2scopes (String prefix, String s) 
     {
         if( s.indexOf("/") < 0)
@@ -114,20 +121,25 @@ public class RepositoryID
             return org.jacorb.util.ValueHandler.getRMIRepositoryID (c);
     }
 
-    private static String scopesToIR (String s)
+
+    private static String scopesToIR( String s )
     {
         if( s.indexOf(".") < 0)
             return s;
         java.util.StringTokenizer strtok = 
             new java.util.StringTokenizer( s, "." );
+
         String scopes[] = new String[strtok.countTokens()];
-        for( int i = 0; strtok.hasMoreTokens(); i++ ){
+
+        for( int i = 0; strtok.hasMoreTokens(); i++ )
+        {
             String sc = strtok.nextToken();
             if( sc.endsWith("Package"))
                 scopes[i] = sc.substring(0,sc.indexOf("Package"));
             else
                 scopes[i] = sc;
         }
+
         StringBuffer sb = new StringBuffer();
         if( scopes.length > 1 )
         {
@@ -139,21 +151,41 @@ public class RepositoryID
         return sb.toString();
     }
 
+    /**
+     * convert a class name to a Repository ID<BR>
+     * classname - the class name to convert
+     * resolveClass - indicates whether the method should try to
+     * resolve and load the class. If true and the class could
+     * not be loaded, an IllegalArgumentException will be thrown
+     */
 
-    public static String toRepositoryID (String className)
+    public static String toRepositoryID ( String className,
+                                          boolean resolveClass )
     {
-        if( className.equals("") || 
-            className.startsWith("IDL:") || 
+        if( className.equals("") ||
+            className.startsWith("IDL:") ||
             className.startsWith ("RMI:"))
             return className;
         else
         {
-            Class c = loadClass (className);
-            if (c == null)
-                throw new RuntimeException ("cannot find class: " + className);
-            else
-                return repId (c);
+            if( resolveClass )
+            {
+
+                Class c = loadClass (className);
+                if (c == null)
+                    throw new  IllegalArgumentException("cannot find class: " + className);
+                else
+                    return repId (c);
+            }
+            return "IDL:" + className + ":1.0";
         }
+    }
+
+
+
+    public static String toRepositoryID( String className )
+    {
+        return toRepositoryID( className, true );
     }
 
     /**
