@@ -24,6 +24,8 @@ import org.omg.CORBA.TCKind;
 import java.util.Hashtable;
 
 /**
+ * JacORB implementation of CORBA TypeCodes
+ *
  * @author Gerald Brose, FU Berlin
  * @version $Id$    
  */
@@ -47,23 +49,25 @@ public class TypeCode
     private TypeCode    content_type = null;
 
     /** for fixed point types */
-    private short scale;
-    private short digits;
+    private short       scale;
+    private short       digits;
 
     /** if this TC is recursive... */
-    private boolean  recursive = false;
+    private boolean     recursive = false;
 
-    private static boolean class_init = false;
-    private static TypeCode[] primitive_tcs = new TypeCode[33];
+    private static boolean     class_init = false;
+    private static TypeCode[]  primitive_tcs = new TypeCode[33];
 
     static
     {
         /** statically create primitive TypeCodes for fast lookup */
-        for(int i = 0; i < 14; i++)
+        for( int i = 0; i < 14; i++ )
         {
             primitive_tcs[i] = new TypeCode(i);
         }   
-        for(int i = 23; i < 29; i++)
+        primitive_tcs[18] = new TypeCode( 18, 0 );
+
+        for( int i = 23; i < 29; i++ )
         {
             primitive_tcs[i] = new TypeCode(i);
         }
@@ -86,6 +90,8 @@ public class TypeCode
 
     static TypeCode get_primitive_tc( int _kind )
     {
+        org.jacorb.util.Debug.assert( primitive_tcs[_kind] != null, 
+                                      "No primitive TypeCode for kind " + _kind);
         return primitive_tcs[_kind];
     }
 
@@ -94,12 +100,12 @@ public class TypeCode
         return ( primitive_tcs[kind] != null );
     }
 
+
     /*
      * TypeCode constructors for every conceivable type follow.
      * These are called exclusively by the ORBSingleton, which is
      * the only legal TypeCode factory
      */
-
 
 
     /**
@@ -117,10 +123,10 @@ public class TypeCode
      * Constructor for tk_struct and tk_except
      */
 
-    public TypeCode (int _kind, 
-              java.lang.String _id, 
-              java.lang.String _name, 
-              org.omg.CORBA.StructMember[] _members)
+    public TypeCode ( int _kind, 
+                      String _id, 
+                      String _name, 
+                      org.omg.CORBA.StructMember[] _members)
     {
         kind = _kind;
         id =  _id;
@@ -139,8 +145,8 @@ public class TypeCode
      * Constructor for  tk_union
      */
 
-    public TypeCode ( java.lang.String _id, 
-                      java.lang.String _name, 
+    public TypeCode ( String _id, 
+                      String _name, 
                       org.omg.CORBA.TypeCode _discriminator_type, 
                       org.omg.CORBA.UnionMember[] _members ) 
     {
@@ -148,10 +154,12 @@ public class TypeCode
         id   =  _id ;
         name = _name.replace('.','_'); // for orbixWeb Interop
         discriminator_type = (TypeCode)_discriminator_type;
+
         member_count = _members.length;
         member_name  = new String[member_count];
         member_label = new Any[member_count];
         member_type  = new TypeCode[member_count];
+
         for( int i = 0; i < member_count; i++ )
         {
             member_name[i] = _members[i].name;
@@ -234,6 +242,8 @@ public class TypeCode
         kind = _kind;
         length = _bound;
         content_type = (TypeCode)_element_type;
+        org.jacorb.util.Debug.assert( content_type != null, "TypeCode.ctor, content_type null");
+
     }
     
 
@@ -334,7 +344,6 @@ public class TypeCode
 
     public org.omg.CORBA.TCKind kind()
     {
-        // org.jacorb.util.Debug.output(4,"Type.kind: " + kind  );
         return org.omg.CORBA.TCKind.from_int(kind);
     }
 
@@ -420,7 +429,7 @@ public class TypeCode
         return member_type[index];
     }
 
-    public org.omg.CORBA.Any member_label(int index) 
+    public org.omg.CORBA.Any member_label( int index ) 
         throws org.omg.CORBA.TypeCodePackage.BadKind,  
                org.omg.CORBA.TypeCodePackage.Bounds
     {
@@ -489,14 +498,107 @@ public class TypeCode
         return scale;
     }
 
-    public boolean equivalent(org.omg.CORBA.TypeCode tc)
+    public org.omg.CORBA.TypeCode get_compact_typecode()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
-    public org.omg.CORBA.TypeCode get_compact_typecode()
+    /**
+     * less strict equivalence check, unwinds aliases
+     */
+
+    public boolean equivalent( org.omg.CORBA.TypeCode tc )
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        try 
+        {
+            if( is_recursive() )
+            {
+                if( !((org.jacorb.orb.TypeCode)tc).is_recursive())
+                    return false;
+                else
+                    return id().equals( tc.id());
+            }
+            else
+                if( ((org.jacorb.orb.TypeCode)tc).is_recursive())
+                    return false;
+
+            /* unalias any typedef'd types */
+
+            if( kind().value() == TCKind._tk_alias )
+                return content_type().equivalent( tc );
+            
+            if( tc.kind().value() == TCKind._tk_alias )
+                return equivalent( tc.content_type() );
+            
+            if( kind().value() != tc.kind().value())
+                return false;
+
+            /* for primitive type codes, only kinds need be equal */
+
+            if( kind().value() < 14 ||
+                ( kind().value() > 22 && kind().value() < 29 ))
+            {
+                return true;
+            }
+
+            /* compare repository ids if applicable */
+
+            if( kind == TCKind._tk_objref  || kind == TCKind._tk_struct || 
+                kind == TCKind._tk_union || kind == TCKind._tk_enum || 
+                kind == TCKind._tk_alias  || kind ==  TCKind._tk_except )
+            {
+                if( id().length() > 0 && 
+                    tc.id().length() > 0 && 
+                    !id().equals( tc.id()) )
+                    return false;
+            }
+            
+            if( kind ==  TCKind._tk_array || 
+                kind == TCKind._tk_sequence )
+            {
+                return ( length() == tc.length() && 
+                         content_type().equivalent( tc.content_type()));
+            }
+
+            if( kind == TCKind._tk_fixed )
+            {
+                return ( fixed_digits() == tc.fixed_digits() && 
+                         fixed_scale() == tc.fixed_scale() );
+            }
+
+            if( kind == TCKind._tk_union )
+            {
+                if( !discriminator_type().equivalent( tc.discriminator_type()))
+                    return false;
+        
+                if( default_index() != tc.default_index())
+                    return false;
+                
+                if( member_count() != tc.member_count())
+                    return false;
+
+                for( int i = 0; i < member_count(); i++ )
+                {
+                    if( ! member_type(i).equivalent( tc.member_type(i)) )
+                        return false;
+
+                    if( ! member_label(i).equals( tc.member_label(i)))
+                        return false;
+                }
+            }
+
+        }
+        catch( org.omg.CORBA.TypeCodePackage.Bounds bs)
+        {
+            bs.printStackTrace();
+            return false;
+        }
+        catch( org.omg.CORBA.TypeCodePackage.BadKind bk)
+        {
+            bk.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     // useful additional functionality
@@ -538,18 +640,19 @@ public class TypeCode
      * may contain recursive type codes
      */
 
-    public void resolve_recursion()
-    {        
-        Hashtable tcMap = new Hashtable(50);
-        resolve_recursion( tcMap );
-        tcMap.clear();
-    }
+//      public void resolve_recursion()
+//      {        
+//          Hashtable tcMap = new Hashtable(50);
+//          resolve_recursion( tcMap );
+//          tcMap.clear();
+//      }
 
-    private void resolve_recursion(Hashtable tcMap)
+    private void resolve_recursion( Hashtable tcMap )
     {
         try
         {
-            org.jacorb.util.Debug.output( 4, "resolve recursion looks at kind: " + _kind() );
+            org.jacorb.util.Debug.output( 3, "resolve recursion looks at kind: " + _kind() );
+
             switch ( _kind() )
             {
             case TCKind._tk_sequence:
@@ -575,8 +678,7 @@ public class TypeCode
             case TCKind._tk_union:
                 {
                     tcMap.put(this.id(), this);
-            org.jacorb.util.Debug.output( 4, "resolve recursion.put : " + this.id() );
-
+                    org.jacorb.util.Debug.output( 4, "resolve recursion.put : " + this.id() );
                     for( int i = 0; i < member_count(); i++ )
                     {
                         if( ((org.jacorb.orb.TypeCode)member_type(i)).is_recursive()&& 
@@ -688,6 +790,27 @@ public class TypeCode
         }
         return sb.toString();
     }
+
+    /**
+     * proprietary convenience method, not in CORBA API
+     * @return the content type if this is an alias, this otherwise
+     */
+
+    public org.jacorb.orb.TypeCode originalType()
+    {
+        org.jacorb.orb.TypeCode tc = this;
+        try
+        {
+            while( tc.kind() == org.omg.CORBA.TCKind.tk_alias)
+                tc = (org.jacorb.orb.TypeCode)tc.content_type();
+        }
+        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+        {
+            // does not happen
+        }
+        return tc;
+    }
+
 }
 
 
