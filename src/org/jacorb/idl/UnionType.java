@@ -770,7 +770,7 @@ class UnionType
 	}
 	if( !explicit_default_case && ! switch_is_bool && !allCasesCovered )
 	{
-	    defaultWriter.println("\t\t\tdefault: result.__default();");		    
+	    defaultWriter.println("\t\t\tdefault: result.__default (disc);");		    
 	}
 	defaultWriter.close();
 
