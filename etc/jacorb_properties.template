@@ -201,6 +201,12 @@ jacorb.bufferManagerMaxFlush=-1
 # messages are cancelled. Default is "off"
 #jacorb.connection.client.timeout_ignores_pending_messages=off
 
+# whenever a network failure is detected, the orb can either
+# (infinitely) retry all pending requests, or propagate a COMM_FAILURE
+# back into the client code. Default is "off", i.e. throw a
+# COMM_FAILURE
+#jacorb.connection.client.retry_on_failure=off
+
 # max time (msecs) a server keeps a connection open if nothing happens
 #jacorb.connection.server.timeout=10000
 

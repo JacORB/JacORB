@@ -63,7 +63,7 @@ public class ReplyReceiver extends ReplyPlaceholder
     private SystemException      systemException      = null;
     private ApplicationException applicationException = null;
 
-
+    private boolean retry_on_failure = false;
 
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
                           String                         operation,
@@ -89,6 +89,10 @@ public class ReplyReceiver extends ReplyPlaceholder
         {
             timer = null;
         }
+        
+        //default to "off" is handled internally by Environment.isPropertyOn()
+        retry_on_failure =
+            Environment.isPropertyOn("jacorb.connection.client.retry_on_failure");
     }
 
     public synchronized void replyReceived ( MessageInputStream in )
@@ -237,7 +241,15 @@ public class ReplyReceiver extends ReplyPlaceholder
            }
            catch (org.omg.CORBA.COMM_FAILURE ex)
            {
-              throw new RemarshalException();
+               if (retry_on_failure)
+               {
+                   throw new RemarshalException();
+               }
+               else
+               {
+                   //rethrow
+                   throw ex;
+               }
            }
         }
         catch ( SystemException se )
