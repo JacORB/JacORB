@@ -181,7 +181,7 @@ jacorb.maxManagedBufSize=18
 #jacorb.connection.server_timeout=10000
 
 # Max no of accepted connections on the server. 
-#jacorb.connection.max_server_transports=
+#jacorb.connection.max_server_connections=
 
 # The number of msecs that are waited until the next attempt to find
 # an idle connection is made (i.e. do not continuously spin)
@@ -192,12 +192,6 @@ jacorb.maxManagedBufSize=18
 
 # The class name of the StatisticsProvider class
 #jacorb.connection.statistics_provider_class=
-
-# Errors at the socket layer are usually mapped to COMM_FAILURE
-# exceptions. This property allows to define the number of retries
-# that will be made before the exception is propagated back up to the
-# application code. If not set, not retries will be made.
-#jacorb.connection.comm_failure_retries=5
 
 #jacorb.reference_caching=off
 
