@@ -44,6 +44,10 @@
 ====
 
       - new:
+         * ORB configuration is more flexible now:
+                - a new, common properties file orb.properties is considered
+                - multiple ORBs in a single JVM can now have separate configurations
+           (please consult the Programming Guide for details).
 
          * There is a new property jacorb.connection.client.connect_timeout,
            which specifies a timeout for the initial TCP/IP connection attempt.
@@ -56,10 +60,17 @@
            this property is off, unlike previous releases, where this check
            was always done. 
 
+         * IDL compile has a new option -in <file> with which it will accept 
+           files that do not end in ".idl"
+
       - maintenance:
 
          * Removed property jacorb.security.change_ssl_roles and the
            associated "Change SSL Roles" feature.
+
+         * removed scalability bottleneck due to superflous synchronization
+
+         * Usage of JacORB loggers generally more consistent
 
 2.1
 ====
