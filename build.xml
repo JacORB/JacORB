@@ -144,8 +144,10 @@
             <copy file="bin/jacotemplate" tofile="bin/jaco" />
             <copy file="bin/jacotemplate.bat" tofile="bin/jaco.bat" />
            <replace file="bin/jaco.bat" token="@@@" value="${basedir}\lib\jacorb.jar;${java.home}\lib\rt.jar"/>
-           <replace file="bin/jaco" token="@@@"
-            value="${basedir}/lib/jacorb.jar:${java.home}/lib/rt.jar" />
+           <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
+            value="${basedir}" />
+           <replace file="bin/jaco" token="@@@JRE_HOME@@@"
+            value="${java.home}" />
            <chmod file="bin/jaco" perm="ugo+rx"/>
    </target> 
 
