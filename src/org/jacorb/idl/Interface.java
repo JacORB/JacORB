@@ -652,56 +652,37 @@ class Interface
     {
         if( ids == null )
         {
-            Hashtable table = new Hashtable();
+            Set base_ids = new HashSet();
             if( inheritanceSpec != null && inheritanceSpec.v.size() > 0 )
             {
-                for( Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements(); )
+                for(Iterator i = inheritanceSpec.v.iterator(); i.hasNext(); )
                 {
-                    ScopedName sn = ( (ScopedName)e.nextElement() );
-                    Interface base = null;
-                    try
+                    TypeSpec ts = ((ScopedName)i.next()).resolvedTypeSpec();
+                    if (ts instanceof ConstrTypeSpec)
                     {
-                        base = (Interface)( (ConstrTypeSpec)sn.resolvedTypeSpec() ).c_type_spec;
+                        Interface base = (Interface)((ConstrTypeSpec)ts).c_type_spec;
+                        base_ids.addAll (Arrays.asList (base.get_ids()));
                     }
-                    catch( Exception ex )
+                    else if (ts instanceof ReplyHandlerTypeSpec)
                     {
-                        ex.printStackTrace();
-                        parser.fatal_error( "Cannot find base interface " + sn, token );
-                    }
-                    String[] base_ids = base.get_ids();
-                    for( int j = 0; j < base_ids.length; j++ )
-                    {
-                        if( !table.contains( base_ids[ j ] ) )
-                        {
-                            table.put( base_ids[ j ], "" );
-                        }
+                        base_ids.add ("IDL:omg.org/Messaging/ReplyHandler:1.0");
                     }
                 }
             }
-
-            if( table.size() == 0 )
+            ids = new String[base_ids.size() + 1];
+            ids[0] = id();
+            int i=1;
+            for (Iterator j = base_ids.iterator(); j.hasNext(); i++)
             {
-                table.put( "IDL:omg.org/CORBA/Object:1.0", "" );
-            }
-
-            Enumeration o = table.keys();
-            ids = new String[ table.size() + 1 ];
-
-            ids[ 0 ] = id();
-
-            for( int i = 1; i < ids.length; i++ )
-            {
-                ids[ i ] = (String)o.nextElement();
-            }
+                ids[i] = (String)j.next();
+            }                
         }
         return ids;
     }
 
-
     /**
      * generates a stub class for this Interface
      */
-
     protected void printStub()
     {
         PrintWriter ps = openOutput( "_" + name + "Stub" );
