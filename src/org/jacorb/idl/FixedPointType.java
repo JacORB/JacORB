@@ -78,6 +78,11 @@ public class FixedPointType
         return "java.math.BigDecimal";
     }
 
+    public String getIDLTypeName()
+    {
+        return "fixed";
+    }
+
     public TypeSpec typeSpec()
     {
         return this;
