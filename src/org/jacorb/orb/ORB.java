@@ -50,7 +50,7 @@ public final class ORB
     implements org.jacorb.poa.POAListener
 {
     private static final String versionString = "1.4 beta 1";
-    private static final String dateString = "2 Nov 2001";
+    private static final String dateString = "9 Nov 2001";
 
     /** "initial" references */
     private Hashtable initial_references = new Hashtable();
@@ -190,7 +190,8 @@ public final class ORB
      * returns null for POAs in the holding state
      */
 
-    org.jacorb.poa.POA findPOA( org.jacorb.orb.Delegate d, org.omg.CORBA.Object ref )
+    org.jacorb.poa.POA findPOA( org.jacorb.orb.Delegate d, 
+                                org.omg.CORBA.Object ref )
     {
         // if no POAs activated, we don't look further
         if( rootpoa == null || basicAdapter == null )
@@ -218,14 +219,16 @@ public final class ORB
         try
         {
             org.jacorb.poa.POA tmp_poa = (org.jacorb.poa.POA)rootpoa;       
-            String poa_name = org.jacorb.poa.util.POAUtil.extractPOAName(d.getObjectKey());
+            String poa_name = 
+                org.jacorb.poa.util.POAUtil.extractPOAName(d.getObjectKey());
 
             /** strip scoped poa name (first part of the object key before "::",
              *  will be empty for the root poa
              */
 
             java.util.StringTokenizer strtok = 
-                new java.util.StringTokenizer( poa_name, org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR );
+                new java.util.StringTokenizer( poa_name, 
+                                               org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR );
 
             String scopes[] = new String[strtok.countTokens()];
 
@@ -260,8 +263,10 @@ public final class ORB
                     return null;
                 }           
             }
+            byte[] objectId = 
+                org.jacorb.poa.util.POAUtil.extractOID( ref );
 
-            if( ! tmp_poa.previouslyGeneratedObjectKey(d.getObjectKey()))
+            if( ! tmp_poa.previouslyGeneratedObjectId( objectId ))
             {
                 Debug.output(3, "ORB.findPOA: not a previously generated object key.");
                 return null;
