@@ -1584,7 +1584,8 @@ public class CDROutputStream
             {
                 try
                 {       
-                    TypeCode disc = (TypeCode)tc.discriminator_type();
+                    TypeCode disc = (TypeCode) tc.discriminator_type();
+                    disc = disc.originalType ();
                     int def_idx = tc.default_index();
                     int member_idx = -1;
 
@@ -1750,7 +1751,8 @@ public class CDROutputStream
                             break;
                         }           
                         default:
-                            throw new org.omg.CORBA.MARSHAL("Unfinished implementation for unions in anys");
+                           throw new org.omg.CORBA.MARSHAL
+                               ("Invalid union discriminator type: " + disc);
                     }
 
                     // write the member or default value, if any
