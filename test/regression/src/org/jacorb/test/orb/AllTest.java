@@ -32,12 +32,12 @@ public class AllTest extends TestCase
 
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("All orb");
-      ORBSetup setup = new ORBSetup (suite);
+        TestSuite suite = new TestSuite ("All ORB");
 
-      suite.addTest (org.jacorb.test.orb.dynany.AllTest.suite ());
-      suite.addTest (org.jacorb.test.orb.connection.AllTest.suite ());
+        suite.addTest (org.jacorb.test.orb.BasicTest.suite());
+        suite.addTest (org.jacorb.test.orb.dynany.AllTest.suite ());
+        suite.addTest (org.jacorb.test.orb.connection.AllTest.suite ());
 
-      return setup;
+        return suite;
    }
 }
