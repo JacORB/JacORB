@@ -77,12 +77,18 @@ public class Time
     /**
      * Returns a CORBA UtcT that represents an instant that lies
      * a given number of CORBA time units (100 ns) in the future.
+     * If the argument is negative, returns null.
      */
     public static UtcT corbaFuture (long corbaUnits)
     {
-        UtcT result = corbaTime();
-        result.time = result.time + corbaUnits;
-        return result;   
+        if (corbaUnits < 0)
+            return null;
+        else
+        {
+            UtcT result = corbaTime();
+            result.time = result.time + corbaUnits;
+            return result;
+        }   
     }
     
     /**
@@ -112,6 +118,26 @@ public class Time
             return millisTo (time) < 0;
         else
             return false;
+    }
+
+    /**
+     * Compares two UtcT time values and returns that which is earlier.
+     * Either argument can be null; this is considered as a time that
+     * lies indefinitely in the future.  If both arguments are null,
+     * this method returns null itself.
+     */
+    public static UtcT earliest (UtcT timeA, UtcT timeB)
+    {
+        if (timeA == null)
+            if (timeB == null)
+                return null;
+            else
+                return timeB;
+        else
+            if (timeB == null || timeA.time <= timeB.time)
+                return timeA;
+            else
+                return timeB;
     }
 
 }
