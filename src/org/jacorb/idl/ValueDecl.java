@@ -340,7 +340,8 @@ class ValueDecl
     public String printWriteStatement( String var_name, String streamname )
     {
         return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname + ")"
-                + ".write_value (" + var_name + ", \"" + id() + "\");";
+                + ".write_value (" + var_name + " );";
+        //                + ".write_value (" + var_name + ", \"" + id() + "\");";
     }
 
     public String printReadExpression( String streamname )

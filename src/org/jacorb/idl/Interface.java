@@ -31,8 +31,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 class Interface
-        extends TypeDeclaration
-        implements Scope
+    extends TypeDeclaration
+    implements Scope
 {
 
     public InterfaceBody body = null;
@@ -861,6 +861,44 @@ class Interface
     }
 
 
+    private void printLocalTie( String classname, PrintWriter ps )
+    {
+        if( !pack_name.equals( "" ) )
+            ps.println( "package " + pack_name + ";\n" );
+
+        ps.println( "import org.omg.PortableServer.POA;" );
+        printImport( ps );
+
+        printClassComment( classname, ps );
+
+        ps.println( "public class " + classname + "LocalTie" );
+        ps.println( "\textends _" + classname + "LocalBase" );
+        ps.println( "{" );
+
+        ps.println( "\tprivate " + classname + "Operations _delegate;\n" );
+        ps.println( "\tprivate POA _poa;" );
+
+        ps.println( "\tpublic " + classname + "LocalTie(" + classname + "Operations delegate)" );
+        ps.println( "\t{" );
+        ps.println( "\t\t_delegate = delegate;" );
+        ps.println( "\t}" );
+
+        ps.println( "\tpublic " + classname + "Operations _delegate()" );
+        ps.println( "\t{" );
+        ps.println( "\t\treturn _delegate;" );
+        ps.println( "\t}" );
+
+        ps.println( "\tpublic void _delegate(" + classname + "Operations delegate)" );
+        ps.println( "\t{" );
+        ps.println( "\t\t_delegate = delegate;" );
+        ps.println( "\t}" );
+
+        body.printDelegatedMethods( ps );
+        ps.println( "}" );
+    }
+
+
+
     public void print( PrintWriter _ps )
     {
         if( included && !generateIncluded() )
@@ -931,7 +969,9 @@ class Interface
                         ps.close();
                     }
 
-                    if( parser.generate_skeletons && !is_local && !is_abstract )
+                    if( parser.generate_skeletons && 
+                        !is_local && 
+                        !is_abstract )
                     {
                         // Skeletons
 
@@ -955,14 +995,24 @@ class Interface
                         ps.close();
                     }
 
+                    // two classes are generated only for local interfaces:
+                    // the LocalBase and LocalPOA classes
+
                     if( is_local )
                     {
-                        ps = new PrintWriter( new java.io.FileWriter( new File( dir, "_" + name +
-                                "LocalBase.java" ) ) );
+                        ps = new PrintWriter( 
+                                new java.io.FileWriter( 
+                                    new File( dir, "_" + name +
+                                              "LocalBase.java" ) ) );
                         printLocalBase( name, ps );
                         ps.close();
-                    }
 
+                        ps = new PrintWriter( 
+                                new java.io.FileWriter( 
+                                    new File( dir, name + "LocalTie.java" ) ) );
+                        printLocalTie( name, ps );
+                        ps.close();
+                    }
 
                 }
 
