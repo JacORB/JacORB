@@ -33,63 +33,78 @@ import antlr.Token;
  * @version $Id$
  */
 
-public class UnionPositionOperator extends TCLNode {
+public class UnionPositionOperator extends AbstractTCLNode
+{
 
     int position_;
     boolean default_ = false;
 
-    public UnionPositionOperator(Token token) {
-	super(token);
-	setName("UnionPos");
-	setType(UNION_POS);
+    public UnionPositionOperator( Token token )
+    {
+        super( token );
+        setName( "UnionPos" );
+        setType( UNION_POS );
     }
 
-    void setPosition(Double pos) {
-	position_ = pos.intValue();
-	default_ = false;
+    void setPosition( Double pos )
+    {
+        position_ = pos.intValue();
+        default_ = false;
     }
 
-    void setDefault() {
-	default_ = true;
+    void setDefault()
+    {
+        default_ = true;
     }
 
-    public boolean isDefault() {
-	if (logger_.isDebugEnabled()) {
-	    logger_.debug("isDefault: " + default_);
-	}
-	return default_;
+    public boolean isDefault()
+    {
+        if ( logger_.isDebugEnabled() )
+        {
+            logger_.debug( "isDefault: " + default_ );
+        }
+
+        return default_;
     }
 
-    public int getPosition() {
-	return position_;
+    public int getPosition()
+    {
+        return position_;
     }
 
-    public String toString() {
-	return "(" + (default_? "default" : "" + position_) + ")";
+    public String toString()
+    {
+        return "(" + ( default_ ? "default" : "" + position_ ) + ")";
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitUnionPosition(this);
+    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        visitor.visitUnionPosition( this );
 
-	if (hasNextSibling()) {
-	    ((TCLNode)getNextSibling()).acceptPreOrder(visitor);
-	}
+        if ( hasNextSibling() )
+        {
+            ( ( AbstractTCLNode ) getNextSibling() ).acceptPreOrder( visitor );
+        }
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	if (hasNextSibling()) {
-	    ((TCLNode)getNextSibling()).acceptPostOrder(visitor);
-	}
+    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        if ( hasNextSibling() )
+        {
+            ( ( AbstractTCLNode ) getNextSibling() ).acceptPostOrder( visitor );
+        }
 
-	visitor.visitUnionPosition(this);
+        visitor.visitUnionPosition( this );
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitUnionPosition(this);
+    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        visitor.visitUnionPosition( this );
 
-	if (hasNextSibling()) {
-	    ((TCLNode)getNextSibling()).acceptInOrder(visitor);
-	}
+        if ( hasNextSibling() )
+        {
+            ( ( AbstractTCLNode ) getNextSibling() ).acceptInOrder( visitor );
+        }
     }
 
-}// UnionPositionOperator
+} // UnionPositionOperator

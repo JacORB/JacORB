@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.Message;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
@@ -42,66 +43,67 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class StructuredProxyPushConsumerImpl 
-    extends ProxyBase 
+public class StructuredProxyPushConsumerImpl
+    extends AbstractProxy
     implements StructuredProxyPushConsumerOperations {
 
     private StructuredPushSupplier myPushSupplier_;
     private List subsequentDestinations_;
 
     public StructuredProxyPushConsumerImpl(SupplierAdminTieImpl supplierAdminServant,
-					   ApplicationContext appContext,
-					   ChannelContext channelContext,
-					   PropertyManager adminProperties,
-					   PropertyManager qosProperties,
-					   Integer key) {
-	super(supplierAdminServant,
-	      appContext, 
-	      channelContext,
-	      adminProperties,
-	      qosProperties,
-	      key);
+                                           ApplicationContext appContext,
+                                           ChannelContext channelContext,
+                                           PropertyManager adminProperties,
+                                           PropertyManager qosProperties,
+                                           Integer key) {
+        super(supplierAdminServant,
+              appContext,
+              channelContext,
+              adminProperties,
+              qosProperties,
+              key);
 
-	setProxyType(ProxyType.PUSH_STRUCTURED);
+        setProxyType(ProxyType.PUSH_STRUCTURED);
 
-	subsequentDestinations_ = CollectionsWrapper.singletonList(myAdmin_);
+        subsequentDestinations_ = CollectionsWrapper.singletonList(myAdmin_);
     }
 
     public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
-	if (!connected_) {
-	    throw new Disconnected();
-	}
+        if (!connected_) {
+            throw new Disconnected();
+        }
 
-	NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(structuredEvent, this);
+        Message _notifyEvent =
+            notificationEventFactory_.newEvent(structuredEvent, this);
 
-	channelContext_.dispatchEvent(_notifyEvent);
+        channelContext_.dispatchEvent(_notifyEvent);
     }
 
     public void disconnect_structured_push_consumer() {
-	dispose();
+        dispose();
     }
-    
+
     protected void disconnectClient() {
-	if (connected_) {
-	    if (myPushSupplier_ != null) {
-		connected_ = false;
-		myPushSupplier_.disconnect_structured_push_supplier();
-		myPushSupplier_ = null;
-	    }
-	}
+        if (connected_) {
+            if (myPushSupplier_ != null) {
+                connected_ = false;
+                myPushSupplier_.disconnect_structured_push_supplier();
+                myPushSupplier_ = null;
+            }
+        }
     }
 
-    public void connect_structured_push_supplier(StructuredPushSupplier structuredPushSupplier) 
-	throws AlreadyConnected {
+    public void connect_structured_push_supplier(StructuredPushSupplier structuredPushSupplier)
+        throws AlreadyConnected {
 
-	if (connected_) {
-	    throw new AlreadyConnected();
-	}
-	connected_ = true;
-	myPushSupplier_ = structuredPushSupplier;
+        if (connected_) {
+            throw new AlreadyConnected();
+        }
+        connected_ = true;
+        myPushSupplier_ = structuredPushSupplier;
     }
 
-    
+
     // Implementation of org.omg.CosNotifyChannelAdmin.ProxyConsumerOperations
 
 
@@ -111,35 +113,35 @@ public class StructuredProxyPushConsumerImpl
      * @return a <code>SupplierAdmin</code> value
      */
     public SupplierAdmin MyAdmin() {
-	return (SupplierAdmin)myAdmin_.getThisRef();
+        return (SupplierAdmin)myAdmin_.getThisRef();
     }
 
     public EventConsumer getEventConsumer() {
-	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public boolean hasEventConsumer() {
-	return false;
+        return false;
     }
-    
+
     public List getSubsequentFilterStages() {
-	return subsequentDestinations_;
+        return subsequentDestinations_;
     }
 
     public void dispose() {
-	super.dispose();
-	disconnectClient();
+        super.dispose();
+        disconnectClient();
     }
 
     public Servant getServant() {
-	if (thisServant_ == null) {
-	    synchronized(this) {
-		if (thisServant_ == null) {
-		    thisServant_ = new StructuredProxyPushConsumerPOATie(this);
-		}
-	    }
-	}
-	return thisServant_;
+        if (thisServant_ == null) {
+            synchronized(this) {
+                if (thisServant_ == null) {
+                    thisServant_ = new StructuredProxyPushConsumerPOATie(this);
+                }
+            }
+        }
+        return thisServant_;
     }
 
 }

@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.jacorb.notification.NotificationEvent;
-import org.jacorb.notification.NotificationEventFactory;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
@@ -39,153 +39,161 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
  * @version $Id$
  */
 
-public class FilterProxySupplierTask extends FilterTaskBase 
+public class FilterProxySupplierTask extends AbstractFilterTask
 {
 
-    public static class AlternateNotificationEventMap {
+    public static class AlternateMessageMap {
 
-	private Map changedNotificationEvents_;
+        private Map changedMessages_;
 
-	public AlternateNotificationEventMap() {
-	    this(new Hashtable());
-	}
+        public AlternateMessageMap() {
+            this(new Hashtable());
+        }
 
-	AlternateNotificationEventMap(Map m) {
-	    changedNotificationEvents_ = m;
-	}
+        AlternateMessageMap(Map m) {
+            changedMessages_ = m;
+        }
 
-	public NotificationEvent getAlternateNotificationEvent(FilterStage s) {
-	    if (changedNotificationEvents_.containsKey(s)) {
-		return (NotificationEvent)changedNotificationEvents_.get(s);
-	    } 
-	    return null;
-	}
-	
-	public void addAlternateNotificationEvent(FilterStage s, NotificationEvent e) {
-	    changedNotificationEvents_.put(s, e);
-	}
-	
-	public void clear() {
-	    changedNotificationEvents_.clear();
-	}
+        public Message getAlternateMessage(FilterStage s) {
+            if (changedMessages_.containsKey(s)) {
+                return (Message)changedMessages_.get(s);
+            }
+            return null;
+        }
+
+        public void putAlternateMessage(FilterStage s, Message e) {
+            changedMessages_.put(s, e);
+        }
+
+        public void clear() {
+            changedMessages_.clear();
+        }
 
     }
 
-    public static final AlternateNotificationEventMap EMPTY_MAP = 
-	new AlternateNotificationEventMap(Collections.EMPTY_MAP) {
-	    public void clear() {
-	    }
-	};
+    public static final AlternateMessageMap EMPTY_MAP =
+        new AlternateMessageMap(Collections.EMPTY_MAP) {
+            public void clear() {
+            }
+        };
 
-    NotificationEventFactory notificationEventFactory_;
+    MessageFactory notificationEventFactory_;
 
-    AlternateNotificationEventMap changedNotificationEvents_ = new AlternateNotificationEventMap();
+    AlternateMessageMap changedMessages_ = new AlternateMessageMap();
 
     private boolean skip_;
-
 
     /**
      * Initialize this FilterOutgoingTask with the Configuration of
      * another FilterTask.
      */
-    public void setFilterStage(FilterTaskBase other) {
-	arrayCurrentFilterStage_ = other.getFilterStageToBeProcessed();
+    public void setFilterStage(AbstractFilterTask other) {
+        arrayCurrentFilterStage_ = other.getFilterStageToBeProcessed();
     }
 
     public void reset() {
-	super.reset();
-	arrayCurrentFilterStage_ = null;
-	changedNotificationEvents_.clear();
+        super.reset();
+        arrayCurrentFilterStage_ = null;
+        changedMessages_.clear();
     }
 
     public void doWork() {
-	
-	filterProxy();
+
+        filterProxy();
 
     }
 
     private void filterProxy() {
-	filter();
+        filter();
 
-	setStatus(DONE);
+        setStatus(DONE);
     }
 
-    void updatePriority(int indexOfCurrentEvent) {
-	AnyHolder _priorityFilterResult = new AnyHolder();
+    Message updatePriority(int indexOfCurrentEvent, Message event) {
+        AnyHolder _priorityFilterResult = new AnyHolder();
 
-	try {
-	    boolean priorityMatch =
-		event_.match(arrayCurrentFilterStage_[indexOfCurrentEvent].getPriorityFilter(), 
-			     _priorityFilterResult);
+        Message _currentEvent = event;
 
-	    if (priorityMatch) {
-		NotificationEvent _modifiedEvent =
-		    notificationEventFactory_.newEvent(event_);
+        try {
+            boolean priorityMatch =
+                event.match(arrayCurrentFilterStage_[indexOfCurrentEvent].getPriorityFilter(),
+                             _priorityFilterResult);
 
-		_modifiedEvent.setPriority(_priorityFilterResult.value.extract_long());
+            if (priorityMatch) {
+                _currentEvent = (Message)event_.clone();
 
-		changedNotificationEvents_.
-		    addAlternateNotificationEvent(arrayCurrentFilterStage_[indexOfCurrentEvent], 
-						  _modifiedEvent);
+                _currentEvent.setPriority(_priorityFilterResult.value.extract_long());
 
-	    }
-	} catch (UnsupportedFilterableData e) {
-	    logger_.error("error evaluating PriorityFilter", e);
-	}
+            }
+
+
+
+        } catch (UnsupportedFilterableData e) {
+            logger_.error("error evaluating PriorityFilter", e);
+        }
+
+        return _currentEvent;
     }
 
-    void updateTimeout(int indexOfCurrentEvent) {
-	AnyHolder _lifetimeFilterResult = new AnyHolder();
+    Message updateTimeout(int indexOfCurrentFilterStage, Message event) {
+        AnyHolder _lifetimeFilterResult = new AnyHolder();
+        Message _currentEvent = event;
 
-	try {
-	    boolean lifetimeMatch =
-		event_.match(arrayCurrentFilterStage_[indexOfCurrentEvent].getLifetimeFilter(), 
-			     _lifetimeFilterResult);
+        try {
+            boolean lifetimeMatch =
+                _currentEvent.match(arrayCurrentFilterStage_[indexOfCurrentFilterStage].getLifetimeFilter(),
+                             _lifetimeFilterResult);
 
-	    if (lifetimeMatch) {
-		NotificationEvent _modifiedEvent = 
-		    notificationEventFactory_.newEvent(event_);
+            if (lifetimeMatch && (_currentEvent == event_)) {
+                _currentEvent = (Message)event_.clone();
 
-		_modifiedEvent.setTimeout(_lifetimeFilterResult.value.extract_long());
+                _currentEvent.setTimeout(_lifetimeFilterResult.value.extract_long());
 
-		changedNotificationEvents_.
-		    addAlternateNotificationEvent(arrayCurrentFilterStage_[indexOfCurrentEvent], 
-						  _modifiedEvent);
-	    }
+            }
 
-	} catch (UnsupportedFilterableData e) {
-	    logger_.error("error evaluating PriorityFilter", e);
-	}
+        } catch (UnsupportedFilterableData e) {
+            logger_.error("error evaluating PriorityFilter", e);
+        }
+
+        return _currentEvent;
     }
 
     private void filter() {
-	for (int x = 0; x < arrayCurrentFilterStage_.length; ++x) {
+        for (int x = 0; x < arrayCurrentFilterStage_.length; ++x) {
 
-	    boolean _forward = false;
+            boolean _forward = false;
 
-	    if (!arrayCurrentFilterStage_[x].isDisposed()) {
+            if (!arrayCurrentFilterStage_[x].isDisposed()) {
 
-		if (arrayCurrentFilterStage_[x].hasPriorityFilter()) {
-		    updatePriority(x);
-		}
+                Message _currentEvent = event_;
 
-		if (arrayCurrentFilterStage_[x].hasLifetimeFilter()) {
-		    updateTimeout(x);
-		}
+                if (arrayCurrentFilterStage_[x].hasPriorityFilter()) {
+                    _currentEvent = updatePriority(x, _currentEvent);
+                }
 
-		_forward = 
-		    event_.match(arrayCurrentFilterStage_[x]);
+                if (arrayCurrentFilterStage_[x].hasLifetimeFilter()) {
+                    _currentEvent = updateTimeout(x, _currentEvent);
+                }
 
-	    } 
+                if (_currentEvent != event_) {
+                    changedMessages_.
+                        putAlternateMessage(arrayCurrentFilterStage_[x],
+                                                      _currentEvent);
+                }
 
-	    if (_forward) {
+                _forward =
+                    _currentEvent.match(arrayCurrentFilterStage_[x]);
 
-		    // the subsequent destination filters need to be eval'd
+            }
 
-		listOfFilterStageToBeProcessed_.
-		    addAll(arrayCurrentFilterStage_[x].getSubsequentFilterStages());
+            if (_forward) {
 
-	    }
-	}
+                    // the subsequent destination filters need to be eval'd
+
+                listOfFilterStageToBeProcessed_.
+                    addAll(arrayCurrentFilterStage_[x].getSubsequentFilterStages());
+
+            }
+        }
     }
 }

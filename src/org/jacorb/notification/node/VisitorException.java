@@ -31,14 +31,17 @@ package org.jacorb.notification.node;
  * @version $Id$
  */
 
-public class VisitorException extends Exception {
+public class VisitorException extends Exception
+{
 
-    public VisitorException() {
-	super();
+    public VisitorException()
+    {
+        super();
     }
 
-    public VisitorException(String msg) {
-	super(msg);
+    public VisitorException( String msg )
+    {
+        super( msg );
     }
 
 }

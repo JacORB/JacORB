@@ -25,10 +25,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
+
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
@@ -49,18 +51,14 @@ import org.omg.PortableServer.Servant;
 /**
  * SupplierAdminImpl.java
  *
- *
- * Created: Sun Oct 13 01:39:12 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class SupplierAdminTieImpl
-            extends AdminBase
-            implements SupplierAdminOperations,
-            Disposable
-		       //            ProxyEventListener
+    extends AbstractAdmin
+    implements SupplierAdminOperations,
+               Disposable
 {
 
     private SupplierAdminPOATie thisServant_;
@@ -121,8 +119,8 @@ public class SupplierAdminTieImpl
             {
                 if ( thisRef_ == null )
                 {
-		    // sideeffect of getServant() is that
-		    // thisServant_ gets set.
+                    // sideeffect of getServant() is that
+                    // thisServant_ gets set.
                     getServant();
                     thisRef_ = thisServant_._this( getOrb() );
                 }
@@ -139,7 +137,8 @@ public class SupplierAdminTieImpl
 
     public void offer_change( EventType[] eventType1,
                               EventType[] eventType2 ) throws InvalidEventType
-        {}
+    {
+    }
 
     // Implementation of org.omg.CosNotifyChannelAdmin.SupplierAdminOperations
 
@@ -182,11 +181,11 @@ public class SupplierAdminTieImpl
     }
 
     public ProxyConsumer obtain_notification_pull_consumer( ClientType clientType,
-            IntHolder intHolder )
-    throws AdminLimitExceeded
+                                                            IntHolder intHolder )
+        throws AdminLimitExceeded
     {
 
-        ProxyBase _servant = obtain_notification_pull_consumer_servant( clientType, intHolder );
+        AbstractProxy _servant = obtain_notification_pull_consumer_servant( clientType, intHolder );
 
         Integer _key = _servant.getKey();
 
@@ -195,74 +194,75 @@ public class SupplierAdminTieImpl
 
         allProxies_.put( _key, _proxyConsumer );
 
-	fireProxyCreated(_servant);
+        fireProxyCreated( _servant );
 
         return _proxyConsumer;
     }
 
-    public ProxyBase obtain_notification_pull_consumer_servant( ClientType clientType,
-            IntHolder intHolder ) throws AdminLimitExceeded
+    public AbstractProxy obtain_notification_pull_consumer_servant( ClientType clientType,
+                                                                IntHolder intHolder )
+        throws AdminLimitExceeded
     {
 
         fireCreateProxyRequestEvent();
 
         intHolder.value = getPullProxyId();
         Integer _key = new Integer( intHolder.value );
-        ProxyBase _servant;
+        AbstractProxy _servant;
 
         PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
         PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
 
         switch ( clientType.value() )
-        {
+            {
 
-        case ClientType._ANY_EVENT:
+            case ClientType._ANY_EVENT:
 
-            _servant = new ProxyPullConsumerImpl( this,
-                                                  applicationContext_,
-                                                  channelContext_,
-                                                  adminProperties_,
-                                                  qosProperties_,
-                                                  _key );
+                _servant = new ProxyPullConsumerImpl( this,
+                                                      applicationContext_,
+                                                      channelContext_,
+                                                      adminProperties_,
+                                                      qosProperties_,
+                                                      _key );
 
-            break;
+                break;
 
-        case ClientType._STRUCTURED_EVENT:
+            case ClientType._STRUCTURED_EVENT:
 
-            _servant =
-                new StructuredProxyPullConsumerImpl( this,
-                                                     applicationContext_,
-                                                     channelContext_,
-                                                     _adminProperties,
-                                                     _qosProperties,
-                                                     _key );
+                _servant =
+                    new StructuredProxyPullConsumerImpl( this,
+                                                         applicationContext_,
+                                                         channelContext_,
+                                                         _adminProperties,
+                                                         _qosProperties,
+                                                         _key );
 
-            break;
+                break;
 
-        case ClientType._SEQUENCE_EVENT:
+            case ClientType._SEQUENCE_EVENT:
 
-            _servant =
-                new SequenceProxyPullConsumerImpl( this,
-                                                   applicationContext_,
-                                                   channelContext_,
-                                                   _adminProperties,
-                                                   _qosProperties,
-                                                   _key );
+                _servant =
+                    new SequenceProxyPullConsumerImpl( this,
+                                                       applicationContext_,
+                                                       channelContext_,
+                                                       _adminProperties,
+                                                       _qosProperties,
+                                                       _key );
 
-            break;
+                break;
 
-        default:
-            throw new BAD_PARAM();
-        }
+            default:
+                throw new BAD_PARAM();
+            }
 
         pullServants_.put( _key, _servant );
 
         if ( filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP )
-        {
-            _servant.setOrSemantic( true );
-        }
+            {
+                _servant.setOrSemantic( true );
+            }
 
-	//        _servant.addProxyDisposedEventListener( this );
+        //        _servant.addProxyDisposedEventListener( this );
         _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxyConsumerListener() );
 
         return _servant;
@@ -289,11 +289,11 @@ public class SupplierAdminTieImpl
 
 
     public ProxyConsumer obtain_notification_push_consumer( ClientType clienttype,
-							    IntHolder intholder )
-	throws AdminLimitExceeded
+                                                            IntHolder intholder )
+        throws AdminLimitExceeded
     {
 
-        ProxyBase _servant = obtain_notification_push_consumer_servant( clienttype, intholder );
+        AbstractProxy _servant = obtain_notification_push_consumer_servant( clienttype, intholder );
         Integer _key = _servant.getKey();
 
         ProxyConsumer _proxyConsumer =
@@ -301,24 +301,22 @@ public class SupplierAdminTieImpl
 
         allProxies_.put( _key, _proxyConsumer );
 
-	fireProxyCreated(_servant);
+        fireProxyCreated( _servant );
 
         return _proxyConsumer;
     }
 
-    public ProxyBase obtain_notification_push_consumer_servant( ClientType clientType,
-            IntHolder intHolder )
-    throws AdminLimitExceeded
+    public AbstractProxy obtain_notification_push_consumer_servant( ClientType clientType,
+                                                                IntHolder intHolder )
+        throws AdminLimitExceeded
     {
-
-        logger_.debug( "obtain_notification_push_consumer()" );
 
         // may throws AdminLimitExceeded
         fireCreateProxyRequestEvent();
 
         intHolder.value = getPushProxyId();
         Integer _key = new Integer( intHolder.value );
-        ProxyBase _servant;
+        AbstractProxy _servant;
 
         PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
         PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
@@ -366,10 +364,8 @@ public class SupplierAdminTieImpl
             _servant.setOrSemantic( true );
         }
 
-	//        _servant.addProxyDisposedEventListener( this );
+        //        _servant.addProxyDisposedEventListener( this );
         _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxyConsumerListener() );
-
-        logger_.debug( "obtain_notification_push_consumer() => " + _servant );
 
         return _servant;
     }
@@ -393,7 +389,7 @@ public class SupplierAdminTieImpl
 
         _servant.setFilterManager( FilterManager.EMPTY );
         eventStyleServants_.add( _servant );
-	//        _servant.addProxyDisposedEventListener( this );
+        //        _servant.addProxyDisposedEventListener( this );
 
         Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie( _servant );
         _servant.setServant( _tie );
@@ -401,15 +397,11 @@ public class SupplierAdminTieImpl
         ProxyPullConsumer _ret =
             org.omg.CosEventChannelAdmin.ProxyPullConsumerHelper.narrow( _tie._this_object( getOrb() ) );
 
-	fireProxyCreated(_servant);
+        fireProxyCreated( _servant );
 
         return _ret;
     }
 
-    /**
-     * Return a ProxyPushConsumer reference to be used to connect to a
-     * PushSupplier.
-     */
     public ProxyPushConsumer obtain_push_consumer()
     {
 
@@ -422,7 +414,7 @@ public class SupplierAdminTieImpl
 
         _servant.setFilterManager( FilterManager.EMPTY );
         eventStyleServants_.add( _servant );
-	//        _servant.addProxyDisposedEventListener( this );
+        //        _servant.addProxyDisposedEventListener( this );
 
         Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPushConsumerPOATie( _servant );
         _servant.setServant( _tie );
@@ -430,7 +422,7 @@ public class SupplierAdminTieImpl
         ProxyPushConsumer _ret =
             org.omg.CosEventChannelAdmin.ProxyPushConsumerHelper.narrow( _tie._this_object( getOrb() ) );
 
-	fireProxyCreated(_servant);
+        fireProxyCreated( _servant );
 
         return _ret;
     }
@@ -462,30 +454,32 @@ public class SupplierAdminTieImpl
 
         eventStyleServants_.clear();
 
-	listProxyEventListener_.clear();
+        listProxyEventListener_.clear();
     }
 
-    void fireProxyRemoved(ProxyBase b) {
-	Iterator i = listProxyEventListener_.iterator();
-	ProxyEvent e = new ProxyEvent(b);
-	while (i.hasNext()) {
-	    ((ProxyEventListener)i.next()).actionProxyDisposed(e);
-	}
+    void fireProxyRemoved( AbstractProxy b )
+    {
+        Iterator i = listProxyEventListener_.iterator();
+        ProxyEvent e = new ProxyEvent( b );
+
+        while ( i.hasNext() )
+        {
+            ( ( ProxyEventListener ) i.next() ).actionProxyDisposed( e );
+        }
     }
 
-    void fireProxyCreated(ProxyBase b) {
-	Iterator i = listProxyEventListener_.iterator();
-	ProxyEvent e = new ProxyEvent(b);
-	while (i.hasNext()) {
-	    ((ProxyEventListener)i.next()).actionProxyCreated(e);
-	}
+    void fireProxyCreated( AbstractProxy b )
+    {
+        Iterator i = listProxyEventListener_.iterator();
+        ProxyEvent e = new ProxyEvent( b );
+
+        while ( i.hasNext() )
+        {
+            ( ( ProxyEventListener ) i.next() ).actionProxyCreated( e );
+        }
     }
 
-    /**
-     *
-     */
-    public void remove
-        ( ProxyBase pb )
+    public void remove( AbstractProxy pb )
     {
         super.remove( pb );
 
@@ -516,7 +510,7 @@ public class SupplierAdminTieImpl
             eventStyleServants_.remove( pb );
         }
 
-	fireProxyRemoved(pb);
+        fireProxyRemoved( pb );
     }
 
     public boolean hasOrSemantic()
@@ -524,15 +518,14 @@ public class SupplierAdminTieImpl
         return false;
     }
 
-    public void addProxyEventListener(ProxyEventListener l) {
-	listProxyEventListener_.add(l);
+    public void addProxyEventListener( ProxyEventListener l )
+    {
+        listProxyEventListener_.add( l );
     }
 
-    public void removeProxyEventListener(ProxyEventListener l) {
-	listProxyEventListener_.remove(l);
+    public void removeProxyEventListener( ProxyEventListener l )
+    {
+        listProxyEventListener_.remove( l );
     }
-
-//     public void actionProxyDisposed( ProxyEvent e )
-//     {}
 
 }

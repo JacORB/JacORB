@@ -32,139 +32,149 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
  * @version $Id$
  */
 
-public class FilterProxyConsumerTask extends FilterTaskBase 
+public class FilterProxyConsumerTask extends AbstractFilterTask
 {
 
     static int nr = 0;
     int myNr;
 
-    FilterProxyConsumerTask() {
-	super();
-	myNr = nr++;
+    FilterProxyConsumerTask()
+    {
+        super();
+        myNr = nr++;
     }
 
-    public String toString() {
-	return "FilterProxyConsumerTask#" + myNr;
+    public String toString()
+    {
+        return "FilterProxyConsumerTask#" + myNr;
     }
 
     private boolean orSemantic_ = false;
-    
-    public void reset() {
-	super.reset();
-	orSemantic_ = false;
+
+    public void reset()
+    {
+        super.reset();
+        orSemantic_ = false;
     }
 
     /**
      * access the Filter hint for next Stage
-     */ 
-    public boolean getSkip() {
-	return orSemantic_;
+     */
+    public boolean getSkip()
+    {
+        return orSemantic_;
     }
 
-    void updatePriority() {
-	try
-	    {
-		AnyHolder newPriority = new AnyHolder();
-			
-		boolean priorityMatch =
-		    event_.match( arrayCurrentFilterStage_[ 0 ].getPriorityFilter(),
-				  newPriority );
-		
-		if ( priorityMatch )
-		    {
-			event_.setPriority( newPriority.value.extract_long() );
-		    }
-	    }
-	catch ( UnsupportedFilterableData e )
-	    {
-		logger_.error( "Error evaluating PriorityFilter", e );
-	    }
+    void updatePriority()
+    {
+        try
+        {
+            AnyHolder newPriority = new AnyHolder();
+
+            boolean priorityMatch =
+                event_.match( arrayCurrentFilterStage_[ 0 ].getPriorityFilter(),
+                              newPriority );
+
+            if ( priorityMatch )
+            {
+                event_.setPriority( newPriority.value.extract_long() );
+            }
+        }
+        catch ( UnsupportedFilterableData e )
+        {
+            logger_.error( "Error evaluating PriorityFilter", e );
+        }
     }
 
-    void updateLifetime() {
-	try
-	    {
-		AnyHolder newLifetime = new AnyHolder();
-			
-		boolean lifetimeMatch =
-		    event_.match( arrayCurrentFilterStage_[ 0 ].getLifetimeFilter(),
-				  newLifetime );
-			
-		if ( lifetimeMatch )
-		    {
-			event_.setTimeout( newLifetime.value.extract_long() );
-		    }
-	    }
-	catch ( UnsupportedFilterableData e )
-	    {
-		logger_.error( "Error evaluating LifetimeFilter", e );
-	    }
+    void updateLifetime()
+    {
+        try
+        {
+            AnyHolder newLifetime = new AnyHolder();
+
+            boolean lifetimeMatch =
+                event_.match( arrayCurrentFilterStage_[ 0 ].getLifetimeFilter(),
+                              newLifetime );
+
+            if ( lifetimeMatch )
+            {
+                event_.setTimeout( newLifetime.value.extract_long() );
+            }
+        }
+        catch ( UnsupportedFilterableData e )
+        {
+            logger_.error( "Error evaluating LifetimeFilter", e );
+        }
     }
 
 
 
-    public void doWork() {
-	if ( arrayCurrentFilterStage_[ 0 ].hasPriorityFilter() )
-	    {
-		updatePriority();
-	    }
-	
-	if ( arrayCurrentFilterStage_[ 0 ].hasLifetimeFilter() )
-	    {
-		updateLifetime();
-	    }
-	
-	boolean _filterMatch = filter();
-	
-	if ( !_filterMatch && arrayCurrentFilterStage_[ 0 ].hasOrSemantic() )
-	    {
-		
-		if ( logger_.isDebugEnabled() )
-		    {
-			logger_.debug( "filter failed, but "
-				       + arrayCurrentFilterStage_[0]
-				       + " has InterFilterGroupOperator OR_OP Enabled" );
-		    }
-		
-		// no filter attached to our ProxyConsumer
-		// matched. However the ProxyConsumer has
-		// InterFilterGroupOperator.OR_OP enabled. Therefor we
-		// have to continue processing because the Filters
-		// attached to the SupplierAdmin still may match.
-		
-		listOfFilterStageToBeProcessed_
-		    .addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
-	    }	
+    public void doWork()
+    {
+        if ( arrayCurrentFilterStage_[ 0 ].hasPriorityFilter() )
+        {
+            updatePriority();
+        }
 
-	if (listOfFilterStageToBeProcessed_.isEmpty()) {
-	    setStatus(DISPOSABLE);
-	} else {
-	    setStatus(DONE);
-	}
+        if ( arrayCurrentFilterStage_[ 0 ].hasLifetimeFilter() )
+        {
+            updateLifetime();
+        }
+
+        boolean _filterMatch = filter();
+
+        if ( !_filterMatch && arrayCurrentFilterStage_[ 0 ].hasOrSemantic() )
+        {
+
+            if ( logger_.isDebugEnabled() )
+            {
+                logger_.debug( "filter failed, but "
+                               + arrayCurrentFilterStage_[ 0 ]
+                               + " has InterFilterGroupOperator OR_OP Enabled" );
+            }
+
+            // no filter attached to our ProxyConsumer
+            // matched. However the ProxyConsumer has
+            // InterFilterGroupOperator.OR_OP enabled. Therefor we
+            // have to continue processing because the Filters
+            // attached to the SupplierAdmin still may match.
+
+            listOfFilterStageToBeProcessed_
+            .addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+        }
+
+        if ( listOfFilterStageToBeProcessed_.isEmpty() )
+        {
+            setStatus( DISPOSABLE );
+        }
+        else
+        {
+            setStatus( DONE );
+        }
     }
 
     private boolean filter()
     {
         boolean _forward = false;
 
-	// eval attached filters
-	// as an Event passes only 1 ProxyConsumer we can assume
-	// constant array size here 
+        // eval attached filters
+        // as an Event passes only 1 ProxyConsumer we can assume
+        // constant array size here
 
-	_forward = event_.match( arrayCurrentFilterStage_[ 0 ] );
+        _forward = event_.match( arrayCurrentFilterStage_[ 0 ] );
 
         if ( _forward )
-	    {
-		listOfFilterStageToBeProcessed_
-		    .addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
-	    }
+        {
+            listOfFilterStageToBeProcessed_
+            .addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+        }
 
         // check if this destination has OR enabled
         // if this is the case the filtering in the next run can be skipped
         if ( arrayCurrentFilterStage_[ 0 ].hasOrSemantic() )
-	    {
-		orSemantic_ = true;
-	    }
+        {
+            orSemantic_ = true;
+        }
 
         return _forward;
     }

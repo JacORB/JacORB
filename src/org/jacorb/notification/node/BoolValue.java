@@ -29,54 +29,51 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.Token;
 
-public class BoolValue extends TCLNode {
+public class BoolValue extends AbstractTCLNode {
 
     boolean value_;
 
     public BoolValue(Token tok) {
-	super(tok);
-	value_ = tok.getText().equals("TRUE");
-	setKind(TCKind.tk_boolean);
+        super(tok);
+        value_ = tok.getText().equals("TRUE");
+        setKind(TCKind.tk_boolean);
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode {
+        throws DynamicTypeException {
 
-	if (value_) {
-	    return EvaluationResult.BOOL_TRUE;
-	} else {
-	    return EvaluationResult.BOOL_FALSE;
-	}
+        if (value_) {
+            return EvaluationResult.BOOL_TRUE;
+        } else {
+            return EvaluationResult.BOOL_FALSE;
+        }
     }
 
     public boolean isStatic() {
-	return true;
+        return true;
     }
 
     public boolean isBoolean() {
-	return true;
+        return true;
     }
 
     public String getName() {
-	return "BoolValue";
+        return "BoolValue";
     }
 
     public String toString() {
-	return "" + value_;
+        return "" + value_;
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitBool(this);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitBool(this);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitBool(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitBool(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitBool(this);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitBool(this);
     }
 }

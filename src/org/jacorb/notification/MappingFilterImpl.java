@@ -23,8 +23,7 @@ package org.jacorb.notification;
 
 import java.util.Hashtable;
 import java.util.Map;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -41,6 +40,9 @@ import org.omg.CosNotifyFilter.MappingConstraintPair;
 import org.omg.CosNotifyFilter.MappingFilterPOA;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+
 /**
  * MappingFilterImpl.java
  *
@@ -52,24 +54,29 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 public class MappingFilterImpl extends MappingFilterPOA
 {
 
-    static class ValueMap {
-	private Map valueMap_ = new Hashtable();
+    static class ValueMap
+    {
+        private Map valueMap_ = new Hashtable();
 
-	public void put(int key, Any value) {
-	    valueMap_.put(new Integer(key), value);
-	}
+        public void put( int key, Any value )
+        {
+            valueMap_.put( new Integer( key ), value );
+        }
 
-	public Any get(int key) {
-	    return (Any)valueMap_.get(new Integer(key));
-	}
+        public Any get( int key )
+        {
+            return ( Any ) valueMap_.get( new Integer( key ) );
+        }
 
-	public Any remove(int key) {
-	    return (Any)valueMap_.remove(new Integer(key));
-	}
+        public Any remove( int key )
+        {
+            return ( Any ) valueMap_.remove( new Integer( key ) );
+        }
 
-	public void clear() {
-	    valueMap_.clear();
-	}
+        public void clear()
+        {
+            valueMap_.clear();
+        }
     }
 
     ////////////////////////////////////////
@@ -132,10 +139,10 @@ public class MappingFilterImpl extends MappingFilterPOA
     }
 
     public MappingConstraintInfo[] add_mapping_constraints( MappingConstraintPair[] mappingConstraintPairArray )
-	throws InvalidValue, InvalidConstraint
+    throws InvalidValue, InvalidConstraint
     {
-        ConstraintExp[] _constraintExpArray = 
-	    new ConstraintExp[ mappingConstraintPairArray.length ];
+        ConstraintExp[] _constraintExpArray =
+            new ConstraintExp[ mappingConstraintPairArray.length ];
 
         for ( int x = 0; x < mappingConstraintPairArray.length; ++x )
         {
@@ -144,8 +151,8 @@ public class MappingFilterImpl extends MappingFilterPOA
 
         ConstraintInfo[] _constraintInfo = filterImpl_.add_constraints( _constraintExpArray );
 
-        MappingConstraintInfo[] _mappingConstraintInfo = 
-	    new MappingConstraintInfo[ _constraintInfo.length ];
+        MappingConstraintInfo[] _mappingConstraintInfo =
+            new MappingConstraintInfo[ _constraintInfo.length ];
 
         for ( int x = 0; x < _constraintInfo.length; ++x )
         {
@@ -173,20 +180,20 @@ public class MappingFilterImpl extends MappingFilterPOA
      */
     public void modify_mapping_constraints( int[] intArray,
                                             MappingConstraintInfo[] mappingConstraintInfoArray )
-	throws ConstraintNotFound, 
-	       InvalidValue, 
-	       InvalidConstraint
+        throws ConstraintNotFound,
+               InvalidValue,
+               InvalidConstraint
     {
-        ConstraintInfo[] _constraintInfo = 
-	    new ConstraintInfo[ mappingConstraintInfoArray.length ];
+        ConstraintInfo[] _constraintInfo =
+            new ConstraintInfo[ mappingConstraintInfoArray.length ];
 
         for ( int x = 0; x < _constraintInfo.length; ++x )
         {
-            _constraintInfo[ x ] = 
-		new ConstraintInfo( mappingConstraintInfoArray[ x ].constraint_expression,
-				    mappingConstraintInfoArray[ x ].constraint_id );
+            _constraintInfo[ x ] =
+                new ConstraintInfo( mappingConstraintInfoArray[ x ].constraint_expression,
+                                    mappingConstraintInfoArray[ x ].constraint_id );
 
-	    valueMap_.remove(mappingConstraintInfoArray[x].constraint_id);
+            valueMap_.remove( mappingConstraintInfoArray[ x ].constraint_id );
         }
 
         filterImpl_.modify_constraints( intArray, _constraintInfo );
@@ -233,8 +240,8 @@ public class MappingFilterImpl extends MappingFilterPOA
     {
         ConstraintInfo[] _constraintInfo = filterImpl_.get_all_constraints();
 
-        MappingConstraintInfo[] _mappingConstraintInfo = 
-	    new MappingConstraintInfo[ _constraintInfo.length ];
+        MappingConstraintInfo[] _mappingConstraintInfo =
+            new MappingConstraintInfo[ _constraintInfo.length ];
 
         for ( int x = 0; x < _constraintInfo.length; ++x )
         {

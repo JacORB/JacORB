@@ -28,12 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
+
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
@@ -48,10 +47,13 @@ import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.omg.PortableServer.Servant;
+
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 
 /**
  * Abstract Baseclass for Adminobjects.
@@ -61,17 +63,21 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
  * @version $Id$
  */
 
-public abstract class AdminBase 
+public abstract class AbstractAdmin
     implements QoSAdminOperations,
-	       FilterAdminOperations,
-	       FilterStage
+               FilterAdminOperations,
+               FilterStage
 {
-    protected static final InterFilterGroupOperator DEFAULT_FILTER_GROUP_OPERATOR =
-        InterFilterGroupOperator.AND_OP;
+    /**
+     * the default InterFilterGroupOperator used.
+     */
+    protected static final InterFilterGroupOperator
+        DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
 
     protected static final int NO_ID = Integer.MIN_VALUE;
 
     protected ChannelContext channelContext_;
+
     protected ApplicationContext applicationContext_;
 
     protected int id_ = 0;
@@ -95,11 +101,11 @@ public abstract class AdminBase
 
     protected boolean disposed_ = false;
 
-    protected List seqProxyCreationRequestEventListener_;
+    protected List seqProxyCreationRequestEventListener_ = new Vector();
 
-    protected NotificationEventFactory getNotificationEventFactory()
+    protected MessageFactory getMessageFactory()
     {
-        return applicationContext_.getNotificationEventFactory();
+        return applicationContext_.getMessageFactory();
     }
 
     protected EventChannelImpl getChannelServant()
@@ -127,21 +133,21 @@ public abstract class AdminBase
         return applicationContext_.getPoa();
     }
 
-    protected AdminBase( ApplicationContext appContext,
-                         ChannelContext channelContext,
-                         PropertyManager adminProperties,
-                         PropertyManager qosProperties,
-                         int myId,
-                         InterFilterGroupOperator filterGroupOperator )
+    protected AbstractAdmin( ApplicationContext aApplicationContext,
+                         ChannelContext aChannelContext,
+                         PropertyManager aAdminPropertyManager,
+                         PropertyManager aQoSPropertyManager,
+                         int aId,
+                         InterFilterGroupOperator aInterFilterGroupOperator )
     {
 
-        qosProperties_ = qosProperties;
-        adminProperties_ = adminProperties;
+        qosProperties_ = aQoSPropertyManager;
+        adminProperties_ = aAdminPropertyManager;
 
-        filterGroupOperator_ = filterGroupOperator;
+        filterGroupOperator_ = aInterFilterGroupOperator;
 
-        applicationContext_ = appContext;
-        channelContext_ = channelContext;
+        applicationContext_ = aApplicationContext;
+        channelContext_ = aChannelContext;
 
         filterManager_ = new FilterManager();
 
@@ -149,19 +155,19 @@ public abstract class AdminBase
         pushServants_ = new Hashtable();
         allProxies_ = new Hashtable();
 
-        key_ = new Integer( myId );
+        key_ = new Integer( aId );
     }
 
-    protected AdminBase( ApplicationContext appContext,
-                         ChannelContext channelContext,
-                         PropertyManager adminProps,
-                         PropertyManager qosProps )
+    protected AbstractAdmin( ApplicationContext aApplicationContext,
+                         ChannelContext aChannelContext,
+                         PropertyManager aAdminPropertyManager,
+                         PropertyManager aQoSPropertyManager )
     {
-	
-        this( appContext,
-              channelContext,
-              adminProps,
-              qosProps,
+
+        this( aApplicationContext,
+              aChannelContext,
+              aAdminPropertyManager,
+              aQoSPropertyManager,
               NO_ID,
               DEFAULT_FILTER_GROUP_OPERATOR );
     }
@@ -181,131 +187,67 @@ public abstract class AdminBase
         return filterManager_.getFilters();
     }
 
-    // Code for delegation of FilterManager methods to filterManager_
-
-    /**
-     * Describe <code>add_filter</code> method here.
-     *
-     * @param filter a <code>Filter</code> value
-     * @return an <code>int</code> value
-     */
-    public int add_filter( Filter filter )
+    public int add_filter( Filter aFilter )
     {
-        return filterManager_.add_filter( filter );
+        return filterManager_.add_filter( aFilter );
     }
 
-    /**
-     * Describe <code>remove_filter</code> method here.
-     *
-     * @param n an <code>int</code> value
-     * @exception FilterNotFound if an error occurs
-     */
-    public void remove_filter( int n ) throws FilterNotFound
+    public void remove_filter( int aFilterId ) throws FilterNotFound
     {
-        filterManager_.remove_filter( n );
+        filterManager_.remove_filter( aFilterId );
     }
 
-    /**
-     * Describe <code>get_filter</code> method here.
-     *
-     * @param n an <code>int</code> value
-     * @return a <code>Filter</code> value
-     * @exception FilterNotFound if an error occurs
-     */
-    public Filter get_filter( int n ) throws FilterNotFound
+    public Filter get_filter( int aFilterId ) throws FilterNotFound
     {
-        return filterManager_.get_filter( n );
+        return filterManager_.get_filter( aFilterId );
     }
 
-    /**
-     * Describe <code>get_all_filters</code> method here.
-     *
-     * @return an <code>int[]</code> value
-     */
     public int[] get_all_filters()
     {
         return filterManager_.get_all_filters();
     }
 
-    /**
-     * Describe <code>remove_all_filters</code> method here.
-     *
-     */
     public void remove_all_filters()
     {
         filterManager_.remove_all_filters();
     }
 
-    /**
-     * Describe <code>MyOperator</code> method here.
-     *
-     * @return an <code>InterFilterGroupOperator</code> value
-     */
     public InterFilterGroupOperator MyOperator()
     {
         return filterGroupOperator_;
     }
 
-    /**
-     * Describe <code>MyChannel</code> method here.
-     *
-     * @return an <code>EventChannel</code> value
-     */
     public EventChannel MyChannel()
     {
         return getChannel();
     }
 
-    /**
-     * Describe <code>MyID</code> method here.
-     *
-     * @return an <code>int</code> value
-     */
     public int MyID()
     {
         return id_;
     }
 
-    // Implementation of org.omg.CosNotification.QoSAdminOperations
-
-    /**
-     * Describe <code>get_qos</code> method here.
-     *
-     * @return a <code>Property[]</code> value
-     */
     public Property[] get_qos()
     {
-        return null;
+        return qosProperties_.toArray();
     }
 
-    /**
-     * Describe <code>set_qos</code> method here.
-     *
-     * @param property a <code>Property[]</code> value
-     * @exception UnsupportedQoS if an error occurs
-     */
-    public void set_qos( Property[] property ) throws UnsupportedQoS
-        {}
-
-    /**
-     * Describe <code>validate_qos</code> method here.
-     *
-     * @param property a <code>Property[]</code> value
-     * @param namedPropertyRangeSeqHolder a
-     * <code>NamedPropertyRangeSeqHolder</code> value
-     * @exception UnsupportedQoS if an error occurs
-     */
-    public void validate_qos( Property[] property,
-                              NamedPropertyRangeSeqHolder namedPropertyRangeSeqHolder )
-    throws UnsupportedQoS
+    public void set_qos( Property[] aPropertySeq ) throws UnsupportedQoS
     {
+        throw new UnsupportedQoS();
+    }
+
+    public void validate_qos( Property[] aPropertySeq,
+                              NamedPropertyRangeSeqHolder propertyRangeSeqHolder )
+        throws UnsupportedQoS
+    {
+        throw new UnsupportedQoS();
     }
 
     public void destroy()
     {
         dispose();
     }
-    
 
     public synchronized void dispose()
     {
@@ -322,15 +264,15 @@ public abstract class AdminBase
             }
             catch ( ObjectNotActive e )
             {
-                e.printStackTrace();
+                logger_.fatalError("Couldnt deactivate Object", e);
             }
             catch ( WrongPolicy e )
             {
-                e.printStackTrace();
+                logger_.fatalError("Couldnt deactivate Object", e);
             }
             catch ( ServantNotActive e )
             {
-                e.printStackTrace();
+                logger_.fatalError("Couldnt deactivate Object", e);
             }
 
             remove_all_filters();
@@ -346,13 +288,16 @@ public abstract class AdminBase
             {
                 logger_.info( "dispose pushServant" );
 
-		try {
-		    ( ( Disposable ) _i.next() ).dispose();
-		} catch (Exception e) {
-		    logger_.warn("Error disposing a PushServant", e);
-		}
+                try
+                {
+                    ( ( Disposable ) _i.next() ).dispose();
+                }
+                catch ( Exception e )
+                {
+                    logger_.warn( "Error disposing a PushServant", e );
+                }
 
-		_i.remove();
+                _i.remove();
             }
 
             pushServants_.clear();
@@ -365,11 +310,14 @@ public abstract class AdminBase
             {
                 logger_.info( "dispose pullServant" );
 
-		try {
-		    ( ( Disposable ) _i.next() ).dispose();
-		} catch (Exception e) {
-		    logger_.warn("Error disposing a PullServant", e);
-		}
+                try
+                {
+                    ( ( Disposable ) _i.next() ).dispose();
+                }
+                catch ( Exception e )
+                {
+                    logger_.warn( "Error disposing a PullServant", e );
+                }
 
                 _i.remove();
             }
@@ -389,16 +337,13 @@ public abstract class AdminBase
         return key_;
     }
 
-    /**
-     *
-     */
-    public void remove( ProxyBase proxy )
+    public void remove( AbstractProxy aProxy )
     {
-        Servant _servant = ( Servant ) servantCache_.remove( proxy );
+        Servant _servant = ( Servant ) servantCache_.remove( aProxy );
 
         if ( _servant != null )
         {
-            logger_.debug( "remove: " + proxy.getClass().getName() );
+            logger_.debug( "remove: " + aProxy.getClass().getName() );
 
             try
             {
@@ -407,18 +352,18 @@ public abstract class AdminBase
             }
             catch ( WrongPolicy e )
             {
-                e.printStackTrace();
+                logger_.fatalError( "Error removing AdminBase", e );
             }
             catch ( ObjectNotActive e )
             {
-                e.printStackTrace();
+                logger_.fatalError( "Error removing AdminBase", e );
             }
             catch ( ServantNotActive e )
             {
-                e.printStackTrace();
+                logger_.fatalError( "Error removing AdminBase", e );
             }
 
-            servantCache_.remove( proxy );
+            servantCache_.remove( aProxy );
         }
     }
 
@@ -431,27 +376,16 @@ public abstract class AdminBase
         return disposed_;
     }
 
-    public void addProxyCreationEventListener( ProxyCreationRequestEventListener listener )
+    public void addProxyCreationEventListener( ProxyCreationRequestEventListener aProxyCreationRequestEventListener )
     {
-        if ( seqProxyCreationRequestEventListener_ == null )
-        {
-            synchronized ( this )
-            {
-                if ( seqProxyCreationRequestEventListener_ == null )
-                {
-                    seqProxyCreationRequestEventListener_ = new Vector();
-                }
-            }
-        }
-
-        seqProxyCreationRequestEventListener_.add( listener );
+        seqProxyCreationRequestEventListener_.add( aProxyCreationRequestEventListener );
     }
 
-    public void removeProxyCreationEventListener( ProxyCreationRequestEventListener listener )
+    public void removeProxyCreationEventListener( ProxyCreationRequestEventListener aProxyCreationRequestEventListener )
     {
         if ( seqProxyCreationRequestEventListener_ != null )
         {
-            seqProxyCreationRequestEventListener_.remove( listener );
+            seqProxyCreationRequestEventListener_.remove( aProxyCreationRequestEventListener );
         }
     }
 
@@ -459,31 +393,37 @@ public abstract class AdminBase
     {
         if ( seqProxyCreationRequestEventListener_ != null )
         {
-            ProxyCreationRequestEvent _event = 
-		new ProxyCreationRequestEvent( this );
+            ProxyCreationRequestEvent _event =
+                new ProxyCreationRequestEvent( this );
 
             Iterator _i = seqProxyCreationRequestEventListener_.iterator();
 
             while ( _i.hasNext() )
             {
-                ( ( ProxyCreationRequestEventListener ) _i.next() ).actionProxyCreationRequest( _event );
+                ProxyCreationRequestEventListener _pcrListener;
+                _pcrListener = ( ProxyCreationRequestEventListener ) _i.next();
+                _pcrListener.actionProxyCreationRequest( _event );
             }
         }
     }
 
-    public boolean hasLifetimeFilter() {
-	return false;
+    public boolean hasLifetimeFilter()
+    {
+        return false;
     }
 
-    public boolean hasPriorityFilter() {
-	return false;
+    public boolean hasPriorityFilter()
+    {
+        return false;
     }
 
-    public MappingFilter getLifetimeFilter() {
-	return null;
+    public MappingFilter getLifetimeFilter()
+    {
+        throw new UnsupportedOperationException();
     }
 
-    public MappingFilter getPriorityFilter() {
-	return null;
+    public MappingFilter getPriorityFilter()
+    {
+        throw new UnsupportedOperationException();
     }
 }

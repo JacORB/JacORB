@@ -23,19 +23,21 @@ package org.jacorb.notification.engine;
 
 import java.util.Date;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.jacorb.notification.NotificationEvent;
-import org.jacorb.notification.Properties;
+import org.jacorb.notification.ConfigurableProperties;
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.TimerEventConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.notification.util.ThreadPool;
 import org.jacorb.util.Environment;
+
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 
 /**
  *
@@ -43,82 +45,121 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
  * @version $Id$
  */
 
-public class TaskProcessor implements Disposable {
+public class TaskProcessor implements Disposable
+{
 
-    final static int DEFAULT_FILTER_POOL_WORKERS = 2;
-    final static int DEFAULT_DELIVER_POOL_WORKERS = 4;
+    static final int DEFAULT_FILTER_POOL_WORKERS = 2;
+    static final int DEFAULT_DELIVER_POOL_WORKERS = 4;
 
-    private Logger logger_ = 
-	Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    private Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
 
-    class TimeoutTask 
-	implements Runnable, 
-		   NotificationEvent.NotificationEventStateListener {
-	
-	Object timerRegistration_;
-	NotificationEvent event_;
+    class TimeoutTask
+        implements Runnable,
+                   Message.MessageStateListener
+    {
 
-	TimeoutTask(NotificationEvent event) {
-	    event_ = event;
-	    
-	    event_.setNotificationEventStateListener(this);
+        Object timerRegistration_;
+        Message event_;
 
-	    timerRegistration_ = executeTaskAfterDelay(event.getTimeout(), this);
-	}
+        TimeoutTask( Message event )
+        {
+            event_ = event;
 
-	public void actionLifetimeChanged(long timeout) {
-	    cancelTask(timerRegistration_);
-	    timerRegistration_ = executeTaskAfterDelay(event_.getTimeout(), this);
-	}
+            event_.setMessageStateListener( this );
 
-	public void run() {
-	    event_.setDisposable();
+            timerRegistration_ =
+                executeTaskAfterDelay( event.getTimeout(), this );
+        }
 
-	    event_.setNotificationEventStateListener(null);
-	}
+        public void actionLifetimeChanged( long timeout )
+        {
+            cancelTask( timerRegistration_ );
+
+            timerRegistration_ =
+                executeTaskAfterDelay( event_.getTimeout(), this );
+        }
+
+        public void run()
+        {
+            logger_.debug("run Timeout");
+
+            event_.setMessageStateListener( null );
+            event_.actionTimeout();
+        }
     }
 
-    class DeferedStopTask implements Runnable {
-	Object timerRegistration_;
-	NotificationEvent event_;
-	
-	DeferedStopTask(NotificationEvent event) {
-	    event_ = event;
+    class DeferedStopTask implements Runnable
+    {
+        Object timerRegistration_;
+        Message event_;
 
-	    timerRegistration_ = executeTaskAt(event.getStopTime(), this);
-	}
-	
-	public void run() {
-	    event_.setDisposable();
-	}
+        DeferedStopTask( Message event )
+        {
+            event_ = event;
+
+            timerRegistration_ = executeTaskAt( event.getStopTime(), this );
+        }
+
+        public void run()
+        {
+            event_.actionTimeout();
+        }
     }
 
-    class DeferedStartTask implements Runnable {
-	
-	Object timerRegistration_;
-	NotificationEvent event_;
-	
-	DeferedStartTask(NotificationEvent event) {
-	    event_ = event;
-	    timerRegistration_ = executeTaskAt(event.getStartTime(), this);
-	}
+    class DeferedStartTask implements Runnable
+    {
 
-	public void run() {
-	    processEventInternal(event_);
-	}
+        Object timerRegistration_;
+        Message event_;
+
+        DeferedStartTask( Message event )
+        {
+            logger_.debug("Message has StartTime and will be run at" + event.getStartTime());
+            event_ = event;
+            timerRegistration_ = executeTaskAt( event.getStartTime(), this );
+        }
+
+        public void run()
+        {
+            processEventInternal( event_ );
+        }
     }
 
-    private TaskErrorHandler nullErrorHandler_ = new TaskErrorHandler() {
-	    public void handleTaskError(Task task, Throwable error) {
-		logger_.error("Error in Task: " + task, error);
-	    }
-	};
+    class EnableEventConsumer implements Runnable {
+        EventConsumer eventConsumer_;
 
-    private TaskFinishHandler nullFinishHandler_ = new TaskFinishHandler() {
-	    public void handleTaskFinished(Task task) {
-		logger_.debug("Task " + task + " finished");
-	    }
-	};
+        EnableEventConsumer(EventConsumer ec) {
+            eventConsumer_ = ec;
+        }
+
+        public void run() {
+            logger_.debug("run enableEventConsumer");
+
+            try {
+                eventConsumer_.enableDelivery();
+                scheduleTimedPushTask(eventConsumer_);
+            } catch (InterruptedException e) {}
+        }
+    }
+
+    private TaskErrorHandler nullErrorHandler_ =
+        new TaskErrorHandler()
+        {
+            public void handleTaskError( Task task, Throwable error )
+            {
+                logger_.error( "Error in Task: " + task, error );
+            }
+        };
+
+    private TaskFinishHandler nullFinishHandler_ =
+        new TaskFinishHandler()
+        {
+            public void handleTaskFinished( Task task )
+            {
+                logger_.debug( "Task " + task + " finished" );
+            }
+        };
 
     private ThreadPool filterPool_;
     private ThreadPool deliverPool_;
@@ -126,7 +167,7 @@ public class TaskProcessor implements Disposable {
     private ClockDaemon clockDaemon_;
     private TaskConfigurator taskConfigurator_;
 
-    
+
     ////////////////////////////////////////
 
     /**
@@ -134,46 +175,54 @@ public class TaskProcessor implements Disposable {
      * Set up DeliverThreadPool
      * Set up FilterThreadPool
      * Set up TaskConfigurator
-     */ 
-    public TaskProcessor() {
-	logger_.info("create TaskProcessor");
+     */
+    public TaskProcessor()
+    {
+        logger_.info( "create TaskProcessor" );
 
-	clockDaemon_ = new ClockDaemon();
-	
-	filterPool_ = 
-	    new ThreadPool("FilterThread", 
-			   getNumberFromProperty(Properties.FILTER_POOL_WORKERS, 
-						 DEFAULT_FILTER_POOL_WORKERS));
+        clockDaemon_ = new ClockDaemon();
 
-	deliverPool_ = 
-	    new ThreadPool("DeliverThread", 
-			   getNumberFromProperty(Properties.DELIVER_POOL_WORKERS,
-						 DEFAULT_DELIVER_POOL_WORKERS));
-	
-	taskConfigurator_ = new TaskConfigurator(this);
-	taskConfigurator_.init();
+        filterPool_ =
+            new ThreadPool( "FilterThread",
+                            getNumberFromProperty( ConfigurableProperties.FILTER_POOL_WORKERS,
+                                                   DEFAULT_FILTER_POOL_WORKERS ) );
+
+        deliverPool_ =
+            new ThreadPool( "DeliverThread",
+                            getNumberFromProperty( ConfigurableProperties.DELIVER_POOL_WORKERS,
+                                                   DEFAULT_DELIVER_POOL_WORKERS ) );
+
+        taskConfigurator_ = new TaskConfigurator( this );
+        taskConfigurator_.init();
     }
 
     ////////////////////////////////////////
 
-    private int getNumberFromProperty(String propertyName, int defaultValue) {
-	if ( Environment.getProperty(propertyName) == null) {
-	    return defaultValue;
-	}
+    private int getNumberFromProperty( String propertyName, int defaultValue )
+    {
+        if ( Environment.getProperty( propertyName ) == null )
+        {
+            return defaultValue;
+        }
 
-	try {
-	    return Integer.parseInt(Environment.getProperty(propertyName));
-	} catch (NumberFormatException e) {
-	    return defaultValue;
-	}
+        try
+        {
+            return Integer.parseInt( Environment.getProperty( propertyName ) );
+        }
+        catch ( NumberFormatException e )
+        {
+            return defaultValue;
+        }
     }
 
-    boolean isFilterTaskQueued() {
-	return (filterPool_.isTaskQueued());
+    boolean isFilterTaskQueued()
+    {
+        return ( filterPool_.isTaskQueued() );
     }
 
-    boolean isDeliverTaskQueued() {
-	return (deliverPool_.isTaskQueued());
+    boolean isDeliverTaskQueued()
+    {
+        return ( deliverPool_.isTaskQueued() );
     }
 
     /**
@@ -182,125 +231,139 @@ public class TaskProcessor implements Disposable {
      * allocated ressources will be freed. As the active Threads will
      * be interrupted pending Events will be discarded.
      */
-    public void dispose() {
-	logger_.info("dispose");
+    public void dispose()
+    {
+        logger_.info( "dispose" );
 
-	clockDaemon_.shutDown();
-	filterPool_.dispose();
-	deliverPool_.dispose();
-	taskConfigurator_.dispose();
+        clockDaemon_.shutDown();
+        filterPool_.dispose();
+        deliverPool_.dispose();
+        taskConfigurator_.dispose();
 
-	logger_.debug("dispose - complete");
-    }
-
-    /**
-     * begin to process a NotificationEvent
-     */
-    public void processEvent(NotificationEvent event) {
-	if (event.hasTimeout()) {
-	    new TimeoutTask(event);
-	}
-
-	if (event.hasStopTime()) {
-
-	    if (event.getStopTime().getTime() <= System.currentTimeMillis()) {
-
-		fireEventDiscarded(event);
-
-		return;
-	    } else {
-		new DeferedStopTask(event);
-	    }
-	}
-
-	if (event.hasStartTime()) {
-	    new DeferedStartTask(event);
-	} else {
-	    processEventInternal(event);
-	}
+        logger_.debug( "dispose - complete" );
     }
 
 
-    /**
-     * begin to process a NotificationEvent
-     */
-    public void processEventInternal(NotificationEvent event) {
-	logger_.debug("processEvent");
+    public void processEvent( Message event )
+    {
+        if ( event.hasTimeout() )
+        {
+            new TimeoutTask( event );
+        }
 
-	FilterTaskBase _task = taskConfigurator_.newFilterIncomingTask(event);
-	
-	try {
-	    scheduleFilterTask(_task);
-	} catch (InterruptedException ie) {
-	    logger_.error("Interrupt while scheduling FilterTask", ie);
-	}
+        if ( event.hasStopTime() )
+        {
+
+            if ( event.getStopTime().getTime() <= System.currentTimeMillis() )
+            {
+
+                fireEventDiscarded( event );
+
+                return ;
+            }
+            else
+            {
+                new DeferedStopTask( event );
+            }
+        }
+
+        if ( event.hasStartTime() )
+        {
+            new DeferedStartTask( event );
+        }
+        else
+        {
+            processEventInternal( event );
+        }
+    }
+
+
+    public void processEventInternal( Message event )
+    {
+
+        AbstractFilterTask _task = taskConfigurator_.newFilterIncomingTask( event );
+
+        try
+        {
+            scheduleFilterTask( _task );
+        }
+        catch ( InterruptedException ie )
+        {
+            logger_.error( "Interrupt while scheduling FilterTask", ie );
+        }
     }
 
 
     /**
      * Schedule a FilterTask for execution.
      */
-    void scheduleFilterTask(FilterTaskBase task) 
-	throws InterruptedException {
-
-	logger_.debug("scheduleFilterTask");
-
-	filterPool_.execute(task);
+    void scheduleFilterTask( AbstractFilterTask task )
+        throws InterruptedException
+    {
+        filterPool_.execute( task );
     }
 
 
     /**
      * Schedule a FilterTask for execution. Bypass Queuing if
-     * possible. If no FilterTasks are queued this 
+     * possible. If no FilterTasks are queued this
      * Thread can be used to perform the FilterTask. Otherwise queue
      * FilterTask for execution
      */
-    void scheduleOrExecuteFilterTask(FilterTaskBase task) 
-	throws InterruptedException {
+    void scheduleOrExecuteFilterTask( AbstractFilterTask task )
+        throws InterruptedException
+    {
 
-	if (isFilterTaskQueued()) {
-	    scheduleFilterTask(task);
-	} else {
-	    task.run();
-	}
+        if ( isFilterTaskQueued() )
+        {
+            scheduleFilterTask( task );
+        }
+        else
+        {
+            task.run();
+        }
     }
 
     /**
      * Schedule or Execute PushToConsumerTask for execution. Bypass
      * Scheduling if possible.
      */
-    void scheduleOrExecutePushToConsumerTask(PushToConsumerTask task) 
-	throws InterruptedException {
+    public void scheduleOrExecutePushToConsumerTask( PushToConsumerTask task )
+        throws InterruptedException
+    {
 
-	if (isDeliverTaskQueued()) {
-	    schedulePushToConsumerTask(task);
-	} else {
-	    task.run();
-	}
+        if ( isDeliverTaskQueued() )
+        {
+            schedulePushToConsumerTask( task );
+        }
+        else
+        {
+            task.run();
+        }
     }
 
 
     /**
      * Schedule a PushToConsumerTask for execution.
      */
-    void schedulePushToConsumerTask(PushToConsumerTask task) 
-	throws InterruptedException {
-
-	logger_.debug("schedulePushToConsumerTask");
-
-	deliverPool_.execute(task);
+    public void schedulePushToConsumerTask( PushToConsumerTask task )
+        throws InterruptedException
+    {
+        deliverPool_.execute( task );
     }
 
 
     /**
      * Schedule an array of PushToConsumerTask for execution.
      */
-    void schedulePushToConsumerTask(PushToConsumerTask[] tasks) 
-	throws InterruptedException {
+    void schedulePushToConsumerTask( PushToConsumerTask[] tasks )
+        throws InterruptedException
+    {
 
-	for (int x = 0; x < tasks.length; ++x) {
-	    schedulePushToConsumerTask(tasks[x]);
-	}
+        for ( int x = 0; x < tasks.length; ++x )
+        {
+            schedulePushToConsumerTask( tasks[ x ] );
+        }
     }
 
 
@@ -309,18 +372,19 @@ public class TaskProcessor implements Disposable {
      * If a Supplier connects to a ProxyPullConsumer the
      * ProxyPullConsumer needs to regularely poll the Supplier.
      * This method queues a Task to run runPullEvent on the specified
-     * TimerEventSupplier 
+     * TimerEventSupplier
      */
-    public void scheduleTimedPullTask(TimerEventSupplier dest) 
-	throws InterruptedException {
+    public void scheduleTimedPullTask( TimerEventSupplier dest )
+    throws InterruptedException
+    {
 
-	PullFromSupplierTask _task = new PullFromSupplierTask();
+        PullFromSupplierTask _task = new PullFromSupplierTask();
 
-	_task.setTaskFinishHandler(nullFinishHandler_);
-	_task.setTaskErrorHandler(nullErrorHandler_);
-	_task.setTarget(dest);
+        _task.setTaskFinishHandler( nullFinishHandler_ );
+        _task.setTaskErrorHandler( nullErrorHandler_ );
+        _task.setTarget( dest );
 
-	deliverPool_.execute(_task);
+        deliverPool_.execute( _task );
     }
 
 
@@ -330,64 +394,92 @@ public class TaskProcessor implements Disposable {
      * connected Consumer. This method allows to queue a Task to call
      * deliverPendingEvents on the specified TimerEventConsumer
      */
-    public void scheduleTimedPushTask(TimerEventConsumer d) 
-	throws InterruptedException {
+    public void scheduleTimedPushTask( TimerEventConsumer d )
+        throws InterruptedException
+    {
 
-	TimerDeliverTask _task = new TimerDeliverTask();
+        TimerDeliverTask _task = new TimerDeliverTask();
 
-	_task.setTimedDeliverTarget(d);
-	_task.setTaskFinishHandler(nullFinishHandler_);
-	_task.setTaskErrorHandler(nullErrorHandler_);
+        _task.setTimedDeliverTarget( d );
+        _task.setTaskFinishHandler( nullFinishHandler_ );
+        _task.setTaskErrorHandler( nullErrorHandler_ );
 
-	deliverPool_.execute(_task);
+        deliverPool_.execute( _task );
     }
 
 
     /**
      * access the Clock Daemon instance.
      */
-    private ClockDaemon getClockDaemon() {
-	return clockDaemon_;
+    private ClockDaemon getClockDaemon()
+    {
+        return clockDaemon_;
     }
 
-    public Object executeTaskPeriodically(long intervall, 
-					  Runnable task, 
-					  boolean startImmediately) {
-	
-	return getClockDaemon().executePeriodically(intervall, 
-						    task, 
-						    startImmediately);
+    public Object executeTaskPeriodically( long intervall,
+                                           Runnable task,
+                                           boolean startImmediately )
+    {
+
+        return getClockDaemon().executePeriodically( intervall,
+                                                     task,
+                                                     startImmediately );
     }
 
-    public void cancelTask(Object id) {
-	ClockDaemon.cancel(id);
+    public void cancelTask( Object id )
+    {
+        ClockDaemon.cancel( id );
     }
 
-    private Object executeTaskAfterDelay(long delay, Runnable task) {
-	return clockDaemon_.executeAfterDelay(delay, task);
+    private Object executeTaskAfterDelay( long delay, Runnable task )
+    {
+        return clockDaemon_.executeAfterDelay( delay, task );
     }
 
-    private Object executeTaskAt(Date startTime, Runnable task) {
-	return clockDaemon_.executeAt(startTime, task);
+    private Object executeTaskAt( Date startTime, Runnable task )
+    {
+        return clockDaemon_.executeAt( startTime, task );
     }
 
-    void fireEventDiscarded(NotificationEvent event) {
-	switch(event.getType()) {
-	case NotificationEvent.TYPE_ANY:
-	    fireEventDiscarded(event.toAny());
-	    break;
-	case NotificationEvent.TYPE_STRUCTURED:
-	    fireEventDiscarded(event.toStructuredEvent());
-	    break;
-	default:
-	    throw new RuntimeException();
-	}
+    void fireEventDiscarded( Message event )
+    {
+        switch ( event.getType() )
+        {
+
+        case Message.TYPE_ANY:
+            fireEventDiscarded( event.toAny() );
+            break;
+
+        case Message.TYPE_STRUCTURED:
+            fireEventDiscarded( event.toStructuredEvent() );
+            break;
+
+        default:
+            throw new RuntimeException();
+        }
+
+        event.dispose();
     }
 
-    void fireEventDiscarded(Any a) {
+    void backoffEventConsumer(EventConsumer ec) {
+        logger_.debug("backoffEventConsumer " + ec);
+
+        Runnable runEnableTask = new EnableEventConsumer(ec);
+
+        executeTaskAfterDelay(2000, runEnableTask);
+
     }
 
-    void fireEventDiscarded(StructuredEvent e) {
+    public TaskConfigurator getTaskConfigurator() {
+        return taskConfigurator_;
+    }
+
+    void fireEventDiscarded( Any a )
+    {
+    }
+
+    void fireEventDiscarded( StructuredEvent e )
+    {
     }
 
 }

@@ -29,57 +29,54 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.Token;
 
-/** 
- * A simple node to represent DIV operation 
+/**
+ * A simple node to represent DIV operation
  * @version $Id$
  */
 
-public class DivOperator extends TCLNode {
+public class DivOperator extends AbstractTCLNode {
 
     public DivOperator(Token tok) {
-	super(tok);
+        super(tok);
     }
 
     public String toString() {
-	return " /";
+        return " /";
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode,
-	       EvaluationException {
+        throws DynamicTypeException,
+               EvaluationException {
 
-	
-	try {
-	    return EvaluationResult.div(left().evaluate(context),
-					right().evaluate(context));
-	} catch (ArithmeticException e) {
-	    throw new EvaluationException(e.getMessage());
-	}
+
+        try {
+            return EvaluationResult.div(left().evaluate(context),
+                                        right().evaluate(context));
+        } catch (ArithmeticException e) {
+            throw new EvaluationException(e.getMessage());
+        }
 
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitDiv(this);
-	right().acceptInOrder(visitor);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitDiv(this);
+        right().acceptInOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	right().acceptPostOrder(visitor);
-	visitor.visitDiv(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        right().acceptPostOrder(visitor);
+        visitor.visitDiv(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitDiv(this);
-	left().acceptPreOrder(visitor);
-	right().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitDiv(this);
+        left().acceptPreOrder(visitor);
+        right().acceptPreOrder(visitor);
     }
 
     public String getName() {
-	return "DivOperator";
+        return "DivOperator";
     }
 }

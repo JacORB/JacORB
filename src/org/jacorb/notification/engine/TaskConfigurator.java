@@ -23,11 +23,11 @@ package org.jacorb.notification.engine;
 
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
-import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.FilterStage;
-import org.jacorb.notification.interfaces.Poolable;
+import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.TRANSIENT;
 
@@ -62,7 +62,7 @@ public class TaskConfigurator implements Disposable
                 }
             };
 
-    private TaskErrorHandler deliverTaskErrorHandler_ = new TaskErrorHandler()
+    public TaskErrorHandler deliverTaskErrorHandler_ = new TaskErrorHandler()
             {
                 public void handleTaskError( Task task, Throwable error )
                 {
@@ -71,7 +71,7 @@ public class TaskConfigurator implements Disposable
             };
 
 
-    private TaskFinishHandler deliverTaskFinishHandler_ = new TaskFinishHandler()
+    public TaskFinishHandler deliverTaskFinishHandler_ = new TaskFinishHandler()
             {
                 public void handleTaskFinished( Task t )
                 {
@@ -79,7 +79,7 @@ public class TaskConfigurator implements Disposable
                 }
             };
 
-    private TaskPoolBase filterProxyConsumerTaskPool_ = new TaskPoolBase()
+    private AbstractTaskPool filterProxyConsumerTaskPool_ = new AbstractTaskPool()
             {
                 public Object newInstance()
                 {
@@ -90,7 +90,7 @@ public class TaskConfigurator implements Disposable
 
             };
 
-    private TaskPoolBase filterSupplierAdminTaskPool_ = new TaskPoolBase()
+    private AbstractTaskPool filterSupplierAdminTaskPool_ = new AbstractTaskPool()
             {
                 public Object newInstance()
                 {
@@ -99,7 +99,7 @@ public class TaskConfigurator implements Disposable
 
             };
 
-    private TaskPoolBase filterConsumerAdminTaskPool_ = new TaskPoolBase()
+    private AbstractTaskPool filterConsumerAdminTaskPool_ = new AbstractTaskPool()
             {
                 public Object newInstance()
                 {
@@ -108,7 +108,7 @@ public class TaskConfigurator implements Disposable
 
             };
 
-    private TaskPoolBase filterProxySupplierTaskPool_ = new TaskPoolBase()
+    private AbstractTaskPool filterProxySupplierTaskPool_ = new AbstractTaskPool()
             {
                 public Object newInstance()
                 {
@@ -118,8 +118,8 @@ public class TaskConfigurator implements Disposable
             };
 
 
-    private TaskPoolBase deliverTaskPool_ =
-        new TaskPoolBase()
+    private AbstractTaskPool deliverTaskPool_ =
+        new AbstractTaskPool()
         {
             public Object newInstance()
             {
@@ -140,14 +140,14 @@ public class TaskConfigurator implements Disposable
     {
         try
         {
-            FilterTaskBase currentFilterTask = ( FilterTaskBase ) t;
-            FilterTaskBase filterTaskToBeScheduled = null;
+            AbstractFilterTask currentFilterTask = ( AbstractFilterTask ) t;
+            AbstractFilterTask filterTaskToBeScheduled = null;
             PushToConsumerTask[] listOfPushToConsumerTaskToBeScheduled = null;
 
             if ( currentFilterTask.getStatus() == Task.DISPOSABLE )
             {
 
-                taskProcessor_.fireEventDiscarded( currentFilterTask.getNotificationEvent() );
+                taskProcessor_.fireEventDiscarded( currentFilterTask.removeMessage() );
 
             }
             else if ( currentFilterTask instanceof FilterProxyConsumerTask )
@@ -174,9 +174,14 @@ public class TaskConfigurator implements Disposable
                 // the ConsumerAdmin Filters are eval'd
                 // (if InterFilterGroupOperator.OR_OP is set !)
 
-                listOfPushToConsumerTaskToBeScheduled =
-                    newPushToConsumerTask( task.getNotificationEvent(),
-                                           task.getFilterStagesWithEventConsumer() );
+                FilterStage[] _filterStagesWithEventConsumer =
+                    task.getFilterStagesWithEventConsumer();
+
+                if (_filterStagesWithEventConsumer.length > 0) {
+                    listOfPushToConsumerTaskToBeScheduled =
+                        newPushToConsumerTask(_filterStagesWithEventConsumer,
+                                              task.copyMessage());
+                }
 
                 filterTaskToBeScheduled = newFilterProxySupplierTask( task );
 
@@ -193,9 +198,10 @@ public class TaskConfigurator implements Disposable
                 throw new RuntimeException();
             }
 
-	    if (currentFilterTask.getNotificationEvent() != null) {
-		currentFilterTask.removeNotificationEvent().release();
-	    }
+            Message event = currentFilterTask.removeMessage();
+            if (event != null) {
+                event.dispose();
+            }
 
             currentFilterTask.release();
 
@@ -214,29 +220,27 @@ public class TaskConfigurator implements Disposable
         {
             logger_.error( "Task has been Interrupted", e );
         }
-
-        logger_.debug( "Leaving TaskFinishHandler" );
     }
 
     public void handlePushToConsumerTaskError( Task task, Throwable error )
     {
-        if ( error instanceof OBJECT_NOT_EXIST
-	     || error instanceof TRANSIENT )
+        PushToConsumerTask _pushToConsumerTask = (PushToConsumerTask)task;
+
+        if ( error instanceof OBJECT_NOT_EXIST )
         {
 
             // push operation caused a OBJECT_NOT_EXIST Exception
             // default strategy is to
             // destroy the ProxySupplier
-            PushToConsumerTask _pushToConsumerTask =
-                ( PushToConsumerTask ) task;
 
             if ( logger_.isWarnEnabled() )
             {
-                logger_.warn( "push to Consumer failed" );
-                logger_.warn( "dispose EventConsumer" );
+                logger_.warn( "push to Consumer failed: Dispose EventConsumer" );
             }
 
             _pushToConsumerTask.getEventConsumer().dispose();
+
+            _pushToConsumerTask.removeMessage().dispose();
 
             _pushToConsumerTask.release();
         }
@@ -244,9 +248,13 @@ public class TaskConfigurator implements Disposable
         {
             logger_.error( "error during push", error );
 
-            // TODO
-            // backoff strategy
-            // disable ProxySupplier for some time ...
+            EventConsumer _consumer = _pushToConsumerTask.getEventConsumer();
+
+            _consumer.disableDelivery();
+
+            _consumer.deliverEvent(_pushToConsumerTask.removeMessage());
+
+            taskProcessor_.backoffEventConsumer(_consumer);
         }
     }
 
@@ -268,16 +276,13 @@ public class TaskConfigurator implements Disposable
 
                 case Task.DISPOSABLE:
                     logger_.debug( "PushToConsumerFinishHandler: Event has been marked disposable" );
-                    taskProcessor_.fireEventDiscarded( ( ( TaskBase ) task ).getNotificationEvent() );
+                    taskProcessor_.fireEventDiscarded( ( ( AbstractTask ) task ).removeMessage() );
                     // fallthrough
 
                 case Task.DONE:
-                    logger_.debug( "finish done task" );
-                    logger_.debug( "removeNotificationEvent().release" );
+                    //                    ( ( AbstractTask ) task ).removeMessage().dispose();
 
-                    ( ( TaskBase ) task ).removeNotificationEvent().release();
-
-                    ( ( Poolable ) task ).release();
+                    ( ( AbstractPoolable ) task ).release();
                     break;
 
                 default:
@@ -299,42 +304,42 @@ public class TaskConfigurator implements Disposable
 
     public void init()
     {
-	filterProxyConsumerTaskPool_.init();
-	filterProxySupplierTaskPool_.init();
-	filterConsumerAdminTaskPool_.init();
-	filterSupplierAdminTaskPool_.init();
+        filterProxyConsumerTaskPool_.init();
+        filterProxySupplierTaskPool_.init();
+        filterConsumerAdminTaskPool_.init();
+        filterSupplierAdminTaskPool_.init();
 
         deliverTaskPool_.init();
     }
 
     public void dispose()
     {
-	filterProxyConsumerTaskPool_.dispose();
-	filterProxySupplierTaskPool_.dispose();
-	filterConsumerAdminTaskPool_.dispose();
-	filterSupplierAdminTaskPool_.dispose();
+        filterProxyConsumerTaskPool_.dispose();
+        filterProxySupplierTaskPool_.dispose();
+        filterConsumerAdminTaskPool_.dispose();
+        filterSupplierAdminTaskPool_.dispose();
 
         deliverTaskPool_.dispose();
     }
 
     protected FilterProxyConsumerTask newFilterProxyConsumerTask() {
-	return (FilterProxyConsumerTask)filterProxyConsumerTaskPool_.lendObject();
+        return (FilterProxyConsumerTask)filterProxyConsumerTaskPool_.lendObject();
     }
 
-    private FilterProxyConsumerTask newFilterConsumerProxyTask( NotificationEvent event )
+    private FilterProxyConsumerTask newFilterConsumerProxyTask( Message event )
     {
         FilterProxyConsumerTask task = newFilterProxyConsumerTask();
 
         task.setTaskErrorHandler( filterTaskErrorHandler_ );
-        task.setNotificationEvent( event );
+        task.setMessage( event );
         task.setTaskFinishHandler( filterTaskFinishHandler_ );
-        task.setCurrentFilterStage( new FilterStage[] { event.getFilterStage() } );
+        task.setCurrentFilterStage( new FilterStage[] { event.getInitialFilterStage() } );
 
         return task;
     }
 
     private FilterSupplierAdminTask newFilterSupplierAdminTask() {
-	return (FilterSupplierAdminTask)filterSupplierAdminTaskPool_.lendObject();
+        return (FilterSupplierAdminTask)filterSupplierAdminTaskPool_.lendObject();
     }
 
     private FilterSupplierAdminTask newFilterSupplierAdminTask( FilterProxyConsumerTask t )
@@ -343,7 +348,7 @@ public class TaskConfigurator implements Disposable
 
         task.setTaskFinishHandler( filterTaskFinishHandler_ );
         task.setTaskErrorHandler( filterTaskErrorHandler_ );
-	task.setNotificationEvent(t.getNotificationEvent());
+        task.setMessage( t.removeMessage() );
 
         task.setCurrentFilterStage( t.getFilterStageToBeProcessed() );
 
@@ -353,7 +358,7 @@ public class TaskConfigurator implements Disposable
     }
 
     private FilterConsumerAdminTask newFilterConsumerAdminTask() {
-	return (FilterConsumerAdminTask)filterConsumerAdminTaskPool_.lendObject();
+        return (FilterConsumerAdminTask)filterConsumerAdminTaskPool_.lendObject();
     }
 
     private FilterConsumerAdminTask newFilterConsumerAdminTask( FilterSupplierAdminTask t )
@@ -362,7 +367,7 @@ public class TaskConfigurator implements Disposable
 
         task.setTaskFinishHandler( filterTaskFinishHandler_ );
         task.setTaskErrorHandler( filterTaskErrorHandler_ );
-	task.setNotificationEvent(t.getNotificationEvent());
+        task.setMessage(t.removeMessage());
 
         task.setCurrentFilterStage( t.getFilterStageToBeProcessed() );
 
@@ -370,7 +375,7 @@ public class TaskConfigurator implements Disposable
     }
 
     private FilterProxySupplierTask newFilterProxySupplierTask() {
-	return (FilterProxySupplierTask)filterProxySupplierTaskPool_.lendObject();
+        return (FilterProxySupplierTask)filterProxySupplierTaskPool_.lendObject();
     }
 
     private FilterProxySupplierTask newFilterProxySupplierTask( FilterConsumerAdminTask t )
@@ -379,7 +384,7 @@ public class TaskConfigurator implements Disposable
 
         task.setTaskFinishHandler( filterTaskFinishHandler_ );
         task.setTaskErrorHandler( filterTaskErrorHandler_ );
-	task.setNotificationEvent(t.getNotificationEvent());
+        task.setMessage(t.removeMessage());
 
         task.setCurrentFilterStage( t.getFilterStageToBeProcessed() );
 
@@ -390,55 +395,73 @@ public class TaskConfigurator implements Disposable
      * factory method for a new FilterIncomingTask instance. uses
      * an Object Pool.
      */
-    FilterTaskBase newFilterIncomingTask( NotificationEvent event )
+    AbstractFilterTask newFilterIncomingTask( Message event )
     {
 
         return newFilterConsumerProxyTask( event );
 
     }
 
-    PushToConsumerTask[] newPushToConsumerTask(NotificationEvent event,
-					       FilterStage[] nodes) {
+    PushToConsumerTask[] newPushToConsumerTask(FilterStage[] nodes, Message event) {
 
-	return newPushToConsumerTask(FilterProxySupplierTask.EMPTY_MAP, 
-				     event, 
-				     nodes);
+        return newPushToConsumerTask(nodes, event, FilterProxySupplierTask.EMPTY_MAP);
 
     }
 
-    PushToConsumerTask[] newPushToConsumerTask(FilterProxySupplierTask.AlternateNotificationEventMap map, 
-					       NotificationEvent defaultEvent, 
-					       FilterStage [] seqFilterStageWithEventConsumer) {
-	
-	PushToConsumerTask [] _seqPushToConsumerTask = 
-	    new PushToConsumerTask[ seqFilterStageWithEventConsumer.length ];
 
-        EventConsumer[] _seqEventConsumer = 
-	    new EventConsumer[ seqFilterStageWithEventConsumer.length ];
+    /**
+     * Create a Array of PushToConsumerTask.
+     *
+     * @param seqFilterStageWithEventConsumer Array of FilterStages
+     * that have an EventConsumer attached.
+     *
+     * @param defaultMessage the Message that is to be
+     * delivered by the created PushToConsumerTask. This method gains
+     * possession of the Message.
+     *
+     * @param map alternate Messages that should be used for
+     * EventConsumers.
+     *
+     * @return a <code>PushToConsumerTask[]</code> value
+     */
+    PushToConsumerTask[] newPushToConsumerTask(FilterStage [] seqFilterStageWithEventConsumer,
+                                               Message defaultMessage,
+                                               FilterProxySupplierTask.AlternateMessageMap map) {
+
+        PushToConsumerTask [] _seqPushToConsumerTask =
+            new PushToConsumerTask[ seqFilterStageWithEventConsumer.length ];
 
         for ( int x = 0; x < seqFilterStageWithEventConsumer.length; ++x )
-	    {
-		_seqPushToConsumerTask[ x ] = 
-		    ( PushToConsumerTask ) deliverTaskPool_.lendObject();
+            {
+                _seqPushToConsumerTask[ x ] =
+                    ( PushToConsumerTask ) deliverTaskPool_.lendObject();
 
-		_seqPushToConsumerTask[ x ]
-		    .setEventConsumer( seqFilterStageWithEventConsumer[ x ].getEventConsumer() );
+                _seqPushToConsumerTask[ x ]
+                    .setEventConsumer( seqFilterStageWithEventConsumer[ x ].getEventConsumer() );
 
-		NotificationEvent _alternateEvent =
-		    map.getAlternateNotificationEvent(seqFilterStageWithEventConsumer[x]);
+                Message _alternateEvent =
+                    map.getAlternateMessage(seqFilterStageWithEventConsumer[x]);
 
-		if ( _alternateEvent != null ) {
+                if ( _alternateEvent != null ) {
 
-		    _seqPushToConsumerTask[ x ].setNotificationEvent( _alternateEvent );
-		    
-		} else {
-		    _seqPushToConsumerTask[x].setNotificationEvent(defaultEvent);
-		}
+                    _seqPushToConsumerTask[ x ].setMessage( _alternateEvent );
 
-		_seqPushToConsumerTask[ x ].setTaskFinishHandler( deliverTaskFinishHandler_ );
-		_seqPushToConsumerTask[ x ].setTaskErrorHandler( deliverTaskErrorHandler_ );
-	    }
-	return _seqPushToConsumerTask;
+                } else {
+                    if (x == 0) {
+                        // the first Message can be simply
+                        // used as this method gains possession of the
+                        // Message
+                        _seqPushToConsumerTask[x].setMessage(defaultMessage);
+                    } else {
+                        // all following Messages must be copied
+                        _seqPushToConsumerTask[x].setMessage((Message)defaultMessage.clone());
+                    }
+                }
+
+                _seqPushToConsumerTask[ x ].setTaskFinishHandler( deliverTaskFinishHandler_ );
+                _seqPushToConsumerTask[ x ].setTaskErrorHandler( deliverTaskErrorHandler_ );
+            }
+        return _seqPushToConsumerTask;
     }
 
     /**
@@ -449,14 +472,15 @@ public class TaskConfigurator implements Disposable
     {
         PushToConsumerTask[] _deliverTasks;
 
-        NotificationEvent _notificationEvent = task.getNotificationEvent();
+        Message _notificationEvent =
+            task.removeMessage();
 
-	FilterStage[] _seqFilterStageToBeProcessed = 
-	    task.getFilterStageToBeProcessed();
+        FilterStage[] _seqFilterStageToBeProcessed =
+            task.getFilterStageToBeProcessed();
 
-	_deliverTasks = newPushToConsumerTask(task.changedNotificationEvents_, 
-					      _notificationEvent, 
-					      _seqFilterStageToBeProcessed);
+        _deliverTasks = newPushToConsumerTask(_seqFilterStageToBeProcessed,
+                                              _notificationEvent,
+                                              task.changedMessages_);
 
         return _deliverTasks;
     }

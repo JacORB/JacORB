@@ -29,54 +29,51 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import antlr.Token;
 
 /** A simple node to represent NEQ operation */
-public class NeqOperator extends TCLNode {
+public class NeqOperator extends AbstractTCLNode {
 
     public NeqOperator(Token tok) {
-	super(tok);
+        super(tok);
     }
 
-    public EvaluationResult evaluate(EvaluationContext context) 
-	throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode,
-	       EvaluationException {
+    public EvaluationResult evaluate(EvaluationContext context)
+        throws DynamicTypeException,
+               EvaluationException {
 
-	EvaluationResult _left, _right;
-	_left = left().evaluate(context);
-	_right = right().evaluate(context);
+        EvaluationResult _left, _right;
+        _left = left().evaluate(context);
+        _right = right().evaluate(context);
 
-	int _comp = _left.compareTo( _right);
+        int _comp = _left.compareTo( _right);
 
-	if (_comp == 0 ) {
-	    return EvaluationResult.BOOL_FALSE;
-	}
-	return EvaluationResult.BOOL_TRUE;
+        if (_comp == 0 ) {
+            return EvaluationResult.BOOL_FALSE;
+        }
+        return EvaluationResult.BOOL_TRUE;
     }
 
     public String toString() {
-	return "!=";
+        return "!=";
     }
 
     public String getName() {
-	return getClass().getName();
+        return getClass().getName();
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitNeq(this);
-	right().acceptInOrder(visitor);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitNeq(this);
+        right().acceptInOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	right().acceptInOrder(visitor);
-	visitor.visitNeq(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        right().acceptInOrder(visitor);
+        visitor.visitNeq(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitNeq(this);
-	left().acceptInOrder(visitor);
-	right().acceptInOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitNeq(this);
+        left().acceptInOrder(visitor);
+        right().acceptInOrder(visitor);
     }
 }

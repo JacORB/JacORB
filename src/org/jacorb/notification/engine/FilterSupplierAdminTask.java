@@ -29,51 +29,57 @@ package org.jacorb.notification.engine;
  * @version $Id$
  */
 
-public class FilterSupplierAdminTask extends FilterTaskBase 
+public class FilterSupplierAdminTask extends AbstractFilterTask
 {
     boolean skip_ = false;
 
     public FilterSupplierAdminTask()
     {
-	
     }
 
-    public void setSkip(boolean skip) {
-	skip_ = skip;
+    public void setSkip( boolean skip )
+    {
+        skip_ = skip;
     }
 
-    public void reset() {
-	skip_ = false;
+    public void reset()
+    {
+        skip_ = false;
     }
-    
-    public void doWork() {
-	if (getStatus() == DISPOSABLE) {
-	    return;
-	}
 
-	boolean _forward = filter();
-	
-	setStatus( DONE );	
+    public void doWork()
+    {
+        if ( getStatus() == DISPOSABLE )
+        {
+            return ;
+        }
+
+        boolean _forward = filter();
+
+        setStatus( DONE );
     }
-    
+
     private boolean filter()
     {
         boolean _forward = false;
 
-	// eval attached filters. as an Event passes only 1
-	// SupplierAdmin we can assume constant array size here 
-	
-	if (!skip_) {
-	    _forward = event_.match( arrayCurrentFilterStage_[ 0 ] );
-	} else {
-	    _forward = true;
-	}
+        // eval attached filters. as an Event passes only 1
+        // SupplierAdmin we can assume constant array size here
+
+        if ( !skip_ )
+        {
+            _forward = event_.match( arrayCurrentFilterStage_[ 0 ] );
+        }
+        else
+        {
+            _forward = true;
+        }
 
         if ( _forward )
-	    {
-		listOfFilterStageToBeProcessed_.addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
-	    }
-	
+        {
+            listOfFilterStageToBeProcessed_.addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+        }
+
 
         return _forward;
     }

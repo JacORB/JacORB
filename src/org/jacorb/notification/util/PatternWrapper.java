@@ -31,11 +31,11 @@ import org.apache.log.Logger;
 public abstract class PatternWrapper
 {
 
-    static final RuntimeException REGEXP_NOT_AVAILABLE = 
-	new RuntimeException( "Neither java.util.regex.Pattern nor gnu.regexp available. " +
-			      "The package java.util.regex is part of the JDK since v1.4 " +
-			      "if you are running an older JDK you'll have to install gnu.regexp " +
-			      "to run this NotificationService. Refer to the documentation for details");
+    static final RuntimeException REGEXP_NOT_AVAILABLE =
+        new RuntimeException( "Neither java.util.regex.Pattern nor gnu.regexp available. " +
+                              "The package java.util.regex is part of the JDK since v1.4 " +
+                              "if you are running an older JDK you'll have to install gnu.regexp " +
+                              "to run this NotificationService. Refer to the documentation for details" );
 
     static Logger sLogger_ =
         Hierarchy.getDefaultHierarchy().getLoggerFor( PatternWrapper.class.getName() );
@@ -44,28 +44,39 @@ public abstract class PatternWrapper
     static Class sDefaultInstance;
 
     static {
-	
-	if (isClassAvailable("java.util.regex.Pattern")) {
-	    
-	    try {
-		sDefaultInstance =
-		    Class.forName( "org.jacorb.notification.util.JDK14PatternWrapper" );
-	    } catch (ClassNotFoundException e) {
-		throw new RuntimeException(e.getMessage());
-	    }
-	    
-	} else if (isClassAvailable("gnu.regexp.RE")) {
-	    
-	    try {
-		sDefaultInstance =
-		    Class.forName( "org.jacorb.notification.util.GNUPatternWrapper" );
-	    } catch (ClassNotFoundException e) {
-		throw new RuntimeException(e.getMessage());
-	    }
-	    
-	} else {
-	    throw REGEXP_NOT_AVAILABLE;
-	}
+
+        if ( isClassAvailable( "java.util.regex.Pattern" ) )
+        {
+
+            try
+            {
+                sDefaultInstance =
+                    Class.forName( "org.jacorb.notification.util.JDK14PatternWrapper" );
+            }
+            catch ( ClassNotFoundException e )
+            {
+                throw new RuntimeException( e.getMessage() );
+            }
+
+        }
+        else if ( isClassAvailable( "gnu.regexp.RE" ) )
+        {
+
+            try
+            {
+                sDefaultInstance =
+                    Class.forName( "org.jacorb.notification.util.GNUPatternWrapper" );
+            }
+            catch ( ClassNotFoundException e )
+            {
+                throw new RuntimeException( e.getMessage() );
+            }
+
+        }
+        else
+        {
+            throw REGEXP_NOT_AVAILABLE;
+        }
     }
 
     static PatternWrapper init( String patternString )
@@ -79,11 +90,12 @@ public abstract class PatternWrapper
         }
         catch ( Exception e )
         {
-	    if (sDefaultInstance == null) {
-		throw REGEXP_NOT_AVAILABLE;
-	    }
+            if ( sDefaultInstance == null )
+            {
+                throw REGEXP_NOT_AVAILABLE;
+            }
 
-	    sLogger_.error("Init of PatternWrapper failed: ", e);
+            sLogger_.error( "Init of PatternWrapper failed: ", e );
 
             throw new RuntimeException( e.getMessage() );
         }
@@ -93,14 +105,17 @@ public abstract class PatternWrapper
 
     public abstract int match( String text );
 
-    private static boolean isClassAvailable(String name) {
-	try {
-	    Class.forName(name);
+    private static boolean isClassAvailable( String name )
+    {
+        try
+        {
+            Class.forName( name );
 
-	    return true;
-	} catch (ClassNotFoundException e) {
-	}
+            return true;
+        }
+        catch ( ClassNotFoundException e )
+        {}
 
-	return false;
+        return false;
     }
 }

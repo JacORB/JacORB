@@ -3,14 +3,14 @@ package org.jacorb.test.notification;
 import junit.framework.TestCase;
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.NotificationEvent;
-import org.jacorb.notification.NotificationEventFactory;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.FilterConstraint;
 import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.node.TCLCleanUp;
-import org.jacorb.notification.node.TCLNode;
+import org.jacorb.notification.node.AbstractTCLNode;
 import org.jacorb.notification.parser.TCLParser;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LongSeqHelper;
@@ -44,191 +44,191 @@ public class TestUtils {
     static Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(TestUtils.class.getName());
 
     public TestUtils(ORB orb) {
-	orb_ = orb;
+        orb_ = orb;
     }
 
     public void setUp() throws Exception {
     }
 
     public StructuredEvent getStructuredEvent() {
-	FixedEventHeader _fixedHeader = new FixedEventHeader();
-	_fixedHeader.event_name = "ALARM";
-	_fixedHeader.event_type = new EventType("TESTING", "TESTING");
-	EventHeader _header = new EventHeader(_fixedHeader, new Property[0]);
+        FixedEventHeader _fixedHeader = new FixedEventHeader();
+        _fixedHeader.event_name = "ALARM";
+        _fixedHeader.event_type = new EventType("TESTING", "TESTING");
+        EventHeader _header = new EventHeader(_fixedHeader, new Property[0]);
 
-	StructuredEvent _structuredEvent = 
-	    new StructuredEvent(_header, new Property[0], getTestPersonAny());
+        StructuredEvent _structuredEvent =
+            new StructuredEvent(_header, new Property[0], getTestPersonAny());
 
-	return _structuredEvent;
+        return _structuredEvent;
     }
 
     public Any getStructuredEventAny() {
-	Any _structuredEventAny = orb_.create_any();
-	StructuredEventHelper.insert(_structuredEventAny, getStructuredEvent());
+        Any _structuredEventAny = orb_.create_any();
+        StructuredEventHelper.insert(_structuredEventAny, getStructuredEvent());
 
-	return _structuredEventAny;
+        return _structuredEventAny;
     }
 
     public Person getTestPerson() {
-    	// prepare test data
-	Person _p = new Person();
-	Address _a = new Address();
-	NamedValue _nv = new NamedValue();
+        // prepare test data
+        Person _p = new Person();
+        Address _a = new Address();
+        NamedValue _nv = new NamedValue();
 
-	_p.first_name = "firstname";
-	_p.last_name =  "lastname";
-	_p.age =        5;
-	_p.phone_numbers = new String[2];
-	_p.phone_numbers[0] = "12345678";
-	_p.phone_numbers[1] = "";
-	_p.nv = new NamedValue[2];
-	_p.nv[0] = new NamedValue();
-	_p.nv[1] = new NamedValue();
-	_p.person_profession = Profession.STUDENT;
-	_a.street = "Takustr.";
-	_a.number = 9;
-	_a.city = "Berlin";
-	_p.home_address = _a;
-	_p.aliases = new String[] {"Alias0", "Alias1", "Alias2"};
-	_p.numbers = new int[] {10, 20, 30, 40, 50};
+        _p.first_name = "firstname";
+        _p.last_name =  "lastname";
+        _p.age =        5;
+        _p.phone_numbers = new String[2];
+        _p.phone_numbers[0] = "12345678";
+        _p.phone_numbers[1] = "";
+        _p.nv = new NamedValue[2];
+        _p.nv[0] = new NamedValue();
+        _p.nv[1] = new NamedValue();
+        _p.person_profession = Profession.STUDENT;
+        _a.street = "Takustr.";
+        _a.number = 9;
+        _a.city = "Berlin";
+        _p.home_address = _a;
+        _p.aliases = new String[] {"Alias0", "Alias1", "Alias2"};
+        _p.numbers = new int[] {10, 20, 30, 40, 50};
 
-	return _p;
+        return _p;
     }
 
     public Any getTestPersonAny() {
-	Any _testPerson;
+        Any _testPerson;
 
-	_testPerson = orb_.create_any();
-	PersonHelper.insert(_testPerson, getTestPerson());
-	
-	return _testPerson;
+        _testPerson = orb_.create_any();
+        PersonHelper.insert(_testPerson, getTestPerson());
+
+        return _testPerson;
     }
 
     public Any getSizedTestData(int  size) {
-	Any _testData = orb_.create_any();
-	int[] _payload = new int[size];
-	for (int x=0; x<size; ++x) {
-	    _payload[x] = x;
-	}
+        Any _testData = orb_.create_any();
+        int[] _payload = new int[size];
+        for (int x=0; x<size; ++x) {
+            _payload[x] = x;
+        }
 
-	LongSeqHelper.insert(_testData, _payload);
-	
-	return _testData;
+        LongSeqHelper.insert(_testData, _payload);
+
+        return _testData;
     }
 
     static StructuredEvent invalidStructuredEvent_;
 
     public static StructuredEvent getInvalidStructuredEvent(ORB orb) {
-	if (invalidStructuredEvent_ == null) {
-	    synchronized(TestUtils.class.getName()) {
-		if (invalidStructuredEvent_ == null) {
-		    FixedEventHeader _fixedHeader = new FixedEventHeader();
-		    _fixedHeader.event_name = "";
-		    _fixedHeader.event_type = new EventType("","");
-		    EventHeader _header = new EventHeader(_fixedHeader, new Property[0]);
+        if (invalidStructuredEvent_ == null) {
+            synchronized(TestUtils.class.getName()) {
+                if (invalidStructuredEvent_ == null) {
+                    FixedEventHeader _fixedHeader = new FixedEventHeader();
+                    _fixedHeader.event_name = "";
+                    _fixedHeader.event_type = new EventType("","");
+                    EventHeader _header = new EventHeader(_fixedHeader, new Property[0]);
 
-		    invalidStructuredEvent_ = 
-			new StructuredEvent(_header, new Property[0], orb.create_any());
-		}
-	    }
-	}
-	return invalidStructuredEvent_;
-    }
-    
-    public static void runEvaluation(TestCase testCase, 
-				     ApplicationContext appContext, 
-				     Any any, 
-				     String expr) throws Exception {
-
-	runEvaluation(testCase, appContext, any, expr, "TRUE");
-    }
-    
-    public static void runEvaluation(TestCase testCase, 
-				     ApplicationContext appContext, 
-				     Any any, 
-				     String expr, 
-				     String expect) throws Exception {
-
-	NotificationEventFactory _notificationEventFactory = 
-	    appContext.getNotificationEventFactory();
-
-	NotificationEvent _event = null;
-	try {
-	    _event = _notificationEventFactory.newEvent(any);
-	    runEvaluation(testCase, appContext, _event, expr, expect);
-
-	} finally {
-	    _event.release();
-	}
+                    invalidStructuredEvent_ =
+                        new StructuredEvent(_header, new Property[0], orb.create_any());
+                }
+            }
+        }
+        return invalidStructuredEvent_;
     }
 
+    public static void runEvaluation(TestCase testCase,
+                                     ApplicationContext appContext,
+                                     Any any,
+                                     String expr) throws Exception {
 
-    public static void runEvaluation(TestCase testCase, 
-				     ApplicationContext appContext, 
-				     StructuredEvent event, 
-				     String expr) throws Exception {
-
-	runEvaluation(testCase, appContext, event, expr, "TRUE");
+        runEvaluation(testCase, appContext, any, expr, "TRUE");
     }
-    
-    public static void runEvaluation(TestCase testCase, 
-				     ApplicationContext appContext, 
-				     StructuredEvent event, 
-				     String expr, 
-				     String expect) throws Exception {
 
-	NotificationEventFactory _notificationEventFactory = 
-	    appContext.getNotificationEventFactory();
+    public static void runEvaluation(TestCase testCase,
+                                     ApplicationContext appContext,
+                                     Any any,
+                                     String expr,
+                                     String expect) throws Exception {
 
-	NotificationEvent _event = null;
-	try {
-	    _event = _notificationEventFactory.newEvent(event);
-	    runEvaluation(testCase, appContext, _event, expr, expect);
+        MessageFactory _notificationEventFactory =
+            appContext.getMessageFactory();
 
-	} finally {
-	    _event.release();
-	}
+        Message _event = null;
+        try {
+            _event = _notificationEventFactory.newEvent(any);
+            runEvaluation(testCase, appContext, _event, expr, expect);
+
+        } finally {
+            _event.dispose();
+        }
     }
 
 
-    static void runEvaluation(TestCase testCase, 
-			      ApplicationContext appContext, 
-			      NotificationEvent event, 
-			      String expr, 
-			      String expect) throws Exception {
-	
-	ORB _orb = appContext.getOrb();
+    public static void runEvaluation(TestCase testCase,
+                                     ApplicationContext appContext,
+                                     StructuredEvent event,
+                                     String expr) throws Exception {
 
-	DynAnyFactory _dynAnyFactory = 
-	    appContext.getDynAnyFactory();
+        runEvaluation(testCase, appContext, event, expr, "TRUE");
+    }
 
-	ResultExtractor _resultExtractor = appContext.getResultExtractor();
+    public static void runEvaluation(TestCase testCase,
+                                     ApplicationContext appContext,
+                                     StructuredEvent event,
+                                     String expr,
+                                     String expect) throws Exception {
 
-	DynamicEvaluator _dynamicEvaluator = appContext.getDynamicEvaluator();
+        MessageFactory _notificationEventFactory =
+            appContext.getMessageFactory();
 
-	NotificationEventFactory _notificationEventFactory = 
-	    appContext.getNotificationEventFactory();
+        Message _event = null;
+        try {
+            _event = _notificationEventFactory.newEvent(event);
+            runEvaluation(testCase, appContext, _event, expr, expect);
 
-	TCLNode _root = TCLParser.parse(expr);
-	TCLNode _expect = TCLParser.parse(expect);
+        } finally {
+            _event.dispose();
+        }
+    }
 
-	FilterConstraint _evaluator = new FilterConstraint( _root);
-	EvaluationResult _res;
-	_root.acceptPostOrder(new TCLCleanUp());
 
-	EvaluationContext _context = new EvaluationContext();
-	_context.setDynamicEvaluator(_dynamicEvaluator);
-	_context.setResultExtractor(_resultExtractor);
+    static void runEvaluation(TestCase testCase,
+                              ApplicationContext appContext,
+                              Message event,
+                              String expr,
+                              String expect) throws Exception {
 
-	_res = _evaluator.evaluate(_context, event);
+        ORB _orb = appContext.getOrb();
 
-	logger_.debug("Result: " + _res);
+        DynAnyFactory _dynAnyFactory =
+            appContext.getDynAnyFactory();
 
-	testCase.assertEquals("expected " 
-			      + _root.toStringTree() 
-			      + " == " 
-			      + _expect.toStringTree(),
-			      _expect.evaluate(null),
-			      _res);
+        ResultExtractor _resultExtractor = appContext.getResultExtractor();
+
+        DynamicEvaluator _dynamicEvaluator = appContext.getDynamicEvaluator();
+
+        MessageFactory _notificationEventFactory =
+            appContext.getMessageFactory();
+
+        AbstractTCLNode _root = TCLParser.parse(expr);
+        AbstractTCLNode _expect = TCLParser.parse(expect);
+
+        FilterConstraint _evaluator = new FilterConstraint( _root);
+        EvaluationResult _res;
+        _root.acceptPostOrder(new TCLCleanUp());
+
+        EvaluationContext _context = new EvaluationContext();
+        _context.setDynamicEvaluator(_dynamicEvaluator);
+        _context.setResultExtractor(_resultExtractor);
+
+        _res = _evaluator.evaluate(_context, event);
+
+        logger_.debug("Result: " + _res);
+
+        testCase.assertEquals("expected "
+                              + _root.toStringTree()
+                              + " == "
+                              + _expect.toStringTree(),
+                              _expect.evaluate(null),
+                              _res);
     }
 }

@@ -36,11 +36,11 @@ import antlr.collections.AST;
  * @version $Id$
  */
 
-public class TCLCleanUp extends TCLVisitor implements TCLParserTokenTypes
+public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenTypes
 {
     Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
 
-    public void fix( TCLNode node )
+    public void fix( AbstractTCLNode node )
     {
         try
         {
@@ -79,12 +79,12 @@ public class TCLCleanUp extends TCLVisitor implements TCLParserTokenTypes
     {
         StringBuffer _name = new StringBuffer( comp.toString() );
 
-        TCLNode _cursor = ( TCLNode ) comp.left();
+        AbstractTCLNode _cursor = ( AbstractTCLNode ) comp.left();
 
         while ( _cursor != null )
         {
             _name.append( _cursor.toString() );
-            _cursor = ( TCLNode ) _cursor.getNextSibling();
+            _cursor = ( AbstractTCLNode ) _cursor.getNextSibling();
         }
 
         comp.setComponentName( _name.toString() );

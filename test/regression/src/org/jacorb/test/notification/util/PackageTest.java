@@ -32,20 +32,23 @@ import junit.framework.TestSuite;
  * @version $Id$
  */
 
-public class PackageTest extends TestCase {
+public class PackageTest extends TestCase
+{
 
-    public PackageTest(String name) {
-	super(name);
-    } 
- 
-    public static Test suite() throws Exception {
-	TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.util");
-
-	_suite.addTest(WildcardMapTest.suite());
-	_suite.addTest(CachingWildcardMapTest.suite());
-	_suite.addTest(ThreadPoolTest.suite());
-
-	return _suite;
+    public PackageTest( String name )
+    {
+        super( name );
     }
-  
-} 
+
+    public static Test suite() throws Exception
+    {
+        TestSuite _suite = new TestSuite( "Tests in Package org.jacorb.test.notification.util" );
+
+        _suite.addTest( WildcardMapTest.suite() );
+        _suite.addTest( CachingWildcardMapTest.suite() );
+        _suite.addTest( ThreadPoolTest.suite() );
+
+        return _suite;
+    }
+
+}

@@ -31,14 +31,17 @@ package org.jacorb.notification.node;
  * @version $Id$
  */
 
-public class DynamicTypeException extends Exception {
+public class DynamicTypeException extends Exception
+{
 
-    public DynamicTypeException() {
-	super();
+    public DynamicTypeException()
+    {
+        super();
     }
 
-    public DynamicTypeException(String msg) {
-	super(msg);
+    public DynamicTypeException( String msg )
+    {
+        super( msg );
     }
 
 }

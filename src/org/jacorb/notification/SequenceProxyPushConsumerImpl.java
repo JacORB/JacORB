@@ -39,68 +39,84 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class SequenceProxyPushConsumerImpl 
-    extends StructuredProxyPushConsumerImpl 
-    implements SequenceProxyPushConsumerOperations {
+public class SequenceProxyPushConsumerImpl
+            extends StructuredProxyPushConsumerImpl
+            implements SequenceProxyPushConsumerOperations
+{
 
     private SequencePushSupplier mySequencePushSupplier_;
 
     private List subsequentDestinations_;
 
-    public SequenceProxyPushConsumerImpl(SupplierAdminTieImpl supplierAdminServant,
-					 ApplicationContext appContext,
-					 ChannelContext channelContext,
-					 PropertyManager adminProperties,
-					 PropertyManager qosProperties,
-					 Integer key) {
-	super(supplierAdminServant,
-	      appContext, 
-	      channelContext,
-	      adminProperties,
-	      qosProperties,
-	      key);
+    public SequenceProxyPushConsumerImpl( SupplierAdminTieImpl supplierAdminServant,
+                                          ApplicationContext appContext,
+                                          ChannelContext channelContext,
+                                          PropertyManager adminProperties,
+                                          PropertyManager qosProperties,
+                                          Integer key )
+    {
+        super( supplierAdminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties,
+               key );
 
-	setProxyType(ProxyType.PUSH_SEQUENCE);
-    }
-    
-    protected void disconnectClient() {
-	if (connected_) {
-	    if (mySequencePushSupplier_ != null) {
-		connected_ = false;
-		mySequencePushSupplier_.disconnect_sequence_push_supplier();
-		mySequencePushSupplier_ = null;
-	    }
-
-	}
+        setProxyType( ProxyType.PUSH_SEQUENCE );
     }
 
-    public void connect_sequence_push_supplier(SequencePushSupplier supplier) throws AlreadyConnected {
-	if (connected_) {
-	    throw new AlreadyConnected();
-	}
-	connected_ = true;
-	mySequencePushSupplier_ = supplier;
+    protected void disconnectClient()
+    {
+        if ( connected_ )
+        {
+            if ( mySequencePushSupplier_ != null )
+            {
+                connected_ = false;
+                mySequencePushSupplier_.disconnect_sequence_push_supplier();
+                mySequencePushSupplier_ = null;
+            }
+
+        }
     }
 
-    public void push_structured_events(StructuredEvent[] events) throws Disconnected {
-	for (int x=0; x<events.length; ++x) {
-	    push_structured_event(events[x]);
-	}
+    public void connect_sequence_push_supplier( SequencePushSupplier supplier ) throws AlreadyConnected
+    {
+        if ( connected_ )
+        {
+            throw new AlreadyConnected();
+        }
+
+        connected_ = true;
+        mySequencePushSupplier_ = supplier;
     }
 
-    public void disconnect_sequence_push_consumer() {
-	dispose();
+    public void push_structured_events( StructuredEvent[] events ) throws Disconnected
+    {
+        for ( int x = 0; x < events.length; ++x )
+        {
+            push_structured_event( events[ x ] );
+        }
     }
 
-    public Servant getServant() {
-	if (thisServant_ == null) {
-	    synchronized(this) {
-		if (thisServant_ == null) {
-		    thisServant_ = new SequenceProxyPushConsumerPOATie(this);
-		}
-	    }
-	}
-	return thisServant_;
+    public void disconnect_sequence_push_consumer()
+    {
+        dispose();
+    }
+
+    public Servant getServant()
+    {
+        if ( thisServant_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( thisServant_ == null )
+                {
+                    thisServant_ = new SequenceProxyPushConsumerPOATie( this );
+                }
+            }
+        }
+
+        return thisServant_;
     }
 
 }

@@ -23,38 +23,45 @@ package org.jacorb.notification.node;
 
 import antlr.Token;
 
-/** 
- * A simple node to represent DOT  
+/**
+ * A simple node to represent DOT
  */
 
-public class DotOperator extends TCLNode {
+public class DotOperator extends AbstractTCLNode
+{
 
-    DotOperator() {
-	super();
-	setName("DotOperator");
+    DotOperator()
+    {
+        super();
+        setName( "DotOperator" );
     }
 
-    public DotOperator(Token tok) {
-	super(tok);
-	setName("DotOperator");
+    public DotOperator( Token tok )
+    {
+        super( tok );
+        setName( "DotOperator" );
     }
 
-    public String toString() {
-	return ".";
+    public String toString()
+    {
+        return ".";
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	((TCLNode)getNextSibling()).acceptPostOrder(visitor);
-	visitor.visitDot(this);
+    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        ( ( AbstractTCLNode ) getNextSibling() ).acceptPostOrder( visitor );
+        visitor.visitDot( this );
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	((TCLNode)getNextSibling()).acceptInOrder(visitor);
-	visitor.visitDot(this);
+    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        ( ( AbstractTCLNode ) getNextSibling() ).acceptInOrder( visitor );
+        visitor.visitDot( this );
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitDot(this);
-	((TCLNode)getNextSibling()).acceptPreOrder(visitor);
+    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        visitor.visitDot( this );
+        ( ( AbstractTCLNode ) getNextSibling() ).acceptPreOrder( visitor );
     }
 }

@@ -48,7 +48,7 @@
     <mkdir dir="${src}/generated/${antlr.target.package}" />
 
     <path id="antlr.classpath">
-    <pathelement path="${basedir}/lib/antlr.jar" />
+      <pathelement path="${basedir}/lib/antlr.jar" />
     </path>
   </target>
 
@@ -195,4 +195,17 @@
          includes="org/jacorb/notification/**/*.*" />
     </delete>
   </target>
+
+
+  <target name="checkstyle" >
+    <pathconvert property="cp.checkstyle" targetos="unix">
+      <path refid="cp.checkstyle" />
+    </pathconvert>
+
+    <checkstyle config="Checkstyle_JacORB_Checks.xml" classpath="${cp.checkstyle}">
+      <fileset dir="${notification.dir}" includes="**/*.java"/>
+      <formatter type="plain"/>
+    </checkstyle>
+  </target>
+
 </project>

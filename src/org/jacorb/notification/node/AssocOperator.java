@@ -31,45 +31,35 @@ import antlr.Token;
 
 /** A simple node to represent Assoc operation */
 
-public class AssocOperator extends TCLNode {
+public class AssocOperator extends AbstractTCLNode {
 
     public AssocOperator(Token tok) {
-	super(tok);
-	setName("AssocOperator");
-	assocName_ = tok.getText();
+        super(tok);
+        setName("AssocOperator");
+        assocName_ = tok.getText();
     }
 
     String assocName_;
 
     public String getAssocName() {
-	return assocName_;
-    }
-
-    public EvaluationResult evaluate(EvaluationContext context)
-	throws InconsistentTypeCode,
-	       InvalidValue,
-	       TypeMismatch,
-	       DynamicTypeException,
-	       EvaluationException {
-
-	return null;
+        return assocName_;
     }
 
     public String toString() {
-	return "{" + assocName_ + "}";
+        return "{" + assocName_ + "}";
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	if (getNextSibling() != null) {
-	    ((TCLNode)getNextSibling()).acceptPostOrder(visitor);
-	}
-	visitor.visitAssoc(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        if (getNextSibling() != null) {
+            ((AbstractTCLNode)getNextSibling()).acceptPostOrder(visitor);
+        }
+        visitor.visitAssoc(this);
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
 
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
     }
 }

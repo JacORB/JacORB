@@ -25,18 +25,26 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.interfaces.Poolable;
+import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.util.ObjectPoolBase;
+import org.jacorb.notification.queue.EventQueue;
+import org.jacorb.notification.queue.EventQueueFactory;
+import org.jacorb.notification.util.AbstractObjectPool;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.PacingInterval;
+import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.TimeTHelper;
+
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 
 /**
  * ApplicationContext.java
@@ -53,97 +61,107 @@ public class ApplicationContext implements Disposable {
     private ORB orb_;
     private POA poa_;
     private TaskProcessor taskProcessor_;
-    private ObjectPoolBase evaluationResultPool_;
-    private ObjectPoolBase evaluationContextPool_;
-    private NotificationEventFactory notificationEventFactory_;
+    private AbstractObjectPool evaluationResultPool_;
+    private AbstractObjectPool evaluationContextPool_;
+    private MessageFactory notificationEventFactory_;
     private DynAnyFactory dynAnyFactory_;
     private ResultExtractor resultExtractor_;
     private DynamicEvaluator dynamicEvaluator_;
-    private PropertyValidator propertyValidator_;
     private PropertyManager defaultAdminProperties_;
     private PropertyManager defaultQoSProperties_;
+    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+
+    private void setup(ORB orb, POA poa, boolean init) throws InvalidName {
+        orb_ = orb;
+        poa_ = poa;
+
+        dynAnyFactory_ =
+            DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
+
+        resultExtractor_ = new ResultExtractor(dynAnyFactory_);
+        dynamicEvaluator_ = new DynamicEvaluator(orb_, dynAnyFactory_);
+
+        evaluationContextPool_ = new AbstractObjectPool() {
+                public Object newInstance() {
+                    EvaluationContext _e = new EvaluationContext();
+                    _e.setDynamicEvaluator(dynamicEvaluator_);
+                    _e.setResultExtractor(resultExtractor_);
+                    _e.setDynAnyFactory(dynAnyFactory_);
+
+                    return _e;
+                }
+                public void activateObject(Object o) {
+                    ((AbstractPoolable) o).setObjectPool(this);
+                }
+                public void passivateObject(Object o) {
+                    ((AbstractPoolable) o).reset();
+                }
+            };
+        evaluationContextPool_.init();
+
+        evaluationResultPool_ = new AbstractObjectPool() {
+                public Object newInstance() {
+                    return new EvaluationResult();
+                }
+                public void activateObject(Object o) {
+                    ((AbstractPoolable) o).setObjectPool(this);
+                }
+                public void passivateObject(Object o) {
+                    ((AbstractPoolable) o).reset();
+                }
+            };
+        evaluationResultPool_.init();
+
+        notificationEventFactory_ = new MessageFactory();
+        notificationEventFactory_.init();
+
+        defaultQoSProperties_ = new PropertyManager(this);
+        defaultAdminProperties_ = new PropertyManager(this);
+
+        Any _maxBatchSize = orb_.create_any();
+        _maxBatchSize.insert_long(1);
+        defaultQoSProperties_.setProperty(MaximumBatchSize.value, _maxBatchSize);
+
+        Any _pacingInterval = orb_.create_any();
+        TimeTHelper.insert(_pacingInterval, 0);
+        defaultQoSProperties_.setProperty(PacingInterval.value, _pacingInterval);
+
+        if (init) {
+            init();
+        }
+    }
+
+    public ApplicationContext(boolean init) throws InvalidName {
+        ORB orb = ORB.init(new String[0], null);
+        POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+
+        setup(orb, poa, init);
+    }
 
     public ApplicationContext(ORB orb, POA poa) throws InvalidName {
-	this(orb, poa, false);
+        setup(orb, poa, false);
     }
 
     public ApplicationContext(ORB orb, POA poa, boolean init) throws InvalidName {
-	orb_ = orb;
-	poa_ = poa;
-
-	dynAnyFactory_ = 
-	    DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
-
-	resultExtractor_ = new ResultExtractor(dynAnyFactory_);
-	dynamicEvaluator_ = new DynamicEvaluator(orb_, dynAnyFactory_);
-
-	evaluationContextPool_ = new ObjectPoolBase() {
-		public Object newInstance() {
-		    EvaluationContext _e = new EvaluationContext();
-		    _e.setDynamicEvaluator(dynamicEvaluator_);
-		    _e.setResultExtractor(resultExtractor_);
-		    _e.setDynAnyFactory(dynAnyFactory_);
-
-		    return _e;
-		}
-		public void activateObject(Object o) {
-		    ((Poolable) o).setObjectPool(this);
-		}
-		public void passivateObject(Object o) {
-		    ((Poolable) o).reset();
-		}
-	    };
-	evaluationContextPool_.init();
-
-	evaluationResultPool_ = new ObjectPoolBase() {
-		public Object newInstance() {
-		    return new EvaluationResult();
-		}
-		public void activateObject(Object o) {
-		    ((Poolable) o).setObjectPool(this);
-		}
-		public void passivateObject(Object o) {
-		    ((Poolable) o).reset();
-		}
-	    };
-	evaluationResultPool_.init();
-	
-	notificationEventFactory_ = new NotificationEventFactory(this);
-	notificationEventFactory_.init();
-
-	propertyValidator_ = new PropertyValidator(orb_);
-
-	defaultQoSProperties_ = new PropertyManager(this);
-	defaultAdminProperties_ = new PropertyManager(this);
-
-	Any _maxBatchSize = orb_.create_any();
-	_maxBatchSize.insert_long(1);
-	defaultQoSProperties_.setProperty(MaximumBatchSize.value, _maxBatchSize);
-
-	Any _pacingInterval = orb_.create_any();
-	TimeTHelper.insert(_pacingInterval, 0);
-	defaultQoSProperties_.setProperty(PacingInterval.value, _pacingInterval);
-
-	if (init) {
-	    init();
-	}
+        setup(orb, poa, init);
     }
 
     public void init() {
-	taskProcessor_ = new TaskProcessor();
+        taskProcessor_ = new TaskProcessor();
     }
 
     public void dispose() {
-	if (taskProcessor_ != null) {
-	    taskProcessor_.dispose();
-	    taskProcessor_ = null;
-	}
+        if (taskProcessor_ != null) {
+            taskProcessor_.dispose();
+            taskProcessor_ = null;
+        }
 
-	evaluationResultPool_.dispose();
-	evaluationContextPool_.dispose();
-	notificationEventFactory_.dispose();
 
-	orb_.shutdown(true);
+        evaluationResultPool_.dispose();
+        evaluationContextPool_.dispose();
+        notificationEventFactory_.dispose();
+
+        orb_.shutdown(true);
     }
 
     /**
@@ -151,7 +169,7 @@ public class ApplicationContext implements Disposable {
      * @return the Orb value.
      */
     public ORB getOrb() {
-	return orb_;
+        return orb_;
     }
 
     /**
@@ -159,7 +177,7 @@ public class ApplicationContext implements Disposable {
      * @param newOrb The new Orb value.
      */
     public void setOrb(ORB newOrb) {
-	orb_ = newOrb;
+        orb_ = newOrb;
     }
 
     /**
@@ -167,7 +185,7 @@ public class ApplicationContext implements Disposable {
      * @return the Poa value.
      */
     public POA getPoa() {
-	return poa_;
+        return poa_;
     }
 
     /**
@@ -175,47 +193,47 @@ public class ApplicationContext implements Disposable {
      * @param newPoa The new Poa value.
      */
     public void setPoa(POA newPoa) {
-	poa_ = newPoa;
+        poa_ = newPoa;
     }
 
     public EvaluationResult newEvaluationResult() {
-	return (EvaluationResult) evaluationResultPool_.lendObject();
+        return (EvaluationResult) evaluationResultPool_.lendObject();
     }
 
     public EvaluationContext newEvaluationContext() {
-	return (EvaluationContext) evaluationContextPool_.lendObject();
+        return (EvaluationContext) evaluationContextPool_.lendObject();
     }
 
-    public NotificationEventFactory getNotificationEventFactory() {
-	return notificationEventFactory_;
-    }
-
-    public PropertyValidator getPropertyValidator() {
-	return propertyValidator_;
+    public MessageFactory getMessageFactory() {
+        return notificationEventFactory_;
     }
 
     public DynAnyFactory getDynAnyFactory() {
-	return dynAnyFactory_;
+        return dynAnyFactory_;
     }
 
     public PropertyManager getDefaultAdminProperties() {
-	return defaultAdminProperties_;
+        return defaultAdminProperties_;
     }
 
     public PropertyManager getDefaultQoSProperties() {
-	return defaultQoSProperties_;
+        return defaultQoSProperties_;
     }
 
     public DynamicEvaluator getDynamicEvaluator() {
-	return dynamicEvaluator_;
+        return dynamicEvaluator_;
     }
 
     public ResultExtractor getResultExtractor() {
-	return resultExtractor_;
+        return resultExtractor_;
     }
 
     public TaskProcessor getTaskProcessor() {
-	return taskProcessor_;
+        return taskProcessor_;
+    }
+
+    public EventQueue newEventQueue(PropertyManager qosProperties) throws UnsupportedQoS {
+        return EventQueueFactory.newEventQueue(qosProperties);
     }
 
 }// ApplicationContext

@@ -29,6 +29,7 @@ import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.FilterFactory;
+import org.jacorb.notification.interfaces.Message;
 
 /**
  * ChannelContext.java
@@ -59,14 +60,14 @@ public class ChannelContext {
      * @return the TaskProcessor for this Channel
      */
     public TaskProcessor getTaskProcessor()  {
-	return taskProcessor_;
+        return taskProcessor_;
     }
 
     /**
      * sets the TaskProcessor for this Channel
      */
     public void setTaskProcessor(TaskProcessor taskProcessor) {
-	taskProcessor_ = taskProcessor;
+        taskProcessor_ = taskProcessor;
     }
 
     /**
@@ -75,7 +76,7 @@ public class ChannelContext {
      * @return the value of eventChannelFactory
      */
     public EventChannelFactory getEventChannelFactory()  {
-	return eventChannelFactory;
+        return eventChannelFactory;
     }
 
     /**
@@ -84,7 +85,7 @@ public class ChannelContext {
      * @param argEventChannelFactory Value to assign to this.eventChannelFactory
      */
     public void setEventChannelFactory(EventChannelFactory argEventChannelFactory) {
-	eventChannelFactory = argEventChannelFactory;
+        eventChannelFactory = argEventChannelFactory;
     }
 
     /**
@@ -93,7 +94,7 @@ public class ChannelContext {
      * @return the value of eventChannelFactoryServant
      */
     public EventChannelFactoryImpl getEventChannelFactoryServant()  {
-	return eventChannelFactoryServant;
+        return eventChannelFactoryServant;
     }
 
     /**
@@ -102,7 +103,7 @@ public class ChannelContext {
      * @param argEventChannelFactoryServant Value to assign to this.eventChannelFactoryServant
      */
     public void setEventChannelFactoryServant(EventChannelFactoryImpl argEventChannelFactoryServant) {
-	eventChannelFactoryServant = argEventChannelFactoryServant;
+        eventChannelFactoryServant = argEventChannelFactoryServant;
     }
 
     /**
@@ -111,7 +112,7 @@ public class ChannelContext {
      * @return the value of defaultFilterFactory
      */
     public FilterFactory getDefaultFilterFactory()  {
-	return defaultFilterFactory;
+        return defaultFilterFactory;
     }
 
     /**
@@ -120,7 +121,7 @@ public class ChannelContext {
      * @param argDefaultFilterFactory Value to assign to this.defaultFilterFactory
      */
     public void setDefaultFilterFactory(FilterFactory argDefaultFilterFactory) {
-	defaultFilterFactory = argDefaultFilterFactory;
+        defaultFilterFactory = argDefaultFilterFactory;
     }
 
     /**
@@ -129,7 +130,7 @@ public class ChannelContext {
      * @return the value of eventChannelServant
      */
     public EventChannelImpl getEventChannelServant()  {
-	return eventChannelServant;
+        return eventChannelServant;
     }
 
     /**
@@ -138,11 +139,11 @@ public class ChannelContext {
      * @param argEventChannelServant Value to assign to this.eventChannelServant
      */
     public void setEventChannelServant(EventChannelImpl argEventChannelServant) {
-	logger_.debug("setEventChannelServant(" + argEventChannelServant + ")");
-	if (argEventChannelServant == null) {
-	    throw new RuntimeException();
-	}
-	eventChannelServant = argEventChannelServant;
+        logger_.debug("setEventChannelServant(" + argEventChannelServant + ")");
+        if (argEventChannelServant == null) {
+            throw new RuntimeException();
+        }
+        eventChannelServant = argEventChannelServant;
     }
 
     /**
@@ -150,7 +151,7 @@ public class ChannelContext {
      * @return the EventChannel value.
      */
     public EventChannel getEventChannel() {
-	return eventChannel;
+        return eventChannel;
     }
 
     /**
@@ -158,37 +159,37 @@ public class ChannelContext {
      * @param newEventChannel The new EventChannel value.
      */
     public void setEventChannel(EventChannel newEventChannel) {
-	this.eventChannel = newEventChannel;
+        this.eventChannel = newEventChannel;
     }
-    
+
     public Object clone() {
-	ChannelContext _copy = new ChannelContext();
+        ChannelContext _copy = new ChannelContext();
 
-	_copy.setEventChannelFactory(eventChannelFactory);
-	_copy.setEventChannelFactoryServant(eventChannelFactoryServant);
-	_copy.setDefaultFilterFactory(defaultFilterFactory);
+        _copy.setEventChannelFactory(eventChannelFactory);
+        _copy.setEventChannelFactoryServant(eventChannelFactoryServant);
+        _copy.setDefaultFilterFactory(defaultFilterFactory);
 
-	return _copy;
+        return _copy;
     }
 
     public void setProxyConsumerDisposedEventListener(ProxyEventListener listener) {
-	proxyConsumerDisposedListener_ = listener;
+        proxyConsumerDisposedListener_ = listener;
     }
 
     public void setProxySupplierDisposedEventListener(ProxyEventListener listener) {
-	proxySupplierDisposedListener_ = listener;
+        proxySupplierDisposedListener_ = listener;
     }
 
     public ProxyEventListener getRemoveProxyConsumerListener() {
-	return proxyConsumerDisposedListener_;
-    }
-    
-    public ProxyEventListener getRemoveProxySupplierListener() {
-	return proxySupplierDisposedListener_;
+        return proxyConsumerDisposedListener_;
     }
 
-    public void dispatchEvent(NotificationEvent event) {
-	getTaskProcessor().processEvent( event );
+    public ProxyEventListener getRemoveProxySupplierListener() {
+        return proxySupplierDisposedListener_;
+    }
+
+    public void dispatchEvent(Message event) {
+        getTaskProcessor().processEvent( event );
     }
 
 }

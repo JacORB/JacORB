@@ -34,22 +34,26 @@ import junit.framework.TestSuite;
  * @version $Id$
  */
 
-public class PackageTest extends TestCase {
+public class PackageTest extends TestCase
+{
 
-    public PackageTest(String name) {
-	super(name);
-    } 
- 
-    public static Test suite() throws Exception {
-	TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.node");
-
-	_suite.addTest(EvaluationResultTest.suite());
-	_suite.addTest(TCLTest.suite());
-
-	return _suite;
+    public PackageTest( String name )
+    {
+        super( name );
     }
 
-    public static void main(String[] args) throws Exception {
-	junit.textui.TestRunner.run(suite());
+    public static Test suite() throws Exception
+    {
+        TestSuite _suite = new TestSuite( "Tests in Package org.jacorb.test.notification.node" );
+
+        _suite.addTest( EvaluationResultTest.suite() );
+        _suite.addTest( TCLTest.suite() );
+
+        return _suite;
     }
-} 
+
+    public static void main( String[] args ) throws Exception
+    {
+        junit.textui.TestRunner.run( suite() );
+    }
+}

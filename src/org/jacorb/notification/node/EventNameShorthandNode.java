@@ -22,7 +22,7 @@ package org.jacorb.notification.node;
  */
 
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.parser.TCLParser;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -40,71 +40,68 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 public class EventNameShorthandNode extends ComponentName {
 
-    static TCLNode expandedPath_;
+    static AbstractTCLNode expandedPath_;
     static final String COMP_NAME = "$.header.fixed_header.event_name";
     public static final String SHORT_NAME = "event_name";
 
 
     static {
-	try {
-	    expandedPath_ = TCLParser.parse( COMP_NAME );
-	    expandedPath_.acceptInOrder( new TCLCleanUp() );
-	} catch (Exception e) {
+        try {
+            expandedPath_ = TCLParser.parse( COMP_NAME );
+            expandedPath_.acceptInOrder( new TCLCleanUp() );
+        } catch (Exception e) {
 
-	}
+        }
     }
 
     public EventNameShorthandNode() {
-	setName("EventNameShorthandNode");
-    } 
+        setName("EventNameShorthandNode");
+    }
 
     public String getComponentName() {
-	return COMP_NAME;
-    }
-    
-    public void acceptInOrder(TCLVisitor v) {
-
+        return COMP_NAME;
     }
 
-    public void acceptPostOrder(TCLVisitor v) {
+    public void acceptInOrder(AbstractTCLVisitor v) {
 
     }
 
-    public void acceptPreOrder(TCLVisitor v) {
+    public void acceptPostOrder(AbstractTCLVisitor v) {
 
     }
 
-    public EvaluationResult evaluate( EvaluationContext context ) 
+    public void acceptPreOrder(AbstractTCLVisitor v) {
 
-	throws DynamicTypeException, 
-	       TypeMismatch, 
-	       InvalidValue, 
-	       InconsistentTypeCode, 
-	       EvaluationException {
+    }
 
-	logger_.debug("evaluate");
+    public EvaluationResult evaluate( EvaluationContext context )
 
-	NotificationEvent _event = context.getNotificationEvent();
-	EvaluationResult _result = new EvaluationResult();
+        throws DynamicTypeException,
+               EvaluationException {
 
-	switch (_event.getType()) {
-	case NotificationEvent.TYPE_ANY:
-	    _result = expandedPath_.evaluate(context);
-	    break;
-	case NotificationEvent.TYPE_STRUCTURED:
-	    String _domainName = _event.toStructuredEvent().header.fixed_header.event_name;
-	    logger_.debug("Got result: " + _domainName);
-	    _result.setString(_domainName);
-	    break;
-	default:
-	    throw new RuntimeException();
-	}
+        logger_.debug("evaluate");
 
-	return _result;
+        Message _event = context.getNotificationEvent();
+        EvaluationResult _result = new EvaluationResult();
+
+        switch (_event.getType()) {
+        case Message.TYPE_ANY:
+            _result = expandedPath_.evaluate(context);
+            break;
+        case Message.TYPE_STRUCTURED:
+            String _domainName = _event.toStructuredEvent().header.fixed_header.event_name;
+            logger_.debug("Got result: " + _domainName);
+            _result.setString(_domainName);
+            break;
+        default:
+            throw new RuntimeException();
+        }
+
+        return _result;
     }
 
     public String toString() {
-	return COMP_NAME;
+        return COMP_NAME;
     }
 
-} 
+}

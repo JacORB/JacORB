@@ -29,51 +29,48 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.Token;
 
-/** 
- * A simple node to represent MULT operation 
+/**
+ * A simple node to represent MULT operation
  * @version $Id$
  */
 
-public class MultOperator extends TCLNode {
+public class MultOperator extends AbstractTCLNode {
 
     public MultOperator(Token tok) {
-	super(tok);
+        super(tok);
     }
 
     public String toString() {
-	return " *";
+        return " *";
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode,
-	       EvaluationException {
+        throws DynamicTypeException,
+               EvaluationException {
 
-	return EvaluationResult.mult(left().evaluate(context),
-				     right().evaluate(context));
+        return EvaluationResult.mult(left().evaluate(context),
+                                     right().evaluate(context));
     }
 
     public String getName() {
-	return "MultOperator";
+        return "MultOperator";
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitMult(this);
-	right().acceptInOrder(visitor);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitMult(this);
+        right().acceptInOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	right().acceptPostOrder(visitor);
-	visitor.visitMult(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        right().acceptPostOrder(visitor);
+        visitor.visitMult(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitMult(this);
-	left().acceptPreOrder(visitor);
-	right().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitMult(this);
+        left().acceptPreOrder(visitor);
+        right().acceptPreOrder(visitor);
     }
 }

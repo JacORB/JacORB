@@ -28,80 +28,77 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.Token;
 
-/** 
- * A simple node to represent a Number 
+/**
+ * A simple node to represent a Number
  * @version $Id$
  */
 
-public class NumberValue extends TCLNode {
+public class NumberValue extends AbstractTCLNode {
 
     private Double  number_;
     EvaluationResult result_;
 
     public Double getNumber() {
-	return number_;
+        return number_;
     }
 
     public String getName() {
-	return getClass().getName();
+        return getClass().getName();
     }
 
     public NumberValue(Token tok) {
-	super(tok);
+        super(tok);
 
-	EvaluationResult _r = new EvaluationResult();
-	number_ = new Double(tok.getText());
+        EvaluationResult _r = new EvaluationResult();
+        number_ = new Double(tok.getText());
 
-	int t = getType();
-	
-	switch(t) {
-	case NUMBER:
-	    _r.setLong(number_);
-	    break;
-	case NUM_FLOAT:
-	    _r.setFloat(number_);
-	    break;
-	default:
-	    throw new RuntimeException();
-	}
+        int t = getType();
 
-	result_ = EvaluationResult.wrapImmutable(_r);
+        switch(t) {
+        case NUMBER:
+            _r.setLong(number_);
+            break;
+        case NUM_FLOAT:
+            _r.setFloat(number_);
+            break;
+        default:
+            throw new RuntimeException();
+        }
+
+        result_ = EvaluationResult.wrapImmutable(_r);
     }
 
-    public EvaluationResult evaluate(EvaluationContext context) throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode {
+    public EvaluationResult evaluate(EvaluationContext context) {
 
-	return result_;
+        return result_;
     }
 
     public String toString() {
-	switch(getType()) {
-	case NUM_FLOAT:
-	    return "" + number_.floatValue();
-	default:
-	    return "" + number_.longValue();
-	}
+        switch(getType()) {
+        case NUM_FLOAT:
+            return "" + number_.floatValue();
+        default:
+            return "" + number_.longValue();
+        }
     }
 
     public boolean isStatic() {
-	return true;
+        return true;
     }
 
     public boolean isNumber() {
-	return true;
+        return true;
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitNumber(this);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitNumber(this);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitNumber(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitNumber(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitNumber(this);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitNumber(this);
     }
 }

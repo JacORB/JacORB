@@ -22,7 +22,7 @@ package org.jacorb.notification.node;
  */
 
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
@@ -31,53 +31,50 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import antlr.Token;
 
 /** A simple node to represent EXIST operation */
-public class ExistOperator extends TCLNode {
+public class ExistOperator extends AbstractTCLNode {
 
     public ExistOperator(Token tok) {
-	super(tok);
+        super(tok);
     }
 
     public String toString() {
-	return "exist";
+        return "exist";
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InconsistentTypeCode,
-	       InvalidValue,
-	       TypeMismatch,
-	       EvaluationException {
+        throws DynamicTypeException,
+               EvaluationException {
 
-	NotificationEvent _event = context.getNotificationEvent();
+        Message _event = context.getNotificationEvent();
 
-	switch(left().getType()) {
-	case IDENTIFIER:
-	    break;
-	case DOLLAR:
-	    ComponentName _op = (ComponentName)left();
-	    try {
-		_op.evaluate(context);
-		return EvaluationResult.BOOL_TRUE;
-	    } catch (EvaluationException e) {
-		return EvaluationResult.BOOL_FALSE;
-	    }
-	    //	    return _event.testExists(context,_op);
-	}
-	throw new RuntimeException();
+        switch(left().getType()) {
+        case IDENTIFIER:
+            break;
+        case DOLLAR:
+            ComponentName _op = (ComponentName)left();
+            try {
+                _op.evaluate(context);
+                return EvaluationResult.BOOL_TRUE;
+            } catch (EvaluationException e) {
+                return EvaluationResult.BOOL_FALSE;
+            }
+            //      return _event.testExists(context,_op);
+        }
+        throw new RuntimeException();
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitExist(this);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitExist(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitExist(this);
-	left().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitExist(this);
+        left().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	visitor.visitExist(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        visitor.visitExist(this);
     }
 }

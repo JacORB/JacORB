@@ -54,6 +54,6 @@ class JDK14PatternWrapper extends PatternWrapper
 
     public String toString()
     {
-        return pattern_.toString();
+        return pattern_.pattern();
     }
 }

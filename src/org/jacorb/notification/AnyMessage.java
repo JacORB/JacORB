@@ -21,13 +21,16 @@ package org.jacorb.notification;
  *
  */
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.EvaluationResult;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotification.EventHeader;
@@ -43,13 +46,11 @@ import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 /**
- * Adapt an Any to the NotificationEvent Interface.
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class NotificationAnyEvent extends NotificationEvent
+public class AnyMessage extends AbstractMessage
 {
 
     private static final Property[] sFilterableData;
@@ -81,9 +82,9 @@ public class NotificationAnyEvent extends NotificationEvent
 
     ////////////////////////////////////////
 
-    public NotificationAnyEvent( ApplicationContext appContext )
+    public AnyMessage( )
     {
-        super( appContext );
+        super( );
     }
 
     ////////////////////////////////////////
@@ -102,7 +103,7 @@ public class NotificationAnyEvent extends NotificationEvent
 
     public int getType()
     {
-        return TYPE_ANY;
+        return Message.TYPE_ANY;
     }
 
     public Any toAny()
@@ -136,37 +137,32 @@ public class NotificationAnyEvent extends NotificationEvent
         return sAnyKey;
     }
 
-    public EvaluationResult extractFilterableData(EvaluationContext context,
-						  ComponentName root,
-						  String v) {
-	try {
-	    return extractValue(context, root);
-	} catch (InconsistentTypeCode e) {
-	} catch (TypeMismatch e) {
-	} catch (InvalidValue e) {
-	} catch (EvaluationException e) {}
-	return null;
+    public EvaluationResult extractFilterableData( EvaluationContext context,
+                                                   ComponentName root,
+                                                   String v ) throws EvaluationException
+    {
+
+        return extractValue( context, root );
+
     }
 
-    public EvaluationResult extractVariableHeader(EvaluationContext context,
-						  ComponentName root,
-						  String v) throws EvaluationException {
-	try {
-	    return extractValue(context, root);
-	} catch (InconsistentTypeCode e) {
-	} catch (TypeMismatch e) {
-	} catch (InvalidValue e) {
-	} catch (EvaluationException e) {}
-	return null;
+    public EvaluationResult extractVariableHeader( EvaluationContext context,
+                                                   ComponentName root,
+                                                   String v ) throws EvaluationException
+    {
+
+        return extractValue( context, root );
+
     }
 
-    public boolean match(FilterStage destination) {
-	List _filterList = destination.getFilters();
+    public boolean match( FilterStage destination )
+    {
+        List _filterList = destination.getFilters();
 
         if ( _filterList.isEmpty() )
-	    {
-		return true;
-	    }
+        {
+            return true;
+        }
 
         Iterator _allFilters = _filterList.iterator();
 
@@ -192,7 +188,43 @@ public class NotificationAnyEvent extends NotificationEvent
         return false;
     }
 
-    public boolean match(MappingFilter filter, AnyHolder value) throws UnsupportedFilterableData {
-	return filter.match(toAny(), value);
+    protected int getPriority()
+    {
+        return 0;
+    }
+
+    public boolean match( MappingFilter filter, AnyHolder value ) throws UnsupportedFilterableData
+    {
+        return filter.match( toAny(), value );
+    }
+
+    public boolean hasStartTime()
+    {
+        return false;
+    }
+
+    public Date getStartTime()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean hasStopTime()
+    {
+        return false;
+    }
+
+    public Date getStopTime()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean hasTimeout()
+    {
+        return false;
+    }
+
+    public long getTimeout()
+    {
+        throw new UnsupportedOperationException();
     }
 }

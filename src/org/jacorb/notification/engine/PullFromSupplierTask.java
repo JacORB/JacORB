@@ -31,21 +31,25 @@ import org.omg.CosEventComm.Disconnected;
  * @version $Id$
  */
 
-public class PullFromSupplierTask extends TaskBase {
+public class PullFromSupplierTask extends AbstractTask
+{
 
     private TimerEventSupplier target_;
 
-    public void setTarget(TimerEventSupplier target) {
-	target_ = target;
+    public void setTarget( TimerEventSupplier target )
+    {
+        target_ = target;
     }
 
-    public void doWork() throws Disconnected {
-	target_.runPullEvent();
-	setStatus(DONE);
+    public void doWork() throws Disconnected
+    {
+        target_.runPullEvent();
+        setStatus( DONE );
     }
 
-    public void reset() {
-	super.reset();
-	target_ = null;
+    public void reset()
+    {
+        super.reset();
+        target_ = null;
     }
 }

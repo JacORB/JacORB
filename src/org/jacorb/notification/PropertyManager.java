@@ -45,101 +45,90 @@ import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 
 public class PropertyManager implements Cloneable {
 
-    Logger logger_ = 
-	Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
     private boolean dirty_ = true;
     private Property[] asArray_;
 
-    PropertyManager defaultManager_;
     Map properties_;
     DynAnyFactory dynAnyFactory_;
     ApplicationContext appContext_;
 
     public PropertyManager(ApplicationContext appContext) {
-	this(appContext, new Hashtable());
+        this(appContext, new Hashtable());
     }
 
     public PropertyManager(ApplicationContext appContext, Map props) {
-	properties_ = props;
-	appContext_ = appContext;
-	dynAnyFactory_ = appContext.getDynAnyFactory();
-    }
-
-    public void setDefaultManager(PropertyManager parent) {
-	defaultManager_ = parent;
+        properties_ = props;
+        appContext_ = appContext;
+        dynAnyFactory_ = appContext.getDynAnyFactory();
     }
 
     public void setProperty(String name, Any value) {
-	synchronized(this) {
-	    properties_.put(name, value);
-	    dirty_ = true;
-	}
+        synchronized(this) {
+            properties_.put(name, value);
+            dirty_ = true;
+        }
     }
 
     public Any getProperty(String name) {
-	if (properties_.containsKey(name)) {
-	    return (Any)properties_.get(name); 
-	} else if (defaultManager_ != null) {
-	    return defaultManager_.getProperty(name);
-	} else {
-	    return null;
-	}
+        if (properties_.containsKey(name)) {
+            return (Any)properties_.get(name);
+        } else {
+            return null;
+        }
+    }
+
+    public boolean hasProperty(String name) {
+        if (properties_.containsKey(name)) {
+            return true;
+        }
+        return false;
     }
 
     public Property[] toArray() {
-	if (dirty_) {
-	    synchronized(properties_) {
-		if (dirty_) {
-		    asArray_ = new Property[properties_.size()];
-		    
-		    Iterator _i = properties_.keySet().iterator();
-		    int x = 0;
-		    while (_i.hasNext()) {
-			String _key = (String)_i.next();
-			asArray_[x++] = new Property(_key, (Any)properties_.get(_key));
-		    }
-		    dirty_ = false;
-		}
-	    }
-	}
-	return asArray_;
+        if (dirty_) {
+            synchronized(properties_) {
+                if (dirty_) {
+                    asArray_ = new Property[properties_.size()];
+
+                    Iterator _i = properties_.keySet().iterator();
+                    int x = 0;
+                    while (_i.hasNext()) {
+                        String _key = (String)_i.next();
+                        asArray_[x++] = new Property(_key, (Any)properties_.get(_key));
+                    }
+                    dirty_ = false;
+                }
+            }
+        }
+        return asArray_;
     }
 
     public Object clone() {
-	try {
-	    PropertyManager _r = new PropertyManager(appContext_);
-	    
-	    Property[] _arr;
-	    if (defaultManager_ != null) {
-		_arr = defaultManager_.toArray();
+        try {
+            PropertyManager _r = new PropertyManager(appContext_);
 
-		for (int x=0; x<_arr.length; ++x) {
-		    Any _orig = _arr[x].value;
-		    DynAny _dynAny = dynAnyFactory_.create_dyn_any(_orig);
-		    DynAny _dynCopy = _dynAny.copy();
-		    Any _copy = _dynCopy.to_any();
-		    _r.setProperty(_arr[x].name, _copy);
-		}
-	    }
+            Property[] _arr;
 
-	    _arr = toArray();
-	    for (int x=0; x<_arr.length; ++x) {
-		Any _orig = _arr[x].value;
-		DynAny _dynAny = dynAnyFactory_.create_dyn_any(_orig);
-		DynAny _dynCopy = _dynAny.copy();
-		Any _copy = _dynCopy.to_any();
-		_r.setProperty(_arr[x].name, _copy);
-	    }
-	    
-	    return _r;
-	} catch (InconsistentTypeCode e) {
-	    throw new RuntimeException();
-	}
+            _arr = toArray();
+            for (int x=0; x<_arr.length; ++x) {
+                Any _orig = _arr[x].value;
+                DynAny _dynAny = dynAnyFactory_.create_dyn_any(_orig);
+                DynAny _dynCopy = _dynAny.copy();
+                Any _copy = _dynCopy.to_any();
+                _r.setProperty(_arr[x].name, _copy);
+            }
+
+            return _r;
+        } catch (InconsistentTypeCode e) {
+            throw new RuntimeException();
+        }
     }
 
     public String toString() {
-	return "PropertyManager//" + properties_.toString();
+        return "PropertyManager//" + properties_.toString();
     }
 
 }// PropertyManager

@@ -27,7 +27,7 @@ import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.interfaces.FilterStage;
-import org.jacorb.notification.interfaces.Poolable;
+import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.DynamicTypeException;
 import org.jacorb.notification.node.EvaluationResult;
@@ -51,11 +51,11 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
  * @version $Id$
  */
 
-public abstract class NotificationEvent extends Poolable
+public abstract class NotificationEvent extends AbstractPoolable
 {
 
     public interface NotificationEventStateListener {
-	public void actionLifetimeChanged(long lifetime);
+        public void actionLifetimeChanged(long lifetime);
     }
 
     private boolean disposed_ = false;
@@ -66,8 +66,8 @@ public abstract class NotificationEvent extends Poolable
 
     ////////////////////////////////////////
 
-    static protected Logger logger_ = 
-	Hierarchy.getDefaultHierarchy().getLoggerFor(NotificationEvent.class.getName());
+    static protected Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor(NotificationEvent.class.getName());
 
     ////////////////////////////////////////
 
@@ -96,8 +96,8 @@ public abstract class NotificationEvent extends Poolable
      * used to fetch the Filter Constraints that must be evaluated for
      * this Event. The Constraint Key consists of domain_name and
      * type_name of the Event.
-     * Within this Implementation the Operation 
-     * {@link FilterUtils#calcConstraintKey(String, String)} 
+     * Within this Implementation the Operation
+     * {@link FilterUtils#calcConstraintKey(String, String)}
      * is used to provide a uniform
      * Mapping from domain_name and type_name to a Constraint Key.
      *
@@ -135,9 +135,9 @@ public abstract class NotificationEvent extends Poolable
 
     public void reset()
     {
-	disposed_ = false;
+        disposed_ = false;
         currentFilterStage_ = null;
-	timeOut_ = -1;
+        timeOut_ = -1;
     }
 
     /**
@@ -178,56 +178,56 @@ public abstract class NotificationEvent extends Poolable
     }
 
     public EvaluationResult extractValue(EvaluationContext context,
-					 ComponentName componentRootNode,
-					 RuntimeVariableNode runtimeVariable ) 	
-	throws InconsistentTypeCode,
-	       TypeMismatch,
-	       EvaluationException,
-	       InvalidValue,
-	       DynamicTypeException
-    {	
+                                         ComponentName componentRootNode,
+                                         RuntimeVariableNode runtimeVariable )
+        throws InconsistentTypeCode,
+               TypeMismatch,
+               EvaluationException,
+               InvalidValue,
+               DynamicTypeException
+    {
         EvaluationResult _ret = null;
         String _completePath = componentRootNode.getComponentName();
-	
-	if (logger_.isDebugEnabled()) {
-	    logger_.debug("Extract " + _completePath);
-	}
+
+        if (logger_.isDebugEnabled()) {
+            logger_.debug("Extract " + _completePath);
+        }
 
         _ret = context.lookupResult( _completePath );
 
         if ( _ret == null )
         {
-	    _ret = runtimeVariable.evaluate(context);
-	    
-	    if (componentRootNode.right() != null) {
-		_ret = NotificationEventUtils.extractFromAny(componentRootNode.right(), 
-							     _ret.getAny(), 
-							     context, 
-							     runtimeVariable.toString());
-	    }
-	    context.storeResult( _completePath, _ret);
+            _ret = runtimeVariable.evaluate(context);
+
+            if (componentRootNode.right() != null) {
+                _ret = MessageUtils.extractFromAny(componentRootNode.right(),
+                                                             _ret.getAny(),
+                                                             context,
+                                                             runtimeVariable.toString());
+            }
+            context.storeResult( _completePath, _ret);
         }
 
         return _ret;
     }
 
     public abstract EvaluationResult extractFilterableData(EvaluationContext context,
-							   ComponentName componentRootNode,
-							   String variable) 
-	throws EvaluationException;
+                                                           ComponentName componentRootNode,
+                                                           String variable)
+        throws EvaluationException;
 
     public abstract EvaluationResult extractVariableHeader(EvaluationContext context,
-							   ComponentName componentRootNode,
-							   String variable) 
-	throws EvaluationException;
+                                                           ComponentName componentRootNode,
+                                                           String variable)
+        throws EvaluationException;
 
 
     public EvaluationResult extractValue( EvaluationContext evaluationContext,
-					  ComponentName componentRootNode )
-	throws InconsistentTypeCode,
-	       TypeMismatch,
-	       EvaluationException,
-	       InvalidValue
+                                          ComponentName componentRootNode )
+        throws InconsistentTypeCode,
+               TypeMismatch,
+               EvaluationException,
+               InvalidValue
     {
         EvaluationResult _ret = null;
         String _completePath = componentRootNode.getComponentName();
@@ -240,14 +240,14 @@ public abstract class NotificationEvent extends Poolable
 
         _ret = evaluationContext.lookupResult( _completePath );
 
-	logger_.debug("Cache lookup: " + _ret);
+        logger_.debug("Cache lookup: " + _ret);
 
         if ( _ret == null )
         {
-	    _ret = NotificationEventUtils.extractFromAny(componentRootNode.left(), 
-							 toAny(), 
-							 evaluationContext, 
-							 componentRootNode.toString());
+            _ret = MessageUtils.extractFromAny(componentRootNode.left(),
+                                                         toAny(),
+                                                         evaluationContext,
+                                                         componentRootNode.toString());
 
             // Cache the EvaluationResult
             if ( _ret != null )
@@ -269,50 +269,50 @@ public abstract class NotificationEvent extends Poolable
     }
 
     public boolean hasStartTime() {
-	return false;
+        return false;
     }
 
     public Date getStartTime() {
-	return null;
+        return null;
     }
 
     public boolean hasStopTime() {
-	return false;
+        return false;
     }
 
     public Date getStopTime() {
-	return null;
+        return null;
     }
 
     public boolean hasTimeout() {
-	return timeOut_ != -1;
+        return timeOut_ != -1;
     }
 
     public long getTimeout() {
-	return timeOut_;
+        return timeOut_;
     }
 
     public void setTimeout(long timeout) {
-	timeOut_ = timeout;
+        timeOut_ = timeout;
 
-	if (notificationEventStateListener_ != null) {
-	    notificationEventStateListener_.actionLifetimeChanged(timeout);
-	}
+        if (notificationEventStateListener_ != null) {
+            notificationEventStateListener_.actionLifetimeChanged(timeout);
+        }
     }
 
     public void setPriority(long priority) {
     }
 
     public void setNotificationEventStateListener(NotificationEventStateListener l) {
-	notificationEventStateListener_ = l;
+        notificationEventStateListener_ = l;
     }
-    
+
     public synchronized boolean isDisposable() {
-	return disposed_;
+        return disposed_;
     }
 
     public synchronized void setDisposable() {
-	disposed_ = true;
+        disposed_ = true;
     }
 
     public abstract boolean match(FilterStage filterStage);

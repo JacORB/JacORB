@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
@@ -35,6 +36,7 @@ import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
 import org.omg.CosNotifyComm.SequencePullConsumer;
 import org.omg.PortableServer.Servant;
+import org.omg.CosNotification.UnsupportedQoS;
 
 /**
  * SequenceProxyPullSupplierImpl.java
@@ -57,7 +59,7 @@ public class SequenceProxyPullSupplierImpl
                                           ChannelContext channelContext,
                                           PropertyManager adminProperties,
                                           PropertyManager qosProperties,
-                                          Integer key )
+                                          Integer key ) throws UnsupportedQoS
     {
 
         super( myAdminServant,
@@ -82,7 +84,8 @@ public class SequenceProxyPullSupplierImpl
         setProxyType( ProxyType.PULL_STRUCTURED );
     }
 
-    public void connect_sequence_pull_consumer( SequencePullConsumer consumer ) throws AlreadyConnected
+    public void connect_sequence_pull_consumer( SequencePullConsumer consumer )
+        throws AlreadyConnected
     {
         if ( connected_ )
         {
@@ -99,58 +102,42 @@ public class SequenceProxyPullSupplierImpl
         BooleanHolder _hasEvent = new BooleanHolder();
         StructuredEvent _ret[] = sUndefinedSequence;
 
-        synchronized ( pendingEvents_ )
-        {
-            try
-            {
-                while ( pendingEvents_.isEmpty() )
-                {
-                    pendingEvents_.wait();
-                }
+        try {
+            Message[] _events = pendingEvents_.getEvents(number, true);
+            _ret = new StructuredEvent[_events.length];
 
-                int _availableEvents = pendingEvents_.size();
-                int _retSize = ( number > _availableEvents ) ? _availableEvents : number;
-                _ret = new StructuredEvent[ _retSize ];
-
-                for ( int x = 0; x < _retSize; ++x )
-                {
-                    _ret[ x ] = ( StructuredEvent ) pendingEvents_.removeFirst();
-                }
+            for (int x=0; x<_events.length; ++x) {
+                _ret[x] = _events[x].toStructuredEvent();
             }
-            catch ( InterruptedException e )
-            {}
-
-        }
+        } catch (InterruptedException e) {}
 
         return _ret;
     }
 
-    public StructuredEvent[] try_pull_structured_events( int number, 
-							 BooleanHolder success ) 
-	throws Disconnected
+    public StructuredEvent[] try_pull_structured_events( int number,
+                                                         BooleanHolder success )
+        throws Disconnected
     {
-        synchronized ( pendingEvents_ )
-        {
-            if ( !pendingEvents_.isEmpty() )
-            {
-                int _retSize = ( number > pendingEvents_.size() ) ? pendingEvents_.size() : number;
 
-                StructuredEvent _ret[] = new StructuredEvent[ _retSize ];
+        try {
+            Message[] _events = pendingEvents_.getEvents(number, false);
+            if (_events != null) {
+                StructuredEvent[] _ret = new StructuredEvent[_events.length];
 
-                for ( int x = 0; x < _retSize; ++x )
-                {
-                    _ret[ x ] = ( StructuredEvent ) pendingEvents_.removeFirst();
+                for (int x=0; x<_events.length; ++x) {
+                    _ret[x] = _events[x].toStructuredEvent();
+
+                    _events[x].dispose();
+                    _events[x] = null;
                 }
-
                 success.value = true;
                 return _ret;
             }
-            else
-            {
-                success.value = false;
-                return sUndefinedSequence;
-            }
-        }
+        } catch (InterruptedException e) {}
+
+        success.value = false;
+        return sUndefinedSequence;
+
     }
 
     public List getSubsequentFilterStages()

@@ -21,7 +21,7 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.interfaces.FrameworkEvent;
+import org.jacorb.notification.interfaces.ApplicationEvent;
 import org.jacorb.notification.EventChannelImpl;
 
 /**
@@ -32,10 +32,10 @@ import org.jacorb.notification.EventChannelImpl;
  * @version $Id$
  */
 
-public class EventChannelEvent extends FrameworkEvent 
+public class EventChannelEvent extends ApplicationEvent
 {
     public EventChannelEvent(EventChannelImpl servant)
     {
-	super(servant);
-    }   
+        super(servant);
+    }
 }

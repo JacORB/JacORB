@@ -28,7 +28,8 @@ package org.jacorb.notification.engine;
  * @version $Id$
  */
 
-public interface Task extends Runnable {    
+public interface Task extends Runnable
+{
 
     public static int NEW = 0;
     public static int ERROR = 1;
@@ -38,7 +39,7 @@ public interface Task extends Runnable {
 
     /**
      * return the status of this Task.
-     */ 
+     */
     int getStatus();
 
 }

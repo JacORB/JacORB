@@ -22,7 +22,7 @@ package org.jacorb.notification.node;
  */
 
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.parser.TCLParser;
 
@@ -37,7 +37,7 @@ import antlr.TokenStreamException;
  * @version $Id$
  */
 
-public class PropertyShorthandNode extends TCLNode 
+public class PropertyShorthandNode extends AbstractTCLNode
 {
 
     String value_;
@@ -49,94 +49,102 @@ public class PropertyShorthandNode extends TCLNode
 
     public PropertyShorthandNode(String value)
     {
-	try {
+        try {
 
-	    value_ = value;
+            value_ = value;
 
-	    shorthandVariableHeader_ = 
-		(ComponentName)TCLParser.parse("$.header.variable_header(" + value + ")");
+            shorthandVariableHeader_ =
+                (ComponentName)TCLParser.parse("$.header.variable_header(" + value + ")");
 
-	    shorthandVariableHeader_.acceptInOrder(new TCLCleanUp());
+            shorthandVariableHeader_.acceptInOrder(new TCLCleanUp());
 
-	    shorthandFilterableData_ = (ComponentName)TCLParser.parse("$.filterable_data(" + value + ")");
-	    shorthandFilterableData_.acceptInOrder(new TCLCleanUp());
+            shorthandFilterableData_ = (ComponentName)TCLParser.parse("$.filterable_data(" + value + ")");
+            shorthandFilterableData_.acceptInOrder(new TCLCleanUp());
 
-	    shorthandDefault_ = (ComponentName)TCLParser.parse("$." + value );
-	    shorthandDefault_.acceptInOrder(new TCLCleanUp());
+            shorthandDefault_ = (ComponentName)TCLParser.parse("$." + value );
+            shorthandDefault_.acceptInOrder(new TCLCleanUp());
 
-	    shorthandDefaultAny_ = (ComponentName)TCLParser.parse("$(" + value + ")");
-	    shorthandDefaultAny_.acceptInOrder(new TCLCleanUp());
+            shorthandDefaultAny_ = (ComponentName)TCLParser.parse("$(" + value + ")");
+            shorthandDefaultAny_.acceptInOrder(new TCLCleanUp());
 
-	} catch (TokenStreamException e) {
-	    logger_.fatalError("Exception during parse", e);
-	    throw new RuntimeException();
-	} catch (RecognitionException e) {
-	    logger_.fatalError("Exception during parse", e);
-	    throw new RuntimeException();
-	} catch (VisitorException e) {
-	    logger_.fatalError("Exception during parse", e);
-	    throw new RuntimeException();
-	}
+        } catch (TokenStreamException e) {
+            logger_.fatalError("Exception during parse", e);
+            throw new RuntimeException();
+        } catch (RecognitionException e) {
+            logger_.fatalError("Exception during parse", e);
+            throw new RuntimeException();
+        } catch (VisitorException e) {
+            logger_.fatalError("Exception during parse", e);
+            throw new RuntimeException();
+        }
 
     }
-    
+
     public EvaluationResult evaluate(EvaluationContext context) throws EvaluationException {
 
-	NotificationEvent _event = context.getNotificationEvent();
-	EvaluationResult _res = _event.extractVariableHeader(context, shorthandVariableHeader_, value_);
+        Message _event = context.getNotificationEvent();
+        EvaluationResult _res = null;
 
-	if (_res == null) {
-	    _res = _event.extractFilterableData(context, shorthandFilterableData_, value_);
-	}
+        try {
+        _res = _event.extractVariableHeader(context, shorthandVariableHeader_, value_);
+        } catch (EvaluationException e) {}
 
-	if (_res == null) {
-	    _res = extractDefaultValue(context);
-	}
+        if (_res == null) {
+            try {
+                _res = _event.extractFilterableData(context, shorthandFilterableData_, value_);
+            } catch (EvaluationException e) {}
 
-	if (_res == null) {
-	    _res = extractDefaultAnyValue(context);
-	}
-	
-	return _res;
+            if (_res == null) {
+
+                _res = extractDefaultValue(context);
+
+            }
+
+            if (_res == null) {
+                _res = extractDefaultAnyValue(context);
+            }
+        }
+
+        return _res;
     }
 
     public EvaluationResult extractDefaultValue(EvaluationContext context) {
-	try {
-	    return context.getNotificationEvent().extractValue(context, shorthandDefault_);
-	} catch (Exception e) {
-	    return null;
-	}
+        try {
+            return context.getNotificationEvent().extractValue(context, shorthandDefault_);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public EvaluationResult extractDefaultAnyValue(EvaluationContext context) {
-	try {
-	    return context.getNotificationEvent().extractValue(context, shorthandDefaultAny_);
-	} catch (Exception e) {
-	    return null;
-	}
+        try {
+            return context.getNotificationEvent().extractValue(context, shorthandDefaultAny_);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public String toString() {
-	return "PropertyShorthandNode: " + value_;
+        return "PropertyShorthandNode: " + value_;
     }
 
-    public void acceptPostOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
-	if (getFirstChild() != null) {
-	    ( ( TCLNode ) getFirstChild() ).acceptPostOrder( visitor );
-	}
-	//    visitor.visitComponent( this );
+        if (getFirstChild() != null) {
+            ( ( AbstractTCLNode ) getFirstChild() ).acceptPostOrder( visitor );
+        }
+        //    visitor.visitComponent( this );
     }
 
-    public void acceptPreOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
-	//        visitor.visitComponent( this );
-        ( ( TCLNode ) getFirstChild() ).acceptPreOrder( visitor );
+        //        visitor.visitComponent( this );
+        ( ( AbstractTCLNode ) getFirstChild() ).acceptPreOrder( visitor );
     }
 
-    public void acceptInOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
-        ( ( TCLNode ) getFirstChild() ).acceptInOrder( visitor );
-	//        visitor.visitComponent( this );
+        ( ( AbstractTCLNode ) getFirstChild() ).acceptInOrder( visitor );
+        //        visitor.visitComponent( this );
     }
 }

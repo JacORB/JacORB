@@ -30,54 +30,51 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import antlr.Token;
 
 /** A simple node to represent EQ operation */
-public class EqOperator extends TCLNode {
+public class EqOperator extends AbstractTCLNode {
 
     public EqOperator(Token tok) {
-	super(tok);
+        super(tok);
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode,
-	       EvaluationException {
+        throws DynamicTypeException,
+               EvaluationException {
 
-	EvaluationResult _left = left().evaluate(context);
-	EvaluationResult _right = right().evaluate(context);
+        EvaluationResult _left = left().evaluate(context);
+        EvaluationResult _right = right().evaluate(context);
 
-	if (_left.compareTo( _right) == 0) {
-	    return EvaluationResult.BOOL_TRUE;
-	}
+        if (_left.compareTo( _right) == 0) {
+            return EvaluationResult.BOOL_TRUE;
+        }
 
-	return EvaluationResult.BOOL_FALSE;
+        return EvaluationResult.BOOL_FALSE;
     }
 
     public String toString() {
-	return "==";
+        return "==";
     }
 
     public String getName() {
-	return getClass().getName();
+        return getClass().getName();
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	logger_.debug("accept visitor");
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        logger_.debug("accept visitor");
 
-	left().acceptInOrder(visitor);
-	visitor.visitEq(this);
-	right().acceptInOrder(visitor);
+        left().acceptInOrder(visitor);
+        visitor.visitEq(this);
+        right().acceptInOrder(visitor);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitEq(this);
-	left().acceptPreOrder(visitor);
-	right().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitEq(this);
+        left().acceptPreOrder(visitor);
+        right().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	right().acceptPostOrder(visitor);
-	visitor.visitEq(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        right().acceptPostOrder(visitor);
+        visitor.visitEq(this);
     }
 }

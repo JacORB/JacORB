@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -19,21 +21,22 @@
  *
  */
 
-package org.jacorb.notification;
+import org.omg.CosNotification.FifoOrder;
 
 /**
  * Constants.java
- *
- *
- * Created: Wed May 28 10:43:42 2003
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface Constants 
+public interface Constants
 {
-
     public final static long DEFAULT_PROXY_POLL_INTERVALL = 1000L;
-
+    public final static String DEFAULT_ORDER_POLICY = "PriorityOrder";
+    public final static String DEFAULT_DISCARD_POLICY = "PriorityOrder";
+    public final static int DEFAULT_MAX_EVENTS_PER_CONSUMER = 100;
+    public final static int DEFAULT_MAX_BATCH_SIZE = 1;
+    public final static int DEFAULT_FILTER_POOL_SIZE = 2;
+    public final static int DEFAULT_DELIVER_POOL_SIZE = 4;
 }

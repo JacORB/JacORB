@@ -53,6 +53,11 @@ import org.omg.CosNotification.StopTimeSupported;
 import org.omg.CosNotification.Timeout;
 import org.omg.CosNotification.UnsupportedAdmin;
 import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotification.AnyOrder;
+import org.omg.CosNotification.DeadlineOrder;
+import org.omg.CosNotification.FifoOrder;
+import org.omg.CosNotification.PriorityOrder;
+import org.omg.CosNotification.LifoOrder;
 
 /**
  * PropertyValidator.java
@@ -66,131 +71,184 @@ import org.omg.CosNotification.UnsupportedQoS;
 
 public class PropertyValidator {
 
-    static final PropertyError[] PROPERTY_ERROR_ARRAY_TEMPLATE = 
-	new PropertyError[0];
+    static final PropertyError[] PROPERTY_ERROR_ARRAY_TEMPLATE =
+        new PropertyError[0];
 
     static HashSet sQoSPropertyNames_;
     static HashSet sAdminPropertyNames_;
 
-    Any connectionReliabilityLowValue_;
-    Any connectionReliabilityHighValue_;
+    static Any connectionReliabilityLowValue_;
+    static Any connectionReliabilityHighValue_;
 
-    ORB orb_;
+    static Any orderPolicyLowValue_;
+    static Any orderPolicyHighValue_;
 
-    PropertyValidator(ORB orb) {
-	orb_ = orb;
+    static Any discardPolicyLowValue_;
+    static Any discardPolicyHighValue_;
 
-	connectionReliabilityHighValue_ = orb_.create_any();
-	connectionReliabilityHighValue_.insert_short(Persistent.value);
-	connectionReliabilityLowValue_ = orb_.create_any();
-	connectionReliabilityLowValue_.insert_short(BestEffort.value);
+    static ORB orb_ = ORB.init();
+
+    public static void checkQoSPropertySeq(Property[] p) throws UnsupportedQoS {
+        Vector _errList = new Vector();
+
+        for (int x=0; x<p.length; ++x) {
+
+            if (!isQoSProperty(p[x].name)) {
+                _errList.add(new PropertyError(QoSError_code.BAD_PROPERTY,
+                                               p[x].name,
+                                               new PropertyRange(orb_.create_any(),
+                                                                 orb_.create_any())));
+
+            } else if (ConnectionReliability.value.equals(p[x].name)) {
+
+                switch(p[x].value.extract_short()) {
+                case BestEffort.value:
+                    // fallthrough
+                case Persistent.value:
+                    break;
+                default:
+                    _errList.add(new PropertyError(QoSError_code.BAD_VALUE,
+                                                   p[x].name,
+                                                   new PropertyRange(connectionReliabilityLowValue_,
+                                                                     connectionReliabilityHighValue_)));
+                }
+            } else if (EventReliability.value.equals(p[x].name)) {
+                switch(p[x].value.extract_short()) {
+                case BestEffort.value:
+                    // fallthrough
+                case Persistent.value:
+                    break;
+                default:
+                    _errList.add(new PropertyError(QoSError_code.BAD_VALUE,
+                                                   p[x].name,
+                                                   new PropertyRange(connectionReliabilityLowValue_,
+                                                                     connectionReliabilityHighValue_)));
+                }
+            } else if (OrderPolicy.value.equals(p[x].name)) {
+                switch(p[x].value.extract_short()) {
+                case AnyOrder.value:
+                    break;
+                case FifoOrder.value:
+                    break;
+                case PriorityOrder.value:
+                    break;
+                case DeadlineOrder.value:
+                    break;
+                default:
+                    _errList.add(new PropertyError(QoSError_code.BAD_VALUE,
+                                                   p[x].name,
+                                                   new PropertyRange(orderPolicyLowValue_,
+                                                                     orderPolicyHighValue_)));
+                }
+            } else if (DiscardPolicy.value.equals(p[x].name)) {
+                switch(p[x].value.extract_short()) {
+                case AnyOrder.value:
+                    break;
+                case FifoOrder.value:
+                    break;
+                case LifoOrder.value:
+                    break;
+                case PriorityOrder.value:
+                    break;
+                case DeadlineOrder.value:
+                    break;
+                default:
+                    _errList.add(new PropertyError(QoSError_code.BAD_VALUE,
+                                                   p[x].name,
+                                                   new PropertyRange(discardPolicyLowValue_,
+                                                                     discardPolicyHighValue_)));
+                }
+            }
+        }
+
+        if (!_errList.isEmpty()) {
+            PropertyError[] _ex = (PropertyError[])_errList.toArray(PROPERTY_ERROR_ARRAY_TEMPLATE);
+            throw new UnsupportedQoS(_ex);
+        }
     }
 
-    public void checkQoSPropertySeq(Property[] p) throws UnsupportedQoS {
-	Vector _errList = new Vector();
+    public static void checkAdminPropertySeq(Property[] p) throws UnsupportedAdmin {
+        Vector _errList = new Vector();
 
-	for (int x=0; x<p.length; ++x) {
-	    if (!isQoSProperty(p[x].name)) {
-		_errList.add(new PropertyError(QoSError_code.BAD_PROPERTY, 
-					       p[x].name, 
-					       new PropertyRange(orb_.create_any(), orb_.create_any())));
-	    } else if (ConnectionReliability.value.equals(p[x].name)) {
-		switch(p[x].value.extract_short()) {
-		case BestEffort.value:
-		    // fallthrough
-		case Persistent.value:
-		    break;
-		default:
-		    _errList.add(new PropertyError(QoSError_code.BAD_VALUE,
-						   p[x].name,
-						   new PropertyRange(connectionReliabilityLowValue_,
-								     connectionReliabilityHighValue_)));
-		}
-	    } else if (EventReliability.value.equals(p[x].name)) {
-		switch(p[x].value.extract_short()) {
-		case BestEffort.value:
-		    // fallthrough
-		case Persistent.value:
-		    break;
-		default:
-		    _errList.add(new PropertyError(QoSError_code.BAD_VALUE,
-						   p[x].name,
-						   new PropertyRange(connectionReliabilityLowValue_,
-								     connectionReliabilityHighValue_)));
-		}
-	    }
-	}
+        for (int x=0; x<p.length; ++x) {
+            if (!isAdminProperty(p[x].name)) {
+                _errList.add(new PropertyError(QoSError_code.BAD_PROPERTY,
+                                               p[x].name,
+                                               new PropertyRange(orb_.create_any(), orb_.create_any())));
+            }
+        }
 
-	if (_errList.size() > 0) {
-	    PropertyError[] _ex = (PropertyError[])_errList.toArray(PROPERTY_ERROR_ARRAY_TEMPLATE);
-	    throw new UnsupportedQoS(_ex);
-	}
-    }
-
-    public void checkAdminPropertySeq(Property[] p) throws UnsupportedAdmin {
-	Vector _errList = new Vector();
-
-	for (int x=0; x<p.length; ++x) {
-	    if (!isAdminProperty(p[x].name)) {
-		_errList.add(new PropertyError(QoSError_code.BAD_PROPERTY, 
-					       p[x].name, 
-					       new PropertyRange(orb_.create_any(), orb_.create_any())));
-	    }
-	}
-
-	if (_errList.size() > 0) {
-	    PropertyError[] _ex = (PropertyError[])_errList.toArray(PROPERTY_ERROR_ARRAY_TEMPLATE);
-	    throw new UnsupportedAdmin(_ex);
-	}
+        if (_errList.size() > 0) {
+            PropertyError[] _ex = (PropertyError[])_errList.toArray(PROPERTY_ERROR_ARRAY_TEMPLATE);
+            throw new UnsupportedAdmin(_ex);
+        }
     }
 
     public static Map getUniqueProperties(Property[] p) {
-	Map _ret = new Hashtable();
+        Map _ret = new Hashtable();
 
-	for (int x=0; x<p.length; ++x) {
-	    _ret.put(p[x].name, p[x].value);
-	}
+        for (int x=0; x<p.length; ++x) {
+            _ret.put(p[x].name, p[x].value);
+        }
 
-	return _ret;
+        return _ret;
     }
 
-    public Map validateAdminPropertySeq(Property[] p) throws UnsupportedAdmin {
-	Hashtable _ret = null;
+    public static Map validateAdminPropertySeq(Property[] p) throws UnsupportedAdmin {
+        Hashtable _ret = null;
 
-	return _ret;
+        return _ret;
     }
 
     static boolean isAdminProperty(String name) {
-	return sAdminPropertyNames_.contains(name);
+        return sAdminPropertyNames_.contains(name);
     }
-    
+
     static boolean isQoSProperty(String name) {
-	return sQoSPropertyNames_.contains(name);
+        return sQoSPropertyNames_.contains(name);
     }
 
     static {
-	sQoSPropertyNames_ = new HashSet();
+        connectionReliabilityHighValue_ = orb_.create_any();
+        connectionReliabilityHighValue_.insert_short(Persistent.value);
 
-	sQoSPropertyNames_.add(ConnectionReliability.value);
-	sQoSPropertyNames_.add(EventReliability.value);
-	sQoSPropertyNames_.add(Priority.value);
-	sQoSPropertyNames_.add(OrderPolicy.value);
-	sQoSPropertyNames_.add(Timeout.value);
-	sQoSPropertyNames_.add(DiscardPolicy.value);
-	sQoSPropertyNames_.add(PacingInterval.value);
-	sQoSPropertyNames_.add(StartTime.value);
-	sQoSPropertyNames_.add(StartTimeSupported.value);
-	sQoSPropertyNames_.add(StopTime.value);
-	sQoSPropertyNames_.add(StopTimeSupported.value);
-	sQoSPropertyNames_.add(MaximumBatchSize.value);
-	sQoSPropertyNames_.add(MaxEventsPerConsumer.value);
+        connectionReliabilityLowValue_ = orb_.create_any();
+        connectionReliabilityLowValue_.insert_short(BestEffort.value);
 
-	sAdminPropertyNames_ = new HashSet();
+        orderPolicyLowValue_ = orb_.create_any();
+        orderPolicyLowValue_.insert_short(AnyOrder.value);
 
-	sAdminPropertyNames_.add(MaxQueueLength.value);
-	sAdminPropertyNames_.add(MaxConsumers.value);
-	sAdminPropertyNames_.add(MaxSuppliers.value);
-	sAdminPropertyNames_.add(RejectNewEvents.value);
+        orderPolicyHighValue_ = orb_.create_any();
+        orderPolicyHighValue_.insert_short(DeadlineOrder.value);
+
+        discardPolicyLowValue_ = orb_.create_any();
+        discardPolicyLowValue_.insert_short(AnyOrder.value);
+
+        discardPolicyHighValue_ = orb_.create_any();
+        discardPolicyHighValue_.insert_short(DeadlineOrder.value);
+
+
+        sQoSPropertyNames_ = new HashSet();
+
+        sQoSPropertyNames_.add(ConnectionReliability.value);
+        sQoSPropertyNames_.add(EventReliability.value);
+        sQoSPropertyNames_.add(Priority.value);
+        sQoSPropertyNames_.add(OrderPolicy.value);
+        sQoSPropertyNames_.add(Timeout.value);
+        sQoSPropertyNames_.add(DiscardPolicy.value);
+        sQoSPropertyNames_.add(PacingInterval.value);
+        sQoSPropertyNames_.add(StartTime.value);
+        sQoSPropertyNames_.add(StartTimeSupported.value);
+        sQoSPropertyNames_.add(StopTime.value);
+        sQoSPropertyNames_.add(StopTimeSupported.value);
+        sQoSPropertyNames_.add(MaximumBatchSize.value);
+        sQoSPropertyNames_.add(MaxEventsPerConsumer.value);
+
+        sAdminPropertyNames_ = new HashSet();
+
+        sAdminPropertyNames_.add(MaxQueueLength.value);
+        sAdminPropertyNames_.add(MaxConsumers.value);
+        sAdminPropertyNames_.add(MaxSuppliers.value);
+        sAdminPropertyNames_.add(RejectNewEvents.value);
     }
-
-}// PropertyValidator
+}

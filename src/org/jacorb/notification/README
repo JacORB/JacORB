@@ -10,43 +10,43 @@ and make it available in the classpath
 to start the Notification Service run bin/ntfy or bin/ntfy.bat.
 
 ntfy[.bat] [-printIOR] [-printCorbaloc] [-writeIOR <filename>]
-	   [-registerName <nameId>[.<nameKind>]] 
+           [-registerName <nameId>[.<nameKind>]] 
            [-port <oaPort>] [-channels <channels>] [-help]
-	
+        
 The script starts a EventChannelFactory
 
-* -printIOR: 		print the IOR to STDOUT
+* -printIOR:            print the IOR to STDOUT
 
-* -printCorbaloc: 	print the Corbaloc to STDOUT
+* -printCorbaloc:       print the Corbaloc to STDOUT
 
 * -writeIOR <filename>: write the IOR to a file
 
-			Examples:
-			-writeIOR /tmp/notify.ior
+                        Examples:
+                        -writeIOR /tmp/notify.ior
 
 * -registerName <nameId>[.<nameKind>]:
-			make a Name Service Entry for the Factory. 
-			The Name Service must be available by 
-			resolve_initial_references. 
-			No nested names yet.
+                        make a Name Service Entry for the Factory. 
+                        The Name Service must be available by 
+                        resolve_initial_references. 
+                        No nested names yet.
 
-			Examples:
-			-registerName notificationservice
-			-registerName notificationservice.factory
+                        Examples:
+                        -registerName notificationservice
+                        -registerName notificationservice.factory
 
-* -port <oaport>:	try to start the service on the specified port.
-			This will fail if the port is already in use.
+* -port <oaport>:       try to start the service on the specified port.
+                        This will fail if the port is already in use.
 
-			Examples:
-			-port 9102
+                        Examples:
+                        -port 9102
 
-* -channels <channels>:	create a number of EventChannels
+* -channels <channels>: create a number of EventChannels
 
-			Examples:
-			-channels 2
+                        Examples:
+                        -channels 2
 
 
-any comments/suggestions to the JacORB Developer Mailing List
+any questions/comments/suggestions to the JacORB Developer Mailing List
 
 mailto:jacorb-developer@lists.spline.inf.fu-berlin.de or visit
 http://lists.spline.inf.fu-berlin.de/mailman/listinfo/jacorb-developer

@@ -32,64 +32,77 @@ import org.tanukisoftware.wrapper.WrapperManager;
  * @version $Id$
  */
 
-public class Main 
-    implements WrapperListener {
+public class Main implements WrapperListener
+{
 
     private EventChannelFactoryImpl application_;
 
-    private Main() {
-	super();
+    private Main()
+    {
+        super();
     }
-    
+
     // Implementation of org.tanukisoftware.wrapper.WrapperListener
 
-    public Integer start(String[] stringArray)
+    public Integer start( String[] stringArray )
     {
-	try {
-	    application_ = EventChannelFactoryImpl.newFactory(stringArray);
+        try
+        {
+            application_ = EventChannelFactoryImpl.newFactory( stringArray );
 
-	    return null;
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    return new Integer(1);
-	}
+            return null;
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            return new Integer( 1 );
+        }
     }
 
 
-    public int stop(int n)
+    public int stop( int n )
     {
-	EventChannelFactoryImpl.ShutdownCallback cb = 
-	    new EventChannelFactoryImpl.ShutdownCallback() {
-		public void needTime(int time) {
-		    WrapperManager.signalStopping(time);
-		}
+        EventChannelFactoryImpl.ShutdownCallback cb =
+            new EventChannelFactoryImpl.ShutdownCallback()
+            {
+                public void needTime( int time )
+                {
+                    WrapperManager.signalStopping( time );
+                }
 
-		public void shutdownComplete() {
-		}
-	    };
-	
-	application_.shutdown(cb);
+                public void shutdownComplete()
+                {}
 
-	return 0;
+            };
+
+        application_.shutdown( cb );
+
+        return 0;
     }
 
-    public void controlEvent(int event)
+    public void controlEvent( int event )
     {
-	if (WrapperManager.isControlledByNativeWrapper()) {
+        if ( WrapperManager.isControlledByNativeWrapper() )
+        {
             // The Wrapper will take care of this event
-        } else {
+        }
+        else
+        {
             // We are not being controlled by the Wrapper, so
             //  handle the event ourselves.
-            if ((event == WrapperManager.WRAPPER_CTRL_C_EVENT) ||
-                (event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT) ||
-                (event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT)){
-                WrapperManager.stop(0);
+
+            if ( ( event == WrapperManager.WRAPPER_CTRL_C_EVENT ) ||
+                    ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT ) ||
+                    ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
+            {
+                WrapperManager.stop( 0 );
             }
         }
     }
-    
 
-    public static void main(String[] args) {
-	WrapperManager.start(new Main(), args);
+
+    public static void main( String[] args )
+    {
+        WrapperManager.start( new Main(), args );
     }
 }

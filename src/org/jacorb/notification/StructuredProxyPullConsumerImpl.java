@@ -25,8 +25,10 @@ import java.util.List;
 
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.util.Environment;
+
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.UserException;
@@ -54,10 +56,10 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class StructuredProxyPullConsumerImpl 
-    extends ProxyBase
+public class StructuredProxyPullConsumerImpl
+    extends AbstractProxy
     implements StructuredProxyPullConsumerOperations,
-	       TimerEventSupplier
+               TimerEventSupplier
 {
     protected long pollInterval_;
     protected boolean active_ = true;
@@ -83,18 +85,18 @@ public class StructuredProxyPullConsumerImpl
                qosProperties,
                key );
 
-	pollInterval_ = Constants.DEFAULT_PROXY_POLL_INTERVALL;
+        pollInterval_ = Constants.DEFAULT_PROXY_POLL_INTERVALL;
 
-	if (Environment.getProperty(Properties.PULL_CONSUMER_POLLINTERVALL) != null) {
-	    try {
-		pollInterval_ = 
-		    Long.parseLong(Environment.getProperty(Properties.PULL_CONSUMER_POLLINTERVALL));
-	    } catch (NumberFormatException e) {
-		logger_.error("Invalid Number Format for Property " 
-			      + Properties.PULL_CONSUMER_POLLINTERVALL, 
-			      e);
-	    }
-	}
+        if (Environment.getProperty(ConfigurableProperties.PULL_CONSUMER_POLLINTERVALL) != null) {
+            try {
+                pollInterval_ =
+                    Long.parseLong(Environment.getProperty(ConfigurableProperties.PULL_CONSUMER_POLLINTERVALL));
+            } catch (NumberFormatException e) {
+                logger_.error("Invalid Number Format for Property "
+                              + ConfigurableProperties.PULL_CONSUMER_POLLINTERVALL,
+                              e);
+            }
+        }
 
         setProxyType( ProxyType.PULL_STRUCTURED );
 
@@ -221,7 +223,10 @@ public class StructuredProxyPullConsumerImpl
                 if ( _hasEvent.value )
                 {
                     logger_.debug( "pulled Event" );
-                    NotificationEvent _notifyEvent = notificationEventFactory_.newEvent( _event, this );
+
+                    Message _notifyEvent =
+                        notificationEventFactory_.newEvent( _event, this );
+
                     channelContext_.dispatchEvent( _notifyEvent );
                 }
             }
@@ -235,7 +240,7 @@ public class StructuredProxyPullConsumerImpl
 
     public EventConsumer getEventConsumer()
     {
-	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public boolean hasEventConsumer()
@@ -269,10 +274,10 @@ public class StructuredProxyPullConsumerImpl
         if ( taskId_ == null )
         {
             taskId_ = channelContext_
-		.getTaskProcessor()
-		.executeTaskPeriodically( pollInterval_,
-					  runQueueThis_,
-					  true );
+                .getTaskProcessor()
+                .executeTaskPeriodically( pollInterval_,
+                                          runQueueThis_,
+                                          true );
         }
     }
 
@@ -281,8 +286,8 @@ public class StructuredProxyPullConsumerImpl
         if ( taskId_ != null )
         {
             channelContext_
-		.getTaskProcessor()
-		.cancelTask( taskId_ );
+                .getTaskProcessor()
+                .cancelTask( taskId_ );
 
             taskId_ = null;
         }

@@ -21,17 +21,18 @@ package org.jacorb.test.notification.evaluate;
  *
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.omg.CORBA.ORB;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertyHelper;
 import org.omg.CosNotification.PropertySeqHelper;
+import org.omg.DynamicAny.DynAnyFactory;
+import org.omg.DynamicAny.DynAnyFactoryHelper;
+
 import org.jacorb.notification.evaluate.DynamicEvaluator;
+
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  *
@@ -41,63 +42,63 @@ import org.jacorb.notification.evaluate.DynamicEvaluator;
  * @version $Id$
  */
 public class DynamicEvaluatorTest extends TestCase {
-    
+
     ORB orb_;
     DynamicEvaluator evaluator_;
 
-    /** 
+    /**
      * Creates a new <code>TestDynamicEvaluator</code> instance.
      *
      * @param name test name
      */
     public DynamicEvaluatorTest (String name){
-	super(name);
+        super(name);
     }
 
     /**
      * @return a <code>TestSuite</code>
      */
     public static TestSuite suite(){
-	TestSuite suite = new TestSuite(DynamicEvaluatorTest.class);
-	
-	return suite;
+        TestSuite suite = new TestSuite(DynamicEvaluatorTest.class);
+
+        return suite;
     }
 
     public void setUp() throws Exception {
-	orb_ = ORB.init(new String[0], null);
+        orb_ = ORB.init(new String[0], null);
 
-	DynAnyFactory _dynAnyFactory = 
-	    DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
+        DynAnyFactory _dynAnyFactory =
+            DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
 
-	evaluator_ = new DynamicEvaluator(orb_, _dynAnyFactory);
+        evaluator_ = new DynamicEvaluator(orb_, _dynAnyFactory);
     }
 
     public void testExtractAny() throws Exception {
-	Any _any = orb_.create_any();
-	_any.insert_long(10);
-	Property p = new Property("number", _any);
-	Any _testData = orb_.create_any();
-	PropertyHelper.insert(_testData, p);
-	Any a = evaluator_.evaluateIdentifier(_testData, "name");	
-	assertEquals("number", a.extract_string());
+        Any _any = orb_.create_any();
+        _any.insert_long(10);
+        Property p = new Property("number", _any);
+        Any _testData = orb_.create_any();
+        PropertyHelper.insert(_testData, p);
+        Any a = evaluator_.evaluateIdentifier(_testData, "name");
+        assertEquals("number", a.extract_string());
     }
 
     public void testEvaluateNamedValueList() throws Exception {
-	Any _any = orb_.create_any();
-	_any.insert_long(10);
-	Property[] p = new Property[1];
-	p[0] = new Property("number", _any);
-	Any _testData = orb_.create_any();
-	PropertySeqHelper.insert(_testData, p);
-	Any _result = evaluator_.evaluateNamedValueList(_testData, "number");
-	Any _second = _result.extract_any();
-	assertTrue(_second.extract_long() == 10);
+        Any _any = orb_.create_any();
+        _any.insert_long(10);
+        Property[] p = new Property[1];
+        p[0] = new Property("number", _any);
+        Any _testData = orb_.create_any();
+        PropertySeqHelper.insert(_testData, p);
+        Any _result = evaluator_.evaluateNamedValueList(_testData, "number");
+        Any _second = _result.extract_any();
+        assertTrue(_second.extract_long() == 10);
     }
 
-    /** 
-     * Entry point 
-     */ 
+    /**
+     * Entry point
+     */
     public static void main(String[] args) {
-	junit.textui.TestRunner.run(suite());
+        junit.textui.TestRunner.run(suite());
     }
 }

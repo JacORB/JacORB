@@ -21,11 +21,12 @@ package org.jacorb.notification;
  *
  */
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.queue.EventQueue;
+
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
@@ -34,6 +35,7 @@ import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierOperations;
@@ -49,14 +51,14 @@ import org.omg.PortableServer.Servant;
  */
 
 public class StructuredProxyPullSupplierImpl
-            extends ProxyBase
+            extends AbstractProxy
             implements StructuredProxyPullSupplierOperations,
             EventConsumer
 {
 
     StructuredPullConsumer structuredPullConsumer_;
-    LinkedList pendingEvents_ = new LinkedList();
-    int maxListSize_ = 200;
+    EventQueue pendingEvents_;
+
     static StructuredEvent undefinedStructuredEvent_;
 
     public StructuredProxyPullSupplierImpl( ConsumerAdminTieImpl myAdminServant,
@@ -64,7 +66,7 @@ public class StructuredProxyPullSupplierImpl
                                             ChannelContext channelContext,
                                             PropertyManager adminProperties,
                                             PropertyManager qosProperties,
-                                            Integer key )
+                                            Integer key ) throws UnsupportedQoS
     {
 
         super( myAdminServant,
@@ -88,10 +90,12 @@ public class StructuredProxyPullSupplierImpl
                     Property[] _variable = new Property[ 0 ];
                     undefinedStructuredEvent_.header = new EventHeader( _fixed, _variable );
                     undefinedStructuredEvent_.filterable_data = new Property[ 0 ];
-                    undefinedStructuredEvent_.remainder_of_body = orb_.create_any();
+                    undefinedStructuredEvent_.remainder_of_body = appContext.getOrb().create_any();
                 }
             }
         }
+
+         pendingEvents_ = appContext.newEventQueue(qosProperties);
     }
 
     public void connect_structured_pull_consumer( StructuredPullConsumer consumer ) throws AlreadyConnected
@@ -132,30 +136,30 @@ public class StructuredProxyPullSupplierImpl
     public StructuredEvent try_pull_structured_event( BooleanHolder hasEvent ) throws Disconnected
     {
         if ( !connected_ )
-        {
-            throw new Disconnected();
-        }
-
-        StructuredEvent _event = null;
-
-        synchronized ( pendingEvents_ )
-        {
-            int _listSize = pendingEvents_.size();
-
-            if ( _listSize > 0 )
             {
-                _event = ( StructuredEvent ) pendingEvents_.getFirst();
-                pendingEvents_.remove( _event );
-                hasEvent.value = true;
-                return _event;
+                throw new Disconnected();
             }
-            else
-            {
-                hasEvent.value = false;
-                return undefinedStructuredEvent_;
-            }
-        }
+
+        try {
+            Message _notificationEvent =
+                pendingEvents_.getEvent(false);
+
+                if (_notificationEvent != null) {
+
+                    try {
+                        hasEvent.value = true;
+                        return _notificationEvent.toStructuredEvent();
+                    } finally {
+                        _notificationEvent.dispose();
+                    }
+                }
+        } catch (InterruptedException e) {}
+
+        hasEvent.value = false;
+        return undefinedStructuredEvent_;
+
     }
+
 
     public void disconnect_structured_pull_supplier()
     {
@@ -180,20 +184,12 @@ public class StructuredProxyPullSupplierImpl
         }
     }
 
-    public void deliverEvent( NotificationEvent event )
+    public void deliverEvent( Message event )
     {
         logger_.debug( "dispatchEvent" );
 
-        synchronized ( pendingEvents_ )
-        {
-            if ( pendingEvents_.size() > maxListSize_ )
-            {
-                pendingEvents_.remove( pendingEvents_.getFirst() );
-            }
+        pendingEvents_.put( event );
 
-            pendingEvents_.add( event.toStructuredEvent() );
-            pendingEvents_.notifyAll();
-        }
     }
 
     public List getSubsequentFilterStages()
@@ -252,4 +248,4 @@ public class StructuredProxyPullSupplierImpl
     {
         return !pendingEvents_.isEmpty();
     }
-} 
+}

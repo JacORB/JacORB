@@ -35,7 +35,7 @@ public interface Disposable {
     /**
      * Dispose this Object. Free all associated Ressources allocated
      * by this Object. The Object may not be used after a call to
-     * dispose unless it has been recylced in a proper way.
+     * dispose.
      */
     void dispose();
 

@@ -21,8 +21,7 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.interfaces.FrameworkEvent;
-import org.jacorb.notification.AdminBase;
+import org.jacorb.notification.AbstractAdmin;
 
 /**
  * AdminEvent.java
@@ -32,11 +31,11 @@ import org.jacorb.notification.AdminBase;
  * @version $Id$
  */
 
-public class AdminEvent extends FrameworkEvent 
+public class AdminEvent extends ApplicationEvent
 {
-    public AdminEvent(AdminBase source)
+    public AdminEvent( AbstractAdmin source )
     {
-	super(source);
+        super( source );
     }
-    
+
 }

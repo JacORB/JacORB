@@ -29,9 +29,6 @@ import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.parser.TCLParserTokenTypes;
 import org.omg.CORBA.TCKind;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.BaseAST;
 import antlr.Token;
@@ -44,7 +41,7 @@ import antlr.collections.AST;
  * @version $Id$
  */
 
-public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
+public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenTypes
 {
 
     private int astNodeType_;
@@ -58,13 +55,13 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
     ////////////////////////////////////////////////////////////
     // Constructor
 
-    public TCLNode( Token tok )
+    public AbstractTCLNode( Token tok )
     {
         super();
         setType( tok.getType() );
     }
 
-    protected TCLNode()
+    protected AbstractTCLNode()
     {
         super();
     }
@@ -77,51 +74,45 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
      * @param context an <code>EvaluationContext</code> value contains
      * all context information necessary for the evaluation
      * @return an <code>EvaluationResult</code> value
-     * @exception DynamicTypeException 
-     * if an dynamic type error occurs during the evaluation 
+     * @exception DynamicTypeException
+     * if an dynamic type error occurs during the evaluation
      * e.g. the attempt to add a string and a number
-     * @exception InconsistentTypeCode if an error occurs
-     * @exception InvalidValue if an error occurs
-     * @exception TypeMismatch if an error occurs
-     * @exception EvaluationException 
-     * these errors mostly occur if e.g. an expression contains a reference 
+     * @exception EvaluationException
+     * these errors mostly occur if e.g. an expression contains a reference
      * to a non-existent struct member.
      */
     public EvaluationResult evaluate( EvaluationContext context )
     throws DynamicTypeException,
-                InconsistentTypeCode,
-                InvalidValue,
-                TypeMismatch,
-                EvaluationException
+           EvaluationException
     {
         return null;
     }
 
     /**
      * accept a visitor for traversal Inorder
-     * 
-     * @param visitor 
+     *
+     * @param visitor
      */
-    public abstract void acceptInOrder( TCLVisitor visitor ) 
-	throws VisitorException;
+    public abstract void acceptInOrder( AbstractTCLVisitor visitor )
+        throws VisitorException;
 
     /**
      * accept a visitor for traversal in Preorder. the root node is
      * visited before the left and the right subtrees are visited.
-     * 
-     * @param visitor 
+     *
+     * @param visitor
      */
-    public abstract void acceptPreOrder( TCLVisitor visitor ) 
-	throws VisitorException;
+    public abstract void acceptPreOrder( AbstractTCLVisitor visitor )
+        throws VisitorException;
 
     /**
      * accept a visitor for traversal in Postorder. the right and left
      * subtrees are visited before the root node is visited.
-     * 
-     * @param visitor 
+     *
+     * @param visitor
      */
-    public abstract void acceptPostOrder( TCLVisitor visitor ) 
-	throws VisitorException;
+    public abstract void acceptPostOrder( AbstractTCLVisitor visitor )
+        throws VisitorException;
 
     ////////////////////////////////////////////////////////////
 
@@ -147,12 +138,12 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
 
     /**
      * get the AST Token Type of this nodes sibling
-     * 
+     *
      * @return a AST Token Type
      */
     public int getNextType()
     {
-        TCLNode _next = ( TCLNode ) getNextSibling();
+        AbstractTCLNode _next = ( AbstractTCLNode ) getNextSibling();
 
         return _next.getType();
     }
@@ -165,10 +156,10 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
     /**
      * Return the Runtimetype of this node.
      * If the Runtime type cannot be guessed statically this Method
-     * returns null. 
+     * returns null.
      *
      * @return a <code>TCKind</code> value or null if the Runtimetype
-     * cannot be determined 
+     * cannot be determined
      * statically.
      */
     public TCKind getKind()
@@ -188,7 +179,7 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
 
         if ( getFirstChild() != null )
         {
-            buffer.append( ( ( TCLNode ) getFirstChild() ).toStringList() );
+            buffer.append( ( ( AbstractTCLNode ) getFirstChild() ).toStringList() );
         }
 
         if ( getFirstChild() != null )
@@ -199,7 +190,7 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
 
     /**
      * create a visualization of this node and all its children.
-     * 
+     *
      * @return a String representation of this Node and all its children
      */
     public String toStringTree()
@@ -214,23 +205,23 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
     /**
      * Access the left child. This method returns null if this node
      * has no left child
-     * 
+     *
      * @return the left Child or null.
      */
-    public TCLNode left()
+    public AbstractTCLNode left()
     {
-        return ( TCLNode ) getFirstChild();
+        return ( AbstractTCLNode ) getFirstChild();
     }
 
     /**
      * Access the right child. This method returns null if this node
      * has no right child
-     * 
+     *
      * @return the right Child or null.
      */
-    public TCLNode right()
+    public AbstractTCLNode right()
     {
-        return ( TCLNode ) getFirstChild().getNextSibling();
+        return ( AbstractTCLNode ) getFirstChild().getNextSibling();
     }
 
     ////////////////////////////////////////////////////////////
@@ -257,7 +248,7 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
 
     /**
      * Get the AST Token Type for this node.
-     * 
+     *
      * @return the AST Token Type value
      * @see org.jacorb.notification.parser.TCLParserTokenTypes
      */
@@ -268,7 +259,7 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
 
     /**
      * Set AST Token Type for this node.
-     * 
+     *
      * @param type must be a valid TCLTokenType.
      * @see org.jacorb.notification.parser.TCLParserTokenTypes
      */
@@ -280,7 +271,7 @@ public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
     /**
      * converts an int tree token type to a name.
      * Does this by reflecting on nsdidl.IDLTreeTokenTypes,
-     * and is dependent on how ANTLR 2.00 outputs that class. 
+     * and is dependent on how ANTLR 2.00 outputs that class.
      * stolen from http://www.codetransform.com/
      */
     public static String getNameForType( int t )

@@ -1,43 +1,37 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.jacorb.notification.evaluate.FilterConstraint;
+import org.jacorb.notification.ApplicationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.ResultExtractor;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.node.AbstractTCLNode;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.TCLCleanUp;
-import org.jacorb.notification.node.TCLNode;
-import org.omg.CORBA.Any;
+import org.jacorb.notification.parser.TCLParser;
+
 import org.omg.CORBA.ORB;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import org.jacorb.notification.parser.TCLParser;
-import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.NotificationEventUtils;
-import org.jacorb.notification.NotificationEvent;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
- * NotificationEventUtilsTest.java
- *
- *
- * Created: Sat Dec 14 19:54:11 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class NotificationEventUtilsTest extends TestCase
+public class MessageUtilsTest extends TestCase
 {
 
     ApplicationContext appContext_;
     EvaluationContext context_;
-    TestUtils testUtils_;
+    NotificationTestUtils testUtils_;
 
-    public NotificationEventUtilsTest( String name )
+    public MessageUtilsTest( String name )
     {
         super( name );
     }
@@ -48,26 +42,26 @@ public class NotificationEventUtilsTest extends TestCase
         POA _poa = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
         appContext_ = new ApplicationContext( _orb, _poa );
 
-	testUtils_ = new TestUtils(_orb);
+        testUtils_ = new NotificationTestUtils(_orb);
 
         context_ = new EvaluationContext();
         context_.setDynamicEvaluator( new DynamicEvaluator( appContext_.getOrb(),
-							    DynAnyFactoryHelper.narrow( appContext_.getOrb().resolve_initial_references( "DynAnyFactory" ) ) ) );
+                                                            DynAnyFactoryHelper.narrow( appContext_.getOrb().resolve_initial_references( "DynAnyFactory" ) ) ) );
 
         context_.setResultExtractor( new ResultExtractor( DynAnyFactoryHelper.narrow( appContext_.getOrb().resolve_initial_references( "DynAnyFactory" ) ) ) );
 
     }
 
     public void tearDown() {
-	appContext_.dispose();
+        appContext_.dispose();
     }
 
     public void testEvaluateCachesResult() throws Exception
     {
-        TCLNode _root = TCLParser.parse( "$.first_name" );
+        AbstractTCLNode _root = TCLParser.parse( "$.first_name" );
         _root.acceptPreOrder( new TCLCleanUp() );
 
-	NotificationEvent _event = appContext_.getNotificationEventFactory().newEvent(testUtils_.getTestPersonAny());
+        Message _event = appContext_.getMessageFactory().newEvent(testUtils_.getTestPersonAny());
         _event.extractValue( context_, ( ComponentName ) _root );
 
         assertNotNull( context_.lookupResult( "$.first_name" ) );
@@ -79,10 +73,10 @@ public class NotificationEventUtilsTest extends TestCase
 
     public void testEvaluateCachesAny() throws Exception
     {
-        TCLNode _root = TCLParser.parse( "$.home_address.street" );
+        AbstractTCLNode _root = TCLParser.parse( "$.home_address.street" );
         _root.acceptPreOrder( new TCLCleanUp() );
 
-        NotificationEvent _event = appContext_.getNotificationEventFactory().newEvent(testUtils_.getTestPersonAny());
+        Message _event = appContext_.getMessageFactory().newEvent(testUtils_.getTestPersonAny());
 
         _event.extractValue(context_, ( ComponentName ) _root );
 
@@ -100,7 +94,7 @@ public class NotificationEventUtilsTest extends TestCase
     {
         TestSuite suite;
 
-        suite = new TestSuite( NotificationEventUtilsTest.class );
+        suite = new TestSuite( MessageUtilsTest.class );
 
         return suite;
     }
@@ -109,4 +103,4 @@ public class NotificationEventUtilsTest extends TestCase
     {
         junit.textui.TestRunner.run( suite() );
     }
-} // NotificationEventUtilsTest
+}

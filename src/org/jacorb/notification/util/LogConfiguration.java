@@ -29,9 +29,12 @@ import java.net.Socket;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import org.jacorb.util.Environment;
 
 import org.apache.log.Hierarchy;
 import org.apache.log.LogEvent;
@@ -43,8 +46,6 @@ import org.apache.log.output.io.FileTarget;
 import org.apache.log.output.io.SafeFileTarget;
 import org.apache.log.output.io.StreamTarget;
 import org.apache.log.output.net.SocketOutputTarget;
-import org.jacorb.util.Environment;
-import java.util.Iterator;
 
 /**
  * LogConfiguration.java
@@ -61,13 +62,13 @@ public class LogConfiguration
     private static final boolean DEBUG = false;
 
     private static void debug(String msg) {
-	if (DEBUG) {
-	    System.err.println(msg);
-	}
+        if (DEBUG) {
+            System.err.println(msg);
+        }
     }
 
     private static void debug() {
-	debug("");
+        debug("");
     }
 
     ////////////////////////////////////////
@@ -95,8 +96,8 @@ public class LogConfiguration
 
     private static final String LOG_PREFIX = "jacorb.logging.";
 
-    private static final String[] STRING_ARRAY_TEMPLATE = 
-	new String[ 0 ];
+    private static final String[] STRING_ARRAY_TEMPLATE =
+        new String[ 0 ];
 
     public static final String DEFAULT_PATTERN =
         "%7.7{priority} [%-.25{category}] (%{context}): %{message}\\n%{throwable}";
@@ -124,22 +125,22 @@ public class LogConfiguration
     }
 
     private static boolean isLogAttribute(String name) {
-	if (name.indexOf(LOG_IS_SERVER) != -1) {
-	    return true;
-	} else if (name.indexOf(LOG_CATEGORY) != -1) {
-	    return true;
-	} else if (name.indexOf(LOG_PATTERN) != -1) {
-	    return true;
-	} else if (name.indexOf(LOG_REMOTEHOST) != -1) {
-	    return true;
-	} else if (name.indexOf(LOG_REMOTEPORT) != -1) {
-	    return true;
-	} else if (name.indexOf(LOG_PRIORITY) != -1) {
-	    return true;
-	} else if (name.indexOf(LOG_FILE) != -1) {
-	    return true;
-	}
-	return false;
+        if (name.indexOf(LOG_IS_SERVER) != -1) {
+            return true;
+        } else if (name.indexOf(LOG_CATEGORY) != -1) {
+            return true;
+        } else if (name.indexOf(LOG_PATTERN) != -1) {
+            return true;
+        } else if (name.indexOf(LOG_REMOTEHOST) != -1) {
+            return true;
+        } else if (name.indexOf(LOG_REMOTEPORT) != -1) {
+            return true;
+        } else if (name.indexOf(LOG_PRIORITY) != -1) {
+            return true;
+        } else if (name.indexOf(LOG_FILE) != -1) {
+            return true;
+        }
+        return false;
     }
 
     synchronized public boolean isConfigured()
@@ -148,8 +149,8 @@ public class LogConfiguration
     }
 
     private void collectNamedLoggerConfiguration( String loggerName,
-						  ConfigurationMap configuration ) 
-	throws Exception
+                                                  ConfigurationMap configuration )
+        throws Exception
     {
         debug( "collecting Configuration for Logger: " + loggerName );
 
@@ -173,9 +174,9 @@ public class LogConfiguration
             configureRemoteLogger( loggerName, configuration );
 
         }
-	else {
-	    debug("LogTarget " + target + " is unknown");
-	}
+        else {
+            debug("LogTarget " + target + " is unknown");
+        }
     }
 
     private void collectAllNamedLoggerConfigurations( ConfigurationMap configuration ) throws Exception
@@ -191,7 +192,7 @@ public class LogConfiguration
     }
 
     private void setupWithConfiguration( ConfigurationMap configuration )
-	throws Exception
+        throws Exception
     {
 
         debug();
@@ -246,9 +247,9 @@ public class LogConfiguration
 
             setupWithConfiguration( configuration );
 
-	    configurationMap_ = configuration;
+            configurationMap_ = configuration;
 
-	    isConfigured = true;
+            isConfigured = true;
         }
         catch ( Exception e )
         {
@@ -258,96 +259,96 @@ public class LogConfiguration
 
     private String[] getLoggerNameList()
     {
-	Map allKeys = Environment.getProperties(LOG_PREFIX);
+        Map allKeys = Environment.getProperties(LOG_PREFIX);
 
-	Vector v = new Vector();
-	Iterator i = (allKeys.keySet().iterator());
+        Vector v = new Vector();
+        Iterator i = (allKeys.keySet().iterator());
 
-	while (i.hasNext()) {
-	    String value = (String)i.next();
+        while (i.hasNext()) {
+            String value = (String)i.next();
 
-	    String s = value.substring(LOG_PREFIX.length());
+            String s = value.substring(LOG_PREFIX.length());
 
-	    if (!isLogAttribute(s)) {	    
-		v.add(s);
-	    }
-	}
+            if (!isLogAttribute(s)) {
+                v.add(s);
+            }
+        }
 
-	return (String[])v.toArray(STRING_ARRAY_TEMPLATE);
+        return (String[])v.toArray(STRING_ARRAY_TEMPLATE);
     }
 
-    private void configureFileLogger( String name, 
-				      ConfigurationMap configurationMap )
-	throws IOException
+    private void configureFileLogger( String name,
+                                      ConfigurationMap configurationMap )
+        throws IOException
     {
-        File _file = 
-	    new File( Environment.getProperty( LOG_PREFIX + name + LOG_FILE ) );
+        File _file =
+            new File( Environment.getProperty( LOG_PREFIX + name + LOG_FILE ) );
 
-	String _pattern = getPattern(name);
+        String _pattern = getPattern(name);
 
-        PatternFormatter _formatter = 
-	    new PatternFormatter( _pattern );
+        PatternFormatter _formatter =
+            new PatternFormatter( _pattern );
 
         FileTarget _fileTarget =
             new SafeFileTarget( _file, true, _formatter );
 
-        addConfiguration( configurationMap, 
-			  name, 
-			  getCategory( name ), 
-			  _pattern,
-			  _fileTarget, 
-			  getPriority( name ) );
+        addConfiguration( configurationMap,
+                          name,
+                          getCategory( name ),
+                          _pattern,
+                          _fileTarget,
+                          getPriority( name ) );
     }
 
-    private void configureConsoleLogger( String name, 
-					 ConfigurationMap configuration )
+    private void configureConsoleLogger( String name,
+                                         ConfigurationMap configuration )
     {
-	String _pattern = getPattern(name);
+        String _pattern = getPattern(name);
 
-        PatternFormatter _formatter = 
-	    new PatternFormatter( _pattern );
+        PatternFormatter _formatter =
+            new PatternFormatter( _pattern );
 
         StreamTarget _consoleTarget =
             new StreamTarget( System.out, _formatter );
 
-        addConfiguration( configuration, 
-			  name, 
-			  getCategory( name ), 
-			  _pattern,
-			  _consoleTarget, 
-			  getPriority( name ) );
+        addConfiguration( configuration,
+                          name,
+                          getCategory( name ),
+                          _pattern,
+                          _consoleTarget,
+                          getPriority( name ) );
     }
 
-    private void configureRemoteLogger( String name, 
-					ConfigurationMap configuration )
-	throws IOException
+    private void configureRemoteLogger( String name,
+                                        ConfigurationMap configuration )
+        throws IOException
     {
         SocketOutputTarget _socketTarget =
-            new SocketOutputTarget( getLogHost( name ), 
-				    getLogPort( name ) );
+            new SocketOutputTarget( getLogHost( name ),
+                                    getLogPort( name ) );
 
-        addConfiguration( configuration, 
-			  name, 
-			  getCategory( name ), 
-			  NO_PATTERN,
-			  _socketTarget, 
-			  getPriority( name ) );
+        addConfiguration( configuration,
+                          name,
+                          getCategory( name ),
+                          NO_PATTERN,
+                          _socketTarget,
+                          getPriority( name ) );
     }
 
     private void addConfiguration( ConfigurationMap configuration,
                                    String name,
                                    String category,
-				   String pattern,
+                                   String pattern,
                                    LogTarget logTarget,
                                    Priority priority )
     {
 
-        configuration.addConfiguration( name, 
-					category, 
-					pattern,
-					logTarget,
-					priority, 
-					isLogServer( name ) );
+        configuration.addConfiguration( name,
+                                        category,
+                                        pattern,
+                                        logTarget,
+                                        priority,
+                                        isLogServer( name ) );
     }
 
     private LogTarget createConsoleLogger( String name,
@@ -373,28 +374,28 @@ public class LogConfiguration
     }
 
     public int getLogPortForNamedLogger( String name )
-	throws Exception
+        throws Exception
     {
-	
-	ConfigurationMap.Entry _entry =
-	    configurationMap_.getConfiguration(name);
 
-	if (_entry != null) {
-	    if (_entry.remoteEnabled_) {
-		return startLogListener( name, _entry.logTarget_ );
-	    } else {
-		throw new RuntimeException("LogConfiguration " + name + " is not enabled for Remote Access");
-	    }
-	} else {
-	    throw new RuntimeException("LogConfiguration " + name + " is unknown");
-	}
+        ConfigurationMap.Entry _entry =
+            configurationMap_.getConfiguration(name);
+
+        if (_entry != null) {
+            if (_entry.remoteEnabled_) {
+                return startLogListener( name, _entry.logTarget_ );
+            } else {
+                throw new RuntimeException("LogConfiguration " + name + " is not enabled for Remote Access");
+            }
+        } else {
+            throw new RuntimeException("LogConfiguration " + name + " is unknown");
+        }
     }
 
-    private int startLogListener( String name, 
-				  final LogTarget target ) 
-	throws Exception
+    private int startLogListener( String name,
+                                  final LogTarget target )
+        throws Exception
     {
-	debug("Creating LogServer for Configuration: " + name);
+        debug("Creating LogServer for Configuration: " + name);
 
         final LogListener registration = new LogListener();
         registration.serverSocket = new ServerSocket( 0 );
@@ -411,8 +412,8 @@ public class LogConfiguration
                              {
                                  try
                                  {
-                                     Socket clientSocket = 
-					 registration.serverSocket.accept();
+                                     Socket clientSocket =
+                                         registration.serverSocket.accept();
 
                                      ObjectInputStream objectInputStream=
                                          new ObjectInputStream( clientSocket.getInputStream() );
@@ -421,8 +422,8 @@ public class LogConfiguration
                                      {
                                          while ( registration.runThread )
                                          {
-                                             LogEvent logEvent = 
-						 ( LogEvent ) objectInputStream.readObject();
+                                             LogEvent logEvent =
+                                                 ( LogEvent ) objectInputStream.readObject();
 
                                              target.processEvent( logEvent );
                                          }
@@ -486,16 +487,16 @@ public class LogConfiguration
     }
 
     public static void setLogLevel(String logger, Priority priority) {
-	Logger _logger = 
-	    Hierarchy.
-	    getDefaultHierarchy().
-	    getLoggerFor(logger);
+        Logger _logger =
+            Hierarchy.
+            getDefaultHierarchy().
+            getLoggerFor(logger);
 
-	_logger.setPriority(priority);
+        _logger.setPriority(priority);
     }
 
     public static void main(String[] args) throws Exception {
-	LogConfiguration.getInstance().configure();
+        LogConfiguration.getInstance().configure();
     }
 
 
@@ -503,61 +504,61 @@ public class LogConfiguration
 
 class ConfigurationMap
 {
-    private static final String[] STRING_ARRAY_TEMPLATE = 
-	new String[ 0 ];
+    private static final String[] STRING_ARRAY_TEMPLATE =
+        new String[ 0 ];
 
     static class Entry
     {
         String configurationName_;
         String category_;
-	String pattern_;
+        String pattern_;
         LogTarget logTarget_;
         Priority priority_;
         boolean remoteEnabled_ = false;
 
-	public String toString() {
-	    return toString("");
-	}
+        public String toString() {
+            return toString("");
+        }
 
         public String toString(String offset)
         {
             StringBuffer b = new StringBuffer();
 
-	    b.append(offset);
+            b.append(offset);
             b.append( "Configurationname: " );
             b.append( configurationName_ );
             b.append( "\n" );
 
-	    b.append(offset);
+            b.append(offset);
             b.append( "Category: " );
             b.append( category_ );
             b.append( "\n" );
 
-	    b.append(offset);
-	    b.append( "Pattern: " );
-	    b.append( pattern_ );
-	    b.append( "\n");
+            b.append(offset);
+            b.append( "Pattern: " );
+            b.append( pattern_ );
+            b.append( "\n");
 
-	    b.append(offset);
+            b.append(offset);
             b.append( "LogTarget: " );
             b.append( logTarget_.getClass().getName() );
             b.append( "\n" );
 
-	    b.append(offset);
+            b.append(offset);
             b.append( "Remote accessible: " );
             b.append( remoteEnabled_ );
             b.append( "\n" );
 
-	    b.append(offset);
-	    b.append( priority_ );
-	    b.append( "\n" );
+            b.append(offset);
+            b.append( priority_ );
+            b.append( "\n" );
 
             return b.toString();
         }
 
         Entry( String configurationName,
                String category,
-	       String pattern,
+               String pattern,
                LogTarget logTarget,
                Priority priority,
                boolean remoteEnabled )
@@ -566,7 +567,7 @@ class ConfigurationMap
             configurationName_ = configurationName;
             category_ = category;
             logTarget_ = logTarget;
-	    pattern_ = pattern;
+            pattern_ = pattern;
             priority_ = priority;
             remoteEnabled_ = remoteEnabled;
         }
@@ -588,22 +589,22 @@ class ConfigurationMap
 
     public void addConfiguration( String configurationName,
                                   String category,
-				  String pattern,
+                                  String pattern,
                                   LogTarget target,
                                   Priority priority,
                                   boolean remoteAccessible )
     {
 
-	Entry _newEntry = 
-	    new Entry( configurationName, 
-		       category, 
-		       pattern,
-		       target, 
-		       priority, 
-		       remoteAccessible );
+        Entry _newEntry =
+            new Entry( configurationName,
+                       category,
+                       pattern,
+                       target,
+                       priority,
+                       remoteAccessible );
 
         getCreateList( category ).add( _newEntry );
-	mapByName_.put(configurationName, _newEntry);
+        mapByName_.put(configurationName, _newEntry);
     }
 
     public List getListOfConfigurationFor( String category )
@@ -612,11 +613,11 @@ class ConfigurationMap
     }
 
     public Entry getConfiguration(String name) {
-	return (Entry)mapByName_.get(name);
+        return (Entry)mapByName_.get(name);
     }
 
     public String[] getConfigurationNames() {
-	return (String[]) mapByName_.keySet().toArray (STRING_ARRAY_TEMPLATE );
+        return (String[]) mapByName_.keySet().toArray (STRING_ARRAY_TEMPLATE );
     }
 
     public String[] getCategories()

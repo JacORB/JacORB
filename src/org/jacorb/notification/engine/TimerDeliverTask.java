@@ -34,30 +34,38 @@ import org.omg.CosNotifyChannelAdmin.NotConnected;
  * @version $Id$
  */
 
-public class TimerDeliverTask extends TaskBase {
+public class TimerDeliverTask extends AbstractTask
+{
 
     private TimerEventConsumer target_;
-    
-    public void setTimedDeliverTarget(TimerEventConsumer target) {
-	target_ = target;
+
+    public void setTimedDeliverTarget( TimerEventConsumer target )
+    {
+        target_ = target;
     }
 
-    public void doWork() throws Disconnected, NotConnected {
-	if (target_.hasPendingEvents()) {
+    public void doWork() throws Disconnected, NotConnected
+    {
+        if ( target_.hasPendingEvents() )
+        {
 
-	    target_.deliverPendingEvents();
+            target_.deliverPendingEvents();
 
-	    if (target_.hasPendingEvents()) {
-		setStatus(RESCHEDULE);
-	    } else {
-		setStatus(DONE);
-	    }
-	}
+            if ( target_.hasPendingEvents() )
+            {
+                setStatus( RESCHEDULE );
+            }
+            else
+            {
+                setStatus( DONE );
+            }
+        }
     }
 
-    public void reset() {
-	super.reset();
-	target_ = null;
+    public void reset()
+    {
+        super.reset();
+        target_ = null;
     }
 
 }

@@ -25,7 +25,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.NotificationEventFactory;
+import org.jacorb.notification.MessageFactory;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POA;
@@ -34,7 +34,7 @@ import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.EventType;
-import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.interfaces.Message;
 import org.omg.TimeBase.UtcT;
 import org.jacorb.util.Time;
 import org.omg.TimeBase.UtcTHelper;
@@ -56,119 +56,119 @@ import org.apache.log.Hierarchy;
  * @version $Id$
  */
 
-public class StartTimeTest extends TestCase 
+public class StartTimeTest extends TestCase
 {
     Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
-    NotificationEventFactory notificationEventFactory_;
+    MessageFactory notificationEventFactory_;
     ApplicationContext applicationContext_;
     StructuredEvent structuredEvent_;
     ORB orb_;
 
-    /** 
+    /**
      * Creates a new <code>StartTimeTest</code> instance.
      *
      * @param name test name
      */
     public StartTimeTest (String name)
     {
-	super(name);
+        super(name);
     }
 
     public void setUp() throws Exception {
-	orb_ = ORB.init(new String[0], null);
-	POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
-	applicationContext_ = new ApplicationContext(orb_, _poa, true);
+        orb_ = ORB.init(new String[0], null);
+        POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+        applicationContext_ = new ApplicationContext(orb_, _poa, true);
 
-	notificationEventFactory_ = new NotificationEventFactory(applicationContext_);
-	notificationEventFactory_.init();
+        notificationEventFactory_ = new MessageFactory();
+        notificationEventFactory_.init();
 
-	structuredEvent_ = new StructuredEvent();
-	EventHeader _header = new EventHeader();
-	FixedEventHeader _fixed = new FixedEventHeader();
-	_fixed.event_name = "eventname";
-	_fixed.event_type = new EventType("domain", "type");
-	_header.fixed_header = _fixed;
-	_header.variable_header = new Property[0];
+        structuredEvent_ = new StructuredEvent();
+        EventHeader _header = new EventHeader();
+        FixedEventHeader _fixed = new FixedEventHeader();
+        _fixed.event_name = "eventname";
+        _fixed.event_type = new EventType("domain", "type");
+        _header.fixed_header = _fixed;
+        _header.variable_header = new Property[0];
 
-	structuredEvent_.header = _header;
+        structuredEvent_.header = _header;
 
-	structuredEvent_.filterable_data = new Property[0];
+        structuredEvent_.filterable_data = new Property[0];
 
-	structuredEvent_.remainder_of_body = orb_.create_any();
+        structuredEvent_.remainder_of_body = orb_.create_any();
     }
 
     public void tearDown() throws Exception {
-	notificationEventFactory_.dispose();
-	applicationContext_.dispose();
+        notificationEventFactory_.dispose();
+        applicationContext_.dispose();
     }
 
     public void testStructuredEventWithoutStartTimeProperty() throws Exception {
-	NotificationEvent _event = notificationEventFactory_.newEvent(structuredEvent_);
-	assertTrue(!_event.hasStartTime());
+        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        assertTrue(!_event.hasStartTime());
     }
 
     public void testAnyEventHasNoStartTime() throws Exception {
-	NotificationEvent _event = notificationEventFactory_.newEvent(orb_.create_any());
-	assertTrue(!_event.hasStartTime());
+        Message _event = notificationEventFactory_.newEvent(orb_.create_any());
+        assertTrue(!_event.hasStartTime());
     }
 
     public void testStructuredEventWithStartTimeProperty() throws Exception {
-	structuredEvent_.header.variable_header = new Property[1];
-	
-	Date _now = new Date();
+        structuredEvent_.header.variable_header = new Property[1];
 
-	Any _startTimeAny = orb_.create_any();
-	UtcT _startTime = Time.corbaTime(_now);
-	UtcTHelper.insert(_startTimeAny, _startTime);
+        Date _now = new Date();
 
-	structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
+        Any _startTimeAny = orb_.create_any();
+        UtcT _startTime = Time.corbaTime(_now);
+        UtcTHelper.insert(_startTimeAny, _startTime);
 
-	NotificationEvent _event = notificationEventFactory_.newEvent(structuredEvent_);
-	assertTrue(_event.hasStartTime());
-	assertEquals(_now, _event.getStartTime());
+        structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
+
+        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        assertTrue(_event.hasStartTime());
+        assertEquals(_now, _event.getStartTime());
     }
 
     public void testProcessEventWithStartTime() throws Exception {
-	processEventWithStartTime(0);
-	processEventWithStartTime(-1000);
-	processEventWithStartTime(-2000);
-	processEventWithStartTime(1000);
-	processEventWithStartTime(5000);
+        processEventWithStartTime(0);
+        processEventWithStartTime(-1000);
+        processEventWithStartTime(-2000);
+        processEventWithStartTime(1000);
+        processEventWithStartTime(5000);
     }
 
     public void processEventWithStartTime(long offset) throws Exception {
-	structuredEvent_.header.variable_header = new Property[1];
-	
-	final Date _startTime = new Date(System.currentTimeMillis() + offset);
+        structuredEvent_.header.variable_header = new Property[1];
 
-	Any _startTimeAny = orb_.create_any();
-	UtcTHelper.insert(_startTimeAny, Time.corbaTime(_startTime));
+        final Date _startTime = new Date(System.currentTimeMillis() + offset);
 
-	structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
+        Any _startTimeAny = orb_.create_any();
+        UtcTHelper.insert(_startTimeAny, Time.corbaTime(_startTime));
 
-	final NotificationEvent _event = notificationEventFactory_.newEvent(structuredEvent_);
-	
-	final Latch _latch = new Latch();
+        structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
 
-	TaskProcessor _taskProcessor = new TaskProcessor() {
-		public void processEventInternal(NotificationEvent event) {
-		    try {
-			long _recvTime = System.currentTimeMillis();
-			assertEquals(event, _event);
-			assertTrue(_recvTime >= _startTime.getTime());
-		    } finally {
-			_latch.release();
-		    }
-		}
+        final Message _event = notificationEventFactory_.newEvent(structuredEvent_);
 
-	    };
+        final Latch _latch = new Latch();
 
-	_taskProcessor.processEvent(_event);
+        TaskProcessor _taskProcessor = new TaskProcessor() {
+                public void processEventInternal(Message event) {
+                    try {
+                        long _recvTime = System.currentTimeMillis();
+                        assertEquals(event, _event);
+                        assertTrue(_recvTime >= _startTime.getTime());
+                    } finally {
+                        _latch.release();
+                    }
+                }
 
-	_latch.acquire();
+            };
 
-	_taskProcessor.dispose();
+        _taskProcessor.processEvent(_event);
+
+        _latch.acquire();
+
+        _taskProcessor.dispose();
     }
 
     /**
@@ -176,16 +176,16 @@ public class StartTimeTest extends TestCase
      */
     public static Test suite()
     {
-	TestSuite suite = new TestSuite(StartTimeTest.class);
-	
-	return suite;
+        TestSuite suite = new TestSuite(StartTimeTest.class);
+
+        return suite;
     }
 
-    /** 
-     * Entry point 
-     */ 
-    public static void main(String[] args) 
+    /**
+     * Entry point
+     */
+    public static void main(String[] args)
     {
-	junit.textui.TestRunner.run(suite());
+        junit.textui.TestRunner.run(suite());
     }
 }

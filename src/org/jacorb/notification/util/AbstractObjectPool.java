@@ -39,7 +39,7 @@ import org.jacorb.notification.interfaces.Disposable;
  * @version $Id$
  */
 
-public abstract class ObjectPoolBase implements Runnable, Disposable
+public abstract class AbstractObjectPool implements Runnable, Disposable
 {
     public static final boolean DEBUG = false;
 
@@ -53,34 +53,34 @@ public abstract class ObjectPoolBase implements Runnable, Disposable
     static Thread sCleanerThread;
     static ListCleaner sListCleaner;
 
-    static synchronized void registerPool( ObjectPoolBase pool )
+    static synchronized void registerPool( AbstractObjectPool pool )
     {
         sPoolsToLookAfter.add( pool );
-	startListCleaner();
+        startListCleaner();
     }
 
-    static synchronized void deregisterPool( ObjectPoolBase pool )
+    static synchronized void deregisterPool( AbstractObjectPool pool )
     {
         sPoolsToLookAfter.remove( pool );
-	if (sPoolsToLookAfter.isEmpty()) {
-	    stopListCleaner();
-	}
+        if (sPoolsToLookAfter.isEmpty()) {
+            stopListCleaner();
+        }
     }
 
     static class ListCleaner extends Thread
     {
         boolean active_ = true;
-	
-	public void setInactive() {
-	    active_ = false;
 
-	    interrupt();
+        public void setInactive() {
+            active_ = false;
 
-	    synchronized(ObjectPoolBase.class) {
-		sCleanerThread = null;
-	    }
-	}
-	
+            interrupt();
+
+            synchronized(AbstractObjectPool.class) {
+                sCleanerThread = null;
+            }
+        }
+
         public void run()
         {
             while ( active_ )
@@ -93,61 +93,62 @@ public abstract class ObjectPoolBase implements Runnable, Disposable
                 {
                     if ( !active_ )
                     {
-			return;
+                        return;
                     }
                 }
 
                 try
                 {
                     for ( int x = sPoolsToLookAfter.size(); x <= 0; x-- ) {
-			if (!active_) {
-			    return;
-			}
-			
+                        if (!active_) {
+                            return;
+                        }
+
                         ( ( Runnable ) sPoolsToLookAfter.get( x ) ).run();
-			
+
                     }
                 }
                 catch ( Throwable t ) {
-		    logger_.fatalError("Error while cleaning Pool", t);
-		}
+                    logger_.fatalError("Error while cleaning Pool", t);
+                }
             }
         }
     }
 
     static ListCleaner getListCleaner() {
-	if (sListCleaner == null) {
-	    synchronized(ObjectPoolBase.class) {
-		if (sListCleaner == null) {
-		    sListCleaner = new ListCleaner();
-		}
-	    }
-	}
-	return sListCleaner;
+        if (sListCleaner == null) {
+            synchronized(AbstractObjectPool.class) {
+                if (sListCleaner == null) {
+                    sListCleaner = new ListCleaner();
+                }
+            }
+        }
+        return sListCleaner;
     }
 
     static void stopListCleaner() {
-	if (sCleanerThread != null) {
-	    sListCleaner.setInactive();
-	}
+        if (sCleanerThread != null) {
+            sListCleaner.setInactive();
+        }
     }
 
     static void startListCleaner() {
-	if (sCleanerThread == null) {
-	    synchronized(ObjectPoolBase.class) {
-		if (sCleanerThread == null) {
-		    sCleanerThread = new Thread(getListCleaner());
-		    
-		    sCleanerThread.setName( "ObjectPoolCleaner" );
-		    sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
-		    sCleanerThread.setDaemon( true );
-		    sCleanerThread.start();
-		}
-	    }
-	}
+        if (sCleanerThread == null) {
+            synchronized(AbstractObjectPool.class) {
+                if (sCleanerThread == null) {
+                    sCleanerThread = new Thread(getListCleaner());
+
+                    sCleanerThread.setName( "ObjectPoolCleaner" );
+                    sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
+                    sCleanerThread.setDaemon( true );
+                    sCleanerThread.start();
+                }
+            }
+        }
     }
 
-    static Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(ObjectPoolBase.class.getName());
+    static Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor(AbstractObjectPool.class.getName());
 
     LinkedList pool_;
     HashSet active_ = new HashSet();
@@ -158,7 +159,7 @@ public abstract class ObjectPoolBase implements Runnable, Disposable
     int sizeIncrease_;
     int initialSize_;
 
-    protected ObjectPoolBase()
+    protected AbstractObjectPool()
     {
         this( THRESHOLD_DEFAULT,
               SIZE_INCREASE_DEFAULT,
@@ -166,7 +167,7 @@ public abstract class ObjectPoolBase implements Runnable, Disposable
               MAXSIZE_DEFAULT );
     }
 
-    protected ObjectPoolBase( int threshold,
+    protected AbstractObjectPool( int threshold,
                               int sizeincrease,
                               int initialsize,
                               int maxsize )
@@ -185,12 +186,12 @@ public abstract class ObjectPoolBase implements Runnable, Disposable
         {
             for ( int x = 0; x < sizeIncrease_; ++x )
             {
-		Object _i = newInstance();
-		pool_.add( _i );
+                Object _i = newInstance();
+                pool_.add( _i );
 
-		if (DEBUG) {
-		    createdHere_.add( _i );
-		}
+                if (DEBUG) {
+                    createdHere_.add( _i );
+                }
 
             }
         }
@@ -204,10 +205,10 @@ public abstract class ObjectPoolBase implements Runnable, Disposable
     {
         for ( int x = 0; x < initialSize_; ++x )
         {
-	    Object _i = newInstance();
-	    
+            Object _i = newInstance();
+
             pool_.add( _i );
-	    createdHere_.add( _i );
+            createdHere_.add( _i );
         }
     }
 
@@ -227,21 +228,21 @@ public abstract class ObjectPoolBase implements Runnable, Disposable
         Object _ret = null;
 
         if ( !pool_.isEmpty() ) {
-	    synchronized( pool_ ) {
-		if ( !pool_.isEmpty() ) 
-		    {
-			_ret = pool_.removeFirst();
-		    }
-	    }
-	}
+            synchronized( pool_ ) {
+                if ( !pool_.isEmpty() )
+                    {
+                        _ret = pool_.removeFirst();
+                    }
+            }
+        }
 
-	if ( _ret == null )
+        if ( _ret == null )
         {
             _ret = newInstance();
 
-	    if (DEBUG) {
-		createdHere_.add(_ret);
-	    }
+            if (DEBUG) {
+                createdHere_.add(_ret);
+            }
         }
 
         activateObject( _ret );
@@ -255,45 +256,45 @@ public abstract class ObjectPoolBase implements Runnable, Disposable
      */
     public void returnObject( Object o )
     {
-	if (DEBUG && !createdHere_.contains(o)) {
-	    logger_.fatalError("Object " + o + " was not created here");
-	}
+        if (DEBUG && !createdHere_.contains(o)) {
+            logger_.fatalError("Object " + o + " was not created here");
+        }
 
-	if ( active_.remove( o ) )
-	    {
-		passivateObject( o );
-		
-		if ( pool_.size() < maxSize_ )
-		    {
-			synchronized ( pool_ )
-			    {
-				pool_.add( o );
-				pool_.notifyAll();
-			    }
-		    }
-		else
-		    {
-			if (DEBUG) {
-			    createdHere_.remove(o);
-			}
+        if ( active_.remove( o ) )
+            {
+                passivateObject( o );
 
-			destroyObject( o );
-		    }
-	    }
-	else
-	    {
-		// ignore
-		logger_.warn("Object " + o + " was not in pool. multiple release?" );
-		//		throw new RuntimeException();
-	    }
+                if ( pool_.size() < maxSize_ )
+                    {
+                        synchronized ( pool_ )
+                            {
+                                pool_.add( o );
+                                pool_.notifyAll();
+                            }
+                    }
+                else
+                    {
+                        if (DEBUG) {
+                            createdHere_.remove(o);
+                        }
+
+                        destroyObject( o );
+                    }
+            }
+        else
+            {
+                // ignore
+                logger_.warn("Object " + o + " was not in pool. multiple release?" );
+                //                throw new RuntimeException();
+            }
     }
-    
+
     /**
      * This method is called by the Pool to create a new
      * Instance. Subclasses must override appropiately .
      */
     public abstract Object newInstance();
-    
+
     /**
      * Is called after Object is returned to pool. No Op.
      */

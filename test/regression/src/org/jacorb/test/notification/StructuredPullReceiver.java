@@ -22,7 +22,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.apache.log.Logger;
 import org.apache.log.Hierarchy;
 
-class StructuredPullReceiver extends Thread implements StructuredPullConsumerOperations, TestClientOperations {
+public class StructuredPullReceiver extends Thread implements StructuredPullConsumerOperations, TestClientOperations {
 
     StructuredEvent event_ = null;
     ORB orb_;
@@ -35,82 +35,82 @@ class StructuredPullReceiver extends Thread implements StructuredPullConsumerOpe
     boolean error_;
     TestCase testCase_;
 
-    StructuredPullReceiver(TestCase testCase) {
-	super();
-	testCase_ = testCase;
+    public StructuredPullReceiver(TestCase testCase) {
+        super();
+        testCase_ = testCase;
     }
 
     public boolean isConnected() {
-	return connected_;
+        return connected_;
     }
-    
+
     public void connect(NotificationTestCaseSetup setup, EventChannel channel,boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected {
-	StructuredPullConsumerPOATie _receiverTie = new StructuredPullConsumerPOATie(this);
-	ConsumerAdmin _consumerAdmin = channel.default_consumer_admin();
-	IntHolder _proxyId = new IntHolder();
-	pullSupplier_ = StructuredProxyPullSupplierHelper.narrow(_consumerAdmin.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId));
+        StructuredPullConsumerPOATie _receiverTie = new StructuredPullConsumerPOATie(this);
+        ConsumerAdmin _consumerAdmin = channel.default_consumer_admin();
+        IntHolder _proxyId = new IntHolder();
+        pullSupplier_ = StructuredProxyPullSupplierHelper.narrow(_consumerAdmin.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId));
 
-	testCase_.assertEquals(pullSupplier_.MyType(), ProxyType.PULL_STRUCTURED);
+        testCase_.assertEquals(pullSupplier_.MyType(), ProxyType.PULL_STRUCTURED);
 
-	pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(setup.getClientOrb())));
-	connected_ = true;
+        pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(setup.getClientOrb())));
+        connected_ = true;
     }
 
     public void shutdown() {
-	testCase_.assertTrue(!pullSupplier_._non_existent());
-	pullSupplier_.disconnect_structured_pull_supplier();
-	testCase_.assertTrue(pullSupplier_._non_existent());
-	pullSupplier_ = null;
+        testCase_.assertTrue(!pullSupplier_._non_existent());
+        pullSupplier_.disconnect_structured_pull_supplier();
+        testCase_.assertTrue(pullSupplier_._non_existent());
+        pullSupplier_ = null;
     }
 
 
     public boolean isEventHandled() {
-	return event_ != null;
+        return event_ != null;
     }
 
     public boolean isError() {
-	return false;
+        return false;
     }
 
     public void run() {
-	BooleanHolder _success = new BooleanHolder();
-	_success.value = false;
-	long _startTime = System.currentTimeMillis();
-	logger_.info("start receiver");
+        BooleanHolder _success = new BooleanHolder();
+        _success.value = false;
+        long _startTime = System.currentTimeMillis();
+        logger_.info("start receiver");
 
-	try {
-	    while (true) {
-		event_ = pullSupplier_.try_pull_structured_event(_success);
-	    
-		if (_success.value) {
-		    logger_.debug("Received Event");
-		    received_ = true;
-		    break;
-		} 
+        try {
+            while (true) {
+                event_ = pullSupplier_.try_pull_structured_event(_success);
 
-		if (System.currentTimeMillis() < _startTime + TIMEOUT) {
-		    Thread.yield();
-		} else {
-		    logger_.debug("Timeout");
-		    received_ = false;
-		    break;
-		}
-	    }
-	} catch (Disconnected d) {
-	    d.printStackTrace();
-	    error_ = true;
-	}
+                if (_success.value) {
+                    logger_.debug("Received Event");
+                    received_ = true;
+                    break;
+                }
+
+                if (System.currentTimeMillis() < _startTime + TIMEOUT) {
+                    Thread.yield();
+                } else {
+                    logger_.debug("Timeout");
+                    received_ = false;
+                    break;
+                }
+            }
+        } catch (Disconnected d) {
+            d.printStackTrace();
+            error_ = true;
+        }
     }
 
     public void push_structured_event(StructuredEvent event) {
-	event_ = event;
-	synchronized(this) {
-	    notifyAll();
-	}
+        event_ = event;
+        synchronized(this) {
+            notifyAll();
+        }
     }
 
     public void disconnect_structured_pull_consumer() {
-	connected_ = false;
+        connected_ = false;
     }
 
     public void offer_change(EventType[] e1, EventType[] e2) {

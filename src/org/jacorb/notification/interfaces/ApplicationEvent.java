@@ -1,4 +1,4 @@
-package org.jacorb.notification.engine;
+package org.jacorb.notification.interfaces;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,27 +21,19 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.Poolable;
-import org.jacorb.notification.util.ObjectPoolBase;
+import java.util.EventObject;
 
 /**
- * TaskPoolBase.java
- *
+ * Baseclass for Framework Events.
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-abstract class TaskPoolBase extends ObjectPoolBase {
-    
-    public void passivateObject( Object o )
-    {
-	( ( Poolable ) o ).reset();
-    }
-    
-    public void activateObject( Object o )
-    {
-	( ( Poolable ) o ).setObjectPool( this );
+public class ApplicationEvent extends EventObject {
+
+    public ApplicationEvent(Object source) {
+        super(source);
     }
 
 }

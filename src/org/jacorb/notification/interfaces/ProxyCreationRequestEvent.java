@@ -21,7 +21,7 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.AdminBase;
+import org.jacorb.notification.AbstractAdmin;
 
 /**
  * Indicate that a Admin wants to create a new ProxyObject.
@@ -32,10 +32,10 @@ import org.jacorb.notification.AdminBase;
  * @version $Id$
  */
 
-public class ProxyCreationRequestEvent extends FrameworkEvent {
+public class ProxyCreationRequestEvent extends ApplicationEvent {
 
-    public ProxyCreationRequestEvent(AdminBase admin) {
-	super(admin);
+    public ProxyCreationRequestEvent(AbstractAdmin admin) {
+        super(admin);
     }
 
 }

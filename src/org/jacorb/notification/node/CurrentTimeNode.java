@@ -40,35 +40,31 @@ import org.omg.TimeBase.UtcTHelper;
  */
 
 public class CurrentTimeNode extends ComponentName {
-    
+
     public static final String SHORT_NAME = "curtime";
     static final String COMP_NAME = "$curtime";
 
-    ORB orb_;
+    static ORB orb_ = ORB.init();
 
-    public CurrentTimeNode(ORB orb) {
-	orb_ = orb;
-    }
-    
     public EvaluationResult evaluate( EvaluationContext context )
-	throws DynamicTypeException,
-	       EvaluationException {
+        throws DynamicTypeException,
+               EvaluationException {
 
-	EvaluationResult _result = new EvaluationResult();
-	
-	UtcT _curtime = Time.corbaTime();
+        EvaluationResult _result = new EvaluationResult();
 
-	Any _curAny = orb_.create_any();
+        UtcT _curtime = Time.corbaTime();
 
-	UtcTHelper.insert(_curAny, _curtime);
+        Any _curAny = orb_.create_any();
 
-	_result.addAny(_curAny);
+        UtcTHelper.insert(_curAny, _curtime);
 
-	return _result;
+        _result.addAny(_curAny);
+
+        return _result;
     }
 
     public String toString() {
-	return COMP_NAME;
+        return COMP_NAME;
     }
 
 } // CurrentTimeNode

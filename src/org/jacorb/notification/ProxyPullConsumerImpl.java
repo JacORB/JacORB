@@ -25,8 +25,10 @@ import java.util.List;
 
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.util.Environment;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -46,7 +48,7 @@ import org.omg.PortableServer.Servant;
  */
 
 public class ProxyPullConsumerImpl
-            extends ProxyBase
+            extends AbstractProxy
             implements ProxyPullConsumerOperations,
             org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations,
             TimerEventSupplier
@@ -66,7 +68,7 @@ public class ProxyPullConsumerImpl
      * Total number of pull-Operations
      */
     private int runCounter_;
-    
+
     /**
      * Total time spent within pull-Operations
      */
@@ -113,35 +115,35 @@ public class ProxyPullConsumerImpl
 
     private void init( ChannelContext channelContext )
     {
-	pollInterval_ = Constants.DEFAULT_PROXY_POLL_INTERVALL;
+        pollInterval_ = Constants.DEFAULT_PROXY_POLL_INTERVALL;
 
-	if (Environment.getProperty(Properties.PULL_CONSUMER_POLLINTERVALL) != null) {
-	    try {
-		pollInterval_ = 
-		    Long.parseLong(Environment.getProperty(Properties.PULL_CONSUMER_POLLINTERVALL));
-	    } catch (NumberFormatException e) {
-		logger_.error("Invalid Number Format for Property " 
-			      + Properties.PULL_CONSUMER_POLLINTERVALL, e);
+        if (Environment.getProperty(ConfigurableProperties.PULL_CONSUMER_POLLINTERVALL) != null) {
+            try {
+                pollInterval_ =
+                    Long.parseLong(Environment.getProperty(ConfigurableProperties.PULL_CONSUMER_POLLINTERVALL));
+            } catch (NumberFormatException e) {
+                logger_.error("Invalid Number Format for Property "
+                              + ConfigurableProperties.PULL_CONSUMER_POLLINTERVALL, e);
 
-	    }
-	}
+            }
+        }
 
         engine_ = channelContext.getTaskProcessor();
 
         runQueueThis_ = new Runnable()
-	    {
-		public void run()
-		{
-		    try
-			{
-			    engine_.scheduleTimedPullTask( ProxyPullConsumerImpl.this );
-			}
-		    catch ( InterruptedException ie )
-			{}
-		    
-		}
-	    };
-	
+            {
+                public void run()
+                {
+                    try
+                        {
+                            engine_.scheduleTimedPullTask( ProxyPullConsumerImpl.this );
+                        }
+                    catch ( InterruptedException ie )
+                        {}
+
+                }
+            };
+
         connected_ = false;
         subsequentDestinations_ = CollectionsWrapper.singletonList( myAdmin_ );
     }
@@ -163,8 +165,8 @@ public class ProxyPullConsumerImpl
     }
 
     synchronized public void suspend_connection()
-	throws NotConnected,
-	       ConnectionAlreadyInactive
+        throws NotConnected,
+               ConnectionAlreadyInactive
     {
 
         if ( !connected_ )
@@ -182,7 +184,7 @@ public class ProxyPullConsumerImpl
     }
 
     synchronized public void resume_connection()
-	throws ConnectionAlreadyActive,
+        throws ConnectionAlreadyActive,
                 NotConnected
     {
 
@@ -208,20 +210,20 @@ public class ProxyPullConsumerImpl
         {
             if ( connected_ )
             {
-		++runCounter_;
-		long _start = System.currentTimeMillis();
+                ++runCounter_;
+                long _start = System.currentTimeMillis();
 
                 event = myPullSupplier_.try_pull( hasEvent );
 
-		runTime_ += System.currentTimeMillis() - _start;
+                runTime_ += System.currentTimeMillis() - _start;
 
                 if ( hasEvent.value )
                 {
                     logger_.debug( "pulled event" );
-		    
-		    ++successfulPull_;
 
-                    NotificationEvent _notifyEvent =
+                    ++successfulPull_;
+
+                    Message _notifyEvent =
                         notificationEventFactory_.newEvent( event, this );
 
                     channelContext_.dispatchEvent( _notifyEvent );
@@ -231,7 +233,7 @@ public class ProxyPullConsumerImpl
     }
 
     public void connect_any_pull_supplier( PullSupplier pullSupplier )
-	throws AlreadyConnected
+        throws AlreadyConnected
     {
 
         if ( connected_ )
@@ -248,7 +250,7 @@ public class ProxyPullConsumerImpl
     }
 
     public void connect_pull_supplier( PullSupplier pullSupplier )
-	throws AlreadyConnected
+        throws AlreadyConnected
     {
         connect_any_pull_supplier( pullSupplier );
     }
@@ -265,7 +267,7 @@ public class ProxyPullConsumerImpl
 
     public EventConsumer getEventConsumer()
     {
-	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public boolean hasEventConsumer()
@@ -321,18 +323,18 @@ public class ProxyPullConsumerImpl
     }
 
     public long getPollInterval() {
-	return pollInterval_;
+        return pollInterval_;
     }
 
     public long getPullTimer() {
-	return runTime_;
+        return runTime_;
     }
 
     public int getPullCounter() {
-	return runCounter_;
+        return runCounter_;
     }
 
     public int getSuccessfulPullCounter() {
-	return successfulPull_;
+        return successfulPull_;
     }
 }

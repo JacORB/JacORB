@@ -19,76 +19,78 @@ import org.jacorb.orb.util.CorbaLoc;
  * @version $Id$
  */
 
-public class EventChannelFactoryTest 
+public class EventChannelFactoryTest
     extends TestCase {
 
     EventChannelFactoryImpl factory_;
     ORB orb;
 
     public void setUp() throws Exception {
-	factory_ = EventChannelFactoryImpl.newFactory();
-	orb = ORB.init(new String[0], null);
+        factory_ = EventChannelFactoryImpl.newFactory();
+        factory_.getEventChannelFactory();
+        orb = ORB.init(new String[0], null);
     }
 
     public void tearDown() throws Exception {
-	factory_.dispose();
-	orb.shutdown(true);
+        factory_.dispose();
+        orb.shutdown(true);
     }
 
     public void testGetCorbaLoc() throws Exception {
-	String _corbaLoc = factory_.getCorbaLoc();
-	assertNotNull(_corbaLoc);
+        String _corbaLoc = factory_.getCorbaLoc();
 
-	org.omg.CORBA.Object obj = 
-	    orb.string_to_object(_corbaLoc);
+        assertNotNull(_corbaLoc);
 
-	assertNotNull(obj);
+        org.omg.CORBA.Object obj =
+            orb.string_to_object(_corbaLoc);
 
-	EventChannelFactory factory = 
-	    EventChannelFactoryHelper.narrow(obj);
+        assertNotNull(obj);
 
-	assertFalse(factory._non_existent());
+        EventChannelFactory factory =
+            EventChannelFactoryHelper.narrow(obj);
+
+        assertFalse(factory._non_existent());
     }
 
     public void testGetIOR() throws Exception {
-	String ior = factory_.getIOR();
+        String ior = factory_.getIOR();
 
-	assertNotNull(ior);
+        assertNotNull(ior);
 
-	org.omg.CORBA.Object obj = 
-	    orb.string_to_object(ior);
+        org.omg.CORBA.Object obj =
+            orb.string_to_object(ior);
 
-	assertNotNull(obj);
+        assertNotNull(obj);
 
-	EventChannelFactory factory = 
-	    EventChannelFactoryHelper.narrow(obj);
+        EventChannelFactory factory =
+            EventChannelFactoryHelper.narrow(obj);
 
-	assertFalse(factory._non_existent());
+        assertFalse(factory._non_existent());
     }
 
-    /** 
+    /**
      * Creates a new <code>EventChannelFactoryTest</code> instance.
      *
      * @param name test name
      */
     public EventChannelFactoryTest (String name){
-	super(name);
+        super(name);
     }
 
     /**
      * @return a <code>TestSuite</code>
      */
     public static TestSuite suite(){
-	TestSuite suite = 
-	    new TestSuite(EventChannelFactoryTest.class);
-	
-	return suite;
+        TestSuite suite =
+            new TestSuite(EventChannelFactoryTest.class);
+
+        return suite;
     }
 
-    /** 
-     * Entry point 
-     */ 
+    /**
+     * Entry point
+     */
     public static void main(String[] args) {
-	junit.textui.TestRunner.run(suite());
+        junit.textui.TestRunner.run(suite());
     }
 }

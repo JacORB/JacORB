@@ -630,12 +630,19 @@ jtrader.max_link_follow_policy=
 #                                                      #
 ########################################################
 
-# integer values
 jacorb.notification.filter_pool_workers = 2
+
 jacorb.notification.deliver_pool_workers = 4
 
-# milliseconds
 jacorb.notification.pull_consumer_pollintervall = 1000
+
+jacorb.notification.max_batch_size = 1
+
+jacorb.notification.max_events_per_consumer = 100
+
+jacorb.notification.order_policy = PriorityOrder
+
+jacorb.notification.discard_policy = PriorityOrder
 
 jacorb.logging.NOTIFY = console
 jacorb.logging.NOTIFY.priority = WARN

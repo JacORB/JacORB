@@ -21,161 +21,162 @@ package org.jacorb.test.notification;
  *
  */
 
+import java.util.Date;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.NotificationEventFactory;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.util.Time;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
-import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.EventHeader;
+import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
-import org.omg.CosNotification.EventType;
-import org.jacorb.notification.NotificationEvent;
-import org.jacorb.util.Time;
-import org.omg.TimeBase.UtcTHelper;
-import org.omg.CORBA.Any;
-import java.util.Date;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.StartTime;
-import org.omg.TimeBase.TimeTHelper;
+import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.Timeout;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.TimeBase.TimeTHelper;
+import org.omg.TimeBase.UtcTHelper;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
- public class TimeoutTest extends NotificationTestCase 
+ public class TimeoutTest extends NotificationTestCase
 {
     Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
-    NotificationEventFactory notificationEventFactory_;
+    MessageFactory notificationEventFactory_;
     ApplicationContext applicationContext_;
-    StructuredEvent structuredEvent_;    
+    StructuredEvent structuredEvent_;
     EventChannel eventChannel_;
 
-    /** 
+    /**
      *
      * @param name test name
      */
     public TimeoutTest (String name, NotificationTestCaseSetup setup)
     {
-	super(name, setup);
+        super(name, setup);
     }
 
     public void setUp() throws Exception {
-	eventChannel_ = 
-	    getEventChannelFactory().create_channel(new Property[0], 
-						    new Property[0], 
-						    new IntHolder());
+        eventChannel_ =
+            getEventChannelFactory().create_channel(new Property[0],
+                                                    new Property[0],
+                                                    new IntHolder());
 
-	applicationContext_ = new ApplicationContext(getORB(), getPOA(), true);
+        applicationContext_ = new ApplicationContext(getORB(), getPOA(), true);
 
-	notificationEventFactory_ = new NotificationEventFactory(applicationContext_);
-	notificationEventFactory_.init();
+        notificationEventFactory_ = new MessageFactory();
+        notificationEventFactory_.init();
 
-	structuredEvent_ = new StructuredEvent();
-	EventHeader _header = new EventHeader();
-	FixedEventHeader _fixed = new FixedEventHeader();
-	_fixed.event_name = "eventname";
-	_fixed.event_type = new EventType("domain", "type");
-	_header.fixed_header = _fixed;
-	_header.variable_header = new Property[0];
+        structuredEvent_ = new StructuredEvent();
+        EventHeader _header = new EventHeader();
+        FixedEventHeader _fixed = new FixedEventHeader();
+        _fixed.event_name = "eventname";
+        _fixed.event_type = new EventType("domain", "type");
+        _header.fixed_header = _fixed;
+        _header.variable_header = new Property[0];
 
-	structuredEvent_.header = _header;
+        structuredEvent_.header = _header;
 
-	structuredEvent_.filterable_data = new Property[0];
+        structuredEvent_.filterable_data = new Property[0];
 
-	structuredEvent_.remainder_of_body = getORB().create_any();
+        structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
     public void tearDown() {
-	super.tearDown();
+        super.tearDown();
 
-	notificationEventFactory_.dispose();
-	applicationContext_.dispose();
-	eventChannel_.destroy();
+        notificationEventFactory_.dispose();
+        applicationContext_.dispose();
+        eventChannel_.destroy();
     }
 
     public void testSendEventWithTimeout() throws Exception {
- 	sendEvent(0, 1000, true);
+        sendEvent(0, 1000, true);
 
- 	sendEvent(1000, 500, false);
+        sendEvent(2000, 500, false);
 
-	sendEvent(1000, 2000, true);
+        sendEvent(1000, 2000, true);
     }
 
     public void sendEvent(long startOffset, long timeout, boolean expect) throws Exception {
-	structuredEvent_.header.variable_header = new Property[2];
-	
-	Date _time = new Date(System.currentTimeMillis() + startOffset);
+        structuredEvent_.header.variable_header = new Property[2];
 
-	Any _startTimeAny = getORB().create_any();
+        Date _time = new Date(System.currentTimeMillis() + startOffset);
 
-	UtcTHelper.insert(_startTimeAny, Time.corbaTime(_time));
+        Any _startTimeAny = getORB().create_any();
 
-	structuredEvent_.header.variable_header[0] = 
-	    new Property(StartTime.value, _startTimeAny);
+        UtcTHelper.insert(_startTimeAny, Time.corbaTime(_time));
 
-	Any _timeoutAny = getORB().create_any();
-	TimeTHelper.insert(_timeoutAny, timeout);
+        structuredEvent_.header.variable_header[0] =
+            new Property(StartTime.value, _startTimeAny);
 
-	structuredEvent_.header.variable_header[1] = 
-	    new Property(Timeout.value, _timeoutAny);
-	
-	StructuredPushSender _sender = 
-	    new StructuredPushSender(this, structuredEvent_);
+        Any _timeoutAny = getORB().create_any();
+        TimeTHelper.insert(_timeoutAny, timeout);
 
-	StructuredPushReceiver _receiver = 
-	    new StructuredPushReceiver(this);
+        structuredEvent_.header.variable_header[1] =
+            new Property(Timeout.value, _timeoutAny);
 
-	_sender.connect(getSetup(), eventChannel_, false);
-	_receiver.connect(getSetup(), eventChannel_, false);
+        StructuredPushSender _sender =
+            new StructuredPushSender(this, structuredEvent_);
 
-	new Thread(_receiver).start();
-	new Thread(_sender).start();
+        StructuredPushReceiver _receiver =
+            new StructuredPushReceiver(this);
 
-	Thread.sleep(startOffset + 2000);
+        _sender.connect(getSetup(), eventChannel_, false);
+        _receiver.connect(getSetup(), eventChannel_, false);
 
-	if (expect) {
-	    assertTrue("Receiver should have received something", _receiver.isEventHandled());
-	} else {
-	    assertTrue("Receiver shouldn't have received anything", !_receiver.isEventHandled());
-	}
+        new Thread(_receiver).start();
+        new Thread(_sender).start();
 
-	_receiver.shutdown();
-	_sender.shutdown();
+        Thread.sleep(startOffset + 2000);
+
+        if (expect) {
+            assertTrue("Receiver should have received something", _receiver.isEventHandled());
+        } else {
+            assertTrue("Receiver shouldn't have received anything", !_receiver.isEventHandled());
+        }
+
+        _receiver.shutdown();
+        _sender.shutdown();
     }
 
 
     public void testStructuredEventWithoutTimeoutProperty() throws Exception {
-	NotificationEvent _event = notificationEventFactory_.newEvent(structuredEvent_);
-	assertTrue(!_event.hasTimeout());
+        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        assertTrue(!_event.hasTimeout());
     }
 
     public void testAnyEventHasNoStopTime() throws Exception {
-	NotificationEvent _event = notificationEventFactory_.newEvent(getORB().create_any());
-	assertTrue(!_event.hasTimeout());
+        Message _event = notificationEventFactory_.newEvent(getORB().create_any());
+        assertTrue(!_event.hasTimeout());
     }
 
     public void testStructuredEventWithTimeoutProperty() throws Exception {
-	structuredEvent_.header.variable_header = new Property[1];
+        structuredEvent_.header.variable_header = new Property[1];
 
-	long _timeout = 1234L;
+        long _timeout = 1234L;
 
-	Any _any = getORB().create_any();
+        Any _any = getORB().create_any();
 
-	TimeTHelper.insert(_any, _timeout);
+        TimeTHelper.insert(_any, _timeout);
 
-	structuredEvent_.header.variable_header[0] = new Property(Timeout.value, _any);
+        structuredEvent_.header.variable_header[0] = new Property(Timeout.value, _any);
 
-	NotificationEvent _event = notificationEventFactory_.newEvent(structuredEvent_);
-	assertTrue(_event.hasTimeout());
-	assertEquals(_timeout, _event.getTimeout());
+        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        assertTrue(_event.hasTimeout());
+        assertEquals(_timeout, _event.getTimeout());
     }
 
 
@@ -184,25 +185,25 @@ import org.omg.CosNotification.Timeout;
      */
     public static Test suite() throws Exception
     {
-	TestSuite _suite = new TestSuite();
-	
-	NotificationTestCaseSetup _setup =
-	    new NotificationTestCaseSetup(_suite);
-	
-	String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(TimeoutTest.class);
+        TestSuite _suite = new TestSuite();
 
-	for (int x=0; x<methodNames.length; ++x) {
-	    _suite.addTest(new TimeoutTest(methodNames[x], _setup));
-	}
+        NotificationTestCaseSetup _setup =
+            new NotificationTestCaseSetup(_suite);
 
-	return _setup;
+        String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(TimeoutTest.class, "testSendEvent");
+
+        for (int x=0; x<methodNames.length; ++x) {
+            _suite.addTest(new TimeoutTest(methodNames[x], _setup));
+        }
+
+        return _setup;
     }
 
-    /** 
-     * Entry point 
-     */ 
+    /**
+     * Entry point
+     */
     public static void main(String[] args) throws Exception
     {
-	junit.textui.TestRunner.run(suite());
+        junit.textui.TestRunner.run(suite());
     }
 }

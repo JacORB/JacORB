@@ -33,12 +33,13 @@ import org.jacorb.notification.interfaces.FilterStage;
  * @version $Id$
  */
 
-abstract class FilterTaskBase extends TaskBase {
+abstract class AbstractFilterTask extends AbstractTask
+{
 
     /**
      * Template for internal use.
      */
-    protected static final FilterStage[] FILTERSTAGE_ARRAY_TEMPLATE = new FilterStage[0];
+    protected static final FilterStage[] FILTERSTAGE_ARRAY_TEMPLATE = new FilterStage[ 0 ];
 
     /**
      * FilterStages to process.
@@ -54,28 +55,32 @@ abstract class FilterTaskBase extends TaskBase {
     /**
      * set the FilterStages for the next run.
      */
-    public void setCurrentFilterStage(FilterStage[] currentFilterStage) {
-	arrayCurrentFilterStage_ = currentFilterStage;
+    public void setCurrentFilterStage( FilterStage[] currentFilterStage )
+    {
+        arrayCurrentFilterStage_ = currentFilterStage;
     }
 
     /**
      * get the matching FilterStages of the previous run.
      */
-    public FilterStage[] getFilterStageToBeProcessed() {
-	return (FilterStage[]) listOfFilterStageToBeProcessed_.toArray(FILTERSTAGE_ARRAY_TEMPLATE);
+    public FilterStage[] getFilterStageToBeProcessed()
+    {
+        return ( FilterStage[] ) listOfFilterStageToBeProcessed_.toArray( FILTERSTAGE_ARRAY_TEMPLATE );
     }
-    
+
     /**
      * clear the result of the previous run.
      */
-    public void clearFilterStageToBeProcessed() {
-	listOfFilterStageToBeProcessed_.clear();
+    public void clearFilterStageToBeProcessed()
+    {
+        listOfFilterStageToBeProcessed_.clear();
     }
 
-    public void reset() {
-	super.reset();
+    public void reset()
+    {
+        super.reset();
 
-	clearFilterStageToBeProcessed();
+        clearFilterStageToBeProcessed();
     }
 
 }

@@ -53,167 +53,167 @@ import org.omg.CosNotifyFilter.InvalidGrammar;
  * @version $Id$
  */
 
-public class MappingFilterTest extends NotificationTestCase 
+public class MappingFilterTest extends NotificationTestCase
 {
 
     FilterFactory filterFactory_;
     Any testPerson_;
-    TestUtils testUtils_;
+    NotificationTestUtils testUtils_;
 
     FilterImpl filter_;
     ApplicationContext appContext_;
 
-    /** 
+    /**
      * Creates a new <code>MappingFilterTest</code> instance.
      *
      * @param name test name
      */
     public MappingFilterTest (String name, NotificationTestCaseSetup setup)
     {
-	super(name, setup);
+        super(name, setup);
     }
 
     public void setUp() throws Exception {
-	ORB orb_ = ORB.init(new String[0], null);
+        ORB orb_ = ORB.init(new String[0], null);
 
-	appContext_ = 
-	    new ApplicationContext(orb_, POAHelper.narrow(orb_.resolve_initial_references("RootPOA")));
+        appContext_ =
+            new ApplicationContext(orb_, POAHelper.narrow(orb_.resolve_initial_references("RootPOA")));
 
-	filter_ = new FilterImpl(appContext_, FilterFactoryImpl.CONSTRAINT_GRAMMAR);
+        filter_ = new FilterImpl(appContext_, FilterFactoryImpl.CONSTRAINT_GRAMMAR);
 
-	filterFactory_ = new FilterFactoryImpl(appContext_).getFilterFactory();
+        filterFactory_ = new FilterFactoryImpl(appContext_).getFilterFactory();
 
-	testPerson_ = getTestUtils().getTestPersonAny();
+        testPerson_ = getTestUtils().getTestPersonAny();
 
     }
 
     public void testCreate() throws Exception {
-	Any _defaultValue = getORB().create_any();
+        Any _defaultValue = getORB().create_any();
 
-	MappingFilter _filter = filterFactory_.create_mapping_filter("EXTENDED_TCL", _defaultValue);
+        MappingFilter _filter = filterFactory_.create_mapping_filter("EXTENDED_TCL", _defaultValue);
 
-	assertEquals("EXTENDED_TCL", _filter.constraint_grammar());
+        assertEquals("EXTENDED_TCL", _filter.constraint_grammar());
 
-	try {
-	    filterFactory_.create_mapping_filter("SOMETHING_ELSE", _defaultValue);
-	    fail();
-	} catch (InvalidGrammar e) {}
+        try {
+            filterFactory_.create_mapping_filter("SOMETHING_ELSE", _defaultValue);
+            fail();
+        } catch (InvalidGrammar e) {}
     }
 
     public void testMatch() throws Exception {
-	Any defaultValue = getORB().create_any();
+        Any defaultValue = getORB().create_any();
 
-	MappingFilterOperations _mappingFilter = 
-	    filterFactory_.create_mapping_filter(FilterFactoryImpl.CONSTRAINT_GRAMMAR, defaultValue);
+        MappingFilterOperations _mappingFilter =
+            filterFactory_.create_mapping_filter(FilterFactoryImpl.CONSTRAINT_GRAMMAR, defaultValue);
 
-	_mappingFilter = new MappingFilterImpl(appContext_, filter_, defaultValue);
+        _mappingFilter = new MappingFilterImpl(appContext_, filter_, defaultValue);
 
-	AnyHolder anyHolder = new AnyHolder();
+        AnyHolder anyHolder = new AnyHolder();
 
-	// filter is empty. should not match
-	assertTrue(!_mappingFilter.match(testPerson_, anyHolder));
+        // filter is empty. should not match
+        assertTrue(!_mappingFilter.match(testPerson_, anyHolder));
 
-	// add some filter data
+        // add some filter data
 
-	Any resultToSet = getORB().create_any();
+        Any resultToSet = getORB().create_any();
 
-	resultToSet.insert_string("this indicates success");
+        resultToSet.insert_string("this indicates success");
 
-	EventType[] _eventType = new EventType[1];
-	_eventType[0] = new EventType("*", "*");	
-	ConstraintExp constraintExp = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
+        EventType[] _eventType = new EventType[1];
+        _eventType[0] = new EventType("*", "*");
+        ConstraintExp constraintExp = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
 
-	MappingConstraintPair[] mappingConstraintPair = new MappingConstraintPair[1];
-	mappingConstraintPair[0] = new MappingConstraintPair(constraintExp, resultToSet);
+        MappingConstraintPair[] mappingConstraintPair = new MappingConstraintPair[1];
+        mappingConstraintPair[0] = new MappingConstraintPair(constraintExp, resultToSet);
 
-	MappingConstraintInfo[] _info = _mappingFilter.add_mapping_constraints(mappingConstraintPair);
+        MappingConstraintInfo[] _info = _mappingFilter.add_mapping_constraints(mappingConstraintPair);
 
-	assertTrue(_info.length == 1);
+        assertTrue(_info.length == 1);
 
-	assertEquals("$.first_name == 'firstname'", _info[0].constraint_expression.constraint_expr);
-	assertEquals(resultToSet, _info[0].value);
+        assertEquals("$.first_name == 'firstname'", _info[0].constraint_expression.constraint_expr);
+        assertEquals(resultToSet, _info[0].value);
 
-	// this should match
-	assertTrue(_mappingFilter.match(testPerson_, anyHolder));
-	assertEquals(resultToSet, anyHolder.value);
+        // this should match
+        assertTrue(_mappingFilter.match(testPerson_, anyHolder));
+        assertEquals(resultToSet, anyHolder.value);
     }
 
 
     public void testMatch2() throws Exception {
-	Any defaultValue = getORB().create_any();
+        Any defaultValue = getORB().create_any();
 
-	MappingFilterOperations _mappingFilter = 
-	    filterFactory_.create_mapping_filter(FilterFactoryImpl.CONSTRAINT_GRAMMAR, defaultValue);
+        MappingFilterOperations _mappingFilter =
+            filterFactory_.create_mapping_filter(FilterFactoryImpl.CONSTRAINT_GRAMMAR, defaultValue);
 
-	_mappingFilter = new MappingFilterImpl(appContext_, filter_, defaultValue);
+        _mappingFilter = new MappingFilterImpl(appContext_, filter_, defaultValue);
 
-	AnyHolder anyHolder = new AnyHolder();
+        AnyHolder anyHolder = new AnyHolder();
 
-	// filter is empty. should not match
-	assertTrue(!_mappingFilter.match(testPerson_, anyHolder));
+        // filter is empty. should not match
+        assertTrue(!_mappingFilter.match(testPerson_, anyHolder));
 
-	// add some filter data
+        // add some filter data
 
-	Any resultToSet = getORB().create_any();
+        Any resultToSet = getORB().create_any();
 
-	resultToSet.insert_string("this is 10");
+        resultToSet.insert_string("this is 10");
 
-	EventType[] _eventType = new EventType[1];
-	_eventType[0] = new EventType("*", "*");	
-	ConstraintExp constraintExp = new ConstraintExp(_eventType, "$ == 10");
+        EventType[] _eventType = new EventType[1];
+        _eventType[0] = new EventType("*", "*");
+        ConstraintExp constraintExp = new ConstraintExp(_eventType, "$ == 10");
 
-	MappingConstraintPair[] mappingConstraintPair = new MappingConstraintPair[2];
-	mappingConstraintPair[0] = new MappingConstraintPair(constraintExp, resultToSet);
+        MappingConstraintPair[] mappingConstraintPair = new MappingConstraintPair[2];
+        mappingConstraintPair[0] = new MappingConstraintPair(constraintExp, resultToSet);
 
-	constraintExp = new ConstraintExp(_eventType, "$ == 20");
-	resultToSet = getORB().create_any();
-	resultToSet.insert_string("this is 20");
-	mappingConstraintPair[1] = new MappingConstraintPair(constraintExp, resultToSet);
+        constraintExp = new ConstraintExp(_eventType, "$ == 20");
+        resultToSet = getORB().create_any();
+        resultToSet.insert_string("this is 20");
+        mappingConstraintPair[1] = new MappingConstraintPair(constraintExp, resultToSet);
 
-	MappingConstraintInfo[] _info = _mappingFilter.add_mapping_constraints(mappingConstraintPair);
+        MappingConstraintInfo[] _info = _mappingFilter.add_mapping_constraints(mappingConstraintPair);
 
-	assertTrue(_info.length == 2);
+        assertTrue(_info.length == 2);
 
-	Any testMessage = getORB().create_any();
-	testMessage.insert_long(10);
+        Any testMessage = getORB().create_any();
+        testMessage.insert_long(10);
 
-	// this should match
-	assertTrue(_mappingFilter.match(testMessage, anyHolder));
-	assertEquals("this is 10", anyHolder.value.extract_string());
+        // this should match
+        assertTrue(_mappingFilter.match(testMessage, anyHolder));
+        assertEquals("this is 10", anyHolder.value.extract_string());
 
-	testMessage = getORB().create_any();
-	testMessage.insert_long(20);
+        testMessage = getORB().create_any();
+        testMessage.insert_long(20);
 
-	assertTrue(_mappingFilter.match(testMessage, anyHolder));
-	assertEquals("this is 20", anyHolder.value.extract_string());
-    }    
+        assertTrue(_mappingFilter.match(testMessage, anyHolder));
+        assertEquals("this is 20", anyHolder.value.extract_string());
+    }
 
     /**
      * @return a <code>TestSuite</code>
      */
-    public static Test suite() throws Exception 
+    public static Test suite() throws Exception
     {
-	TestSuite _suite = new TestSuite("Test MappingFilters");
+        TestSuite _suite = new TestSuite("Test MappingFilters");
 
-	NotificationTestCaseSetup _setup =
-	    new NotificationTestCaseSetup(_suite);
-	
-	String[] _testMethodNames = 
-	    org.jacorb.test.common.TestUtils.getTestMethods(MappingFilterTest.class);
+        NotificationTestCaseSetup _setup =
+            new NotificationTestCaseSetup(_suite);
 
- 	for (int x=0; x<_testMethodNames.length; ++x) {
- 	    _suite.addTest(new MappingFilterTest(_testMethodNames[x], _setup));
- 	}
+        String[] _testMethodNames =
+            org.jacorb.test.common.TestUtils.getTestMethods(MappingFilterTest.class);
 
-	return _setup;
+        for (int x=0; x<_testMethodNames.length; ++x) {
+            _suite.addTest(new MappingFilterTest(_testMethodNames[x], _setup));
+        }
+
+        return _setup;
     }
 
-    /** 
-     * Entry point 
-     */ 
+    /**
+     * Entry point
+     */
     public static void main(String[] args) throws Exception
     {
-	junit.textui.TestRunner.run(suite());
+        junit.textui.TestRunner.run(suite());
     }
 
 }

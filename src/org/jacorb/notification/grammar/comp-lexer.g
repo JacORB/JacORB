@@ -128,7 +128,7 @@ protected FOLLOW
 NUMBER
     : '0'                  // special case for just '0'
     | ('1'..'9') (DIGIT)*
-	;
+    ;
 
 // protected TEXTCHARS
 //     : // empty

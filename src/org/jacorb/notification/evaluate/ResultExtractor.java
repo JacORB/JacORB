@@ -53,13 +53,12 @@ public class ResultExtractor
     }
 
     public EvaluationResult extractFromAny( Any any )
-	throws TypeMismatch, InconsistentTypeCode, InvalidValue
     {
         logger_.debug( "extractFromAny(Any)" );
 
-	if (any == null) {
-	    return null;
-	}
+        if (any == null) {
+            return null;
+        }
 
         EvaluationResult _ret = new EvaluationResult();
 
@@ -82,15 +81,15 @@ public class ResultExtractor
             break;
 
         case TCKind._tk_short:
-	    logger_.debug( "int" );
+            logger_.debug( "int" );
             _ret.setLong( any.extract_short() );
             break;
 
-	case TCKind._tk_ulonglong:
-	    logger_.debug("long long");
+        case TCKind._tk_ulonglong:
+            logger_.debug("long long");
 
-	    _ret.setLongLong( any.extract_ulonglong() );
-	    break;
+            _ret.setLongLong( any.extract_ulonglong() );
+            break;
 
         case TCKind._tk_any:
             logger_.debug( "nested" );

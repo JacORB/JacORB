@@ -31,11 +31,11 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import antlr.Token;
 
 /**
- * A simple node to represent OR operation 
+ * A simple node to represent OR operation
  * @version $Id$
  */
 
-public class OrOperator extends TCLNode
+public class OrOperator extends AbstractTCLNode
 {
 
     static final String NAME = "OrOperator";
@@ -52,11 +52,8 @@ public class OrOperator extends TCLNode
     }
 
     public EvaluationResult evaluate( EvaluationContext context )
-    throws DynamicTypeException,
-                InvalidValue,
-                TypeMismatch,
-                InconsistentTypeCode,
-                EvaluationException
+        throws DynamicTypeException,
+               EvaluationException
     {
 
         if ( left().evaluate( context ).getBool() )
@@ -82,21 +79,21 @@ public class OrOperator extends TCLNode
         return NAME;
     }
 
-    public void acceptInOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
         left().acceptInOrder( visitor );
         visitor.visitOr( this );
         right().acceptInOrder( visitor );
     }
 
-    public void acceptPreOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
         visitor.visitOr( this );
         left().acceptPreOrder( visitor );
         right().acceptPreOrder( visitor );
     }
 
-    public void acceptPostOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
         left().acceptPostOrder( visitor );
         right().acceptPostOrder( visitor );

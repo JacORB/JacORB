@@ -36,7 +36,6 @@ package org.jacorb.notification.util;
 
 public class CachingWildcardMap extends WildcardMap
 {
-
     private Object[] cachedKeys_;
     private Object[] cachedValues_;
     private int cacheSize_;

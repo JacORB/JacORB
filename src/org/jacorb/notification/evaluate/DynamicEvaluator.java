@@ -86,15 +86,21 @@ public class DynamicEvaluator
 
     ////////////////////////////////////////
 
-    public boolean hasDefaultDiscriminator( Any any ) throws BadKind
+    public boolean hasDefaultDiscriminator( Any any ) throws EvaluationException
     {
-        return ( any.type().default_index() != -1 );
+        try
+        {
+            return ( any.type().default_index() != -1 );
+        }
+        catch ( BadKind e )
+        {
+            throw getEvaluationException( e );
+        }
     }
 
-    public Any evaluateExistIdentifier( Any value, String identifier )
-    throws InconsistentTypeCode,
-                InvalidValue,
-                TypeMismatch
+    public Any evaluateExistIdentifier( Any value,
+                                        String identifier )
+        throws EvaluationException
     {
         try
         {
@@ -114,29 +120,43 @@ public class DynamicEvaluator
      * @param value the component
      * @return the IDL type name (string) wrapped in an any
      */
-    public Any evaluateTypeName( Any value ) throws BadKind
+    public Any evaluateTypeName( Any value ) throws EvaluationException
     {
-        TypeCode _tc = value.type();
-        Any _ret = orb_.create_any();
-        _ret.insert_string( _tc.name() );
+        try
+        {
+            TypeCode _tc = value.type();
+            Any _ret = orb_.create_any();
+            _ret.insert_string( _tc.name() );
 
-        return _ret;
+            return _ret;
+        }
+        catch ( BadKind e )
+        {
+            throw getEvaluationException( e );
+        }
     }
 
     /**
      * identify the RepositoryId of a component.
      * (e.g. mystruct._repos_id == 'IDL:module/mystruct:1.0'
-     * 
+     *
      * @param value the component
      * @return the IDL type name (string) wrapped in an any
      */
-    public Any evaluateRepositoryId( Any value ) throws BadKind
+    public Any evaluateRepositoryId( Any value ) throws EvaluationException
     {
-        TypeCode _tc = value.type();
-        Any _ret = orb_.create_any();
-        _ret.insert_string( _tc.id() );
+        try
+        {
+            TypeCode _tc = value.type();
+            Any _ret = orb_.create_any();
+            _ret.insert_string( _tc.id() );
 
-        return _ret;
+            return _ret;
+        }
+        catch ( BadKind e )
+        {
+            throw getEvaluationException( e );
+        }
     }
 
     /**
@@ -147,8 +167,7 @@ public class DynamicEvaluator
      * @param value the component
      * @return the number of elements in the list
      */
-    public Any evaluateListLength( Any value ) throws InconsistentTypeCode,
-                EvaluationException
+    public Any evaluateListLength( Any value ) throws EvaluationException
     {
         int _length;
 
@@ -187,77 +206,84 @@ public class DynamicEvaluator
                 return unionTypeCode.member_name( _defaultIndex );
             }
         }
-        catch ( BadKind bk )
-        {}
-        catch ( Bounds b )
-        {}
+        catch ( BadKind e )
+        {
+            throw getEvaluationException( e );
+        }
+        catch ( Bounds e )
+        {
+            throw getEvaluationException( e );
+        }
 
         throw new EvaluationException();
     }
 
     String getUnionMemberNameFromDiscriminator( TypeCode unionTypeCode,
-						int discriminator )
-	throws BadKind,
-	       EvaluationException
+            int discriminator )
+    throws EvaluationException
     {
-
-        Any _any = orb_.create_any();
-
-        switch ( unionTypeCode.discriminator_type().kind().value() )
-        {
-
-        case TCKind._tk_long:
-            _any.insert_long( discriminator );
-            break;
-
-        case TCKind._tk_ulong:
-            _any.insert_ulong( discriminator );
-            break;
-
-        case TCKind._tk_short:
-            _any.insert_short( ( short ) discriminator );
-            break;
-
-        case TCKind._tk_double:
-            _any.insert_double( discriminator );
-            break;
-
-        case TCKind._tk_ushort:
-            _any.insert_ushort( ( short ) discriminator );
-            break;
-        }
-
-        int _memberCount = unionTypeCode.member_count();
-        String _discrimName = null;
-
         try
         {
-            for ( int _x = 0; _x < _memberCount; _x++ )
+            Any _any = orb_.create_any();
+
+            switch ( unionTypeCode.discriminator_type().kind().value() )
             {
-                if ( _any.equal( unionTypeCode.member_label( _x ) ) )
+
+            case TCKind._tk_long:
+                _any.insert_long( discriminator );
+                break;
+
+            case TCKind._tk_ulong:
+                _any.insert_ulong( discriminator );
+                break;
+
+            case TCKind._tk_short:
+                _any.insert_short( ( short ) discriminator );
+                break;
+
+            case TCKind._tk_double:
+                _any.insert_double( discriminator );
+                break;
+
+            case TCKind._tk_ushort:
+                _any.insert_ushort( ( short ) discriminator );
+                break;
+            }
+
+            int _memberCount = unionTypeCode.member_count();
+            String _discrimName = null;
+
+            try
+            {
+                for ( int _x = 0; _x < _memberCount; _x++ )
                 {
-                    return unionTypeCode.member_name( _x );
+                    if ( _any.equal( unionTypeCode.member_label( _x ) ) )
+                    {
+                        return unionTypeCode.member_name( _x );
+                    }
                 }
             }
+            catch ( Bounds b )
+            {}
+
         }
-        catch ( Bounds b )
-        {}
+        catch ( BadKind e )
+        {
+            throw getEvaluationException( e );
+        }
 
         throw new EvaluationException();
     }
 
     /**
-     * 
-     * 
-     * @param value 
-     * 
-     * @return 
+     *
+     *
+     * @param value
+     *
+     * @return
      */
     public Any evaluateUnion( Any value )
-    throws InconsistentTypeCode,
-                TypeMismatch,
-                EvaluationException,
-                InvalidValue
+    throws EvaluationException
     {
         String _defaultMemberName = getDefaultUnionMemberName( value.type() );
         return evaluateIdentifier( value, _defaultMemberName );
@@ -265,109 +291,106 @@ public class DynamicEvaluator
 
 
     public Any evaluateUnion( Any value, int position )
-    throws InconsistentTypeCode,
-                TypeMismatch,
-                EvaluationException,
-                InvalidValue
+    throws EvaluationException
     {
-        try
-        {
-            Any _ret = null;
-            DynUnion _dynUnion = toDynUnion( value );
 
-            _dynUnion.seek( 0 );
+        Any _ret = null;
+        DynUnion _dynUnion = toDynUnion( value );
+
+        _dynUnion.seek( 0 );
+
+        if ( logger_.isDebugEnabled() )
+        {
+            logger_.debug( "extract idx: "
+                           + position
+                           + " from Union "
+                           + _dynUnion.type() );
+        }
+
+        String _discrimName =
+            getUnionMemberNameFromDiscriminator( value.type(), position );
+
+        _ret = evaluateIdentifier( _dynUnion, _discrimName );
+
+        return _ret;
+    }
+
+    public Any evaluatePropertyList( Property[] list, String name )
+    {
+        logger_.debug( "evaluatePropertyList " + list );
+        logger_.debug( "list length: " + list.length );
+
+        for ( int x = 0; x < list.length; ++x )
+        {
 
             if ( logger_.isDebugEnabled() )
             {
-                logger_.debug( "extract idx: " 
-			       + position 
-			       + " from Union " 
-			       + _dynUnion.type() );
+                logger_.debug( x + ": " + list[ x ].name + " => " + list[ x ].value );
             }
 
-            String _discrimName = 
-		getUnionMemberNameFromDiscriminator( value.type(), position );
-
-            _ret = evaluateIdentifier( _dynUnion, _discrimName );
-
-            return _ret;
+            if ( name.equals( list[ x ].name ) )
+            {
+                return list[ x ].value;
+            }
         }
-        catch ( BadKind b )
-        {
-            throw new EvaluationException();
-        }
-    }
 
-    public Any evaluatePropertyList(Property[] list, String name) {
-	logger_.debug("evaluatePropertyList " + list);
-	logger_.debug("list length: " + list.length);
-
-	for (int x=0; x<list.length; ++x) {
-
-	    if (logger_.isDebugEnabled()) {
-		logger_.debug(x + ": " + list[x].name + " => " + list[x].value);
-	    }
-
-	    if (name.equals(list[x].name)) {
-		return list[x].value;
-	    }
-	}
-	return null;
+        return null;
     }
 
     /**
      * extract a named value out of a sequence of name/value pairs.
      */
     public Any evaluateNamedValueList( Any any, String name )
-    throws InconsistentTypeCode,
-                InvalidValue,
-                TypeMismatch,
-                EvaluationException
+    throws EvaluationException
     {
-        if ( logger_.isDebugEnabled() )
+        try
         {
-            logger_.debug( "evaluateNamedValueList(" + any + ", " + name + ")" );
-        }
-
-        Any _ret = null;
-        DynAny _dynAny = toDynAny( any );
-        int _count = _dynAny.component_count();
-        _dynAny.rewind();
-        DynAny _cursor;
-
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "Entries: " + _count );
-        }
-
-        for ( int _x = 0; _x < _count; _x++ )
-        {
-            _dynAny.seek( _x );
-            _cursor = _dynAny.current_component();
-            _ret = evaluateNamedValue( _cursor, name );
-
-            if ( _ret != null )
+            if ( logger_.isDebugEnabled() )
             {
-                break;
+                logger_.debug( "evaluateNamedValueList(" + any + ", " + name + ")" );
             }
-        }
 
-        return _ret;
+            Any _ret = null;
+            DynAny _dynAny = toDynAny( any );
+            int _count = _dynAny.component_count();
+            _dynAny.rewind();
+            DynAny _cursor;
+
+            if ( logger_.isDebugEnabled() )
+            {
+                logger_.debug( "Entries: " + _count );
+            }
+
+            for ( int _x = 0; _x < _count; _x++ )
+            {
+                _dynAny.seek( _x );
+                _cursor = _dynAny.current_component();
+                _ret = evaluateNamedValue( _cursor, name );
+
+                if ( _ret != null )
+                {
+                    break;
+                }
+            }
+
+            return _ret;
+        }
+        catch ( TypeMismatch e )
+        {
+            throw getEvaluationException( e );
+        }
     }
 
     protected Any evaluateNamedValue( DynAny any, String name )
-    throws InconsistentTypeCode,
-                InvalidValue,
-                TypeMismatch,
-                EvaluationException
+    throws EvaluationException
     {
 
         if ( logger_.isDebugEnabled() )
         {
-            logger_.debug( "evaluate assoc " 
-			   + name 
-			   + " on a Any of type: " 
-			   + any.type() );
+            logger_.debug( "evaluate assoc "
+                           + name
+                           + " on a Any of type: "
+                           + any.type() );
         }
 
         Any _ret = null;
@@ -376,10 +399,10 @@ public class DynamicEvaluator
 
         if ( logger_.isDebugEnabled() )
         {
-            logger_.debug( "test if " 
-			   + name 
-			   + " == " 
-			   + _anyName );
+            logger_.debug( "test if "
+                           + name
+                           + " == "
+                           + _anyName );
         }
 
         if ( name.equals( _anyName ) )
@@ -395,65 +418,74 @@ public class DynamicEvaluator
      * extract the nth position out of an Array.
      */
     public Any evaluateArrayIndex( Any any, int index )
-    throws InconsistentTypeCode,
-                InvalidValue,
-                TypeMismatch
+    throws EvaluationException
     {
-
-        if ( logger_.isDebugEnabled() )
+        try
         {
-            logger_.debug( "evaluate array idx " 
-			   + index 
-			   + " on a Any of type: " 
-			   + any.type() );
+            if ( logger_.isDebugEnabled() )
+            {
+                logger_.debug( "evaluate array idx "
+                               + index
+                               + " on a Any of type: "
+                               + any.type() );
+            }
+
+            Any _ret = null;
+
+            DynAny _dynAny = toDynAny( any );
+            DynAny _cursor;
+            Object _res;
+
+            _dynAny.rewind();
+            _dynAny.seek( index );
+            _cursor = _dynAny.current_component();
+
+            if ( logger_.isDebugEnabled() )
+            {
+                logger_.debug( "evaluation result is of type: " + _cursor.type() );
+            }
+
+            return _cursor.to_any();
         }
-
-        Any _ret = null;
-
-        DynAny _dynAny = toDynAny( any );
-        DynAny _cursor;
-        Object _res;
-
-        _dynAny.rewind();
-        _dynAny.seek( index );
-        _cursor = _dynAny.current_component();
-
-        if ( logger_.isDebugEnabled() )
+        catch ( TypeMismatch e )
         {
-            logger_.debug( "evaluation result is of type: " + _cursor.type() );
+            throw getEvaluationException( e );
         }
-
-        return _cursor.to_any();
     }
 
     Any evaluateIdentifier( DynAny any, int position )
-    throws InconsistentTypeCode,
-                TypeMismatch,
-                EvaluationException
+    throws EvaluationException
     {
 
-        Any _ret = null;
-        DynAny _cursor;
-
-        switch ( any.type().kind().value() )
+        try
         {
+            Any _ret = null;
+            DynAny _cursor;
 
-        case TCKind._tk_struct:
-            any.seek( position );
-            _cursor = any.current_component();
-            break;
+            switch ( any.type().kind().value() )
+            {
 
-        default:
-            throw new EvaluationException( "attempt to access member on non-struct" );
+            case TCKind._tk_struct:
+                any.seek( position );
+                _cursor = any.current_component();
+                break;
+
+            default:
+                throw new EvaluationException( "attempt to access member on non-struct" );
+            }
+
+            return _cursor.to_any();
+        }
+        catch ( TypeMismatch e )
+        {
+            throw new EvaluationException( e.getMessage() );
         }
 
-        return _cursor.to_any();
+
     }
 
     public Any evaluateIdentifier( Any any, int position )
-    throws InconsistentTypeCode,
-                TypeMismatch,
-                EvaluationException
+    throws EvaluationException
     {
 
         Any _ret = null;
@@ -468,8 +500,8 @@ public class DynamicEvaluator
         return evaluateIdentifier( _dynAny, position );
     }
 
-    public Any evaluateDiscriminator( Any any ) 
-	throws InconsistentTypeCode, EvaluationException
+    public Any evaluateDiscriminator( Any any )
+    throws EvaluationException
     {
         switch ( any.type().kind().value() )
         {
@@ -484,37 +516,40 @@ public class DynamicEvaluator
     }
 
     public EvaluationResult evaluateElementInSequence( EvaluationContext context,
-						       EvaluationResult element,
-						       Any sequence )
-	throws InconsistentTypeCode,
-	       TypeMismatch, 
-	       InvalidValue,
-	       DynamicTypeException,
-	       EvaluationException
+            EvaluationResult element,
+            Any sequence )
+    throws DynamicTypeException,
+                EvaluationException
     {
-
-        ResultExtractor _resultExtractor = context.getResultExtractor();
-        DynSequence _dynSequence = DynSequenceHelper.narrow( toDynAny( sequence ) );
-        DynAny _currentComponent;
-
-        _dynSequence.rewind();
-
-        while ( true )
+        try
         {
-            _currentComponent = _dynSequence.current_component();
+            ResultExtractor _resultExtractor = context.getResultExtractor();
+            DynSequence _dynSequence = DynSequenceHelper.narrow( toDynAny( sequence ) );
+            DynAny _currentComponent;
 
-            EvaluationResult _r = 
-		_resultExtractor.extractFromAny( _currentComponent.to_any() );
+            _dynSequence.rewind();
 
-            if ( element.compareTo( _r ) == 0 )
+            while ( true )
             {
-                return EvaluationResult.BOOL_TRUE;
-            }
+                _currentComponent = _dynSequence.current_component();
 
-            if ( !_dynSequence.next() )
-            {
-                return EvaluationResult.BOOL_FALSE;
+                EvaluationResult _r =
+                    _resultExtractor.extractFromAny( _currentComponent.to_any() );
+
+                if ( element.compareTo( _r ) == 0 )
+                {
+                    return EvaluationResult.BOOL_TRUE;
+                }
+
+                if ( !_dynSequence.next() )
+                {
+                    return EvaluationResult.BOOL_FALSE;
+                }
             }
+        }
+        catch ( TypeMismatch e )
+        {
+            throw getEvaluationException( e );
         }
     }
 
@@ -522,166 +557,179 @@ public class DynamicEvaluator
      * expensive
      */
     public Any evaluateIdentifier( Any any, String identifier )
-	throws InconsistentTypeCode,
-	       InvalidValue,
-	       TypeMismatch,
-	       EvaluationException
+    throws EvaluationException
     {
-	
-	// expensive call
+
+        // expensive call
         DynAny _dynAny = toDynAny( any );
 
-	// expensive call
+        // expensive call
         return evaluateIdentifier( _dynAny, identifier );
     }
 
     /**
-     * 
+     *
      */
     Any evaluateIdentifier( DynAny any, String identifier )
-    throws InconsistentTypeCode,
-                InvalidValue,
-                TypeMismatch,
-                EvaluationException
+    throws EvaluationException
     {
-
-        Any _ret = null;	
-	
-        String _strippedIdentifier = stripBackslash( identifier );
-
-        if ( logger_.isDebugEnabled() )
+        try
         {
-            logger_.debug( "evaluate " + _strippedIdentifier + " on Any" );
-        }
+            Any _ret = null;
 
-        DynAny _cursor = any;
-        Object _res;
-
-        switch ( any.type().kind().value() )
-        {
-
-        case TCKind._tk_struct:
-
-	    logger_.debug( "Any is a struct" );
-
-            DynStruct _dynStruct = DynStructHelper.narrow( any );
-            String _currentName;
-
-            _dynStruct.rewind();
-
-            while ( true )
-            {
-                _currentName = _dynStruct.current_member_name();
-
-                if ( logger_.isDebugEnabled() )
-                {
-                    logger_.debug( " => " + _currentName );
-                }
-
-                if ( _currentName.equals( _strippedIdentifier ) )
-                {
-		    // expensive operation
-                    _cursor = _dynStruct.current_component();
-                    break;
-                }
-
-                boolean _hasNext = _dynStruct.next();
-
-                if ( !_hasNext )
-                {
-                    throw new EvaluationException( "struct has no member " + _strippedIdentifier );
-                }
-            }
-
-            break;
-
-        case TCKind._tk_union:
+            String _strippedIdentifier = stripBackslash( identifier );
 
             if ( logger_.isDebugEnabled() )
             {
-                logger_.debug( "Any is a Union" );
+                logger_.debug( "evaluate " + _strippedIdentifier + " on Any" );
             }
 
-            DynUnion _dynUnion = toDynUnion( any );
+            DynAny _cursor = any;
+            Object _res;
 
-            if ( _dynUnion.member_name().equals( _strippedIdentifier ) )
+            switch ( any.type().kind().value() )
             {
-                _cursor = _dynUnion.member();
-            }
-            else
-            {
-                if ( logger_.isDebugEnabled() )
+
+            case TCKind._tk_struct:
+
+                logger_.debug( "Any is a struct" );
+
+                DynStruct _dynStruct = DynStructHelper.narrow( any );
+                String _currentName;
+
+                _dynStruct.rewind();
+
+                while ( true )
                 {
-                    logger_.debug( _dynUnion.member_name() + " != " + _strippedIdentifier );
+                    _currentName = _dynStruct.current_member_name();
+
+                    if ( logger_.isDebugEnabled() )
+                    {
+                        logger_.debug( " => " + _currentName );
+                    }
+
+                    if ( _currentName.equals( _strippedIdentifier ) )
+                    {
+                        // expensive operation
+                        _cursor = _dynStruct.current_component();
+                        break;
+                    }
+
+                    boolean _hasNext = _dynStruct.next();
+
+                    if ( !_hasNext )
+                    {
+                        throw new EvaluationException( "struct has no member " + _strippedIdentifier );
+                    }
                 }
 
-                throw new EvaluationException( "member " + 
-					       _strippedIdentifier + 
-					       " is not active on struct" );
+                break;
+
+            case TCKind._tk_union:
+
+                if ( logger_.isDebugEnabled() )
+                {
+                    logger_.debug( "Any is a Union" );
+                }
+
+                DynUnion _dynUnion = toDynUnion( any );
+
+                if ( _dynUnion.member_name().equals( _strippedIdentifier ) )
+                {
+                    _cursor = _dynUnion.member();
+                }
+                else
+                {
+                    if ( logger_.isDebugEnabled() )
+                    {
+                        logger_.debug( _dynUnion.member_name() + " != " + _strippedIdentifier );
+                    }
+
+                    throw new EvaluationException( "member " +
+                                                   _strippedIdentifier +
+                                                   " is not active on struct" );
+                }
+
+                break;
+
+            case TCKind._tk_any:
+                logger_.debug( "encapsulated any" );
+
+                return evaluateIdentifier( any.get_any(), _strippedIdentifier );
+
+            default:
+                logger_.debug( "unknown " + any.type() );
+                return null;
+                //            throw new RuntimeException();
             }
 
-            break;
+            if ( logger_.isDebugEnabled() )
+            {
+                logger_.debug( "Result: " + _cursor );
+            }
 
-        case TCKind._tk_any:
-            logger_.debug( "encapsulated any" );
+            if ( _cursor != null && logger_.isDebugEnabled() )
+            {
+                logger_.debug( "evaluation result is of type: " + _cursor.type() );
+            }
 
-            return evaluateIdentifier( any.get_any(), _strippedIdentifier );
+            if ( _cursor == null )
+            {
+                logger_.debug( "Member not found" );
+                throw new EvaluationException( "member not found" );
+            }
 
-        default:
-            logger_.debug( "unknown " + any.type() );
-	    return null;
-	    //            throw new RuntimeException();
+            _ret = _cursor.to_any();
+
+            return _ret;
         }
-
-        if ( logger_.isDebugEnabled() )
+        catch ( InvalidValue e )
         {
-            logger_.debug( "Result: " + _cursor );
+            throw getEvaluationException( e );
         }
-
-        if ( _cursor != null && logger_.isDebugEnabled() )
+        catch ( TypeMismatch e )
         {
-            logger_.debug( "evaluation result is of type: " + _cursor.type() );
+            throw getEvaluationException( e );
         }
-
-        if ( _cursor == null )
-        {
-	    logger_.debug( "Member not found" );
-            throw new EvaluationException( "member not found" );
-        }
-
-        _ret = _cursor.to_any();
-
-        return _ret;
     }
 
     ////////////////////////////////////////
 
-    DynAny toDynAny( Any any ) throws InconsistentTypeCode
+    DynAny toDynAny( Any any ) throws EvaluationException
     {
-        return dynAnyFactory_.create_dyn_any( any );
+        try
+        {
+            return dynAnyFactory_.create_dyn_any( any );
+        }
+        catch ( InconsistentTypeCode e )
+        {
+            throw getEvaluationException( e );
+        }
     }
 
-    DynUnion toDynUnion( Any any ) throws InconsistentTypeCode
+    DynUnion toDynUnion( Any any ) throws EvaluationException
     {
         return DynUnionHelper.narrow( toDynAny( any ) );
     }
 
-    DynUnion toDynUnion( DynAny dynAny ) throws InconsistentTypeCode
+    DynUnion toDynUnion( DynAny dynAny )
     {
         return DynUnionHelper.narrow( dynAny );
     }
 
-    DynStruct toDynStruct( DynAny dynAny ) throws InconsistentTypeCode
+    DynStruct toDynStruct( DynAny dynAny ) throws EvaluationException
     {
+
         return DynStructHelper.narrow( dynAny );
+
     }
 
-    DynStruct toDynStruct( Any any ) throws InconsistentTypeCode
+    DynStruct toDynStruct( Any any ) throws EvaluationException
     {
         return DynStructHelper.narrow( toDynAny( any ) );
     }
 
-    DynSequence toDynSequence( Any any ) throws InconsistentTypeCode
+    DynSequence toDynSequence( Any any ) throws EvaluationException
     {
         return DynSequenceHelper.narrow( toDynAny( any ) );
     }
@@ -700,6 +748,11 @@ public class DynamicEvaluator
         }
 
         return _buffer.toString();
+    }
+
+    static EvaluationException getEvaluationException( Exception e )
+    {
+        return new EvaluationException( e.getMessage() );
     }
 
 }

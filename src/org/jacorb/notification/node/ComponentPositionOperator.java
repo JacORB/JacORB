@@ -23,46 +23,59 @@ package org.jacorb.notification.node;
 
 import antlr.Token;
 
-/** 
- * A simple node to represent Array operation 
+/**
+ * A simple node to represent Array operation
  */
 
-public class ComponentPositionOperator extends TCLNode {
+public class ComponentPositionOperator extends AbstractTCLNode
+{
 
-    public ComponentPositionOperator(Token tok) {
-        super(tok);
-	setName("ComponentPositonOperator");
-        position_ = Integer.parseInt(tok.getText().substring(1));
+    public ComponentPositionOperator( Token tok )
+    {
+        super( tok );
+        setName( "ComponentPositonOperator" );
+        position_ = Integer.parseInt( tok.getText().substring( 1 ) );
     }
 
     int position_;
 
-    public int getPosition() {
+    public int getPosition()
+    {
         return position_;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "" + position_;
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	if (hasNextSibling()) {
-	    ((TCLNode)getNextSibling()).acceptPostOrder(visitor);
-	}
-        visitor.visitComponentPosition(this);
+    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        if ( hasNextSibling() )
+        {
+            ( ( AbstractTCLNode ) getNextSibling() ).acceptPostOrder( visitor );
+        }
+
+        visitor.visitComponentPosition( this );
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	if (hasNextSibling()) {
-	    ((TCLNode)getNextSibling()).acceptInOrder(visitor);
-	}
-        visitor.visitComponentPosition(this);
+    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        if ( hasNextSibling() )
+        {
+            ( ( AbstractTCLNode ) getNextSibling() ).acceptInOrder( visitor );
+        }
+
+        visitor.visitComponentPosition( this );
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitComponentPosition(this);
-	if (hasNextSibling()) {
-	    ((TCLNode)getNextSibling()).acceptPreOrder(visitor);
-	}
+    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        visitor.visitComponentPosition( this );
+
+        if ( hasNextSibling() )
+        {
+            ( ( AbstractTCLNode ) getNextSibling() ).acceptPreOrder( visitor );
+        }
     }
 }

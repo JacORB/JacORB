@@ -25,46 +25,55 @@ import org.jacorb.notification.EvaluationContext;
 
 import antlr.Token;
 
-public class IdentValue extends TCLNode {
+public class IdentValue extends AbstractTCLNode
+{
 
     String value_;
     EvaluationResult evalValue_;
 
-    public IdentValue(Token tok) {
-	super(tok);
-	setKind(null);
-	value_ = tok.getText();
-	setName("IdentValue");
-	EvaluationResult _result = new EvaluationResult();
-	_result.setString(value_);
-	evalValue_ = EvaluationResult.wrapImmutable(_result);
+    public IdentValue( Token tok )
+    {
+        super( tok );
+        setKind( null );
+        value_ = tok.getText();
+        setName( "IdentValue" );
+        EvaluationResult _result = new EvaluationResult();
+        _result.setString( value_ );
+        evalValue_ = EvaluationResult.wrapImmutable( _result );
     }
 
-    public EvaluationResult evaluate(EvaluationContext c) {
-	return evalValue_;
+    public EvaluationResult evaluate( EvaluationContext c )
+    {
+        return evalValue_;
     }
 
-    public String getIdentifier() {
-	return value_;
+    public String getIdentifier()
+    {
+        return value_;
     }
 
-    public String toString() {
-	return value_;
+    public String toString()
+    {
+        return value_;
     }
 
-    public boolean isStatic() {
-	return true;
+    public boolean isStatic()
+    {
+        return true;
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitIdent(this);
+    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        visitor.visitIdent( this );
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitIdent(this);
+    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        visitor.visitIdent( this );
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitIdent(this);
+    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        visitor.visitIdent( this );
     }
 }

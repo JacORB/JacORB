@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -19,23 +21,33 @@
  *
  */
 
-package org.jacorb.notification;
-
 /**
- * Properties.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface Properties 
+public interface ConfigurableProperties
 {
 
-    public static final String FILTER_POOL_WORKERS = "jacorb.notification.filter_pool_workers";
+    public static final String FILTER_POOL_WORKERS =
+        "jacorb.notification.filter_pool_workers";
 
-    public static final String DELIVER_POOL_WORKERS = "jacorb.notification.deliver_pool_workers";
+    public static final String DELIVER_POOL_WORKERS =
+        "jacorb.notification.deliver_pool_workers";
 
-    public static final String PULL_CONSUMER_POLLINTERVALL = 
-	"jacorb.notification.pull_consumer_pollintervall";
+    public static final String PULL_CONSUMER_POLLINTERVALL =
+        "jacorb.notification.pull_consumer_pollintervall";
+
+    public static final String MAX_BATCH_SIZE =
+        "jacorb.notification.max_batch_size";
+
+    public static final String MAX_EVENTS_PER_CONSUMER =
+        "jacorb.notification.max_events_per_consumer";
+
+    public static final String ORDER_POLICY =
+        "jacorb.notification.order_policy";
+
+    public static final String DISCARD_POLICY =
+        "jacorb.notification.discard_policy";
 
 }

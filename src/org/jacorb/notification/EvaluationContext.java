@@ -26,7 +26,8 @@ import java.util.Map;
 
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.interfaces.Poolable;
+import org.jacorb.notification.interfaces.AbstractPoolable;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.node.EvaluationResult;
 import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyFactory;
@@ -38,78 +39,78 @@ import org.omg.DynamicAny.DynAnyFactory;
  * Created: Sat Nov 30 16:02:34 2002
  *
  * @author Alphonse Bendt
- * @version $Id$ 
+ * @version $Id$
  */
 
-public class EvaluationContext extends Poolable {
+public class EvaluationContext extends AbstractPoolable {
 
     private DynAnyFactory dynAnyFactory_;
     private DynamicEvaluator dynamicEvaluator_;
     private ResultExtractor resultExtractor_;
-    private NotificationEvent event_;
-    private Map resultCache_;    
+    private Message event_;
+    private Map resultCache_;
     private Map anyCache_;
 
     public EvaluationContext() {
-	resultCache_ = new Hashtable();
-	anyCache_ = new Hashtable();
+        resultCache_ = new Hashtable();
+        anyCache_ = new Hashtable();
     }
 
     public void reset() {
-	resultCache_.clear();
-	anyCache_.clear();
+        resultCache_.clear();
+        anyCache_.clear();
     }
 
     public void setDynamicEvaluator(DynamicEvaluator e) {
-	dynamicEvaluator_ = e;
+        dynamicEvaluator_ = e;
     }
 
     public void setResultExtractor(ResultExtractor r) {
-	resultExtractor_ = r;
+        resultExtractor_ = r;
     }
 
     public void setDynAnyFactory(DynAnyFactory d) {
-	dynAnyFactory_ = d;
+        dynAnyFactory_ = d;
     }
 
     public DynamicEvaluator getDynamicEvaluator() {
-	return dynamicEvaluator_;
+        return dynamicEvaluator_;
     }
 
     public ResultExtractor getResultExtractor() {
-	return resultExtractor_;
+        return resultExtractor_;
     }
 
-    public NotificationEvent getNotificationEvent() {
-	return event_;
+    public Message getNotificationEvent() {
+        return event_;
     }
 
-    public void setEvent(NotificationEvent event) {
-	event_ = event;
+    public void setEvent(Message event) {
+        event_ = event;
     }
 
     public void storeResult(String name, EvaluationResult value) {
-	resultCache_.put(name, value);
+        resultCache_.put(name, value);
     }
 
     public EvaluationResult lookupResult(String name) {
-	return (EvaluationResult)resultCache_.get(name);
+        return (EvaluationResult)resultCache_.get(name);
     }
 
     public void eraseResult(String name) {
-	resultCache_.remove(name);
+        resultCache_.remove(name);
     }
 
     public void storeAny(String name, Any any) {
-	anyCache_.put(name, any);
+        anyCache_.put(name, any);
     }
 
     public Any lookupAny(String name) {
-	return (Any)anyCache_.get(name);
+        return (Any)anyCache_.get(name);
     }
 
     public void eraseAny(String name) {
-	anyCache_.remove(name);
+        anyCache_.remove(name);
     }
 
 }// EvaluationContext

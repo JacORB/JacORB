@@ -46,6 +46,7 @@ import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.Servant;
+import org.omg.CosNotification.UnsupportedQoS;
 
 /**
  * ConsumerAdminImpl.java
@@ -55,7 +56,7 @@ import org.omg.PortableServer.Servant;
  */
 
 public class ConsumerAdminTieImpl
-            extends AdminBase
+            extends AbstractAdmin
             implements ConsumerAdminOperations,
             Disposable,
             ProxyEventListener
@@ -119,18 +120,18 @@ public class ConsumerAdminTieImpl
             synchronized ( this )
             {
                 if ( thisRef_ == null )
-		    {
-			// sideeffect of getServant() is that
-			// thisServant_ gets set.		
-			getServant();
-			thisRef_ = thisServant_._this( getOrb() );
-		    }
+                    {
+                        // sideeffect of getServant() is that
+                        // thisServant_ gets set.
+                        getServant();
+                        thisRef_ = thisServant_._this( getOrb() );
+                    }
             }
         }
-	
+
         return thisRef_;
     }
-    
+
     public org.omg.CORBA.Object getThisRef()
     {
         return getConsumerAdmin();
@@ -172,24 +173,31 @@ public class ConsumerAdminTieImpl
     {}
 
     public ProxySupplier obtain_notification_pull_supplier( ClientType clientType,
-            IntHolder intHolder ) throws AdminLimitExceeded
+                                                            IntHolder intHolder )
+        throws AdminLimitExceeded
     {
-        ProxyBase _servant =
-            obtain_notification_pull_supplier_servant( clientType, intHolder );
+        try {
+            AbstractProxy _servant =
+                obtain_notification_pull_supplier_servant( clientType, intHolder );
 
-        Integer _key = _servant.getKey();
+            Integer _key = _servant.getKey();
 
-        ProxySupplier _proxySupplier =
-            ProxySupplierHelper.narrow( _servant.getServant()._this_object( getOrb() ) );
+            ProxySupplier _proxySupplier =
+                ProxySupplierHelper.narrow( _servant.getServant()._this_object( getOrb() ) );
 
-        allProxies_.put( _key, _proxySupplier );
+            allProxies_.put( _key, _proxySupplier );
 
-        return _proxySupplier;
+            return _proxySupplier;
+        } catch (UnsupportedQoS e) {
+            logger_.fatalError("Could not create pull supplier", e);
+            throw new RuntimeException();
+        }
     }
 
-    public ProxyBase obtain_notification_pull_supplier_servant( ClientType clientType,
-								IntHolder intHolder )
-	throws AdminLimitExceeded
+    public AbstractProxy obtain_notification_pull_supplier_servant( ClientType clientType,
+                                                                IntHolder intHolder )
+        throws AdminLimitExceeded,
+               UnsupportedQoS
     {
         // may throw AdminLimitExceeded
         fireCreateProxyRequestEvent();
@@ -197,7 +205,7 @@ public class ConsumerAdminTieImpl
         intHolder.value = getPullProxyId();
         Integer _key = new Integer( intHolder.value );
 
-        ProxyBase _servant;
+        AbstractProxy _servant;
         ProxySupplier _pullSupplier = null;
 
         PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
@@ -263,7 +271,7 @@ public class ConsumerAdminTieImpl
      *
      */
     public void remove
-        ( ProxyBase pb )
+        ( AbstractProxy pb )
     {
         super.remove( pb );
 
@@ -328,33 +336,37 @@ public class ConsumerAdminTieImpl
     }
 
     public ProxySupplier obtain_notification_push_supplier( ClientType clientType,
-            IntHolder intHolder ) throws AdminLimitExceeded
+                                                            IntHolder intHolder )
+        throws AdminLimitExceeded
     {
 
-        logger_.debug( "obtain_notification_push_supplier()" );
+        try {
+            AbstractProxy _servant = obtain_notification_push_supplier_servant( clientType,
+                                                                        intHolder );
 
-        ProxyBase _servant = obtain_notification_push_supplier_servant( clientType, 
-									intHolder );
+            Integer _key = _servant.getKey();
 
-        Integer _key = _servant.getKey();
+            if (logger_.isInfoEnabled()) {
+                logger_.info("created ProxyPushSupplier with ID: " + _key);
+            }
 
-	if (logger_.isInfoEnabled()) {
-	    logger_.info("created ProxyPushSupplier with ID: " + _key);
-	}
+            ProxySupplier _proxySupplier =
+                ProxySupplierHelper.narrow( _servant.getServant()._this_object( getOrb() ) );
 
-        ProxySupplier _proxySupplier =
-            ProxySupplierHelper.narrow( _servant.getServant()._this_object( getOrb() ) );
+            allProxies_.put( _key, _proxySupplier );
 
-        allProxies_.put( _key, _proxySupplier );
-
-        return _proxySupplier;
+            return _proxySupplier;
+        } catch (UnsupportedQoS e) {
+            logger_.fatalError("could not create push_supplier", e);
+            throw new RuntimeException();
+        }
     }
 
-    public ProxyBase obtain_notification_push_supplier_servant( ClientType clientType,
-            IntHolder intHolder ) throws AdminLimitExceeded
+    public AbstractProxy obtain_notification_push_supplier_servant( ClientType clientType,
+                                                                IntHolder intHolder )
+        throws AdminLimitExceeded,
+               UnsupportedQoS
     {
-
-	logger_.debug("obtain_notification_push_supplier_servant()");
 
         // may throw exception if admin limit is exceeded
         fireCreateProxyRequestEvent();
@@ -362,7 +374,7 @@ public class ConsumerAdminTieImpl
         intHolder.value = getPushProxyId();
 
         Integer _key = new Integer( intHolder.value );
-        ProxyBase _servantImpl;
+        AbstractProxy _servantImpl;
 
         PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
         PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
@@ -372,11 +384,11 @@ public class ConsumerAdminTieImpl
 
         case ClientType._ANY_EVENT:
             _servantImpl = new ProxyPushSupplierImpl( this,
-                           applicationContext_,
-                           channelContext_,
-                           _adminProperties,
-                           _qosProperties,
-                           _key );
+                                                      applicationContext_,
+                                                      channelContext_,
+                                                      _adminProperties,
+                                                      _qosProperties,
+                                                      _key );
             break;
 
         case ClientType._STRUCTURED_EVENT:
@@ -419,35 +431,40 @@ public class ConsumerAdminTieImpl
 
     public ProxyPullSupplier obtain_pull_supplier()
     {
-        ProxyPullSupplierImpl _servant =
-            new ProxyPullSupplierImpl( this,
-                                       applicationContext_,
-                                       channelContext_,
-                                       ( PropertyManager ) adminProperties_.clone(),
-                                       ( PropertyManager ) qosProperties_.clone() );
+        try {
+            ProxyPullSupplierImpl _servant =
+                new ProxyPullSupplierImpl( this,
+                                           applicationContext_,
+                                           channelContext_,
+                                           ( PropertyManager ) adminProperties_.clone(),
+                                           ( PropertyManager ) qosProperties_.clone() );
 
-        _servant.addProxyDisposedEventListener( this );
-        // _servant.addProxyDisposedEventListener(channelContext_.getRemoveProxySupplierListener());
+            _servant.addProxyDisposedEventListener( this );
+            // _servant.addProxyDisposedEventListener(channelContext_.getRemoveProxySupplierListener());
 
-        _servant.setFilterManager( FilterManager.EMPTY );
-        eventStyleServants_.add( _servant );
+            _servant.setFilterManager( FilterManager.EMPTY );
+            eventStyleServants_.add( _servant );
 
-        Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPullSupplierPOATie( _servant );
-        _servant.setServant( _tie );
+            Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPullSupplierPOATie( _servant );
+            _servant.setServant( _tie );
 
-        ProxyPullSupplier _supplier =
-            org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow( _tie._this_object( getOrb() ) );
+            ProxyPullSupplier _supplier =
+                org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow( _tie._this_object( getOrb() ) );
 
-        //servantCache_.put(_servant, _tie);
-        proxyListDirty_ = true;
+            //servantCache_.put(_servant, _tie);
+            proxyListDirty_ = true;
 
-        return _supplier;
+            return _supplier;
+        } catch (UnsupportedQoS e) {
+            logger_.fatalError("Could not create PullSupplier", e);
+            throw new RuntimeException();
+        }
     }
 
     public ProxyPushSupplier obtain_push_supplier()
     {
-        logger_.info( "obtain_push_supplier()" );
 
+        try {
         ProxyPushSupplierImpl _servant =
             new ProxyPushSupplierImpl( this,
                                        applicationContext_,
@@ -464,8 +481,6 @@ public class ConsumerAdminTieImpl
         Servant _tie = new org.omg.CosEventChannelAdmin.ProxyPushSupplierPOATie( _servant );
         _servant.setServant( _tie );
 
-        logger_.debug( "return " + _tie );
-
         ProxyPushSupplier _supplier =
             org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow( _tie._this_object( getOrb() ) );
 
@@ -473,6 +488,10 @@ public class ConsumerAdminTieImpl
         proxyListDirty_ = true;
 
         return _supplier;
+        } catch (UnsupportedQoS e) {
+            logger_.fatalError("Could not create ProxyPushSupplier", e);
+            throw new RuntimeException();
+        }
     }
 
     public List getSubsequentFilterStages()
@@ -490,7 +509,6 @@ public class ConsumerAdminTieImpl
             {
                 if ( proxyListDirty_ )
                 {
-                    logger_.debug( "refreshProxyList()" );
                     List _l = new Vector();
 
                     EventChannelImpl.checkAddFilterStage( pullServants_.entrySet().iterator(), _l );
@@ -543,7 +561,7 @@ public class ConsumerAdminTieImpl
     }
 
     public void actionProxyCreated(ProxyEvent e) {
-	// NO Op
+        // NO Op
     }
 
-} // ConsumerAdminImpl
+}

@@ -29,57 +29,55 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.Token;
 
-public class StringValue extends TCLNode {
+public class StringValue extends AbstractTCLNode {
 
     String value_;
     EvaluationResult result_;
 
     public StringValue(Token tok) {
-	super(tok);
-	setKind(TCKind.tk_string);
-	value_ = tok.getText();
-	EvaluationResult _result = new EvaluationResult();
-	_result.setString(value_);
-	result_ = EvaluationResult.wrapImmutable(_result);
+        super(tok);
+        setKind(TCKind.tk_string);
+        value_ = tok.getText();
+        EvaluationResult _result = new EvaluationResult();
+        _result.setString(value_);
+        result_ = EvaluationResult.wrapImmutable(_result);
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitString(this);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitString(this);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitString(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitString(this);
     }
 
     public String toString() {
-	return "'" + value_ + "'";
+        return "'" + value_ + "'";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context) throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode {
+    public EvaluationResult evaluate(EvaluationContext context)
+         {
 
-	return result_;
+        return result_;
     }
 
     public boolean isNumber() {
-	return (value_.length() == 1);
+        return (value_.length() == 1);
     }
 
     public boolean isStatic() {
-	return true;
+        return true;
     }
 
     public boolean isString() {
-	return true;
+        return true;
     }
 
     public String getName() {
-	return "StringValue";
+        return "StringValue";
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitString(this);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitString(this);
     }
 }

@@ -1,7 +1,28 @@
 // $Id$
 
 header {
-    package org.jacorb.notification.parser;
+package org.jacorb.notification.parser;
+
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1999-2003 Gerald Brose
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 }
 
 {
@@ -114,24 +135,24 @@ protected FOLLOW
 // a numeric literal
 NUMBER
     {boolean isDecimal=false;}
-	:	'.'          { _ttype = DOT; }                  // a single dot
+    :   '.'          { _ttype = DOT; }                  // a single dot
         (((DIGIT)+   { _ttype = NUM_FLOAT; } )          // its a float number
         ((EXPONENT)  )?)?
 
-	|	(	'0'      {isDecimal = true;}                // special case for just '0'
-		|	('1'..'9') (DIGIT)*  {isDecimal=true;}		// non-zero decimal
-		)
-		(
+    |   (   '0'      {isDecimal = true;}                // special case for just '0'
+        |   ('1'..'9') (DIGIT)*  {isDecimal=true;}      // non-zero decimal
+        )
+        (
             // only check to see if it's a float if looks like decimal so far
-			{isDecimal}?
-			( '.' (DIGIT)* (EXPONENT)? | EXPONENT ) { _ttype = NUM_FLOAT; }
-		)?
-	;
+            {isDecimal}?
+            ( '.' (DIGIT)* (EXPONENT)? | EXPONENT ) { _ttype = NUM_FLOAT; }
+        )?
+    ;
 
 // a couple protected methods to assist in matching floating point numbers
 protected EXPONENT
-	:	('e'|'E') ('+'|'-') (DIGIT)+
-	;
+    :   ('e'|'E') ('+'|'-') (DIGIT)+
+    ;
 
 protected TEXTCHARS
     : // empty

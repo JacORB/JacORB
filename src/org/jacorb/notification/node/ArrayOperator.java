@@ -25,35 +25,40 @@ import antlr.Token;
 
 /** A simple node to represent Array operation */
 
-public class ArrayOperator extends TCLNode {
+public class ArrayOperator extends AbstractTCLNode
+{
 
-    public ArrayOperator(Token tok) {
-	super(tok);
-	arrayIndex_ = Integer.parseInt(tok.getText());
-	setName("ArrayOperator");
+    public ArrayOperator( Token tok )
+    {
+        super( tok );
+        arrayIndex_ = Integer.parseInt( tok.getText() );
+        setName( "ArrayOperator" );
     }
 
     int arrayIndex_;
 
-    public int getArrayIndex() {
-	return arrayIndex_;
+    public int getArrayIndex()
+    {
+        return arrayIndex_;
     }
 
-    public String toString() {
-	return "[" + arrayIndex_ + "]";
+    public String toString()
+    {
+        return "[" + arrayIndex_ + "]";
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	((TCLNode)getNextSibling()).acceptPostOrder(visitor);
-	visitor.visitArray(this);
+    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
+        ( ( AbstractTCLNode ) getNextSibling() ).acceptPostOrder( visitor );
+        visitor.visitArray( this );
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-
+    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
+    {
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-    }
+    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
+        {}
 
 
 }

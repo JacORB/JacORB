@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.util.Time;
@@ -47,15 +48,16 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.TimeBase.TimeTHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
+import org.omg.CosNotification.Priority;
 
 /**
- * Adapt a StructuredEvent to the NotificationEvent Interface.
+ * Adapts a StructuredEvent to the Message Interface.
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-class NotificationStructuredEvent extends NotificationEvent
+class StructuredEventMessage extends AbstractMessage
 {
     private Any anyValue_;
     private StructuredEvent structuredEventValue_;
@@ -64,50 +66,55 @@ class NotificationStructuredEvent extends NotificationEvent
     private Date startTime_;
     private Date stopTime_;
 
+    private long timeout_ = 0;
+    private boolean isTimeoutSet_;
 
-    NotificationStructuredEvent( ApplicationContext appContext )
+    private short priority_;
+
+    StructuredEventMessage( )
     {
-        super( appContext );
+        super( );
     }
 
     public void setStructuredEventValue( StructuredEvent event )
     {
         structuredEventValue_ = event;
 
-        constraintKey_ = 
-	    FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
-					   structuredEventValue_.header.fixed_header.event_type.type_name );
+        constraintKey_ =
+            FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
+                                           structuredEventValue_.header.fixed_header.event_type.type_name );
 
-	parseQosSettings();
+        parseQosSettings();
     }
 
     public void reset()
     {
         super.reset();
 
-	anyValue_ = null;
+        anyValue_ = null;
         structuredEventValue_ = null;
         constraintKey_ = null;
-	startTime_ = null;
-	stopTime_ = null;
+        startTime_ = null;
+        stopTime_ = null;
+        priority_ = 0;
 
     }
 
     public int getType()
     {
-        return TYPE_STRUCTURED;
+        return Message.TYPE_STRUCTURED;
     }
 
     public Any toAny()
     {
-	if (anyValue_ == null) {
-	    synchronized(this) {
-		if (anyValue_ == null) {
-		    anyValue_ = applicationContext_.getOrb().create_any();
-		    StructuredEventHelper.insert( anyValue_, structuredEventValue_ );
-		}
-	    }
-	}
+        if (anyValue_ == null) {
+            synchronized(this) {
+                if (anyValue_ == null) {
+                    anyValue_ = sOrb.create_any();
+                    StructuredEventHelper.insert( anyValue_, structuredEventValue_ );
+                }
+            }
+        }
         return anyValue_;
     }
 
@@ -123,79 +130,90 @@ class NotificationStructuredEvent extends NotificationEvent
     }
 
     public EvaluationResult extractFilterableData(EvaluationContext context,
-						  ComponentName root,
-						  String v) throws EvaluationException {
-	try {
-	    Any _a =
-		context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.filterable_data, v);
-	    return context.getResultExtractor().extractFromAny(_a);
+                                                  ComponentName root,
+                                                  String v) throws EvaluationException {
+            Any _a =
+                context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.filterable_data, v);
 
-	} catch (InconsistentTypeCode e) {
-	} catch (TypeMismatch e) {
-	} catch (InvalidValue e) {
-	}
-	throw new EvaluationException();
-	
+            return context.getResultExtractor().extractFromAny(_a);
+
+
+
     }
 
     public EvaluationResult extractVariableHeader(EvaluationContext context,
-						  ComponentName root,
-						  String v) throws EvaluationException {
-	
-	try {
-	    Any _a = 
-		context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.header.variable_header, v);
-	    
-		return context.getResultExtractor().extractFromAny(_a);
-	} catch (InconsistentTypeCode e) {
-	} catch (TypeMismatch e) {
-	} catch (InvalidValue e) {
-	}
-	throw new EvaluationException();
+                                                  ComponentName root,
+                                                  String v)
+        throws EvaluationException {
+
+
+        Any _a =
+            context.getDynamicEvaluator().evaluatePropertyList(structuredEventValue_.header.variable_header, v);
+
+        return context.getResultExtractor().extractFromAny(_a);
+
     }
 
     private void parseQosSettings() {
-	Property[] props = toStructuredEvent().header.variable_header;
+        Property[] props = toStructuredEvent().header.variable_header;
 
-	for (int x=0; x < props.length; ++x) {
-	    if (StartTime.value.equals(props[x].name)) {
-		startTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
-	    } else if (StopTime.value.equals(props[x].name)) {
-		stopTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
-	    } else if (Timeout.value.equals(props[x].name)) {
-		setTimeout(TimeTHelper.extract(props[x].value));
-	    }
-	}
+        for (int x=0; x < props.length; ++x) {
+            if (StartTime.value.equals(props[x].name)) {
+                startTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
+                logger_.debug("StartTime: " + startTime_);
+            } else if (StopTime.value.equals(props[x].name)) {
+                stopTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
+            } else if (Timeout.value.equals(props[x].name)) {
+                setTimeout(TimeTHelper.extract(props[x].value));
+            } else if (Priority.value.equals(props[x].name)) {
+                priority_ = props[x].value.extract_short();
+            }
+        }
     }
 
     public static long unixTime(UtcT corbaTime) {
-	long _unixTime = (corbaTime.time - Time.UNIX_OFFSET) / 10000;
+        long _unixTime = (corbaTime.time - Time.UNIX_OFFSET) / 10000;
 
-	if (corbaTime.tdf != 0) {
-	    _unixTime = _unixTime - (corbaTime.tdf * 60000);
-	}
+        if (corbaTime.tdf != 0) {
+            _unixTime = _unixTime - (corbaTime.tdf * 60000);
+        }
 
-	return _unixTime;
+        return _unixTime;
     }
 
     public boolean hasStartTime() {
-	return startTime_ != null;
+        return startTime_ != null;
     }
 
     public Date getStartTime() {
-	return startTime_;
+        return startTime_;
     }
 
     public boolean hasStopTime() {
-	return stopTime_ != null;
+        return stopTime_ != null;
     }
 
     public Date getStopTime() {
-	return stopTime_;
+        return stopTime_;
+    }
+
+    public boolean hasTimeout() {
+        return isTimeoutSet_;
+    }
+
+    public long getTimeout() {
+        return timeout_;
+    }
+
+    private void setTimeout(long timeout) {
+        logger_.debug("set Timeout = " + timeout);
+
+        isTimeoutSet_ = true;
+        timeout_ = timeout;
     }
 
     public boolean match(FilterStage destination) {
-	List _filterList = destination.getFilters();
+        List _filterList = destination.getFilters();
 
         if ( _filterList.isEmpty() )
         {
@@ -225,7 +243,11 @@ class NotificationStructuredEvent extends NotificationEvent
         return false;
     }
 
+    protected int getPriority() {
+        return priority_;
+    }
+
     public boolean match(MappingFilter filter, AnyHolder value) throws UnsupportedFilterableData {
-	return filter.match_structured(toStructuredEvent(), value);
+        return filter.match_structured(toStructuredEvent(), value);
     }
 }

@@ -23,13 +23,17 @@ package org.jacorb.notification;
 
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.TimerEventConsumer;
+import org.jacorb.util.Environment;
+
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
@@ -54,8 +58,8 @@ public class SequenceProxyPushSupplierImpl
             TimerEventConsumer
 {
 
-    static final StructuredEvent[] STRUCTURED_EVENT_ARRAY_TEMPLATE = 
-	new StructuredEvent[ 0 ];
+    static final StructuredEvent[] STRUCTURED_EVENT_ARRAY_TEMPLATE =
+        new StructuredEvent[ 0 ];
 
     /**
      * The connected SequencePushConsumer.
@@ -96,7 +100,7 @@ public class SequenceProxyPushSupplierImpl
                                           ChannelContext channelContext,
                                           PropertyManager adminProperties,
                                           PropertyManager qosProperties,
-                                          Integer key )
+                                          Integer key ) throws UnsupportedQoS
     {
         super( myAdminServant,
                appContext,
@@ -128,7 +132,7 @@ public class SequenceProxyPushSupplierImpl
     }
 
     // overwrite
-    public void deliverEvent( NotificationEvent event )
+    public void deliverEvent( Message event )
     {
         logger_.debug( "deliverEvent(...)" );
 
@@ -136,20 +140,20 @@ public class SequenceProxyPushSupplierImpl
         {
             try
             {
-                pendingEvents_.add( event.toStructuredEvent() );
+                pendingEvents_.put( event );
 
                 if ( logger_.isDebugEnabled() )
                 {
-                    logger_.debug( "added to pendingEvents: " 
-				   + pendingEvents_.size() );
+                    logger_.debug( "added to pendingEvents: "
+                                   + pendingEvents_.getSize() );
 
-                    logger_.debug( "maxBatchSize: " 
-				   + maxBatchSize_ 
-				   + " Active: " 
-				   + active_ );
+                    logger_.debug( "maxBatchSize: "
+                                   + maxBatchSize_
+                                   + " Active: "
+                                   + active_ );
                 }
 
-                if ( active_ && ( pendingEvents_.size() >= maxBatchSize_ ) )
+                if ( active_ && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
                 {
                     deliverPendingEvents();
                 }
@@ -172,7 +176,7 @@ public class SequenceProxyPushSupplierImpl
     }
 
     public boolean hasPendingEvents() {
-	return !pendingEvents_.isEmpty();
+        return !pendingEvents_.isEmpty();
     }
 
     public void deliverPendingEvents() throws NotConnected
@@ -192,23 +196,33 @@ public class SequenceProxyPushSupplierImpl
                     {
                         synchronized ( pendingEvents_ )
                         {
-                            int _deliverBatchSize = 
-				( pendingEvents_.size() > maxBatchSize_ ) ?
-				maxBatchSize_ :
-				pendingEvents_.size();
-			    
-                            _eventsToDeliver = 
-				new StructuredEvent[ _deliverBatchSize ];
-			    
+                            int _deliverBatchSize =
+                                ( pendingEvents_.getSize() > maxBatchSize_ ) ?
+                                maxBatchSize_ :
+                                pendingEvents_.getSize();
+
+                            _eventsToDeliver =
+                                new StructuredEvent[ _deliverBatchSize ];
+
+                            Message[] _notificationEvents = null;
+
+                            try {
+                                _notificationEvents =
+                                    pendingEvents_.getEvents(_deliverBatchSize, true);
+                            } catch (InterruptedException e) {}
+
                             for ( int x = 0; x < _deliverBatchSize; ++x )
-				{
-				    _eventsToDeliver[ x ] = 
-					( StructuredEvent ) pendingEvents_.removeFirst();
-				}
+                                {
+                                    _eventsToDeliver[ x ] =
+                                        _notificationEvents[x].toStructuredEvent();
+
+                                    _notificationEvents[x].dispose();
+                                    _notificationEvents[x] = null;
+                                }
                         }
-			
+
                         try
-			    {
+                            {
                             sequencePushConsumer_.push_structured_events( _eventsToDeliver );
                         }
                         catch ( Disconnected d )
@@ -221,7 +235,7 @@ public class SequenceProxyPushSupplierImpl
             }
         }
     }
-    
+
     // new
     public void connect_sequence_push_consumer( SequencePushConsumer consumer )
     throws AlreadyConnected,
@@ -242,9 +256,9 @@ public class SequenceProxyPushSupplierImpl
     }
 
     // overwrite
-    public void resume_connection() 
-	throws NotConnected, 
-	       ConnectionAlreadyActive
+    public void resume_connection()
+        throws NotConnected,
+               ConnectionAlreadyActive
     {
         if ( !connected_ )
         {
@@ -266,9 +280,9 @@ public class SequenceProxyPushSupplierImpl
         startCronJob();
     }
 
-    public void suspend_connection() 
-	throws NotConnected, 
-	       ConnectionAlreadyInactive
+    public void suspend_connection()
+        throws NotConnected,
+               ConnectionAlreadyInactive
     {
         super.suspend_connection();
         stopCronJob();
@@ -299,9 +313,9 @@ public class SequenceProxyPushSupplierImpl
         if ( pacingInterval_ > 0 )
         {
             taskId_ = channelContext_.getTaskProcessor().
-		executeTaskPeriodically( pacingInterval_,
-				      timerCallback_,
-				      true );
+                executeTaskPeriodically( pacingInterval_,
+                                      timerCallback_,
+                                      true );
         }
     }
 
@@ -316,30 +330,37 @@ public class SequenceProxyPushSupplierImpl
 
     private boolean configurePacingInterval()
     {
-        long _pacingInterval = 
-	    TimeTHelper.extract( qosProperties_.getProperty( PacingInterval.value ) );
+        if ( qosProperties_.hasProperty(PacingInterval.value)) {
+            long _pacingInterval =
+                TimeTHelper.extract( qosProperties_.getProperty( PacingInterval.value ) );
 
-        if ( pacingInterval_ != _pacingInterval )
-        {
-            pacingInterval_ = _pacingInterval;
-            return true;
+            if ( pacingInterval_ != _pacingInterval )
+                {
+                    pacingInterval_ = _pacingInterval;
+                    return true;
+                }
         }
-
         return false;
     }
 
     private boolean configureMaxBatchSize()
     {
-        int _maxBatchSize = 
-	    qosProperties_.getProperty( MaximumBatchSize.value ).extract_long();
+        int _maxBatchSize;
 
-        if ( maxBatchSize_ != _maxBatchSize )
-        {
-            maxBatchSize_ = _maxBatchSize;
-            return true;
+        if (qosProperties_.hasProperty(MaximumBatchSize.value)) {
+            _maxBatchSize = qosProperties_.getProperty( MaximumBatchSize.value ).extract_long();
+        } else {
+            _maxBatchSize = Environment.getIntPropertyWithDefault(ConfigurableProperties.MAX_BATCH_SIZE,
+                                                                  Constants.DEFAULT_MAX_BATCH_SIZE);
         }
 
-        return false;
+        if ( maxBatchSize_ != _maxBatchSize )
+            {
+                logger_.info("Set MaxBatchSize to: " + _maxBatchSize);
+                maxBatchSize_ = _maxBatchSize;
+                return true;
+            }
+    return false;
     }
 
     public void enableDelivery()

@@ -22,21 +22,18 @@ package org.jacorb.notification.node;
  */
 
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.evaluate.EvaluationException;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.Token;
 
-/** 
+/**
  * a simple node to represent COMPONENT Name
  *
  * @version $Id$
  */
 
-public class ComponentName extends TCLNode
+public class ComponentName extends AbstractTCLNode
 {
 
     String value_;
@@ -53,42 +50,39 @@ public class ComponentName extends TCLNode
     }
 
     public EvaluationResult evaluate( EvaluationContext context )
-    throws DynamicTypeException,
-                TypeMismatch,
-                InconsistentTypeCode,
-                InvalidValue,
-                EvaluationException
+        throws EvaluationException,
+               DynamicTypeException
     {
-	EvaluationResult _ret;
-        NotificationEvent _event = context.getNotificationEvent();
+        EvaluationResult _ret;
+        Message _event = context.getNotificationEvent();
 
-	TCLNode _left = (TCLNode) left();
+        AbstractTCLNode _left = (AbstractTCLNode) left();
 
-	if (_left == null) {
-	    return context.getResultExtractor().extractFromAny( _event.toAny() );
-	}
+        if (_left == null) {
+            return context.getResultExtractor().extractFromAny( _event.toAny() );
+        }
 
-	switch (_left.getType()) {
+        switch (_left.getType()) {
 
-	case TCLNode.RUNTIME_VAR:
-	    RuntimeVariableNode _var = ( RuntimeVariableNode ) _left;
-	    
-	    _ret = _event.extractValue( context,
-					this,
-					_var );
-	    
-	    break;
-	    
-	case TCLNode.DOT:
-	case TCLNode.ASSOC:
-	    _ret = _event.extractValue(context,
-				       this );
+        case AbstractTCLNode.RUNTIME_VAR:
+            RuntimeVariableNode _var = ( RuntimeVariableNode ) _left;
 
-	    break;
-	default:
-	    throw new RuntimeException("Unexpected Nodetype: " 
-				       + TCLNode.getNameForType(_left.getType()));
-	}
+            _ret = _event.extractValue( context,
+                                        this,
+                                        _var );
+
+            break;
+
+        case AbstractTCLNode.DOT:
+        case AbstractTCLNode.ASSOC:
+            _ret = _event.extractValue(context,
+                                       this );
+
+            break;
+        default:
+            throw new RuntimeException("Unexpected Nodetype: "
+                                       + AbstractTCLNode.getNameForType(_left.getType()));
+        }
 
         if ( logger_.isDebugEnabled() )
         {
@@ -116,23 +110,23 @@ public class ComponentName extends TCLNode
         return componentName_;
     }
 
-    public void acceptPostOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
-	if (getFirstChild() != null) {
-	    ( ( TCLNode ) getFirstChild() ).acceptPostOrder( visitor );
-	}
+        if (getFirstChild() != null) {
+            ( ( AbstractTCLNode ) getFirstChild() ).acceptPostOrder( visitor );
+        }
         visitor.visitComponent( this );
     }
 
-    public void acceptPreOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
         visitor.visitComponent( this );
-        ( ( TCLNode ) getFirstChild() ).acceptPreOrder( visitor );
+        ( ( AbstractTCLNode ) getFirstChild() ).acceptPreOrder( visitor );
     }
 
-    public void acceptInOrder( TCLVisitor visitor ) throws VisitorException
+    public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
-        ( ( TCLNode ) getFirstChild() ).acceptInOrder( visitor );
+        ( ( AbstractTCLNode ) getFirstChild() ).acceptInOrder( visitor );
         visitor.visitComponent( this );
     }
 }

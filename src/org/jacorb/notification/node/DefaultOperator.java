@@ -22,7 +22,7 @@ package org.jacorb.notification.node;
  */
 
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.NotificationEvent;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TypeCodePackage.BadKind;
@@ -33,50 +33,45 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import antlr.Token;
 
 /** A simple node to represent DEFAULT operation */
-public class DefaultOperator extends TCLNode {
+public class DefaultOperator extends AbstractTCLNode {
 
     public DefaultOperator(Token tok) {
-	super(tok);
-	setName("DefaultOperator");
+        super(tok);
+        setName("DefaultOperator");
     }
 
     public String toString() {
-	return "default";
+        return "default";
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InconsistentTypeCode,
-	       InvalidValue,
-	       TypeMismatch,
-	       EvaluationException {
-	
-	NotificationEvent _event = context.getNotificationEvent();
+        throws DynamicTypeException,
+               EvaluationException {
 
-	EvaluationResult _r = left().evaluate(context);
-	Any _a = _r.getAny();
-	try {
-	    if (context.getDynamicEvaluator().hasDefaultDiscriminator( _a )) {
-		return EvaluationResult.BOOL_TRUE;
-	    } 
-	} catch (BadKind e) {
-	    throw new EvaluationException();
-	}
-	return EvaluationResult.BOOL_FALSE;
+        Message _event = context.getNotificationEvent();
+
+        EvaluationResult _r = left().evaluate(context);
+        Any _a = _r.getAny();
+
+        if (context.getDynamicEvaluator().hasDefaultDiscriminator( _a )) {
+            return EvaluationResult.BOOL_TRUE;
+        }
+
+        return EvaluationResult.BOOL_FALSE;
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitDefault(this);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitDefault(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitDefault(this);
-	left().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitDefault(this);
+        left().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	visitor.visitDefault(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        visitor.visitDefault(this);
     }
 }

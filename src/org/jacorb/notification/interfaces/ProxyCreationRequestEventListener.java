@@ -32,13 +32,14 @@ import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
  * @version $Id$
  */
 
-public interface ProxyCreationRequestEventListener {
+public interface ProxyCreationRequestEventListener
+{
 
     /**
      * This event is fired if a Admin wants to create a new Proxy. A
      * Listener can throw AdminLimitExceeded if no more Proxies may be created.
      */
-    void actionProxyCreationRequest(ProxyCreationRequestEvent e) 
-	throws AdminLimitExceeded;
-    
-}// ProxyCreationEventListener
+    void actionProxyCreationRequest( ProxyCreationRequestEvent e )
+        throws AdminLimitExceeded;
+
+}

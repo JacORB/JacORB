@@ -29,55 +29,52 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import antlr.Token;
 
 /** A simple node to represent GTE operation */
-public class GteOperator extends TCLNode {
+public class GteOperator extends AbstractTCLNode {
 
     public GteOperator(Token tok) {
-	super(tok);
+        super(tok);
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode,
-	       EvaluationException {
+        throws DynamicTypeException,
+               EvaluationException {
 
-	EvaluationResult _left, _right;
-	_left = left().evaluate(context);
-	_right = right().evaluate(context);
+        EvaluationResult _left, _right;
+        _left = left().evaluate(context);
+        _right = right().evaluate(context);
 
-	int _comp = _left.compareTo( _right);
+        int _comp = _left.compareTo( _right);
 
-	if (_comp == -1) {
-	    return EvaluationResult.BOOL_FALSE;
-	}
-	return EvaluationResult.BOOL_TRUE;
+        if (_comp == -1) {
+            return EvaluationResult.BOOL_FALSE;
+        }
+        return EvaluationResult.BOOL_TRUE;
 
     }
 
     public String toString() {
-	return ">=";
+        return ">=";
     }
 
     public String getName() {
-	return getClass().getName();
+        return getClass().getName();
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitGteOperator(this);
-	right().acceptInOrder(visitor);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitGteOperator(this);
+        right().acceptInOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	right().acceptPostOrder(visitor);
-	visitor.visitGteOperator(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        right().acceptPostOrder(visitor);
+        visitor.visitGteOperator(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitGteOperator(this);
-	left().acceptPreOrder(visitor);
-	right().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitGteOperator(this);
+        left().acceptPreOrder(visitor);
+        right().acceptPreOrder(visitor);
     }
 }

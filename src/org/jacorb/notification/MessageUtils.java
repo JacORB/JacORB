@@ -31,7 +31,7 @@ import org.jacorb.notification.node.IdentValue;
 import org.jacorb.notification.node.ImplicitOperator;
 import org.jacorb.notification.node.ImplicitOperatorNode;
 import org.jacorb.notification.node.NumberValue;
-import org.jacorb.notification.node.TCLNode;
+import org.jacorb.notification.node.AbstractTCLNode;
 import org.jacorb.notification.node.UnionPositionOperator;
 import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -39,106 +39,99 @@ import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 /**
- * NotificationEventUtils.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class NotificationEventUtils
+public class MessageUtils
 {
 
     static Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( NotificationEventUtils.class.getName() );
+        Hierarchy.getDefaultHierarchy().getLoggerFor( MessageUtils.class.getName() );
 
-    public static EvaluationResult extractFromAny(TCLNode operator,
-						  Any event, 
-						  EvaluationContext evaluationContext,
-						  String rootName) 	
-	throws InconsistentTypeCode,
-	       TypeMismatch,
-	       EvaluationException,
-	       InvalidValue
+    public static EvaluationResult extractFromAny(AbstractTCLNode operator,
+                                                  Any event,
+                                                  EvaluationContext evaluationContext,
+                                                  String rootName)
+        throws EvaluationException
     {
+        logger_.debug("rootname: " + rootName);
+        logger_.debug("value " + event);
 
-	logger_.debug("rootname: " + rootName);
-	logger_.debug("value " + event);
+        EvaluationResult _ret = null;
+        Any _result = null;
+        AbstractTCLNode _operator = operator;
+        Any _valueCursor = event;
 
-	EvaluationResult _ret = null;
-	Any _result = null;
-	TCLNode _operator = operator;
-	Any _valueCursor = event;
+        StringBuffer _path = new StringBuffer(rootName);
 
-	StringBuffer _path = new StringBuffer(rootName);
-	
-	while ( _operator!= null)
-            {				
+        while ( _operator!= null)
+            {
                 _path.append(_operator.toString());
-		
+
                 if ( logger_.isDebugEnabled() )
-		    {
-			logger_.debug( "current path: " + _path.toString() );
-			logger_.debug( "current operator is: " + _operator.toString() );
-			logger_.debug( "current cursor: " + _valueCursor);
-		    }
-		
+                    {
+                        logger_.debug( "current path: " + _path.toString() );
+                        logger_.debug( "current operator is: " + _operator.toString() );
+                        logger_.debug( "current cursor: " + _valueCursor);
+                    }
+
                 _result = evaluationContext.lookupAny( _path.toString() );
-		
+
                 if ( _result == null )
                 {
                     switch ( _operator.getType() )
                     {
 
-                    case TCLNode.DOT:
+                    case AbstractTCLNode.DOT:
                         // skip
                         logger_.debug( "skip" );
                         break;
 
-                    case TCLNode.UNION_POS:
+                    case AbstractTCLNode.UNION_POS:
                         logger_.debug( "eval union by pos" );
                         UnionPositionOperator _upo = ( UnionPositionOperator ) _operator;
 
                         if ( _upo.isDefault() )
                         {
-                            _result = 
-				evaluationContext.getDynamicEvaluator().evaluateUnion( _valueCursor );
+                            _result =
+                                evaluationContext.getDynamicEvaluator().evaluateUnion( _valueCursor );
                         }
                         else
                         {
                             _result =
                                 evaluationContext.
-				getDynamicEvaluator().
-				evaluateUnion( _valueCursor, _upo.getPosition() );
+                                getDynamicEvaluator().
+                                evaluateUnion( _valueCursor, _upo.getPosition() );
                         }
 
                         break;
 
-                    case TCLNode.IDENTIFIER:
+                    case AbstractTCLNode.IDENTIFIER:
                         logger_.debug( "eval by identifier" );
 
-			String _identifer = ((IdentValue) _operator).getIdentifier();
+                        String _identifer = ((IdentValue) _operator).getIdentifier();
 
                         _result =
                             evaluationContext.
-			    getDynamicEvaluator().
-			    evaluateIdentifier( _valueCursor, _identifer);
+                            getDynamicEvaluator().
+                            evaluateIdentifier( _valueCursor, _identifer);
 
                         break;
 
-                    case TCLNode.NUMBER:
+                    case AbstractTCLNode.NUMBER:
                         logger_.debug( "eval by position" );
 
-			int _pos = ((NumberValue) _operator).getNumber().intValue();
+                        int _pos = ((NumberValue) _operator).getNumber().intValue();
 
                         _result =
                             evaluationContext.
-			    getDynamicEvaluator().
-			    evaluateIdentifier( _valueCursor, _pos);
+                            getDynamicEvaluator().
+                            evaluateIdentifier( _valueCursor, _pos);
 
                         break;
 
-                    case TCLNode.IMPLICIT:
+                    case AbstractTCLNode.IMPLICIT:
                         ImplicitOperator _op = ( ( ImplicitOperatorNode ) _operator ).getOperator();
 
                         if ( logger_.isDebugEnabled() )
@@ -160,27 +153,27 @@ public class NotificationEventUtils
 
                         return _ret;
 
-                    case TCLNode.ARRAY:
-			int _arrayIndex = ((ArrayOperator) _operator).getArrayIndex();
+                    case AbstractTCLNode.ARRAY:
+                        int _arrayIndex = ((ArrayOperator) _operator).getArrayIndex();
 
                         _result = evaluationContext.
-			    getDynamicEvaluator().
-			    evaluateArrayIndex( _valueCursor, _arrayIndex);
+                            getDynamicEvaluator().
+                            evaluateArrayIndex( _valueCursor, _arrayIndex);
 
                         break;
 
-                    case TCLNode.ASSOC:
-			String _assocName = ((AssocOperator) _operator).getAssocName();
+                    case AbstractTCLNode.ASSOC:
+                        String _assocName = ((AssocOperator) _operator).getAssocName();
 
                         _result = evaluationContext.
-			    getDynamicEvaluator().
-			    evaluateNamedValueList( _valueCursor, _assocName);
+                            getDynamicEvaluator().
+                            evaluateNamedValueList( _valueCursor, _assocName);
 
                         break;
 
                     default:
-                        throw new RuntimeException("unknown operator: " 
-						   + TCLNode.getNameForType(_operator.getType()));
+                        throw new RuntimeException("unknown operator: "
+                                                   + AbstractTCLNode.getNameForType(_operator.getType()));
                     }
                 }
                 else
@@ -193,7 +186,7 @@ public class NotificationEventUtils
                     evaluationContext.storeAny( _path.toString(), _result );
                     _valueCursor = _result;
                 }
-		_operator = (TCLNode)_operator.getNextSibling();
+                _operator = (AbstractTCLNode)_operator.getNextSibling();
             }
 
             // Create the EvaluationResult
@@ -204,8 +197,8 @@ public class NotificationEventUtils
                 logger_.debug( "extracted: " + _ret );
             }
 
-	    
-	    return _ret;
+
+            return _ret;
     }
 
     public static EvaluationException getException( Exception e )

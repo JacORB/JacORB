@@ -29,72 +29,69 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.Token;
 
-/** 
- * A simple node to represent MINUS operation 
+/**
+ * A simple node to represent MINUS operation
  * @version $Id$
  */
 
-public class MinusOperator extends TCLNode {
+public class MinusOperator extends AbstractTCLNode {
 
     boolean unary_;
     static final String NAME = "MinusOperator";
 
     public String getName() {
-	return NAME;
+        return NAME;
     }
 
     public MinusOperator(Token tok) {
-	super(tok);
+        super(tok);
     }
 
     public void setType(int type) {
-	unary_ = type == UNARY_MINUS;
+        unary_ = type == UNARY_MINUS;
     }
 
     public String toString() {
-	return " -";
+        return " -";
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode,
-	       EvaluationException {
+        throws DynamicTypeException,
+               EvaluationException {
 
-	if (unary_) {
-	    
-	    return EvaluationResult.unaryMinus(left().evaluate(context));
+        if (unary_) {
 
-	} else {
-	    
-	    return EvaluationResult.minus(left().evaluate(context), 
-					  right().evaluate(context));
-	}
+            return EvaluationResult.unaryMinus(left().evaluate(context));
+
+        } else {
+
+            return EvaluationResult.minus(left().evaluate(context),
+                                          right().evaluate(context));
+        }
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitMinus(this);
-	if (!unary_) {
-	    right().acceptInOrder(visitor);
-	}
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitMinus(this);
+        if (!unary_) {
+            right().acceptInOrder(visitor);
+        }
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	if (!unary_) {
-	    right().acceptPostOrder(visitor);
-	}
-	visitor.visitMinus(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        if (!unary_) {
+            right().acceptPostOrder(visitor);
+        }
+        visitor.visitMinus(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitMinus(this);
-	left().acceptPreOrder(visitor);
-	if (!unary_) {
-	    right().acceptPreOrder(visitor);
-	}
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitMinus(this);
+        left().acceptPreOrder(visitor);
+        if (!unary_) {
+            right().acceptPreOrder(visitor);
+        }
     }
 
 }

@@ -46,7 +46,8 @@ import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
  * @version $Id$
  */
 
-public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
+public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
+{
 
     public static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
 
@@ -55,98 +56,117 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
 
     private FilterFactory thisRef_;
 
-    public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive {
-	super();
+    public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive
+    {
+        super();
 
-	LogConfiguration.getInstance().configure();
+        LogConfiguration.getInstance().configure();
 
-	final ORB _orb = ORB.init(new String[0], null);
-	POA _poa = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));
-	applicationContext_ = new ApplicationContext(_orb, _poa, true);
-	isApplicationContextCreatedHere_ = true;
+        final ORB _orb = ORB.init( new String[ 0 ], null );
+        POA _poa = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+        applicationContext_ = new ApplicationContext( _orb, _poa, true );
+        isApplicationContextCreatedHere_ = true;
 
-	getFilterFactory();
+        getFilterFactory();
 
-	_poa.the_POAManager().activate();
+        _poa.the_POAManager().activate();
 
-	Thread t = new Thread(new Runnable() {
-		public void run() {
-		    _orb.run();
-		}
-	    });
+        Thread t = new Thread( new Runnable()
+                               {
+                                   public void run()
+                                   {
+                                       _orb.run();
+                                   }
+                               }
 
-	t.setDaemon(true);
-	t.start();
+                             );
+
+        t.setDaemon( true );
+        t.start();
     }
 
-    public FilterFactoryImpl(ApplicationContext applicationContext) throws InvalidName {
-	super();
+    public FilterFactoryImpl( ApplicationContext applicationContext ) throws InvalidName
+    {
+        super();
 
-	applicationContext_ = applicationContext;
-	isApplicationContextCreatedHere_ = false;
+        applicationContext_ = applicationContext;
+        isApplicationContextCreatedHere_ = false;
     }
 
-    public Filter create_filter(String grammar) 
-	throws InvalidGrammar {
+    public Filter create_filter( String grammar )
+    throws InvalidGrammar
+    {
 
-	FilterImpl _servant = create_filter_servant(grammar);
-	
-	Filter _filter = _servant._this(applicationContext_.getOrb());
-	    
-	return _filter;
+        FilterImpl _servant = create_filter_servant( grammar );
+
+        Filter _filter = _servant._this( applicationContext_.getOrb() );
+
+        return _filter;
     }
 
-    FilterImpl create_filter_servant(String grammar) 
-	throws InvalidGrammar {
+    FilterImpl create_filter_servant( String grammar )
+    throws InvalidGrammar
+    {
 
-	if (CONSTRAINT_GRAMMAR.equals(grammar)) {
+        if ( CONSTRAINT_GRAMMAR.equals( grammar ) )
+        {
 
-	    FilterImpl _filterServant = new FilterImpl(applicationContext_, CONSTRAINT_GRAMMAR);
+            FilterImpl _filterServant = new FilterImpl( applicationContext_, CONSTRAINT_GRAMMAR );
 
-	    _filterServant.init();
-	    
-	    return _filterServant;
-	}
-	throw new InvalidGrammar("Constraint Language '" 
-				 + grammar 
-				 + "' is not supported. Try one of the following: " 
-				 + CONSTRAINT_GRAMMAR);
+            _filterServant.init();
+
+            return _filterServant;
+        }
+
+        throw new InvalidGrammar( "Constraint Language '"
+                                  + grammar
+                                  + "' is not supported. Try one of the following: "
+                                  + CONSTRAINT_GRAMMAR );
     }
 
-    public MappingFilter create_mapping_filter(String grammar, 
-					       Any any) throws InvalidGrammar {
+    public MappingFilter create_mapping_filter( String grammar,
+            Any any ) throws InvalidGrammar
+    {
 
-	FilterImpl _filterImpl = create_filter_servant(grammar);
+        FilterImpl _filterImpl = create_filter_servant( grammar );
 
-	MappingFilterImpl _mappingFilterServant = new MappingFilterImpl(applicationContext_,
-									_filterImpl,
-									any);
+        MappingFilterImpl _mappingFilterServant = new MappingFilterImpl( applicationContext_,
+                _filterImpl,
+                any );
 
-	MappingFilter _filter = _mappingFilterServant._this(applicationContext_.getOrb());
+        MappingFilter _filter = _mappingFilterServant._this( applicationContext_.getOrb() );
 
-	return _filter;
+        return _filter;
     }
 
-    public void dispose() {
-	if (isApplicationContextCreatedHere_) {
-	    applicationContext_.getOrb().shutdown(true);
-	    applicationContext_.dispose();
-	}
+    public void dispose()
+    {
+        if ( isApplicationContextCreatedHere_ )
+        {
+            applicationContext_.getOrb().shutdown( true );
+            applicationContext_.dispose();
+        }
     }
 
-    public FilterFactory getFilterFactory() {
-	if (thisRef_ == null) {
-	    synchronized(this) {
-		if (thisRef_ == null) {
-		    thisRef_ = _this(applicationContext_.getOrb());
-		}
-	    }
-	}
-	return thisRef_;
+    public FilterFactory getFilterFactory()
+    {
+        if ( thisRef_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( thisRef_ == null )
+                {
+                    thisRef_ = _this( applicationContext_.getOrb() );
+                }
+            }
+        }
+
+        return thisRef_;
     }
 
-    public POA _default_POA() {
-	return applicationContext_.getPoa();
+    public POA _default_POA()
+    {
+        return applicationContext_.getPoa();
     }
 
 }

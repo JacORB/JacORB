@@ -29,48 +29,45 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import antlr.Token;
 
 /** A simple node to represent NOT operation */
-public class NotOperator extends TCLNode {
+public class NotOperator extends AbstractTCLNode {
     public NotOperator(Token tok) {
-	super(tok);
+        super(tok);
     }
 
     public String toString() {
-	return " not";
+        return " not";
     }
 
     public boolean checkOperands() {
-	return true;
+        return true;
     }
 
-    public EvaluationResult evaluate(EvaluationContext context) 
-	throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode,
-	       EvaluationException {
+    public EvaluationResult evaluate(EvaluationContext context)
+        throws DynamicTypeException,
+               EvaluationException {
 
-	EvaluationResult _eval = left().evaluate(context);
-	boolean _b = _eval.getBool();
-	return (_b ? EvaluationResult.BOOL_FALSE : EvaluationResult.BOOL_TRUE);
+        EvaluationResult _eval = left().evaluate(context);
+        boolean _b = _eval.getBool();
+        return (_b ? EvaluationResult.BOOL_FALSE : EvaluationResult.BOOL_TRUE);
     }
 
     static final String NAME = "NotOperator";
     public String getName() {
-	return NAME;
+        return NAME;
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitNot(this);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitNot(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitNot(this);
-	left().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitNot(this);
+        left().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitNot(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitNot(this);
     }
 }

@@ -31,13 +31,17 @@ package org.jacorb.notification.node;
  * @version $Id$
  */
 
-public class StaticTypeException extends VisitorException {
-    public StaticTypeException(String msg) {
-	super(msg);
+public class StaticTypeException extends VisitorException
+{
+
+    public StaticTypeException( String msg )
+    {
+        super( msg );
     }
 
-    public StaticTypeException() {
-	super();
+    public StaticTypeException()
+    {
+        super();
     }
 
-}// StaticTypeException
+} // StaticTypeException

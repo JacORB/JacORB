@@ -34,8 +34,8 @@ import org.omg.CosNotifyChannelAdmin.AdminNotFound;
  * @version $Id$
  */
 
-public class StructuredPullSender 
-    extends Thread  
+public class StructuredPullSender
+    extends Thread
     implements StructuredPullSupplierOperations, TestClientOperations {
 
     ORB orb_;
@@ -48,22 +48,22 @@ public class StructuredPullSender
     boolean available_;
 
     public boolean isError() {
-	return error_;
+        return error_;
     }
 
     public boolean isEventHandled() {
-	return eventHandled_;
+        return eventHandled_;
     }
 
     public StructuredPullSender(TestCase testCase, StructuredEvent event) {
-	event_ = event;
-	testCase_ = testCase;
+        event_ = event;
+        testCase_ = testCase;
     }
 
     public void run() {
-	synchronized(this) {
-	    available_ = true;
-	}
+        synchronized(this) {
+            available_ = true;
+        }
     }
 
     // Implementation of org.omg.CosNotifyComm.NotifySubscribeOperations
@@ -76,9 +76,9 @@ public class StructuredPullSender
      * @exception InvalidEventType if an error occurs
      */
     public void subscription_change(EventType[] eventType1, EventType[] eventType2) throws InvalidEventType {
-	
+
     }
-    
+
     // Implementation of org.omg.CosNotifyComm.StructuredPullSupplierOperations
 
     /**
@@ -88,15 +88,15 @@ public class StructuredPullSender
      * @exception Disconnected if an error occurs
      */
     public StructuredEvent pull_structured_event() throws Disconnected {
-	BooleanHolder _success = new BooleanHolder();
-	StructuredEvent _event;
-	while(true) {
-	    _event = try_pull_structured_event(_success);
-	    if(_success.value) {
-		return _event;
-	    } 
-	    Thread.yield();
-	}
+        BooleanHolder _success = new BooleanHolder();
+        StructuredEvent _event;
+        while(true) {
+            _event = try_pull_structured_event(_success);
+            if(_success.value) {
+                return _event;
+            }
+            Thread.yield();
+        }
     }
 
     /**
@@ -107,19 +107,19 @@ public class StructuredPullSender
      * @exception Disconnected if an error occurs
      */
     public StructuredEvent try_pull_structured_event(BooleanHolder booleanHolder) throws Disconnected {
-	booleanHolder.value = false;
-	StructuredEvent _result = TestUtils.getInvalidStructuredEvent(orb_);
-	if (event_ != null) {
-	    synchronized(this) {
-		if (event_ != null && available_) {
-		    _result = event_;
-		    event_ = null;
-		    booleanHolder.value = true;
-		    eventHandled_ = true;
-		}
-	    }
-	}
-	return _result;
+        booleanHolder.value = false;
+        StructuredEvent _result = NotificationTestUtils.getInvalidStructuredEvent(orb_);
+        if (event_ != null) {
+            synchronized(this) {
+                if (event_ != null && available_) {
+                    _result = event_;
+                    event_ = null;
+                    booleanHolder.value = true;
+                    eventHandled_ = true;
+                }
+            }
+        }
+        return _result;
     }
 
     /**
@@ -127,36 +127,36 @@ public class StructuredPullSender
      * here.
      *
      */
-    public void disconnect_structured_pull_supplier() {	
-	connected_ = false;
+    public void disconnect_structured_pull_supplier() {
+        connected_ = false;
     }
-    
+
     public void connect(NotificationTestCaseSetup setup,EventChannel channel,boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound {
 
-	orb_ = setup.getClientOrb();
+        orb_ = setup.getClientOrb();
 
-	StructuredPullSupplierPOATie _senderTie = new StructuredPullSupplierPOATie(this);
-	SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
-	IntHolder _proxyId = new IntHolder();
-	pullConsumer_ = 
-	    StructuredProxyPullConsumerHelper.narrow(_supplierAdmin.obtain_notification_pull_consumer(ClientType.STRUCTURED_EVENT, _proxyId));
+        StructuredPullSupplierPOATie _senderTie = new StructuredPullSupplierPOATie(this);
+        SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
+        IntHolder _proxyId = new IntHolder();
+        pullConsumer_ =
+            StructuredProxyPullConsumerHelper.narrow(_supplierAdmin.obtain_notification_pull_consumer(ClientType.STRUCTURED_EVENT, _proxyId));
 
-	testCase_.assertEquals(_supplierAdmin, channel.get_supplieradmin(_supplierAdmin.MyID()));
+        testCase_.assertEquals(_supplierAdmin, channel.get_supplieradmin(_supplierAdmin.MyID()));
 
-	testCase_.assertEquals(pullConsumer_.MyType(), ProxyType.PULL_STRUCTURED);
+        testCase_.assertEquals(pullConsumer_.MyType(), ProxyType.PULL_STRUCTURED);
 
 
-	pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper.narrow(_senderTie._this(setup.getClientOrb())));
-	connected_ = true;
+        pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper.narrow(_senderTie._this(setup.getClientOrb())));
+        connected_ = true;
     }
 
     public void shutdown() {
-	pullConsumer_.disconnect_structured_pull_consumer();
-	testCase_.assertTrue(pullConsumer_._non_existent());
+        pullConsumer_.disconnect_structured_pull_consumer();
+        testCase_.assertTrue(pullConsumer_._non_existent());
     }
 
     public boolean isConnected() {
-	return connected_;
+        return connected_;
     }
 
 }

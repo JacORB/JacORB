@@ -29,67 +29,67 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 import antlr.Token;
 
-public class SubstrOperator extends TCLNode {
+public class SubstrOperator extends AbstractTCLNode {
 
     static final String NAME = "SubstrOperator";
 
     String value_;
 
     public String getName() {
-	return NAME;
+        return NAME;
     }
 
     public SubstrOperator(Token tok) {
-	super(tok);
-	value_ = tok.getText();
+        super(tok);
+        value_ = tok.getText();
     }
 
 
     public String toString() {
-	return " ~";
+        return " ~";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context) throws DynamicTypeException,
-	       InvalidValue,
-	       TypeMismatch,
-	       InconsistentTypeCode, EvaluationException {
-	EvaluationResult _res;
+    public EvaluationResult evaluate(EvaluationContext context)
+        throws EvaluationException,
+               DynamicTypeException {
 
-	String _l, _r;
+        EvaluationResult _res;
 
-	_l = left().evaluate(context).getString();
-	_r = right().evaluate(context).getString();
+        String _l, _r;
 
-	int _idx = _r.indexOf(_l);
+        _l = left().evaluate(context).getString();
+        _r = right().evaluate(context).getString();
 
-	if (_idx == -1) {
-	    _res = EvaluationResult.BOOL_FALSE;
-	} else {
-	    _res = EvaluationResult.BOOL_TRUE;
-	}
+        int _idx = _r.indexOf(_l);
 
-	return _res;
+        if (_idx == -1) {
+            _res = EvaluationResult.BOOL_FALSE;
+        } else {
+            _res = EvaluationResult.BOOL_TRUE;
+        }
+
+        return _res;
     }
 
     public boolean isStatic() {
-	return (left().isStatic() && right().isStatic());
+        return (left().isStatic() && right().isStatic());
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitSubstr(this);
-	right().acceptInOrder(visitor);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitSubstr(this);
+        right().acceptInOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	right().acceptPostOrder(visitor);
-	visitor.visitSubstr(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        right().acceptPostOrder(visitor);
+        visitor.visitSubstr(this);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitSubstr(this);
-	left().acceptPreOrder(visitor);
-	right().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitSubstr(this);
+        left().acceptPreOrder(visitor);
+        right().acceptPreOrder(visitor);
     }
 }

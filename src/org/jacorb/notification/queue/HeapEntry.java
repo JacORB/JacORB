@@ -1,4 +1,4 @@
-package org.jacorb.notification.interfaces;
+package org.jacorb.notification.queue;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,26 +21,31 @@ package org.jacorb.notification.interfaces;
  *
  */
 
+import org.jacorb.notification.interfaces.Message;
+
 /**
- * Baseclass for Framework Events.
- *
- *
- * Created: Wed Feb 12 15:11:59 2003
+ * Single entry within a Heap. An entry consists of a payload (the
+ * Notification) and order of simple int type. The order member
+ * is useful to keep track in which order the single elements were
+ * inserted in a Heap.
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class FrameworkEvent {
-    
-    private Object source_;
+class HeapEntry {
 
-    public FrameworkEvent(Object source) {
-	source_ = source;
+    Message event_;
+    long order_;
+
+    HeapEntry(Message event,
+              long order) {
+        event_ = event;
+        order_ = order;
     }
 
-    public Object getSource() {
-	return source_;
+    public String toString() {
+        return "[" + order_ + "/" + event_.toString() + "]";
     }
-    
 }
+

@@ -34,6 +34,7 @@ import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.evaluate.FilterConstraint;
 import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.node.DynamicTypeException;
 import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
@@ -142,7 +143,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     /**
      * contains a number of callbacks, which are notified each time there is a
-     * change to the list of 
+     * change to the list of
      */
     protected Map callbacks_;
 
@@ -171,7 +172,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected DynAnyFactory dynAnyFactory_;
 
-    protected NotificationEventFactory notificationEventFactory_;
+    protected MessageFactory notificationEventFactory_;
 
     public FilterImpl(ApplicationContext applicationContext, String constraintGrammar)
     {
@@ -183,7 +184,7 @@ public class FilterImpl extends FilterPOA implements Disposable
         orb_ = applicationContext.getOrb();
 
         notificationEventFactory_ =
-            applicationContext.getNotificationEventFactory();
+            applicationContext.getMessageFactory();
 
         dynAnyFactory_ = applicationContext.getDynAnyFactory();
         resultExtractor_ = applicationContext.getResultExtractor();
@@ -218,7 +219,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     /**
      * The <code>add_constraints</code> operation is invoked by a
-     * client in order 
+     * client in order
      * to associate one or more new constraints with the target filter
      * object. The operation accepts as input a sequence of constraint
      * data structures, each element of which consists of a sequence
@@ -234,15 +235,15 @@ public class FilterImpl extends FilterPOA implements Disposable
      * specific constraint expression that was determined to be
      * invalid. Upon successful processing of all input constraint
      * expressions, the <code>add_constraints</code> operation returns
-     * a sequence 
+     * a sequence
      * in which each element will be a structure including one of the
      * input constraint expressions, along with the unique identifier
      * assigned to it by the target filter object. <br>
      * Note that the semantics of the <code>add_constraints</code>
-     * operation are 
+     * operation are
      * such that its sideeffects are performed atomically upon the
      * target filter object. Once <code>add_constraints</code> is
-     * invoked by a 
+     * invoked by a
      * client, the target filter object is temporarily disabled from
      * usage by any proxy object it may be associated with. The
      * operation is then carried out, either successfully adding all
@@ -250,10 +251,10 @@ public class FilterImpl extends FilterPOA implements Disposable
      * (in the case one of the input expressions was invalid). Upon
      * completion of the operation, the target filter object is
      * effectively re-enabled and can once again be used by associated
-     * filter objects in order to make event forwarding decisions. 
+     * filter objects in order to make event forwarding decisions.
      */
     public ConstraintInfo[] add_constraints( ConstraintExp[] constraintExp )
-	throws InvalidConstraint
+        throws InvalidConstraint
     {
 
         FilterConstraint[] _arrayConstraintEvaluator =
@@ -361,47 +362,47 @@ public class FilterImpl extends FilterPOA implements Disposable
                 }
 
                 // create update constraints and check if the id exists
-                Integer[] _constraintKeys = 
-		    new Integer[ constraintInfo.length ];
+                Integer[] _constraintKeys =
+                    new Integer[ constraintInfo.length ];
 
-                FilterConstraint[] _arrayConstraintEvaluator = 
-		    new FilterConstraint[ constraintInfo.length ];
+                FilterConstraint[] _arrayConstraintEvaluator =
+                    new FilterConstraint[ constraintInfo.length ];
 
                 for ( int _x = 0; _x < constraintInfo.length; ++_x )
                 {
-                    _constraintKeys[ _x ] = 
-			new Integer( constraintInfo[ _x ].constraint_id );
+                    _constraintKeys[ _x ] =
+                        new Integer( constraintInfo[ _x ].constraint_id );
 
                     if ( constraints_.containsKey( _constraintKeys[ _x ] ) )
                     {
                         _arrayConstraintEvaluator[ _x ] =
-                            new FilterConstraint( 
-						     constraintInfo[ _x ].constraint_expression );
+                            new FilterConstraint(
+                                                     constraintInfo[ _x ].constraint_expression );
                     }
                     else
                     {
                         throw new ConstraintNotFound( constraintInfo[ _x ].constraint_id );
                     }
 
-                    int _length = 
-			constraintInfo[ _x ].constraint_expression.event_types.length;
+                    int _length =
+                        constraintInfo[ _x ].constraint_expression.event_types.length;
                 }
 
                 // delete some constraints
                 for ( int _x = 0; _x < deleteIds.length; ++_x )
                 {
-                    ConstraintEntry _deletedEntry = 
-			( ConstraintEntry ) constraints_.remove( _deleteKeys[ _x ] );
+                    ConstraintEntry _deletedEntry =
+                        ( ConstraintEntry ) constraints_.remove( _deleteKeys[ _x ] );
 
                     int _eventTypeCount = _deletedEntry.getEventTypeCount();
 
                     for ( int _y = 0; _y < _eventTypeCount; ++_y )
                     {
-                        EventTypeIdentifier _eventTypeIdentifier = 
-			    _deletedEntry.getEventTypeIdentifier( _y );
+                        EventTypeIdentifier _eventTypeIdentifier =
+                            _deletedEntry.getEventTypeIdentifier( _y );
 
-                        List _listOfConstraintEvaluator = 
-			    ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier );
+                        List _listOfConstraintEvaluator =
+                            ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier );
 
                         Iterator _i = _listOfConstraintEvaluator.iterator();
 
@@ -421,8 +422,8 @@ public class FilterImpl extends FilterPOA implements Disposable
                 // update some constraints
                 for ( int _x = 0; _x < constraintInfo.length; _x++ )
                 {
-                    ConstraintEntry _entry = 
-			new ConstraintEntry( _constraintKeys[ _x ].intValue(),
+                    ConstraintEntry _entry =
+                        new ConstraintEntry( _constraintKeys[ _x ].intValue(),
                                              _arrayConstraintEvaluator[ _x ],
                                              constraintInfo[ _x ] );
 
@@ -432,11 +433,11 @@ public class FilterImpl extends FilterPOA implements Disposable
 
                     for ( int _y = 0; _y < _eventTypeCount; ++_y )
                     {
-                        EventTypeIdentifier _eventTypeIdentifier = 
-			    _entry.getEventTypeIdentifier( _y );
+                        EventTypeIdentifier _eventTypeIdentifier =
+                            _entry.getEventTypeIdentifier( _y );
 
-                        List _listOfConstraintEvaluator = 
-			    ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier );
+                        List _listOfConstraintEvaluator =
+                            ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier );
 
                         //    if (_listOfConstraintEvaluator == null) {
                         //        _listOfConstraintEvaluator = new LinkedList();
@@ -459,11 +460,11 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 
-    public ConstraintInfo[] get_constraints( int[] ids ) 
-	throws ConstraintNotFound
+    public ConstraintInfo[] get_constraints( int[] ids )
+        throws ConstraintNotFound
     {
         ConstraintInfo[] _constraintInfo = new ConstraintInfo[ ids.length ];
-	Sync _lock = constraintsLock_.readLock();
+        Sync _lock = constraintsLock_.readLock();
         try
         {
             _lock.acquire();
@@ -565,7 +566,7 @@ public class FilterImpl extends FilterPOA implements Disposable
     /**
      * call and use Iterator inside a read access mutex section only.
      */
-    Iterator getConstraintsForEvent( NotificationEvent event )
+    Iterator getConstraintsForEvent( Message event )
     {
         String _key = event.getConstraintKey();
 
@@ -631,8 +632,8 @@ public class FilterImpl extends FilterPOA implements Disposable
     }
 
     // readers
-    int match(EvaluationContext evaluationContext, 
-	      NotificationEvent event ) throws UnsupportedFilterableData
+    int match(EvaluationContext evaluationContext,
+              Message event ) throws UnsupportedFilterableData
     {
         try
         {
@@ -660,7 +661,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
                             if ( _result )
                             {
-				return _entry.getConstraintId();
+                                return _entry.getConstraintId();
                             }
                         }
                         catch ( EvaluationException e )
@@ -695,15 +696,15 @@ public class FilterImpl extends FilterPOA implements Disposable
     }
 
     public boolean match( Any anyEvent ) throws UnsupportedFilterableData {
-	return match_internal( anyEvent ) != NO_CONSTRAINT;
+        return match_internal( anyEvent ) != NO_CONSTRAINT;
     }
 
     public int match_internal( Any anyEvent ) throws UnsupportedFilterableData
     {
-	logger_.debug("match()");
+        logger_.debug("match()");
 
         EvaluationContext _evaluationContext = null;
-        NotificationEvent _event = null;
+        Message _event = null;
 
         try
         {
@@ -716,42 +717,42 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
         finally
         {
-            _event.release();
+            _event.dispose();
             _evaluationContext.release();
         }
     }
 
     public boolean match_structured( StructuredEvent structuredevent) throws UnsupportedFilterableData {
-	return match_structured_internal(structuredevent) != NO_CONSTRAINT;
+        return match_structured_internal(structuredevent) != NO_CONSTRAINT;
     }
 
     public int match_structured_internal( StructuredEvent structuredEvent )
     throws UnsupportedFilterableData
     {
 
-	logger_.debug("match_structured");
+        logger_.debug("match_structured");
 
         EvaluationContext _evaluationContext = null;
-        NotificationEvent _event = null;
+        Message _event = null;
 
         try
         {
             _evaluationContext = applicationContext_.newEvaluationContext();
 
-            _event = 
-		notificationEventFactory_.newEvent( structuredEvent );
+            _event =
+                notificationEventFactory_.newEvent( structuredEvent );
 
             return match(_evaluationContext, _event );
         }
         finally
         {
-            _event.release();
+            _event.dispose();
             _evaluationContext.release();
         }
     }
 
     public boolean match_typed( Property[] properties )
-	throws UnsupportedFilterableData
+        throws UnsupportedFilterableData
     {
 
         return false;

@@ -32,61 +32,58 @@ import antlr.Token;
 
 /** A simple node to represent AND operation */
 
-public class AndOperator extends TCLNode {
+public class AndOperator extends AbstractTCLNode {
 
     public AndOperator(Token tok) {
-	super(tok);
-	setKind(TCKind.tk_boolean);
+        super(tok);
+        setKind(TCKind.tk_boolean);
     }
 
     public String toString() {
-	return "and";
+        return "and";
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InconsistentTypeCode,
-	       InvalidValue,
-	       TypeMismatch,
-	       EvaluationException {
+        throws DynamicTypeException,
+               EvaluationException {
 
-	boolean _l, _r;
+        boolean _l, _r;
 
-	_l = left().evaluate(context).getBool();
+        _l = left().evaluate(context).getBool();
 
-	if (!_l) {
-	    return EvaluationResult.BOOL_FALSE;
-	}
+        if (!_l) {
+            return EvaluationResult.BOOL_FALSE;
+        }
 
-	_r = right().evaluate(context).getBool();
+        _r = right().evaluate(context).getBool();
 
-	return (_r ? EvaluationResult.BOOL_TRUE : EvaluationResult.BOOL_FALSE);
+        return (_r ? EvaluationResult.BOOL_TRUE : EvaluationResult.BOOL_FALSE);
     }
 
     public boolean isStatic() {
-	return (left().isStatic() && right().isStatic());
+        return (left().isStatic() && right().isStatic());
     }
 
-    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptInOrder(visitor);
-	visitor.visitAnd(this);
-	right().acceptInOrder(visitor);
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitor.visitAnd(this);
+        right().acceptInOrder(visitor);
     }
 
-    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
-	visitor.visitAnd(this);
-	left().acceptPreOrder(visitor);
-	right().acceptPreOrder(visitor);
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitor.visitAnd(this);
+        left().acceptPreOrder(visitor);
+        right().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
-	left().acceptPostOrder(visitor);
-	right().acceptPostOrder(visitor);
-	visitor.visitAnd(this);
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        right().acceptPostOrder(visitor);
+        visitor.visitAnd(this);
     }
 
     public String getName() {
-	return NAME;
+        return NAME;
     }
 
     static final String NAME = "AndOperator";
