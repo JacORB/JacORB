@@ -24,14 +24,6 @@ public class FixSunDelegateBug
         extends com.sun.corba.se.internal.iiop.ShutdownUtilDelegate
 {
 
-    static FixSunDelegateBug instance = null;
-
-    public FixSunDelegateBug()
-    {
-        instance = this;
-    }
-
-
     public boolean isLocal(javax.rmi.CORBA.Stub stub)
                     throws java.rmi.RemoteException
     {
@@ -45,4 +37,5 @@ public class FixSunDelegateBug
             throw javax.rmi.CORBA.Util.mapSystemException(e);
         }
     }
+
 }
