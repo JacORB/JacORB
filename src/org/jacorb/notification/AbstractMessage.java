@@ -457,7 +457,7 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     public abstract long getTimeout();
 
-    abstract protected int getPriority();
+    public abstract int getPriority();
 
     public abstract boolean match(FilterStage filterStage);
 
