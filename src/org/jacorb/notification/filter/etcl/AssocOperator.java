@@ -21,12 +21,6 @@ package org.jacorb.notification.filter.etcl;
  *
  */
 
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.filter.EvaluationException;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-
 import antlr.Token;
 
 /** A simple node to represent Assoc operation */

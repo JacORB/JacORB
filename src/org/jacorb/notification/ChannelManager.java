@@ -29,7 +29,6 @@ import java.util.Map;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventChannelEvent;
 import org.jacorb.notification.interfaces.EventChannelEventListener;
-
 import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
 
 /**

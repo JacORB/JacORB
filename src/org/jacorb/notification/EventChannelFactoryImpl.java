@@ -21,20 +21,10 @@ package org.jacorb.notification;
  *
  */
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
-
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
-import org.omg.CosNaming.NameComponent;
-import org.omg.CosNaming.NamingContext;
-import org.omg.CosNaming.NamingContextHelper;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedAdmin;
 import org.omg.CosNotification.UnsupportedQoS;
@@ -45,8 +35,6 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
-
-import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of

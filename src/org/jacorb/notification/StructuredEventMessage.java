@@ -22,20 +22,17 @@ package org.jacorb.notification;
  */
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 import org.jacorb.notification.filter.ComponentName;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.FilterUtils;
-import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Time;
-
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CORBA.TCKind;
 import org.omg.CosNotification.Priority;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StartTime;
@@ -49,7 +46,6 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 import org.omg.TimeBase.TimeTHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
-import org.omg.CORBA.TCKind;
 
 /**
  * Adapts a StructuredEvent to the Message Interface.

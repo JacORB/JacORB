@@ -23,11 +23,9 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
-import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
-
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;

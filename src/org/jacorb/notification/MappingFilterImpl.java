@@ -24,6 +24,9 @@ package org.jacorb.notification;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.interfaces.Disposable;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -39,12 +42,6 @@ import org.omg.CosNotifyFilter.MappingConstraintInfo;
 import org.omg.CosNotifyFilter.MappingConstraintPair;
 import org.omg.CosNotifyFilter.MappingFilterPOA;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
-
-import org.jacorb.notification.interfaces.Disposable;
-
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.Configurable;
 
 /**
  * @author Alphonse Bendt

@@ -23,7 +23,6 @@ package org.jacorb.notification;
 
 import org.jacorb.notification.filter.FilterConstraint;
 import org.jacorb.notification.filter.FilterUtils;
-
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 

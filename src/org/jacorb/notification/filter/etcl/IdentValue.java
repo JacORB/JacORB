@@ -22,9 +22,9 @@ package org.jacorb.notification.filter.etcl;
  */
 
 import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationResult;
 
 import antlr.Token;
-import org.jacorb.notification.filter.EvaluationResult;
 
 public class IdentValue extends AbstractTCLNode
 {

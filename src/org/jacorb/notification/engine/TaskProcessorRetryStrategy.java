@@ -21,7 +21,6 @@ package org.jacorb.notification.engine;
  */
 
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.engine.TaskExecutor;
 
 /**
  * @author Alphonse Bendt

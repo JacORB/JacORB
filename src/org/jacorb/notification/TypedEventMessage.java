@@ -20,6 +20,14 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.Date;
+
+import org.jacorb.notification.filter.ComponentName;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.filter.FilterUtils;
+import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CORBA.ORB;
@@ -33,15 +41,6 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
-
-import java.util.Date;
-
-import org.jacorb.notification.filter.ComponentName;
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.filter.EvaluationException;
-import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.FilterUtils;
-import org.jacorb.notification.interfaces.Message;
 
 /**
  * @author Alphonse Bendt

@@ -21,7 +21,6 @@ package org.jacorb.notification.filter;
  *
  */
 
-import java.lang.Exception;
 
 /**
  * @author Alphonse Bendt

@@ -20,20 +20,34 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.jacorb.notification.NoTranslationException;
+import org.jacorb.notification.TypedEventMessage;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.queue.EventQueue;
+import org.jacorb.notification.util.PropertySet;
+import org.jacorb.notification.util.PropertySetListener;
 import org.omg.CORBA.ARG_OUT;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.InterfaceDef;
 import org.omg.CORBA.InterfaceDefHelper;
-import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.OperationDescription;
 import org.omg.CORBA.ParameterMode;
 import org.omg.CORBA.Repository;
+import org.omg.CORBA.RepositoryHelper;
 import org.omg.CORBA.ServerRequest;
+import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
+import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PullConsumer;
@@ -53,22 +67,6 @@ import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.PortableServer.DynamicImplementation;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.jacorb.notification.AbstractMessage;
-import org.jacorb.notification.TypedEventMessage;
-import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.queue.EventQueue;
-import org.jacorb.notification.util.PropertySet;
-import org.jacorb.notification.util.PropertySetListener;
-import org.omg.CORBA.RepositoryHelper;
-import org.jacorb.notification.*;
 
 /**
  * @author Alphonse Bendt

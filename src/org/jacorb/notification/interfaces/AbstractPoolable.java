@@ -21,11 +21,10 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.util.AbstractObjectPool;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.util.AbstractObjectPool;
 
 /**
  * Interface to indicate that a Object can be pooled. Objects can be

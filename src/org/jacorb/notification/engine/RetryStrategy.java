@@ -20,13 +20,10 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.CosEventComm.Disconnected;
-
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.MessageConsumer;
-
-import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CosEventComm.Disconnected;
 
 /**
  * @author Alphonse Bendt

@@ -20,10 +20,9 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.notification.interfaces.Message;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushConsumer;
-
-import org.jacorb.notification.interfaces.Message;
 
 /**
  * @author Alphonse Bendt

@@ -20,14 +20,19 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageSupplier;
 import org.omg.CORBA.ARG_OUT;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.InterfaceDef;
 import org.omg.CORBA.InterfaceDefHelper;
-import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.OperationDescription;
 import org.omg.CORBA.Request;
+import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
@@ -36,12 +41,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerPOATie;
 import org.omg.PortableServer.Servant;
-
-import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageSupplier;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @Author Alphonse Bendt

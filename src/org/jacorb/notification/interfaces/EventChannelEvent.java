@@ -21,7 +21,6 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.interfaces.ApplicationEvent;
 import org.jacorb.notification.AbstractEventChannel;
 
 /**

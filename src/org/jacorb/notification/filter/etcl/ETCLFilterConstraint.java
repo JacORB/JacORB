@@ -27,7 +27,6 @@ import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.FilterConstraint;
 import org.jacorb.notification.filter.ParseException;
 import org.jacorb.notification.interfaces.Message;
-
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 

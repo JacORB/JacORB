@@ -20,10 +20,10 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.interfaces.FilterStage;
-
 import java.util.ArrayList;
 import java.util.Collections;
+
+import org.jacorb.notification.interfaces.FilterStage;
 
 /**
  * @author Alphonse Bendt

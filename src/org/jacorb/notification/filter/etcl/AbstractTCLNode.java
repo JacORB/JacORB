@@ -26,7 +26,6 @@ import java.lang.reflect.Field;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-
 import org.omg.CORBA.TCKind;
 
 import antlr.BaseAST;

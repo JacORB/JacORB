@@ -20,11 +20,19 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.List;
+
+import org.jacorb.notification.NoTranslationException;
+import org.jacorb.notification.TypedEventMessage;
+import org.jacorb.notification.engine.PushTypedOperation;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CORBA.ARG_IN;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Request;
 import org.omg.CORBA.TCKind;
+import org.omg.CORBA.TypeCode;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosNotification.EventTypeHelper;
@@ -35,16 +43,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierPOATie;
 import org.omg.PortableServer.Servant;
-
-import org.jacorb.notification.AbstractMessage;
-import org.jacorb.notification.TypedEventMessage;
-import org.jacorb.notification.engine.PushTypedOperation;
-import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
-
-import java.util.List;
-import org.omg.CORBA.TypeCode;
-import org.jacorb.notification.*;
 
 /**
  * @author Alphonse Bendt

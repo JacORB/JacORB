@@ -21,22 +21,20 @@ package org.jacorb.notification.interfaces;
  *
  */
 
+import java.util.Date;
+
+import org.jacorb.notification.NoTranslationException;
+import org.jacorb.notification.filter.ComponentName;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.filter.RuntimeVariable;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
-
-import org.jacorb.notification.AbstractMessage;
-import org.jacorb.notification.filter.ComponentName;
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.filter.EvaluationException;
-import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.RuntimeVariable;
-
-import java.util.Date;
-import org.jacorb.notification.*;
 
 /**
  * @author Alphonse Bendt

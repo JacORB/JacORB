@@ -21,33 +21,21 @@ package org.jacorb.notification;
  *
  */
 
-import org.jacorb.notification.engine.TaskProcessor;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.filter.DynamicEvaluator;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.queue.EventQueue;
-import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.AbstractObjectPool;
-
-import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
-import org.omg.CosNotification.MaximumBatchSize;
-import org.omg.CosNotification.PacingInterval;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
-import org.omg.TimeBase.TimeTHelper;
-
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.Configurable;
-
-import org.jacorb.notification.filter.EvaluationContext;
 
 /**
  * @author Alphonse Bendt

@@ -21,19 +21,6 @@ package org.jacorb.notification;
  *
  */
 
-import org.jacorb.notification.engine.TaskProcessor;
-
-import org.jacorb.notification.engine.TaskProcessorDependency;
-import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.queue.EventQueueFactory;
-import org.jacorb.notification.queue.EventQueueFactoryDependency;
-import org.jacorb.notification.servant.ManageableServant;
-
-import org.omg.CORBA.ORB;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.PortableServer.POA;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,6 +29,15 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.TaskProcessorDependency;
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.queue.EventQueueFactory;
+import org.jacorb.notification.queue.EventQueueFactoryDependency;
+import org.jacorb.notification.servant.ManageableServant;
+import org.omg.CORBA.ORB;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.PortableServer.POA;
 
 /**
  * @author Alphonse Bendt

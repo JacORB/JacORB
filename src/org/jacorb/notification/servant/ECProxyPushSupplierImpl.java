@@ -25,10 +25,7 @@ import org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplierPOATie;
 import org.omg.CosEventComm.PushConsumer;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.PortableServer.Servant;
-
-import org.jacorb.notification.ChannelContext;
 
 /**
  * @author Alphonse Bendt

@@ -22,8 +22,6 @@ package org.jacorb.notification.engine;
  */
 
 import org.jacorb.notification.interfaces.MessageSupplier;
-import org.jacorb.notification.engine.TaskExecutor;
-
 import org.omg.CosEventComm.Disconnected;
 
 /**

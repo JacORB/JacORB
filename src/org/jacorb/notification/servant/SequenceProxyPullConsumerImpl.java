@@ -21,6 +21,7 @@ package org.jacorb.notification.servant;
  *
  */
 
+import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
@@ -30,9 +31,6 @@ import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerPOATie;
 import org.omg.CosNotifyComm.SequencePullSupplier;
 import org.omg.PortableServer.Servant;
-
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.interfaces.Message;
 
 /**
  * @author Alphonse Bendt

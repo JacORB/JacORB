@@ -21,10 +21,14 @@ package org.jacorb.notification.queue;
  *
  */
 
-import org.jacorb.notification.conf.Attributes;
-import org.jacorb.notification.util.QoSPropertySet;
-import org.jacorb.notification.conf.Default;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.util.QoSPropertySet;
 import org.omg.CosNotification.AnyOrder;
 import org.omg.CosNotification.DeadlineOrder;
 import org.omg.CosNotification.DiscardPolicy;
@@ -34,13 +38,6 @@ import org.omg.CosNotification.MaxEventsPerConsumer;
 import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.PriorityOrder;
 import org.omg.CosNotification.UnsupportedQoS;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.Configurable;
 
 /**
  * @author Alphonse Bendt

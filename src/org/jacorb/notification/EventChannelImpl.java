@@ -20,22 +20,17 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.List;
-
-import org.jacorb.notification.interfaces.FilterStageSource;
 import org.jacorb.notification.servant.AbstractAdmin;
 import org.jacorb.notification.servant.AbstractSupplierAdmin;
 import org.jacorb.notification.servant.ConsumerAdminImpl;
 import org.jacorb.notification.servant.SupplierAdminImpl;
-
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.AdminNotFound;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdminHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannelOperations;
 import org.omg.CosNotifyChannelAdmin.EventChannelPOATie;
@@ -43,7 +38,6 @@ import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminHelper;
 import org.omg.PortableServer.Servant;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
 
 /**

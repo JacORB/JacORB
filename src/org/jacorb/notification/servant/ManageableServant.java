@@ -20,9 +20,8 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.POA;
 import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
 
 /**
  * @author Alphonse Bendt

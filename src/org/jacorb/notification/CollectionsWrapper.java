@@ -22,7 +22,6 @@ package org.jacorb.notification;
  */
 
 import java.io.Serializable;
-import java.lang.Class;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.Collections;

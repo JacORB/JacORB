@@ -21,6 +21,7 @@ package org.jacorb.notification.util;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,12 +29,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import java.util.ArrayList;
+
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must

@@ -20,10 +20,12 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.ChannelContext;
+import java.util.List;
+
 import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.MessageFactoryDependency;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
@@ -31,7 +33,6 @@ import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.util.EventTypeUtil;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetListener;
-
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CosNotification.EventType;
@@ -43,18 +44,14 @@ import org.omg.CosNotification.Timeout;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyChannelAdmin.SupplierAdminHelper;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.NotifySubscribe;
 import org.omg.CosNotifyComm.NotifySubscribeHelper;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
-import java.util.List;
-
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
-import org.omg.CosNotifyChannelAdmin.SupplierAdminHelper;
-import org.jacorb.notification.MessageFactoryDependency;
-import org.jacorb.notification.conf.Default;
 
 /**
  * @author Alphonse Bendt

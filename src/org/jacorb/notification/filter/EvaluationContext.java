@@ -21,17 +21,15 @@ package org.jacorb.notification.filter;
  *
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jacorb.notification.AbstractMessage;
 import org.jacorb.notification.filter.etcl.ETCLComponentName;
 import org.jacorb.notification.filter.etcl.MessageUtils;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Message;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import org.omg.CORBA.Any;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @todo remove the static dependeny to package filter.etcl.

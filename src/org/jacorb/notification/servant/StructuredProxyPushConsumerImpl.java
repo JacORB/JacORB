@@ -21,9 +21,7 @@ package org.jacorb.notification.servant;
  *
  */
 
-import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.interfaces.Message;
-
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
@@ -31,7 +29,6 @@ import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerPOATie;
-import org.omg.CosNotifyComm.NotifySubscribeHelper;
 import org.omg.CosNotifyComm.StructuredPushSupplier;
 import org.omg.PortableServer.Servant;
 

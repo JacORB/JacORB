@@ -20,6 +20,7 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.notification.engine.TaskExecutor;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.UNKNOWN;
@@ -32,8 +33,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
 import org.omg.PortableServer.Servant;
-
-import org.jacorb.notification.engine.TaskExecutor;
 
 /**
  * @author Alphonse Bendt

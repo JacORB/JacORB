@@ -29,7 +29,6 @@ import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.FilterUtils;
 import org.jacorb.notification.interfaces.Message;
-
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CORBA.TCKind;

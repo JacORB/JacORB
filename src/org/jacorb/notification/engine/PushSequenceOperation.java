@@ -21,8 +21,8 @@ package org.jacorb.notification.engine;
  */
 
 import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyComm.SequencePushConsumer;
 
 /**
  * @author Alphonse Bendt

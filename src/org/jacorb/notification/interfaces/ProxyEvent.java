@@ -21,8 +21,8 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.servant.AbstractProxy;
 import org.jacorb.notification.servant.AbstractAdmin;
+import org.jacorb.notification.servant.AbstractProxy;
 
 /**
  * @author Alphonse Bendt

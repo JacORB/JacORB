@@ -20,6 +20,7 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedAdmin;
@@ -30,8 +31,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryPOATie;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelHelper;
 import org.omg.PortableServer.Servant;
-
-import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
  * @author Alphonse Bendt

@@ -21,8 +21,6 @@ package org.jacorb.notification.conf;
  *
  */
 
-import org.omg.CosNotification.FifoOrder;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$

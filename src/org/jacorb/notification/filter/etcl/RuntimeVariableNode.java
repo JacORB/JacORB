@@ -26,8 +26,6 @@ import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.RuntimeVariable;
 
-import org.omg.CORBA.ORB;
-
 import antlr.Token;
 
 /**

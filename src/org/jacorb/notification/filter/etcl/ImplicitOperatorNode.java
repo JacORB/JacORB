@@ -24,7 +24,6 @@ package org.jacorb.notification.filter.etcl;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-
 import org.omg.CORBA.Any;
 
 import antlr.Token;

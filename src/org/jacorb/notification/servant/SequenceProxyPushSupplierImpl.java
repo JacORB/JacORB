@@ -23,7 +23,6 @@ package org.jacorb.notification.servant;
 
 import org.jacorb.notification.engine.PushSequenceOperation;
 import org.jacorb.notification.interfaces.Message;
-
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosNotification.MaximumBatchSize;

@@ -21,8 +21,8 @@ package org.jacorb.notification.util;
  *
  */
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An Object that maps String Keys to Values. A WildcardMap cannot

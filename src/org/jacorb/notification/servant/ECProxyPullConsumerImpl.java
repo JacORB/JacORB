@@ -27,8 +27,6 @@ import org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie;
 import org.omg.CosEventComm.PullSupplier;
 import org.omg.PortableServer.Servant;
 
-import org.jacorb.notification.ChannelContext;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$

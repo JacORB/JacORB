@@ -20,13 +20,13 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
 /**
  * @author Alphonse Bendt

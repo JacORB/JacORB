@@ -20,9 +20,11 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.notification.servant.AbstractAdmin;
+import org.jacorb.notification.servant.AbstractSupplierAdmin;
+import org.jacorb.notification.servant.TypedConsumerAdminImpl;
+import org.jacorb.notification.servant.TypedSupplierAdminImpl;
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.Object;
 import org.omg.CosNotifyChannelAdmin.AdminNotFound;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdmin;
@@ -36,11 +38,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelPOATie;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdminHelper;
 import org.omg.PortableServer.Servant;
-
-import org.jacorb.notification.servant.AbstractAdmin;
-import org.jacorb.notification.servant.AbstractSupplierAdmin;
-import org.jacorb.notification.servant.TypedConsumerAdminImpl;
-import org.jacorb.notification.servant.TypedSupplierAdminImpl;
 
 /**
  * @author Alphonse Bendt

@@ -23,12 +23,9 @@ package org.jacorb.notification.filter.etcl;
 
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.jacorb.notification.filter.EvaluationResult;
 
 import antlr.Token;
-import org.jacorb.notification.filter.EvaluationResult;
 
 /**
  * A simple node to represent MINUS operation

@@ -27,9 +27,7 @@ import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStageSource;
 import org.jacorb.notification.interfaces.MessageConsumer;
-
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumer;
@@ -44,7 +42,6 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdminHelper;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminOperations;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminPOATie;
 import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**

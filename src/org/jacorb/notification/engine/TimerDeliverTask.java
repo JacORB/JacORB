@@ -24,9 +24,6 @@ package org.jacorb.notification.engine;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 
-import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.engine.TaskExecutor;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$

@@ -20,9 +20,10 @@ package org.jacorb.notification.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.List;
+
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedQoS;
-import java.util.List;
 
 /**
  * @author Alphonse Bendt
