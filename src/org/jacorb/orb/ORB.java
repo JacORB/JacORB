@@ -1824,6 +1824,15 @@ public final class ORB
     }
 
     /**
+     * Test, if the ORB has client or server side interceptors.
+     */
+
+    public boolean hasRequestInterceptors ()
+    {
+        return (hasServerInterceptors || hasClientInterceptors);
+    }
+
+    /**
      * Get the InterceptorManager, if present.
      *
      * @return the InterceptorManager, or null, if none is present.
