@@ -26,6 +26,9 @@ import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+
 import java.util.List;
 
 /**
@@ -33,7 +36,7 @@ import java.util.List;
  * @version $Id$
  */
 
-public class TaskFactory implements Disposable
+public class TaskFactory implements Disposable,Configurable
 {
     private TaskProcessor taskProcessor_;
 
@@ -105,14 +108,14 @@ public class TaskFactory implements Disposable
 
     ////////////////////////////////////////
 
-    public void init()
+    public void configure(Configuration conf)
     {
-        filterProxyConsumerTaskPool_.init();
-        filterProxySupplierTaskPool_.init();
-        filterConsumerAdminTaskPool_.init();
-        filterSupplierAdminTaskPool_.init();
+        filterProxyConsumerTaskPool_.configure(conf);
+        filterProxySupplierTaskPool_.configure(conf);
+        filterConsumerAdminTaskPool_.configure(conf);
+        filterSupplierAdminTaskPool_.configure(conf);
 
-        deliverTaskPool_.init();
+        deliverTaskPool_.configure(conf);
     }
 
 

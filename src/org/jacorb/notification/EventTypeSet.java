@@ -171,10 +171,10 @@ abstract class EventTypeSet
                 }
             }
 
-//             if (logger_.isDebugEnabled()) {
-//                 logger_.debug("added: " + _addedList);
-//                 logger_.debug("removed: " + _removedList);
-//             }
+            if (logger_.isDebugEnabled()) {
+                logger_.debug("added: " + _addedList);
+                logger_.debug("removed: " + _removedList);
+            }
 
             eventTypeSet_ = _changedEventTypeSet;
 

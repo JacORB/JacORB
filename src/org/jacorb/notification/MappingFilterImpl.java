@@ -44,6 +44,8 @@ import org.jacorb.notification.interfaces.Disposable;
 //import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.Configurable;
 
 /**
  * @author Alphonse Bendt
@@ -90,6 +92,8 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
     private Any defaultValue_;
 
     private ValueMap valueMap_ = new ValueMap();
+    private Logger logger_ = null;
+    private org.jacorb.config.Configuration config_ = null;
 
     ////////////////////////////////////////
 
@@ -102,6 +106,14 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
     }
 
     ////////////////////////////////////////
+
+    public void configure (Configuration conf)
+    {
+        config_ = ((org.jacorb.config.Configuration)conf);
+        logger_ = config_.getNamedLogger(getClass().getName());
+    }
+
+
 
     public void destroy()
     {

@@ -143,6 +143,7 @@ public abstract class AbstractAdmin
     {
         logger_ = ((org.jacorb.config.Configuration)conf).
             getNamedLogger(getClass().getName());
+        filterManager_.configure (conf);
     }
 
     ////////////////////////////////////////

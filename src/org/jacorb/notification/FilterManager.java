@@ -39,10 +39,11 @@ import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
 import org.jacorb.notification.interfaces.Disposable;
-//import org.jacorb.util.Debug;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.Configurable;
 
 /**
  * @author Alphonse Bendt
@@ -51,7 +52,8 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class FilterManager
     implements FilterAdminOperations,
-               SubscriptionChangeListener
+               SubscriptionChangeListener,
+               Configurable
 {
     public static final FilterManager EMPTY_FILTER_MANAGER =
         new FilterManager( Collections.EMPTY_MAP );
@@ -59,8 +61,6 @@ public class FilterManager
     private static final Integer[] INTEGER_ARRAY_TEMPLATE = new Integer[0];
 
     ////////////////////////////////////////
-
-//     private Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private ChannelContext channelContext_;
 
@@ -75,6 +75,10 @@ public class FilterManager
     private SynchronizedInt filterIdPool_ = new SynchronizedInt(0);
 
     private Map filterId2callbackId_ = new Hashtable();
+
+    private Logger logger_ = null;
+    private org.jacorb.config.Configuration config_ = null;
+
 
     ////////////////////////////////////////
 
@@ -95,6 +99,12 @@ public class FilterManager
         channelContext_ = channelContext;
     }
 
+    public void configure (Configuration conf)
+    {
+        config_ = ((org.jacorb.config.Configuration)conf);
+        logger_ = config_.getNamedLogger(getClass().getName());
+    }
+
     ////////////////////////////////////////
 
     private Integer getFilterId()
@@ -107,13 +117,13 @@ public class FilterManager
     {
         Integer _key = getFilterId();
 
-//         if (logger_.isWarnEnabled()) {
-//             try {
-//                 if (!((org.omg.CORBA.portable.ObjectImpl)filter)._is_local()) {
-//                     logger_.warn("filter is not local!");
-//                 }
-//             } catch (Exception e) {}
-//         }
+        if (logger_.isWarnEnabled()) {
+            try {
+                if (!((org.omg.CORBA.portable.ObjectImpl)filter)._is_local()) {
+                    logger_.warn("filter is not local!");
+                }
+            } catch (Exception e) {}
+        }
 
         synchronized(filtersLock_) {
             filters_.put(_key, filter);
@@ -216,6 +226,7 @@ public class FilterManager
                                filterId,
                                filter);
 
+        filterCallback.configure (config_);
         filterId2callbackId_.put(new Integer(filterId),
                                  filterCallback);
     }
@@ -244,9 +255,9 @@ interface SubscriptionChangeListener {
 
 class FilterCallback
     extends NotifySubscribePOA
-    implements Disposable {
-
-//     Logger logger_ = Debug.getNamedLogger(getClass().getName());
+    implements Disposable,
+               Configurable
+{
 
     int callbackId_;
 
@@ -257,6 +268,9 @@ class FilterCallback
     NotifySubscribe notifySubscribe_;
 
     SubscriptionChangeListener subscriptionChangeListener_;
+    private Logger logger_ = null;
+    private org.jacorb.config.Configuration config_ = null;
+
 
     ////////////////////////////////////////
 
@@ -268,6 +282,12 @@ class FilterCallback
         filter_ = filter;
         notifySubscribe_ = _this(orb);
         attach();
+    }
+
+    public void configure (Configuration conf)
+    {
+        config_ = ((org.jacorb.config.Configuration)conf);
+        logger_ = config_.getNamedLogger(getClass().getName());
     }
 
     ////////////////////////////////////////

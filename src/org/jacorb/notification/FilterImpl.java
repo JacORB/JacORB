@@ -64,6 +64,8 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 
 /**
  * The Filter interface defines the behaviors supported by objects
@@ -141,9 +143,9 @@ import org.apache.avalon.framework.logger.Logger;
 public class FilterImpl
     extends FilterPOA
     implements Disposable,
-               ManageableServant
+               ManageableServant,
+               Configurable
 {
-//     static Logger logger_ = Debug.getNamedLogger( FilterImpl.class.getName() );
 
     final static RuntimeException NOT_SUPPORTED =
         new UnsupportedOperationException("this operation is not implemented yet");
@@ -195,6 +197,8 @@ public class FilterImpl
     private Filter thisRef_;
 
     private ApplicationContext applicationContext_;
+    static private Logger logger_ = null;
+    private org.jacorb.config.Configuration config_ = null;
 
     ////////////////////////////////////////
 
@@ -202,10 +206,6 @@ public class FilterImpl
                       String constraintGrammar)
     {
         super();
-
-//         if (logger_.isInfoEnabled()) {
-//             logger_.info("Created filter for Grammar: " + constraintGrammar);
-//         }
 
         constraintGrammar_ = constraintGrammar;
 
@@ -228,6 +228,18 @@ public class FilterImpl
     }
 
     ////////////////////////////////////////
+    public void configure (Configuration conf)
+    {
+        config_ = ((org.jacorb.config.Configuration)conf);
+        logger_ = config_.getNamedLogger(getClass().getName());
+
+
+        if (logger_.isInfoEnabled()) {
+            logger_.info("Created filter for Grammar: " + constraintGrammar_);
+        }
+
+
+    }
 
     public void setORB(ORB orb) {
         orb_ = orb;
@@ -253,14 +265,14 @@ public class FilterImpl
         }
         catch ( WrongPolicy e )
         {
-//             logger_.fatalError("error deactivating object", e);
+            logger_.fatalError("error deactivating object", e);
         }
         catch ( ObjectNotActive e )
         {
-//             logger_.fatalError("error deactivating object", e);
+            logger_.fatalError("error deactivating object", e);
         }
         catch ( ServantNotActive e) {
-//             logger_.fatalError("error deactivating object", e);
+            logger_.fatalError("error deactivating object", e);
         }
     }
 
@@ -680,13 +692,13 @@ public class FilterImpl
         {
             arrayOfLists_ = arrayOfLists;
 
-//             if ( logger_.isDebugEnabled() )
-//             {
-//                 for ( int x = 0; x < arrayOfLists_.length; ++x )
-//                 {
-//                     logger_.debug( x + ": " + arrayOfLists_[ x ] );
-//                 }
-//             }
+            if ( logger_ != null && logger_.isDebugEnabled() )
+            {
+                for ( int x = 0; x < arrayOfLists_.length; ++x )
+                {
+                    logger_.debug( x + ": " + arrayOfLists_[ x ] );
+                }
+            }
 
             if (arrayOfLists_.length == 0) {
                 current_ = null;
@@ -759,7 +771,7 @@ public class FilterImpl
                                     }
                                 catch ( EvaluationException e )
                                     {
-//                                         logger_.fatalError("Error evaluating filter", e);
+                                        logger_.fatalError("Error evaluating filter", e);
 
                                         throw new UnsupportedFilterableData(e.getMessage());
                                     }
@@ -767,7 +779,7 @@ public class FilterImpl
                     }
                 else
                     {
-//                         logger_.info( "Filter has no Expressions" );
+                        logger_.info( "Filter has no Expressions" );
 
                         return CONSTRAINTS_EMPTY;
                     }
@@ -822,7 +834,7 @@ public class FilterImpl
             }
             catch (Exception e)
                 {
-//                     logger_.fatalError("Error disposing event", e);
+                    logger_.fatalError("Error disposing event", e);
                 }
 
             try
@@ -831,7 +843,7 @@ public class FilterImpl
             }
             catch (Exception e)
             {
-//                 logger_.fatalError("Error disposing EvaluationContext", e);
+                logger_.fatalError("Error disposing EvaluationContext", e);
             }
         }
     }
@@ -869,14 +881,14 @@ public class FilterImpl
                 _event.dispose();
             }
             catch (Exception e) {
-//                 logger_.fatalError("Error disposing event", e);
+                logger_.fatalError("Error disposing event", e);
             }
 
             try {
                 _evaluationContext.dispose();
             }
             catch (Exception e) {
-//                 logger_.fatalError("Error releasing EvaluationContext", e);
+                logger_.fatalError("Error releasing EvaluationContext", e);
             }
         }
     }

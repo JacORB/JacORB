@@ -125,6 +125,7 @@ public class EventChannelFactoryImpl
     ////////////////////////////////////////
 
     private Logger logger_ = null;
+    private org.jacorb.config.Configuration config_ = null;
     private ORB orb_;
     private POA eventChannelFactoryPOA_;
     private POA rootPOA_;
@@ -152,8 +153,10 @@ public class EventChannelFactoryImpl
 
     public void configure (Configuration conf)
     {
-        logger_ = ((org.jacorb.config.Configuration)conf).
-            getNamedLogger(getClass().getName());
+        config_ = ((org.jacorb.config.Configuration)conf);
+        logger_ = config_.getNamedLogger(getClass().getName());
+        applicationContext_.configure (conf);
+
         String _filterFactoryConf =
             conf.getAttribute(Attributes.FILTER_FACTORY,
                               Default.DEFAULT_FILTER_FACTORY);
@@ -184,7 +187,7 @@ public class EventChannelFactoryImpl
                 orb.resolve_initial_references( "RootPOA" );
             rootPOA_ = POAHelper.narrow(obj);
 
-            applicationContext_ = new ApplicationContext(orb, rootPOA_, true);
+            applicationContext_ = new ApplicationContext(orb, rootPOA_);
 
             this.configure (jorb.getConfiguration());
 
@@ -686,6 +689,7 @@ public class EventChannelFactoryImpl
 
             defaultFilterFactoryServant_ =
                 new FilterFactoryImpl( applicationContext_ );
+            defaultFilterFactoryServant_.configure (config_);
 
             defaultFilterFactory_ =
                 defaultFilterFactoryServant_._this( orb_ );

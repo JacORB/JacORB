@@ -244,7 +244,7 @@ public class TaskProcessor
         }
         taskFactory_ = new TaskFactory( this );
 
-        taskFactory_.init();
+        taskFactory_.configure(conf);
     }
 
 

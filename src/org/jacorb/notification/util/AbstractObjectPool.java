@@ -28,6 +28,8 @@ import java.util.List;
 import org.jacorb.notification.interfaces.Disposable;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must
@@ -40,7 +42,8 @@ import org.apache.avalon.framework.logger.Logger;
  * @version $Id$
  */
 
-public abstract class AbstractObjectPool implements Runnable, Disposable
+public abstract class AbstractObjectPool
+    implements Runnable, Disposable, Configurable
 {
     public static final boolean DEBUG = false;
 
@@ -210,6 +213,19 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
      */
     int initialSize_;
 
+
+    protected Logger logger_;
+    private Configuration config_;
+
+    public void configure (Configuration conf)
+    {
+        this.config_ = conf;
+        logger_ =  ((org.jacorb.config.Configuration)conf).
+            getNamedLogger( getClass().getName() );
+        this.init();
+    }
+
+
     protected AbstractObjectPool(String name)
     {
         this( name,
@@ -241,7 +257,12 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
             for ( int x = 0; x < sizeIncrease_; ++x )
             {
                 Object _i = newInstance();
-
+                try {
+                    ((Configurable)_i).configure (this.config_);
+                } catch (ClassCastException cce) {
+                    // no worries, just don't configure
+                } catch (ConfigurationException ce) {
+                }
                 ++instanceCount_;
 
                 pool_.add( _i );
@@ -258,6 +279,12 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
         for ( int x = 0; x < initialSize_; ++x )
         {
             Object _i = newInstance();
+            try {
+                ((Configurable)_i).configure (this.config_);
+            } catch (ClassCastException cce) {
+                // no worries, just don't configure
+            } catch (ConfigurationException ce) {
+            }
 
             ++instanceCount_;
 

@@ -22,6 +22,9 @@ package org.jacorb.notification.interfaces;
  */
 
 import org.jacorb.notification.util.AbstractObjectPool;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 
 /**
  * Interface to indicate that a Object can be pooled. Objects can be
@@ -33,9 +36,17 @@ import org.jacorb.notification.util.AbstractObjectPool;
  * @version $Id$
  */
 
-public abstract class AbstractPoolable implements Disposable
+public abstract class AbstractPoolable implements Disposable, Configurable
 {
     private AbstractObjectPool objectPool_;
+    protected Logger logger_;
+
+
+    public void configure (Configuration conf)
+    {
+        logger_ =  ((org.jacorb.config.Configuration)conf).
+            getNamedLogger( getClass().getName() );
+    }
 
     /**
      * The call to this Method indicates that this Object is not

@@ -95,7 +95,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         }
         catch ( UnsupportedFilterableData e )
         {
-//             logger_.error( "Error evaluating PriorityFilter", e );
+            logger_.error( "Error evaluating PriorityFilter", e );
         }
     }
 
@@ -123,7 +123,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         }
         catch ( UnsupportedFilterableData e )
         {
-//             logger_.error( "Error evaluating LifetimeFilter", e );
+            logger_.error( "Error evaluating LifetimeFilter", e );
         }
     }
 
@@ -144,12 +144,12 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
         if ( !_filterMatch && arrayCurrentFilterStage_[ 0 ].hasInterFilterGroupOperatorOR() )
         {
-//             if ( logger_.isDebugEnabled() )
-//             {
-//                 logger_.debug( "filter failed, but the ProxyConsumer"
-//                                + arrayCurrentFilterStage_[ 0 ]
-//                                + " has InterFilterGroupOperator OR_OP Enabled" );
-//             }
+            if ( logger_.isDebugEnabled() )
+            {
+                logger_.debug( "filter failed, but the ProxyConsumer"
+                               + arrayCurrentFilterStage_[ 0 ]
+                               + " has InterFilterGroupOperator OR_OP Enabled" );
+            }
 
             // no filter attached to the current ProxyConsumer
             // matched. However the ProxyConsumer has

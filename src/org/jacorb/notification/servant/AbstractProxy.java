@@ -128,6 +128,7 @@ public abstract class AbstractProxy
             conf.getAttribute(Attributes.DISPOSE_PROXY_CALLS_DISCONNECT,
                               Default.DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT).
             equals ("on");
+        filterManager_.configure (conf);
     }
 
     ////////////////////////////////////////

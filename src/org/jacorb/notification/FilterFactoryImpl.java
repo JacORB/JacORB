@@ -40,6 +40,8 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -50,40 +52,34 @@ import java.util.Iterator;
 
 public class FilterFactoryImpl
     extends FilterFactoryPOA
-    implements Disposable
+    implements Disposable,
+               Configurable
 {
     public final static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
 
     ////////////////////////////////////////
 
-//     private Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     private ApplicationContext applicationContext_;
-
     private ORB orb_;
-
     private POA poa_;
-
     private boolean isApplicationContextCreatedHere_;
-
     private List allFilters_ = new ArrayList();
-
     private Object allFiltersLock_ = allFilters_;
-
     private FilterFactory thisRef_;
+    private Logger logger_ = null;
+    private org.jacorb.config.Configuration config_ = null;
 
     ////////////////////////////////////////
 
     public FilterFactoryImpl() throws InvalidName, AdapterInactive
     {
         super();
-
         orb_ = ORB.init( new String[ 0 ], null );
 
         poa_ =
             POAHelper.narrow( orb_.resolve_initial_references( "RootPOA" ) );
 
-        applicationContext_ = new ApplicationContext( orb_, poa_, true );
+        applicationContext_ = new ApplicationContext( orb_, poa_);
 
         isApplicationContextCreatedHere_ = true;
 
@@ -118,6 +114,13 @@ public class FilterFactoryImpl
         orb_ = applicationContext.getOrb();
 
         isApplicationContextCreatedHere_ = false;
+    }
+
+
+    public void configure (Configuration conf)
+    {
+        config_ = ((org.jacorb.config.Configuration)conf);
+        logger_ = config_.getNamedLogger(getClass().getName());
     }
 
     ////////////////////////////////////////
@@ -160,10 +163,9 @@ public class FilterFactoryImpl
             FilterImpl _filterServant =
                 new FilterImpl( applicationContext_,
                                 CONSTRAINT_GRAMMAR );
-
+            _filterServant.configure (config_);
             return _filterServant;
         }
-
         throw new InvalidGrammar( "Constraint Language '"
                                   + grammar
                                   + "' is not supported. Try one of the following: "
@@ -181,6 +183,8 @@ public class FilterFactoryImpl
             new MappingFilterImpl( applicationContext_,
                                    _filterImpl,
                                    any );
+
+        _mappingFilterServant.configure (config_);
 
         MappingFilter _filter =
             _mappingFilterServant._this( orb_ );

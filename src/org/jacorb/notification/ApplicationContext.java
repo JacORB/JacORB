@@ -43,6 +43,9 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.TimeTHelper;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.Configurable;
+
 import org.jacorb.notification.filter.EvaluationContext;
 
 /**
@@ -50,7 +53,7 @@ import org.jacorb.notification.filter.EvaluationContext;
  * @version $Id$
  */
 
-public class ApplicationContext implements Disposable
+public class ApplicationContext implements Disposable, Configurable
 {
     private ORB orb_;
     private POA poa_;
@@ -61,7 +64,7 @@ public class ApplicationContext implements Disposable
     private DynAnyFactory dynAnyFactory_;
     private DynamicEvaluator dynamicEvaluator_;
 
-    private void setup( ORB orb, POA poa, boolean init ) throws InvalidName
+    private void setup( ORB orb, POA poa) throws InvalidName
     {
         orb_ = orb;
         poa_ = poa;
@@ -70,7 +73,6 @@ public class ApplicationContext implements Disposable
             DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
 
         dynamicEvaluator_ = new DynamicEvaluator(dynAnyFactory_ );
-        dynamicEvaluator_.configure (((org.jacorb.orb.ORB)orb).getConfiguration());
 
         evaluationContextPool_ =
             new AbstractObjectPool("EvaluationContextPool")
@@ -91,8 +93,6 @@ public class ApplicationContext implements Disposable
                 }
             };
 
-        evaluationContextPool_.init();
-
         evaluationResultPool_ =
             new AbstractObjectPool("EvaluationResultPool")
             {
@@ -112,40 +112,32 @@ public class ApplicationContext implements Disposable
         //        evaluationResultPool_.init();
 
         notificationEventFactory_ = new MessageFactory();
-        notificationEventFactory_.init();
-
-        if ( init )
-        {
-            init();
-        }
+        taskProcessor_ = new TaskProcessor();
     }
 
-    public ApplicationContext( boolean init ) throws InvalidName
-    {
-        ORB orb = ORB.init( new String[ 0 ], null );
+//     public ApplicationContext( boolean init ) throws InvalidName
+//     {
+//         ORB orb = ORB.init( new String[ 0 ], null );
 
-        POA poa =
-            POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ) );
+//         POA poa =
+//             POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ) );
 
-        setup( orb, poa, init );
-    }
+//         setup( orb, poa );
+//     }
 
     public ApplicationContext( ORB orb, POA poa ) throws InvalidName
     {
-        setup( orb, poa, false );
+        setup( orb, poa);
     }
 
-    public ApplicationContext( ORB orb, POA poa, boolean init )
-        throws InvalidName
-    {
-        setup( orb, poa, init );
-    }
 
-    public void init()
+    public void configure (Configuration conf)
     {
-        taskProcessor_ = new TaskProcessor();
-        taskProcessor_.configure (((org.jacorb.orb.ORB)getOrb()).
-                                  getConfiguration());
+        dynamicEvaluator_.configure (conf);
+        evaluationContextPool_.configure(conf);
+        evaluationResultPool_.configure(conf);
+        notificationEventFactory_.configure(conf);
+        taskProcessor_.configure (conf);
     }
 
     public void dispose()

@@ -25,8 +25,6 @@ import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.TaskExecutor;
 
-import org.apache.avalon.framework.logger.Logger;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$
