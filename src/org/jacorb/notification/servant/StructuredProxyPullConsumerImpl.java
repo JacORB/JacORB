@@ -22,12 +22,11 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
-import org.jacorb.util.Environment;
 
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -49,6 +48,9 @@ import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
+
+import org.apache.avalon.framework.configuration.Configuration;
+
 
 /**
  * @author Alphonse Bendt
@@ -80,22 +82,23 @@ public class StructuredProxyPullConsumerImpl
         super( admin,
                channelContext);
 
-        configurePollIntervall();
+        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)channelContext.getORB();
+        this.configure(jorb.getConfiguration());
 
         engine_ = channelContext.getTaskProcessor();
 
         runQueueThis_ = new Runnable()
+        {
+            public void run()
             {
-                public void run()
+                try
                 {
-                    try
-                        {
-                            engine_.scheduleTimedPullTask( StructuredProxyPullConsumerImpl.this );
-                        }
-                    catch ( InterruptedException ie )
-                        {}
+                    engine_.scheduleTimedPullTask(StructuredProxyPullConsumerImpl.this );
                 }
-            };
+                catch ( InterruptedException ie )
+                {}
+            }
+        };
     }
 
     ////////////////////////////////////////
@@ -104,24 +107,12 @@ public class StructuredProxyPullConsumerImpl
         return ProxyType.PULL_STRUCTURED;
     }
 
-
-    private void configurePollIntervall() {
-        pollInterval_ = Default.DEFAULT_PROXY_POLL_INTERVALL;
-
-        if (Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL) != null)
-            {
-                try
-                    {
-                        pollInterval_ =
-                            Long.parseLong(Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL));
-                    }
-                catch (NumberFormatException e)
-                    {
-                        logger_.error("Invalid Number Format for Property "
-                                      + Configuration.PULL_CONSUMER_POLLINTERVALL,
-                                      e);
-                    }
-            }
+    public void configure (Configuration conf)
+    {
+        super.configure (conf);
+        pollInterval_ =
+            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLLINTERVALL,
+                                        Default.DEFAULT_PROXY_POLL_INTERVALL);
     }
 
 
@@ -135,11 +126,8 @@ public class StructuredProxyPullConsumerImpl
         throws AlreadyConnected
     {
         assertNotConnected();
-
         pullSupplier_ = pullSupplier;
-
         connectClient(pullSupplier);
-
         startTask();
     }
 
@@ -156,7 +144,7 @@ public class StructuredProxyPullConsumerImpl
     }
 
 
-    public EventType[] obtain_subscription_types( ObtainInfoMode obtainInfoMode )
+    public EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode)
     {
         throw new NO_IMPLEMENT();
     }
@@ -164,15 +152,8 @@ public class StructuredProxyPullConsumerImpl
 
     public void runPullMessage() throws Disconnected
     {
-        if (!isConnected())
-            {
+        if (!isConnected() || isSuspended())
             return;
-            }
-
-        if (isSuspended())
-            {
-                return;
-            }
 
         try
         {
@@ -196,7 +177,6 @@ public class StructuredProxyPullConsumerImpl
         try
         {
             pullSync_.acquire();
-
             _event = pullSupplier_.try_pull_structured_event( _hasEvent );
         }
         finally
@@ -208,7 +188,6 @@ public class StructuredProxyPullConsumerImpl
         {
             Message _notifyEvent =
                 messageFactory_.newMessage( _event, this );
-
             getTaskProcessor().processMessage( _notifyEvent );
         }
     }
@@ -240,7 +219,6 @@ public class StructuredProxyPullConsumerImpl
         if ( taskId_ != null )
         {
             getTaskProcessor().cancelTask( taskId_ );
-
             taskId_ = null;
         }
     }

@@ -50,8 +50,6 @@ public class CurrentTimeNode extends ETCLComponentName {
     public EvaluationResult evaluate( EvaluationContext context )
         throws EvaluationException {
 
-        logger_.debug("evaluate CurrentTimeNode");
-
         EvaluationResult _result = new EvaluationResult();
 
         UtcT _curtime = Time.corbaTime();

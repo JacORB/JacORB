@@ -34,7 +34,7 @@ import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
+//import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
@@ -376,8 +376,8 @@ public abstract class AbstractMessage
 
     ////////////////////////////////////////
 
-    protected Logger logger_ =
-        Debug.getNamedLogger(getClass().getName());
+    // protected Logger logger_ =
+        // Debug.getNamedLogger(getClass().getName());
 
     static final ORB sOrb = ORB.init();
 
@@ -488,11 +488,11 @@ public abstract class AbstractMessage
 
         String _completePath = componentRootNode.getComponentName();
 
-        if (logger_.isDebugEnabled())
-        {
-            logger_.debug("extractValue: " + _completePath);
-            logger_.debug("runtimeVariable=" + runtimeVariable);
-        }
+//         if (logger_.isDebugEnabled())
+//         {
+//             logger_.debug("extractValue: " + _completePath);
+//             logger_.debug("runtimeVariable=" + runtimeVariable);
+//         }
 
         _ret = context.lookupResult( _completePath );
 
@@ -530,37 +530,37 @@ public abstract class AbstractMessage
 
         String _completeExpr = componentRootNode.getComponentName();
 
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "extractValue path: "
-                           + componentRootNode.toStringTree() +
-                           "\n\tcomplete Expression="
-                           + _completeExpr );
-        }
+//         if ( logger_.isDebugEnabled() )
+//         {
+//             logger_.debug( "extractValue path: "
+//                            + componentRootNode.toStringTree() +
+//                            "\n\tcomplete Expression="
+//                            + _completeExpr );
+//         }
 
         // check if the value is available in the cache
         _ret = evaluationContext.lookupResult( _completeExpr );
 
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("Cache READ: " + _ret);
-        }
+//         if (logger_.isDebugEnabled()) {
+//             logger_.debug("Cache READ: " + _ret);
+//         }
 
         if ( _ret == null )
         {
-            logger_.debug("Cache MISS");
+//             logger_.debug("Cache MISS");
 
             _ret = evaluationContext.extractFromMessage(this, componentRootNode);
 
             // Cache the EvaluationResult
             if ( _ret != null )
             {
-                if ( logger_.isDebugEnabled() )
-                {
-                    logger_.debug( "Cache WRITE: "
-                                   + _completeExpr
-                                   + " => "
-                                   + _ret );
-                }
+//                 if ( logger_.isDebugEnabled() )
+//                 {
+//                     logger_.debug( "Cache WRITE: "
+//                                    + _completeExpr
+//                                    + " => "
+//                                    + _ret );
+//                 }
                 evaluationContext.storeResult( _completeExpr, _ret );
             }
         }
@@ -624,7 +624,7 @@ public abstract class AbstractMessage
             {
                 // no problem
                 // error means false
-                logger_.info("unsupported filterable data. match result defaults to false.", e);
+//                 logger_.info("unsupported filterable data. match result defaults to false.", e);
             }
         }
 

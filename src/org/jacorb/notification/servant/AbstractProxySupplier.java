@@ -21,7 +21,7 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.TaskProcessor;
@@ -33,7 +33,6 @@ import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetListener;
 import org.jacorb.notification.util.TaskExecutor;
-import org.jacorb.util.Environment;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -65,6 +64,9 @@ import org.jacorb.notification.engine.WaitRetryStrategy;
 import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
 import org.jacorb.notification.engine.RetryException;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+
 /**
  * Abstract base class for ProxySuppliers.
  * This class provides following logic for the different
@@ -95,15 +97,10 @@ public abstract class AbstractProxySupplier
      * only initialized for ProxyPushSuppliers.
      */
     protected Runnable scheduleDeliverPendingMessagesOperation_;
-
     private TaskExecutor taskExecutor_;
-
     private Disposable disposeTaskExecutor_;
-
     private EventQueue pendingMessages_;
-
     private int errorThreshold_;
-
     private TaskProcessor taskProcessor_;
 
     /**
@@ -112,9 +109,7 @@ public abstract class AbstractProxySupplier
      * MessageQueue instance to be changed.
      */
     private Object pendingMessagesRefLock_ = new Object();
-
     private NotifyPublishOperations proxyOfferListener_;
-
     private NotifyPublish offerListener_;
 
     /**
@@ -154,6 +149,15 @@ public abstract class AbstractProxySupplier
         }
     }
 
+    public void configure (Configuration conf)
+    {
+        super.configure(conf);
+
+        errorThreshold_ = conf.getAttributeAsInteger
+            (Attributes.EVENTCONSUMER_ERROR_THRESHOLD,
+             Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD);
+    }
+
     ////////////////////////////////////////
 
     public void preActivate() throws UnsupportedQoS
@@ -163,19 +167,13 @@ public abstract class AbstractProxySupplier
             pendingMessages_ = EventQueueFactory.newEventQueue(qosSettings_);
         }
 
-        errorThreshold_ =
-            Environment.getIntPropertyWithDefault(Configuration.EVENTCONSUMER_ERROR_THRESHOLD,
-                                                  Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD);
-
         if (logger_.isInfoEnabled())
-        {
             logger_.info("set Error Threshold to : " + errorThreshold_);
-        }
 
-        qosSettings_.addPropertySetListener(new String[] {OrderPolicy.value, DiscardPolicy.value},
+        qosSettings_.addPropertySetListener(new String[] {OrderPolicy.value,
+                                                          DiscardPolicy.value},
                                             eventQueueConfigurationChangedCB);
     }
-
 
     /**
      * configure pending messages queue.
@@ -185,23 +183,18 @@ public abstract class AbstractProxySupplier
      */
     private void configureEventQueue() throws UnsupportedQoS
     {
-        EventQueue _newQueue = EventQueueFactory.newEventQueue( qosSettings_ );
-
+        EventQueue _newQueue =
+            EventQueueFactory.newEventQueue( qosSettings_ );
         try
         {
             synchronized (pendingMessagesRefLock_)
             {
                 if (!pendingMessages_.isEmpty())
                 {
-                    Message[] _allEvents =
-                        pendingMessages_.getAllEvents(true);
-
+                    Message[] _allEvents = pendingMessages_.getAllEvents(true);
                     for (int x = 0; x < _allEvents.length; ++x)
-                    {
                         _newQueue.put(_allEvents[x]);
-                    }
                 }
-
                 pendingMessages_ = _newQueue;
             }
         }
@@ -210,7 +203,6 @@ public abstract class AbstractProxySupplier
             throw new RuntimeException(e.getMessage());
         }
     }
-
 
     private PropertySetListener eventQueueConfigurationChangedCB =
         new PropertySetListener()
@@ -528,8 +520,8 @@ public abstract class AbstractProxySupplier
         switch ( clientType.value() )
         {
             case ClientType._ANY_EVENT:
-                _servant = new ProxyPullSupplierImpl( admin,
-                                                      admin.getChannelContext());
+                _servant = new ProxyPullSupplierImpl(admin,
+                                                     admin.getChannelContext());
                 break;
 
             case ClientType._STRUCTURED_EVENT:
@@ -548,6 +540,8 @@ public abstract class AbstractProxySupplier
             default:
                 throw new BAD_PARAM();
         }
+        _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
+                            getConfiguration());
         return _servant;
     }
 
@@ -583,6 +577,11 @@ public abstract class AbstractProxySupplier
             default:
                 throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
         }
+
+        _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
+                            getConfiguration());
+
+
         return _servant;
     }
 
@@ -604,15 +603,20 @@ public abstract class AbstractProxySupplier
     }
 
 
-    protected void handleFailedPushOperation(PushOperation operation, Throwable error) {
-        if (RetryStrategy.isFatalException(error)) {
+    protected void handleFailedPushOperation(PushOperation operation,
+                                             Throwable error)
+    {
+        if (RetryStrategy.isFatalException(error))
+        {
             // push operation caused a fatal exception
             // destroy the ProxySupplier
             if ( logger_.isErrorEnabled() )
             {
-                logger_.error( "push raised "
-                               + error
-                               + ": will destroy ProxySupplier, disconnect Consumer", error );
+                logger_.error( "push raised " +
+                               error +
+                               ": will destroy ProxySupplier, " +
+                               "disconnect Consumer",
+                               error );
             }
 
             operation.dispose();
@@ -631,7 +635,10 @@ public abstract class AbstractProxySupplier
     }
 
 
-    private RetryStrategy getRetryStrategy(MessageConsumer mc, PushOperation op) {
-        return new TaskProcessorRetryStrategy(mc, op, taskProcessor_);
+    private RetryStrategy getRetryStrategy(MessageConsumer mc,
+                                           PushOperation op)
+    {
+        return new TaskProcessorRetryStrategy(mc, op,
+                                              taskProcessor_);
     }
 }

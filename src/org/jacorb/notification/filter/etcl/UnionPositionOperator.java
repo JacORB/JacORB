@@ -59,11 +59,6 @@ public class UnionPositionOperator extends AbstractTCLNode
 
     public boolean isDefault()
     {
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( "isDefault: " + default_ );
-        }
-
         return default_;
     }
 

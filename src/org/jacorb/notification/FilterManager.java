@@ -39,7 +39,7 @@ import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.util.Debug;
+//import org.jacorb.util.Debug;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
@@ -60,7 +60,7 @@ public class FilterManager
 
     ////////////////////////////////////////
 
-    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
+//     private Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private ChannelContext channelContext_;
 
@@ -107,13 +107,13 @@ public class FilterManager
     {
         Integer _key = getFilterId();
 
-        if (logger_.isWarnEnabled()) {
-            try {
-                if (!((org.omg.CORBA.portable.ObjectImpl)filter)._is_local()) {
-                    logger_.warn("filter is not local!");
-                }
-            } catch (Exception e) {}
-        }
+//         if (logger_.isWarnEnabled()) {
+//             try {
+//                 if (!((org.omg.CORBA.portable.ObjectImpl)filter)._is_local()) {
+//                     logger_.warn("filter is not local!");
+//                 }
+//             } catch (Exception e) {}
+//         }
 
         synchronized(filtersLock_) {
             filters_.put(_key, filter);
@@ -246,7 +246,7 @@ class FilterCallback
     extends NotifySubscribePOA
     implements Disposable {
 
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
+//     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     int callbackId_;
 
@@ -281,7 +281,7 @@ class FilterCallback
         try {
             filter_.detach_callback(callbackId_);
         } catch (CallbackNotFound e) {
-            logger_.error("error during detach", e);
+//             logger_.error("error during detach", e);
         }
     }
 

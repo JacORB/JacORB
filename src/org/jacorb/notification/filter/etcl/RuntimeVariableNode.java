@@ -52,10 +52,8 @@ public class RuntimeVariableNode
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-        throws EvaluationException {
-
-        logger_.debug("evaluate runtimevariablenode " + value_);
-
+        throws EvaluationException
+    {
         return strategy_.evaluate(context);
     }
 

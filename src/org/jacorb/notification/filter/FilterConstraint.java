@@ -28,7 +28,6 @@ import org.jacorb.notification.filter.etcl.StaticTypeException;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
 
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.InvalidConstraint;
@@ -47,7 +46,7 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class FilterConstraint
 {
-    private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
+//     private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     /**
      * String representation of the Constraint.
@@ -70,9 +69,9 @@ public class FilterConstraint
     public FilterConstraint( ConstraintExp constraintExp )
         throws InvalidConstraint
     {
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("Create new Constraint. Expression=" + constraintExp.constraint_expr);
-        }
+//         if (logger_.isDebugEnabled()) {
+//             logger_.debug("Create new Constraint. Expression=" + constraintExp.constraint_expr);
+//         }
 
         try
         {
@@ -86,7 +85,6 @@ public class FilterConstraint
                 StaticTypeChecker _checker = new StaticTypeChecker();
                 _checker.check( rootNode_ );
             }
-
             return;
         }
         catch ( StaticTypeException e )
@@ -96,6 +94,10 @@ public class FilterConstraint
         catch ( ParseException e )
         {
             throw new InvalidConstraint( e.getMessage(), constraintExp );
+        }
+        catch ( Throwable ex)
+        {
+            ex.printStackTrace (System.out);
         }
     }
 
@@ -115,9 +117,9 @@ public class FilterConstraint
             return EvaluationResult.BOOL_TRUE;
         }
 
-        if (logger_.isDebugEnabled() ) {
-            logger_.debug("evaluate()" + rootNode_.toStringTree());
-        }
+//         if (logger_.isDebugEnabled() ) {
+//             logger_.debug("evaluate()" + rootNode_.toStringTree());
+//         }
 
         evaluationContext.setCurrentMessage( event );
 

@@ -26,7 +26,7 @@ package org.jacorb.notification.conf;
  * @version $Id$
  */
 
-public interface Configuration
+public interface Attributes
 {
     String FILTER_POOL_WORKERS =
         "jacorb.notification.filter.thread_pool_size";
@@ -88,4 +88,3 @@ public interface Configuration
     String MAX_QUEUE_LENGTH =
         "jacorb.notification.admin.max_queue_length";
 }
-

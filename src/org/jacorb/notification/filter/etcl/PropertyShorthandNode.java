@@ -69,10 +69,8 @@ public class PropertyShorthandNode extends AbstractTCLNode
             shorthandDefaultAny_.acceptInOrder(new TCLCleanUp());
 
         } catch (ParseException e) {
-            logger_.fatalError("Exception during parse", e);
             throw new RuntimeException();
         } catch (VisitorException e) {
-            logger_.fatalError("Exception during parse", e);
             throw new RuntimeException();
         }
 

@@ -54,9 +54,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
-import org.jacorb.util.Environment;
+
+import org.apache.avalon.framework.configuration.Configuration;
 
 /**
  * @author Alphonse Bendt
@@ -69,8 +70,8 @@ public class QoSPropertySet extends PropertySet
     public static final int ADMIN_QOS = 1;
     public static final int PROXY_QOS = 2;
 
-    private static final Property[] sDefaultChannelQoS_;
-    private static final Property[] sDefaultAdminQoS_;
+    private static Property[] sDefaultChannelQoS_;
+    private static Property[] sDefaultAdminQoS_;
 
     private static final HashSet sValidChannelQoSNames_;
     private static final HashSet sValidAdminQoSNames_;
@@ -189,9 +190,13 @@ public class QoSPropertySet extends PropertySet
 
         ////////////////////
 
+    }
+
+    public static void initStatics (Configuration conf)
+    {
         int _maxEventsPerConsumerDefault =
-            Environment.getIntPropertyWithDefault( Configuration.MAX_EVENTS_PER_CONSUMER,
-                                                   Default.DEFAULT_MAX_EVENTS_PER_CONSUMER );
+            conf.getAttributeAsInteger( Attributes.MAX_EVENTS_PER_CONSUMER,
+                                        Default.DEFAULT_MAX_EVENTS_PER_CONSUMER );
 
         maxEventsPerConsumerDefault_ = sORB.create_any();
         maxEventsPerConsumerDefault_.insert_long(_maxEventsPerConsumerDefault);
@@ -204,11 +209,13 @@ public class QoSPropertySet extends PropertySet
 
         ////////////////////
 
-        String _orderPolicy = Environment.getProperty( Configuration.ORDER_POLICY,
-                                                       Default.DEFAULT_ORDER_POLICY );
+        String _orderPolicy =
+            conf.getAttribute (Attributes.ORDER_POLICY,
+                               Default.DEFAULT_ORDER_POLICY);
 
-        String _discardPolicy = Environment.getProperty( Configuration.DISCARD_POLICY,
-                                                         Default.DEFAULT_DISCARD_POLICY );
+        String _discardPolicy =
+            conf.getAttribute (Attributes.DISCARD_POLICY,
+                               Default.DEFAULT_DISCARD_POLICY);
 
         ////////////////////
 
@@ -219,24 +226,27 @@ public class QoSPropertySet extends PropertySet
 
         Any _isStartTimeSupportedDefault = sORB.create_any();
 
-        boolean _isStartTimeSupported = Environment.isPropertyOn(Configuration.START_TIME_SUPPORTED,
-                                                                Default.DEFAULT_START_TIME_SUPPORTED);
-
+        boolean _isStartTimeSupported =
+            conf.getAttribute(Attributes.START_TIME_SUPPORTED,
+                              Default.DEFAULT_START_TIME_SUPPORTED).
+            equals("on");
         _isStartTimeSupportedDefault.insert_boolean(_isStartTimeSupported);
 
         ////////////////////
 
         Any _isStopTimeSupportedDefault = sORB.create_any();
 
-        boolean _isStopTimeSupported = Environment.isPropertyOn(Configuration.STOP_TIME_SUPPORTED,
-                                                                Default.DEFAULT_STOP_TIME_SUPPORTED);
-
+        boolean _isStopTimeSupported =
+            conf.getAttribute(Attributes.STOP_TIME_SUPPORTED,
+                              Default.DEFAULT_STOP_TIME_SUPPORTED).
+            equals("on");
         _isStopTimeSupportedDefault.insert_boolean(_isStopTimeSupported);
 
         ////////////////////
 
-        int _maxBatchSize = Environment.getIntPropertyWithDefault(Configuration.MAX_BATCH_SIZE,
-                                                                  Default.DEFAULT_MAX_BATCH_SIZE);
+        int _maxBatchSize =
+            conf.getAttributeAsInteger(Attributes.MAX_BATCH_SIZE,
+                                       Default.DEFAULT_MAX_BATCH_SIZE);
 
         Any _maxBatchSizeDefault = sORB.create_any();
         _maxBatchSizeDefault.insert_long(_maxBatchSize);
@@ -245,25 +255,31 @@ public class QoSPropertySet extends PropertySet
 
         sDefaultChannelQoS_ = new Property[] {
             new Property(EventReliability.value, eventReliabilityLow_),
-            new Property(ConnectionReliability.value, connectionReliabilityLow_),
-
+            new Property(ConnectionReliability.value,
+                         connectionReliabilityLow_),
             new Property(Priority.value, priorityDefault_),
-            new Property(MaxEventsPerConsumer.value, maxEventsPerConsumerDefault_),
+            new Property(MaxEventsPerConsumer.value,
+                         maxEventsPerConsumerDefault_),
             new Property(Timeout.value, timeoutDefault_),
-            new Property(StartTimeSupported.value, _isStartTimeSupportedDefault),
-            new Property(StopTimeSupported.value, _isStartTimeSupportedDefault),
-            new Property(MaximumBatchSize.value, _maxBatchSizeDefault)
+            new Property(StartTimeSupported.value,
+                         _isStartTimeSupportedDefault),
+            new Property(StopTimeSupported.value,
+                         _isStartTimeSupportedDefault),
+            new Property(MaximumBatchSize.value,
+                         _maxBatchSizeDefault)
         };
 
-
         sDefaultAdminQoS_ = new Property[] {
-            new Property(ConnectionReliability.value, connectionReliabilityLow_),
-
+            new Property(ConnectionReliability.value,
+                         connectionReliabilityLow_),
             new Property(Priority.value, priorityDefault_),
-            new Property(MaxEventsPerConsumer.value, maxEventsPerConsumerDefault_),
+            new Property(MaxEventsPerConsumer.value,
+                         maxEventsPerConsumerDefault_),
             new Property(Timeout.value, timeoutDefault_),
-            new Property(StartTimeSupported.value, _isStartTimeSupportedDefault),
-            new Property(StopTimeSupported.value, _isStartTimeSupportedDefault),
+            new Property(StartTimeSupported.value,
+                         _isStartTimeSupportedDefault),
+            new Property(StopTimeSupported.value,
+                         _isStartTimeSupportedDefault),
             new Property(MaximumBatchSize.value, _maxBatchSizeDefault)
         };
 
@@ -329,7 +345,7 @@ public class QoSPropertySet extends PropertySet
                              NamedPropertyRangeSeqHolder namedPropertyRange)
         throws UnsupportedQoS
     {
-        logger_.info("validate_qos");
+//         logger_.info("validate_qos");
 
         List _errors = new ArrayList();
 
@@ -367,9 +383,9 @@ public class QoSPropertySet extends PropertySet
                           Any high,
                           Any low) {
 
-        if (logger_.isErrorEnabled()) {
-            logger_.error("wrong value for Property '" +name + "': " + value);
-        }
+//         if (logger_.isErrorEnabled()) {
+//             logger_.error("wrong value for Property '" +name + "': " + value);
+//         }
 
         errors.add(new PropertyError(error_code,
                                      name,
@@ -475,4 +491,3 @@ public class QoSPropertySet extends PropertySet
         }
     }
 }
-

@@ -26,9 +26,8 @@ import org.omg.CORBA.Any;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.util.Debug;
 
-import org.apache.avalon.framework.logger.Logger;
+//import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -39,7 +38,7 @@ public class MessageUtils
 {
     private MessageUtils() {}
 
-    static Logger logger_ = Debug.getNamedLogger( MessageUtils.class.getName() );
+//     static Logger logger_ = Debug.getNamedLogger( MessageUtils.class.getName() );
 
 
     public static EvaluationResult extractFromAny(AbstractTCLNode expr,
@@ -48,11 +47,11 @@ public class MessageUtils
                                                   String rootName)
         throws EvaluationException
     {
-        if ( logger_.isDebugEnabled() ) {
-            logger_.debug("extractFromAny" +
-                          "\n\trootname=" + rootName +
-                          "\n\tvalue=" + any);
-        }
+//         if ( logger_.isDebugEnabled() ) {
+//             logger_.debug("extractFromAny" +
+//                           "\n\trootname=" + rootName +
+//                           "\n\tvalue=" + any);
+//         }
 
         EvaluationResult _ret = null;
         Any _result = null;
@@ -66,12 +65,12 @@ public class MessageUtils
             {
                 _currentPath.append(_currentOperator.toString());
 
-                if ( logger_.isDebugEnabled() )
-                    {
-                        logger_.debug( "current path=" + _currentPath.toString() );
-                        logger_.debug( "current operator=" + _currentOperator.toString() );
-                        logger_.debug( "current any=" + _currentAny);
-                    }
+//                 if ( logger_.isDebugEnabled() )
+//                     {
+//                         logger_.debug( "current path=" + _currentPath.toString() );
+//                         logger_.debug( "current operator=" + _currentOperator.toString() );
+//                         logger_.debug( "current any=" + _currentAny);
+//                     }
 
                 // lookup result in cache
                 _result = evaluationContext.lookupAny( _currentPath.toString() );
@@ -86,7 +85,7 @@ public class MessageUtils
                                 break;
 
                             case AbstractTCLNode.UNION_POS:
-                                logger_.debug( "evaluate union by position" );
+//                                 logger_.debug( "evaluate union by position" );
                                 UnionPositionOperator _upo = ( UnionPositionOperator ) _currentOperator;
 
                                 // default union
@@ -106,7 +105,7 @@ public class MessageUtils
                                 break;
 
                             case AbstractTCLNode.IDENTIFIER:
-                                logger_.debug( "evaluate struct by identifier" );
+//                                 logger_.debug( "evaluate struct by identifier" );
 
                                 String _identifer = ((IdentValue) _currentOperator).getIdentifier();
 
@@ -118,7 +117,7 @@ public class MessageUtils
                                 break;
 
                             case AbstractTCLNode.NUMBER:
-                                logger_.debug( "evaluate struct by position" );
+//                                 logger_.debug( "evaluate struct by position" );
 
                                 int _pos = ((NumberValue) _currentOperator).getNumber().intValue();
 
@@ -133,10 +132,10 @@ public class MessageUtils
                                 ImplicitOperator _op =
                                     ( ( ImplicitOperatorNode ) _currentOperator ).getOperator();
 
-                                if ( logger_.isDebugEnabled() )
-                                    {
-                                        logger_.debug( _op + " is an implict Operator" );
-                                    }
+//                                 if ( logger_.isDebugEnabled() )
+//                                     {
+//                                         logger_.debug( _op + " is an implict Operator" );
+//                                     }
 
                                 _result = _op.evaluateImplicit(evaluationContext, _currentAny);
 
@@ -144,10 +143,10 @@ public class MessageUtils
 
                                 _ret.addAny( _currentAny );
 
-                                if ( logger_.isDebugEnabled() )
-                                    {
-                                        logger_.debug( "result=" + _result );
-                                    }
+//                                 if ( logger_.isDebugEnabled() )
+//                                     {
+//                                         logger_.debug( "result=" + _result );
+//                                     }
 
                                 return _ret;
 
@@ -176,7 +175,7 @@ public class MessageUtils
                     }
                 else
                     {
-                        logger_.debug( "Any Cache HIT" );
+//                         logger_.debug( "Any Cache HIT" );
                     }
 
                 if ( _result != null )
@@ -190,10 +189,10 @@ public class MessageUtils
         // Create the EvaluationResult
         _ret = EvaluationResult.fromAny( _result );
 
-        if ( logger_.isDebugEnabled() )
-            {
-                logger_.debug( "extracted: " + _ret );
-            }
+//         if ( logger_.isDebugEnabled() )
+//             {
+//                 logger_.debug( "extracted: " + _ret );
+//             }
 
         return _ret;
     }
@@ -211,4 +210,3 @@ public class MessageUtils
     }
 
 }
-

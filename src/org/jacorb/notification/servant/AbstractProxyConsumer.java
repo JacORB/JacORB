@@ -69,17 +69,13 @@ abstract class AbstractProxyConsumer
     ////////////////////////////////////////
 
     protected MessageFactory messageFactory_;
-
     private TaskProcessor taskProcessor_;
-
-    private SynchronizedBoolean isStartTimeSupported_ = new SynchronizedBoolean(true);
-
-    private SynchronizedBoolean isStopTimeSupported_ = new SynchronizedBoolean(true);
-
+    private SynchronizedBoolean isStartTimeSupported_ =
+        new SynchronizedBoolean(true);
+    private SynchronizedBoolean isStopTimeSupported_ =
+        new SynchronizedBoolean(true);
     private List subsequentDestinations_;
-
     private NotifySubscribeOperations proxySubscriptionListener_;
-
     private NotifySubscribe subscriptionListener_;
 
     ////////////////////////////////////////
@@ -92,9 +88,7 @@ abstract class AbstractProxyConsumer
 
         messageFactory_ =
             channelContext.getMessageFactory();
-
         subsequentDestinations_ = CollectionsWrapper.singletonList(admin_);
-
         taskProcessor_ = channelContext.getTaskProcessor();
     }
 
@@ -112,11 +106,13 @@ abstract class AbstractProxyConsumer
 
         configureStopTimeSupported();
 
-        qosSettings_.addPropertySetListener(new String[] {Priority.value,
-                                                          Timeout.value,
-                                                          StartTimeSupported.value,
-                                                          StopTimeSupported.value},
-                                            reconfigureQoS_);
+        qosSettings_.addPropertySetListener
+            (new String[]
+                {Priority.value,
+                 Timeout.value,
+                 StartTimeSupported.value,
+                 StopTimeSupported.value},
+             reconfigureQoS_);
     }
 
 
@@ -137,18 +133,21 @@ abstract class AbstractProxyConsumer
 
     private void configureStartTimeSupported()
     {
-        isStartTimeSupported_.set(qosSettings_.get(StartTimeSupported.value).extract_boolean());
+        isStartTimeSupported_.
+            set(qosSettings_.get(StartTimeSupported.value).extract_boolean());
 
         if (logger_.isInfoEnabled())
         {
-            logger_.info("set QoS: StartTimeSupported=" + isStartTimeSupported_);
+            logger_.info("set QoS: StartTimeSupported=" +
+                         isStartTimeSupported_);
         }
     }
 
 
     private void configureStopTimeSupported()
     {
-        isStopTimeSupported_.set(qosSettings_.get(StopTimeSupported.value).extract_boolean());
+        isStopTimeSupported_.
+            set(qosSettings_.get(StopTimeSupported.value).extract_boolean());
 
         if (logger_.isInfoEnabled())
         {
@@ -361,6 +360,10 @@ abstract class AbstractProxyConsumer
                 throw new BAD_PARAM("Invalid ClientType: ClientType." + clientType.value());
         }
 
+        _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
+                            getConfiguration());
+
+
         return _servant;
     }
 
@@ -392,7 +395,10 @@ abstract class AbstractProxyConsumer
             default:
                 throw new BAD_PARAM("Invalid ClientType: ClientType." + clientType.value());
         }
+
+        _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
+                            getConfiguration());
+
         return _servant;
     }
 }
-

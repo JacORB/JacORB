@@ -38,7 +38,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
-import org.jacorb.util.Debug;
+//import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -143,7 +143,7 @@ public class FilterImpl
     implements Disposable,
                ManageableServant
 {
-    static Logger logger_ = Debug.getNamedLogger( FilterImpl.class.getName() );
+//     static Logger logger_ = Debug.getNamedLogger( FilterImpl.class.getName() );
 
     final static RuntimeException NOT_SUPPORTED =
         new UnsupportedOperationException("this operation is not implemented yet");
@@ -203,9 +203,9 @@ public class FilterImpl
     {
         super();
 
-        if (logger_.isInfoEnabled()) {
-            logger_.info("Created filter for Grammar: " + constraintGrammar);
-        }
+//         if (logger_.isInfoEnabled()) {
+//             logger_.info("Created filter for Grammar: " + constraintGrammar);
+//         }
 
         constraintGrammar_ = constraintGrammar;
 
@@ -253,14 +253,14 @@ public class FilterImpl
         }
         catch ( WrongPolicy e )
         {
-            logger_.fatalError("error deactivating object", e);
+//             logger_.fatalError("error deactivating object", e);
         }
         catch ( ObjectNotActive e )
         {
-            logger_.fatalError("error deactivating object", e);
+//             logger_.fatalError("error deactivating object", e);
         }
         catch ( ServantNotActive e) {
-            logger_.fatalError("error deactivating object", e);
+//             logger_.fatalError("error deactivating object", e);
         }
     }
 
@@ -680,13 +680,13 @@ public class FilterImpl
         {
             arrayOfLists_ = arrayOfLists;
 
-            if ( logger_.isDebugEnabled() )
-            {
-                for ( int x = 0; x < arrayOfLists_.length; ++x )
-                {
-                    logger_.debug( x + ": " + arrayOfLists_[ x ] );
-                }
-            }
+//             if ( logger_.isDebugEnabled() )
+//             {
+//                 for ( int x = 0; x < arrayOfLists_.length; ++x )
+//                 {
+//                     logger_.debug( x + ": " + arrayOfLists_[ x ] );
+//                 }
+//             }
 
             if (arrayOfLists_.length == 0) {
                 current_ = null;
@@ -759,7 +759,7 @@ public class FilterImpl
                                     }
                                 catch ( EvaluationException e )
                                     {
-                                        logger_.fatalError("Error evaluating filter", e);
+//                                         logger_.fatalError("Error evaluating filter", e);
 
                                         throw new UnsupportedFilterableData(e.getMessage());
                                     }
@@ -767,7 +767,7 @@ public class FilterImpl
                     }
                 else
                     {
-                        logger_.info( "Filter has no Expressions" );
+//                         logger_.info( "Filter has no Expressions" );
 
                         return CONSTRAINTS_EMPTY;
                     }
@@ -822,7 +822,7 @@ public class FilterImpl
             }
             catch (Exception e)
                 {
-                    logger_.fatalError("Error disposing event", e);
+//                     logger_.fatalError("Error disposing event", e);
                 }
 
             try
@@ -831,7 +831,7 @@ public class FilterImpl
             }
             catch (Exception e)
             {
-                logger_.fatalError("Error disposing EvaluationContext", e);
+//                 logger_.fatalError("Error disposing EvaluationContext", e);
             }
         }
     }
@@ -869,14 +869,14 @@ public class FilterImpl
                 _event.dispose();
             }
             catch (Exception e) {
-                logger_.fatalError("Error disposing event", e);
+//                 logger_.fatalError("Error disposing event", e);
             }
 
             try {
                 _evaluationContext.dispose();
             }
             catch (Exception e) {
-                logger_.fatalError("Error releasing EvaluationContext", e);
+//                 logger_.fatalError("Error releasing EvaluationContext", e);
             }
         }
     }

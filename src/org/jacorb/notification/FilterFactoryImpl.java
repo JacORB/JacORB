@@ -24,7 +24,7 @@ package org.jacorb.notification;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.util.Debug;
+//import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -56,7 +56,7 @@ public class FilterFactoryImpl
 
     ////////////////////////////////////////
 
-    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
+//     private Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private ApplicationContext applicationContext_;
 

@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.AdminEvent;
 import org.jacorb.notification.interfaces.AdminEventListener;
@@ -42,8 +42,6 @@ import org.jacorb.notification.servant.SupplierAdminTieImpl;
 import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.QoSPropertySet;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
@@ -73,6 +71,8 @@ import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 
 /**
  * @author Alphonse Bendt
@@ -82,24 +82,18 @@ import org.apache.avalon.framework.logger.Logger;
 public class EventChannelImpl
     extends EventChannelPOA
     implements Disposable,
-               ManageableServant
+               ManageableServant,
+               Configurable
 {
-    private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
-
+    private Logger logger_ = null;
+    private Configuration configuration_ = null;
     private ORB orb_;
-
     private POA poa_;
-
     private EventChannel thisRef_;
-
     private FilterFactory defaultFilterFactory_;
-
     private EventChannelFactoryImpl eventChannelFactory_;
-
     private String ior_;
-
     private int key_;
-
     private FilterStageListManager listManager_;
 
     /**
@@ -156,26 +150,25 @@ public class EventChannelImpl
     private int maxNumberOfConsumers_;
 
     /**
+     * local copy of the configuration value managing activations
+     *
+     */
+    private boolean lazyDefaultAdminInit_;
+
+    /**
      * max number of Suppliers that may be connected at a time to this
      * Channel
      */
     private int maxNumberOfSuppliers_;
-
     private ChannelContext channelContext_;
-
-    private SubscriptionManager subscriptionManager_ = new SubscriptionManager();
-
+    private SubscriptionManager subscriptionManager_ =
+        new SubscriptionManager();
     private OfferManager offerManager_ = new OfferManager();
-
     private AdminPropertySet adminSettings_ = new AdminPropertySet();
-
     private QoSPropertySet qosSettings_ =
         new QoSPropertySet(QoSPropertySet.CHANNEL_QOS);
-
     private List listAdminEventListeners_ = new ArrayList();
-
     private Runnable disposeHook_;
-
 
     private ProxyEventListener proxyConsumerEventListener_ =
         new ProxyEventListener()
@@ -223,15 +216,10 @@ public class EventChannelImpl
     EventChannelImpl(ChannelContext channelContext)
     {
         super();
-
         channelContext_ = channelContext;
-
         eventChannelFactory_ = channelContext.getEventChannelFactoryServant();
-
         defaultFilterFactory_ = channelContext.getDefaultFilterFactory();
-
         channelContext_.setEventChannelServant(this);
-
         listManager_ = new FilterStageListManager() {
                 public void fetchListData(FilterStageListManager.List list) {
 
@@ -245,6 +233,21 @@ public class EventChannelImpl
                     }
                 }
             };
+    }
+
+
+    public void configure (Configuration conf)
+    {
+        this.configuration_ = conf;
+        logger_ = ((org.jacorb.config.Configuration)conf).
+            getNamedLogger( getClass().getName());
+        lazyDefaultAdminInit_ =
+            conf.getAttribute (Attributes.LAZY_DEFAULT_ADMIN_INIT,
+                               Default.DEFAULT_LAZY_DEFAULT_ADMIN_INIT).
+            equals ("on");
+
+        subscriptionManager_.configure (conf);
+        offerManager_.configure (conf);
     }
 
     ////////////////////////////////////////
@@ -276,18 +279,18 @@ public class EventChannelImpl
 
     public synchronized org.omg.CORBA.Object activate() {
         if (thisRef_ == null)
-            {
-                thisRef_ = _this( orb_ );
+        {
+            thisRef_ = _this( orb_ );
 
-                try {
-                    ior_ = orb_.object_to_string(poa_.servant_to_reference(getServant()));
-                } catch (Exception e) {
-                    logger_.error("unable to access IOR", e);
-                }
+            try {
+                ior_ = orb_.object_to_string(poa_.servant_to_reference(getServant()));
+            } catch (Exception e) {
+                logger_.error("unable to access IOR", e);
             }
+        }
 
-        if (!Environment.isPropertyOn(Configuration.LAZY_DEFAULT_ADMIN_INIT,
-                                      Default.DEFAULT_LAZY_DEFAULT_ADMIN_INIT)) {
+        if (!lazyDefaultAdminInit_)
+        {
             default_consumer_admin();
             default_supplier_admin();
         }
@@ -437,6 +440,7 @@ public class EventChannelImpl
 
 
     private void configureAdmin(AbstractAdmin admin) {
+        admin.configure (configuration_);
         admin.setSubscriptionManager(subscriptionManager_);
         admin.setOfferManager(offerManager_);
     }

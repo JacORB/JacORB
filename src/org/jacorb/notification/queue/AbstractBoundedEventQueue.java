@@ -23,9 +23,6 @@ package org.jacorb.notification.queue;
 
 
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  *
@@ -36,7 +33,6 @@ import org.apache.avalon.framework.logger.Logger;
 abstract public class AbstractBoundedEventQueue implements EventQueue
 {
 
-    protected Logger logger_ = Debug.getNamedLogger( getClass().getName() );
     private Object lock_ = new Object();
     private int capacity_;
     private EventQueueOverflowStrategy overflowStrategy_;

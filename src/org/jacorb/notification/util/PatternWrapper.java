@@ -21,10 +21,7 @@ package org.jacorb.notification.util;
  *
  */
 
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
-
-import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * This is a Wrapper around a PatternMatcher.
@@ -34,13 +31,12 @@ public abstract class PatternWrapper
 {
 
     static final RuntimeException REGEXP_NOT_AVAILABLE =
-        new RuntimeException( "Neither java.util.regex.Pattern nor gnu.regexp available. " +
-                              "The package java.util.regex is part of the JDK since v1.4 " +
-                              "if you are running an older JDK you'll have to install gnu.regexp " +
-                              "to run this NotificationService. Please refer to the documentation " +
-                              "for details." );
-
-    static Logger sLogger_ = Debug.getNamedLogger( PatternWrapper.class.getName() );
+        new RuntimeException
+        ("Neither java.util.regex.Pattern nor gnu.regexp available. " +
+         "The package java.util.regex is part of the JDK since v1.4 " +
+         "if you are running an older JDK you'll have to install " +
+         "gnu.regexp to run this NotificationService. Please refer " +
+         "to the documentation for details." );
 
     static boolean sGnuRegexpAvailable = false;
     static Class sDefaultInstance;
@@ -53,7 +49,8 @@ public abstract class PatternWrapper
             try
             {
                 sDefaultInstance =
-                    Environment.classForName( "org.jacorb.notification.util.JDK14PatternWrapper" );
+                    ObjectUtil.classForName
+                    ( "org.jacorb.notification.util.JDK14PatternWrapper" );
             }
             catch ( ClassNotFoundException e )
             {
@@ -67,7 +64,8 @@ public abstract class PatternWrapper
             try
             {
                 sDefaultInstance =
-                    Environment.classForName( "org.jacorb.notification.util.GNUPatternWrapper" );
+                    ObjectUtil.classForName
+                    ("org.jacorb.notification.util.GNUPatternWrapper" );
             }
             catch ( ClassNotFoundException e )
             {
@@ -97,8 +95,6 @@ public abstract class PatternWrapper
                 throw REGEXP_NOT_AVAILABLE;
             }
 
-            sLogger_.error( "Init of PatternWrapper failed: ", e );
-
             throw new RuntimeException( e.getMessage() );
         }
     }
@@ -111,7 +107,7 @@ public abstract class PatternWrapper
     {
         try
         {
-            Environment.classForName( name );
+            ObjectUtil.classForName( name );
 
             return true;
         }

@@ -25,7 +25,6 @@ import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
 
 /**
  *
@@ -51,8 +50,6 @@ public class EventNameShorthandNode extends ETCLComponentName
         }
         catch (Exception e)
         {
-            Debug.getNamedLogger(EventNameShorthandNode.class.getName())
-                .fatalError("Unexpected Exception", e);
         }
     }
 

@@ -59,8 +59,6 @@ public class EqOperator extends AbstractTCLNode {
     }
 
     public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        logger_.debug("accept visitor");
-
         left().acceptInOrder(visitor);
         visitor.visitEq(this);
         right().acceptInOrder(visitor);

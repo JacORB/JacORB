@@ -42,14 +42,14 @@ public class PushToConsumerTask extends AbstractDeliverTask
 
     public void doWork() throws Exception
     {
-        if ( logger_.isDebugEnabled() )
-        {
-            logger_.debug( this
-                           + ".push "
-                           + message_
-                           + " to "
-                           + getMessageConsumer() );
-        }
+//         if ( logger_.isDebugEnabled() )
+//         {
+//             logger_.debug( this
+//                            + ".push "
+//                            + message_
+//                            + " to "
+//                            + getMessageConsumer() );
+//         }
 
         getMessageConsumer().deliverMessage( message_ );
 

@@ -52,7 +52,6 @@ public class ProxyPushConsumerImpl
     ProxyPushConsumerImpl( AbstractAdmin myAdminServant,
                            ChannelContext channelContext)
     {
-
         super( myAdminServant,
                channelContext);
     }

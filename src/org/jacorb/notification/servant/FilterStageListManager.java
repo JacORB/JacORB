@@ -21,12 +21,9 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.interfaces.FilterStage;
-import org.jacorb.util.Debug;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -40,8 +37,6 @@ abstract public class FilterStageListManager {
     }
 
     ////////////////////////////////////////
-
-    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private Object lock_ = new Object();
 

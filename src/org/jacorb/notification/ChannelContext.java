@@ -23,7 +23,6 @@ package org.jacorb.notification;
 
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.ProxyEventListener;
-import org.jacorb.util.Debug;
 
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
@@ -41,21 +40,12 @@ import org.omg.CORBA.ORB;
 public class ChannelContext
 {
     private ORB orb_;
-
     private POA poa_;
-
     private MessageFactory messageFactory_;
-
-    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     private EventChannelImpl eventChannelServant_;
-
     private EventChannelFactory eventChannelFactory_;
-
     private EventChannelFactoryImpl eventChannelFactoryServant_;
-
     private FilterFactory defaultFilterFactory_;
-
     private TaskProcessor taskProcessor_;
 
     ////////////////////////////////////////
@@ -116,7 +106,6 @@ public class ChannelContext
 
     public void setEventChannelServant(EventChannelImpl argEventChannelServant)
     {
-        logger_.debug("setEventChannelServant(" + argEventChannelServant + ")");
         if (argEventChannelServant == null)
         {
             throw new RuntimeException();

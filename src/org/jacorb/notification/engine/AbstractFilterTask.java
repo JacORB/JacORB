@@ -156,7 +156,7 @@ abstract class AbstractFilterTask extends AbstractTask
 
     public void handleTaskError(AbstractTask task, Throwable error)
     {
-        logger_.fatalError( "Error while Filtering in Task:" + task, error );
+//        logger_.fatalError( "Error while Filtering in Task:" + task, error );
     }
 
 

@@ -143,7 +143,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
                 _currentMessage.setPriority(_priorityFilterResult.value.extract_long());
             }
         } catch (UnsupportedFilterableData e) {
-            logger_.error("error evaluating PriorityFilter", e);
+//             logger_.error("error evaluating PriorityFilter", e);
         }
 
         return _currentMessage;
@@ -170,7 +170,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
             }
 
         } catch (UnsupportedFilterableData e) {
-            logger_.error("error evaluating PriorityFilter", e);
+//             logger_.error("error evaluating PriorityFilter", e);
         }
 
         return _currentEvent;

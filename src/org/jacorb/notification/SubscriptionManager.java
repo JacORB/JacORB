@@ -29,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jacorb.util.Debug;
-
 import org.apache.avalon.framework.logger.Logger;
 
 /**
@@ -41,8 +39,6 @@ import org.apache.avalon.framework.logger.Logger;
 public class SubscriptionManager
     extends EventTypeSet
     implements NotifySubscribeOperations {
-
-    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private List listeners_ = new ArrayList();
 

@@ -27,14 +27,12 @@ import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.util.QoSPropertySet;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
@@ -59,7 +57,10 @@ import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.Configurable;
 
 /**
  * @author Alphonse Bendt
@@ -71,56 +72,36 @@ public abstract class AbstractProxy
                QoSAdminOperations,
                FilterStage,
                Disposable,
-               ManageableServant
+               ManageableServant,
+               Configurable
 {
     private MappingFilter nullMappingFilterRef_;
-
     protected boolean isIDPublic_;
-
-    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
+    protected Logger logger_ = null;
     private SynchronizedBoolean connected_ = new SynchronizedBoolean(false);
-
     protected QoSPropertySet qosSettings_ =
         new QoSPropertySet(QoSPropertySet.PROXY_QOS);
-
     protected Integer id_;
-
     protected AbstractAdmin admin_;
-
     protected OfferManager offerManager_;
-
     protected SubscriptionManager subscriptionManager_;
-
     protected Servant thisServant_;
-
     protected MappingFilter lifetimeFilter_;
-
     protected MappingFilter priorityFilter_;
 
     /**
     * delegate for FilterAdminOperations
     */
     private FilterManager filterManager_;
-
     private SynchronizedBoolean disposed_ = new SynchronizedBoolean(false);
-
     private Runnable disposeHook_;
-
     private SynchronizedInt errorCounter_ = new SynchronizedInt(0);
-
     private POA poa_;
-
     private ORB orb_;
-
     private TaskProcessor taskProcessor_;
-
     private boolean isInterFilterGroupOperatorOR_;
-
     private boolean disposedProxyDisconnectsClient_;
-
     private org.omg.CORBA.Object client_;
-
     private SynchronizedBoolean active_ = new SynchronizedBoolean(true);
 
     ////////////////////////////////////////
@@ -129,21 +110,24 @@ public abstract class AbstractProxy
                   ChannelContext channelContext)
     {
         admin_ = admin;
-
         filterManager_ = new FilterManager(channelContext);
-
         setPOA(channelContext.getPOA());
-
         setORB(channelContext.getORB());
-
         setTaskProcessor(channelContext.getTaskProcessor());
-
-        disposedProxyDisconnectsClient_ =
-            Environment.isPropertyOn(Configuration.DISPOSE_PROXY_CALLS_DISCONNECT,
-                                     Default.DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT);
 
         nullMappingFilterRef_ =
             MappingFilterHelper.narrow(getORB().string_to_object(getORB().object_to_string(null)));
+    }
+
+    public void configure (Configuration conf)
+    {
+        logger_ = ((org.jacorb.config.Configuration)conf).
+            getNamedLogger(getClass().getName());
+
+        disposedProxyDisconnectsClient_ =
+            conf.getAttribute(Attributes.DISPOSE_PROXY_CALLS_DISCONNECT,
+                              Default.DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT).
+            equals ("on");
     }
 
     ////////////////////////////////////////

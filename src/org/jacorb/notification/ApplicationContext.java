@@ -29,7 +29,6 @@ import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.AbstractObjectPool;
-import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -62,8 +61,6 @@ public class ApplicationContext implements Disposable
     private DynAnyFactory dynAnyFactory_;
     private DynamicEvaluator dynamicEvaluator_;
 
-    Logger logger_ = Debug.getNamedLogger( getClass().getName() );
-
     private void setup( ORB orb, POA poa, boolean init ) throws InvalidName
     {
         orb_ = orb;
@@ -73,6 +70,7 @@ public class ApplicationContext implements Disposable
             DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
 
         dynamicEvaluator_ = new DynamicEvaluator(dynAnyFactory_ );
+        dynamicEvaluator_.configure (((org.jacorb.orb.ORB)orb).getConfiguration());
 
         evaluationContextPool_ =
             new AbstractObjectPool("EvaluationContextPool")
@@ -146,6 +144,8 @@ public class ApplicationContext implements Disposable
     public void init()
     {
         taskProcessor_ = new TaskProcessor();
+        taskProcessor_.configure (((org.jacorb.orb.ORB)getOrb()).
+                                  getConfiguration());
     }
 
     public void dispose()

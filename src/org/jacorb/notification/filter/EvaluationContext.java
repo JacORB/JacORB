@@ -32,7 +32,6 @@ import java.util.Map;
 
 import org.omg.CORBA.Any;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
 
 /**
  * @todo remove the static dependeny to package filter.etcl.
@@ -42,8 +41,6 @@ import org.jacorb.util.Debug;
 
 public class EvaluationContext extends AbstractPoolable
 {
-    Logger logger_ =  Debug.getNamedLogger(getClass().getName());
-
     private DynamicEvaluator dynamicEvaluator_;
 
     private Message message_;
@@ -169,4 +166,3 @@ public class EvaluationContext extends AbstractPoolable
                                            _componentName.toString());
     }
 }
-

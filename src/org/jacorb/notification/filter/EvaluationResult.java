@@ -21,7 +21,6 @@ package org.jacorb.notification.filter;
  *
  */
 import java.lang.reflect.Field;
-import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
@@ -37,8 +36,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class EvaluationResult
 {
-    static Logger logger_ = Debug.getNamedLogger( EvaluationResult.class.getName() );
-
     public static final EvaluationResult BOOL_TRUE;
 
     public static final EvaluationResult BOOL_FALSE;
@@ -415,8 +412,6 @@ public class EvaluationResult
 
     public boolean equals( Object o )
     {
-        logger_.debug( toString() + ".equals(" + o + ")" );
-
         if ( o instanceof EvaluationResult )
             {
                 return ( ( ( EvaluationResult ) o ).getValue().equals( getValue() ) );

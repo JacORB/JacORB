@@ -49,11 +49,11 @@ public class TimerDeliverTask extends AbstractDeliverTask
         {
             getMessageConsumer().deliverPendingData();
         } else {
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("Nothing to do as the Target:"
-                              + getMessageConsumer()
-                              + " has no Pending Events.");
-            }
+//             if (logger_.isDebugEnabled()) {
+//                 logger_.debug("Nothing to do as the Target:"
+//                               + getMessageConsumer()
+//                               + " has no Pending Events.");
+//             }
 
             dispose();
         }

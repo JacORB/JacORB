@@ -21,11 +21,10 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
-import org.jacorb.util.Environment;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
@@ -40,6 +39,9 @@ import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
+
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 
 /**
  * @author Alphonse Bendt
@@ -63,9 +65,7 @@ public class ProxyPullConsumerImpl
      * the connected PullSupplier
      */
     private PullSupplier pullSupplier_;
-
     private long pollInterval_;
-
     private Object timerRegistration_;
 
     /**
@@ -93,13 +93,14 @@ public class ProxyPullConsumerImpl
 
     ////////////////////////////////////////
 
-    ProxyPullConsumerImpl( AbstractAdmin adminServant,
-                           ChannelContext channelContext)
+    ProxyPullConsumerImpl(AbstractAdmin adminServant,
+                          ChannelContext channelContext)
     {
         super( adminServant,
                channelContext);
 
-        configurePullIntervall();
+        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)channelContext.getORB();
+        this.configure(jorb.getConfiguration());
 
         configureTimerCallback();
     }
@@ -111,34 +112,23 @@ public class ProxyPullConsumerImpl
     }
 
 
-    private void configurePullIntervall() {
-        pollInterval_ = Default.DEFAULT_PROXY_POLL_INTERVALL;
-
-        if (Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL) != null)
-            {
-                try
-                    {
-                        pollInterval_ =
-                            Long.parseLong(Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL));
-                    }
-                catch (NumberFormatException e)
-                    {
-                        logger_.error("Invalid Number Format for Property "
-                                      + Configuration.PULL_CONSUMER_POLLINTERVALL, e);
-
-                    }
-            }
+    public void configure (Configuration conf)
+    {
+        super.configure (conf);
+        pollInterval_ =
+            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLLINTERVALL,
+                                     Default.DEFAULT_PROXY_POLL_INTERVALL);
     }
 
 
     private void configureTimerCallback() {
         runQueueThis_ = new Runnable()
+        {
+            public void run()
             {
-                public void run()
-                {
-                    schedulePullTask( ProxyPullConsumerImpl.this );
-                }
-            };
+                schedulePullTask( ProxyPullConsumerImpl.this );
+            }
+        };
     }
 
 
