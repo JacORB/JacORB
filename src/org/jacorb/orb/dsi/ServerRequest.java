@@ -20,7 +20,7 @@ package org.jacorb.orb.dsi;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Vector;
+import java.util.*;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.giop.*;
@@ -56,7 +56,7 @@ public class ServerRequest
     /**
      * <code>scopes</code> caches the scoped poa names.
      */
-    private Vector scopes;
+    private List scopes;
     private static boolean cachePoaNames;
     private int status = ReplyStatusType_1_2._NO_EXCEPTION;
     private byte[] oid;
@@ -530,12 +530,12 @@ public class ServerRequest
     }
 
     /**
-     * <code>getScopes</code> returns the cached vector of poa_names.
+     * <code>getScopes</code> returns the cached list of poa_names.
      *
-     * @return a <code>Vector</code> value containing Strings separated by
+     * @return a <code>List</code> value containing Strings separated by
      * {@link org.jacorb.poa.POAConstants#OBJECT_KEY_SEPARATOR OBJECT_KEY_SEPARATOR}
      */
-    public Vector getScopes ()
+    public List getScopes ()
     {
         if (scopes == null || ( cachePoaNames == false ) )
         {
