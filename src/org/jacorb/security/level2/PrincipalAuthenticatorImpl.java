@@ -115,7 +115,8 @@ public class PrincipalAuthenticatorImpl
 
             if( cert_chain == null )
             {
-                Debug.output( 0, "No keys found for alias!" );
+                Debug.output( 0, "No keys found in keystore for alias \""+
+                              loginData.alias + "\"!" );
 
                 if( Environment.getProperty( "jacorb.security.default_user" ) != null )
                 {
