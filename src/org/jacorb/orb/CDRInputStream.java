@@ -65,7 +65,7 @@ public class CDRInputStream
      * NOT access this variable directly. It is initialized on demand.
      * Use the method {@link #getRecursiveTCMap()}
      */
-    private HashMap recursiveTCMap;
+    private Map recursiveTCMap;
 
     /**
      * <code>cachedTypecodes</code> stores a mapping of ID/Typecode to
@@ -104,7 +104,7 @@ public class CDRInputStream
      * NOT access this variable directly. It is initialized on demand.
      * Use the method {@link #getValueMap()}
      */
-    private HashMap valueMap;
+    private Map valueMap;
 
     /**
      * Index of the current IDL value that is being unmarshalled.
@@ -120,7 +120,7 @@ public class CDRInputStream
      * Do NOT access this variable directly. It is initialized on demand.
      * Use the method {@link #getRepIdMap()}
      */
-    private HashMap repIdMap;
+    private Map repIdMap;
 
     /**
      * <code>codebaseMap</code> maps indices within the buffer
@@ -128,7 +128,7 @@ public class CDRInputStream
      * Do NOT access this variable directly. It is initialized on demand.
      * Use the method {@link #getCodebaseMap()}
      */
-    private HashMap codebaseMap;
+    private Map codebaseMap;
 
     public boolean littleEndian = false;
 
@@ -194,12 +194,11 @@ public class CDRInputStream
 
 
     /**
-     * <code>getRecursiveTCMap</code> is used to initialize recursiveTCMap
-     * on demand.
+     * Gets the Map that keeps track of recursive TypeCodes.
      *
-     * @return a <code>HashMap</code> value
+     * @return a <code>Map</code> value
      */
-    private HashMap getRecursiveTCMap ()
+    private Map getRecursiveTCMap()
     {
         if (recursiveTCMap == null)
         {
@@ -210,48 +209,48 @@ public class CDRInputStream
 
 
     /**
-     * <code>getValueMap</code> is used to initialize valueMap
-     * on demand.
+     * Gets the Map that is used to demarshal shared valuetype instances.
      *
-     * @return a <code>HashMap</code> value
+     * @return a <code>Map</code> value
      */
-    private HashMap getValueMap ()
+    private Map getValueMap()
     {
         if (valueMap == null)
         {
-            valueMap = new HashMap ();
+            // Unlike the valueMap in CDROutputStream, this one
+            // does need to be an equality-based HashMap.
+            valueMap = new HashMap();
         }
         return valueMap;
     }
 
 
     /**
-     * <code>getRepIdMap</code> is used to initialize repIdMap
-     * on demand.
+     * Gets the Map that is used to implement indirections for RepositoryIDs.
      *
-     * @return a <code>HashMap</code> value
+     * @return a <code>Map</code> value
      */
-    private HashMap getRepIdMap ()
+    private Map getRepIdMap()
     {
         if (repIdMap == null)
         {
-            repIdMap = new HashMap ();
+            repIdMap = new HashMap();
         }
         return repIdMap;
     }
 
 
     /**
-     * <code>getCodebaseMap</code> is used to initialize codebaseMap
-     * on demand.
+     * Gets the Map that is used to implement sharing for codebase
+     * specifications.
      *
-     * @return a <code>HashMap</code> value
+     * @return a <code>Map</code> value
      */
-    private HashMap getCodebaseMap ()
+    private Map getCodebaseMap()
     {
         if (codebaseMap == null)
         {
-            codebaseMap = new HashMap ();
+            codebaseMap = new HashMap();
         }
         return codebaseMap;
     }
