@@ -16,5 +16,5 @@ Security                :    Security Service 1.4? (partial)
 ...
 
 INaming Service         :    1.1?
-Notification Svc        :    1.0.1?
+Notification Svc        :    1.0
 ...
