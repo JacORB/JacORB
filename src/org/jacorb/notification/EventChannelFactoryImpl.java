@@ -68,6 +68,7 @@ import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import java.io.PrintWriter;
 import java.io.FileWriter;
+import org.jacorb.notification.util.PatternWrapper;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -93,6 +94,14 @@ import java.io.FileWriter;
 
 public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements Disposable
 {
+
+    static {
+	// force Classloader to load Class PatternWrapper.
+	// PatternWrapper may cause a ClassNotFoundException if
+	// running on < JDK1.4 and gnu.regexp is NOT installed.
+	// Therefor the Error should occur as early as possible.
+	PatternWrapper.class.getName();
+    }
 
     interface ShutdownCallback {
 	public void needTime(int time);

@@ -83,6 +83,7 @@ public class StructuredProxyPullConsumerImpl
                qosProperties,
                key );
 
+	pollInterval_ = Constants.DEFAULT_PROXY_POLL_INTERVALL;
 
 	if (Environment.getProperty(Properties.PULL_CONSUMER_POLLINTERVALL) != null) {
 	    try {
@@ -90,7 +91,6 @@ public class StructuredProxyPullConsumerImpl
 		    Long.parseLong(Environment.getProperty(Properties.PULL_CONSUMER_POLLINTERVALL));
 	    } catch (NumberFormatException e) {
 		logger_.error("Invalid Number Format for Property " + Properties.PULL_CONSUMER_POLLINTERVALL, e);
-		pollInterval_ = Constants.DEFAULT_PROXY_POLL_INTERVALL;
 	    }
 	}
 
