@@ -30,7 +30,7 @@ import java.util.*;
  * directly known subclasses: ValueBody
  */
 
-class InterfaceBody
+public class InterfaceBody
     extends IdlSymbol
 {
     public Vector v;
@@ -326,7 +326,7 @@ class InterfaceBody
         }
     }
 
-    protected Operation[] getMethods()
+    public Operation[] getMethods()
     {
         if( methods == null )
         {
@@ -348,7 +348,7 @@ class InterfaceBody
                     }
                 }
             }
-            for (Iterator i = my_interface.inheritanceSpec.v.iterator();
+            for (Iterator i = my_interface.inheritanceSpec.v.iterator(); 
                  i.hasNext(); )
             {
                 TypeSpec ts = ((ScopedName)i.next()).resolvedTypeSpec();
@@ -372,9 +372,11 @@ class InterfaceBody
         return methods;
     }
 
+
     /**
      * Print methods to the stub file
      */
+
     public void printStubMethods( PrintWriter ps,
                                   String classname,
                                   boolean is_local,
@@ -385,7 +387,7 @@ class InterfaceBody
         {
             ops[ i ].printMethod( ps, classname, is_local, is_abstract );
         }
-
+        
         if ( parser.generate_ami_callback &&
              !(my_interface instanceof ReplyHandler) )
         {
@@ -393,7 +395,7 @@ class InterfaceBody
                 ops[ i ].print_sendc_Method( ps, classname );
         }
     }
-
+    
 
     /** print methods to the skeleton file */
 
@@ -422,7 +424,7 @@ class InterfaceBody
                            ? "com.sun.java.util.collections.Hashtable"
                            : "java.util.Hashtable";
 
-        ps.println( "\tstatic private final " + HASHTABLE
+        ps.println( "\tstatic private final " + HASHTABLE 
                       + " m_opsHash = new " + HASHTABLE + "();" );
         ps.println( "\tstatic" );
         ps.println( "\t{" );
@@ -503,4 +505,15 @@ class InterfaceBody
         }
     }
 
+    /**
+     * @overrides accept in IdlSymbol
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitInterfaceBody( this );
+    }
+
+
 }
+

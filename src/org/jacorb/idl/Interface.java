@@ -30,13 +30,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-class Interface
+public class Interface
     extends TypeDeclaration
     implements Scope
 {
-
     public InterfaceBody body = null;
     public SymbolList inheritanceSpec = null;
+
     private String[] ids = null;
     private boolean is_local = false;
     private boolean is_abstract = false;
@@ -137,6 +137,7 @@ class Interface
      * of type TypeCode that describes this type.
      * @return a string value.
      */
+
     public String getTypeCodeExpression()
     {
         if( is_abstract )
@@ -567,7 +568,7 @@ class Interface
     }
 
 
-    /*
+    /**
      * Print the holder class for the interface.
      */
     protected void printHolder()
@@ -674,6 +675,7 @@ class Interface
         {
             ps.println( "\t\treturn narrow (any.extract_Object ());" );
         }
+
         ps.println( "\t}" );
 
         // Generate the typecode
@@ -741,6 +743,7 @@ class Interface
 
 
         // Generate narrow
+
         ps.println( "\tpublic static " + typeName() + " narrow (final org.omg.CORBA.Object obj)" );
         ps.println( "\t{" );
         ps.println( "\t\tif( obj == null )" );
@@ -826,7 +829,7 @@ class Interface
         ps.close();
     }
 
-    protected String[] get_ids()
+    public String[] get_ids()
     {
         if( ids == null )
         {
@@ -857,7 +860,6 @@ class Interface
         }
         return ids;
     }
-
 
     /**
      * Generates a stub class for this Interface
@@ -956,10 +958,10 @@ class Interface
         ps.close();
     }
 
-
     /**
      * print the stream-based skeleton class
      */
+
     protected void printTieSkeleton()
     {
         PrintWriter ps = openOutput( name + "POATie" );
@@ -1168,4 +1170,16 @@ class Interface
             //IRMap.enter(this);
         }
     }
+
+    /**
+     * @overrides accept in IdlSymbol
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitInterface( this );
+    }
+
+
+
 }
