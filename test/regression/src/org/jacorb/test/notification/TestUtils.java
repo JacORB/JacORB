@@ -10,7 +10,7 @@ import org.jacorb.notification.filter.FilterConstraint;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
-import org.jacorb.notification.filter.etcl.parser.TCLParser;
+import org.jacorb.notification.filter.etcl.TCLParser;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LongSeqHelper;
 import org.omg.CORBA.ORB;
