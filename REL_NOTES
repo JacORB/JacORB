@@ -69,6 +69,13 @@ gerald.brose@acm.org
                         - Fixed implementation of DynUnion operation
                           set_to_no_active_member
 
+         - Portable Interceptors:
+               - Adapted to CORBA 2.5 IDL (ForwardRequest exception
+                 now doesn't have the permanent flag anymore)
+
+         - SSL/JSSE
+               - Integrated patch to be able to access the peers
+                 certificates also using JSSE 1.0.2 with a JDK < 1.4
 
 1.4 beta 2:
 =================
