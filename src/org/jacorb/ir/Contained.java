@@ -27,6 +27,10 @@ import java.lang.reflect.*;
 
 import org.apache.avalon.framework.logger.Logger;
 
+/**
+ * @version $Id$
+ */
+
 public abstract class Contained
     extends IRObject
     implements org.omg.CORBA.ContainedOperations
@@ -155,11 +159,12 @@ public abstract class Contained
             try
             {
             */
-                return new ExceptionDef(c, 
-                                        _defined_in, 
-                                        ir,
-                                        logger,
-                                        loader);
+                return new org.jacorb.ir.ExceptionDef(c, 
+                                                      _defined_in, 
+                                                      ir,
+                                                      loader,
+                                                      poa,
+                                                      logger);
                 /*
             }
             catch ( Exception e )
@@ -182,21 +187,27 @@ public abstract class Contained
                 switch( tc.kind().value())
                 {
                 case org.omg.CORBA.TCKind._tk_struct:
-                    return new StructDef( c, 
-                                          path, 
-                                          _defined_in, 
-                                          ir,
-                                          logger,
-                                          loader );
+                    return new org.jacorb.ir.StructDef( c, 
+                                                        path, 
+                                                        _defined_in, 
+                                                        ir,
+                                                        logger,
+                                                        loader, 
+                                                        poa );
                 case org.omg.CORBA.TCKind._tk_enum:
-                    return new EnumDef( c, _defined_in, ir );
+                    return new org.jacorb.ir.EnumDef( 
+                                                     c, 
+                                                     _defined_in, 
+                                                     ir,
+                                                     loader );
                 case org.omg.CORBA.TCKind._tk_union:
-                    return new UnionDef( c, 
-                                         path,  
-                                         _defined_in, 
-                                         ir,
-                                         loader,
-                                         logger );
+                    return new org.jacorb.ir.UnionDef( c, 
+                                                       path,  
+                                                       _defined_in, 
+                                                       ir,
+                                                       loader,
+                                                       logger, 
+                                                       poa);
                 default:
                     return null;
                 }
@@ -220,7 +231,11 @@ public abstract class Contained
                     (org.omg.CORBA.TypeCode)c.getDeclaredMethod("type",null).invoke(null,null);
                 if( tc.kind() == org.omg.CORBA.TCKind.tk_alias )
                 {
-                    return new AliasDef(tc, _defined_in, ir, logger );
+                    return new AliasDef(tc, 
+                                        _defined_in, 
+                                        ir, 
+                                        logger, 
+                                        poa);
                 }
             }
             catch( Exception  e )

@@ -1,7 +1,9 @@
+package org.jacorb.ir;
+
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,8 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.ir;
-
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -27,6 +27,10 @@ import org.omg.CORBA.INTF_REPOS;
 import org.omg.PortableServer.POA;
 
 import org.apache.avalon.framework.logger.Logger;
+
+/**
+ * @version $Id$
+ */
 
 public class ExceptionDef
     extends Contained
@@ -44,9 +48,9 @@ public class ExceptionDef
     public ExceptionDef(Class c,
                         org.omg.CORBA.Container _defined_in,
                         org.omg.CORBA.Repository ir,
-                        Logger logger,
                         ClassLoader loader,
-                        POA poa)
+                        POA poa,
+                        Logger logger)
     {
         this.logger = logger;
         this.loader = loader;
@@ -322,16 +326,5 @@ public class ExceptionDef
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
