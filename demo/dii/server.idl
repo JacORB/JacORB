@@ -1,4 +1,7 @@
-module dii{
+module demo
+{
+
+    module dii{
 
     interface server 
     {
@@ -15,5 +18,6 @@ module dii{
 	string writeNumberWithEx( in long i ) raises (e);
 	    
 	oneway void notify( in string msg );
+    };
     };
 };

@@ -1,7 +1,12 @@
+module demo
+{
+
 module dynany
 {
     interface AnyServer 
 	{
 	    string generic(in any a);
 	};
+};
+
 };

@@ -16,9 +16,9 @@
    </target>
 
    <target name="all" depends="init">
-	<javac srcdir="${dirs.base}"
+	<javac srcdir="${dirs.base}/demo/${name}"
                destdir="${classdir}"
-	       includes="demo/${name}/**/*.java"
+	       includes="**/*.java"
 	        />
    </target>
 

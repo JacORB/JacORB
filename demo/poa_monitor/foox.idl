@@ -1,4 +1,5 @@
-module poa_monitor {
+module demo {
+    module poa_monitor {
 	module foox {
 
 		interface Foo {
@@ -11,4 +12,5 @@ module poa_monitor {
 			string getServerDescription();
 		};
 	};
+    };
 };

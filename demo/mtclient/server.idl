@@ -1,3 +1,6 @@
+module demo
+{
+
 module mtclient
 {
 
@@ -15,5 +18,7 @@ module mtclient
 		string writeMessages(in strings a1, in Observer o);
 		strings arryfy(in string a1, in long a2);
 	};
+
+};
 
 };

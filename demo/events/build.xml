@@ -20,7 +20,7 @@
    </target>
 
    <target name="clean">
-	   <deltree dir="${classdir}/demo/${name}"/>
+	   <delete dir="${classdir}/demo/${name}"/>
    </target>
 
 </project>

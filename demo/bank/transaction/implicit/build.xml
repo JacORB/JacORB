@@ -1,43 +1,49 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../common.xml"> ]>
+
 <project name="demo" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
+   &common;
+
+   <target name="myinit">
 	<property name="name" value="bank/transaction/implicit"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
+        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
 	<property name="include" value="${dirs.base}/idl/omg"/>
-	<property name="idlflags" value="-I${include}/omg -d ${dirs.base}/demo/${name}/generated"/>
    </target>
 
    <target name="all" depends="init,idl">
-	<javac srcdir="${dirs.base}/demo/${name}/generated"
+	<javac srcdir="${dest}"
                destdir="${classdir}"
+               classpath="${dirs.base}/classes"
 	       includes="**/*.java"
 	        />
-	<javac srcdir="${dirs.base}"
+	<javac srcdir="${dirs.base}/demo/${name}/"
                destdir="${classdir}"
-	       includes="demo/${name}/*.java"
+               classpath="${dirs.base}/classes"
+	       includes="*.java"
 	        />
    </target>
 
 
-   <target name="idl" depends="init">
+   <target name="idl" depends="myinit,load-taskdef">
         <jacidl 
-              srcdir="demo/${name}"/>
-              destdir="${demo/${name}}/generated"/>
+              srcdir="demo/${name}"
+              destdir="${dest}"
               includepath="${include}"
-	      include="*.idl"/>
+	      includes="*.idl"/>
    </target>
 
    <target name="clean" depends="init">
-   <deltree dir="${classdir}/demo/${name}"/>
-   <deltree dir="${dirs.base}/demo/${name}/generated"/>
+   <delete dir="${classdir}/demo/${name}"/>
+   <delete dir="${dirs.base}/demo/${name}/generated"/>
    </target>
 
 </project>
