@@ -66,6 +66,8 @@ public abstract class GIOPConnection
     //map request id (Integer) to ByteArrayInputStream
     private Hashtable fragments = null;
     private BufferManager buf_mg = null;
+    
+    private boolean dump_incoming = false;
 
     //// support for SAS Stateful contexts
     //private Hashtable sasContexts = null;
@@ -100,6 +102,12 @@ public abstract class GIOPConnection
         fragments = new Hashtable();
         buf_mg = BufferManager.getInstance();
         //sasContexts = new Hashtable();
+        
+        String dump_incoming_str =
+            Environment.getProperty( "jacorb.debug.dump_incoming_messages",
+                                     "off" );
+
+        dump_incoming = "on".equals( dump_incoming_str );        
 
         cubbyholes = new Object[cubby_count];
     }
@@ -178,12 +186,134 @@ public abstract class GIOPConnection
         return transport;
     }
 
+    /**
+     * Read a GIOP message from the stream. This will first try to
+     * read in the fixed-length GIOP message header to determine the
+     * message size, and the read the rest. It also checks the leading
+     * four magic bytes of the message header. This method <b>is not
+     * thread safe<b> and only expected to be called by a single
+     * thread.
+     *
+     * @return a GIOP message or null.
+     * @exception IOException passed through from the underlying IO layer.
+     */
+    public byte[] getMessage()
+        throws IOException
+    {
+        TCP_IP_Transport transport = (TCP_IP_Transport)this.transport;
+        
+        //Wait until the actual socket connection is established. This
+        //is necessary for the client side, so opening up a new
+        //connection can be delayed until the first message is to be
+        //sent.
+        if( ! transport.waitUntilConnected() )
+        {
+            return null;
+        }
+
+        byte[] msg_header = new byte[ Messages.MSG_HEADER_SIZE ];
+
+        int read = transport.readToBuffer( msg_header, 0, Messages.MSG_HEADER_SIZE );
+
+        if( read == -1 )
+        {
+            return null;
+        }
+
+        if( read != Messages.MSG_HEADER_SIZE )
+        {
+            //TODO: resynching?
+
+            // Debug.output( 1, "ERROR: Failed to read GIOP message header" );
+            // Debug.output( 1, (Messages.MSG_HEADER_SIZE - read) +
+            //                   " Bytes less than the expected " +
+            //                   Messages.MSG_HEADER_SIZE + " Bytes" );
+            // Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
+            //                  msg_header, 0, read );
+
+            return null;
+        }
+        
+        //(minimally) decode GIOP message header. Main checks should
+        //be done one layer above.
+
+        if( (char) msg_header[0] == 'G' && (char) msg_header[1] == 'I' &&
+            (char) msg_header[2] == 'O' && (char) msg_header[3] == 'P')
+        {
+            //determine message size
+            int msg_size = Messages.getMsgSize( msg_header );
+
+            if( msg_size < 0 )
+            {
+                Debug.output( 1, "ERROR: Negative GIOP message size: " + 
+                              msg_size );
+                Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
+                              msg_header, 0, read );
+
+                return null;
+            }
+
+            //get a large enough buffer from the pool
+            byte[] inbuf = buf_mg.getBuffer( msg_size +
+                                             Messages.MSG_HEADER_SIZE );
+
+            //copy header
+            System.arraycopy( msg_header, 0, inbuf, 0, Messages.MSG_HEADER_SIZE );
+
+            //read "body"
+            read = transport.readToBuffer( inbuf, Messages.MSG_HEADER_SIZE, msg_size );
+
+            if( read == -1 )
+            {
+                //stream ended too early
+                return null;
+            }
+
+            if( read != msg_size )
+            {
+                Debug.output( 1, "ERROR: Failed to read GIOP message" );
+                Debug.output( 1, (msg_size - read) +
+                              " Bytes less than the expected " +
+                              msg_size + " Bytes" );
+                Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
+                              inbuf, 0, read );
+
+                return null;
+            }
+
+            if( dump_incoming )
+            {
+                Debug.output( 1, "getMessage()", inbuf, 0, read + Messages.MSG_HEADER_SIZE );
+            }
+
+            StatisticsProvider provider = transport.getStatisticsProvider();
+
+            if( provider != null )
+            {
+                provider.messageReceived( msg_size +
+                                          Messages.MSG_HEADER_SIZE );
+            }
+
+            //this is the "good" exit point. 
+            return inbuf;
+        }
+        else
+        {
+            Debug.output( 1, "ERROR: Failed to read GIOP message" );
+            Debug.output( 1, "Magic start doesn't match" );
+            Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
+                          msg_header );
+
+            return null;
+        }
+    }
+
     public final void receiveMessages()
         throws IOException
     {
         while( true )
         {
-            byte[] message = transport.getMessage();
+            byte[] message = getMessage();
 
 
             if( message == null )
