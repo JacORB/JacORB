@@ -37,6 +37,8 @@ import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.PortableServer.Servant;
+import org.omg.CORBA.UNKNOWN;
+import org.omg.CORBA.ORB;
 
 /**
  * @author Alphonse Bendt
@@ -51,7 +53,13 @@ public class ProxyPullSupplierImpl
 
     private PullConsumer pullConsumer_ = null;
     private boolean connected_ = false;
-    private static Any sUndefinedAny = null;
+    private static final Any sUndefinedAny;
+
+    static {
+        ORB _orb = ORB.init();
+
+        sUndefinedAny = _orb.create_any();
+    }
 
     ProxyPullSupplierImpl(ConsumerAdminTieImpl adminServant,
                           ApplicationContext appContext,
@@ -85,16 +93,6 @@ public class ProxyPullSupplierImpl
         init(appContext, adminProperties, qosProperties);
     }
 
-    private Any getUndefinedAny() {
-        if (sUndefinedAny == null) {
-            synchronized(getClass()) {
-                if (sUndefinedAny == null) {
-                    sUndefinedAny = applicationContext_.getOrb().create_any();
-                }
-            }
-        }
-        return sUndefinedAny;
-    }
 
     private void init(ApplicationContext appContext,
                       PropertyManager adminProperties,
@@ -102,7 +100,7 @@ public class ProxyPullSupplierImpl
 
         setProxyType(ProxyType.PULL_ANY);
 
-        pendingEvents_ = appContext.newEventQueue(qosProperties);
+        //        pendingEvents_ = appContext.newEventQueue(qosProperties);
     }
 
     public void disconnect_pull_supplier() {
@@ -124,14 +122,16 @@ public class ProxyPullSupplierImpl
         }
 
         try {
-            Message _event = pendingEvents_.getEvent(true);
+            Message _event = getMessageBlocking();
             try {
                 return _event.toAny();
             } finally {
                 _event.dispose();
             }
         } catch (InterruptedException e) {
-            return null;
+            logger_.fatalError("interrupted", e);
+
+            throw new UNKNOWN();
         }
 
     }
@@ -143,26 +143,22 @@ public class ProxyPullSupplierImpl
             throw new Disconnected();
         }
 
-        Any event = getUndefinedAny();
+        Any event = sUndefinedAny;
         hasEvent.value = false;
 
-        try {
-            Message _message =
-                pendingEvents_.getEvent(false);
+        Message _message = getMessageNoBlock();
 
-            if (_message != null) {
-                try {
-                    hasEvent.value = true;
-                    return _message.toAny();
-                } finally {
-                    _message.dispose();
-                }
+        if (_message != null) {
+            try {
+                hasEvent.value = true;
+                return _message.toAny();
+            } finally {
+                _message.dispose();
             }
-
-        } catch (InterruptedException e) {}
-
-        hasEvent.value = false;
-        return getUndefinedAny();
+        } else {
+            hasEvent.value = false;
+            return sUndefinedAny;
+        }
     }
 
     /**
@@ -170,8 +166,8 @@ public class ProxyPullSupplierImpl
      * PullConsumer we simply put the Events in a Queue. The
      * PullConsumer will pull the Events out of the Queue at a later time.
      */
-    public void deliverEvent(Message event) {
-        pendingEvents_.put(event);
+    public void deliverEvent(Message message) {
+        enqueue(message);
     }
 
     public void connect_any_pull_consumer(PullConsumer pullConsumer)
@@ -238,9 +234,5 @@ public class ProxyPullSupplierImpl
 
     public void setServant(Servant servant) {
         thisServant_ = servant;
-    }
-
-    public boolean hasPendingEvents() {
-        return !pendingEvents_.isEmpty();
     }
 }

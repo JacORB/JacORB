@@ -55,7 +55,7 @@ import org.apache.avalon.framework.logger.Logger;
 public class MappingFilterImpl extends MappingFilterPOA
 {
 
-    static class ValueMap
+    private static class ValueMap
     {
         private Map valueMap_ = new Hashtable();
 
@@ -276,8 +276,6 @@ public class MappingFilterImpl extends MappingFilterPOA
      */
     public boolean match( Any any, AnyHolder anyHolder ) throws UnsupportedFilterableData
     {
-        logger_.debug( "match" );
-
         int _filterId = filterImpl_.match_internal( any );
 
         if ( _filterId != FilterImpl.NO_CONSTRAINT )

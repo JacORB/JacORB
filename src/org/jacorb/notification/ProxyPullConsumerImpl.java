@@ -48,12 +48,11 @@ import org.omg.PortableServer.Servant;
  */
 
 public class ProxyPullConsumerImpl
-            extends AbstractProxy
-            implements ProxyPullConsumerOperations,
-            org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations,
-            TimerEventSupplier
+    extends AbstractProxy
+    implements ProxyPullConsumerOperations,
+               org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations,
+               TimerEventSupplier
 {
-
     private org.omg.CosEventComm.PullSupplier myPullSupplier_;
 
     private boolean active_ = false;
@@ -168,7 +167,6 @@ public class ProxyPullConsumerImpl
         throws NotConnected,
                ConnectionAlreadyInactive
     {
-
         if ( !connected_ )
         {
             throw new NotConnected();
@@ -187,7 +185,6 @@ public class ProxyPullConsumerImpl
         throws ConnectionAlreadyActive,
                 NotConnected
     {
-
         if ( !connected_ )
         {
             throw new NotConnected();
@@ -301,18 +298,12 @@ public class ProxyPullConsumerImpl
         disconnectClient();
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new ProxyPullConsumerPOATie( this );
-                }
+                thisServant_ = new ProxyPullConsumerPOATie( this );
             }
-        }
 
         return thisServant_;
     }

@@ -40,13 +40,13 @@ import java.util.Map;
 public abstract class AbstractProxySupplier extends AbstractProxy
 {
 
-    protected EventQueue pendingEvents_;
+    private EventQueue pendingEvents_;
 
     /**
      * lock variable used to control access to the reference to the
      * queue object not the queue object itself.
      */
-    protected Object pendingEventsLock_ =
+    private Object pendingEventsLock_ =
         new Object();
 
 
@@ -55,7 +55,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy
                                     ChannelContext channelContext,
                                     PropertyManager adminProperties,
                                     PropertyManager qosProperties)
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
         super(admin,
               appContext,
@@ -116,7 +116,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy
 
             synchronized (pendingEventsLock_)
             {
-
                 if (!pendingEvents_.isEmpty())
                 {
                     Message[] _allEvents =
@@ -136,5 +135,81 @@ public abstract class AbstractProxySupplier extends AbstractProxy
             logger_.error("interupted", e);
             throw new UNKNOWN(e.getMessage());
         }
+    }
+
+    public boolean hasPendingEvents()
+    {
+        synchronized (pendingEventsLock_)
+        {
+            return !pendingEvents_.isEmpty();
+        }
+    }
+
+    /**
+     * put a Message in the queue of pending Messages.
+     *
+     * @param message the <code>Message</code> to queue.
+     */
+    protected void enqueue(Message message) {
+        synchronized(pendingEventsLock_) {
+            pendingEvents_.put(message);
+        }
+
+        if (logger_.isDebugEnabled() ) {
+            logger_.debug(message + " has been added to pendingEvent");
+        }
+    }
+
+    protected Message getMessageBlocking() throws InterruptedException {
+        synchronized(pendingEventsLock_) {
+            return pendingEvents_.getEvent(true);
+        }
+    }
+
+    protected Message getMessageNoBlock() {
+        synchronized(pendingEventsLock_) {
+            try {
+                return pendingEvents_.getEvent(false);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+
+                return null;
+            }
+        }
+    }
+
+    protected Message[] getAllMessages() {
+        synchronized(pendingEventsLock_) {
+            try {
+                return pendingEvents_.getAllEvents(false);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+
+                return null;
+            }
+        }
+    }
+
+    protected Message[] getUpToMessages(int max) {
+        try {
+            synchronized(pendingEventsLock_) {
+                return pendingEvents_.getEvents(max, false);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        }
+    }
+
+    protected Message[] getAtLeastMessages(int min) {
+        try {
+            synchronized(pendingEventsLock_) {
+                if (pendingEvents_.getSize() >= min) {
+                    return pendingEvents_.getAllEvents(true);
+                }
+            }
+        } catch (InterruptedException e) {
+        }
+        return null;
     }
 }

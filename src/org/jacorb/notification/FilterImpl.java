@@ -665,13 +665,11 @@ public class FilterImpl extends FilterPOA implements Disposable
                         }
                         catch ( EvaluationException e )
                         {
-                            // ignore
-                            e.printStackTrace();
+                            logger_.fatalError("Error evaluating filter", e);
                         }
                         catch ( DynamicTypeException e )
                         {
-                            // ignore
-                            e.printStackTrace();
+                            logger_.fatalError("Error evaluating filter", e);
                         }
                     }
                 }
@@ -720,14 +718,18 @@ public class FilterImpl extends FilterPOA implements Disposable
                 _event.dispose();
             }
             catch (Exception e)
-            {}
+                {
+                    logger_.fatalError("Error disposing event", e);
+                }
 
             try
             {
-                _evaluationContext.release();
+                _evaluationContext.dispose();
             }
             catch (Exception e)
-            {}
+            {
+                logger_.fatalError("Error disposing EvaluationContext", e);
+            }
         }
     }
 
@@ -759,14 +761,18 @@ public class FilterImpl extends FilterPOA implements Disposable
                 _event.dispose();
             }
             catch (Exception e)
-            {}
+            {
+                logger_.fatalError("Error disposing event", e);
+            }
 
             try
             {
-                _evaluationContext.release();
+                _evaluationContext.dispose();
             }
             catch (Exception e)
-            {}
+            {
+                logger_.fatalError("Error releasing EvaluationContext", e);
+            }
         }
     }
 

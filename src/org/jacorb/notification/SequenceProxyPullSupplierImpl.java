@@ -26,17 +26,18 @@ import java.util.List;
 
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
+
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
 import org.omg.CosNotifyComm.SequencePullConsumer;
 import org.omg.PortableServer.Servant;
-import org.omg.CosNotification.UnsupportedQoS;
 
 /**
  * SequenceProxyPullSupplierImpl.java
@@ -46,13 +47,17 @@ import org.omg.CosNotification.UnsupportedQoS;
  */
 
 public class SequenceProxyPullSupplierImpl
-            extends StructuredProxyPullSupplierImpl
-            implements SequenceProxyPullSupplierOperations,
-            EventConsumer
+    extends StructuredProxyPullSupplierImpl
+    implements SequenceProxyPullSupplierOperations,
+               EventConsumer
 {
 
     private SequencePullConsumer sequencePullConsumer_;
-    private static StructuredEvent[] sUndefinedSequence;
+    private static final StructuredEvent[] sUndefinedSequence;
+
+    static {
+        sUndefinedSequence = new StructuredEvent[] {undefinedStructuredEvent_};
+    }
 
     public SequenceProxyPullSupplierImpl( ConsumerAdminTieImpl myAdminServant,
                                           ApplicationContext appContext,
@@ -68,18 +73,6 @@ public class SequenceProxyPullSupplierImpl
                adminProperties,
                qosProperties,
                key );
-
-
-        if ( sUndefinedSequence == null )
-        {
-            synchronized ( getClass() )
-            {
-                if ( sUndefinedSequence == null )
-                {
-                    sUndefinedSequence = new StructuredEvent[] {undefinedStructuredEvent_};
-                }
-            }
-        }
 
         setProxyType( ProxyType.PULL_STRUCTURED );
     }
@@ -102,14 +95,13 @@ public class SequenceProxyPullSupplierImpl
         BooleanHolder _hasEvent = new BooleanHolder();
         StructuredEvent _ret[] = sUndefinedSequence;
 
-        try {
-            Message[] _events = pendingEvents_.getEvents(number, true);
-            _ret = new StructuredEvent[_events.length];
+        Message[] _events = getUpToMessages(number);
+        _ret = new StructuredEvent[_events.length];
 
-            for (int x=0; x<_events.length; ++x) {
-                _ret[x] = _events[x].toStructuredEvent();
-            }
-        } catch (InterruptedException e) {}
+        for (int x=0; x<_events.length; ++x) {
+            _ret[x] = _events[x].toStructuredEvent();
+            _events[x].dispose();
+        }
 
         return _ret;
     }
@@ -118,27 +110,22 @@ public class SequenceProxyPullSupplierImpl
                                                          BooleanHolder success )
         throws Disconnected
     {
+        Message[] _events = getUpToMessages(number);
+        if (_events != null) {
+            StructuredEvent[] _ret = new StructuredEvent[_events.length];
 
-        try {
-            Message[] _events = pendingEvents_.getEvents(number, false);
-            if (_events != null) {
-                StructuredEvent[] _ret = new StructuredEvent[_events.length];
+            for (int x=0; x<_events.length; ++x) {
+                _ret[x] = _events[x].toStructuredEvent();
 
-                for (int x=0; x<_events.length; ++x) {
-                    _ret[x] = _events[x].toStructuredEvent();
-
-                    _events[x].dispose();
-                    _events[x] = null;
-                }
-                success.value = true;
-                return _ret;
+                _events[x].dispose();
             }
-        } catch (InterruptedException e) {}
-
+            success.value = true;
+            return _ret;
+        }
         success.value = false;
         return sUndefinedSequence;
-
     }
+
 
     public List getSubsequentFilterStages()
     {
@@ -189,20 +176,13 @@ public class SequenceProxyPullSupplierImpl
         dispose();
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new SequenceProxyPullSupplierPOATie( this );
-                }
+                thisServant_ = new SequenceProxyPullSupplierPOATie( this );
             }
-        }
 
         return thisServant_;
     }
-
 }

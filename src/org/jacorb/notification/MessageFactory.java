@@ -47,14 +47,11 @@ public class MessageFactory implements Disposable
                 return _p;
             }
 
-            public void passivateObject( Object o )
-            {
-            }
-
             public void activateObject( Object o )
             {
-                ( ( AbstractPoolable ) o ).reset();
-                ( ( AbstractPoolable ) o ).setObjectPool( this );
+                AbstractPoolable obj = (AbstractPoolable) o;
+                obj.reset();
+                obj.setObjectPool( this );
             }
         };
 
@@ -67,14 +64,11 @@ public class MessageFactory implements Disposable
                 return _p;
             }
 
-            public void passivateObject( Object o )
-            {
-            }
-
             public void activateObject( Object o )
             {
-                ( ( AbstractPoolable ) o ).reset();
-                ( ( AbstractPoolable ) o ).setObjectPool( this );
+                AbstractPoolable obj = (AbstractPoolable) o;
+                obj.reset();
+                obj.setObjectPool( this );
             }
         };
 

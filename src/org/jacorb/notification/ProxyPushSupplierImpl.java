@@ -139,13 +139,7 @@ public class ProxyPushSupplierImpl
                 }
                 else
                 {
-
-                    synchronized (pendingEventsLock_)
-                    {
-                        pendingEvents_.put(event);
-                    }
-
-                    logger_.debug("added to pendingEventS");
+                    enqueue(event);
                 }
             }
             catch (Disconnected e)
@@ -225,37 +219,25 @@ public class ProxyPushSupplierImpl
     public void deliverPendingEvents()
         throws NotConnected
     {
-        try
-        {
-            synchronized (pendingEventsLock_)
-            {
-                if (!pendingEvents_.isEmpty())
-                {
-                    Message[] _events =
-                        pendingEvents_.getAllEvents(true);
+        Message[] _events = getAllMessages();
 
-                    for (int x = 0; x < _events.length; ++x)
+        for (int x = 0; x < _events.length; ++x)
+            {
+                try
                     {
-                        try
-                        {
-                            myPushConsumer_.push(_events[x].toAny());
-                        }
-                        catch (Disconnected e)
-                        {
-                            connected_ = false;
-                            throw new NotConnected();
-                        }
-                        finally
-                        {
-                            _events[x].dispose();
-                            _events[x] = null;
-                        }
+                        myPushConsumer_.push(_events[x].toAny());
                     }
-                }
+                catch (Disconnected e)
+                    {
+                        connected_ = false;
+                        throw new NotConnected();
+                    }
+                finally
+                    {
+                        _events[x].dispose();
+                        _events[x] = null;
+                    }
             }
-        }
-        catch (InterruptedException e)
-        {}
     }
 
     synchronized public void resume_connection()
@@ -305,13 +287,4 @@ public class ProxyPushSupplierImpl
     {
         thisServant_ = servant;
     }
-
-    public boolean hasPendingEvents()
-    {
-        synchronized (pendingEventsLock_)
-        {
-            return !pendingEvents_.isEmpty();
-        }
-    }
-
 }

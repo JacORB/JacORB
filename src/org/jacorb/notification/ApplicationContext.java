@@ -97,12 +97,9 @@ public class ApplicationContext implements Disposable
 
                 public void activateObject( Object o )
                 {
-                    ( ( AbstractPoolable ) o ).setObjectPool( this );
-                }
-
-                public void passivateObject( Object o )
-                {
-                    ( ( AbstractPoolable ) o ).reset();
+                    AbstractPoolable obj = (AbstractPoolable) o;
+                    obj.reset();
+                    obj.setObjectPool( this );
                 }
             };
 
@@ -118,12 +115,9 @@ public class ApplicationContext implements Disposable
 
                 public void activateObject( Object o )
                 {
-                    ( ( AbstractPoolable ) o ).setObjectPool( this );
-                }
-
-                public void passivateObject( Object o )
-                {
-                    ( ( AbstractPoolable ) o ).reset();
+                    AbstractPoolable obj = (AbstractPoolable) o;
+                    obj.reset();
+                    obj.setObjectPool( this );
                 }
             };
 

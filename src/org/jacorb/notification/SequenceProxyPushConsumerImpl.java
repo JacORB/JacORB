@@ -102,18 +102,12 @@ public class SequenceProxyPushConsumerImpl
         dispose();
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new SequenceProxyPushConsumerPOATie( this );
-                }
+                thisServant_ = new SequenceProxyPushConsumerPOATie( this );
             }
-        }
 
         return thisServant_;
     }

@@ -133,13 +133,9 @@ public class StructuredProxyPushConsumerImpl
         disconnectClient();
     }
 
-    public Servant getServant() {
+    public synchronized Servant getServant() {
         if (thisServant_ == null) {
-            synchronized(this) {
-                if (thisServant_ == null) {
-                    thisServant_ = new StructuredProxyPushConsumerPOATie(this);
-                }
-            }
+            thisServant_ = new StructuredProxyPushConsumerPOATie(this);
         }
         return thisServant_;
     }

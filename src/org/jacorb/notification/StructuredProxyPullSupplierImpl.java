@@ -41,6 +41,7 @@ import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierPOATie;
 import org.omg.CosNotifyComm.StructuredPullConsumer;
 import org.omg.PortableServer.Servant;
+import org.omg.CORBA.ORB;
 
 /**
  * StructuredProxyPullSupplierImpl.java
@@ -54,10 +55,21 @@ public class StructuredProxyPullSupplierImpl
     implements StructuredProxyPullSupplierOperations,
                EventConsumer
 {
-
     StructuredPullConsumer structuredPullConsumer_;
 
-    static StructuredEvent undefinedStructuredEvent_;
+    protected static final StructuredEvent undefinedStructuredEvent_;
+
+    static {
+        ORB _orb = ORB.init();
+
+        undefinedStructuredEvent_ = new StructuredEvent();
+        EventType _type = new EventType();
+        FixedEventHeader _fixed = new FixedEventHeader( _type, "" );
+        Property[] _variable = new Property[ 0 ];
+        undefinedStructuredEvent_.header = new EventHeader( _fixed, _variable );
+        undefinedStructuredEvent_.filterable_data = new Property[ 0 ];
+        undefinedStructuredEvent_.remainder_of_body = _orb.create_any();
+    }
 
     public StructuredProxyPullSupplierImpl( ConsumerAdminTieImpl myAdminServant,
                                             ApplicationContext appContext,
@@ -67,7 +79,6 @@ public class StructuredProxyPullSupplierImpl
                                             Integer key )
         throws UnsupportedQoS
     {
-
         super( myAdminServant,
                appContext,
                channelContext,
@@ -76,23 +87,6 @@ public class StructuredProxyPullSupplierImpl
                key );
 
         setProxyType( ProxyType.PULL_STRUCTURED );
-
-        if ( undefinedStructuredEvent_ == null )
-        {
-            synchronized ( getClass() )
-            {
-                if ( undefinedStructuredEvent_ == null )
-                {
-                    undefinedStructuredEvent_ = new StructuredEvent();
-                    EventType _type = new EventType();
-                    FixedEventHeader _fixed = new FixedEventHeader( _type, "" );
-                    Property[] _variable = new Property[ 0 ];
-                    undefinedStructuredEvent_.header = new EventHeader( _fixed, _variable );
-                    undefinedStructuredEvent_.filterable_data = new Property[ 0 ];
-                    undefinedStructuredEvent_.remainder_of_body = appContext.getOrb().create_any();
-                }
-            }
-        }
     }
 
     public void connect_structured_pull_consumer( StructuredPullConsumer consumer )
@@ -140,23 +134,21 @@ public class StructuredProxyPullSupplierImpl
                 throw new Disconnected();
             }
 
-        try {
-            Message _notificationEvent =
-                pendingEvents_.getEvent(false);
+        Message _notificationEvent =
+            getMessageNoBlock();
 
-                if (_notificationEvent != null) {
+        if (_notificationEvent != null) {
 
-                    try {
-                        hasEvent.value = true;
-                        return _notificationEvent.toStructuredEvent();
-                    } finally {
-                        _notificationEvent.dispose();
-                    }
-                }
-        } catch (InterruptedException e) {}
-
-        hasEvent.value = false;
-        return undefinedStructuredEvent_;
+            try {
+                hasEvent.value = true;
+                return _notificationEvent.toStructuredEvent();
+            } finally {
+                _notificationEvent.dispose();
+            }
+        } else {
+            hasEvent.value = false;
+            return undefinedStructuredEvent_;
+        }
     }
 
 
@@ -185,10 +177,7 @@ public class StructuredProxyPullSupplierImpl
 
     public void deliverEvent( Message event )
     {
-        logger_.debug( "dispatchEvent" );
-
-        pendingEvents_.put( event );
-
+        enqueue( event );
     }
 
     public List getSubsequentFilterStages()
@@ -227,24 +216,13 @@ public class StructuredProxyPullSupplierImpl
         // can't do it
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new StructuredProxyPullSupplierPOATie( this );
-                }
+                thisServant_ = new StructuredProxyPullSupplierPOATie( this );
             }
-        }
 
         return thisServant_;
-    }
-
-    public boolean hasPendingEvents()
-    {
-        return !pendingEvents_.isEmpty();
     }
 }

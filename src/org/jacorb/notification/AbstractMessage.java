@@ -379,7 +379,7 @@ public abstract class AbstractMessage extends AbstractPoolable
      * internal Refcounter is zero the NotificationEvent is returned
      * to its pool.
      */
-    public synchronized void removeReference()
+    private synchronized void removeReference()
     {
         if ( referenced_ > 0 )
         {
@@ -388,7 +388,7 @@ public abstract class AbstractMessage extends AbstractPoolable
 
         if ( referenced_ == 0 )
         {
-            super.release();
+            super.dispose();
         }
     }
 
@@ -465,7 +465,9 @@ public abstract class AbstractMessage extends AbstractPoolable
 
         _ret = evaluationContext.lookupResult( _completePath );
 
-        logger_.debug("Cache lookup: " + _ret);
+        if (logger_.isDebugEnabled()) {
+            logger_.debug("Cache lookup: " + _ret);
+        }
 
         if ( _ret == null )
         {
@@ -479,7 +481,7 @@ public abstract class AbstractMessage extends AbstractPoolable
             {
                 if ( logger_.isDebugEnabled() )
                 {
-                    logger_.debug( "Cache Result: "
+                    logger_.debug( "Cache WRITE: "
                                    + _completePath
                                    + " => "
                                    + _ret );
@@ -490,7 +492,7 @@ public abstract class AbstractMessage extends AbstractPoolable
         }
         else
         {
-            logger_.debug( "Result Cache HIT" + _ret);
+            logger_.debug( "Cache HIT: " + _ret);
         }
 
         return _ret;

@@ -55,7 +55,6 @@ public class StructuredProxyPushSupplierImpl
     implements StructuredProxyPushSupplierOperations,
                EventConsumer
 {
-
     private StructuredPushConsumer pushConsumer_;
     protected boolean active_;
     protected boolean enabled_;
@@ -65,7 +64,8 @@ public class StructuredProxyPushSupplierImpl
                                             ChannelContext channelContext,
                                             PropertyManager adminProperties,
                                             PropertyManager qosProperties,
-                                            Integer key ) throws UnsupportedQoS
+                                            Integer key )
+        throws UnsupportedQoS
     {
         super( myAdminServant,
                appContext,
@@ -101,7 +101,7 @@ public class StructuredProxyPushSupplierImpl
                 else
                 {
                     // not enabled
-                    pendingEvents_.put( event );
+                    enqueue( event );
                 }
             }
             catch ( Disconnected d )
@@ -124,6 +124,8 @@ public class StructuredProxyPushSupplierImpl
         {
             throw new AlreadyConnected();
         }
+
+        logger_.debug("Connect " +consumer);
 
         pushConsumer_ = consumer;
         connected_ = true;
@@ -153,24 +155,27 @@ public class StructuredProxyPushSupplierImpl
 
     public void deliverPendingEvents() throws NotConnected
     {
-        try {
-            if ( !pendingEvents_.isEmpty() )
-                {
-                    Message[] _events = pendingEvents_.getAllEvents(true);
-                    for (int x=0; x<_events.length; ++x) {
-                        try {
-                            pushConsumer_.push_structured_event( _events[x].toStructuredEvent() );
-                        } catch (Disconnected e) {
-                            connected_ = false;
-                            throw new NotConnected();
-                        } finally {
-                            _events[x].dispose();
-                        }
-                    }
-                }
-        } catch (InterruptedException e) {}
+        Message[] _events = getAllMessages();
 
+        if (_events != null) {
+            for (int x=0; x<_events.length; ++x) {
+                try {
+                    logger_.debug(pushConsumer_
+                                  + ".push_structured_event("
+                                  + _events[x].toStructuredEvent()
+                                  + ")" );
+
+                    pushConsumer_.push_structured_event( _events[x].toStructuredEvent() );
+                } catch (Disconnected e) {
+                    connected_ = false;
+                    throw new NotConnected();
+                } finally {
+                    _events[x].dispose();
+                }
+            }
+        }
     }
+
 
     public void resume_connection() throws NotConnected, ConnectionAlreadyActive
     {
@@ -241,24 +246,14 @@ public class StructuredProxyPushSupplierImpl
         enabled_ = false;
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new StructuredProxyPushSupplierPOATie( this );
-                }
+                thisServant_ = new StructuredProxyPushSupplierPOATie( this );
             }
-        }
-
         return thisServant_;
     }
 
-    public boolean hasPendingEvents() {
-        return !pendingEvents_.isEmpty();
-    }
 
 } // StructuredProxyPushSupplierImpl

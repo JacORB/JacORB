@@ -42,6 +42,7 @@ import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
 import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.PortableServer.Servant;
 import org.omg.TimeBase.TimeTHelper;
+import org.omg.CosNotifyChannelAdmin.NotConnected;
 
 /**
  * SequenceProxyPushSupplierImpl.java
@@ -51,11 +52,10 @@ import org.omg.TimeBase.TimeTHelper;
  */
 
 public class SequenceProxyPushSupplierImpl
-            extends StructuredProxyPushSupplierImpl
-            implements SequenceProxyPushSupplierOperations,
-            EventConsumer
+    extends StructuredProxyPushSupplierImpl
+    implements SequenceProxyPushSupplierOperations,
+               EventConsumer
 {
-
     static final StructuredEvent[] STRUCTURED_EVENT_ARRAY_TEMPLATE =
         new StructuredEvent[ 0 ];
 
@@ -89,7 +89,7 @@ public class SequenceProxyPushSupplierImpl
      */
     private Runnable timerCallback_;
 
-    private boolean delivering_;
+    //    private boolean delivering_;
 
     final TaskProcessor engine_;
 
@@ -116,17 +116,18 @@ public class SequenceProxyPushSupplierImpl
         configurePacingInterval();
 
         // configure the callback
-        timerCallback_ = new Runnable()
-                   {
-                       public void run()
-                       {
-                           try
-                           {
-                               engine_.scheduleTimedPushTask( SequenceProxyPushSupplierImpl.this );
-                           }
-                           catch ( InterruptedException e ) {}
-                       }
-                   };
+        timerCallback_ =
+            new Runnable()
+            {
+                public void run()
+                {
+                    try
+                        {
+                            engine_.scheduleTimedPushTask( SequenceProxyPushSupplierImpl.this );
+                        }
+                    catch ( InterruptedException e ) {}
+                }
+            };
     }
 
     // overwrite
@@ -138,23 +139,13 @@ public class SequenceProxyPushSupplierImpl
         {
             try
             {
-                pendingEvents_.put( event );
+                enqueue(event);
 
-                if ( logger_.isDebugEnabled() )
-                {
-                    logger_.debug( "added to pendingEvents: "
-                                   + pendingEvents_.getSize() );
+                if ( active_ ) // && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
+                    {
+                        deliverPendingEvents(false);
+                    }
 
-                    logger_.debug( "maxBatchSize: "
-                                   + maxBatchSize_
-                                   + " Active: "
-                                   + active_ );
-                }
-
-                if ( active_ && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
-                {
-                    deliverPendingEvents();
-                }
             }
             catch ( NotConnected d )
             {
@@ -168,76 +159,55 @@ public class SequenceProxyPushSupplierImpl
         }
     }
 
-    public void runDeliverEvent() throws NotConnected
-    {
-        deliverPendingEvents();
+    /**
+     * overrides the superclass version.
+     */
+    public void deliverPendingEvents() throws NotConnected {
+        deliverPendingEvents(true);
     }
 
-    public boolean hasPendingEvents() {
-        return !pendingEvents_.isEmpty();
-    }
 
-    public void deliverPendingEvents() throws NotConnected
+    private void deliverPendingEvents(boolean force) throws NotConnected
     {
         logger_.debug( "deliverPendingEvents()" );
 
-        if ( !delivering_ )
-        {
-            synchronized ( this )
-            {
-                if ( !delivering_ )
+        Message[] _messages;
+
+        if (force) {
+            _messages = getAllMessages();
+        } else {
+            _messages = getAtLeastMessages(maxBatchSize_);
+        }
+
+        if (_messages != null && _messages.length != 0) {
+            StructuredEvent[] _eventsToDeliver =
+                new StructuredEvent[ _messages.length ];
+
+            for ( int x = 0; x < _messages.length; ++x )
                 {
-                    delivering_ = true;
-                    StructuredEvent[] _eventsToDeliver;
+                    _eventsToDeliver[ x ] =
+                        _messages[x].toStructuredEvent();
 
-                    if ( hasPendingEvents() )
-                    {
-                        synchronized ( pendingEvents_ )
-                        {
-                            int _deliverBatchSize =
-                                ( pendingEvents_.getSize() > maxBatchSize_ ) ?
-                                maxBatchSize_ :
-                                pendingEvents_.getSize();
-
-                            _eventsToDeliver =
-                                new StructuredEvent[ _deliverBatchSize ];
-
-                            Message[] _notificationEvents = null;
-
-                            try {
-                                _notificationEvents =
-                                    pendingEvents_.getEvents(_deliverBatchSize, true);
-                            } catch (InterruptedException e) {}
-
-                            for ( int x = 0; x < _deliverBatchSize; ++x )
-                                {
-                                    _eventsToDeliver[ x ] =
-                                        _notificationEvents[x].toStructuredEvent();
-
-                                    _notificationEvents[x].dispose();
-                                    _notificationEvents[x] = null;
-                                }
-                        }
-
-                        try
-                            {
-                            sequencePushConsumer_.push_structured_events( _eventsToDeliver );
-                        }
-                        catch ( Disconnected d )
-                        {
-                            throw new NotConnected();
-                        }
-                    }
-                    delivering_ = false;
+                    _messages[x].dispose();
+                    _messages[x] = null;
                 }
-            }
+
+            try
+                {
+                    sequencePushConsumer_.push_structured_events( _eventsToDeliver );
+                }
+            catch ( Disconnected d )
+                {
+                    throw new NotConnected();
+                }
         }
     }
 
+
     // new
     public void connect_sequence_push_consumer( SequencePushConsumer consumer )
-    throws AlreadyConnected,
-                TypeError
+        throws AlreadyConnected,
+               TypeError
     {
         logger_.debug( "connect_sequence_push_consumer" );
 
@@ -312,8 +282,8 @@ public class SequenceProxyPushSupplierImpl
         {
             taskId_ = channelContext_.getTaskProcessor().
                 executeTaskPeriodically( pacingInterval_,
-                                      timerCallback_,
-                                      true );
+                                         timerCallback_,
+                                         true );
         }
     }
 
@@ -354,30 +324,31 @@ public class SequenceProxyPushSupplierImpl
 
         if ( maxBatchSize_ != _maxBatchSize )
             {
-                logger_.info("Set MaxBatchSize to: " + _maxBatchSize);
+                if (logger_.isInfoEnabled()) {
+                    logger_.info("set MaxBatchSize=" + _maxBatchSize);
+                }
                 maxBatchSize_ = _maxBatchSize;
+
                 return true;
             }
-    return false;
+        return false;
     }
 
     public void enableDelivery()
-    {}
+    {
+        // TODO: soll hier wirklich nix stehen?
+    }
 
     public void disableDelivery()
-    {}
+    {
+        // TODO: soll hier wirklich nix stehen?
+    }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
         {
-            synchronized ( this )
-            {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new SequenceProxyPushSupplierPOATie( this );
-                }
-            }
+            thisServant_ = new SequenceProxyPushSupplierPOATie( this );
         }
         return thisServant_;
     }

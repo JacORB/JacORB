@@ -218,7 +218,7 @@ public class TaskConfigurator implements Disposable
                 event.dispose();
             }
 
-            currentFilterTask.release();
+            currentFilterTask.dispose();
 
             if ( filterTaskToBeScheduled != null )
             {
@@ -321,7 +321,7 @@ public class TaskConfigurator implements Disposable
             m.dispose();
         }
 
-        _pushToConsumerTask.release();
+        _pushToConsumerTask.dispose();
 
     }
 
@@ -348,7 +348,7 @@ public class TaskConfigurator implements Disposable
                     case Task.DONE:
                         // ( ( AbstractTask ) task ).removeMessage().dispose();
 
-                        ( ( AbstractPoolable ) task ).release();
+                        ( ( AbstractPoolable ) task ).dispose();
                         break;
 
                     default:

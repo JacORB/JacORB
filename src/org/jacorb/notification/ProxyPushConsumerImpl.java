@@ -181,18 +181,12 @@ public class ProxyPushConsumerImpl
         disconnectClient();
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new ProxyPushConsumerPOATie( this );
-                }
+                thisServant_ = new ProxyPushConsumerPOATie( this );
             }
-        }
 
         return thisServant_;
     }

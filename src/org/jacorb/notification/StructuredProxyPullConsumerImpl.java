@@ -110,8 +110,8 @@ public class StructuredProxyPullConsumerImpl
                                 {
                                     engine_.scheduleTimedPullTask( StructuredProxyPullConsumerImpl.this );
                                 }
-                                catch ( InterruptedException ie ) {}
-
+                                catch ( InterruptedException ie ) {
+                                }
                             }
                         };
 
@@ -124,7 +124,7 @@ public class StructuredProxyPullConsumerImpl
     }
 
     public void connect_structured_pull_supplier( StructuredPullSupplier structuredPullSupplier )
-    throws AlreadyConnected
+        throws AlreadyConnected
     {
 
         if ( connected_ )
@@ -139,8 +139,9 @@ public class StructuredProxyPullConsumerImpl
         startTask();
     }
 
-    synchronized public void suspend_connection()
-    throws NotConnected, ConnectionAlreadyInactive
+    public void suspend_connection()
+        throws NotConnected,
+               ConnectionAlreadyInactive
     {
         if ( !connected_ )
         {
@@ -157,8 +158,9 @@ public class StructuredProxyPullConsumerImpl
         stopTask();
     }
 
-    synchronized public void resume_connection()
-    throws ConnectionAlreadyActive, NotConnected
+    public void resume_connection()
+        throws ConnectionAlreadyActive,
+               NotConnected
     {
         if ( !connected_ )
         {
@@ -186,7 +188,8 @@ public class StructuredProxyPullConsumerImpl
     }
 
     public void validate_event_qos( Property[] property1,
-                                    NamedPropertyRangeSeqHolder namedPropertyRangeSeqHolder ) throws UnsupportedQoS
+                                    NamedPropertyRangeSeqHolder namedPropertyRangeSeqHolder )
+        throws UnsupportedQoS
     {
     }
 
@@ -269,7 +272,7 @@ public class StructuredProxyPullConsumerImpl
         disconnectClient();
     }
 
-    synchronized protected void startTask()
+    protected void startTask()
     {
         if ( taskId_ == null )
         {
@@ -281,7 +284,7 @@ public class StructuredProxyPullConsumerImpl
         }
     }
 
-    synchronized protected void stopTask()
+    protected void stopTask()
     {
         if ( taskId_ != null )
         {
@@ -293,18 +296,12 @@ public class StructuredProxyPullConsumerImpl
         }
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new StructuredProxyPullConsumerPOATie( this );
-                }
+                thisServant_ = new StructuredProxyPullConsumerPOATie( this );
             }
-        }
 
         return thisServant_;
     }

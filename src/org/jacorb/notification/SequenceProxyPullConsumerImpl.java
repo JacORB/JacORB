@@ -153,18 +153,12 @@ public class SequenceProxyPullConsumerImpl
         super.dispose();
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
-            {
-                if ( thisServant_ == null )
                 {
                     thisServant_ = new SequenceProxyPullConsumerPOATie( this );
                 }
-            }
-        }
 
         return thisServant_;
     }
