@@ -110,7 +110,7 @@ public class ORBSingleton
     private void checkTCRepositorId( String repId )
         throws BAD_PARAM
     {
-        if( repId == null || repId.indexOf( ':' ) > 0 )
+        if( repId == null || repId.indexOf( ':' ) < 0 )
         {
             throw new BAD_PARAM("Illegal Repository ID " + repId, 
                                 16, CompletionStatus.COMPLETED_NO );    
