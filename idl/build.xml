@@ -2,6 +2,8 @@
 
 <project name="main" default="all" basedir="..">
 
+  <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL"/>
+
   <!-- ==================================================== -->
   <!--            JacORB idl build file                     -->
   <!-- $Id$ -->
@@ -68,10 +70,12 @@
    <!-- are copied from a directory containing OMG-provided files -->
 
    <target name="orb" depends="init"> 
-        <java classname="org.jacorb.idl.parser" fork="yes" classpath="${classpath}">
-	      <arg line="${idlflags} ${include}/omg/_orb.idl"/>
-         </java>
-
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/_orb.idl"
+		destdir="${src}/generated"/>
         <delete file="${src}/generated/org/omg/CORBA/Policy.java"/>
 	<delete file="${src}/generated/org/omg/CORBA/TypeCode.java"/>
 	<delete file="${src}/generated/org/omg/CORBA/TypeCodeHelper.java"/>
@@ -87,8 +91,8 @@
 		        <include name="**/*.java"/>
              </fileset>
         </copy>
-
          <delete file="${src}/generated/org/omg/CORBA/ORB.java"/>
+
 <!-- 	<delete file="${src}/generated/org/omg/CORBA/BadKind.java"/> -->
 <!-- 	<delete file="${src}/generated/org/omg/CORBA/BadKindHelper.java"/> -->
 <!--         <delete file="${src}/generated/org/omg/CORBA/BoundsHelper.java"/> -->
@@ -99,17 +103,11 @@
 	<copy file="${src}/java_mapping/CORBA/ORB.java"
               tofile="${src}/generated/org/omg/CORBA/ORB.java"
 	/>	
-	<copy file="${src}/java_mapping/CORBA/LocalObject.java"
-              tofile="${src}/generated/org/omg/CORBA/LocalObject.java"
-	/>	
 	<copy file="${src}/java_mapping/CORBA/ORBPackage/InvalidNameHelper.java"
               tofile="${src}/generated/org/omg/CORBA/ORBPackage/InvalidNameHelper.java"
 	/>	
 	<copy file="${src}/java_mapping/CORBA/FixedHolder.java"
               tofile="${src}/generated/org/omg/CORBA/FixedHolder.java"
-	/>
-	<copy file="${src}/java_mapping/CORBA/SetOverrideType.java"
-              tofile="${src}/generated/org/omg/CORBA/SetOverrideType.java"
 	/>
    </target>
 
@@ -117,64 +115,86 @@
    <!-- their original IDL definitions -->
 
    <target name="iop" depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  ${include}/omg/IOP.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/IOP.idl"
+		destdir="${src}/generated"
+		/>
    </target>
 
    <target name="iiop"  depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/IIOP.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/IIOP.idl"
+		destdir="${src}/generated"
+		/>
    </target>
 
    <target name="giop" depends="init">
    <!-- Compile two times with different preprocessor flags set, so structs for -->
    <!-- both GIOP 1.0 / 1.1 and GIOP 1.2 get generated -->
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -DGIOP_1_1 ${include}/omg/GIOP.idl"/>
-	</java>
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -DGIOP_1_2 ${include}/omg/GIOP.idl"/>
-	</java>
-
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/GIOP.idl"
+		destdir="${src}/generated">
+	    <define key="GIOP_1_1" value=""/>
+	</jacidl>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/GIOP.idl"
+		destdir="${src}/generated">
+	    <define key="GIOP_1_2" value=""/>
+	</jacidl>
    </target>
 
-   <target name="conf">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  -noskel ${include}/omg/CONV_FRAME.idl"/>
-	</java>
+   <target name="conf" depends="init">
+   	<jacidl generateir="true"
+		noskel="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CONV_FRAME.idl"
+		destdir="${src}/generated"/>
    </target>
    
    <target name="interceptor" depends="time">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -nostub -noskel ${include}/omg/Dynamic.idl"/>
-	</java>
-
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/Messaging.idl"/>
-	</java>
-
+   	<jacidl generateir="true"
+		noskel="true"
+		nostub="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/Dynamic.idl,**/omg/Messaging.idl,**/omg/PortableInterceptor.idl"
+		destdir="${src}/generated"/>
         <!--
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
 	      <arg line="${idlflags} -noskel  ${include}/omg/IOP_N.idl"/>
 	</java>
         -->
-
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/PortableInterceptor.idl"/>
-	</java>
    </target>
 
    <target name="portableserver" depends="init,copymapping">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-           <arg line="${idlflags} -noskel  ${include}/omg/PortableServer.idl"/>
-        </java>
-
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-           <arg line="${idlflags} ${include}/omg/BiDirPolicy.idl"/>
-        </java>
-
+   	<jacidl generateir="true"
+		noskel="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/PortableServer.idl"
+		destdir="${src}/generated"/>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/BiDirPolicy.idl"
+		destdir="${src}/generated"/>
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
                includes="org/omg/PortableServer/**,org/omg/BiDirPolicy/**"
@@ -220,22 +240,18 @@
    </target>
 
    <target name="dynany">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/DynamicAny.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/DynamicAny.idl"
+		destdir="${src}/generated"/>
 
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
                includes="org/omg/DynamicAny/**"
         />
    </target>
-
-   <target name="messaging" depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  ${include}/omg/Messaging.idl"/>
-	</java>
-   </target>
-
 
    <!-- ==================================================== -->
    <!--                   OMG Object services                -->
@@ -244,9 +260,12 @@
    <!-- name service  -->
 
    <target name="names" depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -ir  ${include}/omg/CosNaming.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosNaming.idl"
+		destdir="${src}/generated"/>
 
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
@@ -265,15 +284,21 @@
    </target>
 
    <target name="Admin">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -ir ${include}/omg/CosEventChannelAdmin.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosEventChannelAdmin.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="Comm">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -ir  ${include}/omg/CosEventComm.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosEventComm.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <!--                      -->
@@ -281,9 +306,12 @@
    <!--                      -->
 
    <target name="transactions" depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  ${include}/omg/CosTransactions.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosTransactions.idl"
+		destdir="${src}/generated"/>
 	<javac srcdir="${src}/generated/"
                destdir="${classdir}" 
                includes="org/omg/CosTransactions/**/*.java,org/omg/CosTransactions/*.java"
@@ -296,9 +324,12 @@
 
 
    <target name="collections"  depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}   ${include}/omg/CosCollection.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosCollection.idl"
+		destdir="${src}/generated"/>
 
 	<javac srcdir="${src}/generated"
                destdir="${classdir}" 
@@ -335,9 +366,12 @@
    <!--                      -->
 
    <target name="concurrency">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}   ${include}/omg/CosConcurrencyControl.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosConcurrencyControl.idl"
+		destdir="${src}/generated"/>
 	<javac srcdir="${src}/generated"
                destdir="${classdir}" 
                includes="org/omg/CosConcurrencyControl/**/*.java,org/omg/CosConcurrencyControl/*.java"
@@ -356,23 +390,31 @@
    </target>
 
    <target name="basic">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}   ${include}/omg/CosTrading.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosTrading.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="repository">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}   ${include}/omg/CosTradingRepos.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosTradingRepos.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="dynamic">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}   ${include}/omg/CosTradingDynamic.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosTradingDynamic.idl"
+		destdir="${src}/generated"/>
    </target>
-
 
    <!--                           -->
    <!--     Notification service  -->
@@ -386,27 +428,45 @@
    </target>
 
    <target name="notif">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/CosNotification.idl ${include}/omg/CosNotifyChannelAdmin.idl"/>
-	</java>
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/CosNotifyComm.idl ${include}/omg/CosNotifyFilter.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosNotification.idl,**/omg/CosNotifyChannelAdmin.idl"
+		destdir="${src}/generated"/>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosNotifyComm.idl,**/omg/CosNotifyFilter.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="typed">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/CosTypedNotifyChannelAdmin.idl"/>
-	</java>
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/CosTypedNotifyComm.idl"/>
-	</java>
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/CosTypedEventChannelAdmin.idl"/>
-	</java>
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/CosTypedEventComm.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosTypedNotifyChannelAdmin.idl"
+		destdir="${src}/generated"/>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosTypedNotifyComm.idl"
+		destdir="${src}/generated"/>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosTypedEventChannelAdmin.idl"
+		destdir="${src}/generated"/>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CosTypedEventComm.idl"
+		destdir="${src}/generated"/>
    </target>
 
 
@@ -415,82 +475,95 @@
    <!--                      -->
 
    <target name="security" 
-	   depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop,csi">
+	   depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop">
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
-	       includes="org/omg/Security/**,org/omg/Security**/**,org/omg/SSLIOP/**"
+	       includes="org/omg/TimeBase/**,org/omg/Security/**,org/omg/Security**/**,org/omg/SSLIOP/**"
         />
    </target>
 
    <target name="secbasic" depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel -sloppy_names -nostub ${include}/omg/Security.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/Security.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="time" depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/TimeBase.idl"/>
-	</java>
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/CosTime.idl"/>
-	</java>
-	<javac srcdir="${src}/generated"
-               destdir="${classdir}"
-	       includes="org/omg/TimeBase/**,org/omg/CosTime/**"
-        />
+   	<jacidl generateir="true"
+		noskel="true"
+		nostub="true"
+		srcdir="idl"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/TimeBase.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="level1">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -sloppy_names -noskel  -nostub ${include}/omg/SecurityLevel1.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/SecurityLevel1.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="level2">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -sloppy_names -noskel  -nostub ${include}/omg/SecurityLevel2.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/SecurityLevel2.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="secadmin">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/SecurityAdmin.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/SecurityAdmin.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="replaceable">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub  ${include}/omg/SecurityReplaceable.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/SecurityReplaceable.idl"
+		destdir="${src}/generated"/>
    </target>
 
    <target name="ssliop">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/SSLIOP.idl"/>
-	</java>
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/SSLIOP.idl"
+		destdir="${src}/generated"/>
    </target>
-
-   <!--                      -->
-   <!--    CSI v2            -->
-   <!--                      -->
-
-   <target name="csi" depends="init">
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/CSI.idl"/>
-	</java>
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/CSIIOP.idl"/>
-	</java>
-	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/GSSUP.idl"/>
-	</java>
-           <javac srcdir="${src}/generated"
-               destdir="${classdir}"
-	       includes="org/omg/CSI/**,org/omg/CSIIOP/**,org/omg/GSSUP/**"
-           />
-   </target>
-
 
 </project>
 
