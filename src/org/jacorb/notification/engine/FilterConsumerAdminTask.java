@@ -37,12 +37,20 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 public class FilterConsumerAdminTask extends AbstractFilterTask
 {
+    private static int COUNT = 0;
+    private int id_ = ++COUNT;
+
+    public String toString() {
+        return "[FilterConsumerAdminTask#" + id_ + "]";
+    }
+
+
     private static final FilterStage[] NO_CURRENT_FILTER_STAGE =
         new FilterStage[ 0 ];
 
     /**
      * this List contains FilterStages (ProxySuppliers) which have a
-     * EventConsumer associated. 
+     * EventConsumer associated.
      */
     protected List listOfFilterStageWithEventConsumer_ =
         new Vector();
@@ -125,8 +133,7 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
                     // the Filters of the ProxySupplier need to be
                     // eval'd
 
-                    listOfFilterStageToBeProcessed_.
-                    addAll( arrayCurrentFilterStage_[ x ].getSubsequentFilterStages() );
+                    addFilterStage( arrayCurrentFilterStage_[ x ].getSubsequentFilterStages() );
 
                 }
 
@@ -149,9 +156,7 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
                     if ( _n.hasOrSemantic() )
                     {
-
-                        listOfFilterStageToBeProcessed_.add( _n );
-
+                        addFilterStage( _n );
                     }
                 }
             }
