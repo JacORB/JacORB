@@ -26,8 +26,11 @@ import org.omg.PortableServer.*;
 import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
 import org.jacorb.orb.*;
-import org.jacorb.imr.util.ImRManager;
 import org.jacorb.util.*;
+
+//#ifjdk 1.2
+import org.jacorb.imr.util.ImRManager;
+//#endif
 
 /**
  *	The name server application
@@ -199,7 +202,11 @@ public class NameServer
                         {
                         }
                         if( idx +1 < args.length && args[idx +1].equals("imr_register") )
-                            imr_register = true;
+                            //#ifjdk 1.2
+                                imr_register = true;
+                            //#else
+                            //# throw new RuntimeException ("Sorry, imr_register not supported in this release");
+                            //#endif
                     }
                     else
                         usage();
@@ -262,15 +269,16 @@ public class NameServer
 
 	    if ( org.jacorb.util.Environment.useImR() && imr_register)
             {
-	      
-                // don't supply "imr_register", so a ns started by an imr_ssd
-                // won't try to register himself again.
-                String command = Environment.getProperty("jacorb.java_exec") +
-                    " org.jacorb.naming.NameServer " + args[0] + " " + args[1];
-	      
-                ImRManager.autoRegisterServer(orb, "StandardNS", command,
-                                              ImRManager.getLocalHostName(),
-                                              true); //edit existing
+                //#ifjdk 1.2
+                    // don't supply "imr_register", so a ns started by an imr_ssd
+                    // won't try to register himself again.
+                    String command = Environment.getProperty("jacorb.java_exec") +
+                        " org.jacorb.naming.NameServer " + args[0] + " " + args[1];
+
+                    ImRManager.autoRegisterServer(orb, "StandardNS", command,
+                                                  ImRManager.getLocalHostName(),
+                                                  true); //edit existing
+                //#endif
 	    }
 
 	    org.omg.PortableServer.POA rootPOA = 

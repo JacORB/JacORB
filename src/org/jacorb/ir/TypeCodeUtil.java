@@ -146,8 +146,13 @@ public class TypeCodeUtil
         Class idlEntity = null;
         try
         {
-            tcClass = Class.forName("org.omg.CORBA.TypeCode", true, loader );
-            idlEntity = Class.forName("org.omg.CORBA.portable.IDLEntity", true, loader);
+            //#ifjdk 1.2
+                tcClass = Class.forName("org.omg.CORBA.TypeCode", true, loader );
+                idlEntity = Class.forName("org.omg.CORBA.portable.IDLEntity", true, loader);
+            //#else
+            //# tcClass = Class.forName ("org.omg.CORBA.TypeCode");
+            //# idlEntity = Class.forName ("org.omg.CORBA.portable.IDLEntity");
+            //#endif
 
             //tcClass = loader.loadClass( "org.omg.CORBA.TypeCode" );
             //            idlEntity = loader.loadClass( "org.omg.CORBA.portable.IDLEntity" );
@@ -210,8 +215,12 @@ public class TypeCodeUtil
                         return new TypeCode(TCKind._tk_objref);
                     else if( idlName.equals( "org.omg.CORBA.TypeCode"))
                         return new TypeCode(TCKind._tk_TypeCode);
-
-                    Class type = Class.forName( idlName + "Helper", true, loader);
+                    
+                    //#ifjdk 1.2
+                        Class type = Class.forName( idlName + "Helper", true, loader);
+                    //#else
+                    //# Class type = Class.forName( idlName + "Helper" );
+                    //#endif
 
                     return (TypeCode)type.getDeclaredMethod("type", null).invoke( null, null );
                 }
@@ -232,8 +241,12 @@ public class TypeCodeUtil
             {
                 try
                 {
-                    Class resultHelperClass = 
-                            Class.forName( c.getName()+ "Helper", true, loader);
+                    Class resultHelperClass =
+                            //#ifjdk 1.2
+                                Class.forName( c.getName()+ "Helper", true, loader);
+                            //#else
+                            //# Class.forName( c.getName() + "Helper" );
+                            //#endif
 
                     return (TypeCode)resultHelperClass.getDeclaredMethod("type", null).invoke( null, null );
                 }

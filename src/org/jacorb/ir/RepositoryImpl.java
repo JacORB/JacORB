@@ -69,8 +69,12 @@ public class RepositoryImpl
      */
 
     public RepositoryImpl( String classpath, 
-                           String outfile, 
-                           java.net.URLClassLoader loader ) 
+                           String outfile,
+                           //#ifjdk 1.2
+                              java.net.URLClassLoader loader ) 
+                           //#else
+                           //# ClassLoader loader )
+                           //#endif
     {
         this.classpath = classpath;
         this.loader = loader;
@@ -104,7 +108,11 @@ public class RepositoryImpl
 
         try
         {
-            java.net.URL urls[] = loader.getURLs();
+            //#ifjdk 1.2
+                java.net.URL urls[] = loader.getURLs();
+            //#else
+            //# java.net.URL urls[] = new java.net.URL[0];
+            //#endif
             StringBuffer sb = new StringBuffer("IR configured for class path: ");
             for( int i = 0; i < urls.length; i++ )
             {

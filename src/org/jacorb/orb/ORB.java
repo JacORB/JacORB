@@ -1766,16 +1766,24 @@ public final class ORB
         Class result = null;
         try
         {
-            result = Thread.currentThread().getContextClassLoader()
-                                           .loadClass (name);
+            //#ifjdk 1.2
+                result = Thread.currentThread().getContextClassLoader()
+                                               .loadClass (name);
+            //#else
+            //# result = Class.forName (name);
+            //#endif
         }
         catch (ClassNotFoundException e)
         {
             if (orgomg && name.startsWith ("org.omg"))
                 try
                 {
-                    result = Thread.currentThread().getContextClassLoader()
-                                   .loadClass ("omg.org" + name.substring(7));
+                    //#ifjdk 1.2
+                        result = Thread.currentThread().getContextClassLoader()
+                                       .loadClass ("omg.org" + name.substring(7));
+                    //#else
+                    //# result = Class.forName ("omg.org" + name.substring(7));
+                    //#endif
                 }
                 catch (ClassNotFoundException x)
                 {

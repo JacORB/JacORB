@@ -54,18 +54,22 @@ public class IRServer
             java.util.StringTokenizer strtok = 
                 new java.util.StringTokenizer( args[0], java.io.File.pathSeparator );
 
-            java.net.URL [] urls = new java.net.URL[strtok.countTokens()];
-            for( int i = 0; strtok.hasMoreTokens(); i++ )
-            {
-                urls[i] = new java.io.File( strtok.nextToken() ).toURL();
-            }
-
-            java.net.URLClassLoader classLoader = 
-                new java.net.URLClassLoader( urls );
-
-            Class repositoryClass = 
-                classLoader.loadClass("org.jacorb.ir.RepositoryImpl");
-
+            //#ifjdk 1.2
+                java.net.URL [] urls = new java.net.URL[strtok.countTokens()];
+                for( int i = 0; strtok.hasMoreTokens(); i++ )
+                {
+                    urls[i] = new java.io.File( strtok.nextToken() ).toURL();
+                }
+                
+                java.net.URLClassLoader classLoader = 
+                    new java.net.URLClassLoader( urls );
+                
+                Class repositoryClass = 
+                    classLoader.loadClass("org.jacorb.ir.RepositoryImpl");
+            //#else
+            //# ClassLoader classLoader = null;
+            //# Class repositoryClass = Class.forName ("org.jacorb.ir.RepositoryImpl");
+            //#endif
 
             Object repository = 
                 repositoryClass.getConstructors()[0].newInstance(

@@ -1135,7 +1135,11 @@ public class ParsedIOR
             ClassLoader cl = getClass().getClassLoader ();
             if (cl == null)
             {
-                cl = ClassLoader.getSystemClassLoader ();
+                //#ifjdk 1.2
+                    cl = ClassLoader.getSystemClassLoader ();
+                //#else
+                //# throw new RuntimeException ("couldn't find class loader");
+                //#endif
             }
 
             URL url = cl.getResource (resourceName);

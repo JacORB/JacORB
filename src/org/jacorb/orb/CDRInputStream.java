@@ -1867,7 +1867,11 @@ public class CDRInputStream
                     org.jacorb.ir.RepositoryID.className (repository_ids[r]);
 
                 Class c = null;
-                ClassLoader ctxcl = Thread.currentThread().getContextClassLoader();
+                //#ifjdk 1.2
+                    ClassLoader ctxcl = Thread.currentThread().getContextClassLoader();
+                //#else
+                //# ClassLoader ctxcl = null;
+                //#endif
                 try 
                 {
                     if (ctxcl != null)

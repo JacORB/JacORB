@@ -934,7 +934,11 @@ public class CDROutputStream
 
     public final void write_fixed (final java.math.BigDecimal value)
     {
-        String v = value.unscaledValue().toString ();
+        //#ifjdk 1.2
+            String v = value.unscaledValue().toString ();
+        //#else
+        //# String v = value.movePointRight(value.scale()).toString();
+        //#endif
         byte [] representation;
         int b, c;
 

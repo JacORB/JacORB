@@ -200,8 +200,12 @@ public class RepositoryID
             if (RepositoryImpl.loader != null)
                 return RepositoryImpl.loader.loadClass (name);
             else
-                return Thread.currentThread().getContextClassLoader()
-                                             .loadClass (name);
+                //#ifjdk 1.2
+                    return Thread.currentThread().getContextClassLoader()
+                                                 .loadClass (name);
+                //#else
+                //# return Class.forName (name);
+                //#endif
         }
         catch (ClassNotFoundException e)
         {
