@@ -20,12 +20,10 @@
 
 package org.jacorb.idl;
 
-
 /**
  * @author Gerald Brose, FU Berlin
  * @version $Id$
  */
-
 
 import java.util.*;
 import java.io.*;
