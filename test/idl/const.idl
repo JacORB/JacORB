@@ -28,6 +28,8 @@ module basetypes
       const octet MYBYTE = 0xff;
       const short SS = 3;
       const myShort mSS= 3;
+
+      void op();
     };
 
   typedef char _CHAR;
