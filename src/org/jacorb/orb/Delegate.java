@@ -679,7 +679,9 @@ public final class Delegate
             //store pending replies, so in the case of a LocationForward
             //a RemarshalException can thrown to *all* waiting threads. 
             if( ros.response_expected())
+            {
                 pending_replies.put( rep, rep );
+            }
         } 
         catch (org.omg.CORBA.SystemException cfe)
         {
