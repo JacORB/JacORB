@@ -86,7 +86,7 @@ public class StructuredProxyPushConsumerImpl
 
 	setProxyType(ProxyType.PUSH_STRUCTURED);
 
-	subsequentDestinations_ = Collections.singletonList(myAdmin_);
+	subsequentDestinations_ = JDK13CollectionsWrapper.singletonList(myAdmin_);
     }
 
     public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
