@@ -66,6 +66,7 @@ gerald.brose@acm.org
                           Request environment.
                 IDL Compiler:
                         - Fix for unions with long long discriminator type.
+                        - Fix for unions with anonymous arrays.
                         - Fix for interface with operations using wcahr or
                           wstring inout parameters.
                 Any:
