@@ -2,31 +2,41 @@ package org.jacorb.util;
 
 /**
  * A static wrapper around javax.rmi.CORBA.ValueHandler, dummy version.
+ *
+ * All parameters of type org.omg.SendingContext.RunTime have been
+ * deliberately upcast here, because that interface does not exist in
+ * JDK 1.2.
  */
 public class ValueHandler {
 
-  public static String getRMIRepositoryID (Class clz)
-  {
-      throw new org.omg.CORBA.NO_IMPLEMENT();
-  }
+    public static String getRMIRepositoryID (Class clz)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+    
+    /**
+     * Return value upcast; see class comment.
+     */
+    public static org.omg.CORBA.portable.IDLEntity getRunTimeCodeBase() 
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
 
-  public static org.omg.SendingContext.RunTime getRunTimeCodeBase() 
-  {
-      throw new org.omg.CORBA.NO_IMPLEMENT();
-  }
+    /**
+     * @param sender upcast; see class comment.
+     */
+    public static java.io.Serializable readValue 
+        (org.omg.CORBA.portable.InputStream in,
+         int offset, Class clz, String repositoryID, 
+          org.omg.CORBA.portable.IDLEntity sender)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
 
-  public static java.io.Serializable readValue 
-      (org.omg.CORBA.portable.InputStream in,
-       int offset, Class clz, String repositoryID, 
-       org.omg.SendingContext.RunTime sender)
-  {
-      throw new org.omg.CORBA.NO_IMPLEMENT();
-  }
-
-  public static void writeValue (org.omg.CORBA.portable.OutputStream out,
-                                 java.io.Serializable value)
-  {
-      throw new org.omg.CORBA.NO_IMPLEMENT();
-  }
+    public static void writeValue (org.omg.CORBA.portable.OutputStream out,
+                                   java.io.Serializable value)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
 
 }
