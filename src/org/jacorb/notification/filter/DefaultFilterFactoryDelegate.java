@@ -33,8 +33,10 @@ import org.jacorb.notification.IContainer;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.util.LogUtil;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.InvalidGrammar;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoContainer;
@@ -51,6 +53,8 @@ public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Dis
 
     private final MutablePicoContainer filterPico_;
 
+    private final ORB orb_;
+    
     private final Logger logger_;
     
     // //////////////////////////////////////
@@ -67,8 +71,10 @@ public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Dis
         {
             filterPico_ = new DefaultPicoContainer();
         }
+        
+        orb_ = (ORB) parent.getComponentInstanceOfType(ORB.class);
 
-        logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
+        logger_ = LogUtil.getLogger(config, getClass().getName());
         
         loadFilterPlugins(config);
     }
@@ -153,7 +159,7 @@ public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Dis
     {
         AbstractFilter _filter = create_filter_servant(grammar);
         
-        return new MappingFilterImpl(config, _filter, any);
+        return new MappingFilterImpl(orb_, config, _filter, any);
     }    
 
     static List getAttributeNamesWithPrefix(Configuration configuration, String prefix)

@@ -24,6 +24,7 @@ package org.jacorb.notification.filter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -42,10 +43,11 @@ import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EvaluationContextFactory;
+import org.jacorb.notification.interfaces.GCDisposable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.ManageableServant;
-import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.DisposableManager;
+import org.jacorb.notification.util.LogUtil;
 import org.jacorb.notification.util.WildcardMap;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
@@ -58,7 +60,8 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.ConstraintNotFound;
 import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterPOA;
+import org.omg.CosNotifyFilter.FilterOperations;
+import org.omg.CosNotifyFilter.FilterPOATie;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 import org.omg.PortableServer.POA;
@@ -125,10 +128,10 @@ import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
  * @version $Id$
  */
 
-public abstract class AbstractFilter extends FilterPOA implements Disposable, ManageableServant,
-        Configurable
+public abstract class AbstractFilter implements GCDisposable, ManageableServant,
+        Configurable, FilterOperations
 {
-    private final static RuntimeException NOT_SUPPORTED = new UnsupportedOperationException(
+    final static RuntimeException NOT_SUPPORTED = new UnsupportedOperationException(
             "this operation is not supported");
 
     public static final int NO_CONSTRAINTS_MATCH = -2;
@@ -140,6 +143,8 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
 
     ////////////////////////////////////////
 
+    private final FilterPOATie servant_;
+    
     private final DisposableManager disposables_ = new DisposableManager();
 
     private final CallbackManager callbackManager_ = new CallbackManager();
@@ -158,10 +163,8 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
 
     protected final MessageFactory messageFactory_;
 
-    public int matchCalled_ = 0;
-
-    public int matchStructuredCalled_ = 0;
-
+    private final FilterUsageDecorator filterUsageDecorator_;
+    
     private final POA poa_;
 
     private final ORB orb_;
@@ -169,14 +172,14 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
     private Filter thisRef_;
 
     private final Logger logger_;
-
-    private final org.jacorb.config.Configuration config_;
-
+    
     private final EvaluationContextFactory evaluationContextFactory_;
 
     private final SynchronizedBoolean isActivated = new SynchronizedBoolean(false);
 
     private static final ConstraintInfo[] EMPTY_CONSTRAINT_INFO = new ConstraintInfo[0];
+
+    private final long maxIdleTime_;
 
     ////////////////////////////////////////
 
@@ -188,9 +191,7 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
 
         orb_ = orb;
         poa_ = poa;
-
-        config_ = ((org.jacorb.config.Configuration) config);
-        logger_ = config_.getNamedLogger(getClass().getName());
+        logger_ = LogUtil.getLogger(config, getClass().getName());
 
         if (logger_.isInfoEnabled())
         {
@@ -203,13 +204,19 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
 
         constraintsLock_ = new WriterPreferenceReadWriteLock();
 
-        wildcardMap_ = newWildcardMap(config_);
+        wildcardMap_ = newWildcardMap(config);
 
         disposables_.addDisposable(callbackManager_);
+        
+        filterUsageDecorator_ = new FilterUsageDecorator(this);
+        
+        servant_ = new FilterPOATie(filterUsageDecorator_.getFilterOperations());
+        
+        maxIdleTime_ = config.getAttributeAsLong(Attributes.DEAD_FILTER_INTERVAL, Default.DEFAULT_DEAD_FILTER_INTERVAL);
     }
 
     // //////////////////////////////////////
-
+    
     private WildcardMap newWildcardMap(Configuration config) throws ConfigurationException
     {
         String wildcardMapImpl = config.getAttribute(Attributes.WILDCARDMAP_CLASS,
@@ -249,22 +256,27 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
                 + " is no valid WildcardMap Implementation");
     }
 
-    public void configure(Configuration conf)
+    public final void configure(Configuration conf)
     {
+        // config is fetched via c'tor.
     }
 
-    public void preActivate()
+    /**
+     * @deprecated
+     */
+    public final void preActivate()
     {
+        // to be removed
     }
 
     public org.omg.CORBA.Object activate()
     {
         if (thisRef_ == null)
         {
-            thisRef_ = _this(orb_);
-        }
-
-        isActivated.set(true);
+            thisRef_ = servant_._this(orb_);
+            
+            isActivated.set(true);
+        }        
 
         return thisRef_;
     }
@@ -273,7 +285,7 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
     {
         try
         {
-            poa_.deactivate_object(poa_.servant_to_id(this));
+            poa_.deactivate_object(poa_.servant_to_id(servant_));
         } catch (WrongPolicy e)
         {
             logger_.fatalError("error deactivating object", e);
@@ -522,13 +534,13 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
         }
     }
 
-    private void removeEventTypeMappingForConstraint(Integer key, ConstraintEntry _deletedEntry)
+    private void removeEventTypeMappingForConstraint(Integer key, ConstraintEntry deletedEntry)
     {
-        int _eventTypeCount = _deletedEntry.getEventTypeCount();
+        int _eventTypeCount = deletedEntry.getEventTypeCount();
 
         for (int _y = 0; _y < _eventTypeCount; ++_y)
         {
-            EventTypeIdentifier _eventTypeIdentifier = _deletedEntry.getEventTypeWrapper(_y);
+            EventTypeIdentifier _eventTypeIdentifier = deletedEntry.getEventTypeWrapper(_y);
 
             List _listOfConstraintEvaluator = (List) wildcardMap_
                     .getNoExpansion(_eventTypeIdentifier.getConstraintKey());
@@ -794,8 +806,6 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
 
     public boolean match(Any anyEvent) throws UnsupportedFilterableData
     {
-        ++matchCalled_;
-
         return match_internal(anyEvent) >= 0;
     }
 
@@ -828,8 +838,6 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
     public boolean match_structured(StructuredEvent structuredevent)
             throws UnsupportedFilterableData
     {
-        ++matchStructuredCalled_;
-
         return match_structured_internal(structuredevent) >= 0;
     }
 
@@ -951,5 +959,23 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
     public void addDisposeHook(Disposable disposeHook)
     {
         disposables_.addDisposable(disposeHook);
+    }
+   
+    public Date getLastUsage()
+    {
+        return filterUsageDecorator_.getLastUsage();
+    }
+    
+    public void attemptDispose()
+    {
+        if (maxIdleTime_ <= 0)
+        {
+            return;
+        }
+        
+        if (getLastUsage().getTime() + maxIdleTime_ < System.currentTimeMillis())
+        {
+            dispose();
+        }
     }
 }

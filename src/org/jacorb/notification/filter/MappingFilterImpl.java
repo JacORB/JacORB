@@ -26,9 +26,15 @@ import java.util.Map;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.GCDisposable;
+import org.jacorb.notification.util.DisposableManager;
+import org.jacorb.notification.util.LogUtil;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.TypeCode;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
@@ -39,7 +45,8 @@ import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.CosNotifyFilter.InvalidValue;
 import org.omg.CosNotifyFilter.MappingConstraintInfo;
 import org.omg.CosNotifyFilter.MappingConstraintPair;
-import org.omg.CosNotifyFilter.MappingFilterPOA;
+import org.omg.CosNotifyFilter.MappingFilterOperations;
+import org.omg.CosNotifyFilter.MappingFilterPOATie;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
 /**
@@ -47,7 +54,7 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
  * @version $Id$
  */
 
-public class MappingFilterImpl extends MappingFilterPOA implements Disposable
+public class MappingFilterImpl implements GCDisposable, MappingFilterOperations
 {
     /**
      * map constraint ids used by class FilterImpl to default values used by MappingFilterImpl.
@@ -77,7 +84,7 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
         }
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     private final AbstractFilter filterDelegate_;
 
@@ -87,31 +94,54 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
 
     private final Logger logger_;
 
-    private final org.jacorb.config.Configuration config_;
+    private final MappingFilterPOATie servant_;
 
-    ////////////////////////////////////////
+    private final MappingFilterUsageDecorator usageDecorator_;
 
-    public MappingFilterImpl(Configuration config, AbstractFilter filter, Any defaultValue)
+    private final ORB orb_;
+
+    private final DisposableManager disposeHooks_ = new DisposableManager();
+    
+    private final long maxIdleTime_;
+
+    // //////////////////////////////////////
+
+    public MappingFilterImpl(ORB orb, Configuration config, AbstractFilter filter, Any defaultValue)
     {
-        config_ = ((org.jacorb.config.Configuration) config);
-        logger_ = config_.getNamedLogger(getClass().getName());
+        orb_ = orb;
+        logger_ = LogUtil.getLogger(config, getClass().getName());
 
         filterDelegate_ = filter;
         defaultValue_ = defaultValue;
+
+        usageDecorator_ = new MappingFilterUsageDecorator(this);
+
+        servant_ = new MappingFilterPOATie(usageDecorator_.getMappingFilterOperations());
+
+        maxIdleTime_ = config.getAttributeAsLong(Attributes.DEAD_FILTER_INTERVAL,
+                Default.DEFAULT_DEAD_FILTER_INTERVAL);
     }
 
-    ///////////////////////////////////////
+    // /////////////////////////////////////
+
+    public org.omg.CORBA.Object activate()
+    {
+        return servant_._this(orb_);
+    }
 
     public void destroy()
     {
         logger_.info("destroy MappingFilter");
+        
         dispose();
     }
 
     public void dispose()
     {
-        filterDelegate_.dispose();
+        disposeHooks_.dispose();
         
+        filterDelegate_.dispose();
+
         valueMap_.dispose();
     }
 
@@ -251,14 +281,32 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
             throws UnsupportedFilterableData
     {
         final int _filterId = filterDelegate_.match_typed_internal(propertyArray);
-        
+
         if (_filterId >= 0)
         {
             anyHolder.value = valueMap_.get(_filterId);
-            
+
             return true;
         }
-        
+
         return false;
+    }
+
+    public void attemptDispose()
+    {
+        if (maxIdleTime_ <= 0)
+        {
+            return;
+        }
+
+        if (usageDecorator_.getLastUsage().getTime() + maxIdleTime_ < System.currentTimeMillis())
+        {
+            dispose();
+        }
+    }
+
+    public void addDisposeHook(Disposable d)
+    {
+        disposeHooks_.addDisposable(d);
     }
 }

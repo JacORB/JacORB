@@ -22,14 +22,18 @@ package org.jacorb.notification.filter;
  */
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.GCDisposable;
 import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.DisposableManager;
+import org.jacorb.notification.util.LogUtil;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.Filter;
@@ -39,18 +43,87 @@ import org.omg.CosNotifyFilter.FilterFactoryPOA;
 import org.omg.CosNotifyFilter.FilterHelper;
 import org.omg.CosNotifyFilter.InvalidGrammar;
 import org.omg.CosNotifyFilter.MappingFilter;
+import org.omg.CosNotifyFilter.MappingFilterHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
+
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable,
-        ManageableServant
-
+public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, ManageableServant
 {
+    private class GCThread extends Thread
+    {
+        private final SynchronizedBoolean active = new SynchronizedBoolean(true);
+
+        public GCThread()
+        {
+            super();
+            setName("NotificationService Filter GC");
+            setPriority(Thread.MIN_PRIORITY + 1);
+        }
+        
+        public void run()
+        {
+            while (active.get())
+            {
+                try
+                {
+                    Thread.sleep(1000);
+
+                    runLoop();
+                } catch (InterruptedException e)
+                {
+                    // ignore. will check active_
+                }
+            }
+
+            logger_.info("GCThread exits");
+        }
+
+        private void runLoop() throws InterruptedException
+        {
+            synchronized (allFiltersLock_)
+            {
+                Iterator i = new ArrayList(allFilters_).iterator();
+
+                while (i.hasNext())
+                {
+                    GCDisposable item = (GCDisposable) i.next();
+
+                    try
+                    {
+                        item.attemptDispose();
+                    } catch (Exception e)
+                    {
+                        i.remove();
+                    }
+
+                    verifyIsActive();
+                }
+            }
+        }
+
+        private void verifyIsActive() throws InterruptedException
+        {
+            if (!active.get())
+            {
+                throw new InterruptedException();
+            }
+        }
+
+        public void dispose()
+        {
+            logger_.info("Shutdown GCThread");
+
+            active.set(false);
+        }
+    }
+
     private final ORB orb_;
 
     private final POA poa_;
@@ -63,39 +136,60 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable,
 
     protected final Logger logger_;
 
+    private FilterFactory thisFilter_;
+
+    private final IFilterFactoryDelegate factoryDelegate_;
+
+    private final boolean useGarbageCollector_;
+
     private final Configuration config_;
-
-    private org.omg.CORBA.Object reference_;
-
-    private FilterFactory thisRef_;
-
-    private final IFilterFactoryDelegate filterDelegate_;
 
     // //////////////////////////////////////
 
     /**
-     * @param filterDelegate this Factory assumes ownership over the delegate and will dispose it after use.
+     * @param factoryDelegate
+     *            this Factory assumes ownership over the delegate and will dispose it after use.
      */
     public FilterFactoryImpl(ORB orb, POA poa, Configuration config,
-            IFilterFactoryDelegate filterDelegate)
+            IFilterFactoryDelegate factoryDelegate)
     {
         super();
 
         orb_ = orb;
         poa_ = poa;
-        config_ = ((org.jacorb.config.Configuration) config);
+       
+        factoryDelegate_ = factoryDelegate;
 
-        filterDelegate_ = filterDelegate;
-
-        logger_ = ((org.jacorb.config.Configuration) config_).getNamedLogger(getClass().getName());
+        config_ = config;
+        logger_ = LogUtil.getLogger(config, getClass().getName());
 
         addDisposeHook(new Disposable()
         {
             public void dispose()
             {
-                filterDelegate_.dispose();
+                factoryDelegate_.dispose();
             }
         });
+
+        useGarbageCollector_ = config.getAttributeAsBoolean(Attributes.USE_GC,
+                Default.DEFAULT_USE_GC);
+        
+        if (useGarbageCollector_)
+        {
+            logger_.info("Enable Garbage Collection for Filters");
+
+            final GCThread gc = new GCThread();
+
+            addDisposeHook(new Disposable()
+            {
+                public void dispose()
+                {
+                    gc.dispose();
+                }
+            });
+            
+            gc.start();
+        }
     }
 
     public final void addDisposeHook(Disposable d)
@@ -105,39 +199,47 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable,
 
     public final Filter create_filter(String grammar) throws InvalidGrammar
     {
-        final AbstractFilter _servant = filterDelegate_.create_filter_servant(grammar);
+        final AbstractFilter _servant = factoryDelegate_.create_filter_servant(grammar);
 
-        _servant.preActivate();
+        registerFilter(_servant);
 
         Filter _filter = FilterHelper.narrow(_servant.activate());
-
-        synchronized (allFiltersLock_)
-        {
-            allFilters_.add(_servant);
-
-            _servant.addDisposeHook(new Disposable()
-            {
-                public void dispose()
-                {
-                    synchronized (allFiltersLock_)
-                    {
-                        allFilters_.remove(_servant);
-                    }
-                }
-            });
-        }
 
         return _filter;
     }
 
     public MappingFilter create_mapping_filter(String grammar, Any any) throws InvalidGrammar
     {
-        MappingFilterImpl _mappingFilterServant = filterDelegate_.create_mapping_filter_servant(
+        MappingFilterImpl _mappingFilterServant = factoryDelegate_.create_mapping_filter_servant(
                 config_, grammar, any);
 
-        MappingFilter _filter = _mappingFilterServant._this(orb_);
+        registerFilter(_mappingFilterServant);
+
+        MappingFilter _filter = MappingFilterHelper.narrow(_mappingFilterServant.activate());
 
         return _filter;
+    }
+
+    private final void registerFilter(final GCDisposable filter)
+    {
+        if (useGarbageCollector_)
+        {
+            synchronized (allFiltersLock_)
+            {
+                allFilters_.add(filter);
+
+                filter.addDisposeHook(new Disposable()
+                {
+                    public void dispose()
+                    {
+                        synchronized (allFiltersLock_)
+                        {
+                            allFilters_.remove(filter);
+                        }
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -165,28 +267,14 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable,
         return this;
     }
 
-    public synchronized FilterFactory getFilterFactory()
-    {
-        if (thisRef_ == null)
-        {
-            thisRef_ = newFilterFactory();
-        }
-
-        return thisRef_;
-    }
-
-    public FilterFactory newFilterFactory()
-    {
-        return _this(getORB());
-    }
-
     public synchronized org.omg.CORBA.Object activate()
     {
-        if (reference_ == null)
+        if (thisFilter_ == null)
         {
-            reference_ = FilterFactoryHelper.narrow(getServant()._this_object(orb_));
+            thisFilter_ = FilterFactoryHelper.narrow(getServant()._this_object(orb_));
         }
-        return reference_;
+        
+        return thisFilter_;
     }
 
     public final void dispose()
@@ -208,10 +296,5 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable,
     protected final ORB getORB()
     {
         return orb_;
-    }
-
-    public List getFilters()
-    {
-        return Collections.unmodifiableList(allFilters_);
     }
 }
