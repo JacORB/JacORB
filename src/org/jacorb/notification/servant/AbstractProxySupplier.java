@@ -43,10 +43,12 @@ import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdminHelper;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotifyComm.NotifyPublishHelper;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
 import java.util.List;
+import org.omg.CosNotifyComm.NotifyPublish;
 
 /**
  * Abstract base class for ProxySuppliers.
@@ -67,7 +69,7 @@ public abstract class AbstractProxySupplier
                NotifySubscribeOperations
 
 {
-    private final static EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
+    private static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
     ////////////////////////////////////////
 
@@ -85,7 +87,15 @@ public abstract class AbstractProxySupplier
      */
     private Object pendingMessagesRefLock_ = new Object();
 
-    private NotifyPublishOperations offerListener_;
+    private NotifyPublishOperations proxyOfferListener_;
+
+    private NotifyPublish offerListener_;
+
+    /**
+     * flag to indicate that this ProxySupplier may invoke remote
+     * calls during deliverMessage.
+     */
+    private boolean enabled_ = true;
 
     ////////////////////////////////////////
 
@@ -157,7 +167,6 @@ public abstract class AbstractProxySupplier
     private PropertySetListener eventQueueConfigurationChangedCB =
         new PropertySetListener()
         {
-
             public void validateProperty(Property[] p, List errors)
             {}
 
@@ -314,7 +323,7 @@ public abstract class AbstractProxySupplier
     }
 
 
-    final public void dispose()
+    public final void dispose()
     {
         super.dispose();
 
@@ -325,24 +334,22 @@ public abstract class AbstractProxySupplier
     }
 
 
-    final public ConsumerAdmin MyAdmin()
+    public final ConsumerAdmin MyAdmin()
     {
         return ConsumerAdminHelper.narrow(admin_.activate());
     }
 
 
-    final public void subscription_change(EventType[] added,
+    public final void subscription_change(EventType[] added,
                                           EventType[] removed)
-    throws InvalidEventType
+        throws InvalidEventType
     {
         subscriptionManager_.subscription_change(added, removed);
     }
 
 
-    final public EventType[] obtain_offered_types(ObtainInfoMode obtainInfoMode)
+    public final EventType[] obtain_offered_types(ObtainInfoMode obtainInfoMode)
     {
-        logger_.debug("obtain_offered_types " + obtainInfoMode.value() );
-
         EventType[] _offeredTypes = EMPTY_EVENT_TYPE_ARRAY;
 
         switch (obtainInfoMode.value())
@@ -371,13 +378,13 @@ public abstract class AbstractProxySupplier
 
     private void registerListener()
     {
-        if (offerListener_ == null)
+        if (proxyOfferListener_ == null)
         {
             final NotifyPublishOperations _listener = getOfferListener();
 
             if (_listener != null)
             {
-                offerListener_ = new NotifyPublishOperations()
+                proxyOfferListener_ = new NotifyPublishOperations()
                     {
                         public void offer_change(EventType[] added, EventType[] removed)
                         {
@@ -387,7 +394,8 @@ public abstract class AbstractProxySupplier
                                 }
                             catch (NO_IMPLEMENT e)
                                 {
-                                    logger_.info("disable offer_change for Consumer.", e);
+                                    logger_.info("disable offer_change for connected Consumer.", e);
+
                                     removeListener();
                                 }
                             catch (InvalidEventType e)
@@ -397,7 +405,7 @@ public abstract class AbstractProxySupplier
                         }
                     };
 
-                offerManager_.addListener(offerListener_);
+                offerManager_.addListener(proxyOfferListener_);
             }
         }
     }
@@ -405,15 +413,47 @@ public abstract class AbstractProxySupplier
 
     private void removeListener()
     {
-        if (offerListener_ != null)
+        if (proxyOfferListener_ != null)
         {
-            offerManager_.removeListener(offerListener_);
-            offerListener_ = null;
+            offerManager_.removeListener(proxyOfferListener_);
+            proxyOfferListener_ = null;
         }
     }
 
 
-    abstract NotifyPublishOperations getOfferListener();
+    final NotifyPublishOperations getOfferListener() {
+        return offerListener_;
+    }
+
+
+    protected void connectClient(org.omg.CORBA.Object client) {
+        super.connectClient(client);
+
+        try {
+            offerListener_ = NotifyPublishHelper.narrow(client);
+
+            logger_.debug("successfully narrowed connecting Client to IF NotifyPublish");
+        } catch (Throwable t) {
+            logger_.info("disable offer_change for connecting Consumer");
+        }
+    }
+
+
+    public synchronized void enableDelivery()
+    {
+        enabled_ = true;
+    }
+
+
+    public synchronized void disableDelivery()
+    {
+        enabled_ = false;
+    }
+
+
+    protected synchronized boolean isEnabled() {
+        return enabled_;
+    }
 
 
     /**
@@ -422,7 +462,6 @@ public abstract class AbstractProxySupplier
     static AbstractProxySupplier newProxyPullSupplier(AbstractAdmin admin,
                                                       ClientType clientType)
     {
-
         AbstractProxySupplier _servant;
 
         switch ( clientType.value() )
@@ -458,7 +497,6 @@ public abstract class AbstractProxySupplier
     static AbstractProxySupplier newProxyPushSupplier(AbstractAdmin admin,
                                                       ClientType clientType)
     {
-
         AbstractProxySupplier _servant;
 
         switch ( clientType.value() )
@@ -484,6 +522,6 @@ public abstract class AbstractProxySupplier
             default:
                 throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
         }
-        return (_servant);
+        return _servant;
     }
 }

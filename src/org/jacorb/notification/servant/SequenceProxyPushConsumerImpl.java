@@ -45,8 +45,6 @@ public class SequenceProxyPushConsumerImpl
 {
     private SequencePushSupplier sequencePushSupplier_;
 
-    private NotifySubscribeOperations subscriptionListener_;
-
     ////////////////////////////////////////
 
     public SequenceProxyPushConsumerImpl( AbstractAdmin supplierAdmin,
@@ -75,19 +73,14 @@ public class SequenceProxyPushConsumerImpl
         sequencePushSupplier_ = supplier;
 
         connectClient(supplier);
-
-        try {
-            subscriptionListener_ = NotifySubscribeHelper.narrow(sequencePushSupplier_);
-        } catch (Throwable t) {
-            logger_.info("disable subcription_change for SequencePushSupplier");
-        }
-
     }
 
 
     public void push_structured_events( StructuredEvent[] events )
         throws Disconnected
     {
+        assertConnectedOrThrowDisconnected();
+
         for ( int x = 0; x < events.length; ++x )
         {
             push_structured_event( events[ x ] );
@@ -109,10 +102,5 @@ public class SequenceProxyPushConsumerImpl
         }
 
         return thisServant_;
-    }
-
-
-    NotifySubscribeOperations getSubscriptionListener() {
-        return subscriptionListener_;
     }
 }

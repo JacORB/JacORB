@@ -62,8 +62,6 @@ public class SequenceProxyPullSupplierImpl
 
     private SequencePullConsumer sequencePullConsumer_;
 
-    private NotifyPublishOperations offerListener_;
-
     ////////////////////////////////////////
 
     public SequenceProxyPullSupplierImpl( AbstractAdmin myAdminServant,
@@ -80,20 +78,18 @@ public class SequenceProxyPullSupplierImpl
     public void connect_sequence_pull_consumer( SequencePullConsumer consumer )
         throws AlreadyConnected
     {
-	assertNotConnected();
+        assertNotConnected();
 
         sequencePullConsumer_ = consumer;
-	
-	connectClient(consumer);
 
-        try {
-            offerListener_ = NotifyPublishHelper.narrow(consumer);
-        } catch (Throwable t) {}
+        connectClient(consumer);
     }
 
 
     public StructuredEvent[] pull_structured_events( int number ) throws Disconnected
     {
+        assertConnectedOrThrowDisconnected();
+
         StructuredEvent[] _event = null;
         BooleanHolder _hasEvent = new BooleanHolder();
         StructuredEvent _ret[] = sUndefinedSequence;
@@ -114,7 +110,9 @@ public class SequenceProxyPullSupplierImpl
     public StructuredEvent[] try_pull_structured_events( int number,
                                                          BooleanHolder success )
         throws Disconnected
-    {      
+    {
+        assertConnectedOrThrowDisconnected();
+
         Message[] _events = getUpToMessages(number);
 
         if (_events != null)
@@ -156,8 +154,8 @@ public class SequenceProxyPullSupplierImpl
 
     protected void disconnectClient()
     {
-	sequencePullConsumer_.disconnect_sequence_pull_consumer();
-	sequencePullConsumer_ = null;
+        sequencePullConsumer_.disconnect_sequence_pull_consumer();
+        sequencePullConsumer_ = null;
     }
 
 
@@ -175,10 +173,5 @@ public class SequenceProxyPullSupplierImpl
         }
 
         return thisServant_;
-    }
-
-
-    NotifyPublishOperations getOfferListener() {
-        return offerListener_;
     }
 }

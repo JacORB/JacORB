@@ -41,8 +41,6 @@ import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
-import org.omg.CosNotifyComm.NotifyPublishHelper;
-import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.PortableServer.Servant;
 import org.omg.TimeBase.TimeTHelper;
@@ -53,8 +51,8 @@ import org.omg.TimeBase.TimeTHelper;
  */
 
 public class SequenceProxyPushSupplierImpl
-            extends StructuredProxyPushSupplierImpl
-            implements SequenceProxyPushSupplierOperations
+    extends StructuredProxyPushSupplierImpl
+    implements SequenceProxyPushSupplierOperations
 {
     static final StructuredEvent[] STRUCTURED_EVENT_ARRAY_TEMPLATE =
         new StructuredEvent[ 0 ];
@@ -63,8 +61,6 @@ public class SequenceProxyPushSupplierImpl
      * The connected SequencePushConsumer.
      */
     private SequencePushConsumer sequencePushConsumer_;
-
-    private NotifyPublishOperations offerListener_;
 
     /**
      * maximum queue size before a delivery is forced.
@@ -143,14 +139,14 @@ public class SequenceProxyPushSupplierImpl
                            + " active="
                            + active_
                            + " enabled="
-                           + enabled_ );
+                           + isEnabled() );
         }
 
         if ( isConnected() )
             {
                 enqueue(event);
 
-                if ( active_ && enabled_) // && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
+                if ( active_ && isEnabled()) // && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
                     {
                         deliverPendingEvents(false);
                     }
@@ -172,6 +168,9 @@ public class SequenceProxyPushSupplierImpl
     }
 
 
+    /**
+     * TODO check what happens when push fails
+     */
     private void deliverPendingEvents(boolean force) throws Disconnected
     {
         logger_.debug( "deliverPendingEvents()" );
@@ -220,11 +219,6 @@ public class SequenceProxyPushSupplierImpl
         connectClient(consumer);
 
         active_ = true;
-
-        try {
-            offerListener_ = NotifyPublishHelper.narrow(consumer);
-        } catch (Throwable t) {}
-
 
         startCronJob();
     }
@@ -347,18 +341,6 @@ public class SequenceProxyPushSupplierImpl
     }
 
 
-    public void enableDelivery()
-    {
-        enabled_ = true;
-    }
-
-
-    public void disableDelivery()
-    {
-        enabled_ = false;
-    }
-
-
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
@@ -366,10 +348,5 @@ public class SequenceProxyPushSupplierImpl
             thisServant_ = new SequenceProxyPushSupplierPOATie( this );
         }
         return thisServant_;
-    }
-
-
-    NotifyPublishOperations getOfferListener() {
-        return offerListener_;
     }
 }

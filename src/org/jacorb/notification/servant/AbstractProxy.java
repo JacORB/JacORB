@@ -56,6 +56,7 @@ import org.omg.PortableServer.Servant;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CosEventComm.Disconnected;
 
 /**
  * @author Alphonse Bendt
@@ -488,6 +489,18 @@ public abstract class AbstractProxy
     }
 
 
+    protected void assertConnectedOrThrowDisconnected() throws Disconnected
+    {
+        if (!connected_.get()) {
+            logger_.fatalError("access on a not connected proxy");
+
+            dispose();
+
+            throw new Disconnected();
+        }
+    }
+
+
     protected void connectClient(org.omg.CORBA.Object client) {
         connected_.set(true);
     }
@@ -503,4 +516,12 @@ public abstract class AbstractProxy
 
 
     abstract Servant getServant();
+
+
+    protected void handleDisconnected(Disconnected e) {
+        logger_.fatalError("Illegal state: Client think it's disconnected. "
+                           + "Proxy thinks it's connected. The Proxy will be destroyed.y", e);
+
+        dispose();
+    }
 }

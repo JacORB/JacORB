@@ -1,9 +1,5 @@
 package org.jacorb.notification.servant;
 
-import org.jacorb.notification.interfaces.FilterStage;
-
-
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -23,6 +19,8 @@ import org.jacorb.notification.interfaces.FilterStage;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
+import org.jacorb.notification.interfaces.FilterStage;
 
 /**
  * @author Alphonse Bendt

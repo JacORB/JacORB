@@ -29,7 +29,6 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
@@ -39,7 +38,6 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
 import org.omg.CosNotifyComm.NotifyPublishHelper;
-import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
 import org.omg.PortableServer.Servant;
 
@@ -54,11 +52,7 @@ public class StructuredProxyPushSupplierImpl
 {
     private StructuredPushConsumer pushConsumer_;
 
-    private NotifyPublishOperations offerListener_;
-
     protected boolean active_;
-
-    protected boolean enabled_;
 
     ////////////////////////////////////////
 
@@ -69,11 +63,13 @@ public class StructuredProxyPushSupplierImpl
                channelContext );
 
         setProxyType( ProxyType.PUSH_STRUCTURED );
-        enabled_ = true;
     }
 
     ////////////////////////////////////////
 
+    /**
+     * TODO check error handling when push fails
+     */
     public void deliverMessage( Message event ) throws Disconnected
     {
         if (logger_.isDebugEnabled())
@@ -83,12 +79,12 @@ public class StructuredProxyPushSupplierImpl
                            + " active="
                            + active_
                            + " enabled="
-                           + enabled_ );
+                           + isEnabled() );
         }
 
         if ( isConnected() ) {
 
-            if ( active_ && enabled_ )
+            if ( active_ && isEnabled() )
                 {
                     pushConsumer_.push_structured_event( event.toStructuredEvent() );
 
@@ -122,15 +118,6 @@ public class StructuredProxyPushSupplierImpl
         connectClient(consumer);
 
         active_ = true;
-
-        try
-        {
-            offerListener_ = NotifyPublishHelper.narrow(consumer);
-        }
-        catch (Throwable t)
-        {
-            logger_.info("disable offer_change for StructuredPushConsumer");
-        }
     }
 
 
@@ -166,14 +153,12 @@ public class StructuredProxyPushSupplierImpl
                 for (int x = 0; x < _events.length; ++x)
                 {
                     pushConsumer_.push_structured_event( _events[x].toStructuredEvent() );
+                    _events[x].dispose();
                 }
             }
             finally
             {
-                for (int x = 0; x < _events.length; ++x)
-                {
-                    _events[x].dispose();
-                }
+
             }
         }
     }
@@ -193,7 +178,8 @@ public class StructuredProxyPushSupplierImpl
 
             active_ = true;
         } catch (Disconnected e) {
-            logger_.fatalError("Illegal State: PushConsumer thinks it is disconnected. StructuredProxyPushSupplier thinks it is connected", e);
+            logger_.fatalError("Illegal State: PushConsumer thinks it is disconnected."
+                               + " StructuredProxyPushSupplier thinks it is connected", e);
 
             dispose();
         }
@@ -226,18 +212,6 @@ public class StructuredProxyPushSupplierImpl
     }
 
 
-    synchronized public void enableDelivery()
-    {
-        enabled_ = true;
-    }
-
-
-    synchronized public void disableDelivery()
-    {
-        enabled_ = false;
-    }
-
-
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
@@ -251,11 +225,5 @@ public class StructuredProxyPushSupplierImpl
     public org.omg.CORBA.Object activate()
     {
         return ProxySupplierHelper.narrow( getServant()._this_object(getORB()) );
-    }
-
-
-    NotifyPublishOperations getOfferListener()
-    {
-        return offerListener_;
     }
 }

@@ -24,20 +24,19 @@ package org.jacorb.notification.interfaces;
 import org.omg.CosEventComm.Disconnected;
 
 /**
- * Abstraction of a PullConsumer. This interface indicates that
- * this PullConsumer needs to poll its Supplier regularly.
+ * Abstraction of a ProxyPullConsumer.
+ *
+ * The implementation maintains a connection to a PullSupplier.
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface TimerEventSupplier extends Disposable {
+public interface MessageSupplier extends Disposable {
 
     /**
-     * execute a pull-Operations. depending on the underlying
-     * implementation a single event or a sequence of events can be
-     * pulled from the supplier.
+     * the implementation pulls one or more events from its Supplier
+     * and hands over the pulled events to the TaskProcessor.
      */
-    void runPullEvent() throws Disconnected;
-
+    void runPullMessage() throws Disconnected;
 }

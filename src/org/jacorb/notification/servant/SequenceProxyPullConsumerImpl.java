@@ -28,8 +28,6 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerPOATie;
-import org.omg.CosNotifyComm.NotifySubscribeHelper;
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.CosNotifyComm.SequencePullSupplier;
 import org.omg.PortableServer.Servant;
 
@@ -46,8 +44,6 @@ public class SequenceProxyPullConsumerImpl
     implements SequenceProxyPullConsumerOperations
 {
     private SequencePullSupplier sequencePullSupplier_;
-
-    private NotifySubscribeOperations subscriptionListener_;
 
     ////////////////////////////////////////
 
@@ -78,10 +74,6 @@ public class SequenceProxyPullConsumerImpl
         sequencePullSupplier_ = sequencePullSupplier;
 
         connectClient(sequencePullSupplier);
-
-        try {
-            subscriptionListener_ = NotifySubscribeHelper.narrow(sequencePullSupplier);
-        } catch (Throwable t) {}
 
         startTask();
     }
@@ -138,10 +130,5 @@ public class SequenceProxyPullConsumerImpl
         }
 
         return thisServant_;
-    }
-
-
-    NotifySubscribeOperations getSubscriptionListener() {
-        return subscriptionListener_;
     }
 }

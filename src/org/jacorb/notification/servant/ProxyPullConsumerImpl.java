@@ -20,12 +20,11 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.Any;
@@ -55,70 +54,47 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 public class ProxyPullConsumerImpl
     extends AbstractProxyConsumer
     implements ProxyPullConsumerOperations,
-               TimerEventSupplier
+               MessageSupplier
 {
     private Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
 
+    /**
+     * the connected PullSupplier
+     */
     private PullSupplier pullSupplier_;
 
-    private NotifySubscribeOperations subscriptionListener_;
-
-    private boolean active_ = false;
+    /**
+     * flag to indicate if the connection from this PullConsumer to
+     * its PullSupplier is active.
+     */
+    private boolean isConnectionActive_ = false;
 
     private long pollInterval_;
 
-    private Object taskId_;
+    private Object timerRegistration_;
 
     /**
      * Callback that is run by the Timer.
      */
     private Runnable runQueueThis_;
 
+    //////////////////////////////
+    // Some Management Information
+
     /**
      * Total number of pull-Operations
      */
-    private int runCounter_;
+    private int pullCounter_;
 
     /**
      * Total time spent within pull-Operations
      */
-    private long runTime_;
+    private long timeSpentInPull_;
 
     /**
      * Total number of successful pull-Operations
      */
-    private int successfulPull_;
-
-    void configurePullIntervall() {
-        pollInterval_ = Default.DEFAULT_PROXY_POLL_INTERVALL;
-
-        if (Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL) != null)
-            {
-                try
-                    {
-                        pollInterval_ =
-                            Long.parseLong(Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL));
-                    }
-                catch (NumberFormatException e)
-                    {
-                        logger_.error("Invalid Number Format for Property "
-                                      + Configuration.PULL_CONSUMER_POLLINTERVALL, e);
-
-                    }
-            }
-    }
-
-    void configureTimerCallback() {
-        runQueueThis_ = new Runnable()
-            {
-                public void run()
-                {
-                    scheduleTimedPullTask( ProxyPullConsumerImpl.this );
-                }
-            };
-    }
-
-
+    private int successfulPullCounter_;
 
     ////////////////////////////////////////
 
@@ -137,6 +113,37 @@ public class ProxyPullConsumerImpl
 
     ////////////////////////////////////////
 
+    private void configurePullIntervall() {
+        pollInterval_ = Default.DEFAULT_PROXY_POLL_INTERVALL;
+
+        if (Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL) != null)
+            {
+                try
+                    {
+                        pollInterval_ =
+                            Long.parseLong(Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL));
+                    }
+                catch (NumberFormatException e)
+                    {
+                        logger_.error("Invalid Number Format for Property "
+                                      + Configuration.PULL_CONSUMER_POLLINTERVALL, e);
+
+                    }
+            }
+    }
+
+
+    private void configureTimerCallback() {
+        runQueueThis_ = new Runnable()
+            {
+                public void run()
+                {
+                    schedulePullTask( ProxyPullConsumerImpl.this );
+                }
+            };
+    }
+
+
     public void disconnect_pull_consumer()
     {
         dispose();
@@ -148,6 +155,7 @@ public class ProxyPullConsumerImpl
         stopTask();
 
         pullSupplier_.disconnect_pull_supplier();
+
         pullSupplier_ = null;
     }
 
@@ -158,12 +166,13 @@ public class ProxyPullConsumerImpl
     {
         assertConnected();
 
-        if ( !active_ )
+        if ( !isConnectionActive_ )
         {
             throw new ConnectionAlreadyInactive();
         }
 
-        active_ = false;
+        isConnectionActive_ = false;
+
         stopTask();
     }
 
@@ -174,7 +183,7 @@ public class ProxyPullConsumerImpl
     {
         assertConnected();
 
-        if ( active_ )
+        if ( isConnectionActive_ )
         {
             throw new ConnectionAlreadyActive();
         }
@@ -183,7 +192,7 @@ public class ProxyPullConsumerImpl
     }
 
 
-    public void runPullEvent() throws Disconnected
+    public void runPullMessage() throws Disconnected
     {
         if ( !isConnected() )
             {
@@ -198,20 +207,23 @@ public class ProxyPullConsumerImpl
     }
 
 
-    private void runPullEventInternal() throws InterruptedException, Disconnected {
+    private void runPullEventInternal()
+        throws InterruptedException,
+               Disconnected
+    {
         BooleanHolder hasEvent = new BooleanHolder();
         Any event = null;
 
         try {
             pullSync_.acquire();
 
-            ++runCounter_;
+            ++pullCounter_;
 
             long _start = System.currentTimeMillis();
 
             event = pullSupplier_.try_pull( hasEvent );
 
-            runTime_ += System.currentTimeMillis() - _start;
+            timeSpentInPull_ += System.currentTimeMillis() - _start;
         }
         finally {
             pullSync_.release();
@@ -219,7 +231,7 @@ public class ProxyPullConsumerImpl
 
         if ( hasEvent.value )
             {
-                ++successfulPull_;
+                ++successfulPullCounter_;
 
                 Message _message =
                     messageFactory_.newMessage( event, this );
@@ -236,39 +248,35 @@ public class ProxyPullConsumerImpl
     {
         assertNotConnected();
 
+        isConnectionActive_ = true;
 
-        active_ = true;
         pullSupplier_ = pullSupplier;
 
         connectClient(pullSupplier);
 
         startTask();
-
-        try {
-            subscriptionListener_ = NotifySubscribeHelper.narrow(pullSupplier_);
-        } catch (Throwable t) {
-            logger_.info("disable subscription_change for PullSupplier");
-        }
     }
-
 
 
     synchronized private void startTask()
     {
-        if ( taskId_ == null )
+        if ( timerRegistration_ == null )
         {
-            taskId_ = getTaskProcessor()
-                      .executeTaskPeriodically( pollInterval_, runQueueThis_, true );
+            timerRegistration_ =
+                getTaskProcessor().executeTaskPeriodically( pollInterval_,
+                                                            runQueueThis_,
+                                                            true );
         }
     }
 
 
     synchronized private void stopTask()
     {
-        if ( taskId_ != null )
+        if ( timerRegistration_ != null )
         {
-            getTaskProcessor().cancelTask( taskId_ );
-            taskId_ = null;
+            getTaskProcessor().cancelTask( timerRegistration_ );
+
+            timerRegistration_ = null;
         }
     }
 
@@ -289,6 +297,8 @@ public class ProxyPullConsumerImpl
         return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
 
+    ////////////////////////////////////////
+    // todo collect management informations
 
     public long getPollInterval()
     {
@@ -298,23 +308,18 @@ public class ProxyPullConsumerImpl
 
     public long getPullTimer()
     {
-        return runTime_;
+        return timeSpentInPull_;
     }
 
 
     public int getPullCounter()
     {
-        return runCounter_;
+        return pullCounter_;
     }
 
 
     public int getSuccessfulPullCounter()
     {
-        return successfulPull_;
-    }
-
-
-    NotifySubscribeOperations getSubscriptionListener() {
-        return subscriptionListener_;
+        return successfulPullCounter_;
     }
 }

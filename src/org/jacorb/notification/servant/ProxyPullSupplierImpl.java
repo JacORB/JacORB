@@ -64,8 +64,6 @@ public class ProxyPullSupplierImpl
 
     private PullConsumer pullConsumer_ = null;
 
-    private NotifyPublishOperations offerListener_;
-
     ////////////////////////////////////////
 
     ProxyPullSupplierImpl(AbstractAdmin admin,
@@ -100,6 +98,8 @@ public class ProxyPullSupplierImpl
 
     public Any pull() throws Disconnected
     {
+        assertConnectedOrThrowDisconnected();
+
         try
         {
             Message _event = getMessageBlocking();
@@ -124,6 +124,8 @@ public class ProxyPullSupplierImpl
     public Any try_pull (BooleanHolder hasEvent)
         throws Disconnected
     {
+        assertConnectedOrThrowDisconnected();
+
         Any event = sUndefinedAny;
 
         hasEvent.value = false;
@@ -173,12 +175,6 @@ public class ProxyPullSupplierImpl
         pullConsumer_ = consumer;
 
         connectClient(consumer);
-
-        try {
-            offerListener_ = NotifyPublishHelper.narrow(pullConsumer_);
-        } catch (Throwable t) {
-            logger_.info("disable offer_change for PullConsumer");
-        }
     }
 
 
@@ -233,10 +229,5 @@ public class ProxyPullSupplierImpl
     public org.omg.CORBA.Object activate()
     {
         return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
-
-
-    NotifyPublishOperations getOfferListener() {
-        return offerListener_;
     }
 }

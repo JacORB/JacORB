@@ -28,7 +28,8 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.interfaces.MessageSupplier;
+import org.jacorb.notification.util.EventTypeUtil;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.BAD_PARAM;
@@ -45,6 +46,8 @@ import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
+import org.omg.CosNotifyComm.NotifySubscribe;
+import org.omg.CosNotifyComm.NotifySubscribeHelper;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
 import java.util.List;
@@ -57,11 +60,13 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
  */
 
 abstract class AbstractProxyConsumer
-            extends AbstractProxy
-            implements AbstractProxyConsumerI,
-            NotifyPublishOperations
+    extends AbstractProxy
+    implements AbstractProxyConsumerI,
+               NotifyPublishOperations
 {
     private final static EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
+
+    ////////////////////////////////////////
 
     private TaskProcessor taskProcessor_;
 
@@ -71,14 +76,15 @@ abstract class AbstractProxyConsumer
 
     private List subsequentDestinations_;
 
-    private NotifySubscribeOperations subscriptionListener_;
+    private NotifySubscribeOperations proxySubscriptionListener_;
+
+    private NotifySubscribe subscriptionListener_;
 
     ////////////////////////////////////////
 
     AbstractProxyConsumer( AbstractAdmin adminServant,
                            ChannelContext channelContext)
     {
-
         super( adminServant,
                channelContext);
 
@@ -97,8 +103,6 @@ abstract class AbstractProxyConsumer
 
     public void preActivate()
     {
-        logger_.debug("AbstractProxyConsumer.initialize");
-
         configureStartTimeSupported();
 
         configureStopTimeSupported();
@@ -107,11 +111,11 @@ abstract class AbstractProxyConsumer
                                                           Timeout.value,
                                                           StartTimeSupported.value,
                                                           StopTimeSupported.value},
-                                            reconfigureCB);
+                                            reconfigureQoS_);
     }
 
 
-    private PropertySetListener reconfigureCB =
+    private PropertySetListener reconfigureQoS_ =
         new PropertySetListener()
         {
             public void validateProperty(Property[] props, List errors)
@@ -120,6 +124,7 @@ abstract class AbstractProxyConsumer
             public void actionPropertySetChanged(PropertySet source)
             {
                 configureStartTimeSupported();
+
                 configureStopTimeSupported();
             }
         };
@@ -163,19 +168,18 @@ abstract class AbstractProxyConsumer
     }
 
 
-    public void scheduleTimedPullTask( TimerEventSupplier target )
+    protected void schedulePullTask( MessageSupplier target )
     {
-        try
-        {
-            taskProcessor_.scheduleTimedPullTask(target);
-        }
-        catch (InterruptedException e)
-        {
-            logger_.fatalError("interrupted", e);
+        try {
+            taskProcessor_.scheduleTimedPullTask( target );
+        } catch (InterruptedException e) {
+            logger_.fatalError("failed to schedule pull for MessageSupplier", e);
         }
     }
 
-
+    /**
+     * check if a Message is acceptable to the QoS Settings of this ProxyConsumer
+     */
     protected void checkMessageProperties(Message mesg)
     {
         if (mesg.hasStartTime() && !isStartTimeSupported_.get() )
@@ -232,7 +236,7 @@ abstract class AbstractProxyConsumer
 
     public void offer_change(EventType[] added,
                              EventType[] removed)
-    throws InvalidEventType
+        throws InvalidEventType
     {
         offerManager_.offer_change(added, removed);
     }
@@ -245,11 +249,17 @@ abstract class AbstractProxyConsumer
         switch (obtainInfoMode.value())
         {
             case ObtainInfoMode._ALL_NOW_UPDATES_ON:
+                // attach the listener first, then return the current
+                // subscription types. order is important so that no
+                // updates get lost.
+
                 registerListener();
+
                 _subscriptionTypes = subscriptionManager_.obtain_subscription_types();
                 break;
             case ObtainInfoMode._ALL_NOW_UPDATES_OFF:
                 _subscriptionTypes = subscriptionManager_.obtain_subscription_types();
+
                 removeListener();
                 break;
             case ObtainInfoMode._NONE_NOW_UPDATES_ON:
@@ -259,7 +269,7 @@ abstract class AbstractProxyConsumer
                 removeListener();
                 break;
             default:
-                throw new IllegalArgumentException("Illegal ObtainInfoMode " + obtainInfoMode.value() );
+                throw new IllegalArgumentException("Illegal ObtainInfoMode: ObtainInfoMode." + obtainInfoMode.value() );
         }
 
         return _subscriptionTypes;
@@ -268,14 +278,13 @@ abstract class AbstractProxyConsumer
 
     private void registerListener()
     {
-        if (subscriptionListener_ == null)
+        if (proxySubscriptionListener_ == null)
         {
             final NotifySubscribeOperations _listener = getSubscriptionListener();
 
             if (_listener != null)
             {
-
-                subscriptionListener_ = new NotifySubscribeOperations()
+                proxySubscriptionListener_ = new NotifySubscribeOperations()
                     {
                         public void subscription_change(EventType[] added, EventType[] removed)
                         {
@@ -286,32 +295,63 @@ abstract class AbstractProxyConsumer
                             catch (NO_IMPLEMENT e)
                                 {
                                     logger_.info("disable subscription_change for Supplier", e);
+
                                     removeListener();
                                 }
                             catch (InvalidEventType e)
                                 {
-                                    logger_.error("invalid event type", e);
+                                    if (logger_.isDebugEnabled() ) {
+                                        logger_.debug("subscription_change(" +
+                                                      EventTypeUtil.toString(added) +
+                                                      ", " +
+                                                      EventTypeUtil.toString(removed) +
+                                                      ") failed", e);
+                                    } else {
+                                        logger_.error("invalid event type", e);
+                                    }
                                 }
                         }
                     };
 
-                subscriptionManager_.addListener(subscriptionListener_);
+
+                subscriptionManager_.addListener(proxySubscriptionListener_);
             }
         }
     }
 
 
+    /**
+     * removes the listener.
+     * subscription_change will no more be issued to the connected
+     * Supplier
+     */
     private void removeListener()
     {
-        if (subscriptionListener_ != null)
+        if (proxySubscriptionListener_ != null)
         {
-            subscriptionManager_.removeListener(subscriptionListener_);
-            subscriptionListener_ = null;
+            subscriptionManager_.removeListener(proxySubscriptionListener_);
+
+            proxySubscriptionListener_ = null;
         }
     }
 
 
-    abstract NotifySubscribeOperations getSubscriptionListener();
+    protected void connectClient(org.omg.CORBA.Object client) {
+        super.connectClient(client);
+
+        try {
+            subscriptionListener_ = NotifySubscribeHelper.narrow(client);
+
+            logger_.debug("successfully narrowed connecting Supplier to NotifySubscribe");
+        } catch (Throwable t) {
+            logger_.info("connecting Supplier does not support subscription_change");
+        }
+    }
+
+
+    final NotifySubscribeOperations getSubscriptionListener() {
+        return subscriptionListener_;
+    }
 
 
     /**
@@ -339,8 +379,9 @@ abstract class AbstractProxyConsumer
                                                        admin.getChannelContext());
                 break;
             default:
-                throw new BAD_PARAM();
+                throw new BAD_PARAM("Invalid ClientType: ClientType." + clientType.value());
         }
+
         return _servant;
     }
 
@@ -370,7 +411,7 @@ abstract class AbstractProxyConsumer
                                                        admin.getChannelContext());
                 break;
             default:
-                throw new BAD_PARAM("ClientType: " + clientType.value() + " unknown");
+                throw new BAD_PARAM("Invalid ClientType: ClientType." + clientType.value());
         }
         return _servant;
     }

@@ -27,7 +27,7 @@ import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.BooleanHolder;
@@ -45,8 +45,6 @@ import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
-import org.omg.CosNotifyComm.NotifySubscribeHelper;
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.CosNotifyComm.StructuredPullSupplier;
 import org.omg.PortableServer.Servant;
 
@@ -61,7 +59,7 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 public class StructuredProxyPullConsumerImpl
     extends AbstractProxyConsumer
     implements StructuredProxyPullConsumerOperations,
-               TimerEventSupplier
+               MessageSupplier
 {
     protected Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
 
@@ -70,8 +68,6 @@ public class StructuredProxyPullConsumerImpl
     protected boolean active_ = true;
 
     private StructuredPullSupplier pullSupplier_;
-
-    private NotifySubscribeOperations subscriptionListener_;
 
     private Object taskId_;
 
@@ -146,12 +142,6 @@ public class StructuredProxyPullConsumerImpl
 
         connectClient(pullSupplier);
 
-        try {
-            subscriptionListener_ = NotifySubscribeHelper.narrow(pullSupplier);
-        } catch (Throwable t) {
-            logger_.info("disable subscription_change for StructuredPullSupplier");
-        }
-
         startTask();
     }
 
@@ -196,7 +186,7 @@ public class StructuredProxyPullConsumerImpl
     }
 
 
-    public void runPullEvent() throws Disconnected
+    public void runPullMessage() throws Disconnected
     {
         if (!isConnected()) {
             return;
@@ -275,8 +265,7 @@ public class StructuredProxyPullConsumerImpl
     {
         if ( taskId_ != null )
         {
-            getTaskProcessor()
-                .cancelTask( taskId_ );
+            getTaskProcessor().cancelTask( taskId_ );
 
             taskId_ = null;
         }
@@ -297,10 +286,5 @@ public class StructuredProxyPullConsumerImpl
     public org.omg.CORBA.Object activate()
     {
         return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
-    }
-
-
-    NotifySubscribeOperations getSubscriptionListener() {
-        return subscriptionListener_;
     }
 }

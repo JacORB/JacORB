@@ -32,7 +32,6 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerPOATie;
 import org.omg.CosNotifyComm.NotifySubscribeHelper;
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.CosNotifyComm.StructuredPushSupplier;
 import org.omg.PortableServer.Servant;
 
@@ -47,8 +46,6 @@ public class StructuredProxyPushConsumerImpl
 
     private StructuredPushSupplier pushSupplier_;
 
-    private NotifySubscribeOperations subscriptionListener_;
-
     ////////////////////////////////////////
 
     public StructuredProxyPushConsumerImpl(AbstractAdmin supplierAdminServant,
@@ -62,6 +59,8 @@ public class StructuredProxyPushConsumerImpl
     ////////////////////////////////////////
 
     public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
+        assertConnectedOrThrowDisconnected();
+
         Message _mesg =
             messageFactory_.newMessage(structuredEvent, this);
 
@@ -78,20 +77,19 @@ public class StructuredProxyPushConsumerImpl
 
     protected void disconnectClient() {
         pushSupplier_.disconnect_structured_push_supplier();
+
         pushSupplier_ = null;
     }
 
 
-    public void connect_structured_push_supplier(StructuredPushSupplier structuredPushSupplier)
-        throws AlreadyConnected {
-
+    public void connect_structured_push_supplier(StructuredPushSupplier supplier)
+        throws AlreadyConnected
+    {
         assertNotConnected();
 
-        pushSupplier_ = structuredPushSupplier;
+        pushSupplier_ = supplier;
 
-        connectClient(structuredPushSupplier);
-
-        subscriptionListener_ = NotifySubscribeHelper.narrow(structuredPushSupplier);
+        connectClient(supplier);
     }
 
 
@@ -105,10 +103,5 @@ public class StructuredProxyPushConsumerImpl
 
     public org.omg.CORBA.Object activate() {
         return ProxyConsumerHelper.narrow( getServant()._this_object(getORB()) );
-    }
-
-
-    NotifySubscribeOperations getSubscriptionListener() {
-        return subscriptionListener_;
     }
 }

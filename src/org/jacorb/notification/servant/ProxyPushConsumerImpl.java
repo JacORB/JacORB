@@ -47,8 +47,6 @@ public class ProxyPushConsumerImpl
 {
     private PushSupplier pushSupplier_;
 
-    private NotifySubscribeOperations subscriptionListener_;
-
     ////////////////////////////////////////
 
     ProxyPushConsumerImpl( AbstractAdmin myAdminServant,
@@ -86,6 +84,8 @@ public class ProxyPushConsumerImpl
      */
     public void push( Any event ) throws Disconnected
     {
+        assertConnectedOrThrowDisconnected();
+
         logger_.debug("push Any into the Channel");
 
         Message _mesg =
@@ -107,10 +107,6 @@ public class ProxyPushConsumerImpl
         pushSupplier_ = pushSupplier;
 
         connectClient(pushSupplier);
-
-        try {
-            subscriptionListener_ = NotifySubscribeHelper.narrow(pushSupplier_);
-        } catch (Throwable t) {}
     }
 
 
@@ -129,10 +125,4 @@ public class ProxyPushConsumerImpl
     {
         return ProxyConsumerHelper.narrow( getServant()._this_object(getORB()) );
     }
-
-
-    NotifySubscribeOperations getSubscriptionListener() {
-        return subscriptionListener_;
-    }
-
 }

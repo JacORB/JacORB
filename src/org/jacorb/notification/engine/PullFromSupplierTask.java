@@ -21,7 +21,7 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.util.TaskExecutor;
 
 import org.omg.CosEventComm.Disconnected;
@@ -33,7 +33,7 @@ import org.omg.CosEventComm.Disconnected;
 
 public class PullFromSupplierTask extends AbstractTask
 {
-    private TimerEventSupplier target_;
+    private MessageSupplier target_;
 
     ////////////////////////////////////////
 
@@ -43,7 +43,7 @@ public class PullFromSupplierTask extends AbstractTask
 
     ////////////////////////////////////////
 
-    public void setTarget( TimerEventSupplier target )
+    public void setTarget( MessageSupplier target )
     {
         target_ = target;
     }
@@ -51,7 +51,7 @@ public class PullFromSupplierTask extends AbstractTask
 
     public void doWork() throws Disconnected
     {
-        target_.runPullEvent();
+        target_.runPullMessage();
 
         dispose();
     }
