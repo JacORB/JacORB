@@ -1,0 +1,7 @@
+#!/bin/sh 
+
+# JacORB Notification Service
+
+# Starts the JacORB Notification Service
+
+jaco org.jacorb.notification.EventChannelFactoryImpl "$@"
