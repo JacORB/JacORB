@@ -43,7 +43,7 @@ public class RPPoolManager
     /**
      * <code>pool</code> represents the total number of request processors.
      */
-    private Vector pool;
+    private List pool;
     /**
      * <code>unused_size</code> represents the current number of unused request processors
      * in the pool.
@@ -75,7 +75,7 @@ public class RPPoolManager
         RequestProcessor rp = new RequestProcessor(this);
         current._addContext(rp, rp);
         rp.setDaemon(true);
-        pool.addElement(rp);
+        pool.add(rp);
         unused_size++;
         rp.start();
     }
@@ -89,7 +89,7 @@ public class RPPoolManager
     {
         if (pool == null || inUse == false) return;
         RequestProcessor[] rps = new RequestProcessor[pool.size()];
-        pool.copyInto(rps);
+        pool.toArray(rps);
         for (int i=0; i<rps.length; i++)
         {
             if (rps[i].isActive())
@@ -99,7 +99,7 @@ public class RPPoolManager
             }
             else
             {
-                pool.removeElement(rps[i]);
+                pool.remove(rps[i]);
                 unused_size--;
                 current._removeContext(rps[i]);
                 rps[i].end();
@@ -168,7 +168,7 @@ public class RPPoolManager
 
     private void init()
     {
-        pool = new Vector(max_pool_size);
+        pool = new ArrayList(max_pool_size);
         for (int i = 0; i < min_pool_size; i++)
         {
             addProcessor();
@@ -185,7 +185,7 @@ public class RPPoolManager
     {
         if (pool.size() < min_pool_size)
         {
-            pool.addElement(rp);
+            pool.add(rp);
             notifyAll();
         }
         else
