@@ -1005,34 +1005,61 @@ public class Interface
 
         ps.print("\tprivate String[] ids = {");
         String[] ids = get_ids();
-
         for (int i = 0; i < ids.length - 1; i++)
             ps.print("\"" + ids[ i ] + "\",");
 
         ps.println("\"" + ids[ ids.length - 1 ] + "\"};");
-
         ps.println("\tpublic String[] _ids()");
-
         ps.println("\t{");
-
         ps.println("\t\treturn ids;");
-
         ps.println("\t}\n");
 
-        ps.print("\tpublic final static java.lang.Class _opsClass = ");
-
-        if (!pack_name.equals(""))
+        if (!parser.j2me)
         {
-            ps.print(pack_name + ".");
-        }
-
-        if (is_abstract)
-        {
-            ps.println(name + ".class;");
+            ps.print("\tpublic final static java.lang.Class _opsClass = ");
+            if (!pack_name.equals(""))
+            {
+                ps.print(pack_name + ".");
+            }            
+            if (is_abstract)
+            {
+                ps.println(name + ".class;");
+            }
+            else
+            {
+                ps.println(name + "Operations.class;");
+            }
         }
         else
         {
-            ps.println(name + "Operations.class;");
+            // code supplied byte Nokia for J2ME compatibility
+            // avoids use of the static .class variable.
+            String fullName = null;
+            if(!pack_name.equals(""))
+            {
+                fullName = pack_name + "." + name;
+            }
+            else
+            {
+                fullName = name;
+            }
+            
+            ps.println( "\tpublic static final java.lang.Class _opsClass;" );
+            ps.println("\tstatic");
+            ps.println("\t{");
+            ps.println("\t\ttry");  //try
+            ps.println("\t\t{");	//{
+            
+            ps.print( "\t\t\t_opsClass = Class.forName(\"" );
+            if( !pack_name.equals( "" ) ) ps.print( pack_name + "." );
+            ps.println( name + "Operations\");" );
+            
+            ps.println("\t\t}");	//}
+            ps.println("\t\tcatch(ClassNotFoundException cnfe)");
+            ps.println("\t\t{");	//{
+            ps.println("\t\t\tthrow new RuntimeException(\"Class " + fullName + " was not found.\");");
+            ps.println("\t\t}");	//}
+            ps.println("\t}\n");
         }
 
         body.printStubMethods(ps, name, is_local, is_abstract);
