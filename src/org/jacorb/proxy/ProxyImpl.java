@@ -459,33 +459,22 @@ class ProxyImpl
      * Server main line
      */
 
-    public static void  main(String[] args)
+    public static void  main (String[] args)
     {
         if (args.length != 2)
         {
-            Debug.output(0,"usage: appligator <port> <IOR-File>");
-            System.exit(1);
+            System.err.println ("usage: appligator <port> <IOR-File>");
+            System.exit (1);
         }
 
-            java.util.Properties props = new java.util.Properties();
-            props.put("OAPort", args[0] );
-            props.put("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit",
-                      "org.jacorb.proxy.ProxyServerInitializer");
-            ORB orb = org.omg.CORBA.ORB.init(args, props);
+        java.util.Properties props = new java.util.Properties();
+        props.put("OAPort", args[0] );
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit",
+                  "org.jacorb.proxy.ProxyServerInitializer");
+        ORB orb = org.omg.CORBA.ORB.init(args, props);
 
+        ProxyImpl proxyimpl = new ProxyImpl(orb, args[1]);
 
-  			ProxyImpl proxyimpl = new ProxyImpl(orb, args[1]);
-
-            orb.run();
-
-
-
+        orb.run();
     }
-
 }
-
-
-
-
-
-
