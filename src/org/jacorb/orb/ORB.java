@@ -177,8 +177,7 @@ public final class ORB
             }
             else
             {           
-                Debug.output(3,"remove stale reference for key " + 
-                             key + " from cache ");
+                Debug.output(3,"remove stale reference  from cache ");
                 knownReferences.remove( key );
             }
         }
