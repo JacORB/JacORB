@@ -165,6 +165,12 @@ module CORBA
     exception UserException {};
     pseudo interface ExceptionList {};
 
+
+    valuetype WStringValue {
+       public wstring value;
+    };
+
+
 };
 
 
