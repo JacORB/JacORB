@@ -108,8 +108,8 @@ jacorb.orb.print_version=on
 # 2 = important messages (WARN)
 # 3 = informational messages and exceptions (INFO)
 # 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
-jacorb.verbosity=3
-
+# NOTE: the name of this property has changed from jacorb.verbosity!!
+jacorb.log.verbosity=3
 
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
@@ -545,6 +545,14 @@ jacorb.security.ssl.client.cipher_suites=
 # displays a GUI monitoring tool for servers
 jacorb.poa.monitoring=off
 
+# POA log levels:
+# 0 = fatal errors only = "almost off" (FATAL ERRORS)
+# 1 = non-fatal errors and exceptions (ERROR)
+# 2 = important messages (WARN)
+# 3 = informational messages and exceptions (INFO)
+# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
+jacorb.poa.log.verbosity=3
+
 # thread pool configuration for request processing
 jacorb.poa.thread_pool_max=20
 jacorb.poa.thread_pool_min=5
@@ -603,6 +611,12 @@ jacorb.poa.queue_min=10
 # 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
 
 jacorb.naming.log.verbosity=3
+
+#
+# name of the logger factory. Implement your own subclass of
+# org.jacorb.util.LoggerFactory and enter class name here to
+# customize logging behavior. Built-in default is org.jacorb.util.LogKitLoggerFactory
+#jacorb.log.loggerFactory=
 
 # Whether non active references are purged from name service
 # when list operation is invoked.
