@@ -64,6 +64,7 @@ public class ImplementationRepositoryImpl
     private int object_activation_retries = 5;
     private int object_activation_sleep = 50;
 
+    private boolean allow_auto_register = false;
     /**
      * The constructor.
      * It builds up the server table and starts up the SocketListener thread.
@@ -73,37 +74,72 @@ public class ImplementationRepositoryImpl
      * @param table_backup the file where backups are written to.
      * @param new_table set to true, if an empty server table should be created
      */
-    public ImplementationRepositoryImpl(File table_file, File table_backup,
-					boolean new_table) {
+    public ImplementationRepositoryImpl(File table_file, 
+                                        File table_backup,
+					boolean new_table) 
+    {
 	this.table_file = table_file;
 	table_file_backup = table_backup;
 
 	//build up server table
-	if (new_table)
+	if( new_table )
+        {
 	    server_table = new ServerTable();
-	else{
-	    try{
+        }
+	else
+        {
+	    try
+            {
 		ObjectInputStream _in = new ObjectInputStream(new FileInputStream(table_file));
 		server_table = (ServerTable)_in.readObject();
 
 		_in.close();
-	    }catch (Exception _e){
+	    }
+            catch (Exception _e)
+            {
 		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 		server_table = new ServerTable();
 	    }
 	}
 	
 	//read in properties from Environment.
-	try{
-	    String _tmp = Environment.getProperty("jacorb.imr.object_activation_retries");
-	    object_activation_retries = Integer.parseInt(_tmp);
-	}catch(Exception _e){}
+	try
+        {
+	    String _tmp = 
+                Environment.getProperty("jacorb.imr.object_activation_retries");
+            
+            if( _tmp != null )
+            {
+                object_activation_retries = Integer.parseInt(_tmp);
+            }
+	}
+        catch( NumberFormatException nfe )
+        {            
+        }
     
-	try{
-	    String _tmp = Environment.getProperty("jacorb.imr.object_activation_sleep");
-	    object_activation_sleep = Integer.parseInt(_tmp);
-	}catch(Exception _e){}
+	try
+        {
+	    String _tmp = 
+                Environment.getProperty("jacorb.imr.object_activation_sleep");
+            
+            if( _tmp != null )
+            {
+                object_activation_sleep = Integer.parseInt(_tmp);
+            }
+	}
+        catch( NumberFormatException e )
+        {
+        }
 
+        String _tmp = 
+            Environment.getProperty("jacorb.imr.allow_auto_register");
+            
+        if( _tmp != null )
+        {
+            _tmp = _tmp.toLowerCase();            
+
+            allow_auto_register = "on".equals( _tmp );
+        }
     
 	listener = new SocketListener();
     }
@@ -149,16 +185,36 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.UnknownServerName The server has not been registered.
      */
     public void register_poa(String name, String server, String host, int port) 
-	throws IllegalPOAName, DuplicatePOAName, UnknownServerName {
+	throws IllegalPOAName, DuplicatePOAName, UnknownServerName 
+    {
 	
 	Debug.output(Debug.IMR | Debug.INFORMATION,
                      "ImR: registering poa " + name + " for server: " + 
                      server + " on " + host );
 	
-	ImRServerInfo _server = server_table.getServer(server);
+        if( allow_auto_register &&
+            ! server_table.hasServer( server ))
+        {
+            try
+            {
+                register_server( server, "", "" );            
+            }
+            catch( IllegalServerName isn )
+            {
+                //ignore
+            }
+            catch( DuplicateServerName dsn )
+            {
+                //ignore
+            }
+        }
+
+        ImRServerInfo _server = server_table.getServer(server);
+
 	ImRPOAInfo _poa = server_table.getPOA(name);
 
-	if (_poa == null){
+	if (_poa == null)
+        {
 	    //New POAInfo is to be created
 	    _poa = new ImRPOAInfo(name, host, port, _server);
 	    _server.addPOA(_poa);
@@ -167,7 +223,8 @@ public class ImplementationRepositoryImpl
                          "ImR: new poa registered");
 
 	}
-	else {
+	else 
+        {
 	    //Existing POA is reactivated
             if ((_poa.active) ||  (! server.equals(_poa.server.name)))
                 throw new DuplicatePOAName("POA " + name + 
@@ -476,6 +533,7 @@ public class ImplementationRepositoryImpl
 	System.out.println("\t -n Start with empty server table");
 	System.out.println("\t -i <iorfile> Place IOR in this file");
 	System.out.println("\t -b <backupfile> Put server table in this file");
+	System.out.println("\t -a Allow auto-registering of servers");
 	System.out.println("\t -h Print this help");
  
 	System.exit(0);
@@ -526,6 +584,12 @@ public class ImplementationRepositoryImpl
 		    _backup_file_str = args[++i];
 		    break;
 		}
+		case 'a' :{
+		    Environment.setProperty( "jacorb.imr.allow_auto_register",
+                                             "on" );
+		    break;
+		}
+                
 		default:
 		    usage();
 		}
