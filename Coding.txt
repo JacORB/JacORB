@@ -1,4 +1,4 @@
-First Draft
+Gerald Brose
 
 
             JacORB Coding Conventions
@@ -6,12 +6,13 @@ First Draft
 
 
 (Please remember: The ultimate goal is code readability, not
- personal style!)
+ performance or personal style. Performance-related code obfuscation should
+ be limited to a few sensitive places - and explained in comments!)
 
 
-1) Use whitespace to make the text more readable, it helps!
+1) Use whitespace to make the text more readable.
 
-    a) indentation: 4 spaces
+    a) indentation: 4 spaces, no tabs!
 
     b) Open curly brackets on a *new* line without further indentation
 
@@ -29,12 +30,23 @@ First Draft
 
     d) write: x = y, not: x=y
 
-    e) break lines that get too long
+    e) Include extra spaces between parenthesis and expression.
+       For example:
+ 
+             if( foo )
+
+    e) break lines that get too long  (around column 100)
 
     f) insert empty lines freely wherever you think it helps.
 
-2) Comment as much as you can!
 
-3) Suggestions?
+2) Comments:
+    - as much as you can, 
+         public and package local methods and fields!!!
+         private and protected ones also
+    - add javadoc wherever you modify code
 
-...
+3) Place the JacORB LGPL license header on all files
+
+
+[ More suggestions? ... ]
