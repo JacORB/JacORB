@@ -109,12 +109,6 @@ public class Server_TCP_IP_Transport
         }
     }
 
-    public boolean waitUntilConnected()
-    {
-        //can't reconnect
-        return true;
-    }
-
     public void connect (org.omg.ETF.Profile server_profile, long time_out)
     {
         //can't reconnect
@@ -129,4 +123,5 @@ public class Server_TCP_IP_Transport
     {
         return profile;
     }
+    
 }// Server_TCP_IP_Transport
