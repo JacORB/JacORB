@@ -33,23 +33,23 @@ import java.io.*;
 
 /**
  * JacORB logger factory that creates named Avalon loggers with logkit
- * as the underlying log mechanism. <BR> The semantics here is that any 
+ * as the underlying log mechanism. <BR> The semantics here is that any
  * names logger retrieved using the logkit naming conventions for
  * nested loggers will inherit its parent loggers log target, e.g., a
  * logger retrieved for <code>jacorb.naming</code> inherits the root
  * logger's target (ie. <code>System.err</code>, or a file.
  * <P>
- * Log priorities for new loggers are set implicitly to either the 
+ * Log priorities for new loggers are set implicitly to either the
  * value of this factory's <code>defaultPriority</code> field, or via
- * configuration properties that have the same name as the requested 
+ * configuration properties that have the same name as the requested
  * logger, plus a suffix of <code>.log.verbosity</code>.
  *
- * @author Gerald Brose 
+ * @author Gerald Brose
  * @version $Id$
  * @since JacORB 2.0 beta 3
  */
 
-class LogKitLoggerFactory 
+class LogKitLoggerFactory
     implements LoggerFactory
 {
     private final static String name = "logkit";
@@ -65,16 +65,43 @@ class LogKitLoggerFactory
     /**  append to a log file or overwrite ?*/
     private boolean append = false;
 
-    private Writer consoleWriter = null; 
+    private Writer consoleWriter = null;
 
 
     public LogKitLoggerFactory()
     {
+        // The priority for all loggers that do not have a specific <name>.log.verbosity prop defined
+        // will be set to the value of the jacorb.log.default.verbosity prop, if it's set, 0 otherwise.
+        String defaultPriorityString = Environment.getProperty("jacorb.log.default.verbosity");
+        if (defaultPriorityString != null)
+        {
+           try
+           {
+               defaultPriority = Integer.parseInt(defaultPriorityString);
+           }
+           catch (NumberFormatException nfe)
+           {
+               defaultPriority = -1;
+           }
+           switch (defaultPriority)
+           {
+               case 0:
+               case 1:
+               case 2:
+               case 3:
+               case 4:
+                   break;
+               default:
+                   throw new IllegalArgumentException("'" + defaultPriorityString + "' is an illegal"
+                   + " value for the property jacorb.log.default.verbosity. Valid values are 0->4.");
+           }
+        }
+
         consoleWriter = new OutputStreamWriter(System.err);
     }
 
-    /**  
-     * set the default log priority applied to all loggers on creation, 
+    /**
+     * set the default log priority applied to all loggers on creation,
      * if no specific log verbosity property exists for the logger.
      */
 
@@ -84,7 +111,7 @@ class LogKitLoggerFactory
     }
 
     /**
-     * @return the name of the actual, underlying logging mechanism, 
+     * @return the name of the actual, underlying logging mechanism,
      * here "logkit"
      */
 
@@ -94,9 +121,9 @@ class LogKitLoggerFactory
     }
 
     /**
-     * @param name the name of the logger, which also functions 
+     * @param name the name of the logger, which also functions
      *        as a log category
-     * @return a Logger for a given name 
+     * @return a Logger for a given name
      */
 
     public Logger getNamedLogger(String name)
@@ -105,7 +132,7 @@ class LogKitLoggerFactory
     }
 
     /**
-     * @param name the name of the logger, which also functions 
+     * @param name the name of the logger, which also functions
      *        as a log category
      * @return a root console logger for a logger name hierarchy
      */
@@ -118,19 +145,19 @@ class LogKitLoggerFactory
 
 
     /**
-     * @param name the name of the logger, which also functions 
+     * @param name the name of the logger, which also functions
      *        as a log category
      * @param logFileName the name of the file to log to
      * @param maxLogSize maximum size of the log file. When this size is reached
      *        the log file will be rotated and a new log file created. A value of 0
      *        means the log file size is unlimited.
-     * 
-     * @return the new logger. 
+     *
+     * @return the new logger.
      */
 
     public Logger getNamedLogger(String name, String logFileName, long maxLogSize)
         throws IOException
-    { 
+    {
         if (name == null)
             throw new IllegalArgumentException("Log file name must not be null!");
 
@@ -146,7 +173,7 @@ class LogKitLoggerFactory
         }
         else
         {
-            
+
             // log file rotation
             target =
                 new RotatingFileTarget(append,
@@ -159,11 +186,11 @@ class LogKitLoggerFactory
 
 
     /**
-     * @param name the name of the logger, which also functions 
+     * @param name the name of the logger, which also functions
      *        as a log category
-     * @param the log target for the new logger. If null, the new logger 
+     * @param the log target for the new logger. If null, the new logger
      *        will log to System.err
-     * @return the logger 
+     * @return the logger
      */
     public Logger getNamedLogger(String name, LogTarget target)
     {
@@ -171,8 +198,8 @@ class LogKitLoggerFactory
 
         if( o != null )
             return (Logger)o;
-        
-        org.apache.log.Logger logger = 
+
+        org.apache.log.Logger logger =
             Hierarchy.getDefaultHierarchy().getLoggerFor(name);
 
         String priorityString = Environment.getProperty( name + ".log.verbosity");
@@ -181,7 +208,7 @@ class LogKitLoggerFactory
 
         if (priorityString != null)
             priority = Integer.parseInt(priorityString);
-            
+
         switch (priority)
         {
         case 4 :
@@ -202,7 +229,7 @@ class LogKitLoggerFactory
         }
 
         if (target != null )
-        { 
+        {
             logger.setLogTargets( new LogTarget[] { target } );
         }
 
