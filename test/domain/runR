@@ -1,5 +1,0 @@
-# shell script to run the reference tester client program
-# $Id$
-echo jaco org.jacorb.orb.domain.test.ReferenceTester
-cd ${JACORB}/classes
-jaco org.jacorb.orb.domain.test.ReferenceTester $@
