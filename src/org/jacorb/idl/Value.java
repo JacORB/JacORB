@@ -113,6 +113,9 @@ class Value
             System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
             throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
         }
+        if( s == null )
+            throw new RuntimeException( "Compiler Error: enclosing symbol is null!");
+
         enclosing_symbol = s;
         value.setEnclosingSymbol( s );
     }

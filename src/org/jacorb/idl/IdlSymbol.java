@@ -32,20 +32,24 @@ import java.util.*;
  */
 
 class IdlSymbol
-        extends java_cup.runtime.symbol
-        implements java.io.Serializable
+    extends java_cup.runtime.symbol
+    implements java.io.Serializable
 {
-
     private static int num = 10000;
     public String pack_name = "";
     String name = "";
+
     protected boolean is_pseudo = false; // is this a PIDL spec.?
     protected boolean included = false;
     protected boolean inhibitionFlag = false;
+
     str_token token;
+
     protected String _id;
     private String _version;
+
     protected IdlSymbol enclosing_symbol;
+
     protected String omg_package_prefix = "";
     private Hashtable imports = new Hashtable();
 
@@ -53,6 +57,10 @@ class IdlSymbol
 
     protected static final char fileSeparator =
             System.getProperty( "file.separator" ).charAt( 0 );
+
+    /**
+     * class contstructor
+     */
 
     public IdlSymbol( int num )
     {

@@ -104,15 +104,23 @@ class OpDecl
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
+        Environment.output( 2, "opDecl.setEnclosingSymbol " + s  );
+
         if( enclosing_symbol != null && enclosing_symbol != s )
             throw new RuntimeException( "Compiler Error: trying to reassign container for "
                     + name );
+        if( s == null )
+            throw new RuntimeException( "Compiler Error: enclosing symbol is null!");
+
         enclosing_symbol = s;
         raisesExpr.setEnclosingSymbol( s );
     }
 
     public void parse()
     {
+        if( enclosing_symbol  == null )
+            throw new RuntimeException( "Compiler Error: enclosing symbol in parse is null!");
+
         myInterface = enclosing_symbol;
 
         //        escapeName();
@@ -167,9 +175,10 @@ class OpDecl
             if( !(param.paramTypeSpec.typeSpec() instanceof BaseType ))
             {
                 
-                Environment.output( 2, param.paramTypeSpec.typeSpec().getClass().getName() );
+                Environment.output( 3, "classname: " + 
+                                    param.paramTypeSpec.typeSpec().getClass().getName() );
 
-                myInterface.addImportedName( param.paramTypeSpec.typeSpec().full_name(), 
+                myInterface.addImportedName( param.paramTypeSpec.typeSpec().full_name(),
                                              param.paramTypeSpec.typeSpec() );
             }
         }
