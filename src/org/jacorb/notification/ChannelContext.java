@@ -31,24 +31,47 @@ import org.omg.CosNotifyFilter.FilterFactory;
 import org.apache.avalon.framework.logger.Logger;
 import org.omg.PortableServer.POA;
 import org.omg.CORBA.ORB;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.queue.EventQueueFactory;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class ChannelContext
+public class ChannelContext implements Configurable
 {
     private ORB orb_;
+
     private POA poa_;
+
     private MessageFactory messageFactory_;
+
     private EventChannelImpl eventChannelServant_;
+
     private EventChannelFactory eventChannelFactory_;
+
     private EventChannelFactoryImpl eventChannelFactoryServant_;
+
     private FilterFactory defaultFilterFactory_;
+
     private TaskProcessor taskProcessor_;
 
+    private EventQueueFactory eventQueueFactory_ = new EventQueueFactory();
+
     ////////////////////////////////////////
+
+    public void configure(Configuration configuration) throws ConfigurationException {
+        eventQueueFactory_.configure(configuration);
+    }
+
+    public EventQueueFactory getEventQueueFactory() {
+        return eventQueueFactory_;
+    }
+
 
     public TaskProcessor getTaskProcessor()
     {
@@ -107,9 +130,9 @@ public class ChannelContext
     public void setEventChannelServant(EventChannelImpl argEventChannelServant)
     {
         if (argEventChannelServant == null)
-        {
-            throw new RuntimeException();
-        }
+            {
+                throw new RuntimeException();
+            }
         eventChannelServant_ = argEventChannelServant;
     }
 
@@ -138,6 +161,12 @@ public class ChannelContext
 
     public void setORB(ORB orb) {
         orb_ = orb;
+
+        try {
+            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

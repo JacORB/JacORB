@@ -82,9 +82,6 @@ public class StructuredProxyPullConsumerImpl
         super( admin,
                channelContext);
 
-        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)channelContext.getORB();
-        this.configure(jorb.getConfiguration());
-
         engine_ = channelContext.getTaskProcessor();
 
         runQueueThis_ = new Runnable()

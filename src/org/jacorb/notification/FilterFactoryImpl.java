@@ -81,6 +81,8 @@ public class FilterFactoryImpl
 
         applicationContext_ = new ApplicationContext( orb_, poa_);
 
+        applicationContext_.configure( ( ( org.jacorb.orb.ORB ) orb_ ).getConfiguration() );
+
         isApplicationContextCreatedHere_ = true;
 
         getFilterFactory();
@@ -120,6 +122,7 @@ public class FilterFactoryImpl
     public void configure (Configuration conf)
     {
         config_ = ((org.jacorb.config.Configuration)conf);
+
         logger_ = config_.getNamedLogger(getClass().getName());
     }
 

@@ -169,8 +169,8 @@ public class EventChannelFactoryImpl
         staticURL_ = conf.getAttribute(Attributes.FILTER_FACTORY,
                                        Default.DEFAULT_FILTER_FACTORY);
         AdminPropertySet.initStatics (conf);
+
         QoSPropertySet.initStatics (conf);
-        EventQueueFactory.initStatics (conf);
     }
 
     public void setDestroyMethod(Runnable destroyMethod) {
@@ -189,7 +189,7 @@ public class EventChannelFactoryImpl
 
             applicationContext_ = new ApplicationContext(orb, rootPOA_);
 
-            this.configure (jorb.getConfiguration());
+            configure (jorb.getConfiguration());
 
             org.omg.CORBA.Policy[] _policies = new org.omg.CORBA.Policy []
             {
@@ -412,9 +412,12 @@ public class EventChannelFactoryImpl
 
         _channelContext.setMessageFactory(applicationContext_.
                                           getMessageFactory());
+
         _channelContext.setORB(applicationContext_.getOrb());
+
         _channelContext.setTaskProcessor(applicationContext_.
                                          getTaskProcessor());
+
         _channelContext.setPOA(applicationContext_.getPoa());
 
         // create new servant
@@ -821,9 +824,11 @@ public class EventChannelFactoryImpl
         _highVal.insert_short( BestEffort.value );
 
         UnsupportedQoS _e =
-            new UnsupportedQoS( new PropertyError[] {new PropertyError( QoSError_code.UNSUPPORTED_VALUE,
-                                                                        property,
-                                                                        new PropertyRange( _lowVal, _highVal ) ) } );
+            new UnsupportedQoS( new PropertyError[] {
+                new PropertyError( QoSError_code.UNSUPPORTED_VALUE,
+                                   property,
+                                   new PropertyRange( _lowVal, _highVal ) )
+            } );
 
         throw _e;
     }

@@ -22,15 +22,14 @@ package org.jacorb.notification.interfaces;
  */
 
 import org.jacorb.notification.util.AbstractObjectPool;
-import org.apache.avalon.framework.logger.Logger;
+
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * Interface to indicate that a Object can be pooled. Objects can be
  * pooled to spare ressources.
- *
- * Created: Sat Jan 04 17:01:16 2003
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -39,8 +38,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 public abstract class AbstractPoolable implements Disposable, Configurable
 {
     private AbstractObjectPool objectPool_;
-    protected Logger logger_;
 
+    protected Logger logger_;
 
     public void configure (Configuration conf)
     {
@@ -57,18 +56,24 @@ public abstract class AbstractPoolable implements Disposable, Configurable
      */
     public void dispose()
     {
-        if ( objectPool_ != null )
-        {
-            objectPool_.returnObject( this );
-        }
+        if ( getObjectPool() != null )
+            {
+            getObjectPool().returnObject( this );
+
+            setObjectPool(null);
+            }
     }
 
     /**
      * Set the ObjectPool that administers this instance.
      */
-    public void setObjectPool( AbstractObjectPool pool )
+    public synchronized void setObjectPool( AbstractObjectPool pool )
     {
         objectPool_ = pool;
+    }
+
+    synchronized AbstractObjectPool getObjectPool() {
+        return objectPool_;
     }
 
     /**
@@ -77,5 +82,4 @@ public abstract class AbstractPoolable implements Disposable, Configurable
      * initial state.
      */
     public abstract void reset();
-
 }

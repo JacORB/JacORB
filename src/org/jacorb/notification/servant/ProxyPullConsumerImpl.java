@@ -99,9 +99,6 @@ public class ProxyPullConsumerImpl
         super( adminServant,
                channelContext);
 
-        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)channelContext.getORB();
-        this.configure(jorb.getConfiguration());
-
         configureTimerCallback();
     }
 

@@ -245,6 +245,10 @@ class StructuredEventMessage extends AbstractMessage
 
 
     public String toString() {
-        return toStructuredEvent().toString();
+        if (toStructuredEvent() == null) {
+            return null;
+        } else {
+            return toStructuredEvent().toString();
+        }
     }
 }

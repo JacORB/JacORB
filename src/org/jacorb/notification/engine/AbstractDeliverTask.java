@@ -22,7 +22,7 @@ package org.jacorb.notification.engine;
  */
 
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.util.TaskExecutor;
+import org.jacorb.notification.engine.TaskExecutor;
 
 
 /**
@@ -74,6 +74,8 @@ public abstract class AbstractDeliverTask extends AbstractTask
 
     public void handleTaskError(AbstractTask task, Throwable error)
     {
+        logger_.error("handleTaskError " + task, error);
+
         throw new RuntimeException();
     }
 

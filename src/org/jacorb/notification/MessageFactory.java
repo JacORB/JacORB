@@ -36,7 +36,6 @@ import org.omg.CosNotification.StructuredEventHelper;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
 
-
 /**
  * @author Alphonse Bendt
  * @version $Id$

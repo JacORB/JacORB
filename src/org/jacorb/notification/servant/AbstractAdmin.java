@@ -133,16 +133,22 @@ public abstract class AbstractAdmin
     protected AbstractAdmin(ChannelContext channelContext)
     {
         channelContext_ = channelContext;
+
         filterManager_ =
             new FilterManager(channelContext_);
+
         setPOA(channelContext_.getPOA());
+
         setORB(channelContext_.getORB());
+
+        configure( ( (org.jacorb.orb.ORB)channelContext_.getORB() ).getConfiguration() );
     }
 
     public void configure (Configuration conf)
     {
         logger_ = ((org.jacorb.config.Configuration)conf).
             getNamedLogger(getClass().getName());
+
         filterManager_.configure (conf);
     }
 

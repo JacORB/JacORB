@@ -24,7 +24,9 @@ import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.PushOperation;
-import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.RetryException;
+import org.jacorb.notification.engine.RetryStrategy;
+import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
@@ -32,11 +34,10 @@ import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetListener;
-import org.jacorb.notification.util.TaskExecutor;
+import org.jacorb.notification.engine.TaskExecutor;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.NO_IMPLEMENT;
-import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosNotification.DiscardPolicy;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.OrderPolicy;
@@ -53,18 +54,8 @@ import org.omg.CosNotifyComm.NotifyPublishHelper;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import EDU.oswego.cs.dl.util.concurrent.Callable;
-import org.omg.CosEventComm.Disconnected;
-import org.jacorb.notification.engine.RetryStrategy;
-import org.jacorb.notification.engine.WaitRetryStrategy;
-import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
-import org.jacorb.notification.engine.RetryException;
-
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 
 /**
@@ -97,11 +88,14 @@ public abstract class AbstractProxySupplier
      * only initialized for ProxyPushSuppliers.
      */
     protected Runnable scheduleDeliverPendingMessagesOperation_;
+
     private TaskExecutor taskExecutor_;
+
     private Disposable disposeTaskExecutor_;
+
     private EventQueue pendingMessages_;
+
     private int errorThreshold_;
-    private TaskProcessor taskProcessor_;
 
     /**
      * lock variable used to control access to the reference to the
@@ -109,7 +103,9 @@ public abstract class AbstractProxySupplier
      * MessageQueue instance to be changed.
      */
     private Object pendingMessagesRefLock_ = new Object();
+
     private NotifyPublishOperations proxyOfferListener_;
+
     private NotifyPublish offerListener_;
 
     /**
@@ -126,10 +122,7 @@ public abstract class AbstractProxySupplier
         super(admin,
               channelContext);
 
-        taskProcessor_ = channelContext.getTaskProcessor();
-
         if (isPushSupplier()) {
-            final TaskProcessor _engine = channelContext.getTaskProcessor();
 
             scheduleDeliverPendingMessagesOperation_ =
                 new Runnable()
@@ -138,7 +131,7 @@ public abstract class AbstractProxySupplier
                     {
                         try
                             {
-                                _engine.scheduleTimedPushTask( AbstractProxySupplier.this );
+                                getTaskProcessor().scheduleTimedPushTask( AbstractProxySupplier.this );
                             }
                         catch ( InterruptedException e )
                             {
@@ -164,7 +157,7 @@ public abstract class AbstractProxySupplier
     {
         synchronized (pendingMessagesRefLock_)
         {
-            pendingMessages_ = EventQueueFactory.newEventQueue(qosSettings_);
+            pendingMessages_ = channelContext_.getEventQueueFactory().newEventQueue(qosSettings_);
         }
 
         if (logger_.isInfoEnabled())
@@ -184,7 +177,8 @@ public abstract class AbstractProxySupplier
     private void configureEventQueue() throws UnsupportedQoS
     {
         EventQueue _newQueue =
-            EventQueueFactory.newEventQueue( qosSettings_ );
+            channelContext_.getEventQueueFactory().newEventQueue( qosSettings_ );
+
         try
         {
             synchronized (pendingMessagesRefLock_)
@@ -635,10 +629,7 @@ public abstract class AbstractProxySupplier
     }
 
 
-    private RetryStrategy getRetryStrategy(MessageConsumer mc,
-                                           PushOperation op)
-    {
-        return new TaskProcessorRetryStrategy(mc, op,
-                                              taskProcessor_);
+    private RetryStrategy getRetryStrategy(MessageConsumer mc, PushOperation op) {
+        return new TaskProcessorRetryStrategy(mc, op, getTaskProcessor());
     }
 }

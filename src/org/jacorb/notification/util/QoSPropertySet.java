@@ -192,6 +192,7 @@ public class QoSPropertySet extends PropertySet
 
     }
 
+
     public static void initStatics (Configuration conf)
     {
         int _maxEventsPerConsumerDefault =
@@ -230,6 +231,7 @@ public class QoSPropertySet extends PropertySet
             conf.getAttribute(Attributes.START_TIME_SUPPORTED,
                               Default.DEFAULT_START_TIME_SUPPORTED).
             equals("on");
+
         _isStartTimeSupportedDefault.insert_boolean(_isStartTimeSupported);
 
         ////////////////////
@@ -360,8 +362,6 @@ public class QoSPropertySet extends PropertySet
         if (!_errors.isEmpty()) {
             throw new UnsupportedQoS((PropertyError[])_errors.toArray(PROPERTY_ERROR_ARRAY_TEMPLATE));
         }
-
-
     }
 
 

@@ -55,6 +55,7 @@ import org.jacorb.notification.filter.EvaluationContext;
 
 public class ApplicationContext implements Disposable, Configurable
 {
+    private Configuration configuration_;
     private ORB orb_;
     private POA poa_;
     private TaskProcessor taskProcessor_;
@@ -88,6 +89,8 @@ public class ApplicationContext implements Disposable, Configurable
                 public void activateObject( Object o )
                 {
                     AbstractPoolable obj = (AbstractPoolable) o;
+                    // todo check if configure can be called from AbstractObjectPool
+                    obj.configure(configuration_);
                     obj.reset();
                     obj.setObjectPool( this );
                 }
@@ -109,21 +112,10 @@ public class ApplicationContext implements Disposable, Configurable
                 }
             };
 
-        //        evaluationResultPool_.init();
-
         notificationEventFactory_ = new MessageFactory();
         taskProcessor_ = new TaskProcessor();
     }
 
-//     public ApplicationContext( boolean init ) throws InvalidName
-//     {
-//         ORB orb = ORB.init( new String[ 0 ], null );
-
-//         POA poa =
-//             POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ) );
-
-//         setup( orb, poa );
-//     }
 
     public ApplicationContext( ORB orb, POA poa ) throws InvalidName
     {
@@ -133,6 +125,7 @@ public class ApplicationContext implements Disposable, Configurable
 
     public void configure (Configuration conf)
     {
+        configuration_ = conf;
         dynamicEvaluator_.configure (conf);
         evaluationContextPool_.configure(conf);
         evaluationResultPool_.configure(conf);
@@ -148,7 +141,6 @@ public class ApplicationContext implements Disposable, Configurable
             taskProcessor_ = null;
         }
 
-        //        evaluationResultPool_.dispose();
         evaluationContextPool_.dispose();
         notificationEventFactory_.dispose();
 
@@ -222,5 +214,4 @@ public class ApplicationContext implements Disposable, Configurable
     {
         return taskProcessor_;
     }
-
 }

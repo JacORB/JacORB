@@ -40,24 +40,23 @@ import java.util.Map;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.Configurable;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class EventQueueFactory
+public class EventQueueFactory implements Configurable
 {
-//     private static final Logger sLogger =
-//         Debug.getNamedLogger( EventQueueFactory.class.getName() );
     private static final short UNKNOWN_POLICY = Short.MIN_VALUE;
     private static final Map mapOrderPolicyNameToValue = new HashMap();
     private static final Map mapDiscardPolicyNameToValue = new HashMap();
     private static final String[] mapOrderPolicyValueToName;
     private static final String[] mapDiscardPolicyValueToName;
 
-    private static String orderPolicy_;
-    private static String discardPolicy_;
+    private String orderPolicy_;
+    private String discardPolicy_;
 
     static {
         mapOrderPolicyNameToValue.put("AnyOrder",
@@ -95,7 +94,7 @@ public class EventQueueFactory
 
     }
 
-    public static void initStatics(Configuration conf)
+    public void configure(Configuration conf)
     {
         orderPolicy_ = conf.getAttribute( Attributes.ORDER_POLICY,
                                           Default.DEFAULT_ORDER_POLICY );
@@ -106,23 +105,22 @@ public class EventQueueFactory
 
     ////////////////////////////////////////
 
-    /**
-     * Utility class shouldn't have public constructor.
-     */
-    private EventQueueFactory() {}
+    public EventQueueFactory()
+    {}
 
     ////////////////////////////////////////
 
-    public static EventQueue newEventQueue( QoSPropertySet qosProperties )
+    public EventQueue newEventQueue( QoSPropertySet qosProperties )
         throws UnsupportedQoS
     {
         short shortOrderPolicy = orderPolicyNameToValue( orderPolicy_ );
+
         short shortDiscardPolicy = discardPolicyNameToValue( discardPolicy_ );
 
         int maxEventsPerConsumer =
             qosProperties.get( MaxEventsPerConsumer.value ).extract_long();
 
-        if (qosProperties.containsKey (OrderPolicy.value))
+        if (qosProperties.containsKey( OrderPolicy.value ))
         {
             shortOrderPolicy =
                 qosProperties.get(OrderPolicy.value).extract_short();
@@ -133,16 +131,6 @@ public class EventQueueFactory
             shortDiscardPolicy =
                 qosProperties.get( DiscardPolicy.value ).extract_short();
         }
-
-//         if (sLogger.isInfoEnabled()) {
-//             sLogger.info( "Create EventQueue Settings:" +
-//                           "\n\tMAX_EVENTS_PER_CONSUMER=" +
-//                           maxEventsPerConsumer +
-//                           "\n\t/ORDER_POLICY=" +
-//                           mapOrderPolicyValueToName[ shortOrderPolicy ] +
-//                           "\n\t/DISCARD_POLICY=" +
-//                           mapDiscardPolicyValueToName[ shortDiscardPolicy ] );
-//         }
 
         AbstractBoundedEventQueue queue;
 
@@ -207,7 +195,7 @@ public class EventQueueFactory
     {
         if (mapOrderPolicyNameToValue.containsKey(orderPolicyName))
             return ((Short)mapOrderPolicyNameToValue.get(orderPolicyName)).
-                shortValue();
+                   shortValue();
         return UNKNOWN_POLICY;
     }
 
@@ -216,7 +204,7 @@ public class EventQueueFactory
     {
         if (mapDiscardPolicyNameToValue.containsKey(discardPolicyName))
             return ((Short)mapDiscardPolicyNameToValue.get(discardPolicyName)).
-                shortValue();
+                   shortValue();
         return UNKNOWN_POLICY;
     }
 }
