@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.FilterManager;
-import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.conf.Configuration;
@@ -33,6 +32,7 @@ import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.util.QoSPropertySet;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 
@@ -40,6 +40,7 @@ import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.QoSAdminOperations;
@@ -56,7 +57,7 @@ import org.omg.PortableServer.Servant;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
-import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotifyFilter.MappingFilterHelper;
 
 /**
  * @author Alphonse Bendt
@@ -70,11 +71,11 @@ public abstract class AbstractProxy
                Disposable,
                ManageableServant
 {
+    private MappingFilter nullMappingFilterRef_;
+
     protected boolean isIDPublic_;
 
     protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
-    protected MessageFactory messageFactory_;
 
     private SynchronizedBoolean connected_ = new SynchronizedBoolean(false);
 
@@ -118,15 +119,14 @@ public abstract class AbstractProxy
 
     private boolean disposedProxyDisconnectsClient_;
 
+    private org.omg.CORBA.Object client_;
+
     ////////////////////////////////////////
 
     AbstractProxy(AbstractAdmin admin,
                   ChannelContext channelContext)
     {
         admin_ = admin;
-
-        messageFactory_ =
-            channelContext.getMessageFactory();
 
         filterManager_ = new FilterManager(channelContext);
 
@@ -139,6 +139,9 @@ public abstract class AbstractProxy
         disposedProxyDisconnectsClient_ =
             Environment.isPropertyOn(Configuration.DISPOSE_PROXY_CALLS_DISCONNECT,
                                      Default.DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT);
+
+        nullMappingFilterRef_ =
+            MappingFilterHelper.narrow(getORB().string_to_object(getORB().object_to_string(null)));
     }
 
     ////////////////////////////////////////
@@ -161,14 +164,14 @@ public abstract class AbstractProxy
     }
 
 
-    public void setKey(Integer key, boolean isKeyPublic)
+    public void setID(Integer id, boolean isIDPublic)
     {
-        id_ = key;
-        isIDPublic_ = isKeyPublic;
+        id_ = id;
+        isIDPublic_ = isIDPublic;
     }
 
 
-    public boolean isKeyPublic()
+    public boolean isIDPublic()
     {
         return isIDPublic_;
     }
@@ -246,7 +249,7 @@ public abstract class AbstractProxy
 
     public void validate_event_qos(Property[] qosProps,
                                    NamedPropertyRangeSeqHolder propSeqHolder)
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT();
     }
@@ -254,7 +257,7 @@ public abstract class AbstractProxy
 
     public void validate_qos(Property[] props,
                              NamedPropertyRangeSeqHolder propertyRange)
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
         qosSettings_.validate_qos(props, propertyRange);
     }
@@ -280,12 +283,20 @@ public abstract class AbstractProxy
 
     public MappingFilter priority_filter()
     {
+        if (priorityFilter_ == null) {
+            return nullMappingFilterRef_;
+        }
+
         return priorityFilter_;
     }
 
 
     public MappingFilter lifetime_filter()
     {
+        if (lifetimeFilter_ == null) {
+            return nullMappingFilterRef_;
+        }
+
         return lifetimeFilter_;
     }
 
@@ -296,7 +307,7 @@ public abstract class AbstractProxy
     }
 
 
-    public Integer getKey()
+    public Integer getID()
     {
         return id_;
     }
@@ -352,10 +363,17 @@ public abstract class AbstractProxy
                     disconnectClient();
                 }
         } catch (Exception e) {
-            logger_.error("try to disconnect client: unexpected error", e);
+            logger_.error("disconnect_client raised an unexpected error: "
+                          + "ignore", e);
         } finally {
             connected_.set(false);
         }
+    }
+
+
+    public boolean isDisposed()
+    {
+        return disposed_.get();
     }
 
 
@@ -414,12 +432,6 @@ public abstract class AbstractProxy
     public boolean hasInterFilterGroupOperatorOR()
     {
         return isInterFilterGroupOperatorOR_;
-    }
-
-
-    public boolean isDisposed()
-    {
-        return disposed_.get();
     }
 
 
@@ -502,6 +514,8 @@ public abstract class AbstractProxy
 
 
     protected void connectClient(org.omg.CORBA.Object client) {
+        client_ = client;
+
         connected_.set(true);
     }
 
@@ -512,6 +526,9 @@ public abstract class AbstractProxy
     }
 
 
+    /**
+     * invoke the proxy specific disconnect method.
+     */
     protected abstract void disconnectClient();
 
 
