@@ -15,9 +15,11 @@ import org.jacorb.security.level2.*;
 
 import java.net.*;
 import java.io.*;
+import java.security.*;
+import java.util.*;
+
 import javax.net.ssl.*;
 import javax.net.*;
-import java.security.*;
 
 public class SSLServerSocketFactory 
     implements org.jacorb.orb.factory.SSLServerSocketFactory
@@ -25,6 +27,7 @@ public class SSLServerSocketFactory
     private ServerSocketFactory factory = null;
     private boolean mutual_auth = false;
     private boolean change_roles = false;
+    private String[] cipher_suites = null;
 
     public SSLServerSocketFactory( org.jacorb.orb.ORB orb )
     {
@@ -48,6 +51,34 @@ public class SSLServerSocketFactory
 
 	change_roles = 
             Environment.isPropertyOn( "jacorb.security.change_ssl_roles" );
+
+        // Andrew T. Finnell
+        // We need to obtain all the cipher suites to use from the
+        // properties file.
+	String cipher_suite_list =
+		Environment.getProperty("jacorb.security.ssl.server.cipher_suites" );
+	
+	if ( cipher_suite_list != null )
+	{
+            StringTokenizer tokenizer = 
+                new StringTokenizer( cipher_suite_list, "," );
+            
+            // Get the number of ciphers in the list
+            int tokens = tokenizer.countTokens();
+            
+            if ( tokens > 0 )
+            {
+                // Create an array of strings to store the ciphers
+                cipher_suites = new String [tokens];
+                
+                // This will fill the array in reverse order but that
+                // doesn't matter
+                while( tokenizer.hasMoreElements() )
+                {
+                    cipher_suites[--tokens] = tokenizer.nextToken();
+                }
+            }
+	}
     }
            
     public ServerSocket createServerSocket( int port )
@@ -55,7 +86,16 @@ public class SSLServerSocketFactory
     {
 	SSLServerSocket s = (SSLServerSocket) 
 	    factory.createServerSocket( port );
+
 	s.setNeedClientAuth( mutual_auth );
+
+	// Andrew T. Finnell / Change made for e-Security Inc. 2001 
+        // We need a way to enable the cipher suites that we would
+        // like to use. We should obtain these from the properties file.
+	if( cipher_suites != null )
+        {
+            s.setEnabledCipherSuites ( cipher_suites );	
+        }
 
 	return s;
     }
@@ -69,6 +109,14 @@ public class SSLServerSocketFactory
 
 	s.setNeedClientAuth( mutual_auth );
 
+	// Andrew T. Finnell / Change made for e-Security Inc. 2001 
+        // We need a way to enable the cipher suites that we would
+        // like to use. We should obtain these from the properties file.
+	if( cipher_suites != null )
+        {
+            s.setEnabledCipherSuites ( cipher_suites );	
+        }
+
 	return s;
     }
 
@@ -79,7 +127,16 @@ public class SSLServerSocketFactory
     {
 	SSLServerSocket s = (SSLServerSocket) 
 	    factory.createServerSocket( port, backlog, ifAddress );
+
 	s.setNeedClientAuth( mutual_auth );
+
+	// Andrew T. Finnell / Change made for e-Security Inc. 2001 
+        // We need a way to enable the cipher suites that we would
+        // like to use. We should obtain these from the properties file.
+	if( cipher_suites != null )
+        {
+            s.setEnabledCipherSuites ( cipher_suites );	
+        }
 
 	return s;
     }
