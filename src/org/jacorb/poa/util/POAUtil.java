@@ -30,18 +30,23 @@ import java.util.Calendar;
  * This class collects some useful routines for the POA.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.03, 10/07/99, RT
+ * @version $Id$
  */
+
 public final class POAUtil 
 {
     /**
      * converts an oid into a string, if the inHex flag is set
      * the string contains an hex dump
      */
-    public static String convert(byte[] objectId, boolean inHex) {
-        if (inHex) {
+
+    public static String convert(byte[] objectId, boolean inHex) 
+    {
+        if (inHex) 
+        {
             String result = "";
-            for (int i=0; i<objectId.length; i++) {
+            for (int i=0; i<objectId.length; i++) 
+            {
                 int n1 = (objectId[i] & 0xff) / 16;
                 int n2 = (objectId[i] & 0xff) % 16;
                 char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
@@ -50,18 +55,22 @@ public final class POAUtil
             }
             return result;
 			
-        } else {
+        } 
+        else 
+        {
             return objectId_to_string(objectId).replace('\n', ' ');
         }
     }
+
     /**
      * reads the policy value from the specified policy and
      * converts it into a string
      */
-    public static String convert(org.omg.CORBA.Policy policy, int policy_type) {
-		
-        switch (policy_type) {
-			
+
+    public static String convert(org.omg.CORBA.Policy policy, int policy_type) 
+    {		
+        switch (policy_type) 
+        {       		
         case THREAD_POLICY_ID.value:
             if (policy == null || ((ThreadPolicy) policy).value() == ThreadPolicyValue.ORB_CTRL_MODEL) return "ORB_CTRL_MODEL";
             else if (((ThreadPolicy) policy).value() == ThreadPolicyValue.SINGLE_THREAD_MODEL) return "SINGLE_THREAD_MODEL";
@@ -100,10 +109,13 @@ public final class POAUtil
         }
         return "unknown";
     }
+
     /**
      * converts the state into a string
      */
-    public static String convert(org.omg.PortableServer.POAManagerPackage.State state) {
+
+    public static String convert(org.omg.PortableServer.POAManagerPackage.State state) 
+    {
         if (state.value() == org.omg.PortableServer.POAManagerPackage.State._ACTIVE)
             return "active";
         if (state.value() == org.omg.PortableServer.POAManagerPackage.State._HOLDING)
@@ -115,100 +127,149 @@ public final class POAUtil
 		
         return "unknown";
     }
+
     /**
      * extracts the impl name from a specified object key
      */
-    public static String extractImplName(byte[] object_key) {
-        for (int i=0; i<object_key.length; i++) {
-            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) {
+
+    public static String extractImplName(byte[] object_key) 
+    {
+        for (int i=0; i<object_key.length; i++) 
+        {
+            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            {
                 byte[] result = IdUtil.extract(object_key, 0, i);
                 return unmaskStr(new String(result));
             }
         }
-        throw new POAInternalError("error extracting impl name from object_key: "+convert(object_key, false));
+        throw new POAInternalError("error extracting impl name from object_key: "+
+                                   convert(object_key, false));
     }
+
+
     /**
      * extracts the oid from a specified object key
      */
-    public static byte[] extractOID(byte[] object_key) {
-        for (int i=object_key.length-1; i>=0; i--) {
-            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) {
+
+    public static byte[] extractOID(byte[] object_key) 
+    {
+        for (int i=object_key.length-1; i>=0; i--) 
+        {
+            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            {
                 i++;
-                byte[] result = IdUtil.extract(object_key, i, object_key.length - i);
+                byte[] result = 
+                    IdUtil.extract(object_key, i, object_key.length - i);
                 //				jacorb.orb.Environment.output(6, "extractOID, \t\tObject-Key: " + convert(object_key, false) + " \tOID: "+convert(result, true));
                 return unmaskId(result);
             }
         }
-        throw new POAInternalError("error extracting oid from object_key: "+convert(object_key, false));
+        throw new POAInternalError("error extracting oid from object_key: "+
+                                   convert(object_key, false));
     }
+
     /**
      * extracts the oid from a specified object reference
      */
-    public static byte[] extractOID(org.omg.CORBA.Object reference) {
+
+    public static byte[] extractOID(org.omg.CORBA.Object reference) 
+    {
         return ((org.jacorb.orb.Delegate) ((org.omg.CORBA.portable.ObjectImpl) reference)._get_delegate()).getObjectId();
     }
+
     /**
      * extracts the poa name from a specified object key
      */
-    public static String extractPOAName(byte[] object_key) {
+
+    public static String extractPOAName(byte[] object_key) 
+    {
         int begin = object_key.length;
         int end = 0;
-        for (int i=0; i<object_key.length; i++) {
-            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) {
+        for (int i=0; i<object_key.length; i++) 
+        {
+            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            {
                 begin = i;
                 break;
             }
         }
-        for (int i=object_key.length-1; i>=0; i--) {
-            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) {
+        for (int i=object_key.length-1; i>=0; i--) 
+        {
+            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            {
                 end = i;
                 break;
             }
         }
-        if (begin > end) {
+        if (begin > end) 
+        {
             throw new POAInternalError("error extracting poa name from object_key: "+convert(object_key, false));
         }
-        if (begin == end) {
+        if (begin == end) 
+        {
             return "";
-        } else {
+        } 
+        else 
+        {
             begin++;
             return new String(IdUtil.extract(object_key, begin, end-begin));
         }
     }
+
     /**
      * returns the policy with the specified policy_type from a policy list  
      */
-    public static org.omg.CORBA.Policy getPolicy(org.omg.CORBA.Policy[] policies, int policy_type) {
-        if (policies != null) {
-            for (int i = 0; i < policies.length; i++) {
-                if (policies[i].policy_type() == policy_type) {
+
+    public static org.omg.CORBA.Policy getPolicy(org.omg.CORBA.Policy[] policies, int policy_type) 
+    {
+        if (policies != null) 
+        {
+            for (int i = 0; i < policies.length; i++) 
+            {
+                if (policies[i].policy_type() == policy_type) 
+                {
                     return policies[i];
                 }
             }
         }
         return null;
     }
+
+
     public static boolean isActive(org.omg.PortableServer.POAManagerPackage.State state) {
         return state.value() == org.omg.PortableServer.POAManagerPackage.State._ACTIVE ? true : false;
     }
+
+
     public static boolean isDiscarding(org.omg.PortableServer.POAManagerPackage.State state) {
         return state.value() == org.omg.PortableServer.POAManagerPackage.State._DISCARDING ? true : false;
     }
+
+
     public static boolean isHolding(org.omg.PortableServer.POAManagerPackage.State state) {
         return state.value() == org.omg.PortableServer.POAManagerPackage.State._HOLDING ? true : false;
     }
+
+
     public static boolean isInactive(org.omg.PortableServer.POAManagerPackage.State state) {
         return state.value() == org.omg.PortableServer.POAManagerPackage.State._INACTIVE ? true : false;
     }
+
     /**
      * masks the object key separator bytes 
      */
-    public static byte[] maskId(byte[] id) {
+
+    public static byte[] maskId(byte[] id) 
+    {
         int altered = id.length;
-        for (int i=0; i<id.length; i++) {
-            if (id[i] == POAConstants.OBJECT_KEY_SEP_BYTE) {
+        for (int i=0; i<id.length; i++) 
+        {
+            if (id[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            {
                 altered++;
-            } else if (id[i] == POAConstants.MASK_BYTE) {
+            } 
+            else if (id[i] == POAConstants.MASK_BYTE) 
+            {
                 altered++;
             }
         }
@@ -264,8 +325,10 @@ public final class POAUtil
     public static byte[] unmaskId(byte[] id) 
     {
         int altered = id.length;
-        for (int i=0; i<id.length; i++) {
-            if (id[i] == POAConstants.MASK_BYTE) {
+        for (int i=0; i<id.length; i++) 
+        {
+            if (id[i] == POAConstants.MASK_BYTE) 
+            {
                 altered--;
                 i++;
             }
@@ -275,28 +338,37 @@ public final class POAUtil
         byte[] result = new byte[altered];
 
         altered = 0;
-        for (int i=0; i<id.length; i++) {
-			
-            if (id[i] == POAConstants.MASK_BYTE) {
-                if (id[i+1] == POAConstants.MASK_MASK_BYTE) {
+        for (int i=0; i<id.length; i++) 
+        {			
+            if (id[i] == POAConstants.MASK_BYTE) 
+            {
+                if (id[i+1] == POAConstants.MASK_MASK_BYTE) 
+                {
                     result[altered] = POAConstants.MASK_BYTE;
-					
-                } else if (id[i+1] == POAConstants.SEPA_MASK_BYTE) {
+                } 
+                else if (id[i+1] == POAConstants.SEPA_MASK_BYTE) 
+                {
                     result[altered] = POAConstants.OBJECT_KEY_SEP_BYTE;
 					
-                } else {
+                } 
+                else 
+                {
                     throw new POAInternalError("error: forbidden byte sequence \""
                                                +POAConstants.MASK_BYTE+id[i+1]+"\" (unmaskId)");
                 }
                 i++;
 				
-            } else {
+            } 
+            else 
+            {
                 result[altered] = id[i];
             }
             altered++;
         }
         return result;
     }
+
+
     /**
      * unmasks the object key separator chars
      */
