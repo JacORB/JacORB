@@ -584,7 +584,7 @@ jacorb.poa.queue_min=10
 # Name of a class that selects the transport profile to use on the 
 # client side.
 
-#jacorb.transport.client.selector=org.jacorb.orb.ProfileSelector
+#jacorb.transport.client.selector=org.jacorb.orb.DefaultProfileSelector
 
 
 ##################################
