@@ -1,8 +1,7 @@
-package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -19,20 +18,24 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+package org.jacorb.orb;
+
 /**
  * @version $Id$
  */
 
 public class Reference
-    extends javax.rmi.CORBA.Stub implements java.rmi.Remote
+    extends javax.rmi.CORBA.Stub 
+    implements java.rmi.Remote
 {
-    private String[] ids = {"","IDL:omg.org/CORBA/Object:1.0"};
+    private String[] ids = { "" , "IDL:omg.org/CORBA/Object:1.0"};
+
     public String[] _ids()
     {
 	return ids;
     }
 
-    public Reference(String typeId)
+    public Reference( String typeId )
     {
 	ids[0] = typeId;
     }

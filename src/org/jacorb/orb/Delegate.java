@@ -39,7 +39,7 @@ import org.omg.CORBA.SystemException;
 /**
  * JacORB implementation of CORBA object reference
  *
- * @author Gerald Brose, FU Berlin
+ * @author Gerald Brose
  * @version $Id$
  *
  */
@@ -149,7 +149,7 @@ public final class Delegate
     /**
      * This bind is a combination of the old _init() and bind()
      * operations. It first inits this delegate with the information
-     * supplied by the (parsed) IOR. The it requests a new
+     * supplied by the (parsed) IOR. Then it requests a new
      * ClientConnection from the ConnectionsManager. This will *NOT*
      * open up a TCP connection, but the connection is needed for the
      * GIOP message ids. The actual TCP connection is automatically

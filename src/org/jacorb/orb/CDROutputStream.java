@@ -1480,7 +1480,7 @@ public class CDROutputStream
     }
 
     /** 
-     * called from Any 
+     * called from Any
      */
 
     public final void write_value ( final org.omg.CORBA.TypeCode tc,

@@ -50,13 +50,6 @@ public class ServantDelegate
 	this.orb = orb;
     }
 
-//      public void setPOA(POA poa)
-//      {
-//          if( selfPOA != null )
-//              throw new org.omg.CORBA.BAD_INV_ORDER("The Servant has already been associated with a POA");  
-//          this.selfPOA = poa;
-//      }
-
     /**
      * Must be checked for every invocation (cf. Lang. Mapping p. 1-89)
      */
@@ -163,10 +156,7 @@ public class ServantDelegate
 	check();      
 	try 
 	{ 
-//              if( selfPOA != null )
-//                  return selfPOA;
-//              else
-                return POAHelper.narrow(orb(self).resolve_initial_references("RootPOA"));  
+            return POAHelper.narrow(orb(self).resolve_initial_references("RootPOA"));  
 	}     
 	catch(InvalidName e) 
 	{       
@@ -213,6 +203,7 @@ public class ServantDelegate
 	for( int i = 0; i < intf.length; i++)
 	{
             org.jacorb.util.Debug.output( 4, "ServantDelegate: is a compares with " + intf[i] );
+
 	    if( intf[i].equals(repid))
 	    {
                 org.jacorb.util.Debug.output( 4, "ServantDelegate: ! is a " + 
@@ -245,7 +236,7 @@ public class ServantDelegate
     } 
 
     /**
-     * Similar to invoke in InvikeHandler, which is ultimately implement by 
+     * Similar to invoke in InvokeHandler, which is ultimately implement by 
      * skeletons. This method is used by the POA to handle operations that
      * are "special", i.e. not implemented by skeletons
      */
@@ -280,6 +271,7 @@ public class ServantDelegate
 	}
 	else
 	    throw new Error("Unknown operation: " + method );
+
 	return _out;
     }
 
