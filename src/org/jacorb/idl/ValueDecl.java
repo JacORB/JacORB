@@ -92,6 +92,8 @@ class ValueDecl
             pack_name = s;
 
         stateMembers.setPackage (s);
+        if( inheritanceSpec != null )
+            inheritanceSpec.setPackage (s);
 
         for (Iterator i = operations.iterator(); i.hasNext();)
             ((IdlSymbol)i.next()).setPackage (s);
@@ -155,6 +157,14 @@ class ValueDecl
 	}
 	enclosing_symbol = s;
         stateMembers.setEnclosingSymbol( this );
+        for (Iterator i = operations.iterator(); i.hasNext();)
+            ((IdlSymbol)i.next()).setEnclosingSymbol (s);
+
+        for (Iterator i = exports.iterator(); i.hasNext();)
+            ((IdlSymbol)i.next()).setEnclosingSymbol (s);
+
+        for (Iterator i = factories.iterator(); i.hasNext();)
+            ((IdlSymbol)i.next()).setEnclosingSymbol (s);
     }
 
     public void set_included(boolean i)
@@ -306,15 +316,22 @@ class ValueDecl
             out.println ("\timplements org.omg.CORBA.portable.CustomValue");
         else
             out.println ("\timplements org.omg.CORBA.portable.StreamableValue");
-        
+        if( inheritanceSpec != null )
+        {    
+            
+        }
+
         out.println ("{");
-        out.print ("\tprivate String[] _truncatable_ids = {");        
-        String[] ids = inheritanceSpec.getTruncatableIds();
-        for( int j = 0; j < ids.length; j++ )
-        {
-            if( j > 0 )
-                out.print(", ");
-            out.print("\"" + ids[j] + "\"" );
+        out.print ("\tprivate String[] _truncatable_ids = {");
+        if( inheritanceSpec != null )
+        {            
+            String[] ids = inheritanceSpec.getTruncatableIds();
+            for( int j = 0; j < ids.length; j++ )
+            {
+                if( j > 0 )
+                    out.print(", ");
+                out.print("\"" + ids[j] + "\"" );
+            }
         }
         out.println("};");
 

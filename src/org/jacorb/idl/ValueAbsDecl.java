@@ -262,7 +262,7 @@ class ValueAbsDecl
                 // do we inherit from a class in the unnamed package?
                 // if so, we have to import this class explicitly 
                 
-                if( inheritanceSpec.v.size() > 0 )
+                if( inheritanceSpec != null && inheritanceSpec.v.size() > 0 )
                 {
                     Enumeration e = inheritanceSpec.v.elements();
                     for(; e.hasMoreElements();)
@@ -277,21 +277,17 @@ class ValueAbsDecl
                 printImport(ps);
 
                 ps.println("public interface " + name );
-                    ps.print("\textends org.omg.CORBA.portable.ValueBase");
+                ps.print("\textends org.omg.CORBA.portable.ValueBase ");
 
-                if( inheritanceSpec.v.size() > 0 )
+                if( inheritanceSpec != null && inheritanceSpec.v.size() > 0 )
                 {
-                    ps.print("\timplements ");
-                    Enumeration e = inheritanceSpec.v.elements();
-                    ps.print( (ScopedName)e.nextElement() );
-                    for(; e.hasMoreElements();)
+                    for(Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements();)
                     {
                         ps.print(", " +  (ScopedName)e.nextElement());
                     }
-                    ps.print("\n");
                 }
-                
-                ps.println("{");
+
+                ps.println("\n{");
                 if( body != null )
                 { 
                     // forward declaration

@@ -34,7 +34,7 @@ class  ValueInheritanceSpec
     public Vector v;
     public Vector supports;
 
-    public boolean truncatable;
+    public boolean truncatable = false;
 
     public ValueInheritanceSpec(int num)
     {
@@ -88,7 +88,7 @@ class  ValueInheritanceSpec
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
-                Enumeration e = v.elements();
+        Enumeration e = v.elements();
 
         if(e.hasMoreElements())
             sb.append( (IdlSymbol)e.nextElement() );

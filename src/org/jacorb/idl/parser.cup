@@ -1062,8 +1062,8 @@ value_dcl ::=
 
 value_inheritance_spec ::= 
           COLON truncatable:t scopename_list:vn 
-                {:
-                        RESULT.truncatable = true;      
+                {:                        
+                        RESULT.truncatable = ( t.int_val == 1 );      
                         RESULT.v = (Vector)vn.v.clone(); 
                 :}
         | SUPPORTS scopename_list:interface_names
@@ -1072,7 +1072,7 @@ value_inheritance_spec ::=
                 :}
         | COLON truncatable:t scopename_list:vn SUPPORTS scopename_list:interface_names
                 {:      
-                        RESULT.truncatable = true;              
+                        RESULT.truncatable = ( t.int_val == 1 );      
                         RESULT.v = (Vector)vn.v.clone(); 
                         RESULT.supports = (Vector)interface_names.v.clone(); 
                 :}
