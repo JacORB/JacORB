@@ -951,8 +951,10 @@ public class POA
     }
 
 
-    private byte[] generateWatermark() {
-        if (watermark == null) {
+    private byte[] generateWatermark() 
+    {
+        if (watermark == null) 
+        {
             if (isPersistent())
                 watermark = IdUtil.toId(new String(getPOAId()).hashCode());
             else
@@ -962,18 +964,31 @@ public class POA
     }
 
 
-    public Servant get_servant() throws NoServant, WrongPolicy {
-        if (isDestructionApparent()) throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        if (!isUseDefaultServant()) throw new WrongPolicy();    
-        if (defaultServant == null) throw new NoServant();
+    public Servant get_servant() 
+        throws NoServant, WrongPolicy 
+    {
+        if (isDestructionApparent()) 
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+
+        if (!isUseDefaultServant()) 
+            throw new WrongPolicy();    
+
+        if (defaultServant == null) 
+            throw new NoServant();
         return defaultServant;
     }
 
 
-    public org.omg.PortableServer.ServantManager get_servant_manager() throws WrongPolicy {
-        if (isDestructionApparent()) throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        if (!isUseServantManager()) throw new WrongPolicy();
-        return servantManager;                                                                          
+    public org.omg.PortableServer.ServantManager get_servant_manager() 
+        throws WrongPolicy 
+    {
+        if (isDestructionApparent()) 
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+
+        if (!isUseServantManager()) 
+            throw new WrongPolicy();
+
+        return servantManager;
     }
 
 
@@ -1047,10 +1062,10 @@ public class POA
 
             createdReferences.put( key, result ); // ***
 
-            Debug.output(Debug.POA | Debug.DEBUG1, "Poa.getReference <" +
-                         _getQualifiedName() + 
-                         ">: a new "
-                         + org.jacorb.orb.domain.Util.toID(result.toString()));
+//              Debug.output(Debug.POA | Debug.DEBUG1, "Poa.getReference <" +
+//                           _getQualifiedName() + 
+//                           ">: a new "
+//                           + org.jacorb.orb.domain.Util.toID(result.toString()));
             
             if ( org.jacorb.util.Environment.useDomain() ) 
                 doInitialDomainMapping( result );
@@ -1359,7 +1374,7 @@ public class POA
         }
     }
 
-    boolean previouslyGeneratedObjectId(byte[] oid) 
+    public boolean previouslyGeneratedObjectId(byte[] oid) 
     {
         return IdUtil.equals(watermark, extractWatermark(oid));
     }
