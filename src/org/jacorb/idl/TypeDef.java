@@ -114,8 +114,8 @@ class TypeDef
             } 
             catch ( NameAlreadyDefined n )
             {
-                parser.error( "Name " + d.name() + 
-                              " already defined in typedef. ", d.token);
+                parser.error( "TypeDef'd name " + d.name() + 
+                              " already defined. ", d.token);
             }
         }
     }
@@ -134,17 +134,6 @@ class TypeDef
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

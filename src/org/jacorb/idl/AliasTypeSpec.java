@@ -43,9 +43,10 @@ public class AliasTypeSpec
 
     public Object clone()
     { 
-	TypeSpec ts = new TypeSpec(new_num());
-	ts.type_spec = (TypeSpec)type_spec.clone();
-	return ts;
+        AliasTypeSpec alias = new AliasTypeSpec( (TypeSpec)type_spec.clone() );
+        alias.name = name;
+        alias.pack_name = pack_name;
+	return alias;
     }
 
     public String full_name()
@@ -112,6 +113,21 @@ public class AliasTypeSpec
 	{
 	    ((TemplateTypeSpec)originalType).markTypeDefd();	    
 	}
+
+//          String typeName = ( pack_name.length() > 0 ? pack_name + "." : "" ) + name;
+
+//  	try
+//  	{
+//              if( typeName.length() > 0 )                
+//                  NameTable.define( typeName , "type" );
+//              else 
+//                  ;
+//  	} 
+//  	catch ( NameAlreadyDefined nad )
+//  	{
+//              Environment.output( 4, nad );
+//  	    parser.error("Typedef'd name " + typeName + " already defined", token);
+//  	}
 
 	if( originalType instanceof ConstrTypeSpec ||
 	    originalType instanceof FixedPointType || 

@@ -179,7 +179,7 @@ class UnionType
 	    ScopedName.definePseudoScope( full_name());
 	    ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
 	    ctspec.c_type_spec = this;
-	    NameTable.define( full_name(), "type" );
+	    NameTable.define( full_name(), "type-union" );
 	    TypeMap.typedef( full_name(), ctspec );
 	    
 	    // check that a scoped name as switch type refers to 
@@ -187,7 +187,9 @@ class UnionType
 
 	    if( switch_type_spec.type_spec instanceof ScopedName )
 	    {
-		TypeSpec ts=((ScopedName)switch_type_spec.type_spec).resolvedTypeSpec();
+		TypeSpec ts =
+                    ((ScopedName)switch_type_spec.type_spec).resolvedTypeSpec();
+
 		while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
 		{
 		    if( ts instanceof ScopedName )

@@ -34,7 +34,7 @@ import java.io.*;
 class NameTable 
 {
     private static java.util.Hashtable h = 
-        new java.util.Hashtable(5000);
+        new java.util.Hashtable(10000);
 
     private static java.util.Hashtable shadows = 
         new java.util.Hashtable();
@@ -55,11 +55,6 @@ class NameTable
 
     public static java.util.Hashtable parsed_interfaces = 
         new java.util.Hashtable();
-
-    static
-    {
-        init();
-    }
 
     public static void init()
     {
@@ -85,6 +80,95 @@ class NameTable
         h.put("org.omg.CORBA.Object", "interface");
     }
 
+    /**
+     * check IDL scoping rules
+     */
+
+    private static void checkScopingRules( String name, String kind )
+        throws NameAlreadyDefined 
+    {
+        Environment.output( 1,
+                            "NameTable.checkScopingRules:  " + 
+                            name + " kind: " + kind );
+
+        if( kind.equals("argument")  )
+        {
+            return; // no checks in outer scopes ???
+        }
+
+        StringTokenizer strtok = 
+            new StringTokenizer( name.toUpperCase(), "." );
+      
+        String scopes[] = new String[strtok.countTokens()];
+      
+        for( int i = 0; strtok.hasMoreTokens(); i++ )
+        {
+            scopes[i] = strtok.nextToken();
+        }
+
+        Environment.output( 1,
+                            "NameTable.checkScopingRules2:  " + 
+                            name + " kind: " + kind );
+
+        for( int i = 0; i < scopes.length-1; i++ )
+        {
+
+        Environment.output( 1,
+                            "NameTable.checkScopingRules2: comparing " + scopes[i]
+                             + " with: " + scopes[scopes.length-1] );
+
+          if( scopes[i].equals( scopes[scopes.length-1] ))
+          {
+            StringBuffer sb = new StringBuffer();
+            for( int j = 0; j < i; j++ )
+              sb.append( scopes[j] + "." );
+            sb.append( scopes[ i ] );
+              throw new IllegalRedefinition( sb.toString(), name );
+          }
+        }
+
+
+        // later use...
+//          for( int i = scopes.length-1; i >= 0; i-- )
+//          {
+//              Environment.output( 1,
+//                                  "NameTable.checkScopingRules2:  " + 
+//                                  name + " kind: " + kind );
+
+//              StringBuffer sb = new StringBuffer();
+
+//              for( int j = 0; j < i-1; j++ )
+//              {
+//                  sb.append( scopes[j].toUpperCase() + "." );
+//              }
+
+//              sb.append( scopes[ scopes.length - 1 ] );
+
+//              Environment.output( 1,
+//                                  "NameTable.checkScopingRules3:  " + sb.toString() );
+
+            
+//              if( h.containsKey( sb.toString() )) 
+//              {
+//                  String definedKind = (String)h.get( sb.toString() );
+//                  Environment.output( 1,
+//                                      "NameTable.checkScopingRules4:  " + 
+//                                      sb.toString() +
+//                                      " definedKind: " + definedKind);
+
+
+//                  if( definedKind.equals("type-struct") || 
+//                      definedKind.equals("type-union") || 
+//                      definedKind.equals("module") || 
+//                      definedKind.endsWith("interface")
+//                      )
+//                  {
+//                      throw new IllegalRedefinition( sb.toString(), name );
+//                  }
+//              }
+//          }
+    }
+
 
     /**
      *  define a name. If it has already been defined in this scope, 
@@ -103,26 +187,43 @@ class NameTable
                             name + " kind " + kind + " hash: " + 
                             name.hashCode() );
 
-        if( h.containsKey( name ) )
+        /* check also for the all uppercase version of this name,
+           which is alse reserved to block identifiers that
+           only differ in case */
+
+        if( h.containsKey( name ) || 
+            h.containsKey( name.toUpperCase() )  )
         {
             // if this name has been inherited, it is "shadowed"
             // in this case, it is redefined if it is not an operation
             // or interface name. If it has been
             // explicitly defined in this scope, we have an error
 
-            if( !shadows.containsKey( name ) || 
-                kind.equals("operation") || kind.equals("interface"))
+            if( kind.equals("module"))
+            {
+                // modules may be "reopened", no further checks or table entries
+                return;
+            }
+            else if( !shadows.containsKey( name ) || 
+                     kind.equals("operation") || 
+                     kind.equals("interface") )
             {
                 throw new NameAlreadyDefined( name );
             }
-            else 
+            else
             {
                 // redefine
                 shadows.remove( name );
                 h.remove( name );
             }
         } 
+
+        if( org.jacorb.idl.parser.strict_names )
+          checkScopingRules( name, kind );
+
         h.put( name, kind );
+        /* block identifiers that only differ in case */
+        h.put( name.toUpperCase(), kind );
         if( kind.equals("operation"))
             operationSources.put( name, name.substring( 0, name.lastIndexOf(".") ));
     }
@@ -249,38 +350,38 @@ class NameTable
                     String shadowKey = name + key.substring( key.lastIndexOf('.'));
                     shadowNames.put( shadowKey, kind );
 
-                    // if the name we inherit is a typedef'd name, we need to
+                    // if the name we inherit is a typedef'd name, we need 
                     // to typedef the inherited name as well
 
-                    if( kind.equals("type"))
+                    if( kind.startsWith("type") )
                     {
                         Environment.output(4,"- NameTable.inherit type from:  " + key );
 
 
-                            TypeSpec t = 
-                                TypeMap.map( anc + key.substring( key.lastIndexOf('.')) );
+                        TypeSpec t = 
+                            TypeMap.map( anc + key.substring( key.lastIndexOf('.')) );
                             
-                            // t can be null for some cases where we had to put
-                            // Java type names (e.g. for sequence s) into the
-                            // name table. These need not be typedef'd again here
+                        // t can be null for some cases where we had to put
+                        // Java type names (e.g. for sequence s) into the
+                        // name table. These need not be typedef'd again here
                             
-                            if( t != null )
-                            {
-                                TypeMap.typedef( name + 
-                                                 key.substring(key.lastIndexOf('.')),t);
-                            }                        
-                            shadowNames.put( name + key.substring( key.lastIndexOf('.')), kind );
-//                          try
-//                          {
-//                              define( name + key.substring( key.lastIndexOf('.')),kind );
-//                          } 
-//                          catch ( NameAlreadyDefined nad )
-//                          {
-//                            Environment.output(3,nad);
-//                              // Can be ignored: it is legal to inherit multiple 
-//                              // type definitions of the same name in IDL
-//                              // System.err.println("Problem " + name + " inherits (multiple inh.)");
-//                          }
+                        if( t != null )
+                        {
+                            TypeMap.typedef( name + 
+                                             key.substring(key.lastIndexOf('.')),t);
+                        }                        
+                        shadowNames.put( name + key.substring( key.lastIndexOf('.')), kind );
+                        //                          try
+                        //                          {
+                        //                              define( name + key.substring( key.lastIndexOf('.')),kind );
+                        //                          } 
+                        //                          catch ( NameAlreadyDefined nad )
+                        //                          {
+                        //                            Environment.output(3,nad);
+                        //                              // Can be ignored: it is legal to inherit multiple 
+                        //                              // type definitions of the same name in IDL
+                        //                              // System.err.println("Problem " + name + " inherits (multiple inh.)");
+                        //                          }
                     }
                     else if( kind.equals("operation"))
                     {
@@ -344,7 +445,8 @@ class NameTable
         {          
             String str =  (String)e.nextElement();
             if( str.indexOf('.')== -1 && !baseType(str) && 
-                ( ((String)h.get( str )).equals("type") ) || ((String)h.get( str )).equals("interface"))
+                ( ((String)h.get( str )).startsWith("type") ) || 
+                ((String)h.get( str )).equals("interface"))
                 v.addElement(str);
         }
 

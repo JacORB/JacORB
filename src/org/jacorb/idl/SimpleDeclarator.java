@@ -60,7 +60,7 @@ class SimpleDeclarator
     {        
 	try
 	{
-	    NameTable.define( full_name(), "attr/param name");
+	    NameTable.define( full_name(), "declarator");
 	} 
 	catch (NameAlreadyDefined p )
 	{

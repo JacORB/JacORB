@@ -41,6 +41,8 @@ parser code
 
     /** compiler flags */
     public static boolean include_state = false;
+    public static boolean strict_names = true;
+
     public static boolean generateIR = false;
     public static boolean generate_skeletons = true;
     public static boolean generate_stubs = true;
@@ -124,6 +126,11 @@ parser code
                         if( argv[i].equals("-sloppy_forward"))
                         {
                                 sloppy = true;
+                                continue;
+                        } 
+                        if( argv[i].equals("-sloppy_names"))
+                        {
+                                strict_names = false;
                                 continue;
                         } 
                         if( argv[i].equals("-d")) 
@@ -242,6 +249,7 @@ parser code
                                 /* reset tables everywhere */
                                 lexer.reset();
                                 NameTable.init();
+                                TypeMap.init();
 
                                 /* define/undefine symbols */
                                 for( Enumeration e = tmpDefines.keys(); e.hasMoreElements(); )
@@ -282,7 +290,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-nostub][-ir] [-i2jpackage x:y][-d <Output Dir>][-p <package_prefix>][-i <import_package][-W debug_level] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-nostub][-ir][-sloppy_names] [-i2jpackage x:y][-d <Output Dir>][-p <package_prefix>][-i <import_package][-W debug_level] <filelist>");
         System.exit(1);
     }
 
@@ -294,6 +302,7 @@ parser code
         System.out.println("\t-nostub\tdisables generation of client stubs");
         System.out.println("\t-Idir\tset include path for idl files");
         System.out.println("\t-sloppy_forward\tallow forward declarations wo. later definitions");
+        System.out.println("\t-sloppy_names\tless strict checking of names for backward compatibility");
         System.out.println("\t-Dx\tdefine preprocessor symbol x with value 1");
         System.out.println("\t-Dx=y\tdefine preprocessor symbol x with value y");
         System.out.println("\t-U\tundefine preprocessor symbol");

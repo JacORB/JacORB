@@ -161,7 +161,7 @@ class StructType
 	    ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
 	    ctspec.c_type_spec = this;
 
-	    NameTable.define( full_name(), "type" );
+	    NameTable.define( full_name(), "type-struct" );
 	    TypeMap.typedef( full_name(), ctspec );
 	} 
 	catch ( NameAlreadyDefined nad )

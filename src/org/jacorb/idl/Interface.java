@@ -179,8 +179,13 @@ class Interface
                 NameTable.define( full_name(), "pseudo interface" );
             else
                 NameTable.define( full_name(), "interface" );
+
             TypeMap.typedef( full_name(), ctspec );
         } 
+        catch ( IllegalRedefinition ill )
+        {
+            parser.fatal_error("Illegal Redefinition of scope " + ill.oldDef + " with " + ill.newDef, token);
+        }
         catch ( NameAlreadyDefined nad )
         {
             // if we get here, there is already a type spec for this interface 
@@ -189,7 +194,9 @@ class Interface
             // if this is not yet another forwad declaration
 
             if( body != null )
+            {
                 justAnotherOne = true;
+            }
 
             if( !full_name().equals("org.omg.CORBA.TypeCode") && body != null)
             {
