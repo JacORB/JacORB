@@ -22,9 +22,11 @@ package org.jacorb.orb;
 
 import java.io.*;
 import java.lang.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.ir.RepositoryID;
 
 import org.omg.CORBA.TCKind;
 import org.omg.PortableServer.*;
@@ -71,14 +73,14 @@ public class CDROutputStream
      * to their position within the buffer.  The position is stored as 
      * a java.lang.Integer.
      */
-    private Hashtable valueMap = new Hashtable();
+    private Map valueMap = new HashMap();
 
     /**
      * Maps all repository ids that have already been written to this
      * stream to their position within the buffer.  The position is
      * stored as a java.lang.Integer.  
      */
-    private Hashtable repIdMap = new Hashtable();
+    private Map repIdMap = new HashMap();
 
     private final static String null_ior_str = 
         "IOR:00000000000000010000000000000000";
@@ -1451,12 +1453,13 @@ public class CDROutputStream
     }
 
     /**
-     * Writes the value of the valuetype instance `value' to this stream.
+     * Writes the serialized state of `value' to this stream.
      */
     public void write_value (java.io.Serializable value) 
     {
         if (!write_special_value (value))
-            write_value_internal (value, true);
+            write_value_internal (value, 
+                                  RepositoryID.repId (value.getClass()));
     }
 
     public void write_value (java.io.Serializable value,
@@ -1477,9 +1480,10 @@ public class CDROutputStream
         {
             Class c = value.getClass();
             if (c == clz)
-                write_value_internal (value, false);
+                write_value_internal (value, null);
             else if (clz.isInstance (value))
-                write_value_internal (value, true);
+                write_value_internal (value, 
+                                      RepositoryID.repId (value.getClass()));
             else
                 throw new org.omg.CORBA.BAD_PARAM();
         }
@@ -1489,20 +1493,7 @@ public class CDROutputStream
                              String repository_id)
     {
         if (!write_special_value (value))
-        {
-            
-            String name = 
-                org.jacorb.ir.RepositoryID.className (repository_id);
-            try
-            {
-                write_value (value, Class.forName (name));
-            } 
-            catch (ClassNotFoundException e)
-            {
-                throw new RuntimeException ("couldn't find class " + name +
-                                            " for RepID " + repository_id);
-            }
-        }
+            write_value_internal (value, repository_id);
     }
 
     /**
@@ -1534,20 +1525,18 @@ public class CDROutputStream
     }
 
     private void write_value_internal (java.io.Serializable value,
-                                       boolean withTypeInformation) 
+                                       String repository_id) 
     {
         valueMap.put (value, new Integer(pos));
-        if (withTypeInformation) 
+        if (repository_id != null) 
         {
             write_long (0x7fffff02);
-            Class   c     = value.getClass();
-            String  repId = org.jacorb.ir.RepositoryID.repId (c);
-            Integer index = (Integer)repIdMap.get (repId);
+            Integer index = (Integer)repIdMap.get (repository_id);
             if (index == null)
             {
                 // a new repository id -- write it
-                repIdMap.put (repId, new Integer(pos));
-                write_string (repId);
+                repIdMap.put (repository_id, new Integer(pos));
+                write_string (repository_id);
             }
             else
             {
@@ -1557,14 +1546,61 @@ public class CDROutputStream
             }
         }
         else
-        {
             write_long (0x7fffff00);
-        }
 
         if (value instanceof org.omg.CORBA.portable.StreamableValue)
             ((org.omg.CORBA.portable.StreamableValue)value)._write (this);
         else
-            throw new RuntimeException ("cannot marshal value " + value);
+            write_state (value, value.getClass());
+
+    }
+
+    /**
+     * Writes the serialized state of `value' to this stream, where `clz'
+     * is the most specific subtype whose state should be written.
+     */
+    private void write_state (java.io.Serializable value, Class clz) 
+    {
+        if (clz != java.lang.Object.class)
+            write_state (value, clz.getSuperclass());
+
+        for (Iterator i = Fields.getFields(clz).iterator(); i.hasNext();) 
+        {
+            Field f = (Field)i.next();
+            try 
+            {
+                Class c = f.getType();
+                if (!c.isPrimitive()) 
+                    if (!c.isArray()) 
+                        write_value ((java.io.Serializable)f.get (value));
+                    else
+                        throw new RuntimeException 
+                            ("serializing arrays not implemented");  
+                else
+                    write_primitive_field (f, c, value);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new RuntimeException ("cannot access field: " + f);
+            }
+        }
+    }
+
+    private void write_primitive_field (Field f, Class c,
+                                        java.io.Serializable value)
+        throws IllegalAccessException
+    {
+        if      (c == Boolean.TYPE)   write_boolean (f.getBoolean (value));
+        else if (c == Character.TYPE) write_wchar   (f.getChar    (value));
+        else if (c == Byte.TYPE)      write_octet   (f.getByte    (value));
+        else if (c == Short.TYPE)     write_short   (f.getShort   (value));
+        else if (c == Integer.TYPE)   write_long    (f.getInt     (value));
+        else if (c == Long.TYPE)      write_longlong(f.getLong    (value));
+        else if (c == Float.TYPE)     write_float   (f.getFloat   (value));
+        else if (c == Double.TYPE)    write_double  (f.getDouble  (value));
+        else
+            throw new RuntimeException 
+                ("unknown primitive field type: " + f);
     }
 
     public void setSize(int s){
