@@ -235,6 +235,7 @@ public class SSLServerSocketFactory
         {	
             try
             {
+                org.jacorb.util.Debug.output( 2, "SSLServerSocket, switching to client mode...");
                 ((SSLSocket) socket).setUseClientMode( true );
             }
             catch( IOException iox )
