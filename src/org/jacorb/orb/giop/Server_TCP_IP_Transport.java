@@ -79,8 +79,19 @@ public class Server_TCP_IP_Transport
                 
             //this will cause exceptions when trying to read from
             //the streams. Better than "nulling" them.
-            socket.shutdownInput();
-            socket.shutdownOutput();
+            if( in_stream != null )
+            {
+                in_stream.close();
+            }
+
+            if( out_stream != null )
+            {
+                out_stream.close();
+            }
+
+            //not jdk1.2
+            //socket.shutdownInput();
+            //socket.shutdownOutput();
         }
 
         Debug.output( 2, "Closed server-side TCP/IP transport to " +
