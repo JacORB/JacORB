@@ -1,4 +1,4 @@
-JacORB 1.3.20
+JacORB 1.3.21
 
 		Installing and Building JacORB
 
@@ -13,14 +13,19 @@ Required:
 	  Foundations Classes JFC) downloadable from http://java.sun.com
 
 	- for IIOP over SSL:
-	  IAIK crytography provider and SSL implementation
+	  IAIK crytography provider and SSL implementation, available
+          from http://jcewww.iaik.at
 
 	- for rebuilding JacORB or compling the demos:
-	  Version 1.1 or later of the Jakarta Ant make tool,
+	  Version 1.2 or later of the Jakarta Ant make tool,
           available from http://jakarta.apache.org/ant. 
 
+        - for using names instead of ip adresses in IORs:
+          dnsjava 1.1.6 (or above) available from 
+          http://www.xbill.org/dnsjava
+
 	[ This release was tested on Linux (JDK 1.2.2 and 1.3), Solaris 
-	(JDK 1.2.2 and JDK 1.1.8) and WinNT 4Sp6 (JDK1.3, JDK 1.1.8). ]
+	(JDK 1.3.0 and JDK 1.1.8) and Win2k Sp1 (JDK1.3, JDK 1.1.8). ]
 
 Installation:
 =============
@@ -91,6 +96,12 @@ Installation:
 
 6. If you intend to use Appligator with appletviewer, please edit
    bin/jacapplet(.bat) to reflect your local system configuration.
+
+7. If you like to have host names instead of IP adresses in your
+   IORs you have to install dnsjava and recompile src/org/jacorb/orb/dns.
+   If the IP addresses aren't resolved properly / at all, see the
+   dnsjava docs on how to set properties to tell dnsjava where to look 
+   for the DNS servers.
 
 Building JacORB (Optional)
 ==========================
