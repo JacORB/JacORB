@@ -60,7 +60,7 @@ public final class RequestController
     private Logger                    logger;
 
     // stores all active requests
-    private Hashtable 			activeRequestTable;
+    private Map 			activeRequestTable;
     // RequestProcessor -> oid
     // for synchronisation with the object deactiviation process
     private List			deactivationList = new ArrayList();
@@ -99,7 +99,8 @@ public final class RequestController
 
         requestQueue = new RequestQueue(this, logger);
         activeRequestTable =
-            poa.isSingleThreadModel() ? new Hashtable(1) : new Hashtable(Environment.threadPoolMax());
+            poa.isSingleThreadModel() ? new HashMap(1) 
+                                      : new HashMap(Environment.threadPoolMax());
         getPoolManager();
 
         if( priorityProp != null )
@@ -559,7 +560,7 @@ public final class RequestController
 
         ByteArrayKey oidbak = new ByteArrayKey( oid );
 
-        while (activeRequestTable.contains(oidbak))
+        while (activeRequestTable.containsValue(oidbak))
         {
             try
             {
