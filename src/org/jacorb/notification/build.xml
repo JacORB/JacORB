@@ -58,7 +58,7 @@
   <!-- ====== -->
   <!-- Parser -->
   <!-- ====== -->
-  <target name="antlr" depends="antlr.depend, antlr.generate, antlr.compile" />
+  <target name="antlr" depends="notification.init, antlr.depend, antlr.generate, antlr.compile" />
 
 
   <!-- check if parser needs to be generated -->
@@ -160,21 +160,33 @@
       <param name="javac-includes"
              value="org/jacorb/notification/util/PatternWrapper.java,
                     org/jacorb/notification/util/JDK14PatternWrapper.java"/>
-      </antcall>
+    </antcall>
   </target>
 
 
   <!-- clean -->
-  <target name="clean" depends="init" description="Cleans the notification">
-    <delete>
-      <fileset dir="${src}/generated"
-         includes="org/jacorb/notification/**/*.*" />
-    </delete>
+  <target name="clean" 
+    depends="init, clean.classes" 
+    description="Cleans the notification">
+  </target>
+  
+
+  <target name="realclean" depends="clean, clean.antlr" />
+
+
+  <target name="clean.classes">
     <delete>
       <fileset dir="${classdir}"
          includes="org/jacorb/notification/**/*.*" />
     </delete>
   </target>
 
+
+  <target name="clean.antlr">
+    <delete>
+      <fileset dir="${src}/generated"
+	includes="org/jacorb/notification/**/*.*" />
+    </delete>
+  </target>
 
 </project>
