@@ -52,7 +52,6 @@ public class SASTargetInterceptor
     extends org.omg.CORBA.LocalObject
     implements ServerRequestInterceptor
 {
-    public static final int SecurityAttributeService = 15;
     private static final String name = "SASTargetInterceptor";
     protected org.jacorb.orb.ORB orb = null;
     protected Codec codec = null;
@@ -144,7 +143,7 @@ public class SASTargetInterceptor
         byte[] contextToken = null;
         try
         {
-            ServiceContext ctx = ri.get_request_service_context(SecurityAttributeService);
+            ServiceContext ctx = ri.get_request_service_context(SASTargetInitializer.SecurityAttributeService);
             Any ctx_any = codec.decode( ctx.context_data );
             contextBody = SASContextBodyHelper.extract(ctx_any);
         }
@@ -261,7 +260,7 @@ public class SASTargetInterceptor
 
         try
         {
-            ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( slot_any ) ), true);
+            ri.add_reply_service_context(new ServiceContext(SASTargetInitializer.SecurityAttributeService, codec.encode( slot_any ) ), true);
         }
         catch (Exception e)
         {
@@ -276,7 +275,7 @@ public class SASTargetInterceptor
         //System.out.println("send_exception");
         try
         {
-            ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( ri.get_slot(sasReplySlotID) ) ), true);
+            ri.add_reply_service_context(new ServiceContext(SASTargetInitializer.SecurityAttributeService, codec.encode( ri.get_slot(sasReplySlotID) ) ), true);
         }
         catch (Exception e)
         {

@@ -42,6 +42,7 @@ public class SASTargetInitializer
         extends org.omg.CORBA.LocalObject
         implements ORBInitializer
 {
+    public static final int SecurityAttributeService = 15;
 
     public static int sasPrincipalNamePIC = (-1);
 
