@@ -25,14 +25,14 @@ import junit.extensions.TestSetup;
 import org.omg.CORBA.TCKind;
 
 import org.jacorb.test.common.ORBSetup;
-import org.jacorb.Tests.EnumType;
-import org.jacorb.Tests.EnumTypeHelper;
-import org.jacorb.Tests.UnionDefaultType;
-import org.jacorb.Tests.UnionDefaultTypeHelper;
-import org.jacorb.Tests.UnionNoDefaultType;
-import org.jacorb.Tests.UnionNoDefaultTypeHelper;
-import org.jacorb.Tests.UnionFullRangeType;
-import org.jacorb.Tests.UnionFullRangeTypeHelper;
+import org.jacorb.test.EnumType;
+import org.jacorb.test.EnumTypeHelper;
+import org.jacorb.test.UnionDefaultType;
+import org.jacorb.test.UnionDefaultTypeHelper;
+import org.jacorb.test.UnionNoDefaultType;
+import org.jacorb.test.UnionNoDefaultTypeHelper;
+import org.jacorb.test.UnionFullRangeType;
+import org.jacorb.test.UnionFullRangeTypeHelper;
 
 /**
  * DynAnyUnionTest.java
@@ -83,7 +83,7 @@ public class DynAnyUnionTest extends TestCase
       suite.addTest (new DynAnyUnionTest ("testDestroyDynAny"));
       suite.addTest (new DynAnyUnionTest ("testDestroyComponent"));
       suite.addTest (new DynAnyUnionTest ("testCopyDynAny"));
-      
+
       return osetup;
    }
 
@@ -101,7 +101,7 @@ public class DynAnyUnionTest extends TestCase
       type.win (10);
       any = orb.create_any ();
       UnionDefaultTypeHelper.insert (any, type);
-      
+
       createDynAnyFromAny (any);
    }
 
@@ -148,14 +148,14 @@ public class DynAnyUnionTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
-      
+
       type = new UnionNoDefaultType ();
       type.__default ();
       any = orb.create_any ();
       UnionNoDefaultTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "Comparing two equal DynAny values using DynAny::equal failed";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
@@ -171,19 +171,19 @@ public class DynAnyUnionTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
-      
+
       type = new UnionDefaultType ();
       type.win (10);
       any = orb.create_any ();
       UnionDefaultTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "Comparing two equal DynAny values using DynAny::equal failed";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
 
-   
+
    /**
     * Test iterating through components of a DynAny.  The DynUnion has an
     * active member.
@@ -197,7 +197,7 @@ public class DynAnyUnionTest extends TestCase
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynAny compSeek = null;
       org.omg.DynamicAny.DynAny compRewind = null;
-      
+
       tc = orb.create_union_tc
       (
          ID,
@@ -245,7 +245,7 @@ public class DynAnyUnionTest extends TestCase
          msg += "DynAny::seek operation";
          fail (msg);
       }
-      
+
       // seek the next position
       msg = "The DynAny::next operation indicates an invalid current position ";
       msg += "when the current position should be valid";
@@ -287,13 +287,13 @@ public class DynAnyUnionTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynEnum disc = null;
-      
+
       type = new UnionNoDefaultType ();
       type.__default ();
       any = orb.create_any ();
       UnionNoDefaultTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
- 
+
       // test that the discriminator is correctly set
       disc = (org.omg.DynamicAny.DynEnum) dynAny.get_discriminator ();
 
@@ -302,7 +302,7 @@ public class DynAnyUnionTest extends TestCase
       msg += "from a union with no active member";
       assertEquals (msg, EnumType._fifth, disc.get_as_ulong ());
 
-      // test the component count 
+      // test the component count
       try
       {
          compCount = dynAny.component_count ();
@@ -316,19 +316,19 @@ public class DynAnyUnionTest extends TestCase
       msg = "The number of components returned from the ";
       msg += "DynAny::component_count operation is incorrect";
       assertEquals (msg, 1, compCount);
-      
+
       // seek the first position
       msg = "The DynAny::seek operation indicates an invalid current position ";
       msg += "when the current position should be valid";
       seek = dynAny.seek (0);
       assertTrue (msg, seek);
-      
+
       // seek the next position
       msg = "The DynAny::next operation indicates a valid current position ";
       msg += "when the current position should be invalid";
       seek = dynAny.next ();
       assertTrue (msg, !seek);
-      
+
       // test getting the current component
       msg = "The object returned from the DynAny::current_component ";
       msg += "operation should be null because the current position is ";
@@ -357,7 +357,7 @@ public class DynAnyUnionTest extends TestCase
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynEnum disc = null;
       org.omg.DynamicAny.DynAny invalidDisc = null;
-      
+
       tc = UnionDefaultTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -374,13 +374,13 @@ public class DynAnyUnionTest extends TestCase
 
       try
       {
-         disc.set_as_string ("second"); // specific to IDL         
+         disc.set_as_string ("second"); // specific to IDL
       }
       catch (Throwable ex)
       {
          fail ("Failed to set value of discriminator: " + ex);
       }
-      
+
       try
       {
          dynAny.set_discriminator (disc);
@@ -399,7 +399,7 @@ public class DynAnyUnionTest extends TestCase
 
       // specific to IDL
       assertEquals (msg, EnumType.second.value (), disc.get_as_ulong ());
-         
+
       // test getting the kind of the discriminator
       msg = "Failed to get the correct kind of the discriminator using ";
       msg += "DynUnion::discriminator_kind operation";
@@ -467,7 +467,7 @@ public class DynAnyUnionTest extends TestCase
          fail (msg + ": " + ex);
       }
       disc = (org.omg.DynamicAny.DynEnum)dynAny.get_discriminator ();
- 
+
       // specific to IDL
       // assertEquals (msg, (byte) 0, disc.to_any ().extract_octet ());
       assertEquals (msg, EnumType.fifth.value (), disc.get_as_ulong ());
@@ -742,7 +742,7 @@ public class DynAnyUnionTest extends TestCase
       String msg;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
-      
+
       tc = UnionNoDefaultTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -797,7 +797,7 @@ public class DynAnyUnionTest extends TestCase
       catch (org.omg.DynamicAny.DynAnyPackage.InvalidValue ex)
       {
          // success
-      }      
+      }
    }
 
 
@@ -818,7 +818,7 @@ public class DynAnyUnionTest extends TestCase
          getUnionMembers ()
       );
       dynAny = createDynAnyFromTypeCode (tc);
-         
+
       msg = "Incorrect TypeCode retrieved from DynAny::type operation";
       assertTrue (msg, dynAny.type ().equal (tc));
    }
@@ -834,10 +834,10 @@ public class DynAnyUnionTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
-      org.omg.DynamicAny.DynUnion dynAny2 = null;      
-      
+      org.omg.DynamicAny.DynUnion dynAny2 = null;
+
       tc = UnionDefaultTypeHelper.type ();
-      dynAny = createDynAnyFromTypeCode (tc);      
+      dynAny = createDynAnyFromTypeCode (tc);
 
       type = new UnionDefaultType ();
       type.win (10);
@@ -870,7 +870,7 @@ public class DynAnyUnionTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
-      
+
       tc = UnionDefaultTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -904,7 +904,7 @@ public class DynAnyUnionTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
-      
+
       any = orb.create_any ();
       any.insert_string ("Hello");
 
@@ -916,7 +916,7 @@ public class DynAnyUnionTest extends TestCase
          getUnionMembers ()
       );
       dynAny = createDynAnyFromTypeCode (tc);
-            
+
       msg = "TypeMismatch exception not thrown by DynAny::from_any ";
       msg += "operation when DynAny and Any operands have different types";
       try
@@ -969,7 +969,7 @@ public class DynAnyUnionTest extends TestCase
       UnionDefaultType type;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
-      
+
       type = new UnionDefaultType ();
       type.win (10);
       any = orb.create_any ();
@@ -1003,7 +1003,7 @@ public class DynAnyUnionTest extends TestCase
       catch (org.omg.CORBA.OBJECT_NOT_EXIST ex)
       {
          // success
-      }      
+      }
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
       {
          fail (msg + ": " + ex);
@@ -1021,7 +1021,7 @@ public class DynAnyUnionTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynAny comp = null;
-      
+
       type = new UnionDefaultType ();
       type.win (10);
       any = orb.create_any ();
@@ -1051,7 +1051,7 @@ public class DynAnyUnionTest extends TestCase
          msg += "DynAny::current_component operation after calling the ";
          msg += "DynAny::destroy operation";
          fail (msg + ": " + ex);
-      }      
+      }
 
       try
       {
@@ -1075,9 +1075,9 @@ public class DynAnyUnionTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
-      
+
       tc = UnionDefaultTypeHelper.type ();
-      dynAny = createDynAnyFromTypeCode (tc);      
+      dynAny = createDynAnyFromTypeCode (tc);
       dynAny2 = (org.omg.DynamicAny.DynUnion) dynAny.copy ();
 
       msg = "The DynAny object created with the DynAny::copy operation ";
@@ -1124,10 +1124,10 @@ public class DynAnyUnionTest extends TestCase
 
    /**
     * Create a DynAny object from an Any object.
-    */   
+    */
    private static org.omg.DynamicAny.DynUnion createDynAnyFromAny
       (org.omg.CORBA.Any any)
-   {      
+   {
       String msg;
       org.omg.DynamicAny.DynUnion dynAny = null;
 
@@ -1147,11 +1147,11 @@ public class DynAnyUnionTest extends TestCase
 
    /**
     * Create a DynAny object from a TypeCode object.
-    */   
+    */
    private static org.omg.DynamicAny.DynUnion createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
-      String msg;      
+      String msg;
       org.omg.DynamicAny.DynUnion dynAny = null;
 
       try
@@ -1202,5 +1202,5 @@ public class DynAnyUnionTest extends TestCase
 
       return members;
    }
-   
+
 }

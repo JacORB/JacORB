@@ -1,32 +1,34 @@
-#ifndef REFLECTIVE_IDL
-#define REFLECTIVE_IDL
 
-
-/**
- * @author OMG
- * @version Version 2.3
- */
-
-module Reflective
+module org
 {
-   interface RefBaseObject;
-   interface RefObject;
-   interface RefPackage;
-
-
-   interface RefBaseObject
+   module jacorb
    {
-   };
+      module test
+      {
+         module idl
+         {
+            module Reflective
+            {
+               interface RefBaseObject;
+               interface RefObject;
+               interface RefPackage;
 
-   interface RefObject : RefBaseObject
-   {
-   };
 
-   interface RefPackage : RefBaseObject
-   {
-      RefPackage get_nested_package ();
-   };
+               interface RefBaseObject
+               {
+               };
 
+               interface RefObject : RefBaseObject
+               {
+               };
+
+               interface RefPackage : RefBaseObject
+               {
+                  RefPackage get_nested_package ();
+               };
+
+            };
+         };
+      };
+   };
 };
-
-#endif /* REFLECTIVE_IDL */

@@ -6,7 +6,7 @@ import junit.framework.*;
 import org.omg.CORBA.*;
 import org.omg.Messaging.*;
 
-import org.jacorb.Tests.*;
+import org.jacorb.test.*;
 import org.jacorb.test.common.*;
 
 /**

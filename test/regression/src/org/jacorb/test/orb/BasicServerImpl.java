@@ -20,7 +20,7 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.Tests.BasicServerPOA;
+import org.jacorb.test.BasicServerPOA;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ByteHolder;
 import org.omg.CORBA.DoubleHolder;
@@ -77,7 +77,7 @@ public class BasicServerImpl extends BasicServerPOA
 
     public void pass_in_long(int x)
     {
-        // nothing        
+        // nothing
     }
 
     public void pass_in_short(short x)

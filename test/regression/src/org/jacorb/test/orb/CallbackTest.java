@@ -3,7 +3,7 @@ package org.jacorb.test.orb;
 import junit.framework.*;
 import junit.extensions.*;
 
-import org.jacorb.Tests.*;
+import org.jacorb.test.*;
 
 import org.jacorb.test.common.*;
 import org.omg.CORBA.*;

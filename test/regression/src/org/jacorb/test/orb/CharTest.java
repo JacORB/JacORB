@@ -19,13 +19,13 @@ package org.jacorb.test.orb;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import junit.framework.*;
 import junit.extensions.*;
 
 import org.jacorb.test.common.*;
 import org.omg.CORBA.*;
-import org.jacorb.Tests.*;
+import org.jacorb.test.*;
 
 public class CharTest extends ClientServerTestCase
 {
@@ -48,10 +48,10 @@ public class CharTest extends ClientServerTestCase
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "Client/server char tests" );
-        ClientServerSetup setup = 
-            new ClientServerSetup( suite, 
+        ClientServerSetup setup =
+            new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.CharServerImpl" );
-        
+
         suite.addTest( new CharTest( "test_pass_in_char", setup ) );
         suite.addTest( new CharTest( "test_pass_in_char_illegal", setup ) );
         suite.addTest( new CharTest( "test_pass_out_char", setup ) );
@@ -67,12 +67,12 @@ public class CharTest extends ClientServerTestCase
         suite.addTest( new CharTest( "test_pass_inout_wchar", setup ) );
         suite.addTest( new CharTest( "test_return_wchar", setup ) );
         suite.addTest( new CharTest( "test_bounce_wchar", setup ) );
-      
+
         return setup;
     }
 
     // char tests
-    
+
     public void test_pass_in_char()
     {
         for (short c=0; c<255; c++)
@@ -81,7 +81,7 @@ public class CharTest extends ClientServerTestCase
             assertEquals( c, result );
         }
     }
-    
+
     public void test_pass_in_char_illegal()
     {
         short result = -1;
@@ -106,7 +106,7 @@ public class CharTest extends ClientServerTestCase
         {
             fail( "unexpected exception: " + e );
         }
-        
+
         try
         {
             result = server.pass_in_char( (char)0xffff );
@@ -118,13 +118,13 @@ public class CharTest extends ClientServerTestCase
             fail( "unexpected exception: " + e );
         }
     }
-    
+
     public void test_pass_out_char()
     {
         CharHolder x = new CharHolder ( 'a' );
         server.pass_out_char( (short)'c', x );
         assertEquals( 'c', x.value );
-        
+
         server.pass_out_char( (short)E_ACUTE, x );
         assertEquals( E_ACUTE, x.value );
     }
@@ -142,7 +142,7 @@ public class CharTest extends ClientServerTestCase
         {
             fail( "unexpected exception: " + e );
         }
-        
+
         try
         {
             server.pass_out_char( (short)0x8fff, x );
@@ -154,13 +154,13 @@ public class CharTest extends ClientServerTestCase
             fail( "unexpected exception: " + e );
         }
     }
-    
+
     public void test_pass_inout_char()
     {
         CharHolder x = new CharHolder( 'a' );
         server.pass_inout_char( x );
         assertEquals( 'A', x.value );
-        
+
         x.value = E_ACUTE;
         server.pass_inout_char( x );
         // expect capital E_ACUTE
@@ -181,7 +181,7 @@ public class CharTest extends ClientServerTestCase
             fail( "unexpected exception: " + e );
         }
     }
-    
+
     public void test_return_char()
     {
         for (short c = 0; c < 255; c++)
@@ -203,73 +203,73 @@ public class CharTest extends ClientServerTestCase
         {
             fail( "unexpected exception: " + e );
         }
-        
+
     }
-    
+
     public void test_bounce_char()
     {
         char result = server.bounce_char( 'a' );
         assertEquals( 'a', result );
     }
-    
+
     // wchar tests
-    
+
     public void test_pass_in_wchar()
     {
         short result = server.pass_in_wchar( 'a' );
         assertEquals( (short)'a', result );
-        
+
         result = server.pass_in_wchar( E_ACUTE );
         assertEquals( (short)E_ACUTE, result );
-        
+
         result = server.pass_in_wchar( EURO_SIGN );
         assertEquals( (short)EURO_SIGN, result );
 
         result = server.pass_in_wchar( '\uA000' );
         assertEquals( (short)0xA000, result );
     }
-    
+
     public void test_pass_out_wchar()
     {
         CharHolder x = new CharHolder( 'a' );
         server.pass_out_wchar( (short)'s', x );
         assertEquals( 's', x.value );
-        
+
         server.pass_out_wchar( (short)E_ACUTE, x );
         assertEquals( E_ACUTE, x.value );
-        
+
         server.pass_out_wchar( (short)EURO_SIGN, x );
         assertEquals( EURO_SIGN, x.value );
-        
+
         server.pass_out_wchar( (short)0xA000, x );
         assertEquals( '\uA000', x.value );
     }
-    
+
     public void test_pass_inout_wchar()
     {
         CharHolder x = new CharHolder( E_ACUTE );
         server.pass_inout_wchar( x );
         assertEquals ( '\u00c9', x.value );  // capital e acute
     }
-    
+
     public void test_return_wchar()
     {
         char result = server.return_wchar( (short)'a' );
         assertEquals( 'a', result );
-        
+
         result = server.return_wchar( (short)E_ACUTE );
         assertEquals( E_ACUTE, result );
-        
+
         result = server.return_wchar( (short)EURO_SIGN );
         assertEquals( EURO_SIGN, result );
-        
+
         result = server.return_wchar( (short)0xA000 );
         assertEquals( '\uA000', result );
     }
-    
+
     public void test_bounce_wchar()
     {
         char result = server.bounce_wchar( EURO_SIGN );
-        assertEquals( EURO_SIGN, result );       
+        assertEquals( EURO_SIGN, result );
     }
 }

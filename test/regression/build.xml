@@ -89,7 +89,7 @@
 <!-- This condition doesn't work when we compile multiple IDL
      files to the same directory.  I'm working to find a clean
      solution, AS.
-    
+
       <condition property="${props.idl}">
          <or>
             <not>
@@ -113,7 +113,6 @@
    <target name="generate-src" if="${props.idl}">
       <jacidl generateir="true"
               srcdir="${idl}"
-              packageprefix="org.jacorb"
               ami_callback="${callback.idl}"
               destdir="${src}/generated"
               includes="${file.idl}"/>
@@ -130,8 +129,8 @@
 
 
    <target name="idl-tests">
-      <property name="props.idl" value="Tests"/>
-      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="props.idl" value="test"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="false"/>
       <property name="file.idl" value="Tests.idl"/>
       <antcall target="process-idl"/>
@@ -139,7 +138,7 @@
 
   <target name="idl-basicserver">
       <property name="props.idl" value="BasicServer"/>
-      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="false"/>
       <property name="file.idl" value="BasicServer.idl"/>
       <antcall target="process-idl"/>
@@ -147,7 +146,7 @@
 
   <target name="idl-charserver">
       <property name="props.idl" value="CharServer"/>
-      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="false"/>
       <property name="file.idl" value="CharServer.idl"/>
       <antcall target="process-idl"/>
@@ -155,7 +154,7 @@
 
   <target name="idl-retstringseq">
       <property name="props.idl" value="RetStringSeq"/>
-      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="false"/>
       <property name="file.idl" value="RetStringSeq.idl"/>
       <antcall target="process-idl"/>
@@ -163,7 +162,7 @@
 
   <target name="idl-callbackserver">
       <property name="props.idl" value="CallbackServer"/>
-      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="true"/>
       <property name="file.idl" value="CallbackServer.idl"/>
       <antcall target="process-idl"/>
@@ -171,7 +170,7 @@
 
   <target name="idl-timingserver">
       <property name="props.idl" value="TimingServer"/>
-      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="true"/>
       <property name="file.idl" value="TimingServer.idl"/>
       <antcall target="process-idl"/>
@@ -179,7 +178,7 @@
 
   <target name="idl-syncscopeserver">
       <property name="props.idl" value="SyncScopeServer"/>
-      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="true"/>
       <property name="file.idl" value="SyncScopeServer.idl"/>
       <antcall target="process-idl"/>
@@ -187,7 +186,7 @@
 
   <target name="idl-connectiontimeout">
       <property name="props.idl" value="ConnectionTimeout"/>
-      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="false"/>
       <property name="file.idl" value="ConnectionTimeout.idl"/>
       <antcall target="process-idl"/>

@@ -23,8 +23,8 @@ package org.jacorb.test.orb.dynany;
 import junit.framework.*;
 import junit.extensions.TestSetup;
 import org.jacorb.test.common.ORBSetup;
-import org.jacorb.Tests.EnumType;
-import org.jacorb.Tests.EnumTypeHelper;
+import org.jacorb.test.EnumType;
+import org.jacorb.test.EnumTypeHelper;
 
 /**
  * DynAnyEnumTest.java
@@ -84,7 +84,7 @@ public class DynAnyEnumTest extends TestCase
 
       any = orb.create_any ();
       EnumTypeHelper.insert (any, EnumType.from_int (0));
-      
+
       createDynAnyFromAny (any);
    }
 
@@ -124,12 +124,12 @@ public class DynAnyEnumTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynEnum dynAny = null;
       org.omg.DynamicAny.DynEnum dynAny2 = null;
-      
+
       any = orb.create_any ();
       EnumTypeHelper.insert (any, EnumType.from_int (0));
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "Comparing two equal DynAny values using DynAny::equal failed";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
@@ -229,7 +229,7 @@ public class DynAnyEnumTest extends TestCase
       }
    }
 
-   
+
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
@@ -241,7 +241,7 @@ public class DynAnyEnumTest extends TestCase
 
       tc = orb.create_enum_tc (ID, NAME, ENUM);
       dynAny = createDynAnyFromTypeCode (tc);
-         
+
       msg = "Incorrect TypeCode retrieved from DynAny::type operation";
       assertTrue (msg, dynAny.type ().equal (tc));
    }
@@ -256,8 +256,8 @@ public class DynAnyEnumTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynEnum dynAny = null;
-      org.omg.DynamicAny.DynEnum dynAny2 = null;      
-      
+      org.omg.DynamicAny.DynEnum dynAny2 = null;
+
       tc = EnumTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -289,7 +289,7 @@ public class DynAnyEnumTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynEnum dynAny = null;
       org.omg.DynamicAny.DynEnum dynAny2 = null;
-      
+
       tc = EnumTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -321,13 +321,13 @@ public class DynAnyEnumTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynEnum dynAny = null;
-      
+
       any = orb.create_any ();
       any.insert_string ("Hello");
 
       tc = orb.create_enum_tc (ID, NAME, ENUM);
       dynAny = createDynAnyFromTypeCode (tc);
-            
+
       msg = "TypeMismatch exception not thrown by DynAny::from_any ";
       msg += "operation when DynAny and Any operands have different types";
       try
@@ -379,7 +379,7 @@ public class DynAnyEnumTest extends TestCase
       String msg;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynEnum dynAny = null;
-      
+
       any = orb.create_any ();
       EnumTypeHelper.insert (any, EnumType.from_int (1));
       dynAny = createDynAnyFromAny (any);
@@ -411,7 +411,7 @@ public class DynAnyEnumTest extends TestCase
       catch (org.omg.CORBA.OBJECT_NOT_EXIST ex)
       {
          // success
-      }      
+      }
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
       {
          fail (msg + ": " + ex);
@@ -428,9 +428,9 @@ public class DynAnyEnumTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynEnum dynAny = null;
       org.omg.DynamicAny.DynEnum dynAny2 = null;
-      
+
       tc = EnumTypeHelper.type ();
-      dynAny = createDynAnyFromTypeCode (tc);      
+      dynAny = createDynAnyFromTypeCode (tc);
       dynAny2 = (org.omg.DynamicAny.DynEnum) dynAny.copy ();
 
       msg = "The DynAny object created with the DynAny::copy operation ";
@@ -449,7 +449,7 @@ public class DynAnyEnumTest extends TestCase
       boolean seek;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynEnum dynAny = null;
-      
+
       tc = EnumTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -466,19 +466,19 @@ public class DynAnyEnumTest extends TestCase
       msg = "The number of components returned from the ";
       msg += "DynAny::component_count operation is incorrect";
       assertEquals (msg, 0, compCount);
-      
+
       // test if there is a first component
       msg = "The DynAny::seek operation indicates that a valid component ";
       msg += "exists but the DynAny should have no components";
       seek = dynAny.seek (0);
       assertTrue (msg, !seek);
-      
+
       // test getting the current component
       try
       {
          dynAny = (org.omg.DynamicAny.DynEnum) dynAny.current_component ();
 
-         msg = "A TypeMismatch exception was not raised by the ";         
+         msg = "A TypeMismatch exception was not raised by the ";
          msg += "DynAny::current_component operation when trying to access ";
          msg += "the current component of a DynAny with no components";
          fail (msg);
@@ -528,10 +528,10 @@ public class DynAnyEnumTest extends TestCase
 
    /**
     * Create a DynAny object from an Any object.
-    */   
+    */
    private static org.omg.DynamicAny.DynEnum createDynAnyFromAny
       (org.omg.CORBA.Any any)
-   {      
+   {
       String msg;
       org.omg.DynamicAny.DynEnum dynAny = null;
 
@@ -551,11 +551,11 @@ public class DynAnyEnumTest extends TestCase
 
    /**
     * Create a DynAny object from a TypeCode object.
-    */   
+    */
    private static org.omg.DynamicAny.DynEnum createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
-      String msg;      
+      String msg;
       org.omg.DynamicAny.DynEnum dynAny = null;
 
       try

@@ -1,6 +1,6 @@
 package org.jacorb.test.orb;
 
-import org.jacorb.Tests.CharServerPOA;
+import org.jacorb.test.CharServerPOA;
 import org.omg.CORBA.CharHolder;
 
 public class CharServerImpl extends CharServerPOA

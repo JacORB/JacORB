@@ -1,23 +1,27 @@
 #pragma prefix "jacorb.org"
 
-module Tests {
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         interface CharServer
+         {
+            // char parameters
+            short pass_in_char (in char x);
+            void pass_out_char (in short unicode_number, out char x);
+            void pass_inout_char (inout char x);
+            char return_char (in short unicode_number);
+            char bounce_char (in char x);
 
-  interface CharServer
-  {
-    // char parameters
-    short pass_in_char (in char x);
-    void pass_out_char (in short unicode_number, out char x);
-    void pass_inout_char (inout char x);
-    char return_char (in short unicode_number);
-    char bounce_char (in char x);
-
-    // wchar parameters
-    short pass_in_wchar (in wchar x);
-    void pass_out_wchar (in short unicode_number, out wchar x);
-    void pass_inout_wchar (inout wchar x);
-    wchar return_wchar (in short unicode_number);
-    wchar bounce_wchar (in wchar x);
-
-  };
-
+            // wchar parameters
+            short pass_in_wchar (in wchar x);
+            void pass_out_wchar (in short unicode_number, out wchar x);
+            void pass_inout_wchar (inout wchar x);
+            wchar return_wchar (in short unicode_number);
+            wchar bounce_wchar (in wchar x);
+         };
+      };
+   };
 };

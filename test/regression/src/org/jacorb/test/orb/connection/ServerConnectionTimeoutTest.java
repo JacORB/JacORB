@@ -25,7 +25,7 @@ import junit.extensions.*;
 
 import org.jacorb.test.common.*;
 import org.omg.CORBA.*;
-import org.jacorb.Tests.*;
+import org.jacorb.test.*;
 import org.jacorb.orb.connection.Client_TCP_IP_Transport;
 
 import java.util.*;

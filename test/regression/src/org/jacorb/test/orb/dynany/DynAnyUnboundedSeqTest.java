@@ -25,7 +25,7 @@ import junit.extensions.TestSetup;
 import org.omg.CORBA.TCKind;
 
 import org.jacorb.test.common.ORBSetup;
-import org.jacorb.Tests.UnboundedDataHelper;
+import org.jacorb.test.UnboundedDataHelper;
 
 /**
  * DynAnyUnboundedSeqTest.java
@@ -84,7 +84,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
       type = getIntSeq (10);
       any = orb.create_any ();
       UnboundedDataHelper.insert (any, type);
-      
+
       createDynAnyFromAny (any);
    }
 
@@ -126,17 +126,17 @@ public class DynAnyUnboundedSeqTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
       org.omg.DynamicAny.DynSequence dynAny2 = null;
-      
+
       type = getIntSeq (10);
       any = orb.create_any ();
       UnboundedDataHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "Comparing two equal DynAny values using DynAny::equal failed";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
-   
+
 
    /**
     * Test iterating through components of a DynAny.
@@ -197,7 +197,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
          msg += "DynAny::seek operation";
          fail (msg + ": " + ex);
       }
-      
+
       // seek the next position
       msg = "The DynAny::next operation indicates an invalid current position ";
       msg += "when the current position should be valid";
@@ -301,7 +301,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
          }
          else
          {
-            assertEquals (msg, 0, curVal);            
+            assertEquals (msg, 0, curVal);
          }
          dynAny.next ();
       }
@@ -322,7 +322,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
       msg = "The wrong number of elements were returned from the ";
       msg += "DynSequence::get_elements operation";
       assertEquals (msg, newLen, anys.length);
-      
+
       msg = "Failed to get the correct value of a DynSequence";
       curVal = anys [0].extract_long ();
       assertEquals (msg, 0, curVal);
@@ -365,7 +365,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
          catch (Throwable ex)
          {
             fail ("Failed to create a DynAny at position " + i + ": " + ex);
-         }         
+         }
 
          try
          {
@@ -423,7 +423,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
          }
          else
          {
-            assertEquals (msg, 0, curVal);            
+            assertEquals (msg, 0, curVal);
          }
          dynAny.next ();
       }
@@ -445,7 +445,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
       msg = "The wrong number of elements were returned from the ";
       msg += "DynSequence::get_elements_as_dyn_any operation";
       assertEquals (msg, newLen, dynAnys.length);
-      
+
       msg = "Failed to get the correct value of a DynSequence";
       curVal = -1;
       try
@@ -456,10 +456,10 @@ public class DynAnyUnboundedSeqTest extends TestCase
       {
          fail (msg + ": " + ex);
       }
-      assertEquals (msg, 0, curVal);      
+      assertEquals (msg, 0, curVal);
    }
 
-   
+
    /**
     * Test that the correct exceptions are raised when accessing the elements
     * in a DynSequence object incorrectly.
@@ -511,7 +511,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
       tc = orb.get_primitive_tc (TCKind.tk_long);
       tc = orb.create_sequence_tc (0, tc);
       dynAny = createDynAnyFromTypeCode (tc);
-         
+
       msg = "Incorrect TypeCode retrieved from DynAny::type operation";
       assertTrue (msg, dynAny.type ().equal (tc));
    }
@@ -527,8 +527,8 @@ public class DynAnyUnboundedSeqTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
-      org.omg.DynamicAny.DynSequence dynAny2 = null;      
-      
+      org.omg.DynamicAny.DynSequence dynAny2 = null;
+
       tc = UnboundedDataHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -562,7 +562,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
       org.omg.DynamicAny.DynSequence dynAny2 = null;
-      
+
       tc = UnboundedDataHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -595,14 +595,14 @@ public class DynAnyUnboundedSeqTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
-      
+
       any = orb.create_any ();
       any.insert_string ("Hello");
 
       tc = orb.get_primitive_tc (TCKind.tk_long);
       tc = orb.create_sequence_tc (0, tc);
       dynAny = createDynAnyFromTypeCode (tc);
-            
+
       msg = "TypeMismatch exception not thrown by DynAny::from_any ";
       msg += "operation when DynAny and Any operands have different types";
       try
@@ -655,7 +655,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
       int [] type;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
-      
+
       type = getIntSeq (10);
       any = orb.create_any ();
       UnboundedDataHelper.insert (any, type);
@@ -688,7 +688,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
       catch (org.omg.CORBA.OBJECT_NOT_EXIST ex)
       {
          // success
-      }      
+      }
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
       {
          fail (msg + ": " + ex);
@@ -706,7 +706,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
       org.omg.DynamicAny.DynAny comp = null;
-      
+
       type = getIntSeq (10);
       any = orb.create_any ();
       UnboundedDataHelper.insert (any, type);
@@ -735,7 +735,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
          msg += "DynAny::current_component operation after calling the ";
          msg += "DynAny::destroy operation";
          fail (msg + ": " + ex);
-      }      
+      }
 
       try
       {
@@ -759,9 +759,9 @@ public class DynAnyUnboundedSeqTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
       org.omg.DynamicAny.DynSequence dynAny2 = null;
-      
+
       tc = UnboundedDataHelper.type ();
-      dynAny = createDynAnyFromTypeCode (tc);      
+      dynAny = createDynAnyFromTypeCode (tc);
       dynAny2 = (org.omg.DynamicAny.DynSequence) dynAny.copy ();
 
       msg = "The DynAny object created with the DynAny::copy operation ";
@@ -808,10 +808,10 @@ public class DynAnyUnboundedSeqTest extends TestCase
 
    /**
     * Create a DynAny object from an Any object.
-    */   
+    */
    private static org.omg.DynamicAny.DynSequence createDynAnyFromAny
       (org.omg.CORBA.Any any)
-   {      
+   {
       String msg;
       org.omg.DynamicAny.DynSequence dynAny = null;
 
@@ -831,11 +831,11 @@ public class DynAnyUnboundedSeqTest extends TestCase
 
    /**
     * Create a DynAny object from a TypeCode object.
-    */   
+    */
    private static org.omg.DynamicAny.DynSequence createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
-      String msg;      
+      String msg;
       org.omg.DynamicAny.DynSequence dynAny = null;
 
       try
@@ -865,5 +865,5 @@ public class DynAnyUnboundedSeqTest extends TestCase
       }
       return type;
    }
-   
+
 }

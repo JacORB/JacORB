@@ -25,8 +25,8 @@ import junit.extensions.TestSetup;
 import org.omg.CORBA.TCKind;
 
 import org.jacorb.test.common.ORBSetup;
-import org.jacorb.Tests.Bound;
-import org.jacorb.Tests.ArrayTypeHelper;
+import org.jacorb.test.Bound;
+import org.jacorb.test.ArrayTypeHelper;
 
 /**
  * DynAnyArrayTest.java
@@ -85,7 +85,7 @@ public class DynAnyArrayTest extends TestCase
       type = getIntArray ();
       any = orb.create_any ();
       ArrayTypeHelper.insert (any, type);
-      
+
       createDynAnyFromAny (any);
    }
 
@@ -127,17 +127,17 @@ public class DynAnyArrayTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynArray dynAny = null;
       org.omg.DynamicAny.DynArray dynAny2 = null;
-      
+
       type = getIntArray ();
       any = orb.create_any ();
       ArrayTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "Comparing two equal DynAny values using DynAny::equal failed";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
-   
+
 
    /**
     * Test iterating through components of a DynAny.
@@ -197,7 +197,7 @@ public class DynAnyArrayTest extends TestCase
          msg += "DynAny::seek operation";
          fail (msg + ": " + ex);
       }
-      
+
       // seek the next position
       msg = "The DynAny::next operation indicates an invalid current position ";
       msg += "when the current position should be valid";
@@ -289,7 +289,7 @@ public class DynAnyArrayTest extends TestCase
 
       tc = ArrayTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
-      
+
       // test setting the elements
       len = Bound.value;
       dynAnys = new org.omg.DynamicAny.DynAny [len];
@@ -303,7 +303,7 @@ public class DynAnyArrayTest extends TestCase
          catch (Throwable ex)
          {
             fail ("Failed to create a DynAny at position " + i + ": " + ex);
-         }         
+         }
 
          try
          {
@@ -314,7 +314,7 @@ public class DynAnyArrayTest extends TestCase
             msg = "Failed to insert a value into a DynAny at position " + i;
             msg += ": " + ex;
             fail (msg);
-         }         
+         }
       }
 
       try
@@ -372,7 +372,7 @@ public class DynAnyArrayTest extends TestCase
          anys [i] = orb.create_any ();
          anys [i].insert_string ("BadType");
       }
-      
+
       msg = "Failed to raise a TypeMismatch exception when setting a ";
       msg += "DynArray object with components of the wrong type using ";
       msg += "DynArray::set_elements";
@@ -414,7 +414,7 @@ public class DynAnyArrayTest extends TestCase
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
       {
          fail (msg + ": " + ex);
-      }      
+      }
    }
 
 
@@ -430,7 +430,7 @@ public class DynAnyArrayTest extends TestCase
       tc = orb.get_primitive_tc (TCKind.tk_long);
       tc = orb.create_array_tc (Bound.value, tc);
       dynAny = createDynAnyFromTypeCode (tc);
-         
+
       msg = "Incorrect TypeCode retrieved from DynAny::type operation";
       assertTrue (msg, dynAny.type ().equal (tc));
    }
@@ -446,8 +446,8 @@ public class DynAnyArrayTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynArray dynAny = null;
-      org.omg.DynamicAny.DynArray dynAny2 = null;      
-      
+      org.omg.DynamicAny.DynArray dynAny2 = null;
+
       tc = ArrayTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -481,7 +481,7 @@ public class DynAnyArrayTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynArray dynAny = null;
       org.omg.DynamicAny.DynArray dynAny2 = null;
-      
+
       tc = ArrayTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -514,14 +514,14 @@ public class DynAnyArrayTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynArray dynAny = null;
-      
+
       any = orb.create_any ();
       any.insert_string ("Hello");
 
       tc = orb.get_primitive_tc (TCKind.tk_long);
       tc = orb.create_array_tc (Bound.value, tc);
       dynAny = createDynAnyFromTypeCode (tc);
-            
+
       msg = "TypeMismatch exception not thrown by DynAny::from_any ";
       msg += "operation when DynAny and Any operands have different types";
       try
@@ -574,7 +574,7 @@ public class DynAnyArrayTest extends TestCase
       int [] type;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynArray dynAny = null;
-      
+
       type = getIntArray ();
       any = orb.create_any ();
       ArrayTypeHelper.insert (any, type);
@@ -607,7 +607,7 @@ public class DynAnyArrayTest extends TestCase
       catch (org.omg.CORBA.OBJECT_NOT_EXIST ex)
       {
          // success
-      }      
+      }
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
       {
          fail (msg + ": " + ex);
@@ -625,7 +625,7 @@ public class DynAnyArrayTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynArray dynAny = null;
       org.omg.DynamicAny.DynAny comp = null;
-      
+
       type = getIntArray ();
       any = orb.create_any ();
       ArrayTypeHelper.insert (any, type);
@@ -654,7 +654,7 @@ public class DynAnyArrayTest extends TestCase
          msg += "DynAny::current_component operation after calling the ";
          msg += "DynAny::destroy operation";
          fail (msg + ": " + ex);
-      }      
+      }
 
       try
       {
@@ -678,9 +678,9 @@ public class DynAnyArrayTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynArray dynAny = null;
       org.omg.DynamicAny.DynArray dynAny2 = null;
-      
+
       tc = ArrayTypeHelper.type ();
-      dynAny = createDynAnyFromTypeCode (tc);      
+      dynAny = createDynAnyFromTypeCode (tc);
       dynAny2 = (org.omg.DynamicAny.DynArray) dynAny.copy ();
 
       msg = "The DynAny object created with the DynAny::copy operation ";
@@ -727,10 +727,10 @@ public class DynAnyArrayTest extends TestCase
 
    /**
     * Create a DynAny object from an Any object.
-    */   
+    */
    private static org.omg.DynamicAny.DynArray createDynAnyFromAny
       (org.omg.CORBA.Any any)
-   {      
+   {
       String msg;
       org.omg.DynamicAny.DynArray dynAny = null;
 
@@ -750,11 +750,11 @@ public class DynAnyArrayTest extends TestCase
 
    /**
     * Create a DynAny object from a TypeCode object.
-    */   
+    */
    private static org.omg.DynamicAny.DynArray createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
-      String msg;      
+      String msg;
       org.omg.DynamicAny.DynArray dynAny = null;
 
       try
@@ -784,5 +784,5 @@ public class DynAnyArrayTest extends TestCase
       }
       return type;
    }
-   
+
 }

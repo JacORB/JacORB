@@ -2,14 +2,19 @@
 
 #include "Tests.idl"
 
-module Tests
+module org
 {
-	interface TimingServer
-	{
-		long operation (in long id, in long delay);
-		char ex_op     (in char ch, in long delay) raises (EmptyException);
+   module jacorb
+   {
+      module test
+      {
+         interface TimingServer
+         {
+            long operation (in long id, in long delay);
+            char ex_op     (in char ch, in long delay) raises (EmptyException);
 
-		long long server_time (in long delay);
-    };
-
+            long long server_time (in long delay);
+         };
+      };
+   };
 };

@@ -1,7 +1,7 @@
 package org.jacorb.test.orb.policies;
 
-import org.jacorb.Tests.EmptyException;
-import org.jacorb.Tests.TimingServerPOA;
+import org.jacorb.test.EmptyException;
+import org.jacorb.test.TimingServerPOA;
 import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
 import org.omg.CORBA.portable.ResponseHandler;
@@ -59,6 +59,6 @@ public class TimingServerImpl extends TimingServerPOA
                 System.out.println ("wait interrupted");
             }
         }
-        return time; 
+        return time;
     }
 }

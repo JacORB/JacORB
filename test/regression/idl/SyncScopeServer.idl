@@ -2,12 +2,17 @@
 
 #include "Tests.idl"
 
-module Tests
+module org
 {
-	interface SyncScopeServer
-	{
-                oneway void oneway_op (in long delay);
-                void operation (in long delay);
-        };
-
+   module jacorb
+   {
+      module test
+      {
+         interface SyncScopeServer
+         {
+            oneway void oneway_op (in long delay);
+            void operation (in long delay);
+         };
+      };
+   };
 };

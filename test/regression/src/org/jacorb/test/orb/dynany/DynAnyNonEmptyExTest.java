@@ -28,8 +28,8 @@ import org.omg.DynamicAny.NameValuePair;
 import org.omg.DynamicAny.NameDynAnyPair;
 
 import org.jacorb.test.common.ORBSetup;
-import org.jacorb.Tests.NonEmptyException;
-import org.jacorb.Tests.NonEmptyExceptionHelper;
+import org.jacorb.test.NonEmptyException;
+import org.jacorb.test.NonEmptyExceptionHelper;
 
 /**
  * DynAnyNonEmptyExTest.java
@@ -92,7 +92,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       type = new NonEmptyException (1, "Hello");
       any = orb.create_any ();
       NonEmptyExceptionHelper.insert (any, type);
-      
+
       createDynAnyFromAny (any);
    }
 
@@ -133,13 +133,13 @@ public class DynAnyNonEmptyExTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynStruct dynAny = null;
       org.omg.DynamicAny.DynStruct dynAny2 = null;
-      
+
       type = new NonEmptyException (1, "Hello");
       any = orb.create_any ();
       NonEmptyExceptionHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "Comparing two equal DynAny values using DynAny::equal failed";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
@@ -157,7 +157,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       org.omg.DynamicAny.DynStruct dynAny = null;
       org.omg.DynamicAny.DynAny compSeek = null;
       org.omg.DynamicAny.DynAny compRewind = null;
-      
+
       tc = orb.create_exception_tc (ID, NAME, getExceptionMembers ());
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -199,7 +199,7 @@ public class DynAnyNonEmptyExTest extends TestCase
          msg += "DynAny::seek operation";
          fail (msg);
       }
-      
+
       // seek the next position
       msg = "The DynAny::next operation indicates an invalid current position ";
       msg += "when the current position should be valid";
@@ -258,7 +258,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       {
          fail (msg + ": " + ex);
       }
-         
+
       // test getting the kind of the current member
       msg = "Failed to get the correct kind of the first member using ";
       msg += "DynStruct::current_member_kind operation";
@@ -266,7 +266,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       {
          memberKind = dynAny.current_member_kind ();
 
-         // specific to IDL         
+         // specific to IDL
          assertEquals (msg, TCKind._tk_long, memberKind.value ());
       }
       catch (AssertionFailedError ex)
@@ -306,7 +306,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       {
          memberKind = dynAny.current_member_kind ();
 
-         // specific to IDL         
+         // specific to IDL
          assertEquals (msg, TCKind._tk_string, memberKind.value ());
       }
       catch (AssertionFailedError ex)
@@ -317,7 +317,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       {
          fail (msg + ": " + ex);
       }
-      
+
       // move to an invalid position
       dynAny.seek (-1);
 
@@ -341,7 +341,7 @@ public class DynAnyNonEmptyExTest extends TestCase
             fail (msg + ": " + ex);
          }
       }
-         
+
       // test getting the kind of the current member
       msg = "Failed to throw an InvalidValue exception when calling ";
       msg += "DynStruct::current_member_kind operation at an invalid position";
@@ -400,7 +400,7 @@ public class DynAnyNonEmptyExTest extends TestCase
 
       pairs = new NameValuePair [2]; // specific to IDL
       any = orb.create_any ();
-      any.insert_long (newInt);      
+      any.insert_long (newInt);
       pairs [0] = new NameValuePair (name1, any);
       any = orb.create_any ();
       any.insert_string (newStr);
@@ -466,7 +466,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       assertEquals (msg, oldStr, pairs [1].value.to_any ().extract_string ());
 
       any = orb.create_any ();
-      any.insert_long (newInt);      
+      any.insert_long (newInt);
       try
       {
          dynAny1 = factory.create_dyn_any (any);
@@ -490,7 +490,7 @@ public class DynAnyNonEmptyExTest extends TestCase
          msg += "using DynAny::create_dyn_any operation: " + ex;
          fail (msg);
       }
-      
+
       pairs = new NameDynAnyPair [2]; // specific to IDL
       pairs [0] = new NameDynAnyPair (name1, dynAny1);
       pairs [1] = new NameDynAnyPair (name2, dynAny2);
@@ -618,7 +618,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       }
    }
 
-   
+
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
@@ -630,7 +630,7 @@ public class DynAnyNonEmptyExTest extends TestCase
 
       tc = orb.create_exception_tc (ID, NAME, getExceptionMembers ());
       dynAny = createDynAnyFromTypeCode (tc);
-         
+
       msg = "Incorrect TypeCode retrieved from DynAny::type operation";
       assertTrue (msg, dynAny.type ().equal (tc));
    }
@@ -646,8 +646,8 @@ public class DynAnyNonEmptyExTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynStruct dynAny = null;
-      org.omg.DynamicAny.DynStruct dynAny2 = null;      
-      
+      org.omg.DynamicAny.DynStruct dynAny2 = null;
+
       tc = NonEmptyExceptionHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -681,7 +681,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynStruct dynAny = null;
       org.omg.DynamicAny.DynStruct dynAny2 = null;
-      
+
       tc = NonEmptyExceptionHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -714,13 +714,13 @@ public class DynAnyNonEmptyExTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynStruct dynAny = null;
-      
+
       any = orb.create_any ();
       any.insert_string ("Hello");
 
       tc = orb.create_exception_tc (ID, NAME, getExceptionMembers ());
       dynAny = createDynAnyFromTypeCode (tc);
-            
+
       msg = "TypeMismatch exception not thrown by DynAny::from_any ";
       msg += "operation when DynAny and Any operands have different types";
       try
@@ -773,7 +773,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       NonEmptyException type;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynStruct dynAny = null;
-      
+
       type = new NonEmptyException (1, "Hello");
       any = orb.create_any ();
       NonEmptyExceptionHelper.insert (any, type);
@@ -806,7 +806,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       catch (org.omg.CORBA.OBJECT_NOT_EXIST ex)
       {
          // success
-      }      
+      }
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
       {
          fail (msg + ": " + ex);
@@ -824,7 +824,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynStruct dynAny = null;
       org.omg.DynamicAny.DynAny comp = null;
-      
+
       type = new NonEmptyException (1, "Hello");
       any = orb.create_any ();
       NonEmptyExceptionHelper.insert (any, type);
@@ -853,7 +853,7 @@ public class DynAnyNonEmptyExTest extends TestCase
          msg += "DynAny::current_component operation after calling the ";
          msg += "DynAny::destroy operation";
          fail (msg + ": " + ex);
-      }      
+      }
 
       try
       {
@@ -867,7 +867,7 @@ public class DynAnyNonEmptyExTest extends TestCase
       }
    }
 
-   
+
    /**
     * Test creating a copy of a DynAny object.
     */
@@ -877,9 +877,9 @@ public class DynAnyNonEmptyExTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynStruct dynAny = null;
       org.omg.DynamicAny.DynStruct dynAny2 = null;
-      
+
       tc = NonEmptyExceptionHelper.type ();
-      dynAny = createDynAnyFromTypeCode (tc);      
+      dynAny = createDynAnyFromTypeCode (tc);
       dynAny2 = (org.omg.DynamicAny.DynStruct) dynAny.copy ();
 
       msg = "The DynAny object created with the DynAny::copy operation ";
@@ -926,10 +926,10 @@ public class DynAnyNonEmptyExTest extends TestCase
 
    /**
     * Create a DynAny object from an Any object.
-    */   
+    */
    private static org.omg.DynamicAny.DynStruct createDynAnyFromAny
       (org.omg.CORBA.Any any)
-   {      
+   {
       String msg;
       org.omg.DynamicAny.DynStruct dynAny = null;
 
@@ -949,11 +949,11 @@ public class DynAnyNonEmptyExTest extends TestCase
 
    /**
     * Create a DynAny object from a TypeCode object.
-    */   
+    */
    private static org.omg.DynamicAny.DynStruct createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
-      String msg;      
+      String msg;
       org.omg.DynamicAny.DynStruct dynAny = null;
 
       try
@@ -995,5 +995,5 @@ public class DynAnyNonEmptyExTest extends TestCase
 
       return members;
    }
-   
+
 }

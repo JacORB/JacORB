@@ -20,7 +20,7 @@ package org.jacorb.test.orb.connection;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.Tests.*;
+import org.jacorb.test.*;
 
 public class ConnectionTimeoutServerImpl
     extends TestIfPOA
