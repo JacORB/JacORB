@@ -25,7 +25,6 @@ import java.io.*;
 import java.applet.Applet;
 import java.lang.reflect.*;
 
-import org.jacorb.imr.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.policies.*;
 import org.jacorb.orb.connection.*;
@@ -104,8 +103,7 @@ public final class ORB
     private static boolean ORBDomainCreationInProgress = false;
   
     /* for registering POAs with the ImR */
-    private Registration imr = null;
-    private ImRInfo imr_info = null;
+    private ImRAccess imr = null;
     private int persistentPOACount;
 
     public static String orb_id = "jacorb:1.0";
@@ -446,23 +444,32 @@ public final class ORB
             {
                 if (imr == null)
                 {
-                    // we're first to consult ImR
-                    imr = RegistrationHelper.narrow( 
-                             resolve_initial_references("ImplementationRepository"));
-                }
-
-                if (imr_info == null)
-                {
-                    // we're first to get ImRInfo
-                    imr_info = imr.get_imr_info();
+                    try
+                    {
+                        imr = (ImRAccess) 
+                            Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
+                    
+                        imr.connect( this );
+                    }
+                    catch( Exception e )
+                    {
+                        if( e instanceof org.omg.CORBA.INTERNAL )
+                        {
+                            throw (org.omg.CORBA.INTERNAL) e;
+                        }
+                        else
+                        {
+                            Debug.output( 1, e );
+                            throw new org.omg.CORBA.INTERNAL( e.toString() );
+                        }
+                    }
                 }
                 
                 // set host and port to ImR's values
-                address = imr_info.host;
-                port =  imr_info.port;
+                address = imr.getImRHost();
+                port =  imr.getImRPort();
                 Debug.output( 2, "New persistent IOR created with ImR at " + 
                               address + ":" + port );
-                
             }
             catch (Exception _e)
             {
@@ -470,7 +477,6 @@ public final class ORB
                 // sth went wrong,  host and port values of this ORB as set above are use
             }
         }
-
 
         Vector components_iiop_profile = new Vector();
         Vector components_multi_profile = new Vector();
@@ -755,50 +761,34 @@ public final class ORB
             {
                 try
                 {
-                    imr = RegistrationHelper.narrow( 
-                        resolve_initial_references("ImplementationRepository")  );
+                    imr = (ImRAccess) 
+                        Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
+                    
+                    imr.connect( this );
                 }
-                catch( org.omg.CORBA.ORBPackage.InvalidName in )
-                {}
-                if (imr == null || imr._non_existent())
+                catch( Exception e )
                 {
-                    Debug.output(3, "No connection to ImplementationRepository");
-                    return;
+                    if( e instanceof org.omg.CORBA.INTERNAL )
+                    {
+                        throw (org.omg.CORBA.INTERNAL) e;
+                    }
+                    else
+                    {
+                        Debug.output( 1, e );
+                        throw new org.omg.CORBA.INTERNAL( e.toString() );
+                    }
                 }
             }
 
             if( imr != null )
             {
-                try
-                {
-                    /* Register the POA  */
-                    String server_name = new String(Environment.implName());
-                    imr.register_poa(server_name + "/" + poa._getQualifiedName(), 
-                                     server_name, // logical server name
-                                     basicAdapter.getAddress(),
-                                     basicAdapter.getPort());
-                }
-                catch( org.jacorb.imr.RegistrationPackage.DuplicatePOAName e )
-                {
-                    throw new org.omg.CORBA.INTERNAL( "A server with the same combination of ImplName/POA-Name (" +
-                                                      new String(Environment.implName()) + '/' +
-                                                      poa._getQualifiedName() +
-                                                      ") is already registered and listed as active at the imr!" );
-                }
-                catch( org.jacorb.imr.RegistrationPackage.IllegalPOAName e )
-                {
-                    throw new org.omg.CORBA.INTERNAL( "The ImR replied that the POA name >>" + 
-                                                      e.name + "<< is illegal!" );
-                }
-                catch( org.jacorb.imr.UnknownServerName e )
-                {
-                    throw new org.omg.CORBA.INTERNAL( "The ImR replied that the server name >>" + 
-                                                      e.name + "<< is unknown!" );
-                }
-                catch (Exception _e)
-                {
-                    Debug.output(4, _e);
-                }
+                /* Register the POA  */
+                String server_name = new String(Environment.implName());
+
+                imr.registerPOA(server_name + "/" + poa._getQualifiedName(), 
+                                server_name, // logical server name
+                                basicAdapter.getAddress(),
+                                basicAdapter.getPort());
             }
         }
     }
@@ -816,14 +806,7 @@ public final class ORB
                the server */
             if( --persistentPOACount == 0 )
             {
-                try
-                {
-                    imr.set_server_down(new String(Environment.implName()));
-                }
-                catch (Exception _e)
-                {
-                    Debug.output(2, _e);
-                }
+                imr.setServerDown(new String(Environment.implName()));
             }
         }
     }
