@@ -37,25 +37,24 @@ import org.apache.avalon.framework.logger.Logger;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
- * Abstract Base Class for Simple Pooling Mechanism. Subclasses must
- * at least implement the method newInstance. To use a Object call
- * lendObject. After use the Object must be returned with
- * returnObject(Object). An Object must not be used after it has been
- * returned to its pool!
- *
+ * Abstract Base Class for Simple Pooling Mechanism. Subclasses must at least
+ * implement the method newInstance. To use a Object call lendObject. After use
+ * the Object must be returned with returnObject(Object). An Object must not be
+ * used after it has been returned to its pool!
+ * 
  * @author Alphonse Bendt
- * @version $Id$
+ * @version $Id: AbstractObjectPool.java,v 1.12 2004/07/12 11:20:15
+ *          alphonse.bendt Exp $
  */
 
-public abstract class AbstractObjectPool
-    implements Runnable, Configurable
+public abstract class AbstractObjectPool implements Runnable, Configurable
 {
     public static final boolean DEBUG = false;
 
     /**
      * time the cleaner thread sleeps between two cleanups
      */
-    public static final long SLEEP = 100L;
+    public static final long SLEEP = 5000L;
 
     public static final int LOWER_WATERMARK_DEFAULT = 30;
 
@@ -68,34 +67,53 @@ public abstract class AbstractObjectPool
     /**
      * non synchronized as accessing methods are synchronized.
      */
-    private static List sPoolsToLookAfter = new LinkedList();
+    private static final List sPoolsToLookAfter = new ArrayList();
+
+    private static AbstractObjectPool[] asArray;
+
+    private static boolean modified = true;
+
+    private final static AbstractObjectPool[] ARRAY_TEMPLATE = new AbstractObjectPool[0];
 
     private static Thread sCleanerThread;
 
     private static ListCleaner sListCleaner;
 
-    private static void registerPool( AbstractObjectPool pool )
+    private static AbstractObjectPool[] getAllPools()
     {
-        synchronized(sPoolsToLookAfter) {
-            sPoolsToLookAfter.add( pool );
+        synchronized (sPoolsToLookAfter)
+        {
+            if (modified)
+            {
+                asArray = (AbstractObjectPool[]) sPoolsToLookAfter.toArray(ARRAY_TEMPLATE);
+                modified = false;
+            }
+        }
+        return asArray;
+    }
 
+    private static void registerPool(AbstractObjectPool pool)
+    {
+        synchronized (sPoolsToLookAfter)
+        {
+            sPoolsToLookAfter.add(pool);
+            modified = true;
             startListCleaner();
         }
     }
 
-
-    private static void deregisterPool( AbstractObjectPool pool )
+    private static void deregisterPool(AbstractObjectPool pool)
     {
-        synchronized(sPoolsToLookAfter) {
-            sPoolsToLookAfter.remove( pool );
-
-            if ( sPoolsToLookAfter.isEmpty() )
-                {
-                    stopListCleaner();
-                }
+        synchronized (sPoolsToLookAfter)
+        {
+            sPoolsToLookAfter.remove(pool);
+            modified = true;
+            if (sPoolsToLookAfter.isEmpty())
+            {
+                stopListCleaner();
+            }
         }
     }
-
 
     private static class ListCleaner extends Thread
     {
@@ -108,49 +126,60 @@ public abstract class AbstractObjectPool
             interrupt();
         }
 
-        private void ensureIsActive() throws InterruptedException {
-            if ( !active_.get() )
-                {
-                    throw new InterruptedException();
-                }
+        private void ensureIsActive() throws InterruptedException
+        {
+            if (!active_.get())
+            {
+                throw new InterruptedException();
+            }
         }
 
         public void run()
         {
-            try {
-                while ( active_.get() ) {
-                    try {
+            try
+            {
+                while (active_.get())
+                {
+                    try
+                    {
                         runLoop();
-                    } catch (Exception e) {}
+                    } catch (Exception e)
+                    {
+                    }
                 }
-            } finally {
-                synchronized(AbstractObjectPool.class) {
+            } finally
+            {
+                synchronized (AbstractObjectPool.class)
+                {
                     sCleanerThread = null;
                 }
             }
         }
 
-        private void runLoop() throws InterruptedException {
-            while(true) {
-                try {
-                    sleep( SLEEP );
+        private void runLoop() throws InterruptedException
+        {
+            while (true)
+            {
+                try
+                {
+                    sleep(SLEEP);
+                } catch (InterruptedException ie)
+                {
                 }
-                catch ( InterruptedException ie ) {}
 
                 ensureIsActive();
 
-                synchronized(sPoolsToLookAfter) {
-                    Iterator i = sPoolsToLookAfter.iterator();
+                Runnable[] poolsToCheck = getAllPools();
 
-                    while(i.hasNext()) {
+                for (int x = 0; x < poolsToCheck.length; ++x)
+                {
 
-                        try {
-                            ( ( Runnable ) i.next() ).run();
-                        } catch ( Throwable t ) {
-                            t.printStackTrace();
-
-                            i.remove();
-                        }
+                    try
+                    {
+                        poolsToCheck[x].run();
+                    } catch (Throwable t)
+                    {
+                        t.printStackTrace();
                     }
                 }
             }
@@ -159,8 +188,10 @@ public abstract class AbstractObjectPool
 
     private static ListCleaner getListCleaner()
     {
-        synchronized ( AbstractObjectPool.class ) {
-            if ( sListCleaner == null ) {
+        synchronized (AbstractObjectPool.class)
+        {
+            if (sListCleaner == null)
+            {
                 sListCleaner = new ListCleaner();
             }
             return sListCleaner;
@@ -169,8 +200,10 @@ public abstract class AbstractObjectPool
 
     private static void stopListCleaner()
     {
-        synchronized(AbstractObjectPool.class) {
-            if ( sCleanerThread != null ) {
+        synchronized (AbstractObjectPool.class)
+        {
+            if (sCleanerThread != null)
+            {
                 sListCleaner.setInactive();
             }
         }
@@ -178,13 +211,15 @@ public abstract class AbstractObjectPool
 
     private static void startListCleaner()
     {
-        synchronized ( AbstractObjectPool.class ) {
-            if ( sCleanerThread == null ) {
-                sCleanerThread = new Thread( getListCleaner() );
+        synchronized (AbstractObjectPool.class)
+        {
+            if (sCleanerThread == null)
+            {
+                sCleanerThread = new Thread(getListCleaner());
 
-                sCleanerThread.setName( "ObjectPoolCleaner" );
-                sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
-                sCleanerThread.setDaemon( true );
+                sCleanerThread.setName("ObjectPoolCleaner");
+                sCleanerThread.setPriority(Thread.MIN_PRIORITY + 1);
+                sCleanerThread.setDaemon(true);
                 sCleanerThread.start();
             }
         }
@@ -201,15 +236,15 @@ public abstract class AbstractObjectPool
     private Set active_ = Collections.synchronizedSet(new HashSet());
 
     /**
-     * lower watermark. if pool size is below that value, create
-     * sizeIncrease_ new elements.
+     * lower watermark. if pool size is below that value, create sizeIncrease_
+     * new elements.
      */
     private int lowerWatermark_;
 
     /**
-     * how many instances should the pool maximal keep. instances that
-     * are returned to a pool which size is greater than
-     * maxWatermark_ are discarded and left for the Garbage Collector.
+     * how many instances should the pool maximal keep. instances that are
+     * returned to a pool which size is greater than maxWatermark_ are discarded
+     * and left for the Garbage Collector.
      */
     private int maxWatermark_;
 
@@ -228,30 +263,22 @@ public abstract class AbstractObjectPool
 
     protected Configuration config_;
 
-    public void configure (Configuration conf)
+    public void configure(Configuration conf)
     {
         config_ = conf;
-        logger_ =  ((org.jacorb.config.Configuration)conf).getNamedLogger( getClass().getName() );
+        logger_ = ((org.jacorb.config.Configuration) conf).getNamedLogger(getClass().getName());
         init();
-        registerPool( this );
+        registerPool(this);
     }
-
 
     protected AbstractObjectPool(String name)
     {
-        this( name,
-              LOWER_WATERMARK_DEFAULT,
-              SIZE_INCREASE_DEFAULT,
-              INITIAL_SIZE_DEFAULT,
-              MAXIMUM_WATERMARK_DEFAULT );
+        this(name, LOWER_WATERMARK_DEFAULT, SIZE_INCREASE_DEFAULT, INITIAL_SIZE_DEFAULT,
+                MAXIMUM_WATERMARK_DEFAULT);
     }
 
-
-    protected AbstractObjectPool( String name,
-                                  int threshold,
-                                  int sizeincrease,
-                                  int initialsize,
-                                  int maxsize )
+    protected AbstractObjectPool(String name, int threshold, int sizeincrease, int initialsize,
+            int maxsize)
     {
         name_ = name;
         pool_ = new LinkedList();
@@ -261,60 +288,64 @@ public abstract class AbstractObjectPool
         maxWatermark_ = maxsize;
     }
 
-
     public void run()
     {
-        synchronized(pool_) {
-            if (pool_.size() > lowerWatermark_) {
+        synchronized (pool_)
+        {
+            if (pool_.size() > lowerWatermark_)
+            {
                 return;
             }
         }
 
         List os = new ArrayList(sizeIncrease_);
 
-        for ( int x = 0; x < sizeIncrease_; ++x ) {
+        for (int x = 0; x < sizeIncrease_; ++x)
+        {
             Object _i = createInstance();
 
             os.add(_i);
         }
 
-        synchronized(pool_) {
+        synchronized (pool_)
+        {
             pool_.addAll(os);
         }
     }
 
-    private Object createInstance() {
+    private Object createInstance()
+    {
         Object _i = newInstance();
 
         return _i;
     }
 
     /**
-     * Initialize this Pool. An initial Number of Objects is
-     * created. Cleanup Thread is started.
+     * Initialize this Pool. An initial Number of Objects is created. Cleanup
+     * Thread is started.
      */
     public void init()
     {
-        synchronized(pool_) {
-            for ( int x = 0; x < initialSize_; ++x ) {
-                    Object _i = createInstance();
+        synchronized (pool_)
+        {
+            for (int x = 0; x < initialSize_; ++x)
+            {
+                Object _i = createInstance();
 
-                    pool_.add( _i );
+                pool_.add(_i);
             }
         }
     }
-
 
     /**
      * Release this Pool.
      */
     public void dispose()
     {
-        deregisterPool( this );
+        deregisterPool(this);
         pool_.clear();
         active_.clear();
     }
-
 
     /**
      * lend an object from the pool.
@@ -323,25 +354,31 @@ public abstract class AbstractObjectPool
     {
         Object _ret = null;
 
-        synchronized ( pool_ ) {
-            if ( !pool_.isEmpty() ) {
+        synchronized (pool_)
+        {
+            if (!pool_.isEmpty())
+            {
                 _ret = pool_.removeFirst();
             }
         }
 
-        if ( _ret == null ) {
+        if (_ret == null)
+        {
             _ret = createInstance();
         }
 
-        try {
-            ((Configurable)_ret).configure (this.config_);
-        } catch (ClassCastException cce) {
+        try
+        {
+            ((Configurable) _ret).configure(this.config_);
+        } catch (ClassCastException cce)
+        {
             // no worries, just don't configure
-        } catch (ConfigurationException ce) {
+        } catch (ConfigurationException ce)
+        {
         }
 
-        activateObject( _ret );
-        active_.add( _ret );
+        activateObject(_ret);
+        active_.add(_ret);
 
         //        logger_.debug("lendObject " + _ret);
 
@@ -351,58 +388,62 @@ public abstract class AbstractObjectPool
     /**
      * return an Object to the pool.
      */
-    public void returnObject( Object o )
+    public void returnObject(Object o)
     {
         //logger_.debug("returnObject " + o);
 
-        if ( active_.remove( o ) )
-            {
-                passivateObject( o );
+        if (active_.remove(o))
+        {
+            passivateObject(o);
 
-                if ( pool_.size() < maxWatermark_ )
-                    {
-                        synchronized ( pool_ )
-                            {
-                                pool_.add( o );
-                                pool_.notifyAll();
-                            }
-                    }
-                else
-                    {
-                        destroyObject( o );
-                    }
+            if (pool_.size() < maxWatermark_)
+            {
+                synchronized (pool_)
+                {
+                    pool_.add(o);
+                    pool_.notifyAll();
+                }
             }
+            else
+            {
+                destroyObject(o);
+            }
+        }
         else
-            {
+        {
 
-                // ignore
-//                 logger_.warn( "Object " + o + " was not in pool " + name_ +". multiple release?" );
-                //                throw new RuntimeException();
+            // ignore
+            //                 logger_.warn( "Object " + o + " was not in pool " + name_ +".
+            // multiple release?" );
+            //                throw new RuntimeException();
 
-            }
+        }
     }
 
     /**
-     * This method is called by the Pool to create a new
-     * Instance. Subclasses must override appropiately .
+     * This method is called by the Pool to create a new Instance. Subclasses
+     * must override appropiately .
      */
     public abstract Object newInstance();
 
     /**
      * Is called after Object is returned to pool. No Op.
      */
-    public void passivateObject( Object o )
-    {}
+    public void passivateObject(Object o)
+    {
+    }
 
     /**
      * Is called before Object is returned to Client (lendObject). No Op
      */
-    public void activateObject( Object o )
-    {}
+    public void activateObject(Object o)
+    {
+    }
 
     /**
      * Is called if Pool is full and returned Object is discarded. No Op.
      */
-    public void destroyObject( Object o )
-    {}
+    public void destroyObject(Object o)
+    {
+    }
 }
