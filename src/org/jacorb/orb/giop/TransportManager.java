@@ -44,8 +44,6 @@ public class TransportManager
     private SocketFactory socket_factory = null;
     private SocketFactory ssl_socket_factory = null;
 
-    private Class statistics_provider_class = null;
-
     public TransportManager( ORB orb )
     {
         socket_factory = SocketFactoryManager.getSocketFactory (orb);
@@ -77,26 +75,7 @@ public class TransportManager
             }
         }
 
-        if( Environment.hasProperty( 
-            "jacorb.connection.statistics_provider_class" ))
-        {
-            String s = Environment.getProperty( 
-                "jacorb.connection.statistics_provider_class" );
 
-            if( s != null && s.length() > 0 )
-            {
-                try
-                {
-                    statistics_provider_class =
-                        Class.forName( s );
-                }
-                catch( Exception e )
-                {
-                    Debug.output( 1, "ERROR: Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e );
-                               
-                }
-            }
-        }
     }
 
     public Transport createClientTransport( InternetIOPProfile target_profile,
@@ -107,7 +86,6 @@ public class TransportManager
                                          use_ssl,
                                          use_ssl ? ssl_socket_factory
                                                  : socket_factory,
-                                         null,
                                          this );
 
         return transport;
@@ -117,27 +95,9 @@ public class TransportManager
                                             boolean is_ssl )
         throws IOException
     {
-        //create a new statistics provider for each new Transport
-        StatisticsProvider provider = null;
-        if( statistics_provider_class != null )
-        {
-            try
-            {
-                provider = (StatisticsProvider) 
-                    statistics_provider_class.newInstance();
-            }
-            catch( Exception e )
-            {
-                Debug.output( 1, "ERROR: Unable to create instance from Class >" +
-                              statistics_provider_class + '<');
-                
-            }
-        }
-
         Transport transport = 
             new Server_TCP_IP_Transport( socket, 
                                          is_ssl,
-                                         provider,
                                          this );
 
         return transport;
