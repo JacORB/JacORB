@@ -37,9 +37,12 @@ import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.AbstractAdmin;
+import org.jacorb.notification.servant.AdminPropertySet;
 import org.jacorb.notification.servant.ConsumerAdminTieImpl;
 import org.jacorb.notification.servant.FilterStageListManager;
 import org.jacorb.notification.servant.ManageableServant;
+import org.jacorb.notification.servant.PropertySet;
+import org.jacorb.notification.servant.QoSPropertySet;
 import org.jacorb.notification.servant.SupplierAdminTieImpl;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
@@ -67,16 +70,10 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminHelper;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAPackage.ObjectNotActive;
-import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
-import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.servant.PropertySet;
-import org.jacorb.notification.servant.QoSPropertySet;
-import org.jacorb.notification.servant.AdminPropertySet;
 
 /**
  * @author Alphonse Bendt
@@ -166,6 +163,10 @@ public class EventChannelImpl
     private int maxNumberOfSuppliers_;
 
     private ChannelContext channelContext_;
+
+    private SubscriptionManager subscriptionManager_ = new SubscriptionManager();
+
+    private OfferManager offerManager_ = new OfferManager();
 
     private AdminPropertySet adminSettings_ = new AdminPropertySet();
 
@@ -409,6 +410,7 @@ public class EventChannelImpl
     private AbstractAdmin newConsumerAdmin(ChannelContext context, Integer key) {
         AbstractAdmin _admin = new ConsumerAdminTieImpl(context);
 
+        configureAdmin(_admin);
         _admin.setKey(key);
 
         return _admin;
@@ -425,9 +427,16 @@ public class EventChannelImpl
                                            Integer key) {
         AbstractAdmin _admin = new SupplierAdminTieImpl(context);
 
+        configureAdmin(_admin);
         _admin.setKey(key);
 
         return _admin;
+    }
+
+
+    private void configureAdmin(AbstractAdmin admin) {
+        admin.setSubscriptionManager(subscriptionManager_);
+        admin.setOfferManager(offerManager_);
     }
 
 
@@ -445,7 +454,7 @@ public class EventChannelImpl
                 try {
                     _defaultConsumerAdmin.set_qos(qosSettings_.toArray());
                 } catch (UnsupportedQoS e) {
-                    logger_.fatalError("", e);
+                    logger_.fatalError("unable to set qos", e);
                 }
 
                 fireAdminCreatedEvent(_defaultConsumerAdmin);
@@ -471,6 +480,7 @@ public class EventChannelImpl
     AbstractAdmin getDefaultSupplierAdminServant()
     {
         AbstractAdmin _admin;
+
         synchronized(modifySupplierAdminsLock_) {
             _admin = (AbstractAdmin)supplierAdminServants_.get(DEFAULT_ADMIN_KEY);
 
@@ -654,7 +664,7 @@ public class EventChannelImpl
         try {
             _admin.set_qos(qosSettings_.toArray());
         } catch (UnsupportedQoS e) {
-            logger_.fatalError("exc", e);
+            logger_.fatalError("error setting qos", e);
         }
 
         _admin.addProxyCreationEventListener( proxyConsumerCreationListener_ );
@@ -881,7 +891,6 @@ public class EventChannelImpl
     }
 
 
-    // Implementation of Interface Disposable
     public void dispose()
     {
         deactivate();
