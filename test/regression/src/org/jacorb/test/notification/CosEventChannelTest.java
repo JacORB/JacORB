@@ -112,9 +112,11 @@ public class CosEventChannelTest extends NotificationTestCase
 
     public void testDestroyChannelDisconnectsClients() throws Exception
     {
-        EventChannel _channel = getFactory().create_channel(new Property[0],
-                                new Property[0],
-                                new IntHolder());
+        EventChannel _channel =
+            getFactory().create_channel(new Property[0],
+                                        new Property[0],
+                                        new IntHolder());
+
 
         TestClientOperations[] _testClients = new TestClientOperations[] {
                                                   new CosEventPullSender(this, testData_),
