@@ -45,7 +45,6 @@ public class CollectionsWrapper
     private static Method singletonListMethod;
 
     static {
-
         try
         {
             singletonListMethod =
@@ -57,6 +56,7 @@ public class CollectionsWrapper
             singletonListMethod = null;
         }
     }
+
 
     public static List singletonList( Object o )
     {
@@ -77,10 +77,11 @@ public class CollectionsWrapper
         }
     }
 
-    private static class SingletonList extends AbstractList
-                implements Serializable
-    {
 
+    private static class SingletonList
+        extends AbstractList
+        implements Serializable
+    {
         private final Object singletonElement_;
 
         SingletonList( Object element )
@@ -88,10 +89,12 @@ public class CollectionsWrapper
             singletonElement_ = element;
         }
 
+
         public int size()
         {
             return 1;
         }
+
 
         public boolean contains( Object object )
         {
@@ -108,6 +111,7 @@ public class CollectionsWrapper
 
             return object.equals( singletonElement_ );
         }
+
 
         public Object get( int index )
         {
