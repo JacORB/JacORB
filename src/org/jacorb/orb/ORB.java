@@ -1311,7 +1311,7 @@ public final class ORB
         {
             System.out.println("\tJacORB V " + versionString +
                                ", www.jacorb.org");
-            System.out.println("\t(C) Gerald Brose, FU Berlin/XTRADYNE Technologies, " +
+            System.out.println("\t(C) Gerald Brose, XTRADYNE Technologies/FU Berlin, " +
                                dateString);
         }
 
