@@ -1,4 +1,4 @@
-package org.jacorb.security.jsse;
+package org.jacorb.security.ssl.sun_jsse;
 
 
 /**
@@ -26,6 +26,8 @@ public class SSLServerSocketFactory
 
     public SSLServerSocketFactory( org.jacorb.orb.ORB orb )
     {
+        Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+
 	factory = createServerSocketFactory();
 
 	if( factory == null )
@@ -33,14 +35,15 @@ public class SSLServerSocketFactory
 	    Debug.output( 1, "ERROR: Unable to create ServerSocketFactory!" );
 	}
 
-	if( (Environment.requiredBySSL() & 0x40) != 0 )
+	if( (Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 )
 	{
 	    //required: establish trust in client
 	    //--> force other side to authenticate
 	    mutual_auth = true;
 	}
 
-	change_roles = Environment.changeSSLRoles();
+	change_roles = 
+            Environment.isPropertyOn( "jacorb.security.change_ssl_roles" );
     }
            
     public ServerSocket createServerSocket( int port )
@@ -92,9 +95,12 @@ public class SSLServerSocketFactory
     
     private ServerSocketFactory createServerSocketFactory() 
     {
+        Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+
 	try 
 	{
-            String keystore_location = Environment.keyStore();
+            String keystore_location = 
+                Environment.getProperty( "jacorb.security.keystore" );
             if( keystore_location == null ) 
             {
                 System.out.print( "Please enter key store file name: " );
@@ -125,12 +131,11 @@ public class SSLServerSocketFactory
 	    
 	    //only add trusted certs, if establish trust in client
             //is required
-            if(( (byte) Environment.requiredBySSL() & 0x40) != 0 ) 
+            if((Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 ) 
             {     
 		tmf = TrustManagerFactory.getInstance( "SunX509" );
 	    
-		if( "on".equals( Environment.getProperty( "jacorb.security.jsse.trustees_from_ks",
-							  "off" )))
+		if( Environment.isPropertyOn( "jacorb.security.jsse.trustees_from_ks" ))
 		{
 		    tmf.init( key_store );
 		}

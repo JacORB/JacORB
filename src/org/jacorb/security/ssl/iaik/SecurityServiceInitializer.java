@@ -1,4 +1,4 @@
-package org.jacorb.security.ssl;
+package org.jacorb.security.ssl.iaik;
 
 /*
  *        JacORB - a free Java ORB

@@ -116,26 +116,6 @@ public class Environment
     private static byte[]               _impl_name = null;
     private static byte[]               _server_id = null;
 
-    /** security-related settings */
-    private static String               _keyStore = ".keystore";
-
-    //
-    // bnv: security setup information for SSL
-    //
-    private static boolean _enforce_ssl             = false;
-    private static short   _supported_options       = 0x0067;
-    private static short   _required_options        = 0x0066;
-    private static boolean _support_ssl             = false;
-    private static String  _default_user            = null;
-    private static String  _default_password        = null;
-    // rt: ssl client/server is changed per default
-    private static boolean _change_ssl_roles        = false;
-    
-    //
-    // bnv: security features for the default user and SecInvocationPolicy objects for default security domain
-    //
-    //    private static 
-
     static
     {
         _init();
@@ -278,21 +258,6 @@ public class Environment
             {
                 System.err.println("Setup Info: properties was file loaded from: " + sConfigFile );
             } 
-
-
-            if ( _enforce_ssl )
-            {
-                if( !_support_ssl ) 
-                {
-                    // bnv
-                    System.err.println ( "ERROR: The properties say, that SSL should be enforced, but not supported. \nPlease check properties \"jacorb.security.support_ssl\" and \n\"jacorb.security.enforce_ssl\"" );
-                    System.exit( 0 );
-                }
-//                  else
-//                  {                    
-//                      org.jacorb.util.Debug.output( 1, "Security policy will enforce SSL connections" );
-//                  }
-            }
         }
         catch(SecurityException secex)
         {
@@ -428,24 +393,8 @@ public class Environment
 	}
         else    if( varName.equals("_charset_flags"))
             _charset_flags = Integer.parseInt(o);
-        else    if( varName.equals("_keyStore"))
-            _keyStore = o;
         else    if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
-        else    if ( varName.equals ( "_support_ssl")) // gb
-            _support_ssl = ( o.equalsIgnoreCase ( "on" ) ? true : false );
-        else    if ( varName.equals ( "_supported_options")) // bnv
-            _supported_options = Integer.valueOf( o, 16 ).shortValue();
-        else    if ( varName.equals ( "_required_options")) // bnv
-            _required_options = Integer.valueOf( o, 16 ).shortValue();
-        else    if ( varName.equals ( "_enforce_ssl")) // bnv
-            _enforce_ssl = ( o.equalsIgnoreCase ( "on" ) ? true : false );
-        else    if( varName.equals("_default_user")) // bnv
-            _default_user = o;
-        else    if( varName.equals("_default_password")) // bnv
-            _default_password = o;
-        else    if ( varName.equals ( "_change_ssl_roles")) // rt
-            _change_ssl_roles = ( o.equalsIgnoreCase ( "on" ) ? true : false );
     }
         
     private static void readValues()
@@ -544,28 +493,12 @@ public class Environment
     public static final  int threadPoolMax() { return _thread_pool_max; }
     public static final  int threadPoolMin() { return _thread_pool_min; }
 
-    public static final boolean enforceSSL () { return _enforce_ssl; } // bnv
-    public static final boolean supportSSL () { return _support_ssl; } // bnv
-    public static final boolean changeSSLRoles () { return _change_ssl_roles; } // rt
-    public static final short supportedBySSL () // bnv
-    {
-        return _supported_options;
-    }
-    public static final short requiredBySSL () // bnv
-    {
-        return _required_options;
-    }
-
-    public static final String defaultUser() { return _default_user; }
-    public static final String defaultPassword() { return _default_password; }
-
     public static final int verbosityLevel() 
     { 
         return _verbosity; 
     }
 
     public static final String proxyURL() { return _proxy_server; }
-    public static final String keyStore() { return _keyStore; }
 
     public static final byte[] implName() { return _impl_name; }
 
@@ -610,6 +543,44 @@ public class Environment
     public static String getProperty( String key, String def ) 
     { 
         return _props.getProperty( key, def ); 
+    }
+
+    /**
+     * This will return true iff the properties value is
+     * "on". Otherwise (i.e. value "off", or property not set), false
+     * is returned.  
+     */
+    public static boolean isPropertyOn( String key ) 
+    { 
+        String s = _props.getProperty( key, "off" ); 
+        
+        return "on".equals( s );
+    }
+
+    public static int getIntProperty( String key, int base )
+    {
+        String s = _props.getProperty( key ); 
+        
+        try
+        {
+            return Integer.parseInt( s, base );
+        }
+        catch( NumberFormatException nfe )
+        {
+            throw new Error( "Unable to create int from string >>" +
+                             s + "<<. " +
+                             "Please check property \"" + key + '\"');
+        }
+    }
+
+    public static int getIntProperty( String key )
+    {
+        return getIntProperty( key, 10 );
+    }
+
+    public static boolean hasProperty( String key )
+    {
+        return _props.containsKey( key );
     }
 
     public static void setProperty( String key, String value ) 

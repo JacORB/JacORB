@@ -91,7 +91,7 @@ public class BasicAdapter
         this.orb = orb;
         this.rootPOA = rootPOA;
 
-        if( Environment.supportSSL() )
+        if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
             if( ssl_socket_factory == null )
             {
@@ -146,6 +146,13 @@ public class BasicAdapter
                     throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
                 }
             }
+
+            sslListener =
+                new Listener( Environment.getProperty( "OASSLPort" ),
+                              ssl_socket_factory,
+                              true );
+
+            Debug.output( 1, "SSL Listener on port " + sslListener.port );
         }
         else
         {
@@ -168,27 +175,6 @@ public class BasicAdapter
             }
         }
 
-        if( Environment.supportSSL() ) 
-        {
-            sslListener =
-                new Listener( Environment.getProperty( "OASSLPort" ),
-                              ssl_socket_factory );
-
-            sslListener.is_ssl = true;
-
-            Debug.output( 1, "SSL Listener on port = " + sslListener.port );
-        }
-
-
-        if( Environment.enforceSSL() )
-        {
-            /* gb: sanity check: requiring SSL requires supporting it */
-            if( !Environment.supportSSL ())
-            {
-                throw new Error("SSL required but not supported, cannot continue!");
-            }
-        }
-
         receptor_pool = MessageReceptorPool.getInstance();
         request_listener = new ServerRequestListener( orb, rootPOA );
         reply_listener = new NoBiDirServerReplyListener();
@@ -200,7 +186,8 @@ public class BasicAdapter
          */
 
         listener = new Listener( Environment.getProperty( "OAPort" ),
-                                 socket_factory );
+                                 socket_factory,
+                                 false );
 
         String prop = 
             Environment.getProperty("jacorb.connection.server_timeout");
@@ -356,7 +343,9 @@ public class BasicAdapter
 
         private boolean do_run = true;
 
-        public Listener( String oa_port, ServerSocketFactory factory )
+        public Listener( String oa_port, 
+                         ServerSocketFactory factory,
+                         boolean is_ssl )
 
         {
             if( factory == null )
@@ -365,6 +354,7 @@ public class BasicAdapter
             }
 
             this.factory = factory;
+            this.is_ssl = is_ssl;
 
             try
             {

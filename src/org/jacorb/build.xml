@@ -85,10 +85,10 @@
    </target>
 
    <target name="subdirs"
-               depends="utils,CAD,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,WeakHashtable,tracing">
+               depends="utils,CAD,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,WeakHashtable,tracing,security">
    </target>
 
-<!--security,proxy,-->
+<!--proxy-->
 
    <target name="proxy" depends="init" >
    	<javac srcdir="${jsrc}"

@@ -4,9 +4,9 @@
 # mutual authentication = 60
 
 jacorb.security.support_ssl=on
-jacorb.security.ssl.supported_options=40
-jacorb.security.enforce_ssl=on
-jacorb.security.ssl.required_options=0
+
+jacorb.security.ssl.client.supported_options=41
+jacorb.security.ssl.client.required_options=20
 
 # files with public key certs of trusted CAs
 #

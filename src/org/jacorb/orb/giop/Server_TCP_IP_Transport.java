@@ -63,6 +63,11 @@ public class Server_TCP_IP_Transport
 
     }
 
+    public Socket getSocket()
+    {
+        return socket;
+    }
+
     protected void close( int reason )
         throws IOException
     {

@@ -131,6 +131,11 @@ public class GIOPConnection
     {
         this.reply_listener = v;
     }
+
+    public Transport getTransport()
+    {
+        return transport;
+    }
     
     public void receiveMessages()
         throws IOException

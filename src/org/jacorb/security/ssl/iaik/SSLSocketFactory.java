@@ -19,7 +19,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.security.ssl;
+package org.jacorb.security.ssl.iaik;
 
 /**
  * @author Andr'e Benvenuti, Gerald Brose.
@@ -43,7 +43,11 @@ package org.jacorb.security.ssl;
 import org.jacorb.security.level2.*;
 import org.jacorb.security.util.*;
 import org.jacorb.util.*;
+
 import iaik.security.ssl.*;
+
+import java.net.*;
+import java.io.IOException;
 
 public class SSLSocketFactory 
     implements org.jacorb.orb.factory.SocketFactory 
@@ -62,7 +66,8 @@ public class SSLSocketFactory
     {
         this.orb = orb;
 
-	isRoleChange = Environment.changeSSLRoles();
+	isRoleChange = 
+            Environment.isPropertyOn( "jacorb.security.change_ssl_roles" );
 
 	CipherSuite[] cs = SSLSetup.getCipherSuites();
         
@@ -74,28 +79,9 @@ public class SSLSocketFactory
     }
 
 
-    /** 
-     * @returns a socket connected to a ServerSocket on the named host, 
-     * at the given port. This socket is configured using the socket 
-     * options established for this factory. This constructor also sets
-     * the default SSL context data to be used in other socket creation
-     * operations.
-     * 
-     * Parameters:
-     * 	host - the server host
-     * 	port - the server port
-     *  chain - a chain of X509 certificates to be used in SSL 
-     *          connection setup
-     *  key - the private key for the first cert in the chain.
-     *
-     * @throws:
-     * 	java.io.IOException - if the connection can't be established
-     * 	java.net.UnknownHostException - if the host is not known
-     */
-
-    public java.net.Socket createSocket( String host, 
+    public Socket createSocket( String host, 
                                          int port )
-	throws java.io.IOException, java.net.UnknownHostException
+	throws IOException, UnknownHostException
     {       
         SSLSocket sock = new SSLSocket( host, port, getDefaultContext() );
 
@@ -150,11 +136,12 @@ public class SSLSocketFactory
                                           kac[i].key );
 	    }
             
-            if( (Environment.requiredBySSL() & 0x20) != 0 )
+            if( (Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ) & 0x20) != 0 )
             {
                 //required: establish trust in target (the SSL client
                 //in this case)--> force other side to authenticate
                 ctx.setRequestClientCertificate( true );
+                ctx.setChainVerifier( new ServerChainVerifier( true ));
 
 		String[] trusteeFileNames = 
 		    Environment.getPropertyValueList( "jacorb.security.trustees" );
@@ -178,7 +165,7 @@ public class SSLSocketFactory
 
             //only add own credentials, if establish trust in client
             //is supported
-            if(( (byte) Environment.supportedBySSL() & 0x40) != 0 ) 
+            if((Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ) & 0x40) != 0 ) 
             {            
                 org.jacorb.security.level2.KeyAndCert[] kac = 
                     getSSLCredentials();
@@ -209,8 +196,10 @@ public class SSLSocketFactory
 	}
 
 
-	if( "on".equals( Environment.getProperty( "jacorb.security.iaik_debug", "off" )))
+	if( Environment.isPropertyOn( "jacorb.security.iaik_debug" ))
+        {
 	    default_context.setDebugStream( System.out );
+        }
 
         return default_context;
     }
@@ -252,7 +241,7 @@ public class SSLSocketFactory
 	return lst;
     }
 
-    public boolean isSSL ( java.net.Socket s )
+    public boolean isSSL ( Socket s )
     { 
         return ( s instanceof SSLSocket); 
     }

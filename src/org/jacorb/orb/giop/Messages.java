@@ -161,7 +161,8 @@ public class Messages
             }
             else
             {
-                throw new Error( "This message type doesn't have a request id" );
+                throw new Error( "Messages of type " +
+                                 msg_type + " don't have request ids" );
             }
         }
         else if( giop_minor == 0 || giop_minor == 1 )
@@ -203,7 +204,8 @@ public class Messages
             }
             else
             {
-                throw new Error( "This message type doesn't have a request id" );
+                throw new Error( "Messages of type " +
+                                 msg_type + " don't have request ids" );
             }
         } 
         

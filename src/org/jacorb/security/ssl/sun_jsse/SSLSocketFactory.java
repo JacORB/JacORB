@@ -19,7 +19,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.security.jsse;
+package org.jacorb.security.ssl.sun_jsse;
 
 /**
  * @author Nicolas Noffke
@@ -53,7 +53,8 @@ public class SSLSocketFactory
 	    Debug.output( 1, "ERROR: Unable to create ServerSocketFactory!" );
 	}
 	
-	change_roles = Environment.changeSSLRoles();
+	change_roles = 
+            Environment.isPropertyOn( "jacorb.security.change_ssl_roles" );
     }
 
     public Socket createSocket( String host, 
@@ -77,6 +78,8 @@ public class SSLSocketFactory
 
     private SocketFactory createSocketFactory() 
     {
+        Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+
 	try 
 	{
 	    KeyManagerFactory kmf = null;
@@ -84,9 +87,10 @@ public class SSLSocketFactory
 
 	    //only add own credentials, if establish trust in client
             //is supported
-            if(( (byte) Environment.supportedBySSL() & 0x40) != 0 ) 
+            if((Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ) & 0x40) != 0 ) 
             {        
-		String keystore_location = Environment.keyStore();
+		String keystore_location = 
+                    Environment.getProperty( "jacorb.security.keystore" );
 		if( keystore_location == null ) 
 		{
 		    System.out.print( "Please enter key store file name: " );
@@ -115,8 +119,7 @@ public class SSLSocketFactory
 		TrustManagerFactory.getInstance( "SunX509" );
 
 	    if( key_store != null &&
-		"on".equals( Environment.getProperty( "jacorb.security.jsse.trustees_from_ks",
-						      "off" )))
+		Environment.isPropertyOn( "jacorb.security.jsse.trustees_from_ks" ))
 	    {
 		tmf.init( key_store );
 	    }

@@ -71,7 +71,7 @@ public class ConnectionManager
                 }
             };
         
-        if( Environment.supportSSL() )
+        if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
             String s = Environment.getProperty( "jacorb.ssl.socket_factory" );
             if( s == null || s.length() == 0 )
@@ -142,7 +142,7 @@ public class ConnectionManager
      * @return <code>Connection</code> */
 
     public synchronized ClientConnection getConnection( String host_and_port, 
-                                                        boolean target_ssl )
+                                                        boolean use_ssl )
     {
         host_and_port = unifyTargetAddress( host_and_port );
         
@@ -178,7 +178,7 @@ public class ConnectionManager
 
             SocketFactory sf = null;
 
-            if( target_ssl )
+            if( use_ssl )
             {
                 sf = ssl_socket_factory;
             }

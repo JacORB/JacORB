@@ -2,7 +2,7 @@ package org.jacorb.orb.standardInterceptors;
 
 import org.omg.PortableInterceptor.*;
 import org.jacorb.orb.*;
-
+import org.jacorb.util.Environment;
 /**
  * This class initializes the default IOR interceptors 
  * used by JacORB.
@@ -33,7 +33,9 @@ public class IORInterceptorInitializer
         try
         {
             ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
-            if( org.jacorb.util.Environment.supportSSL() )
+            if( Environment.isPropertyOn( "jacorb.security.support_ssl" ) &&
+                Environment.hasProperty( "jacorb.security.ssl.server.supported_options" ) && 
+                Environment.hasProperty( "jacorb.security.ssl.server.required_options" ))
             {
                 info.add_ior_interceptor(new SSLComponentInterceptor(orb));
             }
