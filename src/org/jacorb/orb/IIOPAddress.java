@@ -30,7 +30,8 @@ import org.jacorb.orb.dns.DNSLookup;
  */
 public class IIOPAddress 
 {
-    private InetAddress address;
+    private String hostname = null; // dns name
+    private String ip = null;       // dotted decimal
     private int port;               // 0 .. 65536
     
     /**
@@ -44,14 +45,10 @@ public class IIOPAddress
      */
     public IIOPAddress (String host, int port)
     {
-        try
-        {
-            address = InetAddress.getByName( host );
-        }
-        catch (java.net.UnknownHostException uhe )
-        {
-            throw new IllegalArgumentException("Unknown host " + host + " : " + uhe.getMessage());
-        }
+        if (isIP (host))
+            this.ip = host;
+        else
+            this.hostname = host;
 
         if (port < 0)
             this.port = port + 65536;
@@ -66,6 +63,40 @@ public class IIOPAddress
         return new IIOPAddress (host, port);
     }
     
+    /**
+     * Returns true if host is a numeric IP address.
+     */
+    private static boolean isIP (String host)
+    {
+        int index       = 0;
+        int numberStart = 0;
+        int length      = host.length();
+        char ch = ' ';
+        
+        for (int i=0; i<4; i++)
+        {
+            while (true)
+            {
+                if (index >= length) break;
+                ch = host.charAt(index);
+                if (ch == '.') break;
+                if (ch < '0' || ch > '9') return false;
+                index++;
+            }
+            if (index >= length && i == 3 
+                && (index - numberStart) <= 3 && (index-numberStart) > 0)
+                return true;
+            else if (ch == '.' && (index - numberStart) <= 3
+                               && (index - numberStart) > 0)
+            {
+                index++;
+                numberStart = index;
+            }                
+            else
+                return false;
+        }
+        return false;
+    }       
 
     /**
      * Returns the host part of this IIOPAddress, as a numeric IP address in 
@@ -75,7 +106,19 @@ public class IIOPAddress
      */    
     public String getIP()
     {
-        return address.getHostAddress();
+        if (ip == null)
+        {
+            try
+            {
+                ip = InetAddress.getByName(hostname).getHostAddress();
+            }
+            catch (UnknownHostException ex)
+            {
+                throw new RuntimeException ("could not resolve hostname: " 
+                                            + hostname);
+            }  
+        }
+        return ip;
     }
 
     /**
@@ -86,17 +129,18 @@ public class IIOPAddress
      */
     public String getHostname()
     {
-        String hostname = DNSLookup.inverseLookup(getIP());
-        if (hostname == null) 
-            hostname = getIP();
-        return hostname;       
+        if (hostname == null)
+        {
+            hostname = DNSLookup.inverseLookup (ip);
+            if (hostname == null) hostname = ip;
+        }
+        return hostname;      
     }
 
     /**
      * Returns the port number of this address, represented as an integer
      * in the range 0..65535.
      */
-
     public int getPort()
     {
         return port;
@@ -107,7 +151,10 @@ public class IIOPAddress
         if (other instanceof IIOPAddress)
         {
             IIOPAddress x = (IIOPAddress)other;
-            return address.equals(x.address) && this.port == x.port;
+            if (this.port == x.port)
+                return this.getIP() == x.getIP();
+            else
+                return false;
         }
         else
             return false;
@@ -115,20 +162,23 @@ public class IIOPAddress
     
     public int hashCode()
     {
-        return address.hashCode() + port;
+        return this.getIP().hashCode() + port;
     }
     
     public String toString()
     {
-        return address + ":" + port;
+        if (hostname != null)
+            return hostname + ":" + port;
+        else
+            return ip + ":" + port;
     }
     
     public byte[] toCDR()
     {
     	CDROutputStream out = new CDROutputStream();
     	out.beginEncapsulatedArray();
-    	out.write_string(getIP());
-    	out.write_ushort((short)port);
+    	out.write_string (ip);
+    	out.write_ushort ((short)port);
     	return out.getBufferCopy();
     }
 }
