@@ -137,7 +137,8 @@ class StructType
 	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
 	}
 	enclosing_symbol = s;
-        memberlist.setEnclosingSymbol( s );
+	if( memberlist != null )
+            memberlist.setEnclosingSymbol( this );
     }
 
     public String toString()
