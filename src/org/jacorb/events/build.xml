@@ -15,7 +15,9 @@
 	<property name="src" value="${dirs.base}/src"/>
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg -d ${src}/generated"/>
+        <taskdef name="jacidl"
+                 classname="org.jacorb.idl.JacIDL"
+                 classpath="${basedir}/classes"/>
    </target>
 
    <target name="all" depends="init,idl,coscompile">
@@ -36,29 +38,27 @@
    <target name="coseventsidl" depends="com,admin">
    </target>
 
-   <target name="com">
-        <java classname="org.jacorb.idl.parser"               
-              classpath="${classpath}"
-              fork="yes">
-              <arg line="${idlflags} -p org.omg ${include}/omg/CosEventComm.idl"/>
-              
-        </java>
-   </target>
+    <target name="com">
+        <jacidl generateir="true"
+                srcdir="${include}/omg"
+                packageprefix="org.omg"
+                destdir="${src}/generated"
+                includes="CosEventComm.idl"/>
+    </target>
 
-   <target name="admin">
-        <java classname="org.jacorb.idl.parser"               
-              classpath="${classpath}"
-              fork="yes">
-              <arg line="${idlflags} -p org.omg ${include}/omg/CosEventChannelAdmin.idl"/>
-        </java>
-   </target>
+    <target name="admin">
+        <jacidl generateir="true"
+                srcdir="${include}/omg"
+                destdir="${src}/generated"
+                includepath="${include}/omg"
+                includes="CosEventChannelAdmin.idl"/>
+    </target>
 
    <target name="jacorbeventidl">
-        <java classname="org.jacorb.idl.parser"               
-              classpath="${classpath}"
-              fork="yes">
-              <arg line="${idlflags} ${include}/jacorb/channel.idl"/>
-        </java>
+        <jacidl srcdir="${include}/jacorb"
+                destdir="${src}/generated"
+                includepath="${include}/omg"
+                includes="channel.idl"/>
    </target>
 
    <target name="coscompile">
@@ -71,8 +71,7 @@
    <target name="clean" depends="init">
            <delete dir="${src}/generated/org/omg/CosEventComm"/>
            <delete dir="${src}/generated/org/omg/CosEventChannelAdmin"/>
-           <delete dir="${classdir}/org/jacorb/events"/>      
+           <delete dir="${classdir}/org/jacorb/events"/>
    </target>
 
 </project>
-
