@@ -91,58 +91,26 @@ class LogKitLoggerFactory
     {
         this.configuration = (Configuration)configuration;
 
-        String defaultPriorityString =
-            configuration.getAttribute("jacorb.log.default.verbosity");
+        defaultPriority = 
+            configuration.getAttributeAsInteger("jacorb.log.default.verbosity", 0);
 
-        append = configuration.getAttribute("jacorb.logfile.append","off").equals("on");
+        append = 
+            configuration.getAttribute("jacorb.logfile.append","off").equals("on");
 
         logFormatter = 
             new PatternFormatter(configuration.getAttribute("jacorb.log.default.log_pattern",
                                                             DEFAULT_LOG_PATTERN));
-
-        if (defaultPriorityString != null)
+        switch (defaultPriority)
         {
-            if (defaultPriorityString != null &&
-                defaultPriorityString.toUpperCase().equals("DEBUG"))
-            {
-                defaultPriorityString = "4";
-            }
-            else if (defaultPriorityString != null &&
-                     defaultPriorityString.toUpperCase().equals("INFO"))
-            {
-                defaultPriorityString = "3";
-            }
-            else if (defaultPriorityString != null &&
-                     defaultPriorityString.toUpperCase().equals("WARN"))
-            {
-                defaultPriorityString = "2";
-            }
-            else if (defaultPriorityString != null &&
-                     defaultPriorityString.toUpperCase().equals("ERROR"))
-            {
-                defaultPriorityString = "1";
-            }
-
-            try
-            {
-                defaultPriority = Integer.parseInt(defaultPriorityString);
-            }
-            catch (NumberFormatException nfe)
-            {
-                defaultPriority = -1;
-            }
-            switch (defaultPriority)
-            {
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    break;
-                default:
-                    throw new IllegalArgumentException("'" + defaultPriorityString + "' is an illegal"
-                                                       + " value for the property jacorb.log.default.verbosity. Valid values are 0->4.");
-            }
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                break;
+            default:
+                throw new ConfigurationException("'" + defaultPriority + "' is an illegal"
+                                                 + " value for the property jacorb.log.default.verbosity. Valid values are [0-4]");
         }
         consoleWriter = new OutputStreamWriter(System.err);
         consoleTarget = new WriterTarget(consoleWriter, logFormatter);
@@ -299,40 +267,16 @@ class LogKitLoggerFactory
 
             try
             {
-                priorityString = 
-                    configuration.getAttribute( prefix + ".log.verbosity");
+                int priorityForLogger = 
+                    configuration.getAttributeAsInteger( prefix + ".log.verbosity");
+                if (priorityForLogger > 4)
+                    priorityForLogger = 4;
+                else if (priorityForLogger < 0)
+                    priorityForLogger = 0;
+                return priorityForLogger;
             }
             catch( ConfigurationException ce )
             {
-                ce.printStackTrace(); // debug;
-            }
-
-            if (priorityString != null)
-            {
-                priorityString = priorityString.trim();
-
-                if (priorityString != null &&
-                    priorityString.toUpperCase().equals("DEBUG"))
-                {
-                    priorityString = "4";
-                }
-                else if (priorityString != null &&
-                         priorityString.toUpperCase().equals("INFO"))
-                {
-                    priorityString = "3";
-                }
-                else if (priorityString != null &&
-                         priorityString.toUpperCase().equals("WARN"))
-                {
-                    priorityString = "2";
-                }
-                else if (priorityString != null &&
-                         priorityString.toUpperCase().equals("ERROR"))
-                {
-                    priorityString = "1";
-                }
-
-                return Integer.parseInt(priorityString);
             }
 
             if (prefix.lastIndexOf(".") >= 0)
@@ -345,6 +289,7 @@ class LogKitLoggerFactory
             }
         }
 
+        // nothing found, return default
         return defaultPriority;
     }
 
