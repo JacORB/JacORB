@@ -7,7 +7,7 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init" depends="javatest">
+   <target name="init">
 	<property name="Name" value="main"/>
 	<property name="name" value="main"/>
 	<property name="dirs.base" value="${basedir}"/>
@@ -18,20 +18,9 @@
 	<property name="lib" value="${dirs.base}/lib"/>
 	<mkdir dir="${classdir}"/>
 	<mkdir dir="${lib}"/>
-
-	<!--
-        <available classname="java.util.Collection"
-	property="java2.present"/>
-        -->
-
 	<filter token="path" value="basedir"/>
    </target>
 
-   <!-- check for Java 2 -->
-   <target name="javatest">
-	<available classname="java.lang.ref.WeakReference"
-	property="java2" />	
-   </target>
 
    <!-- top-level targets  -->
 
@@ -43,29 +32,11 @@
 
    <target name="compiler" depends="init,java_cup,idlsrc, idllib, idlcmd" />
 
-   <target name="idlcmd" depends="idlcmd1,idlcmd2"/>
-
-   <!-- generate idl.bat for JDK 1.1 -->
-
-   <target name="idlcmd1" unless="java2">
+   <target name="idlcmd">
         <delete file="bin/idl" />
         <delete file="bin/idl.bat" />
-        <copy file="bin/idltemplate" tofile="bin/idl" />   
-        <copy file="bin/idltemplate.bat" tofile="bin/idl.bat" />
-        <replace file="bin/idl" token="@@@" 
-                 value="${java.home}\lib\classes.zip:${basedir}"/>
-        <replace file="bin/idl.bat" token="@@@" 
-                 value="${java.home}\lib\classes.zip;${basedir}"/>
-        <chmod file="bin/idl" perm="ugo+rx"/>
-   </target>  
-
-   <!-- generate idl.bat for JDK 1.2 or 1.3 -->
-
-   <target name="idlcmd2" if="java2">
-        <delete file="bin/idl" />
-        <delete file="bin/idl.bat" />
-        <copy file="bin/idltemplate" tofile="bin/idl" />   
-        <copy file="bin/idltemplate.bat" tofile="bin/idl.bat" />
+        <copy overwrite="yes" file="bin/idltemplate" tofile="bin/idl" />   
+        <copy overwrite="yes" file="bin/idltemplate.bat" tofile="bin/idl.bat" />
         <replace file="bin/idl" token="@@@" value="${basedir}"/>
         <replace file="bin/idl.bat" token="@@@" value="${basedir}"/>
         <chmod file="bin/idl" perm="ugo+rx"/>
@@ -131,23 +102,11 @@
 	    />	    
    </target>
 
-   <target name="jaco" depends="init, jaco1, jaco2"/>
-
-   <target name="jaco1" unless="java2">
+   <target name="jaco" depends="init">
             <delete file="bin/jaco" />
             <delete file="bin/jaco.bat" />
-            <copy file="bin/jacotemplate1" tofile="bin/jaco" />
-            <copy file="bin/jacotemplate1.bat" tofile="bin/jaco.bat" />
-           <replace file="bin/jaco.bat" token="@@@" value="${basedir}\lib\jacorb.jar;${java.home}\lib\classes.zip"/>
-           <replace file="bin/jaco" token="@@@" value="${basedir}/lib/jacorb.jar:${java.home}\lib\classes.zip" />
-           <chmod file="bin/jaco" perm="ugo+rx"/>
-   </target> 
- 
-   <target name="jaco2" if="java2">
-            <delete file="bin/jaco" />
-            <delete file="bin/jaco.bat" />
-            <copy file="bin/jacotemplate" tofile="bin/jaco" />
-            <copy file="bin/jacotemplate.bat" tofile="bin/jaco.bat" />
+            <copy overwrite="yes" file="bin/jacotemplate" tofile="bin/jaco" />
+            <copy overwrite="yes" file="bin/jacotemplate.bat" tofile="bin/jaco.bat" />
            <replace file="bin/jaco.bat" token="@@@" value="${basedir}\lib\jacorb.jar;${java.home}\lib\rt.jar"/>
            <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
             value="${basedir}" />
