@@ -266,26 +266,10 @@ class FixedPointType
     {
 	digits = digit_expr.pos_int_const();
 	scale = scale_expr.pos_int_const();
+        if( scale > 0 && scale > digits )
+            parser.error("Error in fixed point type " + typeName() + 
+                         ", scale must not exceed total number of digits.");
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -87,19 +87,3 @@ class FixedPointConstType
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
