@@ -44,7 +44,6 @@ public class SSLServerSocketFactory
     private short serverRequiredOptions = 0;
     private short serverSupportedOptions = 0;
     private boolean iaikDebug = false;
-    private boolean isRoleChange; // rt
     private List trusteeFileNames;
     private org.jacorb.orb.ORB orb;
 
@@ -53,7 +52,6 @@ public class SSLServerSocketFactory
     {
         this.orb = orb;
         cs = SSLSetup.getCipherSuites();
-        configure( orb.getConfiguration());
     }
 
     public void configure(Configuration configuration)
@@ -62,78 +60,54 @@ public class SSLServerSocketFactory
         logger = 
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.jsse");
 
-	isRoleChange =
-            configuration.getAttributeAsBoolean("jacorb.security.change_ssl_roles",false);
-
         serverRequiredOptions = 
             Short.parseShort(
-                             configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
-                             16);
+                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
+                16);
 
         serverSupportedOptions = 
             Short.parseShort(
-                             configuration.getAttribute("jacorb.security.ssl.server.aupported_options","0"),
-                             16);
+                configuration.getAttribute("jacorb.security.ssl.server.aupported_options","0"),
+                16);
 
         defaultContext = new SSLServerContext();
 
         try
         {
-            if( isRoleChange)
+            
+            //the SSL server always has to have own certificates
+            org.jacorb.security.level2.KeyAndCert[] kac =
+                getSSLCredentials( orb );
+
+            for( int i = 0; i < kac.length; i++ )
             {
-                if(( serverSupportedOptions  & 0x20) != 0 )
-                    //Establish trust in target supported means
-                    //that we must have own certificates
-                {
-                    org.jacorb.security.level2.KeyAndCert[] kac =
-                        getSSLCredentials( orb );
-
-                    for( int i = 0; i < kac.length; i++ )
-                    {
-                        defaultContext.addClientCredentials( (X509Certificate[]) kac[i].chain,
-                                                             kac[i].key );
-                    }
-
-                    //no session cache
-                    ((DefaultSessionManager)defaultContext.getSessionManager()).setResumePeriod( 0 );
-                }
+                defaultContext.addServerCredentials( (X509Certificate[]) kac[i].chain,
+                                                     kac[i].key );
             }
-            else
+
+            if(( serverRequiredOptions  & 0x40) != 0 )
+                //Establish trust in client requireded means
+                //that we must request the clients certificates
             {
-                //the SSL server always has to have own certificates
-                org.jacorb.security.level2.KeyAndCert[] kac =
-                    getSSLCredentials( orb );
+                defaultContext.setRequestClientCertificate( true );
+                defaultContext.setChainVerifier( new ServerChainVerifier( true ));
 
-                for( int i = 0; i < kac.length; i++ )
-                {
-                    defaultContext.addServerCredentials( (X509Certificate[]) kac[i].chain,
-                                                         kac[i].key );
-                }
-
-                if(( serverRequiredOptions  & 0x40) != 0 )
-                    //Establish trust in client requireded means
-                    //that we must request the clients certificates
-                {
-                    defaultContext.setRequestClientCertificate( true );
-                    defaultContext.setChainVerifier( new ServerChainVerifier( true ));
-
-                    trusteeFileNames =
-                        ((org.jacorb.config.Configuration)configuration).getAttributeList("jacorb.security.trustees");
+                trusteeFileNames =
+                    ((org.jacorb.config.Configuration)configuration).getAttributeList("jacorb.security.trustees");
                 
-                    if( trusteeFileNames.isEmpty())
-                    {
-                        logger.warn("No trusted certificates specified. This will accept all peer certificate chains!");
-                    }
-                    else
-                    {
-                        for( Iterator iter = trusteeFileNames.iterator(); iter.hasNext(); )
-                        {
-                            String fName = (String)iter.next();
-                            defaultContext.addTrustedCertificate( CertUtils.readCertificate(fName));
-                        }
-                    }
-
+                if( trusteeFileNames.isEmpty())
+                {
+                    logger.warn("No trusted certificates specified. This will accept all peer certificate chains!");
                 }
+                else
+                {
+                    for( Iterator iter = trusteeFileNames.iterator(); iter.hasNext(); )
+                    {
+                        String fName = (String)iter.next();
+                        defaultContext.addTrustedCertificate( CertUtils.readCertificate(fName));
+                    }
+                }
+
             }
         }
         catch( Exception g)
@@ -142,9 +116,9 @@ public class SSLServerSocketFactory
                 logger.warn("GeneralSecurityException", g);
             throw new ConfigurationException(g.getMessage());
         }
-	if( iaikDebug )
+        if( iaikDebug )
         {
-	    defaultContext.setDebugStream( System.out );
+            defaultContext.setDebugStream( System.out );
         }
     }
 
@@ -269,24 +243,5 @@ public class SSLServerSocketFactory
     public boolean isSSL( ServerSocket s )
     {
         return (s instanceof SSLServerSocket);
-    }
-
-    public void switchToClientMode( Socket socket )
-    {
-        // rt: switch to client mode
-        if( isRoleChange )
-        {
-            try
-            {
-                if (logger.isDebugEnabled())
-                    logger.debug("SSLSocket switch to server mode...");
-                ((SSLSocket) socket).setUseClientMode( true );
-            }
-            catch( IOException iox )
-            {
-                if (logger.isWarnEnabled())
-                    logger.warn("IOException", iox);
-            }
-        }
     }
 }
