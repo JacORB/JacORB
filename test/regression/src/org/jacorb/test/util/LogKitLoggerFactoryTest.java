@@ -77,6 +77,9 @@ public class LogKitLoggerFactoryTest extends TestCase
         props.setProperty("jacorb.component.log.verbosity", "3");
         props.setProperty("jacorb.component.subcomponent.log.verbosity", "4");
 
+        props.setProperty("jacorb.trailingspace.test1", "INFO ");
+        props.setProperty("jacorb.trailingspace.test2", "INFO");
+
         Environment.addProperties(props);
 
         factory = new LogKitLoggerFactory();
@@ -101,6 +104,9 @@ public class LogKitLoggerFactoryTest extends TestCase
         assertEquals(4, factory.getPriorityForNamedLogger("jacorb.component.subcomponent"));
 
         assertEquals(4, factory.getPriorityForNamedLogger("jacorb.component.subcomponent.sub"));
+
+        assertEquals(factory.getPriorityForNamedLogger("jacorb.trailingspace.test1"),
+                     factory.getPriorityForNamedLogger("jacorb.trailingspace.test2"));
     }
 
 
