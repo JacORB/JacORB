@@ -39,8 +39,7 @@ import java.util.*;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.11, 10/26/99, RT $Id$
  */
-public class RequestController
-    extends Thread
+public final class RequestController extends Thread
 {
     private POA 			poa;
     private org.jacorb.orb.ORB		orb;
@@ -550,7 +549,7 @@ public class RequestController
                 {
                 	if (logTrace.test(6))
                         logTrace.printLog("the RequestController goes to sleep");
-                    queueLog.wait();
+                  queueLog.wait();
                 }
                 catch (java.lang.InterruptedException e) {
                 }
