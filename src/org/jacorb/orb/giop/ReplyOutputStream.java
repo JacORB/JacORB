@@ -22,7 +22,7 @@ package org.jacorb.orb.connection;
 
 import java.io.*;
 import org.omg.GIOP.*;
-
+import org.omg.IOP.ServiceContext;
 import org.jacorb.orb.*;
 
 /**
@@ -34,21 +34,25 @@ import org.jacorb.orb.*;
 public class ReplyOutputStream
     extends org.jacorb.orb.CDROutputStream
 {
-    private org.omg.GIOP.ReplyHeader_1_0 rep_hdr;
-    private int bodyBeginMarker;
+    private ServiceContext[] ctx; 
+    private int request_id;
+    private ReplyStatusType_1_2 reply_status = null;
 
+    private int giop_minor = -1;
     /**
      * To be called only from derived classes.
      */
     ReplyOutputStream()
     {
+        super();
     }
 
-    public ReplyOutputStream ( org.omg.IOP.ServiceContext[] service_context, 
+    public ReplyOutputStream ( ServiceContext[] service_context, 
                                int request_id,
-                               org.omg.GIOP.ReplyStatusType_1_0 reply_status )
+                               ReplyStatusType_1_2 reply_status,
+                               int giop_minor )
     {
-        this( service_context, request_id, reply_status, false);
+        this( service_context, request_id, reply_status, giop_minor, false);
     }
 
     /**
@@ -62,33 +66,84 @@ public class ReplyOutputStream
      * If the full buffer is needed, use getBufferCopy(). This will copy
      * both buffers into a new one, thus yielding the messages complete buffer.<br>
      *
-     * @see setServiceContexts()
+     * @see ReplyOutputStream#setServiceContexts( ServiceContext[] )
      */
-    public ReplyOutputStream ( org.omg.IOP.ServiceContext[] service_context, 
+    public ReplyOutputStream ( ServiceContext[] service_context, 
                                int request_id,
-                               org.omg.GIOP.ReplyStatusType_1_0 reply_status,
+                               ReplyStatusType_1_2 reply_status,
+                               int giop_minor,
                                boolean separate_header )
     {
-        rep_hdr = 
-            new org.omg.GIOP.ReplyHeader_1_0(service_context,  request_id, reply_status);
-
-        if (separate_header)
+        this.ctx = service_context;
+        this.request_id = request_id;
+        this.reply_status = reply_status;
+        this.giop_minor = giop_minor;
+ 
+        if( separate_header )
             header_stream = new CDROutputStream();
         else
             writeHeader( this );
 
-        bodyBeginMarker = size();
+        System.out.println(">>>>>>>>>Created reply with GIOP 1." + 
+                           giop_minor);
+
     }
 
-    private void writeHeader(CDROutputStream out)
+    private void writeHeader( CDROutputStream out )
     {
-        out.writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_1._Reply );
-        org.omg.GIOP.ReplyHeader_1_0Helper.write(out, rep_hdr);
+        out.writeGIOPMsgHeader( MsgType_1_1._Reply,
+                                giop_minor );
+
+        switch( giop_minor )
+        {
+            case 0 :
+            { 
+                // GIOP 1.0 Reply == GIOP 1.1 Reply, fall through
+            }
+            case 1 :
+            {
+                //this currently doesn't work because GIOP.idl only
+                //allows either ReplyStatusType_1_0 or
+                //ReplyStatusType_1_2, but not both. The only solution
+                //would be to go low-level and write directly to the
+                //stream
+
+                /*
+                //GIOP 1.1
+                ReplyHeader_1_0 repl_hdr = 
+                    new ReplyHeader_1_0( ctx,
+                                         request_id,
+                                         ReplyStatusType_1_0.from_int( reply_status.value() ));
+
+                ReplyHeader_1_0Helper.write( out, repl_hdr );
+               
+                break;
+                */
+            }
+            case 2 :
+            {
+                //GIOP 1.2
+                ReplyHeader_1_2 repl_hdr = 
+                    new ReplyHeader_1_2( request_id,
+                                         reply_status,
+                                         ctx );
+
+                ReplyHeader_1_2Helper.write( out, repl_hdr );
+
+                break;
+            }
+            default :
+            {
+                throw new Error( "Unknown GIOP minor: " + giop_minor );
+            }
+        }
+        
+        out.markHeaderEnd( giop_minor == 2 ); //use padding if minor 2
     }
 
     public int requestId()
     {
-        return rep_hdr.request_id;
+        return request_id;
     }
 
     /**
@@ -100,23 +155,24 @@ public class ReplyOutputStream
     {
         byte[] buf = getInternalBuffer();
         byte[] result = null;
-        if ( header_stream != null )
+        if( header_stream != null )
         {
             result = new byte[ size() ];
             System.arraycopy( buf, 0, result, 0, result.length);
         }
         else
         {
-            result = new byte[ size() - bodyBeginMarker ];
-            System.arraycopy( buf, bodyBeginMarker, result, 0, result.length );
+            result = new byte[ size() - getHeaderEnd() ];
+            System.arraycopy( buf, getHeaderEnd(), result, 0, result.length );
         }
+
         return result;
     }
 
 
-    public org.omg.IOP.ServiceContext[] getServiceContexts()
+    public ServiceContext[] getServiceContexts()
     {
-        return rep_hdr.service_context;
+        return ctx;
     }
 
     /**
@@ -129,15 +185,15 @@ public class ReplyOutputStream
      * The message size will be set when calling write_to().
      */
 
-    public void setServiceContexts(org.omg.IOP.ServiceContext[] context)
+    public void setServiceContexts(ServiceContext[] context)
     {
         if (context[context.length - 1].context_id != Integer.MAX_VALUE)
             throw new Error("Last ServiceContext in array must be of type Integer.MAX_VALUE!");
 
-        rep_hdr.service_context = context;
+        ctx = context;
     
         header_stream = new CDROutputStream();
-        writeHeader(header_stream);
+        writeHeader( header_stream );
     
         int difference = header_stream.size() % 8; //difference to next 8 byte border
         difference = (difference == 8)? 0 : difference;
@@ -148,9 +204,9 @@ public class ReplyOutputStream
 
         if (difference > 0)
         {
-            rep_hdr.service_context[context.length -1].context_data = new byte[difference];
+            ctx[context.length -1].context_data = new byte[difference];
             header_stream.reset();
-            writeHeader(header_stream);
+            writeHeader( header_stream );
         }
     } 
 }

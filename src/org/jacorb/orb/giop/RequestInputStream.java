@@ -34,10 +34,10 @@ public class RequestInputStream
     extends org.jacorb.orb.CDRInputStream
 {
     public RequestHeader_1_2 req_hdr = null;
-    //public MessageHeader_1_1 msg_hdr = null;
 
-    public int minor_version = -1;
+    protected int giop_minor = -1;
     public int msg_length = -1;
+
     /**
      * used by subclass, flag is a dummy
      */
@@ -53,29 +53,31 @@ public class RequestInputStream
 	super( orb,  buf );
 
         //check message type
-	if( buffer[7] != (byte) MsgType_1_1._Request )
+	if( Messages.getMsgType( buffer ) != MsgType_1_1._Request )
         {
 	    throw new Error( "Error: not a request!" );
         }
 
         //check major version
-        if( buffer[4] != 1 )
+        if( Messages.getGIOPMajor( buffer ) != 1 )
 	{
-            throw new Error( "Unknown GIOP major version: " + buffer[4] );
+            throw new Error( "Unknown GIOP major version: " + 
+                             Messages.getGIOPMajor( buffer ));
         }
 
         //although the attribute is renamed, this should work for 1.0
         //and 1.1/1.2
-        setLittleEndian( (0x1 & buffer[6]) != 0 );
+        setLittleEndian( Messages.isLittleEndian( buffer ));
 
         //skip the message header. Its attributes are read directly
-        skip( 12 );	    
+        skip( Messages.MSG_HEADER_SIZE );	    
 
-        minor_version = buffer[5];
+        giop_minor = Messages.getGIOPMinor( buffer );
         
-        switch( minor_version )
+        switch( giop_minor )
         { 
-            case 0 : {
+            case 0 : 
+            {
                 //GIOP 1.0
                 RequestHeader_1_0 hdr = 
                     RequestHeader_1_0Helper.read( this );
@@ -92,7 +94,8 @@ public class RequestInputStream
                                            hdr.service_context );
                 break;
             }
-            case 1 : {
+            case 1 : 
+            {
                 //GIOP 1.1
                 RequestHeader_1_1 hdr = 
                     RequestHeader_1_1Helper.read( this );
@@ -109,15 +112,30 @@ public class RequestInputStream
                                            hdr.service_context );
                 break;
             }
-            case 2 : {
+            case 2 : 
+            {
                 //GIOP 1.2
                 req_hdr = RequestHeader_1_2Helper.read( this );
+                
+                skipHeaderPadding();
+
                 break;
             }
             default : {
-                throw new Error( "Unknown GIOP minor version: " + minor_version );
+                throw new Error( "Unknown GIOP minor version: " + giop_minor );
             }
         }
+        
+        System.out.println(">>>>>>>>>received request for op " + 
+                           req_hdr.operation + 
+                           " with GIOP 1." + 
+                           giop_minor);
+        
+    }
+
+    public int getGIOPMinor()
+    {
+        return giop_minor;
     }
 }
 

@@ -30,6 +30,8 @@ import org.jacorb.orb.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.factory.SocketFactory;
 
+import org.omg.GIOP.*;
+
 /**
  * @author Gerald Brose, FU Berlin
  * @version $Id$
@@ -442,29 +444,20 @@ public class ClientConnection
 	}       
 
 	/* check for SECIOP vs. GIOP headers */
-
+        /*
 	if( (char)header[0] == 'S' && (char)header[1] == 'E' && 
 	    (char)header[2] =='C' && (char)header[3] == 'P' )
 	{
 	    throw new IOException("Cannot handle SECIOP messages yet...");
 	}
-	else if( (char)header[0] == 'G' && (char)header[1] == 'I' && 
-		 (char)header[2] =='O' && (char)header[3] == 'P')
+	else 
+        */
+        if( (char)header[0] == 'G' && (char)header[1] == 'I' && 
+            (char)header[2] =='O' && (char)header[3] == 'P')
 	{
 	    /* determine message size, but respect byte order! */
-	    int msg_size = 0;
-	    
-	    if( header[6] == 0 ) // big-endian
-		msg_size =  ((0xff & header[8]) << 24) + 
-		    ((0xff & header[9]) << 16) + 
-		    ((0xff & header[10])<< 8) + 
-		    ((0xff & header[11]));
-	    else	// little-endian
-		msg_size =  ((0xff & header[11]) << 24) + 
-		    ((0xff & header[10]) << 16) + 
-		    ((0xff & header[9])  << 8) + 
-		    ((0xff & header[8]));
-	    
+	    int msg_size = Messages.getMsgSize( header );
+	        
 	    if( msg_size < 0 )
 	    {
 		abort( false );
@@ -474,15 +467,10 @@ public class ClientConnection
 	    byte[] inbuf = BufferManager.getInstance().getBuffer(bufSize);
 	    
 	    /* copy header */
-	    
-	    for( int ii = 0; ii < Messages.MSG_HEADER_SIZE; ii++ )
-	    {
-		inbuf[ii] = (byte)header[ii];
-	    }
+	    System.arraycopy( header, 0, inbuf, 0, Messages.MSG_HEADER_SIZE );
 
 	    int read = Messages.MSG_HEADER_SIZE;
 
-	    //	    while( read < inbuf.length )
 	    while( read < bufSize )
 	    {
 		int n = -1;
@@ -506,10 +494,9 @@ public class ClientConnection
 	else 
 	{
 	    Debug.output( 0, "Unknown message header type detected by " + 
-				      Thread.currentThread().getName() + 
-                                      ", discarding ", header );
-	    return readBuffer();
-	    //	    throw new IOException("Unknown message header type!");
+                          Thread.currentThread().getName() + 
+                          ", discarding ", header );
+	    return null;
 	}
     }
 
@@ -517,7 +504,6 @@ public class ClientConnection
      * Receive a GIOP reply over this connection
      * and return an appropriate CDRInputStream
      */
-
     public void receiveReply() 
 	throws IOException, CloseConnectionException
     {
@@ -525,17 +511,15 @@ public class ClientConnection
 	    throw new EOFException();
 
 	byte[] buf = readBuffer();
-	int giop_version = buf[5];
-	int msg_type = buf[7];
 
-	Debug.output( 4, "received reply, GIOP version 1." + giop_version );
+	int msg_type = Messages.getMsgType( buf );
 
-	switch ( msg_type )
+	switch( msg_type )
 	{
-	case  org.omg.GIOP.MsgType_1_1._Reply: 
+	case  MsgType_1_1._Reply: 
 	    {
 		Debug.output( 8, "receiveReply", buf );
-		Integer key = new Integer(Messages.getRequestId( buf, msg_type ));
+		Integer key = new Integer( Messages.getRequestId( buf ));
 
 		/* retrieve the ReplyInputStream that is waiting for this reply */
 
@@ -548,9 +532,9 @@ public class ClientConnection
                                        key );
 		break;
 	    }
-	case org.omg.GIOP.MsgType_1_1._LocateReply:
+	case MsgType_1_1._LocateReply:
 	    { 
-		Integer key = new Integer(Messages.getRequestId( buf, msg_type ));
+		Integer key = new Integer( Messages.getRequestId( buf ));
 
 		/* retrieve the ReplyInputStream that is waiting for this reply */
 
@@ -566,11 +550,11 @@ public class ClientConnection
                                        key );
 		break;
 	    }
-	case org.omg.GIOP.MsgType_1_1._MessageError:
+	case MsgType_1_1._MessageError:
             {
 		Debug.output(1,"Got <MessageError> from server, something went wrong!");
             }
-	case org.omg.GIOP.MsgType_1_1._CloseConnection:
+	case MsgType_1_1._CloseConnection:
 	    {
 		Debug.output(3,"got close connection message");
 		throw new CloseConnectionException("Received <CloseConnection> from Server");
@@ -723,6 +707,8 @@ public class ClientConnection
 		    //		    buffers.put( key, os );
 		    replies.put( key, rep );
 		}
+
+                Debug.output(1,"send request", os.getBufferCopy());
 
 		if (org.jacorb.util.Environment.verbosityLevel() > 4)
 		{

@@ -22,6 +22,7 @@ package org.jacorb.orb.connection;
 
 import java.io.*;
 import org.omg.GIOP.*;
+import org.omg.IOP.ServiceContext;
 import org.jacorb.orb.*;
 
 /**
@@ -31,12 +32,21 @@ import org.jacorb.orb.*;
  */
 
 public class RequestOutputStream
-    extends org.jacorb.orb.CDROutputStream
+    extends CDROutputStream
 {
-    private org.omg.GIOP.RequestHeader_1_0 req_hdr;
+    private static byte[] principal = new byte[ 0 ];
+    private static byte[] reserved = new byte[ 3 ];
+
+    private int giop_minor = -1; //determines the class of the req_hdr
+
+    private int request_id = -1;
+    private String operation = null;
+    private boolean response_expected = true;
+    private byte[] object_key = null;
+    private org.omg.IOP.ServiceContext[] ctx = null;
 
     /* if the msg size has been precomputed, the buffer size is exactly the msg size */
-    private boolean exact_size = false;
+    //private boolean exact_size = false;
 
     private org.jacorb.orb.dii.Request request = null;
   
@@ -45,8 +55,17 @@ public class RequestOutputStream
                                String operation, 
                                boolean response_expected,
                                byte[] object_key,
-                               org.omg.IOP.ServiceContext[] ctx){
-        this( orb, request_id, operation, response_expected, object_key, ctx, false);
+                               ServiceContext[] ctx,
+                               int giop_minor )
+    {
+        this( orb, 
+              request_id, 
+              operation, 
+              response_expected, 
+              object_key, 
+              ctx, 
+              giop_minor, 
+              false); //no separate header
     }
   
     /**
@@ -60,7 +79,7 @@ public class RequestOutputStream
      * If the full buffer is needed, use getBufferCopy(). This will copy
      * both buffers into a new one, thus yielding the messages complete buffer.<br>
      *
-     * @see setServiceContexts()
+     * @see RequestOutputStream#setServiceContexts(ServiceContext[])
      */
 
     public RequestOutputStream( org.omg.CORBA.ORB orb,
@@ -68,53 +87,120 @@ public class RequestOutputStream
                                 String operation, 
                                 boolean response_expected,
                                 byte[] object_key,
-                                org.omg.IOP.ServiceContext[] ctx,
+                                ServiceContext[] ctx,
+                                int giop_minor,
                                 boolean  separate_header)
     {
         super( orb );
-        org.omg.CORBA.Principal principal = 
-            new org.jacorb.orb.Principal( new byte[0] );
 
-        req_hdr = 
-            new org.omg.GIOP.RequestHeader_1_0( ctx,
-                                                request_id,
-                                                response_expected,
-                                                object_key,
-                                                operation,
-                                                new byte[0] );
+        this.giop_minor = giop_minor;
 
-        if (separate_header)
+        this.request_id = request_id;
+        this.operation = operation;
+        this.response_expected = response_expected;        
+        this.object_key = object_key;
+        this.ctx = ctx;
+
+        if( separate_header )
+        {
             header_stream = new CDROutputStream();
+        }
         else
-            writeHeader(this);
+        {
+            writeHeader( this );
+        }
+        
+        System.out.println(">>>>>>>>>Created request for op " + 
+                           operation + 
+                           " with GIOP 1." + 
+                           giop_minor);
+        
     }
 
 
-    private void writeHeader(CDROutputStream out)
+    private void writeHeader( CDROutputStream out )
     {
-        out.writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_1._Request );
-        org.omg.GIOP.RequestHeader_1_0Helper.write(out, req_hdr);
+        out.writeGIOPMsgHeader( MsgType_1_1._Request,
+                                giop_minor );
+
+        switch( giop_minor )
+        {
+            case 0 :
+            { 
+                // GIOP 1.0
+                RequestHeader_1_0 req_hdr = 
+                    new RequestHeader_1_0( ctx,
+                                           request_id,
+                                           response_expected,
+                                           object_key,
+                                           operation,
+                                           principal );
+
+                RequestHeader_1_0Helper.write( out, req_hdr );
+                break;
+            }
+            case 1 :
+            {
+                //GIOP 1.1
+                RequestHeader_1_1 req_hdr = 
+                    new RequestHeader_1_1( ctx,
+                                           request_id,
+                                           response_expected,
+                                           reserved,
+                                           object_key,
+                                           operation,
+                                           principal );
+
+                RequestHeader_1_1Helper.write( out, req_hdr );
+               
+                break;
+            }
+            case 2 :
+            {
+                //GIOP 1.2
+                TargetAddress addr = new TargetAddress();
+                addr.object_key( object_key );
+
+                RequestHeader_1_2 req_hdr = 
+                    new RequestHeader_1_2( request_id,
+                                           (byte) ((response_expected)? 0x03 : 0x00),
+                                           reserved,
+                                           addr,
+                                           operation,
+                                           ctx );
+
+                RequestHeader_1_2Helper.write( out, req_hdr );
+
+                break;
+            }
+            default :
+            {
+                throw new Error( "Unknown GIOP minor: " + giop_minor );
+            }
+        }
+        
+        out.markHeaderEnd( giop_minor == 2 ); //use padding if minor 2
     }
 
     public int requestId()
     {
-        return req_hdr.request_id;
+        return request_id;
     }
 
     public boolean response_expected()
     {
-        return req_hdr.response_expected;
+        return response_expected;
     }
 
 
     public String operation()
     {
-        return req_hdr.operation;
+        return operation;
     }
 
-    public org.omg.IOP.ServiceContext[] getServiceContexts()
+    public ServiceContext[] getServiceContexts()
     {
-        return req_hdr.service_context;
+        return ctx;
     }
 
     /**
@@ -127,13 +213,14 @@ public class RequestOutputStream
      * The message size will be set when calling write_to().
      */
 
-    public void setServiceContexts(org.omg.IOP.ServiceContext[] context)
+    public void setServiceContexts(ServiceContext[] context)
     {
+        //TODO: optimize for GIOP1.2
         if (context[context.length - 1].context_id != Integer.MAX_VALUE)
             throw new Error("Last ServiceContext in array must be of type Integer.MAX_VALUE!");
 
-        req_hdr.service_context = context;
-        writeHeader(header_stream);
+        ctx = context;
+        writeHeader( header_stream );
     
         int difference = 8 - (header_stream.size() % 8); //difference to next 8 byte border
         difference = (difference == 8)? 0 : difference;
@@ -145,7 +232,7 @@ public class RequestOutputStream
         // would involve meddling inside the buffer.
         if (difference > 0)
         {
-            req_hdr.service_context[context.length -1].context_data = new byte[difference];
+            ctx[context.length -1].context_data = new byte[difference];
             header_stream.reset();
             writeHeader(header_stream);
         }

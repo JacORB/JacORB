@@ -37,33 +37,79 @@ import org.omg.CORBA.portable.RemarshalException;
 public class LocateReplyInputStream
     extends CDRInputStream
 {
-    private org.omg.GIOP.LocateReplyHeader_1_0 rep_hdr;
+    private LocateReplyHeader_1_2 rep_hdr;
     private int _request_id;
     private boolean ready = false;
 
-    public LocateReplyInputStream(org.omg.CORBA.ORB orb,  int request_id)
+    private int giop_minor = -1;
+
+    public LocateReplyInputStream( org.omg.CORBA.ORB orb,  int request_id )
     {
-	super( orb,new byte[0]);
-	_request_id = request_id;
+	super( orb );
+	this._request_id = request_id;
     }
 
     public synchronized void init( byte[] buf )
     {
 	super.buffer = buf;
+        //check message type
+	if( buffer[7] != (byte) MsgType_1_1._LocateReply )
+        {
+	    throw new Error( "Error: not a reply!" );
+        }
 
-	if( buf[6] != 0 ) // big-endian
+        //check major version
+        if( buffer[4] != 1 )
 	{
-	    littleEndian = true;
-	    setLittleEndian(true);
-	}
-	if( buf[7] != (byte)org.omg.GIOP.MsgType_1_1._LocateReply )
-	    throw new RuntimeException("Trying to initialize ReplyInputStream from non-reply msg.!");
+            throw new Error( "Unknown GIOP major version: " + buffer[4] );
+        }
 
-	skip(12);
-	rep_hdr = org.omg.GIOP.LocateReplyHeader_1_0Helper.read(this );
+        //although the attribute is renamed, this should work for 1.0
+        //and 1.1/1.2
+        setLittleEndian( Messages.isLittleEndian( buffer ));
 
-	if( _request_id != rep_hdr.request_id )
-	    throw new RuntimeException("Fatal, request ids don\'t match");
+        //skip the message header. Its attributes are read directly
+        skip( Messages.MSG_HEADER_SIZE );	    
+
+        giop_minor = buffer[5];
+        
+        switch( giop_minor )
+        { 
+            case 0 : 
+            {
+                //GIOP 1.0 = GIOP 1.1, fall through
+            }
+            case 1 : 
+            {
+                
+                //GIOP 1.1
+                LocateReplyHeader_1_0 hdr = 
+                    LocateReplyHeader_1_0Helper.read( this );
+
+                rep_hdr = 
+                    new LocateReplyHeader_1_2( hdr.request_id,
+                                               LocateStatusType_1_2.from_int( hdr.locate_status.value() ));
+                break;
+                
+            }
+            case 2 : 
+            {
+                //GIOP 1.2
+                rep_hdr = LocateReplyHeader_1_2Helper.read( this );
+
+                break;
+            }
+            default : {
+                throw new Error( "Unknown GIOP minor version: " + giop_minor );
+            }
+        }
+
+
+	if( this._request_id != rep_hdr.request_id )
+        {
+	    throw new Error("Fatal, request ids don\'t match");
+        }
+
 	ready = true;
 	this.notify();
     }
@@ -79,7 +125,7 @@ public class LocateReplyInputStream
      *  the waiting client.
      */
 
-    public synchronized org.omg.GIOP.LocateStatusType_1_0 status() 
+    public synchronized LocateStatusType_1_2 status() 
     {
 	try
 	{
@@ -90,11 +136,12 @@ public class LocateReplyInputStream
 	} 
 	catch ( java.lang.InterruptedException e )
 	{}
-	int read = 0;
 
 	return rep_hdr.locate_status;
     }
 }
+
+
 
 
 
