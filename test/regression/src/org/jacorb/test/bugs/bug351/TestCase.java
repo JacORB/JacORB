@@ -44,7 +44,7 @@ public class TestCase extends ClientServerTestCase
     
     public static Test suite()
     {
-        TestSuite suite = new TestSuite( "Bug 351 complex valuetype" );
+        TestSuite suite = new TestSuite( "bug 351 complex valuetype" );
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.bugs.bug351.ValueServerImpl" );

@@ -61,7 +61,7 @@ public class TestCase extends junit.framework.TestCase
      */
     public static Test suite ()
     {
-        TestSuite suite = new TestSuite ("POA Activation/Deactivation Tests");
+        TestSuite suite = new TestSuite ("bug 344 POA activation/deactivation");
         Setup setup = new Setup( suite );
         ORBSetup osetup = new ORBSetup( setup );
 
