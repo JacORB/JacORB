@@ -50,6 +50,12 @@ public class Main implements WrapperListener
         {
             application_ = EventChannelFactoryImpl.newFactory( args );
 
+            application_.setDestroyMethod(new Runnable() {
+                    public void run() {
+                        WrapperManager.stop(0);
+                    }
+                });
+
             return null;
         }
         catch ( Exception e )
