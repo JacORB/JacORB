@@ -28,12 +28,13 @@ import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.engine.AbstractRetryStrategy;
 import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.RetryException;
 import org.jacorb.notification.engine.RetryStrategy;
+import org.jacorb.notification.engine.RetryStrategyFactory;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.queue.EventQueueFactory;
@@ -41,6 +42,7 @@ import org.jacorb.notification.queue.MessageQueueAdapter;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetListener;
+import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.DiscardPolicy;
@@ -57,6 +59,8 @@ import org.omg.CosNotifyComm.NotifyPublishHelper;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.PortableServer.POA;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.defaults.DefaultPicoContainer;
 
 /**
  * Abstract base class for ProxySuppliers. This class provides following logic for the different
@@ -77,7 +81,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 
     private static final Message[] EMPTY_MESSAGE = new Message[0];
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     /**
      * Check if there are pending Messages and deliver them to the Consumer. the operation is not
@@ -104,6 +108,8 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 
     private final EventQueueFactory eventQueueFactory_;
 
+    private final RetryStrategyFactory retryStrategyFactory_;
+
     private NotifyPublishOperations proxyOfferListener_;
 
     private NotifyPublish offerListener_;
@@ -113,7 +119,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
      */
     private boolean enabled_ = true;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     protected AbstractProxySupplier(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
@@ -165,15 +171,17 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         {
             MessageQueueAdapter initialEventQueue = getMessageQueueFactory().newMessageQueue(
                     qosSettings_);
-            
+
             pendingMessages_ = new RWLockEventQueueDecorator(initialEventQueue);
         } catch (InterruptedException e)
         {
             throw new RuntimeException();
         }
+
+        retryStrategyFactory_ = newRetryStrategyFactory(conf, taskProcessor);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     protected EventQueueFactory getMessageQueueFactory()
     {
@@ -181,8 +189,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     }
 
     /**
-     * @deprecated
-     * TODO remove
+     * @deprecated TODO remove
      */
     public void preActivate() throws UnsupportedQoS, Exception
     {
@@ -246,16 +253,18 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     }
 
     /**
-     * put a Message in the queue of pending Messages.
+     * put a copy of the Message in the queue of pending Messages.
      * 
      * @param message
      *            the <code>Message</code> to queue.
      */
     protected void enqueue(Message message)
     {
+        final Message _messageClone = (Message) message.clone();
+
         try
         {
-            pendingMessages_.enqeue(message);
+            pendingMessages_.enqeue(_messageClone);
 
             if (logger_.isDebugEnabled())
             {
@@ -263,6 +272,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
             }
         } catch (InterruptedException e)
         {
+            _messageClone.dispose();
             logger_.info("enqueue was interrupted", e);
         }
     }
@@ -297,6 +307,24 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
             return EMPTY_MESSAGE;
         }
     }
+
+    public void deliverMessage(final Message message)
+    {
+        if (logger_.isDebugEnabled())
+        {
+            logger_.debug("deliverMessage() connected=" + isConnected() + " suspended="
+                    + isSuspended() + " enabled=" + isEnabled());
+        }
+
+        if (isConnected())
+        {
+            enqueue(message);
+
+            messageDelivered();
+        }
+    }
+
+    protected abstract void messageDelivered();
 
     /**
      * @param max
@@ -478,7 +506,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 
     protected void handleFailedPushOperation(PushOperation operation, Throwable error)
     {
-        if (RetryStrategy.isFatalException(error))
+        if (AbstractRetryStrategy.isFatalException(error))
         {
             // push operation caused a fatal exception
             // destroy the ProxySupplier
@@ -494,7 +522,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
             return;
         }
 
-        RetryStrategy _retry = getRetryStrategy(this, operation);
+        RetryStrategy _retry = newRetryStrategy(this, operation);
 
         try
         {
@@ -508,9 +536,33 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         }
     }
 
-    private RetryStrategy getRetryStrategy(MessageConsumer mc, PushOperation op)
+    private RetryStrategy newRetryStrategy(MessageConsumer mc, PushOperation op)
     {
-        return new TaskProcessorRetryStrategy(mc, op, getTaskProcessor());
+        return retryStrategyFactory_.newRetryStrategy(mc, op);
+    }
+
+    private RetryStrategyFactory newRetryStrategyFactory(Configuration config,
+            TaskProcessor taskProcessor) throws ConfigurationException
+    {
+        String factoryName = config.getAttribute(Attributes.RETRY_STRATEGY_FACTORY,
+                Default.DEFAULT_RETRY_STRATEGY_FACTORY);
+
+        try
+        {
+            Class factoryClazz = ObjectUtil.classForName(factoryName);
+
+            MutablePicoContainer pico = new DefaultPicoContainer();
+
+            pico.registerComponentInstance(TaskProcessor.class, taskProcessor);
+
+            pico.registerComponentImplementation(RetryStrategyFactory.class, factoryClazz);
+
+            return (RetryStrategyFactory) pico.getComponentInstance(RetryStrategyFactory.class);
+
+        } catch (ClassNotFoundException e)
+        {
+            throw new ConfigurationException(Attributes.RETRY_STRATEGY_FACTORY, e);
+        }
     }
 
     public boolean isRetryAllowed()
