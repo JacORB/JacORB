@@ -293,34 +293,41 @@ public class IIOPListener
     }
 
     /**
-     * This call creates a new IIOPProfile to listen on.
+     * Creates a new IIOPProfile that describes this transport endpoint.
      */
     private IIOPProfile createEndPointProfile()
     {
-        IIOPProfile result = null;
+        int port=0;
         if (acceptor != null)
         {
-            String host = getHost().getHostName();
-            int    port = getConfiguredPort();
+            port = getConfiguredPort();
             if (port == 0)
                 port = acceptor.getLocalAddress().getPort();
-            result = new IIOPProfile (new IIOPAddress (host, port), null);
-        }
-        else if (sslAcceptor != null)
-        {
-            // only an SSL acceptor exists: make a dummy primary address
-            // (port number zero)
-            String host = getHost().getHostName();
-            result = new IIOPProfile (new IIOPAddress (host, 0), null);
-        }
-        else
+        } 
+        else if (sslAcceptor == null)
             throw new org.omg.CORBA.INITIALIZE
-                ("failed to create endpoint profile");
+                ("no acceptors found, cannot create endpoint profile");
 
+        IIOPProfile result = new IIOPProfile
+        (
+            new IIOPAddress 
+            (
+                // Construct the address either from the symbolic or
+                // numeric host address, depending on what we need later.
+                // Otherwise, we might get an unnecessary DNS lookup
+                // at IOR creation time, which might break the setting
+                // of OAIAddr on a multi-homed host.
+                Environment.isPropertyOn("jacorb.dns.enable")
+                    ? getHost().getHostName()
+                    : getHost().getHostAddress(),
+                port // will be 0 if there is only an SSLAcceptor
+            ), 
+            null
+        );
         if (sslAcceptor != null)
         {
-            result.addComponent (TAG_SSL_SEC_TRANS.value,
-                                 createSSL(), SSLHelper.class);
+             result.addComponent (TAG_SSL_SEC_TRANS.value,
+                                  createSSL(), SSLHelper.class);
         }
         return result;
     }
