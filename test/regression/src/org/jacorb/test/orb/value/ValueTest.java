@@ -54,10 +54,12 @@ public class ValueTest extends ClientServerTestCase
         suite.addTest(new ValueTest("test_pass_boxed_long", setup));
         suite.addTest(new ValueTest("test_pass_null_boxed_long", setup));
         suite.addTest(new ValueTest("test_pass_shared_boxed_long", setup));
+        suite.addTest(new ValueTest("test_pass_equal_boxed_long", setup));
 
         suite.addTest(new ValueTest("test_pass_boxed_string", setup));
         suite.addTest(new ValueTest("test_pass_null_boxed_string", setup));
         suite.addTest(new ValueTest("test_pass_shared_boxed_string", setup));
+        suite.addTest(new ValueTest("test_pass_equal_boxed_string", setup));
 
         suite.addTest(new ValueTest("test_pass_value_sequence_1", setup));
         suite.addTest(new ValueTest("test_pass_value_sequence_2", setup));
@@ -90,6 +92,19 @@ public class ValueTest extends ClientServerTestCase
         String result = server.receive_long(p1, p1);
         assertEquals("shared long: 441", result);        
     }
+    
+    /**
+     * Passes two boxed longs that are equal but not shared.  This makes
+     * sure that reference sharing is indeed determined based on identity,
+     * not equality.  (See comments in bug 387 for discussion.)
+     */
+    public void test_pass_equal_boxed_long()
+    {
+        boxedLong p1 = new boxedLong(443);
+        boxedLong p2 = new boxedLong(443);
+        String result = server.receive_long(p1, p2);
+        assertEquals("two longs: 443, 443", result);        
+    }    
 
     public void test_pass_boxed_string()
     {
@@ -110,6 +125,19 @@ public class ValueTest extends ClientServerTestCase
         String s1 = "hello, world";
         String result = server.receive_string(s1, s1);
         assertEquals("shared string: `hello, world'", result);        
+    }
+
+    /**
+     * Passes two boxed strings that are equal but not shared.  This makes
+     * sure that reference sharing is indeed determined based on identity,
+     * not equality.  (See comments in bug 387 for discussion.)
+     */
+    public void test_pass_equal_boxed_string()
+    {
+        String s1 = "hello, world";
+        String s2 = new String(s1);
+        String result = server.receive_string(s1, s2);
+        assertEquals("two strings: `hello, world', `hello, world'", result);        
     }
 
     public void test_pass_value_sequence_1()
