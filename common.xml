@@ -92,14 +92,19 @@
    <fail message="Pass javac-includes to target"/>
 </target>
 
+<target name="check-sourcepath" unless="javac-sourcepath">
+  <property name="javac-sourcepath" value="" />
+</target>
+
 
 <!-- This target is a compatibility wrapper to allow either a Ant 14 or Ant  -->
 <!-- 15 to be used. Optional parameters are:                                 -->
 <!-- javac-src        Defaults to ${src}                                     -->
-<!-- javac-excludes   For file selection; defaults to ''                     -->
+<!-- javac-excludes   For file selection; defaults to '' -->
+<!-- javac-sourcpath  Compile Option Sourcepath; defaults to '' -->
 <!-- Mandatory parameter is:                                                 -->
 <!-- javac-includes   Specifies which files to compile.                      -->
-<target name="jacorb-javac" depends="check-includes,javac-14,javac-15"/>
+<target name="jacorb-javac" depends="check-includes, check-sourcepath,javac-14,javac-15"/>
 
 
 <!-- Note use of bootclasspath is to override ORB classes in rt.jar. Ant     -->
@@ -112,6 +117,7 @@
           debug="${debug}"
           includes="${javac-includes}"
           excludes="${javac-excludes}">
+     <src path="${javac-sourcepath}" />
    </javac>
 </target>
 
@@ -123,7 +129,8 @@
           bootclasspath="${xbootclasspath}"
           debug="${debug}"
           debuglevel="${debuglevel}"
+          sourcepath="${javac-sourcepath}"
           includes="${javac-includes}"
           excludes="${javac-excludes}">
-   </javac>
+   </javac> 
 </target>
