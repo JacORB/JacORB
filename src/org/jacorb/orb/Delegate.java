@@ -645,14 +645,6 @@ public final class Delegate
                 Debug.output(3, "no effective components");
                 info.effective_components = new org.omg.IOP.TaggedComponent[0];
             }
-            else
-            {
-                org.omg.SSLIOP.SSL _ssl = 
-                    ParsedIOR.getSSLTaggedComponent(info.effective_components);
-                if ( _ssl == null )
-                    Debug.output(3, "no SSL in effective components");
-            }
-
               
             info.delegate = this;
         
@@ -674,9 +666,10 @@ public final class Delegate
 
             rep = (ReplyInputStream) connection.sendRequest( self,ros );
  
-            // devik: if tcs was not negotiated yet, in every context we will send
-            // tcs wanted. After first such request was sent (and it is here) we can
-            // mark connection tcs as negotiated
+            // devik: if tcs was not negotiated yet, in every context
+            // we will send tcs wanted. After first such request was
+            // sent (and it is here) we can mark connection tcs as
+            // negotiated
             connection.markTcsNegotiated();
 
             //store pending replies, so in the case of a LocationForward
@@ -707,8 +700,9 @@ public final class Delegate
                                    ClientInterceptorIterator.RECEIVE_EXCEPTION);
             }
                 
-            // suggested by Markus Lindermeier: Catch COMM_FAILURE and fall-back to 
-            // the original ior if the current one was forwarded, else throw exception.
+            // suggested by Markus Lindermeier: Catch COMM_FAILURE and
+            // fall-back to the original ior if the current one was
+            // forwarded, else throw exception.
             if( iorOriginal != null ) 
             {
                 unbind();
@@ -789,9 +783,10 @@ public final class Delegate
             
                         info.setReplyServiceContexts(_header.service_context);
     
-                        //the case that invoke was called from dii.Request._invoke()
-                        //will be handled inside of dii.Request._invoke() itself,
-                        //because the result will first be available there
+                        //the case that invoke was called from
+                        //dii.Request._invoke() will be handled inside
+                        //of dii.Request._invoke() itself, because the
+                        //result will first be available there
                         if (ros.getRequest() == null) 
                         {
                             InterceptorManager manager = 
@@ -823,7 +818,8 @@ public final class Delegate
             {
                 if ( use_interceptors && (info != null) )
                 {
-                    //assuming "permanent", until new GIOP version is implemented
+                    //assuming "permanent", until new GIOP version is
+                    //implemented
                     info.reply_status = LOCATION_FORWARD_PERMANENT.value;
                     info.setReplyServiceContexts(rep.getHeader().service_context);
             
@@ -849,7 +845,7 @@ public final class Delegate
                 //make other threads, that have unreturned replies, wait
                 pending_replies_sync.lockBarrier();
 
-                //tell every pening request to remarshal
+                //tell every pending request to remarshal
                 //they will be blocked on the barrier
                 for( Enumeration e = pending_replies.elements();
                      e.hasMoreElements(); )
