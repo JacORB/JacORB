@@ -543,11 +543,11 @@ non terminal InterfaceBody interface_body;
 non terminal Definition export;
 non terminal ScopedName scopename;
 
-non terminal Value value;
+non terminal ValueDecl value;
 non terminal ValueBoxDecl value_box_dcl;
 non terminal IdlSymbol value_abs_dcl;
 non terminal IdlSymbol value_body;
-non terminal IdlSymbol value_dcl;
+non terminal Value value_dcl;
 non terminal IdlSymbol value_inheritance_spec;
 non terminal IdlSymbol value_elements;
 non terminal IdlSymbol value_element;
@@ -884,9 +884,18 @@ scopename ::=
         ;
 
 value ::=
-          value_dcl
-        | value_abs_dcl
-        | value_box_dcl
+          value_dcl:vd
+               {: 
+                        RESULT.value_decl = vd;
+                :}
+        | value_abs_dcl:vad
+               {: 
+                        RESULT.value_decl = vad;
+                :}
+        | value_box_dcl:vbx
+               {: 
+                        RESULT.value_decl = vbx;
+                :}
         | ABSTRACT VALUETYPE ID:i 
         | VALUETYPE ID:i 
         ;
