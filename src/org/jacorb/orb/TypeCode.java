@@ -39,10 +39,10 @@ import java.lang.reflect.*;
 public class TypeCode 
     extends org.omg.CORBA.TypeCode
 {
-   private int kind = -1;
+    private int         kind = -1;
 
-    private String id = null;
-    private String name = null;
+    private String      id = null;
+    private String      name = null;
 
     private int         member_count = 0;
     private String []   member_name = null;
@@ -76,10 +76,20 @@ public class TypeCode
     static
     {
         /** statically create primitive TypeCodes for fast lookup */
-        for( int i = 0; i < 14; i++ )
+        for( int i = 0; i <= 13; i++ )
         {
             primitive_tcs[i] = new TypeCode(i);
         }   
+        for( int i = 23; i <= 26; i++ )
+        {
+            primitive_tcs[i] = new TypeCode(i);
+        }
+        primitive_tcs [TCKind._tk_string] 
+            = new TypeCode( TCKind._tk_string, 0 );
+        primitive_tcs [TCKind._tk_wstring] 
+            = new TypeCode( TCKind._tk_wstring, 0 );
+        primitive_tcs [TCKind._tk_fixed]
+            = new TypeCode( (short)1, (short)0 );
 
         // Sun's ValueHandler in JDK 1.3 and 1.4 calls 
         // ORB.get_primitive_tc() for TCKind._tk_objref and TCKind._tk_value.
@@ -94,15 +104,8 @@ public class TypeCode
             = new TypeCode( "IDL:omg.org/CORBA/portable/ValueBase:1.0",
                             "ValueBase", org.omg.CORBA.VM_NONE.value,
                             null, 
-                            new org.omg.CORBA.ValueMember[0]);
+                            new org.omg.CORBA.ValueMember[0] );
 
-        primitive_tcs [TCKind._tk_string] 
-            = new TypeCode( TCKind._tk_string, 0 );
-
-        for( int i = 23; i < 29; i++ )
-        {
-            primitive_tcs[i] = new TypeCode(i);
-        }
         put_primitive_tcs (Boolean.TYPE,   TCKind._tk_boolean);
         put_primitive_tcs (Character.TYPE, TCKind._tk_wchar);
         put_primitive_tcs (Byte.TYPE,      TCKind._tk_octet);
@@ -132,20 +135,25 @@ public class TypeCode
     }
 
     /**
-     * @returns TypeCode with integer kind "kind", 
-     * null if not a primitive TypeCode
+     * @param _kind kind identifying a primitive TypeCode
+     * @return TypeCode with integer kind _kind
      */
 
     static TypeCode get_primitive_tc( int _kind )
     {
         org.jacorb.util.Debug.myAssert( primitive_tcs[_kind] != null, 
-                                      "No primitive TypeCode for kind " + _kind);
+                                        "No primitive TypeCode for kind " + _kind );
         return primitive_tcs[_kind];
     }
 
+    /**
+     * @return True if this TypeCode represents a primitive type,
+     * false otherwise
+     */
+
     public boolean is_primitive()
     {
-        return ( !is_recursive () && primitive_tcs[kind] != null );
+        return ( ! is_recursive() && primitive_tcs[kind] != null );
     }
 
 
@@ -261,12 +269,12 @@ public class TypeCode
     }
 
     /**
-     * Constructor for tk_objref, tk_abstract_interface
+     * Constructor for tk_objref, tk_abstract_interface, tk_native
      */  
 
     public TypeCode (int _kind, 
-              java.lang.String _id, 
-              java.lang.String _name)
+                     java.lang.String _id, 
+                     java.lang.String _name)
     { 
         kind = _kind;
         id   = _id;
@@ -277,7 +285,7 @@ public class TypeCode
      * Constructor for tk_string, tk_wstring
      */  
 
-    public TypeCode ( int _kind, int _bound) 
+    public TypeCode ( int _kind, int _bound ) 
     {
         kind = _kind;
         length = _bound;
@@ -295,17 +303,15 @@ public class TypeCode
         length = _bound;
         content_type = (TypeCode)_element_type;
         org.jacorb.util.Debug.myAssert( content_type != null, 
-                                      "TypeCode.ctor, content_type null");
+                                        "TypeCode.ctor, content_type null");
 
-    }
-    
+    }    
 
     /**
      * Constructor for tk_fixed
      */  
 
-    public TypeCode (short _digits, 
-              short _scale) 
+    public TypeCode (short _digits, short _scale) 
     {
         kind = TCKind._tk_fixed;
         digits = _digits;
@@ -315,9 +321,12 @@ public class TypeCode
     /**
      * Constructor for tk_value
      */
-    public TypeCode(String id, String name, short type_modifier,
-                    org.omg.CORBA.TypeCode concrete_base,
-                    org.omg.CORBA.ValueMember[] members)
+
+    public TypeCode (String id,
+                     String name,
+                     short type_modifier,
+                     org.omg.CORBA.TypeCode concrete_base,
+                     org.omg.CORBA.ValueMember[] members)
     {
         kind = TCKind._tk_value;
         this.id = id;
@@ -338,10 +347,10 @@ public class TypeCode
     }
 
     /**
-     * check TypeCodes for structural equality
+     * check TypeCodes for equality
      */
 
-    public boolean equal( org.omg.CORBA.TypeCode tc)
+    public boolean equal( org.omg.CORBA.TypeCode tc )
     {
        if (is_recursive ())
        {
@@ -352,97 +361,118 @@ public class TypeCode
        //org.jacorb.util.Debug.output( 4, "Comparing this " + kind().value() + 
        //                              with tc " + tc.kind().value());
 
-        if( kind().value() != tc.kind().value())
-            return false;
-
-        /* for primitive type codes, only kinds need be equal */
-
-        if( kind().value() < 14 ||
-            ( kind().value() > 22 && kind().value() < 29 ))
+        if ( kind().value() != tc.kind().value() )
         {
-            return true;
+            return false;
         }
-
-        /* compare repository ids */
 
         try 
         {
-            if( kind ==  TCKind._tk_array )
+            if ( kind == TCKind._tk_objref || kind == TCKind._tk_struct || 
+                 kind == TCKind._tk_union  || kind == TCKind._tk_enum || 
+                 kind == TCKind._tk_alias  || kind == TCKind._tk_except ||
+                 kind == TCKind._tk_value  || kind == TCKind._tk_value_box ||
+                 kind == TCKind._tk_native ||
+                 kind == TCKind._tk_abstract_interface )
             {
-                return ( length() == tc.length() && 
-                         content_type().equal( tc.content_type()));
-            }
-
-            if( kind == TCKind._tk_sequence )
-            {
-                TypeCode this_tc = (org.jacorb.orb.TypeCode)content_type();
-                TypeCode other_tc = (org.jacorb.orb.TypeCode)tc.content_type();
-
-                return ( length() == tc.length() && 
-                         this_tc.equal( other_tc ));
-            }
-
-            if( kind == TCKind._tk_objref || kind == TCKind._tk_struct || 
-                kind == TCKind._tk_union  || kind == TCKind._tk_enum || 
-                kind == TCKind._tk_alias  || kind == TCKind._tk_except ||
-                kind == TCKind._tk_value  || kind == TCKind._tk_value_box)
-            {
-                if( ! id().equals( tc.id()) )
+                if ( ! id().equals( tc.id() ) || ! name().equals( tc.name() ) )
+                {
                     return false;
+                }
             }
             
-            if (kind == TCKind._tk_value || kind == TCKind._tk_value_box)
+            if ( kind == TCKind._tk_struct || kind == TCKind._tk_union ||
+                 kind == TCKind._tk_enum   || kind == TCKind._tk_value ||
+                 kind == TCKind._tk_except )
             {
-                if (name() != tc.name() || 
-                    !content_type().equal(tc.content_type()))
+                if ( member_count() != tc.member_count() )
+                {
                     return false;
+                }
+
+                for (int i = 0; i < member_count(); i++)
+                {
+                    if ( ! member_name(i).equals( tc.member_name(i) ) )
+                    {
+                        return false;
+                    }
+
+                    if ( kind != TCKind._tk_enum &&
+                         ! member_type(i).equal( tc.member_type(i) ) )
+                    {
+                        return false;
+                    }
+
+                    if ( kind == TCKind._tk_union &&
+                         ! member_label(i).equal( tc.member_label(i) ) )
+                    {
+                        return false;
+                    }
+
+                    if ( kind == TCKind._tk_value &&
+                         member_visibility(i) != tc.member_visibility(i) )
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if ( kind == TCKind._tk_union )
+            {
+                if ( ! discriminator_type().equal( tc.discriminator_type() ) ||
+                     default_index() != tc.default_index() )
+                {
+                    return false;
+                }
+            }
+
+            if ( kind == TCKind._tk_string || kind == TCKind._tk_wstring ||
+                 kind == TCKind._tk_array  || kind == TCKind._tk_sequence)
+            {
+                if ( length() != tc.length() )
+                {
+                    return false;
+                }
+            }
+
+            if ( kind == TCKind._tk_array || kind == TCKind._tk_sequence ||
+                 kind == TCKind._tk_alias || kind == TCKind._tk_value_box)
+            {
+               if ( ! content_type().equal( tc.content_type() ) )
+                {
+                    return false;
+                }
+            }
+
+            if (kind == TCKind._tk_fixed)
+            {
+                if ( fixed_digits() != tc.fixed_digits() ||
+                     fixed_scale() != tc.fixed_scale() )
+                {
+                    return false;
+                }
             }
 
             if (kind == TCKind._tk_value)
             {
-                if (member_count() != tc.member_count())
-                    return false;
-
-                for (int i = 0; i < member_count(); i++) {
-                    if (!member_name(i).equals(tc.member_name(i)) ||
-                        !member_type(i).equal(tc.member_type(i))  ||
-                        member_visibility(i) != tc.member_visibility(i))
-                        return false;
-                }
-            }
-
-            if( kind == TCKind._tk_union )
-            {
-                if( !discriminator_type().equal( tc.discriminator_type()))
-                    return false;
-        
-                if( default_index() != tc.default_index())
-                    return false;
-                
-                if( member_count() != tc.member_count())
-                    return false;
-
-                for( int i = 0; i < member_count(); i++ )
+                if ( type_modifier() != tc.type_modifier() ||
+                     ! concrete_base_type().equal( tc.concrete_base_type() ) )
                 {
-                    if( ! member_type(i).equal(tc.member_type(i)))
-                        return false;
-
-                    if( ! member_label(i).equals( tc.member_label(i)))
-                        return false;
+                    return false;
                 }
             }
-
         }
-        catch( org.omg.CORBA.TypeCodePackage.Bounds bs)
+        catch( org.omg.CORBA.TypeCodePackage.Bounds b )
         {
-            bs.printStackTrace();
+            b.printStackTrace();
             return false;
         }
-        catch( org.omg.CORBA.TypeCodePackage.BadKind bk)
+        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
         {
             bk.printStackTrace();
             return false;
         }
+
         return true;
     }
 
@@ -455,7 +485,7 @@ public class TypeCode
           return actualTypecode.kind ();
        }
 
-       return org.omg.CORBA.TCKind.from_int(kind);
+       return org.omg.CORBA.TCKind.from_int (kind);
     }
 
 
@@ -487,7 +517,9 @@ public class TypeCode
             case   TCKind._tk_alias:
             case   TCKind._tk_value:
             case   TCKind._tk_value_box:
-            case   TCKind._tk_except : return id;
+            case   TCKind._tk_native:
+            case   TCKind._tk_abstract_interface:
+            case   TCKind._tk_except: return id;
             default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
             }
     }
@@ -495,13 +527,13 @@ public class TypeCode
     public java.lang.String name() 
         throws org.omg.CORBA.TypeCodePackage.BadKind 
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.name ();
-       }
+        if (is_recursive ())
+        {
+           checkActualTC ();
+           return actualTypecode.name ();
+        }
 
-       switch( kind )
+        switch( kind )
         {
         case   TCKind._tk_objref:
         case   TCKind._tk_struct:
@@ -510,7 +542,9 @@ public class TypeCode
         case   TCKind._tk_alias:
         case   TCKind._tk_value:
         case   TCKind._tk_value_box:
-        case   TCKind._tk_except : return name;
+        case   TCKind._tk_native:
+        case   TCKind._tk_abstract_interface:
+        case   TCKind._tk_except: return name;
         default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
@@ -518,19 +552,19 @@ public class TypeCode
     public int member_count() 
         throws org.omg.CORBA.TypeCodePackage.BadKind 
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.member_count ();
-       }
+        if (is_recursive ())
+        {
+           checkActualTC ();
+           return actualTypecode.member_count ();
+        }
 
-       switch( kind )
+        switch( kind )
         {
         case   TCKind._tk_struct:
         case   TCKind._tk_except: 
         case   TCKind._tk_union:
         case   TCKind._tk_value:
-        case   TCKind._tk_enum : return member_count;
+        case   TCKind._tk_enum: return member_count;
         default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
@@ -539,63 +573,64 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind,
                org.omg.CORBA.TypeCodePackage.Bounds 
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.member_name (index);
-       }
+        if (is_recursive ())
+        {
+           checkActualTC ();
+           return actualTypecode.member_name (index);
+        }
 
-       switch( kind )
+        switch( kind )
         {
         case TCKind._tk_struct:
         case TCKind._tk_except: 
         case TCKind._tk_union:
-        case TCKind._tk_enum: 
         case TCKind._tk_value: 
-            if( index <= member_count )
+        case TCKind._tk_enum: 
+            if( index >= 0 && index < member_count )
                 return member_name[index];
             else
                 throw new  org.omg.CORBA.TypeCodePackage.Bounds();
         default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
-
     }
 
     public org.omg.CORBA.TypeCode member_type(int index) 
         throws org.omg.CORBA.TypeCodePackage.BadKind,
                org.omg.CORBA.TypeCodePackage.Bounds
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.member_type (index);
-       }
-
-       if( kind != TCKind._tk_struct && 
-            kind != TCKind._tk_union &&
-            kind != TCKind._tk_value && 
-            kind != TCKind._tk_except )
+        if (is_recursive ())
         {
-            throw new org.omg.CORBA.TypeCodePackage.BadKind();
+           checkActualTC ();
+           return actualTypecode.member_type (index);
         }
-        if( index > member_count )
-            throw new  org.omg.CORBA.TypeCodePackage.Bounds();
-        return member_type[index];
+
+        switch( kind )
+        {
+        case TCKind._tk_struct:
+        case TCKind._tk_except: 
+        case TCKind._tk_union:
+        case TCKind._tk_value: 
+            if( index >= 0 && index < member_count )
+                return member_type[index];
+            else
+                throw new  org.omg.CORBA.TypeCodePackage.Bounds();
+        default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
     }
 
     public org.omg.CORBA.Any member_label( int index ) 
         throws org.omg.CORBA.TypeCodePackage.BadKind,  
                org.omg.CORBA.TypeCodePackage.Bounds
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.member_label (index);
-       }
+        if (is_recursive ())
+        {
+            checkActualTC ();
+            return actualTypecode.member_label (index);
+        }
 
-       if( kind != TCKind._tk_union )
+        if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
-        if( index > member_count )
+        if( index < 0 || index >= member_count )
             throw new  org.omg.CORBA.TypeCodePackage.Bounds();
         return member_label[index];
     }
@@ -603,13 +638,13 @@ public class TypeCode
     public org.omg.CORBA.TypeCode discriminator_type() 
         throws org.omg.CORBA.TypeCodePackage.BadKind
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.discriminator_type ();
-       }
+        if (is_recursive ())
+        {
+           checkActualTC ();
+           return actualTypecode.discriminator_type ();
+        }
 
-       if( kind != TCKind._tk_union )
+        if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         return discriminator_type;
     }
@@ -618,13 +653,13 @@ public class TypeCode
     public int default_index() 
         throws org.omg.CORBA.TypeCodePackage.BadKind 
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.default_index ();
-       }
+        if (is_recursive ())
+        {
+            checkActualTC ();
+            return actualTypecode.default_index ();
+        }
 
-       if( kind != TCKind._tk_union )
+        if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         return default_index;
     }
@@ -638,7 +673,7 @@ public class TypeCode
         case   TCKind._tk_string:
         case   TCKind._tk_wstring:
         case   TCKind._tk_sequence:
-        case   TCKind._tk_array : return length;
+        case   TCKind._tk_array: return length;
         default: throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
@@ -648,23 +683,24 @@ public class TypeCode
     {
         switch( kind )
         {
-        case   TCKind._tk_array :
-        case   TCKind._tk_sequence :
-        case   TCKind._tk_alias : 
-        case   TCKind._tk_value_box :
-            return content_type;
+        case   TCKind._tk_array:
+        case   TCKind._tk_sequence:
+        case   TCKind._tk_alias: 
+        case   TCKind._tk_value_box: return content_type;
         default: throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
 
-    public  short fixed_digits() throws org.omg.CORBA.TypeCodePackage.BadKind
+    public  short fixed_digits()
+        throws org.omg.CORBA.TypeCodePackage.BadKind
     {
         if( kind != TCKind._tk_fixed )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         return digits;
     }
 
-    public  short fixed_scale() throws org.omg.CORBA.TypeCodePackage.BadKind
+    public  short fixed_scale()
+        throws org.omg.CORBA.TypeCodePackage.BadKind
     {
         if( kind != TCKind._tk_fixed )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();    
@@ -682,7 +718,7 @@ public class TypeCode
     {
         if (kind != TCKind._tk_value)
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
-        if (index < 0 || index > member_count)
+        if (index < 0 || index >= member_count)
             throw new org.omg.CORBA.TypeCodePackage.Bounds();
 
         return member_visibility[index];
@@ -711,90 +747,135 @@ public class TypeCode
      */
     public boolean equivalent( org.omg.CORBA.TypeCode tc )
     {
+        if (is_recursive ())
+        {
+           checkActualTC ();
+           return tc.equivalent (actualTypecode);
+        }
+           
         try 
         {
-           if (is_recursive ())
-           {
-              checkActualTC ();
-              return tc.equivalent (actualTypecode);
-           }
-           
             /* unalias any typedef'd types */
 
             if( kind().value() == TCKind._tk_alias )
+            {
                 return content_type().equivalent( tc );
+            }
             
             if( tc.kind().value() == TCKind._tk_alias )
+            {
                 return equivalent( tc.content_type() );
+            }
             
-            if( kind().value() != tc.kind().value())
+            if( kind().value() != tc.kind().value() )
+            {
                 return false;
-
-            /* for primitive type codes, only kinds need be equal */
-
-            if( kind().value() < 14 ||
-                ( kind().value() > 22 && kind().value() < 29 ))
-            {
-                return true;
             }
 
-            /* compare repository ids if applicable */
-
-            if( kind == TCKind._tk_objref  || kind == TCKind._tk_struct || 
-                kind == TCKind._tk_union || kind == TCKind._tk_enum || 
-                kind == TCKind._tk_alias  || kind ==  TCKind._tk_except )
+            if( kind == TCKind._tk_objref || kind == TCKind._tk_struct || 
+                kind == TCKind._tk_union  || kind == TCKind._tk_enum || 
+                kind == TCKind._tk_alias  || kind == TCKind._tk_except ||
+                kind == TCKind._tk_value  || kind == TCKind._tk_value_box ||
+                kind == TCKind._tk_native ||
+                kind == TCKind._tk_abstract_interface )
             {
-                if( id().length() > 0 && 
-                    tc.id().length() > 0 && 
-                    !id().equals( tc.id()) )
-                    return false;
-            }
-            
-            if( kind ==  TCKind._tk_array || 
-                kind == TCKind._tk_sequence )
-            {
-                return ( length() == tc.length() && 
-                         content_type().equivalent( tc.content_type()));
-            }
-
-            if( kind == TCKind._tk_fixed )
-            {
-                return ( fixed_digits() == tc.fixed_digits() && 
-                         fixed_scale() == tc.fixed_scale() );
-            }
-
-            if( kind == TCKind._tk_union )
-            {
-                if( !discriminator_type().equivalent( tc.discriminator_type()))
-                    return false;
-        
-                if( default_index() != tc.default_index())
-                    return false;
-                
-                if( member_count() != tc.member_count())
-                    return false;
-
-                for( int i = 0; i < member_count(); i++ )
+                if( id().length() > 0 && tc.id().length() > 0 )
                 {
-                    if( ! member_type(i).equivalent( tc.member_type(i)) )
-                        return false;
-
-                    if( ! member_label(i).equals( tc.member_label(i)))
-                        return false;
+                    if ( id().equals( tc.id() ) )
+                    {
+                        return true;
+                    }
+                    return false;
                 }
             }
 
+            if ( kind == TCKind._tk_struct || kind == TCKind._tk_union ||
+                 kind == TCKind._tk_enum   || kind == TCKind._tk_value ||
+                 kind == TCKind._tk_except )
+            {
+                if ( member_count() != tc.member_count() )
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < member_count(); i++)
+                {
+                    if ( kind != TCKind._tk_enum &&
+                         ! member_type(i).equivalent( tc.member_type(i) ) )
+                    {
+                        return false;
+                    }
+
+                    if ( kind == TCKind._tk_union &&
+                         ! member_label(i).equal( tc.member_label(i) ) )
+                    {
+                        return false;
+                    }
+
+                    if ( kind == TCKind._tk_value &&
+                         member_visibility(i) != tc.member_visibility(i) )
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if ( kind == TCKind._tk_union )
+            {
+                if ( ! discriminator_type().equivalent( tc.discriminator_type() ) ||
+                    default_index() != tc.default_index() )
+                {
+                    return false;
+                }
+            }
+
+            if ( kind == TCKind._tk_string || kind == TCKind._tk_wstring ||
+                 kind == TCKind._tk_array  || kind == TCKind._tk_sequence)
+            {
+                if ( length() != tc.length() )
+                {
+                    return false;
+                }
+            }
+
+            if ( kind == TCKind._tk_array || kind == TCKind._tk_sequence ||
+                 kind == TCKind._tk_alias || kind == TCKind._tk_value_box)
+            {
+                if ( ! content_type().equivalent( tc.content_type() ) )
+                {
+                    return false;
+                }
+            }
+
+            if (kind == TCKind._tk_fixed)
+            {
+                if ( fixed_digits() != tc.fixed_digits() ||
+                     fixed_scale() != tc.fixed_scale() )
+                {
+                    return false;
+                }
+            }
+
+            if (kind == TCKind._tk_value)
+            {
+                if ( type_modifier() != tc.type_modifier() ||
+                     ! concrete_base_type().equivalent( tc.concrete_base_type() ) )
+                {
+                    return false;
+                }
+            }
         }
-        catch( org.omg.CORBA.TypeCodePackage.Bounds bs)
+        catch( org.omg.CORBA.TypeCodePackage.Bounds b )
         {
-            bs.printStackTrace();
+            b.printStackTrace();
             return false;
         }
-        catch( org.omg.CORBA.TypeCodePackage.BadKind bk)
+        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
         {
             bk.printStackTrace();
             return false;
         }
+
         return true;
     }
 
@@ -811,7 +892,7 @@ public class TypeCode
     }
 
     /**
-     * @returns TRUE is this TypeCode is recursive. Both the initial
+     * @return TRUE is this TypeCode is recursive. Both the initial
      * place holder TypeCode and the real TypeCode which replaces
      * the place holder return TRUE.
      */
@@ -843,62 +924,64 @@ public class TypeCode
 
        switch( kind().value() ) 
        {
-        case   TCKind._tk_objref:
-        case   TCKind._tk_struct:
-        case   TCKind._tk_union:
-        case   TCKind._tk_enum:
-        case   TCKind._tk_alias:
-        case   TCKind._tk_except : 
-            try
-            {
-                return  idToIDL(id());   
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-            {}
-        case   TCKind._tk_void:   return "void";
-        case   TCKind._tk_string: return "string";
-        case   TCKind._tk_wstring: return "wstring";
-        case   TCKind._tk_array: 
-            try
-            {
-                return ((org.jacorb.orb.TypeCode)content_type()).idlTypeName() + "[]";
-            } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-            {}
-        case   TCKind._tk_long: return "long";
-        case   TCKind._tk_ulong: return "ulong";
-        case   TCKind._tk_longlong: return "long long";
-        case   TCKind._tk_ulonglong: return "ulong long";
-        case   TCKind._tk_ushort: return "ushort";
-        case   TCKind._tk_short: return "short";
-        case   TCKind._tk_float: return "float";
-        case   TCKind._tk_double: return "double";
-        case   TCKind._tk_fixed: 
-            try
-            {
-              return "fixed <" + fixed_digits() + "," + fixed_scale()  + ">";
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-            {}
-        case   TCKind._tk_boolean: return "boolean";
-        case   TCKind._tk_octet: return "octet";
-        case   TCKind._tk_char: return "char";
-        case   TCKind._tk_wchar: return "wchar";
-        case   TCKind._tk_any: return "any";
-        case   TCKind._tk_sequence: 
-            try
-            {
-                return "sequence <" + 
-                    ((org.jacorb.orb.TypeCode)content_type()).idlTypeName() 
-                    + ">";
-            } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-            {}
-        default: return "*no typeName for TK " + kind() + "*";
-        }
+       case   TCKind._tk_objref:
+       case   TCKind._tk_struct:
+       case   TCKind._tk_union:
+       case   TCKind._tk_enum:
+       case   TCKind._tk_alias:
+       case   TCKind._tk_except: 
+       case   TCKind._tk_native:
+       case   TCKind._tk_abstract_interface:
+          try
+          {
+             return  idToIDL(id());   
+          }
+          catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+          {}
+       case   TCKind._tk_void: return "void";
+       case   TCKind._tk_string: return "string";
+       case   TCKind._tk_wstring: return "wstring";
+       case   TCKind._tk_array: 
+          try
+          {
+             return ((org.jacorb.orb.TypeCode)content_type()).idlTypeName() + "[]";
+          } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+          {}
+       case   TCKind._tk_long: return "long";
+       case   TCKind._tk_ulong: return "ulong";
+       case   TCKind._tk_longlong: return "long long";
+       case   TCKind._tk_ulonglong: return "ulong long";
+       case   TCKind._tk_ushort: return "ushort";
+       case   TCKind._tk_short: return "short";
+       case   TCKind._tk_float: return "float";
+       case   TCKind._tk_double: return "double";
+       case   TCKind._tk_fixed: 
+          try
+          {
+             return "fixed <" + fixed_digits() + "," + fixed_scale()  + ">";
+          } 
+          catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+          {}
+       case   TCKind._tk_boolean: return "boolean";
+       case   TCKind._tk_octet: return "octet";
+       case   TCKind._tk_char: return "char";
+       case   TCKind._tk_wchar: return "wchar";
+       case   TCKind._tk_any: return "any";
+       case   TCKind._tk_sequence: 
+          try
+          {
+             return "sequence <" + 
+                ((org.jacorb.orb.TypeCode)content_type()).idlTypeName() 
+                + ">";
+          } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+          {}
+       default: return "* no typeName for TK " + kind().value() + " *";
+       }
     }
 
     private static String idToIDL( String s )
     {
-        if( s.startsWith("IDL:"))
+        if( s.startsWith("IDL:") )
             s = s.substring( 4, s.lastIndexOf(":") );
         else 
             s = s.replace('.','/') + ":1.0";
