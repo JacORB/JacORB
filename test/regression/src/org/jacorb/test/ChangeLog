@@ -1,4 +1,4 @@
-2004-04-14  Phil Mesnier  <phil.mesnier@ociweb.com>
+2004-04-14  Phil Mesnier  <mesnier_p@ociweb.com>
 
 	* common/ClientServerSetup.java, common/TestServer.java,
 	orb/IIOPAddressServerImpl.java,
