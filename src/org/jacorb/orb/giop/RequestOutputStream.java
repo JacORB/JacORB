@@ -45,8 +45,23 @@ public class RequestOutputStream
     private boolean response_expected = true;
     private String operation = null;
 
-    /** Absolute time at which roundtrip must have been completed. */
-    private UtcT roundtripTimeout = null;
+    /**
+     * Absolute time after which this request may be delivered to its target.
+     * (CORBA 3.0, 22.2.4.1)
+     */
+    private UtcT requestStartTime = null;
+    
+    /**
+     * Absolute time after which this request may no longer be delivered
+     * to its target. (CORBA 3.0, 22.2.4.2/5)
+     */
+    private UtcT requestEndTime   = null;
+
+    /** 
+     * Absolute time after which a reply may no longer be obtained
+     * or returned to the client. (CORBA 3.0, 22.2.4.4/6)
+     */ 
+    private UtcT replyEndTime     = null;
 
     private org.jacorb.orb.dii.Request request = null;
 
@@ -56,7 +71,9 @@ public class RequestOutputStream
                                 int request_id,
                                 String operation, 
                                 boolean response_expected,
-                                UtcT roundtripTimeout,
+                                UtcT requestStartTime,
+                                UtcT requestEndTime,
+                                UtcT replyEndTime,
                                 byte[] object_key,
                                 int giop_minor )
     {
@@ -69,7 +86,10 @@ public class RequestOutputStream
         this.response_expected = response_expected;
         this.operation = operation;
         this.connection = connection;
-        this.roundtripTimeout = roundtripTimeout;
+        
+        this.requestStartTime = requestStartTime;
+        this.requestEndTime   = requestEndTime;
+        this.replyEndTime     = replyEndTime;
 
         writeGIOPMsgHeader( MsgType_1_1._Request,
                             giop_minor );
@@ -186,9 +206,9 @@ public class RequestOutputStream
         return operation;
     }
 
-    public UtcT getRoundtripTimeout()
+    public UtcT getReplyEndTime()
     {
-        return roundtripTimeout;
+        return replyEndTime;
     }
 
     public void setRequest(org.jacorb.orb.dii.Request request)
