@@ -79,10 +79,11 @@ public class LogKitLoggerFactory
     /** the writer for console logging */
     private Writer consoleWriter;
 
-
     /** this target for console logging */
     private LogTarget consoleTarget;
 
+    /** The default log file */
+    private LogTarget defaultTarget = null;
 
     public LogKitLoggerFactory()
     {
@@ -254,7 +255,14 @@ public class LogKitLoggerFactory
         else
         {
             // use default LogTarget
+            if (defaultTarget == null)
+            {
             logger.setLogTargets(new LogTarget[] { consoleTarget } );
+        }
+            else
+            {
+                logger.setLogTargets(new LogTarget[] { defaultTarget } );
+            }
         }
 
         Logger result = new LogKitLogger(logger);
@@ -344,5 +352,27 @@ public class LogKitLoggerFactory
             default :
                 return org.apache.log.Priority.FATAL_ERROR;
         }
+    }
+    
+    public void setDefaultLogFile(String fileName, long maxLogSize) throws java.io.IOException
+    {
+        FileOutputStream logStream =
+            new FileOutputStream(fileName, append);
+
+        if (maxLogSize == 0)
+        {
+            // no log file rotation
+            Writer logWriter = new OutputStreamWriter(logStream);
+            defaultTarget = new WriterTarget(logWriter, logFormatter);
+        }
+        else
+        {
+            // use log file rotation
+            defaultTarget =
+                new RotatingFileTarget(append,
+                                       logFormatter,
+                                       new RotateStrategyBySize(maxLogSize * 1000),
+                                       new RevolvingFileStrategy(new File(fileName), 10000));
+        }      
     }
 }
