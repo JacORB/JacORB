@@ -180,7 +180,15 @@ org.omg.PortableInterceptor.ORBInitializerClass.standard_init=org.jacorb.orb.sta
 # Switch off to avoid contacting the ImR on every server start-up
 jacorb.use_imr=off
 
+# if set to "on", servers that don't already have an entry on their
+# first call to the imr, will get automatically registered. Otherwise,
+# an UnknownServer exception is thrown.
 jacorb.imr.allow_auto_register=off
+
+# if set to "on", the imr will try to "ping" every object reference,
+# that it is going to return. If the reference is not alive, TRANSIENT
+# is thrown. 
+jacorb.imr.check_object_liveness=off
 
 ORBInitRef.ImplementationRepository=http://www.x.y.z/~user/ImR_Ref
 
