@@ -57,11 +57,11 @@ public class GlobalInputStream
         logger = parser.getLogger();
     }
 
-    public static void setInput( String fname )
+    public static void setInput(String fname)
         throws java.io.IOException
     {
-        currentFile = new File( fname );
-        stream = new java.io.FileInputStream( currentFile );
+        currentFile = new File(fname);
+        stream = new java.io.FileInputStream(currentFile);
     }
 
     /**
@@ -74,10 +74,10 @@ public class GlobalInputStream
      * @return true, if this stream's IDL file is more recent than the other file  .
      */
 
-    public static boolean isMoreRecentThan( File other )
+    public static boolean isMoreRecentThan(File other)
     {       
-        return ( parser.forceOverwrite || 
-                 ( other.lastModified() < currentFile.lastModified() )) ;
+        return (parser.forceOverwrite || 
+                 (other.lastModified() < currentFile.lastModified())) ;
     }
 
     public static boolean includeState()
@@ -85,37 +85,37 @@ public class GlobalInputStream
         return included;
     }
 
-    public static void insert( String str )
+    public static void insert(String str)
     {
-        expandedText.insert( pos, str );
+        expandedText.insert(pos, str);
     }
 
-    public static void include( String fname, int lookahead, boolean useIncludePath )
+    public static void include(String fname, int lookahead, boolean useIncludePath)
         throws FileNotFoundException
     {
-        //      System.out.println( "Including " + fname + " , lookahead char is " + (char)lookahead );
+        //      System.out.println("Including " + fname + " , lookahead char is " + (char)lookahead);
         included = true;
         PositionInfo position = lexer.getPosition();
         position.file = currentFile();
         position.stream = stream;
 
-        stream = find( fname, useIncludePath );
+        stream = find(fname, useIncludePath);
 
-        positions.push( position );
-        lookahead_stack.push( new Integer( lookahead ) );
+        positions.push(position);
+        lookahead_stack.push(new Integer(lookahead));
 
-        if( logger.isInfoEnabled() )
-            logger.info( "Including " + fname );
+        if (logger.isInfoEnabled())
+            logger.info("Including " + fname);
         /* files form their own scopes, so we have to open a new one here */
     }
 
-    public static void setIncludePath( String path )
+    public static void setIncludePath(String path)
     {
         java.util.StringTokenizer strtok =
-                new java.util.StringTokenizer( path, File.pathSeparator );
+                new java.util.StringTokenizer(path, File.pathSeparator);
 
         int i;
-        if( path_names == null )
+        if (path_names == null)
         {
             path_names = new String[ strtok.countTokens() ];
             i = 0;
@@ -125,12 +125,12 @@ public class GlobalInputStream
             i = path_names.length;
 
             String[] _path_names = new String[ strtok.countTokens() + path_names.length ];
-            for( int j = 0; j < path_names.length; j++ )
+            for (int j = 0; j < path_names.length; j++)
                 _path_names[ j ] = path_names[ j ];
             path_names = _path_names;
         }
 
-        while( strtok.hasMoreTokens() )
+        while(strtok.hasMoreTokens())
         {
             path_names[ i++ ] = strtok.nextToken();
         }
@@ -141,71 +141,71 @@ public class GlobalInputStream
      *  updates currentFile if successful
      */
 
-    private static FileInputStream find( String fname, boolean useIncludePath )
+    private static FileInputStream find(String fname, boolean useIncludePath)
             throws FileNotFoundException
     {
-        if( !useIncludePath )
+        if (!useIncludePath)
         {
-            if( fname.indexOf( File.separator ) != 0 )
+            if (fname.indexOf(File.separator) != 0)
             {
                 String dir = null;
                 try
                 {
                     dir = currentFile.getCanonicalPath();
-                    if( dir.indexOf( File.separator ) > -1 )
+                    if (dir.indexOf(File.separator) > -1)
                     {
-                        dir = dir.substring( 0, dir.lastIndexOf( File.separator ) );
+                        dir = dir.substring(0, dir.lastIndexOf(File.separator));
                     }
                 }
-                catch( java.io.IOException ioe )
+                catch(java.io.IOException ioe)
                 {
                     // should not happen
                     ioe.printStackTrace();
                 }
 
-                if( logger.isInfoEnabled() )
-		 logger.info( "opening " + dir + File.separator + fname );
-                currentFile = new File( dir + File.separator + fname );
+                if (logger.isInfoEnabled())
+		 logger.info("opening " + dir + File.separator + fname);
+                currentFile = new File(dir + File.separator + fname);
             }
             else
-                currentFile = new File( fname );
+                currentFile = new File(fname);
 
             try
             {
-                return new FileInputStream( currentFile );
+                return new FileInputStream(currentFile);
             }
-            catch( java.io.IOException iof )
+            catch(java.io.IOException iof)
             {
-                return find( fname, true );
+                return find(fname, true);
             }
         }
         else
         {
-            if( path_names == null )
+            if (path_names == null)
             {
-                org.jacorb.idl.parser.fatal_error( "File " + fname +
-                        " not found in include path", null );
+                org.jacorb.idl.parser.fatal_error("File " + fname +
+                        " not found in include path", null);
             }
             else
             {
-                for( int i = 0; i < path_names.length; i++ )
+                for (int i = 0; i < path_names.length; i++)
                 {
                     try
                     {
-                        if( logger.isInfoEnabled() )
-                            logger.info( "opening " + path_names[ i ] + File.separator + fname );
+                        if (logger.isInfoEnabled())
+                            logger.info("opening " + path_names[ i ] + File.separator + fname);
 
-                        currentFile = new File( path_names[ i ] + File.separator + fname );
-                        return new FileInputStream( currentFile );
+                        currentFile = new File(path_names[ i ] + File.separator + fname);
+                        return new FileInputStream(currentFile);
                     }
-                    catch( FileNotFoundException fnfex )
+                    catch(FileNotFoundException fnfex)
                     {
                     }
                 }
             }
 
-            org.jacorb.idl.parser.fatal_error( "File " + fname +
-                    " not found in include path", null );
+            org.jacorb.idl.parser.fatal_error("File " + fname +
+                    " not found in include path", null);
             return null;
         }
     }
@@ -227,16 +227,16 @@ public class GlobalInputStream
 
         // Might be the end of file for main file but still have an included file
         // to process.
-        if( eof && positions.size() == 0 )
+        if (eof && positions.size() == 0)
         {
             return -1;
         }
 
-        if( expandedText.length() > 0 )
+        if (expandedText.length() > 0)
         {
-            if( pos < expandedText.length() )
-                ch = (int)expandedText.charAt( pos++ );
-            if( pos == expandedText.length() )
+            if (pos < expandedText.length())
+                ch = (int)expandedText.charAt(pos++);
+            if (pos == expandedText.length())
             {
                 expandedText = new StringBuffer();
                 pos = 0;
@@ -252,27 +252,27 @@ public class GlobalInputStream
              * If the latter, switch back to the main stream
              */
 
-            if( ch == -1 )
+            if (ch == -1)
             {
-                if( included )
+                if (included)
                 {
                     stream.close();
 
                     // undo effects of inhibition pragma
-                    parser.setInhibitionState( false );
+                    parser.setInhibitionState(false);
 
                     // return to last position in previous file
                     PositionInfo positionInfo = (PositionInfo)positions.pop();
                     stream = positionInfo.stream;
                     currentFile = positionInfo.file;
-                    ch = ( (Integer)lookahead_stack.pop() ).intValue();
+                    ch = ((Integer)lookahead_stack.pop()).intValue();
 
-                    included = !( positions.empty() );
+                    included = !(positions.empty());
 
-                    if( logger.isInfoEnabled() )
-                        logger.info( "returning to " + currentFile + " included: " + included );
+                    if (logger.isInfoEnabled())
+                        logger.info("returning to " + currentFile + " included: " + included);
 
-                    lexer.restorePosition( positionInfo );
+                    lexer.restorePosition(positionInfo);
                 }
                 else
                 {
