@@ -88,7 +88,7 @@ public class AOM
     }
 
 
-    synchronized protected void add( byte[] oid, Servant servant )
+    protected synchronized void add( byte[] oid, Servant servant )
         throws ObjectAlreadyActive, ServantAlreadyActive
     {
         ByteArrayKey oidbak = new ByteArrayKey (oid);
@@ -158,7 +158,7 @@ public class AOM
     }
 
 
-    synchronized protected StringPair[] deliverContent()
+    protected synchronized StringPair[] deliverContent()
     {
         StringPair[] result = new StringPair[objectMap.size()];
         ByteArrayKey oidbak;
@@ -200,7 +200,7 @@ public class AOM
 
 
 
-    synchronized protected Servant incarnate( byte[] oid,
+    protected synchronized Servant incarnate( byte[] oid,
                                               ServantActivator servant_activator,
                                               org.omg.PortableServer.POA poa )
         throws org.omg.PortableServer.ForwardRequest

@@ -19,7 +19,7 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import org.jacorb.poa.gui.*;
 
 import org.jacorb.util.Environment;
@@ -32,8 +32,8 @@ import org.jacorb.util.Environment;
  * @version 1.05, 12/08/99, RT
  */
 
-public class POAManagerMonitorImpl 
-    implements POAManagerMonitor, POAManagerMonitorController 
+public class POAManagerMonitorImpl
+    implements POAManagerMonitor, POAManagerMonitorController
 {
     private POAManager model = null;
     private POAManagerMonitorView view = null;
@@ -47,7 +47,7 @@ public class POAManagerMonitorImpl
             } catch (Throwable e) {
                 printMessage("exception ocurred: "+e);
             }
-        }       
+        }
     }
     public void actionCloseView() {
         closeMonitor();
@@ -61,7 +61,7 @@ public class POAManagerMonitorImpl
             } catch (Throwable e) {
                 printMessage("exception ocurred: "+e);
             }
-        }       
+        }
     }
     public void actionOpenPOAMonitor(String name) {
         if (model != null) {
@@ -72,7 +72,7 @@ public class POAManagerMonitorImpl
             } catch (Throwable e) {
                 printMessage("exception ocurred: "+e);
             }
-        }       
+        }
     }
     public void actionSetToActive() {
         if (model != null) {
@@ -84,7 +84,7 @@ public class POAManagerMonitorImpl
                 printMessage("exception ocurred: "+e);
                 resetState();
             }
-        }       
+        }
     }
     public void actionSetToDiscarding(boolean wait) {
         if (model != null) {
@@ -96,7 +96,7 @@ public class POAManagerMonitorImpl
                 printMessage("exception ocurred: "+e);
                 resetState();
             }
-        }       
+        }
     }
     public void actionSetToHolding(boolean wait) {
         if (model != null) {
@@ -108,7 +108,7 @@ public class POAManagerMonitorImpl
                 printMessage("exception ocurred: "+e);
                 resetState();
             }
-        }       
+        }
     }
     public void actionSetToInactive(boolean wait, boolean etherialize) {
         if (model != null) {
@@ -120,9 +120,9 @@ public class POAManagerMonitorImpl
                 printMessage("exception ocurred: "+e);
                 resetState();
             }
-        }       
+        }
     }
-    synchronized public void addPOA(String name) {
+    public synchronized void addPOA(String name) {
         if (view != null) {
             try {
                 view._addPOA(expandPOAName(name));
@@ -133,11 +133,11 @@ public class POAManagerMonitorImpl
             printMessage("register POA "+name);
         }
     }
-    synchronized public void closeMonitor() {
+    public synchronized void closeMonitor() {
         if (view != null) {
             try {
                 POAManagerMonitor newMonitor = (POAManagerMonitor)Class.forName("org.jacorb.poa.POAManagerMonitorLightImpl").newInstance();
-                newMonitor.init(model);                         
+                newMonitor.init(model);
                 model.setMonitor(newMonitor);
                 POAManagerMonitorView tmp = view;
                 view = null;
@@ -149,14 +149,14 @@ public class POAManagerMonitorImpl
         }
     }
     private String expandPOAName(String name) {
-        return name.equals("") ? 
-            POAConstants.ROOT_POA_NAME : 
+        return name.equals("") ?
+            POAConstants.ROOT_POA_NAME :
             POAConstants.ROOT_POA_NAME+POAConstants.OBJECT_KEY_SEPARATOR+name;
     }
     public void init(POAManager poaManager) {
         model = poaManager;
     }
-    synchronized public void openMonitor() {
+    public synchronized void openMonitor() {
         try {
             view = new org.jacorb.poa.gui.pm.POAManagerFrame(this);
             view._setVisible(true);
@@ -165,7 +165,7 @@ public class POAManagerMonitorImpl
             org.jacorb.util.Debug.output(0, exception);
         }
     }
-    synchronized public void printMessage(String str) {
+    public synchronized void printMessage(String str) {
         if (view != null) {
             try {
                 view._printMessage(Environment.time()+"> "+str);
@@ -178,7 +178,7 @@ public class POAManagerMonitorImpl
     private String reducePOAName(String name) {
         return name.equals(POAConstants.ROOT_POA_NAME) ? "" : name.substring(POAConstants.ROOT_POA_NAME.length()+1);
     }
-    synchronized public void removePOA(String name) {
+    public synchronized void removePOA(String name) {
         if (view != null) {
             try {
                 view._removePOA(expandPOAName(name));
@@ -189,7 +189,7 @@ public class POAManagerMonitorImpl
             printMessage("unregister POA "+name);
         }
     }
-    synchronized protected  void resetState() {
+    protected synchronized  void resetState() {
         if (view != null) {
             try {
                 view._resetState();
@@ -199,7 +199,7 @@ public class POAManagerMonitorImpl
             }
         }
     }
-    synchronized public void setToActive() {
+    public synchronized void setToActive() {
         if (view != null) {
             try {
                 view._setToActive();
@@ -210,7 +210,7 @@ public class POAManagerMonitorImpl
             printMessage("POAManager is set to \"active\"");
         }
     }
-    synchronized public void setToDiscarding(boolean wait) {
+    public synchronized void setToDiscarding(boolean wait) {
         if (view != null) {
             try {
                 view._setToDiscarding(wait);
@@ -221,7 +221,7 @@ public class POAManagerMonitorImpl
             printMessage("POAManager is set to \"discarding\"");
         }
     }
-    synchronized public void setToHolding(boolean wait) {
+    public synchronized void setToHolding(boolean wait) {
         if (view != null) {
             try {
                 view._setToHolding(wait);
@@ -232,7 +232,7 @@ public class POAManagerMonitorImpl
             printMessage("POAManager is set to \"holding\"");
         }
     }
-    synchronized public void setToInactive(boolean wait, boolean etherialize) {
+    public synchronized void setToInactive(boolean wait, boolean etherialize) {
         if (view != null) {
             try {
                 view._setToInactive(wait, etherialize);
@@ -244,10 +244,3 @@ public class POAManagerMonitorImpl
         }
     }
 }
-
-
-
-
-
-
-

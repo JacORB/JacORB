@@ -21,88 +21,88 @@ package org.jacorb.poa;
  */
 
 import org.jacorb.poa.except.*;
- 
+
 import org.omg.PortableServer.CurrentPackage.NoContext;
 
 import java.util.*;
 
 /**
- * This class provides access to the identity of the object on which a method 
+ * This class provides access to the identity of the object on which a method
  * was invoked and the responsible POA for this object.
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version $Id$
  */
 
-public class Current 
+public class Current
     extends org.omg.PortableServer._CurrentLocalBase
-  //    extends org.omg.CORBA.LocalObject 
-  //    implements org.omg.PortableServer.Current 
+  //    extends org.omg.CORBA.LocalObject
+  //    implements org.omg.PortableServer.Current
 {
-    private Hashtable threadTable = new Hashtable(); 
+    private Hashtable threadTable = new Hashtable();
     // Thread -> vector of InvocationContext elements (Stack)
 
-    private Current() 
+    private Current()
     {
     }
 
-    public static Current _Current_init() 
+    public static Current _Current_init()
     {
         return new Current();
     }
 
-    synchronized public void _addContext(Thread t, InvocationContext c) 
-    {		    
+    public synchronized void _addContext(Thread t, InvocationContext c)
+    {
         Vector cv = (Vector) threadTable.get(t);
 
         if (cv == null) {
             cv = new Vector();
             threadTable.put(t, cv);
         }
-		
+
         cv.addElement(c);
     }
-	    
-    synchronized public void _removeContext(Thread t) 
+
+    public synchronized void _removeContext(Thread t)
     {
         Vector cv = (Vector) threadTable.get(t);
 
         if (cv != null) {
-			
+
             cv.removeElementAt(cv.size()-1);
-			
+
             if (cv.size() == 0) {
                 threadTable.remove(t);
             }
         }
     }
-	
-    public byte[] get_object_id() 
-        throws NoContext 
+
+    public byte[] get_object_id()
+        throws NoContext
     {
         return getInvocationContext().getObjectId();
     }
 
     public org.omg.CORBA.Object get_reference ()
-        throws NoContext 
+        throws NoContext
     {
         return get_servant()._this_object (getORB ());
     }
 
     public org.omg.PortableServer.Servant get_servant ()
-        throws NoContext 
+        throws NoContext
     {
         return getInvocationContext().getServant ();
     }
 
-    public org.omg.PortableServer.POA get_POA () 
-        throws NoContext 
+    public org.omg.PortableServer.POA get_POA ()
+        throws NoContext
     {
         return getInvocationContext().getPOA ();
     }
-    
-    synchronized private InvocationContext getInvocationContext() 
-        throws NoContext 
+
+    synchronized private InvocationContext getInvocationContext()
+        throws NoContext
     {
         Thread ct = Thread.currentThread();
 
@@ -120,19 +120,19 @@ public class Current
 
         throw new NoContext();
     }
-	    
-    protected org.omg.CORBA.ORB getORB() 
-        throws NoContext 
+
+    protected org.omg.CORBA.ORB getORB()
+        throws NoContext
     {
         return getInvocationContext().getORB();
     }
 
-    protected org.omg.PortableServer.Servant getServant() 
-        throws NoContext 
+    protected org.omg.PortableServer.Servant getServant()
+        throws NoContext
     {
         return getInvocationContext().getServant();
     }
-    
+
     /*
       public org.jacorb.orb.connection.Connection getConnection()
       throws NoContext

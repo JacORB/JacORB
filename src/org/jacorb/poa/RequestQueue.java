@@ -51,7 +51,7 @@ public class RequestQueue
         logTrace = _logTrace;
     }
 
-    synchronized protected void add(ServerRequest request)
+    protected synchronized void add(ServerRequest request)
         throws ResourceLimitReachedException
     {
         if (queue.size() == Environment.queueMax())
@@ -71,7 +71,7 @@ public class RequestQueue
     protected synchronized void addRequestQueueListener(RequestQueueListener listener) {
         queueListener = EventMulticaster.add(queueListener, listener);
     }
-    synchronized protected StringPair[] deliverContent() {
+    protected synchronized StringPair[] deliverContent() {
         StringPair[] result = new StringPair[queue.size()];
         Enumeration en = queue.elements();
         ServerRequest sr;
@@ -81,7 +81,7 @@ public class RequestQueue
         }
         return result;
     }
-    synchronized protected ServerRequest getElementAndRemove(int rid) {
+    protected synchronized ServerRequest getElementAndRemove(int rid) {
         if (!queue.isEmpty()) {
             Enumeration en = queue.elements();
             ServerRequest result;
@@ -97,7 +97,7 @@ public class RequestQueue
         }
         return null;
     }
-    synchronized protected ServerRequest getFirst() {
+    protected synchronized ServerRequest getFirst() {
         if (!queue.isEmpty()) {
             return (ServerRequest) queue.firstElement();
         }
@@ -106,7 +106,7 @@ public class RequestQueue
     protected boolean isEmpty() {
         return queue.isEmpty();
     }
-    synchronized protected ServerRequest removeFirst() {
+    protected synchronized ServerRequest removeFirst() {
         if (!queue.isEmpty()) {
             ServerRequest result = (ServerRequest) queue.elementAt(0);
             queue.removeElementAt(0);
@@ -116,7 +116,7 @@ public class RequestQueue
         }
         return null;
     }
-    synchronized protected ServerRequest removeLast() {
+    protected synchronized ServerRequest removeLast() {
         if (!queue.isEmpty()) {
             ServerRequest result = (ServerRequest) queue.lastElement();
             queue.removeElementAt(queue.size()-1);
