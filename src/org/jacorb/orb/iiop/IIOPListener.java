@@ -382,12 +382,12 @@ public class IIOPListener extends _ListenerLocalBase
      * up to the ORB, using either the upcall mechanism or the 
      * polling mechanism.
      */
-    private void deliverConnection (Socket socket)
+    private void deliverConnection (Socket socket, boolean isSSL)
     {
         Connection result = null;
         try
         {
-            result = new ServerIIOPConnection (socket, false);
+            result = new ServerIIOPConnection (socket, isSSL);
         }
         catch (IOException ex)
         {
@@ -500,6 +500,10 @@ public class IIOPListener extends _ListenerLocalBase
              socket.setSoTimeout (getServerTimeout());
         }
 
+        protected void deliverConnection (Socket socket)
+        {
+            IIOPListener.this.deliverConnection (socket, false);
+        }
     }    
 
     private class SSLAcceptor extends Acceptor
@@ -525,6 +529,11 @@ public class IIOPListener extends _ListenerLocalBase
         {
             super.setup (socket);
             getSSLServerSocketFactory().switchToClientMode (socket);
+        }
+        
+        protected void deliverConnection (Socket socket)
+        {
+            IIOPListener.this.deliverConnection (socket, true);
         }
     }
 
