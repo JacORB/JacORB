@@ -59,20 +59,21 @@ brose@inf.fu-berlin.de
 
              fixed bugs in constant expressions
 
-             compiler now resets internal table between IDL files passed
+             Compiler now resets internal table between IDL files passed
                 on the same command line
 
-             Uninitialized string members in exceptions and structs.  
-                Strings are now initialized to "", otherwise there can be
-                MARSHAL excpetions at runtime because of null values.
-
-             generated code in multi-dimensional sequences now compiles
-                with javac.
-
              Compiler did not complain if oneway operations declare 
-                exceptions or return types other than void.
+                exceptions or return types other than void. Now it does.
 
-             Arrays of anys: generated code now compiles with javac.
+             Fixed Problems in generated code
+                - String members in exceptions and structs are now initialized 
+                  to "", otherwise there can be CORBA.MARSHAL excpetions 
+                  at runtime because of null values.
+                - generated code in multi-dimensional sequences now 
+                  compiles with javac.
+                - Arrays of anys: generated code now compiles with javac.
+                - Corrected references to holder classes for out 
+                  parameters for types aliased to string
 
         - added support for inverse DNS lookup of IP addresses, so IORs
           contain fully qualified host names instead of IP numbers. See
