@@ -68,6 +68,12 @@ public class RequestQueue
     {
         if (queue.size() >= Environment.queueMax())
         {
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("Request queue is full, consider increasing "
+                          + "jacorb.poa.queue_max (currently: "
+                          + Environment.queueMax() + ")");   
+            }
             if (Environment.queueWait())
             {
                 while (queue.size() > Environment.queueMin())
