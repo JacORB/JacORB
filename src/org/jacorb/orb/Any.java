@@ -452,7 +452,9 @@ public final class Any
     public java.io.Serializable extract_Value() 
         throws org.omg.CORBA.BAD_OPERATION
     {
-        if (typeCode.kind().value() != TCKind._tk_value)
+        int kind = typeCode.kind().value();
+        if (kind != TCKind._tk_value &&
+            kind != TCKind._tk_null)
             tc_error ("Cannot extract value!");
         return (java.io.Serializable)value;
     }
@@ -460,8 +462,16 @@ public final class Any
 
     public void insert_Value(java.io.Serializable value)
     {
-        this.value    = value;
-        this.typeCode = TypeCode.create_tc (value.getClass());
+        if (value != null)
+        {
+            this.value    = value;
+            this.typeCode = TypeCode.create_tc (value.getClass());
+        }
+        else
+        {
+            this.value    = null;
+            this.typeCode = new TypeCode (TCKind._tk_null);
+        }
     }
 
     public void insert_Value(java.io.Serializable value, org.omg.CORBA.TypeCode type) 
