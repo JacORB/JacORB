@@ -252,6 +252,7 @@ public class lexer
         char_symbols.put( new Integer( '%' ), new Integer( sym.PERCENT ) );
         char_symbols.put( new Integer( '~' ), new Integer( sym.TILDE ) );
         char_symbols.put( new Integer( '|' ), new Integer( sym.BAR ) );
+        char_symbols.put( new Integer( ' ' ), new Integer( sym.SPACE ) );
 
         /* set up reserved Java names */
 
@@ -273,8 +274,8 @@ public class lexer
         java_keywords.put( "false", "" );
         java_keywords.put( "final", "" );
         java_keywords.put( "finally", "" );
-        java_keywords.put( "for", "" );
         java_keywords.put( "float", "" );
+        java_keywords.put( "for", "" );
         java_keywords.put( "goto", "" );
         java_keywords.put( "if", "" );
         java_keywords.put( "implements", "" );
@@ -287,8 +288,8 @@ public class lexer
         java_keywords.put( "new", "" );
         java_keywords.put( "null", "" );
         java_keywords.put( "package", "" );
-        java_keywords.put( "protected", "" );
         java_keywords.put( "private", "" );
+        java_keywords.put( "protected", "" );
         java_keywords.put( "public", "" );
         java_keywords.put( "return", "" );
         java_keywords.put( "short", "" );
@@ -302,8 +303,8 @@ public class lexer
         java_keywords.put( "throws", "" );
         java_keywords.put( "transient", "" );
         java_keywords.put( "try", "" );
-        java_keywords.put( "volatile", "" );
         java_keywords.put( "void", "" );
+        java_keywords.put( "volatile", "" );
         java_keywords.put( "while", "" );
 
         java_keywords.put( "clone", "" );
@@ -699,42 +700,49 @@ public class lexer
                 }
 
                 String defineStr = get_string_no_paren();
-                if( !( defineStr.equals( "defined" ) ) )
-                {
-                    emit_error( "Expected \"defined\" following #if: " +
-                            dir, null );
-                    return;
-                }
 
-                swallow_whitespace();
-
-                boolean brackets = ( '(' == next_char );
-                if( brackets )
-                {
-                    advance(); // skip '('
-                    swallow_whitespace(); // any whitespace after ( ? skip it
-                }
-
-                String name = get_string_no_paren();
-
-                if( brackets )
+                if (defineStr.equals ("defined"))
                 {
                     swallow_whitespace();
-                    if( logger.isDebugEnabled() )
-		 logger.debug( "next char: " + next_char );
 
-                    if( ')' != next_char )
+                    boolean brackets = ( '(' == next_char );
+                    if( brackets )
                     {
-                        emit_error( "Expected ) terminating #if defined", null );
-                        return;
+                        advance(); // skip '('
+                        swallow_whitespace(); // any whitespace after ( ? skip it
                     }
-                    advance();
-                }
 
-                if( straightDefined )
-                    conditionalCompilation = ( null != defined( name ) );
+                    String name = get_string_no_paren();
+
+                    if( brackets )
+                    {
+                        swallow_whitespace();
+                        if( logger.isDebugEnabled() )
+                            logger.debug( "next char: " + next_char );
+
+                        if( ')' != next_char )
+                        {
+                            emit_error( "Expected ) terminating #if defined", null );
+                            return;
+                        }
+                        advance();
+                    }
+
+                    if( straightDefined )
+                        conditionalCompilation = ( null != defined( name ) );
+                    else
+                        conditionalCompilation = ( null == defined( name ) );
+                }
+                else if (defineStr.equals("0"))
+                {
+                    conditionalCompilation = false;
+                }
                 else
-                    conditionalCompilation = ( null == defined( name ) );
+                {
+                    emit_error( "Expected \"defined\" following #if: " +
+                                dir, null );
+                    return;
+                }
             }
             else if( dir.equals( "ifdef" ) )
             {
@@ -769,19 +777,12 @@ public class lexer
                 if( !conditionalCompilation )
                     return;
                 swallow_whitespace();
-                //                advance();      // skip ' '
+
                 String name = get_string();
                 if( name.equals( "prefix" ) )
                 {
-                    advance(); // skip ' '
-                    //              if( (char)next_char != '\"' )
-                    //                          emit_error("Expecting \" ");
-                    //                      advance(); // skip '"'
-                    String prefix = get_string();
-                    //                      if( (char)next_char != '\"' )
-                    //                          emit_error("Expecting \" ");
-                    //                      advance(); // skip '"'
-                    currentPragmaPrefix = prefix;
+                    advance();
+                    currentPragmaPrefix = get_string();
                 }
                 else if( name.equals( "version" ) )
                 {
@@ -793,16 +794,27 @@ public class lexer
                     if (existingVersion == null)
                     {
                         // Set version
-
                         parser.currentScopeData().versionMap.put (vname, version);
                     }
                     else
                     {
                         // Check for version change
-
                         if (! existingVersion.equals (version))
                         {
-                            emit_warn ("Version re-declaration, ignoring: #pragma version " + version, null);
+                            emit_error
+                            (
+                                "Version re-declaration with different value: #pragma version " +
+                                version,
+                                null
+                            );
+                        }
+                    }
+                    String iname = (String)parser.currentScopeData().idMap.get (vname);
+                    if (iname != null)
+                    {
+                        if (version.equals (iname.substring (1 + iname.lastIndexOf (':'))) == false)
+                        {
+                            emit_error ("Declaring version with different version to already declared ID for " + name, null);
                         }
                     }
                 }
@@ -812,7 +824,33 @@ public class lexer
                     String iname = get_string();
                     advance(); // skip ' '
                     String id = get_string();
-                    // do something with it
+                    String existingID = (String) parser.currentScopeData().idMap.get (iname);
+                    if (existingID == null)
+                    {
+                        // Set id
+                        parser.currentScopeData().idMap.put (iname, id);
+                    }
+                    else
+                    {
+                        // Check for id change
+                        if (! existingID.equals (id))
+                        {
+                            emit_error
+                            (
+                                "ID re-declaration with different value: #pragma id " +
+                                id,
+                                null
+                            );
+                        }
+                    }
+                    if (parser.currentScopeData().versionMap.get (iname) != null)
+                    {
+                        if (((String)parser.currentScopeData().versionMap.get (iname)).equals
+                            (id.substring (1 + id.lastIndexOf (':'))) == false)
+                        {
+                            emit_error ("Declaring ID with different version to already declared version for " + name, null);
+                        }
+                    }
                 }
                 else if( name.equals( "inhibit_code_generation" ) )
                 {
@@ -988,7 +1026,7 @@ public class lexer
      * @param str - the IDL identifier <BR>
      * <BR>
      * Prints an error msg if the identifier collides with an IDL
-     * keyword. 
+     * keyword.
      */
 
     public static String checkIdentifier( String str )
@@ -1014,7 +1052,7 @@ public class lexer
                 emit_error( "Identifier " + str + " collides with keyword " +
                             colliding_keyword + "." );
                 return null;
-            }        
+            }
         }
 
         /* clashes with a Java reserved word? */
@@ -1038,7 +1076,7 @@ public class lexer
     }
 
     /**
-     * called during the parse phase to catch clashes with 
+     * called during the parse phase to catch clashes with
      * Java reserved words.
      */
 
@@ -1247,18 +1285,19 @@ public class lexer
                         String str = val.toString();
                         try
                         {
-                            return new int_token( sym.NUMBER, 
+                            return new int_token( sym.NUMBER,
                                                   Integer.parseInt( str, radix ) );
                         }
                         catch( NumberFormatException ex )
                         {
                             try
                             {
-                                return new long_token( sym.LONG_NUMBER, 
+                                return new long_token( sym.LONG_NUMBER,
                                                        Long.parseLong( str, radix ) );
                             }
                             catch( NumberFormatException ex2 )
                             {
+                                ex2.printStackTrace ();
                                 emit_error( "Invalid octal/hex value:  " + str );
                             }
                         }
@@ -1268,12 +1307,19 @@ public class lexer
 
                 /* Try to scan integer, floating point or fixed point literals */
 
-                if( ( next_char >= '0' && next_char <= '9' ) || next_char == '.' )
+                if (isDigit (((char)next_char)) ||
+                    next_char == '.'    ||
+                    (next_char == '-' && isDigit (((char)next_char2))))
                 {
                     StringBuffer value = new StringBuffer();
                     StringBuffer fraction = null;
                     int exp = 0;
 
+                    if ( next_char == '-' )
+                    {
+                        value.append( (char)next_char );
+                        advance();
+                    }
                     /* read integer part */
                     while( next_char >= '0' && next_char <= '9' )
                     {
@@ -1358,11 +1404,23 @@ public class lexer
                         {
                             try
                             {
-                                tok = new long_token( sym.LONG_NUMBER, Long.parseLong( str ) );
+                                tok = new long_token
+                                    ( sym.LONG_NUMBER, Long.parseLong( str ) );
                             }
                             catch( NumberFormatException ex2 )
                             {
-                                emit_error( "Invalid long value:  " + str );
+                                try
+                                {
+                                    // Not quite critical yet - lets try stuffing it into
+                                    // a bigdecimal for later checking.
+                                    tok = new fixed_token
+                                        (sym.FIXED_NUMBER, new java.math.BigDecimal (str));
+                                }
+                                catch (NumberFormatException ex3)
+                                {
+                                    ex2.printStackTrace ();
+                                    emit_error( "Invalid long value:  " + str );
+                                }
                             }
                         }
 
@@ -1821,7 +1879,6 @@ public class lexer
                 }
                 wide = false;
 
-                // String s = checkIdentifier( result.toString() );
                 String s = result.toString();
 
                 /*  build and return an id token with an attached string */
@@ -1845,7 +1902,7 @@ public class lexer
      * @param c a value of type 'char'
      * @return a value of type 'boolean'
      */
-    private static boolean isDigit( char c )
+    static boolean isDigit( char c )
     {
         boolean result = false;
 
@@ -1901,5 +1958,3 @@ public class lexer
         return result;
     }
 }
-
-
