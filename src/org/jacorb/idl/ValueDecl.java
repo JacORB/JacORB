@@ -542,7 +542,8 @@ class ValueDecl
         out.println( "\tpublic void _write " +
                 "(org.omg.CORBA.portable.OutputStream os)" );
         out.println( "\t{" );
-        if( !inheritanceSpec.isEmpty() )
+
+        if( inheritanceSpec != null && !inheritanceSpec.isEmpty() )
         {
             out.println( "\t\tsuper._write( os );" );
         }
@@ -563,7 +564,7 @@ class ValueDecl
                 "(final org.omg.CORBA.portable.InputStream os)" );
         out.println( "\t{" );
 
-        if( !inheritanceSpec.isEmpty() )
+        if(  inheritanceSpec != null && !inheritanceSpec.isEmpty() )
         {
             out.println( "\t\tsuper._read( os );" );
         }
