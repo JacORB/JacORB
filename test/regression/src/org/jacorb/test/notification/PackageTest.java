@@ -60,6 +60,7 @@ public class PackageTest extends TestCase {
 	_suite.addTest(NotificationEventFactoryTest.suite());
 	_suite.addTest(NotificationEventUtilsTest.suite());
 	_suite.addTest(NotificationEventTest.suite());
+	_suite.addTest(CollectionsWrapperTest.suite());
 
 	return _suite;
     }
