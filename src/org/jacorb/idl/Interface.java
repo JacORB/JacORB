@@ -133,14 +133,34 @@ class Interface
 
 
     /**
-     * @returns a string for an expression of type TypeCode
-     *                  that describes this type
+     * <code>getTypeCodeExpression</code> produces a string for an expression
+     * of type TypeCode that describes this type.
+     * @return a string value.
      */
-
     public String getTypeCodeExpression()
     {
-        return "org.omg.CORBA.ORB.init().create_interface_tc( \"" +
-                id() + "\", \"" + name + "\")";
+        if( is_abstract )
+        {
+            return
+            (
+                "org.omg.CORBA.ORB.init().create_abstract_interface_tc( \"" +
+                id() +
+                "\", \"" +
+                name +
+                "\")"
+            );
+        }
+        else
+        {
+            return
+            (
+                "org.omg.CORBA.ORB.init().create_interface_tc( \"" +
+                id() +
+                "\", \"" +
+                name +
+                "\")"
+            );
+        }
     }
 
     public String getTypeCodeExpression( Set knownTypes )
@@ -165,7 +185,6 @@ class Interface
     public String holderName()
     {
         return toString() + "Holder";
-        //      return typeName() + "Holder";
     }
 
     public String toString()
@@ -548,6 +567,9 @@ class Interface
     }
 
 
+    /*
+     * Print the holder class for the interface.
+     */
     protected void printHolder()
     {
         PrintWriter ps = openOutput( name + "Holder" );
@@ -588,6 +610,10 @@ class Interface
         ps.close();
     }
 
+
+    /**
+     * Generate the helper class for an interface
+     */
     protected void printHelper()
     {
         PrintWriter ps = openOutput( name + "Helper" );
@@ -599,25 +625,52 @@ class Interface
         ps.println( "public" + parser.getFinalString() + " class " + name + "Helper" );
         ps.println( "{" );
 
+        // Generate insert (handle either CORBA.Object or Serializable case)
         ps.println( "\tpublic static void insert (final org.omg.CORBA.Any any, final " + typeName() + " s)" );
         ps.println( "\t{" );
-        ps.println( "\t\tany.insert_Object (s);" );
+        ps.println( "\t\tif( s instanceof org.omg.CORBA.Object )" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\tany.insert_Object( (org.omg.CORBA.Object)s );" );
+        ps.println( "\t\t}" );
+        ps.println( "\t\telse if( s instanceof java.io.Serializable )" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\tany.insert_Value( (java.io.Serializable)s );" );
+        ps.println( "\t\t}" );
+        ps.println( "\t\telse" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\tthrow new org.omg.CORBA.BAD_PARAM();" );
+        ps.println( "\t\t}" );
         ps.println( "\t}" );
 
+        // Generate extract
         ps.println( "\tpublic static " + typeName() + " extract (final org.omg.CORBA.Any any)" );
         ps.println( "\t{" );
-        ps.println( "\t\treturn narrow (any.extract_Object ());" );
+        ps.println( "\t\ttry" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\treturn narrow (any.extract_Object ());" );
+        ps.println( "\t\t}" );
+        ps.println( "\t\tcatch( org.omg.CORBA.BAD_OPERATION ex)" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\ttry" );
+        ps.println( "\t\t\t{" );
+        ps.println( "\t\t\t\treturn (" + typeName() + ")any.extract_Value();" );
+        ps.println( "\t\t\t}" );
+        ps.println( "\t\t\tcatch( ClassCastException e)" );
+        ps.println( "\t\t\t{" );
+        ps.println( "\t\t\t\tthrow new org.omg.CORBA.MARSHAL(e.getMessage());" );
+        ps.println( "\t\t\t}" );
+        ps.println( "\t\t}" );
         ps.println( "\t}" );
 
+        // Generate the typecode
         ps.println( "\tpublic static org.omg.CORBA.TypeCode type ()" );
         ps.println( "\t{" );
-
-
         ps.println( "\t\treturn " + getTypeCodeExpression() + ";" );
         ps.println( "\t}" );
 
         printIdMethod( ps );
 
+        // Generate the read
         ps.println( "\tpublic static " + name + " read (final org.omg.CORBA.portable.InputStream in)" );
         ps.println( "\t{" );
         if( is_local )
@@ -626,10 +679,18 @@ class Interface
         }
         else
         {
-            ps.println( "\t\treturn narrow (in.read_Object ());" );
+            if( is_abstract )
+            {
+                ps.println( "\t\treturn narrow (((org.omg.CORBA_2_3.portable.InputStream)in).read_abstract_interface ());" );
+            }
+            else
+            {
+                ps.println( "\t\treturn narrow (in.read_Object ());" );
+            }
         }
         ps.println( "\t}" );
 
+        // Generate the write
         ps.println( "\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, final " + typeName() + " s)" );
         ps.println( "\t{" );
         if( is_local )
@@ -638,10 +699,34 @@ class Interface
         }
         else
         {
-            ps.println( "\t\t_out.write_Object(s);" );
+            if( is_abstract )
+            {
+                ps.println( "\t\t((org.omg.CORBA_2_3.portable.OutputStream)_out).write_abstract_interface(s);" );
+            }
+            else
+            {
+                ps.println( "\t\t_out.write_Object(s);" );
+            }
         }
         ps.println( "\t}" );
 
+        // Generate narrow - only used by abstract_interfaces.
+        ps.println( "\tpublic static " + typeName() + " narrow (final java.lang.Object obj)" );
+        ps.println( "\t{" );
+        ps.println( "\t\tif( obj instanceof " + typeName() + ')' );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\treturn (" + typeName() + ")obj;" );
+        ps.println( "\t\t}" );
+        ps.println( "\t\telse if( obj instanceof org.omg.CORBA.Object )" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\treturn narrow((org.omg.CORBA.Object)obj);" );
+        ps.println( "\t\t}" );
+        ps.println( "\t\tthrow new org.omg.CORBA.BAD_PARAM();" );
+        ps.println( "\t}" );
+
+
+
+        // Generate narrow
         ps.println( "\tpublic static " + typeName() + " narrow (final org.omg.CORBA.Object obj)" );
         ps.println( "\t{" );
         ps.println( "\t\tif( obj == null )" );
@@ -684,6 +769,7 @@ class Interface
         }
         ps.println( "\t}" );
 
+        // Generate the unchecked_narrow
         ps.println("\tpublic static " + typeName() + " unchecked_narrow (final org.omg.CORBA.Object obj)");
         ps.println("\t{");
         ps.println("\t\tif( obj == null )");
@@ -758,8 +844,9 @@ class Interface
         return ids;
     }
 
+
     /**
-     * generates a stub class for this Interface
+     * Generates a stub class for this Interface
      */
     protected void printStub()
     {
@@ -786,10 +873,20 @@ class Interface
         ps.println( "\t}\n" );
 
         ps.print( "\tpublic final static java.lang.Class _opsClass = " );
-        if( !pack_name.equals( "" ) ) ps.print( pack_name + "." );
-        ps.println( name + "Operations.class;" );
+        if( !pack_name.equals( "" ) )
+        {
+            ps.print( pack_name + "." );
+        }
+        if( is_abstract )
+        {
+            ps.println( name + ".class;" );
+        }
+        else
+        {
+            ps.println( name + "Operations.class;" );
+        }
 
-        body.printStubMethods( ps, name, is_local );
+        body.printStubMethods( ps, name, is_local, is_abstract );
 
         ps.println( "}" );
         ps.close();
@@ -845,10 +942,10 @@ class Interface
         ps.close();
     }
 
+
     /**
      * print the stream-based skeleton class
      */
-
     protected void printTieSkeleton()
     {
         PrintWriter ps = openOutput( name + "POATie" );
@@ -1024,16 +1121,11 @@ class Interface
                 if (!is_abstract)
                 {
                     printOperations();
-
-                    //TO BE DONE: helpers and holders should also
-                    //be generated for abstract interfaces, but
-                    //what should these look like? IDL/Java 2.4
-                    //RTF does not seem to be consistent here...
-
-                    printHelper();
-                    printHolder();
                 }
-                if (parser.generate_stubs && !is_local && !is_abstract)
+                printHelper();
+                printHolder();
+
+                if (parser.generate_stubs && !is_local)
                 {
                     printStub();
                 }

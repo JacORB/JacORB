@@ -31,55 +31,44 @@ import java.io.Serializable;
 interface Operation
         extends Serializable
 {
-
-    /** plain name of the operation */
-
+    /**
+     * <code>name</code> gives the plain name of the operation
+     * @return a <code>String</code> value
+     */
     public String name();
 
-    /*  mangled name in case of attributes (_get_, _set_)*/
-
+    /**
+     * <code>opName</code> gives the mangled name in case of attributes
+     * (_get_, _set_).
+     *
+     * @return a <code>String</code> value
+     */
     public String opName();
 
     public String signature();
 
     public void printSignature( PrintWriter ps );
 
-    /**
-     * @param printModifiers whether "public abstract" should be added
-     */
     public void printSignature( PrintWriter ps, boolean printModifiers );
 
-    /** method code for stubs */
-
-    public void printMethod( PrintWriter ps, String classname, boolean is_local );
+    /**
+     * <code>printMethod</code> produces the method code for stubs.
+     *
+     * @param ps a <code>PrintWriter</code> value
+     * @param classname a <code>String</code> value
+     * @param is_local a <code>boolean</code> value
+     * @param is_abstract a <code>boolean</code> value used by Interface to
+     *        denote an abstract.
+     */
+    public void printMethod( PrintWriter ps, String classname, boolean is_local, boolean is_abstract );
 
     public void print_sendc_Method( PrintWriter ps, String classname );
 
-    /** method code for skeletons */
-
+    /**
+     * Method code for skeletons
+     * @param ps a <code>PrintWriter</code> value
+     */
     public void printDelegatedMethod( PrintWriter ps );
 
     public void printInvocation( PrintWriter ps );
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -348,7 +348,7 @@ class InterfaceBody
                     }
                 }
             }
-            for (Iterator i = my_interface.inheritanceSpec.v.iterator(); 
+            for (Iterator i = my_interface.inheritanceSpec.v.iterator();
                  i.hasNext(); )
             {
                 TypeSpec ts = ((ScopedName)i.next()).resolvedTypeSpec();
@@ -372,17 +372,21 @@ class InterfaceBody
         return methods;
     }
 
-    /** print methods to the stub file */
-
+    /**
+     * Print methods to the stub file
+     */
     public void printStubMethods( PrintWriter ps,
                                   String classname,
-                                  boolean is_local )
+                                  boolean is_local,
+                                  boolean is_abstract)
     {
         Operation[] ops = getMethods();
         for( int i = 0; i < ops.length; i++ )
-            ops[ i ].printMethod( ps, classname, is_local );
-        
-        if ( parser.generate_ami_callback && 
+        {
+            ops[ i ].printMethod( ps, classname, is_local, is_abstract );
+        }
+
+        if ( parser.generate_ami_callback &&
              !(my_interface instanceof ReplyHandler) )
         {
             for( int i = 0; i < ops.length; i++ )
@@ -418,7 +422,7 @@ class InterfaceBody
                            ? "com.sun.java.util.collections.Hashtable"
                            : "java.util.Hashtable";
 
-        ps.println( "\tstatic private final " + HASHTABLE 
+        ps.println( "\tstatic private final " + HASHTABLE
                       + " m_opsHash = new " + HASHTABLE + "();" );
         ps.println( "\tstatic" );
         ps.println( "\t{" );
@@ -500,13 +504,3 @@ class InterfaceBody
     }
 
 }
-
-
-
-
-
-
-
-
-
-

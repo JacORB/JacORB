@@ -100,7 +100,7 @@ class Method
     }
 
 
-    public void printMethod( PrintWriter ps, String classname, boolean is_local )
+    public void printMethod( PrintWriter ps, String classname, boolean is_local, boolean is_abstract )
     {
         ps.print( "\tpublic " );
 
