@@ -20,18 +20,17 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import org.jacorb.poa.except.*;
 import org.jacorb.poa.util.*;
 import org.jacorb.poa.gui.*;
 
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
 
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.POAManagerPackage.State;
-
-import org.apache.avalon.framework.logger.Logger;
 
 import java.util.Enumeration;
 
@@ -45,7 +44,7 @@ import java.util.Enumeration;
 
 public class POAMonitorImpl
     extends POAAdapter
-    implements POAMonitor, POAMonitorController
+    implements POAMonitor, POAMonitorController, Configurable
 {
     private POA poaModel;
     private AOM aomModel;
@@ -53,9 +52,6 @@ public class POAMonitorImpl
     private RPPoolManager pmModel;
 
     private POAMonitorView view;
-
-    private Logger logger;
-
     private String prefix;
 
     private int aomSize;
@@ -67,6 +63,28 @@ public class POAMonitorImpl
     private boolean aomChanged;
     private boolean queueChanged;
     private boolean pmChanged;
+
+    /** the configuration object for this POA instance */
+    private org.jacorb.config.Configuration configuration = null;
+    private Logger logger;
+    private int threadPoolMin = 0;
+    private int threadPoolMax = 0;
+
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.poa.monitor");
+
+        threadPoolMin = 
+            configuration.getAttributeAsInteger("jacorb.poa.thread_pool_min", 5);
+
+        threadPoolMax = 
+            configuration.getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
+
+    }
+
 
     public void actionCloseView() {
         closeMonitor();
@@ -155,7 +173,8 @@ public class POAMonitorImpl
                 poaModel._removePOAEventListener(this);
                 POAMonitor newMonitor =
                     (POAMonitor)Class.forName("org.jacorb.poa.POAMonitorLightImpl").newInstance();
-                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, logger);
+                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix );
+                newMonitor.configure(configuration);
                 poaModel.setMonitor(newMonitor);
                 POAMonitorView tmp = view;
                 view = null;
@@ -176,14 +195,13 @@ public class POAMonitorImpl
 
     public void init(POA poa, AOM aom,
                      RequestQueue queue, RPPoolManager pm,
-                     String _prefix, Logger _logger)
+                     String _prefix )
     {
         poaModel = poa;
         aomModel = aom;
         queueModel = queue;
         pmModel = pm;
         prefix = prefix;
-        logger = _logger;
     }
 
 
@@ -214,8 +232,8 @@ public class POAMonitorImpl
 
                 view._initQueueBar(10, true);
 
-                view._initActiveRequestsBar(poaModel.isSingleThreadModel() ? 1 : Environment.threadPoolMin(),
-                                            poaModel.isSingleThreadModel() ? 1 : Environment.threadPoolMax());
+                view._initActiveRequestsBar(poaModel.isSingleThreadModel() ? 1 : threadPoolMin,
+                                            poaModel.isSingleThreadModel() ? 1 : threadPoolMax);
                 view._initThreadPoolBar(0);
 
             }
@@ -296,11 +314,6 @@ public class POAMonitorImpl
         }
     }
 
-
-//     public boolean test(int logLevel)
-//     {
-//         return Environment.verbosityLevel() >= (Debug.POA | logLevel);
-//     }
 
 
     private synchronized void printMessage(String str)

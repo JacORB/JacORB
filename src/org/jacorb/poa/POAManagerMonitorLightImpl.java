@@ -72,7 +72,8 @@ public class POAManagerMonitorLightImpl
             {
                 POAManagerMonitor newMonitor = 
                     (POAManagerMonitor)ObjectUtil.classForName("org.jacorb.poa.POAManagerMonitorImpl").newInstance();
-                newMonitor.init(model);                         
+                newMonitor.init(model);
+                newMonitor.configure(configuration);
                 model.setMonitor(newMonitor);
                 newMonitor.openMonitor();
             } 

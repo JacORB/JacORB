@@ -89,6 +89,7 @@ public class POAMonitorLightImpl
                 POAMonitor newMonitor = 
                     (POAMonitor)ObjectUtil.classForName("org.jacorb.poa.POAMonitorImpl").newInstance();
                 newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix );
+                newMonitor.configure(configuration);
                 poaModel.setMonitor(newMonitor);
                 newMonitor.openMonitor();
             } 

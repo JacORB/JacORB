@@ -24,7 +24,6 @@ import java.util.*;
 import org.jacorb.poa.POAConstants;
 import org.jacorb.poa.except.POAInternalError;
 import org.omg.PortableServer.*;
-import org.jacorb.util.Debug;
 
 /**
  * This class collects some useful routines for the POA.
@@ -36,6 +35,8 @@ import org.jacorb.util.Debug;
 public final class POAUtil
 {
     static private final int bytesPerLine = 20;
+    private static final char[] lookup =
+        new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     private POAUtil () {}
 
@@ -56,7 +57,7 @@ public final class POAUtil
 
         for (int j = 0; j < data.length; j++)
         {
-            result.append (Debug.toHex (data[j]));
+            result.append( toHex(data[j]));
 
             boolean lastLine = (j >= (data.length - 1));
 
@@ -421,4 +422,32 @@ public final class POAUtil
         }
         return result;
     }
+
+
+
+
+    /**
+     * <code>toHex</code> converts a byte into a readable string.
+     *
+     * @param b a <code>byte</code> value
+     * @return a <code>String</code> value
+     */
+
+    public static final String toHex(byte b)
+    {
+        StringBuffer sb = new StringBuffer();
+
+        int upper = (b >> 4) & 0x0F;
+        sb.append( lookup[upper] );
+
+        int lower = b & 0x0F;
+        sb.append( lookup[lower] );
+
+        sb.append( ' ' );
+
+        return sb.toString();
+    }
+
+
+
 }
