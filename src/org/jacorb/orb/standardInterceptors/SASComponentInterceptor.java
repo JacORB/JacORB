@@ -86,7 +86,7 @@ public class SASComponentInterceptor
             if( tc == null )
             {
                 // parse required association options
-		String targetRequiresNames = Environment.getProperty( "jacorb.security.sas.server.target_requires", "" );
+		String targetRequiresNames = Environment.getProperty( "jacorb.security.sas.tss.target_requires", "" );
                 short targetRequires = (short)0;
                 StringTokenizer nameTokens = new StringTokenizer(targetRequiresNames, ":;, ");
                 while (nameTokens.hasMoreTokens())
@@ -105,7 +105,7 @@ public class SASComponentInterceptor
                 TaggedComponent transportMech = new TaggedComponent(TAG_NULL_TAG.value, new byte[0]);
 
                 // the AS_ContextSec
-                byte[] targetName = Environment.getProperty( "jacorb.security.sas.server.target_name").getBytes();
+                byte[] targetName = Environment.getProperty( "jacorb.security.sas.tss.target_name").getBytes();
                 short asTargetSupports = targetRequires;
                 short asTargetRequires = targetRequires;
 
@@ -176,9 +176,6 @@ public class SASComponentInterceptor
                 sasDataStream.beginEncapsulatedArray();
                 CompoundSecMechListHelper.write( sasDataStream , compoundSecMechList );
                 tc = new TaggedComponent( TAG_CSI_SEC_MECH_LIST.value, sasDataStream.getBufferCopy() );
-                //org.omg.CORBA.Any any = orb.create_any();
-                //CompoundSecMechListHelper.insert( any, compoundSecMechList );
-                //tc = new TaggedComponent( TAG_CSI_SEC_MECH_LIST.value, codec.encode(any) );
             }
 
             info.add_ior_component_to_profile (tc, TAG_INTERNET_IOP.value);

@@ -54,6 +54,7 @@ public class TSSInvocationInterceptor
     private static final int SecurityAttributeService = 15;
 
     private static GSSCredential myCredential = null;
+    private static boolean context_stateful = true;
 
     private String name = null;
     private org.jacorb.orb.ORB orb = null;
@@ -70,6 +71,7 @@ public class TSSInvocationInterceptor
         this.contextMsgSlotID = contextMsgSlotID;
         this.sasReplySlotID = sasReplySlotID;
         name = DEFAULT_NAME;
+        context_stateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.tss.stateful", "true")).booleanValue();
     }
 
     public String name()
@@ -168,7 +170,7 @@ public class TSSInvocationInterceptor
             }
 
             // cache context
-            connection.cacheSASContext(msg.client_context_id, contextToken, msg);
+            if (context_stateful) connection.cacheSASContext(msg.client_context_id, contextToken, msg);
         }
 
         // set slots
@@ -180,7 +182,7 @@ public class TSSInvocationInterceptor
             EstablishContextHelper.insert(msg_any, connection.getSASContextMsg(client_context_id));
             ri.set_slot( sourceNameSlotID, source_any);
             ri.set_slot( contextMsgSlotID, msg_any);
-            ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id, true));
+            ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id));
         }
         catch (Exception e)
         {
@@ -235,7 +237,7 @@ public class TSSInvocationInterceptor
         //System.out.println("send_other");
     }
 
-    private Any makeCompleteEstablishContext(long client_context_id, boolean context_stateful) {
+    private Any makeCompleteEstablishContext(long client_context_id) {
         CompleteEstablishContext msg = new CompleteEstablishContext();
         msg.client_context_id = client_context_id;
         msg.context_stateful = context_stateful;

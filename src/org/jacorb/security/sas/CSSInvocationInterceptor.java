@@ -54,6 +54,7 @@ public class CSSInvocationInterceptor
     private static final String DEFAULT_NAME = "CSSInvocationInterceptor";
     private static final int SecurityAttributeService = 15;
     private static GSSCredential myCredential;
+    private static boolean context_stateful = true;
 
     private Codec codec = null;
     private String name = null;
@@ -64,6 +65,7 @@ public class CSSInvocationInterceptor
     {
         this.codec = codec;
         name = DEFAULT_NAME;
+        context_stateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.tss.stateful", "true")).booleanValue();
     }
 
     public String name()
@@ -117,7 +119,8 @@ public class CSSInvocationInterceptor
 
         // ask connection for client_context_id
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
-        long client_context_id = connection.cacheSASContext(contextToken);
+        long client_context_id = 0;
+        if (context_stateful) client_context_id = connection.cacheSASContext(contextToken);
         if (client_context_id < 0) Debug.output(1, "New SAS Context: " + (-client_context_id));
 
         // get ATLAS tokens
