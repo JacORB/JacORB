@@ -28,8 +28,8 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class FixedPointType
-        extends TemplateTypeSpec
+public class FixedPointType
+    extends TemplateTypeSpec
 {
 
     public ConstExpr digit_expr = null;
