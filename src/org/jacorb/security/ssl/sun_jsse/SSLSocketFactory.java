@@ -43,7 +43,6 @@ public class SSLSocketFactory
     implements org.jacorb.orb.factory.SocketFactory, Configurable
 {    
     private SocketFactory factory = null;
-    private boolean change_roles = false;
     private String[] cipher_suites = null;
 
     private boolean trusteesFromKS = false;
@@ -90,25 +89,21 @@ public class SSLSocketFactory
                 logger.warn("Exception", e );
         }
 
-	if( factory == null )
-	{
-	    if (logger.isErrorEnabled())
+        if( factory == null )
+        {
+            if (logger.isErrorEnabled())
                 logger.error("Unable to create SSLSocketFactory!" );
             throw new ConfigurationException("Unable to create ServerSocketFactory!");
-	}
+        }
 	
-
-	change_roles = 
-            configuration.getAttribute("jacorb.security.change_ssl_roles","off").equals("on");
-
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need to obtain all the cipher suites to use from the 
         // properties file.
-	String cipher_suite_list = 
+        String cipher_suite_list = 
             configuration.getAttribute("jacorb.security.ssl.server.cipher_suites", null );
 	
-	if ( cipher_suite_list != null )
-	{
+        if ( cipher_suite_list != null )
+        {
             StringTokenizer tokenizer =
                 new StringTokenizer( cipher_suite_list, "," );
         
@@ -120,35 +115,31 @@ public class SSLSocketFactory
                 // Create an array of strings to store the ciphers
                 cipher_suites = new String[tokens];
                 
-                // This will fill the array in reverse order but that doesn't matter
+                // This will fill the array in reverse order but that doesn't
+                // matter
                 while( tokenizer.hasMoreElements() )
                 {
                     cipher_suites[--tokens] = tokenizer.nextToken();
                 }
             }
-	}
+        }
     }
 
     public Socket createSocket( String host, 
                                 int port )
-	throws IOException, UnknownHostException
+        throws IOException, UnknownHostException
     {       
-	SSLSocket s = (SSLSocket)factory.createSocket( host, port );
+        SSLSocket s = (SSLSocket)factory.createSocket( host, port );
 	
-	if( change_roles )
-	{
-	    s.setUseClientMode( false );
-	}
-	
-	// Andrew T. Finnell
-	// We need a way to enable the cipher suites that we would like to use
+        // Andrew T. Finnell
+        // We need a way to enable the cipher suites that we would like to use
         // We should obtain these from the properties file
-	if( cipher_suites != null )
+        if( cipher_suites != null )
         {
             s.setEnabledCipherSuites( cipher_suites );
         }
 
-	return s;
+        return s;
     }
 
     public boolean isSSL ( java.net.Socket s )
