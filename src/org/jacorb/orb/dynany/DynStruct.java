@@ -56,8 +56,7 @@ public final class DynStruct
       try
       {
          /* initialize position for all except empty exceptions */	
-         if( !(type.kind().value() == org.omg.CORBA.TCKind._tk_except && 
-               type.member_count() == 0) )
+         if( !isEmptyEx () )
          {
             pos = 0;
          }
@@ -176,15 +175,35 @@ public final class DynStruct
    /* DynStruct specials */
 
    public java.lang.String current_member_name()
+      throws TypeMismatch, InvalidValue
    {
       checkDestroyed ();
+
+      if (isEmptyEx ())
+      {
+         throw new TypeMismatch ();
+      }
+      if (pos == -1)
+      {
+         throw new InvalidValue ();
+      }
       return members[pos].id;	
    }
 
 
    public org.omg.CORBA.TCKind current_member_kind()
+      throws TypeMismatch, InvalidValue
    {
       checkDestroyed ();
+
+      if (isEmptyEx ())
+      {
+         throw new TypeMismatch ();
+      }
+      if (pos == -1)
+      {
+         throw new InvalidValue ();
+      }      
       return members[pos].value.type().kind();
    }
 
@@ -211,7 +230,7 @@ public final class DynStruct
          }
 
          if(! (nvp[i].id.equals("") || nvp[i].id.equals( members[i].id )))
-            throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
+            throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
       }
       members = nvp;	
    }
@@ -247,10 +266,10 @@ public final class DynStruct
       for( int i = 0; i < limit; i++ )
       {
          if(! nvp[i].value.type().equivalent( members[i].value.type() ))
-            throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
+            throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
 	    
          if(! (nvp[i].id.equals("") || nvp[i].id.equals( members[i].id )))
-            throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
+            throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
 	    
       }
       members = new NameValuePair[nvp.length];
@@ -284,8 +303,7 @@ public final class DynStruct
       try
       {
          /*  special case for empty exceptions */
-         if( type ().kind().value() == org.omg.CORBA.TCKind._tk_except && 
-             type ().member_count() == 0 )
+         if( isEmptyEx () )
          {
             throw new TypeMismatch ();
          }
@@ -296,10 +314,6 @@ public final class DynStruct
          }
          return dynFactory.create_dyn_any( members[pos].value );
       }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-      {
-         bk.printStackTrace();
-      }
       catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
       {
          itc.printStackTrace();
@@ -307,4 +321,18 @@ public final class DynStruct
       return null;
    }
 
+   private boolean isEmptyEx ()
+   {
+      try
+      {
+         return (type.kind().value() == org.omg.CORBA.TCKind._tk_except && 
+                 type.member_count() == 0);
+      }
+      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+      {
+         bk.printStackTrace();
+      }
+      return false;
+   }
+   
 }
