@@ -5,6 +5,106 @@ import org.omg.Messaging.*;
 import junit.framework.*;
 
 /**
+ * A special <code>ClientServerTestCase</code> for testing asynchronous
+ * method invocations following the callback model.
+ * <p>
+ * This class makes it convenient to issue an asynchronous invocation
+ * and wait for the reply within the same test case.  There is an abstract
+ * <code>ReplyHandler</code> defined as an inner class of this class.
+ * It provides a synchronization mechanism so that the main thread of 
+ * control that executes the test case can wait on the reply handler
+ * until it has received and analyzed the reply.
+ * <p>
+ * As an example, assume that you want to test asynchronous invocations
+ * of an interface <code>MyServer</code>.  You would create a subclass
+ * of <code>CallbackTestCase</code>, and extend the generic
+ * <code>ReplyHandler</code> for <code>MyServer</code> as follows:
+ * 
+ * <p><blockquote><pre>
+ * public class MyServerTest extends CallbackTestCase
+ * {
+ *     private ReplyHandler extends CallbackTestCase.ReplyHandler
+ *                          implements MyServerOperations
+ *     {
+ *         // ...   
+ *     }
+ *     
+ * }
+ * </pre></blockquote><p>
+ * 
+ * Each method from <code>MyServerOperations</code> should be 
+ * implemented to call <code>wrong_reply()</code> (for reply methods) or 
+ * <code>wrong_exception()</code> (for <code>_excep</code> methods).  In 
+ * the actual test cases, these methods will in turn be overwritten 
+ * anonymously for the correct replies.
+ * <p>
+ * Your type-specific <code>ReplyHandler</code> will be turned into a 
+ * CORBA object using the tie approach.  This is best done in a 
+ * convenience method such as the following:
+ * 
+ * <p><blockquote><pre>
+ * private AMI_MyServerHandler ref ( ReplyHandler handler )
+ * {
+ *     AMI_MyServerHandlerPOATie tie =
+ *         new AMI_MyServerHandlerPOATie( handler )
+ *         {
+ *             public org.omg.CORBA.portable.OutputStream 
+ *                 _invoke( String method, 
+ *                          org.omg.CORBA.portable.InputStream _input, 
+ *                          org.omg.CORBA.portable.ResponseHandler handler )
+ *                 throws org.omg.CORBA.SystemException   
+ *             {
+ *                 try
+ *                 {
+ *                     return super._invoke( method, _input, handler );
+ *                 }
+ *                 catch( AssertionFailedError e )
+ *                 {
+ *                     return null;
+ *                 }
+ *             }
+ *         };
+ *     return tie._this( setup.getClientOrb() );
+ * }
+ * </pre></blockquote><p>
+ * 
+ * The <code>_invoke()</code> method of the POATie is overridden anonymously 
+ * here to catch JUnit's <code>AssertionFailedError</code>s.  Without this, 
+ * a failed test case would cause all subsequent test cases to fail as well.
+ * You can copy this method verbatim into your own source, except for 
+ * changing the name of the AMI classes.
+ * <p>
+ * An individual test case may then look like this:
+ * 
+ * <p><blockquote><pre>
+ * public void test_some_operation()
+ * {
+ *     ReplyHandler handler = new ReplyHandler()
+ *     {
+ *         public void some_operation( int ami_return_val )
+ *         {
+ *             assertEquals( 123, ami_return_val );
+ *             pass();
+ *         }
+ *     };
+ *     ( ( _CallbackServerStub ) server )
+ *              .sendc_some_operation( ref( handler ) );
+ *     handler.wait_for_reply( 200 );
+ * }
+ * </pre></blockquote><p>
+ * 
+ * The <code>ReplyHandler</code> is extended anonymously to handle and
+ * analyze the expected reply.  You may use any of the
+ * <code>assert...()</code> methods defined in
+ * <code>junit.framework.Assert</code> to do this (they are redefined in
+ * the generic <code>ReplyHandler</code>).  Unlike in a normal test case,
+ * you must also call the <code>pass()</code> method explicitly if the
+ * test case did not fail.  After the <code>ReplyHandler</code> has been
+ * defined, the asynchronous operation is invoked using the corresponding
+ * <code>sendc_</code> method.  The calling thread then waits for a reply
+ * for at most 200 milliseconds.  If no reply is received within that
+ * time, the test case fails.
+ *  
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
@@ -19,7 +119,7 @@ public class CallbackTestCase extends ClientServerTestCase
     protected abstract class ReplyHandler
     {
         private boolean replyReceived  = false;
-        private boolean testFailed     = true;
+        private boolean testFailed     = false;
         private String  failureMessage = null;
 
         public synchronized void wait_for_reply(long timeout)
@@ -50,7 +150,7 @@ public class CallbackTestCase extends ClientServerTestCase
             finally
             {
                 replyReceived  = false;
-                testFailed     = true;
+                testFailed     = false;
                 failureMessage = null;
             }
         }
@@ -61,6 +161,7 @@ public class CallbackTestCase extends ClientServerTestCase
             testFailed = true;
             failureMessage = message;
             this.notifyAll();
+            throw new AssertionFailedError();
         }
 
         public void wrong_reply( String name )
@@ -378,27 +479,20 @@ public class CallbackTestCase extends ClientServerTestCase
             assertTrue(null, condition);
         }
         
-        private void failNotEquals(
-            String message,
-            Object expected,
-            Object actual)
+        private void failNotEquals( String message,
+                                    Object expected,
+                                    Object actual )
         {
             String formatted = "";
             if (message != null)
                 formatted = message + " ";
-            fail(
-                formatted
-                    + "expected:<"
-                    + expected
-                    + "> but was:<"
-                    + actual
-                    + ">");
+            fail( formatted + "expected:<" + expected
+                            + "> but was:<" + actual + ">");
         }
 
-        private void failNotSame(
-            String message,
-            Object expected,
-            Object actual)
+        private void failNotSame( String message,
+                                  Object expected,
+                                  Object actual )
         {
             String formatted = "";
             if (message != null)
