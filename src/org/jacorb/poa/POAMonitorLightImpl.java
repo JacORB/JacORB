@@ -19,10 +19,14 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.poa.util.*;
 
 import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
+
 
 /**
  * A lightweight implementation of a POA monitor
@@ -38,39 +42,48 @@ public class POAMonitorLightImpl
     private AOM aomModel;
     private RequestQueue queueModel;
     private RPPoolManager pmModel;
-    private LogTrace logTrace;
+    private Logger logger;
     private String prefix;
 
-    public void changeState(String state) {
+    public void changeState(String state) 
+    {
     }
 
-
-    public void closeMonitor() {
+    public void closeMonitor() 
+    {
     }
 
 
     public void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm,
-                     String _prefix, LogTrace _logTrace) {
+                     String _prefix, Logger logger) 
+    {
         poaModel = poa;
         aomModel = aom;
         queueModel = queue;
         pmModel = pm;
         prefix = prefix;
-        logTrace = _logTrace;
+        this.logger = logger;
     }
 
 
-    public void openMonitor() {
-        if (Environment.isMonitoringOn()) {
-            try {
-                POAMonitor newMonitor = (POAMonitor)Class.forName("org.jacorb.poa.POAMonitorImpl").newInstance();
-                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, logTrace);
+    public void openMonitor() 
+    {
+        if (Environment.isMonitoringOn()) 
+        {
+            try 
+            {
+                POAMonitor newMonitor = 
+                    (POAMonitor)Environment.classForName("org.jacorb.poa.POAMonitorImpl").newInstance();
+                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, logger);
                 poaModel.setMonitor(newMonitor);
                 newMonitor.openMonitor();
-            } catch (Throwable exception) {
-            	if (logTrace.test(0)) {
-	                logTrace.printLog("Exception occurred in openMonitor() of POAMonitorLightImpl");
-	                logTrace.printLog(exception);
+            } 
+            catch (Throwable exception) 
+            {
+            	if (logger.isWarnEnabled()) 
+                {
+                    logger.warn("Exception during openMonitor() of POAMonitorLightImpl" +
+                                exception.getMessage());
             	}
             }
         }

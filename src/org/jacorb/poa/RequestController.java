@@ -30,6 +30,8 @@ import org.omg.PortableServer.POAManagerPackage.State;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantManager;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import java.util.*;
 
 /**
@@ -39,7 +41,8 @@ import java.util.*;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.11, 10/26/99, RT $Id$
  */
-public final class RequestController extends Thread
+public final class RequestController 
+    extends Thread
 {
     private POA 			poa;
     private org.jacorb.orb.ORB		orb;
@@ -53,7 +56,8 @@ public final class RequestController extends Thread
     private static RPPoolManager 	singletonPoolManager;
     private static int count = 0;
 
-    private LogTrace                    logTrace;
+    /** this controller's logger instance */
+    private Logger                    logger;
 
     // stores all active requests
     private Hashtable 			activeRequestTable;
@@ -71,6 +75,7 @@ public final class RequestController extends Thread
     private int                         threadPriority = Thread.MAX_PRIORITY;
 
     /**
+     * private constructor
      */
 
     private RequestController()
@@ -78,18 +83,21 @@ public final class RequestController extends Thread
     }
 
     /**
+     * constructor
      */
 
-    RequestController( POA _poa, org.jacorb.orb.ORB _orb,
-                       AOM _aom, LogTrace _logTrace)
+    RequestController( POA _poa, 
+                       org.jacorb.orb.ORB _orb,
+                       AOM _aom, 
+                       Logger _logger)
     {
         super ("RequestController-" + (++count));
         poa = _poa;
         aom = _aom;
         orb = _orb;
-        logTrace = _logTrace;
+        logger = _logger;
 
-        requestQueue = new RequestQueue(this, logTrace);
+        requestQueue = new RequestQueue(this, logger);
         activeRequestTable =
             poa.isSingleThreadModel() ? new Hashtable(1) : new Hashtable(Environment.threadPoolMax());
         getPoolManager();
@@ -102,9 +110,9 @@ public final class RequestController extends Thread
             }
             catch( NumberFormatException nfe )
             {
-                org.jacorb.util.Debug.output( 1, "ERROR: Can't create int from >" +
-                                       priorityProp + "<" );
-                org.jacorb.util.Debug.output( 1, "Please check property \"jacorb.poa.thread_priority\"" );
+                logger.error( "ERROR: Can't create int from >" +
+                                       priorityProp + "<\n" + 
+                              "Please check property \"jacorb.poa.thread_priority\"" );
             }
         }
 
@@ -172,9 +180,9 @@ public final class RequestController extends Thread
     }
 
 
-    LogTrace getLogTrace()
+    Logger getLogger()
     {
-        return logTrace;
+        return logger;
     }
 
 
@@ -246,16 +254,23 @@ public final class RequestController extends Thread
             if (waitForCompletionCalled)
             {
                 /* state has changed to holding, discarding or inactive */
-                if (logTrace.test(2))
-                    logTrace.printLog(request, "cannot process request, because waitForCompletion was called");
+
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("rid: " + request.requestId() +
+                                 " cannot process request because waitForCompletion was called");
+                }
                 throw new CompletionRequestedException();
             }
 
             if (waitForShutdownCalled)
             {
-                /* poa goes shutdown */
-                if (logTrace.test(2))
-                    logTrace.printLog(request, "cannot process request, because the poa goes shutdown");
+                /* poa goes down */
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("rid: " + request.requestId() +
+                                 " cannot process request because POA shutdown in progress");
+                }
                 throw new ShutdownInProgressException();
             }
 
@@ -266,8 +281,12 @@ public final class RequestController extends Thread
             {
                 if (!poa.isUseServantManager() && !poa.isUseDefaultServant())
                 {
-                    if (logTrace.test(0))
-                        logTrace.printLog(request, "cannot process request, because object is already in the deactivation process");
+                    if (logger.isInfoEnabled())
+                    {
+                        logger.info("rid: " + request.requestId() +
+                                    " cannot process request, because object is already in the deactivation process");
+                    }
+
                     throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                 }
                 invalid = true;
@@ -287,8 +306,11 @@ public final class RequestController extends Thread
                 {
                     if ((servant = poa.defaultServant) == null)
                     {
-                    	if (logTrace.test(0))
-                            logTrace.printLog(request, "cannot process request, because default servant is not set");
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn("rid: " + request.requestId() +
+                                        " cannot process request because default servant is not set");
+                        }
                         throw new org.omg.CORBA.OBJ_ADAPTER();
                     }
 
@@ -297,16 +319,22 @@ public final class RequestController extends Thread
                 {
                     if ((servantManager = poa.servantManager) == null)
                     {
-                    	if (logTrace.test(0))
-                            logTrace.printLog(request, "cannot process request, because servant manager is not set");
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn("rid: " + request.requestId() +
+                                        " cannot process request because servant manager is not set");
+                        }
                         throw new org.omg.CORBA.OBJ_ADAPTER();
                     }
                     // USE_OBJECT_MAP_ONLY is in effect but object not exists
                 }
                 else
                 {
-                    if (logTrace.test(2))
-                        logTrace.printLog(request, "cannot process request, because object doesn't exist");
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn("rid: " + request.requestId() +
+                                    " cannot process request, because object doesn't exist");
+                    }
                     throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                 }
             }
@@ -317,8 +345,12 @@ public final class RequestController extends Thread
         }
 
         // get and initialize a processor for request processing
-        if (logTrace.test(3))
-            logTrace.printLog(request, "trying to get a RequestProcessor");
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("rid: " + request.requestId() 
+                         + " trying to get a RequestProcessor");
+        }
+
         RequestProcessor processor = getPoolManager().getProcessor();
         processor.init(this, request, servant, servantManager);
         processor.begin();
@@ -336,14 +368,20 @@ public final class RequestController extends Thread
      * something went wrong, the specified system exception will set
      */
 
-    void rejectRequest(ServerRequest request, org.omg.CORBA.SystemException exception)
+    void rejectRequest(ServerRequest request, 
+                       org.omg.CORBA.SystemException exception)
     {
         if (exception != null)
             request.setSystemException(exception);
 
         orb.getBasicAdapter().return_result(request);
-        if (logTrace.test(2))
-            logTrace.printLog(request, " request rejected with exception: "+exception);
+
+        if (logger.isWarnEnabled())
+        {
+            logger.warn("rid: " + request.requestId() +
+                        " request rejected with exception: " + 
+                        exception.getMessage());
+        }
     }
 
     /**
@@ -353,8 +391,9 @@ public final class RequestController extends Thread
 
     synchronized void resetPreviousCompletionCall()
     {
-    	if (logTrace.test(6))
-            logTrace.printLog("reset a previous completion call");
+    	if (logger.isDebugEnabled())
+            logger.debug("reset a previous completion call");
+
         waitForCompletionCalled = false;
         notifyAll(); /* maybe somebody waits for completion */
     }
@@ -458,15 +497,13 @@ public final class RequestController extends Thread
                         continue;
                     }
                 }
-				/*  if waitForShutdown was  called the
-				 RequestController loop blocks for ALL
-				 TIME in waitForQueue (the poa behaves
-				 as  if he  is in  holding  state now)
-				 ATTENTION,      it's      a      lazy
-				 synchronisation,  a request  could be
-				 rejected   if   waitForShutdown   was
-				 called  but   couldn't  be  processed
-				 (it's save) */
+            /* if waitForShutdown was called the RequestController
+               loop blocks for ALL TIME in waitForQueue (the poa
+               behaves as if he is in holding state now) ATTENTION,
+               it's a lazy synchronisation, a request could be
+               rejected if waitForShutdown was called but couldn't be
+               processed (it's save) 
+            */
             waitForQueue();
         }
     }
@@ -486,8 +523,8 @@ public final class RequestController extends Thread
         {
             try
             {
-            	if (logTrace.test(6))
-                    logTrace.printLog("somebody waits for completion and there are active processors");
+            	if (logger.isDebugEnabled())
+                    logger.debug("somebody waits for completion and there are active processors");
                 wait();
             }
             catch (InterruptedException e)
@@ -520,8 +557,12 @@ public final class RequestController extends Thread
             {
             }
         }
-        if (logTrace.test(6))
-            logTrace.printLog(oid, "all active processors for this object have finished");
+        if (logger.isDebugEnabled())
+        {
+            logger.debug( POAUtil.convert(oid) + 
+                          "all active processors for this object have finished");
+
+        }
 
         deactivationList.addElement( oidbak );
 
@@ -547,11 +588,14 @@ public final class RequestController extends Thread
             {
                 try
                 {
-                	if (logTrace.test(6))
-                        logTrace.printLog("the RequestController goes to sleep");
-                  queueLog.wait();
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug("RequestController waits for queue");
+                    }
+                    queueLog.wait();
                 }
-                catch (java.lang.InterruptedException e) {
+                catch (java.lang.InterruptedException e) 
+                {
                 }
             }
         }
@@ -567,19 +611,17 @@ public final class RequestController extends Thread
     {
         waitForShutdownCalled = true;
 
-        while
-        (
-            (waitForShutdownCalled && ! activeRequestTable.isEmpty ())
-            || (localRequests != 0)
+        while ((waitForShutdownCalled && ! activeRequestTable.isEmpty())
+               || (localRequests != 0)
         )
         {
             try
             {
-                if (logTrace.test (6))
+                if (logger.isDebugEnabled())
                 {
-                    logTrace.printLog("somebody waits for shutdown and there are active processors");
+                    logger.debug("somebody waits for shutdown and there are active processors");
                 }
-                wait ();
+                wait();
             }
             catch (InterruptedException e)
             {
@@ -587,14 +629,14 @@ public final class RequestController extends Thread
         }
     }
 
-    synchronized void addLocalRequest ()
+    synchronized void addLocalRequest()
     {
         localRequests++;
     }
 
-    synchronized void removeLocalRequest ()
+    synchronized void removeLocalRequest()
     {
         localRequests--;
-        notifyAll ();
+        notifyAll();
     }
 }

@@ -25,14 +25,16 @@ import java.util.*;
 import org.jacorb.poa.POA;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.ByteArrayKey;
-import org.jacorb.poa.util.LogTrace;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.poa.util.StringPair;
+
 import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantActivator;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * This class maps object id's to servants and vice versa.
@@ -49,7 +51,7 @@ public class AOM
 
     private boolean             unique;
     private boolean             singleThreaded;
-    private LogTrace            logTrace;
+    private Logger            logger;
 
     // an ObjectID can appear only once, but an servant can have multiple ObjectId's
     // if MULTIPLE_ID is set
@@ -74,12 +76,12 @@ public class AOM
 
     protected AOM( boolean _unique,
                    boolean single_threaded,
-                   LogTrace _logTrace
+                   Logger _logger
                  )
     {
         unique = _unique;
         singleThreaded = single_threaded;
-        logTrace = _logTrace;
+        logger = _logger;
 
         if (unique)
         {
@@ -144,11 +146,14 @@ public class AOM
             servantMap.put(servant, oidbak);
         }
 
-        if (logTrace.test(2))
-            logTrace.printLog(oid, "object is activated");
+        if (logger.isInfoEnabled())
+        {
+            logger.info("oid: " + POAUtil.convert(oid) + 
+                        "object is activated");
+        }
 
         // notify an aom listener
-        if ( aomListener != null )
+        if (aomListener != null)
             aomListener.objectActivated(oid, servant, objectMap.size());
     }
 
@@ -228,8 +233,11 @@ public class AOM
         ByteArrayKey oidbak = new ByteArrayKey( oid );
         Servant servant = null;
 
-        if (logTrace.test(0))
-            logTrace.printLog(oid, " incarnate");
+        if (logger.isInfoEnabled())
+        {
+            logger.info( "oid: " + POAUtil.convert(oid) + 
+                        "incarnate");
+        }
 
         /* all invocations of incarnate on the servant manager are serialized */
         /* all invocations of etherealize on the servant manager are serialized */
@@ -266,25 +274,36 @@ public class AOM
 
         if (servant == null)
         {
-            if (logTrace.test(0))
-                logTrace.printLog(oid, "servant is not incarnated (incarnate returns null)");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("oid: " + POAUtil.convert(oid) + 
+                            "servant is not incarnated (incarnate returns null)");
+            }
             return null;
         }
 
         if (unique && servantMap.containsKey(servant))
         {
-            if (logTrace.test(0))
-                logTrace.printLog(oid, "servant is not incarnated (unique_id policy is violated)");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("oid: " + POAUtil.convert(oid) + 
+                            "servant is not incarnated (unique_id policy is violated)");
+            }
             return null;
         }
 
-        if (logTrace.test(2))
-            logTrace.printLog(oid, "servant is incarnated");
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("oid: " + POAUtil.convert(oid) + 
+                         "servant is incarnated");
+        }
+        
         // notify an aom listener
-        if (aomListener != null) aomListener.servantIncarnated(oid, servant);
-
+        if (aomListener != null) 
+            aomListener.servantIncarnated(oid, servant);
+        
         /* object activation */
-
+        
         try
         {
             add(oid, servant);
@@ -377,7 +396,7 @@ public class AOM
         if ( requestController != null)
             requestController.waitForObjectCompletion(oid);
 
-        synchronized(this)
+        synchronized (this)
         {
             if ((servant = (Servant)objectMap.get(oidbak)) == null) {
                 return;
@@ -397,8 +416,11 @@ public class AOM
             // reactivate an object we're currently deactivating.
             deactivationList.removeElement(oidbak);
 
-            if (logTrace.test(2))
-                logTrace.printLog(oid, "object is deactivated");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("oid: " + POAUtil.convert(oid) + 
+                            "object is deactivated");
+            }
 
             // notify an aom listener
             if (aomListener != null)
@@ -442,8 +464,11 @@ public class AOM
                     contains(servant)
                 );
 
-                if (logTrace.test(2))
-                    logTrace.printLog(oid, "servant is etherealized");
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("oid: " + POAUtil.convert(oid) + 
+                                "servant is etherealized");
+                }
 
                 // notify an aom listener
 
@@ -453,10 +478,12 @@ public class AOM
             }
             catch (org.omg.CORBA.SystemException e)
             {
-                if (logTrace.test(1))
-                    logTrace.printLog(
-                        oid, "exception occurred during servant etherialisation: "+e
-                                     );
+                if (logger.isWarnEnabled())
+                {
+                    logger.info("oid: " + POAUtil.convert(oid) + 
+                                "exception occurred during servant etherialisation: " + e.getMessage()
+                                );
+                }
             }
             finally
             {

@@ -28,8 +28,9 @@ import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.giop.ReplyOutputStream;
 
-
 import java.util.*;
+
+import org.apache.avalon.framework.logger.Logger;
 
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantManager;
@@ -66,6 +67,9 @@ public class RequestProcessor
     private Servant servant;
     private ServantManager servantManager;
     private CookieHolder cookieHolder;
+
+    /** this processor's logger instance, obtained from the request controller */
+    private Logger logger;
 
     private static Hashtable specialOperations;
     private static int count = 0;
@@ -113,7 +117,8 @@ public class RequestProcessor
 
     public byte[] getObjectId()
     {
-        if (!start) throw new POAInternalError("error: RequestProcessor not started (getObjectId)");
+        if (!start) 
+            throw new POAInternalError("error: RequestProcessor not started (getObjectId)");
         return request.objectId();
     }
 
@@ -123,7 +128,8 @@ public class RequestProcessor
 
     public org.omg.CORBA.ORB getORB()
     {
-        if (!start) throw new POAInternalError("error: RequestProcessor not started (getORB)");
+        if (!start) 
+            throw new POAInternalError("error: RequestProcessor not started (getORB)");
         return controller.getORB();
     }
 
@@ -133,7 +139,8 @@ public class RequestProcessor
 
     public POA getPOA()
     {
-        if (!start) throw new POAInternalError("error: RequestProcessor not started (getPOA)");
+        if (!start) 
+            throw new POAInternalError("error: RequestProcessor not started (getPOA)");
         return controller.getPOA();
     }
 
@@ -152,16 +159,17 @@ public class RequestProcessor
      * initializes the request processor
      */
 
-    void init( RequestController _controller,
-               ServerRequest _request,
-               Servant _servant,
-               ServantManager _servantManager)
+    void init(RequestController controller,
+              ServerRequest request,
+              Servant servant,
+              ServantManager servantManager)
     {
-        controller = _controller;
-        request = _request;
-        servant = _servant;
-        servantManager = _servantManager;
+        this.controller = controller;
+        this.request = request;
+        this.servant = servant;
+        this.servantManager = servantManager;
         cookieHolder = null;
+        logger = controller.getLogger();
     }
 
     private void clear()
@@ -180,8 +188,11 @@ public class RequestProcessor
 
     private void invokeIncarnate()
     {
-    	if (controller.getLogTrace().test(3))
-            controller.getLogTrace().printLog(request, "invoke incarnate on servant activator");
+    	if (logger.isDebugEnabled())
+        {
+            logger.debug("rid: " + request.requestId() + 
+                         " invoke incarnate on servant activator");
+        }
         try
         {
 
@@ -190,33 +201,47 @@ public class RequestProcessor
                                                      controller.getPOA());
             if (servant == null)
             {
-            	if (controller.getLogTrace().test(0))
-                    controller.getLogTrace().printLog(request, "incarnate: returns null");
+            	if (logger.isWarnEnabled())
+                {
+                    logger.warn("rid: " + request.requestId() + 
+                                " incarnate: returns null");
+                }
+
                 request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER());
             }
 
-            controller.getORB().set_delegate( servant );        // set the orb
-
+            controller.getORB().set_delegate(servant);        // set the orb
         }
         catch (org.omg.CORBA.SystemException e)
         {
-            if (controller.getLogTrace().test(0))
-                controller.getLogTrace().printLog(request, "incarnate: system exception was thrown ("+e+")");
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("rid: "+request.requestId() +
+                            " incarnate: system exception was thrown (" + 
+                            e.getMessage() + ")");
+            }
             request.setSystemException(e);
-
         }
         catch (org.omg.PortableServer.ForwardRequest e)
         {
-            if (controller.getLogTrace().test(0))
-                controller.getLogTrace().printLog(request, "incarnate: forward exception was thrown ("+e+")");
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("rid: " + request.requestId() +
+                            " incarnate: forward exception was thrown (" + 
+                            e.getMessage() + ")");
+            }
             request.setLocationForward(e);
 
         }
-        catch (Throwable e) { /* not spec. */
-            if (controller.getLogTrace().test(0)) {
-                controller.getLogTrace().printLog(request, "incarnate: throwable was thrown");
-                controller.getLogTrace().printLog(e);
+        catch (Throwable e) 
+        { /* not spec. */
+            if (logger.isWarnEnabled()) 
+            {
+                logger.warn("rid: " + request.requestId() +
+                            " incarnate: throwable was thrown (" + 
+                            e.getMessage() + ")");
             }
+
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage()));
             /* which system exception I should raise? */
         }
@@ -233,8 +258,12 @@ public class RequestProcessor
         {
             if (servant instanceof org.omg.CORBA.portable.InvokeHandler)
             {
-            	if (controller.getLogTrace().test(3))
-                    controller.getLogTrace().printLog(request, "invoke operation on servant (stream based)");
+            	if (logger.isDebugEnabled())
+                {
+                    logger.debug("rid: " + request.requestId() +
+                                 " invoke operation on servant (stream based)");
+                }
+
                 if( specialOperations.containsKey(request.operation()))
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(servant,
@@ -252,9 +281,11 @@ public class RequestProcessor
             }
             else if (servant instanceof org.omg.PortableServer.DynamicImplementation)
             {
-            	if (controller.getLogTrace().test(3))
-                    controller.getLogTrace().printLog(request,
-                                                      "invoke operation on servant (dsi based)");
+            	if (logger.isDebugEnabled())
+                {
+                    logger.debug("rid: " + request.requestId() +
+                                 " invoke operation on servant (dsi based)");
+                }
                 if( specialOperations.containsKey(request.operation()) &&
                     !(servant instanceof org.jacorb.orb.Forwarder) )
                 {
@@ -271,26 +302,35 @@ public class RequestProcessor
             }
             else
             {
-            	if (controller.getLogTrace().test(0))
-                    controller.getLogTrace().printLog(request,
-                                                      "unknown servant type (neither stream nor dsi based)");
-
+            	if (logger.isWarnEnabled())
+                {
+                    logger.warn("rid: " + request.requestId() +
+                                " unknown servant type (neither stream nor dsi based)");
+                }
             }
 
         }
         catch (org.omg.CORBA.SystemException e)
         {
-            if (controller.getLogTrace().test(1))
-                controller.getLogTrace().printLog(request, "invocation: system exception was thrown ("+e+")");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("rid: " + request.requestId() +
+                            " invocation: system exception was thrown (" +
+                            e.getMessage() + ")");
+            }
             request.setSystemException(e);
         }
         catch (Throwable e)
-        {         /* not spec. */
-            if (controller.getLogTrace().test(0)) {
-                controller.getLogTrace().printLog(request, "invocation: throwable was thrown");
-                controller.getLogTrace().printLog(e);
+        {         
+            /* not spec. */
+            if (logger.isWarnEnabled()) 
+            {
+                logger.warn("rid: " + request.requestId() +
+                            " invocation: throwable was thrown, " +
+                            e.getMessage());
             }
-            request.setSystemException(new org.omg.CORBA.UNKNOWN()); /* which system exception I should raise? */
+            request.setSystemException(new org.omg.CORBA.UNKNOWN()); 
+            /* which system exception I should raise? */
         }
     }
 
@@ -303,9 +343,11 @@ public class RequestProcessor
     {
         try
         {
-            if (controller.getLogTrace().test(3))
-                controller.getLogTrace().printLog(request,
-                                                  "invoke postinvoke on servant locator");
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("rid: " + request.requestId() +
+                             " invoke postinvoke on servant locator");
+            }
 
             ((ServantLocator) servantManager).postinvoke(request.objectId(),
                                                          controller.getPOA(),
@@ -315,15 +357,22 @@ public class RequestProcessor
         }
         catch (org.omg.CORBA.SystemException e)
         {
-            if (controller.getLogTrace().test(1))
-                controller.getLogTrace().printLog(request, "postinvoke: system exception was thrown ("+e+")");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("rid: " + request.requestId() +
+                            " postinvoke: system exception was thrown (" + 
+                            e.getMessage()+")");
+            }
             request.setSystemException(e);
 
         }
-        catch (Throwable e) {         /* not spec. */
-            if (controller.getLogTrace().test(0)) {
-                controller.getLogTrace().printLog(request, "postinvoke: throwable was thrown");
-                controller.getLogTrace().printLog(e);
+        catch (Throwable e) 
+        {
+            /* not spec. */
+            if (logger.isWarnEnabled()) 
+            {
+                logger.warn("rid: " + request.requestId() +
+                            " postinvoke: throwable was thrown" + e.getMessage());
             }
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER());
             /* which system exception I should raise? */
@@ -337,8 +386,11 @@ public class RequestProcessor
 
     private void invokePreInvoke()
     {
-    	if (controller.getLogTrace().test(3))
-            controller.getLogTrace().printLog(request, "invoke preinvoke on servant locator");
+    	if (logger.isDebugEnabled())
+        {
+            logger.debug("rid: " + request.requestId() +
+                         " invoke preinvoke on servant locator");
+        }
         try
         {
             cookieHolder = new CookieHolder();
@@ -348,8 +400,11 @@ public class RequestProcessor
                                                                   cookieHolder);
             if (servant == null)
             {
-            	if (controller.getLogTrace().test(0))
-                    controller.getLogTrace().printLog(request, "preinvoke: returns null");
+            	if (logger.isWarnEnabled())
+                {
+                    logger.warn("rid: " + request.requestId() +
+                                " preinvoke: returns null");
+                }
                 request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER());
             }
             controller.getORB().set_delegate( servant );        // set the orb
@@ -357,22 +412,33 @@ public class RequestProcessor
         }
         catch (org.omg.CORBA.SystemException e)
         {
-            if (controller.getLogTrace().test(1))
-                controller.getLogTrace().printLog(request, "preinvoke: system exception was thrown ("+e+")");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("rid: " + request.requestId() + 
+                            " preinvoke: system exception was thrown (" + 
+                            e.getMessage() +")");
+            }
             request.setSystemException(e);
 
         }
         catch (org.omg.PortableServer.ForwardRequest e)
         {
-            if (controller.getLogTrace().test(1))
-                controller.getLogTrace().printLog(request, "preinvoke: forward exception was thrown ("+e+")");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("rid: " + request.requestId() + 
+                            " preinvoke: forward exception was thrown (" +
+                            e.getMessage() + ")");
+            }
             request.setLocationForward(e);
-
         }
-        catch (Throwable e) {         /* not spec. */
-            if (controller.getLogTrace().test(0)) {
-                controller.getLogTrace().printLog(request, "preinvoke: throwable was thrown");
-                controller.getLogTrace().printLog(e);
+        catch (Throwable e) 
+        {         
+            /* not spec. */
+            if (logger.isWarnEnabled()) 
+            {
+                logger.warn("rid: " + request.requestId() + 
+                            " preinvoke: throwable was thrown, " + 
+                            e.getMessage());
             }
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage()));
             /* which system exception I should raise? */
@@ -506,9 +572,11 @@ public class RequestProcessor
         }
 
         if (Time.hasPassed (request.getReplyEndTime()))
+        {
             request.setSystemException
                 (new org.omg.CORBA.TIMEOUT ("Reply End Time exceeded after invocation",
                                             0, CompletionStatus.COMPLETED_YES));
+        }
 
         if (info != null)
         {
@@ -622,8 +690,11 @@ public class RequestProcessor
                 }
             }
 
-            if (controller.getLogTrace().test(2))
-                controller.getLogTrace().printLog(request, "process request");
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("rid: " + request.requestId() + 
+                             " process request");
+            }
 
             if (request.syncScope() == org.omg.Messaging.SYNC_WITH_SERVER.value)
             {
@@ -637,8 +708,11 @@ public class RequestProcessor
             }
 
             // return the request to the request controller
-            if (controller.getLogTrace().test(3))
-                controller.getLogTrace().printLog(request, "ends with request processing");
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("rid: " + request.requestId() + 
+                             " ends with request processing");
+            }
 
             controller.finish  (request);
 

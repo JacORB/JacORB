@@ -20,39 +20,37 @@ package org.jacorb.poa.gui;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
  
+
 /**
  * Defines an interface of a POAManager monitor gui class.
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.00, 06/11/99, RT
  */
-public interface POAMonitorView {
-	 void _destroy() ;
-	void _initActiveRequestsBar(int avg, int max);
-	void _initAOMBar(int max, boolean isVariable);
-	void _initQueueBar(int max, boolean isVariable);
-	void _initThreadPoolBar(int max);
-	void _printMessage(String str);
-	void _setMaxThreadPoolBar(int value);
-	void _setName(String str);
-	void _setPolicyIdAssignment(String str);
-	void _setPolicyIdUniqueness(String str);
-	void _setPolicyImplicitActivation(String str);
-	void _setPolicyLifespan(String str);
-	void _setPolicyRequestProcessing(String str);
-	void _setPolicyServantRetention(String str);
-	void _setPolicyThread(String str);
-	void _setState(String str);
-	void _setValueActiveRequestsBar(int value);
-	void _setValueAOMBar(int value);
-	void _setValueQueueBar(int value);
-	void _setValueThreadPoolBar(int value);
-	void _setVisible(boolean visible);
+
+public interface POAMonitorView 
+{
+    void _destroy() ;
+    void _initActiveRequestsBar(int avg, int max);
+    void _initAOMBar(int max, boolean isVariable);
+    void _initQueueBar(int max, boolean isVariable);
+    void _initThreadPoolBar(int max);
+    void _printMessage(String str);
+    void _setMaxThreadPoolBar(int value);
+    void _setName(String str);
+    void _setPolicyIdAssignment(String str);
+    void _setPolicyIdUniqueness(String str);
+    void _setPolicyImplicitActivation(String str);
+    void _setPolicyLifespan(String str);
+    void _setPolicyRequestProcessing(String str);
+    void _setPolicyServantRetention(String str);
+    void _setPolicyThread(String str);
+    void _setState(String str);
+    void _setValueActiveRequestsBar(int value);
+    void _setValueAOMBar(int value);
+    void _setValueQueueBar(int value);
+    void _setValueThreadPoolBar(int value);
+    void _setVisible(boolean visible);
 }
-
-
-
-
-
 
 

@@ -26,6 +26,8 @@ import org.jacorb.poa.except.*;
 import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import java.util.*;
 
 /**
@@ -38,17 +40,18 @@ public class RequestQueue
 {
     private RequestQueueListener queueListener;
     private RequestController controller;
-    private LogTrace logTrace;
-    private Vector queue = new Vector(POAConstants.QUEUE_CAPACITY_INI, POAConstants.QUEUE_CAPACITY_INC);
+    private Logger logger;
+    private Vector queue = 
+        new Vector(POAConstants.QUEUE_CAPACITY_INI, POAConstants.QUEUE_CAPACITY_INC);
 
     private RequestQueue()
     {
     }
 
-    protected RequestQueue(RequestController _controller, LogTrace _logTrace)
+    protected RequestQueue(RequestController controller, Logger logger)
     {
-        controller = _controller;
-        logTrace = _logTrace;
+        this.controller = controller;
+        this.logger = logger;
     }
 
     /**
@@ -88,79 +91,115 @@ public class RequestQueue
         }
         queue.addElement(request);
 
-        if (queue.size() == 1) {
+        if (queue.size() == 1) 
+        {
             controller.continueToWork();
         }
-        if (logTrace.test(3))
-            logTrace.printLog(request, "is queued (queue size: " + queue.size() + ")");
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("rid:" + request.requestId() +  
+                         "is queued (queue size: " + queue.size() + ")");
+        }
+
         // notify a queue listener
-        if (queueListener != null) queueListener.requestAddedToQueue(request, queue.size());
+        if (queueListener != null) 
+            queueListener.requestAddedToQueue(request, queue.size());
     }
-    protected synchronized void addRequestQueueListener(RequestQueueListener listener) {
+
+    protected synchronized void addRequestQueueListener(RequestQueueListener listener) 
+    {
         queueListener = EventMulticaster.add(queueListener, listener);
     }
-    protected synchronized StringPair[] deliverContent() {
+
+    protected synchronized StringPair[] deliverContent() 
+    {
         StringPair[] result = new StringPair[queue.size()];
         Enumeration en = queue.elements();
         ServerRequest sr;
-        for (int i=0; i<result.length; i++) {
+        for (int i=0; i<result.length; i++) 
+        {
             sr = (ServerRequest) en.nextElement();
             result[i] = new StringPair(sr.requestId()+"", new String( sr.objectId() ) );
         }
         return result;
     }
-    protected synchronized ServerRequest getElementAndRemove(int rid) {
-        if (!queue.isEmpty()) {
+
+    protected synchronized ServerRequest getElementAndRemove(int rid) 
+    {
+        if (!queue.isEmpty()) 
+        {
             Enumeration en = queue.elements();
             ServerRequest result;
-            while (en.hasMoreElements()) {
+            while (en.hasMoreElements()) 
+            {
                 result = (ServerRequest) en.nextElement();
-                if (result.requestId() == rid) {
+                if (result.requestId() == rid) 
+                {
                     queue.removeElement(result);
                     this.notifyAll();
                     // notify a queue listener
-                    if (queueListener != null) queueListener.requestRemovedFromQueue(result, queue.size());
+                    if (queueListener != null) 
+                        queueListener.requestRemovedFromQueue(result, queue.size());
                     return result;
                 }
             }
         }
         return null;
     }
-    protected synchronized ServerRequest getFirst() {
-        if (!queue.isEmpty()) {
+
+    protected synchronized ServerRequest getFirst() 
+    {
+        if (!queue.isEmpty()) 
+        {
             return (ServerRequest) queue.firstElement();
         }
         return null;
     }
-    protected boolean isEmpty() {
+
+    protected boolean isEmpty() 
+    {
         return queue.isEmpty();
     }
-    protected synchronized ServerRequest removeFirst() {
-        if (!queue.isEmpty()) {
+
+    protected synchronized ServerRequest removeFirst() 
+    {
+        if (!queue.isEmpty()) 
+        {
             ServerRequest result = (ServerRequest) queue.elementAt(0);
             queue.removeElementAt(0);
             this.notifyAll();
             // notify a queue listener
-            if (queueListener != null) queueListener.requestRemovedFromQueue(result, queue.size());
+
+            if (queueListener != null) 
+                queueListener.requestRemovedFromQueue(result, queue.size());
             return result;
         }
         return null;
     }
-    protected synchronized ServerRequest removeLast() {
-        if (!queue.isEmpty()) {
+
+    protected synchronized ServerRequest removeLast() 
+    {
+        if (!queue.isEmpty()) 
+        {
             ServerRequest result = (ServerRequest) queue.lastElement();
             queue.removeElementAt(queue.size()-1);
             this.notifyAll();
             // notify a queue listener
-            if (queueListener != null) queueListener.requestRemovedFromQueue(result, queue.size());
+            if (queueListener != null) 
+                queueListener.requestRemovedFromQueue(result, queue.size());
             return result;
         }
         return null;
     }
-    protected synchronized void removeRequestQueueListener(RequestQueueListener listener) {
+
+    protected synchronized void removeRequestQueueListener(RequestQueueListener listener) 
+    {
         queueListener = EventMulticaster.remove(queueListener, listener);
     }
-    protected int size() {
+
+    protected int size() 
+    {
         return queue.size();
     }
 }
