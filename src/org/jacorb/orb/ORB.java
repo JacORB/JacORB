@@ -35,6 +35,8 @@ import org.jacorb.orb.portableInterceptor.*;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORBPackage.InvalidName;
+import org.omg.CORBA.portable.ValueFactory;
+import org.omg.CORBA.portable.StreamableValue;
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.*;
 
@@ -70,6 +72,13 @@ public final class ORB
 
     /** buffer mgmt. */
     private BufferManager bufferManager = BufferManager.getInstance();
+
+    /**
+     * Maps repository ids (strings) to objects that implement 
+     * org.omg.CORBA.portable.ValueFactory.  This map is used by
+     * register/unregister_value_factory() and lookup_value_factory().
+     */
+    protected Map valueFactories = new HashMap();
 
     /** properties */ 
     private java.util.Properties _props;
@@ -1497,19 +1506,123 @@ public final class ORB
         return false;
     }
 
-    public org.omg.CORBA.portable.ValueFactory lookup_value_factory 
-                                                         (String repositoryId) 
+    public ValueFactory register_value_factory (String id, 
+                                                ValueFactory factory)
     {
-        String className = org.jacorb.ir.RepositoryID.className (repositoryId);
-        
-        return new org.omg.CORBA.portable.ValueFactory() {
-                public java.io.Serializable read_value 
-                    (org.omg.CORBA_2_3.portable.InputStream is) {
-                    return null;
-                }
-            };
+        return (ValueFactory)valueFactories.put (id, factory);
     }
-                                                        
+
+    public void unregister_value_factory (String id)
+    {
+        valueFactories.remove (id);
+    }
+
+    public ValueFactory lookup_value_factory (String id) 
+    {
+        ValueFactory result = (ValueFactory)valueFactories.get (id);
+        if (result == null)
+        {
+            if (id.startsWith ("IDL")) 
+            {
+                String valueName = org.jacorb.ir.RepositoryID.className (id);
+                result = findValueFactory (valueName);
+                valueFactories.put (id, result);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Finds a ValueFactory for class valueName by trying standard class names.
+     */
+    private ValueFactory findValueFactory (String valueName)
+    {
+        Class result = null;
+        result = findClass (valueName + "DefaultFactory", true);
+        if (result != null)
+            return (ValueFactory)instantiate (result);
+        else
+        {
+            // Extension of the standard: Handle the common case
+            // when the Impl class is its own factory...
+            Class c = findClass (valueName, false);
+            result  = findClass (valueName + "Impl", false);
+            if (result != null && c.isAssignableFrom (result))
+                if (ValueFactory.class.isAssignableFrom (result))
+                    return (ValueFactory)instantiate (result);
+                else
+                {
+                    // ...or create a factory on the fly
+                    final Class impl = result;
+                    return new ValueFactory() {
+                        public java.io.Serializable read_value
+                        (org.omg.CORBA_2_3.portable.InputStream is)
+                        {
+                            StreamableValue result = 
+                                (StreamableValue)instantiate (impl);
+                            result._read (is);
+                            return result;
+                        }
+                    };
+                }
+            else
+                return null;
+        }
+    }
+
+    /**
+     * Returns the class object for `name', if it exists, otherwise
+     * returns null.  If `orgomg' is true, and `name' starts with "org.omg",
+     * do a double-take using "omg.org" as the prefix.
+     */
+    private Class findClass (String name, boolean orgomg)
+    {
+        Class result = null;
+        try
+        {
+            result = Thread.currentThread().getContextClassLoader()
+                                           .loadClass (name);
+        } 
+        catch (ClassNotFoundException e) 
+        {
+            if (orgomg && name.startsWith ("org.omg"))
+                try
+                {
+                    result = Thread.currentThread().getContextClassLoader()
+                                   .loadClass ("omg.org" + name.substring(7));
+                } 
+                catch (ClassNotFoundException x)
+                {
+                    // nothing, result is null
+                }
+        }
+        return result;
+    }
+
+    /**
+     * Instantiates class `c' using its no-arg constructor.  Throws a
+     * run-time exception if that fails.
+     */
+    private Object instantiate (Class c)
+    {
+        try
+        {
+            return c.newInstance();
+        }
+        catch (IllegalAccessException e1)
+        {
+            throw new RuntimeException ("cannot instantiate class " 
+                                        + c.getName()
+                                        + " (IllegalAccessException)");
+        }
+        catch (InstantiationException e2)
+        {
+            throw new RuntimeException ("cannot instantiate class "
+                                        + c.getName()
+                                        + " (InstantiationException)");
+        }
+    }
+
     /**
      * Test, if the ORB has ClientRequestInterceptors <br>
      * Called by Delegate.
