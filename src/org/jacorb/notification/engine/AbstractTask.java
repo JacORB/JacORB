@@ -52,8 +52,8 @@ public abstract class AbstractTask
     protected AbstractTask() {
     }
 
-    protected AbstractTask(TaskExecutor executor, TaskProcessor tp, TaskFactory tf) {
-        executor_ = executor;
+    protected AbstractTask(TaskExecutor ex, TaskProcessor tp, TaskFactory tf) {
+        executor_ = ex;
         taskProcessor_ = tp;
         taskFactory_ = tf;
     }
@@ -151,7 +151,8 @@ public abstract class AbstractTask
      * run this Task on the calling Thread.
      * @exception InterruptedException if an error occurs
      */
-    public void schedule(boolean directRunAllowed) throws InterruptedException
+    public void schedule(boolean directRunAllowed)
+        throws InterruptedException
     {
         if (directRunAllowed && executor_.isTaskQueued()) {
             run();
@@ -168,7 +169,9 @@ public abstract class AbstractTask
      * @param directRunAllowed a <code>boolean</code> value
      * @exception InterruptedException if an error occurs
      */
-    public void schedule(TaskExecutor executor, boolean directRunAllowed) throws InterruptedException
+    public void schedule(TaskExecutor executor,
+                         boolean directRunAllowed)
+        throws InterruptedException
     {
         if (directRunAllowed  && executor_.isTaskQueued()) {
             run();

@@ -54,6 +54,7 @@ public abstract class AbstractDeliverTask extends AbstractTask
         }
     }
 
+    ////////////////////////////////////////
 
     public void reset()
     {

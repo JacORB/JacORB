@@ -100,6 +100,8 @@ public abstract class AbstractProxySupplier
         init(appContext, qosProperties);
     }
 
+    ////////////////////////////////////////
+
     private void init(ApplicationContext appContext,
                       PropertyManager qosProperties)
         throws UnsupportedQoS
@@ -115,6 +117,7 @@ public abstract class AbstractProxySupplier
 
         logger_.info(toString() + ": set Error Threshold to : " + errorThreshold_);
     }
+
 
     public TaskExecutor getExecutor() {
         return taskExecutor_;

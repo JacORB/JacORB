@@ -24,11 +24,6 @@ package org.jacorb.notification.evaluate;
 import java.lang.Exception;
 
 /**
- * EvaluationException.java
- *
- *
- * Created: Thu Sep 26 14:44:25 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -41,13 +36,15 @@ public class EvaluationException extends Exception
         super();
     }
 
+
     public EvaluationException( String description )
     {
         super( description );
     }
 
+
     public EvaluationException( Exception other ) {
         super(other.getMessage());
     }
 
-} // EvaluationException
+}

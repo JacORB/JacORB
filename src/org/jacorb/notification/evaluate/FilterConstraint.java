@@ -125,6 +125,7 @@ public class FilterConstraint
     public String toString()
     {
         StringBuffer _b = new StringBuffer("<FilterConstraint: ");
+
         rootNode_.printToStringBuffer(_b);
         _b.append(" >");
 

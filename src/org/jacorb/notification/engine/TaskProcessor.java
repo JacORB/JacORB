@@ -38,6 +38,7 @@ import org.omg.CosNotification.StructuredEvent;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.engine.TaskProcessor.EnableMessageConsumer;
 
 /**
  * @author Alphonse Bendt
@@ -152,7 +153,9 @@ public class TaskProcessor implements Disposable
                 scheduleTimedPushTask(messageConsumer_);
             }
             catch (InterruptedException e)
-            {}
+            {
+                logger_.error("Interrupted", e);
+            }
         }
     }
 

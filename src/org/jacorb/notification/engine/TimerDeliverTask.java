@@ -39,6 +39,8 @@ public class TimerDeliverTask extends AbstractDeliverTask
         super(te, tp, tc);
     }
 
+    ////////////////////////////////////////
+
     public void doWork() throws Disconnected, NotConnected, InterruptedException
     {
         if ( getMessageConsumer().hasPendingMessages() )
