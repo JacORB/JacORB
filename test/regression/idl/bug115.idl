@@ -1,0 +1,33 @@
+/* 
+   Test IDL for bug #115 
+
+   Description from Bugzilla: 
+
+   IDL compiler doesn't generate any Classes for the union
+   "VariableUnion" defined in the IDL construct. Instead If I use
+   alias I could see classes created for "VariableUnion".
+
+   Resolution: Bug acknowledged (for 2.0 beta 1), compiler will loop
+   and die with a stack overflow eventually. Fixed now. (Gerald.)
+
+* /
+
+
+interface TestIntfUnion
+{
+    struct VariableStruct
+    {
+	string s;
+    };
+
+    typedef TestIntfUnion TestIntfUnionAlias; 
+
+    union VariableUnion switch(boolean)
+    {
+        //case FALSE: TestIntfUnionAlias tiua;
+        case FALSE: TestIntfUnion tiua;
+            //  case FALSE: Another tiu;
+          case TRUE: VariableStruct st;
+      };
+    
+};
