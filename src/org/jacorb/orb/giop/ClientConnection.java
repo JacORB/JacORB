@@ -90,7 +90,7 @@ public class ClientConnection
         this.info = registeredProfile.toString();
         this.client_initiated = client_initiated;
 
-        logger = 
+        logger =
             ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.giop.conn");
 
         //For BiDirGIOP, the connection initiator may only generate
@@ -141,9 +141,16 @@ public class ClientConnection
             return null;
         }
 
-        CodeSetComponentInfo info = pior.getCodeSetComponentInfo();
+        int tcs = -1;
+        int tcsw = -1;
 
-        if( info == null )
+        CodeSetComponentInfo info = pior.getCodeSetComponentInfo();
+        if( info != null )
+        {
+            tcs = CodeSet.selectTCS( info );
+            tcsw = CodeSet.selectTCSW( info );
+        }
+        else
         {
             if (logger.isDebugEnabled())
                 logger.debug("No CodeSetComponentInfo in IOR. Will use default CodeSets" );
@@ -151,13 +158,20 @@ public class ClientConnection
             //If we can't find matching codesets, we still mark the
             //GIOPConnection as negotiated, so the following requests
             //will not always try to select a codeset again.
-            connection.markTCSNegotiated();
 
-            return null;
+            /* ******
+               until the ETF spec is ammended to include components within
+               the base Profile type, then this is going to be problem. So
+               rather than not setting the codeset component, we should
+               pick reasonable default values and send those.
+            */
+
+            //connection.markTCSNegotiated();
+            //return null;
+
+            tcs = CodeSet.getTCSDefault();
+            tcsw = CodeSet.getTCSWDefault();
         }
-
-        int tcs = CodeSet.selectTCS( info );
-        int tcsw = CodeSet.selectTCSW( info );
 
         if( tcs == -1 || tcsw == -1 )
         {
