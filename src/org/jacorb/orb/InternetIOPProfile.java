@@ -47,6 +47,11 @@ public class InternetIOPProfile extends _ProfileLocalBase
         this.components     = new TaggedComponentList();
     }
 
+    /**
+     * This function marshals the appropriate information for this
+     * transport into the tagged profile.  ORBs will typically need 
+     * to call the IOR interception points before calling marshal().
+     */
     public void marshal (TaggedProfileHolder tagged_profile,
                          TaggedComponentSeqHolder components)
     {
@@ -122,11 +127,21 @@ public class InternetIOPProfile extends _ProfileLocalBase
         }
     }
 
+    /**
+     * To improve the management of a large set of profile instances, 
+     * the author may provide a hash function using the data in a Profile
+     * instance. The Profile shall always implement this function and either
+     * return a hash number, or 0 (zero) if no hashing is supported.
+     */
     public int hash()
     {
         return hashCode();
     }
 
+    /**
+     * This function shall return an equivalent, deep-copy of the profile
+     * on the free store.
+     */
     public Profile copy()
     {
         try
@@ -160,6 +175,16 @@ public class InternetIOPProfile extends _ProfileLocalBase
         return result;
     }
 
+    /**
+     * This function shall determine if the passed profile, prof, is a match 
+     * to this profile.  The specifics of the match are left to the details
+     * of the underlying transport, however profiles shall be considered a 
+     * match, if they would create connections that share the same attributes
+     * relevant to the transport setup.  Among others, this could include 
+     * address information (eg. host address) and transport layer 
+     * characteristics (eg. encryption levels). If a match is found, it 
+     * shall return true, or false otherwise.
+     */
     public boolean is_match(Profile prof)
     {
         if (prof instanceof InternetIOPProfile)
@@ -172,6 +197,11 @@ public class InternetIOPProfile extends _ProfileLocalBase
             return false;
     }
 
+    /**
+     * This attribute shall contain the GIOP version number that this
+     * profile supports. It is initialized each time an instance is 
+     * created.
+     */
     public org.omg.GIOP.Version version()
     {
         return version;
@@ -207,6 +237,16 @@ public class InternetIOPProfile extends _ProfileLocalBase
     public Object getComponent (int tag, Class helper)
     {
         return components.getComponent (tag, helper);
+    }
+    
+    public void addComponent (int tag, Object data, Class helper)
+    {
+        components.addComponent (tag, data, helper);
+    }
+    
+    public void addComponent (int tag, byte[] data)
+    {
+        components.addComponent (tag, data);
     }
     
     public TaggedProfile asTaggedProfile()
