@@ -28,6 +28,8 @@ import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CosNaming.NamingContextExtPackage.*;
 
+import org.apache.log.Logger;
+
 import org.jacorb.util.Environment;
 
 /**
@@ -43,12 +45,13 @@ public class NamingContextImpl
     implements java.io.Serializable
 {
     /** table of all name bindings in this contexts, ie. name -> obj ref. */
-
     private Hashtable names = new Hashtable(); 
 
     /** table of all subordinate naming contexts, ie. name -> obj ref. */
-
     private Hashtable contexts = new Hashtable();
+
+    /** the logger used by the naming service implementation */
+    private static Logger logger = NameServer.getLogger();
 
     /** the POAs used */
     transient private org.omg.PortableServer.POA poa;
@@ -104,7 +107,10 @@ public class NamingContextImpl
             if(( names.put( n, obj )) != null )
                 throw new CannotProceed( _this(), n.components() );
 
-            org.jacorb.util.Debug.output(1,"Bound name: " + n.toString());
+            if( logger.isInfoEnabled() )
+            {
+                logger.info("Bound name: " + n.toString());
+            }
         } 
         else 
         {
@@ -152,7 +158,10 @@ public class NamingContextImpl
             // do the rebinding in this context
             
             names.put( n, obj );
-            org.jacorb.util.Debug.output(1,"Re-bound name: " + n.toString());
+            if( logger.isInfoEnabled() )
+            {
+                logger.info("re-Bound name: " + n.toString());
+            }
         } 
         else 
         {
@@ -203,8 +212,11 @@ public class NamingContextImpl
         if( ctx == null )
         {
             contexts.put( n, obj );
-            org.jacorb.util.Debug.output(1,"Re-Bound context: " + 
-                                     n.baseNameComponent().id);
+            if (logger.isInfoEnabled())
+            {
+                logger.info("Re-Bound context: " + 
+                            n.baseNameComponent().id);
+            }
         }
     }
 
@@ -254,7 +266,10 @@ public class NamingContextImpl
                 throw new CannotProceed( _this(), n.components());
             contexts.put( n, obj );
 
-            org.jacorb.util.Debug.output(1,"Bound context: " + n.toString());
+            if (logger.isInfoEnabled())
+            {
+                logger.info("Bound context: " + n.toString());                
+            }
         }
         else 
         {
@@ -305,7 +320,10 @@ public class NamingContextImpl
 
             if( ((org.omg.CORBA.Object)names.get( _n ))._non_existent() )
             {
-                org.jacorb.util.Debug.output(1,"removing name " + _n.baseNameComponent().id);
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("Removing name " + _n.baseNameComponent().id);
+                }
                 deletionVector.addElement( _n );
             }
         }
@@ -324,7 +342,10 @@ public class NamingContextImpl
             Name _n = (Name)c.nextElement();
             if( ((org.omg.CORBA.Object)contexts.get( _n ))._non_existent() )
             {
-                org.jacorb.util.Debug.output(1,"removing context " + _n.baseNameComponent().id);
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("Removing context " + _n.baseNameComponent().id);
+                }
                 deletionVector.addElement( _n );
             }
         }
@@ -499,6 +520,10 @@ public class NamingContextImpl
                           "_ctx" + (++child_count)).getBytes();
 
             ctx = poa.create_reference_with_id( oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("New context.");
+            }
         } 
         catch ( Exception ue )
         {
@@ -552,11 +577,14 @@ public class NamingContextImpl
             if( result == null )
                 result = (org.omg.CORBA.Object)names.get(n);           
 
-			if( result == null)
+			if (result == null)
 				throw new NotFound(NotFoundReason.missing_node, n.components());
 
-			if(Environment.isPropertyOff ("jacorb.naming.noping") && result._non_existent())
-				throw new NotFound(NotFoundReason.missing_node, n.components());
+			if (Environment.isPropertyOff ("jacorb.naming.noping") && 
+                            result._non_existent())
+                        {
+                            throw new NotFound(NotFoundReason.missing_node, n.components());
+                        }
 
             return result;      
         }                 
@@ -585,19 +613,28 @@ public class NamingContextImpl
             {
                 org.omg.CORBA.Object o = (org.omg.CORBA.Object)names.remove( n );
                 o._release();
-                org.jacorb.util.Debug.output(1,"Unbound: " + n.toString());
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("Unbound: " + n.toString());
+                }
             } 
             else if( contexts.containsKey(n))
             {
                 org.omg.CORBA.Object o = (org.omg.CORBA.Object)contexts.remove( n );
                 o._release();
-                org.jacorb.util.Debug.output(1,"Unbound: " + n.toString());
+
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("Unbound: " + n.toString());
+                }
             } 
             else 
             {
-                org.jacorb.util.Debug.output(1,"Unbind failed for " + n.toString() );
-                throw new NotFound(
-                                   NotFoundReason.not_context, 
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn("Unbind failed for " + n.toString() );
+                }
+                throw new NotFound(NotFoundReason.not_context, 
                                    n.components());
             }
         }

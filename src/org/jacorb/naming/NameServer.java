@@ -51,6 +51,43 @@ public class NameServer
     private static Logger logger = 
         Hierarchy.getDefaultHierarchy().getLoggerFor("jacorb.naming");
 
+    static
+    {
+        String loglevel = 
+            Environment.getProperty("jacorb.naming.log.verbosity");
+        if( loglevel != null )
+        {
+            int verbosity = Integer.parseInt(loglevel); 
+            switch (verbosity)
+            {
+                case 4 : 
+                    logger.setPriority(Priority.DEBUG);
+                    break;
+                case 3 : 
+                    logger.setPriority(Priority.INFO);
+                    break;
+                case 2 :
+                    logger.setPriority(Priority.WARN);
+                    break;
+                case 1 :
+                    logger.setPriority(Priority.ERROR);
+                    break;
+                case 0 : 
+                default :
+                    logger.setPriority(Priority.FATAL_ERROR);
+            }            
+        }
+    }
+
+    /**
+     * @return the configured Logger instance for the naming service
+     */
+
+    static Logger getLogger()
+    {
+        return logger;
+    }
+
 
     /**
      * The servant manager (servant activator) for the name server POA
