@@ -20,6 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.poa.except.*;
 
 import org.jacorb.poa.except.POAInternalError;
@@ -60,14 +61,17 @@ public class RPPoolManager
     // a flag for delay the pool initialization
     private boolean inUse = false;
 
+    private Logger logger;
+
     private RPPoolManager() {
     }
 
-    protected RPPoolManager(Current _current, int min, int max)
+    protected RPPoolManager(Current _current, int min, int max, Logger _logger)
     {
         current = _current;
         max_pool_size = max;
         min_pool_size = min;
+        logger = _logger;
     }
 
     private void addProcessor()
@@ -150,6 +154,12 @@ public class RPPoolManager
 
         while (pool.size() == 0)
         {
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("Thread pool exhausted, consider increasing "
+                          + "jacorb.poa.thread_pool_max (currently: "
+                          + max_pool_size + ")");   
+            }
             try
             {
                 wait();
