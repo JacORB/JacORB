@@ -58,6 +58,8 @@ gerald.brose@acm.org
                 should now extend this class.
 
         - bug fixes:
+                IDL Compiler:
+                        - Fix for unions with long long discriminator type.
                 Any:
                         - Fix for equal operation on aliased types.
                         - Fix for insertion and extraction of basic types when
