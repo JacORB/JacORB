@@ -15,6 +15,7 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplier;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierHelper;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.PushConsumerPOA;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
@@ -23,14 +24,12 @@ import org.omg.PortableServer.POA;
 import org.jacorb.util.Debug;
 
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import junit.framework.TestCase;
 import org.apache.avalon.framework.logger.Logger;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 public class AnyPushReceiver
-            extends PushConsumerPOA
-            implements Runnable,
-            TestClientOperations
+    extends PushConsumerPOA
+    implements Runnable,
+               TestClientOperations
 {
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
@@ -59,6 +58,7 @@ public class AnyPushReceiver
         testCase_ = testCase;
     }
 
+
     public AnyPushReceiver(NotificationTestCase testCase,
                            PerformanceListener listener,
                            int expected)
@@ -68,20 +68,24 @@ public class AnyPushReceiver
         testCase_ = testCase;
     }
 
+
     public void setExpected(int e)
     {
         expected_ = e;
     }
+
 
     public void setPerformanceListener(PerformanceListener listener)
     {
         perfListener_ = listener;
     }
 
+
     public void setFilter(Filter filter)
     {
         filterId_ = mySupplier_.add_filter(filter);
     }
+
 
     public void addAdminFilter(Filter filter)
     {
@@ -89,11 +93,13 @@ public class AnyPushReceiver
         myAdmin_.add_filter(filter);
     }
 
+
     public void addProxyFilter(Filter filter)
     {
         testCase_.assertNotNull(mySupplier_);
         mySupplier_.add_filter(filter);
     }
+
 
     public boolean isEventHandled()
     {
@@ -109,15 +115,18 @@ public class AnyPushReceiver
         }
     }
 
+
     public void setTimeOut(long timeout)
     {
         TIMEOUT = timeout;
     }
 
+
     public void setBarrier(CyclicBarrier barrier)
     {
         barrier_ = barrier;
     }
+
 
     public void shutdown() throws FilterNotFound
     {
@@ -126,7 +135,10 @@ public class AnyPushReceiver
             mySupplier_.remove_filter(filterId_);
         }
         mySupplier_.disconnect_push_supplier();
+
+        myAdmin_.destroy();
     }
+
 
     public void connect(EventChannel channel,
                         boolean useOrSemantic)
