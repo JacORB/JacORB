@@ -34,7 +34,7 @@ public final class Debug
     /* private variables */
     //for byte -> hexchar
     private static final char[] lookup = 
-        new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' }; 
+    new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' }; 
 
     private static StringBuffer sb = new StringBuffer();
 
@@ -142,7 +142,7 @@ public final class Debug
 
     public static synchronized void output(int msg_level,String name,byte bs[])
     {
-	output(msg_level,name,bs, 0, bs.length);
+        output(msg_level,name,bs, 0, bs.length);
     }
 	
     /**
@@ -151,42 +151,42 @@ public final class Debug
      */
 
     public static synchronized void output(int msg_level,
-					   String name,
-					   byte bs[],
-					   int len)
+                                           String name,
+                                           byte bs[],
+                                           int len)
     {
-	output( msg_level,name,bs,0,len );
+        output( msg_level,name,bs,0,len );
     }
 
     public static synchronized void output(int msg_level,
-					   String name,
-					   byte bs[],
-					   int start, 
-					   int len)
+                                           String name,
+                                           byte bs[],
+                                           int start, 
+                                           int len)
     {
         if( canOutput( msg_level ) )
         {
-	    System.out.print("\nHexdump ["+name+"] len="+len+","+bs.length);
-	    StringBuffer chars = new StringBuffer();
+            System.out.print("\nHexdump ["+name+"] len="+len+","+bs.length);
+            StringBuffer chars = new StringBuffer();
 
-	    for( int i = start; i < len; i++ )
-	    {
-		if((i % 16 ) == 0)
-		{
-		    System.out.println( chars ); 
+            for( int i = start; i < (start + len); i++ )
+            {
+                if((i % 16 ) == 0)
+                {
+                    System.out.println( chars ); 
                     chars = new StringBuffer();                    
-		}
+                }
 
-		chars.append( toAscii( bs[i] ));
+                chars.append( toAscii( bs[i] ));
 
-		System.out.print( toHex( bs[i] ));
+                System.out.print( toHex( bs[i] ));
 
-		if( (i % 4) == 3 ) 
-		{ 
-		    chars.append( ' ' );
+                if( (i % 4) == 3 ) 
+                { 
+                    chars.append( ' ' );
                     System.out.print( ' ' ); 
-		}
-	    }
+                }
+            }
 
             if( len % 16 != 0 )
             {
@@ -206,8 +206,8 @@ public final class Debug
                 }
             }
                     
-	    System.out.println( chars );
-	}
+            System.out.println( chars );
+        }
     }
 
 
@@ -228,7 +228,7 @@ public final class Debug
 	
     public static final char toAscii(byte b)
     {
-	if( b > (byte) 31 && 
+        if( b > (byte) 31 && 
             b < (byte) 127) 
         {
             return (char) b; 
@@ -302,37 +302,37 @@ public final class Debug
      * utility method,
      */
     /*
-    public static void dumpBA(byte bs[])
-    {
-	int len = bs.length;
-	for (int i = 0; i < len; i++)
-	{
-	    if (0 == i%20)
-	    {
-		java.lang.System.out.println();
-	    }
-	    dumpHex(bs[i]);
-	}
-	java.lang.System.out.println();
-    }
+      public static void dumpBA(byte bs[])
+      {
+      int len = bs.length;
+      for (int i = 0; i < len; i++)
+      {
+      if (0 == i%20)
+      {
+      java.lang.System.out.println();
+      }
+      dumpHex(bs[i]);
+      }
+      java.lang.System.out.println();
+      }
     */
     /**
      * utility method, 
      */
     /*
-    public static void dumpHex(byte b)
-    {
-	int n1 = (b & 0xff) / 16;
-	int n2 = (b & 0xff) % 16;
-	char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
-	char c2 = (char)(n2>9 ? ('A'+(n2-10)) : ('0'+n2));
-	char c3;
-	if (b>(byte)31 && b<(byte)127)
-	    c3 = (char)b;
-	else
-	    c3 = ' ';
-	java.lang.System.out.print(c1+(c2+" ")+c3+"  ");
-    }
+      public static void dumpHex(byte b)
+      {
+      int n1 = (b & 0xff) / 16;
+      int n2 = (b & 0xff) % 16;
+      char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
+      char c2 = (char)(n2>9 ? ('A'+(n2-10)) : ('0'+n2));
+      char c3;
+      if (b>(byte)31 && b<(byte)127)
+      c3 = (char)b;
+      else
+      c3 = ' ';
+      java.lang.System.out.print(c1+(c2+" ")+c3+"  ");
+      }
     */
 }
 
