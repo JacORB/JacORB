@@ -1,12 +1,11 @@
-package demo.sas;
+package org.jacorb.demo.sas;
 
-import java.io.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
-import org.omg.PortableServer.POA;
-import org.omg.Security.*;
-import org.jacorb.security.sas.*;
+import org.jacorb.security.sas.SASInitializer;
 import org.omg.CORBA.ORB;
-import org.jacorb.util.*;
+import org.omg.PortableServer.POA;
 
 /**
  * This is the server part of the sas demo. It demonstrates
@@ -37,7 +36,7 @@ public class Server extends SASDemoPOA
         try
         {
             org.omg.PortableInterceptor.Current current = (org.omg.PortableInterceptor.Current) orb.resolve_initial_references( "PICurrent" );
-            org.omg.CORBA.Any anyName = current.get_slot( org.jacorb.security.sas.SASTargetInitializer.sasPrincipalNamePIC );
+            org.omg.CORBA.Any anyName = current.get_slot( SASInitializer.sasPrincipalNamePIC );
             String name = anyName.extract_string();
             System.out.println("printSAS for user " + name);
         }

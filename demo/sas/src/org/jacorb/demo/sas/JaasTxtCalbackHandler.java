@@ -1,4 +1,4 @@
-package demo.sas;
+package org.jacorb.demo.sas;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;

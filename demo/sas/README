@@ -26,10 +26,10 @@ http://free.tagish.net/jaas/ and the classes added to the CLASSPATH
 Add jacorb/classes to the CLASSPATH
 
 Run the server:
-$> jaco -Dcustom.props=server_props demo.sas.Server server.ior
+$> jaco -Dcustom.props=server_props org.jacorb.demo.sas.Server server.ior
 
 Run the client:
-$> jaco -Dcustom.props=client_props demo.sas.Client server.ior
+$> jaco -Dcustom.props=client_props org.jacorb.demo.sas.Client server.ior
 
 The client will call the server three times with the username MeUser.
 
@@ -42,12 +42,12 @@ Start the Name service
 $> ns -p 9009
 
 Start the ATLAS service
-$> jaco -Dcustom.props=NT_ATLAS_props demo.sas.NT_ATLASService -Djava.security.auth.login.config=file:tagish.login 20200 atlas.ior
+$> jaco -Dcustom.props=NT_ATLAS_props org.jacorb.demo.sas.NT_ATLASService -Djava.security.auth.login.config=file:tagish.login 20200 atlas.ior
 
 Run the JAAS server:
-$> jaco -Dcustom.props=NT_server_props -Djava.security.auth.login.config=file:tagish.login demo.sas.Server server.ior
+$> jaco -Dcustom.props=NT_server_props -Djava.security.auth.login.config=file:tagish.login org.jacorb.demo.sas.Server server.ior
 
 For the JAAS client:
-$> jaco -Dcustom.props=client_props -Djava.security.auth.login.config=file:tagish.login demo.sas.JAASClient server.ior
+$> jaco -Dcustom.props=client_props -Djava.security.auth.login.config=file:tagish.login org.jacorb.demo.sas.JAASClient server.ior
 
 

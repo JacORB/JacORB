@@ -1,4 +1,4 @@
-package demo.sas;
+package org.jacorb.demo.sas;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;

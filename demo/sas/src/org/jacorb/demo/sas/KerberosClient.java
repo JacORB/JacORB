@@ -1,4 +1,4 @@
-package demo.sas;
+package org.jacorb.demo.sas;
 
 import java.io.BufferedReader;
 import java.io.File;

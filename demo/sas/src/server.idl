@@ -3,10 +3,14 @@
 //
 // $Id$
 
+module org{
+module jacorb{
 module demo{
   module sas{
     interface SASDemo{
       void printSAS();
     };
   };
+};
+};
 };
