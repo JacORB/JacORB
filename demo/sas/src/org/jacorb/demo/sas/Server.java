@@ -49,7 +49,7 @@ public class Server extends SASDemoPOA
     public static void main( String[] args )
     {
         if( args.length != 1 )
-		{
+        {
             System.out.println( "Usage: java demo.sas.GssUpServer <ior_file>" );
             System.exit( -1 );
         }
@@ -64,7 +64,7 @@ public class Server extends SASDemoPOA
             pw.println( orb.object_to_string( demo ));
             pw.flush();
             pw.close();
-	    	orb.run();
+            orb.run();
         }
         catch( Exception e )
         {

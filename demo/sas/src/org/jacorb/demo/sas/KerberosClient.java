@@ -22,81 +22,81 @@ import org.omg.CORBA.ORB;
  */
 
 public class KerberosClient {
-	private static Principal myPrincipal = null; 
-	private static Subject mySubject = null;	
-	private static ORB orb = null;
-	
-	public KerberosClient(String args[]) {
+    private static Principal myPrincipal = null;
+    private static Subject mySubject = null;
+    private static ORB orb = null;
 
-		try {
-			// initialize the ORB.
-			orb = ORB.init(args, null);
+    public KerberosClient(String args[]) {
 
-			// get the server
-			File f = new File(args[0]);
-			if (!f.exists()) {
-				System.out.println("File " + args[0] + " does not exist.");
-				System.exit(-1);
-			}
-			if (f.isDirectory()) {
-				System.out.println("File " + args[0] + " is a directory.");
-				System.exit(-1);
-			}
-			BufferedReader br = new BufferedReader(new FileReader(f));
-			org.omg.CORBA.Object obj = orb.string_to_object(br.readLine());
-			br.close();
-			SASDemo demo = SASDemoHelper.narrow(obj);
+        try {
+            // initialize the ORB.
+            orb = ORB.init(args, null);
 
-			//call single operation
-			demo.printSAS();
-			demo.printSAS();
-			demo.printSAS();
+            // get the server
+            File f = new File(args[0]);
+            if (!f.exists()) {
+                System.out.println("File " + args[0] + " does not exist.");
+                System.exit(-1);
+            }
+            if (f.isDirectory()) {
+                System.out.println("File " + args[0] + " is a directory.");
+                System.exit(-1);
+            }
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            org.omg.CORBA.Object obj = orb.string_to_object(br.readLine());
+            br.close();
+            SASDemo demo = SASDemoHelper.narrow(obj);
 
-			System.out.println("Call to server succeeded");
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	public static void main(String args[]) {
-		if (args.length != 3) {
-			System.out.println("Usage: java demo.sas.KerberosClient <ior_file> <username> <password>");
-			System.exit(1);
-		}
+            //call single operation
+            demo.printSAS();
+            demo.printSAS();
+            demo.printSAS();
 
-		// login - with Kerberos
-		LoginContext loginContext = null;
-		try {
-			JaasTxtCalbackHandler txtHandler = new JaasTxtCalbackHandler();
-			txtHandler.setMyUsername(args[1]);
-			txtHandler.setMyPassword(args[2].toCharArray());
-			loginContext = new LoginContext("KerberosClient", txtHandler);
-			loginContext.login();
-		} catch (LoginException le) {
-			System.out.println("Login error: " + le);
-			System.exit(1);
-		}
-		mySubject = loginContext.getSubject();
-		myPrincipal = (Principal) mySubject.getPrincipals().iterator().next();
-		System.out.println("Found principal " + myPrincipal.getName());
+            System.out.println("Call to server succeeded");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
-		// run in privileged mode
-		final String[] finalArgs = args;
-		try {
-			Subject.doAs(mySubject, new PrivilegedAction() {
-				public Object run() {
-					try {
-						KerberosClient client = new KerberosClient(finalArgs);
-						orb.run();
-					} catch (Exception e) {
-						System.out.println("Error running program: "+e);
-					}
-					System.out.println("Exiting privileged operation");
-					return null;
-				}
-			});
-		} catch (Exception e) {
-			System.out.println("Error running privileged: "+e);
-		}
-	}
+    public static void main(String args[]) {
+        if (args.length != 3) {
+            System.out.println("Usage: java demo.sas.KerberosClient <ior_file> <username> <password>");
+            System.exit(1);
+        }
+
+        // login - with Kerberos
+        LoginContext loginContext = null;
+        try {
+            JaasTxtCalbackHandler txtHandler = new JaasTxtCalbackHandler();
+            txtHandler.setMyUsername(args[1]);
+            txtHandler.setMyPassword(args[2].toCharArray());
+            loginContext = new LoginContext("KerberosClient", txtHandler);
+            loginContext.login();
+        } catch (LoginException le) {
+            System.out.println("Login error: " + le);
+            System.exit(1);
+        }
+        mySubject = loginContext.getSubject();
+        myPrincipal = (Principal) mySubject.getPrincipals().iterator().next();
+        System.out.println("Found principal " + myPrincipal.getName());
+
+        // run in privileged mode
+        final String[] finalArgs = args;
+        try {
+            Subject.doAs(mySubject, new PrivilegedAction() {
+                public Object run() {
+                    try {
+                        KerberosClient client = new KerberosClient(finalArgs);
+                        orb.run();
+                    } catch (Exception e) {
+                        System.out.println("Error running program: "+e);
+                    }
+                    System.out.println("Exiting privileged operation");
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            System.out.println("Error running privileged: "+e);
+        }
+    }
 }

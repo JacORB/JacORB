@@ -1,10 +1,9 @@
-KerberosClient 
+KerberosClient
 {
-	com.sun.security.auth.module.Krb5LoginModule required debug=true;
+    com.sun.security.auth.module.Krb5LoginModule required debug=true;
 };
 
-KerberosService 
+KerberosService
 {
-	com.sun.security.auth.module.Krb5LoginModule required storeKey=true principal="testService@OPENROADSCONSULTING.COM" debug=true;
+    com.sun.security.auth.module.Krb5LoginModule required storeKey=true principal="testService@OPENROADSCONSULTING.COM" debug=true;
 };
-
