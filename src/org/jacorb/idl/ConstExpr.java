@@ -60,7 +60,6 @@ class ConstExpr
 
     public String toString()
     {
-        //        return value();
         return or_expr.toString();
     }
 
@@ -85,5 +84,3 @@ class ConstExpr
         or_expr.setPackage( s );
     }
 }
-
-
