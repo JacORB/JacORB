@@ -22,7 +22,7 @@ package org.jacorb.orb;
 
 /**
  * This class collects all ORB related constants.
- *   
+ *
  * This includes various OMG assigned values used by JacORB.
  *
  * OMG Assigned ranges:
@@ -36,6 +36,7 @@ package org.jacorb.orb;
 
 public final class ORBConstants
 {
+    public static final int VMCID                   = 0x4A430000;
     public static final int JACORB_ORB_ID           = 0x4A414300;
     public static final int SERVICE_PADDING_CONTEXT = 0x4A414301;
     public static final int SERVICE_PROXY_CONTEXT   = 0x4A414302;

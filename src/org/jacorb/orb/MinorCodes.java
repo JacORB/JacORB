@@ -26,7 +26,6 @@ package org.jacorb.orb;
  */
 
 public final class MinorCodes {
-    public static final int MINOR_CODE_BASE = 100;
 
     // BAD_CONTEXT exception minor codes
     // BAD_INV_ORDER exception minor codes
@@ -48,7 +47,9 @@ public final class MinorCodes {
     // NO_IMPLEMENT exception minor codes
 
     // NO_PERMISSION exception minor codes
-    public static final int SAS_CSS_FAILURE = MINOR_CODE_BASE + 1;
+    public static final int SAS_CSS_FAILURE             = ORBConstants.VMCID + 1;
+    public static final int SAS_ATLAS_FAILURE           = ORBConstants.VMCID + 2;
+    public static final int SAS_TSS_FAILURE             = ORBConstants.VMCID + 3;
 
     // NO_RESOURCES exception minor codes
     // NO_RESPONSE exception minor codes
