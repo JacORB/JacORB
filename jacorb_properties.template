@@ -37,9 +37,11 @@ ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 # Note: it is NOT necessary to define this property for
 # the name service here because this is done already in the
 # code of the ns implementation
-
-# example:
-#jacorb.orb.objectKeyMap.NameService=StandardNS/NameServer-POA/_root
+# The property also accepts the following mappings:
+# IOR, resource, jndi, URL (e.g. file, http)
+# examples:
+# jacorb.orb.objectKeyMap.NameService=StandardNS/NameServer-POA/_root
+# jacorb.orb.objectKeyMap.NameService=file:/home/rnc/NameSingleton.ior
 
 ##################################
 #                                #

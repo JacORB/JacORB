@@ -1364,10 +1364,12 @@ public class ImplementationRepositoryImpl
         {
 	}
 
-	/**
-	 *	receive and dispatch requests
-	 */
-
+        /**
+         * receive and dispatch requests
+         *
+         * @param request a <code>byte[]</code> value
+         * @param connection a <code>GIOPConnection</code> value
+         */
         public void requestReceived( byte[] request,
                                      GIOPConnection connection )
         {
@@ -1375,7 +1377,7 @@ public class ImplementationRepositoryImpl
 
             RequestInputStream in = new RequestInputStream( orb, request );
 
-            replyNewLocation( in.req_hdr.target.object_key(),
+            replyNewLocation( ((org.jacorb.orb.ORB)orb).mapObjectKey( in.req_hdr.target.object_key() ),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
                               connection );

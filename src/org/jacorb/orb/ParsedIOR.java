@@ -1,4 +1,3 @@
-
 package org.jacorb.orb;
 
 /*
@@ -21,20 +20,21 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.*;
-
-import org.jacorb.orb.util.*;
-import org.jacorb.util.*;
-
-import org.omg.IOP.*;
-import org.omg.GIOP.*;
-import org.omg.IIOP.*;
-import org.omg.SSLIOP.*;
+import org.jacorb.orb.util.CorbaLoc;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.jacorb.util.ObjectUtil;
+import org.omg.CONV_FRAME.CodeSetComponentInfo;
+import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
 import org.omg.CSIIOP.*;
 import org.omg.CosNaming.*;
-import org.omg.CONV_FRAME.*;
+import org.omg.GIOP.*;
+import org.omg.IIOP.*;
+import org.omg.IOP.*;
+import org.omg.SSLIOP.*;
 
 /**
  * Class to convert IOR strings into IOR structures
@@ -1045,10 +1045,12 @@ public class ParsedIOR
     }
 
     /**
-     * @throws IllegalArgumentException if object_reference is null or the
-     * designated resource cannot be found
+     * <code>parse</code> decodes the object_reference passed to ParsedIOR.
+     *
+     * @param object_reference a <code>String</code> value.
+     * @exception IllegalArgumentException if object_reference is null or the
+     * designated resource cannot be found.
      */
-
     protected void parse (String object_reference)
         throws IllegalArgumentException
     {
@@ -1130,9 +1132,19 @@ public class ParsedIOR
             {
                 NamingContextExt n =
                     NamingContextExtHelper.narrow (orb.string_to_object (corbaloc));
-                org.omg.CORBA.Object target = n.resolve_str (name);
-                IOR ior =
-                    ((Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate()).getIOR();
+                IOR ior = null;
+
+                // If the name hasn't been set - which is possible if we're just
+                // resolving the root context down try to use name.
+                if ( name.length() > 0 )
+                {
+                    org.omg.CORBA.Object target = n.resolve_str (name);
+                    ior = ((Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate()).getIOR();
+                }
+                else
+                {
+                    ior = ((Delegate)((org.omg.CORBA.portable.ObjectImpl)n)._get_delegate()).getIOR();
+                }
                 decode (ior);
             }
             catch (Exception e)
@@ -1220,5 +1232,33 @@ public class ParsedIOR
             parse (content);
         }
         ior_str = getIORString ();
+    }
+
+
+    /**
+     * <code>isParsableProtocol</code> returns true if ParsedIOR can handle the
+     * protocol within the string.
+     *
+     * @param check a <code>String</code> a string containing a protocol.
+     * @return a <code>boolean</code> denoting whether ParsedIOR can handle this
+     * protocol
+     */
+    public static boolean isParsableProtocol( String check )
+    {
+        if (check.startsWith( "IOR:" ) ||
+            check.startsWith( "corbaloc:" ) ||
+            check.startsWith( "corbaname:" ) ||
+            check.startsWith( "resource:" ) ||
+            check.startsWith( "jndi:" ) ||
+            check.startsWith( "file:" ) ||
+            check.startsWith( "http:" )
+           )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
