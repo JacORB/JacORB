@@ -19,11 +19,11 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import org.jacorb.poa.util.*;
- 
+
 /**
- * The POA monitor interface, known to the POA. 
+ * The POA monitor interface, known to the POA.
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.01, 12/08/99, RT
@@ -31,14 +31,7 @@ import org.jacorb.poa.util.*;
 public interface POAMonitor {
 	void changeState(String state);
 	void closeMonitor();
-	void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm, 
-					String prefix, boolean isSystemId, LogTrace logTrace);
+	void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm,
+                  String prefix, LogTrace logTrace);
 	void openMonitor();
 }
-
-
-
-
-
-
-

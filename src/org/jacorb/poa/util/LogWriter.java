@@ -37,86 +37,82 @@ import java.io.*;
  * @version $Id$
  */
 
-public class LogWriter 
-    implements LogTrace 
+public class LogWriter
+    implements LogTrace
 {
     private LogTrace delegate;
     private String prefix;
-    private boolean isSystemId;
     private boolean isLogFileOut;
 
     private LogWriter() {
     }
 
-    public LogWriter(String _prefix, boolean is_system_id) 
+    public LogWriter(String _prefix)
     {
         prefix = _prefix+" - ";
-        isSystemId = is_system_id;
-        if ( Environment.logFileOut() != null) 
+        if ( Environment.logFileOut() != null)
             isLogFileOut = true;
     }
 
     public boolean test(int logLevel) {
-        return Environment.verbosityLevel() >= ( logLevel);	
-        // return Environment.verbosityLevel() >= (Debug.POA | logLevel);	
+        return Environment.verbosityLevel() >= ( logLevel);
     }
 
-    public void printLog(byte[] oid, String message) 
+    public void printLog(byte[] oid, String message)
     {
-    	printLog_("oid: "+POAUtil.convert(oid, isSystemId)+" - "+message);
+    	printLog_("oid: "+POAUtil.convert(oid)+" - "+message);
     }
 
-    public void printLog(ServerRequest request, String message) 
+    public void printLog(ServerRequest request, String message)
     {
     	printLog_("rid: "+request.requestId()+
-                  " oid: "+POAUtil.convert(request.objectId(), isSystemId)+
+                  " oid: "+POAUtil.convert(request.objectId())+
                   " opname: "+request.operation()+" - "+message);
     }
-    
-    public void printLog(ServerRequest request, State state, String message) 
+
+    public void printLog(ServerRequest request, State state, String message)
     {
         printLog_("rid: "+request.requestId()+
-                  " oid: "+POAUtil.convert(request.objectId(), isSystemId)+
+                  " oid: "+POAUtil.convert(request.objectId())+
                   " opname: "+request.operation()+" - "+message+
                   " (in state "+POAUtil.convert(state)+")");
     }
 
-    public void printLog(String message) 
+    public void printLog(String message)
     {
         printLog_(message);
     }
 
-    public void printLog(Throwable e) 
+    public void printLog(Throwable e)
     {
         printLog_(e);
     }
 
-    private void printLog_(String message) 
-    {		
-        if ( isLogFileOut || delegate == null) 
+    private void printLog_(String message)
+    {
+        if ( isLogFileOut || delegate == null)
         {
-            org.jacorb.util.Debug.output( 0, prefix+message);			
+            org.jacorb.util.Debug.output( 0, prefix+message);
         }
-        if (delegate != null) 
+        if (delegate != null)
         {
             delegate.printLog(message);
-        }		
+        }
     }
 
-    private void printLog_(Throwable e) 
-    {		
-        if ( isLogFileOut || delegate == null) 
+    private void printLog_(Throwable e)
+    {
+        if ( isLogFileOut || delegate == null)
         {
-            org.jacorb.util.Debug.output( 0, e);			
+            org.jacorb.util.Debug.output( 0, e);
         }
-        if (delegate != null) 
+        if (delegate != null)
         {
             delegate.printLog(e);
-        }		
+        }
     }
 
     public void setLogTrace(LogTrace _delegate) {
         delegate = _delegate;
     }
 }
-

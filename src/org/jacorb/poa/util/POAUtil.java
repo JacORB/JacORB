@@ -22,6 +22,7 @@ package org.jacorb.poa.util;
 
 import org.jacorb.poa.*;
 import org.jacorb.poa.except.*;
+ import org.jacorb.util.Debug;
 import org.omg.PortableServer.*;
 
 import java.util.Calendar;
@@ -33,33 +34,54 @@ import java.util.Calendar;
  * @version $Id$
  */
 
-public final class POAUtil 
+public final class POAUtil
 {
-    /**
-     * converts an oid into a string, if the inHex flag is set
-     * the string contains a hex dump
-     */
+    static private final int bytesPerLine = 20;
 
-    public static String convert(byte[] objectId, boolean inHex) 
+    private POAUtil () {}
+
+    /**
+     * <code>convert</code> outputs a byte oid in a hex string dump formatted
+     * like e.g.:
+     * 49 6d 52              ImR
+     * ....
+     *
+     * @param data[] a <code>byte</code> value
+     * @return a <code>String</code> value
+     */
+    public static String convert( byte[] data )
     {
-        if (inHex) 
+        StringBuffer result = new StringBuffer ();
+        result.append ('\n');
+        int k = 0;
+
+        for (int j = 0; j < data.length; j++)
         {
-            String result = "";
-            for (int i=0; i<objectId.length; i++) 
+            result.append (Debug.toHex (data[j]));
+
+            boolean lastLine = (j >= (data.length - 1));
+
+            if (lastLine)
             {
-                int n1 = (objectId[i] & 0xff) / 16;
-                int n2 = (objectId[i] & 0xff) % 16;
-                char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
-                char c2 = (char)(n2>9 ? ('A'+(n2-10)) : ('0'+n2));
-                result = result + ( c1 + (c2 + " "));
+                for (int p = 0;
+                     p < (bytesPerLine - (j % bytesPerLine) - 1);
+                     p++)
+                {
+                    result.append ("   ");
+                }
             }
-            return result;
-			
-        } 
-        else 
-        {
-            return oid_to_string(objectId).replace('\n', ' ');
+
+            if (((j % bytesPerLine) == (bytesPerLine - 1)) || lastLine)
+            {
+                for (; k <= j; k++)
+                {
+                    result.append ((data[k] < 32) ? '.' : (char) data[k]);
+                }
+
+                result.append ('\n');
+            }
         }
+        return result.toString ();
     }
 
     /**
@@ -67,10 +89,10 @@ public final class POAUtil
      * converts it into a string
      */
 
-    public static String convert(org.omg.CORBA.Policy policy, int policy_type) 
-    {		
-        switch (policy_type) 
-        {       		
+    public static String convert(org.omg.CORBA.Policy policy, int policy_type)
+    {
+        switch (policy_type)
+        {
         case THREAD_POLICY_ID.value:
             if (policy == null || ((ThreadPolicy) policy).value() == ThreadPolicyValue.ORB_CTRL_MODEL) return "ORB_CTRL_MODEL";
             else if (((ThreadPolicy) policy).value() == ThreadPolicyValue.SINGLE_THREAD_MODEL) return "SINGLE_THREAD_MODEL";
@@ -80,7 +102,7 @@ public final class POAUtil
             if (policy == null || ((LifespanPolicy) policy).value() == LifespanPolicyValue.TRANSIENT) return "TRANSIENT";
             else if (((LifespanPolicy) policy).value() == LifespanPolicyValue.PERSISTENT) return "PERSISTENT";
             break;
-				
+
         case ID_UNIQUENESS_POLICY_ID.value:
             if (policy == null || ((IdUniquenessPolicy) policy).value() == IdUniquenessPolicyValue.UNIQUE_ID) return "UNIQUE_ID";
             else if (((IdUniquenessPolicy) policy).value() == IdUniquenessPolicyValue.MULTIPLE_ID) return "MULTIPLE_ID";
@@ -90,7 +112,7 @@ public final class POAUtil
             if (policy == null || ((IdAssignmentPolicy) policy).value() == IdAssignmentPolicyValue.SYSTEM_ID) return "SYSTEM_ID";
             else if (((IdAssignmentPolicy) policy).value() == IdAssignmentPolicyValue.USER_ID) return "USER_ID";
             break;
-				
+
         case SERVANT_RETENTION_POLICY_ID.value:
             if (policy == null || ((ServantRetentionPolicy) policy).value() == ServantRetentionPolicyValue.RETAIN) return "RETAIN";
             else if (((ServantRetentionPolicy) policy).value() == ServantRetentionPolicyValue.NON_RETAIN) return "NON_RETAIN";
@@ -105,7 +127,7 @@ public final class POAUtil
         case IMPLICIT_ACTIVATION_POLICY_ID.value:
             if (policy == null || ((ImplicitActivationPolicy) policy).value() == ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION) return "NO_IMPLICIT_ACTIVATION";
             else if (((ImplicitActivationPolicy) policy).value() == ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION) return "IMPLICIT_ACTIVATION";
-            break;				
+            break;
         }
         return "unknown";
     }
@@ -114,7 +136,7 @@ public final class POAUtil
      * converts the state into a string
      */
 
-    public static String convert(org.omg.PortableServer.POAManagerPackage.State state) 
+    public static String convert(org.omg.PortableServer.POAManagerPackage.State state)
     {
         if (state.value() == org.omg.PortableServer.POAManagerPackage.State._ACTIVE)
             return "active";
@@ -124,7 +146,7 @@ public final class POAUtil
             return "discarding";
         if (state.value() == org.omg.PortableServer.POAManagerPackage.State._INACTIVE)
             return "inactive";
-		
+
         return "unknown";
     }
 
@@ -132,18 +154,18 @@ public final class POAUtil
      * extracts the impl name from a specified object key
      */
 
-    public static String extractImplName(byte[] object_key) 
+    public static String extractImplName(byte[] object_key)
     {
-        for (int i = 0; i < object_key.length; i++) 
+        for (int i = 0; i < object_key.length; i++)
         {
-            if( object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE ) 
+            if( object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE )
             {
                 byte[] result = IdUtil.extract(object_key, 0, i);
                 return unmaskStr( new String(result) );
             }
         }
         throw new POAInternalError("error extracting impl name from object_key: "+
-                                   convert(object_key, false));
+                                   convert(object_key));
     }
 
 
@@ -151,28 +173,27 @@ public final class POAUtil
      * extracts the oid from a specified object key
      */
 
-    public static byte[] extractOID(byte[] object_key) 
+    public static byte[] extractOID(byte[] object_key)
     {
-        for (int i=object_key.length-1; i>=0; i--) 
+        for (int i=object_key.length-1; i>=0; i--)
         {
-            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE)
             {
                 i++;
-                byte[] result = 
+                byte[] result =
                     IdUtil.extract(object_key, i, object_key.length - i);
-                //				jacorb.orb.Environment.output(6, "extractOID, \t\tObject-Key: " + convert(object_key, false) + " \tOID: "+convert(result, true));
                 return unmaskId(result);
             }
         }
         throw new POAInternalError("error extracting oid from object_key: "+
-                                   convert(object_key, false));
+                                   convert(object_key));
     }
 
     /**
      * extracts the oid from a specified object reference
      */
 
-    public static byte[] extractOID(org.omg.CORBA.Object reference) 
+    public static byte[] extractOID(org.omg.CORBA.Object reference)
     {
         return ((org.jacorb.orb.Delegate) ((org.omg.CORBA.portable.ObjectImpl) reference)._get_delegate()).getObjectId();
     }
@@ -181,35 +202,35 @@ public final class POAUtil
      * extracts the poa name from a specified object key
      */
 
-    public static String extractPOAName(byte[] object_key) 
+    public static String extractPOAName(byte[] object_key)
     {
         int begin = object_key.length;
         int end = 0;
-        for (int i=0; i<object_key.length; i++) 
+        for (int i=0; i<object_key.length; i++)
         {
-            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE)
             {
                 begin = i;
                 break;
             }
         }
-        for (int i=object_key.length-1; i>=0; i--) 
+        for (int i=object_key.length-1; i>=0; i--)
         {
-            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE)
             {
                 end = i;
                 break;
             }
         }
-        if (begin > end) 
+        if (begin > end)
         {
-            throw new POAInternalError("error extracting poa name from object_key: "+convert(object_key, false));
+            throw new POAInternalError("error extracting poa name from object_key: "+convert(object_key));
         }
-        if (begin == end) 
+        if (begin == end)
         {
             return "";
-        } 
-        else 
+        }
+        else
         {
             begin++;
             return new String(IdUtil.extract(object_key, begin, end-begin));
@@ -217,16 +238,16 @@ public final class POAUtil
     }
 
     /**
-     * returns the policy with the specified policy_type from a policy list  
+     * returns the policy with the specified policy_type from a policy list
      */
 
-    public static org.omg.CORBA.Policy getPolicy(org.omg.CORBA.Policy[] policies, int policy_type) 
+    public static org.omg.CORBA.Policy getPolicy(org.omg.CORBA.Policy[] policies, int policy_type)
     {
-        if (policies != null) 
+        if (policies != null)
         {
-            for (int i = 0; i < policies.length; i++) 
+            for (int i = 0; i < policies.length; i++)
             {
-                if (policies[i].policy_type() == policy_type) 
+                if (policies[i].policy_type() == policy_type)
                 {
                     return policies[i];
                 }
@@ -256,25 +277,25 @@ public final class POAUtil
     }
 
     /**
-     * masks the object key separator bytes 
+     * masks the object key separator bytes
      */
 
-    public static byte[] maskId(byte[] id) 
+    public static byte[] maskId(byte[] id)
     {
         int altered = id.length;
-        for (int i=0; i<id.length; i++) 
+        for (int i=0; i<id.length; i++)
         {
-            if (id[i] == POAConstants.OBJECT_KEY_SEP_BYTE) 
+            if (id[i] == POAConstants.OBJECT_KEY_SEP_BYTE)
             {
                 altered++;
-            } 
-            else if (id[i] == POAConstants.MASK_BYTE) 
+            }
+            else if (id[i] == POAConstants.MASK_BYTE)
             {
                 altered++;
             }
         }
         if (altered == id.length) return id;
-		
+
         byte[] result = new byte[altered];
 
         altered = 0;
@@ -283,16 +304,16 @@ public final class POAUtil
                 result[altered] = POAConstants.MASK_BYTE;
                 result[altered+1] = POAConstants.SEPA_MASK_BYTE;
                 altered += 2;
-				
+
             } else if (id[i] == POAConstants.MASK_BYTE) {
                 result[altered] = POAConstants.MASK_BYTE;
                 result[altered+1] = POAConstants.MASK_MASK_BYTE;
                 altered += 2;
-				
+
             } else {
                 result[altered] = id[i];
                 altered ++;
-            }			
+            }
         }
         return result;
     }
@@ -301,93 +322,68 @@ public final class POAUtil
      * masks the object key separator chars
      */
 
-    public static String maskStr(String str) 
+    public static String maskStr(String str)
     {
         return new String(maskId(str.getBytes()));
     }
-    /**
-     * converts an iod into a string
-     */
-    public static String oid_to_string(byte[] oid) {
-        return new String(oid);
-    }
-    /**
-     * converts a string into an oid
-     */
-    public static byte[] string_to_oid(String str) {	
-        return str.getBytes();
-    }
 
     /**
-     * converts an oid into a bak
-     */
-    public static ByteArrayKey oid_to_bak(byte[] oid) {
-        return new ByteArrayKey(oid);
-    }
-    /**
-     * converts a bak into an oid
-     */
-    public static byte[] bak_to_oid(ByteArrayKey bak) {	
-        return bak.getBytes();
-    }
-
-    /**
-     * unmasks the object key separator bytes 
+     * unmasks the object key separator chars
      */
 
-    public static byte[] unmaskId(byte[] id) 
+    public static String unmaskStr(String str)
+    {
+        return new String(unmaskId(str.getBytes()));
+    }
+
+
+    /**
+     * unmasks the object key separator bytes
+     */
+
+    public static byte[] unmaskId(byte[] id)
     {
         int altered = id.length;
-        for (int i=0; i<id.length; i++) 
+        for (int i=0; i<id.length; i++)
         {
-            if (id[i] == POAConstants.MASK_BYTE) 
+            if (id[i] == POAConstants.MASK_BYTE)
             {
                 altered--;
                 i++;
             }
         }
         if (altered == id.length) return id;
-		
+
         byte[] result = new byte[altered];
 
         altered = 0;
-        for (int i=0; i<id.length; i++) 
-        {			
-            if (id[i] == POAConstants.MASK_BYTE) 
+        for (int i=0; i<id.length; i++)
+        {
+            if (id[i] == POAConstants.MASK_BYTE)
             {
-                if (id[i+1] == POAConstants.MASK_MASK_BYTE) 
+                if (id[i+1] == POAConstants.MASK_MASK_BYTE)
                 {
                     result[altered] = POAConstants.MASK_BYTE;
-                } 
-                else if (id[i+1] == POAConstants.SEPA_MASK_BYTE) 
+                }
+                else if (id[i+1] == POAConstants.SEPA_MASK_BYTE)
                 {
                     result[altered] = POAConstants.OBJECT_KEY_SEP_BYTE;
-					
-                } 
-                else 
+
+                }
+                else
                 {
                     throw new POAInternalError("error: forbidden byte sequence \""
                                                +POAConstants.MASK_BYTE+id[i+1]+"\" (unmaskId)");
                 }
                 i++;
-				
-            } 
-            else 
+
+            }
+            else
             {
                 result[altered] = id[i];
             }
             altered++;
         }
         return result;
-    }
-
-
-    /**
-     * unmasks the object key separator chars
-     */
-
-    public static String unmaskStr(String str) 
-    {
-        return new String(unmaskId(str.getBytes()));
     }
 }

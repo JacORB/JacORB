@@ -19,19 +19,20 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
-import org.jacorb.poa.util.*;
-import org.jacorb.poa.except.*;
-import org.jacorb.util.Debug;
 
-import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.ServantActivator;
-import org.omg.PortableServer.ForwardRequest;
+import java.util.*;
+
+import org.jacorb.poa.POA;
+import org.jacorb.poa.except.POAInternalError;
+import org.jacorb.poa.util.ByteArrayKey;
+import org.jacorb.poa.util.LogTrace;
+import org.jacorb.poa.util.POAUtil;
+import org.jacorb.poa.util.StringPair;
 import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
-
-import java.util.*;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantActivator;
 
 /**
  * This class maps object id's to servants and vice versa.
@@ -42,10 +43,10 @@ import java.util.*;
  * @version $Id$
  */
 
-public class AOM 
+public class AOM
 {
     private AOMListener         aomListener;
-        
+
     private boolean             unique;
     private boolean             singleThreaded;
     private LogTrace            logTrace;
@@ -67,140 +68,146 @@ public class AOM
         in remove() */
     private Object              deactivationListLock = new Object();
 
-    private AOM() 
+    private AOM()
     {
     }
 
-    protected AOM( boolean _unique, 
-                   boolean single_threaded, 
+    protected AOM( boolean _unique,
+                   boolean single_threaded,
                    LogTrace _logTrace
-                   ) 
+                   )
     {
         unique = _unique;
         singleThreaded = single_threaded;
         logTrace = _logTrace;
 
-        if (unique) 
+        if (unique)
         {
             servantMap = new Hashtable();
         }
     }
 
 
-    synchronized protected void add( byte[] oid, Servant servant ) 
-        throws ObjectAlreadyActive, ServantAlreadyActive 
+    synchronized protected void add( byte[] oid, Servant servant )
+        throws ObjectAlreadyActive, ServantAlreadyActive
     {
-        ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);
+        ByteArrayKey oidbak = new ByteArrayKey (oid);
 
         /* an inCarnation and activation with the same oid has
            priority, a reactivation for the same oid blocks until
            etherealization is complete */
 
-        while (incarnationList.contains(oidbak) || 
-               etherealisationList.contains(oidbak)) 
+        while (incarnationList.contains(oidbak) ||
+               etherealisationList.contains(oidbak))
         {
-            try 
+            try
             {
                 wait();
-            } 
-            catch (InterruptedException e) 
+            }
+            catch (InterruptedException e)
             {
             }
         }
 
-        if (objectMap.containsKey(oidbak)) 
+        if (objectMap.containsKey(oidbak))
             throw new ObjectAlreadyActive();
 
-        if (unique && servantMap.containsKey(servant)) 
+        if (unique && servantMap.containsKey(servant))
             throw new ServantAlreadyActive();
 
         /* this is the actual object activation: */
-                
+
         objectMap.put(oidbak, servant);
 
-        if ( unique ) 
+        if ( unique )
         {
             servantMap.put(servant, oidbak);
         }
-                
+
         if (logTrace.test(2))
         	logTrace.printLog(oid, "object is activated");
 
         // notify an aom listener
-        if ( aomListener != null ) 
+        if ( aomListener != null )
             aomListener.objectActivated(oid, servant, objectMap.size());
     }
 
 
-    protected synchronized void addAOMListener(AOMListener listener) 
+    protected synchronized void addAOMListener(AOMListener listener)
     {
         aomListener = EventMulticaster.add(aomListener, listener);
     }
-    
 
-    protected boolean contains(Servant servant) 
+
+    boolean isDeactivating (ByteArrayKey oid)
     {
-        if (unique) 
+        return deactivationList.contains (oid);
+    }
+
+
+    protected boolean contains(Servant servant)
+    {
+        if (unique)
         {
             return servantMap.containsKey(servant);
-        } 
-        else 
+        }
+        else
         {
             return objectMap.contains(servant);
         }
     }
 
 
-    synchronized protected StringPair[] deliverContent() 
-    {               
+    synchronized protected StringPair[] deliverContent()
+    {
         StringPair[] result = new StringPair[objectMap.size()];
         ByteArrayKey oidbak;
         Enumeration en = objectMap.keys();
 
-        for ( int i = 0; i < result.length; i++ ) 
+        for ( int i = 0; i < result.length; i++ )
         {
             oidbak = (ByteArrayKey) en.nextElement();
-            result[i] = 
-                new StringPair(
-                	POAUtil.oid_to_string(oidbak.getBytes()),
-                	objectMap.get(oidbak).getClass().getName()
-                ); 
+            result[i] = new StringPair
+            (
+                oidbak.toString(),
+                objectMap.get(oidbak).getClass().getName()
+            );
         }
         return result;
 
     }
 
-    protected byte[] getObjectId(Servant servant) 
+    protected byte[] getObjectId(Servant servant)
     {
-        if (!unique) 
+        if (!unique)
             throw new POAInternalError("error: not UNIQUE_ID policy (getObjectId)");
 
         ByteArrayKey oidbak = (ByteArrayKey)servantMap.get(servant);
 
-        if (oidbak != null) 
-            return POAUtil.bak_to_oid(oidbak);
+        if (oidbak != null)
+            return oidbak.getBytes();
 
         return null;
     }
 
 
 
-    protected Servant getServant(byte[] oid) 
-    {  
-        return (Servant) objectMap.get(POAUtil.oid_to_bak(oid));
+    protected Servant getServant(byte[] oid)
+    {
+        return (Servant) objectMap.get( new ByteArrayKey( oid ) );
     }
 
 
 
 
-    synchronized protected Servant incarnate( byte[] oid, 
-                                              ServantActivator servant_activator, 
-                                              org.omg.PortableServer.POA poa ) 
-        throws org.omg.PortableServer.ForwardRequest 
+    synchronized protected Servant incarnate( byte[] oid,
+                                              ServantActivator servant_activator,
+                                              org.omg.PortableServer.POA poa )
+        throws org.omg.PortableServer.ForwardRequest
     {
-        ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);
+        ByteArrayKey oidbak = new ByteArrayKey( oid );
         Servant servant = null;
-                            
+
         if (logTrace.test(0))
             logTrace.printLog(oid, " incarnate");
 
@@ -208,43 +215,43 @@ public class AOM
         /* all invocations of etherealize on the servant manager are serialized */
         /* invocations of incarnate and etherialize are mutually exclusive */
 
-        while (!incarnationList.isEmpty() || !etherealisationList.isEmpty()) 
+        while (!incarnationList.isEmpty() || !etherealisationList.isEmpty())
         {
-            try 
+            try
             {
                 wait();
-            } 
+            }
             catch (InterruptedException e) {
             }
         }
 
         /* another thread was faster, the incarnation is unnecessary now */
-        if (objectMap.containsKey(oidbak)) 
+        if (objectMap.containsKey(oidbak))
         {
             return (Servant) objectMap.get(oidbak);
         }
 
         /* servant incarnation */
-                
-        incarnationList.addElement(oidbak);     
-        try 
+
+        incarnationList.addElement(oidbak);
+        try
         {
-            servant = servant_activator.incarnate(oid, poa);                               
-        } 
-        finally 
+            servant = servant_activator.incarnate(oid, poa);
+        }
+        finally
         {
             incarnationList.removeElement(oidbak);
             notifyAll();
         }
 
-        if (servant == null) 
+        if (servant == null)
         {
             if (logTrace.test(0))
             	logTrace.printLog(oid, "servant is not incarnated (incarnate returns null)");
-            return null;        
+            return null;
         }
 
-        if (unique && servantMap.containsKey(servant)) 
+        if (unique && servantMap.containsKey(servant))
         {
         	if (logTrace.test(0))
 	            logTrace.printLog(oid, "servant is not incarnated (unique_id policy is violated)");
@@ -257,54 +264,54 @@ public class AOM
         if (aomListener != null) aomListener.servantIncarnated(oid, servant);
 
         /* object activation */
-                
-        try 
+
+        try
         {
             add(oid, servant);
-        } 
-        catch (ObjectAlreadyActive e) 
+        }
+        catch (ObjectAlreadyActive e)
         {
             throw new POAInternalError("error: object already active (AOM.incarnate)");
-        } 
-        catch (ServantAlreadyActive e) 
+        }
+        catch (ServantAlreadyActive e)
         {
             throw new POAInternalError("error: servant already active (AOM.incarnate)");
-        }               
+        }
         return servant;
     }
 
     protected void remove( byte[] oid,
-                           RequestController requestController, 
-                           ServantActivator servantActivator, 
+                           RequestController requestController,
+                           ServantActivator servantActivator,
                            POA poa,
                            boolean cleanupInProgress)
                            throws ObjectNotActive
-    {    	
-    	ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);
-    	    	
+    {
+    	ByteArrayKey oidbak = new ByteArrayKey( oid );
+
         // check that the same oid is not already being deactivated
         // (this must be synchronized to avoid having two independent
         // threads register the same oid)
         synchronized( deactivationListLock )
         {
             if ( !objectMap.containsKey( oidbak ) ||
-                 deactivationList.contains( oidbak ) ) 
+                 deactivationList.contains( oidbak ) )
             {
         	throw new ObjectNotActive();
             }
 
             deactivationList.addElement(oidbak);
         }
-    	    	
+
     	final byte[] oid_ = oid;
     	final RequestController requestController_ = requestController;
     	final ServantActivator servantActivator_ = servantActivator;
         final POA poa_ = poa;
         final boolean cleanupInProgress_ = cleanupInProgress;
-                
-        Thread thread = new Thread("AOM_RemovalThread") 
+
+        Thread thread = new Thread("AOM_RemovalThread")
             {
-                public void run() 
+                public void run()
                 {
                     _remove(
                     	oid_,
@@ -315,20 +322,20 @@ public class AOM
                     );
                 }
             };
-            
+
         thread.start();
     }
 
-    synchronized private void _remove( byte[] oid, 
-                           RequestController requestController, 
-                           ServantActivator servantActivator, 
+    synchronized private void _remove( byte[] oid,
+                           RequestController requestController,
+                           ServantActivator servantActivator,
                            POA poa,
                            boolean cleanupInProgress)
     {
-        ByteArrayKey  oidbak = POAUtil.oid_to_bak(oid);
+        ByteArrayKey oidbak = new ByteArrayKey( oid );
         Servant servant = null;
-                
-        if (!objectMap.containsKey(oidbak)) 
+
+        if (!objectMap.containsKey(oidbak))
         {
             // should not happen but ...
             deactivationList.removeElement(oidbak);
@@ -336,7 +343,7 @@ public class AOM
         }
 
         // wait for request completion on this object (see freeObject below)
-        if ( requestController != null) 
+        if ( requestController != null)
              requestController.waitForObjectCompletion(oid);
 
         deactivationList.removeElement(oidbak);
@@ -344,12 +351,12 @@ public class AOM
         if ((servant = (Servant)objectMap.get(oidbak)) == null) {
         	return;
         }
-                    
+
         /* object deactivation */
 
         objectMap.remove(oidbak);
 
-        if (unique) 
+        if (unique)
         {
             servantMap.remove(servant);
         }
@@ -357,107 +364,100 @@ public class AOM
         if (logTrace.test(2))
         	logTrace.printLog(oid, "object is deactivated");
 
-        // notify an aom listener                   
-        if (aomListener != null) 
+        // notify an aom listener
+        if (aomListener != null)
             aomListener.objectDeactivated(oid, servant, objectMap.size());
 
-        if (servantActivator == null) 
+        if (servantActivator == null)
         {
             requestController.freeObject(oid);
             return;
         }
-                    
+
         /* servant etherealization */
-                    
+
         /* all invocations of incarnate on the servant manager are
            serialized,  all  invocations   of  etherealize  on  the
            servant manager are serialized, invocations of incarnate
            and etherialize are mutually exclusive */
 
-        while (!incarnationList.isEmpty() || !etherealisationList.isEmpty()) 
+        while (!incarnationList.isEmpty() || !etherealisationList.isEmpty())
         {
-            try 
+            try
             {
                 wait();
-            } 
-            catch (InterruptedException e) 
+            }
+            catch (InterruptedException e)
             {
             }
         }
         etherealisationList.addElement(oidbak);
-            
-        try 
+
+        try
         {
             servantActivator.etherealize
             (
                  oid,
-                 poa, 
+                 poa,
                  servant,
                  cleanupInProgress,
                  contains(servant)
             );
-                            
+
             if (logTrace.test(2))
 	            logTrace.printLog(oid, "servant is etherealized");
-                      
+
             // notify an aom listener
 
-            if (aomListener != null) 
+            if (aomListener != null)
                 aomListener.servantEtherialized(oid, servant);
-                            
-        } 
-        catch (org.omg.CORBA.SystemException e) 
+
+        }
+        catch (org.omg.CORBA.SystemException e)
         {
-        	if (logTrace.test(1))        	
+        	if (logTrace.test(1))
                 logTrace.printLog(
                 	oid, "exception occurred during servant etherialisation: "+e
                 );
-        } 
-        finally 
+        }
+        finally
         {
             etherealisationList.removeElement(oidbak);
             notifyAll();
         }
-                    
+
         // unregister the object from deactivation list
-        if (requestController != null) 
+        if (requestController != null)
             requestController.freeObject(oid);
     }
-    
-    protected void removeAll( ServantActivator servant_activator, 
-                              POA poa, 
-                              boolean cleanup_in_progress ) 
+
+    protected void removeAll( ServantActivator servant_activator,
+                              POA poa,
+                              boolean cleanup_in_progress )
     {
         byte[] oid;
         Enumeration en = objectMap.keys();
-        while (en.hasMoreElements()) 
+        while (en.hasMoreElements())
         {
-            oid = POAUtil.bak_to_oid((ByteArrayKey) en.nextElement());
+            oid = ((ByteArrayKey) en.nextElement()).getBytes();
             _remove(oid, null, servant_activator, poa, cleanup_in_progress);
         }
     }
 
-    protected synchronized void removeAOMListener(AOMListener listener) 
+    protected synchronized void removeAOMListener(AOMListener listener)
     {
         aomListener = EventMulticaster.remove(aomListener, listener);
     }
 
-    protected int size() 
+    protected int size()
     {
         return objectMap.size();
     }
 
     public void printSizes()
     {
-        System.out.println( "AOM: objectMap " + size() + 
+        System.out.println( "AOM: objectMap " + size() +
                             " servantMap " + servantMap.size());
     }
 
 }
-
-
-
-
-
-
-

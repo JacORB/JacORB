@@ -20,7 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 import org.jacorb.poa.util.*;
- 
+
 import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
 
@@ -31,50 +31,48 @@ import org.jacorb.orb.dsi.ServerRequest;
  * @version 1.02, 12/08/99, RT
  */
 
-public class POAMonitorLightImpl 
-    implements POAMonitor 
+public class POAMonitorLightImpl
+    implements POAMonitor
 {
     private POA poaModel;
     private AOM aomModel;
     private RequestQueue queueModel;
-    private RPPoolManager pmModel;  
+    private RPPoolManager pmModel;
     private LogTrace logTrace;
-    private String prefix;  
-    private boolean isSystemId;
+    private String prefix;
+
     public void changeState(String state) {
     }
+
+
     public void closeMonitor() {
     }
-    public void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm, 
-                     String _prefix, boolean _isSystemId, LogTrace _logTrace) {
+
+
+    public void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm,
+                     String _prefix, LogTrace _logTrace) {
         poaModel = poa;
         aomModel = aom;
         queueModel = queue;
         pmModel = pm;
         prefix = prefix;
-        isSystemId = _isSystemId;
         logTrace = _logTrace;
     }
+
+
     public void openMonitor() {
         if (Environment.isMonitoringOn()) {
             try {
                 POAMonitor newMonitor = (POAMonitor)Class.forName("org.jacorb.poa.POAMonitorImpl").newInstance();
-                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, isSystemId, logTrace);
+                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, logTrace);
                 poaModel.setMonitor(newMonitor);
                 newMonitor.openMonitor();
             } catch (Throwable exception) {
             	if (logTrace.test(0)) {
 	                logTrace.printLog("Exception occurred in openMonitor() of POAMonitorLightImpl");
-	                logTrace.printLog(exception);                                
+	                logTrace.printLog(exception);
             	}
             }
         }
     }
 }
-
-
-
-
-
-
-

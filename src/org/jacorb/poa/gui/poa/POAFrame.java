@@ -19,7 +19,7 @@ package org.jacorb.poa.gui.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import org.jacorb.poa.gui.*;
 import org.jacorb.poa.gui.beans.*;
 import org.jacorb.poa.util.*;
@@ -33,16 +33,15 @@ import java.awt.Color;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.01, 06/11/99, RT
  */
-public class POAFrame 
-    extends java.awt.Frame 
-    implements 	org.jacorb.poa.gui.beans.CloseButtonPanelController, 
-                DetailsButtonController, ObjectListItemController, 
+public class POAFrame
+    extends java.awt.Frame
+    implements 	org.jacorb.poa.gui.beans.CloseButtonPanelController,
+                DetailsButtonController, ObjectListItemController,
                 QueueListItemController,
-                org.jacorb.poa.gui.POAMonitorView, java.awt.event.WindowListener 
+                org.jacorb.poa.gui.POAMonitorView, java.awt.event.WindowListener
 {
-		
+
     private POAMonitorController controller = null;
-    private boolean isSystemId;
     private static Color aomBarColor = new java.awt.Color(196,196,0);
     private static Color queueBarColor = new java.awt.Color(0,128,128);
     private static Color activeRequestsBarColor1 = new java.awt.Color(0,128,0);
@@ -80,7 +79,7 @@ public class POAFrame
 	if (source.equals("aom")) {
             _showAOMDialog();
 	} else if (source.equals("queue")) {
-            _showQueueDialog();	
+            _showQueueDialog();
 	} else {
             System.err.println("details unknown source: "+source);
 	}
@@ -325,10 +324,9 @@ public class POAFrame
     public void _inspectServantClass(String oidStr) {
 	new MessageDialog(this, "Message", "This function is not yet implemented!").setVisible(true);
     }
-    public POAFrame(POAMonitorController _controller, boolean is_system_id) {
+    public POAFrame(POAMonitorController _controller) {
 	super();
 	controller = _controller;
-	isSystemId = is_system_id;
 	initialize();
     }
     /**
@@ -417,13 +415,13 @@ public class POAFrame
     private void _showAOMDialog() {
 
 	if (controller == null) return;
-	
+
 	StringPair[] data = controller.actionRetrieveAOMContent();
-	
+
 	DoubleListDialog showDialog = new DoubleListDialog(this, "Active Object Map Snapshot");
 	showDialog._setHeaderLabel1("Object ID");
 	showDialog._setHeaderLabel2("Servant Class");
-		
+
 	if (data != null) {
 
             ObjectListItem[] items = new ObjectListItem[data.length];
@@ -431,39 +429,39 @@ public class POAFrame
             int firstMax = 100;
             int secondMax = 100;
             int helpInt;
-            for (int i=0; i<data.length; i++) {			
+            for (int i=0; i<data.length; i++) {
                 items[i] = new ObjectListItem();
                 items[i]._init(this, data[i].first);
-                helpStr = POAUtil.convert(data[i].first.getBytes(), isSystemId);
+                helpStr = POAUtil.convert(data[i].first.getBytes());
                 items[i]._getFirstLabel().setText(helpStr);
                 items[i]._getSecondLabel().setText(data[i].second);
-			
-                helpInt = _fontMetrics1().stringWidth(items[i]._getFirstLabel().getText());			
+
+                helpInt = _fontMetrics1().stringWidth(items[i]._getFirstLabel().getText());
                 if (helpInt > firstMax) firstMax = helpInt;
-			
+
                 helpInt = _fontMetrics1().stringWidth(items[i]._getSecondLabel().getText());
-                if (helpInt > secondMax) secondMax = helpInt;			
+                if (helpInt > secondMax) secondMax = helpInt;
             }
-		
+
             showDialog._setSize(firstMax+20, secondMax+20);
 
             for (int i=0; i<data.length; i++) {
-                items[i]._setWidth(firstMax+20, secondMax+20);			
+                items[i]._setWidth(firstMax+20, secondMax+20);
                 showDialog._addItem(items[i]);
-            }		
+            }
 	}
-	
+
 	showDialog.setVisible(true);
     }
     private void _showQueueDialog() {
 	if (controller == null) return;
-	
+
 	StringPair[] data = controller.actionRetrieveQueueContent();
-	
+
 	DoubleListDialog showDialog = new DoubleListDialog(this, "Queue Snapshot");
 	showDialog._setHeaderLabel1("Request ID");
 	showDialog._setHeaderLabel2("Object ID");
-		
+
 	if (data != null) {
 
             QueueListItem[] items = new QueueListItem[data.length];
@@ -471,28 +469,28 @@ public class POAFrame
             int firstMax = 100;
             int secondMax = 100;
             int helpInt;
-            for (int i=0; i<data.length; i++) {			
+            for (int i=0; i<data.length; i++) {
                 items[i] = new QueueListItem();
                 items[i]._init(this, data[i].first);
-                items[i]._getFirstLabel().setText(data[i].first);			
-                helpStr = POAUtil.convert(data[i].second.getBytes(), isSystemId);
+                items[i]._getFirstLabel().setText(data[i].first);
+                helpStr = POAUtil.convert(data[i].second.getBytes());
                 items[i]._getSecondLabel().setText(helpStr);
-			
-                helpInt = _fontMetrics1().stringWidth(items[i]._getFirstLabel().getText());			
+
+                helpInt = _fontMetrics1().stringWidth(items[i]._getFirstLabel().getText());
                 if (helpInt > firstMax) firstMax = helpInt;
-			
+
                 helpInt = _fontMetrics1().stringWidth(items[i]._getSecondLabel().getText());
-                if (helpInt > secondMax) secondMax = helpInt;			
+                if (helpInt > secondMax) secondMax = helpInt;
             }
-		
+
             showDialog._setSize(firstMax+20, secondMax+20);
 
             for (int i=0; i<data.length; i++) {
-                items[i]._setWidth(firstMax+20, secondMax+20);			
+                items[i]._setWidth(firstMax+20, secondMax+20);
                 showDialog._addItem(items[i]);
-            }		
+            }
 	}
-	
+
 	showDialog.setVisible(true);
     }
     /**

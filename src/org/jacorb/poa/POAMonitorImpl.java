@@ -19,7 +19,7 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import org.jacorb.poa.except.*;
 import org.jacorb.poa.util.*;
 import org.jacorb.poa.gui.*;
@@ -41,9 +41,9 @@ import java.util.Enumeration;
  * @version 1.06, 12/08/99, RT
  */
 
-public class POAMonitorImpl 
-    extends POAAdapter 
-    implements POAMonitor, LogTrace, POAMonitorController 
+public class POAMonitorImpl
+    extends POAAdapter
+    implements POAMonitor, LogTrace, POAMonitorController
 {
     private POA poaModel;
     private AOM aomModel;
@@ -51,11 +51,10 @@ public class POAMonitorImpl
     private RPPoolManager pmModel;
 
     private POAMonitorView view;
-        
+
     private LogTrace logTrace;
-        
-    private String prefix;  
-    private boolean isSystemId;
+
+    private String prefix;
 
     private int aomSize;
     private int queueSize;
@@ -73,18 +72,18 @@ public class POAMonitorImpl
     }
 
     public void actionDeactivateObject(String oidStr) {
-                
+
         if (poaModel != null) {
             try {
-                poaModel.deactivate_object(POAUtil.string_to_oid(oidStr));
+                poaModel.deactivate_object( oidStr.getBytes() );
             } catch (Throwable e) {
                 printMessage("Exception occurred in deactivateObject() of POAMonitor: "+e);
             }
-        }               
+        }
     }
 
     public void actionRemoveRequestFromQueue(String ridStr) {
-                
+
         if (queueModel != null && poaModel != null) {
             try {
                 ServerRequest request = queueModel.getElementAndRemove(Integer.parseInt(ridStr));
@@ -93,11 +92,11 @@ public class POAMonitorImpl
             } catch (Throwable e) {
                 printMessage("Exception occurred in removeRequestFromQueue() of POAMonitor: "+e);
             }
-        }               
+        }
     }
 
     public StringPair[] actionRetrieveAOMContent() {
-                
+
         if (aomModel != null) {
             try {
                 return aomModel != null ? aomModel.deliverContent() : null;
@@ -108,7 +107,7 @@ public class POAMonitorImpl
         return null;
     }
     public StringPair[] actionRetrieveQueueContent() {
-                
+
         if (queueModel != null) {
             try {
                 return queueModel.deliverContent();
@@ -120,14 +119,14 @@ public class POAMonitorImpl
     }
 
 
-    public synchronized void changeState(String state) 
+    public synchronized void changeState(String state)
     {
-        if (view != null) 
+        if (view != null)
         {
-            try 
+            try
             {
                 view._setState(state);
-            } catch (Throwable exception) 
+            } catch (Throwable exception)
             {
             	if (logTrace.test(0)) {
                     logTrace.printLog("Exception occurred changeSate() of POAMonitor");
@@ -139,18 +138,18 @@ public class POAMonitorImpl
 
 
     public synchronized void closeMonitor() {
-        if (view != null) {                     
+        if (view != null) {
             try {
                 terminate = true;
                 poaModel._removePOAEventListener(this);
                 logTrace.setLogTrace(null);
                 POAMonitor newMonitor = (POAMonitor)Class.forName("org.jacorb.poa.POAMonitorLightImpl").newInstance();
-                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, isSystemId, logTrace);
+                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, logTrace);
                 poaModel.setMonitor(newMonitor);
                 POAMonitorView tmp = view;
                 view = null;
                 tmp._destroy();
-                                                                
+
             } catch (Throwable exception) {
             	if (logTrace.test(0)) {
 	                logTrace.printLog("Exception occurred in closeMonitor() of POAMonitorImpl");
@@ -159,25 +158,28 @@ public class POAMonitorImpl
             }
         }
     }
-    public void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm, 
-                     String _prefix, boolean _isSystemId, LogTrace _logTrace) {
+
+
+    public void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm,
+                     String _prefix, LogTrace _logTrace) {
         poaModel = poa;
         aomModel = aom;
         queueModel = queue;
         pmModel = pm;
         prefix = prefix;
-        isSystemId = _isSystemId;
         logTrace = _logTrace;
     }
-    private void initView() {               
+
+
+    private void initView() {
         if (view != null) {
             try {
                 String name = poaModel._getQualifiedName();
-                view._setName(name.equals("") ? POAConstants.ROOT_POA_NAME : 
+                view._setName(name.equals("") ? POAConstants.ROOT_POA_NAME :
                               POAConstants.ROOT_POA_NAME+POAConstants.OBJECT_KEY_SEPARATOR+name);
 
                 view._setState(POAUtil.convert(poaModel.getState()));
-                                
+
                 view._setPolicyThread(POAUtil.convert(
                                                       poaModel.threadPolicy, THREAD_POLICY_ID.value));
                 view._setPolicyLifespan(POAUtil.convert(
@@ -192,15 +194,15 @@ public class POAMonitorImpl
                                                                  poaModel.requestProcessingPolicy, REQUEST_PROCESSING_POLICY_ID.value));
                 view._setPolicyImplicitActivation(POAUtil.convert(
                                                                   poaModel.implicitActivationPolicy, IMPLICIT_ACTIVATION_POLICY_ID.value));
-                                
+
                 view._initAOMBar(aomModel != null ? 10 : 0, true);
-                                
+
                 view._initQueueBar(10, true);
-                                
+
                 view._initActiveRequestsBar(poaModel.isSingleThreadModel() ? 1 : Environment.threadPoolMin(),
                                             poaModel.isSingleThreadModel() ? 1 : Environment.threadPoolMax());
                 view._initThreadPoolBar(0);
-                                
+
             } catch (Throwable exception) {
             	if (logTrace.test(0)) {
 	                logTrace.printLog("Exception occurred in initView() of POAMonitor");
@@ -209,44 +211,52 @@ public class POAMonitorImpl
             }
         }
     }
+
+
     public void objectActivated(byte[] oid, Servant servant, int aom_size) {
         aomSize = aom_size;
         aomChanged = true;
         refreshAOM();
     }
+
+
     public void objectDeactivated(byte[] oid, Servant servant, int aom_size) {
         aomSize = aom_size;
         aomChanged = true;
-        refreshAOM();           
+        refreshAOM();
     }
+
+
     public synchronized void openMonitor() {
-                
+
         if (view == null) {
-                
+
             try {
                 aomSize = aomModel != null ? aomModel.size() : 0;
                 queueSize = queueModel.size();
                 poolCount = pmModel.getPoolCount();
                 poolSize = pmModel.getPoolSize();
 
-                view = new org.jacorb.poa.gui.poa.POAFrame(this, isSystemId);
+                view = new org.jacorb.poa.gui.poa.POAFrame(this);
 
                 initView();
-                logTrace.setLogTrace(this);             
+                logTrace.setLogTrace(this);
                 refreshView();
 
                 poaModel._addPOAEventListener(this);
-                                
+
                 view._setVisible(true);
-                                
+
             } catch (Throwable exception) {
             	if (logTrace.test(0)) {
 	                logTrace.printLog("Exception occurred in openMonitor() of POAMonitor");
 	                logTrace.printLog(exception);
             	}
-            }     
+            }
         }
     }
+
+
     private synchronized void printException(Throwable e) {
         if (view != null) {
             try {
@@ -258,24 +268,38 @@ public class POAMonitorImpl
             }
         }
     }
+
+
     public boolean test(int logLevel) {
-		return Environment.verbosityLevel() >= (Debug.POA | logLevel);	
+		return Environment.verbosityLevel() >= (Debug.POA | logLevel);
     }
+
+
     public void printLog(byte[] objectId, String message) {
         printMessage(message);
     }
+
+
     public void printLog(ServerRequest request, String message) {
         printMessage(message);
     }
+
+
     public void printLog(ServerRequest request, State state, String message) {
         printMessage(message);
     }
+
+
     public void printLog(String message) {
         printMessage(message);
     }
+
+
     public void printLog(Throwable e) {
         printException(e);
     }
+
+
     private synchronized void printMessage(String str) {
         if (view != null) {
             try {
@@ -285,18 +309,24 @@ public class POAMonitorImpl
             }
         }
     }
+
+
     public void processorAddedToPool(RequestProcessor processor, int pool_count, int pool_size) {
         poolCount = pool_count;
         poolSize = pool_size;
         pmChanged = true;
-        refreshPM();            
+        refreshPM();
     }
+
+
     public void processorRemovedFromPool(RequestProcessor processor, int pool_count, int pool_size) {
         poolCount = pool_count;
         poolSize = pool_size;
         pmChanged = true;
-        refreshPM();            
+        refreshPM();
     }
+
+
     private /* synchronized */ void refreshAOM() {
         if (view != null) {
             try {
@@ -309,6 +339,8 @@ public class POAMonitorImpl
             }
         }
     }
+
+
     private /* synchronized */ void refreshPM() {
         if (view != null) {
             try {
@@ -323,6 +355,8 @@ public class POAMonitorImpl
             }
         }
     }
+
+
     private /* synchronized */ void refreshQueue() {
         if (view != null) {
             try {
@@ -335,29 +369,30 @@ public class POAMonitorImpl
             }
         }
     }
+
+
     private void refreshView() {
         refreshAOM();
         refreshQueue();
         refreshPM();
     }
+
+
     public void requestAddedToQueue(ServerRequest request, int queue_size) {
         queueSize = queue_size;
         queueChanged = true;
-        refreshQueue();                         
+        refreshQueue();
     }
+
+
     public void requestRemovedFromQueue(ServerRequest request, int queue_size) {
         queueSize = queue_size;
         queueChanged = true;
-        refreshQueue();         
+        refreshQueue();
     }
+
+
     public void setLogTrace(LogTrace _logTrace) {
         logTrace = _logTrace;
     }
 }
-
-
-
-
-
-
-

@@ -195,7 +195,7 @@ public class POA
 
         watermark = generateWatermark();
 
-        logTrace = new LogWriter("POA "+name, isSystemId());
+        logTrace = new LogWriter( "POA " + name );
 
         aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logTrace) : null;
 
@@ -208,7 +208,7 @@ public class POA
         monitor.init( this, aom,
                       requestController.getRequestQueue(),
                       requestController.getPoolManager(),
-                      "POA "+name, isSystemId(), logTrace );
+                      "POA " + name, logTrace );
 
         monitor.openMonitor();
 
@@ -1385,6 +1385,15 @@ public class POA
             if (logTrace.test(0))
                 logTrace.printLog(objectId, "reference_to_servant: oid not previously generated!");
             throw new WrongAdapter();
+        }
+
+        ByteArrayKey oid = new ByteArrayKey (objectId);
+
+        if (aom.isDeactivating (oid) || requestController.isDeactivating (oid))
+        {
+            if (logTrace.test(0))
+                logTrace.printLog(objectId, "cannot process request, because object is already in the deactivation process");
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST();
         }
 
         Servant servant = null;
