@@ -147,13 +147,14 @@ public class PushToConsumerTest extends TestCase
         eventConsumer.check();
     }
 
+
     public void testPushFailRetry() throws Exception
     {
-
         MockMessage event1 =
             new MockMessage();
 
         Any any1 = orb.create_any();
+        any1.insert_long(5);
 
         event1.setAny(any1);
 
@@ -161,6 +162,7 @@ public class PushToConsumerTest extends TestCase
             new MockMessage();
 
         Any any2 = orb.create_any();
+        any2.insert_long(10);
 
         event2.setAny(any2);
 
