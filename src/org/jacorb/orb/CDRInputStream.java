@@ -45,6 +45,9 @@ public class CDRInputStream
 
     /** the stack for saving/restoring encapsulation information */
     private Stack encaps_stack = new Stack();
+
+    /** hashtable to remember the original  TCs for a given ID that is
+        used in a recursive/repeated TC */
     private Hashtable recursiveTCMap = new Hashtable();
 
     /** indexes to support mark/reset */
