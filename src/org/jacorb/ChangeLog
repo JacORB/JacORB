@@ -1,0 +1,1585 @@
+2001-11-19  Nicolas Noffke  <noffke@inf.fu-berlin.de>
+
+	* imr/ImplementationRepositoryImpl.java:
+	(main) moved System.setProperty( "jacorb.implname", "the_ImR" );
+	to top of method (in front of any other call to Environment)
+
+	* util/Environment.java: removed unused code, replaced op merge()
+	by _props.putAll() (dropped jdk1.1 support)
+
+2001-11-19  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/build.xml (javatest): Check for RMI/IIOP (JDK 1.3).
+	(reference-with-rmi, reference-without-rmi): New targets.
+	(all): Depend on them.
+
+	* orb/Reference.java: Removed.
+
+	* util/ValueHandler.real: cosmetics
+
+	* util/ValueHandler.java: Removed.
+
+	* util/ValueHandler.dummy: Replace org.omg.SendingContext with
+	org.omg.CORBA.portable.IDLEntity.
+
+2001-11-19  jacorb
+
+	* orb/portableInterceptor/build.xml: fixed wrong paths
+
+2001-11-19  Nicolas Noffke  <noffke@inf.fu-berlin.de>
+
+	* util/Environment.java: *** empty log message ***
+
+2001-11-19  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/Reference.template: new template, generated Reference.java
+	as appropriate for the actual JDK version (1.2 or >1.3)
+
+2001-11-19  jacorb
+
+	* security/ssl/sun_jsse/README.jsse1_0_2: *** empty log message ***
+
+	* security/ssl/iaik/SSLServerSocketFactory.java,
+	 security/ssl/iaik/SSLSocketFactory.java,
+	 security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	 security/ssl/sun_jsse/SSLSocketFactory.java,
+	 security/ssl/sun_jsse/ServerInvocationInterceptor.java,
+	 security/level2/KeyAndCert.java: adapted to jdk1.4 changes
+
+	* security/ssl/sun_jsse/SecurityServiceInitializer.java:
+	*** empty log message ***
+
+	* security/level2/ServerAccessDecisionInterceptor.java,
+	security/ssl/iaik/ServerInvocationInterceptor.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: adapted to updated
+	IDL (new destroy() op)
+
+	* util/tracing/TraceInitializer.java,
+	 util/tracing/ClientTraceInterceptor.java,
+	 util/tracing/ServerTraceInterceptor.java,
+	 transaction/TransactionCurrentImpl.java,
+	 transaction/ClientContextTransferInterceptor.java,
+	 transaction/ClientInitializer.java,
+	 transaction/ServerContextTransferInterceptor.java,
+	 transaction/ServerInitializer.java: adapted to updated IDL (new
+	 destroy() op)
+
+	* orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java,
+	orb/portableInterceptor/CodecFactoryImpl.java,
+	orb/portableInterceptor/Codec_CDR_1_0_Impl.java,
+	orb/portableInterceptor/DefaultClientInterceptor.java,
+	orb/portableInterceptor/DefaultServerInterceptor.java,
+	orb/portableInterceptor/InterceptorManager.java,
+	orb/portableInterceptor/ORBInitInfoImpl.java, orb/ORB.java,
+	orb/connection/BiDirConnectionClientInterceptor.java,
+	orb/connection/BiDirConnectionInitializer.java,
+	orb/connection/BiDirConnectionServerInterceptor.java,
+	orb/connection/TCP_IP_Transport.java, orb/CDROutputStream.java:
+	merged IOP_N into IOP
+
+	* imr/ImplementationRepositoryImpl.java:
+	(main) jacorb.implname instead of implName
+
+2001-11-19  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/CDRInputStream.java: cosmetics
+
+	* orb/CDROutputStream.java: (check) fixed incorrect offset computation
+
+2001-11-16  jacorb
+
+	* util/Assertion.java, util/Debug.java,
+	orb/dynany/DynSequence.java, poa/POA.java,
+	poa/policy/MapToDefaultDomainsPolicy.java,
+	orb/domain/gui/DomainTreeNode.java,
+	orb/domain/gui/MemberListRootNode.java,
+	orb/domain/gui/PolicyListRootNode.java,
+	orb/domain/gui/PopupMenuActivator.java,
+	orb/domain/gui/SharedDataImpl.java, orb/dynany/DynAny.java,
+	orb/domain/ODMCache.java, orb/domain/ORBDomainImpl.java,
+	orb/domain/ParentRulesPolicy.java,
+	orb/domain/PolicyFactoryImpl.java, orb/domain/gui/Browser.java,
+	orb/domain/gui/BrowserFrame.java,
+	orb/domain/ChildRulesPolicy.java,
+	orb/domain/DomainFactoryImpl.java, orb/domain/DomainImpl.java,
+	orb/domain/FirstConflictResolutionPolicy.java,
+	orb/domain/MapToTypeDomainsPolicy.java, orb/CDROutputStream.java,
+	orb/TypeCode.java, ir/StructDef.java, ir/UnionDef.java,
+	ir/WstringDef.java,
+	ir/gui/typesystem/remote/RemoteTypeSystem.java,
+	orb/CDRInputStream.java, ir/InterfaceDef.java, ir/ModuleDef.java,
+	ir/OperationDef.java, ir/SequenceDef.java, ir/StringDef.java,
+	ir/AliasDef.java, ir/ArrayDef.java, ir/AttributeDef.java,
+	ir/ConstantDef.java, ir/Contained.java, ir/Container.java,
+	ir/ExceptionDef.java: renamed Debug.assert() to myAssert() for
+	compatibility with the jdk1.4, because assert is a keyword in that
+	jdk
+
+	* orb/connection/Server_TCP_IP_Transport.java:
+	(close) replaced socket.shutdown[In|Out]put() by calls to close on
+	streams for jdk1.2 compatibility
+
+	* orb/connection/Client_TCP_IP_Transport.java:
+	(close) replaced socket.shutdown[In|Out]put() by calles to close
+	to the streams for jdk1.2 compatibility
+
+2001-11-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* build.xml (init): Define property `valuehandler.present'.
+	(valuehandler-dummy, valuehandler-real): New targets.
+	(utils): Depend on them.
+
+2001-11-16  jacorb
+
+	* events/ProxyPullSupplierImpl.java: cosmetics
+
+	* events/ProxyPullConsumerImpl.java: cosmetics (use standard
+	indentation)
+
+	* events/EventChannelImpl.java: added Jeff Carlson to the list of
+	authors
+
+2001-11-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/ValueHandler.real, util/ValueHandler.dummy: Initial revision.
+
+	* idl/BaseType.java (id): Override to return an explicitly bogus id.
+
+	* idl/ConstrTypeSpec.java (getTypeCodeExpression): Add variant
+	that passes a Set of known types along.
+
+	* idl/Member.java (member_print): Add hack so that valuetype
+	members have only their name printed, not the entire definition.
+
+	* idl/TypeDeclaration.java (getRecursiveTypeCodeExpression): New
+	method.
+	(getTypeCodeExpression): Add variant that passes a Set of known
+	types along.
+
+	* idl/TypeSpec.java (getTypeCodeExpression): Add variant that
+	passes a Set of known types along.
+
+	* idl/ValueDecl.java: Support recursive valuetypes.
+	(declaration): Overridden to return this.
+	(parse): Make NameTable entry before parsing the members, to allow
+	recursion.
+	(getTypeCodeExpression): Add variant that passes a Set of known types
+	around.
+	(getValueMemberExpression): New parameter: Set of known types.
+
+2001-11-16  jacorb
+
+	* orb/CDROutputStream.java: cosmetics
+
+	* orb/CDRInputStream.java:
+	(read_value) resolve recursive TypeCodes using a global hash table
+
+2001-11-15  jacorb
+
+	* build.xml: target idl: separated compilation of DomainManagemen,
+	because this would fail in certain cases
+
+	* imr/ImplementationRepositoryImpl.java: made ImR use user POA
+	with USER_ID, so it can be accessed via corbaloc
+
+	* imr/ImRHostInfo.java: changed org.jacorb.orb.ORB to org.omg.CORBA.ORB
+
+	* orb/ORB.java (set_parameters): commented out building of initial
+	references. These will be build on demand in
+	resolve_initial_references()
+
+	* idl/parser.cup: updated version string
+
+	* util/Debug.java, util/Environment.java, idl/parser.java,
+	idl/sym.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	poa/AOM.java, idl/parser.cup: *** empty log message ***
+
+2001-11-14  jacorb
+
+	* orb/TypeCode.java: static initializer: added a primitive TCode
+	that is returned when get_primitive_tc is called for tk_object 
+	(courtesy/workaround to Sun) 
+
+	* orb/Any.java, orb/ParsedIOR.java: cosmetics
+
+	* orb/CDROutputStream.java:
+	(write_value) removed bug (illegal access to tc.id(), which caused
+	exceptions
+
+	* imr/ImplementationRepositoryImpl.java: fixed bug that would
+	wrongly treat LocateRequests as "normal" requests
+
+	* orb/ParsedIOR.java:
+	(createIOR) redesigned and renamed to "createObjectIOR"
+
+	* orb/connection/LocateRequestInputStream.java:
+	*** empty log message ***
+
+2001-11-13  jacorb
+
+	* orb/Delegate.java: removed debug statements
+
+	* orb/Any.java: cosmetics, less debug output
+
+	* orb/CDROutputStream.java: added functionality for
+	recursive/repeated TypeCodes
+
+	* orb/CDRInputStream.java: added functionality for reading
+	recursive/repeated TypeCodes
+
+	* orb/domain/MapToDefaultDomainPolicy.java,
+	orb/domain/MapToTypeDomainsPolicy.java,
+	orb/domain/MemberListInserter.java: cosmetics
+
+	* orb/SystemExceptionHelper.java:
+	(read) added explanatory string to systems exceptions that are
+	re-thrown on the client side.
+
+	* poa/build.xml, security/build.xml: removed echo
+
+	* imr/ServerTable.java: cosmetics
+
+	* orb/CDROutputStream.java:
+	(write_wchar(char , boolean)): UTF-16 case: forgot to increment
+	index
+
+	* orb/CDRInputStream.java:
+	(read_wstring) fixed bug in GIOP 1.2 if branch: return String got
+	passed the whole char array instead of the portion used (up to
+	"i")
+
+2001-11-12  jacorb
+
+	* poa/POAConstants.java: *** empty log message ***
+
+	* poa/POAConstants.java: cosmetics
+
+2001-11-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/OpDecl.java (printSignature): Add variant with boolean arg
+	`printModifiers'.  Simplified parameter-printing code.
+
+	* idl/Method.java, idl/Operation.java (printSignature): Add
+	variant with boolean arg `printModifiers'.
+
+	* idl/ValueDecl.java (parse): Convert attributes into operations.
+	(printClass): Print signatures of operations.
+
+2001-11-09  jacorb
+
+	* orb/ORB.java, poa/POAMonitorImpl.java: cosmetics
+
+	* orb/TypeCode.java: removed deprecated code for recursive type codes
+
+	* orb/CDROutputStream.java: commented out a number of Debug statements
+
+2001-11-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ValueAbsDecl.java: Initial revision.
+
+2001-11-09  jacorb
+
+	* orb/CDRInputStream.java: commented out debugging statements for
+	performance reasons
+
+	* orb/ORB.java:
+	(createIOR) add IIOP 1.0 profiles in 1.2 IORs only if the
+	appropriate property is set
+
+	* orb/connection/BiDirConnectionServerInterceptor.java:
+	(receive_request_service_contexts) changed marshalling of service
+	context
+
+	* orb/connection/BiDirConnectionClientInterceptor.java:
+	(send_request) changed marshalling of service context
+
+	* orb/ORB.java: *** empty log message ***
+
+	* imr/build.xml: removed echo statements
+
+	* orb/ORB.java:
+	(findPOA) deal with parsing exceptions raised by POA utils
+
+	* poa/util/POAUtil.java: cosmetics
+
+	* security/build.xml: removed echo
+
+	* security/ssl/iaik/ServerInvocationInterceptor.java: cosmetics
+
+	* util/ObjectUtil.java: "added robustness"
+
+	* util/Environment.java: cosmetics
+
+	* idl/parser.java, idl/sym.java, idl/IdlSymbol.java,
+	idl/Interface.java, idl/InterfaceBody.java, idl/ScopedName.java,
+	idl/SimpleDeclarator.java, idl/parser.cup,
+	idl/ArrayDeclarator.java, idl/Environment.java: name scoping fixes
+
+	* ir/SequenceDef.java, ir/StructDef.java, ir/IRServer.java,
+	ir/IdlWriter.java, ir/InterfaceDef.java, ir/ModuleDef.java,
+	ir/OperationDef.java, ir/RepositoryImpl.java, ir/Contained.java,
+	ir/Container.java, ir/EnumDef.java, ir/IDLType.java,
+	ir/IRObject.java: various fixes and updates
+
+	* ir/RepositoryID.java:
+	(toRepositoryID) added overloaded variant with extra boolean
+	parameter to avoid class loading, used from IR classes
+
+	* ir/RepositoryID.java: (loadClass) static again
+
+	* poa/util/POAUtil.java: cosmetics
+
+	* poa/POA.java: (_getQualifiedName) now public for use by ORB
+	(isRetain,isUseServantManager,previouslyGeneratedObjectId) now
+	public cosmetics
+
+	* poa/Current.java: dunno
+
+	* poa/AOM.java: cosmetics
+
+	* orb/Delegate.java: (is_local) updates and fixes
+
+	* orb/Any.java: (equal) added check for null argument
+
+	* orb/ServantDelegate.java: cosmetics
+
+	* orb/TypeCode.java: removed deprecated code for resolving
+	recursive TypeCodes, cosmetics
+
+	* orb/CDROutputStream.java:
+	(constructors, write_string, write_wstring) BOM-related fixes
+
+	* orb/CDRInputStream.java:
+	(constructors, read_wstring, read_string) BOM-related fixes
+
+	* orb/ORB.java: (findPOA) updated
+
+	* orb/dynany/DynStruct.java, orb/dynany/DynUnion.java,
+	orb/dynany/DynAnyFactoryImpl.java, orb/dynany/DynArray.java,
+	orb/dynany/DynEnum.java, orb/dynany/DynSequence.java: various
+	fixes
+
+2001-11-08  jacorb
+
+	* orb/ORB.java (lookup_value_factory): Avoid name clash (jikes
+	problem).
+
+2001-11-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/StructType.java (set_memberlist): Call
+	MemberList.setContainingType() instead of setStruct().
+
+	* idl/StateMember.java: Initial revision.
+
+	* idl/Member.java: Extend Declaration rather than IdlSymbol.
+	(containingType, setContainingType): Renamed from containing_struct,
+	setStruct.  Updated all callers.
+	(extractMember): New method.
+	(parse): Use it.
+	(typeSpec): New method.
+
+	* idl/MemberList.java (containingType): Renamed from containing_struct.
+	(setContainingType): Renamed from setStruct.
+
+	* idl/ValueBoxDecl.java: Extend `Value' rather than
+	`ValueDeclaration' (which no longer exists).
+
+	* idl/Value.java: Renamed from `ValueDeclaration'.  This is now
+	the superclass of both `ValueDecl' (which used to be called
+	`Value') and `ValueBoxDecl'.
+
+	* idl/ValueDecl.java: Initial revision.
+
+	* idl/sym.java, idl/parser.java, idl/parser.cup: Add initial
+	support for regular valuetypes.
+
+	* idl/ValueDeclaration.java: Removed.
+
+	* orb/ORB.java (valueFactories): New instance field.
+	(register_value_factory, unregister_value_factory): Now
+	implemented.
+	(lookup_value_factory): Replaced dummy implementation with a real
+	one.
+	(findValueFactory, findClass, instantiate): New internal methods.
+
+	* ir/RepositoryID.java (loadClass): New method.
+	(ir2scopes, toRepositoryID): Use it.
+
+	* idl/sym.java, idl/parser.java: Update for OBV.
+
+	* idl/parser.cup: Adapt method names.
+
+	* idl/ValueDecl.java: Working on the wire.
+
+	* orb/CDRInputStream.java (read_untyped_value): Throw MARSHAL if
+	there's no value factory.
+
+2001-11-08  jacorb
+
+	* poa/RequestController.java: cosmetics
+
+2001-11-07  jacorb
+
+	* security/level2/ServerAccessDecisionInterceptor.java:
+	*** empty log message ***
+
+	* orb/CDROutputStream.java, orb/CDRInputStream.java:
+	adapted to GIOP 1.2 changes for wchars
+
+2001-11-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ValueDecl.java (getTypeCodeExpression, getValueMemberExpression):
+	New methods.
+	(printClass, printHelper): Use them.
+
+	* idl/Member.java (typeSpec): New method.
+
+2001-11-06  jacorb
+
+	* orb/ParsedIOR.java: added check so IORS without IIOP profiles
+	are accepted
+
+2001-11-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ValueDecl.java: Initially working.
+
+2001-11-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/StructType.java (set_memberlist):
+	Use new method MemberList.setContainingType().
+
+	* idl/Member.java (extractMember): New method.
+	(parse): Use it.
+
+	* idl/MemberList.java (containingType): Renamed from containing_struct.
+	(setContainingType): Renamed from setStruct.
+
+2001-11-02  jacorb
+
+	* orb/ParsedIOR.java: *** empty log message ***
+
+2001-11-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/StateMember.java: Initial revision.
+
+2001-11-02  jacorb
+
+	* orb/Delegate.java:
+	(is_local) modified so that check for poa._localStubsSupported()
+	is ommitted and that local POAs are looked for first
+	(getReference) omitted call to poa._localStubsSupported()
+	(servant_preinvoke) modified to work also with servant managers
+
+2001-11-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/parser.cup: Add parse actions for regular value types.
+
+	* idl/ValueDecl.java: Intermediate version.
+
+2001-11-02  jacorb
+
+	* orb/ORB.java:
+	(string_to_object) changed call to new ParsedIOR so that "this" is
+	passed to te constructor
+
+	* orb/util/PingObject.java: added a check for o == null so that
+	only convertable references are pinged
+
+	* orb/util/PrintIOR.java: added acheck t ensure that only "IOR:"
+	iors are parsed
+
+	* orb/CDRInputStream.java: *** empty log message ***
+
+	* orb/ORB.java: changed version String to 1.4 beta 1
+	(set_parameters) added checks for null arguments
+
+	* poa/POA.java:
+	(_localStubsSupported) removed, no longer needed because of
+	changes in orb.Delegate made isRetain public so that orb.Delegate
+	may use it
+
+2001-10-30  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/Member.java: Extend Declaration rather than IdlSymbol.
+	(containingType, setContainingType): Renamed from containing_struct,
+	setStruct.  Updated all callers.
+
+2001-10-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ValueDeclaration.java: Removed.
+
+2001-10-26  jacorb
+
+	* orb/ParsedIOR.java, orb/connection/ClientConnection.java,
+	 orb/portableInterceptor/InterceptorManager.java,
+	 orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	 orb/CDRInputStream.java, orb/CDROutputStream.java: fixed bug in
+	 CodeSet support
+
+2001-10-25  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ValueBoxDecl.java: New superclass `Value'.
+
+	* idl/Value.java: Renamed from ValueDeclaration.
+
+	* idl/ValueDecl.java: Initial revision.
+
+	* idl/ValueDecl.java: New file.
+
+2001-10-24  jacorb
+
+	* poa/AOM.java:
+	(remove) killed line: servant._this_object()._release(), which is
+	nonsense
+
+	* orb/connection/MessageReceptor.java:
+	(doWork()) set exception output to a higher debug level.
+
+2001-10-17  jacorb
+
+	* orb/connection/RequestOutputStream.java, orb/Delegate.java,
+	orb/connection/ClientConnection.java,
+	orb/connection/ConnectionManager.java: *** empty log message ***
+
+2001-10-12  jacorb
+
+	* orb/dynany/DynEnum.java:
+	(equal) added, to override equal() from DynAny
+
+	* orb/dynany/DynAny.java: cosmetics
+
+	* orb/dynany/DynUnion.java: (has_no_active_member) fixed
+
+	* orb/Delegate.java, poa/Current.java, poa/RPPoolManager.java:
+	invocation context management changed
+
+	* poa/RequestController.java, poa/RequestQueue.java,
+	poa/util/ByteArrayKey.java: *** empty log message ***
+
+2001-10-11  jacorb
+
+	* orb/Any.java: (insert_Object) added checks for null
+
+	* orb/Delegate.java, orb/connection/ClientConnection.java,
+	 orb/connection/ConnectionManager.java: fixed sync issue with
+	 multiple LocationForwards
+
+	* orb/connection/GIOPConnection.java:
+	 fixed synching bug (IllegalMonitorStateE)
+
+	* orb/ParsedIOR.java: createReference() now also creates a
+	 ProfileBody1_1 with version 1.2
+
+	* imr/ImplementationRepositoryImpl.java: replyNewLocation() fixed
+	 creation of faulty profile body
+
+2001-10-10  jacorb
+
+	* poa/POA.java:
+	(getReference) use a ByteArrayKey rather than a String as the key
+	for hashtable lookup
+	(deactivate_object) use a ByteArrayKey rather than a String as the
+	key for hashtable lookup
+
+2001-10-09  jacorb
+
+	* orb/Delegate.java: local invocation context management changed
+	to fix the problem with local recursive calls
+
+2001-10-08  jacorb
+
+	* poa/POA.java: deactivate_object() remove reference from HT
+	createdReferences()
+
+	* poa/RequestProcessor.java: run() moved clear at end of method to
+	before the returning of the thread so it can't overwrite data data
+	set by a fast init()
+
+	* orb/Delegate.java: invoke() pending_replies were not removed
+	correctly so HT grew infinitely
+
+2001-10-07  jcarlson
+
+	* events/ProxyPullConsumerImpl.java,
+	events/ProxyPullSupplierImpl.java,
+	events/ProxyPushConsumerImpl.java,
+	events/ProxyPushSupplierImpl.java: Changed Copyright dates.
+
+2001-10-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/Interface.java (signature): Method removed.
+
+2001-10-04  jacorb
+
+	* orb/connection/NoBiDirServerReplyListener.java,
+	orb/connection/ReplyListener.java,
+	orb/connection/ReplyPlaceholder.java,
+	orb/connection/RequestListener.java,
+	orb/connection/ServerRequestListener.java,
+	orb/connection/TCP_IP_Transport.java, orb/Delegate.java,
+	orb/connection/ClientConnection.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/NoBiDirClientRequestListener.java: fixed bug: when
+	the server terminated the client connection, the client would hang
+	instead of throwing a propert exception
+
+	* poa/RequestProcessor.java: run() - wrapped wait() in while loop
+	so unexpected notifies are handled correctly.
+
+	* orb/connection/ConnectionListener.java,
+	orb/connection/StreamClosedException.java,
+	orb/connection/TimeOutException.java: *** empty log message ***
+
+	* poa/RPPoolManager.java: cosmetics
+
+	* security/ssl/sun_jsse/README.properties: Readme has been
+	included into the Programming Guide
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: some ssl bug fixes
+	and documentation updates
+
+2001-10-02  jacorb
+
+	* security/util/LoginWindow.java,
+	security/level2/SwingedPAImpl.java, security/util/LoginData.java,
+	security/level2/PrincipalAuthenticatorImpl.java,
+	orb/connection/LocateRequestInputStream.java,
+	orb/connection/LocateRequest.java: *** empty log message ***
+
+	* orb/Any.java: (conflict between identical lines resolved)
+
+	* trading/client/query/README, util/CapsuleThread.java,
+	util/Environment.java, util/threadpool/ThreadPool.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java,
+	security/ssl/sun_jsse/build.xml, security/ssl/iaik/build.xml,
+	security/ssl/sun_jsse/KeyStoreUtil.java,
+	security/ssl/sun_jsse/README.properties,
+	security/ssl/iaik/SecurityServiceInitializer.java,
+	security/ssl/iaik/ServerChainVerifier.java,
+	security/ssl/iaik/ServerInvocationInterceptor.java,
+	security/ssl/iaik/SSLServerSocketFactory.java,
+	security/ssl/iaik/SSLSetup.java,
+	security/ssl/iaik/SSLSocketFactory.java,
+	security/ssl/SecurityServiceInitializer.java,
+	security/ssl/ServerInvocationInterceptor.java,
+	security/ssl/build.xml, security/ssl/SSLSetup.java,
+	security/ssl/SSLSocketFactory.java,
+	security/level2/PrincipalAuthenticatorImpl.java,
+	security/level2/SwingedPAImpl.java,
+	security/ssl/SSLServerSocketFactory.java,
+	security/jsse/KeyStoreUtil.java, security/jsse/build.xml,
+	security/level2/CurrentImpl.java, poa/Current.java, poa/POA.java,
+	poa/RequestProcessor.java, proxy/ForwarderImpl.java,
+	security/build.xml, orb/connection/http/ServerConnection.java,
+	orb/dsi/ServerRequest.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/portableInterceptor/ServerRequestInfoImpl.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java,
+	orb/connection/TimeOutException.java,
+	orb/connection/Transport.java,
+	orb/connection/http/ClientConnection.java,
+	orb/connection/ServiceContextTransportingOutputStream.java,
+	orb/connection/TCP_IP_Transport.java,
+	orb/connection/ServerRequestListener.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/ServiceContextTransportingInputStream.java,
+	orb/connection/RequestListener.java,
+	orb/connection/RequestOutputStream.java,
+	orb/connection/ServerConnection.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/ReplyPlaceholder.java,
+	orb/connection/ReplyReceptor.java,
+	orb/connection/RequestInputStream.java,
+	orb/connection/NoBiDirServerReplyListener.java,
+	orb/connection/ReplyInputStream.java,
+	orb/connection/ReplyListener.java,
+	orb/connection/MessageReceptor.java,
+	orb/connection/MessageReceptorPool.java,
+	orb/connection/Messages.java,
+	orb/connection/NoBiDirClientRequestListener.java,
+	orb/connection/LocateRequestOutputStream.java,
+	orb/connection/MessageInputStream.java,
+	orb/connection/MessageOutputStream.java,
+	orb/connection/ConnectionManager.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/LocateReplyInputStream.java,
+	orb/connection/LocateReplyOutputStream.java,
+	orb/connection/ClientReplyListener.java,
+	orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/CodeSet.java,
+	orb/connection/BiDirConnectionServerInterceptor.java,
+	orb/connection/BiDirPolicy.java,
+	orb/connection/BiDirPolicyFactory.java,
+	orb/connection/ClientConnection.java, orb/ParsedIOR.java,
+	orb/build.xml,
+	orb/connection/BiDirConnectionClientInterceptor.java,
+	orb/connection/BiDirConnectionInitializer.java, orb/Delegate.java,
+	orb/ORB.java, orb/BasicAdapter.java, orb/BufferManager.java,
+	orb/CDRInputStream.java, orb/CDROutputStream.java, build.xml,
+	imr/ImplementationRepositoryImpl.java, naming/NameServer.java,
+	orb/Any.java: Merged in GIOP 1.2 branch
+
+2001-10-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* ir/gui/typesystem/Value.java: Initial revision, submitted by Ole
+	Husgaard <osh@sparre.dk>.
+
+	* ir/gui/typesystem/remote/RemoteTypeSystem.java 
+	(createTypeSystemNode): Add cases for Value, ValueBox, and
+	ValueMember.  Submitted by Ole Husgaard <osh@sparre.dk>.
+
+	* ir/gui/typesystem/remote/IRValue.java,
+	ir/gui/typesystem/remote/IRValueBox.java,
+	ir/gui/typesystem/remote/IRValueMember.java: Initial revision,
+	submitted by Ole Husgaard <osh@sparre.dk>.
+
+	* idl/ValueBoxDecl.java: Implement boxed values correctly
+	according to spec.
+
+	* ir/RepositoryID.java: Handle RMI: repository ids.
+
+	* orb/CDROutputStream.java: Add value type support.  Extend
+	CORBA_2_3 OutputStream.
+	(valueMap, repIdMap): New fields.
+	(orb): Method implemented.
+	(write_TypeCode): Add cases for tk_value and tk_value_box.
+	(write_value): Methods implemented.
+	(write_special_value, write_repository_id, write_value_internal):
+	New internal methods.
+
+	* orb/CDRInputStream.java: Add value type support.  Extend
+	CORBA_2_3 InputStream.
+	(valueMap, repIdMap): New fields.
+	(orb): Privatized field, implemented accessor method.
+	(read_TypeCode): Add cases for tk_value and tk_value_box.
+	(read_value): Methods implemented.
+	(read_untyped_value, read_typed_value, read_repository_id,
+	read_special_value): New internal methods.
+
+	* orb/Reference.java: Extend javax.rmi.CORBA.Stub, implement
+	java.rmi.Remote, as suggested by Francisco Reverbel
+	<reverbel@ime.usp.br>.
+
+	* orb/Any.java (extract_Value, insert_Value): Implemented.
+	(read_value, write_value): Add case for tk_value.
+
+	* orb/TypeCode.java: Add value type support.  Changes in part by
+	Ole Husgaard <osh@sparre.dk>.
+	(member_visibility, value_modifier): New instance fields.
+	(primitive_tcs_map): New static field.
+	(put_primitive_tcs): New static method, used in static initializer
+	to populate the above.
+	(TypeCode [tk_alias]): Add new parameter `_kind'; now works for
+	both tk_alias and tk_value_box.
+	(TypeCode [tk_value]): New constructor.
+	(member_visibility, type_modifier, concrete_base_type): New
+	methods.
+	(create_tc, getValueMembers, createValueMember): New methods.
+
+	* util/ValueHandler.java: Initial revision.
+
+	* orb/ORBSingleton.java (create_value_tc, create_value_box_tc):
+	Implemented.
+	(create_alias_tc): Adapt to new TypeCode constructor.
+
+	* orb/ORB.java (object_to_string): Delegate to delegate.
+	Suggested by Francisco Reverbel <reverbel@ime.usp.br>.
+	(lookup_value_factory): Dummy implementation.
+
+	* orb/TypeCode.java (create_tc): Split into a public version that
+	takes only a class, and a private version that passes a set of
+	`knownClasses' along.
+	(getValueMembers, createValueMember): Pass `knownClasses' through.
+
+	* ir/RepositoryID.java (repId): Use org.jacorb.util.ValueHandler.
+
+	* orb/CDROutputStream.java (write_value_internal): Use
+	org.jacorb.util.ValueHandler.
+
+	* orb/CDRInputStream.java (read_untyped_value): Use
+	org.jacorb.util.ValueHandler.
+
+	* util/ValueHandler.java: Initial revision.
+
+	* util/ValueHandler.java: New file.
+
+2001-10-01  jacorb
+
+	* orb/connection/ServerRequestListener.java, util/Environment.java:
+	*** empty log message ***
+
+	* security/ssl/sun_jsse/build.xml: New file.
+
+	* security/ssl/sun_jsse/build.xml, util/Environment.java:
+	reintegrated SSL
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: New file.
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: reintegrated SSL
+
+	* security/ssl/sun_jsse/KeyStoreUtil.java,
+	security/ssl/sun_jsse/README.properties: New file.
+
+	* security/ssl/sun_jsse/KeyStoreUtil.java,
+	security/ssl/sun_jsse/README.properties: reintegrated SSL
+
+	* security/ssl/iaik/build.xml: New file.
+
+	* security/ssl/iaik/ServerInvocationInterceptor.java,
+	security/ssl/iaik/build.xml: reintegrated SSL
+
+	* security/ssl/iaik/ServerChainVerifier.java,
+	security/ssl/iaik/ServerInvocationInterceptor.java: New file.
+
+	* security/ssl/iaik/SecurityServiceInitializer.java,
+	security/ssl/iaik/ServerChainVerifier.java: reintegrated SSL
+
+	* security/ssl/iaik/SSLSocketFactory.java,
+	security/ssl/iaik/SecurityServiceInitializer.java: New file.
+
+	* security/ssl/iaik/SSLSocketFactory.java: reintegrated SSL
+
+	* security/ssl/iaik/SSLServerSocketFactory.java,
+	security/ssl/iaik/SSLSetup.java: New file.
+
+	* security/ssl/iaik/SSLServerSocketFactory.java,
+	security/ssl/iaik/SSLSetup.java: reintegrated SSL
+
+	* security/ssl/build.xml: New file.
+
+	* security/ssl/SSLSocketFactory.java,
+	security/ssl/SecurityServiceInitializer.java,
+	security/ssl/ServerInvocationInterceptor.java,
+	security/ssl/build.xml,
+	security/level2/PrincipalAuthenticatorImpl.java,
+	security/level2/SwingedPAImpl.java,
+	security/ssl/SSLServerSocketFactory.java,
+	security/ssl/SSLSetup.java, security/jsse/KeyStoreUtil.java,
+	security/jsse/README.properties,
+	security/jsse/SSLServerSocketFactory.java,
+	security/jsse/SSLSocketFactory.java, security/jsse/build.xml,
+	security/level2/CurrentImpl.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java,
+	security/build.xml, orb/connection/GIOPConnection.java,
+	orb/connection/Messages.java,
+	orb/connection/ServerRequestListener.java,
+	orb/connection/ConnectionManager.java, orb/BasicAdapter.java,
+	orb/Delegate.java, build.xml: reintegrated SSL
+
+	* idl/str_token.java, idl/sym.java, idl/parser.cup,
+	idl/parser.java, idl/IdlSymbol.java, idl/Literal.java,
+	idl/Scope.java, idl/ScopeData.java, idl/StringType.java,
+	idl/lexer.java, orb/dynany/DynSequence.java,
+	orb/dynany/DynStruct.java, orb/dynany/DynUnion.java, orb/ORB.java,
+	orb/ParsedIOR.java, orb/dynany/DynArray.java: *** empty log
+	message ***
+
+	* orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/ServiceContextTransportingOutputStream.java,
+	orb/connection/TCP_IP_Transport.java,
+	orb/connection/ReplyInputStream.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/RequestInputStream.java, orb/ParsedIOR.java,
+	orb/connection/ClientConnection.java, orb/Delegate.java,
+	orb/ORB.java, build.xml, imr/ImplementationRepositoryImpl.java:
+	reintegrated imr + bug fixes
+
+2001-09-27  jacorb
+
+	* orb/connection/CodeSet.java, orb/connection/GIOPConnection.java,
+	orb/connection/ServerRequestListener.java, orb/ParsedIOR.java,
+	orb/connection/ClientConnection.java, orb/Delegate.java,
+	orb/CDRInputStream.java, orb/CDROutputStream.java: reintegrated
+	Codesets
+
+2001-09-21  jacorb
+
+	* orb/CDRInputStream.java (read_TypeCode): Add _tk_wchar in switch.
+
+	* orb/CDROutputStream.java (write_TypeCode):
+	Handle the case when concrete_base_type() is null.
+
+	* orb/Any.java (insert_Value, extract_Value): Handle null values.
+
+	* orb/TypeCode.java (primitive_tcs_map): New static variable.
+	(put_primitive_tcs): New helper function, used in static initializer.
+	(create_tc, getValueMembers, createValueMember): New class methods.
+
+	* orb/CDROutputStream.java (orb): Method rewritten to obey
+	singleton pattern.
+	(write_repository_id): New method.
+	(write_value_internal): Use it.
+	(write_value (BoxedValueHelper)): Always write RepositoryID for
+	RMI: types.
+
+	* orb/CDRInputStream.java (orb): Instance var privatized, method
+	rewritten to obey singleton pattern.
+	(read_value (BoxedValueHelper)): Rewrote comment explaining use of
+	type information.
+
+	* orb/Any.java (extract_Value, insert_Value): Implemented.
+	(read_value, write_value): Add handling of tk_value.
+
+	* orb/connection/TCP_IP_Transport.java,
+	orb/connection/Transport.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/connection/RequestListener.java,
+	orb/connection/RequestOutputStream.java,
+	orb/connection/ServerRequestListener.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/ReplyListener.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/RequestInputStream.java,
+	orb/connection/MessageReceptor.java,
+	orb/connection/NoBiDirClientRequestListener.java,
+	orb/connection/NoBiDirServerReplyListener.java,
+	orb/connection/ReplyInputStream.java, orb/connection/CodeSet.java,
+	orb/connection/ConnectionManager.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/ClientConnection.java,
+	orb/connection/ClientReplyListener.java,
+	orb/connection/Client_TCP_IP_Transport.java, orb/ParsedIOR.java,
+	orb/connection/BiDirConnectionClientInterceptor.java,
+	orb/connection/BiDirConnectionServerInterceptor.java,
+	orb/Delegate.java: *** empty log message ***
+
+2001-09-20  jacorb
+
+	Patch by Francisco Reverbel <reverbel@ime.usp.br>.
+
+	* orb/Reference.java: Extend javax.rmi.CORBA.Stub, implement
+	java.rmi.Remote.
+
+	* ir/RepositoryID.java:
+	(className): Map org.omg/CORBA/WStringValue to java.lang.String.
+	(toRepositoryID): Use context class loader instead of
+	Class.forName().
+
+	* orb/ORBSingleton.java:
+	(get_primitive_tc): Create new TypeCode object, don't delegate.
+
+	* orb/ORB.java: (object_to_string): Delegate.
+
+	* orb/CDRInputStream.java:
+	(orb): Implemented.
+	(read_value (factory)): Accept type information.
+	(read_untyped_value): Add special handling for strings.  Use
+	context class loader instead of Class.forName().
+	(read_special_value): Better error message.
+
+	* orb/CDROutputStream.java:
+	(orb): Implemented.
+	(write_value (value, class)): Always write RepositoryID for
+	valuetypes.
+	(write_value_internal): Use write_wstring for Strings.
+
+2001-09-13  jacorb
+
+	* naming/TestClient.java: *** empty log message ***
+
+2001-09-11  jcarlson
+
+	* events/ProxyPullSupplierImpl.java: Removed typo.
+
+2001-09-10  jcarlson
+
+	* events/ProxyPullSupplierImpl.java,
+	events/ProxyPushConsumerImpl.java,
+	events/ProxyPushSupplierImpl.java, events/EventChannelImpl.java,
+	events/ProxyPullConsumerImpl.java: Modifications to bring Event
+	Service into 1.1 specification compliance.
+
+2001-09-09  jacorb
+
+	* ir/RepositoryID.java (className, repId, toRepositoryID): Handle
+	RMI: ids.
+
+	* orb/CDROutputStream.java (write_state, write_primtive_field):
+	Removed.
+	(write_value_internal): For RMI: values, delegate to ValueHandler.
+
+	* orb/CDRInputStream.java (read_untyped_value): New method which
+	does the actual reading.
+	(read_typed_value): Reimplemented in terms of the above.
+	(read_special_value): Don't barf on typed values (which should
+	never get here, though, anyway).
+	(read_value): Use the above framework.  All versions implemented.
+
+2001-09-07  jacorb
+
+	* orb/dynany/DynSequence.java: (seek) stupid index setting bug removed
+
+	* util/Version.java, poa/POA.java, poa/util/POAUtil.java,
+	proxy/ForwarderImpl.java, trading/client/query/Query.java,
+	trading/test/ImportThread.java, ir/RepositoryID.java,
+	naming/NamingContextImpl.java: *** empty log message ***
+
+	* poa/RequestController.java: cosmetics
+
+	* security/level2/AccessDecisionImpl.java,
+	security/level2/SecAttributeManager.java,
+	security/level2/ServerAccessDecisionInterceptor.java: *** empty
+	log message ***
+
+	* idl/sym.java, idl/lexer.java, idl/parser.cup, idl/parser.java,
+	idl/AliasTypeSpec.java, idl/ElementSpec.java,
+	idl/GlobalInputStream.java, idl/IdlSymbol.java,
+	idl/UnionType.java: UnionType: fixed type() method in helper
+	generation (for enum discriminators)
+
+	* orb/portableInterceptor/ORBInitInfoImpl.java, orb/Any.java,
+	orb/CDRInputStream.java, orb/CDROutputStream.java,
+	orb/ORBSingleton.java: fixed Any.equal()
+
+	* orb/ORB.java: *** empty log message ***
+
+	* orb/dynany/DynAny.java, orb/dynany/DynAnyFactoryImpl.java,
+	orb/dynany/DynArray.java, orb/dynany/DynEnum.java,
+	orb/dynany/DynSequence.java, orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java: Enable aliased TCs for dynany creation,
+	made all DynAnys purely local objects (without POA involvement),
+	fixed bugs
+
+	* orb/TypeCode.java (equivalent): added create an unbounded string
+	TypeCode as a "primitive" TC added two assertions,
+
+2001-09-05  jacorb
+
+	* orb/Fields.java: New file.
+
+	* orb/CDROutputStream.java (valueMap, repIdMap): Use Map/HashMap
+	instead of Hashtable.
+	(write_value_internal): Second parameter is now a RepositoryID;
+	updated all callers.
+	(write_state, write_primitive_field): New methods.
+
+	* orb/CDRInputStream.java (repIdMap): New field.
+	(read_typed_value, read_repository_id): New methods.
+	(read_value): Use them.
+
+	* orb/CDROutputStream.java (repIdMap): New field.
+	(write_value): Various new overloadings.
+	(write_value_internal): New method.
+
+	* orb/Delegate.java: synchronized access to the pending_replies
+	hashtable
+
+	* orb/portableInterceptor/DefaultClientInterceptor.java,
+	orb/connection/old_conn/TimeOutException.java: *** empty log
+	message ***
+
+	* orb/connection/old_conn/TimeOutException.java: New file.
+
+	* orb/connection/old_conn/ReplyReceptor.java,
+	orb/connection/old_conn/ServerConnection.java: *** empty log
+	message ***
+
+	* orb/connection/old_conn/ServerConnection.java: New file.
+
+	* orb/connection/old_conn/LocateRequestOutputStream.java: ***
+	empty log message ***
+
+	* orb/connection/old_conn/LocateRequestOutputStream.java,
+	orb/connection/old_conn/ReplyReceptor.java: New file.
+
+	* orb/connection/old_conn/LocateRequest.java,
+	orb/connection/old_conn/LocateRequestInputStream.java: *** empty
+	log message ***
+
+	* orb/connection/old_conn/LocateRequest.java,
+	orb/connection/old_conn/LocateRequestInputStream.java: New file.
+
+	* orb/connection/old_conn/LocateReplyInputStream.java,
+	orb/connection/old_conn/LocateReplyOutputStream.java: *** empty
+	log message ***
+
+	* orb/connection/old_conn/LocateReplyInputStream.java,
+	orb/connection/old_conn/LocateReplyOutputStream.java: New file.
+
+	* orb/connection/old_conn/AbstractConnection.java,
+	orb/connection/old_conn/ClientConnection.java: *** empty log
+	message ***
+
+	* orb/connection/old_conn/ClientConnection.java,
+	orb/connection/old_conn/AbstractConnection.java: New file.
+
+	* orb/connection/ServiceContextTransportingOutputStream.java,
+	orb/connection/ServiceContextTransportingInputStream.java: ***
+	empty log message ***
+
+	* orb/connection/ServiceContextTransportingInputStream.java,
+	orb/connection/ServiceContextTransportingOutputStream.java: New
+	file.
+
+	* orb/connection/MessageInputStream.java,
+	orb/connection/MessageOutputStream.java: *** empty log message ***
+
+	* orb/connection/MessageInputStream.java,
+	orb/connection/MessageOutputStream.java: New file.
+
+	* orb/connection/BiDirPolicy.java,
+	orb/connection/BiDirPolicyFactory.java: *** empty log message ***
+
+	* orb/connection/BiDirPolicyFactory.java: New file.
+
+	* orb/connection/BiDirConnectionInitializer.java,
+	orb/connection/BiDirConnectionServerInterceptor.java: *** empty
+	log message ***
+
+	* orb/connection/BiDirConnectionServerInterceptor.java,
+	orb/connection/BiDirPolicy.java: New file.
+
+	* orb/connection/BiDirConnectionClientInterceptor.java: *** empty
+	log message ***
+
+	* orb/connection/BiDirConnectionClientInterceptor.java,
+	orb/connection/BiDirConnectionInitializer.java: New file.
+
+	* poa/RequestProcessor.java, orb/connection/TCP_IP_Transport.java,
+	orb/dsi/ServerRequest.java, poa/POA.java,
+	orb/connection/RequestInputStream.java,
+	orb/connection/RequestOutputStream.java,
+	orb/connection/ServerRequestListener.java,
+	orb/connection/LocateRequestOutputStream.java,
+	orb/connection/ReplyInputStream.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/ReplyPlaceholder.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/LocateReplyInputStream.java,
+	orb/connection/LocateReplyOutputStream.java,
+	orb/connection/ClientConnection.java,
+	orb/connection/ConnectionManager.java, orb/ORB.java,
+	orb/CDROutputStream.java, orb/Delegate.java,
+	orb/BasicAdapter.java, orb/CDRInputStream.java: *** empty log
+	message ***
+
+2001-08-29  jacorb
+
+	* orb/connection/TCP_IP_Transport.java: *** empty log message ***
+
+	* orb/dynany/DynEnum.java, orb/dynany/DynSequence.java,
+	orb/dynany/DynStruct.java, orb/dynany/DynAny.java,
+	orb/dynany/DynArray.java: Fixed seek() in DynAny, added
+	getRepresentation() to structured Dyns.
+
+	* orb/CDROutputStream.java:
+	(write_value) now supports unions with only a discriminator and no
+	member values (no explicit default)
+
+	* orb/CDRInputStream.java:
+	(read_value) now supports unions with only a discriminator and no
+	member values
+
+	* orb/TypeCode.java: cosmetics
+
+2001-08-28  jacorb
+
+	* poa/AOM.java: removed superflous loops
+
+2001-08-22  jacorb
+
+	* util/threadpool/ThreadPool.java, naming/NameServer.java,
+	poa/Current.java, poa/RequestProcessor.java, build.xml,
+	orb/portableInterceptor/ServerRequestInfoImpl.java,
+	orb/connection/new_conn/TCP_IP_GIOPTransport.java,
+	orb/dsi/ServerRequest.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/connection/new_conn/GIOPTransport.java,
+	orb/connection/new_conn/ReplyListener.java,
+	orb/connection/new_conn/RequestListener.java,
+	orb/connection/new_conn/ServerRequestListener.java,
+	orb/connection/new_conn/Server_TCP_IP_GIOPTransport.java,
+	orb/connection/Transport.java,
+	orb/connection/new_conn/Client_TCP_IP_GIOPTransport.java,
+	orb/connection/new_conn/GIOPConnection.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/TCP_IP_Transport.java: *** empty log message ***
+
+	* orb/connection/TCP_IP_Transport.java,
+	orb/connection/Transport.java: New file.
+
+	* orb/connection/ServerRequestListener.java: *** empty log message
+	***
+
+	* orb/connection/ServerRequestListener.java,
+	orb/connection/Server_TCP_IP_Transport.java: New file.
+
+	* orb/connection/RequestInputStream.java,
+	orb/connection/RequestListener.java,
+	orb/connection/RequestOutputStream.java: *** empty log message ***
+
+	* orb/connection/RequestListener.java: New file.
+
+	* orb/connection/ReplyListener.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/ReplyPlaceholder.java: *** empty log message ***
+
+	* orb/connection/ReplyPlaceholder.java: New file.
+
+	* orb/connection/NoBiDirServerReplyListener.java,
+	orb/connection/ReplyInputStream.java: *** empty log message ***
+
+	* orb/connection/ReplyListener.java: New file.
+
+	* orb/connection/Messages.java,
+	orb/connection/NoBiDirClientRequestListener.java: *** empty log
+	message ***
+
+	* orb/connection/NoBiDirClientRequestListener.java,
+	orb/connection/NoBiDirServerReplyListener.java: New file.
+
+	* orb/connection/MessageReceptor.java,
+	orb/connection/MessageReceptorPool.java: *** empty log message ***
+
+	* orb/connection/MessageReceptor.java,
+	orb/connection/MessageReceptorPool.java: New file.
+
+	* orb/connection/GIOPInputStream.java,
+	orb/connection/GIOPOutputStream.java: *** empty log message ***
+
+	* orb/connection/GIOPOutputStream.java: New file.
+
+	* orb/connection/GIOPConnection.java: *** empty log message ***
+
+	* orb/connection/GIOPConnection.java,
+	orb/connection/GIOPInputStream.java: New file.
+
+	* orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/ConnectionManager.java: *** empty log message ***
+
+	* orb/connection/Client_TCP_IP_Transport.java: New file.
+
+	* orb/connection/ClientConnection.java,
+	orb/connection/ClientReplyListener.java: *** empty log message ***
+
+	* orb/connection/ClientReplyListener.java: New file.
+
+	* orb/ORB.java, orb/build.xml, orb/CDROutputStream.java,
+	orb/Delegate.java, orb/BasicAdapter.java, orb/CDRInputStream.java,
+	imr/ImplementationRepositoryImpl.java,
+	security/jsse/SSLServerSocketFactory.java,
+	security/jsse/SSLSocketFactory.java: *** empty log message ***
+
+2001-08-15  jacorb
+
+	* proxy/ForwarderImpl.java, imr/ImplementationRepositoryImpl.java,
+	poa/RequestProcessor.java, orb/dsi/ServerRequest.java: *** empty
+	log message ***
+
+	* imr/ImplementationRepositoryImpl.java: added test that will
+	check object liveness for *every* returned object location
+
+	* orb/ParsedIOR.java, orb/ORB.java, orb/Delegate.java,
+	orb/CDROutputStream.java, orb/CDRInputStream.java,
+	orb/BufferManager.java, orb/connection/http/ServerConnection.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/RequestInputStream.java,
+	orb/connection/RequestOutputStream.java,
+	orb/connection/LocateReplyInputStream.java,
+	orb/connection/LocateRequest.java, orb/connection/Messages.java,
+	orb/connection/ReplyInputStream.java,
+	orb/connection/ClientConnection.java: *** empty log message ***
+
+	* orb/connection/new_conn/TCP_IP_GIOPTransport.java: New file.
+
+	* orb/connection/new_conn/TCP_IP_GIOPTransport.java: replacements
+	for some of the old connection classes. Kept separate to be able
+	to have them in parallel
+
+	* orb/connection/new_conn/Server_TCP_IP_GIOPTransport.java: New file.
+
+	* orb/connection/new_conn/ServerRequestListener.java,
+	orb/connection/new_conn/Server_TCP_IP_GIOPTransport.java:
+	replacements for some of the old connection classes. Kept separate
+	to be able to have them in parallel
+
+	* orb/connection/new_conn/RequestListener.java,
+	orb/connection/new_conn/ServerRequestListener.java: New file.
+
+	* orb/connection/new_conn/ReplyListener.java,
+	orb/connection/new_conn/RequestListener.java: replacements for
+	some of the old connection classes. Kept separate to be able to
+	have them in parallel
+
+	* orb/connection/new_conn/GIOPTransport.java,
+	orb/connection/new_conn/ReplyListener.java: New file.
+
+	* orb/connection/new_conn/GIOPTransport.java: replacements for
+	some of the old connection classes. Kept separate to be able to
+	have them in parallel
+
+	* orb/connection/new_conn/Client_TCP_IP_GIOPTransport.java,
+	orb/connection/new_conn/GIOPConnection.java: New file.
+
+	* orb/connection/new_conn/Client_TCP_IP_GIOPTransport.java,
+	orb/connection/new_conn/GIOPConnection.java: replacements for some
+	of the old connection classes. Kept separate to be able to have
+	them in parallel
+
+	* orb/BasicAdapter.java, orb/CDRInputStream.java,
+	orb/connection/ReplyInputStream.java,
+	orb/connection/RequestInputStream.java: fixed buffer management
+	bug: having a finalizer in CDRInputstream causes great harm,
+	because this returns buffers that are still used. Moved finalizer
+	to ReplyInputStream and RequestInputstream, because these buffers
+	may safly be returned
+
+2001-08-10  jacorb
+
+	* orb/ORB.java: first working GIOP 1.2 revision
+
+	* orb/BasicAdapter.java, orb/Delegate.java,
+	orb/connection/RequestOutputStream.java,
+	orb/connection/ServerConnection.java,
+	orb/connection/ReplyInputStream.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/RequestInputStream.java,
+	orb/connection/LocateRequest.java,
+	orb/connection/LocateRequestInputStream.java,
+	orb/connection/LocateRequestOutputStream.java,
+	orb/connection/Messages.java,
+	orb/connection/ClientConnection.java,
+	orb/connection/LocateReplyInputStream.java,
+	orb/connection/LocateReplyOutputStream.java: first GIOP 1.2
+	working revision
+
+	* orb/connection/ConnectionManager.java,
+	orb/connection/ReplyReceptor.java,
+	orb/connection/ServerConnection.java,
+	orb/connection/http/ClientConnection.java,
+	orb/connection/http/ServerConnection.java,
+	proxy/ForwarderImpl.java, orb/Delegate.java,
+	orb/connection/AbstractConnection.java,
+	orb/connection/ClientConnection.java: fixed a synch issue where a
+	Delegate was able to get a ClientConnection from the
+	ConnectionManager, which was in the process of being released.
+
+	* security/jsse/README.properties: *** empty log message ***
+
+	* orb/standardInterceptors/SSLComponentInterceptor.java: added
+	some more default options
+
+	* security/jsse/README.properties,
+	security/jsse/SSLServerSocketFactory.java,
+	security/jsse/SSLSocketFactory.java: some modifications after
+	suggestions from Hugo Ferreira
+
+2001-08-09  jacorb
+
+	* util/Environment.java: set default supported and required
+	options to 0. - They are either set manually, or hard-wired by the
+	SSLComponentInterceptor.
+
+2001-08-08  jacorb
+
+	* orb/Delegate.java, orb/ParsedIOR.java,
+	orb/connection/ConnectionManager.java: some more fixes in the
+	Delegate/ClientConnection complex
+
+	* proxy/ForwarderImpl.java,
+	security/level2/ServerAccessDecisionInterceptor.java,
+	orb/connection/ServerConnection.java,
+	orb/connection/http/ClientConnection.java,
+	orb/dsi/ServerRequest.java, orb/connection/ReplyInputStream.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/RequestInputStream.java,
+	orb/connection/RequestOutputStream.java,
+	orb/connection/LocateRequest.java,
+	orb/connection/LocateRequestInputStream.java,
+	orb/connection/LocateRequestOutputStream.java,
+	orb/connection/Messages.java,
+	orb/connection/LocateReplyInputStream.java,
+	orb/connection/LocateReplyOutputStream.java,
+	orb/BasicAdapter.java, orb/connection/ClientConnection.java,
+	imr/ImplementationRepositoryImpl.java: *** empty log message ***
+
+	* orb/connection/http/ClientConnection.java,
+	proxy/ForwarderImpl.java, orb/connection/ClientConnection.java:
+	stuff left over from the changes in ClientConnecton and Delegate.
+
+	* orb/connection/ClientConnection.java,
+	orb/connection/ReplyInputStream.java, orb/Delegate.java: threw
+	some old stuff out (keeping of object references for requests),
+	revisited access modifiers
+
+2001-08-07  jacorb
+
+	* imr/ImplementationRepositoryImpl.java: *** empty log message ***
+
+	* orb/connection/ConnectionManager.java: did some cleanup
+
+2001-08-06  jacorb
+
+	* imr/ImplementationRepositoryImpl.java: *** empty log message ***
+
+	* orb/connection/ClientConnection.java,
+	orb/connection/ConnectionManager.java, orb/ORB.java,
+	orb/ParsedIOR.java, orb/Delegate.java: connection: the
+	clientconnection will now open the tcp connection when the first
+	request is sent, and not when the connection is created by the
+	connectionmanager delegate: added synchronization so multiple
+	location forwards are handled correctly
+
+2001-08-03  jacorb
+
+	* security/jsse/build.xml: newly created
+
+	* security/build.xml: added target jsse
+
+2001-07-30  jacorb
+
+	* security/jsse/README.properties,
+	security/jsse/SSLServerSocketFactory.java,
+	security/jsse/SSLSocketFactory.java,
+	security/jsse/KeyStoreUtil.java: developed some more
+
+	* orb/TypeCode.java, orb/ORBSingleton.java,
+	orb/CDRInputStream.java, orb/CDROutputStream.java,
+	ir/gui/typesystem/remote/IRValueMember.java,
+	ir/gui/typesystem/remote/RemoteTypeSystem.java,
+	ir/gui/typesystem/remote/IRValueMember.java,
+	ir/gui/typesystem/remote/IRValueBox.java,
+	ir/gui/typesystem/remote/IRValueBox.java,
+	ir/gui/typesystem/remote/IRValue.java,
+	ir/gui/typesystem/Value.java,
+	ir/gui/typesystem/remote/IRValue.java,
+	ir/gui/typesystem/Value.java: Patch by Ole Husgaard <osh@sparre.dk>.
+
+	* orb/CDRInputStream.java (CDRInputStream):
+	Extend org.omg.CORBA_2_3.portable.InputStream.
+	(valueMap): New field.
+	(read_value): New methods, according to spec.
+	(read_special_value): New internal method.
+
+	* orb/CDROutputStream.java (CDROutputStream): Extend
+	org.omg.CORBA_2_3.portable.OutputStream.
+	(valueMap): New field.
+	(write_value(Serializable, BoxedValueHelper)): New methods,
+	according to spec.
+	(write_special_value): New internal method.
+
+	* orb/ORB.java (lookup_value_factory): Dummy implementation.
+
+	* orb/ORBSingleton.java (create_alias_tc): Adapted to new TypeCode
+	constructor.
+	(create_value_box_tc): Implemented.
+
+	* orb/TypeCode.java (TypeCode): The constructor for tk_alias is
+	now also used for tk_value_box (new parameter `kind').
+	(content_type): Make it work for tk_value_box also.
+
+	* idl/ValueBoxDecl.java (typeName): Changed to return the name of
+	the Java type to which the value box is mapped.
+	(boxTypeName): New method; returns the Java name of the box type.
+	(holderName): Use the above.
+	(helperName): New method, dito.
+	(printReadExpression, printWriteStatement): Delegate to
+	Input/OutputStream, not to the Helper class.
+	(getTypeCodeExpression): Let this always be based on the
+	boxTypeName.
+	(printHolderClass, printHelperClass, printValueClass): Make it
+	right.
+
+2001-07-29  jacorb
+
+	* orb/standardInterceptors/SSLComponentInterceptor.java:
+	fixed some issues with required/supported options
+
+	* security/ssl/SSLServerSocketFactory.java,
+	security/ssl/SSLSocketFactory.java,
+	security/ssl/ServerInvocationInterceptor.java,
+	security/level2/CurrentImpl.java,
+	security/level2/PrincipalAuthenticatorImpl.java: fixed some issues
+	with the supported/required options
+
+	* orb/BufferManager.java, orb/CDRInputStream.java,
+	orb/CDROutputStream.java: fixed a few minor bugs
+
+2001-07-25  Nicolas Noffke  <noffke@inf.fu-berlin.de>
+
+	* orb/Delegate.java, orb/ParsedIOR.java: added support for IORs
+	without IIOP profile
+
+2001-07-24  jacorb
+
+	* idl/AliasTypeSpec.java:
+	(holderName) fixed unwinding to original type in case the original
+	type is an alias
+
+2001-07-23  jacorb
+
+	* util/ObjectUtil.java, orb/ORB.java: *** empty log message ***
+
+2001-07-20  jacorb
+
+	* orb/ORB.java, security/jsse/SSLServerSocketFactory.java,
+	security/jsse/SSLSocketFactory.java, security/build.xml,
+	security/jsse/README.properties: *** empty log message ***
+
+2001-07-16  jacorb
+
+	* poa/RequestController.java: else clause added
+
+2001-07-16  Nicolas Noffke  <noffke@inf.fu-berlin.de>
+
+	* security/jsse/X509KeyManagerImpl.java,
+	security/jsse/SSLSocketFactory.java,
+	security/jsse/SecurityServiceInitializer.java,
+	security/jsse/ServerInvocationInterceptor.java,
+	security/jsse/PrincipalAuthenticatorImpl.java,
+	security/jsse/README.properties,
+	security/jsse/SSLServerSocketFactory.java: *** empty log message
+	***
+
+2001-07-14  jacorb
+
+	* idl/NameTable.java:
+	(checkScopingRules) only check in the immediately enclosing scope,
+	not all outer scopes.
+
+2001-07-06  Nicolas Noffke  <noffke@inf.fu-berlin.de>
+
+	* orb/Delegate.java: _invoke(): removed an else-branch that was
+	useless
+
+2001-07-05  Nicolas Noffke  <noffke@inf.fu-berlin.de>
+
+	* orb/standardInterceptors/build.xml: set basedir correctly
+
+	* orb/standardInterceptors/SSLComponentInterceptor.java: hard
+	wired the NoDelegation option into the supported options
+
+2001-07-03  Nicolas Noffke  <noffke@inf.fu-berlin.de>
+
+	* security/ssl/SSLSocketFactory.java: *** empty log message ***
+
+	* security/ssl/SSLServerSocketFactory.java,
+	security/ssl/SSLSocketFactory.java: will only request credentials
+	via current if necessary. this will not try to open any keystores
+	if not necessary.
+
+	* security/jsse/README.properties: *** empty log message ***
+
+	* orb/connection/ClientConnection.java: <init> leave client_count
+	to 0, because inc'ing is done by Delegate
+
+	* orb/connection/ConnectionManager.java: removed the e.incUsers()
+	in getConnection, because inc'ing is done by Delegate
+
+	* imr/ImplementationRepositoryImpl.java: -RequestReceptor now
+	closes the connection after finishing an request, so connections
+	don't get piled up.  -cosmetics
+
+	* security/jsse/ServerInvocationInterceptor.java,
+	security/jsse/PrincipalAuthenticatorImpl.java: *** empty log
+	message ***
