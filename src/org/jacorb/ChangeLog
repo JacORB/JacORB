@@ -1,8 +1,53 @@
 2003-09-03  Gerald Brose  <gerald.brose@acm.org>
 
-	* idl/build.xml,
-	idl/javamapping/JavaMappingGeneratingVisitor.java: *** empty log
-	message ***
+	* idl/parser.java, idl/sym.java: *** empty log message ***
+
+	* idl/Case.java: minor stuff only
+
+	* idl/FixedArraySize.java, idl/ArrayDeclarator.java: cosmetics only
+
+	* idl/PositionInfo.java: (toString) nicer
+
+	* idl/ParseException.java: (getMessage) new method
+	(c'tor) added a second one that takes PositionInfos
+
+	* idl/parser.cup:
+	(compileAndHandle) print nicer error message when a ParseException
+	is caught
+
+	* idl/GlobalInputStream.java: cosmetics only
+
+	* idl/ParamDecl.java: (parse) add position parameter to ParseException
+
+	* idl/lexer.java: add file to PositionInfos
+
+	* idl/SequenceType.java, idl/Member.java: cosmetics only
+
+	* idl/ArrayTypeSpec.java: (parse) fixed bug #84
+
+	* idl/StructType.java:
+	(parse) tolerate (skip) a second parse attempt, which is now
+	possible
+	(consequence of fix for bug #84).
+
+	* idl/PosIntConst.java:
+	(value) added a check for null or negative constants
+
+	* idl/PosIntConst.java:
+	(setExpression) new method called by the parser, now checks for
+	valid integers
+
+	* idl/IdlSymbol.java: new field myPosition which remembers the
+	symbol's position in the IDL file, needed for better error
+	messages.
+
+	* idl/ParseException.java: added a field and a second c'tor to
+	support error messages with line and position numbering
+
+	* idl/ElementSpec.java: (parse) fixed bug #115
+
+	* idl/build.xml, idl/javamapping/JavaMappingGeneratingVisitor.java:
+	*** empty log message ***
 
 	* idl/IDLTreeVisitor.java, idl/Value.java, idl/parser.cup,
 	idl/parser.java, idl/sym.java: consolidated merge of the visitor
