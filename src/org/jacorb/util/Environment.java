@@ -414,7 +414,9 @@ public class Environment
         {
             try
             {
-                logger = loggerFactory.getNamedLogger("jacorb",logFileName,_max_log_size);
+                loggerFactory.setDefaultLogFile(logFileName,_max_log_size);
+                logger = loggerFactory.getNamedRootLogger("jacorb");
+                //logger = loggerFactory.getNamedLogger("jacorb",logFileName,_max_log_size);
             }
             catch (IOException e)
             {
