@@ -45,9 +45,9 @@
           <pathelement location="${basedir}/classes"/>
           <pathelement location="${lib}/logkit.jar"/>
           <pathelement location="${lib}/idl.jar"/>
-          <pathelement location="${lib}/concurrent.jar"/>
-          <pathelement location="${lib}/antlr.jar"/>
+          <pathelement location="${lib}/antlr-2.7.2.jar"/>
           <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
+          <pathelement location="${lib}/concurrent-1.3.2.jar"/>
           <pathelement location="${sun.boot.class.path}"/>
           <pathelement location="${java.class.path}"/>
        </path>
