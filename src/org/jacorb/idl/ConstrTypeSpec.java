@@ -29,7 +29,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.*;
 
-class ConstrTypeSpec
+public class ConstrTypeSpec
     extends TypeSpec
 {
     public TypeDeclaration c_type_spec;
@@ -172,5 +172,15 @@ class ConstrTypeSpec
     {
         return c_type_spec.declaration().id();
     }
+
+    /**
+     * @overrides accept in IdlSymbol
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        c_type_spec.declaration().accept( visitor );
+    }
+
 
 }

@@ -484,4 +484,12 @@ public class AliasTypeSpec
         ps.println( "\t}" );
         ps.println( "}" );
     }
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitAlias( this );
+    }
+
+
+
 }

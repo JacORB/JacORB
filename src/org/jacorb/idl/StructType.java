@@ -30,7 +30,7 @@ import java.util.*;
  * @version $Id$
  */
 
-class StructType
+public class StructType
     extends TypeDeclaration
     implements Scope
 {
@@ -90,6 +90,27 @@ class StructType
         if( typeName == null )
             setPrintPhaseNames();
         return typeName;
+    }
+
+    /**
+     * get this types's mapped Java name
+     */
+
+    public String getJavaTypeName()
+    {
+        if( typeName == null )
+            setPrintPhaseNames();
+        return typeName;
+    }
+
+
+    /**
+     * get this symbol's IDL type name
+     */
+
+    public String getIDLTypeName()
+    {
+        return getJavaTypeName(); // TODO
     }
 
 
@@ -169,7 +190,7 @@ class StructType
         {
             if (exc)
             {
-                parser.error( "Struct " + typeName() + " already defined", token );
+                parser.error( "Struct " + getJavaTypeName() + " already defined", token );
             }
             else
             {
@@ -187,15 +208,15 @@ class StructType
                 }
                 else
                 {
-                    parser.error( "Struct " + typeName() + " already defined", token );
+                    parser.error( "Struct " + getJavaTypeName() + " already defined", token );
                 }
             }
         }
         if( memberlist != null )
         {
-            ScopedName.addRecursionScope( typeName() );
+            ScopedName.addRecursionScope( getJavaTypeName() );
             memberlist.parse();
-            ScopedName.removeRecursionScope( typeName() );
+            ScopedName.removeRecursionScope( getJavaTypeName() );
 
             if (exc == false)
             {
@@ -215,7 +236,7 @@ class StructType
 
     public String className()
     {
-        String fullName = typeName();
+        String fullName = getJavaTypeName();
         if( fullName.indexOf( '.' ) > 0 )
         {
             return fullName.substring( fullName.lastIndexOf( '.' ) + 1 );
@@ -238,7 +259,7 @@ class StructType
 
     public String holderName()
     {
-        return typeName() + "Holder";
+        return getJavaTypeName() + "Holder";
     }
 
     /**
@@ -290,30 +311,30 @@ class StructType
         ps.println( "\timplements org.omg.CORBA.portable.Streamable" );
         ps.println( "{" );
 
-        ps.println( "\tpublic " + typeName() + " value;\n" );
+        ps.println( "\tpublic " + getJavaTypeName() + " value;\n" );
 
         ps.println( "\tpublic " + className + "Holder ()" );
         ps.println( "\t{" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic " + className + "Holder (final " + typeName() + " initial)" );
+        ps.println( "\tpublic " + className + "Holder( final " + getJavaTypeName() + " initial )" );
         ps.println( "\t{" );
         ps.println( "\t\tvalue = initial;" );
         ps.println( "\t}" );
 
         ps.println( "\tpublic org.omg.CORBA.TypeCode _type ()" );
         ps.println( "\t{" );
-        ps.println( "\t\treturn " + typeName() + "Helper.type ();" );
+        ps.println( "\t\treturn " + getJavaTypeName() + "Helper.type ();" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic void _read (final org.omg.CORBA.portable.InputStream _in)" );
+        ps.println( "\tpublic void _read( final org.omg.CORBA.portable.InputStream _in )" );
         ps.println( "\t{" );
-        ps.println( "\t\tvalue = " + typeName() + "Helper.read (_in);" );
+        ps.println( "\t\tvalue = " + getJavaTypeName() + "Helper.read( _in );" );
         ps.println( "\t}" );
 
-        ps.println( "\tpublic void _write (final org.omg.CORBA.portable.OutputStream _out)" );
+        ps.println( "\tpublic void _write( final org.omg.CORBA.portable.OutputStream _out )" );
         ps.println( "\t{" );
-        ps.println( "\t\t" + typeName() + "Helper.write (_out,value);" );
+        ps.println( "\t\t" + getJavaTypeName() + "Helper.write( _out, value );" );
         ps.println( "\t}" );
 
         ps.println( "}" );
@@ -345,7 +366,7 @@ class StructType
         StringBuffer sb = new StringBuffer();
         sb.append( "org.omg.CORBA.ORB.init().create_" +
                 ( exc ? "exception" : "struct" ) + "_tc( " +
-                typeName() + "Helper.id(),\"" + className() + "\"," );
+                getJavaTypeName() + "Helper.id(),\"" + className() + "\"," );
 
         if( memberlist != null )
         {
@@ -374,7 +395,7 @@ class StructType
         ps.println( "\t\treturn _type;" );
         ps.println( "\t}\n" );
 
-        String type = typeName();
+        String type = getJavaTypeName();
         TypeSpec.printInsertExtractMethods( ps, type );
 
         printIdMethod( ps ); // inherited from IdlSymbol
@@ -516,7 +537,7 @@ class StructType
             {
                 Member m = (Member)e.nextElement();
                 Declarator d = m.declarator;
-                ps.print( m.type_spec.toString() + " " + d.toString() );
+                ps.print( m.type_spec.getJavaTypeName() + " " + d.name() );
                 if( e.hasMoreElements() )
                     ps.print( ", " );
             }
@@ -534,32 +555,8 @@ class StructType
                 ps.println( d.name() + ";" );
             }
             ps.println( "\t}" );
+
         }
-
-        // generate toStrign method for structs, see bug #336
-
-        ps.println( "\t/** convenience method, not per IDL mapping */" );
-        ps.println( "\tpublic String toString()" );
-        ps.println( "\t{" );
-
-        StringBuffer sb = new StringBuffer("struct " + className + "[ \"");
-
-        if( memberlist != null )
-        {
-            for( Enumeration e = memberlist.v.elements(); e.hasMoreElements(); )
-            {
-                Member m = (Member)e.nextElement();
-                Declarator d = m.declarator;
-                sb.append( " + " + d.name() + " + \" \"" );
-            }
-        }
-
-        sb.append(" + \" ] \"; ");
-
-        ps.println( "\t\treturn \"" + sb.toString() );
-        ps.println( "\t}" );
-
-
         ps.println( "}" );
     }
 
@@ -623,4 +620,12 @@ class StructType
             i.printStackTrace();
         }
     }
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitStruct( this );
+    }
+
+
+
 }

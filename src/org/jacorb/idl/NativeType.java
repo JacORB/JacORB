@@ -27,10 +27,9 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class NativeType
-        extends TypeDeclaration
+public class NativeType
+    extends TypeDeclaration
 {
-
     SimpleDeclarator declarator;
 
     public NativeType( int num )
@@ -133,6 +132,16 @@ class NativeType
     public void print( PrintWriter ps )
     {
     }
+
+    /**
+     * @overrides accept in TypeDeclaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitNative( this );
+    }
+
 
 }
 

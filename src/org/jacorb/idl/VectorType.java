@@ -32,7 +32,7 @@ package org.jacorb.idl;
 
 public abstract class VectorType
     extends TemplateTypeSpec
-{
+{    
     TypeSpec type_spec;
 
     public VectorType( int num )
@@ -118,12 +118,6 @@ public abstract class VectorType
         {
             return ts.getTypeCodeExpression();
         }
-        // According to http://www.omg.org/issues/issue1536.txt ObjectHelper is not
-        // standard so in this case establish the type by other means.
-        else if ( ts instanceof ObjectTypeSpec )
-        {
-            return "org.omg.CORBA.ORB.init ().get_primitive_tc (org.omg.CORBA.TCKind.tk_objref)";
-        }
         else
         {
             return ts.typeName() + "Helper.type()";
@@ -158,6 +152,13 @@ public abstract class VectorType
         return ts.typeName();
     }
 
+    /**
+     * @return the length of this array or sequence.  For
+     * multi-dimensional vectors, this is the outermost dimension.
+     * For open sequences, this length is 0.
+     */
+
+    public abstract int length();
 
     public abstract String holderName();
 
@@ -171,3 +172,9 @@ public abstract class VectorType
 
 
 }
+
+
+
+
+
+

@@ -29,7 +29,7 @@ import java.io.PrintWriter;
  *
  */
 
-class ArrayTypeSpec
+public class ArrayTypeSpec
     extends VectorType
 {
     ArrayDeclarator declarator = null;
@@ -235,7 +235,11 @@ class ArrayTypeSpec
 
     }
 
-    int length()
+    /**
+     * @overrides length() in VectorType
+     */
+
+    public int length()
     {
         return dims[ my_dim ];
     }

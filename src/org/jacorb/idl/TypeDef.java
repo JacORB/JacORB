@@ -28,7 +28,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.*;
 
-class TypeDef
+public class TypeDef
     extends TypeDeclaration
 {
     public TypeDeclarator type_declarator;
@@ -38,6 +38,11 @@ class TypeDef
     {
         super( num );
         pack_name = "";
+    }
+
+    public Vector getTypeSpecs()
+    {
+        return typeSpecs;
     }
 
     public void setPackage( String s )
@@ -53,6 +58,11 @@ class TypeDef
     public void set_included( boolean i )
     {
         included = i;
+    }
+
+    public String id()
+    {
+        return type_declarator.id();
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -132,11 +142,21 @@ class TypeDef
 
     }
 
+    /**
+     * @overrides accept in TypeDeclaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        for( Enumeration e = typeSpecs.elements();
+             e.hasMoreElements(); )
+        {
+            ( (AliasTypeSpec)e.nextElement() ).accept( visitor );
+        }
+        visitor.visitTypeDef( this );
+    }
+
+
+
 }
-
-
-
-
-
-
 

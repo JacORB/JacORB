@@ -26,10 +26,9 @@ package org.jacorb.idl;
  */
 
 class IntType
-        extends BaseType
-        implements SwitchTypeSpec
+    extends BaseType
+    implements SwitchTypeSpec
 {
-
     public boolean unsigned = false;
 
     public IntType( int num )

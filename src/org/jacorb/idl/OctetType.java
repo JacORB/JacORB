@@ -45,6 +45,25 @@ class OctetType
         return "byte";
     }
 
+    /**
+     * get this types's mapped Java name
+     */
+
+    public String getJavaTypeName()
+    {
+        return "byte";
+    }
+
+
+    /**
+     * get this symbol's IDL type name
+     */
+
+    public String getIDLTypeName()
+    {
+        return "octet";
+    }
+
     public TypeSpec typeSpec()
     {
         return this;
