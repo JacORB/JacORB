@@ -1,10 +1,9 @@
+
 package org.jacorb.idl;
 
-import java.util.*;
 import java.io.*;
-
+import java.util.*;
 import java_cup.runtime.*;
-
 import org.apache.log.*;
 import org.apache.log.format.*;
 import org.apache.log.output.io.*;
@@ -47,6 +46,7 @@ parser code
     private static final String NO_FINAL = "";
 
     static String out_dir = ".";
+    // Use for org.omg only.
     static String package_prefix = null;
 
     static boolean parse_only = false;
@@ -64,7 +64,7 @@ parser code
     public static boolean generate_stubs = true;
 
     public static boolean generate_ami_callback = false;
-	public static boolean generate_ami_polling  = false;
+    public static boolean generate_ami_polling  = false;
 
     protected static boolean generateIncluded = false;
     protected static boolean inhibitionState = false;
@@ -114,16 +114,20 @@ parser code
         logger = Hierarchy.getDefaultHierarchy().getLoggerFor("jacorb.idl");
         logger.setPriority( Priority.FATAL_ERROR );
         logger.setLogTargets( new LogTarget[] { writerTarget } );
+
+        parser.openScope();
     }
 
     public static void main( String argv[] )
     {
-        boolean result = compile( argv );
+        compile( argv );
     }
 
 
     public static boolean compile( String argv[] )
     {
+        BufferedReader in = null;
+
         init();
         Hashtable tmpDefines = new Hashtable();
         Hashtable tmpUnDefines = new Hashtable();
@@ -185,16 +189,16 @@ parser code
                             usage(argv, "-W");
 
                         int level = Integer.parseInt( argv[++i] );
-                        Priority p = null;      
+                        Priority p = null;
                         switch( level )
                         {
-                            case 1: 
+                            case 1:
                                 p = Priority.ERROR;
                                 break;
-                            case 2: 
+                            case 2:
                                 p = Priority.WARN;
                                 break;
-                            case 3: 
+                            case 3:
                                 p = Priority.INFO;
                                 break;
                             case 4:
@@ -243,15 +247,34 @@ parser code
                         if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
                             usage(argv, "-i2jpackage");
 
-                        int split_idx = argv[i+1].indexOf(':');
-                        if( split_idx  < 0 )
-                            usage(argv, "-i2jpackage");
-                        String idlp = argv[i+1].substring(0,split_idx);
-                        String jp = argv[i+1].substring(split_idx+1);
-
-                        pack_replace.put( idlp, jp );
+                        addI2JPackage (argv[i+1]);
                         i++;
                         continue;
+                    }
+                    if (argv[i].equals ("-i2jpackagefile"))
+                    {
+                       if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
+                            usage(argv, "-i2jpackagefile");
+
+                       try
+                       {
+                          in = new BufferedReader (new FileReader (argv[i+1]));
+                       }
+                       catch (FileNotFoundException e)
+                       {
+                          System.out.println ("File " + argv[i+1] + " not found");
+                          throw new RuntimeException
+                             ("File for -i2jpackagefile not found");
+                       }
+                       String mapping = in.readLine ();
+                       while (mapping != null)
+                       {
+                          addI2JPackage (mapping);
+                          mapping = in.readLine ();
+                       }
+                       in.close ();
+                       i++;
+                       continue;
                     }
                     if( argv[i].equals("-ir"))
                     {
@@ -357,9 +380,27 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-nostub][-nofinal][-ami_callback][-ir][-sloppy_names][-sloppy_forward][-i2jpackage x:y][-d <Output Dir>][-i <import_package][-W debug_level] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-nostub][-nofinal][-ami_callback][-ir][-sloppy_names][-sloppy_forward][-i2jpackage x:y][-i2jpackagefile <filename>][-d <Output Dir>][-i <import_package][-W debug_level] <filelist>");
         System.exit(1);
     }
+
+
+
+    private static void addI2JPackage( String mapping )
+    {
+       int split_idx = mapping.indexOf(':');
+       if( split_idx  < 0 )
+       {
+          System.out.println ("Incorrect format for i2jpackage mapping: " + mapping);
+          System.exit (1);
+       }
+       String idlp = mapping.substring(0,split_idx);
+       String jp = mapping.substring(split_idx+1);
+
+       pack_replace.put( idlp, jp );
+       Environment.output(3,"Replace pack " + idlp + " with " + jp );
+    }
+
 
     private static void help()
     {
@@ -376,7 +417,8 @@ parser code
         System.out.println("\t-Dx=y\t\tdefine preprocessor symbol x with value y");
         System.out.println("\t-U\t\tundefine preprocessor symbol");
         System.out.println("\t-i2jpackage x:a.b.c\t replace IDL package name x by a.b.c in generated Java code (e.g. CORBA:org.omg.CORBA)");
-        System.out.println("\t-i <x>\t\tgenerated Java code will include \"import <x>;\"");
+        System.out.println("\t-i2jpackagefile <filename>\t replace IDL package names using list from <filename>. Format as above.");
+         System.out.println("\t-i <x>\t\tgenerated Java code will include \"import <x>;\"");
         System.out.println("\t-ir <x>\t\tgenerate information required by the Interface Repository");
         System.out.println("\t-nofinal\tgenerated Java code will contain no final class definitions");
         System.out.println("\t-d dir\t\troot of directory tree for output");
@@ -403,7 +445,6 @@ parser code
        lexer.emit_error(message);
        System.err.println("Can't recover from previous error(s), giving up.");
        throw new ParseException();
-       // System.exit(1);
     }
 
     public static void fatal_error(String message, str_token p_info)
@@ -413,7 +454,6 @@ parser code
        lexer.emit_error(message, p_info);
        System.err.println("Can't recover from previous error(s), giving up.");
        throw new ParseException();
-       // System.exit(1);
     }
 
     public void report_error(String message, Object info)
@@ -463,23 +503,25 @@ parser code
 
     // forward declared interfaces are put into this list
 
-    public static Hashtable pending_interfaces = new Hashtable();
+    static Hashtable pending_interfaces = new Hashtable();
 
     public static synchronized void set_pending( String name )
     {
          // name will only be marked pending if it has not already been
          // parsed before and if is not already pending
+         String use = ScopedName.unPseudoName (name);
 
-         if( ! ( pending_interfaces.containsKey(name) ||
-                 NameTable.parsed_interfaces.containsKey(name)) )
+         if( ! ( pending_interfaces.containsKey(use) ||
+                 NameTable.parsed_interfaces.containsKey(use)) )
          {
-                 pending_interfaces.put(name, new Object());
+                 pending_interfaces.put(use, new Object());
          }
     }
 
     public static synchronized void remove_pending( String name )
     {
-         Object o = pending_interfaces.remove(name);
+         String use = ScopedName.unPseudoName (name);
+         Object o = pending_interfaces.remove(use);
          if( o != null)
          {
              synchronized( o )
@@ -499,7 +541,7 @@ parser code
 
     public static Object get_pending( String name )
     {
-        return pending_interfaces.get(name);
+        return pending_interfaces.get (ScopedName.unPseudoName (name));
     }
 
     public static synchronized void decActiveParseThreads()
@@ -624,7 +666,7 @@ terminal java_cup.runtime.token
   SEMI, COMMA, STAR, DOT, COLON, EQUALS, PLUS, MINUS, LPAREN, RPAREN,
   LCBRACE, RCBRACE, LSBRACE, RSBRACE, LESSTHAN, GREATERTHAN, QUOTE, DBLQUOTE,
   BSLASH, BAR, CIRCUM, AMPERSAND, SLASH, PERCENT, TILDE, DBLCOLON,
-  RSHIFT, LSHIFT, LDBLQUOTE;
+  RSHIFT, LSHIFT, LDBLQUOTE, SPACE;
 
 
 terminal org.jacorb.idl.str_token ID;
@@ -640,7 +682,7 @@ terminal java_cup.runtime.long_token LONG_NUMBER;
 terminal java_cup.runtime.float_token  FLOAT_NUMBER;
 terminal fixed_token  FIXED_NUMBER;
 
-non terminal java_cup.runtime.symbol case_label, context_expr, string_literal_list;
+non terminal java_cup.runtime.symbol context_expr, string_literal_list;
 
 non terminal java_cup.runtime.symbol empty;
 
@@ -714,7 +756,7 @@ non terminal VoidTypeSpec void_type_spec;
 non terminal StringType string_type;
 non terminal SequenceType sequence_type;
 non terminal FixedPointType fixed_point_type;
-non terminal Literal literal, string_literal, wide_string_literal;
+non terminal Literal literal, string_literal;
 
 non terminal Member member;
 non terminal Declarator declarator;
@@ -744,9 +786,6 @@ specification ::=
           {:
                 /* parsing */
 
-                // open the global scope
-                parser.openScope();
-
                 RESULT.definitions = (Vector)ds.v.clone();
 
                 if( ((org.jacorb.idl.parser)CUP$parser).package_prefix != null )
@@ -757,7 +796,7 @@ specification ::=
                 if ( lexer.error_count != 0 )
                 {
                         System.err.println(lexer.error_count + " error(s).");
-                        System.exit(1);
+                        throw new ParseException ("Lexer errors");
                 }
 
                 // if there are still interfaces to be parsed, wait until the
@@ -925,7 +964,6 @@ interface ::=
                 RESULT.body = b;
                 b.set_pseudo();
                 b.set_name(i.str_val);
-//              b.set_token(i);
                 b.my_interface = RESULT;
                 b.setEnclosingSymbol(RESULT);
                 RESULT.set_included( parser.include_state );
@@ -1371,7 +1409,7 @@ unary_expr ::=
 
 // #22
 unary_op ::=
-          MINUS {: RESULT.str_val = "-"; :}
+          MINUS SPACE {: RESULT.str_val = "-"; :}
         | PLUS {: RESULT.str_val = "+"; :}
         | TILDE {: RESULT.str_val = "~"; :}
         ;
@@ -1390,6 +1428,16 @@ literal ::=
                 {:
                         RESULT.string = "" + n.int_val;
                         RESULT.token = n;
+                :}
+        | MINUS NUMBER:n
+                {:
+                        RESULT.string = "-" + n.int_val;
+                        RESULT.token = n;
+                :}
+        | MINUS LONG_NUMBER:l
+                {:
+                        RESULT.string = "-" + l.long_val;
+                        RESULT.token = l;
                 :}
         | LONG_NUMBER:l
                 {:
