@@ -23,7 +23,6 @@ package org.jacorb.ir;
 import java.lang.reflect.*;
 import java.util.*;
 
-import org.jacorb.orb.TypeCode;
 import org.jacorb.util.Debug;
 
 import org.omg.CORBA.INTF_REPOS;

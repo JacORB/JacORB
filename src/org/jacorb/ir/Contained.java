@@ -20,7 +20,6 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.*;
 import java.lang.reflect.*;
 

@@ -20,7 +20,6 @@
 
 package org.jacorb.ir;
 
-import org.jacorb.orb.TypeCode;
 import java.io.*;
 
 

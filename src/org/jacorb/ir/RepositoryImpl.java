@@ -21,7 +21,6 @@ package org.jacorb.ir;
  */
 
 import org.jacorb.util.Environment;
-import org.jacorb.orb.TypeCode;
 
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.*;

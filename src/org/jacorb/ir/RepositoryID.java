@@ -21,7 +21,6 @@ package org.jacorb.ir;
  */
 
 import java.util.StringTokenizer;
-import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.INTF_REPOS;
 
 /**

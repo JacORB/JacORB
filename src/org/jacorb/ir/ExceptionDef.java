@@ -21,7 +21,6 @@
 package org.jacorb.ir;
 
 //import org.jacorb.orb.TypeCodeUtil;
-import org.jacorb.orb.TypeCode;
 import org.jacorb.util.Debug;
 
 import java.lang.reflect.*;
