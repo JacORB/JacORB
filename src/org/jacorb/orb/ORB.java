@@ -47,8 +47,8 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener
 {
-    private static final String versionString = "1.3.40";
-    private static final String dateString = "7 Sept 2001";
+    private static final String versionString = "1.4 beta 1";
+    private static final String dateString = "2 Nov 2001";
 
     /** "initial" references */
     private Hashtable initial_references = new Hashtable();
@@ -185,16 +185,24 @@ public final class ORB
     {
         // if no POAs activated, we don't look further
         if( rootpoa == null || basicAdapter == null )
+        {
+            Debug.output(3, "ORB.findPOA: no local root/base adapters");
             return null;
+        }
 
-        if( ! (basicAdapter.getAddress() +":"+ basicAdapter.getPort()).equals( d.get_adport() ))
-            return null;
+//          if( ! (basicAdapter.getAddress() +":"+ basicAdapter.getPort()).equals( d.get_adport() ))
+//          {
+//              Debug.output(3, "ORB.findPOA: wrong base adapter address "  + d.get_adport() +
+//                           " vs. " + basicAdapter.getAddress() +":"+ basicAdapter.getPort()+ " !");
+//              return null;
+//          }
 
         String implName = new String( Environment.implName());
         if( implName.length() > 0 && 
             !(implName.equals( org.jacorb.poa.util.POAUtil.extractImplName(d.getObjectKey())))
               )
         {
+            Debug.output(3, "ORB.findPOA: impl_name mismatch");
             return null;
         }
 
@@ -239,12 +247,16 @@ public final class ORB
                 }
                 catch ( org.jacorb.poa.except.ParentIsHolding p )
                 {
+                    Debug.output(3, "ORB.findPOA: holding adapter");
                     return null;
                 }           
             }
 
             if( ! tmp_poa.previouslyGeneratedObjectKey(d.getObjectKey()))
+            {
+                Debug.output(3, "ORB.findPOA: not a previously generated object key.");
                 return null;
+            }
 
             return tmp_poa;
         }
@@ -253,6 +265,7 @@ public final class ORB
             Debug.output( 2, e); // TODO
         }        
 
+        Debug.output(3, "ORB.findPOA: nothing found");
         return null;
     }
 
@@ -1103,31 +1116,41 @@ public final class ORB
     {
     }
 
-    protected void set_parameters(String[] args, java.util.Properties props)
-    {      
-        _args = args;
-        _props = props;
+    /**
+     * called from ORB.init()
+     */
 
-        Environment.addProperties( props );
+    protected void set_parameters( String[] args, java.util.Properties props )
+    {      
+        if( props != null )
+        {
+            _props = props;
+            Environment.addProperties( props );
+        }
 
         /*
          * find -ORBInitRef args and add them to Environment
          * (overwriting existing props).  
          */
-        for( int i = 0; i < args.length; i++ )
+
+        if( args != null )
         {
-            if( args[ i ].startsWith( "-ORBInitRef" ))
+            _args = args;
+            for( int i = 0; i < args.length; i++ )
             {
-                //get rid of the leading `-'
-                String prop = args[ i ].substring( 1 );
-                
-                //find the equals char that separates prop name from
-                //prop value
-                int equals_pos = prop.indexOf( '=' );
-        
-                //add the property to environment
-                Environment.setProperty( prop.substring( 0, equals_pos ),
-                                         prop.substring( equals_pos + 1) );
+                if( args[ i ].startsWith( "-ORBInitRef" ))
+                {
+                    //get rid of the leading `-'
+                    String prop = args[ i ].substring( 1 );
+                    
+                    //find the equals char that separates prop name from
+                    //prop value
+                    int equals_pos = prop.indexOf( '=' );
+                    
+                    //add the property to environment
+                    Environment.setProperty( prop.substring( 0, equals_pos ),
+                                             prop.substring( equals_pos + 1) );
+                }
             }
         }
 
@@ -1171,8 +1194,9 @@ public final class ORB
         for( Enumeration e = initrefs.keys(); e.hasMoreElements(); )
         {
             String key = (String)e.nextElement();
-            initial_references.put( key.substring( key.indexOf('.')+1), 
-                                    string_to_object( (String)initrefs.get( key ) ));
+            Object obj = string_to_object( (String)initrefs.get( key ));
+            if( obj != null )
+                initial_references.put( key.substring( key.indexOf('.')+1), obj);
         }
 
         interceptorInit();
@@ -1398,17 +1422,30 @@ public final class ORB
         if( str == null )
             return null;
 
-        ParsedIOR pior = new ParsedIOR( str );
-
-        if( pior.isNull() )
+        try
         {
+            ParsedIOR pior = new ParsedIOR( str );
+            if( pior.isNull() )
+            {
+                return null;
+            }
+            else
+            {
+                return _getObject(pior);
+            }
+        }
+        catch( IllegalArgumentException iae )
+        {
+            Debug.output( 5, iae );
             return null;
         }
-        else
-        {
-            return _getObject(pior);
-        }
+
+
     }
+
+    /**
+     * called by org.jacorb.poa.RequestProcessor
+     */
 
     public void set_delegate( java.lang.Object wrapper ) 
     {
