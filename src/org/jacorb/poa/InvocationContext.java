@@ -28,16 +28,10 @@ import org.omg.PortableServer.Servant;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.00, 09/20/99, RT
  */
-public interface InvocationContext {
-	byte[] getObjectId();
-	org.omg.CORBA.ORB getORB();
-	POA getPOA();
-	Servant getServant();
+public interface InvocationContext
+{
+    byte[] getObjectId ();
+    org.omg.CORBA.ORB getORB ();
+    POA getPOA ();
+    Servant getServant ();
 }
-
-
-
-
-
-
-

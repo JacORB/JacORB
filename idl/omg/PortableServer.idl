@@ -1,23 +1,24 @@
-// CORBA V2.2
+// CORBA V2.6
 // PORTABLE OBJECT ADAPTER, Chapter 9
 // $Id$
 
-#ifndef _MYPOA_IDL
-#define _MYPOA_IDL
+#ifndef _POA_IDL_
+#define _POA_IDL_
 
 #pragma prefix "omg.org"
+
 #include <Corba.idl>
 
 module PortableServer
 {
     // forward declaration
 
-    interface POA;
+    local interface POA;
     typedef sequence<POA> POAList;
 	
     native Servant;
 	
-    typedef sequence<octet> ObjectId;
+    typedef CORBA::OctetSeq ObjectId;
 	
     exception ForwardRequest
     {
@@ -38,9 +39,11 @@ module PortableServer
     const CORBA::PolicyType SERVANT_RETENTION_POLICY_ID = 21;
     const CORBA::PolicyType REQUEST_PROCESSING_POLICY_ID = 22;
 
-    enum ThreadPolicyValue {
+    enum ThreadPolicyValue
+    {
 	ORB_CTRL_MODEL,
-	SINGLE_THREAD_MODEL
+	SINGLE_THREAD_MODEL,
+        MAIN_THREAD_MODEL
     };
 
     local interface ThreadPolicy : CORBA::Policy
@@ -48,7 +51,8 @@ module PortableServer
         readonly attribute ThreadPolicyValue value;
     };
 	
-    enum LifespanPolicyValue {
+    enum LifespanPolicyValue
+    {
 	TRANSIENT,
 	PERSISTENT
     };
@@ -58,7 +62,8 @@ module PortableServer
         readonly attribute LifespanPolicyValue value;
     };
 	
-    enum IdUniquenessPolicyValue {
+    enum IdUniquenessPolicyValue
+    {
 	UNIQUE_ID,
 	MULTIPLE_ID
     };
@@ -68,7 +73,8 @@ module PortableServer
 	readonly attribute IdUniquenessPolicyValue value;
     };
 	
-    enum IdAssignmentPolicyValue {
+    enum IdAssignmentPolicyValue
+    {
 	USER_ID,
 	SYSTEM_ID
     };
@@ -78,7 +84,8 @@ module PortableServer
         readonly attribute IdAssignmentPolicyValue value;
     };
 	
-    enum ImplicitActivationPolicyValue {
+    enum ImplicitActivationPolicyValue
+    {
 	IMPLICIT_ACTIVATION,
 	NO_IMPLICIT_ACTIVATION
     };
@@ -88,7 +95,8 @@ module PortableServer
 	readonly attribute ImplicitActivationPolicyValue value;
     };
 	
-    enum ServantRetentionPolicyValue {
+    enum ServantRetentionPolicyValue
+    {
 	RETAIN,
 	NON_RETAIN
     };
@@ -98,7 +106,8 @@ module PortableServer
 	readonly attribute ServantRetentionPolicyValue value;
     };
 	
-    enum RequestProcessingPolicyValue {
+    enum RequestProcessingPolicyValue
+    {
 	USE_ACTIVE_OBJECT_MAP_ONLY,
 	USE_DEFAULT_SERVANT,
 	USE_SERVANT_MANAGER
@@ -117,21 +126,21 @@ module PortableServer
 	
     local interface POAManager
     {
-	exception AdapterInactive{ };
+	exception AdapterInactive {};
 	
 	enum State { HOLDING, ACTIVE, DISCARDING, INACTIVE };
 
-	void activate( ) 
-	    raises( AdapterInactive );
-	void hold_requests( in boolean wait_for_completion ) 
-	    raises( AdapterInactive );
-	void discard_requests( in boolean wait_for_completion )
-	    raises( AdapterInactive );
-	void deactivate( in boolean etherealize_objects,
-			 in boolean wait_for_completion )
-	    raises( AdapterInactive );
+	void activate () 
+	    raises (AdapterInactive);
+	void hold_requests (in boolean wait_for_completion) 
+	    raises (AdapterInactive);
+	void discard_requests (in boolean wait_for_completion)
+	    raises (AdapterInactive );
+	void deactivate (in boolean etherealize_objects,
+			 in boolean wait_for_completion)
+	    raises (AdapterInactive);
 	
-	State get_state( );
+	State get_state ();
     };
 	
     // **************************************************
@@ -142,7 +151,7 @@ module PortableServer
 	
     local interface AdapterActivator
     {
-	boolean unknown_adapter( in POA parent, in string name );
+	boolean unknown_adapter (in POA parent, in string name);
     };
 	
     // **************************************************
@@ -151,47 +160,41 @@ module PortableServer
     //
     // **************************************************
 	
-    local interface ServantManager
-    {};
+    local interface ServantManager {};
 	
     local interface ServantActivator : ServantManager 
     {
 	Servant incarnate (in ObjectId oid,
-			   in POA     adapter )
-	    raises ( ForwardRequest );
+			   in POA adapter)
+	    raises (ForwardRequest);
 	
 	void etherealize (in ObjectId oid,
-			  in POA		adapter,
-			  in Servant 	serv,
-			  in boolean	cleanup_in_progress,
-			  in boolean 	remaining_activations );
+			  in POA adapter,
+			  in Servant serv,
+			  in boolean cleanup_in_progress,
+			  in boolean remaining_activations);
     };
 	
 
     /*  We don't generate code from the follwing definitions
 	as the language mapping defines the classes explicitly
 
-    interface ServantLocator : ServantManager 
+    local interface ServantLocator : ServantManager 
     {
-#pragma local
-
-	
 	native 	Cookie;
 
-	Servant preinvoke(
-			  in ObjectId	       	oid,
-			  in POA	       	adapter,
-			  in CORBA::Identifier	operation,
-			  out Cookie	       	the_cookie )
-	    raises ( ForwardRequest );
+	Servant preinvoke (in ObjectId	       	oid,
+			   in POA	       	adapter,
+			   in CORBA::Identifier	operation,
+			   out Cookie	       	the_cookie)
+	    raises (ForwardRequest);
 	
-	void postinvoke(
-			in ObjectId   		oid,
+	void postinvoke(in ObjectId   		oid,
 			in POA			adapter,
 			in CORBA::Identifier	operation,
 			in Cookie    	       	the_cookie,
 			in Servant	       	the_servant	);
-	    raises ( ForwardRequest ); // this exception is only in the Java mapping!
+	    raises (ForwardRequest); // this exception is only in the Java mapping!
     };
     */
 	
@@ -208,16 +211,16 @@ module PortableServer
     local interface POA
     {
 	    exception AdapterAlreadyExists {};
-	    exception AdapterInactive { };
-	    exception AdapterNonExistent { };
-	    exception InvalidPolicy { unsigned short index; };
-	    exception NoServant { };
-	    exception ObjectAlreadyActive { };
-	    exception ObjectNotActive { };
-	    exception ServantAlreadyActive { };
-	    exception ServantNotActive { };
-	    exception WrongAdapter { };
-	    exception WrongPolicy { };
+	    exception AdapterInactive {};
+	    exception AdapterNonExistent {};
+	    exception InvalidPolicy {unsigned short index;};
+	    exception NoServant {};
+	    exception ObjectAlreadyActive {};
+	    exception ObjectNotActive {};
+	    exception ServantAlreadyActive {};
+	    exception ServantNotActive {};
+	    exception WrongAdapter {};
+	    exception WrongPolicy {};
 	
 	    //--------------------------------------------------
 	    //
@@ -241,25 +244,20 @@ module PortableServer
 	    // Factories for Policy objects
 	    //
 	    // **************************************************
-	    ThreadPolicy
-		create_thread_policy( in ThreadPolicyValue value );
-	    LifespanPolicy
-		create_lifespan_policy( in LifespanPolicyValue value );
-	    IdUniquenessPolicy
-		create_id_uniqueness_policy
-		( in IdUniquenessPolicyValue value );
-	    IdAssignmentPolicy
-		create_id_assignment_policy
-		( in IdAssignmentPolicyValue value );
-	    ImplicitActivationPolicy
-		create_implicit_activation_policy
-		( in ImplicitActivationPolicyValue value );
-	    ServantRetentionPolicy
-		create_servant_retention_policy
-		( in ServantRetentionPolicyValue value );
-	    RequestProcessingPolicy
-		create_request_processing_policy
-		( in RequestProcessingPolicyValue value );
+	    ThreadPolicy create_thread_policy
+                (in ThreadPolicyValue value);
+	    LifespanPolicy create_lifespan_policy
+                (in LifespanPolicyValue value);
+	    IdUniquenessPolicy create_id_uniqueness_policy
+                (in IdUniquenessPolicyValue value);
+	    IdAssignmentPolicy create_id_assignment_policy
+                (in IdAssignmentPolicyValue value);
+	    ImplicitActivationPolicy create_implicit_activation_policy
+                (in ImplicitActivationPolicyValue value);
+	    ServantRetentionPolicy create_servant_retention_policy
+		(in ServantRetentionPolicyValue value);
+	    RequestProcessingPolicy create_request_processing_policy
+		(in RequestProcessingPolicyValue value);
 	
 	    //--------------------------------------------------
 	    //
@@ -307,9 +305,8 @@ module PortableServer
 	    ObjectId activate_object( in Servant p_servant )
 		raises ( ServantAlreadyActive, WrongPolicy );
 	
-	    void activate_object_with_id(
-					 in ObjectId	id,
-					 in Servant	p_servant )
+	    void activate_object_with_id (in ObjectId	id,
+					 in Servant	p_servant)
 		raises ( ServantAlreadyActive, ObjectAlreadyActive,
 			 WrongPolicy );
 	
@@ -322,14 +319,15 @@ module PortableServer
 	    //
 	    // **************************************************
 	
-	    Object create_reference (
-				     in CORBA::RepositoryId intf )
-		raises ( WrongPolicy );
+	    Object create_reference (in CORBA::RepositoryId intf)
+		raises (WrongPolicy);
 	
-	    Object create_reference_with_id (
-					     in ObjectId				oid,
-					     in CORBA::RepositoryId	intf )
-		raises ( WrongPolicy );
+	    Object create_reference_with_id
+            (
+               in ObjectId oid,
+               in CORBA::RepositoryId intf
+            )
+            raises (WrongPolicy);
 	
 	
 	    //--------------------------------------------------
@@ -338,25 +336,24 @@ module PortableServer
 	    //
 	    //--------------------------------------------------
 	
-	    ObjectId servant_to_id( in Servant p_servant )
-		raises ( ServantNotActive, WrongPolicy );
+	    ObjectId servant_to_id (in Servant p_servant)
+		raises (ServantNotActive, WrongPolicy);
 	
-	    Object servant_to_reference( in Servant p_servant )
-		raises ( ServantNotActive, WrongPolicy );
+	    Object servant_to_reference (in Servant p_servant)
+		raises (ServantNotActive, WrongPolicy);
 	
-	    Servant reference_to_servant( in Object reference )
-		raises ( ObjectNotActive, WrongAdapter, WrongPolicy );
+	    Servant reference_to_servant (in Object reference)
+		raises (ObjectNotActive, WrongAdapter, WrongPolicy);
 	
-	    ObjectId reference_to_id( in Object reference )
-		raises ( WrongAdapter, WrongPolicy );
+	    ObjectId reference_to_id (in Object reference)
+		raises (WrongAdapter, WrongPolicy);
 	
-	    Servant id_to_servant( in ObjectId oid )
-		raises ( ObjectNotActive, WrongPolicy );
+	    Servant id_to_servant (in ObjectId oid)
+		raises (ObjectNotActive, WrongPolicy);
 	
-	    Object id_to_reference( in ObjectId oid )
-		raises ( ObjectNotActive, WrongPolicy );
-	
-	};
+	    Object id_to_reference (in ObjectId oid)
+		raises (ObjectNotActive, WrongPolicy);
+    };
 	
 	
     // **************************************************
@@ -370,12 +367,14 @@ module PortableServer
 	
     local interface Current : CORBA::Current
     {
-	exception NoContext { };
+	exception NoContext {};
 	
-	POA get_POA( ) raises ( NoContext );
-	ObjectId get_object_id( ) raises ( NoContext );
+	POA get_POA () raises (NoContext);
+	ObjectId get_object_id () raises (NoContext); 
+	Object get_reference () raises (NoContext); 
+	Servant get_servant () raises (NoContext); 
     };
 	
 };
-#endif /* _MYPOA_IDL */
 
+#endif /* _POA_IDL_ */

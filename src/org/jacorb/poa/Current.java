@@ -83,10 +83,22 @@ public class Current
         return getInvocationContext().getObjectId();
     }
 
-    public org.omg.PortableServer.POA get_POA() 
+    public org.omg.CORBA.Object get_reference ()
         throws NoContext 
     {
-        return getInvocationContext().getPOA();
+        return get_servant()._this_object (getORB ());
+    }
+
+    public org.omg.PortableServer.Servant get_servant ()
+        throws NoContext 
+    {
+        return getInvocationContext().getServant ();
+    }
+
+    public org.omg.PortableServer.POA get_POA () 
+        throws NoContext 
+    {
+        return getInvocationContext().getPOA ();
     }
     
     synchronized private InvocationContext getInvocationContext() 
@@ -96,11 +108,12 @@ public class Current
 
         Vector cv = (Vector) threadTable.get(ct);
 
-        if (cv != null) {
-			
+        if (cv != null)
+        {
             InvocationContext c = (InvocationContext) cv.lastElement();
 
-            if (c != null) {
+            if (c != null)
+            {
                 return c;
             }
         }
@@ -128,7 +141,3 @@ public class Current
       }
     */
 }
-
-
-
-
