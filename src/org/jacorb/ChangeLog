@@ -1,3 +1,85 @@
+2002-03-18  Andre Spiegel  <spiegel@gnu.org>
+
+	Patch by Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/CDRInputStream.java:
+	(read_untyped_value): In the RMI case, use the context class
+	loader of the current thread if possible.
+
+2002-03-18  Jason Courage
+
+	* idl/sym.java, idl/parser.cup, idl/parser.java: Changes to
+	version and static strings.
+
+	* idl/parser.java, orb/ORB.java: Minor change to static strings
+	for version output.
+
+2002-03-15  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/connection/Server_TCP_IP_Transport.java:
+	(c'tor) switch on TcpNoDelay socket option. Note: only change this
+	option in conjunction with also changing the option in
+	Client_TCP_IP_Transport.java
+
+2002-03-13  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/parser.java, orb/ORB.java: Version update
+
+	* orb/ParsedIOR.java: Update to use reflection for JDNI support
+
+2002-03-13  Nick Cross
+
+	* build.xml, orb/build.xml: Fix for #87
+
+2002-03-12  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/CDROutputStream.java:
+	Back out for byte array handling optimisation
+
+	* idl/Interface.java, idl/InterfaceBody.java, idl/Method.java,
+	idl/OpDecl.java, idl/Operation.java: Fix for bug #141
+
+2002-03-12  Jason Courage
+
+	* trading/client/build.xml, trading/db/build.xml,
+	transaction/build.xml, util/tracing/build.xml,
+	orb/standardInterceptors/build.xml, poa/build.xml,
+	security/build.xml, security/ssl/iaik/build.xml,
+	security/ssl/sun_jsse/build.xml, trading/build.xml,
+	naming/build.xml, orb/build.xml, orb/dns/build.xml,
+	orb/domain/build.xml, orb/portableInterceptor/build.xml,
+	collection/build.xml, concurrency/build.xml, events/build.xml,
+	idl/build.xml, imr/build.xml, ir/build.xml, build.xml: Added
+	debugging functionality.
+
+2002-03-11  Steve Osselton  <steve@prismtechnologies.com>
+
+	* poa/AOM.java: Fix for bug #131
+
+	* poa/Current.java, poa/InvocationContext.java: Update for bug #138
+
+2002-03-11  Jason Courage
+
+	* orb/Any.java: Added typecode checking to
+	insert_fixed (BigDecimal, TypeCode) operation; changed Java
+	runtime exceptions to CORBA system exceptions.
+
+2002-03-08  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/FixedPointType.java: Fix for bug #137
+
+2002-03-08  Jason Courage
+
+	* orb/Any.java: In fixed case of read_value method, the fixed
+	value is read from the stream, the decimal is inserted into it,
+	and it is inserted into the Any using the
+	insert_fixed (BigDecimal, TypeCode) method.
+
+2002-03-08  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Any.java: Fix for bug #134. wchar now handled in read/write
+	operations
+
 2002-03-07  Andre Spiegel  <spiegel@gnu.org>
 
 	Patch by Francisco Reverbel <reverbel@ime.usp.br>
