@@ -33,7 +33,7 @@ import org.omg.CORBA.CompletionStatus;
  */
 
 public class ORBSingleton
-    extends org.omg.CORBA_2_3.ORB
+    extends org.omg.CORBA_2_5.ORB
 {
     /* factory methods: */
 

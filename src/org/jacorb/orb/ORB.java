@@ -105,7 +105,7 @@ public final class ORB
     private ImRAccess imr = null;
     private int persistentPOACount;
 
-    public static String orb_id = "jacorb:1.0";
+    public static String orb_id = "jacorb:1.4";
 
     /* outstanding dii requests awaiting completion */
     private Set requests = Collections.synchronizedSet( new HashSet() );
@@ -125,6 +125,15 @@ public final class ORB
 
     public ORB()
     {
+    }
+
+    /**
+     * @overwrites id() in org.omg.CORBA_2_5.ORB
+     */
+
+    public String id()
+    {
+	return orb_id;
     }
 
     public boolean useBiDirGIOP()
@@ -983,6 +992,7 @@ public final class ORB
      * @param id The references human-readable id, e.g. "MyService".
      * @param obj The objects reference.
      * @exception InvalidName A reference with id has already been registered.
+     * @overwrites  register_initial_reference() in org.omg.CORBA_2_5.ORB
      */
 
     public void register_initial_reference( String id, org.omg.CORBA.Object obj ) 
@@ -1584,24 +1594,34 @@ public final class ORB
     /**
      * Finds a ValueFactory for class valueName by trying standard class names.
      */
+
     private ValueFactory findValueFactory (String valueName)
     {
         Class result = null;
         result = findClass (valueName + "DefaultFactory", true);
         if (result != null)
+        {
             return (ValueFactory)instantiate (result);
+        }
         else
         {
             // Extension of the standard: Handle the common case
             // when the Impl class is its own factory...
             Class c = findClass (valueName, false);
             result  = findClass (valueName + "Impl", false);
+
             if (result != null && c.isAssignableFrom (result))
+            {
                 if (ValueFactory.class.isAssignableFrom (result))
+                {
                     return (ValueFactory)instantiate (result);
+                }
                 else
+                {
                     // ... or create a factory on the fly
                     return new JacORBValueFactory (result);
+                }
+            }
             else
                 return null;
         }
