@@ -29,52 +29,54 @@ import java.io.PrintWriter;
  */
 
 class AndExpr
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public AndExpr and_expr = null;
     public ShiftExpr shift_expr;
 
-    public AndExpr( int num )
+    public AndExpr(int num)
     {
-        super( num );
+        super(num);
     }
 
-
-    public void print( PrintWriter ps )
+    public void print(PrintWriter ps)
     {
-        if( and_expr != null )
+        if (and_expr != null)
         {
-            and_expr.print( ps );
-            ps.print( " & " );
+            and_expr.print(ps);
+            ps.print(" & ");
         }
-        shift_expr.print( ps );
+        shift_expr.print(ps);
     }
 
 
-    public void setDeclaration( ConstDecl declared_in )
+    public void setDeclaration(ConstDecl declared_in)
     {
-        shift_expr.setDeclaration( declared_in );
+        shift_expr.setDeclaration(declared_in);
     }
 
-    public void setPackage( String s )
+    public void setPackage(String s)
     {
-        s = parser.pack_replace( s );
-        if( pack_name.length() > 0 )
+        s = parser.pack_replace(s);
+        if (pack_name.length() > 0)
+        {
             pack_name = s + "." + pack_name;
-        else
-            pack_name = s;
-
-        if( and_expr != null )
-        {
-            and_expr.setPackage( s );
         }
-        shift_expr.setPackage( s );
+        else
+        {
+            pack_name = s;
+        }
+
+        if (and_expr != null)
+        {
+            and_expr.setPackage(s);
+        }
+        shift_expr.setPackage(s);
     }
 
     public void parse()
     {
-        if( and_expr != null )
+        if (and_expr != null)
         {
             and_expr.parse();
         }
@@ -89,7 +91,7 @@ class AndExpr
     public String value()
     {
         String x = "";
-        if( and_expr != null )
+        if (and_expr != null)
         {
             x = and_expr.value() + "&";
         }
@@ -99,7 +101,7 @@ class AndExpr
     public String toString()
     {
         String x = "";
-        if( and_expr != null )
+        if (and_expr != null)
         {
             x = and_expr + "&";
         }
@@ -112,10 +114,3 @@ class AndExpr
     }
 
 }
-
-
-
-
-
-
-
