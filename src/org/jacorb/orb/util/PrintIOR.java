@@ -31,6 +31,7 @@ import org.omg.SSLIOP.*;
 import org.omg.CSIIOP.*;
 import org.omg.CONV_FRAME.*;
 
+
 import java.io.*;
 
 /**
@@ -152,6 +153,17 @@ public class PrintIOR
             }
             System.out.print("\n");
         }
+
+        TaggedComponent[] multiple_components = pior.getMultipleComponents();
+        
+        if( multiple_components.length > 0 )
+        {
+            System.out.println("Components in MULTIPLE_COMPONENTS profile: " +
+                               multiple_components.length );
+            
+            printTaggedComponents( multiple_components );
+        }
+
         orb.shutdown(true);
     }
 
@@ -251,9 +263,12 @@ public class PrintIOR
             System.out.print("\t\tChar Conversion Code Sets: ");
             for( int ji = 0; ji < codeSet.ForCharData.conversion_code_sets.length; ji++ )
             {
-                System.out.println( CodeSet.csName( 
-                                                   codeSet.ForCharData.conversion_code_sets[ji] )+ ",");
+                System.out.println( CodeSet.csName( codeSet.ForCharData.conversion_code_sets[ji] ) );
                 
+                if( ji < (codeSet.ForCharData.conversion_code_sets.length - 1) )
+                {
+                    System.out.println( ", " );
+                }
             }
 
             System.out.println("\t\tForWChar native code set Id: " +
@@ -261,8 +276,12 @@ public class PrintIOR
             System.out.print("\t\tWChar Conversion Code Sets: ");
             for( int ji = 0; ji < codeSet.ForWcharData.conversion_code_sets.length; ji++ )
             {
-                System.out.println( CodeSet.csName( 
-                                                   codeSet.ForWcharData.conversion_code_sets[ji] ) + ",");
+                System.out.println( CodeSet.csName( codeSet.ForWcharData.conversion_code_sets[ji] ));
+                
+                if( ji < (codeSet.ForWcharData.conversion_code_sets.length - 1) )
+                {
+                    System.out.println( ", " );
+                }  
             } 
         }
     }
@@ -289,16 +308,143 @@ public class PrintIOR
                 ssl_port += 65536;
             
             System.out.print   ( "\t\ttarget_supports\t:\t" );
-            dump               ( ssl.target_supports );
+            //dump               ( ssl.target_supports );
+            decodeAssociationOption( ssl.target_supports );
             java.lang.System.out.println();
             System.out.print   ( "\t\ttarget_requires\t:\t" );
-            dump               ( ssl.target_requires );
+            //dump               ( ssl.target_requires );
+            decodeAssociationOption( ssl.target_requires );
             java.lang.System.out.println();
             System.out.println ( "\t\tSSL Port\t:\t" + ssl_port );
 
-        }
-        
+        }        
     }
+    private static void decodeAssociationOption( int option )
+    {
+        boolean first = true;
+        
+        if( (option & org.omg.Security.NoProtection.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "NoProtection" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.Integrity.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "Integrity" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.Confidentiality.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "Confidentiality" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.DetectReplay.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "DetectReplay" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.DetectMisordering.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "DetectMisordering" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.EstablishTrustInTarget.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "EstablishTrustInTarget" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.EstablishTrustInClient.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "EstablishTrustInClient" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.NoDelegation.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "NoDelegation" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.SimpleDelegation.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "SimpleDelegation" );
+            
+            first = false;
+        }
+
+        if( (option & org.omg.Security.CompositeDelegation.value) != 0 )
+        {
+            if( ! first )
+            {
+                System.out.print( ", " );
+            }
+
+            System.out.print( "CompositeDelegation" );
+            
+            first = false;
+        }
+
+    }
+    
 
     private static void printJavaCodebaseComponent( TaggedComponent taggedComponent )
     {
