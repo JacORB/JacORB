@@ -627,7 +627,6 @@ public class ParsedIOR
 
 	if ( object_reference.startsWith("IOR:") )
 	{
-	    ior_str = object_reference;
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	    int cnt = (object_reference.length()-4) / 2;
 	    for(int j=0; j<cnt; j++)
@@ -713,12 +712,9 @@ public class ParsedIOR
 	    }
 	}
 	else
+        {
 	    throw new IllegalArgumentException("Invalid IOR format: " + object_reference );
+        }
+	ior_str = getIORString ();
     }
-
-
-
-
 }
-
-
