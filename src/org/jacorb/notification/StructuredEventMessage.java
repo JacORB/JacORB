@@ -86,8 +86,8 @@ class StructuredEventMessage extends AbstractMessage
     ////////////////////////////////////////
 
     public synchronized void setStructuredEventValue( StructuredEvent event,
-                                         boolean startTimeSupported,
-                                         boolean timeOutSupported)
+                                                      boolean startTimeSupported,
+                                                      boolean timeOutSupported)
     {
         structuredEventValue_ = event;
 
