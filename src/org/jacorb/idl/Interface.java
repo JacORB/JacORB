@@ -642,7 +642,46 @@ class Interface
             ps.println( "\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Narrow failed, not a " + typeName() + "\");" );
         }
         ps.println( "\t}" );
-        ps.println( "}" );
+
+        ps.println("\tpublic static " + typeName() + " unchecked_narrow (final org.omg.CORBA.Object obj)");
+        ps.println("\t{");
+        ps.println("\t\tif( obj == null )");
+        ps.println("\t\t\treturn null;");
+
+        if (parser.generate_stubs && ! is_local)
+        {
+            ps.println("\t\ttry");
+            ps.println("\t\t{");
+            ps.println("\t\t\treturn (" + typeName() + ")obj;");
+            ps.println("\t\t}");
+            ps.println("\t\tcatch( ClassCastException c )");
+            ps.println("\t\t{");
+        
+            String stub_name = typeName();
+            if( stub_name.indexOf('.') > -1 )
+            {
+                stub_name = stub_name.substring(0,typeName().lastIndexOf('.')) + 
+                    "._" + stub_name.substring(stub_name.lastIndexOf('.')+1) + "Stub";
+            }
+            else
+                stub_name = "_" + stub_name + "Stub";
+            ps.println("\t\t\t\t" + stub_name + " stub;");
+          
+            ps.println("\t\t\t\tstub = new " + stub_name + "();");
+            ps.println("\t\t\t\tstub._set_delegate(((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());");
+            ps.println("\t\t\t\treturn stub;");
+            ps.println("\t\t}");
+        }
+        else
+        {
+            ps.println("\t\tif( obj instanceof " + typeName() + " )");
+            ps.println("\t\t\treturn (" + typeName() + ")obj;");
+            ps.println("\t\telse");
+            ps.println("\t\tthrow new org.omg.CORBA.BAD_PARAM(\"unchecked_narrow failed, not a " + typeName()+ "\");");
+        }
+        ps.println("\t}");
+
+        ps.println("}");
         ps.close();
     }
 
