@@ -26,17 +26,14 @@
   </target>
 
   <target name="all" depends="demo.init, idl" >
-    <antcall target="jacorb-javac">
-      <param name="javac-includes"
-	value="**/*.java" />
-
-      <param name="javac-src"
-	value="${dir.src}" />
-
-      <param name="javac-sourcepath"
-	value="${dir.generated}" />
-
-    </antcall>    
+	<path id="path.src">
+		<pathelement location="${dir.generated}" />
+	</path>
+	
+    <jacorb-javac
+      javac-includes="**/*.java"
+      javac-src="${dir.src}"
+	  javac-sourcepath="${dir.generated}" />
   </target>
   
   <target name="idl" depends="demo.init, load-taskdef" >
