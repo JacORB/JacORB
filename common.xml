@@ -52,27 +52,14 @@
        </path>
     </pathconvert>
 
-    <!-- The 'xbootclasspath' value used in compilation -->
-    <pathconvert property="xbootclasspath" targetos="${architecture}">
-       <path>
-          <pathelement location="${dirs.base}/classes"/>
-          <pathelement location="${basedir}/classes"/>
-          <pathelement location="${sun.boot.class.path}"/>
-          <pathelement location="${lib}/idl.jar"/>
-          <pathelement location="${lib}/logkit.jar"/>
-          <pathelement location="${lib}/concurrent.jar"/>
-          <pathelement location="${lib}/antlr.jar"/>
-          <pathelement location="${java.class.path}"/>
-       </path>
-    </pathconvert>
-
     <mkdir dir="${classdir}"/>
     <mkdir dir="${src}/generated"/>
     <filter token="path" value="basedir"/>
 </target>
 
-<target name="whats-my-classpath" depends="init" description="Outputs the classpath that will be used for compilation of the JacORB">
-         <echo message="JacORB will be built with the following (boot) classpath:${line.separator}${xbootclasspath}"/>
+<target name="whats-my-classpath" depends="init" 
+        description="Outputs the classpath that will be used for compilation of the JacORB">
+         <echo message="JacORB will be built with the following classpath:${line.separator}${classpath}"/>
 </target>
 
 <target name="load-taskdef" depends="init">
@@ -119,9 +106,6 @@
 <!-- Mandatory parameter is:                                                 -->
 <!-- javac-includes   Specifies which files to compile.                      -->
 <!--                                                                         -->
-<!-- Note use of bootclasspath is to override ORB classes in rt.jar. Ant     -->
-<!-- doesn't allow prepend so must add in rt.jar as well                     -->
-          <!-- bootclasspath="${xbootclasspath}" -->
 
 <target name="jacorb-javac" depends="check-includes,check-sourcepath,check-src,check-excludes">
    <echo message="Compiling for ${ant.project.name}"/>
