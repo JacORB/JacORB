@@ -1,3 +1,34 @@
+2003-10-27  Andre Spiegel  <spiegel@gnu.org>
+
+	Refactoring patch to bring corbaloc in line with ETF.
+	Submitted by Phil Mesnier <mesnier_p@ociweb.com>.
+	
+	* orb/util/CorbaLoc.java (ObjectAddress): Inner class
+	removed. Object addresses are now stored as ETF Profiles.
+	(c'tor): Add ORB parameter.
+
+	* orb/ParsedIOR.java (createObjectIOR): Replaced previous
+	versions with a new method that takes an ETF Profile argument.
+	(decode(CorbaLoc)): Removed.
+	(parse_corbaloc, parse_corbaname, parse_jndi, parse_resource,
+	parse_stringified_ior): New methods.
+	(parse): Delegate the actual work to them.
+
+	* orb/iiop/IIOPFactories.java (decode_corbaloc): New method.
+
+	* orb/iiop/IIOPProfile.java:
+	(IIOPProfile(IIOPAddress, byte[], int minor): New constructor that
+	takes a GIOP minor version argument.
+	(IIOPProfile(String corbaloc)): New constructor.
+	(decode_corbaloc, decode_extensions, get_ssl_options): New
+	methods.
+
+	* imr/ImplementationRepositoryImpl.java
+	(ImrRequestListener): Construct IOR via ETF Profile.
+
+	* naming/NamingContextImpl.java
+	(to_url): Pass ORB parameter to CorbaLoc constructor.
+
 2003-10-24  Gerald Brose  <gerald.brose@acm.org>
 
 	* idl/sym.java: *** empty log message ***
