@@ -26,6 +26,7 @@ import java.lang.reflect.*;
 import org.omg.GIOP.*;
 import org.omg.Messaging.ExceptionHolder;
 import org.omg.CORBA.ExceptionList;
+import org.omg.CORBA.SystemException;
 import org.omg.CORBA.UnknownUserException;
 import org.omg.CORBA.UserException;
 
@@ -67,6 +68,16 @@ public class ExceptionHolderImpl extends org.omg.Messaging.ExceptionHolder
         }
         byte_order          = is.littleEndian;
         marshaled_exception = is.getBody();
+    }
+
+    public ExceptionHolderImpl (org.omg.CORBA.SystemException ex)
+    {
+        is_system_exception = true;
+        byte_order          = false;
+        
+        CDROutputStream output = new CDROutputStream();
+        SystemExceptionHelper.write (output, ex);
+        marshaled_exception = output.getBufferCopy();
     }
 
     /**
