@@ -23,9 +23,10 @@ package org.jacorb.notification.engine;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.util.TaskExecutor;
+import java.util.ArrayList;
 
 /**
  * FilterConsumerAdminTask.java
@@ -40,6 +41,20 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
     private static int COUNT = 0;
     private int id_ = ++COUNT;
 
+    /**
+     * this List contains FilterStages (ProxySuppliers) which have a
+     * MessageConsumer associated.
+     */
+    protected List listOfFilterStageWithMessageConsumer_ = new ArrayList();
+
+    ////////////////////////////////////////
+
+    FilterConsumerAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+        super(te, tp, tc);
+    }
+
+    ////////////////////////////////////////
+
     public String toString() {
         return "[FilterConsumerAdminTask#" + id_ + "]";
     }
@@ -48,12 +63,6 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
     private static final FilterStage[] NO_CURRENT_FILTER_STAGE =
         new FilterStage[ 0 ];
 
-    /**
-     * this List contains FilterStages (ProxySuppliers) which have a
-     * EventConsumer associated.
-     */
-    protected List listOfFilterStageWithEventConsumer_ =
-        new Vector();
 
     /**
      * Initialize this FilterOutgoingTask with the Configuration of
@@ -64,83 +73,102 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
         arrayCurrentFilterStage_ = other.getFilterStageToBeProcessed();
     }
 
+
     /**
      * access the FilterStages that have a Event Consumer associated.
      */
-    public FilterStage[] getFilterStagesWithEventConsumer()
+    public FilterStage[] getFilterStagesWithMessageConsumer()
     {
         return ( FilterStage[] )
-               listOfFilterStageWithEventConsumer_.toArray( FILTERSTAGE_ARRAY_TEMPLATE );
+               listOfFilterStageWithMessageConsumer_.toArray( FILTERSTAGE_ARRAY_TEMPLATE );
     }
 
-    public void clearFilterStagesWithEventConsumer()
+
+    private void clearFilterStagesWithMessageConsumer()
     {
-        listOfFilterStageWithEventConsumer_.clear();
+        listOfFilterStageWithMessageConsumer_.clear();
     }
+
 
     public void reset()
     {
         super.reset();
 
-        clearFilterStagesWithEventConsumer();
+        clearFilterStagesWithMessageConsumer();
         arrayCurrentFilterStage_ = NO_CURRENT_FILTER_STAGE;
     }
+
 
     public void doWork() throws InterruptedException
     {
         filter();
 
-        setStatus( DONE );
+        // if we are filtering Outgoing events its
+        // possible that deliveries can be made as soon as
+        // the ConsumerAdmin Filters are eval'd
+        // (if InterFilterGroupOperator.OR_OP is set !)
+
+        FilterStage[] _filterStagesWithMessageConsumer =
+            getFilterStagesWithMessageConsumer();
+
+        AbstractFilterTask _filterTaskToBeScheduled = null;
+
+        if (_filterStagesWithMessageConsumer.length > 0) {
+            AbstractDeliverTask[] _listOfPushToConsumerTaskToBeScheduled = null;
+
+            _listOfPushToConsumerTaskToBeScheduled =
+                taskFactory_.newPushToConsumerTask(_filterStagesWithMessageConsumer,
+                                                        copyMessage());
+
+            AbstractDeliverTask.scheduleTasks(_listOfPushToConsumerTaskToBeScheduled, true);
+        }
+
+        _filterTaskToBeScheduled = taskFactory_.newFilterProxySupplierTask( this );
+
+        _filterTaskToBeScheduled.schedule(true);
+
+        dispose();
     }
+
 
     private void filter() throws InterruptedException
     {
-
         for ( int x = 0; x < arrayCurrentFilterStage_.length; ++x )
         {
-
             checkInterrupt();
 
             boolean _filterForCurrentFilterStageMatched = false;
 
             if ( !arrayCurrentFilterStage_[ x ].isDisposed() )
             {
-
                 _filterForCurrentFilterStageMatched =
                     message_.match( arrayCurrentFilterStage_[ x ] );
-
             }
 
             if ( _filterForCurrentFilterStageMatched )
             {
-
                 if ( arrayCurrentFilterStage_[ x ].hasOrSemantic() )
                 {
-
                     // if the subsequent destinations
                     // InterFilterGroupOperator equals OR_OP
                     // we can add it to
-                    // listOfFilterStageWithEventConsumer_ as the
+                    // listOfFilterStageWithMessageConsumer_ as the
                     // corresponding filters dont need to be eval'd
 
-                    listOfFilterStageWithEventConsumer_.
-                    addAll( arrayCurrentFilterStage_[ x ].getSubsequentFilterStages() );
-
+                    listOfFilterStageWithMessageConsumer_.
+                        addAll( arrayCurrentFilterStage_[ x ].getSubsequentFilterStages() );
                 }
                 else
                 {
-
                     // the Filters of the ProxySupplier need to be
                     // eval'd
 
                     addFilterStage( arrayCurrentFilterStage_[ x ].getSubsequentFilterStages() );
 
                 }
-
             }
             else
             {
-
                 // no filter matched at all. we have to check all subsequent
                 // destinations if one of them has
                 // InterFilterGroupOperator.OR_OP enabled. In this

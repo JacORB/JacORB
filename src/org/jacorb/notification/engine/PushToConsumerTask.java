@@ -21,8 +21,9 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.util.TaskExecutor;
 
 /**
  *
@@ -35,6 +36,14 @@ public class PushToConsumerTask extends AbstractDeliverTask
     private static int COUNT = 0;
     private int id_ = ++COUNT;
 
+    ////////////////////
+
+    public PushToConsumerTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+        super(te, tp, tc);
+    }
+
+    ////////////////////
+
     public void doWork()
     {
         if ( logger_.isDebugEnabled() )
@@ -43,12 +52,12 @@ public class PushToConsumerTask extends AbstractDeliverTask
                            + ".push "
                            + message_
                            + " to "
-                           + getEventConsumer() );
+                           + getMessageConsumer() );
         }
 
-        getEventConsumer().deliverEvent( message_ );
+        getMessageConsumer().deliverMessage( message_ );
 
-        setStatus( DONE );
+        dispose();
     }
 
     public String toString() {

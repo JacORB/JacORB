@@ -25,50 +25,46 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.util.TaskExecutor;
+
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
 /**
- * FilterProxySupplierTask.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class FilterProxySupplierTask extends AbstractFilterTask
 {
+    static class AlternateMessageMap {
 
-    public static class AlternateMessageMap {
-
-        private Map changedMessages_;
+        private Map alternateMessages_;
 
         public AlternateMessageMap() {
             this(new Hashtable());
         }
 
         AlternateMessageMap(Map m) {
-            changedMessages_ = m;
+            alternateMessages_ = m;
         }
 
         public Message getAlternateMessage(FilterStage s) {
-            if (changedMessages_.containsKey(s)) {
-                return (Message)changedMessages_.get(s);
+            if (alternateMessages_.containsKey(s)) {
+                return (Message)alternateMessages_.get(s);
             }
             return null;
         }
 
         public void putAlternateMessage(FilterStage s, Message e) {
-            changedMessages_.put(s, e);
+            alternateMessages_.put(s, e);
         }
 
         public void clear() {
-            changedMessages_.clear();
+            alternateMessages_.clear();
         }
-
     }
 
     public static final AlternateMessageMap EMPTY_MAP =
@@ -77,12 +73,20 @@ public class FilterProxySupplierTask extends AbstractFilterTask
             }
         };
 
-    MessageFactory notificationEventFactory_;
+    ////////////////////////////////////////
 
     AlternateMessageMap changedMessages_ = new AlternateMessageMap();
 
     private static int COUNT = 0;
     private int id_ = ++COUNT;
+
+    ////////////////////////////////////////
+
+    FilterProxySupplierTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+        super(te, tp, tc);
+    }
+
+    ////////////////////////////////////////
 
     public String toString()
     {
@@ -93,56 +97,54 @@ public class FilterProxySupplierTask extends AbstractFilterTask
      * Initialize this FilterOutgoingTask with the Configuration of
      * another FilterTask.
      */
-    public void setFilterStage(AbstractFilterTask other) {
-        arrayCurrentFilterStage_ = other.getFilterStageToBeProcessed();
+    public void setFilterStage(AbstractFilterTask task) {
+        arrayCurrentFilterStage_ = task.getFilterStageToBeProcessed();
     }
 
 
     public void reset() {
         super.reset();
+
         arrayCurrentFilterStage_ = null;
         changedMessages_.clear();
     }
 
-    public void doWork() {
 
-        filterProxy();
-
-    }
-
-    private void filterProxy() {
+    public void doWork() throws InterruptedException
+    {
         filter();
 
-        setStatus(DONE);
+        AbstractDeliverTask.scheduleTasks(taskFactory_.newPushToConsumerTask( this ), true);
+
+        dispose();
     }
 
-    Message updatePriority(int indexOfCurrentEvent, Message event) {
+
+    private Message updatePriority(int indexOfCurrentEvent, Message m) {
         AnyHolder _priorityFilterResult = new AnyHolder();
 
-        Message _currentEvent = event;
+        Message _currentMessage = m;
 
         try {
             boolean priorityMatch =
-                event.match(arrayCurrentFilterStage_[indexOfCurrentEvent].getPriorityFilter(),
-                             _priorityFilterResult);
+                m.match(arrayCurrentFilterStage_[indexOfCurrentEvent].getPriorityFilter(),
+                        _priorityFilterResult);
 
             if (priorityMatch) {
-                _currentEvent = (Message)message_.clone();
+                _currentMessage = (Message)message_.clone();
 
-                _currentEvent.setPriority(_priorityFilterResult.value.extract_long());
+                _currentMessage.setPriority(_priorityFilterResult.value.extract_long());
 
             }
-
-
-
         } catch (UnsupportedFilterableData e) {
             logger_.error("error evaluating PriorityFilter", e);
         }
 
-        return _currentEvent;
+        return _currentMessage;
     }
 
-    Message updateTimeout(int indexOfCurrentFilterStage, Message event) {
+
+    private Message updateTimeout(int indexOfCurrentFilterStage, Message event) {
         AnyHolder _lifetimeFilterResult = new AnyHolder();
         Message _currentEvent = event;
 
@@ -167,7 +169,6 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
     private void filter() {
         for (int x = 0; x < arrayCurrentFilterStage_.length; ++x) {
-
             boolean _forward = false;
 
             if (!arrayCurrentFilterStage_[x].isDisposed()) {
@@ -190,15 +191,11 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
                 _forward =
                     _currentEvent.match(arrayCurrentFilterStage_[x]);
-
             }
 
             if (_forward) {
-
-                    // the subsequent destination filters need to be eval'd
-
+                // the subsequent destination filters need to be eval'd
                 addFilterStage(arrayCurrentFilterStage_[x].getSubsequentFilterStages());
-
             }
         }
     }

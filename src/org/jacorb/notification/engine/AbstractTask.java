@@ -26,56 +26,39 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.util.TaskExecutor;
 
 /**
- * TaskBase.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public abstract class AbstractTask extends AbstractPoolable implements Task
+public abstract class AbstractTask
+    extends AbstractPoolable
+    implements Runnable
 {
     protected Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
-    private TaskFinishHandler coordinator_;
-    private TaskErrorHandler errorHandler_;
     protected Message message_;
-    protected int status_;
 
-    AbstractTask()
-    {
-        status_ = NEW;
+    protected TaskProcessor taskProcessor_;
+
+    protected TaskFactory taskFactory_;
+
+    protected TaskExecutor executor_;
+
+    ////////////////////
+
+    protected AbstractTask() {
     }
 
-    /**
-     * Set Status of this Task.
-     */
-    protected void setStatus( int status )
-    {
-        status_ = status;
+    protected AbstractTask(TaskExecutor executor, TaskProcessor tp, TaskFactory tf) {
+        executor_ = executor;
+        taskProcessor_ = tp;
+        taskFactory_ = tf;
     }
 
-    /**
-     * Get the current Status of this Task.
-     */
-    public int getStatus()
-    {
-        return status_;
-    }
-
-    /**
-     *
-     */
-    public void setTaskFinishHandler( TaskFinishHandler coord )
-    {
-        coordinator_ = coord;
-    }
-
-    public void setTaskErrorHandler( TaskErrorHandler handler )
-    {
-        errorHandler_ = handler;
-    }
+    ////////////////////
 
     /**
      * set the Message for this Task to use.
@@ -93,7 +76,9 @@ public abstract class AbstractTask extends AbstractPoolable implements Task
     public Message removeMessage()
     {
         Message _event = message_;
+
         message_ = null;
+
         return _event;
     }
 
@@ -110,54 +95,85 @@ public abstract class AbstractTask extends AbstractPoolable implements Task
 
     /**
      * template method.
-     * <ol><li>Call doWork()
-     * <li>Call TaskFinishHandler in case of success
-     * <li>Call TaskErrorHandler in case a exception occurs while
-     * executing doWork
+     * <ol>
+     * <li>Call doWork()
      * </ol>
      */
     public void run()
     {
         try
         {
-            if ( message_ == null || !isEventDisposed() )
+            if ( message_ == null || !isMessageInvalid() )
             {
                 doWork();
             }
 
-            if ( isEventDisposed() )
+            if ( isMessageInvalid() )
             {
-                logger_.debug( "event has been marked disposable" );
-                setStatus( DISPOSABLE );
-            }
+                dispose();
 
-            coordinator_.handleTaskFinished( this );
+                return;
+            }
         }
         catch ( Throwable t )
         {
-            errorHandler_.handleTaskError( this, t );
+            handleTaskError( this, t );
         }
-
     }
+
+    abstract void handleTaskError(AbstractTask t, Throwable error);
 
     public void reset()
     {
-        coordinator_ = null;
         message_ = null;
-        status_ = NEW;
     }
 
-    private boolean isEventDisposed()
+
+    private boolean isMessageInvalid()
     {
-        return message_ != null && message_.isInvalid();
+        return (message_ != null && message_.isInvalid());
     }
+
 
     protected void checkInterrupt() throws InterruptedException
     {
         if ( Thread.currentThread().isInterrupted() || message_.isInvalid() )
         {
-            logger_.debug( "Worker Thread has been interrupted" );
             throw new InterruptedException();
+        }
+    }
+
+
+    /**
+     * Run this Task on its configured Executor.
+     *
+     * @param directRunAllowed this param specified if its allowed to
+     * run this Task on the calling Thread.
+     * @exception InterruptedException if an error occurs
+     */
+    public void schedule(boolean directRunAllowed) throws InterruptedException
+    {
+        if (directRunAllowed && executor_.isTaskQueued()) {
+            run();
+        } else {
+            executor_.execute(this);
+        }
+    }
+
+
+    /**
+     * Run this Task on the provided Executor.
+     *
+     * @param executor a <code>TaskExecutor</code> value
+     * @param directRunAllowed a <code>boolean</code> value
+     * @exception InterruptedException if an error occurs
+     */
+    public void schedule(TaskExecutor executor, boolean directRunAllowed) throws InterruptedException
+    {
+        if (directRunAllowed  && executor_.isTaskQueued()) {
+            run();
+        } else {
+            executor.execute(this);
         }
     }
 }

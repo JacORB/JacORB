@@ -23,37 +23,40 @@ package org.jacorb.notification.engine;
 
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.jacorb.notification.interfaces.EventConsumer;
+
+import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.util.TaskExecutor;
 
 /**
- *
- *
- * Created: Thu Jan 30 01:31:47 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class TimerDeliverTask extends AbstractDeliverTask
 {
-    public void doWork() throws Disconnected, NotConnected
-    {
-        if ( getEventConsumer().hasPendingEvents() )
-        {
-            getEventConsumer().deliverPendingEvents();
 
-            if ( getEventConsumer().hasPendingEvents() )
+    TimerDeliverTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+        super(te, tp, tc);
+    }
+
+    public void doWork() throws Disconnected, NotConnected, InterruptedException
+    {
+        if ( getMessageConsumer().hasPendingMessages() )
+        {
+            getMessageConsumer().deliverPendingMessages();
+
+            if ( getMessageConsumer().hasPendingMessages() )
             {
-                setStatus( RESCHEDULE );
+                schedule(true);
             }
             else
             {
-                setStatus( DONE );
+                dispose();
             }
         } else {
             if (logger_.isDebugEnabled()) {
                 logger_.debug("Nothing to do as the Target:"
-                              + getEventConsumer()
+                              + getMessageConsumer()
                               + " has no Pending Events.");
             }
         }

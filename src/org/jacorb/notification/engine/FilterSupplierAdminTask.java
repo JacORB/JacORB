@@ -1,5 +1,9 @@
 package org.jacorb.notification.engine;
 
+import org.jacorb.notification.util.TaskExecutor;
+
+
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -22,9 +26,6 @@ package org.jacorb.notification.engine;
  */
 
 /**
- * FilterSupplierAdminTask.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -35,6 +36,10 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
     private int id_ = ++COUNT;
 
     boolean skip_ = false;
+
+    FilterSupplierAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+        super(te, tp, tc);
+    }
 
     public String toString() {
         return "[FilterSupplierAdminTask#" + id_ + "]";
@@ -52,16 +57,16 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
         skip_ = false;
     }
 
-    public void doWork()
+    public void doWork() throws InterruptedException
     {
-        if ( getStatus() == DISPOSABLE )
-        {
-            return ;
-        }
+//         if ( getStatus() == DISPOSABLE )
+//         {
+//             return;
+//         }
 
         boolean _forward = filter();
 
-        setStatus( DONE );
+        taskFactory_.newFilterConsumerAdminTask( this ).schedule(true);
     }
 
     private boolean filter()

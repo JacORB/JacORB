@@ -23,43 +23,61 @@ package org.jacorb.notification.engine;
 
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
+import org.jacorb.notification.util.TaskExecutor;
 
 /**
- * FilterProxyConsumerTask.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class FilterProxyConsumerTask extends AbstractFilterTask
 {
-
     private static int COUNT = 0;
     private int id_ = ++COUNT;
+
+    private boolean orSemantic_ = false;
+
+    ////////////////////
+
+    FilterProxyConsumerTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+        super(te, tp, tc);
+    }
+
+    ////////////////////
 
     public String toString()
     {
         return "[FilterProxyConsumerTask#" + id_ + "]";
     }
 
-    private boolean orSemantic_ = false;
 
     public void reset()
     {
         super.reset();
+
         orSemantic_ = false;
     }
 
+
     /**
-     * access the Filter hint for next Stage
+     * access the Filter hint for next Stage. if the current
+     * FilterStage has InterFilterGroupOperator.OR_OP enabled and a
+     * filter matched the
+     * evaluation of the SupplierAdmin Filters can be skipped.
      */
     public boolean getSkip()
     {
         return orSemantic_;
     }
 
-    void updatePriority()
+
+    /**
+     * match the attached Priority MappingFilter.
+     * the current Message is matched to the MappingFilter attached to
+     * the current FilterStage. In case of successful match
+     * operation the priority of the Messages is updated accordingly.
+     */
+    private void updatePriority()
     {
         try
         {
@@ -67,7 +85,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
             boolean priorityMatch =
                 message_.match( arrayCurrentFilterStage_[ 0 ].getPriorityFilter(),
-                              newPriority );
+                                newPriority );
 
             if ( priorityMatch )
             {
@@ -80,7 +98,14 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         }
     }
 
-    void updateLifetime()
+
+    /**
+     * match the attached Lifetime MappingFilter.
+     * the current Message is matched to the MappingFilter attached to
+     * the current FilterStage. In case of successful match
+     * operation the lifetime of the Messages is updated accordingly.
+     */
+    private void updateLifetime()
     {
         try
         {
@@ -88,7 +113,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
             boolean lifetimeMatch =
                 message_.match( arrayCurrentFilterStage_[ 0 ].getLifetimeFilter(),
-                              newLifetime );
+                                newLifetime );
 
             if ( lifetimeMatch )
             {
@@ -102,8 +127,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
     }
 
 
-
-    public void doWork()
+    public void doWork() throws InterruptedException
     {
         if ( arrayCurrentFilterStage_[ 0 ].hasPriorityFilter() )
         {
@@ -119,15 +143,14 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
         if ( !_filterMatch && arrayCurrentFilterStage_[ 0 ].hasOrSemantic() )
         {
-
             if ( logger_.isDebugEnabled() )
             {
-                logger_.debug( "filter failed, but "
+                logger_.debug( "filter failed, but the ProxyConsumer"
                                + arrayCurrentFilterStage_[ 0 ]
                                + " has InterFilterGroupOperator OR_OP Enabled" );
             }
 
-            // no filter attached to our ProxyConsumer
+            // no filter attached to the current ProxyConsumer
             // matched. However the ProxyConsumer has
             // InterFilterGroupOperator.OR_OP enabled. Therefor we
             // have to continue processing because the Filters
@@ -136,14 +159,12 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
             addFilterStage( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
         }
 
-        if ( isFilterStageListEmpty() )
+        if ( !isFilterStageListEmpty() )
         {
-            setStatus( DISPOSABLE );
+            taskFactory_.newFilterSupplierAdminTask( this ).schedule(true);
         }
-        else
-        {
-            setStatus( DONE );
-        }
+
+        dispose();
     }
 
     private boolean filter()
