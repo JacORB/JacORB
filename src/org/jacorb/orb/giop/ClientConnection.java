@@ -146,7 +146,7 @@ public class ClientConnection
 	os.beginEncapsulatedArray();
 	CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
 
-        return new ServiceContext( TAG_CODE_SETS.value,
+        return new ServiceContext( org.omg.IOP.CodeSets.value,
                                    os.getBufferCopy() );
     }
 
