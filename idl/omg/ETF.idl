@@ -10,7 +10,7 @@
 # include "orb.idl"
 # include "IOP.idl"
 # include "GIOP.idl"
-// # include "RTCORBA.idl"
+# include "RTCORBA.idl"
 # include "TimeBase.idl"
 # ifdef _NO_LOCAL_
 # define local
@@ -78,26 +78,19 @@ module ETF
     readonly attribute Profile endpoint;
   };
 
-//   local interface Factories
+  local interface Factories
+  {
+    Connection create_connection (in RTCORBA::ProtocolProperties props);
 
-//     Commented out for the moment because we don't have
-//     RTCORBA.idl yet, AS.
+    Listener create_listener (in RTCORBA::ProtocolProperties props,
+                              in unsigned long stacksize,
+                              in RTCORBA::Priority base_priority);
 
-//   {
-//     Connection
-//     create_connection
-//     (in RTCORBA::ProtocolProperties props);
-//     Listener
-//     create_listener
-//     (in RTCORBA::ProtocolProperties props ,
-//      in unsigned long stacksize,
-//      in RTCORBA::Priority base_priority) ;
-//     Profile
-//     demarshal_profile
-//     (inout IOP::TaggedProfile tagged_profile,
-//      out IOP::TaggedComponentSeq components);
-//     readonly attribute IOP::ProfileId profile_tag;
-//   };
+    Profile demarshal_profile (inout IOP::TaggedProfile tagged_profile,
+                               out IOP::TaggedComponentSeq components);
+
+    readonly attribute IOP::ProfileId profile_tag;
+  };
 
   // Optional zero copy connection interface
 
