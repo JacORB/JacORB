@@ -1,3 +1,3 @@
 @echo off
 rem Starts the JacORB domain browser
-jaco org.jacorb.orb.domain.gui.Browser %*
+jaco -Djacorb.use_domain=on org.jacorb.orb.domain.gui.Browser %*
