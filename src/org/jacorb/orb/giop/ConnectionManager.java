@@ -92,7 +92,8 @@ public class ConnectionManager
                     Constructor constr = ssl.getConstructor( new Class[]{
                         ORB.class });
    
-                    ssl_socket_factory = (SocketFactory)constr.newInstance( new Object[]{ orb });
+                    ssl_socket_factory = (SocketFactory)
+                        constr.newInstance( new Object[]{ orb });
                 }
                 catch (Exception e)
                 {
@@ -128,8 +129,6 @@ public class ConnectionManager
     public final ClientConnection _getConnection( String host_and_port, 
                                                   boolean target_ssl )
         {
-            int retries = Environment.noOfRetries();
-
             if( host_and_port.indexOf('/') > 0)
             {
                 host_and_port = 
@@ -141,27 +140,27 @@ public class ConnectionManager
             try
             {
                 /** make sure we have a raw IP address here */
-                java.net.InetAddress inet_addr = 
-                    java.net.InetAddress.getByName( host );
+                InetAddress inet_addr = 
+                    InetAddress.getByName( host );
 
                 host_and_port = inet_addr.getHostAddress() + ":" + port;
                 
                 host = host_and_port.substring( 0, 
                                                 host_and_port.indexOf(":") );
             }
-            catch( java.net.UnknownHostException uhe )
+            catch( UnknownHostException uhe )
             {
                 throw new org.omg.CORBA.TRANSIENT("Unknown host " + host);
             }
 
             /* look for an existing connection */
 
-            ClientConnection e = 
+            ClientConnection c = 
                 (ClientConnection)connections.get( host_and_port );
 
-            if( e != null )
+            if( c != null )
             {
-                if( !e.isSSL() )
+                if( !c.isSSL() )
                 {
                     if( target_ssl )
                     {
@@ -178,83 +177,79 @@ public class ConnectionManager
                             );
                     }                    
                 }
-
-                //user count is incremented by Delegate
-                //e.incUsers();
-                return e;
             } 
-
-            int _port = -1;
-            try
-            {
-                _port = Integer.parseInt( port );
-            }
-            catch( NumberFormatException nfe )
-            {
-                Debug.output( 1, "Unable to create port int from string >" +
-                              port + '<' );
-
-                throw new org.omg.CORBA.BAD_PARAM();
-            }
-
-            if( _port < 0)
-                _port += 65536;
-
-
-            /* create a new connection */
-            ClientConnection c = null;
-        
-            if ( Environment.useHTTPTunneling( host ))
-            {
-                c = (ClientConnection)
-                    new org.jacorb.orb.connection.http.ClientConnection( this, 
-                                                                         host, 
-                                                                         _port, 
-                                                                         socket_factory);
-            }
             else
-            {        
+            {
+                int _port = -1;
                 try
-                {               
-                    if( target_ssl )
+                {
+                    _port = Integer.parseInt( port );
+                }
+                catch( NumberFormatException nfe )
+                {
+                    Debug.output( 1, "Unable to create port int from string >" +
+                                  port + '<' );
+                    
+                    throw new org.omg.CORBA.BAD_PARAM();
+                }
+                
+                if( _port < 0)
+                    _port += 65536;
+                
+                if ( Environment.useHTTPTunneling( host ))
+                {
+                    c = (ClientConnection)
+                        new org.jacorb.orb.connection.http.ClientConnection( this, 
+                                                                             host, 
+                                                                             _port, 
+                                                                             socket_factory);
+                }
+                else
+                {        
+                    try
+                    {               
+                        if( target_ssl )
+                        {
+                            c = new ClientConnection( this,
+                                                      host,
+                                                      _port,
+                                                      ssl_socket_factory );
+                        }
+                        else
+                        {
+                            if( Environment.enforceSSL())
+                            {
+                                // error, we don't allow unprotected
+                                // outgoing connections
+                                throw new org.omg.CORBA.NO_PERMISSION ("Illegal connection request to non-SSL target, SSL required", 
+                                                                       0,  // NO_CLEAR
+                                                                       org.omg.CORBA.CompletionStatus.COMPLETED_NO
+                                );
+                            }
+                            
+                            c = new ClientConnection( this,
+                                                      host,
+                                                      _port,
+                                                      socket_factory );
+                        }
+                    }
+                    catch( SecurityException ace )
                     {
+                        // could only happen, if called by applet
+                        // ->connect must goto applethost
                         c = new ClientConnection( this,
-                                                  host,
+                                                  orb.getApplet().getCodeBase().getHost(),
                                                   _port,
                                                   ssl_socket_factory );
                     }
-                    else
-                    {
-                        if( Environment.enforceSSL())
-                        {
-                            // error, we don't allow unprotected outgoing connections
-                            throw new org.omg.CORBA.NO_PERMISSION ("Illegal connection request to non-SSL target, SSL required", 
-                                                                   0,  // NO_CLEAR
-                                                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO
-                                );
-                        }
-                
-                        c = new ClientConnection( this,
-                                                  host,
-                                                  _port,
-                                                  socket_factory );
-                    }
-                }
-                catch( SecurityException ace )
-                {
-                    // could only happen, if called by applet
-                    // ->connect must goto applethost
-                    c = new ClientConnection( this,
-                                              orb.getApplet().getCodeBase().getHost(),
-                                              _port,
-                                              ssl_socket_factory );
-                }
-            }       
-            connections.put( c.getInfo(), c );
+                }       
+
+                connections.put( c.getInfo(), c );
+            }
+
             return c;
         }
-
-
+    
     /**
      * bnv: For SSL connections
      * Lookup operation for existing connections to destinations, <br>
@@ -316,10 +311,10 @@ public class ConnectionManager
             try
             {
                 /* make sure we have a raw IP address here */
-                java.net.InetAddress inet_addr = java.net.InetAddress.getByName( host );
+                InetAddress inet_addr = InetAddress.getByName( host );
                 host_and_port = inet_addr.getHostAddress() + ":" + port;
             }
-            catch( java.net.UnknownHostException uhe )
+            catch( UnknownHostException uhe )
             {
                 throw new org.omg.CORBA.TRANSIENT("Unknown host " + host);
             }
@@ -422,7 +417,7 @@ public class ConnectionManager
             { 
                 // proxy not known yet
                 Debug.output(2,"ORB:Applet-Proxy Init");
-                java.net.URL proxyURL = null;
+                URL proxyURL = null;
                 unproxyTable = new Hashtable();
 
                 if(orb.getApplet()!=null)
@@ -432,7 +427,7 @@ public class ConnectionManager
                         if (!applet_properties_read)
                         {
                             Environment.readFromURL(
-                                new java.net.URL( orb.getApplet().getCodeBase().toString()+
+                                new URL( orb.getApplet().getCodeBase().toString()+
                                                   "jacorb.properties"));
                             applet_properties_read = true;
                             // reinitialize
@@ -440,7 +435,7 @@ public class ConnectionManager
                             Debug.initialize( );
                         }
                     }
-                    catch (java.net.MalformedURLException mue)
+                    catch (MalformedURLException mue)
                     {
                         Debug.output(2,"Bad URL: " + 
                                      orb.getApplet().getCodeBase().toString()+
@@ -453,12 +448,12 @@ public class ConnectionManager
                     try
                     {
                         proxyURL = 
-                            new java.net.URL(orb.getApplet().getParameter("JacorbProxyServerURL"));
+                            new URL(orb.getApplet().getParameter("JacorbProxyServerURL"));
                         Debug.output(2,"Trying address (applet param):"+proxyURL.toString());
                         readProxyIOR(proxyURL);
                         return;
                     }
-                    catch(java.net.MalformedURLException murle)
+                    catch(MalformedURLException murle)
                     {
                         Debug.output(2,"Malformed proxyaddress in parametertags");
                     }
@@ -481,12 +476,12 @@ public class ConnectionManager
 
                     try
                     {
-                        proxyURL = new java.net.URL(Environment.proxyURL());
+                        proxyURL = new URL(Environment.proxyURL());
                         Debug.output(2,"ORB:Trying address (Environment):"+proxyURL.toString());
                         readProxyIOR(proxyURL);
                         return;
                     }
-                    catch(java.net.MalformedURLException murle)
+                    catch(MalformedURLException murle)
                     {
                         Debug.output(2,"ORB:No proxyaddress in local properties set");
                     }
@@ -505,12 +500,12 @@ public class ConnectionManager
                            properties file at the applet's code base*/
                     
                         proxyURL = 
-                            new java.net.URL(codebase.substring(codebase.lastIndexOf("/"))+"proxy.ior");
+                            new URL(codebase.substring(codebase.lastIndexOf("/"))+"proxy.ior");
                         Debug.output(2,"ORB:Trying address (Magic):"+proxyURL.toString());
                         readProxyIOR(proxyURL);
                         return;
                     }
-                    catch( java.net.MalformedURLException murle)
+                    catch( MalformedURLException murle)
                     {
                         Debug.output(2,"ORB:Malformed Applet-Codebase URL");
                     }
@@ -528,12 +523,12 @@ public class ConnectionManager
                         /* try to get location of URL with proxy's IOR from a file
                            called proxy.ior at the applet's code base*/
 
-                        proxyURL = new java.net.URL("http://"+codebase+"/proxy.ior");
+                        proxyURL = new URL("http://"+codebase+"/proxy.ior");
                         Debug.output(2,"ORB:Trying address (MagicHome):"+proxyURL.toString());
                         readProxyIOR(proxyURL);
                         return;
                     }
-                    catch( java.net.MalformedURLException murle)
+                    catch( MalformedURLException murle)
                     {
                         Debug.output(2,"ORB:Malformed Host URL");
                     }
@@ -551,14 +546,14 @@ public class ConnectionManager
                         /* try to get location of URL with proxy's IOR from a file
                            at the applet's code base */
 
-                        proxyURL = new java.net.URL("http://" +
+                        proxyURL = new URL("http://" +
                                                     codebase + "/" + 
                                                     Environment.proxyURL() );
                         Debug.output(2,"ORB:Trying address (WebHome):" + proxyURL.toString());
                         readProxyIOR(proxyURL);
                         return;
                     }
-                    catch( java.net.MalformedURLException murle)
+                    catch( MalformedURLException murle)
                     {
                         Debug.output(2,"ORB:Malformed Host/Env URL");
                     }
@@ -620,7 +615,7 @@ public class ConnectionManager
      * service routine, opens a connection to URL and reads a string
      */
 
-    private void readProxyIOR( java.net.URL proxyURL ) 
+    private void readProxyIOR( URL proxyURL ) 
         //        throws java.lang.Exception
         {
             try
