@@ -695,7 +695,6 @@ public final class Delegate
 
             if ( info.effective_components == null )
             {
-                Debug.output(3, "no effective components");
                 info.effective_components = new org.omg.IOP.TaggedComponent[0];
             }
               
@@ -1102,7 +1101,7 @@ public final class Delegate
 //                           ( local_poa != null ? " a " : " no ") + " local POA");
         }
         resolved_locality = true;
-        Debug.output( 5, "Delegate.is_local returns " + (poa != null ));
+        //Debug.output( 5, "Delegate.is_local returns " + (poa != null ));
         return poa != null;
     }
 
