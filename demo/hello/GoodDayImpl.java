@@ -1,6 +1,8 @@
 package demo.hello;
 
 import org.omg.CORBA.*;
+import demo.hello.GoodDayPackage.*;
+import demo.hello.GoodDayPackage.ParmPackage.*;
 
 public class GoodDayImpl 
     extends GoodDayPOA
@@ -34,4 +36,9 @@ public class GoodDayImpl
             System.out.println("test failed");
         return('Y');
    }
+
+    public void passParm(Parm p)
+    {
+        System.out.println("Parm ok");
+    }
 }

@@ -1,5 +1,7 @@
 // server.idl
 
+module demo
+{
 module unions 
 {
     enum colorT {green,blue,red,black};
@@ -29,4 +31,5 @@ module unions
 	void write2ndUnion(in Nums n);
     };
 
+};
 };

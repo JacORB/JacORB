@@ -74,8 +74,6 @@ class ElementSpec
                     ts = ((SequenceType)ts.typeSpec()).elementTypeSpec().typeSpec();
                 }
 
-                System.out.println("ElementSpec: ts.typeName = " + ts.typeName() + 
-                                   " containingUnion.typeName() " + containingUnion.full_name() );
 
                 //                if( ts.typeName().equals( containingUnion.typeName() ) ||
                 if( ScopedName.isRecursionScope( ts.typeName() ) )

@@ -1,6 +1,8 @@
 package demo.hello;
 
 import java.io.*;
+import demo.hello.GoodDayPackage.*;
+import demo.hello.GoodDayPackage.ParmPackage.*;
 
 import org.omg.CORBA.*;
 
@@ -69,6 +71,18 @@ public class Client
             }
             else 
                 System.out.println("test succeed");
+
+            ParmValue pv = new ParmValue();
+            pv.string_value("inner");
+            Parm p = new Parm("v", pv );
+
+            ParmValue pvi = new ParmValue();
+            Parm[][] pp = new Parm[1][1];
+            pp[0] = new Parm[]{p};
+            pvi.nested_value( pp );
+
+            Parm outerParm = new Parm("outer", pvi  );
+            goodDay.passParm( outerParm );
         }
         catch( Exception ex ) 
 	{

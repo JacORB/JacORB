@@ -14,12 +14,11 @@ public class Server
 
 	try
 	{
+            System.out.println("ImR Grid Server");
             org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
 
        	    org.omg.PortableServer.POA root_poa = 
 		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
-	    root_poa.the_POAManager().activate();
 
 	    org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[2];
 
@@ -28,8 +27,6 @@ public class Server
 	    POA grid_poa = root_poa.create_POA( "GridServerPOA", 
                                                 root_poa.the_POAManager(), 
                                                 policies );
-	    grid_poa.the_POAManager().activate();
-
 	    for (int i=0; i<policies.length; i++) 
 		policies[i].destroy();			
 
@@ -55,6 +52,7 @@ public class Server
 
                 nc.bind( nc.to_name("grid.example"), o);
             }
+	    root_poa.the_POAManager().activate();
 
             Thread.sleep(15000);
 

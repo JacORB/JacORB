@@ -12,7 +12,7 @@
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg -p demo -d ${dirs.base}/demo/${name}/generated"/>
+	<property name="idlflags" value="-I${include}/omg  -d ${dirs.base}/demo/${name}/generated"/>
    </target>
 
    <target name="all" depends="init,idl">

@@ -387,3 +387,4 @@ module PortableServer
 	
 };
 #endif /* _MYPOA_IDL */
+
