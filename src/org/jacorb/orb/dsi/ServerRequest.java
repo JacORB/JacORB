@@ -98,7 +98,7 @@ public class ServerRequest
 
         getTimingPolicies();
 
-        object_key = orb.mapObjectKey( in.req_hdr.target.object_key() );
+        object_key = orb.mapObjectKey(org.jacorb.orb.ParsedIOR.extractObjectKey(in.req_hdr.target, orb));
 
         oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
     }
