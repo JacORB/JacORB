@@ -14,16 +14,16 @@ gerald.brose@acm.org
         - fully multithreaded, very good performance
 
         - IDL compiler, complies to rev. 2.3 of the Java language mapping
-        - DII, DSI, native IIOP
+        - DII, DSI, 
+        - native IIOP, supports IIOP 1.2 Code sets and IIOP over SSL 
+        - GIOP 1.2, Bidirectional GIOP
         - POA
        ´- OBV
         - DynAny
         - Implementation Repository with GUI 
         - Interface Repository with GUI 
         - Applet support and HTTP tunneling 
-        - IIOP 1.2 Code set support 
-        - IIOP over SSL 
-        - Bidirectional GIOP
+
         - Portable Interceptors (for service context passing)
         - Domain Management
 
@@ -38,11 +38,20 @@ gerald.brose@acm.org
 
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
+
 1.4 beta 2:
+=================
+
         - bug fixes
                 ImR: used wrong name for property jacorb.implname
+                Marshalling: 
+                        - occasionally, wrong buffer sizes were
+                          calculated in CDROutputStream
+                        - more bugs fixed for recursive and 
+                          repeated TypeCode               
 
-        - Added compatibility to the JDK 1.4
+        - Added build compatibility to the JDK 1.4 and fixed 
+          compatibility problems with JDK 1.2
         
         - Portable Interceptors: 
                    - Adapted to new IDL which requires interceptors 
@@ -59,6 +68,8 @@ gerald.brose@acm.org
                    - Added support for the JDK 1.4, which now also
                      includes generic access to the peers certificates
                      via our partial Security Level 2 implementation.
+
+        - new OBV demo
 
 1.4 beta 1:
 
@@ -142,7 +153,7 @@ gerald.brose@acm.org
                   c) relative path to users home dir
                   These possibilities are searched in the order give above.
         
-        - experimental OBV support added
+        - OBV support added
                 some feature are still unimplemented:
                   - valuetype inheritance
                   - value factories (use causes npe's in the compiler!)
@@ -277,7 +288,6 @@ gerald.brose@acm.org
 
 
 Changes for 1.3.0:
-=================
 
         new: 
                 - Interface Repository with GUI Browser
