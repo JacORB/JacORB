@@ -162,9 +162,8 @@ public class RPPoolManager
             {
                 wait();
             }
-            catch (Exception e)
+            catch (InterruptedException e)
             {
-                e.printStackTrace();
             }
         }
         RequestProcessor rp = (RequestProcessor) pool.remove( pool.size() - 1 );
@@ -218,26 +217,5 @@ public class RPPoolManager
     protected synchronized void removeRPPoolManagerListener(RPPoolManagerListener listener)
     {
         pmListener = EventMulticaster.remove(pmListener, listener);
-    }
-
-    /**
-     * resets the values for min_pool_size and max_pool_size
-     */
-
-    protected synchronized void setPoolSize(int min, int max)
-    {
-        min_pool_size = min;
-        max_pool_size = max;
-        while (unused_size < min_pool_size)
-        {
-            try
-            {
-                addProcessor();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
     }
 }

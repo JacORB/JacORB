@@ -41,7 +41,7 @@ import java.util.*;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.11, 10/26/99, RT $Id$
  */
-public final class RequestController 
+public final class RequestController
     extends Thread
 {
     private POA 			poa;
@@ -86,9 +86,9 @@ public final class RequestController
      * constructor
      */
 
-    RequestController( POA _poa, 
+    RequestController( POA _poa,
                        org.jacorb.orb.ORB _orb,
-                       AOM _aom, 
+                       AOM _aom,
                        Logger _logger)
     {
         super ("RequestController-" + (++count));
@@ -111,7 +111,7 @@ public final class RequestController
             catch( NumberFormatException nfe )
             {
                 logger.error( "ERROR: Can't create int from >" +
-                                       priorityProp + "<\n" + 
+                                       priorityProp + "<\n" +
                               "Please check property \"jacorb.poa.thread_priority\"" );
             }
         }
@@ -152,10 +152,12 @@ public final class RequestController
 
     void continueToWork()
     {
+//        org.jacorb.util.Debug.output(4, "### RequestController::continueToWork ++");
         synchronized (queueLog)
         {
             queueLog.notifyAll();
         }
+//        org.jacorb.util.Debug.output(4, "### RequestController::continueToWork --" );
     }
 
     synchronized void end()
@@ -338,7 +340,7 @@ public final class RequestController
                     throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                 }
             }
-
+//            org.jacorb.util.Debug.output(4, "### RequestController::processRequest::activeRequestTable " + activeRequestTable + " and request " + request + " contains " + activeRequestTable.containsKey(request));
             /* below  this point it's  save that the request  is valid
                (all preconditions can be met) */
             activeRequestTable.put(request, oid);
@@ -347,7 +349,7 @@ public final class RequestController
         // get and initialize a processor for request processing
         if (logger.isDebugEnabled())
         {
-            logger.debug("rid: " + request.requestId() 
+            logger.debug("rid: " + request.requestId()
                          + " trying to get a RequestProcessor");
         }
 
@@ -368,7 +370,7 @@ public final class RequestController
      * something went wrong, the specified system exception will set
      */
 
-    void rejectRequest(ServerRequest request, 
+    void rejectRequest(ServerRequest request,
                        org.omg.CORBA.SystemException exception)
     {
         if (exception != null)
@@ -379,7 +381,7 @@ public final class RequestController
         if (logger.isWarnEnabled())
         {
             logger.warn("rid: " + request.requestId() +
-                        " request rejected with exception: " + 
+                        " request rejected with exception: " +
                         exception.getMessage());
         }
     }
@@ -403,6 +405,8 @@ public final class RequestController
      */
     void returnResult(ServerRequest request)
     {
+//        org.jacorb.util.Debug.output(4, "### RequestController::returnResult " + request);
+
         orb.getBasicAdapter().return_result(request);
     }
 
@@ -412,6 +416,7 @@ public final class RequestController
      */
     synchronized void finish (ServerRequest request)
     {
+//        org.jacorb.util.Debug.output(4, "### RequestController::finish::activeRequestTable " + activeRequestTable + " and request " + request + " contains " + activeRequestTable.containsKey(request));
         activeRequestTable.remove (request);
         notifyAll();
     }
@@ -433,6 +438,7 @@ public final class RequestController
             state = poa.getState();
             if (POAUtil.isActive(state))
             {
+                // org.jacorb.util.Debug.output(4, "### RequestController::run1::requestQueue::size " + requestQueue.size());
                 request = requestQueue.getFirst();
 
                 /* Request available */
@@ -447,8 +453,10 @@ public final class RequestController
                     {
                         try
                         {
+//                            org.jacorb.util.Debug.output(4, "### RequestController::run::requestQueue::size " + requestQueue.size() + " and " + request.operation());
                             processRequest(request);
                             requestQueue.removeFirst();
+                            // org.jacorb.util.Debug.output(4, "### RequestController::run2::requestQueue::size " + requestQueue.size());
                         }
                         catch (CompletionRequestedException e)
                         {
@@ -462,6 +470,8 @@ public final class RequestController
                         }
                         catch (ShutdownInProgressException e)
                         {
+                            // org.jacorb.util.Debug.output(4, "### RequestController::e " + e);
+
                             /* waitForShutdown was called */
                             waitForQueue();
                         }
@@ -480,7 +490,11 @@ public final class RequestController
                 }
             }
             else
-                if (!waitForShutdownCalled && (POAUtil.isDiscarding(state) || POAUtil.isInactive(state))) {
+            {
+
+                if (!waitForShutdownCalled && (POAUtil.isDiscarding(state) || POAUtil.isInactive(state)))
+                {
+                    // org.jacorb.util.Debug.output(4, "### RequestController::run3::requestQueue::size " + requestQueue.size());
                     request = requestQueue.removeLast();
 
                     /* Request available */
@@ -497,12 +511,13 @@ public final class RequestController
                         continue;
                     }
                 }
+            }
             /* if waitForShutdown was called the RequestController
                loop blocks for ALL TIME in waitForQueue (the poa
                behaves as if he is in holding state now) ATTENTION,
                it's a lazy synchronisation, a request could be
                rejected if waitForShutdown was called but couldn't be
-               processed (it's save) 
+               processed (it's save)
             */
             waitForQueue();
         }
@@ -546,9 +561,14 @@ public final class RequestController
 
     synchronized void waitForObjectCompletion( byte[] oid )
     {
+
         ByteArrayKey oidbak = new ByteArrayKey( oid );
+
+        // org.jacorb.util.Debug.output(4, "### RequestController::waitForObjectCompletion1::activeRequestTable " + activeRequestTable + " contains oid " + activeRequestTable.contains(oidbak));
+
         while (activeRequestTable.contains(oidbak))
         {
+            // org.jacorb.util.Debug.output(4, "### RequestController::waitForObjectCompletion2::activeRequestTable " + activeRequestTable + " contains oid " + activeRequestTable.contains(oidbak));
             try
             {
                 wait();
@@ -559,17 +579,17 @@ public final class RequestController
         }
         if (logger.isDebugEnabled())
         {
-            logger.debug( POAUtil.convert(oid) + 
+            logger.debug( POAUtil.convert(oid) +
                           "all active processors for this object have finished");
 
         }
 
         deactivationList.addElement( oidbak );
 
-        synchronized( oid )
-        {
-            oid.notifyAll();
-        }
+//         synchronized( oid )
+//         {
+//             oid.notifyAll();
+//         }
     }
 
     /**
@@ -581,8 +601,10 @@ public final class RequestController
 
     private void waitForQueue()
     {
+//         org.jacorb.util.Debug.output(4, "### RequestController::waitForQueue++");
         synchronized (queueLog)
         {
+//             org.jacorb.util.Debug.output(4, "### RequestController::waitForQueue::empty " + requestQueue.isEmpty() + " and holding " + poa.isHolding() + " waitforshut " + waitForShutdownCalled);
             if ((requestQueue.isEmpty() || poa.isHolding() || waitForShutdownCalled) &&
                 !terminate)
             {
@@ -594,11 +616,12 @@ public final class RequestController
                     }
                     queueLog.wait();
                 }
-                catch (java.lang.InterruptedException e) 
+                catch (java.lang.InterruptedException e)
                 {
                 }
             }
         }
+//         org.jacorb.util.Debug.output(4, "### RequestController::waitForQueue--");
     }
 
     /**
