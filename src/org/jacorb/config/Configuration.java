@@ -43,6 +43,8 @@ import org.jacorb.util.ObjectUtil;
  *     loaded from jacorb.config.dir/etc, if that exists, or jacorb.home/etc, or '.'
  *     If ORBid is not set, the default file <tt>jacorb.orb.properties</tt>
  *     is loaded from these places.
+ * <li>Custom properties are loaded from each file name listed int the system property
+ *     <tt>custom.props</tt>
  * <li>To also support packaged servers in jar files, the configuration
  *     file lookup mechanism finally tries to load named properties files 
  *     (<tt>ORBid.orb.properties</tt>, or <tt>jacorb.orb.properties</tt>) from 
@@ -189,6 +191,29 @@ public class Configuration
                               " not found in "  + propFileName + " ]");
        }
        
+       // 4) look for additional custom properties files
+       List customPropFileNames = getAttributeList("custom.props");
+
+       if (!customPropFileNames.isEmpty())
+       {
+           for (Iterator iter = customPropFileNames.iterator(); iter.hasNext();)
+           {
+                String fileName = ((String)iter.next());
+                Properties customProps = loadPropertiesFromFile(fileName);
+                if (customProps!= null)
+                {
+                    System.out.println("[ custom properties loaded from file " + 
+                                       fileName + " ]");
+                    setAttributes(customProps);
+                }
+                else
+                {
+                    System.out.println("[ custom properties not found in "  + 
+                                       fileName + " ]");
+                }
+           }
+       }
+
        // now load properties file from classpath
        orbConfig = loadPropertiesFromClassPath( name +  fileSuffix );
        if (orbConfig!= null)
