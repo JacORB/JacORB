@@ -97,7 +97,7 @@ public class OpDecl
         for( Enumeration e = paramDecls.elements();
              e.hasMoreElements();
              ( (ParamDecl)e.nextElement() ).setPackage( s )
-                )
+           )
             ;
         raisesExpr.setPackage( s );
     }
@@ -129,11 +129,11 @@ public class OpDecl
         {
             if( !raisesExpr.empty() )
                 parser.error( "Oneway operation " + full_name() +
-                        " may not define a raises clause.", token );
+                              " may not define a raises clause.", token );
 
             if( !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
                 parser.error( "Oneway operation " + full_name() +
-                        " may only define void as return type.", token );
+                              " may only define void as return type.", token );
         }
 
         try
@@ -152,14 +152,14 @@ public class OpDecl
             try
             {
                 NameTable.define( full_name() + "." +
-                        param.simple_declarator.name(),
-                        "argument" );
+                                  param.simple_declarator.name(),
+                                  "argument" );
             }
             catch( NameAlreadyDefined nad )
             {
                 parser.error( "Argument " + param.simple_declarator.name() +
-                        " already defined in operation " + full_name(),
-                        token );
+                              " already defined in operation " + full_name(),
+                              token );
             }
 
             if( param.paramAttribute != ParamDecl.MODE_IN )
@@ -170,15 +170,15 @@ public class OpDecl
 //              else
 //              {
 //                  if( logger.isWarnEnabled() )
-//		 logger.warn( "addImportedName " + param.paramTypeSpec.toString()  );
+//   logger.warn( "addImportedName " + param.paramTypeSpec.toString()  );
 //                  myInterface.addImportedName( param.paramTypeSpec.toString() );
 //              }
             if( !(param.paramTypeSpec.typeSpec() instanceof BaseType ))
             {
 
                 if( logger.isInfoEnabled() )
-		 logger.info( "classname: " +
-                                    param.paramTypeSpec.typeSpec().getClass().getName() );
+                    logger.info( "classname: " +
+                                 param.paramTypeSpec.typeSpec().getClass().getName() );
 
                 myInterface.addImportedName( param.paramTypeSpec.typeSpec().full_name(),
                                              param.paramTypeSpec.typeSpec() );
@@ -195,7 +195,7 @@ public class OpDecl
         if( opTypeSpec.typeSpec() instanceof ScopedName )
         {
             TypeSpec ts =
-                    ( (ScopedName)opTypeSpec.typeSpec() ).resolvedTypeSpec();
+                ( (ScopedName)opTypeSpec.typeSpec() ).resolvedTypeSpec();
 
             if( ts != null )
                 opTypeSpec = ts;
@@ -204,7 +204,7 @@ public class OpDecl
         }
 
         if( ( !NameTable.defined( opTypeSpec.typeName(), "type" ) ) &&
-                ( !NameTable.defined( opTypeSpec.typeName(), "interface" ) ) )
+            ( !NameTable.defined( opTypeSpec.typeName(), "interface" ) ) )
         {
             //parser.error("Not a type: "+opTypeSpec.typeName(), token );
         }
@@ -292,10 +292,10 @@ public class OpDecl
             ps.println( "\t\t\t\t_is = _invoke(_os);" );
 
             if( opAttribute == 0 &&
-                    !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
+                !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
             {
                 ps.println( "\t\t\t\t" + opTypeSpec.toString() + " _result = " +
-                        opTypeSpec.typeSpec().printReadExpression( "_is" ) + ";" );
+                            opTypeSpec.typeSpec().printReadExpression( "_is" ) + ";" );
             }
 
             for( Enumeration e2 = paramDecls.elements(); e2.hasMoreElements(); )
@@ -304,12 +304,12 @@ public class OpDecl
                 if( p.paramAttribute != ParamDecl.MODE_IN )
                 {
                     ps.println( "\t\t\t\t" + p.simple_declarator + ".value = " +
-                            p.printReadExpression( "_is" ) + ";" );
+                                p.printReadExpression( "_is" ) + ";" );
                 }
             }
 
             if( opAttribute == NO_ATTRIBUTE &&
-                    !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
+                !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
             {
                 ps.println( "\t\t\t\treturn _result;" );
             }
@@ -369,7 +369,7 @@ public class OpDecl
         }
 
         if( opAttribute == 0 &&
-                !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
+            !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
         {
             ps.print( "\t\t\t" + opTypeSpec.toString() + " _result;" );
         }
@@ -378,7 +378,7 @@ public class OpDecl
         ps.println( "\t\t\t{" );
 
         if( opAttribute == 0 &&
-                !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
+            !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
         {
             ps.print( "\t\t\t_result = " );
         }
@@ -544,13 +544,13 @@ public class OpDecl
             if( p.paramAttribute == ParamDecl.MODE_IN )
             {
                 ps.println( "\t\t\t\t" + ts.toString() + " _arg" + ( argc++ ) +
-                        "=" + ts.printReadExpression( "_input" ) + ";" );
+                            "=" + ts.printReadExpression( "_input" ) + ";" );
             }
             else
             {
                 holders = true;
                 ps.println( "\t\t\t\t" + ts.holderName() + " _arg" + ( argc++ ) +
-                        "= new " + ts.holderName() + "();" );
+                            "= new " + ts.holderName() + "();" );
                 if( p.paramAttribute == ParamDecl.MODE_INOUT )
                 {
                     // wchars and wstrings are contained in CharHolder and
@@ -576,15 +576,15 @@ public class OpDecl
 
 
         boolean complex =
-                ( opTypeSpec.typeSpec() instanceof ArrayTypeSpec ) ||
-                ( opTypeSpec.typeSpec() instanceof FixedPointType );
+            ( opTypeSpec.typeSpec() instanceof ArrayTypeSpec ) ||
+            ( opTypeSpec.typeSpec() instanceof FixedPointType );
 
         String write_str = null,
-                write_str_prefix = null,
-                write_str_suffix = null;
+        write_str_prefix = null,
+        write_str_suffix = null;
 
-//	if( (!(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))    || holders )
-//	{
+//  if( (!(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))    || holders )
+//  {
         ps.println( "\t\t\t\t_out = handler.createReply();" );
         if( !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) && !complex )
         {
@@ -596,7 +596,7 @@ public class OpDecl
         }
         else
             ps.print( "\t\t\t\t" );
-//	}
+//  }
 
 
         if( complex )
@@ -613,18 +613,18 @@ public class OpDecl
 
         /*
 
-          Enumeration e = paramDecls.elements();
-          if(e.hasMoreElements())
-          {
-          TypeSpec ts = ((ParamDecl)e.nextElement()).paramTypeSpec;
-          ps.print(ts.printReadExpression("input"));
-          }
+        Enumeration e = paramDecls.elements();
+        if(e.hasMoreElements())
+        {
+        TypeSpec ts = ((ParamDecl)e.nextElement()).paramTypeSpec;
+        ps.print(ts.printReadExpression("input"));
+        }
 
-          for(; e.hasMoreElements();)
-          {
-          TypeSpec ts = ((ParamDecl)e.nextElement()).paramTypeSpec;
-          ps.print("," + ts.printReadExpression("input"));
-          }
+        for(; e.hasMoreElements();)
+        {
+        TypeSpec ts = ((ParamDecl)e.nextElement()).paramTypeSpec;
+        ps.print("," + ts.printReadExpression("input"));
+        }
         */
 
         if( !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
@@ -653,7 +653,7 @@ public class OpDecl
             if( p.paramAttribute != ParamDecl.MODE_IN )
             {
                 ps.println( "\t\t\t\t" + p.printWriteStatement( ( "_arg" + ( argc ) ), "_out" ) );
-                //		ps.println("\t\t\t\t_arg" + (argc) + "._write(_out);");
+                //  ps.println("\t\t\t\t_arg" + (argc) + "._write(_out);");
             }
             argc++;
         }
@@ -806,4 +806,3 @@ public class OpDecl
 
 
 }
-
