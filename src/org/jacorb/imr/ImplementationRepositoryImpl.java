@@ -753,10 +753,10 @@ public class ImplementationRepositoryImpl
     private class SocketListener 
 	extends Thread 
     {
-	private java.net.ServerSocket server_socket;
+	private ServerSocket server_socket;
 	private int port = 0;
 	private String address;
-	private int timeout = 2000; // 2 secs
+	private int timeout = 0; 
 	private boolean run = true;
 	private boolean wait = false;
 
@@ -770,9 +770,9 @@ public class ImplementationRepositoryImpl
 	    try 
             {
 		server_socket = 
-                    new java.net.ServerSocket( default_port );
+                    new ServerSocket( default_port );
 
-		address = java.net.InetAddress.getLocalHost().toString();
+		address = InetAddress.getLocalHost().toString();
 
 		if( address.indexOf("/") > 0 )
 		    address = address.substring(address.indexOf("/") + 1);
@@ -782,24 +782,22 @@ public class ImplementationRepositoryImpl
 		Debug.output(Debug.IMR | Debug.INFORMATION,
                              "ImR Listener at " + port + ", " + address );
 		
-		String s = 
-		    Environment.getProperty( "jacorb.imr.connection_timeout" );
-		
-		if( s != null )
-		{
-		    try
-		    {
-			timeout = Integer.parseInt( s );
-		    }
-		    catch( NumberFormatException nfe )
-		    {
-			Debug.output( Debug.IMR | Debug.IMPORTANT,
-				      "ERROR: Unable to build timeout int from string >>" + 
-				      s + "<<" );
-			Debug.output( Debug.IMR | Debug.IMPORTANT,
-				      "Please check property \"jacorb.imr.connection_timeout\"" );
-		    }	      
-		}
+                String s = 
+                    Environment.getProperty( "jacorb.imr.connection_timeout",
+                                             "2000" ); //default: 2 secs
+
+                try
+                {
+                    timeout = Integer.parseInt( s );
+                }
+                catch( NumberFormatException nfe )
+                {
+                    Debug.output( Debug.IMR | Debug.IMPORTANT,
+                                  "ERROR: Unable to build timeout int from string >>" + 
+                                  s + "<<" );
+                    Debug.output( Debug.IMR | Debug.IMPORTANT,
+                                  "Please check property \"jacorb.imr.connection_timeout\"" );
+                }	                  
 	    } 
 	    catch (Exception e)
             {
@@ -1012,10 +1010,6 @@ public class ImplementationRepositoryImpl
 	    }
 
             close();
-	    
-	    System.out.println( ">>>>>>>>>>>>>>>>>>>>>>>>>>Thread freed");
-	    
-	    
 	}	
 	
 	
