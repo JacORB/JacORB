@@ -111,6 +111,11 @@ public class ServantDelegate
         }
         try
         {
+            if( _current.get_servant() != self )
+            {
+                throw new org.omg.CORBA.OBJ_ADAPTER();
+            }
+
             return _current.get_POA();
         }
         catch(NoContext e)
