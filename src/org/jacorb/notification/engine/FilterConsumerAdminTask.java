@@ -41,7 +41,8 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
         new FilterStage[ 0 ];
 
     /**
-     * this List contains FilterStages (ProxySuppliers) which hava a EventConsumer associated.
+     * this List contains FilterStages (ProxySuppliers) which have a
+     * EventConsumer associated. 
      */
     protected List listOfFilterStageWithEventConsumer_ =
         new Vector();
