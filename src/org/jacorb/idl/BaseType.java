@@ -104,31 +104,14 @@ class BaseType
 	return type_spec.typeName();
     }
 
+    public String id()
+    {
+        return "IDL:*primitive*:1.0";
+    }
+
     public void print(PrintWriter ps) 
     {
     }
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
