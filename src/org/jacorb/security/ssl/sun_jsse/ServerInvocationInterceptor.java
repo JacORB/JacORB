@@ -22,6 +22,10 @@ package org.jacorb.security.ssl.sun_jsse;
 
 import java.io.*;
 import java.security.cert.*;
+
+import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
+
 import org.omg.SecurityReplaceable.*;
 import org.omg.Security.*;
 import org.omg.SecurityLevel2.ReceivedCredentials;
@@ -36,7 +40,6 @@ import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.giop.*;
 
-import org.apache.avalon.framework.logger.Logger;
 
 import javax.net.ssl.SSLSocket;
 
@@ -49,7 +52,7 @@ import javax.net.ssl.SSLSocket;
 
 public class ServerInvocationInterceptor
     extends org.omg.CORBA.LocalObject 
-    implements ServerRequestInterceptor
+    implements ServerRequestInterceptor, Configurable
 {
     public static final String DEFAULT_NAME = "ServerInvocationInterceptor";
 
@@ -59,27 +62,40 @@ public class ServerInvocationInterceptor
     private SecAttributeManager attrib_mgr = null;
     private AttributeType type = null; 
     private Logger logger;
+    private short serverSupportedOptions = 0;
+    private short serverRequiredOptions = 0;
 
-
-    public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current)
-    {
-        this( current, DEFAULT_NAME );
-    }
-
-    public ServerInvocationInterceptor( org.omg.SecurityLevel2.Current current,
-                                        String name )
+    public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current, 
+                                       org.jacorb.orb.ORB orb)
+        throws ConfigurationException
     {
         this.current = (CurrentImpl) current;
-        this.name = name;
-
+        this.name = DEFAULT_NAME;
         attrib_mgr = SecAttributeManager.getInstance();
 
-        type = new AttributeType
-            ( new ExtensibleFamily( (short) 0,
-                                    (short) 1 ),
-              AccessId.value );  
-        logger = ((org.jacorb.security.level2.CurrentImpl)current).getLogger();
+        type = 
+            new AttributeType( new ExtensibleFamily( (short)0, (short)1 ), AccessId.value );
+        configure(orb.getConfiguration());
     }
+
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.ssl.interceptor");
+
+        serverSupportedOptions = 
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
+                16); // 16 is the base as we take the string value as hex!
+
+        serverRequiredOptions = 
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
+                16);
+    }
+
 
     public String name()
     {
@@ -130,7 +146,13 @@ public class ServerInvocationInterceptor
         catch( javax.net.ssl.SSLPeerUnverifiedException pue )
         {
             if (logger.isWarnEnabled())
-                logger.warn("Exception " + pue.getMessage() + " in ServerInvocationInterceptor");
+                logger.warn("SSLPeerUnverifiedException \'" + pue.getMessage() + 
+                            "\' in ServerInvocationInterceptor");
+            
+            if ( (serverRequiredOptions & 0x40) != 0)
+            {
+                throw new org.omg.CORBA.NO_PERMISSION("Establish trust in client required, but failed");
+            }
             return;
         }
 
@@ -142,8 +164,8 @@ public class ServerInvocationInterceptor
             return;
         }
                 
-        SecAttribute [] atts = new SecAttribute[] {
-            attrib_mgr.createAttribute( kac, type ) } ;
+        SecAttribute [] atts = 
+            new SecAttribute[] { attrib_mgr.createAttribute( kac, type ) } ;
         
         current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
     }
