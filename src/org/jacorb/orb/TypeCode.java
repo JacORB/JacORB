@@ -216,6 +216,7 @@ public class TypeCode
         name = _name.replace('.','_'); // for orbixWeb Interop
         member_count = _members.length;
         member_name = new String[member_count];
+
         for( int i = 0; i < member_count; i++ ) 
         {
             member_name[i] = _members[i];
@@ -273,7 +274,8 @@ public class TypeCode
         kind = _kind;
         length = _bound;
         content_type = (TypeCode)_element_type;
-        org.jacorb.util.Debug.assert( content_type != null, "TypeCode.ctor, content_type null");
+        org.jacorb.util.Debug.assert( content_type != null, 
+                                      "TypeCode.ctor, content_type null");
 
     }
     
@@ -748,82 +750,70 @@ public class TypeCode
         recursive = true;
     }
 
-    /**
-     * called by the TypeFactory (i.e. the ORB) after creating 
-     * type codes for unions, structs and exceptions, which
-     * may contain recursive type codes
-     */
 
-//      public void resolve_recursion()
-//      {        
-//          Hashtable tcMap = new Hashtable(50);
-//          resolve_recursion( tcMap );
-//          tcMap.clear();
-//      }
+//      private void resolve_recursion( Hashtable tcMap )
+//      {
+//          try
+//          {
+//              org.jacorb.util.Debug.output( 3, "resolve recursion looks at kind: " + _kind() );
 
-    private void resolve_recursion( Hashtable tcMap )
-    {
-        try
-        {
-            org.jacorb.util.Debug.output( 3, "resolve recursion looks at kind: " + _kind() );
-
-            switch ( _kind() )
-            {
-            case TCKind._tk_sequence:
-            case TCKind._tk_array:
-                { 
-                    if( ((org.jacorb.orb.TypeCode)content_type()).is_recursive() && 
-                        ((org.jacorb.orb.TypeCode)content_type())._kind() == -1 )
-                    {
-                        TypeCode tc = (TypeCode)tcMap.get( content_type().id() );
-                        org.jacorb.util.Debug.assert( tc != null, 
-                                                  "Could not resolve recursive TypeCode for " + 
-                                                  content_type().id());
+//              switch ( _kind() )
+//              {
+//              case TCKind._tk_sequence:
+//              case TCKind._tk_array:
+//                  { 
+//                      if( ((org.jacorb.orb.TypeCode)content_type()).is_recursive() && 
+//                          ((org.jacorb.orb.TypeCode)content_type())._kind() == -1 )
+//                      {
+//                          TypeCode tc = (TypeCode)tcMap.get( content_type().id() );
+//                          org.jacorb.util.Debug.assert( tc != null, 
+//                                                    "Could not resolve recursive TypeCode for " + 
+//                                                    content_type().id());
                         
-                        tc.set_recursive();
-                        content_type = tc;
-                    }  
-                    else
-                        ((org.jacorb.orb.TypeCode)content_type()).resolve_recursion(tcMap);
-                    return;
-                }
-            case TCKind._tk_struct:
-            case TCKind._tk_except:
-            case TCKind._tk_union:
-                {
-                    tcMap.put(this.id(), this);
-                    org.jacorb.util.Debug.output( 4, "resolve recursion.put : " + this.id() );
-                    for( int i = 0; i < member_count(); i++ )
-                    {
-                        if( ((org.jacorb.orb.TypeCode)member_type(i)).is_recursive()&& 
-                            ((org.jacorb.orb.TypeCode)member_type(i))._kind() == -1 )
-                        {    
-                            TypeCode tc = (TypeCode)tcMap.get( member_type(i).id() );
-                            org.jacorb.util.Debug.assert( tc != null, 
-                                                      "Could not resolve recursive TypeCode for " +
-                                                      member_type(i).id());
-                            tc.set_recursive();
+//                          tc.set_recursive();
+//                          content_type = tc;
+//                      }  
+//                      else
+//                          ((org.jacorb.orb.TypeCode)content_type()).resolve_recursion(tcMap);
+//                      return;
+//                  }
+//              case TCKind._tk_struct:
+//              case TCKind._tk_except:
+//              case TCKind._tk_union:
+//                  {
+//                      tcMap.put(this.id(), this);
+//                      org.jacorb.util.Debug.output( 4, "resolve recursion.put : " + this.id() );
+//                      for( int i = 0; i < member_count(); i++ )
+//                      {
+//                          if( ((org.jacorb.orb.TypeCode)member_type(i)).is_recursive()&& 
+//                              ((org.jacorb.orb.TypeCode)member_type(i))._kind() == -1 )
+//                          {    
+//                              TypeCode tc = (TypeCode)tcMap.get( member_type(i).id() );
+//                              org.jacorb.util.Debug.assert( tc != null, 
+//                                                        "Could not resolve recursive TypeCode for " +
+//                                                        member_type(i).id());
+//                              tc.set_recursive();
 
-                            member_type[i] = tc;
-                        }
-                        else
-                            ((org.jacorb.orb.TypeCode)member_type(i)).resolve_recursion(tcMap);
-                    }
-                    return;
-                }
-            default:
-                return;
-            }
-        }
-        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-        {
-            bk.printStackTrace();
-        }
-        catch( org.omg.CORBA.TypeCodePackage.Bounds b )
-        {
-            b.printStackTrace();
-        }
-    }
+//                              member_type[i] = tc;
+//                          }
+//                          else
+//                              ((org.jacorb.orb.TypeCode)member_type(i)).resolve_recursion(tcMap);
+//                      }
+//                      return;
+//                  }
+//              default:
+//                  return;
+//              }
+//          }
+//          catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+//          {
+//              bk.printStackTrace();
+//          }
+//          catch( org.omg.CORBA.TypeCodePackage.Bounds b )
+//          {
+//              b.printStackTrace();
+//          }
+//      }
 
     
     /** convenience method */
