@@ -69,15 +69,6 @@ public class Environment
     private static final String jacorbPrefix          = "jacorb.";
     private static final String poaPrefix             = jacorbPrefix + "poa.";
 
-    /** root logger instance for JacORB */
-    private static Logger logger = null;
-    
-    /**  logger factory used to create loggers */
-    private static LoggerFactory loggerFactory = null;
-
-    /**  default class name for logger factory */
-    private static final String loggerFactoryClzName = "org.jacorb.util.LogKitLoggerFactory";
-
     private static Class identityHashMapClass = null;
 
     /* standard JacORB properties with default values follow */
@@ -254,11 +245,7 @@ public class Environment
             // NB: additional properties passed as arguments to
             // ORB.init() are later explicitly added
 
-            // initialize default logger factory and create a logger:
-            initLogging();
 
-            if( logger == null )
-                throw new BAD_QOS("Logger is null!");
         }
         catch (SecurityException secex)
         {
@@ -326,112 +313,6 @@ public class Environment
         _strict_check_on_tc_creation = isPropertyOn("jacorb.interop.strict_check_on_tc_creation", "on");
         _retry_on_failure = isPropertyOn("jacorb.connection.client.retry_on_failure");
         _useIndirection = ! isPropertyOn("jacorb.interop.indirection_encoding_disable");
-    }
-
-    /**
-     * Set up JacORB logging. Will create logger factory and root
-     * logger object according to configuration parameters. The value
-     * of the property <tt>jacorb.log.loggerFactory</tt> determines the
-     * logger factory class name that is used to create the root logger.
-     *
-     * @since 2.0 beta 3
-     */
-
-    private static void initLogging()
-    {
-        append = isPropertyOn("jacorb.logfile.append");
-
-        if (configurationProperties.getProperty("logfile") != null)
-        {
-            logFileName = configurationProperties.getProperty("logfile");
-        }
-        else if (configurationProperties.getProperty( jacorbPrefix+"logfile") != null)
-        {
-            logFileName = configurationProperties.getProperty(jacorbPrefix+"logfile");
-        }
-
-        String size = configurationProperties.getProperty( jacorbPrefix + "logfile.maxLogSize" );
-        if( size != null )
-        {
-            _max_log_size = Integer.parseInt( size );
-        }
-
-        if (logFileName != null && !logFileName.equals(""))
-        {
-            // Convert $implname postfix to implementation name
-            if (logFileName.endsWith("$implname"))
-            {
-                logFileName = logFileName.substring (0, logFileName.length () - 9);
-
-                if (configurationProperties.getProperty ("implname") != null)
-                {
-                    logFileName += configurationProperties.getProperty("implname");
-                }
-                else if (configurationProperties.getProperty (jacorbPrefix + "implname") != null)
-                {
-                    logFileName += configurationProperties.getProperty (jacorbPrefix + "implname");
-                }
-                else
-                {
-                    // Just in case implname has not been set
-                    logFileName += "log";
-                }
-            }
-        }
-
-        // If log file already set force append (prevent file corruption)
-        if ( logger != null)
-        {
-            append = true;
-        }
-
-        String clzName = getProperty("jacorb.log.loggerFactory");
-        Class loggerFactoryClz = null;
-
-        try
-        {
-            if ( clzName != null)
-            {
-                loggerFactoryClz = classForName(clzName);
-            }
-            else
-            {
-                loggerFactoryClz = classForName(loggerFactoryClzName);
-            }
-            loggerFactory = (LoggerFactory)loggerFactoryClz.newInstance();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        if (loggerFactory == null)
-        {
-            System.err.println("Configuration Error, could not create logger!");
-        }
-
-        if (logFileName != null)
-        {
-            try
-            {
-                loggerFactory.setDefaultLogFile(logFileName,_max_log_size);
-                //logger = loggerFactory.getNamedRootLogger("jacorb");
-                logger = loggerFactory.getNamedLogger("jacorb",logFileName,_max_log_size);
-            }
-            catch (IOException e)
-            {
-                logger = loggerFactory.getNamedRootLogger("jacorb");
-                if( logger.isErrorEnabled())
-                {
-                    logger.error("Could not create logger with file target: " + logFileName +
-                                 ", falling back to console log!");
-                }
-            }
-        }
-        else
-        {
-            logger = loggerFactory.getNamedRootLogger("jacorb" );
-        }
     }
 
     // value getters
@@ -774,62 +655,6 @@ public class Environment
     }
 
     /**
-     * Collects all properties with prefix "org.omg.PortableInterceptor.ORBInitializerClass."
-     * and try to instantiate their values as ORBInitializer-Classes.
-     *
-     * @return a Vector containing ORBInitializer instances
-     */
-
-    public static Vector getORBInitializers()
-    {
-        Enumeration prop_names = configurationProperties.propertyNames();
-        Vector orb_initializers = new Vector();
-
-        String initializer_prefix =
-            "org.omg.PortableInterceptor.ORBInitializerClass.";
-
-        //Test EVERY property if prefix matches.
-        //I'm open to suggestions for more efficient ways (noffke)
-        while(prop_names.hasMoreElements())
-        {
-            String prop = (String) prop_names.nextElement();
-            if ( prop.startsWith( initializer_prefix ))
-            {
-                String name = configurationProperties.getProperty( prop );
-                if( name == null ||
-                        name.length() == 0 )
-                {
-                    if( prop.length() > initializer_prefix.length() )
-                    {
-                        name =
-                            prop.substring( initializer_prefix.length() );
-                    }
-                }
-
-                if( name == null )
-                {
-                    continue;
-                }
-
-                try
-                {
-                    orb_initializers.addElement(classForName(name).newInstance());
-                    if( logger.isDebugEnabled())
-                        logger.debug("Build: " + name);
-                }
-                catch (Exception e)
-                {
-                    Debug.output(1, e);
-                    Debug.output( 1, "Unable to build ORBInitializer from >>" +
-                                  name + "<<" );
-                }
-            }
-        }
-
-        return orb_initializers;
-    }
-
-    /**
      * Collects all properties with a given prefix
      *
      * @return a hash table with  key/value pairs where
@@ -887,83 +712,6 @@ public class Environment
 
             return properties;
         }
-    }
-
-    /**
-     * Returns the <code>Class</code> object for the class or interface
-     * with the given string name. This method is a replacement for
-     * <code>Class.forName(String name)</code>. Unlike
-     * <code>Class.forName(String name)</code> (which always uses the
-     * caller's loader or one of its ancestors), <code>classForName</code>
-     * uses a thread-specific loader that has no delegation relationship
-     * with the caller's loader. It attempts the load the desired class
-     * with the thread-specific context class loader and falls back to
-     * <code>Class.forName(String name)</code> only if the context class
-     * loader cannot load the class.
-     * <p>
-     * Loading a class with a loader that is not necessarily an ancestor
-     * of the caller's loader is a crucial thing in many scenarios. As an
-     * example, assume that JacORB was loaded by the boot class loader,
-     * and suppose that some code in JacORB contains a call
-     * <code>Class.forName(someUserClass)</code>. Such usage of
-     * <code>Class.forName</code> effectively forces the user to place
-     * <code>someUserClass</code> in the boot class path. If
-     * <code>classForName(someUserClass)</code> were used instead, the user
-     * class would be loaded by the context class loader, which by default
-     * is set to the system (CLASSPATH) classloader.
-     * <p>
-     * In this simple example above, the default setting of the context class
-     * loader allows classes in the boot classpath to reach classes in the
-     * system classpath. In other scenarios, the context class loader might
-     * be different from the system classloader. Middleware systems like
-     * servlet containers or EJB containers set the context class loader so
-     * that a given thread can reach user-provided classes that are not in
-     * the system classpath.
-     * <p>
-     * For maximum flexibility, <code>classForName</code> should replace
-     * <code>Class.forName(String name)</code> in nearly all cases.
-     *
-     * @param name the fully qualified name of a class
-     *
-     * @return the Class object for that class
-     *
-     * @throws IllegalArgumentException if <code>name</code> is null
-     * @throws ClassNotFoundException if the named class cannot be found
-     * @throws LinkageError if the linkage fails
-     * @throws ExceptionInInitializerError if the class initialization fails
-     */
-
-    public static Class classForName(String name)
-        throws ClassNotFoundException, IllegalArgumentException
-    {
-        if (name == null)
-            throw new IllegalArgumentException("Class name must not be null!");
-        try
-        {
-            // Here we prefer classLoader.loadClass() over the three-argument
-            // form of Class.forName(), as the latter is reported to cause
-            // caching of stale Class instances (due to a buggy cache of
-            // loaded classes).
-            return Thread.currentThread().getContextClassLoader().loadClass(name);
-        }
-        catch (Exception e)
-        {
-            // As a fallback, we prefer Class.forName(name) because it loads
-            // array classes (i.e., it handles arguments like
-            // "[Lsome.class.Name;" or "[[I;", which classLoader.loadClass()
-            // does not handle).
-            return Class.forName(name);
-        }
-    }
-
-    /**
-     * @return the default logger factory
-     * @since JacORB 2.0 beta 3
-     */
-
-    public static LoggerFactory getLoggerFactory()
-    {
-        return loggerFactory;
     }
 
     /**
