@@ -6,7 +6,7 @@
         ant
 
     Run NamingServer:
-        ns.bat c:/NS_Ref
+        ns[.bat] -Djacorb.naming.ior_filename=/path/to/NS_Ref
 
     Run Server:
         jaco demo.unions.Server
@@ -16,4 +16,4 @@
 
     Make sure that jacorb.properties is in place and has 
     the name server reference such as -
-    ORBInitRef.NameService=file:/c:/NS_Ref
+    ORBInitRef.NameService=file:/path/to/NS_Ref
