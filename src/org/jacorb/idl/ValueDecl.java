@@ -392,20 +392,15 @@ class ValueDecl
         out.println ("\tpublic static " + javaName() + " read " +
                      "(org.omg.CORBA.portable.InputStream is)");
         out.println ("\t{");
-        out.println ("\t\torg.omg.CORBA.portable.ValueFactory f = ");
-        out.println ("\t\t\t((org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init()).lookup_value_factory (\"" + id() + "\");");
-        out.println ("\t\tif (f == null)");
-        out.println ("\t\t\tthrow new org.omg.CORBA.MARSHAL " +
-                     "(\"could not find value factory for " + id() + "\");");
-        out.println ("\t\treturn (" + javaName() + ")f.read_value " +
-                     "((org.omg.CORBA_2_3.portable.InputStream)is);");
+        out.println ("\t\treturn (" + javaName() + ")((org.omg.CORBA_2_3.portable.InputStream)is).read_value (\"" + id() + "\");");
         out.println ("\t}");
+
         out.println ("\tpublic static void write " +
                      "(org.omg.CORBA.portable.OutputStream os, " + 
                      javaName() + " val)");
         out.println ("\t{");
-        out.println ("\t\tval._write " + 
-                     "((org.omg.CORBA_2_3.portable.OutputStream)os);");
+        out.println ("((org.omg.CORBA_2_3.portable.OutputStream)os)" + 
+                     ".write_value (val, \"" + id() + "\");");
         out.println ("\t}");
         out.println ("}");
         out.close();
@@ -439,7 +434,7 @@ class ValueDecl
         out.println ("\tpublic void _write " +
                      "(final org.omg.CORBA.portable.OutputStream os)");
         out.println ("\t{");
-        out.println ("\t\tvalue._write (os);");
+        out.println ("\t\t" + javaName() + "Helper.write (os, value);");
         out.println ("\t}");
         out.println ("\tpublic org.omg.CORBA.TypeCode _type()");
         out.println ("\t{");
