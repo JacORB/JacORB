@@ -63,7 +63,7 @@
          <echo message="JacORB will be built with the following classpath:${line.separator}${classpath}"/>
 </target>
 
-<!-- check whether to use java.util.regexp or gnu.regexp -->
+<!-- check if a regexp library is available -->
 <target name="check-regexp">
 
    <condition property="available.regexp.jdk" value="true" >
@@ -73,14 +73,19 @@
       </or>
    </condition>
 
-   <available classname="gnu.regexp.RE" property="available.regexp.gnu" />
+  <available classname="gnu.regexp.RE"
+    property="available.regexp.gnu" />
 
-   <condition property="regexp.available">
-      <or>
-         <isset property="available.regexp.jdk" />
-         <isset property="available.regexp.gnu" />
-      </or>
-   </condition>
+  <available classname="org.apache.regexp.RE"
+    property="available.regexp.jakarta-regexp" />
+
+  <condition property="regexp.available">
+    <or>
+      <isset property="available.regexp.jdk" />
+      <isset property="available.regexp.gnu" />
+      <isset property="available.regexp.jakarta-regexp" />
+    </or>
+  </condition>
 </target>
 
 
