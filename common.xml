@@ -14,7 +14,7 @@
     <property name="debuglevel" value="lines,source"/>
 
     <property name="classdir" value="${dirs.base}/classes"/>
-    <property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
+    <property name="classpath" value="${dirs.base}/classes:${lib}/logkit.jar:${java.class.path}"/>
     <mkdir dir="${classdir}"/>
     <mkdir dir="${lib}"/>
     <mkdir dir="${src}/generated"/>
@@ -23,7 +23,7 @@
 
 
 <target name="load-taskdef">
-   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpath="${basedir}/classes"/>
+   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpath="${basedir}/classes:${basedir}/lib/logkit.jar"/>
 </target>
 
 <target name="ant-version" unless="ant15">
