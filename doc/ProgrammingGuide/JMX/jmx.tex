@@ -45,16 +45,16 @@ cntorServer.start();
 \end{verbatim}
 \end{scriptsize}
 
-The first line creates the MBeanServer.
-
+The first line creates the MBeanServer. 
 The next 4 lines creates the remote JMX connection. The "`setORB()"' call assignes a previously
 initialized ORB to the Remote Object delegate. All RMI over IIOP communications will occure
 via this ORB. The "`address"' is the name of the MBeanServer as known in the Naming service.
 The portion after "`/jndi/"' is the Naming Service name.
-
 The next line registers a MBean with the MBeanServer.
-
 The last line starts the MBeanServer.
+
+A JMX console may then be used to monitor the JacORB application. For example, MC4J (http://mc4j.sourceforge.net) may be used. When setting up a mc4j connection, use the connection type JSR160 and set the server URL to the name as registered in the JacORB naming service, such as 
+"`service:jmx:iiop://localhost/jndi/jmxSnmpTrapNotify"'.
 
 %%% Local Variables: 
 %%% mode: latex
