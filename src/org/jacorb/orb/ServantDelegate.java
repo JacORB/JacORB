@@ -71,9 +71,10 @@ public class ServantDelegate
 	}     
 	catch (org.omg.CORBA.OBJ_ADAPTER e) 
 	{       
-	    // This means we don't have a context for our POACurrent.       
-	    // Use the Servant's default POA instead.       
-	    poa = default_POA(self);  
+           // Use servants default POA. Operation may be re-implemented
+           // by servant implementation.
+
+            poa = self._default_POA ();
 	}
 
 	if (poa == null) 
