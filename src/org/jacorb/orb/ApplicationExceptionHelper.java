@@ -33,7 +33,7 @@ import org.jacorb.ir.RepositoryID;
  * @version $Id$
  */
 
-public class ApplicationExceptionHelper  
+public class ApplicationExceptionHelper
 {
 
     /**
@@ -43,35 +43,38 @@ public class ApplicationExceptionHelper
      */
 
     public static void insert (org.omg.CORBA.Any any, ApplicationException  s)
-        throws ClassNotFoundException, 
-        NoSuchMethodException, 
-        IllegalAccessException,
-        InvocationTargetException
-    { 
-        String name   = RepositoryID.className (s.getId(), "Helper");
+        throws
+            ClassNotFoundException,
+            NoSuchMethodException,
+            IllegalAccessException,
+            InvocationTargetException
+    {
+        java.lang.Object userEx;
 
-        // if the class is not found, let exception propagate up
-        Class _helper = Class.forName (name);
+        // Get exception and helper names
 
-        //_helper must not be null from here on
-        
-        //get read method from helper and invoke it,
-        //i.e. read the object from the stream
-        Method _read = 
-            _helper.getMethod( "read", 
-                               new Class[]{ 
-                                   Class.forName("org.omg.CORBA.portable.InputStream")
-                               }
-                               );    
-        java.lang.Object _user_ex = 
-            _read.invoke(null, new java.lang.Object[]{ s.getInputStream() } );
-    
-        //get insert method and insert exception into any
-        Method _insert = 
-            _helper.getMethod("insert", 
-                              new Class[]{ Class.forName("org.omg.CORBA.Any"), 
-                                           Class.forName( name ) }
-                              ); 
-        _insert.invoke( null, new java.lang.Object[]{any, _user_ex} );
+        String name = RepositoryID.className (s.getId ());
+        String helperName = name + "Helper";
+
+        // Get various required classes
+
+        Class exClass = Class.forName (name);
+        Class helperClass = Class.forName (helperName);
+        Class anyClass = org.omg.CORBA.Any.class;
+        Class isClass = org.omg.CORBA.portable.InputStream.class;
+
+        // Get various required methods
+
+        Method readMeth  = helperClass.getMethod ("read", new Class[] { isClass });
+        Method insertMeth = helperClass.getMethod ("insert", new Class[] { anyClass, exClass });
+
+        // Do equivalent of:
+        //
+        // userEx = UserExHelper.read (s.getInputStream ());
+        // UserExHelper.insert (any, userEx);
+        //
+
+        userEx = readMeth.invoke (null, new java.lang.Object[] { s.getInputStream () });
+        insertMeth.invoke (null, new java.lang.Object[] {any, userEx});
     }
-} // ApplicationExceptionHelper
+}
