@@ -195,17 +195,23 @@ public class ClientConnectionManager
     }
 
 
+
+
     public synchronized void addConnection( GIOPConnection connection )
     {
-        org.omg.ETF.Profile profile = connection.getTransport().get_server_profile();
-            
+        addConnection ( connection,
+                        connection.getTransport().get_server_profile() );
+    }
+
+    public synchronized void addConnection( GIOPConnection connection,
+                                            org.omg.ETF.Profile profile )
+    {
         if( !connections.containsKey( profile ))
         {
-
             ClientConnection c = new ClientConnection
             ( 
                 connection, orb, this, 
-                ((InternetIOPProfile)profile).getAddress().toString(), 
+                profile.toString(),
                 false 
             );
 
