@@ -752,6 +752,15 @@ class ValueDecl
         out.println( "((org.omg.CORBA_2_3.portable.OutputStream)os)" +
                 ".write_value (val, \"" + id() + "\");" );
         out.println( "\t}" );
+        
+        // factory methods
+        
+        for (Iterator i = factories.iterator(); i.hasNext();)
+        {
+            InitDecl d = (InitDecl)i.next();
+            d.printHelperMethod ( out, name );
+        }
+        
         out.println( "}" );
         out.close();
     }
