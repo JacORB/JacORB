@@ -23,7 +23,6 @@ package org.jacorb.orb.connection;
 import java.net.*;
 import java.io.*;
 
-import org.jacorb.orb.BufferManager;
 import org.jacorb.util.*;
 
 /**
@@ -41,9 +40,6 @@ public abstract class TCP_IP_Transport
 {
     protected InputStream in_stream = null;
     protected OutputStream out_stream = null;
-
-    private byte[] msg_header = null;
-    private BufferManager buff_mg = null;
 
     private ByteArrayOutputStream b_out = null;
     private boolean dump_incoming = false;
@@ -67,10 +63,6 @@ public abstract class TCP_IP_Transport
         this.statistics_provider = statistics_provider;
         this.transport_manager = transport_manager;
 
-        msg_header = new byte[ Messages.MSG_HEADER_SIZE ];
-
-        buff_mg = BufferManager.getInstance();
-
         String dump_outgoing =
             Environment.getProperty( "jacorb.debug.dump_outgoing_messages",
                                      "off" );
@@ -79,12 +71,6 @@ public abstract class TCP_IP_Transport
         {
             b_out = new ByteArrayOutputStream();
         }
-
-        String dump_incoming_str =
-            Environment.getProperty( "jacorb.debug.dump_incoming_messages",
-                                     "off" );
-
-        dump_incoming = "on".equals( dump_incoming_str );
 
         finalTimeout = 
             Environment.getIntPropertyWithDefault( "jacorb.connection.timeout_after_closeconnection", 
@@ -116,7 +102,7 @@ public abstract class TCP_IP_Transport
      * @return the actual number of bytes that were read.
      */
 
-    private final int readToBuffer( byte[] buffer,
+    public final int readToBuffer( byte[] buffer,
                                     int start_pos,
                                     int length )
         throws IOException
@@ -178,121 +164,6 @@ public abstract class TCP_IP_Transport
 
     // implementation of org.jacorb.orb.connection.Transport interface
 
-    /**
-     * Read a GIOP message from the stream. This will first try to
-     * read in the fixed-length GIOP message header to determine the
-     * message size, and the read the rest. It also checks the leading
-     * four magic bytes of the message header. This method <b>is not
-     * thread safe<b> and only expected to be called by a single
-     * thread.
-     *
-     * @return a GIOP message or null.
-     * @exception IOException passed through from the underlying IO layer.
-     */
-    public byte[] getMessage()
-        throws IOException
-    {
-        //Wait until the actual socket connection is established. This
-        //is necessary for the client side, so opening up a new
-        //connection can be delayed until the first message is to be
-        //sent.
-        if( ! waitUntilConnected() )
-        {
-            return null;
-        }
-
-        int read = readToBuffer( msg_header, 0, Messages.MSG_HEADER_SIZE );
-
-        if( read == -1 )
-        {
-            return null;
-        }
-
-        if( read != Messages.MSG_HEADER_SIZE )
-        {
-            //TODO: resynching?
-
-            // Debug.output( 1, "ERROR: Failed to read GIOP message header" );
-            // Debug.output( 1, (Messages.MSG_HEADER_SIZE - read) +
-            //                   " Bytes less than the expected " +
-            //                   Messages.MSG_HEADER_SIZE + " Bytes" );
-            // Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-            //                  msg_header, 0, read );
-
-            return null;
-        }
-        
-        //(minimally) decode GIOP message header. Main checks should
-        //be done one layer above.
-
-        if( (char) msg_header[0] == 'G' && (char) msg_header[1] == 'I' &&
-            (char) msg_header[2] == 'O' && (char) msg_header[3] == 'P')
-        {
-            //determine message size
-            int msg_size = Messages.getMsgSize( msg_header );
-
-            if( msg_size < 0 )
-            {
-                Debug.output( 1, "ERROR: Negative GIOP message size: " + 
-                              msg_size );
-                Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-                              msg_header, 0, read );
-
-                return null;
-            }
-
-            //get a large enough buffer from the pool
-            byte[] inbuf = buff_mg.getBuffer( msg_size +
-                                              Messages.MSG_HEADER_SIZE );
-
-            //copy header
-            System.arraycopy( msg_header, 0, inbuf, 0, Messages.MSG_HEADER_SIZE );
-
-            //read "body"
-            read = readToBuffer( inbuf, Messages.MSG_HEADER_SIZE, msg_size );
-
-            if( read == -1 )
-            {
-                //stream ended too early
-                return null;
-            }
-
-            if( read != msg_size )
-            {
-                Debug.output( 1, "ERROR: Failed to read GIOP message" );
-                Debug.output( 1, (msg_size - read) +
-                              " Bytes less than the expected " +
-                              msg_size + " Bytes" );
-                Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-                              inbuf, 0, read );
-
-                return null;
-            }
-
-            if( dump_incoming )
-            {
-                Debug.output( 1, "getMessage()", inbuf, 0, read + Messages.MSG_HEADER_SIZE );
-            }
-
-            if( statistics_provider != null )
-            {
-                statistics_provider.messageReceived( msg_size +
-                                                     Messages.MSG_HEADER_SIZE );
-            }
-
-            //this is the "good" exit point. 
-            return inbuf;
-        }
-        else
-        {
-            Debug.output( 1, "ERROR: Failed to read GIOP message" );
-            Debug.output( 1, "Magic start doesn't match" );
-            Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-                          msg_header );
-
-            return null;
-        }
-    }
 
     public void write( byte[] message,
                        int start,
