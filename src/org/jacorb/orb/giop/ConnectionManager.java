@@ -119,21 +119,21 @@ public class ConnectionManager
 
 
     /**
-     * Low-level lookup operation for existing connections to destinations, <br>
-     * opens a new one if no connection exists.
+     * Low-level lookup operation for existing connections to
+     * destinations, <br> opens a new one if no connection exists.
      *
      * @param <code>String host_and_port</code> - in "host:xxx" notation
-     * @return <code>Connection</code>
-     */
+     * @return <code>Connection</code> */
 
     public final ClientConnection _getConnection( String host_and_port, 
-                                            boolean target_ssl )
+                                                  boolean target_ssl )
     {
         int retries = Environment.noOfRetries();
 
         if( host_and_port.indexOf('/') > 0)
         {
-            host_and_port = host_and_port.substring( host_and_port.indexOf('/') + 1 );
+            host_and_port = 
+                host_and_port.substring( host_and_port.indexOf('/') + 1 );
         }
 
         String host = host_and_port.substring(0,host_and_port.indexOf(":"));
@@ -141,7 +141,9 @@ public class ConnectionManager
         try
         {
             /** make sure we have a raw IP address here */
-            java.net.InetAddress inet_addr = java.net.InetAddress.getByName( host );
+            java.net.InetAddress inet_addr = 
+                java.net.InetAddress.getByName( host );
+
             host_and_port = inet_addr.getHostAddress() + ":" + port;
         }
         catch( java.net.UnknownHostException uhe )
@@ -174,7 +176,8 @@ public class ConnectionManager
                 }                    
             }
 
-            e.incUsers();
+            //user count is incremented by Delegate
+            //e.incUsers();
             return e;
         } 
 
