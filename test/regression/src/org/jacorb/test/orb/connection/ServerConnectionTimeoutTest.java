@@ -50,7 +50,7 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
 
         Properties server_props =
             new Properties();
-        server_props.setProperty( "jacorb.connection.server_timeout", "1000" );
+        server_props.setProperty( "jacorb.connection.server.timeout", "1000" );
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,
