@@ -31,7 +31,7 @@ import org.apache.avalon.framework.logger.*;
  * @since JacORB 2.0 beta 3
  */
 
-interface LoggerFactory
+public interface LoggerFactory
 {
     /**
      * @return the name of the actual logging mechanism, e.g., "logkit"
