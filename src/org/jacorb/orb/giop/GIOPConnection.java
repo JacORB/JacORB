@@ -101,6 +101,8 @@ public abstract class GIOPConnection
 
     protected StatisticsProvider statistics_provider = null;
 
+    public String connection_info;
+
     public GIOPConnection( org.omg.ETF.Profile profile,
                            org.omg.ETF.Connection transport,
                            RequestListener request_listener,
@@ -124,6 +126,8 @@ public abstract class GIOPConnection
         dump_incoming = "on".equals( dump_incoming_str );
 
         cubbyholes = new Object[cubby_count];
+
+        connection_info = profile.toString();
     }
 
     public final void setCodeSets( int TCS, int TCSW )
@@ -158,7 +162,7 @@ public abstract class GIOPConnection
      * Get the value of request_listener.
      * @return value of request_listener.
      */
-    private final synchronized RequestListener getRequestListener()
+    protected final synchronized RequestListener getRequestListener()
     {
         return request_listener;
     }
@@ -357,10 +361,15 @@ public abstract class GIOPConnection
                     }
             }
 
+            System.out.println( "message waiting for entry into sync'd on " + connection_info );
+
             synchronized( pendingUndecidedSync )
             {
+
+            System.out.println( "message GOT entry into sync'd on " + connection_info );
                 if( discard_messages )
                 {
+                    System.out.println( "********************discarded message" );
                     buf_mg.returnBuffer( message );
                     continue;
                 }
@@ -653,15 +662,18 @@ public abstract class GIOPConnection
     public final synchronized void incPendingMessages()
     {
         ++pending_messages;
+        System.out.println( "incPendingMessages() on " + connection_info + " to " + pending_messages );
     }
 
     public final synchronized void decPendingMessages()
     {
         --pending_messages;
+        System.out.println( "decPendingMessages() on " + connection_info + " to " + pending_messages );
     }
 
     public final synchronized boolean hasPendingMessages()
     {
+        System.out.println( "hasPendingMessages() on " + connection_info + ": " + pending_messages );
         return pending_messages != 0;
     }
 
@@ -713,6 +725,18 @@ public abstract class GIOPConnection
     {
         if( expect_reply )
         {
+            System.out.println( "sendRequest() on " + connection_info);
+            if( discard_messages )
+            {
+                try
+                {
+                    throw new Exception();
+                }
+                catch( Exception e )
+                {
+                    e.printStackTrace();
+                }
+            }
             incPendingMessages();
         }
 
@@ -770,7 +794,7 @@ public abstract class GIOPConnection
             connect_sync.notifyAll();
          }
 
-        Debug.output( 2, "GIOPConnection closed completely" );
+        Debug.output( 2, "GIOPConnection closed completely " + connection_info);
     }
 
 
