@@ -31,8 +31,8 @@ import org.omg.CORBA.TCKind;
 import org.omg.PortableServer.*;
 
 /**
- * @author Gerald Brose, FU Berlin 1999
- * @version     $Id$
+ * @author Gerald Brose,  1999
+ * @version $Id$
  * 
  * A stream for CDR marshalling.
  *
@@ -98,6 +98,9 @@ public class CDROutputStream
      */
     private Map codebaseMap = new HashMap();
 
+    /** remember the starting position of a chunk. Since chunks are not nested,
+        only one variable is needed */
+    private int chunk_start = -1; 
 
 
     private class DeferredWriteFrame
@@ -1992,12 +1995,15 @@ public class CDROutputStream
         {
             if( repository_ids.length > 1 )
             {
-                write_long (0x7fffff06);
+                // truncatable value type, must use chunking!
+
+                write_long (0x7fffff06); // | 0x7fffff08 );
                 write_long( repository_ids.length );
                 for( int i = 0; i < repository_ids.length; i++ )
                 {
                     write_repository_id (repository_ids[i]);
                 }
+                // start_chunk();
             }
             else
             {
@@ -2023,7 +2029,9 @@ public class CDROutputStream
 	    {
                 if( repository_ids.length > 1 )
                 {
-                    write_long (0x7fffff07);
+                    // truncatable value type, must use chunking!
+
+                    write_long ( 0x7fffff07 ); // | 0x7fffff08 );
                     write_codebase(codebase);
                     write_long( repository_ids.length );
 
@@ -2031,6 +2039,7 @@ public class CDROutputStream
                     {
                         write_repository_id (repository_ids[i]);
                     }
+                    // start_chunk();
                 }
                 else
                 {
@@ -2073,8 +2082,14 @@ public class CDROutputStream
 	}
         else if (value instanceof org.omg.CORBA.portable.StreamableValue)
 	{
-	    write_value_header( ((org.omg.CORBA.portable.StreamableValue)value)._truncatable_ids()  );
-            ((org.omg.CORBA.portable.StreamableValue)value)._write (this);
+            org.omg.CORBA.portable.StreamableValue streamable = 
+                (org.omg.CORBA.portable.StreamableValue)value;
+
+	    write_value_header( streamable._truncatable_ids() );
+            ((org.omg.CORBA.portable.StreamableValue)value)._write(this);
+
+//              if( streamable._truncatable_ids().length() > 1 ) // truncatable -> chunked
+//                  end_chunk();
 	}
         else 
         {
@@ -2086,6 +2101,60 @@ public class CDROutputStream
             ValueHandler.writeValue (this, value);
 	}
     }
+
+    /**
+     * writes a value end tag to the marshalling stream, required
+     * after chunking was used.
+     */
+
+    private void write_end_tag( final java.io.Serializable value ) 
+    {
+        ;
+    }
+
+    /**
+     * start a new chunk, end any previously started chunk (no nesting!)
+     */
+
+    private void start_chunk()
+    {
+        // end any previous chunk that may still be open
+        if( chunk_start != -1 )
+        {
+            end_chunk();
+        }
+         
+        // remeber where we are right now, 
+        chunk_start = pos;
+        write_long( 0 ); // insert four bytes here as a place-holder
+                                 // need to go back later and insert size
+    }
+
+    /**
+     * ends the current chunk, writes the chunk size to the chunk
+     * header
+     */
+
+    private void end_chunk()
+    {
+        if( chunk_start != -1 )
+        {
+            int current_pos = pos;
+            int current_idx = index;
+
+            // go to the beginning of the chunk and insert the chunk size
+            pos = chunk_start;
+            write_long( current_pos - chunk_start );
+
+            pos = current_pos;
+            index = current_idx;
+
+            chunk_start = -1;
+        }
+ //         else
+//              throw new java.lang.RuntimeError( "Internal error, trying to end a chunk without there being one!");
+    }
+
 
     /**
      * Writes an abstract interface to this stream. The abstract interface is
