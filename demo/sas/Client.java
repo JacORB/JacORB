@@ -76,6 +76,7 @@ public class Client
                 }
 
                 org.jacorb.security.sas.GSSUPProvider.setDefaultSubject("MeUser", "MePassword", "MeTarget");
+                org.jacorb.security.sas.GSSUPProvider.setORB(orb);
                 Oid mechOid = new org.ietf.jgss.Oid(org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism.1.oid"));
                 GSSCredential cred = gssManager.createCredential(gssManager.createName("".getBytes(), null, mechOid), GSSCredential.DEFAULT_LIFETIME, mechOid, GSSCredential.INITIATE_ONLY);
                 GSSName peerName = gssManager.createName("".getBytes(), null, mechOid);

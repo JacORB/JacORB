@@ -142,7 +142,9 @@ public class Server
                         Debug.output( 1, "GSSProvider "+mechOID+" "+mechProvider + " error: " +e );
                     }
                 }
+                org.jacorb.security.sas.GSSUPProvider.setORB(orb);
                 org.jacorb.orb.standardInterceptors.SASComponentInterceptor.setGSSManager(gssManager);
+                org.jacorb.security.sas.TSSInvocationInterceptor.setGSSManager(gssManager);
             } catch (GSSException e) {
                 System.out.println("GSSException "+e.getMessage()+": "+e.getMajorString()+": "+e.getMinorString());
                 e.printStackTrace();

@@ -34,6 +34,7 @@ public class GSSUPProvider extends Provider
 {
 
     private static InitialContextToken defaultSubject = new InitialContextToken();
+    protected static org.omg.CORBA.ORB orb = null;
 
     /**
      * Returns the default GSSManager implementation.
@@ -52,6 +53,10 @@ public class GSSUPProvider extends Provider
         defaultSubject.username = username.getBytes();
         defaultSubject.password = password.getBytes();
         defaultSubject.target_name = target.getBytes();
+    }
+
+    public static void setORB(org.omg.CORBA.ORB o) {
+        orb = o;
     }
 
     public static InitialContextToken getDefaultSubject()

@@ -24,6 +24,7 @@ package org.jacorb.security.sas;
 import java.io.*;
 import org.omg.SecurityReplaceable.*;
 import org.omg.Security.*;
+import org.ietf.jgss.*;
 
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.ORBPackage.*;
@@ -32,6 +33,9 @@ import org.omg.CORBA.Any;
 import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.omg.IOP.*;
+import org.omg.GIOP.*;
+import org.jacorb.orb.connection.*;
+import org.jacorb.orb.dsi.ServerRequest;
 
 import javax.net.ssl.SSLSocket;
 
@@ -48,14 +52,17 @@ public class TSSInvocationInterceptor
 {
     public static final String DEFAULT_NAME = "TSSInvocationInterceptor";
     public static final int SecurityAttributeService = 15;
+    private static GSSManager gssManager = null;
 
     private String name = null;
+    private org.jacorb.orb.ORB orb = null;
     private Codec codec = null;
     private int slotID = -1;
 
 
-    public TSSInvocationInterceptor(Codec codec, int slotID)
+    public TSSInvocationInterceptor(org.jacorb.orb.ORB orb, Codec codec, int slotID)
     {
+        this.orb = orb;
         this.codec = codec;
         this.slotID = slotID;
         name = DEFAULT_NAME;
@@ -68,6 +75,10 @@ public class TSSInvocationInterceptor
 
     public void destroy()
     {
+    }
+
+    public static void setGSSManager(GSSManager manager) {
+        gssManager = manager;
     }
 
     public void receive_request( ServerRequestInfo ri )
@@ -86,12 +97,35 @@ public class TSSInvocationInterceptor
             ServiceContext ctx = ri.get_request_service_context(SecurityAttributeService);
             Any ctx_any = codec.decode( ctx.context_data );
             ri.set_slot( slotID, ctx_any);
-
             org.omg.CSI.SASContextBody contextBody = org.omg.CSI.SASContextBodyHelper.extract(ctx_any);
+            //org.omg.CORBA.portable..OutputStream outStream = new java.io.OutputStream();
+            //byte[] b = new byte[contextBody.establish_msg().client_authentication_token.length-2];
+            //System.arraycopy(contextBody.establish_msg().client_authentication_token, 2, b, 0, b.length);
+            //GSSContext c = gssManager.createContext(contextBody.establish_msg().client_authentication_token);
+            //System.out.println("HEHE");
+            //GSSContext c1 = gssManager.createContext(contextBody.establish_msg().client_authentication_token);
+            //outStream.write(contextBody.establish_msg().client_authentication_token);
+            //c.acceptSecContext(contextBody.establish_msg().client_authentication_token, 0, contextBody.establish_msg().client_authentication_token.length);
+            //InputStream inStream = new ByteArrayInputStream(contextBody.establish_msg().client_authentication_token);
+            //org.omg.CORBA.portable.InputStream inStream = outStream.create_input_stream();
+            //Oid mechOid2 = new Oid(inStream);
+
+            Oid mechOid = new org.ietf.jgss.Oid(org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism.1.oid"));
+            GSSCredential cred = gssManager.createCredential(gssManager.createName("".getBytes(), null, mechOid), GSSCredential.DEFAULT_LIFETIME, mechOid, GSSCredential.ACCEPT_ONLY);
+            GSSName peerName = gssManager.createName("".getBytes(), null, mechOid);
+            GSSContext context = gssManager.createContext(peerName, mechOid, cred, GSSContext.DEFAULT_LIFETIME);
+            byte[] b = context.acceptSecContext(contextBody.establish_msg().client_authentication_token, 0, contextBody.establish_msg().client_authentication_token.length);
+for (int i=0;i<b.length;i++) System.out.println((int)b[i]+" ");System.out.println();
+        }
+        catch (GSSException e)
+        {
+            Debug.output(1, "Error parsing service context: " + e+": "+e.getMajorString()+": "+e.getMinorString());
+            e.printStackTrace();
         }
         catch (Exception e)
         {
             Debug.output(1, "Error parsing service context: " + e);
+            e.printStackTrace();
         }
     }
 

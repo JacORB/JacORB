@@ -83,16 +83,19 @@ public final class GSSUPMechFactory implements MechanismFactory
 
     public GSSContextSpi getMechanismContext(GSSNameSpi nameSpi, GSSCredentialSpi credSpi, int lifetime) throws GSSException
     {
+          System.out.println("getMechanismContext-1");
 	  return new GSSUPContextSpi(myProvider, myMechOid, lifetime);
     }
 
     public GSSContextSpi getMechanismContext(GSSCredentialSpi credSpi) throws GSSException
     {
-	  return null;
+          System.out.println("getMechanismContext-2");
+	  return new GSSUPContextSpi(credSpi.getProvider(), credSpi.getMechanism(), credSpi.getInitLifetime());
     }
 
     public GSSContextSpi getMechanismContext(byte[] b1) throws GSSException
     {
+          System.out.println("getMechanismContext");
 	  return null;
     }
 }

@@ -54,7 +54,8 @@ public class TSSInitializer
             slotID = info.allocate_slot_id();
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
             Codec codec = info.codec_factory().create_codec(encoding);
-            info.add_server_request_interceptor(new TSSInvocationInterceptor(codec, slotID));
+            org.jacorb.orb.ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
+            info.add_server_request_interceptor(new TSSInvocationInterceptor(orb, codec, slotID));
         }
         catch (DuplicateName duplicateName)
         {
