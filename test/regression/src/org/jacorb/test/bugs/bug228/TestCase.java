@@ -25,8 +25,9 @@ import junit.framework.*;
 import org.omg.CORBA.*;
 
 /**
- * Tests whether factory methods do end up the Helper class of a value type.
- * Also tests whether the ORB automatically finds the DefaultFactory.
+ * Test for bug 228, checks whether factory methods do end up in the Helper 
+ * class of a value type.  Also tests whether the ORB automatically finds
+ * the DefaultFactory.
  * 
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
