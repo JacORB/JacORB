@@ -1856,13 +1856,14 @@ required:
 
 \begin{itemize}
         \item JDK 1.2 or later,
-
-        \item   IAIK-JCE   2.591,   the  security   provider   classes
-downloadable from \\ {\tt http://jcewww.iaik.tu-graz.ac.at/},
-
-     \item iSaSiLk 3.0 or later,  the SSL implementation from the same
-source.\footnote{We   will   allow   using   SUN  provider   and   SSL
-implementation in a future release}
+          
+        \item IAIK-JCE 2.591 or later, the security provider classes
+          downloadable from \\ {\tt
+            http://jcewww.iaik.tu-graz.ac.at/},
+          
+        \item iSaSiLk 3.0 or later, the SSL implementation from the
+          same source.\footnote{We will allow using SUN provider and
+            SSL implementation in a future release}
 \end{itemize}
 
 Make  sure that  the two  libraries are  in your  CLASSPATH. Then build
@@ -2003,12 +2004,39 @@ jacorb.security.support\_ssl=on}  the user  will have  to authenticate
 himself. To  be able  to provide the  required certificates,  the user
 will have to provide the key store alias and a password to the ORB.
 
+As explained  in the previous  section, cryptographic data  (key pairs
+and  certificates) is  stored in  a  keystore  file. To configure the
+file name of the keystore file, you need to define the following
+property:
+
+\begin{verbatim}
+        jacorb.security.keystore=AKeystoreFileName
+\end{verbatim}
+
+The keystore file name can either be an absolute path or relative to
+the home directory. Keystores are searched in this order, and the
+first one found is taken.
+
+To avoid  typing in  lots of  aliases and passwords  (one for  the key
+store, and  one for each entry  that is used), you  can define default
+aliases and passwords like this:
+
+\begin{verbatim}
+# the name of the default key alias to look up in the keystore
+jacorb.security.default_user=brose
+jacorb.security.default_password=jacorb
+
+# the name and location of the keystore relative to the home directory
+jacorb.security.keystore=.keystore
+\end{verbatim}
+
+
 These SSL settings can be further refined using security options as in
 the following property definitions:
 
 \begin{verbatim}
-        jacorb.security.ssl.supported_options=40
-        jacorb.security.ssl.required_options=0
+        jacorb.security.ssl.supported_options=60
+        jacorb.security.ssl.required_options=60
 \end{verbatim}
 
 The  value  of  these security  options  is  a  bit  mask coded  as  a
@@ -2031,32 +2059,69 @@ the CORBA Security Service  Specification and reproduced here from the
         const AssociationOptions CompositeDelegation = 512;
 \end{verbatim}
 
-With the  current SSL integration  in JacORB, the only  valid settings
-are  EstablishTrustInTarget  and/or  EstablishTrustInClient, i.e.  hex
-values 40 or 60. NoProtection is not possible when SSL is used. If you
-don't want protection, switch SSL support off.
+With the current SSL integration in JacORB, the only valid settings
+are EstablishTrustInTarget and/or EstablishTrustInClient, i.e.  hex
+values 20, 40 or 60. NoProtection is not possible when SSL is used. If
+you don't want protection, switch SSL support off. The following
+sections go into some more detail about what specific property values
+mean. 
 
-As explained  in the previous  section, cryptographic data  (key pairs
-and  certificates) is  stored in  a  keystore  file. To configure the
-file name of the keystore file, you need to define the following
-property:
-
-\begin{verbatim}
-        jacorb.security.keystore=AKeystoreFileName
-\end{verbatim}
-
-To avoid  typing in  lots of  aliases and passwords  (one for  the key
-store, and  one for each entry  that is used), you  can define default
-aliases and passwords like this:
+\subsection{Client side configuration}
 
 \begin{verbatim}
-# the name of the default key alias to look up in the keystore
-jacorb.security.default_user=brose
-jacorb.security.default_password=jacorb
-
-# the name and location of the keystore relative to the home directory
-jacorb.security.keystore=.keystore
+   jacorb.security.ssl.supported_options=20 //EstablishTrustInTarget
 \end{verbatim}
+This value is ignored since in SSL, the server must always
+authenticate to the client, and therefore, the client must support
+this by default.
+
+\begin{verbatim}
+   jacorb.security.ssl.supported_options=40 //EstablishTrustInClient
+\end{verbatim}
+This makes the client load it's own key/certificate from it's
+keystore, because it must be prepared to authenticate to the server.
+
+\begin{verbatim}
+   jacorb.security.ssl.required_options=20 //EstablishTrustInTarget
+\end{verbatim}
+The same as with the supported option: this is SSL default behaviour
+that can't be changed.
+
+\begin{verbatim}
+   jacorb.security.ssl.required_options=40 //EstablishTrustInClient
+\end{verbatim}
+This is ignored, since in SSL, the client can't force it's own
+authentication to the server.
+
+
+\subsection{Server side configuration}
+
+\begin{verbatim}
+   jacorb.security.ssl.supported_options=20 //EstablishTrustInTarget
+\end{verbatim}
+This value is ignored since in SSL, the server must always
+authenticate to the client. Therefore the servers key/certificate are
+loaded from the keystore.
+
+\begin{verbatim}
+   jacorb.security.ssl.supported_options=40 //EstablishTrustInClient
+\end{verbatim}
+This value is ignored, because authenticating the client is either
+required, or not done at all (the client can't force its own
+authentication).
+
+\begin{verbatim}
+   jacorb.security.ssl.required_options=20 //EstablishTrustInTarget
+\end{verbatim}
+The same as with the supported option: this is SSL default behaviour
+that can't be changed.
+
+\begin{verbatim}
+   jacorb.security.ssl.required_options=40 //EstablishTrustInClient
+\end{verbatim}
+This will request the client to authenticate. It also will try to load
+trusted certificates for the authentication process.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
