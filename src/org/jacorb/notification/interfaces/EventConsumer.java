@@ -22,6 +22,7 @@ package org.jacorb.notification.interfaces;
  */
 
 import org.jacorb.notification.interfaces.Message;
+import org.omg.CosNotifyChannelAdmin.NotConnected;
 
 /**
  * Abstraction of an ProxySupplier.
@@ -30,7 +31,17 @@ import org.jacorb.notification.interfaces.Message;
  * @version $Id$
  */
 
-public interface EventConsumer extends Disposable, TimerEventConsumer {
+public interface EventConsumer extends Disposable {
+
+    /**
+     * Deliver Pending Events. If this ProxySupplier has some Events queued
+     * for a Consumer, a call to this method causes it to
+     * deliver them.
+     */
+    void deliverPendingEvents() throws NotConnected;
+
+    boolean hasPendingEvents();
+
 
     /**
      * Activate Deliveries to Consumer via ProxySupplier.
@@ -54,5 +65,11 @@ public interface EventConsumer extends Disposable, TimerEventConsumer {
      * try to deliver them.
      */
     void deliverEvent(Message event);
+
+    void resetErrorCounter();
+
+    int getErrorCounter();
+
+    int incErrorCounter();
 
 }// EventDispatcher
