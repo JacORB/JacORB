@@ -95,9 +95,9 @@ public class CDROutputStream
 
     private org.omg.CORBA.ORB orb = null;
 
-    //default access, so derived classes can access this field
+    //public access, so derived classes can access this field
     public int giop_minor = 2;
-    
+
     /** 
      * OutputStreams created using  the empty constructor are used for
      * in  memory marshaling, but do  not use the  ORB's output buffer
@@ -115,16 +115,16 @@ public class CDROutputStream
      * are used also for in memory marshaling, but do use the
      * ORB's output buffer manager
      */
-
     public CDROutputStream( org.omg.CORBA.ORB orb )
     {
         this.orb = orb;
+
         bufMgr = BufferManager.getInstance();
         buffer = bufMgr.getBuffer( NET_BUF_SIZE );
+
         use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
     }
         
-
     /** 
      *  Class constructor setting the buffer size for the message
      *  and the character encoding sets
@@ -136,11 +136,13 @@ public class CDROutputStream
         buffer = buf;
     }
 
+    /*
     public org.omg.CORBA.ORB orb ()
     {
         if (orb == null) orb = org.omg.CORBA.ORB.init();
         return orb;
     }
+    */
 
     public void setCodeSet( int codeSet, int codeSetWide )
     {
@@ -186,16 +188,31 @@ public class CDROutputStream
      * This version of check does both array length checking and
      * data type alignment. It is a convenience method.
      */
-
     private final void check( int i, int align )
     {
-        //        check(i);
         int remainder = align - (index % align);
+
         check( i + remainder );
+
         if ( remainder != align )
         {
+            //clear padding areas. This is necessary for all those
+            //cases, where the resulting byte array is interpreted as
+            //a string for comparation purposes.
+            
+            //at maximum, there are 8 bytes of padding. the following
+            //is (supposed to be :-) faster than using a for-loop
+            buffer[ j ] = (byte) 0;
+            buffer[ j + 1 ] = (byte) 0;
+            buffer[ j + 2 ] = (byte) 0;
+            buffer[ j + 3 ] = (byte) 0;
+            buffer[ j + 4 ] = (byte) 0;
+            buffer[ j + 5 ] = (byte) 0;
+            buffer[ j + 6 ] = (byte) 0;
+            buffer[ j + 7 ] = (byte) 0;
+
             index += remainder;
-            pos+=remainder;
+            pos += remainder;
         }
     }
         
@@ -224,6 +241,7 @@ public class CDROutputStream
             {
                 new_buf = bufMgr.getBuffer(pos+i+2);
                 System.arraycopy(buffer,0,new_buf,0,pos);
+
                 bufMgr.returnBuffer(buffer);
             }
             buffer = new_buf;
