@@ -53,6 +53,8 @@ interface Operation
 
     public void printMethod( PrintWriter ps, String classname, boolean is_local );
 
+    public void print_sendc_Method( PrintWriter ps, String classname );
+
     /** method code for skeletons */
 
     public void printDelegatedMethod( PrintWriter ps );
