@@ -586,7 +586,7 @@ public class Configuration
         
         if (s != null && s.length() > 0)
         {
-            s = s.toLowerCase();
+            s = s.trim().toLowerCase();
             return ON.equals(s) || TRUE.equals(s);
         }
         else
@@ -601,7 +601,7 @@ public class Configuration
         
         if (s.length() > 0)
         {
-            s = s.toLowerCase();
+            s = s.trim().toLowerCase();
             return ON.equals(s) || TRUE.equals(s);
         }
         else
