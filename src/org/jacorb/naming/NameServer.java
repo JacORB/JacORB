@@ -174,7 +174,7 @@ public class NameServer
                     idx++;
                 }
 
-                if( args[idx].startsWith("-p"))
+                if( idx < args.length  && args[idx].startsWith("-p"))
                 {
                     if( idx+1 < args.length )
                     {
@@ -186,7 +186,7 @@ public class NameServer
                 }
 
 
-                if( args[ idx ].startsWith("-t"))
+                if( idx < args.length  && args[ idx ].startsWith("-t"))
                 {
                     if( idx+1 < args.length )
                     {
@@ -216,8 +216,8 @@ public class NameServer
              * can be used
              */
 
-	    props.put("jacorb.orb.objectKeyMap.NameService",
-                      "StandardNS/NameServer-POA/_root");
+  	    props.put("jacorb.orb.objectKeyMap.NameService",
+                        "%01StandardNS/NameServer-POA/_root");
 
 	    /* 
              * set a connection time out : after 30 secs. idle time,
