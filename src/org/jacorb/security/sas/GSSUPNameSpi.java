@@ -262,6 +262,7 @@ public final class GSSUPNameSpi
         {
             // logger.error("Error decoding for GSSNameSpi: " + e);
         }
+        logger.error("Bailout - GSSUP");
         return null;
     }
 

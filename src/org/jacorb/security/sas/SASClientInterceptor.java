@@ -321,6 +321,7 @@ public class SASClientInterceptor
         if (contextBody.discriminator() == MTCompleteEstablishContext.value) 
         {
             CompleteEstablishContext reply = contextBody.complete_msg();
+            logger.debug("receive_exception MTCompleteEstablishContext: " + reply.client_context_id);
 
             // if not stateful, remove from connection
             if (reply.client_context_id > 0 && !reply.context_stateful) 
@@ -331,6 +332,7 @@ public class SASClientInterceptor
         if (contextBody.discriminator() == MTContextError.value) 
         {
             ContextError reply = contextBody.error_msg();
+            logger.debug("receive_exception MTContextError: " + reply.client_context_id);
 
             // if stateful, remove from connection
             if (reply.client_context_id > 0) 

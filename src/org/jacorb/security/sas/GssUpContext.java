@@ -34,8 +34,7 @@ public class GssUpContext
     private static Logger logger = null;
     private static String username = "";
     private static String password = "";
-
-    private InitialContextToken initialContextToken = null;
+    protected InitialContextToken initialContextToken = null;
 
     public static void setUsernamePassword(String username, String password) {
         GssUpContext.username = username;
@@ -53,6 +52,8 @@ public class GssUpContext
     public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) 
     {
         byte[] target = csmList.mechanism_list[0].as_context_mech.target_name;
+        System.out.println("["+username+"]["+password+"]["+target+"]");
+        target=new byte[0];
         byte[] contextToken = GSSUPNameSpi.encode(username, password, target);
         initialContextToken = GSSUPNameSpi.decode(contextToken);
         return contextToken;
