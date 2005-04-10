@@ -20,8 +20,6 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.List;
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
@@ -41,14 +39,13 @@ import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.queue.MessageQueueAdapter;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 import org.jacorb.notification.util.PropertySet;
-import org.jacorb.notification.util.PropertySetListener;
+import org.jacorb.notification.util.PropertySetAdapter;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.DiscardPolicy;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.OrderPolicy;
-import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
@@ -189,14 +186,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     }
 
     /**
-     * @deprecated TODO remove
-     */
-    public void preActivate() throws UnsupportedQoS, Exception
-    {
-        // nothing
-    }
-
-    /**
      * configure pending messages queue. the queue is reconfigured according to the current QoS
      * Settings. the contents of the queue are reorganized according to the new OrderPolicy.
      */
@@ -213,12 +202,8 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         }
     }
 
-    private PropertySetListener eventQueueConfigurationChangedCB = new PropertySetListener()
+    private PropertySetAdapter eventQueueConfigurationChangedCB = new PropertySetAdapter()
     {
-        public void validateProperty(Property[] p, List errors)
-        {
-        }
-
         public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
         {
             configureEventQueue();
@@ -568,5 +553,14 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     public boolean isRetryAllowed()
     {
         return !isDisposed() && getErrorCounter() < getErrorThreshold();
+    }
+
+    protected abstract long getCost();
+
+    public int compareTo(Object o)
+    {
+        AbstractProxySupplier other = (AbstractProxySupplier) o;
+
+        return (int) (getCost() - other.getCost());
     }
 }
