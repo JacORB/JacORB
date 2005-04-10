@@ -22,14 +22,17 @@ package org.jacorb.notification;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.container.CORBAObjectComponentAdapter;
+import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.servant.AbstractAdmin;
 import org.jacorb.notification.servant.AbstractSupplierAdmin;
+import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.servant.ITypedEventChannel;
 import org.jacorb.notification.servant.TypedConsumerAdminImpl;
 import org.jacorb.notification.servant.TypedSupplierAdminImpl;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyChannelAdmin.AdminNotFound;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdmin;
@@ -43,6 +46,7 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdminHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
+import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
 
 /**
@@ -53,30 +57,67 @@ import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
 public class TypedEventChannelImpl extends AbstractEventChannel implements
         TypedEventChannelOperations, ITypedEventChannel
 {
+    private final class TypedEventChannelAdapter implements IEventChannel
+    {
+        private final int adminID_;
+        private final MutablePicoContainer childContainer_;
+
+        private TypedEventChannelAdapter(MutablePicoContainer container, int adminID)
+        {
+            super();
+            
+            adminID_ = adminID;
+            childContainer_ = container;
+        }
+
+        public int getAdminID()
+        {
+            return adminID_;
+        }
+
+        public int getID()
+        {
+            return TypedEventChannelImpl.this.getID();
+        }
+
+        public EventChannel getEventChannel()
+        {
+            return null;
+        }
+
+        public MutablePicoContainer getContainer()
+        {
+            return childContainer_;
+        }
+
+        public void destroy()
+        {
+            container_.removeChildContainer(childContainer_);
+        }
+    }
+
     private final TypedEventChannel thisRef_;
 
     private final TypedEventChannelFactory typedEventChannelFactory_;
 
     private final Servant thisServant_;
-   
+
     // Implementation of org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelOperations
 
     public TypedEventChannelImpl(IFactory factory, ORB orb, POA poa, Configuration config,
             FilterFactory filterFactory, TypedEventChannelFactory factoryRef)
     {
         super(factory, orb, poa, config, filterFactory);
-        
+
         thisServant_ = new TypedEventChannelPOATie(this);
-        
+
         thisRef_ = TypedEventChannelHelper.narrow(getServant()._this_object(orb_));
-        
-        container_.registerComponent(new CORBAObjectComponentAdapter(TypedEventChannel.class, thisRef_));
-        
-        container_.registerComponent(new ConstructorInjectionComponentAdapter(TypedSupplierAdminImpl.class, TypedSupplierAdminImpl.class));
-        container_.registerComponent(new ConstructorInjectionComponentAdapter(TypedConsumerAdminImpl.class, TypedConsumerAdminImpl.class));
+
+        container_.registerComponent(new CORBAObjectComponentAdapter(TypedEventChannel.class,
+                thisRef_));
 
         typedEventChannelFactory_ = factoryRef;
-        
+
         duringConstruction_ = false;
     }
 
@@ -143,13 +184,30 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
         return thisRef_;
     }
 
-    public AbstractSupplierAdmin newSupplierAdmin(int id)
+    public AbstractSupplierAdmin newSupplierAdmin(final int id)
     {
-        return (TypedSupplierAdminImpl)container_.getComponentInstance(TypedSupplierAdminImpl.class);
+        final MutablePicoContainer _container = PicoContainerFactory
+                .createChildContainer(container_);
+
+        _container.registerComponentInstance(new TypedEventChannelAdapter(_container, id));
+
+        _container.registerComponent(new ConstructorInjectionComponentAdapter(
+                TypedSupplierAdminImpl.class, TypedSupplierAdminImpl.class));
+
+        return (TypedSupplierAdminImpl) _container
+                .getComponentInstance(TypedSupplierAdminImpl.class);
     }
 
-    public AbstractAdmin newConsumerAdmin(int id)
+    public AbstractAdmin newConsumerAdmin(final int id)
     {
-        return (TypedConsumerAdminImpl)container_.getComponentInstance(TypedConsumerAdminImpl.class);
+        final MutablePicoContainer _container = PicoContainerFactory
+                .createChildContainer(container_);
+
+        _container.registerComponentInstance(new TypedEventChannelAdapter(_container, id));
+
+        _container.registerComponent(new ConstructorInjectionComponentAdapter(
+                TypedConsumerAdminImpl.class, TypedConsumerAdminImpl.class));
+        return (TypedConsumerAdminImpl) _container
+                .getComponentInstance(TypedConsumerAdminImpl.class);
     }
 }

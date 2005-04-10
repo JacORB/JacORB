@@ -81,8 +81,6 @@ public class TypedConsumerAdminImpl extends ConsumerAdminImpl implements
 
             id.value = _proxy.getID().intValue();
 
-            _proxy.preActivate();
-
             return TypedProxyPullSupplierHelper.narrow(_proxy.activate());
         } catch (Exception e)
         {
@@ -121,8 +119,6 @@ public class TypedConsumerAdminImpl extends ConsumerAdminImpl implements
             AbstractProxy _proxy = obtain_typed_notification_push_supplier_servant(type);
 
             id.value = _proxy.getID().intValue();
-
-            _proxy.preActivate();
 
             return TypedProxyPushSupplierHelper.narrow(_proxy.activate());
         } catch (Exception e)

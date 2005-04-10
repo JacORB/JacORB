@@ -68,6 +68,8 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
 
     private final String supportedInterface_;
 
+    private long timeSpent_ = 0;
+
     public TypedProxyPushSupplierImpl(ITypedAdmin admin, ConsumerAdmin consumerAdmin, ORB orb,
             POA poa, Configuration conf, TaskProcessor taskProcessor, TaskExecutor taskExecutor,
             OfferManager offerManager, SubscriptionManager subscriptionManager)
@@ -217,7 +219,9 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
 
             try
             {
+                long now = System.currentTimeMillis();
                 _request.invoke();
+                timeSpent_ += (System.currentTimeMillis() - now);
 
                 resetErrorCounter();
             } catch (Throwable t)
@@ -252,5 +256,10 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
         }
 
         return thisServant_;
+    }
+
+    protected long getCost()
+    {
+        return timeSpent_;
     }
 }

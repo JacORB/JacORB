@@ -185,6 +185,7 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
             {
                 logger_.debug("invoke " + _tryPullOperations[x]);
             }
+            
             _request.invoke();
 
             Any _result = _request.result().value();

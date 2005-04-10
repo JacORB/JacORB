@@ -22,6 +22,7 @@ package org.jacorb.notification;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.container.CORBAObjectComponentAdapter;
+import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.servant.ITypedEventChannel;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -38,8 +39,9 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryPOATie;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelHelper;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.ComponentAdapter;
+import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoContainer;
-import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
+import org.picocontainer.defaults.CachingComponentAdapter;
 
 /**
  * @author Alphonse Bendt
@@ -50,24 +52,17 @@ public class TypedEventChannelFactoryImpl extends AbstractChannelFactory impleme
         TypedEventChannelFactoryOperations
 {
 
-    public TypedEventChannelFactoryImpl(PicoContainer container, ORB orb)
-            throws UserException
+    public TypedEventChannelFactoryImpl(PicoContainer container, ORB orb) throws UserException
     {
         super(container, orb);
 
-        container_.registerComponentInstance(new CORBAObjectComponentAdapter(
+        container_.registerComponent(new CORBAObjectComponentAdapter(
                 TypedEventChannelFactory.class, TypedEventChannelFactoryHelper.narrow(thisRef_)));
-
-        ComponentAdapter typedChannelComponentAdapter = new ConstructorInjectionComponentAdapter(
-                ITypedEventChannel.class, TypedEventChannelImpl.class);
-
-        container_.registerComponent(typedChannelComponentAdapter);
     }
 
     public TypedEventChannel create_typed_channel(Property[] qosProps, Property[] adminProps,
             IntHolder intHolder) throws UnsupportedAdmin, UnsupportedQoS
     {
-
         try
         {
             AbstractEventChannel _channel = create_channel_servant(intHolder, qosProps, adminProps);
@@ -85,7 +80,37 @@ public class TypedEventChannelFactoryImpl extends AbstractChannelFactory impleme
 
     protected AbstractEventChannel newEventChannel()
     {
-        return (AbstractEventChannel) container_.getComponentInstance(ITypedEventChannel.class);
+        final MutablePicoContainer _container = PicoContainerFactory
+                .createChildContainer(container_);
+
+        ComponentAdapter typedChannelComponentAdapter = componentAdapterFactory_
+                .createComponentAdapter(ITypedEventChannel.class, TypedEventChannelImpl.class, null);
+
+        _container.registerComponent(new CachingComponentAdapter(typedChannelComponentAdapter));
+
+        final int _channelID = createChannelIdentifier();
+
+        IFactory _factory = new IFactory()
+        {
+            public MutablePicoContainer getContainer()
+            {
+                return _container;
+            }
+
+            public int getChannelID()
+            {
+                return _channelID;
+            }
+
+            public void destroy()
+            {
+                container_.removeChildContainer(_container);
+            }
+        };
+
+        _container.registerComponentInstance(_factory);
+
+        return (AbstractEventChannel) _container.getComponentInstance(ITypedEventChannel.class);
     }
 
     public int[] get_all_typed_channels()
@@ -111,24 +136,6 @@ public class TypedEventChannelFactoryImpl extends AbstractChannelFactory impleme
     protected String getShortcut()
     {
         return "NotificationService";
-    }
-
-    public final void preActivate() throws Exception
-    {
-        // this will fail if IR is not available.
-        // IR is necessary to use Typed Notification Channels.
-        try
-        {
-            getORB().resolve_initial_references("InterfaceRepository");
-        } catch (Exception e)
-        {
-            logger_
-                    .fatalError(
-                            "No InterfaceRepository available! Typed Notification Channels will not work without an InterfaceRepository",
-                            e);
-
-            throw new RuntimeException("No Interface Repository available");
-        }
     }
 
     protected org.omg.CORBA.Object create_abstract_channel(Property[] admin, Property[] qos,

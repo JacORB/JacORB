@@ -38,10 +38,8 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.OperationDescription;
 import org.omg.CORBA.ParameterMode;
 import org.omg.CORBA.Repository;
-import org.omg.CORBA.RepositoryHelper;
 import org.omg.CORBA.ServerRequest;
 import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
-import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushSupplier;
@@ -62,17 +60,17 @@ import org.omg.PortableServer.Servant;
 public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         TypedProxyPushConsumerOperations, ITypedProxy
 {
-    private final String supportedInterface_;
+    final String supportedInterface_;
 
     private TypedProxyPushConsumer typedProxyPushConsumer_;
 
     private PushSupplier pushSupplier_;
 
-    private InterfaceDef interfaceDef_;
+    private final InterfaceDef interfaceDef_;
 
     private final Map fullQualifiedOperationNames_ = new HashMap();
 
-    private FullInterfaceDescription interfaceDescription_;
+    private final FullInterfaceDescription interfaceDescription_;
 
     private class TypedProxyPushConsumer extends DynamicImplementation
     {
@@ -108,18 +106,26 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         }
     }
 
-    //////////////////////////////
+    // ////////////////////////////
 
-    public TypedProxyPushConsumerImpl(ITypedAdmin admin, SupplierAdmin supplierAdmin, ORB orb, POA poa, Configuration conf,
-            TaskProcessor taskProcessor, MessageFactory mf, OfferManager offerManager,
-            SubscriptionManager subscriptionManager)
+    public TypedProxyPushConsumerImpl(ITypedAdmin admin, SupplierAdmin supplierAdmin, ORB orb,
+            POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory mf,
+            OfferManager offerManager, SubscriptionManager subscriptionManager,
+            Repository repository) throws InterfaceNotSupported
     {
-        super(admin, orb, poa, conf, taskProcessor, mf, supplierAdmin, offerManager, subscriptionManager);
-   
+        super(admin, orb, poa, conf, taskProcessor, mf, supplierAdmin, offerManager,
+                subscriptionManager);
+
         supportedInterface_ = admin.getSupportedInterface();
+
+        interfaceDef_ = InterfaceDefHelper.narrow(repository.lookup_id(supportedInterface_));
+
+        interfaceDescription_ = interfaceDef_.describe_interface();
+
+        ensureOperationOnlyUsesInParams(interfaceDescription_);
     }
 
-    //////////////////////////////
+    // ////////////////////////////
 
     private OperationDescription getOperationDescription(String operation)
     {
@@ -134,7 +140,7 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         throw new IllegalArgumentException("No OperationDescription for " + operation);
     }
 
-    private String getFullQualifiedName(String operation)
+    String getFullQualifiedName(String operation)
     {
         String _fullQualifiedName = (String) fullQualifiedOperationNames_.get(operation);
         if (_fullQualifiedName == null)
@@ -145,7 +151,7 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         return _fullQualifiedName;
     }
 
-    private NVList getExpectedParamList(String operation)
+    NVList getExpectedParamList(String operation)
     {
         OperationDescription _operation = getOperationDescription(operation);
 
@@ -153,7 +159,6 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
 
         for (int x = 0; x < _operation.parameters.length; ++x)
         {
-
             Any _value = getORB().create_any();
 
             _value.type(_operation.parameters[x].type);
@@ -165,15 +170,15 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         return _expectedParams;
     }
 
-    private void ensureOperationOnlyUsesInParams() throws InterfaceNotSupported
+    private void ensureOperationOnlyUsesInParams(FullInterfaceDescription interfaceDescription) throws InterfaceNotSupported
     {
-        for (int x = 0; x < interfaceDescription_.operations.length; ++x)
+        for (int x = 0; x < interfaceDescription.operations.length; ++x)
         {
-            int _noOfParameters = interfaceDescription_.operations[x].parameters.length;
+            int _noOfParameters = interfaceDescription.operations[x].parameters.length;
 
             for (int y = 0; y < _noOfParameters; ++y)
             {
-                switch (interfaceDescription_.operations[x].parameters[y].mode.value()) {
+                switch (interfaceDescription.operations[x].parameters[y].mode.value()) {
                 case ParameterMode._PARAM_IN:
                     break;
                 case ParameterMode._PARAM_INOUT:
@@ -183,26 +188,6 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
                 }
             }
         }
-    }
-
-    public void preActivate() throws Exception, InterfaceNotSupported
-    {
-        super.preActivate();
-
-        try
-        {
-            Repository _repository = RepositoryHelper.narrow(getORB().resolve_initial_references(
-                    "InterfaceRepository"));
-
-            interfaceDef_ = InterfaceDefHelper.narrow(_repository.lookup_id(supportedInterface_));
-        } catch (InvalidName e)
-        {
-            throw new InterfaceNotSupported("could not access InterfaceRepository");
-        }
-
-        interfaceDescription_ = interfaceDef_.describe_interface();
-
-        ensureOperationOnlyUsesInParams();
     }
 
     public ProxyType MyType()
