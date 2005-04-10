@@ -44,6 +44,8 @@ abstract public class FilterStageListManager {
 
     private boolean sourceModified_;
 
+    private java.util.List readOnlyView_ = Collections.EMPTY_LIST;
+
     ////////////////////////////////////////
 
     public void actionSourceModified() {
@@ -68,14 +70,20 @@ abstract public class FilterStageListManager {
 
                 fetchListData(_listProxy);
 
-                checkedList_ = Collections.unmodifiableList(_newList);
-
+                checkedList_ = _newList;
+                readOnlyView_ = Collections.unmodifiableList(checkedList_);
                 sourceModified_ = false;
             }
-            return checkedList_;
+            sortCheckedList(checkedList_);
+            
+            return readOnlyView_;
         }
     }
 
+    protected void sortCheckedList(java.util.List list)
+    {
+        // No OP
+    }
 
     abstract protected void fetchListData(List listProxy);
 }
