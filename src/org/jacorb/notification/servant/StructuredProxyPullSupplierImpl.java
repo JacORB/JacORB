@@ -173,6 +173,7 @@ public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier imple
      */
     public void messageDelivered()
     {
+        // ignore
     }
 
     public List getSubsequentFilterStages()
@@ -218,5 +219,10 @@ public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier imple
     public org.omg.CORBA.Object activate()
     {
         return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
+    }
+   
+    protected long getCost()
+    {
+        return 0;
     }
 }

@@ -73,6 +73,8 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
 
     private StructuredPushConsumerOperations pushConsumer_;
 
+    private long timeSpent_;
+
     // //////////////////////////////////////
 
     public StructuredProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
@@ -121,8 +123,11 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
         try
         {
             logger_.debug("push to consumer");
+            
+            long now = System.currentTimeMillis();
             pushConsumer_.push_structured_event(message.toStructuredEvent());
-
+            timeSpent_ += (System.currentTimeMillis() - now);
+            
             resetErrorCounter();
         } catch (Throwable e)
         {
@@ -192,5 +197,10 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
     public org.omg.CORBA.Object activate()
     {
         return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
+    }
+    
+    protected long getCost()
+    {
+        return timeSpent_;
     }
 }

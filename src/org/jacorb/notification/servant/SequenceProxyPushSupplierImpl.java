@@ -29,6 +29,8 @@ import org.jacorb.notification.engine.PushSequenceOperation;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.util.PropertySet;
+import org.jacorb.notification.util.PropertySetAdapter;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -45,6 +47,9 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 import org.omg.TimeBase.TimeTHelper;
 
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedLong;
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -53,15 +58,33 @@ import org.omg.TimeBase.TimeTHelper;
 public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierImpl implements
         SequenceProxyPushSupplierOperations
 {
-    static final StructuredEvent[] STRUCTURED_EVENT_ARRAY_TEMPLATE = new StructuredEvent[0];
-
-    public SequenceProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
-            TaskProcessor taskProcessor, TaskExecutor te, OfferManager offerManager,
+    public SequenceProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration config,
+            TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
             SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
             throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, te, offerManager, subscriptionManager,
+        super(admin, orb, poa, config, taskProcessor, taskExecutor, offerManager, subscriptionManager,
                 consumerAdmin);
+
+        configureMaxBatchSize();
+
+        configurePacingInterval();
+
+        qosSettings_.addPropertySetListener(MaximumBatchSize.value, new PropertySetAdapter()
+        {
+            public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
+            {
+                configureMaxBatchSize();
+            }
+        });
+
+        qosSettings_.addPropertySetListener(PacingInterval.value, new PropertySetAdapter()
+        {
+            public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
+            {
+                configurePacingInterval();
+            }
+        });
     }
 
     /**
@@ -70,20 +93,21 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
     private SequencePushConsumer sequencePushConsumer_;
 
     /**
-     * maximum queue size before a delivery is forced.
-     */
-    private int maxBatchSize_;
-
-    /**
-     * how long to wait between two scheduled deliveries.
-     */
-    private long pacingInterval_;
-
-    /**
      * registration for the Scheduled DeliverTask.
      */
     private Object taskId_;
 
+    /**
+     * maximum queue size before a delivery is forced.
+     */
+    private final SynchronizedInt maxBatchSize_ = new SynchronizedInt(1);
+
+    /**
+     * how long to wait between two scheduled deliveries.
+     */
+    private final SynchronizedLong pacingInterval_ = new SynchronizedLong(0);
+
+    
     /**
      * this callback is called by the TimerDaemon. Check if there are pending Events and deliver
      * them to the Consumer. As there's only one TimerDaemon its important to block the daemon only
@@ -97,19 +121,10 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         return ProxyType.PUSH_SEQUENCE;
     }
 
-    public void preActivate() throws UnsupportedQoS, Exception
-    {
-        super.preActivate();
-
-        configureMaxBatchSize();
-
-        configurePacingInterval();
-    }
-
 
     public void messageDelivered()
     {
-        if (!isSuspended() && isEnabled() && (getPendingMessagesCount() >= maxBatchSize_))
+        if (!isSuspended() && isEnabled() && (getPendingMessagesCount() >= maxBatchSize_.get()))
         {
             deliverPendingMessages(false);
         }
@@ -133,7 +148,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         }
         else
         {
-            _messages = getAtLeastMessages(maxBatchSize_);
+            _messages = getAtLeastMessages(maxBatchSize_.get());
         }
 
         if (_messages != null && _messages.length > 0)
@@ -203,9 +218,9 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
     private void startCronJob()
     {
-        if (pacingInterval_ > 0)
+        if (pacingInterval_.get() > 0 && taskId_ != null)
         {
-            taskId_ = getTaskProcessor().executeTaskPeriodically(pacingInterval_,
+            taskId_ = getTaskProcessor().executeTaskPeriodically(pacingInterval_.get(),
                     scheduleDeliverPendingMessagesOperation_, true);
         }
     }
@@ -219,15 +234,33 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         }
     }
 
+    private void checkCronJob()
+    {
+        if (pacingInterval_.get() > 0)
+        {
+            startCronJob();
+        }
+        else
+        {
+            stopCronJob();
+        }
+    }
+
     private boolean configurePacingInterval()
     {
         if (qosSettings_.containsKey(PacingInterval.value))
         {
             long _pacingInterval = TimeTHelper.extract(qosSettings_.get(PacingInterval.value));
 
-            if (pacingInterval_ != _pacingInterval)
+            if (pacingInterval_.get() != _pacingInterval)
             {
-                pacingInterval_ = _pacingInterval;
+                if (logger_.isInfoEnabled())
+                {
+                    logger_.info("set PacingInterval=" + _pacingInterval);
+                }
+                pacingInterval_.set(_pacingInterval);
+
+                checkCronJob();
 
                 return true;
             }
@@ -237,18 +270,23 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
     private boolean configureMaxBatchSize()
     {
-        int _maxBatchSize = qosSettings_.get(MaximumBatchSize.value).extract_long();
-
-        if (maxBatchSize_ != _maxBatchSize)
+        if (qosSettings_.containsKey(MaximumBatchSize.value))
         {
-            if (logger_.isInfoEnabled())
-            {
-                logger_.info("set MaxBatchSize=" + _maxBatchSize);
-            }
-            maxBatchSize_ = _maxBatchSize;
+            int _maxBatchSize = qosSettings_.get(MaximumBatchSize.value).extract_long();
 
-            return true;
+            if (maxBatchSize_.get() != _maxBatchSize)
+            {
+                if (logger_.isInfoEnabled())
+                {
+                    logger_.info("set MaxBatchSize=" + _maxBatchSize);
+                }
+                
+                maxBatchSize_.set(_maxBatchSize);
+
+                return true;
+            }
         }
+
         return false;
     }
 
@@ -258,6 +296,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         {
             thisServant_ = new SequenceProxyPushSupplierPOATie(this);
         }
+
         return thisServant_;
     }
 }

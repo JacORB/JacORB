@@ -52,12 +52,14 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
         ProxyPushSupplierOperations
 {
     private PushConsumer pushConsumer_;
+    private long timeSpent_;
 
     // //////////////////////////////////////
 
     public ProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
-            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin) throws ConfigurationException
+            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
+            throws ConfigurationException
     {
         super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
                 subscriptionManager, consumerAdmin);
@@ -92,7 +94,9 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
     {
         try
         {
+            long now = System.currentTimeMillis();
             pushConsumer_.push(message.toAny());
+            timeSpent_ += (System.currentTimeMillis() - now);
 
             resetErrorCounter();
         } catch (Throwable e)
@@ -160,5 +164,10 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
     public org.omg.CORBA.Object activate()
     {
         return ProxyPushSupplierHelper.narrow(getServant()._this_object(getORB()));
+    }
+
+    public long getCost()
+    {
+        return timeSpent_;
     }
 }
