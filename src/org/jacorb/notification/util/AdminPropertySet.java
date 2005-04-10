@@ -30,7 +30,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.MaxConsumers;
 import org.omg.CosNotification.MaxQueueLength;
 import org.omg.CosNotification.MaxSuppliers;
@@ -48,8 +47,6 @@ public class AdminPropertySet
     extends PropertySet {
 
     private final static Set sAdminPropertyNames_;
-
-    private final static ORB sOrb_ = ORB.init();
 
     private final Property[] defaultProperties_;
 
@@ -78,7 +75,7 @@ public class AdminPropertySet
             config.getAttributeAsInteger(Attributes.MAX_NUMBER_CONSUMERS,
                                        Default.DEFAULT_MAX_NUMBER_CONSUMERS);
 
-        Any _maxConsumersDefaultAny = sOrb_.create_any();
+        Any _maxConsumersDefaultAny = sORB.create_any();
         _maxConsumersDefaultAny.insert_long( _maxConsumersDefault );
 
         //////////////////////////////
@@ -87,7 +84,7 @@ public class AdminPropertySet
             config.getAttributeAsInteger(Attributes.MAX_NUMBER_SUPPLIERS,
                                        Default.DEFAULT_MAX_NUMBER_SUPPLIERS);
 
-        Any _maxSuppliersDefaultAny = sOrb_.create_any();
+        Any _maxSuppliersDefaultAny = sORB.create_any();
         _maxSuppliersDefaultAny.insert_long(_maxSuppliersDefault);
 
         //////////////////////////////
@@ -96,7 +93,7 @@ public class AdminPropertySet
             config.getAttributeAsInteger(Attributes.MAX_QUEUE_LENGTH,
                                        Default.DEFAULT_MAX_QUEUE_LENGTH);
 
-        Any _maxQueueLengthAny = sOrb_.create_any();
+        Any _maxQueueLengthAny = sORB.create_any();
         _maxQueueLengthAny.insert_long(_maxQueueLength);
 
         //////////////////////////////
@@ -105,7 +102,7 @@ public class AdminPropertySet
             config.getAttribute(Attributes.REJECT_NEW_EVENTS,
                               Default.DEFAULT_REJECT_NEW_EVENTS).equals("on");
 
-        Any _rejectNewEventsAny = sOrb_.create_any();
+        Any _rejectNewEventsAny = sORB.create_any();
         _rejectNewEventsAny.insert_boolean(_rejectNewEvents);
 
         //////////////////////////////

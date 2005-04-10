@@ -47,8 +47,6 @@ public abstract class PropertySet
 {
     protected static final ORB sORB = ORB.init();
 
-    private static final Property[] EMPTY_PROPS = new Property[0];
-
     protected static final PropertyError[] PROPERTY_ERROR_ARRAY_TEMPLATE = new PropertyError[0];
 
     protected static final PropertyRange EMPTY_PROPERTY_RANGE = new PropertyRange(
@@ -62,35 +60,11 @@ public abstract class PropertySet
 
     private boolean modified_ = true;
 
-    private final Map properties_;
+    private final Map properties_ = new HashMap();
 
     private Property[] arrayView_ = null;
 
-    private final HashSet ignoredNames_ = new HashSet();
-
     ////////////////////////////////////////
-
-    protected PropertySet()
-    {
-        this(EMPTY_PROPS);
-    }
-
-    protected PropertySet(Property[] ps)
-    {
-        properties_ = getUniqueSet(ps);
-    }
-
-    ////////////////////////////////////////
-
-    protected void addToIgnoredProps(String propertyName)
-    {
-        ignoredNames_.add(propertyName);
-    }
-
-    protected boolean removeFromIgnoredProps(String propertyName)
-    {
-        return ignoredNames_.remove(propertyName);
-    }
 
     public void addPropertySetListener(String[] props, PropertySetListener listener)
     {
@@ -163,11 +137,6 @@ public abstract class PropertySet
 
         for (int x = 0; x < props.length; ++x)
         {
-            if (ignoredNames_.contains(props[x].name))
-            {
-                continue;
-            }
-
             Any _oldValue = null;
 
             if (properties_.containsKey(props[x].name))
@@ -228,18 +197,6 @@ public abstract class PropertySet
     }
 
     ////////////////////////////////////////
-
-    private static Map getUniqueSet(Property[] p)
-    {
-        Map _map = new HashMap();
-
-        for (int x = 0; x < p.length; ++x)
-        {
-            _map.put(p[x].name, p[x].value);
-        }
-
-        return _map;
-    }
 
     public static Property[] map2Props(Map props)
     {

@@ -336,8 +336,6 @@ public class QoSPropertySet extends PropertySet
                              NamedPropertyRangeSeqHolder namedPropertyRange)
         throws UnsupportedQoS
     {
-//         logger_.info("validate_qos");
-
         List _errors = new ArrayList();
 
         checkPropertyExistence(props, _errors);
