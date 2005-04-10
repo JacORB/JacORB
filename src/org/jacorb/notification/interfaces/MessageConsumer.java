@@ -39,7 +39,7 @@ import org.jacorb.notification.engine.TaskExecutor;
  * @version $Id$
  */
 
-public interface MessageConsumer extends Disposable {
+public interface MessageConsumer extends Disposable, Comparable {
 
     /**
      * @return the <code>TaskExecutor</code> that should be used to
