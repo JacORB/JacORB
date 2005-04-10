@@ -114,9 +114,9 @@ public interface Attributes
     String FILTER_PLUGIN_PREFIX =
         "jacorb.notification.filter.plugin";
 
-    String WILDCARDMAP_CLASS = "jacorb.notification.wildcardmap.implementation";
+    String WILDCARDMAP_CLASS = "jacorb.notification.filter.wildcardmap_impl";
 
-    String RETRY_STRATEGY_FACTORY = "jacorb.notification.retrystrategy.factory";
+    String RETRY_STRATEGY_FACTORY = "jacorb.notification.proxysupplier.retrystrategy_factory";
 
     String DEAD_FILTER_INTERVAL = "jacorb.notification.filter.dead_interval";
 }
