@@ -56,7 +56,7 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, ManageableServant
 {
-    private class GCThread extends Thread
+    private class GCThread extends Thread implements Disposable
     {
         private final SynchronizedBoolean active = new SynchronizedBoolean(true);
 
@@ -163,13 +163,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
         config_ = config;
         logger_ = LogUtil.getLogger(config, getClass().getName());
 
-        addDisposeHook(new Disposable()
-        {
-            public void dispose()
-            {
-                factoryDelegate_.dispose();
-            }
-        });
+        addDisposeHook(factoryDelegate_);
 
         useGarbageCollector_ = config.getAttributeAsBoolean(Attributes.USE_GC,
                 Default.DEFAULT_USE_GC);
@@ -180,13 +174,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
 
             final GCThread gc = new GCThread();
 
-            addDisposeHook(new Disposable()
-            {
-                public void dispose()
-                {
-                    gc.dispose();
-                }
-            });
+            addDisposeHook(gc);
             
             gc.start();
         }
@@ -240,14 +228,6 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
                 });
             }
         }
-    }
-
-    /**
-     * @deprecated
-     */
-    public final void preActivate()
-    {
-        // no op
     }
 
     public final void deactivate()

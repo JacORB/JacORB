@@ -128,8 +128,8 @@ import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
  * @version $Id$
  */
 
-public abstract class AbstractFilter implements GCDisposable, ManageableServant,
-        Configurable, FilterOperations
+public abstract class AbstractFilter implements GCDisposable, ManageableServant, Configurable,
+        FilterOperations
 {
     final static RuntimeException NOT_SUPPORTED = new UnsupportedOperationException(
             "this operation is not supported");
@@ -141,10 +141,10 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     private static final String EMPTY_EVENT_TYPE_CONSTRAINT_KEY = AbstractMessage
             .calcConstraintKey("*", "*");
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     private final FilterPOATie servant_;
-    
+
     private final DisposableManager disposables_ = new DisposableManager();
 
     private final CallbackManager callbackManager_ = new CallbackManager();
@@ -164,7 +164,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     protected final MessageFactory messageFactory_;
 
     private final FilterUsageDecorator filterUsageDecorator_;
-    
+
     private final POA poa_;
 
     private final ORB orb_;
@@ -172,7 +172,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     private Filter thisRef_;
 
     private final Logger logger_;
-    
+
     private final EvaluationContextFactory evaluationContextFactory_;
 
     private final SynchronizedBoolean isActivated = new SynchronizedBoolean(false);
@@ -181,7 +181,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
     private final long maxIdleTime_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     protected AbstractFilter(Configuration config,
             EvaluationContextFactory evaluationContextFactory, MessageFactory messageFactory,
@@ -207,20 +207,21 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
         wildcardMap_ = newWildcardMap(config);
 
         disposables_.addDisposable(callbackManager_);
-        
+
         filterUsageDecorator_ = new FilterUsageDecorator(this);
-        
+
         servant_ = new FilterPOATie(filterUsageDecorator_.getFilterOperations());
-        
-        maxIdleTime_ = config.getAttributeAsLong(Attributes.DEAD_FILTER_INTERVAL, Default.DEFAULT_DEAD_FILTER_INTERVAL);
+
+        maxIdleTime_ = config.getAttributeAsLong(Attributes.DEAD_FILTER_INTERVAL,
+                Default.DEFAULT_DEAD_FILTER_INTERVAL);
     }
 
     // //////////////////////////////////////
-    
+
     private WildcardMap newWildcardMap(Configuration config) throws ConfigurationException
     {
         String wildcardMapImpl = config.getAttribute(Attributes.WILDCARDMAP_CLASS,
-                Default.WILDCARDMAP_DEFAULT);
+                Default.DEFAULT_WILDCARDMAP_IMPL);
 
         try
         {
@@ -234,22 +235,22 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
             // ignore
         } catch (IllegalArgumentException e)
         {
-            //          ignore
+            // ignore
         } catch (InstantiationException e)
         {
-            //          ignore
+            // ignore
         } catch (IllegalAccessException e)
         {
-            //          ignore
+            // ignore
         } catch (InvocationTargetException e)
         {
-            //          ignore
+            // ignore
         } catch (SecurityException e)
         {
-            //          ignore
+            // ignore
         } catch (NoSuchMethodException e)
         {
-            //          ignore
+            // ignore
         }
 
         throw new ConfigurationException(wildcardMapImpl
@@ -261,22 +262,14 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
         // config is fetched via c'tor.
     }
 
-    /**
-     * @deprecated
-     */
-    public final void preActivate()
-    {
-        // to be removed
-    }
-
     public org.omg.CORBA.Object activate()
     {
         if (thisRef_ == null)
         {
             thisRef_ = servant_._this(orb_);
-            
+
             isActivated.set(true);
-        }        
+        }
 
         return thisRef_;
     }
@@ -429,7 +422,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     protected abstract FilterConstraint newFilterConstraint(ConstraintExp constraintExp)
             throws InvalidConstraint;
 
-    ////////////
+    // //////////
 
     public void modify_constraints(int[] deleteIds, ConstraintInfo[] constraintInfo)
             throws ConstraintNotFound, InvalidConstraint
@@ -724,7 +717,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
             if (!current_.hasNext() && currentListIdx_ < arrayOfLists_.length - 1)
             {
                 ++currentListIdx_;
-                
+
                 switchIterator();
             }
 
@@ -793,15 +786,13 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
                     throw new UnsupportedFilterableData(e.getMessage());
                 }
             }
-        }
-        else
-        {
-            logger_.info("Filter has no Expressions");
 
-            return CONSTRAINTS_EMPTY;
+            return NO_CONSTRAINTS_MATCH;
         }
+        
+        logger_.info("Filter has no Expressions");
 
-        return NO_CONSTRAINTS_MATCH;
+        return CONSTRAINTS_EMPTY;
     }
 
     public boolean match(Any anyEvent) throws UnsupportedFilterableData
@@ -960,22 +951,27 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     {
         disposables_.addDisposable(disposeHook);
     }
-   
+
     public Date getLastUsage()
     {
         return filterUsageDecorator_.getLastUsage();
     }
-    
+
     public void attemptDispose()
     {
-        if (maxIdleTime_ <= 0)
+        attemptDispose(this, getLastUsage(), maxIdleTime_);
+    }
+
+    static void attemptDispose(Disposable disposable, Date lastUsage, long maxIdleTime)
+    {
+        if (maxIdleTime <= 0)
         {
             return;
         }
-        
-        if (getLastUsage().getTime() + maxIdleTime_ < System.currentTimeMillis())
+
+        if (lastUsage.getTime() + maxIdleTime < System.currentTimeMillis())
         {
-            dispose();
+            disposable.dispose();
         }
     }
 }

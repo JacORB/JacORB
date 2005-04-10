@@ -101,7 +101,7 @@ public class MappingFilterImpl implements GCDisposable, MappingFilterOperations
     private final ORB orb_;
 
     private final DisposableManager disposeHooks_ = new DisposableManager();
-    
+
     private final long maxIdleTime_;
 
     // //////////////////////////////////////
@@ -132,14 +132,14 @@ public class MappingFilterImpl implements GCDisposable, MappingFilterOperations
     public void destroy()
     {
         logger_.info("destroy MappingFilter");
-        
+
         dispose();
     }
 
     public void dispose()
     {
         disposeHooks_.dispose();
-        
+
         filterDelegate_.dispose();
 
         valueMap_.dispose();
@@ -294,15 +294,7 @@ public class MappingFilterImpl implements GCDisposable, MappingFilterOperations
 
     public void attemptDispose()
     {
-        if (maxIdleTime_ <= 0)
-        {
-            return;
-        }
-
-        if (usageDecorator_.getLastUsage().getTime() + maxIdleTime_ < System.currentTimeMillis())
-        {
-            dispose();
-        }
+        AbstractFilter.attemptDispose(this, usageDecorator_.getLastUsage(), maxIdleTime_);
     }
 
     public void addDisposeHook(Disposable d)
