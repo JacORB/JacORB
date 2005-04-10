@@ -206,7 +206,7 @@ public class StructuredEventMessage extends AbstractMessage
         }
     }
 
-    public static long unixTime(UtcT corbaTime)
+    private static long unixTime(UtcT corbaTime)
     {
         long _unixTime = (corbaTime.time - Time.UNIX_OFFSET) / 10000;
 

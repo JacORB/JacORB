@@ -243,13 +243,6 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         }
     }
 
-    public void preActivate() throws Exception
-    {
-    }
-
-    public final void configure(Configuration c)
-    {
-    }
 
     protected Configuration getConfiguration()
     {
@@ -423,11 +416,13 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
                     Thread.sleep(SHUTDOWN_INTERVAL);
                 } catch (InterruptedException e)
                 {
+                    // ignore
                 }
 
                 destroyMethod_.run();
             }
         };
+        
         _shutdown.start();
     }
 
@@ -505,10 +500,6 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
     {
         AbstractChannelFactory _factory = newChannelFactory(container, orb, "on".equals(props
                 .get(Attributes.ENABLE_TYPED_CHANNEL)));
-
-        _factory.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
-
-        _factory.preActivate();
 
         // force activation
         _factory.activate();

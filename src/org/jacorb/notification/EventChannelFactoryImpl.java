@@ -211,15 +211,6 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
         return EventChannelHelper.narrow(get_event_channel_servant(id).activate());
     }
 
-    /**
-     * @deprecated
-     * TODO remove
-     */
-    public void preActivate()
-    {
-        // no op
-    }
-
     public EventChannelFactory getEventChannelFactory()
     {
         return EventChannelFactoryHelper.narrow(thisRef_);
