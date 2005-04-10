@@ -26,6 +26,7 @@ import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.container.PicoContainerFactory;
+import org.jacorb.notification.container.RepositoryComponentAdapter;
 import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.servant.TypedSupplierAdminImpl;
 import org.jacorb.test.notification.NotificationTestCase;
@@ -62,6 +63,8 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
 
         container_.registerComponentInstance(new SubscriptionManager());
 
+        container_.registerComponent(new RepositoryComponentAdapter());
+        
         MockControl controlChannel = MockControl.createControl(IEventChannel.class);
         IEventChannel mockChannel = (IEventChannel) controlChannel.getMock();
 
@@ -83,8 +86,6 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
                 getConfiguration(), getMessageFactory(), (OfferManager) container_
                         .getComponentInstance(OfferManager.class), (SubscriptionManager) container_
                         .getComponentInstance(SubscriptionManager.class));
-
-        objectUnderTest_.preActivate();
 
         supplierAdmin_ = TypedSupplierAdminHelper.narrow(objectUnderTest_.activate());
     }

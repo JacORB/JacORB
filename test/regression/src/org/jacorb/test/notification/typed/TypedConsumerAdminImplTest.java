@@ -92,8 +92,6 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
                         .getComponentInstance(OfferManager.class), (SubscriptionManager) container_
                         .getComponentInstance(SubscriptionManager.class), mockChannel);
 
-        objectUnderTest_.preActivate();
-
         consumerAdmin_ = TypedConsumerAdminHelper.narrow(objectUnderTest_.activate());
         
     }

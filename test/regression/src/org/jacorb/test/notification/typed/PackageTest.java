@@ -28,13 +28,16 @@ import junit.framework.TestSuite;
  * @version $Id$
  */
 
-public class PackageTest extends TestCase {
+public class PackageTest extends TestCase
+{
 
-    public PackageTest(String name) {
+    public PackageTest(String name)
+    {
         super(name);
     }
 
-    public static TestSuite suite() throws Exception {
+    public static TestSuite suite() throws Exception
+    {
         TestSuite suite = new TestSuite("TypedEventChannel Tests");
 
         suite.addTest(TypedProxyPushConsumerImplTest.suite());
@@ -43,7 +46,7 @@ public class PackageTest extends TestCase {
         suite.addTest(TypedProxyPullConsumerImplTest.suite());
         suite.addTest(TypedConsumerAdminImplTest.suite());
         suite.addTest(TypedSupplierAdminImplTest.suite());
-        suite.addTest(org.jacorb.test.notification.TypedNotificationChannelTest.suite());
+        suite.addTest(TypedEventChannelTest.suite());
 
         return suite;
     }

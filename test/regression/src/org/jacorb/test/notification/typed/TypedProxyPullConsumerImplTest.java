@@ -93,8 +93,6 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
                 getPOA(), getConfiguration(), getTaskProcessor(), getMessageFactory(),
                 new OfferManager(), new SubscriptionManager());
 
-        objectUnderTest_.preActivate();
-
         proxyPullConsumer_ = TypedProxyPullConsumerHelper.narrow(objectUnderTest_.activate());
 
         controlTypedPullSupplier_ = MockControl.createControl(TypedPullSupplier.class);
@@ -205,8 +203,6 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         objectUnderTest_ = new TypedProxyPullConsumerImpl(mockAdmin_, mockSupplierAdmin_, getORB(),
                 getPOA(), getConfiguration(), mockTaskProcessor, getMessageFactory(),
                 new OfferManager(), new SubscriptionManager());
-
-        objectUnderTest_.preActivate();
 
         proxyPullConsumer_ = TypedProxyPullConsumerHelper.narrow(objectUnderTest_.activate());
 

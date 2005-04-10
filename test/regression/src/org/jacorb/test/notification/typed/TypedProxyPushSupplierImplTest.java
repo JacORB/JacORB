@@ -101,8 +101,6 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
                 getConfiguration(), getTaskProcessor(), DefaultTaskExecutor.getDefaultExecutor(),
                 new OfferManager(), new SubscriptionManager());
 
-        objectUnderTest_.preActivate();
-
         proxyPushSupplier_ = TypedProxyPushSupplierHelper.narrow(objectUnderTest_.activate());
     }
 
@@ -158,6 +156,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
             fail();
         } catch (TypeError e)
         {
+            // ignored
         }
     }
 
@@ -362,15 +361,19 @@ class MockTypedPushConsumer extends TypedPushConsumerPOA
 
     public void push(Any any) throws Disconnected
     {
+        // ignored
     }
 
     public void disconnect_push_consumer()
     {
+        // ingored
     }
 
     public void offer_change(EventType[] eventTypeArray, EventType[] eventTypeArray1)
             throws InvalidEventType
     {
+        
+        // ignored
     }
 }
 
