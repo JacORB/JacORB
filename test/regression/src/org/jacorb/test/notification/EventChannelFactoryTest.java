@@ -28,8 +28,6 @@ public class EventChannelFactoryTest
     public void setUpTest() throws Exception {
         factory_ = AbstractChannelFactory.newFactory(new Properties());
 
-        factory_.configure(getConfiguration());
-
         factory_.activate();
     }
 

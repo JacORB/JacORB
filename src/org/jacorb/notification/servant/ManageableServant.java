@@ -28,12 +28,6 @@ package org.jacorb.notification.servant;
 
 public interface ManageableServant {
 
-    /**
-     * @deprecated
-     * @throws Exception
-     */
-    void preActivate() throws Exception;
-
     org.omg.CORBA.Object activate();
 
     void deactivate();

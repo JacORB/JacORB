@@ -216,6 +216,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     ////////////////////////////////////////
 
+    // TODO implement
     public void validate_event_qos(Property[] qosProps, NamedPropertyRangeSeqHolder propSeqHolder)
 
     {
@@ -509,14 +510,6 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     protected void connectClient(org.omg.CORBA.Object client)
     {
         connected_.set(true);
-    }
-
-    /**
-     * @deprecated
-     */
-    public void preActivate() throws Exception
-    {
-        // NO Op
     }
 
     /**

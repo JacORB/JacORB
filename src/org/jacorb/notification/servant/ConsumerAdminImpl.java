@@ -21,6 +21,8 @@ package org.jacorb.notification.servant;
  *
  */
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +70,22 @@ import org.picocontainer.defaults.CachingComponentAdapter;
 public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOperations,
         Disposable, ProxyEventListener
 {
+    private final static class FilterstageWithMessageConsumerComparator implements Comparator
+    {
+        /**
+         * compare two FilterStages via their MessageConsumer.
+         */
+        public int compare(Object l, Object r)
+        {
+            FilterStage left = (FilterStage) l;
+            FilterStage right = (FilterStage) r;
+            
+            return left.getMessageConsumer().compareTo(right.getMessageConsumer());
+        }
+    }
+
+    static final FilterstageWithMessageConsumerComparator FILTERSTAGE_COMPARATOR = new FilterstageWithMessageConsumerComparator();
+    
     private final ConsumerAdmin thisRef_;
 
     protected final Servant thisServant_;
@@ -106,6 +124,11 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
                     listProxy.add((FilterStage) ((Map.Entry) i.next()).getValue());
                 }
             }
+            
+            protected void sortCheckedList(java.util.List list)
+            {
+                Collections.sort(list, FILTERSTAGE_COMPARATOR);
+            }
         };
 
         lifetimeFilter_ = MappingFilterHelper.unchecked_narrow(getORB().string_to_object(
@@ -142,10 +165,6 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
     public final Servant getServant()
     {
         return thisServant_;
-    }
-
-    public void preActivate()
-    {
     }
 
     public org.omg.CORBA.Object activate()
@@ -195,8 +214,6 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
 
             intHolder.value = _servant.getID().intValue();
 
-            _servant.preActivate();
-
             return ProxySupplierHelper.narrow(_servant.activate());
         } catch (Exception e)
         {
@@ -225,8 +242,6 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         AbstractProxySupplier _servant = newProxyPullSupplier(clientType);
 
         configureMappingFilters(_servant);
-
-        //   _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
 
         configureQoS(_servant);
 
@@ -258,8 +273,6 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
             AbstractProxy _servant = obtain_notification_push_supplier_servant(clientType);
 
             intHolder.value = _servant.getID().intValue();
-
-            _servant.preActivate();
 
             return ProxySupplierHelper.narrow(_servant.activate());
         } catch (Exception e)
@@ -301,10 +314,6 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
 
             addProxyToMap(_servant, pullServants_, modifyProxiesLock_);
 
-            //   _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
-
-            _servant.preActivate();
-
             return org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow(_servant.activate());
         } catch (Exception e)
         {
@@ -330,12 +339,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
 
             configureQoS(_servant);
 
-            // TODO fixme
-            // getTaskProcessor().configureTaskExecutor(_servant);
-
             addProxyToMap(_servant, pushServants_, modifyProxiesLock_);
-
-            _servant.preActivate();
 
             return org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow(_servant.activate());
         } catch (Exception e)

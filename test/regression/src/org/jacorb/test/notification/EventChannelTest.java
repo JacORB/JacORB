@@ -110,6 +110,7 @@ public class EventChannelTest extends NotificationTestCase
             fail();
         } catch (AdminNotFound e)
         {
+            // expected
         }
 
         assertEquals(admin2, channel_.get_supplieradmin(id2.value));
@@ -191,6 +192,7 @@ public class EventChannelTest extends NotificationTestCase
             fail();
         } catch (AdminNotFound e)
         {
+            // expected
         }
 
         ConsumerAdmin c3 = channel_.get_consumeradmin(ih.value);
@@ -219,6 +221,7 @@ public class EventChannelTest extends NotificationTestCase
             fail();
         } catch (AdminNotFound e)
         {
+            // expected
         }
 
         SupplierAdmin c3 = channel_.get_supplieradmin(ih.value);
@@ -260,7 +263,6 @@ public class EventChannelTest extends NotificationTestCase
 
     public void testSendEventPushPush() throws Exception
     {
-
         // start a receiver thread
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
         _receiver.connect(channel_, false);

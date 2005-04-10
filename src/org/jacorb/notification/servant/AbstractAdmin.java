@@ -88,9 +88,10 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
                 String supportedInterface)
         {
             super();
-            this.admin_ = admin;
-            this.container_ = container;
-            this.supportedInterface_ = supportedInterface;
+            
+            admin_ = admin;
+            container_ = container;
+            supportedInterface_ = supportedInterface;
         }
 
         public String getSupportedInterface()
@@ -199,10 +200,6 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
         componentAdapterFactory_ = (ComponentAdapterFactory) container_
                 .getComponentInstance(ComponentAdapterFactory.class);
-    }
-
-    public void configure(Configuration w)
-    {
     }
 
     public final void addDisposeHook(Disposable d)
@@ -512,14 +509,6 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         {
             proxy.setInterFilterGroupOperatorOR(true);
         }
-    }
-
-    /**
-     * satisfy method implementation
-     */
-    public void preActivate()
-    {
-        // No OP
     }
 
     public void addProxyEventListener(ProxyEventListener l)

@@ -34,12 +34,11 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.util.PropertySet;
-import org.jacorb.notification.util.PropertySetListener;
+import org.jacorb.notification.util.PropertySetAdapter;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Priority;
-import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StartTimeSupported;
 import org.omg.CosNotification.StopTimeSupported;
 import org.omg.CosNotification.Timeout;
@@ -64,7 +63,7 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
 {
     private final static EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     private final MessageFactory messageFactory_;
 
@@ -80,7 +79,7 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
 
     protected final SupplierAdmin supplierAdmin_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     protected AbstractProxyConsumer(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor, MessageFactory messageFactory,
@@ -91,6 +90,13 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
 
         supplierAdmin_ = supplierAdmin;
         messageFactory_ = messageFactory;
+
+        configureStartTimeSupported();
+
+        configureStopTimeSupported();
+
+        qosSettings_.addPropertySetListener(new String[] { Priority.value, Timeout.value,
+                StartTimeSupported.value, StopTimeSupported.value }, reconfigureQoS_);
     }
 
     protected MessageFactory getMessageFactory()
@@ -108,22 +114,8 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
         subsequentDestinations_ = list;
     }
 
-    public void preActivate() throws Exception
+    private PropertySetAdapter reconfigureQoS_ = new PropertySetAdapter()
     {
-        configureStartTimeSupported();
-
-        configureStopTimeSupported();
-
-        qosSettings_.addPropertySetListener(new String[] { Priority.value, Timeout.value,
-                StartTimeSupported.value, StopTimeSupported.value }, reconfigureQoS_);
-    }
-
-    private PropertySetListener reconfigureQoS_ = new PropertySetListener()
-    {
-        public void validateProperty(Property[] props, List errors)
-        {
-        }
-
         public void actionPropertySetChanged(PropertySet source)
         {
             configureStartTimeSupported();
@@ -222,7 +214,7 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
     public final EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode)
     {
         final EventType[] _subscriptionTypes;
-        
+
         switch (obtainInfoMode.value()) {
         case ObtainInfoMode._ALL_NOW_UPDATES_ON:
             // attach the listener first, then return the current
@@ -240,12 +232,12 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
             break;
         case ObtainInfoMode._NONE_NOW_UPDATES_ON:
             _subscriptionTypes = EMPTY_EVENT_TYPE_ARRAY;
-            
+
             registerListener();
             break;
         case ObtainInfoMode._NONE_NOW_UPDATES_OFF:
             _subscriptionTypes = EMPTY_EVENT_TYPE_ARRAY;
-        
+
             removeListener();
             break;
         default:
