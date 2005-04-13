@@ -314,7 +314,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         _eventChannelServant.set_qos(_qosSettings.toArray());
         _eventChannelServant.set_admin(_adminSettings.toArray());
 
-        if (logger_.isInfoEnabled())
+        if (logger_.isDebugEnabled())
         {
             logger_.debug("created channel_servant id=" + id.value);
         }
