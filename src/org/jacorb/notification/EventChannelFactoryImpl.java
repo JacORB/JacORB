@@ -106,7 +106,7 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
      * @param administrativeProperties
      *            a list of name-value pairs, which specify the initial administrative property
      *            settings for the new channel
-     * @param channelIdentifier,
+     * @param channelIdentifier
      *            a reference to the new event channel
      * @return a newly created event channel
      * @exception UnsupportedAdmin
