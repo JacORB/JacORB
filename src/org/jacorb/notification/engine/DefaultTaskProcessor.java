@@ -313,6 +313,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
         {
             TimerDeliverTask _task = new TimerDeliverTask(this, consumer);
 
+            _task.setTaskExecutor(consumer.getExecutor());
             //_task.setMessageConsumer(consumer);
 
             _task.schedule();
