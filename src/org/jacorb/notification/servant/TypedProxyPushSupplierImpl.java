@@ -226,7 +226,7 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
                 resetErrorCounter();
             } catch (Throwable t)
             {
-                PushTypedOperation _failedOperation = new PushTypedOperation(_request);
+                PushTypedOperation _failedOperation = new PushTypedOperation(this, _request);
 
                 handleFailedPushOperation(_failedOperation, t);
             }

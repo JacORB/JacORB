@@ -131,7 +131,7 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
             resetErrorCounter();
         } catch (Throwable e)
         {
-            PushStructuredOperation _failedOperation = new PushStructuredOperation(pushConsumer_,
+            PushStructuredOperation _failedOperation = new PushStructuredOperation(this, pushConsumer_,
                     message);
 
             handleFailedPushOperation(_failedOperation, e);

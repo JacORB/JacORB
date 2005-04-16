@@ -101,7 +101,7 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
             resetErrorCounter();
         } catch (Throwable e)
         {
-            PushAnyOperation _failedOperation = new PushAnyOperation(pushConsumer_, message);
+            PushAnyOperation _failedOperation = new PushAnyOperation(this, pushConsumer_, message);
 
             handleFailedPushOperation(_failedOperation, e);
         }

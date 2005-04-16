@@ -170,7 +170,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
             } catch (Throwable e)
             {
                 PushSequenceOperation _failedOperation = new PushSequenceOperation(
-                        sequencePushConsumer_, _structuredEvents);
+                        this, sequencePushConsumer_, _structuredEvents);
 
                 handleFailedPushOperation(_failedOperation, e);
             }
