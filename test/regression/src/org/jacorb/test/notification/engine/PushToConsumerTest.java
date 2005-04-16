@@ -54,8 +54,6 @@ public class PushToConsumerTest extends NotificationTestCase
     {
         PushToConsumerTask _pushToConsumerTask = new PushToConsumerTask(taskProcessor_);
 
-        _pushToConsumerTask.configure(getConfiguration());
-
         MockControl controlMessage = MockControl.createControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
 
