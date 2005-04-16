@@ -71,5 +71,6 @@ public class TimerDeliverTask extends AbstractTask
      */
     public void reset()
     {
+        // no operation
     }
 }
