@@ -31,8 +31,6 @@ public abstract class AbstractMessageTask extends AbstractTask
 {
     private Message message_;
 
-    private boolean removed = false;
-
     /**
      * @param tp
      */
@@ -56,8 +54,6 @@ public abstract class AbstractMessageTask extends AbstractTask
 
     public Message removeMessage()
     {
-        removed = true;
-
         Message _event = message_;
 
         message_ = null;
@@ -92,17 +88,16 @@ public abstract class AbstractMessageTask extends AbstractTask
 
     public void dispose()
     {
-        if (!removed)
+        if (message_ != null)
         {
             message_.dispose();
         }
-        
+
         super.dispose();
     }
 
     public void reset()
     {
-        removed = false;
         message_ = null;
     }
 }
