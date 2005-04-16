@@ -30,15 +30,16 @@ import org.jacorb.notification.interfaces.Message;
 public class BasicMessageQueueAdapter implements MessageQueueAdapter
 {
     private final MessageQueue queue_;
+
     private static final Message[] EMPTY = new Message[0];
 
     /**
-     *  
+     * 
      */
     public BasicMessageQueueAdapter(MessageQueue queue)
     {
         super();
-        
+
         queue_ = queue;
     }
 
@@ -124,5 +125,22 @@ public class BasicMessageQueueAdapter implements MessageQueueAdapter
         }
 
         return EMPTY;
+    }
+
+    public void clear()
+    {
+        try
+        {
+            Message[] allMessages = queue_.getAllMessages(false);
+
+            for (int i = 0; i < allMessages.length; i++)
+            {
+                Message message = allMessages[i];
+                message.dispose();
+            }
+        } catch (InterruptedException e)
+        {
+            // should not happen as above call does not wait.
+        }
     }
 }

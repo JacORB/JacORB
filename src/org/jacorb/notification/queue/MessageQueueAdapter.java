@@ -44,4 +44,6 @@ public interface MessageQueueAdapter
     Message[] getUpToMessages(int max) throws InterruptedException;
 
     Message[] getAtLeastMessages(int min) throws InterruptedException;
+    
+    void clear();
 }
