@@ -257,6 +257,6 @@ public class DefaultMessageFactory implements Disposable, MessageFactory //, Con
 
     public void addDisposeHook(Disposable d)
     {
-
+        // ignored
     }
 }
