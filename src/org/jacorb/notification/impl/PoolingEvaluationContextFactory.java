@@ -50,7 +50,7 @@ public class PoolingEvaluationContextFactory implements EvaluationContextFactory
             {
                 AbstractPoolable obj = (AbstractPoolable) o;
                 // todo check if configure can be called from AbstractObjectPool
-                obj.configure(configuration);
+              //  obj.configure(configuration);
                 obj.reset();
                 obj.setObjectPool(this);
             }
