@@ -20,7 +20,9 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.util.LogUtil;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosEventComm.Disconnected;
 
@@ -30,6 +32,7 @@ import org.omg.CosEventComm.Disconnected;
  */
 public abstract class AbstractRetryStrategy implements RetryStrategy
 {
+    protected final Logger logger_ = LogUtil.getLogger(getClass().getName());    
     protected final PushOperation pushOperation_;
 
     protected final MessageConsumer messageConsumer_;
@@ -58,6 +61,8 @@ public abstract class AbstractRetryStrategy implements RetryStrategy
 
     protected void remoteExceptionOccured(Throwable error) throws RetryException
     { 
+        logger_.debug("Error during retry", error);
+        
         if (isFatalException(error))
         {
             messageConsumer_.dispose();
