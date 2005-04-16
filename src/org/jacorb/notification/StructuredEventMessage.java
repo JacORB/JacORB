@@ -75,7 +75,7 @@ public class StructuredEventMessage extends AbstractMessage
 
     private short priority_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public synchronized void setStructuredEvent(StructuredEvent structuredEvent,
             boolean startTimeSupported, boolean timeOutSupported)
@@ -271,10 +271,13 @@ public class StructuredEventMessage extends AbstractMessage
 
     public String toString()
     {
-        if (toStructuredEvent() == null)
-        {
-            return null;
-        }
-        return toStructuredEvent().toString();
+        StringBuffer buffer = new StringBuffer("StructuredEventMessage [referenced=");
+        buffer.append(referenced_);
+
+        buffer.append(", StructuredEvent=");
+        buffer.append(toStructuredEvent());
+        buffer.append("]");
+
+        return buffer.toString();
     }
 }
