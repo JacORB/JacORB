@@ -32,7 +32,7 @@ import org.jacorb.notification.util.AbstractPoolable;
 public abstract class AbstractPoolablePool extends AbstractObjectPool
 {
     public AbstractPoolablePool(String name, int threshold, int increase, int initial, int maxsize) {
-        super(name, threshold, increase, initial, maxsize);
+        super(name, threshold, increase, initial, maxsize, 0);
     }
 
 
