@@ -355,6 +355,8 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     public final void dispose()
     {
         super.dispose();
+        
+        pendingMessages_.clear();
     }
 
     public final ConsumerAdmin MyAdmin()
@@ -443,7 +445,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         return offerListener_;
     }
 
-    protected void connectClient(org.omg.CORBA.Object client)
+    public void connectClient(org.omg.CORBA.Object client)
     {
         super.connectClient(client);
 
