@@ -20,6 +20,7 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyComm.SequencePushConsumer;
@@ -28,23 +29,31 @@ import org.omg.CosNotifyComm.SequencePushConsumer;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class PushSequenceOperation implements PushOperation {
-
+public class PushSequenceOperation implements PushOperation
+{
     private final SequencePushConsumer sequencePushConsumer_;
 
     private final StructuredEvent[] structuredEvents_;
 
-    public PushSequenceOperation(SequencePushConsumer pushConsumer,
-                                 StructuredEvent[] structuredEvents) {
+    private final MessageConsumer messageConsumer_;
+
+    public PushSequenceOperation(MessageConsumer messageConsumer,
+            SequencePushConsumer pushConsumer, StructuredEvent[] structuredEvents)
+    {
+        messageConsumer_ = messageConsumer;
         sequencePushConsumer_ = pushConsumer;
         structuredEvents_ = structuredEvents;
     }
 
-    public void invokePush() throws Disconnected {
+    public void invokePush() throws Disconnected
+    {
         sequencePushConsumer_.push_structured_events(structuredEvents_);
+
+        messageConsumer_.resetErrorCounter();
     }
 
-    public void dispose() {
+    public void dispose()
+    {
         // nothing to do
     }
 }

@@ -21,6 +21,7 @@ package org.jacorb.notification.engine;
  */
 
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CosEventComm.Disconnected;
 
 /**
@@ -30,8 +31,10 @@ import org.omg.CosEventComm.Disconnected;
 public abstract class MessagePushOperation implements PushOperation {
 
     protected final Message message_;
-
-    public MessagePushOperation(Message message) {
+    private final MessageConsumer messageConsumer_;
+    
+    public MessagePushOperation(MessageConsumer messageConsumer, Message message) {
+        messageConsumer_ = messageConsumer;
         message_ = (Message)message.clone();
     }
 
@@ -39,5 +42,12 @@ public abstract class MessagePushOperation implements PushOperation {
         message_.dispose();
     }
 
-    public abstract void invokePush() throws Disconnected;
+    public final void invokePush() throws Disconnected
+    {
+        invokePushInternal();
+        
+        messageConsumer_.resetErrorCounter();
+    }
+    
+    protected abstract void invokePushInternal() throws Disconnected;
 }

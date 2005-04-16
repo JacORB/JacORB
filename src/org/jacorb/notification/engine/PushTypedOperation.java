@@ -20,6 +20,7 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CORBA.Request;
 import org.omg.CosEventComm.Disconnected;
 
@@ -30,13 +31,16 @@ import org.omg.CosEventComm.Disconnected;
 public class PushTypedOperation implements PushOperation {
 
     private final Request request_;
+    private final MessageConsumer messageConsumer_;
 
-    public PushTypedOperation(Request request) {
+    public PushTypedOperation(MessageConsumer messageConsumer, Request request) {
         request_ = request;
+        messageConsumer_ = messageConsumer;
     }
 
     public void invokePush() throws Disconnected {
         request_.invoke();
+        messageConsumer_.resetErrorCounter();
     }
 
     public void dispose() {
