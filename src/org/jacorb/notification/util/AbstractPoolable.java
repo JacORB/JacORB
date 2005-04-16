@@ -21,8 +21,6 @@ package org.jacorb.notification.util;
  *
  */
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 
@@ -33,15 +31,12 @@ import org.jacorb.notification.interfaces.Disposable;
  * @version $Id$
  */
 
-public abstract class AbstractPoolable implements Disposable, Configurable
+public abstract class AbstractPoolable implements Disposable
 {
     private AbstractObjectPool objectPool_;
 
     protected final Logger logger_ = LogUtil.getLogger(getClass().getName());
 
-    public void configure(Configuration conf)
-    {
-    }
 
     /**
      * The call to this Method indicates that this Object is not needed by the user anymore. After a
