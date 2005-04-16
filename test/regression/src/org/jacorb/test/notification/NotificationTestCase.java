@@ -205,15 +205,20 @@ public abstract class NotificationTestCase extends TestCase
 
     public static Test suite(Class clazz) throws Exception
     {
-        return suite("TestSuite defined in Class: " + clazz.getName(), clazz);
+        return suite(clazz, "test");
     }
 
+    public static Test suite(Class clazz, String testPrefix) throws Exception
+    {
+        return suite("TestSuite defined in Class: " + clazz.getName(), clazz, testPrefix);
+    }
+    
     public static Test suite(String suiteName, Class clazz) throws Exception
     {
         return suite(suiteName, clazz, "test");
     }
 
-    public static Test suite(String suiteName, Class clazz, String testMethodPrefix)
+    private static Test suite(String suiteName, Class clazz, String testMethodPrefix)
             throws Exception
     {
         TestSuite _suite = new TestSuite(suiteName);
