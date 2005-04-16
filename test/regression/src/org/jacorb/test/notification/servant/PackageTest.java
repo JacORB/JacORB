@@ -37,6 +37,7 @@ public class PackageTest extends TestCase
         
         suite.addTest(ProxyPushSupplierImplTest.suite());
         suite.addTest(StructuredProxyPushSupplierImplTest.suite());
+        suite.addTest(AbstractProxySupplierTest.suite());
         
         return suite;
     }
