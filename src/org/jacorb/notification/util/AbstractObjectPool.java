@@ -22,7 +22,9 @@ package org.jacorb.notification.util;
  */
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +41,8 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must at least implement the method
  * newInstance. To use a Object call lendObject. After use the Object must be returned with
  * returnObject(Object). An Object must not be used after it has been returned to its pool!
+ * 
+ * This class needs a two phase initialization: configure MUST be invoked before it can be used.
  * 
  * @author Alphonse Bendt
  * @version $Id$
@@ -57,9 +61,11 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
 
     public static final int SIZE_INCREASE_DEFAULT = 30;
 
-    public static final int INITIAL_SIZE_DEFAULT = 100;
+    public static final int INITIAL_SIZE_DEFAULT = 10;
 
     public static final int MAXIMUM_WATERMARK_DEFAULT = 1000;
+
+    public static final int MAXIMUM_SIZE_DEFAULT = 0;
 
     /**
      * non synchronized as accessing methods are synchronized.
@@ -77,6 +83,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     static final Logger sLogger_ = LogUtil.getLogger(AbstractObjectPool.class.getName());
 
     private static ListCleaner sListCleaner;
+
+    private static boolean sUseListCleaner = true;
 
     static AbstractObjectPool[] getAllPools()
     {
@@ -222,7 +230,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     {
         synchronized (AbstractObjectPool.class)
         {
-            if (sCleanerThread == null)
+            if (sCleanerThread == null && sUseListCleaner )
             {
                 sCleanerThread = new Thread(getListCleaner());
 
@@ -239,6 +247,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     private final DisposableManager disposeHooks_ = new DisposableManager();
 
     private final LinkedList pool_;
+
+    private boolean isInitialized_;
 
     /**
      * Set that contains all objects that were created by this pool and are in use. Problems occured
@@ -268,33 +278,41 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
      */
     private int initialSize_;
 
-    protected Logger logger_;
+    private int maximumSize_;
+
+    protected final Logger logger_ = LogUtil.getLogger(getClass().getName());
 
     protected Configuration config_;
 
     public void configure(Configuration conf)
     {
         config_ = conf;
-        logger_ = ((org.jacorb.config.Configuration) conf).getNamedLogger(getClass().getName());
+        
         init();
-        registerPool(this);
     }
 
     protected AbstractObjectPool(String name)
     {
         this(name, LOWER_WATERMARK_DEFAULT, SIZE_INCREASE_DEFAULT, INITIAL_SIZE_DEFAULT,
-                MAXIMUM_WATERMARK_DEFAULT);
+                MAXIMUM_WATERMARK_DEFAULT, MAXIMUM_SIZE_DEFAULT);
     }
 
-    protected AbstractObjectPool(String name, int threshold, int sizeincrease, int initialsize,
-            int maxsize)
+    protected AbstractObjectPool(String name, int lowerWatermark, int sizeincrease,
+            int initialsize, int maxWatermark, int maximumSize)
     {
+        if (maximumSize > 0 && initialsize > maximumSize)
+        {
+            throw new IllegalArgumentException("InitialSize: " + initialsize
+                    + " may not be larger than MaximumSize: " + maximumSize);
+        }
+
         name_ = name;
         pool_ = new LinkedList();
-        lowerWatermark_ = threshold;
+        lowerWatermark_ = lowerWatermark;
         sizeIncrease_ = sizeincrease;
         initialSize_ = initialsize;
-        maxWatermark_ = maxsize;
+        maxWatermark_ = maxWatermark;
+        maximumSize_ = maximumSize;
     }
 
     public void addDisposeHook(Disposable d)
@@ -304,27 +322,57 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
 
     public void run()
     {
+        final int maxToBeCreated;
+
         synchronized (pool_)
         {
             if (pool_.size() > lowerWatermark_)
             {
                 return;
             }
+
+            maxToBeCreated = getNumberOfCreationsAllowed();
         }
 
-        List os = new ArrayList(sizeIncrease_);
+        final int sizeIncrease = Math.min(sizeIncrease_, maxToBeCreated);
 
-        for (int x = 0; x < sizeIncrease_; ++x)
+        if (sizeIncrease > 0)
         {
-            Object _i = createInstance();
+            List os = new ArrayList(sizeIncrease);
 
-            os.add(_i);
+            for (int x = 0; x < sizeIncrease; ++x)
+            {
+                Object _i = createInstance();
+
+                os.add(_i);
+            }
+
+            synchronized (pool_)
+            {
+                pool_.addAll(os);
+            }
         }
+    }
 
-        synchronized (pool_)
+    /**
+     * check the number of instances that are allowed to be created.
+     * 
+     * @pre lock pool_ must be held.
+     */
+    private int getNumberOfCreationsAllowed()
+    {
+        final int maxToBeCreated;
+
+        if (maximumSize_ > 0)
         {
-            pool_.addAll(os);
+            maxToBeCreated = maximumSize_ - active_.size() - pool_.size();
         }
+        else
+        {
+            maxToBeCreated = Integer.MAX_VALUE;
+        }
+
+        return maxToBeCreated;
     }
 
     private Object createInstance()
@@ -337,16 +385,25 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     /**
      * Initialize this Pool. An initial Number of Objects is created. Cleanup Thread is started.
      */
-    public void init()
+    private void init()
     {
+        registerPool(this);
+        
         synchronized (pool_)
         {
+            if (isInitialized_)
+            {
+                throw new IllegalStateException("Already Initialized");
+            }
+
             for (int x = 0; x < initialSize_; ++x)
             {
                 Object _i = createInstance();
 
                 pool_.add(_i);
             }
+
+            isInitialized_ = true;
         }
     }
 
@@ -356,10 +413,40 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     public void dispose()
     {
         deregisterPool(this);
+        disposeCollection(pool_);
         pool_.clear();
+        disposeCollection(active_);
         active_.clear();
 
         disposeHooks_.dispose();
+    }
+
+    private void disposeCollection(Collection c)
+    {
+        Iterator i = c.iterator();
+
+        while (i.hasNext())
+        {
+            Object o = i.next();
+
+            try
+            {
+                Disposable disposable = (Disposable) o;
+
+                try
+                {
+                    ((AbstractPoolable) o).setObjectPool(null);
+                } catch (ClassCastException e)
+                {
+                    // ignored
+                }
+
+                disposable.dispose();
+            } catch (ClassCastException e)
+            {
+                // ignored
+            }
+        }
     }
 
     /**
@@ -367,6 +454,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
      */
     public Object lendObject()
     {
+        checkIsInitialized();
+
         Object _ret = null;
 
         synchronized (pool_)
@@ -374,6 +463,14 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
             if (!pool_.isEmpty())
             {
                 _ret = pool_.removeFirst();
+            }
+
+            if (_ret == null)
+            {
+                while (!isCreationAllowed())
+                {
+                    poolIsEmpty();
+                }
             }
         }
 
@@ -400,10 +497,44 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     }
 
     /**
+     * 
+     */
+    private void checkIsInitialized()
+    {
+        synchronized (pool_)
+        {
+            if (!isInitialized_)
+            {
+                throw new IllegalStateException("Not initialized");
+            }
+        }
+    }
+
+    /**
+     * check if it is allowed to create more instances.
+     * 
+     * @pre lock pool_ must be held.
+     */
+    private boolean isCreationAllowed()
+    {
+        return getNumberOfCreationsAllowed() > 0;
+    }
+
+    /**
+     * 
+     */
+    private void poolIsEmpty()
+    {
+        throw new RuntimeException(name_ + ": No more Elements allowed. " + getInfo());
+    }
+
+    /**
      * return an Object to the pool.
      */
     public void returnObject(Object o)
     {
+        checkIsInitialized();
+
         if (active_.remove(o))
         {
             passivateObject(o);
@@ -423,12 +554,19 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
         }
         else
         {
-            // ignore
-            //                 logger_.warn( "Object " + o + " was not in pool " + name_ +".
-            // multiple release?" );
-            //                throw new RuntimeException();
+            throw new RuntimeException("Object " + o + " was not created here");
+        }        
+    }
 
-        }
+    public String toString()
+    {
+        return name_ + " " + getInfo();
+    }
+
+    private String getInfo()
+    {
+        return "Active=" + active_.size() + " Pooled=" + pool_.size() + " MaximumSize="
+                + ((maximumSize_ > 0) ? Integer.toString(maximumSize_) : "unlimited");
     }
 
     /**
