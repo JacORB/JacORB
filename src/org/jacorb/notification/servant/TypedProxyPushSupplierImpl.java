@@ -28,7 +28,7 @@ import org.jacorb.notification.NoTranslationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.TypedEventMessage;
-import org.jacorb.notification.engine.PushTypedOperation;
+import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
@@ -41,6 +41,7 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.EventTypeHelper;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
@@ -60,6 +61,23 @@ import org.omg.PortableServer.Servant;
 public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
         TypedProxyPushSupplierOperations, ITypedProxy
 {
+    private class PushTypedOperation implements PushOperation 
+    {
+        private final Request request_;
+
+        public PushTypedOperation(Request request) {
+            request_ = request;
+        }
+
+        public void invokePush() throws Disconnected {
+            deliverMessageInternal(request_);
+        }
+
+        public void dispose() {
+            // No Op
+        }
+    }
+    
     private TypedPushConsumer pushConsumer_;
 
     private org.omg.CORBA.Object typedConsumer_;
@@ -170,7 +188,7 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
         {
             try
             {
-                deliverMessageInternal(messages[i]);
+                deliverMessageWithRetry(messages[i]);
             } finally
             {
                 messages[i].dispose();
@@ -178,7 +196,7 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
         }
     }
 
-    private void deliverMessageInternal(Message message)
+    private void deliverMessageWithRetry(Message message)
     {
         try
         {
@@ -219,14 +237,10 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
 
             try
             {
-                long now = System.currentTimeMillis();
-                _request.invoke();
-                timeSpent_ += (System.currentTimeMillis() - now);
-
-                resetErrorCounter();
+                deliverMessageInternal(_request);
             } catch (Throwable t)
             {
-                PushTypedOperation _failedOperation = new PushTypedOperation(this, _request);
+                PushTypedOperation _failedOperation = new PushTypedOperation(_request);
 
                 handleFailedPushOperation(_failedOperation, t);
             }
@@ -237,6 +251,14 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
 
             logger_.info("No Translation possible", e);
         }
+    }
+
+    void deliverMessageInternal(final Request request)
+    {
+        long now = System.currentTimeMillis();
+        request.invoke();
+        timeSpent_ += (System.currentTimeMillis() - now);
+        resetErrorCounter();
     }
 
     protected void disconnectClient()

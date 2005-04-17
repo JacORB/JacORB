@@ -27,7 +27,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.engine.PushStructuredOperation;
+import org.jacorb.notification.engine.MessagePushOperation;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
@@ -35,6 +35,7 @@ import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
@@ -56,6 +57,18 @@ import org.omg.PortableServer.Servant;
 public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier implements
         StructuredProxyPushSupplierOperations
 {
+    private class PushStructuredOperation extends MessagePushOperation 
+    {    
+        public PushStructuredOperation(Message message) {
+            super(message);
+        }
+
+        public void invokePush() throws Disconnected {
+            deliverMessageInternal(message_);
+        }
+    }
+
+    
     private final static StructuredPushConsumerOperations NULL_CONSUMER = new StructuredPushConsumerOperations()
     {
         public void push_structured_event(StructuredEvent event)
@@ -109,7 +122,7 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
             {
                 try
                 {
-                    deliverMessageInternal(_events[x]);
+                    deliverMessageWithRetry(_events[x]);
                 } finally
                 {
                     _events[x].dispose();
@@ -118,24 +131,27 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
         }
     }
 
-    private void deliverMessageInternal(final Message message)
+    private void deliverMessageWithRetry(final Message message)
     {
         try
         {
             logger_.debug("push to consumer");
             
-            long now = System.currentTimeMillis();
-            pushConsumer_.push_structured_event(message.toStructuredEvent());
-            timeSpent_ += (System.currentTimeMillis() - now);
-            
-            resetErrorCounter();
+            deliverMessageInternal(message);
         } catch (Throwable e)
         {
-            PushStructuredOperation _failedOperation = new PushStructuredOperation(this, pushConsumer_,
-                    message);
+            PushStructuredOperation _failedOperation = new PushStructuredOperation(message);
 
             handleFailedPushOperation(_failedOperation, e);
         }
+    }
+
+    void deliverMessageInternal(final Message message) throws Disconnected
+    {
+        long now = System.currentTimeMillis();
+        pushConsumer_.push_structured_event(message.toStructuredEvent());
+        timeSpent_ += (System.currentTimeMillis() - now);
+        resetErrorCounter();
     }
 
     public void connect_structured_push_consumer(StructuredPushConsumer consumer)

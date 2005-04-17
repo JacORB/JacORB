@@ -26,7 +26,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.engine.PushAnyOperation;
+import org.jacorb.notification.engine.MessagePushOperation;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
@@ -34,6 +34,7 @@ import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushConsumer;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierHelper;
@@ -51,6 +52,17 @@ import org.omg.PortableServer.Servant;
 public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
         ProxyPushSupplierOperations
 {
+    private class PushAnyOperation extends MessagePushOperation 
+    {
+        public PushAnyOperation(Message message) {
+            super(message);
+        }
+
+        public void invokePush() throws Disconnected {
+            deliverMessageInternal(message_);
+        }
+    }
+    
     private PushConsumer pushConsumer_;
     private long timeSpent_;
 
@@ -90,21 +102,25 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
         }
     }
 
-    private void deliverMessageInternal(final Message message)
+    private void deliverMessageWithRetry(final Message message)
     {
         try
         {
-            long now = System.currentTimeMillis();
-            pushConsumer_.push(message.toAny());
-            timeSpent_ += (System.currentTimeMillis() - now);
-
-            resetErrorCounter();
+            deliverMessageInternal(message);
         } catch (Throwable e)
         {
-            PushAnyOperation _failedOperation = new PushAnyOperation(this, pushConsumer_, message);
+            PushAnyOperation _failedOperation = new PushAnyOperation(message);
 
             handleFailedPushOperation(_failedOperation, e);
         }
+    }
+
+    void deliverMessageInternal(final Message message) throws Disconnected
+    {
+        long now = System.currentTimeMillis();
+        pushConsumer_.push(message.toAny());
+        timeSpent_ += (System.currentTimeMillis() - now);
+        resetErrorCounter();
     }
 
     public void deliverPendingData()
@@ -115,7 +131,7 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
         {
             try
             {
-                deliverMessageInternal(_events[x]);
+                deliverMessageWithRetry(_events[x]);
             } finally
             {
                 _events[x].dispose();

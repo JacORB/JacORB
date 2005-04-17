@@ -25,7 +25,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.engine.PushSequenceOperation;
+import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
@@ -34,6 +34,7 @@ import org.jacorb.notification.util.PropertySetAdapter;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.StructuredEvent;
@@ -58,6 +59,26 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedLong;
 public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierImpl implements
         SequenceProxyPushSupplierOperations
 {
+    private class PushSequenceOperation implements PushOperation
+    {
+        private final StructuredEvent[] structuredEvents_;
+
+        public PushSequenceOperation(StructuredEvent[] structuredEvents)
+        {
+            structuredEvents_ = structuredEvents;
+        }
+
+        public void invokePush() throws Disconnected
+        {
+            deliverPendingMessagesInternal(structuredEvents_);
+        }
+
+        public void dispose()
+        {
+            // nothing to do
+        }
+    }
+    
     public SequenceProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration config,
             TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
             SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
@@ -107,6 +128,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
      */
     private final SynchronizedLong pacingInterval_ = new SynchronizedLong(0);
 
+    private long timeSpent_ = 0;
     
     /**
      * this callback is called by the TimerDaemon. Check if there are pending Events and deliver
@@ -164,17 +186,23 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
             try
             {
-                sequencePushConsumer_.push_structured_events(_structuredEvents);
-
-                resetErrorCounter();
+                deliverPendingMessagesInternal(_structuredEvents);
             } catch (Throwable e)
             {
-                PushSequenceOperation _failedOperation = new PushSequenceOperation(
-                        this, sequencePushConsumer_, _structuredEvents);
+                PushSequenceOperation _failedOperation = new PushSequenceOperation(_structuredEvents);
 
                 handleFailedPushOperation(_failedOperation, e);
             }
         }
+    }
+
+
+    void deliverPendingMessagesInternal(final StructuredEvent[] structuredEvents) throws Disconnected
+    {
+        long now = System.currentTimeMillis();
+        sequencePushConsumer_.push_structured_events(structuredEvents);
+        timeSpent_ += (System.currentTimeMillis() - now);
+        resetErrorCounter();
     }
 
     public void connect_sequence_push_consumer(SequencePushConsumer consumer)
@@ -298,5 +326,10 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         }
 
         return thisServant_;
+    }
+    
+    protected long getCost()
+    {
+        return timeSpent_;
     }
 }
