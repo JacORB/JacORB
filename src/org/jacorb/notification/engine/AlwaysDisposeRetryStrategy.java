@@ -41,7 +41,7 @@ public class AlwaysDisposeRetryStrategy extends AbstractRetryStrategy
 
     protected void retryInternal() throws RetryException
     {
-        messageConsumer_.dispose();
+        messageConsumer_.destroy();
         dispose();
     }
 }
