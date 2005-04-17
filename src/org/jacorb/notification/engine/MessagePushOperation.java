@@ -21,33 +21,20 @@ package org.jacorb.notification.engine;
  */
 
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
-import org.omg.CosEventComm.Disconnected;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 public abstract class MessagePushOperation implements PushOperation {
-
-    protected final Message message_;
-    private final MessageConsumer messageConsumer_;
     
-    public MessagePushOperation(MessageConsumer messageConsumer, Message message) {
-        messageConsumer_ = messageConsumer;
+    protected final Message message_;
+    
+    public MessagePushOperation(Message message) {
         message_ = (Message)message.clone();
     }
 
     public void dispose() {
         message_.dispose();
     }
-
-    public final void invokePush() throws Disconnected
-    {
-        invokePushInternal();
-        
-        messageConsumer_.resetErrorCounter();
-    }
-    
-    protected abstract void invokePushInternal() throws Disconnected;
 }
