@@ -34,6 +34,7 @@ public class TaskProcessorRetryStrategyFactory implements RetryStrategyFactory
     public TaskProcessorRetryStrategyFactory(TaskProcessor taskProcessor)
     {
         super();
+        
         taskProcessor_ = taskProcessor;
     }
 

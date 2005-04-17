@@ -32,25 +32,29 @@ public abstract class AbstractTask extends AbstractPoolable implements Runnable,
 {
     private final TaskProcessor taskProcessor_;
 
-    private TaskExecutor executor_;
+    /**
+     * to support pooling the TaskExecutor
+     * must be set on a per MessageConsumer basis.
+     */
+    private TaskExecutor taskExecutor_;
 
     ////////////////////
 
-    protected AbstractTask(TaskProcessor tp)
+    protected AbstractTask(TaskProcessor taskProcessor)
     {
-        taskProcessor_ = tp;
+        taskProcessor_ = taskProcessor;
     }
 
     ////////////////////
 
     protected TaskExecutor getTaskExecutor()
     {
-        return executor_;
+        return taskExecutor_;
     }
 
     protected void setTaskExecutor(TaskExecutor taskExecutor)
     {
-        executor_ = taskExecutor;
+        taskExecutor_ = taskExecutor;
     }
 
     protected TaskProcessor getTaskProcessor()
@@ -113,7 +117,7 @@ public abstract class AbstractTask extends AbstractPoolable implements Runnable,
      */
     protected void schedule(boolean directRunAllowed) throws InterruptedException
     {
-        schedule(executor_, directRunAllowed);
+        schedule(taskExecutor_, directRunAllowed);
     }
 
     /**
