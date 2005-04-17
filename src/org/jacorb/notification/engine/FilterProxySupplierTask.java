@@ -93,9 +93,9 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
     ////////////////////////////////////////
 
-    public FilterProxySupplierTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
+    public FilterProxySupplierTask(TaskExecutor taskExecutor, TaskProcessor taskProcessor, TaskFactory taskFactory)
     {
-        super(te, tp, tc);
+        super(taskExecutor, taskProcessor, taskFactory);
     }
 
     ////////////////////////////////////////
@@ -109,7 +109,6 @@ public class FilterProxySupplierTask extends AbstractFilterTask
     {
         super.reset();
 
-        arrayCurrentFilterStage_ = EMPTY_FILTERSTAGE;
         changedMessages_.clear();
     }
 
@@ -120,15 +119,15 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         AbstractDeliverTask.scheduleTasks(getTaskFactory().newPushToConsumerTask(this));
     }
 
-    private Message updatePriority(int indexOfCurrentEvent, Message m)
+    private Message updatePriority(int indexOfCurrentEvent, Message message)
     {
         AnyHolder _priorityFilterResult = new AnyHolder();
 
-        Message _currentMessage = m;
+        Message _currentMessage = message;
 
         try
         {
-            boolean priorityMatch = m.match(arrayCurrentFilterStage_[indexOfCurrentEvent]
+            boolean priorityMatch = message.match(arrayCurrentFilterStage_[indexOfCurrentEvent]
                     .getPriorityFilter(), _priorityFilterResult);
 
             if (priorityMatch)
@@ -145,26 +144,26 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         return _currentMessage;
     }
 
-    private Message updateTimeout(int indexOfCurrentFilterStage, Message event)
+    private Message updateTimeout(int indexOfCurrentFilterStage, Message message)
     {
         AnyHolder _lifetimeFilterResult = new AnyHolder();
-        Message _currentEvent = event;
+        Message _currentMessage = message;
 
         try
         {
-            boolean lifetimeMatch = _currentEvent.match(
+            boolean lifetimeMatch = _currentMessage.match(
                     arrayCurrentFilterStage_[indexOfCurrentFilterStage].getLifetimeFilter(),
                     _lifetimeFilterResult);
 
-            if (lifetimeMatch && (_currentEvent == getMessage()))
+            if (lifetimeMatch && (_currentMessage == getMessage()))
             {
                 // LifeTime Mapping Filter matched and current Message
                 // was not copied yet. This depends on the fact that
                 // updatePriority was run before.
 
-                _currentEvent = (Message) getMessage().clone();
+                _currentMessage = (Message) getMessage().clone();
 
-                _currentEvent.setTimeout(_lifetimeFilterResult.value.extract_long());
+                _currentMessage.setTimeout(_lifetimeFilterResult.value.extract_long());
             }
 
         } catch (UnsupportedFilterableData e)
@@ -172,7 +171,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
             //             logger_.error("error evaluating PriorityFilter", e);
         }
 
-        return _currentEvent;
+        return _currentMessage;
     }
 
     private void filter()
