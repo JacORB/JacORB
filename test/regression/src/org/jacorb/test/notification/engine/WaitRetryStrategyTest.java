@@ -53,7 +53,7 @@ public class WaitRetryStrategyTest extends AbstractRetryStrategyTest
         mockConsumer_.incErrorCounter();
         controlConsumer_.setReturnValue(0);
 
-        mockConsumer_.dispose();
+        mockConsumer_.destroy();
 
         controlConsumer_.replay();
 

@@ -26,7 +26,6 @@ import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.MessagePushOperation;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
 
 /**
  * @author Alphonse Bendt
@@ -38,12 +37,12 @@ public class PushOperationTest extends TestCase
     {
         int pushInvoked = 0;
 
-        public MockPushOperation(MessageConsumer messageConsumer, Message message)
+        public MockPushOperation(Message message)
         {
-            super(messageConsumer, message);
+            super(message);
         }
 
-        public void invokePushInternal()
+        public void invokePush()
         {
             ++pushInvoked;
         }
@@ -56,9 +55,6 @@ public class PushOperationTest extends TestCase
 
     public void testCreateDispose()
     {
-        MockControl controlMessageConsumer = MockControl.createControl(MessageConsumer.class);
-        MessageConsumer mockMessageConsumer = (MessageConsumer) controlMessageConsumer.getMock();
-
         MockControl controlMessage = MockControl.createControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
 
@@ -73,7 +69,7 @@ public class PushOperationTest extends TestCase
         controlMessage2.replay();
         controlMessage.replay();
 
-        MockPushOperation operation = new MockPushOperation(mockMessageConsumer, mockMessage);
+        MockPushOperation operation = new MockPushOperation(mockMessage);
         operation.dispose();
 
         controlMessage2.verify();

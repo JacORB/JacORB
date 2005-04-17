@@ -48,7 +48,7 @@ public class AlwaysDisposeRetryStrategyTest extends AbstractRetryStrategyTest
         mockConsumer_.isRetryAllowed();
         controlConsumer_.setDefaultReturnValue(true);
 
-        mockConsumer_.dispose();
+        mockConsumer_.destroy();
         controlConsumer_.replay();
 
         mockPushOperation_.dispose();

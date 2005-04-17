@@ -92,7 +92,7 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
         mockConsumer_.isRetryAllowed();
         controlConsumer_.setDefaultReturnValue(false);
         
-        mockConsumer_.dispose();
+        mockConsumer_.destroy();
         controlConsumer_.replay();
         
         mockPushOperation_.invokePush();
