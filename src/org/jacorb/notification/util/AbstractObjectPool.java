@@ -42,7 +42,7 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
  * newInstance. To use a Object call lendObject. After use the Object must be returned with
  * returnObject(Object). An Object must not be used after it has been returned to its pool!
  * 
- * This class needs a two phase initialization: configure MUST be invoked before it can be used.
+ * This class needs a two phase initialization: configure MUST be invoked before an instance can be used.
  * 
  * @author Alphonse Bendt
  * @version $Id$
@@ -57,18 +57,18 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
      */
     public static final long SLEEP = 5000L;
 
-    public static final int LOWER_WATERMARK_DEFAULT = 30;
+    public static final int LOWER_WATERMARK_DEFAULT = 5;
 
-    public static final int SIZE_INCREASE_DEFAULT = 30;
+    public static final int SIZE_INCREASE_DEFAULT = 3;
 
     public static final int INITIAL_SIZE_DEFAULT = 10;
 
-    public static final int MAXIMUM_WATERMARK_DEFAULT = 1000;
+    public static final int MAXIMUM_WATERMARK_DEFAULT = 20;
 
     public static final int MAXIMUM_SIZE_DEFAULT = 0;
 
     /**
-     * non synchronized as accessing methods are synchronized.
+     * non synchronized as all accessing methods are synchronized.
      */
     private static final List sPoolsToLookAfter = new ArrayList();
 
