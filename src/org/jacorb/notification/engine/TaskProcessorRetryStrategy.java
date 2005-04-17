@@ -37,18 +37,20 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy
         {
             try
             {
-                pushOperation_.invokePush();
-                taskProcessor_.scheduleTimedPushTask(messageConsumer_);
+                if (!messageConsumer_.isDisposed())
+                {
+                    pushOperation_.invokePush();
+                    taskProcessor_.scheduleTimedPushTask(messageConsumer_);
+                }
+
                 dispose();
-            }
-            catch (Throwable error)
+            } catch (Throwable error)
             {
                 try
                 {
                     remoteExceptionOccured(error);
                     retry();
-                }
-                catch (RetryException e)
+                } catch (RetryException e)
                 {
                     dispose();
                 }
@@ -65,11 +67,17 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy
         {
             try
             {
-                messageConsumer_.enableDelivery();
-                TaskExecutor _executor = messageConsumer_.getExecutor();
-                _executor.execute(retryPushOperation_);
-            }
-            catch (InterruptedException e)
+                if (!messageConsumer_.isDisposed())
+                {
+                    messageConsumer_.enableDelivery();
+                    TaskExecutor _executor = messageConsumer_.getExecutor();
+                    _executor.execute(retryPushOperation_);
+                }
+                else
+                {
+                    dispose();
+                }
+            } catch (InterruptedException e)
             {
                 // ignore
             }
@@ -78,26 +86,26 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy
 
     final TaskProcessor taskProcessor_;
 
-    public TaskProcessorRetryStrategy(MessageConsumer mc,
-                                      PushOperation op,
-                                      TaskProcessor tp)
+    public TaskProcessorRetryStrategy(MessageConsumer messageConsumer, PushOperation pushOperation, TaskProcessor taskProcessor)
     {
-        super(mc, op);
-        
-        taskProcessor_ = tp;
+        super(messageConsumer, pushOperation);
+
+        taskProcessor_ = taskProcessor;
     }
 
-
-    protected long getTimeToWait() {
+    protected long getTimeToWait()
+    {
         return 0;
     }
 
-
     protected void retryInternal() throws RetryException
     {
-        messageConsumer_.disableDelivery();
+        if (!messageConsumer_.isDisposed())
+        {
+            messageConsumer_.disableDelivery();
 
-        taskProcessor_.executeTaskAfterDelay(taskProcessor_.getBackoutInterval(),
-                                             enableMessageConsumer_);
+            taskProcessor_.executeTaskAfterDelay(taskProcessor_.getBackoutInterval(),
+                    enableMessageConsumer_);
+        }
     }
 }
