@@ -39,7 +39,7 @@ import org.jacorb.notification.engine.TaskExecutor;
  * @version $Id$
  */
 
-public interface MessageConsumer extends Disposable, Comparable {
+public interface MessageConsumer extends Comparable {
 
     /**
      * @return the <code>TaskExecutor</code> that should be used to
@@ -104,4 +104,6 @@ public interface MessageConsumer extends Disposable, Comparable {
      * 
      */
     boolean isRetryAllowed();
+    
+    void destroy();
 }
