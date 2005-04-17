@@ -74,6 +74,14 @@ import org.picocontainer.defaults.DefaultPicoContainer;
 public abstract class AbstractProxySupplier extends AbstractProxy implements MessageConsumer,
         NotifySubscribeOperations
 {
+    private static final Runnable EMPTY_RUNNABLE = new Runnable()
+    {
+        public void run()
+        {
+            // no operation
+        }
+    };
+
     private static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
     private static final Message[] EMPTY_MESSAGE = new Message[0];
@@ -86,14 +94,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
      * ProxyPushSuppliers.
      */
     protected final Runnable scheduleDeliverPendingMessagesOperation_;
-
-    private static final Runnable NO_OP = new Runnable()
-    {
-        public void run()
-        {
-
-        }
-    };
 
     private final TaskExecutor taskExecutor_;
 
@@ -157,7 +157,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         }
         else
         {
-            scheduleDeliverPendingMessagesOperation_ = NO_OP;
+            scheduleDeliverPendingMessagesOperation_ = EMPTY_RUNNABLE;
         }
 
         qosSettings_.addPropertySetListener(
@@ -355,8 +355,12 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     public final void dispose()
     {
         super.dispose();
-        
+
         pendingMessages_.clear();
+
+        // insert an empty command into the taskProcessor's queue.
+        // otherwise queue seems to contain old entries that prevent GC'ing 
+        getTaskProcessor().executeTaskAfterDelay(getTaskProcessor().getBackoutInterval() * 2, EMPTY_RUNNABLE);
     }
 
     public final ConsumerAdmin MyAdmin()
@@ -509,17 +513,20 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
             return;
         }
 
-        RetryStrategy _retry = newRetryStrategy(this, operation);
-
-        try
+        if (!isDisposed())
         {
-            _retry.retry();
-        } catch (RetryException e)
-        {
-            logger_.error("retry failed", e);
+            RetryStrategy _retry = newRetryStrategy(this, operation);
 
-            _retry.dispose();
-            dispose();
+            try
+            {
+                _retry.retry();
+            } catch (RetryException e)
+            {
+                logger_.error("retry failed", e);
+
+                _retry.dispose();
+                dispose();
+            }
         }
     }
 
