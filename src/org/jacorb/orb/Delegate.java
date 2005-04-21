@@ -1468,9 +1468,9 @@ public final class Delegate
                                          p.get_object_key(),
                                          ( int ) p.getEffectiveProfile().version().minor );
 
-            //Problem: What about the case where different objects
-            //that are accessed by the same connection have different
-            //codesets?  Is this possible anyway?
+            // CodeSets are only negotiated once per connection,
+            // not for each individual request
+            // (CORBA 3.0, 13.10.2.6, second paragraph).
             if ( ! connection.isTCSNegotiated() )
             {
                 ServiceContext ctx = connection.setCodeSet( p );
