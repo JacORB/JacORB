@@ -143,8 +143,6 @@ public abstract class GIOPConnection
     {
         this.TCS = TCS;
         this.TCSW = TCSW;
-
-        tcs_negotiated = true;
     }
 
     public final int getTCS()
