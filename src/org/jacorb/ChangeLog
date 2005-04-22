@@ -1,3 +1,29 @@
+2005-04-22  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (request): If the codesets have not been
+	negotiated yet, don't add the service context here, because this
+	request might not actually be the first one on the wire.  The
+	codeset service context is now added immediately before sending
+	the request, in RequestOutputStream.write_to().
+
+	This race condition was identified by Phil Mesnier.
+
+	* orb/giop/ClientConnection.java (setCodeSet): Don't return a
+	service context; this is deferred until later now.
+
+	* orb/giop/RequestOutputStream.java (write_to): Overridden to add
+	a codeset service context if this is the first request on the
+	connection.
+
+	* orb/giop/GIOPConnection.java (setCodeSets): Don't set
+	tcs_negotiated yet; this must be done by a separate call to
+	markTCSNegotiated() now.
+
+	* orb/giop/ServerRequestListener.java (requestReceived): Call
+	markTCSNegotiated() when setting codesets; just for
+	completeness (it shouldn't really be necessary on the server
+	side).
+
 2005-04-21  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/Delegate.java (request): Clarify comment on CodeSet Negotiation.
