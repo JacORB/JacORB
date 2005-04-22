@@ -1,3 +1,243 @@
+2005-04-21  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (request): Clarify comment on CodeSet Negotiation.
+
+2005-04-17  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/util/AbstractPoolablePool.java: moved class
+
+	* notification/util/AbstractObjectPool.java: changed default values
+
+	* notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java: converted
+	PushOperation classes to nested classes. this reduces code
+	duplication
+
+	* notification/servant/AbstractProxySupplier.java (dispose):
+	execute empty task to clean ClockDaemon Heap.
+	(handleFailedPushOperation): added check if Proxy is already
+	destroyed
+
+	* notification/interfaces/MessageConsumer.java (destroy): added
+	method
+	(dispose): removed method
+
+	* notification/impl/DefaultMessageFactory.java (anyMessagePool_,
+	typedMessagePool_, structuredMessagePool_): extend
+	AbstractPoolablePool so that instances are reset as they are
+	returned to the pool. otherwise GC'ing is not possible
+
+	* notification/engine/MessagePushOperation.java:
+	changed classes to member classes. this reduces code duplication
+
+	* notification/engine/TimerDeliverTask.java,
+	notification/engine/TaskProcessorRetryStrategyFactory.java:
+	cosmetics
+
+	* notification/engine/TaskProcessorRetryStrategy.java
+	(retryPushOperation_, enableMessageConsumer_): added checks if
+	messageConsumer is still valid
+
+	* notification/engine/PushAnyOperation.java,
+	notification/engine/PushSequenceOperation.java,
+	notification/engine/PushStructuredOperation.java,
+	notification/engine/PushTypedOperation.java: changed classes to
+	member classes. this reduces code duplication
+
+	* notification/engine/FilterProxySupplierTask.java (reset):
+	arrayCurrentFilterStage is reset in superclass cosmetics
+
+	* notification/engine/DefaultTaskProcessor.java: cosmetics
+
+	* notification/engine/DefaultTaskFactory.java:
+	moved AbstractPoolablePool to util package
+
+	* notification/engine/AlwaysDisposeRetryStrategy.java (retryInternal):
+	need to invoke destroy on MessageConsumer to really free all ressources
+
+	* notification/engine/AbstractTask.java: cosmetics
+
+	* notification/engine/AbstractRetryStrategy.java
+	(remoteExceptionOccured): need to invoke destroy on
+	MessageConsumer to really free all ressources
+
+	* notification/engine/AbstractPoolablePool.java: moved to util package
+
+	* notification/engine/AbstractFilterTask.java (reset):
+	reset all members to allow GC'ing renamed variables
+
+2005-04-16  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/impl/PoolingEvaluationContextFactory.java (configure):
+	removed unused method
+
+	* notification/engine/AbstractPoolablePool.java (C'tor):
+	maximum size is unlimited
+
+	* notification/util/AbstractObjectPool.java:
+	added option to control maximum size
+
+	* notification/util/AbstractPoolable.java (configure):
+	removed unused method
+
+	* notification/queue/BasicMessageQueueAdapter.java,
+	notification/queue/MessageQueueAdapter.java,
+	notification/queue/RWLockEventQueueDecorator.java (clear): new
+	method to release (=dispose) contents of queue
+
+	* notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java
+	(deliverMessagesInternal): added this param to C'tor of PushOperations
+
+	* notification/servant/AbstractProxySupplier.java (connectClient):
+	made method public for testing(dispose): clear pendingMessages queue
+
+	* notification/impl/DefaultMessageFactory.java (addDisposeHook):
+	fixed compiler warning
+
+	* notification/engine/DefaultTaskProcessor.java (scheduleTimedPushTask):
+	setTaskExecutor for TimedPushTask
+
+	* notification/engine/AbstractRetryStrategy.java
+	(remoteExceptionOccured): added log statement
+
+	* notification/engine/MessagePushOperation.java,
+	notification/engine/PushAnyOperation.java,
+	notification/engine/PushSequenceOperation.java,
+	notification/engine/PushStructuredOperation.java,
+	notification/engine/PushTypedOperation.java (C'tor): added
+	MessageConsumer param
+	(invokePush): reset MessageConsumer error
+	counter after successful push
+
+	* notification/engine/TimerDeliverTask.java (reset):
+	fixed compiler warning
+
+	* notification/engine/AbstractMessageTask.java:
+	removed superfluous member 'removed_'
+
+	* notification/StructuredEventMessage.java (toString):
+	modified toString representation
+
+2005-04-13  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/TypedEventChannelFactoryImpl.java: whitespace
+
+	* notification/EventTypeSet.java (eventTypeSetModified_): renamed
+	from setModified_
+	(changeSet): modify eventTypeSet_ inside of synchronized block
+
+	* notification/EventChannelFactoryImpl.java (create_channel):
+	fixed javadoc
+
+	* notification/AbstractChannelFactory.java (create_channel_servant):
+	log statement
+
+2005-04-10  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/TypedEventChannelFactoryImpl.java,
+	notification/TypedEventChannelImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java: fixed problems
+	found in setup code
+
+	* notification/util/AdminPropertySet.java,
+	notification/util/PropertySet.java,
+	notification/util/PropertySetAdapter.java,
+	notification/util/QoSPropertySet.java: cleaned up PropertySet code
+	(PropertySetAdapter): new adapter class that is a empty
+	implementations for PropertySetListener
+
+	* notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminImpl.java: code cleanup: removed
+	deprecated methods, fixed compiler warnings(proxysuppliers): are
+	comparable now
+
+	* notification/servant/ManageableServant.java: code cleanup:
+	removed deprecated methods, fixed compiler warnings
+
+	* notification/servant/FilterStageListManager.java (sortCheckedList):
+	new extension point to allow list to be sorted with a custom comparator
+
+	* notification/servant/ConsumerAdminImpl.java: code cleanup:
+	removed deprecated methods, fixed compiler warnings
+
+	* notification/servant/AbstractProxySupplier.java: code cleanup:
+	removed deprecated methods, fixed compiler warnings
+	(compareTo, getCost): implement Comparable IF
+
+	* notification/servant/AbstractProxyConsumer.java, notification/servant/AbstractAdmin.java, notification/servant/AbstractProxy.java:
+	code cleanup: removed deprecated methods, fixed compiler warnings
+
+	* notification/interfaces/MessageConsumer.java (MessageConsumer):
+	extends Comparable
+
+	* notification/filter/AbstractFilter.java,
+	notification/filter/FilterFactoryImpl.java,
+	notification/filter/MappingFilterImpl.java: clean up of garbage
+	collector code
+
+	* notification/container/PicoContainerFactory.java
+	(createRootContainer): register CA to resolve Repository
+	(dumpDependencies): helper method for debugging
+
+	* notification/conf/Attributes.java,
+	notification/conf/Default.java
+	(RETRY_STRATEGY_FACTORY): renamed property value
+	(WILDCARDMAP_CLASS): renamed property value
+
+	* notification/TODO.txt: add id tag
+
+	* notification/AbstractChannelFactory.java,
+	notification/AbstractEventChannel.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/StructuredEventMessage.java: code cleanup: removed
+	deprecated methods, fixed compiler warnings
+
+2005-03-31  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/AbstractFilter.java,
+	notification/filter/DefaultFilterFactoryDelegate.java,
+	notification/filter/FilterFactoryImpl.java,
+	notification/filter/MappingFilterImpl.java (*): use Decorator to
+	keep track of Filter Usage. added thread that disposes filters
+	that have not been used for some time.
+
+	* notification/filter/CallbackManager.java (detach_callback):
+	added parentheses
+
+	* notification/filter/AbstractFilterUsageDecorator.java,
+	notification/filter/FilterUsageDecorator.java,
+	notification/filter/MappingFilterUsageDecorator.java: new classes
+	that decorate a Filter or MappingFilter and keep track of usage.
+
+	* notification/util/LogUtil.java (getLogger): added convenience method.
+
+	* notification/interfaces/GCDisposable.java: added new interface
+
+	* notification/conf/Attributes.java, notification/conf/Default.java:
+	added attributes to control garbarge collection of filters
+
+2005-03-28  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/ArrayTypeSpec.java, idl/NameTable.java, idl/ReplyHandler.java:
+	(ScopedName.defined) renamed to isDefined()
+
+	* idl/ScopedName.java: (resolvedName) fixed Bug541
+	(defined) renamed to isDefined()
+
 2005-03-27  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/CDROutputStream.java
