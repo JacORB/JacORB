@@ -145,6 +145,7 @@ public class ServerRequestListener
                 if( ctx != null )
                 {
                     connection.setCodeSets( ctx.char_data, ctx.wchar_data );
+                    connection.markTCSNegotiated();
                     if (logger.isDebugEnabled())
                         logger.debug("Received CodeSetContext. Using " +
                                      CodeSet.csName( ctx.char_data ) +
