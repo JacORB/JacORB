@@ -1471,15 +1471,9 @@ public final class Delegate
             // CodeSets are only negotiated once per connection,
             // not for each individual request
             // (CORBA 3.0, 13.10.2.6, second paragraph).
-            if ( ! connection.isTCSNegotiated() )
+            if (!connection.isTCSNegotiated())
             {
-                ServiceContext ctx = connection.setCodeSet( p );
-
-                if ( ctx != null )
-                {
-                    ros.addServiceContext( ctx );
-                }
-
+                connection.setCodeSet(p);
             }
 
             //Setting the codesets not until here results in the
