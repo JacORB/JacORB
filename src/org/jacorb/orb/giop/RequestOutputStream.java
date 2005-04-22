@@ -20,9 +20,11 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.*;
 import java.util.*;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.util.Time;
+import org.omg.CONV_FRAME.*;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.PrincipalHelper;
 import org.omg.GIOP.MsgType_1_1;
@@ -231,6 +233,32 @@ public class RequestOutputStream
         return connection;
     }
 
+    /**
+     * Overridden to add a codeset service context if this
+     * is the first request on the connection.
+     */
+    public void write_to(GIOPConnection conn) throws IOException
+    {
+        if (!conn.isTCSNegotiated())
+        {   
+            // encapsulate context
+            CDROutputStream os = new CDROutputStream();
+            os.beginEncapsulatedArray();
+            CodeSetContextHelper.write
+            (
+                os, 
+                new CodeSetContext(conn.getTCS(), conn.getTCSW())
+            );
+            addServiceContext(new ServiceContext
+            (
+                org.omg.IOP.CodeSets.value,
+                os.getBufferCopy() 
+            ));
+            conn.markTCSNegotiated();
+        }
+        super.write_to(conn);
+    }
+    
     /**
      * Returns the timing policies for this request as an array
      * of PolicyValues that can be propagated in a ServiceContext.
