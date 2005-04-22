@@ -75,8 +75,7 @@ public class ClientConnection
     private org.omg.ETF.Profile registeredProfile = null;
 
     private Logger logger = null;
-
-
+    
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
                              ClientConnectionManager conn_mg,
@@ -125,12 +124,12 @@ public class ClientConnection
         return registeredProfile;
     }
 
-    public ServiceContext setCodeSet( ParsedIOR pior )
+    public void setCodeSet( ParsedIOR pior )
     {
         if( isTCSNegotiated() )
         {
             //if already negotiated, do nothing
-            return null;
+            return;
         }
 
         //if the other side only talks GIOP 1.0, don't send a codeset
@@ -138,7 +137,7 @@ public class ClientConnection
         if( pior.getEffectiveProfile().version().minor == 0 )
         {
             connection.markTCSNegotiated();
-            return null;
+            return;
         }
 
         int tcs = -1;
@@ -183,7 +182,6 @@ public class ClientConnection
                 " CodeSet found");
         }
 
-        //this also marks tcs as negotiated.
         connection.setCodeSets( tcs, tcsw );
 
         if (logger.isDebugEnabled())
@@ -193,13 +191,6 @@ public class ClientConnection
                           CodeSet.csName( tcsw ) + " as TCSW" );
         }
 
-        // encapsulate context
-        CDROutputStream os = new CDROutputStream( orb );
-        os.beginEncapsulatedArray();
-        CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
-
-        return new ServiceContext( org.omg.IOP.CodeSets.value,
-                                   os.getBufferCopy() );
     }
 
     public boolean isTCSNegotiated()
