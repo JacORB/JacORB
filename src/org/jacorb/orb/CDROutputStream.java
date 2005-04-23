@@ -850,45 +850,41 @@ public class CDROutputStream
         int size = 4 + s.length() + 1;
         check( size, 4 );
 
-        _write4int( buffer, pos, size - 4 ); // write length indicator
+        int sizepos = pos;
         pos += 4;
-
-        int too_large_mask =
-            (codeSet == CodeSet.ISO8859_1)?
-            0xFF00 : //ISO8859-1
-            0xFF80; //UTF-8
+        index += 4;
 
         char ch;
         for (int i = 0; i < s.length(); i++)
-        {
-//             ch = s.charAt (i);
-//             if ((ch & too_large_mask) != 0)
-//             {
-//                 throw new MARSHAL("char (0x" + Integer.toHexString(ch) +
-//                                   ") out of range for " +
-//                                   CodeSet.csName( codeSet ) );
-//             }
-
-//             buffer[pos++] = (byte) ch;
-            buffer[pos++] = (byte)s.charAt(i);
-        }
+            write_char_i(s.charAt(i),false,false, codeSet);
 
         buffer[ pos++ ] = (byte) 0; //terminating NUL char
-        index += size;
+        index ++;
+        size = pos - (sizepos + 4); // compute translated size
+        _write4int( buffer,sizepos,size);
     }
 
     public final void write_wchar(final char c)
     {
-        write_wchar( c, useBOM, true );//with length indicator
+        check(3);
+        write_char_i (c, useBOM, true, codeSetW);//with length indicator
     }
 
-    private final void write_wchar
-       (final char c, final boolean write_bom, final boolean write_length_indicator)
+    // Used by both write_wchar/wstring and write_string
+    private final void write_char_i (final char c,
+                                     final boolean write_bom,
+                                     final boolean write_length_indicator,
+                                     final int cs)
     {
-        check(3);
-
-        switch( codeSetW )
+        // alignment/check must happen prior to calling.
+        switch( cs )
         {
+            case CodeSet.ISO8859_1 :
+            {
+                buffer[pos++] = (byte) c;
+                index ++;
+                break;
+            }
             case CodeSet.UTF8 :
             {
                 if( c <= 0x007F )
@@ -900,6 +896,7 @@ public class CDROutputStream
                     }
 
                     buffer[ pos++ ] = (byte) c;
+                    index++;
                 }
                 else if( c > 0x07FF )
                 {
@@ -1009,13 +1006,13 @@ public class CDROutputStream
         // write characters in current wide encoding, add null terminator
         for( int i = 0; i < s.length(); i++ )
         {
-            write_wchar( s.charAt(i), false, false ); //no BOM
+            write_char_i( s.charAt(i), false, false, codeSetW ); //no BOM
         }
 
         if( giop_minor < 2 )
         {
             //terminating NUL char
-            write_wchar( (char)0, false, false ); //no BOM
+            write_char_i( (char)0, false, false, codeSetW ); //no BOM
         }
 
         int str_size = 0;

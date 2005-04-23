@@ -981,7 +981,7 @@ public class CDRInputStream
                 return obj;
             }
         }
-        else if (clz.isInterface() && 
+        else if (clz.isInterface() &&
                  java.rmi.Remote.class.isAssignableFrom(clz))
         {
             return (org.omg.CORBA.Object)
@@ -1075,31 +1075,28 @@ public class CDRInputStream
             pos += remainder;
         }
 
-        // read size (#bytes == #chars)
+        // read size (#bytes)
         int size = _read4int( littleEndian, buffer, pos);
-        index += 4;
-        pos += 4;
-        char[] buf = new char[ size ];
+        int start = pos + 4;
 
-        for( int i = 0; i < size; i++ )
-        {
-            buf[ i ] = (char)(0xff & buffer[pos++]);
-        }
-
-        index += size;
+        index += (size + 4);
+        pos += (size + 4);
+        String csname = CodeSet.csName(codeSet);
 
         if ((size > 0) &&
-            (buf[ size - 1 ] == 0))
+            (buffer[ start + size - 1 ] == 0))
         {
-            //omit terminating NULL char
-            result = new String( buf, 0, size - 1 );
+            size --;
         }
-        else
-        {
-            result = new String( buf );
+        try {
+          result = new String (buffer, start, size, csname);
         }
-
-        buf = null;
+        catch (java.io.UnsupportedEncodingException ex) {
+            if (logger != null && logger.isErrorEnabled()) {
+                logger.error("Charset " + csname + " is unsupported");
+                result = "";
+            }
+        }
         return result;
     }
 
@@ -2510,9 +2507,9 @@ public class CDRInputStream
                 // special handling of java.lang.Class instances
                 String classCodebase = (String)read_value(String.class);
                 String reposId = (String)read_value(String.class);
-                String className = 
+                String className =
                     org.jacorb.ir.RepositoryID.className(reposId, null);
-                ClassLoader ctxcl = 
+                ClassLoader ctxcl =
                     Thread.currentThread().getContextClassLoader();
 
                 try
@@ -2525,15 +2522,15 @@ public class CDRInputStream
                         }
                         catch (ClassNotFoundException cnfe)
                         {
-                            result = ValueHandler.loadClass(className, 
-                                                            classCodebase, 
+                            result = ValueHandler.loadClass(className,
+                                                            classCodebase,
                                                             null);
                         }
                     }
                     else
                     {
-                        result = ValueHandler.loadClass(className, 
-                                                        classCodebase, 
+                        result = ValueHandler.loadClass(className,
+                                                        classCodebase,
                                                         null);
                     }
                 }
