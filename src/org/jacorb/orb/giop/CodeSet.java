@@ -39,7 +39,7 @@ public class CodeSet
     {
         switch(cs)
         {
-            case ISO8859_1: return "ISO 8859-1";
+            case ISO8859_1: return "ISO-8859-1";
             case UTF16: return  "UTF-16";
             case UTF8: return  "UTF-8";
         }
