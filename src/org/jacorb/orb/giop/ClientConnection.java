@@ -75,7 +75,7 @@ public class ClientConnection
     private org.omg.ETF.Profile registeredProfile = null;
 
     private Logger logger = null;
-    
+
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
                              ClientConnectionManager conn_mg,
@@ -333,8 +333,10 @@ public class ClientConnection
 
         if( placeholder != null )
         {
+            ReplyInputStream ris = new ReplyInputStream (orb, reply);
+            ris.setCodeSet (this.getTCS(),this.getTCSW());
             //this will unblock the waiting thread
-            placeholder.replyReceived( new ReplyInputStream( orb, reply ));
+            placeholder.replyReceived(ris);
         }
         else
         {
