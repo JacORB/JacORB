@@ -92,7 +92,7 @@ public class ProxyPushConsumerImpl extends AbstractProxyConsumer implements
 
         checkMessageProperties(_mesg);
 
-        getTaskProcessor().processMessage(_mesg);
+        processMessage(_mesg);
     }
 
     public void connect_any_push_supplier(org.omg.CosEventComm.PushSupplier pushSupplier)

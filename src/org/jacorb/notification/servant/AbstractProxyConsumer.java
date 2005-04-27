@@ -323,4 +323,9 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
     {
         return subscriptionListener_;
     }
+    
+    protected void processMessage(Message mesg)
+    {
+        getTaskProcessor().processMessage(mesg);
+    }
 }

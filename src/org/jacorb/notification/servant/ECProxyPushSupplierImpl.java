@@ -24,7 +24,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -46,9 +46,9 @@ public class ECProxyPushSupplierImpl extends ProxyPushSupplierImpl implements
     private static final ConsumerAdmin NO_ADMIN = null;
     
     public ECProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
-            TaskProcessor taskProcessor, TaskExecutor taskExecutor) throws ConfigurationException
+            TaskProcessor taskProcessor, PushTaskExecutorFactory pushTaskExecutorFactory) throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, taskExecutor, OfferManager.NULL_MANAGER, SubscriptionManager.NULL_MANAGER, NO_ADMIN);
+        super(admin, orb, poa, conf, taskProcessor, pushTaskExecutorFactory, OfferManager.NULL_MANAGER, SubscriptionManager.NULL_MANAGER, NO_ADMIN);
     }
 
     ////////////////////////////////////////

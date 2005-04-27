@@ -148,11 +148,6 @@ public class SequenceProxyPullSupplierImpl extends StructuredProxyPullSupplierIm
         return this;
     }
 
-    public boolean hasMessageConsumer()
-    {
-        return true;
-    }
-
     protected void disconnectClient()
     {
         sequencePullConsumer_.disconnect_sequence_pull_consumer();

@@ -27,7 +27,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.MessagePushOperation;
-import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
@@ -49,7 +49,7 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
+public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         ProxyPushSupplierOperations
 {
     private class PushAnyOperation extends MessagePushOperation 
@@ -64,16 +64,17 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
     }
     
     private PushConsumer pushConsumer_;
+    
     private long timeSpent_;
 
     // //////////////////////////////////////
 
     public ProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
-            TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
+            TaskProcessor taskProcessor, PushTaskExecutorFactory pushTaskExecutorFactory, OfferManager offerManager,
             SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
             throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
+        super(admin, orb, poa, conf, taskProcessor, pushTaskExecutorFactory, offerManager,
                 subscriptionManager, consumerAdmin);
     }
 
@@ -94,13 +95,7 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
         pushConsumer_ = null;
     }
 
-    public void messageDelivered()
-    {
-        if (!isSuspended() && isEnabled())
-        {
-            deliverPendingData();
-        }
-    }
+    
 
     private void deliverMessageWithRetry(final Message message)
     {
@@ -123,7 +118,7 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
         resetErrorCounter();
     }
 
-    public void deliverPendingData()
+    public void pushPendingData()
     {
         Message[] _events = getAllMessages();
 
@@ -158,14 +153,11 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
         return this;
     }
 
-    public boolean hasMessageConsumer()
-    {
-        return true;
-    }
+   
 
     protected void connectionResumed()
     {
-        scheduleDeliverPendingMessagesOperation_.run();
+        schedulePush();
     }
 
     public synchronized Servant getServant()

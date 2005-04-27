@@ -29,7 +29,7 @@ import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.TypedEventMessage;
 import org.jacorb.notification.engine.PushOperation;
-import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
@@ -58,7 +58,7 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
+public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         TypedProxyPushSupplierOperations, ITypedProxy
 {
     private class PushTypedOperation implements PushOperation 
@@ -89,11 +89,11 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
     private long timeSpent_ = 0;
 
     public TypedProxyPushSupplierImpl(ITypedAdmin admin, ConsumerAdmin consumerAdmin, ORB orb,
-            POA poa, Configuration conf, TaskProcessor taskProcessor, TaskExecutor taskExecutor,
+            POA poa, Configuration conf, TaskProcessor taskProcessor, PushTaskExecutorFactory pushTaskExecutorFactory,
             OfferManager offerManager, SubscriptionManager subscriptionManager)
             throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
+        super(admin, orb, poa, conf, taskProcessor, pushTaskExecutorFactory, offerManager,
                 subscriptionManager, consumerAdmin);
 
         supportedInterface_ = admin.getSupportedInterface();
@@ -126,11 +126,6 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
     public ProxyType MyType()
     {
         return ProxyType.PUSH_TYPED;
-    }
-
-    public boolean hasMessageConsumer()
-    {
-        return true;
     }
 
     public MessageConsumer getMessageConsumer()
@@ -172,15 +167,8 @@ public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
         throw new IllegalArgumentException();
     }
 
-    public void messageDelivered()
-    {
-        if (isEnabled())
-        {
-            deliverPendingData();
-        }
-    }
 
-    public void deliverPendingData()
+    public void pushPendingData()
     {
         final Message[] messages = getAllMessages();
 

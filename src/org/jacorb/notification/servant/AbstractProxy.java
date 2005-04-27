@@ -418,7 +418,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         return priorityFilter_;
     }
 
-    public final void resetErrorCounter()
+    public void resetErrorCounter()
     {
         errorCounter_.set(0);
     }
@@ -501,7 +501,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         {
             logger_.fatalError("access on a not connected proxy");
 
-            dispose();
+            destroy();
 
             throw new Disconnected();
         }
@@ -524,7 +524,8 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         logger_.fatalError("Illegal state: Client think it's disconnected. "
                 + "Proxy thinks Client is still connected. The Proxy will be destroyed.", e);
 
-        container_.dispose();
+        destroy();
+        //container_.dispose();
     }
 
     protected abstract void removeListener();

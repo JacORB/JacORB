@@ -26,7 +26,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.engine.DefaultTaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
@@ -72,7 +71,7 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
     public ProxyPullSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration config, TaskProcessor taskProcessor, OfferManager offerManager, SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
             throws ConfigurationException
     {
-        super(admin, orb, poa, config, taskProcessor, DefaultTaskExecutor.getDefaultExecutor(), offerManager, subscriptionManager, consumerAdmin);
+        super(admin, orb, poa, config, taskProcessor, offerManager, subscriptionManager, consumerAdmin);
     }
 
     public ProxyType MyType()
@@ -142,15 +141,6 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
         return sUndefinedAny;
     }
 
-    /**
-     * Deliver Event to the underlying Consumer. As our Consumer is a PullConsumer we simply put the
-     * Events in a Queue. The PullConsumer will pull the Events out of the Queue at a later time.
-     */
-    public void messageDelivered()
-    {
-        // No Op
-    }
-
     public void connect_any_pull_consumer(PullConsumer consumer) throws AlreadyConnected
     {
         logger_.info("connect any_pull_consumer");
@@ -170,11 +160,6 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
     public MessageConsumer getMessageConsumer()
     {
         return this;
-    }
-
-    public boolean hasMessageConsumer()
-    {
-        return true;
     }
 
     public void enableDelivery()

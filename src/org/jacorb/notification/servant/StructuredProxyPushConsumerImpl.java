@@ -70,7 +70,7 @@ public class StructuredProxyPushConsumerImpl extends AbstractProxyConsumer imple
         Message _mesg = getMessageFactory().newMessage(structuredEvent, this);
 
         checkMessageProperties(_mesg);
-        getTaskProcessor().processMessage(_mesg);
+        processMessage(_mesg);
     }
 
     public void disconnect_structured_push_consumer()

@@ -26,7 +26,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.PushOperation;
-import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.PropertySet;
@@ -78,19 +78,27 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
             // nothing to do
         }
     }
-    
+
     public SequenceProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration config,
-            TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
+            TaskProcessor taskProcessor, PushTaskExecutorFactory pushTaskExecutorFactory, OfferManager offerManager,
             SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
             throws ConfigurationException
     {
-        super(admin, orb, poa, config, taskProcessor, taskExecutor, offerManager, subscriptionManager,
-                consumerAdmin);
+        super(admin, orb, poa, config, taskProcessor, pushTaskExecutorFactory, offerManager,
+                subscriptionManager, consumerAdmin);
 
         configureMaxBatchSize();
 
         configurePacingInterval();
 
+        schedulePushOperation_ = new Runnable()
+        {
+            public void run()
+            {
+                schedulePush();
+            }
+        };
+        
         qosSettings_.addPropertySetListener(MaximumBatchSize.value, new PropertySetAdapter()
         {
             public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
@@ -108,6 +116,8 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         });
     }
 
+    private final Runnable schedulePushOperation_;
+    
     /**
      * The connected SequencePushConsumer.
      */
@@ -129,7 +139,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
     private final SynchronizedLong pacingInterval_ = new SynchronizedLong(0);
 
     private long timeSpent_ = 0;
-    
+
     /**
      * this callback is called by the TimerDaemon. Check if there are pending Events and deliver
      * them to the Consumer. As there's only one TimerDaemon its important to block the daemon only
@@ -143,21 +153,12 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         return ProxyType.PUSH_SEQUENCE;
     }
 
-
-    public void messageDelivered()
-    {
-        if (!isSuspended() && isEnabled() && (getPendingMessagesCount() >= maxBatchSize_.get()))
-        {
-            deliverPendingMessages(false);
-        }
-    }
-
     /**
      * overrides the superclass version.
      */
-    public void deliverPendingData()
+    public void pushPendingData()
     {
-        deliverPendingMessages(true);
+        deliverPendingMessages(false);
     }
 
     private void deliverPendingMessages(boolean flush)
@@ -189,15 +190,16 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
                 deliverPendingMessagesInternal(_structuredEvents);
             } catch (Throwable e)
             {
-                PushSequenceOperation _failedOperation = new PushSequenceOperation(_structuredEvents);
+                PushSequenceOperation _failedOperation = new PushSequenceOperation(
+                        _structuredEvents);
 
                 handleFailedPushOperation(_failedOperation, e);
             }
         }
     }
 
-
-    void deliverPendingMessagesInternal(final StructuredEvent[] structuredEvents) throws Disconnected
+    void deliverPendingMessagesInternal(final StructuredEvent[] structuredEvents)
+            throws Disconnected
     {
         long now = System.currentTimeMillis();
         sequencePushConsumer_.push_structured_events(structuredEvents);
@@ -221,8 +223,8 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
     protected void connectionResumed()
     {
-        scheduleDeliverPendingMessagesOperation_.run();
-
+        schedulePush();
+        
         startCronJob();
     }
 
@@ -249,7 +251,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         if (pacingInterval_.get() > 0 && taskId_ != null)
         {
             taskId_ = getTaskProcessor().executeTaskPeriodically(pacingInterval_.get(),
-                    scheduleDeliverPendingMessagesOperation_, true);
+                    schedulePushOperation_, true);
         }
     }
 
@@ -308,7 +310,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
                 {
                     logger_.info("set MaxBatchSize=" + _maxBatchSize);
                 }
-                
+
                 maxBatchSize_.set(_maxBatchSize);
 
                 return true;
@@ -327,7 +329,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
         return thisServant_;
     }
-    
+
     protected long getCost()
     {
         return timeSpent_;

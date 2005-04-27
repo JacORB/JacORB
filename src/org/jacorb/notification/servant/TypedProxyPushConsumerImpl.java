@@ -92,7 +92,7 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
             Message _mesg = getMessageFactory().newMessage(supportedInterface_, _operationName,
                     _params, TypedProxyPushConsumerImpl.this);
 
-            getTaskProcessor().processMessage(_mesg);
+            processMessage(_mesg);
         }
 
         public String[] _all_interfaces(POA poa, byte[] oid)
@@ -109,11 +109,11 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
     // ////////////////////////////
 
     public TypedProxyPushConsumerImpl(ITypedAdmin admin, SupplierAdmin supplierAdmin, ORB orb,
-            POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory mf,
+            POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory messageFactory,
             OfferManager offerManager, SubscriptionManager subscriptionManager,
             Repository repository) throws InterfaceNotSupported
     {
-        super(admin, orb, poa, conf, taskProcessor, mf, supplierAdmin, offerManager,
+        super(admin, orb, poa, conf, taskProcessor, messageFactory, supplierAdmin, offerManager,
                 subscriptionManager);
 
         supportedInterface_ = admin.getSupportedInterface();

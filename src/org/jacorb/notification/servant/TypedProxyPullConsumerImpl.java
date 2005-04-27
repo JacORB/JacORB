@@ -202,7 +202,7 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
                 checkMessageProperties(_mesg);
 
-                getTaskProcessor().processMessage(_mesg);
+                processMessage(_mesg);
             }
         }
     }

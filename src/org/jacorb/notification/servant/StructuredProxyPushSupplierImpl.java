@@ -28,7 +28,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.MessagePushOperation;
-import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
@@ -54,7 +54,7 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier implements
+public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         StructuredProxyPushSupplierOperations
 {
     private class PushStructuredOperation extends MessagePushOperation 
@@ -87,16 +87,16 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
     private StructuredPushConsumerOperations pushConsumer_;
 
     private long timeSpent_;
-
+    
     // //////////////////////////////////////
 
     public StructuredProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
-            TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
+            TaskProcessor taskProcessor, PushTaskExecutorFactory pushTaskExecutorFactory, OfferManager offerManager,
             SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
             throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
-                subscriptionManager, consumerAdmin);
+        super(admin, orb, poa, conf, taskProcessor, pushTaskExecutorFactory, offerManager,
+                subscriptionManager, consumerAdmin);        
     }
 
     public ProxyType MyType()
@@ -104,28 +104,20 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
         return ProxyType.PUSH_STRUCTURED;
     }
 
-    public void messageDelivered()
+    public void pushPendingData()
     {
-        if (!isSuspended() && isEnabled())
-        {
-            deliverPendingData();
-        }
-    }
+        Message[] _mesgs = getAllMessages();
 
-    public void deliverPendingData()
-    {
-        Message[] _events = getAllMessages();
-
-        if (_events != null)
+        if (_mesgs != null)
         {
-            for (int x = 0; x < _events.length; ++x)
+            for (int x = 0; x < _mesgs.length; ++x)
             {
                 try
                 {
-                    deliverMessageWithRetry(_events[x]);
+                    deliverMessageWithRetry(_mesgs[x]);
                 } finally
                 {
-                    _events[x].dispose();
+                    _mesgs[x].dispose();
                 }
             }
         }
@@ -135,8 +127,6 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
     {
         try
         {
-            logger_.debug("push to consumer");
-            
             deliverMessageInternal(message);
         } catch (Throwable e)
         {
@@ -176,7 +166,7 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
 
     protected void connectionResumed()
     {
-        scheduleDeliverPendingMessagesOperation_.run();
+        schedulePush();
     }
 
     protected void disconnectClient()
@@ -194,11 +184,6 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
     public MessageConsumer getMessageConsumer()
     {
         return this;
-    }
-
-    public boolean hasMessageConsumer()
-    {
-        return true;
     }
 
     public synchronized Servant getServant()

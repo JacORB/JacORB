@@ -104,7 +104,7 @@ public class SequenceProxyPullConsumerImpl extends StructuredProxyPullConsumerIm
             {
                 Message msg = getMessageFactory().newMessage(_events[x], this);
 
-                getTaskProcessor().processMessage(msg);
+                processMessage(msg);
             }
         }
     }

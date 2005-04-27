@@ -26,12 +26,6 @@ import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
-import org.jacorb.notification.engine.AbstractRetryStrategy;
-import org.jacorb.notification.engine.PushOperation;
-import org.jacorb.notification.engine.RetryException;
-import org.jacorb.notification.engine.RetryStrategy;
-import org.jacorb.notification.engine.RetryStrategyFactory;
-import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
@@ -40,7 +34,6 @@ import org.jacorb.notification.queue.MessageQueueAdapter;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetAdapter;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.DiscardPolicy;
@@ -49,15 +42,12 @@ import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifyPublish;
 import org.omg.CosNotifyComm.NotifyPublishHelper;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.PortableServer.POA;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.defaults.DefaultPicoContainer;
 
 /**
  * Abstract base class for ProxySuppliers. This class provides following logic for the different
@@ -88,15 +78,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 
     // //////////////////////////////////////
 
-    /**
-     * Check if there are pending Messages and deliver them to the Consumer. the operation is not
-     * executed immediately. instead it is scheduled to the Push Thread Pool. only initialized for
-     * ProxyPushSuppliers.
-     */
-    protected final Runnable scheduleDeliverPendingMessagesOperation_;
-
-    private final TaskExecutor taskExecutor_;
-
     private final RWLockEventQueueDecorator pendingMessages_;
 
     private final int errorThreshold_;
@@ -105,28 +86,19 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 
     private final EventQueueFactory eventQueueFactory_;
 
-    private final RetryStrategyFactory retryStrategyFactory_;
-
     private NotifyPublishOperations proxyOfferListener_;
 
     private NotifyPublish offerListener_;
 
-    /**
-     * flag to indicate that this ProxySupplier may invoke remote calls during deliverMessage.
-     */
-    private boolean enabled_ = true;
-
     // //////////////////////////////////////
 
     protected AbstractProxySupplier(IAdmin admin, ORB orb, POA poa, Configuration conf,
-            TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
-            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
+            TaskProcessor taskProcessor, OfferManager offerManager, SubscriptionManager subscriptionManager,
+            ConsumerAdmin consumerAdmin)
             throws ConfigurationException
     {
         super(admin, orb, poa, conf, taskProcessor, offerManager, subscriptionManager);
-
-        taskExecutor_ = taskExecutor;
-
+        
         consumerAdmin_ = consumerAdmin;
 
         eventQueueFactory_ = new EventQueueFactory(conf);
@@ -137,27 +109,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         if (logger_.isInfoEnabled())
         {
             logger_.info("set Error Threshold to : " + errorThreshold_);
-        }
-
-        if (isPushSupplier())
-        {
-            scheduleDeliverPendingMessagesOperation_ = new Runnable()
-            {
-                public void run()
-                {
-                    try
-                    {
-                        getTaskProcessor().scheduleTimedPushTask(AbstractProxySupplier.this);
-                    } catch (InterruptedException e)
-                    {
-                        logger_.info("scheduleTimedPushTask interrupted", e);
-                    }
-                }
-            };
-        }
-        else
-        {
-            scheduleDeliverPendingMessagesOperation_ = EMPTY_RUNNABLE;
         }
 
         qosSettings_.addPropertySetListener(
@@ -174,8 +125,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         {
             throw new RuntimeException();
         }
-
-        retryStrategyFactory_ = newRetryStrategyFactory(conf, taskProcessor);
     }
 
     // //////////////////////////////////////
@@ -210,10 +159,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         }
     };
 
-    public TaskExecutor getExecutor()
-    {
-        return taskExecutor_;
-    }
+    
 
     public int getPendingMessagesCount()
     {
@@ -245,11 +191,11 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
      */
     protected void enqueue(Message message)
     {
-        final Message _messageClone = (Message) message.clone();
+        Message _copy = (Message) message.clone();
 
         try
         {
-            pendingMessages_.enqeue(_messageClone);
+            pendingMessages_.enqeue(message);
 
             if (logger_.isDebugEnabled())
             {
@@ -257,7 +203,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
             }
         } catch (InterruptedException e)
         {
-            _messageClone.dispose();
+            _copy.dispose();
             logger_.info("enqueue was interrupted", e);
         }
     }
@@ -298,7 +244,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         if (logger_.isDebugEnabled())
         {
             logger_.debug("deliverMessage() connected=" + isConnected() + " suspended="
-                    + isSuspended() + " enabled=" + isEnabled());
+                    + isSuspended());
         }
 
         if (isConnected())
@@ -309,7 +255,13 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         }
     }
 
-    protected abstract void messageDelivered();
+    /**
+     * this is an extension point.
+     */
+    protected void messageDelivered()
+    {
+        // no operation
+    }
 
     /**
      * @param max
@@ -359,8 +311,8 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         pendingMessages_.clear();
 
         // insert an empty command into the taskProcessor's queue.
-        // otherwise queue seems to contain old entries that prevent GC'ing 
-        getTaskProcessor().executeTaskAfterDelay(getTaskProcessor().getBackoutInterval() * 2, EMPTY_RUNNABLE);
+        // otherwise queue seems to contain old entries that prevent GC'ing
+        getTaskProcessor().executeTaskAfterDelay(1000, EMPTY_RUNNABLE);
     }
 
     public final ConsumerAdmin MyAdmin()
@@ -464,101 +416,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         }
     }
 
-    public synchronized void enableDelivery()
-    {
-        enabled_ = true;
-    }
-
-    public synchronized void disableDelivery()
-    {
-        enabled_ = false;
-    }
-
-    protected synchronized boolean isEnabled()
-    {
-        return enabled_;
-    }
-
-    public boolean isPushSupplier()
-    {
-        switch (MyType().value()) {
-        case ProxyType._PUSH_ANY:
-        // fallthrough
-        case ProxyType._PUSH_STRUCTURED:
-        // fallthrough
-        case ProxyType._PUSH_SEQUENCE:
-        // fallthrough
-        case ProxyType._PUSH_TYPED:
-            return true;
-        default:
-            return false;
-        }
-    }
-
-    protected void handleFailedPushOperation(PushOperation operation, Throwable error)
-    {
-        if (AbstractRetryStrategy.isFatalException(error))
-        {
-            // push operation caused a fatal exception
-            // destroy the ProxySupplier
-            if (logger_.isErrorEnabled())
-            {
-                logger_.error("push raised " + error + ": will destroy ProxySupplier, "
-                        + "disconnect Consumer", error);
-            }
-
-            operation.dispose();
-            dispose();
-
-            return;
-        }
-
-        if (!isDisposed())
-        {
-            RetryStrategy _retry = newRetryStrategy(this, operation);
-
-            try
-            {
-                _retry.retry();
-            } catch (RetryException e)
-            {
-                logger_.error("retry failed", e);
-
-                _retry.dispose();
-                dispose();
-            }
-        }
-    }
-
-    private RetryStrategy newRetryStrategy(MessageConsumer mc, PushOperation op)
-    {
-        return retryStrategyFactory_.newRetryStrategy(mc, op);
-    }
-
-    private RetryStrategyFactory newRetryStrategyFactory(Configuration config,
-            TaskProcessor taskProcessor) throws ConfigurationException
-    {
-        String factoryName = config.getAttribute(Attributes.RETRY_STRATEGY_FACTORY,
-                Default.DEFAULT_RETRY_STRATEGY_FACTORY);
-
-        try
-        {
-            Class factoryClazz = ObjectUtil.classForName(factoryName);
-
-            MutablePicoContainer pico = new DefaultPicoContainer();
-
-            pico.registerComponentInstance(TaskProcessor.class, taskProcessor);
-
-            pico.registerComponentImplementation(RetryStrategyFactory.class, factoryClazz);
-
-            return (RetryStrategyFactory) pico.getComponentInstance(RetryStrategyFactory.class);
-
-        } catch (ClassNotFoundException e)
-        {
-            throw new ConfigurationException(Attributes.RETRY_STRATEGY_FACTORY, e);
-        }
-    }
-
     public boolean isRetryAllowed()
     {
         return !isDisposed() && getErrorCounter() < getErrorThreshold();
@@ -571,5 +428,10 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         AbstractProxySupplier other = (AbstractProxySupplier) o;
 
         return (int) (getCost() - other.getCost());
+    }
+
+    public final boolean hasMessageConsumer()
+    {
+        return true;
     }
 }

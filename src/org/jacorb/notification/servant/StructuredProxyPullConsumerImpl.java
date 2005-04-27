@@ -78,12 +78,7 @@ public class StructuredProxyPullConsumerImpl
         {
             public void run()
             {
-                try
-                {
-                    getTaskProcessor().scheduleTimedPullTask(StructuredProxyPullConsumerImpl.this );
-                }
-                catch ( InterruptedException ie )
-                {}
+                schedulePullTask(StructuredProxyPullConsumerImpl.this);
             }
         };
     }
@@ -100,8 +95,8 @@ public class StructuredProxyPullConsumerImpl
         super.configure (conf);
 
         pollInterval_ =
-            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLLINTERVALL,
-                                        Default.DEFAULT_PROXY_POLL_INTERVALL);
+            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLL_INTERVAL,
+                                        Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
     }
 
 
@@ -170,10 +165,10 @@ public class StructuredProxyPullConsumerImpl
 
         if ( _hasEvent.value )
         {
-            Message _notifyEvent =
+            Message _mesg =
                 getMessageFactory().newMessage( _event, this );
 
-            getTaskProcessor().processMessage( _notifyEvent );
+            processMessage( _mesg );
         }
     }
 

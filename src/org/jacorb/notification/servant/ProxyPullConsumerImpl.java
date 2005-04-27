@@ -101,8 +101,8 @@ public class ProxyPullConsumerImpl
 
         
         pollInterval_ =
-            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLLINTERVALL,
-                                     Default.DEFAULT_PROXY_POLL_INTERVALL);
+            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLL_INTERVAL,
+                                     Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
     
         runQueueThis_ = new Runnable()
         {
@@ -194,7 +194,7 @@ public class ProxyPullConsumerImpl
 
                 checkMessageProperties(_message);
 
-                getTaskProcessor().processMessage( _message );
+                processMessage( _message );
             }
     }
 
