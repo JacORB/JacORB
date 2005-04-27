@@ -23,9 +23,11 @@ package org.jacorb.test.notification.servant;
 
 import junit.framework.Test;
 
+import org.apache.avalon.framework.configuration.Configuration;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.DefaultPushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
@@ -33,6 +35,7 @@ import org.jacorb.notification.servant.IAdmin;
 import org.jacorb.notification.servant.StructuredProxyPushSupplierImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
+import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
 
@@ -71,12 +74,15 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
         controlAdmin.replay();
 
+        MockControl controlConfig = MockControl.createControl(Configuration.class);
+        Configuration mockConfig = (Configuration) controlConfig.getMock();
+
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
         controlTaskExecutor_ = MockControl.createControl(TaskExecutor.class);
         mockTaskExecutor_ = (TaskExecutor) controlTaskExecutor_.getMock();
         objectUnderTest_ = new StructuredProxyPushSupplierImpl(mockAdmin, getORB(), getPOA(),
-                getConfiguration(), mockTaskProcessor_, mockTaskExecutor_, new OfferManager(),
+                getConfiguration(), mockTaskProcessor_, new DefaultPushTaskExecutorFactory(1), new OfferManager(),
                 new SubscriptionManager(), null);
 
         assertEquals(new Integer(10), objectUnderTest_.getID());
@@ -92,7 +98,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         super(name, setup);
     }
 
-    public void testDeliverMessage_NotConnectedDoesNotAccessMessage()
+    public void testDeliveryToNotConnectedDoesNotAccessMessage()
     {
         MockControl controlMessage = MockControl.createStrictControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
@@ -112,7 +118,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         controlTaskProcessor_.verify();
     }
 
-    public void testDeliverMessage_EnqueueClonesMessages() throws Exception
+    public void testDeliveryToDisabledConsumerEnqueues() throws Exception
     {
         MockControl controlMessage = MockControl.createStrictControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
@@ -144,7 +150,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         controlTaskProcessor_.verify();
     }
 
-    public void testDeliverMessageDoesCloneAndDisposeMessage() throws Exception
+    public void testDeliveryToConsumerDoesEnqueueAndDisposeMessage() throws Exception
     {
         StructuredEvent event = new StructuredEvent();
 
@@ -153,17 +159,15 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
         mockMessage.clone();
         controlMessage.setReturnValue(mockMessage);
-        
+
         mockMessage.toStructuredEvent();
         controlMessage.setReturnValue(event);
 
         mockMessage.dispose();
-        
+
         controlMessage.replay();
 
         controlTaskExecutor_.replay();
-
-        controlTaskProcessor_.replay();
 
         MockControl controlStructuredPushConsumer = MockControl
                 .createControl(StructuredPushConsumer.class);
@@ -177,6 +181,54 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         objectUnderTest_.connect_structured_push_consumer(mockStructuredPushConsumer);
 
         objectUnderTest_.deliverMessage(mockMessage);
+
+        objectUnderTest_.pushPendingData();
+
+        controlMessage.verify();
+
+        controlTaskExecutor_.verify();
+    }
+
+    public void testFailedDeliveryToConsumerDoesNotDisposeMessage() throws Exception
+    {
+        StructuredEvent event = new StructuredEvent();
+
+        MockControl controlMessage = MockControl.createControl(Message.class);
+        Message mockMessage = (Message) controlMessage.getMock();
+
+        mockMessage.clone();
+        controlMessage.setReturnValue(mockMessage, 2);
+
+        mockMessage.toStructuredEvent();
+        controlMessage.setReturnValue(event);
+
+        mockMessage.dispose();
+
+        controlMessage.replay();
+
+        controlTaskExecutor_.replay();
+
+        mockTaskProcessor_.executeTaskAfterDelay(0, null);
+        controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlTaskProcessor_.setReturnValue(null);
+
+        controlTaskProcessor_.replay();
+
+        MockControl controlStructuredPushConsumer = MockControl
+                .createControl(StructuredPushConsumer.class);
+        StructuredPushConsumer mockStructuredPushConsumer = (StructuredPushConsumer) controlStructuredPushConsumer
+                .getMock();
+
+        mockStructuredPushConsumer.push_structured_event(event);
+        controlStructuredPushConsumer.setThrowable(new TRANSIENT());
+
+        controlStructuredPushConsumer.replay();
+
+        objectUnderTest_.connect_structured_push_consumer(mockStructuredPushConsumer);
+
+        objectUnderTest_.deliverMessage(mockMessage);
+
+        objectUnderTest_.pushPendingData();
 
         controlMessage.verify();
 

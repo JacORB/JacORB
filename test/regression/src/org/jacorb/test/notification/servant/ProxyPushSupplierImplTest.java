@@ -23,9 +23,13 @@ package org.jacorb.test.notification.servant;
 
 import junit.framework.Test;
 
+import org.apache.avalon.framework.configuration.Configuration;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.engine.DefaultPushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
@@ -83,13 +87,16 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         ConsumerAdmin mockConsumerAdmin = (ConsumerAdmin) controlConsumerAdmin.getMock();
 
         controlConsumerAdmin.replay();
-        
+
+        MockControl controlConfig = MockControl.createControl(Configuration.class);
+        Configuration mockConfig = (Configuration) controlConfig.getMock();
+
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
         controlTaskExecutor_ = MockControl.createControl(TaskExecutor.class);
         mockTaskExecutor_ = (TaskExecutor) controlTaskExecutor_.getMock();
         objectUnderTest_ = new ProxyPushSupplierImpl(mockAdmin, getORB(), getPOA(),
-                getConfiguration(), mockTaskProcessor_, mockTaskExecutor_, new OfferManager(),
+                getConfiguration(), mockTaskProcessor_, new DefaultPushTaskExecutorFactory(1), new OfferManager(),
                 new SubscriptionManager(), mockConsumerAdmin);
 
         assertEquals(new Integer(10), objectUnderTest_.getID());
@@ -120,12 +127,11 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
         controlPushConsumer.replay();
 
-        mockTaskProcessor_.getBackoutInterval();
-        controlTaskProcessor_.setReturnValue(0);
-
         mockTaskProcessor_.executeTaskAfterDelay(0, null);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
         controlTaskProcessor_.setReturnValue(new Object());
+
+        mockTaskProcessor_.schedulePushOperation(objectUnderTest_);
 
         controlTaskProcessor_.replay();
 
