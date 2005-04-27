@@ -23,12 +23,11 @@ package org.jacorb.notification.container;
 
 import java.lang.reflect.Constructor;
 
-import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.conf.Attributes;
-import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.engine.ConfigurablePushTaskExecutorFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
+import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.filter.impl.DefaultETCLEvaluator;
@@ -36,12 +35,12 @@ import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.impl.PoolingEvaluationContextFactory;
 import org.jacorb.notification.interfaces.EvaluationContextFactory;
 import org.jacorb.orb.ORB;
-
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.defaults.CachingComponentAdapter;
 import org.picocontainer.defaults.ComponentAdapterFactory;
+import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapterFactory;
 import org.picocontainer.defaults.DefaultPicoContainer;
 
@@ -100,7 +99,12 @@ public class PicoContainerFactory
                 new FilterFactoryComponentAdapter()));
 
         _container.registerComponent(new CachingComponentAdapter(new RepositoryComponentAdapter()));
-    
+
+        _container.registerComponent(new CachingComponentAdapter(
+                new PushTaskExecutorFactoryComponentAdapter(
+                        new ConstructorInjectionComponentAdapter(PushTaskExecutorFactory.class,
+                                ConfigurablePushTaskExecutorFactory.class))));
+
         // register core services
 
         // etcl evaluator
@@ -118,7 +122,7 @@ public class PicoContainerFactory
         _container.registerComponent(_messageFactoryAdapter);
 
         // taskprocessor
-        
+
         ComponentAdapter _taskProcessorAdapter = newComponentAdapter(_container,
                 TaskProcessor.class, DefaultTaskProcessor.class);
 
@@ -155,54 +159,30 @@ public class PicoContainerFactory
                 implementation, null));
     }
 
-    public static ComponentAdapter newDeliverTaskExecutorComponentAdapter(PicoContainer container)
-    {
-        final Configuration config = (Configuration) container.getComponentInstance(Configuration.class);
-    
-        final String _threadPolicy = config.getAttribute(Attributes.THREADPOLICY,
-                Default.DEFAULT_THREADPOLICY);
-    
-        if ("ThreadPool".equalsIgnoreCase(_threadPolicy))
-        {
-            return new CachingComponentAdapter(new ThreadPoolTaskExecutorComponentAdapter());
-        }
-        else if ("ThreadPerProxy".equalsIgnoreCase(_threadPolicy))
-        {
-            ComponentAdapter adapter = new PerProxyPushTaskExecutorComponentAdapter();
-            
-            return new NonCachingRememberingComponentAdapter(adapter);
-        }
-        else
-        {
-            throw new IllegalArgumentException("The specified value: \"" + _threadPolicy
-                    + "\" specified in property: \"" + Attributes.THREADPOLICY + "\" is invalid");
-        }
-    }
-    
     /**
-     * helper method for easier debugging of unresolved 
-     * dependencies.
-     *  
+     * helper method for easier debugging of unresolved dependencies.
+     * 
      * DO NOT DELETE even if method is not referenced.
      */
     public static void dumpDependencies(PicoContainer container, Class clazzToBeCreated)
     {
-        try {
+        try
+        {
             Constructor[] ctors = clazzToBeCreated.getConstructors();
-            
+
             StringBuffer b = new StringBuffer();
             for (int i = 0; i < ctors.length; i++)
             {
                 Constructor constructor = ctors[i];
-                
+
                 b.append(constructor);
                 b.append("\n");
                 Class[] params = constructor.getParameterTypes();
-                
+
                 for (int j = 0; j < params.length; j++)
                 {
                     Class param = params[j];
-                    
+
                     boolean resolvable = container.getComponentInstanceOfType(param) != null;
                     b.append(j);
                     b.append(": ");
@@ -212,7 +192,7 @@ public class PicoContainerFactory
                     b.append("\n");
                 }
             }
-            
+
             System.err.println(b.toString());
         } catch (Exception e)
         {
