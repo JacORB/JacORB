@@ -354,9 +354,9 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     /**
      * get the Type of this NotificationEvent. The value is one of
-     * {@link org.jacorb.notification.interfaces.Message#TYPE_ANYTYPE_ANY},{@link
-     * org.jacorb.notification.interfaces.Message#TYPE_STRUCTURED TYPE_STRUCTURED}, or {@link
-     * org.jacorb.notification.interfaces.Message#TYPE_TYPED TYPE_TYPED}.
+     * {@link org.jacorb.notification.interfaces.Message#TYPE_ANY},{@link
+     * org.jacorb.notification.interfaces.Message#TYPE_STRUCTURED}, or {@link
+     * org.jacorb.notification.interfaces.Message#TYPE_TYPED}.
      * 
      * @return the Type of this NotificationEvent.
      */
