@@ -26,11 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.FilterStageSource;
@@ -74,7 +71,7 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
  * @version $Id$
  */
 
-public abstract class AbstractEventChannel implements Disposable, Configurable, ManageableServant
+public abstract class AbstractEventChannel implements Disposable, ManageableServant
 {
     /**
      * This key is reserved for the default supplier admin and the default consumer admin.
@@ -215,9 +212,6 @@ public abstract class AbstractEventChannel implements Disposable, Configurable, 
         container_.registerComponent(new CachingComponentAdapter(
                 new ConstructorInjectionComponentAdapter(OfferManager.class, OfferManager.class)));
 
-        container_.registerComponent(PicoContainerFactory
-                .newDeliverTaskExecutorComponentAdapter(container_));
-
         adminSettings_ = new AdminPropertySet(configuration_);
 
         qosSettings_ = new QoSPropertySet(configuration_, QoSPropertySet.CHANNEL_QOS);
@@ -238,11 +232,6 @@ public abstract class AbstractEventChannel implements Disposable, Configurable, 
                 }
             }
         };
-    }
-
-    
-    public void configure(Configuration conf) throws ConfigurationException
-    {
     }
 
     ////////////////////////////////////////
