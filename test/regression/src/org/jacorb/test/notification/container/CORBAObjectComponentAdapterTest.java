@@ -37,7 +37,7 @@ import org.picocontainer.defaults.DefaultPicoContainer;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class ReferenceComponentAdapterTest extends TestCase
+public class CORBAObjectComponentAdapterTest extends TestCase
 {
     private MutablePicoContainer container;
 
@@ -83,17 +83,18 @@ public class ReferenceComponentAdapterTest extends TestCase
             fail();
         } catch (AssignabilityRegistrationException e)
         {
+            // expected
         }
         controlObject.verify();
     }
 
-    public ReferenceComponentAdapterTest(String name)
+    public CORBAObjectComponentAdapterTest(String name)
     {
         super(name);
     }
 
     public static Test suite()
     {
-        return new TestSuite(ReferenceComponentAdapterTest.class);
+        return new TestSuite(CORBAObjectComponentAdapterTest.class);
     }
 }

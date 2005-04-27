@@ -34,10 +34,8 @@ public class PackageTest extends TestSuite
     {
         TestSuite suite = new TestSuite("Tests in package org.jacorb.test.notification.container");
         
-        suite.addTest(ReferenceComponentAdapterTest.suite());
+        suite.addTest(CORBAObjectComponentAdapterTest.suite());
         suite.addTest(CoreContainerFactoryTest.suite());
-        suite.addTest(DeliverTaskExecutorComponentAdapterTest.suite());
-        suite.addTest(NonCachingRememberingComponentAdapterTest.suite());
         
         return suite;
      }
