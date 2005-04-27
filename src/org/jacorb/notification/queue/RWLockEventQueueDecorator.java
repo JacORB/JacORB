@@ -38,7 +38,7 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
     private final ReadWriteLock delegateLock_ = new WriterPreferenceReadWriteLock();
 
     /**
-     * note that multithreaded access to this member is protected by pendingMessagesLock_
+     * multithreaded access to this member is protected by pendingMessagesLock_
      */
     private MessageQueueAdapter delegate_;
 
@@ -67,7 +67,7 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
 
         try
         {
-            if (!delegate_.hasPendingMessages())
+            if (delegate_.hasPendingMessages())
             {
                 Message[] _allMessages = delegate_.getAllMessages();
                 for (int x = 0; x < _allMessages.length; ++x)
@@ -203,5 +203,10 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
         {
             delegateLock_.writeLock().release();
         }
+    }
+    
+    public String toString()
+    {
+        return delegate_.toString();
     }
 }
