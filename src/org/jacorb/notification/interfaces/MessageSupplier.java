@@ -32,11 +32,13 @@ import org.omg.CosEventComm.Disconnected;
  * @version $Id$
  */
 
-public interface MessageSupplier extends Disposable {
+public interface MessageSupplier {
 
     /**
      * the implementation pulls one or more events from its Supplier
      * and hands over the pulled events to the TaskProcessor.
      */
     void runPullMessage() throws Disconnected;
+    
+    void destroy();
 }
