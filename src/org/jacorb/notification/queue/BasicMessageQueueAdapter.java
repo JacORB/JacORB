@@ -143,4 +143,9 @@ public class BasicMessageQueueAdapter implements MessageQueueAdapter
             // should not happen as above call does not wait.
         }
     }
+    
+    public String toString()
+    {
+        return queue_.toString();
+    }
 }
