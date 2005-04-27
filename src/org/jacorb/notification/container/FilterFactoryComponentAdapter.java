@@ -37,6 +37,8 @@ import org.picocontainer.defaults.AbstractComponentAdapter;
 
 class FilterFactoryComponentAdapter extends AbstractComponentAdapter
 {
+    private static final long serialVersionUID = 1L;
+    
     private final Logger logger_ = LogUtil.getLogger(getClass().getName());
 
     public FilterFactoryComponentAdapter()

@@ -29,6 +29,8 @@ import org.picocontainer.defaults.AbstractComponentAdapter;
 
 public class DynAnyFactoryComponentAdapter extends AbstractComponentAdapter
 {
+    private static final long serialVersionUID = 1L;
+
     public DynAnyFactoryComponentAdapter()
     {
         super(DynAnyFactory.class, DynAnyFactory.class);
@@ -49,6 +51,6 @@ public class DynAnyFactoryComponentAdapter extends AbstractComponentAdapter
 
     public void verify(PicoContainer container)
     {
-        
+        // no op
     }
 }

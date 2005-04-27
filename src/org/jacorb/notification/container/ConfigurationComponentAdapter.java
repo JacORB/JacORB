@@ -27,6 +27,8 @@ import org.picocontainer.defaults.AbstractComponentAdapter;
 
 class ConfigurationComponentAdapter extends AbstractComponentAdapter
 {
+    private static final long serialVersionUID = 1L;
+
     public ConfigurationComponentAdapter()
     {
         super(Configuration.class, Configuration.class);

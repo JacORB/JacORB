@@ -29,6 +29,8 @@ import org.picocontainer.defaults.AbstractComponentAdapter;
 
 class POAComponentAdapter extends AbstractComponentAdapter
 {
+    private static final long serialVersionUID = 1L;
+    
     public POAComponentAdapter()
     {
         super(POA.class, POA.class);
@@ -51,5 +53,6 @@ class POAComponentAdapter extends AbstractComponentAdapter
 
     public void verify(PicoContainer container)
     {
+        // no op
     }
 }

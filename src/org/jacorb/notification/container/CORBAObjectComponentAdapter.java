@@ -36,6 +36,8 @@ import org.picocontainer.defaults.AssignabilityRegistrationException;
  */
 public class CORBAObjectComponentAdapter extends AbstractComponentAdapter
 {
+    private static final long serialVersionUID = 1L;
+    
     private final org.omg.CORBA.Object delegate_;
 
     /**
