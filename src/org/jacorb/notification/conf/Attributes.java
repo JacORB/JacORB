@@ -37,7 +37,7 @@ public interface Attributes
     String PULL_POOL_WORKERS =
         "jacorb.notification.proxyconsumer.thread_pool_size";
 
-    String PULL_CONSUMER_POLLINTERVALL =
+    String PULL_CONSUMER_POLL_INTERVAL =
         "jacorb.notification.supplier.poll_intervall";
 
     String MAX_BATCH_SIZE =

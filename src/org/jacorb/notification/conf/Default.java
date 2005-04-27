@@ -31,7 +31,7 @@ import org.jacorb.notification.util.WeakCacheWildcardMap;
 
 public interface Default
 {
-    long DEFAULT_PROXY_POLL_INTERVALL = 1000L;
+    long DEFAULT_PULL_CONSUMER_POLL_INTERVAL = 1000L;
 
     String DEFAULT_ORDER_POLICY = "PriorityOrder";
 
@@ -43,7 +43,7 @@ public interface Default
 
     int DEFAULT_FILTER_POOL_SIZE = 2;
 
-    int DEFAULT_DELIVER_POOL_SIZE = 4;
+    int DEFAULT_DELIVER_POOL_WORKERS = 4;
 
     int DEFAULT_BACKOUT_INTERVAL = 2000;
 
