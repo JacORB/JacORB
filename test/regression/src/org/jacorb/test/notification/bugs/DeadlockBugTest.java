@@ -152,9 +152,6 @@ public class DeadlockBugTest extends TestCase
         putter.interrupt();
     }
 
-    /**
-     * @return
-     */
     public static Test suite()
     {
         return new TestSuite(DeadlockBugTest.class);
