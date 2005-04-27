@@ -29,17 +29,20 @@ import org.jacorb.notification.util.GNUPatternWrapper;
  * @version $Id$
  */
 
-public class GNUPatternWrapperTest extends AbstractPatternWrapperTest {
-
-    public GNUPatternWrapperTest(String name) {
+public class GNUPatternWrapperTest extends AbstractPatternWrapperTest
+{
+    public GNUPatternWrapperTest(String name)
+    {
         super(name);
     }
 
-    protected PatternWrapper newPattern() {
+    protected PatternWrapper newPattern()
+    {
         return new GNUPatternWrapper();
     }
 
-    public static TestSuite suite(){
+    public static TestSuite suite()
+    {
         TestSuite suite = new TestSuite(GNUPatternWrapperTest.class);
 
         return suite;

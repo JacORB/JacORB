@@ -28,17 +28,20 @@ import org.jacorb.notification.util.JakartaRegexpPatternWrapper;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class JakartaRegexpPatternWrapperTest extends AbstractPatternWrapperTest {
-
-    public JakartaRegexpPatternWrapperTest(String name) {
+public class JakartaRegexpPatternWrapperTest extends AbstractPatternWrapperTest
+{
+    public JakartaRegexpPatternWrapperTest(String name)
+    {
         super(name);
     }
 
-    public PatternWrapper newPattern() {
+    public PatternWrapper newPattern()
+    {
         return new JakartaRegexpPatternWrapper();
     }
 
-    public static TestSuite suite(){
+    public static TestSuite suite()
+    {
         TestSuite suite = new TestSuite(JakartaRegexpPatternWrapperTest.class);
 
         return suite;
