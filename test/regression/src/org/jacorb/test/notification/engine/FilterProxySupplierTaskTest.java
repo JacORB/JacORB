@@ -24,7 +24,6 @@ package org.jacorb.test.notification.engine;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.jacorb.notification.engine.AbstractDeliverTask;
 import org.jacorb.notification.engine.AbstractFilterTask;
 import org.jacorb.notification.engine.FilterProxySupplierTask;
 import org.jacorb.notification.interfaces.FilterStage;
@@ -48,7 +47,7 @@ public class FilterProxySupplierTaskTest extends AbstractFilterTaskTestCase
     
     protected AbstractFilterTask newObjectUnderTest()
     {
-        objectUnderTest_ = new FilterProxySupplierTask(mockTaskExecutor_, mockTaskProcessor_, mockTaskFactory_);
+        objectUnderTest_ = new FilterProxySupplierTask(mockTaskFactory_, mockTaskExecutor_);
         
         return objectUnderTest_;
     }
@@ -77,8 +76,7 @@ public class FilterProxySupplierTaskTest extends AbstractFilterTaskTestCase
        
         controlFilterStage_.replay();
         
-        mockTaskFactory_.newPushToConsumerTask(objectUnderTest_);
-        controlTaskFactory_.setReturnValue(new AbstractDeliverTask[0]);
+        mockTaskFactory_.enqueueMessage(objectUnderTest_);
         controlTaskFactory_.replay();
         
         /////////////////////

@@ -20,7 +20,7 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.interfaces.IProxyPushSupplier;
 
 /**
  * @author Alphonse Bendt
@@ -39,15 +39,15 @@ public class WaitRetryStrategy extends AbstractRetryStrategy
 
     // //////////////////////////////////////
 
-    public WaitRetryStrategy(MessageConsumer messageConsumer, PushOperation pushOperation)
+    public WaitRetryStrategy(IProxyPushSupplier pushSupplier, PushOperation pushOperation)
     {
-        this(messageConsumer, pushOperation, WAIT_TIME_DEFAULT, WAIT_INCREMENT_DEFAULT);
+        this(pushSupplier, pushOperation, WAIT_TIME_DEFAULT, WAIT_INCREMENT_DEFAULT);
     }
 
-    public WaitRetryStrategy(MessageConsumer messageConsumer, PushOperation pushOperation,
+    public WaitRetryStrategy(IProxyPushSupplier pushSupplier, PushOperation pushOperation,
             long startingWaitTime, long waitTimeIncrement)
     {
-        super(messageConsumer, pushOperation);
+        super(pushSupplier, pushOperation);
 
         currentTimeToWait_ = startingWaitTime;
 

@@ -28,8 +28,8 @@ import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.IProxyPushSupplier;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
@@ -73,26 +73,26 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
         }
     }
 
-    ////////////////////
+    // //////////////////
 
     private class DeferedStopTask implements Runnable
     {
-        final Message event_;
+        final Message message_;
 
-        public DeferedStopTask(Message event)
+        public DeferedStopTask(Message message)
         {
-            event_ = event;
+            message_ = message;
 
-            executeTaskAt(event.getStopTime(), this);
+            executeTaskAt(message.getStopTime(), this);
         }
 
         public void run()
         {
-            event_.actionTimeout();
+            message_.actionTimeout();
         }
     }
 
-    ////////////////////
+    // //////////////////
 
     class DeferedStartTask implements Runnable
     {
@@ -122,7 +122,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
         }
     }
 
-    ////////////////////
+    // //////////////////
 
     final Logger logger_;
 
@@ -146,13 +146,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
      */
     private DefaultTaskFactory taskFactory_;
 
-    /**
-     * specify how long a ProxySupplier should be disabled in case delivering messages to its
-     * Consumer fails.
-     */
-    private long backoutInterval_;
-
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     /**
      * Start ClockDaemon Set up TaskExecutors Set up TaskFactory
@@ -186,11 +180,8 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
 
         matchTaskExecutor_ = new DefaultTaskExecutor("FilterThread", value);
 
-        backoutInterval_ = config.getAttributeAsInteger(Attributes.BACKOUT_INTERVAL,
-                Default.DEFAULT_BACKOUT_INTERVAL);
-
         value = config.getAttributeAsInteger(Attributes.DELIVER_POOL_WORKERS,
-                Default.DEFAULT_DELIVER_POOL_SIZE);
+                Default.DEFAULT_DELIVER_POOL_WORKERS);
 
         taskFactory_ = new DefaultTaskFactory(this);
 
@@ -200,11 +191,6 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
     public TaskFactory getTaskFactory()
     {
         return taskFactory_;
-    }
-
-    public long getBackoutInterval()
-    {
-        return backoutInterval_;
     }
 
     public TaskExecutor getFilterTaskExecutor()
@@ -307,25 +293,14 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
      * Schedule a Task to call deliverPendingEvents on the specified MessageConsumer. Also used
      * after a disabled MessageConsumer is enabled again to push the pending Messages.
      */
-    public void scheduleTimedPushTask(MessageConsumer consumer) throws InterruptedException
+    public void schedulePushOperation(IProxyPushSupplier pushSupplier) throws InterruptedException
     {
-        if (!consumer.isDisposed())
-        {
-            TimerDeliverTask _task = new TimerDeliverTask(this, consumer);
-
-            _task.setTaskExecutor(consumer.getExecutor());
-
-            _task.schedule();
-        }
-        else
-        {
-            logger_.info("MessageConsumer is disposed");
-        }
+        throw new UnsupportedOperationException();
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
     // Timer Operations
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     /**
      * access the Clock Daemon instance.
@@ -362,7 +337,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
         return clockDaemon_.executeAt(startTime, task);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     private void fireEventDiscarded(Message event)
     {

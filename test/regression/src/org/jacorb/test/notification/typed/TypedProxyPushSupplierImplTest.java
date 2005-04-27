@@ -32,7 +32,7 @@ import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.TypedEventMessage;
-import org.jacorb.notification.engine.DefaultTaskExecutor;
+import org.jacorb.notification.engine.DefaultPushTaskExecutorFactory;
 import org.jacorb.notification.servant.ITypedAdmin;
 import org.jacorb.notification.servant.TypedProxyPushSupplierImpl;
 import org.jacorb.test.notification.NotificationTestCase;
@@ -50,6 +50,8 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
 import org.omg.CosTypedNotifyComm.TypedPushConsumer;
 import org.omg.CosTypedNotifyComm.TypedPushConsumerPOA;
+
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 /**
  * @author Alphonse Bendt
@@ -96,10 +98,9 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
 
         controlConsumerAdmin_ = MockControl.createControl(ConsumerAdmin.class);
         mockConsumerAdmin_ = (ConsumerAdmin) controlConsumerAdmin_.getMock();
-        
-        objectUnderTest_ = new TypedProxyPushSupplierImpl(mockAdmin_, mockConsumerAdmin_, getORB(), getPOA(),
-                getConfiguration(), getTaskProcessor(), DefaultTaskExecutor.getDefaultExecutor(),
-                new OfferManager(), new SubscriptionManager());
+
+        objectUnderTest_ = new TypedProxyPushSupplierImpl(mockAdmin_, mockConsumerAdmin_, getORB(),
+                getPOA(), getConfiguration(), getTaskProcessor(), new DefaultPushTaskExecutorFactory(1), new OfferManager(), new SubscriptionManager());
 
         proxyPushSupplier_ = TypedProxyPushSupplierHelper.narrow(objectUnderTest_.activate());
     }
@@ -109,12 +110,12 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         assertEquals(new Integer(10), objectUnderTest_.getID());
         assertTrue(objectUnderTest_.isIDPublic());
     }
-    
+
     public void testMyAdmin()
     {
         assertEquals(mockConsumerAdmin_, proxyPushSupplier_.MyAdmin());
     }
-    
+
     public void testConnect() throws Exception
     {
         MockCoffee _mockCoffee = new MockCoffee();
@@ -156,7 +157,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
             fail();
         } catch (TypeError e)
         {
-            // ignored
+            // expected
         }
     }
 
@@ -310,15 +311,19 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
 
         _event.setAny(_any);
 
+        final Latch _hasReceived = new Latch();
+        
         // setup mock
         MockCoffee _mockCoffee = new MockCoffee()
         {
             public void drinking_coffee(String name, int minutes)
             {
                 super.drinking_coffee(name, minutes);
-
+               
                 assertEquals("alphonse", name);
                 assertEquals(10, minutes);
+                
+                _hasReceived.release();
             }
         };
 
@@ -342,6 +347,8 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         // run test
         objectUnderTest_.getMessageConsumer().deliverMessage(_event.getHandle());
 
+        assertTrue(_hasReceived.attempt(5000));
+        
         // verify results
         _mockCoffee.verify();
     }
@@ -372,7 +379,7 @@ class MockTypedPushConsumer extends TypedPushConsumerPOA
     public void offer_change(EventType[] eventTypeArray, EventType[] eventTypeArray1)
             throws InvalidEventType
     {
-        
+
         // ignored
     }
 }

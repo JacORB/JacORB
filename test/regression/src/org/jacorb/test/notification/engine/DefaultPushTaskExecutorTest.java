@@ -21,39 +21,38 @@
 
 package org.jacorb.test.notification.engine;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import junit.framework.TestCase;
 
-import org.jacorb.notification.engine.AbstractFilterTask;
-import org.jacorb.notification.engine.FilterSupplierAdminTask;
+import org.easymock.MockControl;
+import org.jacorb.notification.engine.DefaultPushTaskExecutor;
+import org.jacorb.notification.engine.PushTaskExecutor;
 
-/**
- * @author Alphonse Bendt
- * @version $Id$
- */
-public class FilterSupplierAdminTaskTest extends AbstractFilterTaskTestCase
+public class DefaultPushTaskExecutorTest extends TestCase
 {
-    private FilterSupplierAdminTask objectUnderTest_;
+    private DefaultPushTaskExecutor objectUnderTest_;
 
-    /**
-     * Constructor for FilterSupplierAdminTaskTest.
-     * 
-     * @param name
-     */
-    public FilterSupplierAdminTaskTest(String name)
+    public DefaultPushTaskExecutorTest(String name)
     {
         super(name);
     }
 
-    protected AbstractFilterTask newObjectUnderTest()
+    protected void setUp() throws Exception
     {
-        objectUnderTest_ = new FilterSupplierAdminTask(mockTaskFactory_, mockTaskExecutor_);
-        
-        return objectUnderTest_;
+        objectUnderTest_ = new DefaultPushTaskExecutor(2);
     }
 
-    public static Test suite()
+    public void testExecutePush()
     {
-        return new TestSuite(FilterSupplierAdminTaskTest.class);
+        MockControl controlPushTask = MockControl.createControl(PushTaskExecutor.PushTask.class);
+        PushTaskExecutor.PushTask mockPushTask = (PushTaskExecutor.PushTask) controlPushTask
+                .getMock();
+
+        mockPushTask.doPush();
+
+        controlPushTask.replay();
+
+        objectUnderTest_.executePush(mockPushTask);
+
+        controlPushTask.verify();
     }
 }

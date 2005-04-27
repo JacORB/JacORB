@@ -93,9 +93,9 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
     ////////////////////////////////////////
 
-    public FilterProxySupplierTask(TaskExecutor taskExecutor, TaskProcessor taskProcessor, TaskFactory taskFactory)
+    public FilterProxySupplierTask(TaskFactory taskFactory, TaskExecutor taskExecutor)
     {
-        super(taskExecutor, taskProcessor, taskFactory);
+        super(taskFactory, taskExecutor);
     }
 
     ////////////////////////////////////////
@@ -116,7 +116,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
     {
         filter();
 
-        AbstractDeliverTask.scheduleTasks(getTaskFactory().newPushToConsumerTask(this));
+        getTaskFactory().enqueueMessage(this);
     }
 
     private Message updatePriority(int indexOfCurrentEvent, Message message)

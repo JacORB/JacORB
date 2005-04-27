@@ -36,9 +36,9 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
 
     ////////////////////////////////////////
 
-    public FilterSupplierAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
+    public FilterSupplierAdminTask(TaskFactory taskFactory, TaskExecutor taskExecutor)
     {
-        super(te, tp, tc);
+        super(taskFactory, taskExecutor);
     }
 
     ////////////////////////////////////////

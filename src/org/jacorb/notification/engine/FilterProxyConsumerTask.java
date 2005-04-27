@@ -38,8 +38,8 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
     ////////////////////
 
-    public FilterProxyConsumerTask(TaskExecutor executor, TaskProcessor processor, TaskFactory factory) {
-        super(executor, processor, factory);
+    public FilterProxyConsumerTask(TaskFactory factory, TaskExecutor executor) {
+        super(factory, executor);
     }
 
     ////////////////////

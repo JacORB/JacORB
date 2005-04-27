@@ -21,7 +21,7 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.interfaces.IProxyPushSupplier;
 
 /**
  * @author Alphonse Bendt
@@ -29,5 +29,5 @@ import org.jacorb.notification.interfaces.MessageConsumer;
  */
 public interface RetryStrategyFactory
 {
-    RetryStrategy newRetryStrategy(MessageConsumer messageConsumer, PushOperation pushOperation);
+    RetryStrategy newRetryStrategy(IProxyPushSupplier messageConsumer, PushOperation pushOperation);
 }

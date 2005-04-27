@@ -24,30 +24,12 @@ package org.jacorb.notification.engine;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
-import org.jacorb.notification.interfaces.IProxyPushSupplier;
 
-/**
- * @author Alphonse Bendt
- * @version $Id$
- */
-public class TaskProcessorRetryStrategyFactory implements RetryStrategyFactory
+public class ConfigurablePushTaskExecutorFactory extends DefaultPushTaskExecutorFactory
 {
-    private final TaskProcessor taskProcessor_;
-    private final int backoutInterval_;
-
-    public TaskProcessorRetryStrategyFactory(Configuration config, TaskProcessor taskProcessor)
+    public ConfigurablePushTaskExecutorFactory(Configuration config)
     {
-        super();
-        
-        backoutInterval_ = config.getAttributeAsInteger(Attributes.BACKOUT_INTERVAL,
-                Default.DEFAULT_BACKOUT_INTERVAL);
-        
-        taskProcessor_ = taskProcessor;
-    }
-
-    public RetryStrategy newRetryStrategy(IProxyPushSupplier pushSupplier,
-            PushOperation pushOperation)
-    {
-        return new TaskProcessorRetryStrategy(pushSupplier, pushOperation, taskProcessor_, backoutInterval_);
+        super(config.getAttributeAsInteger(Attributes.DELIVER_POOL_WORKERS,
+                Default.DEFAULT_DELIVER_POOL_WORKERS));
     }
 }

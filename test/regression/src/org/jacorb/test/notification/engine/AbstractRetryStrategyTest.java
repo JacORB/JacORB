@@ -21,12 +21,12 @@
 
 package org.jacorb.test.notification.engine;
 
-import org.easymock.MockControl;
-import org.jacorb.notification.engine.PushOperation;
-import org.jacorb.notification.engine.AbstractRetryStrategy;
-import org.jacorb.notification.interfaces.MessageConsumer;
-
 import junit.framework.TestCase;
+
+import org.easymock.MockControl;
+import org.jacorb.notification.engine.AbstractRetryStrategy;
+import org.jacorb.notification.engine.PushOperation;
+import org.jacorb.notification.interfaces.IProxyPushSupplier;
 
 /**
  * @author Alphonse Bendt
@@ -34,7 +34,7 @@ import junit.framework.TestCase;
  */
 public abstract class AbstractRetryStrategyTest extends TestCase
 {
-    protected MessageConsumer mockConsumer_;
+    protected IProxyPushSupplier mockConsumer_;
     protected MockControl controlConsumer_;
     protected PushOperation mockPushOperation_;
     protected MockControl controlPushOperation_;
@@ -54,8 +54,8 @@ public abstract class AbstractRetryStrategyTest extends TestCase
     {
         super.setUp();
         
-        controlConsumer_ = MockControl.createNiceControl(MessageConsumer.class);
-        mockConsumer_ = (MessageConsumer) controlConsumer_.getMock();
+        controlConsumer_ = MockControl.createNiceControl(IProxyPushSupplier.class);
+        mockConsumer_ = (IProxyPushSupplier) controlConsumer_.getMock();
     
         controlPushOperation_ = MockControl.createNiceControl(PushOperation.class);
         mockPushOperation_ = (PushOperation) controlPushOperation_.getMock();

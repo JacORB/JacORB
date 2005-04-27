@@ -25,6 +25,9 @@ package org.jacorb.notification.engine;
  * @version $Id$
  */
 public class RetryException extends Exception {
+
+    private static final long serialVersionUID = 1L;
+
     public RetryException(String message) {
         super(message);
     }

@@ -41,8 +41,7 @@ public class FilterProxyConsumerTaskTest extends AbstractFilterTaskTestCase
 
     protected AbstractFilterTask newObjectUnderTest()
     {
-        objectUnderTest_ = new FilterProxyConsumerTask(mockTaskExecutor_, mockTaskProcessor_,
-                mockTaskFactory_);
+        objectUnderTest_ = new FilterProxyConsumerTask(mockTaskFactory_, mockTaskExecutor_);
         
         return objectUnderTest_;
     }

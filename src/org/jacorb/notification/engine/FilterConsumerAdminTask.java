@@ -45,9 +45,9 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
     ////////////////////////////////////////
 
-    public FilterConsumerAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
+    public FilterConsumerAdminTask(TaskFactory taskFactory, TaskExecutor taskExecutor)
     {
-        super(te, tp, tc);
+        super(taskFactory, taskExecutor);
     }
 
     ////////////////////////////////////////
@@ -96,10 +96,8 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
         if (_filterStagesWithMessageConsumer.length > 0)
         {
-            AbstractDeliverTask[] _listOfPushToConsumerTaskToBeScheduled = getTaskFactory()
-                    .newPushToConsumerTask(_filterStagesWithMessageConsumer, copyMessage());
-
-            AbstractDeliverTask.scheduleTasks(_listOfPushToConsumerTaskToBeScheduled);
+            getTaskFactory()
+                    .enqueueMessage(_filterStagesWithMessageConsumer, getMessage());
         }
 
         Schedulable _filterTaskToBeScheduled = _filterTaskToBeScheduled = getTaskFactory()
@@ -154,11 +152,11 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
                 while (_i.hasNext())
                 {
-                    FilterStage _n = (FilterStage) _i.next();
+                    FilterStage _filterStage = (FilterStage) _i.next();
 
-                    if (_n.hasInterFilterGroupOperatorOR())
+                    if (_filterStage.hasInterFilterGroupOperatorOR())
                     {
-                        addFilterStage(_n);
+                        addFilterStage(_filterStage);
                     }
                 }
             }

@@ -59,10 +59,8 @@ public abstract class AbstractFilterTask extends AbstractMessageTask
 
     ////////////////////
 
-    protected AbstractFilterTask(TaskExecutor taskExecutor, TaskProcessor taskProcessor, TaskFactory taskFactory)
+    protected AbstractFilterTask(TaskFactory taskFactory, TaskExecutor taskExecutor)
     {
-        super(taskProcessor);
-
         setTaskExecutor(taskExecutor);
 
         taskFactory_ = taskFactory;

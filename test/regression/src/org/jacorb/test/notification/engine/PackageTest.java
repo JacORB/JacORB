@@ -41,7 +41,6 @@ public class PackageTest extends TestCase
     {
         TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.engine");
 
-        _suite.addTest(PushToConsumerTest.suite());
         _suite.addTest(PushOperationTest.suite());
         _suite.addTest(WaitRetryStrategyTest.suite());
         _suite.addTest(TaskProcessorRetryStrategyTest.suite());
@@ -50,7 +49,6 @@ public class PackageTest extends TestCase
         _suite.addTest(FilterProxySupplierTaskTest.suite());
         _suite.addTest(FilterConsumerAdminTaskTest.suite());
         _suite.addTest(FilterSupplierAdminTaskTest.suite());
-        _suite.addTest(PushToConsumerTaskTest.suite());
         
         return _suite;
     }

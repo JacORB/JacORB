@@ -47,7 +47,7 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
 
     protected AbstractRetryStrategy newRetryStrategy()
     {
-        return new TaskProcessorRetryStrategy(mockConsumer_, mockPushOperation_, mockTaskProcessor_);
+        return new TaskProcessorRetryStrategy(mockConsumer_, mockPushOperation_, mockTaskProcessor_, 10);
     }
     
     /**
@@ -69,15 +69,9 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
         
         controlPushOperation_.replay();
         
-        mockTaskProcessor_.getBackoutInterval();
-        controlTaskProcessor_.setDefaultReturnValue(0);
-        
-        mockTaskProcessor_.scheduleTimedPushTask(null);
-        controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        
         controlTaskProcessor_.replay();
         
-        ((TaskProcessorRetryStrategy)objectUnderTest_).retryPushOperation_.run();
+        ((TaskProcessorRetryStrategy)objectUnderTest_).doPush();
         
         controlConsumer_.verify();
         controlPushOperation_.verify();
@@ -100,13 +94,10 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
         mockPushOperation_.dispose();
         
         controlPushOperation_.replay();
-        
-        mockTaskProcessor_.getBackoutInterval();
-        controlTaskProcessor_.setDefaultReturnValue(0);
-        
+                
         controlTaskProcessor_.replay();
         
-        ((TaskProcessorRetryStrategy)objectUnderTest_).retryPushOperation_.run();
+        ((TaskProcessorRetryStrategy)objectUnderTest_).doPush();
         
         controlConsumer_.verify();
         controlPushOperation_.verify();
@@ -127,17 +118,14 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
         controlPushOperation_.setThrowable(new TRANSIENT());
            
         controlPushOperation_.replay();
-        
-        mockTaskProcessor_.getBackoutInterval();
-        controlTaskProcessor_.setDefaultReturnValue(0);
-        
+                
         mockTaskProcessor_.executeTaskAfterDelay(0, null);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
         controlTaskProcessor_.setReturnValue(new Object());
         
         controlTaskProcessor_.replay();
         
-        ((TaskProcessorRetryStrategy)objectUnderTest_).retryPushOperation_.run();
+        ((TaskProcessorRetryStrategy)objectUnderTest_).doPush();
         
         controlConsumer_.verify();
         controlPushOperation_.verify();

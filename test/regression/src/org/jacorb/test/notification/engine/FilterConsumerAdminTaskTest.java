@@ -50,8 +50,7 @@ public class FilterConsumerAdminTaskTest extends AbstractFilterTaskTestCase
 
     protected AbstractFilterTask newObjectUnderTest()
     {
-        objectUnderTest_ = new FilterConsumerAdminTask(mockTaskExecutor_, mockTaskProcessor_,
-                mockTaskFactory_);
+        objectUnderTest_ = new FilterConsumerAdminTask(mockTaskFactory_, mockTaskExecutor_);
         
         return objectUnderTest_;
     }

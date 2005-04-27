@@ -40,11 +40,11 @@ public interface TaskFactory
 
     ////////////////////////////////////////
     
-    public abstract AbstractDeliverTask[] newPushToConsumerTask(FilterStage[] nodes, Message event);
+    public abstract void enqueueMessage(FilterStage[] nodes, Message event);
 
     /**
      * factory method to create PushToConsumer Tasks. The Tasks are
      * initialized with the data taken from a FilterProxySupplierTask.
      */
-    public abstract AbstractDeliverTask[] newPushToConsumerTask(FilterProxySupplierTask task);
+    public abstract void enqueueMessage(FilterProxySupplierTask task);
 }

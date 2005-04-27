@@ -20,27 +20,68 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.interfaces.IProxyPushSupplier;
+
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TaskProcessorRetryStrategy extends AbstractRetryStrategy
+public class TaskProcessorRetryStrategy extends AbstractRetryStrategy implements
+        PushTaskExecutor.PushTask
 {
     /**
-     * retry the failed operation. schedule the pending messages for delivery.
+     * retry the failed operation. schedule the retry for delivery.
      */
     public final Runnable retryPushOperation_ = new Runnable()
     {
         public void run()
         {
+            pushSupplier_.schedulePush(TaskProcessorRetryStrategy.this);
+        }
+    };
+
+    private SynchronizedBoolean isCancelled_ = new SynchronizedBoolean(false);
+    
+    private final TaskProcessor taskProcessor_;
+
+    private final long backoutInterval_;
+
+    public TaskProcessorRetryStrategy(IProxyPushSupplier pushSupplier, PushOperation pushOperation,
+            TaskProcessor taskProcessor, long backoutInterval)
+    {
+        super(pushSupplier, pushOperation);
+
+        taskProcessor_ = taskProcessor;
+        backoutInterval_ = backoutInterval;
+    }
+
+    protected long getTimeToWait()
+    {
+        return 0;
+    }
+
+    protected void retryInternal() throws RetryException
+    {
+        if (!pushSupplier_.isDisposed())
+        {
+            pushSupplier_.disableDelivery();
+
+            taskProcessor_.executeTaskAfterDelay(backoutInterval_, retryPushOperation_);
+        }
+    }
+
+    public void doPush()
+    {
+        if (!isCancelled_.get())
+        {
             try
             {
-                if (!messageConsumer_.isDisposed())
+                if (!pushSupplier_.isDisposed())
                 {
                     pushOperation_.invokePush();
-                    taskProcessor_.scheduleTimedPushTask(messageConsumer_);
+                    pushSupplier_.pushPendingData();
                 }
 
                 dispose();
@@ -56,56 +97,12 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy
                 }
             }
         }
-    };
-
-    /**
-     * re-enable disabled MessageConsumer and schedule retry
-     */
-    public final Runnable enableMessageConsumer_ = new Runnable()
-    {
-        public void run()
-        {
-            try
-            {
-                if (!messageConsumer_.isDisposed())
-                {
-                    messageConsumer_.enableDelivery();
-                    TaskExecutor _executor = messageConsumer_.getExecutor();
-                    _executor.execute(retryPushOperation_);
-                }
-                else
-                {
-                    dispose();
-                }
-            } catch (InterruptedException e)
-            {
-                // ignore
-            }
-        }
-    };
-
-    final TaskProcessor taskProcessor_;
-
-    public TaskProcessorRetryStrategy(MessageConsumer messageConsumer, PushOperation pushOperation, TaskProcessor taskProcessor)
-    {
-        super(messageConsumer, pushOperation);
-
-        taskProcessor_ = taskProcessor;
     }
 
-    protected long getTimeToWait()
+    public void cancel()
     {
-        return 0;
-    }
-
-    protected void retryInternal() throws RetryException
-    {
-        if (!messageConsumer_.isDisposed())
-        {
-            messageConsumer_.disableDelivery();
-
-            taskProcessor_.executeTaskAfterDelay(taskProcessor_.getBackoutInterval(),
-                    enableMessageConsumer_);
-        }
+        isCancelled_.set(true);
+        
+        dispose();
     }
 }

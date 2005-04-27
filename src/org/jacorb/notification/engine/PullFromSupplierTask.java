@@ -36,8 +36,6 @@ public class PullFromSupplierTask extends AbstractTask
     ////////////////////////////////////////
 
     PullFromSupplierTask(TaskExecutor executor) {
-        super(null);
-
         setTaskExecutor(executor);
     }
 
@@ -47,7 +45,6 @@ public class PullFromSupplierTask extends AbstractTask
     {
         target_ = target;
     }
-
 
     public void doWork() throws Disconnected
     {
@@ -65,7 +62,7 @@ public class PullFromSupplierTask extends AbstractTask
 
     public void handleTaskError(AbstractTask task, Throwable error) {
         if (error instanceof Disconnected) {
-            target_.dispose();
+            target_.destroy();
         }
     }
 

@@ -32,33 +32,25 @@ public abstract class AbstractMessageTask extends AbstractTask
     private Message message_;
 
     /**
-     * @param tp
-     */
-    public AbstractMessageTask(TaskProcessor tp)
-    {
-        super(tp);
-    }
-
-    /**
      * set the Message for this Task to use.
      */
-    public void setMessage(Message event)
+    public void setMessage(Message message)
     {
         if (message_ != null)
         {
             throw new RuntimeException("remove old first");
         }
 
-        message_ = event;
+        message_ = message;
     }
 
     public Message removeMessage()
     {
-        Message _event = message_;
+        Message _mesg = message_;
 
         message_ = null;
 
-        return _event;
+        return _mesg;
     }
 
     public Message copyMessage()

@@ -21,17 +21,36 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.notification.interfaces.IProxyPushSupplier;
+import org.jacorb.notification.interfaces.CallbackingDisposable;
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.util.DisposableManager;
 
-/**
- * @author Alphonse Bendt
- * @version $Id$
- */
-public class AlwaysDisposeRetryStrategyFactory implements RetryStrategyFactory
+public class PooledPushTaskExecutorFactory implements PushTaskExecutorFactory,
+        CallbackingDisposable
 {
-    public RetryStrategy newRetryStrategy(IProxyPushSupplier messageConsumer,
-            PushOperation pushOperation)
+    private final PushTaskExecutor executor_;
+
+    private final DisposableManager disposableManager_ = new DisposableManager();
+
+    public PooledPushTaskExecutorFactory(PushTaskExecutorFactory delegate)
     {
-        return new AlwaysDisposeRetryStrategy(messageConsumer, pushOperation);
+        super();
+
+        executor_ = delegate.newExecutor(this);
+    }
+
+    public PushTaskExecutor newExecutor(CallbackingDisposable callbackingDisposable)
+    {
+        return executor_;
+    }
+
+    public void dispose()
+    {
+        disposableManager_.dispose();
+    }
+
+    public void addDisposeHook(Disposable d)
+    {
+        disposableManager_.addDisposable(d);
     }
 }
