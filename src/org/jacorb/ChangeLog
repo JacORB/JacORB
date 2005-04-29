@@ -1,3 +1,126 @@
+2005-04-27  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractMessageTask.java,
+	notification/engine/AbstractRetryStrategy.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/AlwaysDisposeRetryStrategy.java,
+	notification/engine/AlwaysDisposeRetryStrategyFactory.java,
+	notification/engine/ConfigurablePushTaskExecutorFactory.java,
+	notification/engine/DefaultPushTaskExecutor.java,
+	notification/engine/DefaultPushTaskExecutorFactory.java,
+	notification/engine/DefaultTaskFactory.java,
+	notification/engine/DefaultTaskProcessor.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/PooledPushTaskExecutorFactory.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushTaskExecutor.java,
+	notification/engine/PushTaskExecutorFactory.java,
+	notification/engine/RetryException.java,
+	notification/engine/RetryStrategyFactory.java,
+	notification/engine/TaskFactory.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/engine/TaskProcessorRetryStrategyFactory.java,
+	notification/engine/WaitRetryStrategy.java,
+	notification/engine/WaitRetryStrategyFactory.java: removed
+	PushToConsumer Tasks and Thread Pools as this concept didn't work
+	right.
+	instead PushTaskExecutor creates a number of threads that pull
+	PushTasks from the ProxyPushSuppliers and execute them.
+
+	* notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxyPushSupplier.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java: cleaned up
+	inheritance hierarchy of Proxies.  all ProxyPushSuppliers have a
+	common baseclass now.
+
+	* notification/queue/RWLockEventQueueDecorator.java (replaceDelegate):
+	fixed bug
+
+	* notification/queue/Heap2.java: custom implementation that
+	extends util.concurrent.Heap. this impl does some extra work
+	during clean. otherwise stalled items seem to stay in the Heap.
+
+	* notification/queue/BoundedPriorityEventQueue.java (getAllElementsInternal):
+	invoke clear after all elements are returned. otherwise stalled
+	items seem to stay in the queue
+	(newHeap): use custom implementation Heap2
+	(toString): added impl
+
+	* notification/queue/BasicMessageQueueAdapter.java (toString):
+	added implementation
+
+	* notification/interfaces/MessageSupplier.java (destroy): to
+	destroy a proxy destroy must be invoked instead of dispsoe
+
+	* notification/interfaces/IProxyPushSupplier.java,
+	notification/interfaces/MessageConsumer.java (IProxyPushSupplier):
+	new internal interface for ProxyPushSuppliers.
+
+	* notification/engine/AbstractDeliverTask.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/engine/TimerDeliverTask.java: removed unused code
+
+	* notification/container/PicoContainerFactory.java,
+	notification/container/PushTaskExecutorFactoryComponentAdapter.java:
+	new ComponentAdapter that registers a PushTaskExecutorFactory
+
+	* notification/container/DisposeLifecycleVisitor.java,
+	notification/container/NonCachingRememberingComponentAdapter.java,
+	notification/container/PerProxyPushTaskExecutorComponentAdapter.java,
+	notification/container/ThreadPoolTaskExecutorComponentAdapter.java:
+	removed unused code
+
+	* notification/container/CORBAObjectComponentAdapter.java,
+	notification/container/ConfigurationComponentAdapter.java,
+	notification/container/DynAnyFactoryComponentAdapter.java,
+	notification/container/FilterFactoryComponentAdapter.java,
+	notification/container/POAComponentAdapter.java,
+	notification/container/RepositoryComponentAdapter.java (serialVersionUID):
+	added member to fix compiler warnings. serializable classes should
+	...
+
+	* notification/conf/Attributes.java,
+	notification/conf/Default.java: harmonized slightly different
+	constant names
+
+	* notification/AbstractMessage.java (getType): fixed javadoc
+
+	* notification/AbstractEventChannel.java (configure): removed
+	unused method
+
+2005-04-23  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/giop/ClientConnection.java: Set the Input stream's codeset
+	upon receipt of a reply message
+
+	* orb/giop/CodeSet.java: Corrected spelling of ISO-8859-1 codeset
+	converter for use by the CDRInputStream
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: corrected the
+	char/string conversion between native and transmitted codesets
+
 2005-04-22  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/Delegate.java (request): If the codesets have not been
