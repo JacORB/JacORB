@@ -218,7 +218,6 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     // TODO implement
     public void validate_event_qos(Property[] qosProps, NamedPropertyRangeSeqHolder propSeqHolder)
-
     {
         throw new NO_IMPLEMENT();
     }
