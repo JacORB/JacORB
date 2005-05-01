@@ -27,4 +27,5 @@ package org.jacorb.notification.servant;
  */
 public interface ITypedProxy
 {
+    // marker Interface
 }

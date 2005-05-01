@@ -24,12 +24,20 @@ package org.jacorb.notification.servant;
 import org.jacorb.notification.IContainer;
 
 /**
+ * Internal Interface provided to Proxies that gives them Information about their Parent Admin.
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 public interface IAdmin extends IContainer
 {
+    /**
+     * @return the id the Proxy should use.
+     */
     int getProxyID();
     
+    /**
+     * @return a boolean value that indicates if the id may be used to look up the Proxy via Admins get_proxy* methods.
+     */
     boolean isIDPublic();
 }

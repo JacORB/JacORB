@@ -30,6 +30,8 @@ import org.jacorb.notification.AbstractEventChannel;
 
 public class EventChannelEvent extends ApplicationEvent
 {
+    private static final long serialVersionUID = 1L;
+
     public EventChannelEvent(AbstractEventChannel servant)
     {
         super(servant);

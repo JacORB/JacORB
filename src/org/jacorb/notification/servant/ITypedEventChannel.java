@@ -27,5 +27,5 @@ package org.jacorb.notification.servant;
  */
 public interface ITypedEventChannel
 {
-
+    // marker interface
 }

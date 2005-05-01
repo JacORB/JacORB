@@ -185,6 +185,7 @@ public class EvaluationResult
             return ((Double) getValue()).longValue();
         } catch (ClassCastException e)
         {
+            // ignored. will retry
         }
 
         try
@@ -192,6 +193,7 @@ public class EvaluationResult
             return ((Boolean) getValue()).booleanValue() ? 1l : 0;
         } catch (ClassCastException e)
         {
+            // ignored. will retry
         }
 
         try
@@ -204,6 +206,7 @@ public class EvaluationResult
             }
         } catch (ClassCastException e)
         {
+            // ignored. will throw error
         }
 
         throw newDynamicTypeException("LongLong");
@@ -218,6 +221,7 @@ public class EvaluationResult
                 return ((Double) getValue()).intValue();
             } catch (ClassCastException e)
             {
+                // ignored. will retry
             }
 
             try
@@ -225,6 +229,7 @@ public class EvaluationResult
                 return ((Boolean) getValue()).booleanValue() ? 1 : 0;
             } catch (ClassCastException e)
             {
+                // ignored. will retry
             }
 
             try
@@ -237,6 +242,7 @@ public class EvaluationResult
                 }
             } catch (ClassCastException e)
             {
+                // ignored. will throw error
             }
 
         }
@@ -255,6 +261,7 @@ public class EvaluationResult
             return ((Double) getValue()).doubleValue();
         } catch (ClassCastException e)
         {
+            // ignored. will retry.
         }
 
         try
@@ -262,6 +269,7 @@ public class EvaluationResult
             return ((Boolean) getValue()).booleanValue() ? 1d : 0;
         } catch (ClassCastException e)
         {
+            // ignored. will retry.
         }
 
         try
@@ -274,6 +282,7 @@ public class EvaluationResult
             }
         } catch (ClassCastException e)
         {
+            // ignored. will throw error
         }
 
         throw newDynamicTypeException("Double");
@@ -286,6 +295,7 @@ public class EvaluationResult
             return ((Double) getValue()).floatValue();
         } catch (ClassCastException c)
         {
+            // ignored. will retry.
         }
 
         try
@@ -293,6 +303,7 @@ public class EvaluationResult
             return ((Boolean) getValue()).booleanValue() ? 1f : 0;
         } catch (ClassCastException c2)
         {
+            // ignored. will retry.
         }
 
         try
@@ -305,6 +316,7 @@ public class EvaluationResult
             }
         } catch (ClassCastException c3)
         {
+            // ignored. will throw error
         }
 
         throw newDynamicTypeException("Float");
@@ -317,6 +329,7 @@ public class EvaluationResult
             return ((Boolean) getValue()).booleanValue();
         } catch (ClassCastException c)
         {
+            // ignored. will throw error
         }
 
         throw newDynamicTypeException("Boolean");
@@ -769,6 +782,8 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
 
 class DynamicTypeException extends EvaluationException
 {
+    private static final long serialVersionUID = 1L;
+
     public DynamicTypeException()
     {
         super();

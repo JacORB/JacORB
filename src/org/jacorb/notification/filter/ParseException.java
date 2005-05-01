@@ -27,6 +27,8 @@ package org.jacorb.notification.filter;
 
 public class ParseException extends Exception {
 
+    private static final long serialVersionUID = 1L;
+    
     private final Exception nested_;
 
     public ParseException(Exception e) {

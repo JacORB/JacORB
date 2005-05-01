@@ -31,11 +31,12 @@ import org.jacorb.notification.servant.AbstractProxy;
 
 public class ProxyEvent extends ApplicationEvent
 {
+    private static final long serialVersionUID = 1L;
+
     public ProxyEvent(AbstractProxy b)
     {
         super(b);
     }
-
 
     public ProxyEvent(AbstractAdmin admin)
     {

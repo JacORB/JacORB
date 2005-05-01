@@ -232,6 +232,8 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
                 }
             } catch (Bounds b)
             {
+                // this should never happen as _x should be always < _memberCount.
+                throw new RuntimeException();
             }
 
         } catch (BadKind e)

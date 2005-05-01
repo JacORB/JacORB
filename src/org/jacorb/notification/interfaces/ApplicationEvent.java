@@ -25,15 +25,17 @@ import java.util.EventObject;
 
 /**
  * Baseclass for Framework Events.
- *
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class ApplicationEvent extends EventObject {
+public class ApplicationEvent extends EventObject
+{
+    private static final long serialVersionUID = 1L;
 
-    public ApplicationEvent(Object source) {
+    public ApplicationEvent(Object source)
+    {
         super(source);
     }
-
 }
