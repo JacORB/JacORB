@@ -103,6 +103,11 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
         interfaceDef_ = InterfaceDefHelper.narrow(typedPullSupplier_._get_interface_def());
 
+        if (interfaceDef_ == null)
+        {
+            throw new NullPointerException();
+        }
+        
         if (!typedPullSupplier_._is_a(expectedInterface_))
         {
             throw new TypeError();
