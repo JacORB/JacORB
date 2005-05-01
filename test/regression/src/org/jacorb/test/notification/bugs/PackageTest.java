@@ -27,28 +27,30 @@ import junit.framework.TestSuite;
 
 /**
  * PackageTest.java
- *
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class PackageTest extends TestCase {
-
-    public PackageTest(String name) {
+public class PackageTest extends TestCase
+{
+    public PackageTest(String name)
+    {
         super(name);
     }
 
-    public static Test suite() throws Exception {
-        TestSuite _suite =
-            new TestSuite("Tests in Package org.jacorb.test.notification.bugs");
+    public static Test suite() throws Exception
+    {
+        TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.bugs");
 
         _suite.addTest(MultipleDeliveryBugTest.suite());
         _suite.addTest(DeadlockBugTest.suite());
-        
+
         return _suite;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         junit.textui.TestRunner.run(suite());
     }
 }

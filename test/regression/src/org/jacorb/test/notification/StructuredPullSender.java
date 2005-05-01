@@ -28,65 +28,73 @@ import org.omg.CosNotifyComm.StructuredPullSupplierPOATie;
  * @version $Id$
  */
 
-public class StructuredPullSender
-    extends Thread
-    implements StructuredPullSupplierOperations, TestClientOperations {
-
+public class StructuredPullSender extends Thread implements StructuredPullSupplierOperations,
+        TestClientOperations
+{
     ORB orb_;
+
     StructuredEvent event_;
+
     StructuredProxyPullConsumer pullConsumer_;
+
     private boolean error_;
+
     boolean connected_;
+
     boolean eventHandled_;
-    NotificationTestCase testCase_;
+
     boolean available_;
 
-    public boolean isError() {
+    public boolean isError()
+    {
         return error_;
     }
 
-    public boolean isEventHandled() {
+    public boolean isEventHandled()
+    {
         return eventHandled_;
     }
 
-    public StructuredPullSender(NotificationTestCase testCase, StructuredEvent event) {
+    public StructuredPullSender(ORB orb, StructuredEvent event)
+    {
         event_ = event;
-        testCase_ = testCase;
+        orb_ = orb;
     }
 
-    public void run() {
-        synchronized(this) {
+    public void run()
+    {
+        synchronized (this)
+        {
             available_ = true;
         }
     }
 
     // Implementation of org.omg.CosNotifyComm.NotifySubscribeOperations
 
-    /**
-     * Describe <code>subscription_change</code> method here.
-     *
-     * @param eventType an <code>EventType[]</code> value
-     * @param eventType an <code>EventType[]</code> value
-     * @exception InvalidEventType if an error occurs
-     */
-    public void subscription_change(EventType[] eventType1, EventType[] eventType2) throws InvalidEventType {
-
+    public void subscription_change(EventType[] eventType1, EventType[] eventType2)
+            throws InvalidEventType
+    {
+        // ignored
     }
 
     // Implementation of org.omg.CosNotifyComm.StructuredPullSupplierOperations
 
     /**
      * Describe <code>pull_structured_event</code> method here.
-     *
+     * 
      * @return a <code>StructuredEvent</code> value
-     * @exception Disconnected if an error occurs
+     * @exception Disconnected
+     *                if an error occurs
      */
-    public StructuredEvent pull_structured_event() throws Disconnected {
+    public StructuredEvent pull_structured_event() throws Disconnected
+    {
         BooleanHolder _success = new BooleanHolder();
         StructuredEvent _event;
-        while(true) {
+        while (true)
+        {
             _event = try_pull_structured_event(_success);
-            if(_success.value) {
+            if (_success.value)
+            {
                 return _event;
             }
             Thread.yield();
@@ -95,17 +103,24 @@ public class StructuredPullSender
 
     /**
      * Describe <code>try_pull_structured_event</code> method here.
-     *
-     * @param booleanHolder a <code>BooleanHolder</code> value
+     * 
+     * @param booleanHolder
+     *            a <code>BooleanHolder</code> value
      * @return a <code>StructuredEvent</code> value
-     * @exception Disconnected if an error occurs
+     * @exception Disconnected
+     *                if an error occurs
      */
-    public StructuredEvent try_pull_structured_event(BooleanHolder booleanHolder) throws Disconnected {
+    public StructuredEvent try_pull_structured_event(BooleanHolder booleanHolder)
+            throws Disconnected
+    {
         booleanHolder.value = false;
         StructuredEvent _result = NotificationTestUtils.getInvalidStructuredEvent(orb_);
-        if (event_ != null) {
-            synchronized(this) {
-                if (event_ != null && available_) {
+        if (event_ != null)
+        {
+            synchronized (this)
+            {
+                if (event_ != null && available_)
+                {
                     _result = event_;
                     event_ = null;
                     booleanHolder.value = true;
@@ -117,39 +132,40 @@ public class StructuredPullSender
     }
 
     /**
-     * Describe <code>disconnect_structured_pull_supplier</code> method
-     * here.
-     *
+     * Describe <code>disconnect_structured_pull_supplier</code> method here.
+     * 
      */
-    public void disconnect_structured_pull_supplier() {
+    public void disconnect_structured_pull_supplier()
+    {
         connected_ = false;
     }
 
-    public void connect(EventChannel channel,boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound {
-
-        orb_ = testCase_.getORB();
-
+    public void connect(EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded,
+            AlreadyConnected, TypeError, AdminNotFound
+    {
         StructuredPullSupplierPOATie _senderTie = new StructuredPullSupplierPOATie(this);
         SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
         IntHolder _proxyId = new IntHolder();
-        pullConsumer_ =
-            StructuredProxyPullConsumerHelper.narrow(_supplierAdmin.obtain_notification_pull_consumer(ClientType.STRUCTURED_EVENT, _proxyId));
+        pullConsumer_ = StructuredProxyPullConsumerHelper.narrow(_supplierAdmin
+                .obtain_notification_pull_consumer(ClientType.STRUCTURED_EVENT, _proxyId));
 
         Assert.assertEquals(_supplierAdmin, channel.get_supplieradmin(_supplierAdmin.MyID()));
 
         Assert.assertEquals(pullConsumer_.MyType(), ProxyType.PULL_STRUCTURED);
 
-
-        pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper.narrow(_senderTie._this(testCase_.getORB())));
+        pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper
+                .narrow(_senderTie._this(orb_)));
         connected_ = true;
     }
 
-    public void shutdown() {
+    public void shutdown()
+    {
         pullConsumer_.disconnect_structured_pull_consumer();
         Assert.assertTrue(pullConsumer_._non_existent());
     }
 
-    public boolean isConnected() {
+    public boolean isConnected()
+    {
         return connected_;
     }
 

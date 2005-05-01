@@ -35,27 +35,26 @@ import org.omg.CosNotification.StructuredEvent;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TypedEventMessageTest extends NotificationTestCase {
-
+public class TypedEventMessageTest extends NotificationTestCase
+{
     private static final Property[] EMPTY_PROPS = new Property[0];
 
     private TypedEventMessage objectUnderTest_;
 
-    private static String DRINKING_COFFEE_ID =
-        "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
+    private static String DRINKING_COFFEE_ID = "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
 
-    public void setUpTest() throws Exception {
-      
+    public void setUpTest() throws Exception
+    {
         objectUnderTest_ = new TypedEventMessage();
     }
 
-
-    public TypedEventMessageTest(String name, NotificationTestCaseSetup setup) {
+    public TypedEventMessageTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
-
-    public void testToProperty() {
+    public void testToProperty()
+    {
         objectUnderTest_.setTypedEvent(CoffeeHelper.id(), "drinking_coffee", EMPTY_PROPS);
 
         Property[] _props = objectUnderTest_.toTypedEvent();
@@ -68,8 +67,8 @@ public class TypedEventMessageTest extends NotificationTestCase {
         assertEquals("drinking_coffee", et.type_name);
     }
 
-
-    public void testToAny() {
+    public void testToAny()
+    {
         objectUnderTest_.setTypedEvent(CoffeeHelper.id(), DRINKING_COFFEE_ID, EMPTY_PROPS);
 
         Any _any = objectUnderTest_.toAny();
@@ -82,12 +81,11 @@ public class TypedEventMessageTest extends NotificationTestCase {
 
         assertEquals("operation", _props[0].name);
 
-        assertEquals(DRINKING_COFFEE_ID,
-                     _props[0].value.extract_string());
+        assertEquals(DRINKING_COFFEE_ID, _props[0].value.extract_string());
     }
 
-
-    public void testToStructured() {
+    public void testToStructured()
+    {
         objectUnderTest_.setTypedEvent(CoffeeHelper.id(), DRINKING_COFFEE_ID, EMPTY_PROPS);
 
         StructuredEvent _structEvent = objectUnderTest_.toStructuredEvent();
@@ -96,14 +94,13 @@ public class TypedEventMessageTest extends NotificationTestCase {
 
         assertEquals("operation", _structEvent.filterable_data[0].name);
 
-        assertEquals(DRINKING_COFFEE_ID,
-                     _structEvent.filterable_data[0].value.extract_string());
+        assertEquals(DRINKING_COFFEE_ID, _structEvent.filterable_data[0].value.extract_string());
 
         assertEquals("%TYPED", _structEvent.header.fixed_header.event_type.type_name);
     }
 
-
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         return NotificationTestCase.suite(TypedEventMessageTest.class);
     }
 }

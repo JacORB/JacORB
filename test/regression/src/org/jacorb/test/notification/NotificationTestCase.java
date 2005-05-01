@@ -60,9 +60,9 @@ public abstract class NotificationTestCase extends TestCase
 
     private EventChannel defaultChannel_;
 
-    protected MutablePicoContainer container_;
-
     protected Logger logger_;
+    
+    private MutablePicoContainer container_;
     
     ///////////////////////////////
 
@@ -77,8 +77,8 @@ public abstract class NotificationTestCase extends TestCase
 
     public final void setUp() throws Exception
     {
-        container_ = PicoContainerFactory.createRootContainer((org.jacorb.orb.ORB)setup_.getORB());
-
+        container_ = PicoContainerFactory.createChildContainer(setup_.getPicoContainer());
+        
         logger_ = ((org.jacorb.config.Configuration) getConfiguration()).getNamedLogger(getClass()
                 .getName()
                 + "." + getName());
@@ -93,6 +93,8 @@ public abstract class NotificationTestCase extends TestCase
 
     public final void tearDown() throws Exception
     {
+        setup_.getPicoContainer().removeChildContainer(container_);
+        
         tearDownTest();
 
         if (defaultChannel_ != null)
@@ -108,7 +110,7 @@ public abstract class NotificationTestCase extends TestCase
         // empty to be overridden.
     }
 
-    public MutablePicoContainer getContainer()
+    public MutablePicoContainer getPicoContainer()
     {
         return container_;
     }
@@ -138,48 +140,57 @@ public abstract class NotificationTestCase extends TestCase
             return defaultChannel_;
         } catch (Exception e)
         {
+            e.printStackTrace();
             throw new RuntimeException();
         }
+    }
+    
+    public EventChannel resolveChannel() throws Exception
+    {
+        org.omg.CORBA.Object object = getORB().resolve_initial_references("NotificationService");
+        EventChannelFactory factory = EventChannelFactoryHelper.narrow(object);
+        
+        return factory.create_channel(new Property[0], new Property[0], new IntHolder());
     }
 
     public ORB getORB()
     {
-        return (ORB) container_.getComponentInstance(ORB.class);
+        return setup_.getORB();
     }
 
     public POA getPOA()
     {
-        return (POA) container_.getComponentInstance(POA.class);
+        return setup_.getPOA();
     }
 
     public DynAnyFactory getDynAnyFactory() throws Exception
     {
-        return (DynAnyFactory) container_.getComponentInstance(DynAnyFactory.class);
+        return (DynAnyFactory) getPicoContainer().getComponentInstance(DynAnyFactory.class);
     }
 
     public Configuration getConfiguration()
     {
-        return (Configuration) container_.getComponentInstance(Configuration.class);
+        return (Configuration) getPicoContainer().getComponentInstance(Configuration.class);
     }
 
     public MessageFactory getMessageFactory()
     {
-        return (MessageFactory) container_.getComponentInstance(MessageFactory.class);
+        return (MessageFactory) getPicoContainer().getComponentInstance(MessageFactory.class);
     }
 
     public ETCLEvaluator getEvaluator()
     {
-        return (ETCLEvaluator) container_.getComponentInstance(ETCLEvaluator.class);
+        return (ETCLEvaluator) getPicoContainer().getComponentInstance(ETCLEvaluator.class);
     }
 
     public TaskProcessor getTaskProcessor()
     {
-        return (TaskProcessor) container_.getComponentInstance(TaskProcessor.class);
+        return (TaskProcessor) getPicoContainer().getComponentInstance(TaskProcessor.class);
     }
 
     public EventQueueFactory getEventQueueFactory()
     {
-        return (EventQueueFactory) container_.getComponentInstance(EventQueueFactory.class);
+        return (EventQueueFactory) getPicoContainer().getComponentInstance(EventQueueFactory.class);
     }
 
     public NotificationTestUtils getTestUtils()
@@ -194,6 +205,8 @@ public abstract class NotificationTestCase extends TestCase
             return EventChannelFactoryHelper.narrow(setup_.getFactoryServant().activate());
         } catch (Exception e)
         {
+            e.printStackTrace();
+            
             throw new RuntimeException(e.getMessage());
         }
     }

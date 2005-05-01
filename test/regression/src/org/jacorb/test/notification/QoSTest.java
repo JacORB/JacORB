@@ -21,12 +21,15 @@ package org.jacorb.test.notification;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.Test;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.AnyOrder;
 import org.omg.CosNotification.BestEffort;
 import org.omg.CosNotification.ConnectionReliability;
@@ -51,17 +54,25 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 public class QoSTest extends NotificationTestCase
 {
     Any fifoOrder;
+
     Any lifoOrder;
+
     Any deadlineOrder;
+
     Any priorityOrder;
+
     Any anyOrder;
+
     Any persistent;
+
     Any bestEffort;
 
     Any trueAny;
+
     Any falseAny;
 
-    public void setUpTest() throws Exception {
+    public void setUpTest() throws Exception
+    {
         trueAny = getORB().create_any();
         trueAny.insert_boolean(true);
 
@@ -90,96 +101,94 @@ public class QoSTest extends NotificationTestCase
         persistent.insert_short(Persistent.value);
     }
 
-
-    public void testCreate_QueueSettings() throws Exception {
+    public void testCreate_QueueSettings() throws Exception
+    {
         IntHolder channelId = new IntHolder();
 
         Property[] qosProps;
 
-        qosProps = new Property[] {
-            new Property( DiscardPolicy.value, priorityOrder ),
-            new Property( OrderPolicy.value, priorityOrder )
-        };
+        qosProps = new Property[] { new Property(DiscardPolicy.value, priorityOrder),
+                new Property(OrderPolicy.value, priorityOrder) };
 
-        getFactory().create_channel( qosProps, new Property[0], channelId);
+        getFactory().create_channel(qosProps, new Property[0], channelId);
     }
 
-    public void testCreate_Reliability() throws Exception {
+    public void testCreate_Reliability() throws Exception
+    {
         IntHolder channelId = new IntHolder();
 
         Property[] qosProps;
 
-        qosProps = new Property[] {
-            new Property( ConnectionReliability.value, bestEffort ),
-            new Property( EventReliability.value, bestEffort )
-        };
+        qosProps = new Property[] { new Property(ConnectionReliability.value, bestEffort),
+                new Property(EventReliability.value, bestEffort) };
 
-        getFactory().create_channel( qosProps, new Property[0], channelId);
+        getFactory().create_channel(qosProps, new Property[0], channelId);
 
-        qosProps = new Property[] {
-            new Property( ConnectionReliability.value, persistent ),
-            new Property( EventReliability.value, persistent )
-        };
+        qosProps = new Property[] { new Property(ConnectionReliability.value, persistent),
+                new Property(EventReliability.value, persistent) };
 
-        try {
-            getFactory().create_channel( qosProps,
-                                     new Property[0],
-                                     channelId);
+        try
+        {
+            getFactory().create_channel(qosProps, new Property[0], channelId);
             fail();
-        } catch (UnsupportedQoS e) {
+        } catch (UnsupportedQoS e)
+        {
             // expected
         }
     }
 
-
     /**
-     * test if events are reorderd respecting their priority.
-     * a supplier pushes some events with ascending priority into a
-     * channel that was setup with OrderPolicy=PriorityOrder. A
-     * Consumer receives and checks if the Events are delivered in
-     * descending Priority order.
+     * test if events are reorderd respecting their priority. a supplier pushes some events with
+     * ascending priority into a channel that was setup with OrderPolicy=PriorityOrder. A Consumer
+     * receives and checks if the Events are delivered in descending Priority order.
      */
-    public void testPriorityOrder() throws Exception {
+    public void testPriorityOrder() throws Exception
+    {
 
         // create and setup channel
         IntHolder channelId = new IntHolder();
 
         Property[] qosProps;
 
-        qosProps = new Property[] {
-            new Property( OrderPolicy.value, priorityOrder )
-        };
+        qosProps = new Property[] { new Property(OrderPolicy.value, priorityOrder) };
 
-        EventChannel channel =
-            getFactory().create_channel( qosProps,
-					 new Property[0],
-					 channelId);
+        EventChannel channel = getFactory().create_channel(qosProps, new Property[0], channelId);
 
         // testdata
         StructuredEvent[] events = new StructuredEvent[10];
-        for (int x=0; x<events.length; ++x) {
+        for (int x = 0; x < events.length; ++x)
+        {
             events[x] = getTestUtils().getStructuredEvent();
 
             Any priority = getORB().create_any();
-            priority.insert_short((short)x);
+            priority.insert_short((short) x);
 
-            events[x].header.variable_header =
-                new Property[] {
-                    new Property(Priority.value, priority)
-                };
+            events[x].header.variable_header = new Property[] { new Property(Priority.value,
+                    priority) };
 
         }
 
+        final List received = new ArrayList();
+
         // setup clients
-        StructuredPushReceiver receiver =
-            new StructuredPushReceiver(this, events.length);
+        StructuredPushReceiver receiver = new StructuredPushReceiver(this.getORB(), events.length)
+        {
+            public void push_structured_event(StructuredEvent event) throws Disconnected
+            {
+                super.push_structured_event(event);
+                
+                received.add(event);
+            }
+        };
 
         receiver.connect(channel, false);
 
         receiver.pushSupplier_.suspend_connection();
 
-        StructuredPushSender sender =
-            new StructuredPushSender(this, events, 100);
+        StructuredPushSender sender = new StructuredPushSender(getORB());
+
+        sender.setStructuredEvent(events);
+        sender.setInterval(100);
 
         sender.connect(channel, false);
 
@@ -196,27 +205,27 @@ public class QoSTest extends NotificationTestCase
 
         assertTrue(receiver.isEventHandled());
 
-        while (!receiver.receivedEvents.isEmpty()) {
-            StructuredEvent event =
-                (StructuredEvent)receiver.receivedEvents.remove(0);
+        while (!received.isEmpty())
+        {
+            StructuredEvent event = (StructuredEvent) received.remove(0);
 
-            Iterator i = receiver.receivedEvents.iterator();
-            while (i.hasNext()) {
+            Iterator i = received.iterator();
+            while (i.hasNext())
+            {
                 short p1 = event.header.variable_header[0].value.extract_short();
 
-                short p2 = ((StructuredEvent)i.next()).header.variable_header[0].value.extract_short();
+                short p2 = ((StructuredEvent) i.next()).header.variable_header[0].value
+                        .extract_short();
 
-                assertTrue(p1 + " > " + p2,  p1 > p2);
+                assertTrue(p1 + " > " + p2, p1 > p2);
             }
         }
     }
 
-
-    public QoSTest (String name, NotificationTestCaseSetup setup)
+    public QoSTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
-
 
     public static Test suite() throws Exception
     {

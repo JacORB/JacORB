@@ -28,11 +28,9 @@ public class AnyPullReceiver
             implements Runnable,
             TestClientOperations
 {
-    //Any event_ = null;
     boolean received_ = false;
     boolean error_ = false;
     ORB orb_;
-    //POA poa_;
     ProxyPullSupplier mySupplier_;
     long TIMEOUT = 5000;
     boolean connected_;
@@ -40,16 +38,14 @@ public class AnyPullReceiver
     ConsumerAdmin myAdmin_;
     NotificationTestCase testCase_;
 
-    public AnyPullReceiver(NotificationTestCase testCase)
+    public AnyPullReceiver(ORB orb)
     {
-        testCase_ = testCase;
+        orb_ = orb;
     }
 
     public void connect(EventChannel channel,
                         boolean useOrSemantic) throws AdminNotFound, AlreadyConnected, AdminLimitExceeded
     {
-        orb_ = testCase_.getORB();
-
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
 
@@ -63,6 +59,7 @@ public class AnyPullReceiver
             myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.AND_OP, _adminId);
             Assert.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
         }
+        
         Assert.assertEquals(myAdmin_, channel.get_consumeradmin(_adminId.value));
 
         mySupplier_ =
@@ -147,7 +144,9 @@ public class AnyPullReceiver
     }
 
     public void offer_change(EventType[] e1, EventType[] e2)
-    {}
+    {
+        // ignored
+    }
 
     public void disconnect_pull_consumer()
     {

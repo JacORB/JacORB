@@ -95,7 +95,7 @@ public class TimeoutTest extends NotificationTestCase
     }
 
 
-    public void sendEvent(long startOffset, long timeout, boolean expect) throws Exception
+    private void sendEvent(long startOffset, long timeout, boolean expect) throws Exception
     {
         structuredEvent_.header.variable_header = new Property[2];
 
@@ -115,10 +115,12 @@ public class TimeoutTest extends NotificationTestCase
             new Property(Timeout.value, _timeoutAny);
 
         StructuredPushSender _sender =
-            new StructuredPushSender(this, structuredEvent_);
+            new StructuredPushSender(getClientORB());
 
+        _sender.setStructuredEvent(structuredEvent_);
+        
         StructuredPushReceiver _receiver =
-            new StructuredPushReceiver(this);
+            new StructuredPushReceiver(getClientORB());
 
         _sender.connect(eventChannel_, false);
         _receiver.connect(eventChannel_, false);

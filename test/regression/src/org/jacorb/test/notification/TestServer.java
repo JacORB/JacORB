@@ -35,44 +35,41 @@ import org.omg.PortableServer.Servant;
 
 public class TestServer
 {
-    public static void main (String[] args) throws Exception
+    public static void main(String[] args) throws Exception
     {
         String _servantClassName = args[0];
         int _portToSendIorTo = Integer.parseInt(args[1]);
 
         try
-            {
-                //init ORB
-                ORB orb = ORB.init( args, null );
+        {
+            // init ORB
+            ORB orb = ORB.init(args, null);
 
-                //init POA
-                POA poa =
-                    POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
-                poa.the_POAManager().activate();
+            // init POA
+            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            poa.the_POAManager().activate();
 
-                Class _servantClass = Class.forName (_servantClassName);
+            Class _servantClass = Class.forName(_servantClassName);
 
-                Servant _servant = ( Servant ) _servantClass.newInstance();
+            Servant _servant = (Servant) _servantClass.newInstance();
 
-                // create the object reference
-                org.omg.CORBA.Object o = poa.servant_to_reference( _servant );
+            // create the object reference
+            org.omg.CORBA.Object o = poa.servant_to_reference(_servant);
 
-                Socket _socket = new Socket("localhost", _portToSendIorTo);
+            Socket _socket = new Socket("localhost", _portToSendIorTo);
 
-                PrintWriter _out = new PrintWriter(_socket.getOutputStream(), true);
+            PrintWriter _out = new PrintWriter(_socket.getOutputStream(), true);
 
-                _out.println( orb.object_to_string(o));
-                _out.flush();
-                _out.close();
-                _socket.close();
+            _out.println(orb.object_to_string(o));
+            _out.flush();
+            _out.close();
+            _socket.close();
 
-                // wait for requests
-                orb.run();
+            // wait for requests
+            orb.run();
+        } catch (Throwable e)
+        {
+            // ignored
         }
-        catch( Throwable e )
-            {
-
-            }
     }
 }
-

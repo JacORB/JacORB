@@ -183,6 +183,7 @@ public class TCLTest extends NotificationTestCase
             }
         } catch (StaticTypeException ste)
         {
+            // expected
         }
     }
 
@@ -384,6 +385,7 @@ public class TCLTest extends NotificationTestCase
             fail("Division by zero should cause an exception");
         } catch (EvaluationException e)
         {
+            // expected
         }
 
         runEvaluation("TRUE", "TRUE or (1/0)");
@@ -438,6 +440,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
 
         runEvaluation(testPerson_, "$.phone_numbers._length == 2");
@@ -506,6 +509,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
 
         runEvaluation(testUnion1_, "$.(1) > 54");
@@ -546,6 +550,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
 
         runEvaluation(testPerson_, "$.0", "'Firstname'");
@@ -599,6 +604,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
 
         try
@@ -607,6 +613,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
 
         try
@@ -615,6 +622,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
 
     }
@@ -627,6 +635,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (ParseException e)
         {
+            // expected
         }
 
         try
@@ -635,6 +644,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (ParseException e)
         {
+            // expected
         }
     }
 
@@ -780,6 +790,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
     }
 
@@ -805,6 +816,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
     }
 
@@ -816,6 +828,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
     }
 
@@ -830,6 +843,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
 
         try
@@ -839,6 +853,7 @@ public class TCLTest extends NotificationTestCase
             fail();
         } catch (EvaluationException e)
         {
+            // expected
         }
     }
 

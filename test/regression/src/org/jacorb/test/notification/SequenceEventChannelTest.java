@@ -4,7 +4,6 @@ import junit.framework.Test;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
-import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
@@ -44,15 +43,9 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
         channel_.set_qos(new Property[] {new Property( MaximumBatchSize.value, _value )});
 
-        SequencePushSender _pushSender = new SequencePushSender(this, _events);
+        SequencePushSender _pushSender = new SequencePushSender(getClientORB(), _events);
 
-        SequencePushReceiver _pushReceiver = new SequencePushReceiver(this) {
-                public void push_structured_events(StructuredEvent[] event) throws Disconnected {
-                    assertEquals(2, event.length);
-
-                    super.push_structured_events(event);
-                }
-            };
+        SequencePushReceiver _pushReceiver = new SequencePushReceiver(getClientORB());
 
         _pushSender.connect(channel_, false);
         _pushReceiver.connect(channel_, false);
@@ -71,10 +64,10 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
         EventChannel _channel = getFactory().create_channel(_p, _p, _channelId);
 
-        SequencePushSender _pushSender = new SequencePushSender(this, testEvent_);
-        SequencePullSender _pullSender = new SequencePullSender(this, testEvent_);
-        SequencePushReceiver _pushReceiver = new SequencePushReceiver(this);
-        SequencePullReceiver _pullReceiver = new SequencePullReceiver(this);
+        SequencePushSender _pushSender = new SequencePushSender(getClientORB(), testEvent_);
+        SequencePullSender _pullSender = new SequencePullSender(getClientORB(), testEvent_);
+        SequencePushReceiver _pushReceiver = new SequencePushReceiver(getClientORB());
+        SequencePullReceiver _pullReceiver = new SequencePullReceiver(getClientORB());
 
         _pushSender.connect(_channel,false);
         _pullSender.connect(_channel,false);
@@ -90,7 +83,9 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException ie) {}
+        } catch (InterruptedException ie) {
+            // ignored
+        }
 
         assertTrue(!_pushSender.isConnected());
         assertTrue(!_pullSender.isConnected());
@@ -100,8 +95,8 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public void testSendPushPush() throws Exception {
-        SequencePushSender _sender = new SequencePushSender(this, testEvent_);
-        SequencePushReceiver _receiver = new SequencePushReceiver(this);
+        SequencePushSender _sender = new SequencePushSender(getClientORB(), testEvent_);
+        SequencePushReceiver _receiver = new SequencePushReceiver(getClientORB());
 
         _sender.connect(channel_,false);
         _receiver.connect(channel_,false);
@@ -118,8 +113,8 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public void testSendPushPull() throws Exception {
-        SequencePushSender _sender = new SequencePushSender(this, testEvent_);
-        SequencePullReceiver _receiver = new SequencePullReceiver(this);
+        SequencePushSender _sender = new SequencePushSender(getClientORB(), testEvent_);
+        SequencePullReceiver _receiver = new SequencePullReceiver(getClientORB());
 
         _sender.connect(channel_,false);
         _receiver.connect(channel_,false);
@@ -136,8 +131,8 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public void testSendPullPush() throws Exception {
-        SequencePullSender _sender = new SequencePullSender(this, testEvent_);
-        SequencePushReceiver _receiver = new SequencePushReceiver(this);
+        SequencePullSender _sender = new SequencePullSender(getClientORB(), testEvent_);
+        SequencePushReceiver _receiver = new SequencePushReceiver(getClientORB());
 
         _receiver.connect(channel_,false);
         _sender.connect(channel_,false);
@@ -154,8 +149,8 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public void testSendPullPull() throws Exception {
-        SequencePullSender _sender = new SequencePullSender(this, testEvent_);
-        SequencePullReceiver _receiver = new SequencePullReceiver(this);
+        SequencePullSender _sender = new SequencePullSender(getClientORB(), testEvent_);
+        SequencePullReceiver _receiver = new SequencePullReceiver(getClientORB());
             _sender.connect(channel_,false);
 
         _receiver.connect(channel_,false);

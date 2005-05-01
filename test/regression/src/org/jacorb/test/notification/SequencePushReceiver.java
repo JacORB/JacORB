@@ -3,6 +3,7 @@ package org.jacorb.test.notification;
 import junit.framework.Assert;
 
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
@@ -20,17 +21,22 @@ import org.omg.CosNotifyComm.SequencePushConsumerHelper;
 import org.omg.CosNotifyComm.SequencePushConsumerOperations;
 import org.omg.CosNotifyComm.SequencePushConsumerPOATie;
 
-class SequencePushReceiver extends Thread implements SequencePushConsumerOperations, TestClientOperations
+class SequencePushReceiver extends Thread implements SequencePushConsumerOperations,
+        TestClientOperations
 {
     SequenceProxyPushSupplier pushSupplier_;
+
     boolean received_ = false;
+
     boolean connected_ = false;
+
     long timeout_ = 2000;
 
-    NotificationTestCase testCase_;
+    final ORB orb_;
 
-    public SequencePushReceiver(NotificationTestCase testCase) {
-        testCase_ = testCase;
+    public SequencePushReceiver(ORB orb)
+    {
+        orb_ = orb;
     }
 
     public void run()
@@ -42,9 +48,10 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
                 try
                 {
                     wait(timeout_);
+                } catch (InterruptedException e)
+                {
+                    // ignored
                 }
-                catch (InterruptedException e)
-                {}
             }
         }
     }
@@ -64,25 +71,24 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
     }
 
     public void offer_change(EventType[] type1, EventType[] type2) throws InvalidEventType
-        {}
+    {
+        // ignored
+    }
 
-    public void connect(EventChannel channel,
-                        boolean useOrSemantic)
-        throws AdminLimitExceeded,
-               AlreadyConnected,
-               TypeError
+    public void connect(EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded,
+            AlreadyConnected, TypeError
     {
         SequencePushConsumerPOATie receiverTie = new SequencePushConsumerPOATie(this);
         ConsumerAdmin _consumerAdmin = channel.default_consumer_admin();
         IntHolder _proxyIdHolder = new IntHolder();
 
-        pushSupplier_ = SequenceProxyPushSupplierHelper.narrow(_consumerAdmin.obtain_notification_push_supplier(ClientType.SEQUENCE_EVENT, _proxyIdHolder));
+        pushSupplier_ = SequenceProxyPushSupplierHelper.narrow(_consumerAdmin
+                .obtain_notification_push_supplier(ClientType.SEQUENCE_EVENT, _proxyIdHolder));
 
-        Assert.assertEquals(ProxyType._PUSH_SEQUENCE,
-                           pushSupplier_.MyType().value());
+        Assert.assertEquals(ProxyType._PUSH_SEQUENCE, pushSupplier_.MyType().value());
 
-
-        pushSupplier_.connect_sequence_push_consumer(SequencePushConsumerHelper.narrow(receiverTie._this(testCase_.getORB())));
+        pushSupplier_.connect_sequence_push_consumer(SequencePushConsumerHelper.narrow(receiverTie
+                ._this(orb_)));
 
         connected_ = true;
     }

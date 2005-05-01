@@ -6,6 +6,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
@@ -30,7 +31,6 @@ import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 public class StructuredPushReceiver extends Thread implements StructuredPushConsumerOperations,
         TestClientOperations
 {
-
     StructuredProxyPushSupplier pushSupplier_;
 
     int received_ = 0;
@@ -47,32 +47,22 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
 
     boolean connected_ = false;
 
-    PerformanceListener perfListener_;
-
-    NotificationTestCase testCase_;
-
-    List receivedEvents = new ArrayList();
-
     List addedOffers = new ArrayList();
 
     List removedOffers = new ArrayList();
 
-    public StructuredPushReceiver(NotificationTestCase testCase)
+    ORB orb_;
+    
+    public StructuredPushReceiver(ORB orb)
     {
-        testCase_ = testCase;
+        orb_ = orb;
     }
 
-    public StructuredPushReceiver(NotificationTestCase testCase, PerformanceListener perfListener,
-            int expected)
+    public StructuredPushReceiver(ORB orb, int expected)
     {
-        perfListener_ = perfListener;
+        this(orb);
+        
         expected_ = expected;
-        testCase_ = testCase;
-    }
-
-    public StructuredPushReceiver(NotificationTestCase testCase, int expected)
-    {
-        this(testCase, null, expected);
     }
 
     public void setBarrier(CyclicBarrier barrier)
@@ -102,6 +92,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
                     wait(timeout_);
                 } catch (InterruptedException e)
                 {
+                    // ignored
                 }
             }
         }
@@ -113,6 +104,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
                 barrier_.barrier();
             } catch (InterruptedException ie)
             {
+                // ignored
             }
         }
     }
@@ -121,12 +113,11 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
     {
         received_++;
 
-        if (perfListener_ != null)
+        if (received_ % 100 == 0)
         {
-            perfListener_.eventReceived(event, System.currentTimeMillis());
+            System.out.println("push: " + received_);
         }
-
-        receivedEvents.add(event);
+        
 
         if (received_ == expected_)
         {
@@ -137,6 +128,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
         }
     }
 
+    
     public void disconnect_structured_push_consumer()
     {
         connected_ = false;
@@ -144,7 +136,6 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
 
     public void offer_change(EventType[] added, EventType[] removed) throws InvalidEventType
     {
-
         for (int x = 0; x < added.length; ++x)
         {
             addedOffers.add(added[x]);
@@ -159,7 +150,6 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
     public void connect(EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded,
             AlreadyConnected, TypeError
     {
-
         StructuredPushConsumerPOATie receiverTie = new StructuredPushConsumerPOATie(this);
 
         ConsumerAdmin _consumerAdmin = channel.default_consumer_admin();
@@ -174,7 +164,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
 
         Assert.assertEquals(_consumerAdmin, pushSupplier_.MyAdmin());
         pushSupplier_.connect_structured_push_consumer(StructuredPushConsumerHelper
-                .narrow(receiverTie._this(testCase_.getORB())));
+                .narrow(receiverTie._this(orb_)));
 
         connected_ = true;
     }
@@ -185,8 +175,8 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
         {
             return received_ == expected_;
         }
+        
         return received_ > 0;
-
     }
 
     public boolean isConnected()
@@ -205,13 +195,18 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
         {
             pushSupplier_.remove_filter(filterId_);
         }
+        
         Assert.assertTrue(!pushSupplier_._non_existent());
         pushSupplier_.disconnect_structured_push_supplier();
-        //      testCase_.assertTrue(pushSupplier_._non_existent());
 
         if (filter_ != null)
         {
             filter_.destroy();
         }
+    }
+    
+    public String toString()
+    {
+        return "StructuredPushReceiver received: " + received_;
     }
 }

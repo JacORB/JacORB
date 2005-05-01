@@ -40,9 +40,11 @@ import org.omg.CosNotification.EventTypeHelper;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosTypedNotifyComm.TypedPullSupplierHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
 import org.omg.CosTypedNotifyComm.TypedPullSupplier;
+import org.omg.CosTypedNotifyComm.TypedPullSupplierPOATie;
 
 /**
  * @author Alphonse Bendt
@@ -77,7 +79,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         controlAdmin_.setReturnValue(true);
 
         mockAdmin_.getContainer();
-        controlAdmin_.setReturnValue(getContainer());
+        controlAdmin_.setReturnValue(getPicoContainer());
 
         mockAdmin_.getSupportedInterface();
         controlAdmin_.setDefaultReturnValue(PullCoffeeHelper.id());
@@ -93,7 +95,10 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
                 getPOA(), getConfiguration(), getTaskProcessor(), getMessageFactory(),
                 new OfferManager(), new SubscriptionManager());
 
-        proxyPullConsumer_ = TypedProxyPullConsumerHelper.narrow(objectUnderTest_.activate());
+        String string = getORB().object_to_string(
+                TypedProxyPullConsumerHelper.narrow(objectUnderTest_.activate()));
+        proxyPullConsumer_ = TypedProxyPullConsumerHelper.narrow(getClientORB().string_to_object(
+                string));
 
         controlTypedPullSupplier_ = MockControl.createControl(TypedPullSupplier.class);
         mockTypedPullSupplier_ = (TypedPullSupplier) controlTypedPullSupplier_.getMock();
@@ -115,11 +120,6 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         assertEquals(ProxyType.PULL_TYPED, proxyPullConsumer_.MyType());
     }
 
-    public void testMyAdmin()
-    {
-        assertEquals(mockSupplierAdmin_, proxyPullConsumer_.MyAdmin());
-    }
-
     public void testConnect() throws Exception
     {
         MockControl controlPullCoffeeOperations = MockControl
@@ -128,8 +128,9 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         PullCoffeeOperations mockPullCoffee = (PullCoffeeOperations) controlPullCoffeeOperations
                 .getMock();
 
-        PullCoffee pullCoffee = new PullCoffeePOATie(mockPullCoffee)._this(getORB());
-
+        PullCoffee pullCoffee = PullCoffeeHelper.narrow(new PullCoffeePOATie(mockPullCoffee)
+                ._this(getClientORB()));
+        
         controlPullCoffeeOperations.replay();
 
         mockTypedPullSupplier_.get_typed_supplier();
@@ -137,7 +138,8 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
         controlTypedPullSupplier_.replay();
 
-        proxyPullConsumer_.connect_typed_pull_supplier(mockTypedPullSupplier_);
+        proxyPullConsumer_.connect_typed_pull_supplier(TypedPullSupplierHelper.narrow(new TypedPullSupplierPOATie(
+                mockTypedPullSupplier_)._this(getClientORB())));
 
         controlTypedPullSupplier_.verify();
         controlPullCoffeeOperations.verify();
@@ -151,11 +153,13 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         _coffee.try_cancel_coffee_expect = 1;
 
         mockTypedPullSupplier_.get_typed_supplier();
-        controlTypedPullSupplier_.setReturnValue(_coffee._this(getORB()));
+        controlTypedPullSupplier_.setReturnValue(_coffee._this(getClientORB()));
 
         controlTypedPullSupplier_.replay();
 
-        proxyPullConsumer_.connect_typed_pull_supplier(mockTypedPullSupplier_);
+        proxyPullConsumer_
+                .connect_typed_pull_supplier(new org.omg.CosTypedEventComm.TypedPullSupplierPOATie(
+                        mockTypedPullSupplier_)._this(getClientORB()));
 
         objectUnderTest_.runPullMessage();
 
@@ -195,7 +199,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
                 {
                     fail();
                 }
-                
+
                 return true;
             }
         });
@@ -223,11 +227,12 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         _coffee.try_cancel_coffee_expect = 1;
 
         mockTypedPullSupplier_.get_typed_supplier();
-        controlTypedPullSupplier_.setReturnValue(_coffee._this(getORB()));
+        controlTypedPullSupplier_.setReturnValue(_coffee._this(getClientORB()));
 
         controlTypedPullSupplier_.replay();
 
-        proxyPullConsumer_.connect_typed_pull_supplier(mockTypedPullSupplier_);
+        proxyPullConsumer_.connect_typed_pull_supplier(new TypedPullSupplierPOATie(
+                mockTypedPullSupplier_)._this(getClientORB()));
 
         objectUnderTest_.runPullMessage();
 

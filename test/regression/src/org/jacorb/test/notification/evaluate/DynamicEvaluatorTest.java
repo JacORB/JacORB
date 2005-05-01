@@ -30,8 +30,6 @@ import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertyHelper;
 import org.omg.CosNotification.PropertySeqHelper;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 
 /**
  * @author Alphonse Bendt
@@ -51,10 +49,7 @@ public class DynamicEvaluatorTest extends NotificationTestCase {
 
 
     public void setUpTest() throws Exception {
-    DynAnyFactory _dynAnyFactory =
-            DynAnyFactoryHelper.narrow(getORB().resolve_initial_references("DynAnyFactory"));
-
-        objectUnderTest_ = new DefaultETCLEvaluator(getConfiguration(), _dynAnyFactory);
+        objectUnderTest_ = new DefaultETCLEvaluator(getConfiguration(), getDynAnyFactory());
     }
 
 

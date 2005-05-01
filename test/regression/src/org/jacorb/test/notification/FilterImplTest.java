@@ -110,6 +110,7 @@ public class FilterImplTest extends NotificationTestCase {
             _i.next();
             fail("Calling Iterator.next() on an empty Iterator should fail!");
         } catch (Exception e) {
+            // expected
         }
     }
 

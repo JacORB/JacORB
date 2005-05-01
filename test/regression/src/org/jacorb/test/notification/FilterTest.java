@@ -59,7 +59,7 @@ public class FilterTest extends NotificationTestCase
         {
             public MutablePicoContainer getContainer()
             {
-                return container_;
+                return getPicoContainer();
             }
             
             public void destroy()

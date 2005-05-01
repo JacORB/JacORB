@@ -68,18 +68,18 @@ public class TestUtils
         return _testPerson;
     }
 
-    public Any getSizedTestData(int size)
+    public Any getAnyLongSequence(int size)
     {
-        Any _testData = sOrb_.create_any();
-        int[] _payload = new int[size];
+        Any _any = sOrb_.create_any();
+        int[] _sequence = new int[size];
 
         for (int x = 0; x < size; ++x)
         {
-            _payload[x] = x;
+            _sequence[x] = x;
         }
 
-        LongSeqHelper.insert(_testData, _payload);
+        LongSeqHelper.insert(_any, _sequence);
 
-        return _testData;
+        return _any;
     }
 }

@@ -3,6 +3,7 @@ package org.jacorb.test.notification;
 import junit.framework.Assert;
 
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.StructuredEvent;
@@ -18,31 +19,27 @@ import org.omg.CosNotifyComm.SequencePushSupplierHelper;
 import org.omg.CosNotifyComm.SequencePushSupplierOperations;
 import org.omg.CosNotifyComm.SequencePushSupplierPOATie;
 
-class SequencePushSender
-    extends Thread
-    implements SequencePushSupplierOperations,
-               TestClientOperations
+class SequencePushSender extends Thread implements SequencePushSupplierOperations,
+        TestClientOperations
 {
     SequenceProxyPushConsumer pushConsumer_;
+
     StructuredEvent[] event_;
+
     int times_ = 1;
+
     boolean error_ = false;
+
     boolean connected_;
+
     boolean eventSent_;
-    NotificationTestCase testCase_;
 
+    ORB orb_;
 
-    SequencePushSender(NotificationTestCase testCase, StructuredEvent[] event)
+    public SequencePushSender(ORB orb, StructuredEvent[] event)
     {
-        testCase_ = testCase;
+        orb_ = orb;
         event_ = event;
-    }
-
-    SequencePushSender(NotificationTestCase testCase, StructuredEvent[] event, int times)
-    {
-        testCase_ = testCase;
-        event_ = event;
-        times_ = times;
     }
 
     public boolean isConnected()
@@ -67,8 +64,7 @@ class SequencePushSender
             try
             {
                 pushConsumer_.push_structured_events(event_);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 error_ = true;
             }
@@ -76,37 +72,37 @@ class SequencePushSender
         eventSent_ = true;
     }
 
-
     public void disconnect_sequence_push_supplier()
     {
         connected_ = false;
     }
 
-    public void subscription_change(EventType[] eventType, EventType[] eventType2) throws InvalidEventType
-        {}
-
-    public void connect(EventChannel channel,
-                        boolean useOrSemantic)
-        throws AdminLimitExceeded,
-               AlreadyConnected
+    public void subscription_change(EventType[] eventType, EventType[] eventType2)
+            throws InvalidEventType
     {
+        // ignored
+    }
 
+    public void connect(EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded,
+            AlreadyConnected
+    {
         SequencePushSupplierPOATie senderTie = new SequencePushSupplierPOATie(this);
         SupplierAdmin supplierAdmin = channel.default_supplier_admin();
         IntHolder _proxyIdHolder = new IntHolder();
 
-        pushConsumer_ =
-            SequenceProxyPushConsumerHelper.narrow(supplierAdmin.obtain_notification_push_consumer(ClientType.SEQUENCE_EVENT,_proxyIdHolder));
+        pushConsumer_ = SequenceProxyPushConsumerHelper.narrow(supplierAdmin
+                .obtain_notification_push_consumer(ClientType.SEQUENCE_EVENT, _proxyIdHolder));
 
-        Assert.assertEquals(ProxyType._PUSH_SEQUENCE,
-                           pushConsumer_.MyType().value());
+        Assert.assertEquals(ProxyType._PUSH_SEQUENCE, pushConsumer_.MyType().value());
 
-        pushConsumer_.connect_sequence_push_supplier(SequencePushSupplierHelper.narrow(senderTie._this(testCase_.getORB())));
+        pushConsumer_.connect_sequence_push_supplier(SequencePushSupplierHelper.narrow(senderTie
+                ._this(orb_)));
 
         connected_ = true;
     }
 
     public void shutdown()
     {
+        pushConsumer_.disconnect_sequence_push_consumer();
     }
 }

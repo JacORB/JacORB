@@ -43,7 +43,7 @@ public class EventChannelFactoryTest
         assertNotNull(_corbaLoc);
 
         org.omg.CORBA.Object obj =
-            getORB().string_to_object(_corbaLoc);
+            getClientORB().string_to_object(_corbaLoc);
 
         assertNotNull(obj);
 
@@ -60,7 +60,7 @@ public class EventChannelFactoryTest
         assertNotNull(ior);
 
         org.omg.CORBA.Object obj =
-            getORB().string_to_object(ior);
+            getClientORB().string_to_object(ior);
 
         assertNotNull(obj);
 

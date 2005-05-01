@@ -5,6 +5,7 @@ import junit.framework.Assert;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
@@ -38,12 +39,12 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
 
     SupplierAdmin myAdmin_;
 
-    NotificationTestCase testCase_;
+    private ORB orb_;
 
-    public AnyPullSender(NotificationTestCase testCase, Any event)
+    public AnyPullSender(ORB orb, Any event)
     {
         event_ = event;
-        testCase_ = testCase;
+        orb_ = orb;
     }
 
     void reset()
@@ -63,7 +64,7 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
 
-        invalidAny_ = testCase_.getORB().create_any();
+        invalidAny_ = orb_.create_any();
 
         if (useOrSemantic)
         {
@@ -83,7 +84,7 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
 
         Assert.assertEquals(ProxyType._PULL_ANY, myConsumer_.MyType().value());
 
-        myConsumer_.connect_any_pull_supplier(_this(testCase_.getORB()));
+        myConsumer_.connect_any_pull_supplier(_this(orb_));
         connected_ = true;
     }
 
@@ -111,6 +112,7 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
 
     public void subscription_change(EventType[] e1, EventType[] e2)
     {
+        // ignored
     }
 
     public Any pull() throws Disconnected

@@ -131,8 +131,10 @@ public class StopTimeTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[1] = new Property(StopTime.value, _any);
 
-        StructuredPushSender _sender = new StructuredPushSender(this, structuredEvent_);
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
+        StructuredPushSender _sender = new StructuredPushSender(getORB());
+        _sender.setStructuredEvent(new StructuredEvent[] {structuredEvent_});
+        
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(this.getORB());
 
         _sender.connect(eventChannel_, false);
 

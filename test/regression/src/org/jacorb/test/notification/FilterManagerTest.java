@@ -42,9 +42,6 @@ public class FilterManagerTest extends TestCase
 
     private MockControl controlFilter_;
 
-    /*
-     * @see TestCase#setUp()
-     */
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -63,11 +60,6 @@ public class FilterManagerTest extends TestCase
         super.tearDown();
     }
 
-    /**
-     * Constructor for FilterManagerTest.
-     * 
-     * @param name
-     */
     public FilterManagerTest(String name)
     {
         super(name);
@@ -98,6 +90,7 @@ public class FilterManagerTest extends TestCase
             fail();
         } catch (FilterNotFound e)
         {
+            // expected
         }
 
         assertEquals(0, objectUnderTest_.get_all_filters().length);
@@ -117,6 +110,7 @@ public class FilterManagerTest extends TestCase
             fail();
         } catch (FilterNotFound e)
         {
+            // expected
         }
     }
 
@@ -156,7 +150,8 @@ public class FilterManagerTest extends TestCase
             objectUnderTest_.getFilters().clear();
             fail();
         } catch (Exception e)
-        {    
+        {  
+            // expected
         }
         
         objectUnderTest_.remove_all_filters();
@@ -169,5 +164,4 @@ public class FilterManagerTest extends TestCase
     {
         return new TestSuite(FilterManagerTest.class);
     }
-
 }

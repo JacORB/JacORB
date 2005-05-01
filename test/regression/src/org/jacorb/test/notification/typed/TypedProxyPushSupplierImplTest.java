@@ -89,7 +89,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         controlAdmin_.setReturnValue(true);
 
         mockAdmin_.getContainer();
-        controlAdmin_.setReturnValue(getContainer());
+        controlAdmin_.setReturnValue(getPicoContainer());
 
         mockAdmin_.getSupportedInterface();
         controlAdmin_.setReturnValue(CoffeeHelper.id());
@@ -111,16 +111,12 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         assertTrue(objectUnderTest_.isIDPublic());
     }
 
-    public void testMyAdmin()
-    {
-        assertEquals(mockConsumerAdmin_, proxyPushSupplier_.MyAdmin());
-    }
 
     public void testConnect() throws Exception
     {
         MockCoffee _mockCoffee = new MockCoffee();
 
-        final Coffee _coffee = _mockCoffee._this(getORB());
+        final Coffee _coffee = _mockCoffee._this(getClientORB());
 
         MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
         {
@@ -130,7 +126,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
             }
         };
 
-        TypedPushConsumer _consumer = _mockConsumer._this(getORB());
+        TypedPushConsumer _consumer = _mockConsumer._this(getClientORB());
 
         proxyPushSupplier_.connect_typed_push_consumer(_consumer);
     }
@@ -147,7 +143,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
             }
         };
 
-        final TypedPushConsumer _consumer = _mockConsumer._this(getORB());
+        final TypedPushConsumer _consumer = _mockConsumer._this(getClientORB());
 
         _map.put("object", _consumer);
 
@@ -184,7 +180,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         _mockCoffee.drinking_coffee_expect = 1;
 
         // setup and connect consumer
-        final Coffee _coffee = _mockCoffee._this(getORB());
+        final Coffee _coffee = _mockCoffee._this(getClientORB());
 
         MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
         {
@@ -194,7 +190,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
             }
         };
 
-        TypedPushConsumer _consumer = _mockConsumer._this(getORB());
+        TypedPushConsumer _consumer = _mockConsumer._this(getClientORB());
 
         proxyPushSupplier_.connect_typed_push_consumer(_consumer);
 
@@ -228,7 +224,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         _mockCoffee.drinking_coffee_expect = 1;
 
         // setup and connect consumer
-        final Coffee _coffee = _mockCoffee._this(getORB());
+        final Coffee _coffee = _mockCoffee._this(getClientORB());
 
         MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
         {
@@ -238,7 +234,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
             }
         };
 
-        TypedPushConsumer _consumer = _mockConsumer._this(getORB());
+        TypedPushConsumer _consumer = _mockConsumer._this(getClientORB());
 
         proxyPushSupplier_.connect_typed_push_consumer(_consumer);
 
@@ -277,7 +273,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         _mockCoffee.drinking_coffee_expect = 1;
 
         // setup and connect consumer
-        final Coffee _coffee = _mockCoffee._this(getORB());
+        final Coffee _coffee = _mockCoffee._this(getClientORB());
 
         MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
         {
@@ -287,7 +283,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
             }
         };
 
-        TypedPushConsumer _consumer = _mockConsumer._this(getORB());
+        TypedPushConsumer _consumer = _mockConsumer._this(getClientORB());
 
         proxyPushSupplier_.connect_typed_push_consumer(_consumer);
 
@@ -330,7 +326,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         _mockCoffee.drinking_coffee_expect = 1;
 
         // setup and connect consumer
-        final Coffee _coffee = _mockCoffee._this(getORB());
+        final Coffee _coffee = _mockCoffee._this(getClientORB());
 
         MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
         {
@@ -340,7 +336,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
             }
         };
 
-        TypedPushConsumer _consumer = _mockConsumer._this(getORB());
+        TypedPushConsumer _consumer = _mockConsumer._this(getClientORB());
 
         proxyPushSupplier_.connect_typed_push_consumer(_consumer);
 

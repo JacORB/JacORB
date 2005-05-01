@@ -27,19 +27,22 @@ import org.omg.CosNotifyComm.SequencePullSupplierPOATie;
  * @version $Id$
  */
 
-public class SequencePullSender
-    extends Thread
-    implements SequencePullSupplierOperations,
-               TestClientOperations
+public class SequencePullSender extends Thread implements SequencePullSupplierOperations,
+        TestClientOperations
 {
     ORB orb_;
+
     StructuredEvent[] event_;
+
     SequenceProxyPullConsumer pullConsumer_;
+
     boolean error_;
+
     boolean connected_;
+
     boolean eventHandled_;
+
     boolean available_ = false;
-    NotificationTestCase testCase_;
 
     public void run()
     {
@@ -59,16 +62,17 @@ public class SequencePullSender
         return eventHandled_;
     }
 
-    public SequencePullSender(NotificationTestCase testCase, StructuredEvent[] event)
+    public SequencePullSender(ORB orb, StructuredEvent[] event)
     {
         event_ = event;
-        testCase_ = testCase;
+        orb_ = orb;
     }
 
-
-    public void subscription_change(EventType[] eventType1, EventType[] eventType2) throws InvalidEventType
-        {}
-
+    public void subscription_change(EventType[] eventType1, EventType[] eventType2)
+            throws InvalidEventType
+    {
+        // ignored
+    }
 
     public StructuredEvent[] pull_structured_events(int number) throws Disconnected
     {
@@ -85,16 +89,13 @@ public class SequencePullSender
         }
     }
 
-    public StructuredEvent[] try_pull_structured_events(int number,
-                                                        BooleanHolder booleanHolder)
-        throws Disconnected
+    public StructuredEvent[] try_pull_structured_events(int number, BooleanHolder booleanHolder)
+            throws Disconnected
     {
 
         booleanHolder.value = false;
-        StructuredEvent[] _result =
-            new StructuredEvent[] {
-                NotificationTestUtils.getInvalidStructuredEvent(orb_)
-            };
+        StructuredEvent[] _result = new StructuredEvent[] { NotificationTestUtils
+                .getInvalidStructuredEvent(orb_) };
 
         if (event_ != null)
         {
@@ -112,28 +113,24 @@ public class SequencePullSender
         return _result;
     }
 
-
     public void disconnect_sequence_pull_supplier()
     {
         connected_ = false;
     }
 
-    public void connect(EventChannel channel,
-                        boolean useOrSemantic)
-        throws AdminLimitExceeded,
-               AlreadyConnected,
-               TypeError
+    public void connect(EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded,
+            AlreadyConnected, TypeError
     {
-        orb_ = testCase_.getORB();
         SequencePullSupplierPOATie _senderTie = new SequencePullSupplierPOATie(this);
         SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
         IntHolder _proxyId = new IntHolder();
-        pullConsumer_ = SequenceProxyPullConsumerHelper.narrow(_supplierAdmin.obtain_notification_pull_consumer(ClientType.SEQUENCE_EVENT, _proxyId));
+        pullConsumer_ = SequenceProxyPullConsumerHelper.narrow(_supplierAdmin
+                .obtain_notification_pull_consumer(ClientType.SEQUENCE_EVENT, _proxyId));
 
-        Assert.assertEquals(ProxyType._PULL_SEQUENCE,
-                               pullConsumer_.MyType().value());
+        Assert.assertEquals(ProxyType._PULL_SEQUENCE, pullConsumer_.MyType().value());
 
-        pullConsumer_.connect_sequence_pull_supplier(SequencePullSupplierHelper.narrow(_senderTie._this(orb_)));
+        pullConsumer_.connect_sequence_pull_supplier(SequencePullSupplierHelper.narrow(_senderTie
+                ._this(orb_)));
         connected_ = true;
     }
 

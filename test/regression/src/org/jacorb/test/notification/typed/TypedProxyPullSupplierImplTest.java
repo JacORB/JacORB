@@ -35,6 +35,7 @@ import org.omg.CORBA.StringHolder;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdminPOATie;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.PullConsumerPOA;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplier;
@@ -61,7 +62,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
     private ConsumerAdmin mockConsumerAdmin_;
 
     private MockControl controlConsumerAdmin_;
-    
+
     public void setUpTest() throws Exception
     {
         controlAdmin_ = MockControl.createNiceControl(ITypedAdmin.class);
@@ -73,7 +74,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         controlAdmin_.setReturnValue(true);
 
         mockAdmin_.getContainer();
-        controlAdmin_.setReturnValue(getContainer());
+        controlAdmin_.setReturnValue(getPicoContainer());
 
         mockAdmin_.getSupportedInterface();
         controlAdmin_.setReturnValue(PullCoffeeHelper.id());
@@ -83,16 +84,14 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         controlConsumerAdmin_ = MockControl.createControl(ConsumerAdmin.class);
         mockConsumerAdmin_ = (ConsumerAdmin) controlConsumerAdmin_.getMock();
 
-        controlConsumerAdmin_.replay();
-
-        objectUnderTest_ = new TypedProxyPullSupplierImpl(mockAdmin_, mockConsumerAdmin_, getORB(),
-                getPOA(), getConfiguration(), getTaskProcessor(), new OfferManager(),
-                new SubscriptionManager(), getDynAnyFactory(), getRepository());
+        objectUnderTest_ = new TypedProxyPullSupplierImpl(mockAdmin_, new ConsumerAdminPOATie(
+                mockConsumerAdmin_)._this(getORB()), getORB(), getPOA(), getConfiguration(),
+                getTaskProcessor(), new OfferManager(), new SubscriptionManager(),
+                getDynAnyFactory(), getRepository());
 
         proxyPullSupplier_ = TypedProxyPullSupplierHelper.narrow(objectUnderTest_.activate());
     }
 
-    
     public TypedProxyPullSupplierImplTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
@@ -106,21 +105,26 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
 
     public void testMyAdmin()
     {
-        assertEquals(mockConsumerAdmin_, proxyPullSupplier_.MyAdmin());
+        mockConsumerAdmin_.remove_all_filters();
+
+        controlConsumerAdmin_.replay();
+        proxyPullSupplier_.MyAdmin().remove_all_filters();
+
+        controlConsumerAdmin_.verify();
     }
 
     public void testConnect() throws Exception
     {
         NullPullConsumer _pullConsumer = new NullPullConsumer();
 
-        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getClientORB()));
     }
 
     public void testEmptyPull() throws Exception
     {
         NullPullConsumer _pullConsumer = new NullPullConsumer();
 
-        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getClientORB()));
 
         org.omg.CORBA.Object _object = proxyPullSupplier_.get_typed_supplier();
 
@@ -144,7 +148,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
 
         NullPullConsumer _pullConsumer = new NullPullConsumer();
 
-        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getClientORB()));
 
         org.omg.CORBA.Object _object = proxyPullSupplier_.get_typed_supplier();
 
@@ -173,7 +177,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
 
         NullPullConsumer _pullConsumer = new NullPullConsumer();
 
-        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getClientORB()));
 
         org.omg.CORBA.Object _object = proxyPullSupplier_.get_typed_supplier();
 
@@ -215,9 +219,11 @@ class NullPullConsumer extends PullConsumerPOA
     public void offer_change(EventType[] eventTypeArray, EventType[] eventTypeArray1)
             throws InvalidEventType
     {
+        // no op
     }
 
     public void disconnect_pull_consumer()
     {
+        // no op
     }
 }

@@ -16,6 +16,7 @@ import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.Filter;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 /**
@@ -31,20 +32,22 @@ public class StructuredEventChannelTest extends NotificationTestCase
     StructuredEvent testEvent_;
 
     Filter trueFilter_;
+
     Filter falseFilter_;
+
     NotificationTestUtils testUtils_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public StructuredEventChannelTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public void setUpTest() throws Exception
-    {      
+    {
         channel_ = getDefaultChannel();
 
         // set test event type and name
@@ -64,7 +67,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         // prepare filterable body data
         Person _p = getTestUtils().getTestPerson();
         Address _a = new Address();
-    
+
         _p.first_name = "firstname";
         _p.last_name = "lastname";
         _p.age = 5;
@@ -86,7 +89,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         testEvent_.remainder_of_body = getORB().create_any();
 
         trueFilter_ = createFilter();
-        
+
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
@@ -95,15 +98,22 @@ public class StructuredEventChannelTest extends NotificationTestCase
         trueFilter_.add_constraints(_constraintExp);
 
         falseFilter_ = createFilter();
-        
+
         _constraintExp = new ConstraintExp[1];
         _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
 
         _constraintExp[0] = new ConstraintExp(_eventType, "false");
-        falseFilter_.add_constraints(_constraintExp);
+        falseFilter_.add_constraints(_constraintExp);        
     }
 
+    private StructuredPushSender getPushSender()
+    {
+        StructuredPushSender sender = new StructuredPushSender(getClientORB());
+        sender.setStructuredEvent(testEvent_);
+        
+        return sender;
+    }
 
     public void testDestroyChannelDisconnectsClients() throws Exception
     {
@@ -111,10 +121,11 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
         EventChannel _channel = getFactory().create_channel(_p, _p, new IntHolder());
 
-        StructuredPushSender _pushSender = new StructuredPushSender(this, testEvent_);
-        StructuredPullSender _pullSender = new StructuredPullSender(this, testEvent_);
-        StructuredPushReceiver _pushReceiver = new StructuredPushReceiver(this);
-        StructuredPullReceiver _pullReceiver = new StructuredPullReceiver(this);
+        StructuredPushSender _pushSender = getPushSender();
+
+        StructuredPullSender _pullSender = new StructuredPullSender(getClientORB(), testEvent_);
+        StructuredPushReceiver _pushReceiver = new StructuredPushReceiver(getClientORB());
+        StructuredPullReceiver _pullReceiver = new StructuredPullReceiver(getClientORB());
 
         _pushSender.connect(_channel, false);
         _pullSender.connect(_channel, false);
@@ -134,19 +145,23 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue(!_pullReceiver.isConnected());
     }
 
-
-    public void testObtainSubscriptionTypes_sender_throws_NO_IMPLEMENT() throws Exception {
+    public void testObtainSubscriptionTypes_sender_throws_NO_IMPLEMENT() throws Exception
+    {
         final SynchronizedInt subscriptionChangeCounter = new SynchronizedInt(0);
 
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_) {
-                public void subscription_change(EventType[] added, EventType[] removed) {
-                    subscriptionChangeCounter.increment();
+        StructuredPushSender _sender = new StructuredPushSender(getClientORB())
+        {
+            public void subscription_change(EventType[] added, EventType[] removed)
+            {
+                subscriptionChangeCounter.increment();
 
-                    throw new NO_IMPLEMENT();
-                }
-            };
-            
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
+                throw new NO_IMPLEMENT();
+            }
+        };
+        
+        _sender.setStructuredEvent(testEvent_);
+
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
 
         _sender.connect(channel_, false);
 
@@ -154,11 +169,11 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
         _sender.pushConsumer_.obtain_subscription_types(ObtainInfoMode.NONE_NOW_UPDATES_ON);
 
-        EventType[] offers = new EventType[] {new EventType("domain1", "type1")};
+        EventType[] offers = new EventType[] { new EventType("domain1", "type1") };
 
         _receiver.pushSupplier_.subscription_change(offers, EMPTY_EVENT_TYPE);
 
-        offers = new EventType[] {new EventType("domain2", "type2")};
+        offers = new EventType[] { new EventType("domain2", "type2") };
 
         _receiver.pushSupplier_.subscription_change(offers, EMPTY_EVENT_TYPE);
 
@@ -167,41 +182,42 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertEquals(1, subscriptionChangeCounter.get());
     }
 
-
-    public void testObtainSubscriptionTypes_NONE_NOW_UPDATE_ON() throws Exception {
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
+    public void testObtainSubscriptionTypes_NONE_NOW_UPDATE_ON() throws Exception
+    {
+        StructuredPushSender _sender = getPushSender();
+        
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
 
         _sender.pushConsumer_.obtain_subscription_types(ObtainInfoMode.NONE_NOW_UPDATES_ON);
 
-        EventType[] offers = new EventType[] {new EventType("domain1", "type1")};
+        EventType[] offers = new EventType[] { new EventType("domain1", "type1") };
 
         _receiver.pushSupplier_.subscription_change(offers, EMPTY_EVENT_TYPE);
 
         Thread.sleep(1000);
 
         assertEquals(1, _sender.addedSubscriptions_.size());
-        assertEquals("domain1", ((EventType)_sender.addedSubscriptions_.get(0)).domain_name);
-        assertEquals("type1", ((EventType)_sender.addedSubscriptions_.get(0)).type_name);
+        assertEquals("domain1", ((EventType) _sender.addedSubscriptions_.get(0)).domain_name);
+        assertEquals("type1", ((EventType) _sender.addedSubscriptions_.get(0)).type_name);
     }
 
-
-    public void testObtainSubscriptionTypes_ALL_NOW_UPDATE_OFF() throws Exception {
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
+    public void testObtainSubscriptionTypes_ALL_NOW_UPDATE_OFF() throws Exception
+    {
+        StructuredPushSender _sender = getPushSender();
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
 
-        EventType[] offers = new EventType[] {new EventType("domain1", "type1")};
+        EventType[] offers = new EventType[] { new EventType("domain1", "type1") };
 
         _receiver.pushSupplier_.subscription_change(offers, EMPTY_EVENT_TYPE);
 
-        EventType[] _subscriptionTypes =
-            _sender.pushConsumer_.obtain_subscription_types(ObtainInfoMode.ALL_NOW_UPDATES_ON);
+        EventType[] _subscriptionTypes = _sender.pushConsumer_
+                .obtain_subscription_types(ObtainInfoMode.ALL_NOW_UPDATES_ON);
 
         Thread.sleep(1000);
 
@@ -210,84 +226,84 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertEquals("type1", _subscriptionTypes[0].type_name);
     }
 
-
-    public void testObtainOfferedTypes_NONE_NOW_UPDATES_ON() throws Exception {
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
+    public void testObtainOfferedTypes_NONE_NOW_UPDATES_ON() throws Exception
+    {
+        StructuredPushSender _sender = getPushSender();
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
 
         _receiver.pushSupplier_.obtain_offered_types(ObtainInfoMode.NONE_NOW_UPDATES_ON);
 
-        EventType[] offers = new EventType[] {new EventType("domain1", "type1")};
+        EventType[] offers = new EventType[] { new EventType("domain1", "type1") };
 
         _sender.pushConsumer_.offer_change(offers, EMPTY_EVENT_TYPE);
 
         Thread.sleep(1000);
 
         assertEquals(1, _receiver.addedOffers.size());
-        assertEquals("domain1", ((EventType)_receiver.addedOffers.get(0)).domain_name);
-        assertEquals("type1", ((EventType)_receiver.addedOffers.get(0)).type_name);
+        assertEquals("domain1", ((EventType) _receiver.addedOffers.get(0)).domain_name);
+        assertEquals("type1", ((EventType) _receiver.addedOffers.get(0)).type_name);
     }
 
-
-    public void testObtainOfferedTypes_ALL_NOW_UPDATES_ON() throws Exception {
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
+    public void testObtainOfferedTypes_ALL_NOW_UPDATES_ON() throws Exception
+    {
+        StructuredPushSender _sender = getPushSender();
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
 
-        EventType[] offers = new EventType[] {new EventType("domain1", "type1"),
-                                              new EventType("domain2", "type2") };
+        EventType[] offers = new EventType[] { new EventType("domain1", "type1"),
+                new EventType("domain2", "type2") };
 
         _sender.pushConsumer_.offer_change(offers, EMPTY_EVENT_TYPE);
 
-        EventType[] _offeredTypes =
-            _receiver.pushSupplier_.obtain_offered_types(ObtainInfoMode.ALL_NOW_UPDATES_ON);
+        EventType[] _offeredTypes = _receiver.pushSupplier_
+                .obtain_offered_types(ObtainInfoMode.ALL_NOW_UPDATES_ON);
 
         assertEquals(2, _offeredTypes.length);
     }
 
-
-    public void testObtainOfferedTypes_receiver_throws_NO_IMPLEMENT() throws Exception {
+    public void testObtainOfferedTypes_receiver_throws_NO_IMPLEMENT() throws Exception
+    {
         final SynchronizedInt offerChangeCalled = new SynchronizedInt(0);
 
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
+        StructuredPushSender _sender = getPushSender();
 
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this) {
-                public void offer_change(EventType[] added, EventType[] removed) {
-                    offerChangeCalled.increment();
-
-                    throw new NO_IMPLEMENT();
-                }
-            };
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB())
+        {
+            public void offer_change(org.omg.CosNotification.EventType[] added,org.omg.CosNotification.EventType[] removed) 
+            {
+                offerChangeCalled.increment();
+                
+                throw new NO_IMPLEMENT();
+            }
+        };
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
 
         _receiver.pushSupplier_.obtain_offered_types(ObtainInfoMode.NONE_NOW_UPDATES_ON);
 
-        EventType[] offers = new EventType[] {new EventType("domain1", "type1"),
-                                              new EventType("domain2", "type2") };
+        EventType[] offers = new EventType[] { new EventType("domain1", "type1"),
+                new EventType("domain2", "type2") };
 
         _sender.pushConsumer_.offer_change(offers, EMPTY_EVENT_TYPE);
 
-        offers = new EventType[] {new EventType("domain3", "type3"),
-                                  new EventType("domain4", "type4") };
-
+        offers = new EventType[] { new EventType("domain3", "type3"),
+                new EventType("domain4", "type4") };
 
         _sender.pushConsumer_.offer_change(offers, EMPTY_EVENT_TYPE);
 
-        assertEquals(1, offerChangeCalled.get() );
+        assertEquals(1, offerChangeCalled.get());
     }
-
 
     public void testSendPushPush() throws Exception
     {
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
+        StructuredPushSender _sender = getPushSender();
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -304,14 +320,24 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
     public void testSendPushPush_MisbehavingConsumer() throws Exception
     {
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
+        StructuredPushSender _sender = getPushSender();
 
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this) {
-                public void push_structured_event(StructuredEvent event) {
-                    logger_.info("push");
-                    throw new TRANSIENT();
-                }
-            };
+        final Latch disconnectedLatch = new Latch();
+        
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB())
+        {
+            public void push_structured_event(StructuredEvent event) 
+            {
+                throw new TRANSIENT();
+            }
+            
+            public void disconnect_structured_push_consumer()
+            {
+                super.disconnect_structured_push_consumer();
+                
+                disconnectedLatch.release();
+            }
+        };
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -322,16 +348,15 @@ public class StructuredEventChannelTest extends NotificationTestCase
         _sender.join();
         _receiver.join();
 
-        Thread.sleep(20000);
+        assertTrue(disconnectedLatch.attempt(20000));
 
         assertFalse(_receiver.isConnected());
     }
 
-
     public void testSendPushPull() throws Exception
     {
-        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
-        StructuredPullReceiver _receiver = new StructuredPullReceiver(this);
+        StructuredPushSender _sender = getPushSender();
+        StructuredPullReceiver _receiver = new StructuredPullReceiver(getClientORB());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -346,11 +371,10 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-
     public void testSendPullPush() throws Exception
     {
-        StructuredPullSender _sender = new StructuredPullSender(this, testEvent_);
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
+        StructuredPullSender _sender = new StructuredPullSender(getClientORB(), testEvent_);
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
         _receiver.setTimeOut(2000);
 
         _sender.connect(channel_, false);
@@ -366,11 +390,10 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-
     public void testSendPullPull() throws Exception
     {
-        StructuredPullSender _sender = new StructuredPullSender(this, testEvent_);
-        StructuredPullReceiver _receiver = new StructuredPullReceiver(this);
+        StructuredPullSender _sender = new StructuredPullSender(getClientORB(), testEvent_);
+        StructuredPullReceiver _receiver = new StructuredPullReceiver(getClientORB());
         _sender.connect(channel_, false);
 
         _receiver.connect(channel_, false);
@@ -381,16 +404,14 @@ public class StructuredEventChannelTest extends NotificationTestCase
         _sender.join();
         _receiver.join();
 
-        boolean _senderError = ((TestClientOperations)_sender).isError();
+        boolean _senderError = ((TestClientOperations) _sender).isError();
         assertTrue("Error while sending", !_senderError);
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-    
     public static Test suite() throws Exception
     {
         return NotificationTestCase.suite("Test of Structured EventChannel",
-                                          StructuredEventChannelTest.class);
+                StructuredEventChannelTest.class);
     }
 }
-

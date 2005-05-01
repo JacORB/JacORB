@@ -28,9 +28,11 @@ import junit.framework.Test;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.AbstractChannelFactory;
+import org.jacorb.notification.container.PicoContainerFactory;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  * @author Alphonse Bendt
@@ -38,9 +40,7 @@ import org.omg.PortableServer.POAHelper;
 
 public class NotificationTestCaseSetup extends TestSetup
 {
-    private ORB orb_;
-
-    private POA poa_;
+    private MutablePicoContainer container_;
 
     private Thread orbThread_;
 
@@ -50,18 +50,20 @@ public class NotificationTestCaseSetup extends TestSetup
 
     private ORB clientORB_;
 
-    ////////////////////////////////////////
+    private ORB orb_;
+
+    // //////////////////////////////////////
 
     public NotificationTestCaseSetup(Test suite) throws Exception
     {
         super(suite);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public NotificationTestUtils getTestUtils()
     {
-        return (testUtils_);
+        return testUtils_;
     }
 
     public void setUp() throws Exception
@@ -69,17 +71,17 @@ public class NotificationTestCaseSetup extends TestSetup
         super.setUp();
 
         orb_ = ORB.init(new String[0], null);
-        poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+        POAHelper.narrow(orb_.resolve_initial_references("RootPOA")).the_POAManager().activate();
 
-        testUtils_ = new NotificationTestUtils(orb_);
-  
-        poa_.the_POAManager().activate();
+        container_ = PicoContainerFactory.createRootContainer((org.jacorb.orb.ORB) orb_);
+
+        testUtils_ = new NotificationTestUtils(getORB());
 
         orbThread_ = new Thread(new Runnable()
         {
             public void run()
             {
-                orb_.run();
+                getORB().run();
             }
         });
 
@@ -88,14 +90,16 @@ public class NotificationTestCaseSetup extends TestSetup
         orbThread_.start();
 
         clientORB_ = ORB.init(new String[] {}, null);
+        POAHelper.narrow(clientORB_.resolve_initial_references("RootPOA")).the_POAManager()
+                .activate();
 
         Thread clientOrbThread = new Thread(new Runnable()
         {
             public void run()
             {
-                clientORB_.run();
+                getClientORB().run();
             }
-        });
+        }, "JUnit-Client-ORB-Runner");
 
         clientOrbThread.setDaemon(true);
 
@@ -104,16 +108,18 @@ public class NotificationTestCaseSetup extends TestSetup
 
     public void tearDown() throws Exception
     {
-        super.tearDown();
-
         if (eventChannelFactory_ != null)
         {
             eventChannelFactory_.dispose();
         }
 
+        container_.dispose();
+
         orb_.shutdown(true);
 
         clientORB_.shutdown(true);
+
+        super.tearDown();
     }
 
     public ORB getClientORB()
@@ -133,16 +139,21 @@ public class NotificationTestCaseSetup extends TestSetup
 
     public ORB getORB()
     {
-        return orb_;
+        return (ORB) container_.getComponentInstanceOfType(ORB.class);
     }
 
     public POA getPOA()
     {
-        return poa_;
+        return (POA) container_.getComponentInstanceOfType(POA.class);
+    }
+
+    public MutablePicoContainer getPicoContainer()
+    {
+        return container_;
     }
 
     public Configuration getConfiguration()
     {
-        return (((org.jacorb.orb.ORB) getORB()).getConfiguration());
+        return (Configuration) container_.getComponentInstanceOfType(Configuration.class);
     }
 }

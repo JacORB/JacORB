@@ -19,31 +19,34 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.PushSupplierPOA;
 import org.omg.CosNotifyFilter.Filter;
-import org.omg.PortableServer.POA;
 
-public class AnyPushSender
-    extends PushSupplierPOA
-    implements TestClientOperations, Runnable
+public class AnyPushSender extends PushSupplierPOA implements TestClientOperations, Runnable
 {
     ORB orb_;
-    POA poa_;
 
     ProxyPushConsumer myConsumer_;
+
     boolean connected_;
+
     Any event_;
+
     boolean error_;
+
     long sendTime_;
-    TestEventGenerator generator_;
-    PerformanceListener perfListener_;
+
+
     int runs_;
+
     long interval_;
 
     SupplierAdmin myAdmin_;
+
     NotificationTestCase testCase_;
 
-    public AnyPushSender(NotificationTestCase testCase)
+    public AnyPushSender(ORB orb, Any event)
     {
-        testCase_ = testCase;
+        orb_ = orb;
+        event_ = event;
     }
 
     void setInterval(int i)
@@ -56,22 +59,9 @@ public class AnyPushSender
         runs_ = i;
     }
 
-    AnyPushSender(NotificationTestCase testCase, Any event) 
+    AnyPushSender(NotificationTestCase testCase, Any event)
     {
         event_ = event;
-        testCase_ = testCase;
-    }
-
-    public AnyPushSender(NotificationTestCase testCase,
-                         PerformanceListener perfListener,
-                         TestEventGenerator generator,
-                         int runs,
-                         long interval)
-    {
-        generator_ = generator;
-        perfListener_ = perfListener;
-        runs_ = runs;
-        interval_ = interval;
         testCase_ = testCase;
     }
 
@@ -80,7 +70,6 @@ public class AnyPushSender
         Assert.assertNotNull(myAdmin_);
         myAdmin_.add_filter(filter);
     }
-
 
     public void addProxyFilter(Filter filter)
     {
@@ -109,55 +98,13 @@ public class AnyPushSender
     }
 
     public void subscription_change(EventType[] e1, EventType[] e2)
-    {}
+    {
+        // ignored
+    }
 
     public void run()
     {
-        if (event_ != null)
-        {
-            singleSend();
-        }
-        else
-        {
-            multSend();
-        }
-    }
-
-    public void multSend()
-    {
-        for (int x = 0; x < runs_; ++x)
-        {
-            Any _event = null;
-
-            try
-            {
-                long _start, _stop;
-                synchronized (generator_)
-                {
-                    _event = generator_.getNextEvent();
-                    _start = System.currentTimeMillis();
-                    myConsumer_.push(_event);
-                    _stop = System.currentTimeMillis();
-                }
-
-                perfListener_.eventSent(_event, System.currentTimeMillis(),
-                                        _stop - _start);
-
-                try
-                {
-                    Thread.sleep(interval_);
-                }
-                catch (InterruptedException ie)
-                {}
-            }
-            catch (Exception e)
-            {
-                if (perfListener_ != null)
-                {
-                    perfListener_.eventFailed(_event, e);
-                }
-            }
-        }
+        singleSend();
     }
 
     public void singleSend()
@@ -166,19 +113,15 @@ public class AnyPushSender
         {
             myConsumer_.push(event_);
             sendTime_ = System.currentTimeMillis();
-        }
-        catch (Disconnected d)
+        } catch (Disconnected d)
         {
             error_ = true;
         }
     }
 
-    public void connect(EventChannel channel,
-                        boolean useOrSemantic)
+    public void connect(EventChannel channel, boolean useOrSemantic)
 
-        throws AdminLimitExceeded,
-               AlreadyConnected,
-               AdminNotFound
+    throws AdminLimitExceeded, AlreadyConnected, AdminNotFound
     {
 
         IntHolder _proxyId = new IntHolder();
@@ -196,16 +139,15 @@ public class AnyPushSender
 
         Assert.assertEquals(myAdmin_, channel.get_supplieradmin(_adminId.value));
 
-        myConsumer_ =
-            ProxyPushConsumerHelper.narrow(myAdmin_.obtain_notification_push_consumer(ClientType.ANY_EVENT, _proxyId));
+        myConsumer_ = ProxyPushConsumerHelper.narrow(myAdmin_.obtain_notification_push_consumer(
+                ClientType.ANY_EVENT, _proxyId));
 
         Assert.assertEquals(ProxyType._PUSH_ANY, myConsumer_.MyType().value());
 
-        myConsumer_.connect_any_push_supplier(_this(testCase_.getORB()));
+        myConsumer_.connect_any_push_supplier(_this(orb_));
 
         connected_ = true;
     }
-
 
     public void shutdown()
     {

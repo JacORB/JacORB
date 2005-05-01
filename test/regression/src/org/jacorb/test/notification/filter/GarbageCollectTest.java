@@ -33,6 +33,7 @@ import org.jacorb.notification.filter.FilterFactoryImpl;
 import org.jacorb.notification.util.WeakCacheWildcardMap;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
+import org.omg.CORBA.Any;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
@@ -48,8 +49,6 @@ public class GarbageCollectTest extends NotificationTestCase
     private MockControl controlConfiguration_;
 
     private Configuration mockConfiguration_;
-
-    private MutablePicoContainer picoForTest_;
 
     private IContainer iContainerForTest_;
 
@@ -69,13 +68,12 @@ public class GarbageCollectTest extends NotificationTestCase
 
         controlConfiguration_ = MockControl.createControl(Configuration.class);
 
-        picoForTest_ = container_.makeChildContainer();
 
         iContainerForTest_ = new IContainer()
         {
             public MutablePicoContainer getContainer()
             {
-                return picoForTest_;
+                return getPicoContainer();
             }
 
             public void destroy()
@@ -109,7 +107,7 @@ public class GarbageCollectTest extends NotificationTestCase
         // another picocontainer is necessary so that registered
         // Configuration can be overridden locally to configure
         // garbage collection.  
-        picoForTest_.registerComponentInstance(Configuration.class, mockConfiguration_);
+        getPicoContainer().registerComponentInstance(Configuration.class, mockConfiguration_);
 
         controlConfiguration_.replay();
 
@@ -117,18 +115,21 @@ public class GarbageCollectTest extends NotificationTestCase
         FilterFactoryImpl factoryServant_ = new FilterFactoryImpl(getORB(), getPOA(),
                 mockConfiguration_, new DefaultFilterFactoryDelegate(iContainerForTest_, mockConfiguration_));
 
-        FilterFactory factory_ = FilterFactoryHelper.narrow(factoryServant_.activate());
+        String _factoryRef = getORB().object_to_string(factoryServant_.activate());
+        
+        FilterFactory _factory = FilterFactoryHelper.narrow(getClientORB().string_to_object(_factoryRef));
 
-        Filter filter_ = factory_.create_filter("EXTENDED_TCL");
+        Filter _filter = _factory.create_filter("EXTENDED_TCL");
 
-        assertFalse(filter_._non_existent());
+        assertFalse(_filter._non_existent());
 
         // wait some time. give gc thread chance to clean up filter.
-        Thread.sleep(4000);
+        Thread.sleep(10000);
 
         try
         {
-            assertTrue(filter_._non_existent());
+            Any any = toAny(5);
+            _filter.match(any);
         } catch (OBJECT_NOT_EXIST e)
         {
             // expected

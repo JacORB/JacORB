@@ -40,11 +40,9 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     ProxyPushSupplier mySupplier_;
 
-    PerformanceListener perfListener_;
-
     boolean connected_;
 
-    int expected_ = 1;
+    int numberOfExpectedEvents_ = 1;
 
     final SynchronizedInt received_ = new SynchronizedInt(0);
 
@@ -54,33 +52,20 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     int filterId_ = Integer.MIN_VALUE;
 
-    NotificationTestCase testCase_;
-
     ConsumerAdmin myAdmin_;
 
     private Object lock_ = new Object();
 
-    public AnyPushReceiver(NotificationTestCase testCase)
+    public AnyPushReceiver(ORB orb)
     {
-        testCase_ = testCase;
+        orb_ = orb;
     }
 
-    public AnyPushReceiver(NotificationTestCase testCase, PerformanceListener listener, int expected)
+    public void setNumberOfExpectedEvents(int number)
     {
-        perfListener_ = listener;
-        expected_ = expected;
-        testCase_ = testCase;
+        numberOfExpectedEvents_ = number;
     }
 
-    public void setExpected(int e)
-    {
-        expected_ = e;
-    }
-
-    public void setPerformanceListener(PerformanceListener listener)
-    {
-        perfListener_ = listener;
-    }
 
     public void setFilter(Filter filter)
     {
@@ -101,15 +86,14 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     public boolean isEventHandled()
     {
-        System.out.println("expected: " + expected_ + " received: " + received_);
+        System.out.println("expected: " + numberOfExpectedEvents_ + " received: " + received_);
 
-        if (expected_ > 0)
+        if (numberOfExpectedEvents_ > 0)
         {
-            return received_.get() == expected_;
+            return received_.get() == numberOfExpectedEvents_;
         }
 
         return received_.get() > 0;
-
     }
 
     public void setTimeOut(long timeout)
@@ -158,7 +142,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
         Assert.assertEquals(ProxyType._PUSH_ANY, mySupplier_.MyType().value());
 
-        mySupplier_.connect_any_push_consumer(_this(testCase_.getORB()));
+        mySupplier_.connect_any_push_consumer(_this(orb_));
 
         connected_ = true;
     }
@@ -184,6 +168,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
             } catch (InterruptedException e)
             {
+                // ignored
             }
         }
 
@@ -194,6 +179,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
                 barrier_.barrier();
             } catch (InterruptedException ie)
             {
+                // ignored
             }
         }
     }
@@ -202,12 +188,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
     {
         received_.increment();
 
-        if (perfListener_ != null)
-        {
-            perfListener_.eventReceived(any, System.currentTimeMillis());
-        }
-
-        if (expected_ > 0 && (received_.get() == expected_))
+        if (numberOfExpectedEvents_ > 0 && (received_.get() == numberOfExpectedEvents_))
         {
             synchronized (lock_)
             {
@@ -238,5 +219,6 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     public void offer_change(EventType[] e1, EventType[] e2)
     {
+        // ignored
     }
 }

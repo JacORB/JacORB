@@ -19,6 +19,8 @@ import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 
+import EDU.oswego.cs.dl.util.concurrent.Latch;
+
 /**
  * @author Alphonse Bendt
  */
@@ -243,9 +245,9 @@ public class EventChannelTest extends NotificationTestCase
 
     public void testSendEventPushPull() throws Exception
     {
-        AnyPullReceiver _receiver = new AnyPullReceiver(this);
+        AnyPullReceiver _receiver = new AnyPullReceiver(getClientORB());
         _receiver.connect(channel_, false);
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
         _sender.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
@@ -264,13 +266,13 @@ public class EventChannelTest extends NotificationTestCase
     public void testSendEventPushPush() throws Exception
     {
         // start a receiver thread
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
         _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
 
         // start a sender
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
 
         _sender.connect(channel_, false);
 
@@ -288,12 +290,21 @@ public class EventChannelTest extends NotificationTestCase
 
     public void testSendEventPushPush_MisbehavingConsumer() throws Exception
     {
+        final Latch disconnectedLatch = new Latch();
+        
         // start a receiver thread
-        AnyPushReceiver _receiver = new AnyPushReceiver(this)
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB())
         {
-            public void push(Any any)
+            public void push(Any any) 
             {
                 throw new TRANSIENT();
+            }
+            
+            public void disconnect_push_consumer()
+            {
+                super.disconnect_push_consumer();
+                
+                disconnectedLatch.release();
             }
         };
         _receiver.connect(channel_, false);
@@ -301,7 +312,7 @@ public class EventChannelTest extends NotificationTestCase
         Thread _receiverThread = new Thread(_receiver);
 
         // start a sender
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
 
         _sender.connect(channel_, false);
 
@@ -309,7 +320,7 @@ public class EventChannelTest extends NotificationTestCase
 
         _sender.run();
 
-        Thread.sleep(20000);
+        assertTrue(disconnectedLatch.attempt(20000));
 
         assertTrue(!_receiver.isConnected());
 
@@ -318,10 +329,10 @@ public class EventChannelTest extends NotificationTestCase
 
     public void testSendEventPullPush() throws Exception
     {
-        AnyPullSender _sender = new AnyPullSender(this, testPerson_);
+        AnyPullSender _sender = new AnyPullSender(getClientORB(), testPerson_);
         _sender.connect(channel_, false);
 
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
         _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
@@ -341,10 +352,10 @@ public class EventChannelTest extends NotificationTestCase
 
     public void testSendEventPullPull() throws Exception
     {
-        AnyPullSender _sender = new AnyPullSender(this, testPerson_);
+        AnyPullSender _sender = new AnyPullSender(getClientORB(), testPerson_);
         _sender.connect(channel_, false);
 
-        AnyPullReceiver _receiver = new AnyPullReceiver(this);
+        AnyPullReceiver _receiver = new AnyPullReceiver(getClientORB());
         _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
@@ -371,16 +382,16 @@ public class EventChannelTest extends NotificationTestCase
 
         EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
 
-        AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(this);
+        AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(getClientORB());
         _anyPullReceiver.connect(_channel, false);
 
-        AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(this);
+        AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(getClientORB());
         _anyPushReceiver.connect(_channel, false);
 
-        AnyPullSender _anyPullSender = new AnyPullSender(this, testPerson_);
+        AnyPullSender _anyPullSender = new AnyPullSender(getClientORB(), testPerson_);
         _anyPullSender.connect(_channel, false);
 
-        AnyPushSender _anyPushSender = new AnyPushSender(this, testPerson_);
+        AnyPushSender _anyPushSender = new AnyPushSender(getClientORB(), testPerson_);
         _anyPushSender.connect(_channel, false);
 
         assertTrue(_anyPullReceiver.isConnected());
@@ -405,16 +416,16 @@ public class EventChannelTest extends NotificationTestCase
 
         EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
 
-        AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(this);
+        AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(getClientORB());
         _anyPullReceiver.connect(_channel, false);
 
-        AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(this);
+        AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(getClientORB());
         _anyPushReceiver.connect(_channel, false);
 
-        AnyPullSender _anyPullSender = new AnyPullSender(this, testPerson_);
+        AnyPullSender _anyPullSender = new AnyPullSender(getClientORB(), testPerson_);
         _anyPullSender.connect(_channel, false);
 
-        AnyPushSender _anyPushSender = new AnyPushSender(this, testPerson_);
+        AnyPushSender _anyPushSender = new AnyPushSender(getClientORB(), testPerson_);
         _anyPushSender.connect(_channel, false);
 
         assertTrue(_anyPullReceiver.isConnected());

@@ -62,7 +62,7 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
 
     public void setUpTest() throws Exception
     {
-        container_ = PicoContainerFactory.createChildContainer(getContainer());
+        container_ = PicoContainerFactory.createChildContainer(getPicoContainer());
 
         container_.registerComponentInstance(new OfferManager());
         container_.registerComponentInstance(new SubscriptionManager());

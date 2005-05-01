@@ -21,11 +21,13 @@
 
 package org.jacorb.test.notification;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-
-import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt
@@ -38,5 +40,10 @@ public class BasicTest extends TestCase
         ORB orb = ORB.init(new String[0], null);
         POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
         assertTrue(poa._is_a(POAHelper.id()));
+    }
+    
+    public static Test suite() throws Exception
+    {
+        return new TestSuite(BasicTest.class);
     }
 }

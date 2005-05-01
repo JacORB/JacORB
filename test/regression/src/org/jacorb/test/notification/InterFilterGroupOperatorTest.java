@@ -93,8 +93,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void testTrueORFalse_NoneOrNone() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
 
         _sender.connect(channel_, true);
         _receiver.connect(channel_, true);
@@ -117,8 +117,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void testFalseORTrue_NoneOrNone() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
         _sender.connect(channel_, true);
         _receiver.connect(channel_, true);
 
@@ -140,8 +140,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void testTrueANDFalse_NoneOrNone() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
         _sender.connect(channel_, false);
         _receiver.connect(channel_, true);
 
@@ -164,8 +164,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void testFalseANDTrue_NoneOrNone() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
         _sender.connect(channel_, false);
         _receiver.connect(channel_, true);
 
@@ -188,8 +188,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void testNoneOrNone_TrueORFalse() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
         _sender.connect(channel_, true);
         _receiver.connect(channel_, true);
 
@@ -211,8 +211,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void testNoneOrNone_FalseORTrue() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
         _sender.connect(channel_, true);
         _receiver.connect(channel_, true);
 
@@ -235,8 +235,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void testNoneOrNone_TrueANDFalse() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
 
         _sender.connect(channel_, true);
 
@@ -261,8 +261,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void testNoneOrNone_FalseANDTrue() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(this);
+        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
 
         _sender.connect(channel_, true);
 

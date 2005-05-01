@@ -23,14 +23,10 @@ package org.jacorb.test.notification.servant;
 
 import junit.framework.Test;
 
-import org.apache.avalon.framework.configuration.Configuration;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.conf.Attributes;
-import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.DefaultPushTaskExecutorFactory;
-import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IAdmin;
@@ -50,10 +46,6 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
     private MockControl controlTaskProcessor_;
 
     private TaskProcessor mockTaskProcessor_;
-
-    private MockControl controlTaskExecutor_;
-
-    private TaskExecutor mockTaskExecutor_;
 
     private ProxyPushSupplierImpl objectUnderTest_;
 
@@ -88,13 +80,9 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
         controlConsumerAdmin.replay();
 
-        MockControl controlConfig = MockControl.createControl(Configuration.class);
-        Configuration mockConfig = (Configuration) controlConfig.getMock();
-
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
-        controlTaskExecutor_ = MockControl.createControl(TaskExecutor.class);
-        mockTaskExecutor_ = (TaskExecutor) controlTaskExecutor_.getMock();
+       
         objectUnderTest_ = new ProxyPushSupplierImpl(mockAdmin, getORB(), getPOA(),
                 getConfiguration(), mockTaskProcessor_, new DefaultPushTaskExecutorFactory(1), new OfferManager(),
                 new SubscriptionManager(), mockConsumerAdmin);
@@ -134,8 +122,6 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         mockTaskProcessor_.schedulePushOperation(objectUnderTest_);
 
         controlTaskProcessor_.replay();
-
-        controlTaskExecutor_.replay();
 
         objectUnderTest_.connect_any_push_consumer(mockPushConsumer);
         objectUnderTest_.deliverMessage(mockMessage);

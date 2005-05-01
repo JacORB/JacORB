@@ -60,14 +60,14 @@ public class AdminLimitTest extends NotificationTestCase
         QoSPropertySet _qosSettings = new QoSPropertySet(getConfiguration(),
                 QoSPropertySet.ADMIN_QOS);
 
-        container_.registerComponentImplementation(OfferManager.class);
-        container_.registerComponentImplementation(SubscriptionManager.class);
+        getPicoContainer().registerComponentImplementation(OfferManager.class);
+        getPicoContainer().registerComponentImplementation(SubscriptionManager.class);
 
         IEventChannel channel = new IEventChannel()
         {
             public MutablePicoContainer getContainer()
             {
-                return container_;
+                return getPicoContainer();
             }
 
             public EventChannel getEventChannel()
@@ -98,8 +98,8 @@ public class AdminLimitTest extends NotificationTestCase
         };
 
         objectUnderTest_ = new ConsumerAdminImpl(channel, getORB(), getPOA(),
-                getConfiguration(), getMessageFactory(), (OfferManager) container_
-                        .getComponentInstance(OfferManager.class), (SubscriptionManager) container_
+                getConfiguration(), getMessageFactory(), (OfferManager) getPicoContainer()
+                        .getComponentInstance(OfferManager.class), (SubscriptionManager) getPicoContainer()
                         .getComponentInstance(SubscriptionManager.class));
 
         objectUnderTest_.set_qos(_qosSettings.get_qos());
@@ -163,10 +163,12 @@ public class AdminLimitTest extends NotificationTestCase
 
             public void actionProxyDisposed(ProxyEvent event)
             {
+                // ignored
             }
 
             public void actionProxyCreated(ProxyEvent event)
             {
+                // ignored
             }
         };
 
@@ -193,10 +195,12 @@ public class AdminLimitTest extends NotificationTestCase
         {
             public void actionProxyCreated(ProxyEvent event)
             {
+                // ignored
             }
 
             public void actionProxyDisposed(ProxyEvent event)
             {
+                // ignored
             }
 
             public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
