@@ -87,7 +87,7 @@ public class PicoContainerFactory
         _container.registerComponentInstance(org.omg.CORBA.ORB.class, orb);
 
         // register services that need to be looked up via orb using custom componentadapter
-        _container.registerComponent(new CachingComponentAdapter(new POAComponentAdapter()));
+        _container.registerComponent(new CachingComponentAdapter(new BiDirGiopPOAComponentAdapter(new POAComponentAdapter())));
 
         _container.registerComponent(new CachingComponentAdapter(
                 new DynAnyFactoryComponentAdapter()));
