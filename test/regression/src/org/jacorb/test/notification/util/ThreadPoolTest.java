@@ -87,6 +87,7 @@ public class ThreadPoolTest extends TestCase
             fail();
         } catch (IllegalArgumentException e)
         {
+            // expected
         }
     }
 
@@ -106,6 +107,7 @@ public class ThreadPoolTest extends TestCase
                     _latch1.acquire();
                 } catch (InterruptedException e)
                 {
+                    // ignore
                 }
             }
         });
@@ -119,6 +121,7 @@ public class ThreadPoolTest extends TestCase
                     _latch2.acquire();
                 } catch (InterruptedException e)
                 {
+                    // ignore
                 }
             }
         });
@@ -132,6 +135,7 @@ public class ThreadPoolTest extends TestCase
                     _latch2.acquire();
                 } catch (InterruptedException e)
                 {
+                    // ignore
                 }
             }
         });
