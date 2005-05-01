@@ -50,9 +50,6 @@ public class LogUtilTest extends TestCase
         assertNotNull(_logger);
     }
 
-    /**
-     * @return
-     */
     public static Test suite()
     {
         return new TestSuite(LogUtilTest.class);

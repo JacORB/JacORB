@@ -89,9 +89,6 @@ public class DisposableManagerTest extends TestCase
         controlDisposable_.verify();
     }
 
-    /**
-     * @return
-     */
     public static Test suite()
     {
         return new TestSuite(DisposableManagerTest.class);
