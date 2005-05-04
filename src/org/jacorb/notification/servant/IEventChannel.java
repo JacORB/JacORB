@@ -40,7 +40,7 @@ public interface IEventChannel extends IContainer
     /**
      * @return the id of the parent Channel.
      */
-    int getID();
+    int getChannelID();
 
     /**
      * @return the parent Channel.

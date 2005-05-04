@@ -77,7 +77,7 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
         mockChannel.getAdminID();
         controlChannel.setReturnValue(10);
 
-        mockChannel.getID();
+        mockChannel.getChannelID();
         controlChannel.setReturnValue(20);
 
         controlChannel.replay();

@@ -134,7 +134,6 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     private InterFilterGroupOperator filterGroupOperator_;
 
-    ///
     protected final MutablePicoContainer container_;
 
     private final FilterManager filterManager_;
@@ -188,7 +187,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
         eventChannelReference_ = new WeakReference(channel.getEventChannel());
 
-        channelID_ = channel.getID();
+        channelID_ = channel.getChannelID();
 
         logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
 
@@ -527,7 +526,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         }
     }
 
-    private void fireProxyRemoved(AbstractProxy proxy)
+    void fireProxyRemoved(AbstractProxy proxy)
     {
         synchronized (proxyEventListener_)
         {

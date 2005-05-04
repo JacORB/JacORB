@@ -86,7 +86,7 @@ public class AdminLimitTest extends NotificationTestCase
                 return 20;
             }
 
-            public int getID()
+            public int getChannelID()
             {
                 return 10;
             }
