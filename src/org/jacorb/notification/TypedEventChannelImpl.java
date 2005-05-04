@@ -207,6 +207,7 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
 
         _container.registerComponent(new ConstructorInjectionComponentAdapter(
                 TypedConsumerAdminImpl.class, TypedConsumerAdminImpl.class));
+        
         return (TypedConsumerAdminImpl) _container
                 .getComponentInstance(TypedConsumerAdminImpl.class);
     }
