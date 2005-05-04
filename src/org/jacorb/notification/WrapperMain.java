@@ -31,85 +31,86 @@ import org.tanukisoftware.wrapper.WrapperManager;
 
 public class WrapperMain implements WrapperListener
 {
+    private static final Runnable CMD_WRAPPERMANAGER_STOP = new Runnable()
+    {
+        public void run()
+        {
+            WrapperManager.stop(0);
+        }
+    };
+    
+    private static final EventChannelFactoryImpl.ShutdownCallback WRAPPERMANAGER_BEGIN_SHUTDOWN = new EventChannelFactoryImpl.ShutdownCallback()
+    {
+        public void needTime(int time)
+        {
+            WrapperManager.signalStopping(time);
+        }
+
+        public void shutdownComplete()
+        {
+            // no operation
+        }
+    };
+
     private AbstractChannelFactory application_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     private WrapperMain()
     {
         super();
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     // Implementation of org.tanukisoftware.wrapper.WrapperListener
 
-    public Integer start( String[] args )
+    public Integer start(String[] args)
     {
         try
         {
-            application_ = ConsoleMain.newFactory( args );
+            application_ = ConsoleMain.newFactory(args);
 
-            application_.setDestroyMethod(new Runnable() {
-                    public void run() {
-                        WrapperManager.stop(0);
-                    }
-                });
+            application_.setDestroyMethod(CMD_WRAPPERMANAGER_STOP);
 
             return null;
-        }
-        catch ( Exception e )
+        } catch (Exception e)
         {
             e.printStackTrace();
 
-            return new Integer( 1 );
+            return new Integer(1);
         }
     }
 
-
-    public int stop( int n )
+    public int stop(int n)
     {
-        EventChannelFactoryImpl.ShutdownCallback cb =
-            new EventChannelFactoryImpl.ShutdownCallback()
-            {
-                public void needTime( int time )
-                {
-                    WrapperManager.signalStopping( time );
-                }
-
-                public void shutdownComplete()
-                {}
-            };
-
-        application_.shutdown( cb );
+        application_.shutdown(WRAPPERMANAGER_BEGIN_SHUTDOWN);
 
         return 0;
     }
 
-
-    public void controlEvent( int event )
+    public void controlEvent(int event)
     {
-        if ( WrapperManager.isControlledByNativeWrapper() )
+        if (WrapperManager.isControlledByNativeWrapper())
         {
             // The Wrapper will take care of this event
         }
         else
         {
             // We are not being controlled by the Wrapper, so
-            //  handle the event ourselves.
+            // handle the event ourselves.
 
-            if ( (event == WrapperManager.WRAPPER_CTRL_C_EVENT )
-                 ||(event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT )
-                 ||(event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT))
+            if ((event == WrapperManager.WRAPPER_CTRL_C_EVENT)
+                    || (event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT)
+                    || (event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT))
             {
-                WrapperManager.stop( 0 );
+                WrapperManager.stop(0);
             }
         }
     }
 
-
-    public static void main( String[] args )
+    public static void main(String[] args)
     {
-        WrapperManager.start( new WrapperMain(), args );
+        WrapperManager.start(new WrapperMain(), args);
     }
 }

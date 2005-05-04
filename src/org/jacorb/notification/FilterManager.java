@@ -99,6 +99,7 @@ public class FilterManager implements FilterAdminOperations
                 }
             } catch (Exception e)
             {
+                // ignored
             }
         }
 

@@ -26,6 +26,9 @@ package org.jacorb.notification;
  */
 
 public class NoTranslationException extends Exception {
+
+    private static final long serialVersionUID = 1L;
+
     public NoTranslationException()
     {
         super();
