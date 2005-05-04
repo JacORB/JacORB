@@ -26,7 +26,6 @@ import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.container.DynAnyFactoryComponentAdapter;
-import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.container.RepositoryComponentAdapter;
 import org.jacorb.notification.engine.DefaultTaskExecutor;
 import org.jacorb.notification.engine.TaskExecutor;
@@ -62,13 +61,10 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
 
     public void setUpTest() throws Exception
     {
-        container_ = PicoContainerFactory.createChildContainer(getPicoContainer());
+        container_ = getPicoContainer();
 
         container_.registerComponentInstance(new OfferManager());
         container_.registerComponentInstance(new SubscriptionManager());
-        container_.registerComponentInstance(TaskExecutor.class, DefaultTaskExecutor.getDefaultExecutor());
-        container_.registerComponent(new DynAnyFactoryComponentAdapter());
-        container_.registerComponent(new RepositoryComponentAdapter());
         
         MockControl controlChannel = MockControl.createControl(IEventChannel.class);
         IEventChannel mockChannel = (IEventChannel) controlChannel.getMock();
@@ -93,7 +89,6 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
                         .getComponentInstance(SubscriptionManager.class), mockChannel);
 
         consumerAdmin_ = TypedConsumerAdminHelper.narrow(objectUnderTest_.activate());
-        
     }
 
     public void testContainer()
@@ -119,6 +114,8 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
                 PullCoffeeHelper.id(), id);
 
         assertEquals(supplier, consumerAdmin_.get_proxy_supplier(id.value));
+        
+        assertEquals(supplier, supplier.MyAdmin().get_proxy_supplier(id.value));
     }
 
     public void testCreateTypedPushSupplier() throws Exception
@@ -129,6 +126,8 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
                 CoffeeHelper.id(), id);
 
         assertEquals(supplier, consumerAdmin_.get_proxy_supplier(id.value));
+        
+        assertEquals(supplier, supplier.MyAdmin().get_proxy_supplier(id.value));
     }
 
     public static Test suite() throws Exception

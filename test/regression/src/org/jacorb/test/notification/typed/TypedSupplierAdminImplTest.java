@@ -25,7 +25,6 @@ import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.container.RepositoryComponentAdapter;
 import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.servant.TypedSupplierAdminImpl;
@@ -57,7 +56,7 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
 
     public void setUpTest() throws Exception
     {
-        container_ = PicoContainerFactory.createChildContainer(getPicoContainer());
+        container_ = getPicoContainer();
 
         container_.registerComponentInstance(new OfferManager());
 

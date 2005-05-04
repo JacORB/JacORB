@@ -77,7 +77,7 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
 
         public int getChannelID()
         {
-            return TypedEventChannelImpl.this.getID();
+            return getID();
         }
 
         public EventChannel getEventChannel()

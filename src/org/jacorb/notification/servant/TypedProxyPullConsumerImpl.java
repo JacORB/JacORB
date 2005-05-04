@@ -74,19 +74,19 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
     private final Map fullQualifiedOperationNames_ = new HashMap();
 
-    //////////////////////////////
+    // ////////////////////////////
 
     public TypedProxyPullConsumerImpl(ITypedAdmin admin, SupplierAdmin supplierAdmin, ORB orb,
-            POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory mf,
+            POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory messageFactory,
             OfferManager offerManager, SubscriptionManager subscriptionManager)
     {
-        super(admin, orb, poa, conf, taskProcessor, mf, supplierAdmin, offerManager,
+        super(admin, orb, poa, conf, taskProcessor, messageFactory, supplierAdmin, offerManager,
                 subscriptionManager);
 
         expectedInterface_ = admin.getSupportedInterface();
     }
 
-    //////////////////////////////
+    // ////////////////////////////
 
     public void connect_typed_pull_supplier(TypedPullSupplier typedPullSupplier)
             throws AlreadyConnected, TypeError
@@ -107,7 +107,7 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
         {
             throw new NullPointerException();
         }
-        
+
         if (!typedPullSupplier_._is_a(expectedInterface_))
         {
             throw new TypeError();
@@ -124,14 +124,15 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
             {
                 if (_fullIfDescription.operations[x].name.startsWith("try_"))
                 {
-
                     operationDescriptions_.put(_fullIfDescription.operations[x].name,
                             _fullIfDescription.operations[x]);
                 }
             }
+            
             tryPullOperations_ = (String[]) operationDescriptions_.keySet().toArray(
                     STRING_ARRAY_TEMPLATE);
         }
+        
         return tryPullOperations_;
     }
 
@@ -190,24 +191,30 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
             {
                 logger_.debug("invoke " + _tryPullOperations[x]);
             }
-            
-            _request.invoke();
 
-            Any _result = _request.result().value();
-
-            boolean _success = _result.extract_boolean();
-
-            if (_success)
+            try
             {
-                String _operationNameWithoutTry = _tryPullOperations[x].substring(4);
-                String _operationName = getFullQualifiedName(_operationNameWithoutTry);
+                _request.invoke();
 
-                Message _mesg = getMessageFactory().newMessage(expectedInterface_, _operationName,
-                        _request.arguments(), this);
+                Any _result = _request.result().value();
 
-                checkMessageProperties(_mesg);
+                boolean _success = _result.extract_boolean();
 
-                processMessage(_mesg);
+                if (_success)
+                {
+                    String _operationNameWithoutTry = _tryPullOperations[x].substring(4);
+                    String _operationName = getFullQualifiedName(_operationNameWithoutTry);
+
+                    Message _mesg = getMessageFactory().newMessage(expectedInterface_,
+                            _operationName, _request.arguments(), this);
+
+                    checkMessageProperties(_mesg);
+
+                    processMessage(_mesg);
+                }
+            } catch (Exception e)
+            {
+                logger_.error("An error occured while invoking " + _tryPullOperations[x], e);
             }
         }
     }
