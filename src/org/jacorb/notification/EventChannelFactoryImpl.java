@@ -21,7 +21,6 @@ package org.jacorb.notification;
  *
  */
 
-import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.container.CORBAObjectComponentAdapter;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -58,7 +57,7 @@ import org.picocontainer.defaults.CachingComponentAdapter;
 public class EventChannelFactoryImpl extends AbstractChannelFactory implements
         JacORBEventChannelFactoryOperations
 {
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     protected String getShortcut()
     {
@@ -70,7 +69,7 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
         return "_ECFactory";
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public EventChannelFactoryImpl(PicoContainer container, ORB orb) throws UserException
     {
@@ -142,36 +141,12 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
 
     protected AbstractEventChannel newEventChannel()
     {
-        final MutablePicoContainer _channelContainer = PicoContainerFactory
-                .createChildContainer(container_);
+        final MutablePicoContainer _channelContainer = newContainerForChannel();
 
         ComponentAdapter _channelComponentAdapter = componentAdapterFactory_
                 .createComponentAdapter(EventChannelImpl.class, EventChannelImpl.class, null);
 
         _channelContainer.registerComponent(new CachingComponentAdapter(_channelComponentAdapter));
-
-        //      create identifier
-        final int _channelID = createChannelIdentifier();
-
-        IFactory _factory = new IFactory()
-        {
-            public MutablePicoContainer getContainer()
-            {
-                return _channelContainer;
-            }
-
-            public int getChannelID()
-            {
-                return _channelID;
-            }
-
-            public void destroy()
-            {
-                container_.removeChildContainer(_channelContainer);
-            }
-        };
-
-        _channelContainer.registerComponentInstance(IFactory.class, _factory);
 
         EventChannelImpl channel = (EventChannelImpl) _channelContainer
                 .getComponentInstance(EventChannelImpl.class);
