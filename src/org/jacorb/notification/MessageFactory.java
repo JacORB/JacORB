@@ -34,21 +34,19 @@ import org.omg.CosNotification.StructuredEvent;
  */
 public interface MessageFactory
 {
-    public abstract void dispose();
+    Message newMessage(Any any, AbstractProxyConsumerI consumer);
 
-    ////////////////////////////////////////
-    public abstract Message newMessage(Any any, AbstractProxyConsumerI consumer);
-
-    public abstract Message newMessage(StructuredEvent structuredEvent,
+    Message newMessage(StructuredEvent structuredEvent,
             AbstractProxyConsumerI consumer);
 
-    public abstract Message newMessage(String interfaceName, String operationName, NVList args,
+    Message newMessage(String interfaceName, String operationName, NVList args,
             AbstractProxyConsumerI consumer);
 
     ////////////////////////////////////////
-    public abstract Message newMessage(Property[] props);
+    
+    Message newMessage(Property[] props);
 
-    public abstract Message newMessage(Any any);
+    Message newMessage(Any any);
 
-    public abstract Message newMessage(StructuredEvent structuredEvent);
+    Message newMessage(StructuredEvent structuredEvent);
 }
