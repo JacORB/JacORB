@@ -111,40 +111,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
     protected AbstractAdmin newConsumerAdmin(final int id)
     {
-        final MutablePicoContainer _adminContainer = PicoContainerFactory
-                .createChildContainer(container_);
-
-        IEventChannel _channelAdapter = new IEventChannel()
-        {
-            public int getAdminID()
-            {
-                return id;
-            }
-
-            public EventChannel getEventChannel()
-            {
-                return thisRef_;
-            }
-
-            public int getID()
-            {
-                return EventChannelImpl.this.getID();
-            }
-
-            public MutablePicoContainer getContainer()
-            {
-                return _adminContainer;
-            }
-
-            public void destroy()
-            {
-                _adminContainer.unregisterComponent(IEventChannel.class);
-
-                container_.removeChildContainer(_adminContainer);
-            }
-        };
-
-        _adminContainer.registerComponentInstance(IEventChannel.class, _channelAdapter);
+        final MutablePicoContainer _adminContainer = newContainerForAdmin(id);
 
         ComponentAdapter _consumerAdminAdapter = adapterFactory_.createComponentAdapter(
                 ConsumerAdminImpl.class, ConsumerAdminImpl.class, null);
@@ -159,9 +126,24 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
     protected AbstractSupplierAdmin newSupplierAdmin(final int id)
     {
+        final MutablePicoContainer _adminContainer = newContainerForAdmin(id);
+
+        ComponentAdapter _supplierAdminAdapter = adapterFactory_.createComponentAdapter(
+                SupplierAdminImpl.class, SupplierAdminImpl.class, null);
+
+        _adminContainer.registerComponent(new CachingComponentAdapter(_supplierAdminAdapter));
+
+        SupplierAdminImpl _admin = (SupplierAdminImpl) _adminContainer
+                .getComponentInstance(SupplierAdminImpl.class);
+
+        return _admin;
+    }
+
+    private MutablePicoContainer newContainerForAdmin(final int id)
+    {
         final MutablePicoContainer _adminContainer = PicoContainerFactory
                 .createChildContainer(container_);
-
+        
         IEventChannel _channelAdapter = new IEventChannel()
         {
             public int getAdminID()
@@ -171,10 +153,10 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
             public EventChannel getEventChannel()
             {
-                return thisRef_;
+                return (EventChannel) _adminContainer.getComponentInstanceOfType(EventChannel.class);
             }
 
-            public int getID()
+            public int getChannelID()
             {
                 return EventChannelImpl.this.getID();
             }
@@ -191,20 +173,11 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
                 container_.removeChildContainer(_adminContainer);
             }
         };
-
+        
         _adminContainer.registerComponentInstance(IEventChannel.class, _channelAdapter);
-
-        ComponentAdapter _supplierAdminAdapter = adapterFactory_.createComponentAdapter(
-                SupplierAdminImpl.class, SupplierAdminImpl.class, null);
-
-        _adminContainer.registerComponent(new CachingComponentAdapter(_supplierAdminAdapter));
-
-        SupplierAdminImpl _admin = (SupplierAdminImpl) _adminContainer
-                .getComponentInstance(SupplierAdminImpl.class);
-
-        return _admin;
+        return _adminContainer;
     }
-
+    
     /**
      * The MyFactory attribute is a readonly attribute that maintains the object reference of the
      * event channel factory, which created a given Notification Service EventChannel instance.

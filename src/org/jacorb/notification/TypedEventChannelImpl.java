@@ -75,7 +75,7 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
             return adminID_;
         }
 
-        public int getID()
+        public int getChannelID()
         {
             return TypedEventChannelImpl.this.getID();
         }
@@ -186,10 +186,7 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
 
     public AbstractSupplierAdmin newSupplierAdmin(final int id)
     {
-        final MutablePicoContainer _container = PicoContainerFactory
-                .createChildContainer(container_);
-
-        _container.registerComponentInstance(new TypedEventChannelAdapter(_container, id));
+        final MutablePicoContainer _container = newContainerForAdmin(id);
 
         _container.registerComponent(new ConstructorInjectionComponentAdapter(
                 TypedSupplierAdminImpl.class, TypedSupplierAdminImpl.class));
@@ -200,15 +197,22 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
 
     public AbstractAdmin newConsumerAdmin(final int id)
     {
-        final MutablePicoContainer _container = PicoContainerFactory
-                .createChildContainer(container_);
-
-        _container.registerComponentInstance(new TypedEventChannelAdapter(_container, id));
+        final MutablePicoContainer _container = newContainerForAdmin(id);
 
         _container.registerComponent(new ConstructorInjectionComponentAdapter(
                 TypedConsumerAdminImpl.class, TypedConsumerAdminImpl.class));
         
         return (TypedConsumerAdminImpl) _container
                 .getComponentInstance(TypedConsumerAdminImpl.class);
+    }
+    
+    private MutablePicoContainer newContainerForAdmin(final int id)
+    {
+        final MutablePicoContainer _container = PicoContainerFactory
+                .createChildContainer(container_);
+        
+        _container.registerComponentInstance(new TypedEventChannelAdapter(_container, id));
+       
+        return _container;
     }
 }
