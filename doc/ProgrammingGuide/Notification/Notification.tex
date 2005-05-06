@@ -237,7 +237,7 @@ defined interface:
   ORB orb = ORB.init(args, null);
   org.omg.CORBA.Object obj; 
   obj = orb.resolve_initial_references("NotificationService");
-  EventChannelFactory ecf = EventChannelHelper.narrow( o );
+  EventChannelFactory ecf = EventChannelFactoryHelper.narrow( o );
   IntHolder ih = new IntHolder();
   Property[] p1 = new Property[0];
   Property[] p2 = new Property[0];
