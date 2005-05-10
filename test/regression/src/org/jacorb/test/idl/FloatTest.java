@@ -21,9 +21,7 @@ package org.jacorb.test.idl;
  */
 
 import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.idl.ParseException;
-
+import org.jacorb.test.common.*;
 
 /**
  * FloatTest.java
@@ -35,12 +33,8 @@ import org.jacorb.idl.ParseException;
 public class FloatTest
     extends TestCase
 {
-    private static  String outdir =
-    ((String)System.getProperty ("testdir")).concat("/src/generated");
-
-    private static  String testdir =
-    ((String)System.getProperty ("testdir")).concat("/idl/compiler/");
-
+    private static String outdir = TestUtils.testHome() + "/src/generated";
+    private static String testdir = TestUtils.testHome() + "/idl/compiler/";
 
     public FloatTest (String name)
     {

@@ -21,9 +21,7 @@ package org.jacorb.test.idl;
  */
 
 import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.idl.ParseException;
-
+import org.jacorb.test.common.*;
 
 /**
  * Module.java
@@ -57,8 +55,8 @@ public class InterfaceTest extends TestCase
       file[0] = "-i2jpackage";
       file[1] = "Reflective:org.omg.Reflective";
       file[2] = "-d";
-      file[3] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[4] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/Interface.idl");
+      file[3] = TestUtils.testHome() + "/src/generated";
+      file[4] = TestUtils.testHome() + "/idl/compiler/succeed/Interface.idl";
       assertTrue ("Compiled Interface.idl", org.jacorb.idl.parser.compileAndHandle(file));
    }
 }

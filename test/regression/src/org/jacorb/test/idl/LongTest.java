@@ -21,9 +21,7 @@ package org.jacorb.test.idl;
  */
 
 import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.idl.ParseException;
-
+import org.jacorb.test.common.*;
 
 /**
  * Long.java
@@ -57,8 +55,8 @@ public class LongTest extends TestCase
    {
       String file[] = new String[3];
       file[0] = "-d";
-      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/succeed/Long.idl");
+      file[1] = TestUtils.testHome() + "/src/generated";
+      file[2] = TestUtils.testHome() + "/idl/compiler/succeed/Long.idl";
 
       assertTrue ("Compiled Long.idl", org.jacorb.idl.parser.compileAndHandle (file));
    }
@@ -70,8 +68,8 @@ public class LongTest extends TestCase
    {
       String file[] = new String[3];
       file[0] = "-d";
-      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/Long_Fail1.idl");
+      file[1] = TestUtils.testHome() + "/src/generated";
+      file[2] = TestUtils.testHome() + "/idl/compiler/fail/Long_Fail1.idl";
 
       assertTrue ("Compiled Long_Fail1.idl", org.jacorb.idl.parser.compileAndHandle (file)==false);
    }
@@ -83,8 +81,8 @@ public class LongTest extends TestCase
    {
       String file[] = new String[3];
       file[0] = "-d";
-      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/compiler/fail/Long_Fail2.idl");
+      file[1] = TestUtils.testHome() + "/src/generated";
+      file[2] = TestUtils.testHome() + "/idl/compiler/fail/Long_Fail2.idl";
 
       assertTrue ("Compiled Long_Fail2.idl", org.jacorb.idl.parser.compileAndHandle (file)==false);
    }
