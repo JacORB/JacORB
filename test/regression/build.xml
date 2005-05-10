@@ -170,8 +170,16 @@
 
   <target name="run" depends="build-all, run-no-build" />
     
-
   <target name="run-no-build" depends="test-init">
+    <java classname="org.jacorb.test.common.launch.TestLauncher"
+          classpath="${testdir}/classes">
+      <arg value="${test}"/>
+    </java>
+  </target>
+
+  <!-- The following old run targets are deprecated -->
+
+  <target name="run-old" depends="test-init">
     <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
       <jvmarg value="-Xbootclasspath/p:${classpath}" />
       <jvmarg value="-Dtestdir=${testdir}" />
@@ -188,7 +196,7 @@
   </target>
 
 
-  <target name="run-jdk-orb-no-build" depends="test-init" if="use.jdk.orb">
+  <target name="run-old-jdk-orb-no-build" depends="test-init" if="use.jdk.orb">
     <junit fork="yes" printsummary="withOutAndErr">
       <jvmarg value="-Dtestdir=${testdir}" />
       <classpath path="${classpath}" />
@@ -218,7 +226,8 @@
     <antcall target="idl-notification" />
     <antcall target="idl-notification-typed" />
     <antcall target="idl-value" />
-                <antcall target="idl-exception" />
+    <antcall target="idl-exception" />
+    <antcall target="idl-shutdown" />
     <antcall target="idl-bugs" />
   </target>
 
@@ -394,6 +403,14 @@
     <property name="pkg.idl" value="org/jacorb/test" />
     <property name="callback.idl" value="false"/>
     <property name="file.idl" value="ExceptionServer.idl" />
+    <antcall target="process-idl" />
+  </target>
+
+  <target name="idl-shutdown">
+    <property name="props.idl" value="BasicServer" />
+    <property name="pkg.idl" value="org/jacorb/test" />
+    <property name="callback.idl" value="false" />
+    <property name="file.idl" value="ShutdownServer.idl" />
     <antcall target="process-idl" />
   </target>
 
