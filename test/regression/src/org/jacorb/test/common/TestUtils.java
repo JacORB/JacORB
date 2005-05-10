@@ -22,6 +22,7 @@ package org.jacorb.test.common;
  */
 
 import java.lang.reflect.Method;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,8 @@ import java.util.List;
 public class TestUtils
 {
     private static final String[] STRING_ARRAY_TEMPLATE = new String[0];
-
+    private static String testHome = null;
+    
     /**
      * this method returns a List of all public Methods which Names start with the Prefix "test" and
      * accept no Parameters e.g:
@@ -69,5 +71,25 @@ public class TestUtils
         }
 
         return (String[]) result.toArray(STRING_ARRAY_TEMPLATE);
+    }
+    
+    /**
+     * Returns the name of the home directory of this regression suite.
+     */
+    public static String testHome()
+    {
+        if (testHome == null)
+        {
+            URL url = TestUtils.class.getResource("/.");
+            String result = url.toString();
+            if (result.matches("file:/.*?/classes/"))
+                // strip the leading "file:" and the trailing
+                // "/classes/" from the result
+                result = result.substring (5, result.length() - 9); 
+            else
+                throw new RuntimeException ("cannot find test home");
+            testHome = result;
+        }
+        return testHome;
     }
 }
