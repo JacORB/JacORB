@@ -22,12 +22,15 @@ package org.jacorb.test.common;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
 
 import junit.framework.*;
 import junit.extensions.*;
+
+import org.jacorb.test.common.launch.*;
 
 /**
  * A special TestSetup that creates a separate CORBA server process,
@@ -77,7 +80,6 @@ import junit.extensions.*;
  */
 public class ClientServerSetup extends TestSetup {
 
-    protected File                       ior;
     protected String                     servantName;
     protected Process                    serverProcess;
     protected StreamListener             outListener, errListener;
@@ -129,30 +131,32 @@ public class ClientServerSetup extends TestSetup {
                           ( clientOrb.resolve_initial_references( "RootPOA" ) );
         clientRootPOA.the_POAManager().activate();
         
-        String jacorb_home = System.getProperty("jacorb.home");
-        boolean coverage = Boolean.valueOf(System.getProperty("jacorb.test.coverage", "false")).booleanValue();
+        String serverVersion = System.getProperty ("jacorb.test.server.version",
+                                                   "cvs");
+        String cs = System.getProperty ("jacorb.test.coverage", "false");
+        boolean coverage = cs.equals("true") || cs.equals("on");
+
+        Properties serverProperties = new Properties();
+        if (serverOrbProperties != null)
+            serverProperties.putAll (serverOrbProperties);
+        serverProperties.put ("jacorb.implname", servantName);
+            
+        JacORBLauncher launcher = JacORBLauncher.getLauncher (serverVersion,
+                                                              coverage);
+
+        if (coverage)
+            serverProperties.put ("emma.coverage.out.file",
+                                  launcher.getJacorbHome()
+                                  + "/test/regression/coverage/server.ec");
         
-        StringBuffer serverexec = new StringBuffer( "java -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton "); 
-        serverexec.append("-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB ");
-        if (coverage) {
-          serverexec.append ("-Demma.coverage.out.file=" + jacorb_home + "/test/regression/coverage/server.ec ");
-        }
-        serverexec.append("-Djacorb.home=" + jacorb_home + " ");
-        serverexec.append("-Djacorb.implname=");
-        serverexec.append( servantName );
-        serverexec.append( " -Xbootclasspath/p:" );          
-        serverexec.append( System.getProperty ("java.class.path") );
-        serverexec.append( ' ' );
-        serverexec.append( propsToCommandLineArgs( serverOrbProperties ) );
-        serverexec.append( ' ' );    
-        serverexec.append( getTestServerMain() );
-        serverexec.append( ' ' );
-        serverexec.append( servantName );
-
-        System.out.println( "Execing: " + serverexec.toString() );
-
-        serverProcess = Runtime.getRuntime().exec( serverexec.toString() );
-
+        serverProcess = launcher.launch
+        (
+            TestUtils.testHome() + "/classes",
+            serverProperties,
+            getTestServerMain(),
+            new String[] { servantName }
+        );
+        
         outListener = new StreamListener (serverProcess.getInputStream(),
                                           "OUT");
         errListener = new StreamListener (serverProcess.getErrorStream(),
@@ -212,38 +216,4 @@ public class ClientServerSetup extends TestSetup {
         return clientRootPOA;
     }
 
-    private static String propsToCommandLineArgs( Properties props )
-    {
-        if( props == null )
-        {
-            return "";
-        }
-
-        StringBuffer sb = new StringBuffer();
-
-        for( Iterator keyIterator = props.keySet().iterator();
-             keyIterator.hasNext();
-            )
-        {
-            String key = (String) keyIterator.next();
-            sb.append( "-D" );
-            sb.append( key );
-            sb.append( '=' );
-
-            String value = props.getProperty( key );
-            if( value == null )
-            {
-                value = "";
-            }
-
-            sb.append( value );
-
-            if( keyIterator.hasNext() )
-            {
-                sb.append( ' ' );
-            }
-        }
-
-        return sb.toString();
-    }
 }
