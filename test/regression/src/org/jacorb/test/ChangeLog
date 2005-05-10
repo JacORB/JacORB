@@ -1,3 +1,251 @@
+2005-05-10  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/CharTest.java, idl/FloatTest.java, idl/InterfaceTest.java,
+	idl/LongTest.java, idl/MiscFailureTest.java, idl/MiscTest.java,
+	idl/ModuleTest.java, idl/PragmaTest.java, idl/TypeDefTest.java,
+	idl/UnionTest.java, idl/ValueTest.java: Use TestUtils.testHome(),
+	rather than the testdir system property.
+
+	* common/ClientServerSetup.java (setUp): Use the new launching
+	framework to launch the server.
+	(propsToCommandLineArgs): Removed, this is now in the launching
+	framework.
+	(ior): Removed, was unused.
+
+	* common/launch/DirectLauncher.java,
+	common/launch/JacoLauncher.java,
+	common/launch/JacORBLauncher.java,
+	common/launch/TestLauncher.java: Initial revision.
+
+	* common/TestUtils.java (testHome): New method and internal cache
+	variable.
+
+2005-05-04  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java: added test for
+	bug and fix: poll would fail if one of the TypedProxyPullSupplier
+	"try" methods failed.
+
+	* notification/AdminLimitTest.java,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java (getID):
+	renamed to getChannelID to avoid confusion
+
+2005-05-01  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/GarbageCollectTest.java,
+	notification/filter/MappingFilterFactoryTest.java,
+	notification/node/TCLTest.java, notification/perf/LoadTest.java,
+	notification/perf/PerformanceTest.java,
+	notification/plugins/FilterFactoryTest.java,
+	notification/servant/ProxyPushSupplierImplTest.java,
+	notification/servant/StructuredProxyPushSupplierImplTest.java,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/bugs/PackageTest.java,
+	notification/AdminLimitTest.java, notification/AnyGenerator.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java, notification/BasicTest.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPullReceiver.java,
+	notification/CosEventPullSender.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java,
+	notification/FilterManagerTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MappingFilterTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePullSender.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredGenerator.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPullSender.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestEventGenerator.java,
+	notification/TestServer.java, notification/TestUtils.java,
+	notification/TimeoutTest.java,
+	notification/TypedEventMessageTest.java: cleaned up
+	tests.
+	various fixes had to be made so that tests run when
+	BiDirGIOP is enabled
+
+	* notification/util/ThreadPoolTest.java (testIsTaskQueued): fixed
+	compiler warning
+
+	* notification/util/LogUtilTest.java,
+	notification/util/DisposableManagerTest.java: cosmetics
+
+2005-04-27  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/util/regexp/AbstractPatternWrapperTest.java,
+	notification/util/regexp/GNUPatternWrapperTest.java,
+	notification/util/regexp/JDK14PatternWrapperTest.java,
+	notification/util/regexp/JakartaRegexpPatternWrapperTest.java:
+	cosmetics
+
+	* notification/typed/TypedProxyPushSupplierImplTest.java: removed
+	PushToConsumer Tasks and Thread Pools as this concept didn't work
+	right.
+
+	instead PushTaskExecutor creates a number of threads
+	that pull PushTasks from the ProxyPushSuppliers and execute them.
+
+	* notification/servant/AbstractProxySupplierTest.java,
+	notification/servant/ProxyPushSupplierImplTest.java,
+	notification/servant/StructuredProxyPushSupplierImplTest.java:
+	cleaned up inheritance hierarchy of Proxies.all
+	ProxyPushSuppliers have a common baseclass now.
+
+	* notification/queue/PackageTest.java, notification/queue/RWLockEventQueueDecoratorTest.java (replaceDelegate):
+	fixed bug
+
+	* notification/engine/AbstractRetryStrategyTest.java,
+	notification/engine/DefaultPushTaskExecutorTest.java,
+	notification/engine/FilterConsumerAdminTaskTest.java,
+	notification/engine/FilterProxyConsumerTaskTest.java,
+	notification/engine/FilterProxySupplierTaskTest.java,
+	notification/engine/FilterSupplierAdminTaskTest.java,
+	notification/engine/PackageTest.java,
+	notification/engine/PushToConsumerTaskTest.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/TaskProcessorRetryStrategyTest.java: removed
+	PushToConsumer Tasks and Thread Pools as this concept didn't work
+	right.
+
+	instead PushTaskExecutor creates a number of threads that pull
+	PushTasks from the ProxyPushSuppliers and execute them.
+
+	* notification/container/CORBAObjectComponentAdapterTest.java,
+	notification/container/ContainerLifecycleTest.java,
+	notification/container/CoreContainerFactoryTest.java,
+	notification/container/DeliverTaskExecutorComponentAdapterTest.java,
+	notification/container/NonCachingRememberingComponentAdapterTest.java,
+	notification/container/PackageTest.java,
+	notification/container/ReferenceComponentAdapterTest.java,
+	notification/container/Service.java,
+	notification/container/ServiceImpl.java,
+	notification/container/ServiceUser.java: removed tests for unused
+	code
+
+	* notification/bugs/DeadlockBugTest.java: cosmetic
+
+2005-04-17  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/engine/AlwaysDisposeRetryStrategyTest.java,
+	notification/engine/PushOperationTest.java,
+	notification/engine/TaskProcessorRetryStrategyTest.java,
+	notification/engine/WaitRetryStrategyTest.java: reflect changes
+
+2005-04-16  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/util/ObjectPoolTest.java: added new tests
+
+	* notification/servant/AbstractProxySupplierTest.java, notification/servant/PackageTest.java:
+	new test
+
+	* notification/engine/PushToConsumerTest.java: adapt tests to changes
+
+	* notification/engine/PushToConsumerTaskTest.java: new test
+
+	* notification/engine/PushOperationTest.java: adapt tests to changes
+
+	* notification/engine/PackageTest.java (suite): added new test
+
+	* notification/engine/AbstractFilterTaskTestCase.java (setup):
+	removed unused code
+
+	* notification/NotificationTestCase.java (suite):
+	added new suite convenience method
+
+2005-04-10  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/typed/PackageTest.java,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedEventChannelTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java: added tests
+	for typed channels
+
+	* notification/TypedNotificationChannelTest.java: removed
+	duplicated code
+
+	* notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java: code cleanup: removed
+	deprecated methods, fixed compiler warnings
+
+2005-03-31  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/FilterTest.java,
+	notification/MappingFilterTest.java,
+	notification/StartTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredPushSender.java: reflect changes in src
+
+	* notification/filter/FilterUsageDecoratorTest.java,
+	notification/filter/GarbageCollectTest.java,
+	notification/filter/PackageTest.java: tests for new features
+
+	* notification/AdminLimitTest.java:
+	fixed compiler warnings (empty blocks)
+
+2005-03-28  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/QoSTest.java: fixed compiler warnings
+
+2005-03-27  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* bugs/AllTest.java, bugs/bug532/ByteSequenceHelper.java,
+	bugs/bug532/TestCase.java, bugs/bug532/bug532.idl,
+	bugs/bug532/readme.txt: Dimitris Andreadis contributed this
+	testcase for bug #532.
+
+2005-03-25  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/FilterTest.java: reflect changes in iimpl
+
+2005-03-20  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/queue/BoundedDeadlineEventQueueTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java (*Test):
+	added tests to see if getAllMessages really removes all fetched
+	elements from the queried
+	queue.
+	(BoundedFifoEventQueue.getAllMessages): bugfix. fetched
+	elements were not removed from the queue. This causes messages to
+	be delivered multiple times.
+
+	Thanks to Ling Yun for
+	reporting (http://lists.spline.inf.fu-berlin.de/pipermail/jacorb-developer/2005-March/007168.html)
+
+2005-03-07  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/engine/TaskProcessorRetryStrategyTest.java:
+	added new test
+
 2005-03-07  Andre Spiegel  <spiegel@gnu.org>
 
 	* common/ClientServerSetup.java (ctor): Hard-code JacORB ORB in
