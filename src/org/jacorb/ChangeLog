@@ -1,3 +1,84 @@
+2005-05-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/util/POAUtil.java (extractImplName, extractOID,
+	extractPOAName): Properly de-escape separator characters ("/") in
+	these names. Fix for bug #493.
+
+2005-05-04  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/TypedEventChannelImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java: added test
+	for bug and fix: poll would fail if one of the
+	TypedProxyPullSupplier "try" methods failed.
+
+	* notification/TypedEventChannelImpl.java,
+	notification/EventChannelImpl.java:
+	(newConsumerAdmin):
+	(newSupplierAdmin): extracted duplicated code
+	as method
+
+	* notification/AbstractChannelFactory.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/TypedEventChannelFactoryImpl.java (newContainerForChannel):
+	pulled duplicated code up to baseclass
+
+	* notification/servant/AbstractAdmin.java,
+	notification/servant/IEventChannel.java (getID): renamed to
+	getChannelID to avoid confusion
+
+	* notification/TypedEventChannelImpl.java: cosmetics: whitespace
+
+	* notification/NoTranslationException.java,
+	notification/WrapperMain.java: cosmetics: compiler warning
+
+	* notification/MessageFactory.java (dispose): removed method
+
+	* notification/FilterManager.java: cosmetics: compiler warning
+
+2005-05-01  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/IAdmin.java,
+	notification/servant/IEventChannel.java,
+	notification/servant/ISupplierAdmin.java,
+	notification/servant/ITypedAdmin.java,
+	notification/servant/ITypedEventChannel.java,
+	notification/servant/ITypedProxy.java,
+	notification/queue/BoundedFifoEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/interfaces/ApplicationEvent.java,
+	notification/interfaces/EventChannelEvent.java,
+	notification/interfaces/ProxyEvent.java,
+	notification/filter/impl/DefaultETCLEvaluator.java,
+	notification/filter/EvaluationException.java,
+	notification/filter/EvaluationResult.java,
+	notification/filter/FilterConstraint.java,
+	notification/filter/ParseException.java,
+	notification/filter/PropertyDoesNotExistException.java: cosmetics:
+	javadoc and compiler warnings
+
+	* notification/engine/DefaultTaskProcessor.java (c'tor): code cleanup
+
+	* notification/container/PicoContainerFactory.java
+	(createRootContainer): use new BiDirGIOPCA.
+
+	* notification/AbstractChannelFactory.java (c'tor):
+	enable BiDirGIOP for EventchannelFactoryPOA if configured
+
+	* notification/container/BiDirGiopPOAComponentAdapter.java: new
+	Pico CA that creates the POA for the NotifyService Servants to
+	use.
+	the CA will enable BiDirGIOP for the POA if this is
+	configured in jacorb.properties
+
+	* notification/servant/TypedProxyPullConsumerImpl.java
+	(connect_typed_pull_supplier): added extra check if interfaceDef_
+	is null. see bugzilla id
+	http://www.jacorb.org/cgi-bin/bugzilla/show_bug.cgi?id=596
+
+	* notification/servant/AbstractProxy.java: cosmetics
+
+	* notification/impl/DefaultMessageFactory.java: removed unused code
+
 2005-04-27  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* notification/engine/AbstractFilterTask.java,
