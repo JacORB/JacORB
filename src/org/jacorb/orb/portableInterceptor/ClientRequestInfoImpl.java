@@ -84,7 +84,7 @@ public class ClientRequestInfoImpl
          org.jacorb.orb.ParsedIOR pior = delegate.getParsedIOR();
 
          if ( piorOriginal != null )
-             this.target = orb._getObject( piorOriginal );
+             this.target = orb._getObject( pior );
          else
              this.target = self;
 
