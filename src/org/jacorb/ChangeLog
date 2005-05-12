@@ -1,5 +1,8 @@
 2005-05-12  Andre Spiegel  <spiegel@gnu.org>
 
+	* orb/portableInterceptor/ClientRequestInfoImpl.java (c'tor):
+	Properly set target object, fixing bug #597.
+
 	* poa/util/POAUtil.java (extractImplName, extractOID,
 	extractPOAName): Properly de-escape separator characters ("/") in
 	these names. Fix for bug #493.
@@ -408,8 +411,10 @@
 	removed deprecated methods, fixed compiler warnings
 	(compareTo, getCost): implement Comparable IF
 
-	* notification/servant/AbstractProxyConsumer.java, notification/servant/AbstractAdmin.java, notification/servant/AbstractProxy.java:
-	code cleanup: removed deprecated methods, fixed compiler warnings
+	* notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java: code cleanup: removed
+	deprecated methods, fixed compiler warnings
 
 	* notification/interfaces/MessageConsumer.java (MessageConsumer):
 	extends Comparable
