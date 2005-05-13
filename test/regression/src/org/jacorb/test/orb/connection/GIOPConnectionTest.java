@@ -1,15 +1,5 @@
 package org.jacorb.test.orb.connection;
 
-/**
- * GIOPConnectionTest.java
- *
- *
- * Created: Sat Jun 22 14:26:15 2002
- *
- * @author Nicolas Noffke
- * @version $Id$
- */
-
 import org.jacorb.orb.giop.*;
 import org.jacorb.orb.iiop.*;
 
@@ -22,11 +12,23 @@ import org.omg.GIOP.*;
 import org.jacorb.orb.*;
 
 import junit.framework.*;
+import org.jacorb.test.common.*;
 
 import org.jacorb.config.Configuration;
 
+/**
+ * GIOPConnectionTest.java
+ *
+ *
+ * Created: Sat Jun 22 14:26:15 2002
+ *
+ * @jacorb-client-since 2.2
+ * @author Nicolas Noffke
+ * @version $Id$
+ */
+
 public class GIOPConnectionTest 
-    extends TestCase
+    extends JacORBTestCase
 {
     private Configuration config;
     private ORB orb;
@@ -38,9 +40,16 @@ public class GIOPConnectionTest
         config = Configuration.getConfiguration(null, orb, false);
     }
 
-    public static junit.framework.TestSuite suite()
+    public static Test suite()
     {
-        return new TestSuite (GIOPConnectionTest.class, "GIOPConnection Test");
+        TestSuite suite = new JacORBTestSuite ("GIOPConnection Test",
+                                               GIOPConnectionTest.class);
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_0_CorrectRefusing"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_IllegalMessageType"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_NoImplement"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectFragmentedRequest"));
+
+        return suite;
     }
     
 
