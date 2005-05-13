@@ -1,11 +1,9 @@
 package org.jacorb.test.orb.policies;
 
 import junit.framework.*;
-import junit.extensions.*;
 
 import org.omg.TimeBase.*;
 import org.omg.CORBA.*;
-import org.jacorb.orb.policies.*;
 
 import org.jacorb.test.*;
 import org.jacorb.test.common.*;
@@ -13,6 +11,10 @@ import org.omg.Messaging.*;
 
 import org.jacorb.util.Time;
 
+/**
+ * @author Andre Spiegel spiegel@gnu.org
+ * @version $Id$
+ */
 public class TimingTest extends CallbackTestCase
 {
     private TimingServer server = null;
