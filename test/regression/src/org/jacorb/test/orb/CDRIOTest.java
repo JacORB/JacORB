@@ -3,7 +3,7 @@ package org.jacorb.test.orb;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2004
+ *   Copyright (C) 1997-2005  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,19 +20,20 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import junit.framework.*;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.portable.InputStream;
 
 import java.io.IOException;
-import java.math.BigDecimal;
+
+import org.jacorb.test.common.*;
 
 /**
  * Test CDRInputStream and CDROutputStream.
+ *
+ * @jacorb-client-since 2.2
  */
-public class CDRIOTest extends TestCase
+public class CDRIOTest extends JacORBTestCase
 {
     private ORB orb;
     private org.omg.CORBA.portable.OutputStream os;
@@ -67,7 +68,8 @@ public class CDRIOTest extends TestCase
      */
     public static Test suite ()
     {
-        TestSuite suite = new TestSuite("CDRIO Test");
+        TestSuite suite = new JacORBTestSuite("CDRIO Test",
+                                              CDRIOTest.class);
 
         suite.addTest(new CDRIOTest("testLong"));
         suite.addTest(new CDRIOTest("testString"));
