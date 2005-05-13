@@ -3,7 +3,7 @@ package org.jacorb.test.common;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2002  Gerald Brose.
+ *   Copyright (C) 1997-2005  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -17,10 +17,9 @@ package org.jacorb.test.common;
  *
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
- *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *   MA 02110-1301, USA.
  */
-
-import junit.framework.*;
 
 /**
  * A special <code>TestCase</code> that provides access to a 
@@ -56,7 +55,7 @@ import junit.framework.*;
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
-public class ClientServerTestCase extends TestCase
+public class ClientServerTestCase extends JacORBTestCase
 {
     protected ClientServerSetup setup;
 
