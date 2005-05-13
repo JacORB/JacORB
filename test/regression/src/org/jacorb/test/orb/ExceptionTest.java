@@ -27,7 +27,8 @@ public class ExceptionTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite("Client/server exception tests");
+        TestSuite suite = new JacORBTestSuite("Client/server exception tests",
+                                              ExceptionTest.class);
         ClientServerSetup setup =
             new ClientServerSetup(suite,
                                   "org.jacorb.test.orb.ExceptionServerImpl");
@@ -41,6 +42,7 @@ public class ExceptionTest extends ClientServerTestCase
      * Checks whether a RuntimeException in the Servant is
      * properly reported back to the client, including the
      * error message.
+     * @jacorb-since cvs
      */
     public void testRuntimeException()
     {
