@@ -3,7 +3,7 @@ package org.jacorb.test.orb;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2005  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -43,7 +43,8 @@ public class BasicTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite( "Basic client/server tests" );
+        TestSuite suite = new JacORBTestSuite("Basic client/server tests",
+                                              BasicTest.class);
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.BasicServerImpl" );
