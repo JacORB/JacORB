@@ -3,7 +3,7 @@ package org.jacorb.test.common;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2002  Gerald Brose.
+ *   Copyright (C) 1997-2005  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -17,12 +17,11 @@ package org.jacorb.test.common;
  *
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
- *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *   MA 02110-1301, USA.
  */
 
-import java.io.*;
 import java.util.*;
-import java.net.*;
 
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
@@ -89,6 +88,8 @@ public class ClientServerSetup extends TestSetup {
 
     private Properties clientOrbProperties = null;
     private Properties serverOrbProperties = null;
+    
+    private static Comparator comparator = new JacORBVersionComparator();
 
     /**
      * Constructs a new ClientServerSetup that is wrapped
@@ -174,7 +175,12 @@ public class ClientServerSetup extends TestSetup {
 
     public String getTestServerMain()
     {
-        return "org.jacorb.test.common.TestServer";
+        String serverVersion = System.getProperty ("jacorb.test.server.version",
+                                                   "cvs");
+        if (comparator.compare (serverVersion, "2.2") >= 0)
+            return "org.jacorb.test.common.TestServer";
+        else
+            return "org.jacorb.test.common.TestServer_before_2_2";
     }
 
     /**
