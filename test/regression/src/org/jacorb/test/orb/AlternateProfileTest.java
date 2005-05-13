@@ -1,16 +1,34 @@
 package org.jacorb.test.orb;
 
+/*
+ *        JacORB  - a free Java ORB
+ *
+ *   Copyright (C) 1997-2005  Gerald Brose.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *   MA 02110-1301, USA.
+ */
+
 import java.util.Properties;
 
 import junit.framework.*;
 
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.orb.IIOPAddress;
 
 import org.omg.CORBA.portable.Delegate;
-import org.omg.IOP.IOR;
-import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TaggedProfile;
 
@@ -22,6 +40,7 @@ import org.omg.CORBA.ORB;
  * This test is similar to AlternateIIOPAddressTest, but it uses the
  * special IORInfoExt functions to set up the IORs.
  * 
+ * @jacorb-since 2.2
  * @author Marc Heide
  * @version $Id$
  */
@@ -57,7 +76,11 @@ public class AlternateProfileTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS");
+        TestSuite suite = new JacORBTestSuite
+        (
+            "Test TAG_ALTERNATE_IIOP_ADDRESS/IORInfoExt",
+            AlternateProfileTest.class
+        );
 
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");

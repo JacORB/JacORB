@@ -1,5 +1,26 @@
 package org.jacorb.test.orb;
 
+/*
+ *        JacORB  - a free Java ORB
+ *
+ *   Copyright (C) 1997-2005  Gerald Brose.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *   MA 02110-1301, USA.
+ */
+
 import java.util.Properties;
 
 import junit.framework.*;
@@ -10,6 +31,7 @@ import org.jacorb.test.common.*;
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
  * 
+ * @jacorb-since 2.2
  * @author Andre Spiegel
  * @version $Id$
  */
@@ -43,7 +65,8 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS");
+        TestSuite suite = new JacORBTestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS",
+                                              AlternateIIOPAddressTest.class);
 
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");
