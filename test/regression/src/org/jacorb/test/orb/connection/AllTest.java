@@ -3,7 +3,7 @@ package org.jacorb.test.orb.connection;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2005  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,8 +21,9 @@ package org.jacorb.test.orb.connection;
  */
 
 import junit.framework.*;
+import org.jacorb.test.common.*;
 
-public class AllTest extends TestCase
+public class AllTest extends JacORBTestSuite
 {
    public AllTest (String name)
    {
@@ -31,7 +32,7 @@ public class AllTest extends TestCase
 
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("All orb/connection");
+      TestSuite suite = new AllTest ("All orb/connection");
 
       suite.addTest( GIOPConnectionTest.suite() );
       suite.addTest( BiDirTest.suite() );

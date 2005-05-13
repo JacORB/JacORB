@@ -3,7 +3,7 @@ package org.jacorb.test.orb;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2005  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,17 +21,18 @@ package org.jacorb.test.orb;
  */
 
 import junit.framework.*;
+import org.jacorb.test.common.*;
 
-public class AllTest extends TestCase
+public class AllTest extends JacORBTestSuite
 {
    public AllTest (String name)
    {
       super (name);
    }
 
-   public static Test suite ()
+   public static Test suite()
    {
-        TestSuite suite = new TestSuite ("All ORB Tests");
+        TestSuite suite = new AllTest ("All ORB Tests");
 
         suite.addTest (org.jacorb.test.orb.ORBInitTest.suite());
         suite.addTest (org.jacorb.test.orb.CDRIOTest.suite());
