@@ -20,11 +20,12 @@ package org.jacorb.test.notification.bugs;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.test.notification.NotificationTestCase;
-import org.jacorb.test.notification.NotificationTestCaseSetup;
+import junit.framework.Test;
+
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
-
+import org.jacorb.test.notification.common.NotifyServerTest;
+import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -33,8 +34,6 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 
-import junit.framework.Test;
-
 /**
  * Test to reveal bug reported by Matthew Leahy
  * (news://news.gmane.org:119/3FBE2F7D.6090503@ll.mit.edu) Under high load Messages were delivered
@@ -42,23 +41,18 @@ import junit.framework.Test;
  * 
  * @author Alphonse Bendt
  */
-public class MultipleDeliveryBugTest extends NotificationTestCase
+public class MultipleDeliveryBugTest extends NotifyServerTest
 {
-    private EventChannel channel_;
-
-    public MultipleDeliveryBugTest(String name, NotificationTestCaseSetup setup)
+    private EventChannel objectUnderTest_;
+    
+    public MultipleDeliveryBugTest(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
 
     public void setUpTest() throws Exception
     {
-        channel_ = getDefaultChannel();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite("Test to reveal a Bug", MultipleDeliveryBugTest.class);
+        objectUnderTest_ = getDefaultChannel();
     }
 
     public void testMultipleSendUnderHighLoad() throws Exception
@@ -72,21 +66,21 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
         fixedHeader.event_type = new EventType("TESTING", "TESTING");
         EventHeader header = new EventHeader(fixedHeader, new Property[0]);
 
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB(), testSize);
-        StructuredPushSender _sender = new StructuredPushSender(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb(), testSize);
+        StructuredPushSender _sender = new StructuredPushSender(setup.getClientOrb());
         
         _receiver.setTimeOut(testSize * 100);
 
-        _sender.connect(channel_, false);
-        _receiver.connect(channel_, false);
+        _sender.connect(objectUnderTest_, false);
+        _receiver.connect(objectUnderTest_, false);
 
         _receiver.start();
 
         for (int x = 0; x < events.length; ++x)
         {
-            Any a = getORB().create_any();
-            a.insert_long(x);
-            events[x] = new StructuredEvent(header, new Property[0], a);
+            Any any = setup.getClientOrb().create_any();
+            any.insert_long(x);
+            events[x] = new StructuredEvent(header, new Property[0], any);
         }
         
         _sender.pushEvents(events);
@@ -94,5 +88,10 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
         _receiver.join();
 
         assertTrue(_receiver.isEventHandled());
+    }
+    
+    public static Test suite() throws Exception
+    {
+        return NotifyServerTest.suite(MultipleDeliveryBugTest.class);
     }
 }
