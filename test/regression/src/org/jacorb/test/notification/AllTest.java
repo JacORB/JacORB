@@ -22,14 +22,16 @@ package org.jacorb.test.notification;
  */
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.jacorb.test.common.*;
+
 /**
+ * @jacorb-since cvs
  * @author Alphonse Bendt
  */
 
-public class AllTest extends TestCase
+public class AllTest extends JacORBTestSuite
 {
     public AllTest(String name)
     {
@@ -38,7 +40,7 @@ public class AllTest extends TestCase
 
     public static Test suite() throws Exception
     {
-        TestSuite _suite = new TestSuite("Notification Service Test Suite");
+        TestSuite _suite = new AllTest("Notification Service Test Suite");
         _suite.addTest(org.jacorb.test.notification.PackageTest.suite());
 
         _suite.addTest(org.jacorb.test.notification.container.PackageTest.suite());
