@@ -3,6 +3,8 @@ package org.jacorb.test.notification;
 import junit.framework.Assert;
 import junit.framework.Test;
 
+import org.jacorb.test.notification.common.NotifyServerTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.TRANSIENT;
@@ -25,7 +27,7 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
  * @author Alphonse Bendt
  */
 
-public class EventChannelTest extends NotificationTestCase
+public class EventChannelTest extends NotifyServerTestCase
 {
     private Any testPerson_;
 
@@ -40,7 +42,7 @@ public class EventChannelTest extends NotificationTestCase
      */
     public void setUpTest() throws Exception
     {
-        testPerson_ = getTestUtils().getTestPersonAny();
+        testPerson_ = new NotificationTestUtils(getClientORB()).getTestPersonAny();
 
         channel_ = getDefaultChannel();
 
@@ -132,7 +134,7 @@ public class EventChannelTest extends NotificationTestCase
         return seen;
     }
 
-    public EventChannelTest(String name, NotificationTestCaseSetup setup)
+    public EventChannelTest(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
@@ -146,8 +148,8 @@ public class EventChannelTest extends NotificationTestCase
 
         Property[] props = new Property[2];
 
-        Any discardPolicy = getORB().create_any();
-        Any orderPolicy = getORB().create_any();
+        Any discardPolicy = getClientORB().create_any();
+        Any orderPolicy = getClientORB().create_any();
 
         discardPolicy.insert_short(LifoOrder.value);
         orderPolicy.insert_short(AnyOrder.value);
@@ -380,7 +382,7 @@ public class EventChannelTest extends NotificationTestCase
     {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
+        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0], new Property[0], _id);
 
         AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(getClientORB());
         _anyPullReceiver.connect(_channel, false);
@@ -414,7 +416,7 @@ public class EventChannelTest extends NotificationTestCase
     {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
+        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0], new Property[0], _id);
 
         AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(getClientORB());
         _anyPullReceiver.connect(_channel, false);
@@ -450,10 +452,10 @@ public class EventChannelTest extends NotificationTestCase
     {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
+        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0], new Property[0], _id);
 
         // test if channel id appears within channel list
-        int[] _allFactories = getFactory().get_all_channels();
+        int[] _allFactories = getEventChannelFactory().get_all_channels();
         boolean _seen = false;
         for (int x = 0; x < _allFactories.length; ++x)
         {
@@ -464,7 +466,7 @@ public class EventChannelTest extends NotificationTestCase
         }
         assertTrue(_seen);
 
-        EventChannel _sameChannel = getFactory().get_event_channel(_id.value);
+        EventChannel _sameChannel = getEventChannelFactory().get_event_channel(_id.value);
         assertTrue(_channel._is_equivalent(_sameChannel));
 
         _channel.destroy();
@@ -472,7 +474,7 @@ public class EventChannelTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite("Basic CosNotification EventChannel Tests",
+        return NotifyServerTestCase.suite("Basic CosNotification EventChannel Tests",
                 EventChannelTest.class);
     }
 }

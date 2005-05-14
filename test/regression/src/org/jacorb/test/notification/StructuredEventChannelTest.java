@@ -2,6 +2,8 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
+import org.jacorb.test.notification.common.NotifyServerTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -23,7 +25,7 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
  * @author Alphonse Bendt
  */
 
-public class StructuredEventChannelTest extends NotificationTestCase
+public class StructuredEventChannelTest extends NotifyServerTestCase
 {
     private static final EventType[] EMPTY_EVENT_TYPE = new EventType[0];
 
@@ -39,7 +41,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
     // //////////////////////////////////////
 
-    public StructuredEventChannelTest(String name, NotificationTestCaseSetup setup)
+    public StructuredEventChannelTest(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
@@ -62,10 +64,10 @@ public class StructuredEventChannelTest extends NotificationTestCase
         // set filterable event body data
         testEvent_.filterable_data = new Property[1];
 
-        Any _personAny = getORB().create_any();
+        Any _personAny = getClientORB().create_any();
 
         // prepare filterable body data
-        Person _p = getTestUtils().getTestPerson();
+        Person _p = new NotificationTestUtils(getClientORB()).getTestPerson();
         Address _a = new Address();
 
         _p.first_name = "firstname";
@@ -86,7 +88,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         PersonHelper.insert(_personAny, _p);
         testEvent_.filterable_data[0] = new Property("person", _personAny);
 
-        testEvent_.remainder_of_body = getORB().create_any();
+        testEvent_.remainder_of_body = getClientORB().create_any();
 
         trueFilter_ = createFilter();
 
@@ -119,7 +121,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
     {
         Property[] _p = new Property[0];
 
-        EventChannel _channel = getFactory().create_channel(_p, _p, new IntHolder());
+        EventChannel _channel = getEventChannelFactory().create_channel(_p, _p, new IntHolder());
 
         StructuredPushSender _pushSender = getPushSender();
 
@@ -411,7 +413,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite("Test of Structured EventChannel",
+        return NotifyServerTestCase.suite("Test of Structured EventChannel",
                 StructuredEventChannelTest.class);
     }
 }

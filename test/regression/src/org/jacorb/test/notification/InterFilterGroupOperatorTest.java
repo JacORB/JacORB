@@ -23,6 +23,8 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
+import org.jacorb.test.notification.common.NotifyServerTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
@@ -54,7 +56,7 @@ import org.omg.CosNotifyFilter.Filter;
  *
  * @author Alphonse Bendt
  */
-public class InterFilterGroupOperatorTest extends NotificationTestCase
+public class InterFilterGroupOperatorTest extends NotifyServerTestCase
 {
     Any testPerson_;
     EventChannel channel_;
@@ -65,7 +67,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
 
     public void setUpTest() throws Exception
     {
-        testPerson_ = getTestUtils().getTestPersonAny();
+        testPerson_ = new NotificationTestUtils(getClientORB()).getTestPersonAny();
 
         channel_ = getDefaultChannel();
 
@@ -138,6 +140,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+    
     public void testTrueANDFalse_NoneOrNone() throws Exception
     {
         AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
@@ -208,6 +211,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         assertTrue("Error while sending", !_sender.error_);
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
+    
 
     public void testNoneOrNone_FalseORTrue() throws Exception
     {
@@ -284,16 +288,16 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         assertTrue(_receiver + " should have received something", !_receiver.isEventHandled());
     }
 
-
-    public InterFilterGroupOperatorTest (String name, NotificationTestCaseSetup setup)
+    
+    public InterFilterGroupOperatorTest (String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
 
-
+    
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite("Test of InterFilterGroupOperator Functionality",
+        return NotifyServerTestCase.suite("Test of InterFilterGroupOperator Functionality",
                                           InterFilterGroupOperatorTest.class);
     }
 }

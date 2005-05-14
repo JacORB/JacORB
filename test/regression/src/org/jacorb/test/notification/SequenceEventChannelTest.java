@@ -2,6 +2,8 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
+import org.jacorb.test.notification.common.NotifyServerTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.MaximumBatchSize;
@@ -13,12 +15,13 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
  * @author Alphonse Bendt
  */
 
-public class SequenceEventChannelTest extends NotificationTestCase {
+public class SequenceEventChannelTest extends NotifyServerTestCase {
 
     EventChannel channel_;
     StructuredEvent[] testEvent_;
+    private NotificationTestUtils testUtils_;
 
-    public SequenceEventChannelTest(String name, NotificationTestCaseSetup setup) {
+    public SequenceEventChannelTest(String name, NotifyServerTestSetup setup) {
         super(name, setup);
     }
 
@@ -26,18 +29,18 @@ public class SequenceEventChannelTest extends NotificationTestCase {
     public void setUpTest() throws Exception {
        channel_ = getDefaultChannel();
 
-        // set test event type and name
-        testEvent_ = new StructuredEvent[] {getTestUtils().getStructuredEvent()};
+        testUtils_ = new NotificationTestUtils(getClientORB());
+        testEvent_ = new StructuredEvent[] {testUtils_.getStructuredEvent()};
     }
 
 
     public void testSetMaximumBatchSize() throws Exception {
         StructuredEvent[] _events = new StructuredEvent[] {
-            getTestUtils().getStructuredEvent(),
-            getTestUtils().getStructuredEvent()
+                testUtils_.getStructuredEvent(),
+                testUtils_.getStructuredEvent()
         };
 
-        Any _value = getORB().create_any();
+        Any _value = getClientORB().create_any();
 
         _value.insert_long(2);
 
@@ -62,7 +65,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
         Property[] _p = new Property[0];
         IntHolder _channelId = new IntHolder();
 
-        EventChannel _channel = getFactory().create_channel(_p, _p, _channelId);
+        EventChannel _channel = getEventChannelFactory().create_channel(_p, _p, _channelId);
 
         SequencePushSender _pushSender = new SequencePushSender(getClientORB(), testEvent_);
         SequencePullSender _pullSender = new SequencePullSender(getClientORB(), testEvent_);
@@ -168,7 +171,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public static Test suite() throws Exception {
-        return NotificationTestCase.suite("Tests for Sequenced Event Channel",
+        return NotifyServerTestCase.suite("Tests for Sequenced Event Channel",
                                           SequenceEventChannelTest.class);
     }
 }

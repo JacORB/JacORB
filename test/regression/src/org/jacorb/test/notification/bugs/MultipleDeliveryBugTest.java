@@ -66,8 +66,8 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
         fixedHeader.event_type = new EventType("TESTING", "TESTING");
         EventHeader header = new EventHeader(fixedHeader, new Property[0]);
 
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb(), testSize);
-        StructuredPushSender _sender = new StructuredPushSender(setup.getClientOrb());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB(), testSize);
+        StructuredPushSender _sender = new StructuredPushSender(getClientORB());
         
         _receiver.setTimeOut(testSize * 100);
 
@@ -78,7 +78,7 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
 
         for (int x = 0; x < events.length; ++x)
         {
-            Any any = setup.getClientOrb().create_any();
+            Any any = getClientORB().create_any();
             any.insert_long(x);
             events[x] = new StructuredEvent(header, new Property[0], any);
         }
@@ -89,7 +89,7 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
 
         assertTrue(_receiver.isEventHandled());
     }
-    
+
     public static Test suite() throws Exception
     {
         return NotifyServerTestCase.suite(MultipleDeliveryBugTest.class);

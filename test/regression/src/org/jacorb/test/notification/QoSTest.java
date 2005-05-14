@@ -27,6 +27,8 @@ import java.util.List;
 
 import junit.framework.Test;
 
+import org.jacorb.test.notification.common.NotifyServerTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventComm.Disconnected;
@@ -51,7 +53,7 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
  * @author Alphonse Bendt
  */
 
-public class QoSTest extends NotificationTestCase
+public class QoSTest extends NotifyServerTestCase
 {
     Any fifoOrder;
 
@@ -73,31 +75,31 @@ public class QoSTest extends NotificationTestCase
 
     public void setUpTest() throws Exception
     {
-        trueAny = getORB().create_any();
+        trueAny = getClientORB().create_any();
         trueAny.insert_boolean(true);
 
-        falseAny = getORB().create_any();
+        falseAny = getClientORB().create_any();
         falseAny.insert_boolean(false);
 
-        fifoOrder = getORB().create_any();
+        fifoOrder = getClientORB().create_any();
         fifoOrder.insert_short(FifoOrder.value);
 
-        lifoOrder = getORB().create_any();
+        lifoOrder = getClientORB().create_any();
         lifoOrder.insert_short(LifoOrder.value);
 
-        deadlineOrder = getORB().create_any();
+        deadlineOrder = getClientORB().create_any();
         deadlineOrder.insert_short(DeadlineOrder.value);
 
-        priorityOrder = getORB().create_any();
+        priorityOrder = getClientORB().create_any();
         priorityOrder.insert_short(PriorityOrder.value);
 
-        anyOrder = getORB().create_any();
+        anyOrder = getClientORB().create_any();
         anyOrder.insert_short(AnyOrder.value);
 
-        bestEffort = getORB().create_any();
+        bestEffort = getClientORB().create_any();
         bestEffort.insert_short(BestEffort.value);
 
-        persistent = getORB().create_any();
+        persistent = getClientORB().create_any();
         persistent.insert_short(Persistent.value);
     }
 
@@ -110,7 +112,7 @@ public class QoSTest extends NotificationTestCase
         qosProps = new Property[] { new Property(DiscardPolicy.value, priorityOrder),
                 new Property(OrderPolicy.value, priorityOrder) };
 
-        getFactory().create_channel(qosProps, new Property[0], channelId);
+        getEventChannelFactory().create_channel(qosProps, new Property[0], channelId);
     }
 
     public void testCreate_Reliability() throws Exception
@@ -122,14 +124,14 @@ public class QoSTest extends NotificationTestCase
         qosProps = new Property[] { new Property(ConnectionReliability.value, bestEffort),
                 new Property(EventReliability.value, bestEffort) };
 
-        getFactory().create_channel(qosProps, new Property[0], channelId);
+        getEventChannelFactory().create_channel(qosProps, new Property[0], channelId);
 
         qosProps = new Property[] { new Property(ConnectionReliability.value, persistent),
                 new Property(EventReliability.value, persistent) };
 
         try
         {
-            getFactory().create_channel(qosProps, new Property[0], channelId);
+            getEventChannelFactory().create_channel(qosProps, new Property[0], channelId);
             fail();
         } catch (UnsupportedQoS e)
         {
@@ -152,15 +154,15 @@ public class QoSTest extends NotificationTestCase
 
         qosProps = new Property[] { new Property(OrderPolicy.value, priorityOrder) };
 
-        EventChannel channel = getFactory().create_channel(qosProps, new Property[0], channelId);
+        EventChannel channel = getEventChannelFactory().create_channel(qosProps, new Property[0], channelId);
 
         // testdata
         StructuredEvent[] events = new StructuredEvent[10];
         for (int x = 0; x < events.length; ++x)
         {
-            events[x] = getTestUtils().getStructuredEvent();
+            events[x] = new NotificationTestUtils(getClientORB()).getStructuredEvent();
 
-            Any priority = getORB().create_any();
+            Any priority = getClientORB().create_any();
             priority.insert_short((short) x);
 
             events[x].header.variable_header = new Property[] { new Property(Priority.value,
@@ -171,7 +173,7 @@ public class QoSTest extends NotificationTestCase
         final List received = new ArrayList();
 
         // setup clients
-        StructuredPushReceiver receiver = new StructuredPushReceiver(this.getORB(), events.length)
+        StructuredPushReceiver receiver = new StructuredPushReceiver(this.getClientORB(), events.length)
         {
             public void push_structured_event(StructuredEvent event) throws Disconnected
             {
@@ -185,7 +187,7 @@ public class QoSTest extends NotificationTestCase
 
         receiver.pushSupplier_.suspend_connection();
 
-        StructuredPushSender sender = new StructuredPushSender(getORB());
+        StructuredPushSender sender = new StructuredPushSender(this.getClientORB());
 
         sender.setStructuredEvent(events);
         sender.setInterval(100);
@@ -222,13 +224,13 @@ public class QoSTest extends NotificationTestCase
         }
     }
 
-    public QoSTest(String name, NotificationTestCaseSetup setup)
+    public QoSTest(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite("Basic QoS Tests", QoSTest.class);
+        return NotifyServerTestCase.suite("Basic QoS Tests", QoSTest.class);
     }
 }

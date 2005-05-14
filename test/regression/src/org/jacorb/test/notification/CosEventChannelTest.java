@@ -2,20 +2,21 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
+import org.jacorb.test.notification.common.NotifyServerTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 
 /**
- *  Unit Test for class EventChannel.
- *  Test Backward compability. Access Notification Channel via the
- *  CosEvent Interfaces.
- *
+ * Unit Test for class EventChannel. Test Backward compability. Access Notification Channel via the
+ * CosEvent Interfaces.
+ * 
  * @author Alphonse Bendt
  */
 
-public class CosEventChannelTest extends NotificationTestCase
+public class CosEventChannelTest extends NotifyServerTestCase
 {
     EventChannel channel_;
 
@@ -25,9 +26,8 @@ public class CosEventChannelTest extends NotificationTestCase
     {
         channel_ = getDefaultChannel();
 
-        testData_ = getTestUtils().getTestPersonAny();
+        testData_ = new NotificationTestUtils(getClientORB()).getTestPersonAny();
     }
-
 
     public void testPushPush() throws Exception
     {
@@ -48,7 +48,6 @@ public class CosEventChannelTest extends NotificationTestCase
         _r.join();
         assertTrue(_receiver.isEventHandled());
     }
-
 
     public void testPushPull() throws Exception
     {
@@ -71,7 +70,6 @@ public class CosEventChannelTest extends NotificationTestCase
         assertTrue(_receiver.isEventHandled());
     }
 
-
     public void testPullPush() throws Exception
     {
         CosEventPushReceiver _receiver = new CosEventPushReceiver(getClientORB());
@@ -92,7 +90,6 @@ public class CosEventChannelTest extends NotificationTestCase
         assertTrue(_receiver.isEventHandled());
     }
 
-
     public void testPullPull() throws Exception
     {
         CosEventPullReceiver _receiver = new CosEventPullReceiver(getClientORB());
@@ -109,20 +106,18 @@ public class CosEventChannelTest extends NotificationTestCase
         assertTrue(_receiver.isEventHandled());
     }
 
-
     public void testDestroyChannelDisconnectsClients() throws Exception
     {
-        EventChannel _channel =
-            getFactory().create_channel(new Property[0],
-                                        new Property[0],
-                                        new IntHolder());
-
+        EventChannel _channel = 
+            getEventChannelFactory().create_channel(new Property[0],
+                    new Property[0], 
+                    new IntHolder());
 
         TestClientOperations[] _testClients = new TestClientOperations[] {
-                                                  new CosEventPullSender(getClientORB(), testData_),
-                                                  new CosEventPushSender(getClientORB(), testData_),
-                                                  new CosEventPushReceiver(getClientORB()),
-                                                  new CosEventPullReceiver(getClientORB())};
+                new CosEventPullSender(getClientORB(), testData_),
+                new CosEventPushSender(getClientORB(), testData_),
+                new CosEventPushReceiver(getClientORB()), 
+                new CosEventPullReceiver(getClientORB()) };
 
         for (int x = 0; x < _testClients.length; ++x)
         {
@@ -133,22 +128,21 @@ public class CosEventChannelTest extends NotificationTestCase
         _channel.destroy();
 
         Thread.sleep(1000);
-        
+
         for (int x = 0; x < _testClients.length; ++x)
         {
             assertTrue("Idx: " + x + " still connected", !_testClients[x].isConnected());
         }
     }
 
-
-    public CosEventChannelTest (String name, NotificationTestCaseSetup setup)
+    public CosEventChannelTest(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
 
-
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite("Basic CosEvent EventChannel Tests", CosEventChannelTest.class);
+        return NotifyServerTestCase.suite("Basic CosEvent EventChannel Tests",
+                CosEventChannelTest.class);
     }
 }
