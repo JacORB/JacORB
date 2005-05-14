@@ -24,7 +24,7 @@ import junit.framework.Test;
 
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
-import org.jacorb.test.notification.common.NotifyServerTest;
+import org.jacorb.test.notification.common.NotifyServerTestCase;
 import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
@@ -41,7 +41,7 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
  * 
  * @author Alphonse Bendt
  */
-public class MultipleDeliveryBugTest extends NotifyServerTest
+public class MultipleDeliveryBugTest extends NotifyServerTestCase
 {
     private EventChannel objectUnderTest_;
     
@@ -92,6 +92,6 @@ public class MultipleDeliveryBugTest extends NotifyServerTest
     
     public static Test suite() throws Exception
     {
-        return NotifyServerTest.suite(MultipleDeliveryBugTest.class);
+        return NotifyServerTestCase.suite(MultipleDeliveryBugTest.class);
     }
 }

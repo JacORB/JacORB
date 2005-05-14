@@ -36,9 +36,9 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
-public abstract class NotifyServerTest extends ClientServerTestCase
+public abstract class NotifyServerTestCase extends ClientServerTestCase
 {
-    public NotifyServerTest(String name, NotifyServerTestSetup setup)
+    public NotifyServerTestCase(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
