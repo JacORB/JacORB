@@ -20,20 +20,19 @@ package org.jacorb.test.notification.plugins;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.filter.bsh.BSHFilter;
-import org.jacorb.test.notification.NotificationTestCase;
-import org.jacorb.test.notification.NotificationTestCaseSetup;
+import junit.framework.Test;
 
+import org.jacorb.notification.filter.bsh.BSHFilter;
+import org.jacorb.test.notification.common.NotifyServerTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
-
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class FilterFactoryTest extends NotificationTestCase
+public class FilterFactoryTest extends NotifyServerTestCase
 {
     private FilterFactory objectUnderTest_;
 
@@ -42,7 +41,7 @@ public class FilterFactoryTest extends NotificationTestCase
         objectUnderTest_ = getDefaultChannel().default_filter_factory();
     }
 
-    public FilterFactoryTest(String name, NotificationTestCaseSetup setup)
+    public FilterFactoryTest(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
@@ -68,6 +67,6 @@ public class FilterFactoryTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite(FilterFactoryTest.class);
+        return NotifyServerTestCase.suite(FilterFactoryTest.class);
     }
 }
