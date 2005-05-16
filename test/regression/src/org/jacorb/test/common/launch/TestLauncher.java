@@ -170,8 +170,10 @@ public class TestLauncher
     
     public static String getOutFilename()
     {
-        String dir = TestUtils.testHome() + "/output";
-        return dir + "/report-" + getTestID() + ".txt";
+        String dir = TestUtils.testHome() + "/output/" + getTestID();
+        File dirF = new File (dir);
+        if (!dirF.exists()) dirF.mkdir();
+        return dir + "/report.txt";
     }
     
     public static void main(String[] args) throws Exception
@@ -188,6 +190,7 @@ public class TestLauncher
                          + TestUtils.testHome() + "/lib/easymock-1.1.jar";
 
         Properties props = new Properties();
+        props.put("jacorb.test.id", getTestID());
         props.put("jacorb.test.coverage", getCoverage() ? "true" : "false");
         props.put("jacorb.test.client.version", getClientVersion());
         props.put("jacorb.test.server.version", getServerVersion());
@@ -202,7 +205,8 @@ public class TestLauncher
         if (getCoverage())
             props.put ("emma.coverage.out.file",
                        launcher.getJacorbHome() 
-                       + "/test/regression/coverage/client.ec");
+                       + "/test/regression/output/" 
+                       + getTestID() + "/coverage-client.ec");
         
         Process p = launcher.launch(classpath, props, mainClass, args);
 
