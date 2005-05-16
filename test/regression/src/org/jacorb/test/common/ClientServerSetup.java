@@ -134,6 +134,7 @@ public class ClientServerSetup extends TestSetup {
         
         String serverVersion = System.getProperty ("jacorb.test.server.version",
                                                    "cvs");
+        String testID = System.getProperty("jacorb.test.id", "");
         String cs = System.getProperty ("jacorb.test.coverage", "false");
         boolean coverage = cs.equals("true") || cs.equals("on");
 
@@ -148,7 +149,8 @@ public class ClientServerSetup extends TestSetup {
         if (coverage)
             serverProperties.put ("emma.coverage.out.file",
                                   launcher.getJacorbHome()
-                                  + "/test/regression/coverage/server.ec");
+                                  + "/test/regression/output/" 
+                                  + testID + "/coverage-server.ec");
         
         serverProcess = launcher.launch
         (
