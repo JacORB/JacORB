@@ -30,7 +30,7 @@ import junit.framework.*;
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
-public class JacORBTestCase extends TestCase
+public class JacORBTestCase extends TestCase implements JacORBTest
 {
     private TestAnnotations annotations = null;
     
