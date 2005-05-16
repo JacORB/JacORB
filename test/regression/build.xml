@@ -445,10 +445,13 @@
         <filter excludes="org.jacorb.ir.gui*"/>
         <filter excludes="org.jacorb.naming.namemanager.*"/>
         <filter excludes="org.jacorb.poa.gui.*"/>
+        <filter excludes="org.jacorb.notification.*"/>
+        <filter excludes="org.jacorb.trading.*"/>
       </instr>
     </emma>
   </target>
 
+  <!-- this target is obsolete, use TestLauncher for the time being -->
   <target name="run-with-coverage" depends="test-init">
     <delete failonerror="false">
       <fileset dir="${testdir}/coverage"
@@ -490,10 +493,28 @@
               sort="+name">
         <fileset dir="${basedir}">
           <include name="coverage.em"/>
-          <include name="test/regression/coverage/client.ec"/>
-          <include name="test/regression/coverage/server.ec"/>
+          <include name="test/regression/output/${jacorb.test.id}/coverage-client.ec"/>
+          <include name="test/regression/output/${jacorb.test.id}/coverage-server.ec"/>
         </fileset>
-        <html outfile="${testdir}/output/coverage/index.html"/>
+        <html outfile="${testdir}/output/${jacorb.test.id}/coverage-combined/index.html"/>
+      </report>
+      <report sourcepath="${basedir}/src"
+              columns="name,line,method,class"
+              sort="+name">
+        <fileset dir="${basedir}">
+          <include name="coverage.em"/>
+          <include name="test/regression/output/${jacorb.test.id}/coverage-client.ec"/>
+        </fileset>
+        <html outfile="${testdir}/output/${jacorb.test.id}/coverage-client/index.html"/>
+      </report>
+      <report sourcepath="${basedir}/src"
+              columns="name,line,method,class"
+              sort="+name">
+        <fileset dir="${basedir}">
+          <include name="coverage.em"/>
+          <include name="test/regression/output/${jacorb.test.id}/coverage-server.ec"/>
+        </fileset>
+        <html outfile="${testdir}/output/${jacorb.test.id}/coverage-server/index.html"/>
       </report>
     </emma>
   </target>
