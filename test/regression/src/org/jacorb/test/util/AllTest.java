@@ -21,8 +21,9 @@ package org.jacorb.test.util;
  */
 
 import junit.framework.*;
+import org.jacorb.test.common.*;
 
-public class AllTest extends TestCase
+public class AllTest extends JacORBTestSuite
 {
    public AllTest (String name)
    {
@@ -31,9 +32,9 @@ public class AllTest extends TestCase
 
    public static Test suite ()
    {
-        TestSuite suite = new TestSuite ("All Util Tests");
+        TestSuite suite = new AllTest ("All Util Tests");
 
-        suite.addTest (LogKitLoggerFactoryTest.suite());
+        suite.addTestSuite (LogKitLoggerFactoryTest.class);
 
         return suite;
    }
