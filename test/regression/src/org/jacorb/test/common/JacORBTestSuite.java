@@ -21,6 +21,8 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
+import java.lang.reflect.*;
+
 import junit.framework.*;
 import junit.extensions.*;
 
@@ -31,7 +33,7 @@ import junit.extensions.*;
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
-public class JacORBTestSuite extends TestSuite
+public class JacORBTestSuite extends TestSuite implements JacORBTest
 {
     private TestAnnotations annotations = null;
     
@@ -95,26 +97,20 @@ public class JacORBTestSuite extends TestSuite
         {
             super.addTest (test);
         }
-        else if (test instanceof JacORBTestCase)
+        else if (test instanceof JacORBTest)
         {
-            if (((JacORBTestCase)test).isApplicableTo (clientVersion,
-                                                       serverVersion))
-                super.addTest (test);
-        }
-        else if (test instanceof JacORBTestSuite)
-        {
-            if (((JacORBTestSuite)test).isApplicableTo (clientVersion,
-                                                        serverVersion))
+            if (((JacORBTest)test).isApplicableTo (clientVersion,
+                                                   serverVersion))
                 super.addTest (test);
         }
         else if (test instanceof TestDecorator)
         {
             TestDecorator decorator = (TestDecorator)test;
             Test t = decorator.getTest();
-            if (t instanceof JacORBTestSuite)
+            if (t instanceof JacORBTest)
             {
-                if (((JacORBTestSuite)t).isApplicableTo (clientVersion,
-                                                         serverVersion))
+                if (((JacORBTest)t).isApplicableTo (clientVersion,
+                                                    serverVersion))
                     super.addTest (test);
             }
             else
@@ -123,6 +119,54 @@ public class JacORBTestSuite extends TestSuite
         else
         {
             super.addTest (test);
+        }
+    }
+    
+    /**
+     * Adds the TestSuite defined by class c to this JacORBTestSuite,
+     * but only if the TestSuite is applicable to the client and server
+     * version under test.  The new TestSuite is computed by invoking the
+     * suite() method of class c -- this is different from what the superclass
+     * implementation of this method does, but it doesn't cause problems in
+     * practice.  The advantage of invoking suite() here is that for
+     * non-applicable tests, the suite() method is never invoked and so the
+     * corresponding classes needn't be loaded.  
+     */
+    public void addTestSuite (Class c)
+    {
+        if (JacORBTest.class.isAssignableFrom(c))
+        {
+            TestAnnotationsParser p = TestAnnotationsParser.getInstance(c);
+            TestAnnotations ta = p.getClassAnnotations();
+            if (ta == null || ta.isApplicableTo (clientVersion, serverVersion))
+            {
+                TestSuite ts = invokeSuiteMethod (c);
+                super.addTest (ts);
+            }
+        }
+        else
+        {
+            super.addTestSuite(c);
+        }
+    }
+
+    /**
+     * Invokes the static suite() method of the class c, and returns the
+     * result.  If there is no suite() method, or the result of it is not
+     * a TestSuite, this method throws a RuntimeException.
+     */
+    private TestSuite invokeSuiteMethod (Class c)
+    {
+        try
+        {
+            Method suiteMethod = c.getDeclaredMethod ("suite",
+                                                      new Class[]{});
+            Object result = suiteMethod.invoke(null, new Object[]{});
+            return (TestSuite)result;
+        }
+        catch (Exception ex)
+        {
+            throw new RuntimeException (ex);
         }
     }
     
