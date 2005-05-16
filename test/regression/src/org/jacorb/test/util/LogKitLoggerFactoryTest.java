@@ -22,20 +22,22 @@ package org.jacorb.test.util;
 
 import java.util.Properties;
 
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
 
+import org.jacorb.test.common.*;
+
 /**
  *  Unit Test for class LogKitLoggerFactory
+ * @jacorb-since 2.2
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class LogKitLoggerFactoryTest 
-    extends TestCase
+    extends JacORBTestCase
 {
     ////////////////////////////////////////
 
