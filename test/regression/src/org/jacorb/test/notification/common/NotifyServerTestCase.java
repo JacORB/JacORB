@@ -29,12 +29,14 @@ import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedAdmin;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+import org.omg.CosNotifyFilter.Filter;
 
 public abstract class NotifyServerTestCase extends ClientServerTestCase
 {
@@ -45,23 +47,25 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
 
     public final EventChannelFactory getEventChannelFactory()
     {
-        EventChannelFactory channelFactory = EventChannelFactoryHelper.narrow(setup.getServerObject());
+        EventChannelFactory channelFactory = EventChannelFactoryHelper.narrow(setup
+                .getServerObject());
 
         return channelFactory;
     }
 
     public EventChannel getDefaultChannel() throws UnsupportedAdmin, UnsupportedQoS
     {
-        return getEventChannelFactory().create_channel(new Property[0], new Property[0], new IntHolder());
+        return getEventChannelFactory().create_channel(new Property[0], new Property[0],
+                new IntHolder());
     }
-    
+
     public final void setUp() throws Exception
     {
         super.setUp();
-        
+
         setUpTest();
     }
-    
+
     protected void setUpTest() throws Exception
     {
         // no op
@@ -71,7 +75,7 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
     {
         return suite("TestSuite defined in Class " + clazz.getName(), clazz);
     }
-    
+
     public static Test suite(String suiteName, Class clazz) throws Exception
     {
         return suite(suiteName, clazz, "test");
@@ -80,6 +84,11 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
     public static Test suite(String suiteName, Class clazz, String testMethodPrefix)
             throws Exception
     {
+        if (!NotifyServerTestCase.class.isAssignableFrom(clazz))
+        {
+            throw new IllegalArgumentException("Class " + clazz + " is not derived from " + NotifyServerTestCase.class.getName());
+        }
+        
         TestSuite _suite = new TestSuite(suiteName);
 
         NotifyServerTestSetup _setup = new NotifyServerTestSetup(_suite);
@@ -90,7 +99,7 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
 
         return _setup;
     }
-    
+
     private static void addToSuite(TestSuite suite, NotifyServerTestSetup setup, Class clazz,
             String[] testMethods) throws Exception
     {
@@ -101,5 +110,15 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
         {
             suite.addTest((Test) _ctor.newInstance(new Object[] { testMethods[x], setup }));
         }
+    }
+
+    public ORB getClientORB()
+    {
+        return setup.getClientOrb();
+    }
+    
+    public Filter createFilter() throws Exception
+    {
+        return getDefaultChannel().default_filter_factory().create_filter("EXTENDED_TCL");
     }
 }
