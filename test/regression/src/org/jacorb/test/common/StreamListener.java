@@ -95,7 +95,7 @@ public class StreamListener extends Thread
             }
             catch (Exception ex)
             {
-                System.out.println("Exception reading from server: " + ex);
+                //System.out.println("Exception reading from server: " + ex);
                 System.out.println("StreamListener exiting");
                 break;
             }
