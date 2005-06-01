@@ -1,3 +1,126 @@
+2005-05-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/LogKitLoggerFactoryTest.java:
+	Extend JacORBTestCase, mark as @jacorb-since 2.2.
+
+	* util/AllTest.java: Turn it into a JacORBTestSuite.
+	(suite): Use addTestSuite() to add the LogKitLoggerFactoryTest,
+	so that we won't load it under earlier JacORB versions.
+
+	* common/ClientServerSetup.java (setUp):
+	Use jacorb.test.id property to configure the
+	coverage output directory for the server process.
+
+	* common/launch/TestLauncher.java (getOutFilename):
+	Create a subdirectory for each test report.
+	(main): Write coverage to the same directory as the test report.
+	Pass jacorb.test.id property to the subprocess.
+
+2005-05-16  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/common/NotifyServerTestCase.java (getClientORB):
+	convenience method for tests(createFilter): convenience method for tests
+
+2005-05-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/StreamListener.java (run):
+	Make less fuzz about exceptions that terminate the
+	StreamListener -- this is normal.
+
+	* common/JacORBTestSuite.java: Implement JacORBTest.
+	(addTest): Simplify using the new JacORBTest interface.
+	(addTestSuite, invokeSuiteMethod): New methods.
+
+	* common/JacORBTestCase.java: Implement JacORBTest.
+
+	* common/JacORBTest.java: Add copyright header.
+
+	* common/JacORBTest.java: Initial revision.
+
+2005-05-14  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/plugins/FilterFactoryTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/StopTimeIntegrationTest.java,
+	notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/TimeoutIntegrationTest.java,
+	notification/TimeoutTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/QoSTest.java, notification/MessageFactoryTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/EventChannelTest.java,
+	notification/CosEventChannelTest.java: convert to new launching
+	framework
+
+	* notification/bugs/MultipleDeliveryBugTest.java,
+	notification/common/NotifyServerTest.java,
+	notification/common/NotifyServerTestCase.java: renamed
+	NotifyServerTest to NotifyServerTestCase
+
+	* notification/bugs/MultipleDeliveryBugTest.java,
+	notification/common/NotifyServerTest.java,
+	notification/common/NotifyServerTestRunner.java,
+	notification/common/NotifyServerTestSetup.java: new Test setup
+	classes that subclass ClientServerTestCase and and
+	ClientServerSetup.
+
+	changed test MultipleDeliveryBugTest to use
+	new setup
+
+2005-05-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* notification/AllTest.java: Convert into a JacORBTestSuite. Mark
+	as @jacorb-since cvs, because the notification tests don't
+	interoperate with the launching framework yet.
+
+2005-05-13  Andre Spiegel  <spiegel@gnu.org>
+
+	* bugs/AllTest.java: Extend JacORBTestSuite, rather than TestCase.
+	(suite): Instantiate self.
+
+	* orb/policies/TimingTest.java: Update import list.
+
+	* orb/BasicTest.java (suite): Return a JacORBTestSuite.
+
+	* orb/AlternateProfileTest.java, orb/AlternateIIOPAddressTest.java (suite):
+	Return a JacORBTestSuite.
+	Mark as @jacorb-since 2.2.
+
+	* orb/CDRIOTest.java: Extend JacORBTestCase.
+	(suite): Return a JacORBTestSuite.
+	Mark as @jacorb-since 2.2.
+
+	* orb/ExceptionTest.java (suite): Return a JacORBTestSuite.
+	(testRuntimeException): Mark as @jacorb-since cvs.
+
+	* orb/etf/AllTest.java: Extend JacORBTestSuite.
+	(suite): Instantiate self.
+	Mark as @jacorb-since 2.2.
+
+	* orb/connection/GIOPConnectionTest.java: Extend JacORBTestCase.
+	(suite): Rewritten to return a JacORBTestSuite.
+	Mark as @jacorb-client-since 2.2.
+
+	* orb/connection/AllTest.java, orb/AllTest.java, AllTest.java:
+	Extend JacORBTestSuite, rather than TestCase.
+	(suite): Instantiate self.
+
+	* common/ClientServerTestCase.java: Inherit from JacORBTestCase.
+
+	* common/ClientServerSetup.java (comparator): New field.
+	(getTestServerMain): If the server version is earlier than 2.2,
+	use TestServer_before_2_2.
+
+	* common/JacORBTestCase.java, common/JacORBTestSuite.java, common/TestAnnotationsParser.java:
+	Initial revision.
+
+	* common/JacORBVersionComparator.java, common/TestAnnotations.java:
+	Add JacORB header comment.
+
+	* common/TestAnnotations.java, common/JacORBVersionComparator.java, common/TestServer_before_2_2.java:
+	Initial revision.
+
 2005-05-10  Andre Spiegel  <spiegel@gnu.org>
 
 	* idl/CharTest.java, idl/FloatTest.java, idl/InterfaceTest.java,
