@@ -56,6 +56,7 @@ import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.omg.CORBA.Policy;
 
 /**
  * This is the SAS Target Security Service (TSS) Interceptor
@@ -151,6 +152,20 @@ public class SASTargetInterceptor
     {
         if (logger.isDebugEnabled())
             logger.debug("receive_request_service_contexts for " + ri.operation());
+
+          // First check whether the target is interested in SAS at all
+          Policy targetSasPolicy = null;
+          try {
+            targetSasPolicy = ri.get_server_policy(SAS_POLICY_TYPE.value);
+          }
+          catch(Exception ex) {
+          }
+
+          if( targetSasPolicy == null ) {
+            // No such policy exist on the target object so there is no point in attempting to call the validateContext
+            // since the target didn't ask for it
+            return;
+          }
 
         if (sasContext == null) 
             return;
