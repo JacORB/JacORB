@@ -1,3 +1,36 @@
+2005-06-01  Andre Spiegel  <spiegel@gnu.org>
+
+	SAS-related changes suggested by Jesper Söderlund:
+	
+	* orb/portableInterceptor/ServerRequestInfoImpl.java (c'tor): Make
+	sure to set servant member variable.
+
+	* orb/ServantDelegate.java (get_policy): Always returned null, now
+	retrieves the policies from the POA.
+
+	* security/sas/SASTargetInterceptor.java
+	(receive_request_service_contexts): Check whether the object is in
+	a POA with SAS policy before continuing processing.
+
+	* security/sas/SASClientInterceptor.java (send_request): Now
+	doesn't stop processing if the target IOR doesn't contain
+	SASpolicy, e.g. if the result of a corbaloc.
+
+	* security/sas/GssUpContext.java (createClientContext): Remove
+	superfluous code.
+
+2005-06-01  Andre Spiegel  <spiegel@gnu.org>
+	
+	* naming/NameServer.java (incarnate): Don't call System.exit(),
+	fixing bug #518.
+
+	* naming/NamingContextImpl.java (new_context): Don't call
+	System.exit(), fixing bug #518.
+
+	* orb/ServantDelegate.java (_invoke): Call
+	Servant._get_interface_def(), rather than the deprecated method
+	_get_interface(), fixing bug #596.
+
 2005-05-12  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/portableInterceptor/ClientRequestInfoImpl.java (c'tor):
