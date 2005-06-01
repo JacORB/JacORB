@@ -265,7 +265,7 @@ public class ServantDelegate
         else if( method.equals("_interface"))
         {
             _out = handler.createReply();
-            _out.write_Object(self._get_interface() );
+            _out.write_Object(self._get_interface_def() );
         }
         else if( method.equals("_non_existent"))
         {
