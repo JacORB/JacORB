@@ -179,14 +179,14 @@ public class SASClientInterceptor
             if (logger.isWarnEnabled())
                 logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
         }
-        if (csmList == null) 
-            return;
 
-        if (csmList.mechanism_list[0].as_context_mech.target_supports == 0 &&
+        if(csmList != null &&
+           csmList.mechanism_list[0].as_context_mech.target_supports == 0 &&
             csmList.mechanism_list[0].as_context_mech.target_requires == 0 &&
             csmList.mechanism_list[0].sas_context_mech.target_supports == 0 &&
-            csmList.mechanism_list[0].sas_context_mech.target_requires == 0)
+           csmList.mechanism_list[0].sas_context_mech.target_requires == 0) {
             return;
+        }
 
         // ask connection for client_context_id
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
