@@ -545,8 +545,12 @@ public class NamingContextImpl
         }
         catch ( Exception ue )
         {
-            ue.printStackTrace();
-            System.exit(1);
+            if (logger.isErrorEnabled())
+            {
+                logger.error ("failed to create new context", ue);
+            }
+            throw new RuntimeException ("failed to create new context: " 
+                                        + ue.toString());
         }
         return NamingContextExtHelper.narrow(ctx);
     }
