@@ -225,7 +225,8 @@ public class ServantDelegate
     public org.omg.CORBA.Policy _get_policy(org.omg.CORBA.Object self,
                                             int policy_type)
     {
-        return null;
+
+        return poa != null ? ((org.jacorb.poa.POA)poa).getPolicy(policy_type) : null;
     }
 
     /**
