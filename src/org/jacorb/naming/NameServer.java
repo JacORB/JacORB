@@ -168,8 +168,11 @@ public class NameServer
             }
             catch( java.lang.ClassNotFoundException c )
             {
-                logger.error("Could not read object from file, class not found!");
-                System.exit(1);
+                if (logger.isErrorEnabled())
+                {
+                    logger.error("Could not read object from file, class not found!");
+                }
+                throw new RuntimeException ("Could not read object from file, class not found!");
             }
 
             if( n == null )
