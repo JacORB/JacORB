@@ -66,11 +66,9 @@ public class ServerRequestInfoImpl
     
         this.orb = orb;
         this.request = request;
-//          this.servant = servant;
-
-//          if (servant != null){
-//              setServant(servant);
-//          }
+        if (servant != null){
+          setServant(servant);
+        }
 
         setRequestServiceContexts(request.getServiceContext());
 
