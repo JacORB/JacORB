@@ -228,7 +228,7 @@ public final class ORB
         {
             logger.info("\n\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                         "\tJacORB V " + versionString + ", www.jacorb.org\n" +
-                        "\t(C) Gerald Brose, XTRADYNE Technologies/FU Berlin, " +
+                        "\t(C) The JacORB project " +
                         dateString + "\n" +
                         "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
