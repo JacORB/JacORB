@@ -60,10 +60,7 @@ public class GssUpContext
      */
     public byte[] createClientContext(ORB orb, Codec codec, CompoundSecMechList csmList) 
     {
-        byte[] target = csmList.mechanism_list[0].as_context_mech.target_name;
-        System.out.println("["+username+"]["+password+"]["+target+"]");
-        target=new byte[0];
-        byte[] contextToken = GSSUPNameSpi.encode(orb, codec, username, password, target);
+        byte[] contextToken = GSSUPNameSpi.encode(orb, codec, username, password, new byte[0]);
         initialContextToken = GSSUPNameSpi.decode(orb, codec, contextToken);
         return contextToken;
     }
