@@ -201,7 +201,9 @@ public class SASClientInterceptor
         }
 
         // get ATLAS tokens
-        AuthorizationElement[] authorizationList = getATLASTokens(orb, csmList);
+        AuthorizationElement[] authorizationList = csmList != null
+                                                   ? getATLASTokens(orb, csmList)
+                                                   : new AuthorizationElement[0];
 
         // establish the security context
         try
