@@ -1239,7 +1239,7 @@ public class CDRInputStream
                             null
                         );
                     }
-                    result = orb.create_struct_tc (id, name, members);
+                    result = orb.create_exception_tc (id, name, members);
                     putCachedTypecode( id, result );
                 }
                 getRecursiveTCMap().put (id, result);
