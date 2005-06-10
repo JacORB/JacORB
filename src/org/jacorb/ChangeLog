@@ -1,3 +1,18 @@
+2005-06-10  Andre Spiegel  <spiegel@gnu.org>
+
+	* security/sas/SASClientInterceptor.java (send_request): Be
+	prepared for an empty csmList, fixing bug #603.
+
+	* orb/CDRInputStream.java (read_TypeCode): Create proper TypeCode
+	for exceptions, fixing bug #602.
+
+2005-06-01  Gerald Brose  <gerald.brose@acm.org>
+
+	* Version 2.2.2 released.
+	
+	* orb/ORB.java: changed log message to "The JacORB project" and
+	dropped my name and company names.
+
 2005-06-01  Andre Spiegel  <spiegel@gnu.org>
 
 	SAS-related changes suggested by Jesper Söderlund:
