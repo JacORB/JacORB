@@ -1200,49 +1200,60 @@ public final class Delegate
         }
         else
         {
-            // Try to avoid remote call - is it a derived type?
-            try
+            // The check below avoids trying to load a stub for CORBA.Object.
+            // (It would be faster to check that ids.length > 1, but Sun's
+            // CosNaming JNDI provider calls _is_a() on some weird ObjectImpl 
+            // instances whose _ids() method returns an array of length two,
+            // containing two Strings equal to "IDL:omg.org/CORBA/Object:1.0".)
+            if (!ids[0].equals("IDL:omg.org/CORBA/Object:1.0"))
             {
-                // Retrieve the local stub for the object in question. Then call the _ids method
-                // and see if any match the logical_type_id otherwise fall back to remote.
-
-                String classname = RepositoryID.className( ids[0], "_Stub", null );
-                
-                int lastDot = classname.lastIndexOf( '.' );
-                StringBuffer scn = new StringBuffer( classname.substring( 0, lastDot + 1) );
-                scn.append( '_' );
-                scn.append( classname.substring( lastDot + 1 ) );
-
-                // This will only work if there is a correspondence between the Java class
-                // name and the Repository ID. If prefixes have been using then this mapping
-                // may have been lost.
-
-                // First, search with stub name
-                // if not found, try with the 'org.omg.stub' prefix to support package
-                // with javax prefix
-                Class stub=null;
-                try {
-                    stub = ObjectUtil.classForName( scn.toString());
-                } catch (ClassNotFoundException e) {
-                    stub = ObjectUtil.classForName("org.omg.stub."+scn.toString());
-                }
-                
-                Method idm = stub.getMethod ( "_ids", (Class[]) null );
-                String newids[] = (String[] )idm.invoke( stub.newInstance(), (java.lang.Object[]) null );
-
-                for ( int i = 0; i < newids.length ; i++ )
+                // Try to avoid remote call - is it a derived type?
+                try
                 {
-                    if (newids[i].equals( logical_type_id ) )
+                    // Retrieve the local stub for the object in question. Then call the _ids method
+                    // and see if any match the logical_type_id otherwise fall back to remote.
+
+                    String classname = RepositoryID.className( ids[0], "_Stub", null );
+                
+                    int lastDot = classname.lastIndexOf( '.' );
+                    StringBuffer scn = new StringBuffer( classname.substring( 0, lastDot + 1) );
+                    scn.append( '_' );
+                    scn.append( classname.substring( lastDot + 1 ) );
+
+                    // This will only work if there is a correspondence between the Java class
+                    // name and the Repository ID. If prefixes have been using then this mapping
+                    // may have been lost.
+
+                    // First, search with stub name
+                    // if not found, try with the 'org.omg.stub' prefix to support package
+                    // with javax prefix
+                    Class stub=null;
+                    try 
                     {
-                        return true;
+                        stub = ObjectUtil.classForName( scn.toString());
+                    } 
+                    catch (ClassNotFoundException e) 
+                    {
+                        stub = ObjectUtil.classForName("org.omg.stub."+scn.toString());
+                    }
+                
+                    Method idm = stub.getMethod ( "_ids", (Class[]) null );
+                    String newids[] = (String[] )idm.invoke( stub.newInstance(), (java.lang.Object[]) null );
+
+                    for ( int i = 0; i < newids.length ; i++ )
+                    {
+                        if (newids[i].equals( logical_type_id ) )
+                        {
+                            return true;
+                        }
                     }
                 }
-            }
-            // If it fails fall back to a remote call.
-            catch (Throwable e)
-            {
-                if (logger.isDebugEnabled())
-                    logger.debug("trying is_a remotely");
+                // If it fails fall back to a remote call.
+                catch (Throwable e)
+                {
+                    if (logger.isDebugEnabled())
+                        logger.debug("trying is_a remotely");
+                }
             }
 
             org.omg.CORBA.portable.OutputStream os;
