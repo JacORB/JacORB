@@ -2376,7 +2376,10 @@ public class CDROutputStream
                     try
                     {
                         Class helperClass =
-                        cls.getClassLoader().loadClass(helperClassName);
+                            (cls.getClassLoader() != null)
+                                ? cls.getClassLoader().loadClass(helperClassName)
+                                : ObjectUtil.classForName(helperClassName);
+
                         Class[] paramTypes =
                             { org.omg.CORBA.portable.OutputStream.class, cls };
                         writeMethod = helperClass.getMethod("write", paramTypes);
