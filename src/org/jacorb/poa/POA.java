@@ -243,10 +243,10 @@ public class POA
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.poa");
 
-        implName = 
+        implName =
             configuration.getAttribute("jacorb.implname","standardImplName").getBytes();
-        serverId = 
-            String.valueOf((long)(Math.random()*9999999999L)).getBytes();      
+        serverId =
+            String.valueOf((long)(Math.random()*9999999999L)).getBytes();
 
         watermark = generateWatermark();
 
@@ -442,7 +442,7 @@ public class POA
                                     " _invoke: object key not previously generated!");
                         if (logger.isDebugEnabled())
                         {
-                            logger.debug(logPrefix + 
+                            logger.debug(logPrefix +
                                          " ObjectKey : " + org.jacorb.orb.util.CorbaLoc.parseKey(request.objectKey()) +
                                          " to POA Id : " + org.jacorb.orb.util.CorbaLoc.parseKey(getPOAId()) + " mismatch.");
                         }
@@ -459,7 +459,7 @@ public class POA
                                     " _invoke: object id not previously generated!");
                         if (logger.isDebugEnabled())
                         {
-                            logger.debug(logPrefix + 
+                            logger.debug(logPrefix +
                                          " ObjectId : " + org.jacorb.orb.util.CorbaLoc.parseKey(request.objectId()) +
                                          " to POA watermark : " + org.jacorb.orb.util.CorbaLoc.parseKey(watermark) + " mismatch.");
                         }
@@ -747,7 +747,7 @@ public class POA
         synchronized (poaCreationLog)
         {
             if ((child = (POA)childs.get(poa_name)) != null &&
-                !child.isDestructionApparent()) 
+                !child.isDestructionApparent())
             {
                 throw new AdapterAlreadyExists();
             }
@@ -757,14 +757,14 @@ public class POA
                 POA aChild;
                 while ((aChild = (POA)childs.get(poa_name)) != null)
                 {
-                    try 
+                    try
                     {
                         poaCreationLog.wait();  // notification is in unregisterChild
-                    } 
+                    }
                     catch (InterruptedException e) {
                     }
                     // anyone else has won the race
-                    if (child != aChild) 
+                    if (child != aChild)
                         throw new AdapterAlreadyExists();
                 }
             }
@@ -775,7 +775,7 @@ public class POA
             POAManager aPOAManager =
                 a_POAManager == null ? new POAManager(orb) : (POAManager) a_POAManager;
 
-            child = 
+            child =
                 new POA(orb, poa_name, this, aPOAManager, policyList);
 
             try
@@ -790,7 +790,7 @@ public class POA
             // notify a poa listener
             try
             {
-                if (poaListener != null) 
+                if (poaListener != null)
                     poaListener.poaCreated(child);
             }
             catch (org.omg.CORBA.INTERNAL e)
@@ -991,7 +991,7 @@ public class POA
 
         POA child = (POA)childs.get(poa_name);
 
-        if (child == null || child.isDestructionApparent()) 
+        if (child == null || child.isDestructionApparent())
         {
 
             boolean successful = false;
@@ -1270,25 +1270,25 @@ public class POA
 
     protected boolean isDiscarding()
     {
-        return poaManager.get_state().value() == 
+        return poaManager.get_state().value() ==
             org.omg.PortableServer.POAManagerPackage.State._DISCARDING ? true : false;
     }
 
-    protected boolean isHolding() 
+    protected boolean isHolding()
     {
-        return poaManager.get_state().value() == 
+        return poaManager.get_state().value() ==
             org.omg.PortableServer.POAManagerPackage.State._HOLDING ? true : false;
     }
 
-    protected boolean isImplicitActivation() 
+    protected boolean isImplicitActivation()
     {
-        return implicitActivationPolicy != null && 
+        return implicitActivationPolicy != null &&
             implicitActivationPolicy.value() == ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION;
     }
 
-    protected boolean isInactive() 
+    protected boolean isInactive()
     {
-        return poaManager.get_state().value() == 
+        return poaManager.get_state().value() ==
             org.omg.PortableServer.POAManagerPackage.State._INACTIVE ? true : false;
 
     }
@@ -1657,6 +1657,9 @@ public class POA
                         activation (only occurs if unique_id is set) */
                     objectId = aom.getObjectId(servant);
                 }
+
+                orb.set_delegate(servant);
+
                 return objectId;
             }
         }
