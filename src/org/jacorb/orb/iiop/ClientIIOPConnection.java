@@ -123,6 +123,25 @@ public class ClientIIOPConnection
                     + "to a non-IIOP profile: " + server_profile.getClass());
             }
 
+            final IIOPLoopback loopback = getLocalLoopback() ;
+            if (loopback != null)
+            {
+                final IIOPLoopbackInputStream lis = new IIOPLoopbackInputStream() ;
+                final IIOPLoopbackOutputStream los = new IIOPLoopbackOutputStream() ;
+                
+                loopback.initLoopback(lis, los) ;
+                
+                in_stream = lis ;
+                out_stream = los ;
+                
+                connected = true;
+                
+                //for testing purposes
+                ++openTransports;
+                
+                return;
+            }
+
             checkSSL();
 
             int retries = noOfRetries;
@@ -183,11 +202,11 @@ public class ClientIIOPConnection
                 }
                 catch (TIMEOUT e)
                 {
-                   //thrown if timeout is expired
-                   profile = null;
-                   use_ssl = false;
-                   ssl_port = -1;
-                   throw e;
+                    //thrown if timeout is expired
+                    profile = null;
+                    use_ssl = false;
+                    ssl_port = -1;
+                    throw e;
                 }
 
             }
@@ -202,6 +221,29 @@ public class ClientIIOPConnection
                       connection_info );
             }
         }
+    }
+    
+    private IIOPLoopback getLocalLoopback()
+    {
+        final IIOPProfile iiopProfile = (IIOPProfile)profile ;
+        final List addressList = new ArrayList() ;
+        addressList.add(iiopProfile.getAddress());
+        addressList.addAll(iiopProfile.getAlternateAddresses());
+        
+        final Iterator addressIterator = addressList.iterator() ;
+        final IIOPLoopbackRegistry registry = IIOPLoopbackRegistry.getRegistry() ;
+        
+        while (addressIterator.hasNext())
+        {
+            final IIOPAddress address = (IIOPAddress)addressIterator.next() ;
+            final IIOPLoopback loopback = registry.getLoopback(address) ;
+            if (loopback != null)
+            {
+                return loopback ;
+            }
+        }
+        
+        return null ;
     }
 
     /**
@@ -341,9 +383,10 @@ public class ClientIIOPConnection
     {
         try
         {
-            if (connected && socket != null)
+            if (connected)
             {
-                socket.close ();
+                if (socket != null)
+                    socket.close();
 
                 //this will cause exceptions when trying to read from
                 //the streams. Better than "nulling" them.
