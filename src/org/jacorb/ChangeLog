@@ -1,3 +1,30 @@
+2005-08-04  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPLoopback.java, orb/iiop/IIOPLoopbackConnection.java,
+	orb/iiop/IIOPLoopbackInputStream.java,
+	orb/iiop/IIOPLoopbackOutputStream.java,
+	orb/iiop/IIOPLoopbackRegistry.java: Kevin Conner's loopback
+	transport (see bug #525).
+
+2005-07-26  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* poa/POA.java: fix for servant_to_id() to correctly activate the
+	object when the implicit_activation policy is set.
+
+2005-06-26  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/Delegate.java: Do not try to load a stub for
+	CORBA::Object. The attempt will fail for sure, as there is no
+	CORBA::Object stub. Moreover, a classloader that generates stubs
+	on-the-fly might log an error message to report that it was not
+	able to generate the stub. (This was indeed happening in JBoss.)
+
+	* orb/CDROutputStream.java: Fix NullPointerException when
+	attempting to load the helper class for an IDL-generated valuetype
+	class loaded through the bootstrap classloader.
+	(This bug was reported by Hrishikesh Barua.)
+
 2005-06-10  Andre Spiegel  <spiegel@gnu.org>
 
 	* security/sas/SASClientInterceptor.java (send_request): Be
