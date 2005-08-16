@@ -248,7 +248,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
     private void startCronJob()
     {
-        if (pacingInterval_.get() > 0 && taskId_ != null)
+        if (pacingInterval_.get() > 0 && taskId_ == null)
         {
             taskId_ = getTaskProcessor().executeTaskPeriodically(pacingInterval_.get(),
                     schedulePushOperation_, true);
