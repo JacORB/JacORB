@@ -93,7 +93,13 @@ public abstract class GIOPConnection
     private Object[] cubbyholes = null;
 
     // the no. of outstanding messages (requests/replies)
+    // pending_messages refers only to expected replies, to be sent
+    // in response to two-way requests. pending_write refers to messages
+    // that are outbound but have not yet been sent. These could be one-way
+    // or two-way requests, or they could be replies being sent out of a
+    // server. There will typicially be only one pending write.
     private int pending_messages = 0;
+    private int pending_write = 0;
 
     protected boolean discard_messages = false;
 
@@ -131,9 +137,9 @@ public abstract class GIOPConnection
     {
         this.configuration = (org.jacorb.config.Configuration)configuration;
         logger = this.configuration.getNamedLogger("jacorb.giop.conn");
-        dump_incoming = 
+        dump_incoming =
             configuration.getAttribute("jacorb.debug.dump_incoming_messages","off").equals("on");
-        timeout = 
+        timeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 0);
 
     }
@@ -335,9 +341,9 @@ public abstract class GIOPConnection
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("BufferDump:\n" + 
-                                ObjectUtil.bufToString( inbuf.value, 
-                                                        0, 
+                    logger.info("BufferDump:\n" +
+                                ObjectUtil.bufToString( inbuf.value,
+                                                        0,
                                                         msg_size + Messages.MSG_HEADER_SIZE ));
                 }
             }
@@ -711,6 +717,16 @@ public abstract class GIOPConnection
         }
     }
 
+    private final synchronized void incPendingWrite()
+    {
+        ++pending_write;
+    }
+
+    private final synchronized void decPendingWrite()
+    {
+        --pending_write;
+    }
+
     public final synchronized void incPendingMessages()
     {
         ++pending_messages;
@@ -723,7 +739,7 @@ public abstract class GIOPConnection
 
     public final synchronized boolean hasPendingMessages()
     {
-        return pending_messages != 0;
+        return (pending_messages != 0) || (pending_write != 0);
     }
 
     /**
@@ -732,15 +748,6 @@ public abstract class GIOPConnection
 
     public final void write( byte[] fragment, int start, int size )
     {
-        if (!transport.is_connected())
-        {
-            synchronized (connect_sync)
-            {
-                transport.connect (profile, timeout);
-                connect_sync.notifyAll();
-            }
-        }
-
         transport.write( false, false, fragment, start, size, 0 );
 
         if (getStatisticsProvider() != null)
@@ -793,7 +800,25 @@ public abstract class GIOPConnection
     {
         try
         {
+            incPendingWrite ();
             getWriteLock();
+            if (!transport.is_connected())
+            {
+                tcs_negotiated = false;
+
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("GIOPConnection sendMessage opening transport");
+                }
+
+                synchronized (connect_sync)
+                {
+                    transport.connect (profile, timeout);
+                    connect_sync.notifyAll();
+                }
+
+            }
+
             out.write_to( this );
 
             transport.flush();
@@ -805,6 +830,7 @@ public abstract class GIOPConnection
         }
         finally
         {
+            decPendingWrite();
             releaseWriteLock();
         }
     }
@@ -905,7 +931,7 @@ public abstract class GIOPConnection
 
     public Object get_cubby(int id)
     {
-        if (id < 0 || id >= cubby_count) 
+        if (id < 0 || id >= cubby_count)
         {
             if (logger.isErrorEnabled())
                 logger.error( "Get bad cubby id "+id+" (max="+cubby_count+")");
@@ -916,7 +942,7 @@ public abstract class GIOPConnection
 
     public void set_cubby(int id, Object obj)
     {
-        if (id < 0 || id >= cubby_count) 
+        if (id < 0 || id >= cubby_count)
         {
            if (logger.isErrorEnabled())
                logger.error( "Set bad cubby id "+id+" (max="+cubby_count+")");
