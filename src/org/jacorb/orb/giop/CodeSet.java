@@ -34,6 +34,8 @@ public class CodeSet
                                                        for every char */
     public static final int UTF8 = 0x05010001;      /* 1-6 bytes for
                                                        every character */
+    private static int nativeCodeSetChar = ISO8859_1;
+    private static int nativeCodeSetWchar = UTF16;
 
     public static String csName(int cs)
     {
@@ -46,16 +48,49 @@ public class CodeSet
         return "Unknown TCS: " + Integer.toHexString(cs);
     }
 
+    public static int csInt(String name)
+    {
+        try {
+            return Integer.parseInt(name,16);
+        } catch (NumberFormatException ex) {
+            // no problem, go on to match literal strings
+        }
+        String ucName = name.toUpperCase();
+        if (ucName.equals("ISO-8859-1")) return ISO8859_1;
+	else if (ucName.equals("UTF-8")) return UTF8;
+	else if (ucName.equals("UTF-16")) return UTF16;
+	else return -1;
+    }
+
+    public static int setNCSC (String ncsc)
+    {
+        int value = csInt(ncsc);
+        if (value != -1)
+            nativeCodeSetChar = value;
+        return value;
+    }
+
+    public static int setNCSW (String ncsw)
+    {
+        int value = csInt(ncsw);
+        if (value != -1)
+            nativeCodeSetWchar = value;
+        return value;
+    }
+
     public static int getTCSDefault()
     {
-        return ISO8859_1;
+        return nativeCodeSetChar;
     }
 
     public static int getTCSWDefault()
     {
-        return UTF16;
+        return nativeCodeSetWchar;
     }
 
+    // at some point additional codeset alternatives are likely to be
+    // added in which case this single conversion default will not be
+    // sufficient.
     public static int getConversionDefault()
     {
         return UTF8;
