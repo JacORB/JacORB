@@ -30,7 +30,7 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
 
     boolean connected_ = false;
 
-    long timeout_ = 2000;
+    long timeout_ = 4000;
 
     final ORB orb_;
 
@@ -58,6 +58,7 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
 
     public void push_structured_events(StructuredEvent[] event) throws Disconnected
     {
+        System.err.println("Received: " + event.length);
         synchronized (this)
         {
             received_ = true;
@@ -93,7 +94,7 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
         connected_ = true;
     }
 
-    public boolean isEventHandled()
+    public synchronized boolean isEventHandled()
     {
         return received_;
     }

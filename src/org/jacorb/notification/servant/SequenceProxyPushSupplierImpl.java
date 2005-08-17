@@ -26,8 +26,10 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.PushOperation;
+import org.jacorb.notification.engine.PushTaskExecutor;
 import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.PushTaskExecutor.PushTask;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetAdapter;
@@ -91,11 +93,27 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
         configurePacingInterval();
 
+        final PushTask flushTask = new PushTaskExecutor.PushTask()
+        {
+            public void doPush()
+            {
+                deliverPendingMessages(true);
+            }
+            
+            public void cancel()
+            {
+                // ignore, only depends on settings of ProxyPushSupplier
+            }
+        };
+        
         schedulePushOperation_ = new Runnable()
         {
             public void run()
             {
-                schedulePush();
+                if (!isDisposed() && !isSuspended() && isEnabled())
+                {
+                    schedulePush(flushTask);
+                }
             }
         };
         

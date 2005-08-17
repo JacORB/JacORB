@@ -7,9 +7,11 @@ import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.MaximumBatchSize;
+import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.TimeBase.TimeTHelper;
 
 /**
  * @author Alphonse Bendt
@@ -60,6 +62,34 @@ public class SequenceEventChannelTest extends NotifyServerTestCase {
         _pushReceiver.join();
     }
 
+    
+    public void testPacingInterval() throws Exception
+    {
+        StructuredEvent[] _events = new StructuredEvent[] {
+                testUtils_.getStructuredEvent(),
+        };
+        
+        Any _interval = getClientORB().create_any();
+        Any _value = getClientORB().create_any();
+        _value.insert_long(2);
+        TimeTHelper.insert(_interval, 3000);
+        channel_.default_consumer_admin().set_qos(new Property[] {new Property(PacingInterval.value, _interval), new Property(MaximumBatchSize.value, _value)});
+        
+        SequencePushSender _pushSender = new SequencePushSender(getClientORB(), _events);
+
+        SequencePushReceiver _pushReceiver = new SequencePushReceiver(getClientORB());
+
+        _pushSender.connect(channel_, false);
+        _pushReceiver.connect(channel_, false);
+
+        _pushReceiver.start();
+        _pushSender.start();
+
+        _pushSender.join();
+        _pushReceiver.join();
+        
+        assertTrue(_pushReceiver.isEventHandled());
+    }
 
     public void testDestroyChannelDisconnectsClients() throws Exception {
         Property[] _p = new Property[0];
@@ -172,7 +202,7 @@ public class SequenceEventChannelTest extends NotifyServerTestCase {
 
     public static Test suite() throws Exception {
         return NotifyServerTestCase.suite("Tests for Sequenced Event Channel",
-                                          SequenceEventChannelTest.class);
+                                          SequenceEventChannelTest.class, "testPacing");
     }
 }
 
