@@ -57,7 +57,7 @@ import java.io.*;
  * @since JacORB 2.0 beta 3
  */
 
-class LogKitLoggerFactory
+public class LogKitLoggerFactory
     implements LoggerFactory
 {
     private final static String DEFAULT_LOG_PATTERN =
