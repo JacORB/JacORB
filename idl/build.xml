@@ -472,7 +472,7 @@
    <!--                           -->
 
    <target name="notification" 
-     depends="init,load-taskdef,notif,typed" 
+     depends="init,load-taskdef,notif,typed,jms-interop" 
      description="Compile Notification Service IDL">
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${src}/generated"/>
@@ -528,6 +528,14 @@
               destdir="${src}/generated"/>
    </target>
 
+   <target name="jms-interop">
+   	<jacidl generateir="true"
+	 	srcdir="idl"
+		omgprefix="true"
+		includepath="${idl}/omg"
+		includes="**/omg/CosBridgeAdmin.idl"
+		destdir="${src}/generated" />
+   </target>
 
    <!--                      -->
    <!--    security service  -->
