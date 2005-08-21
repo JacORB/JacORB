@@ -292,6 +292,8 @@ public class TCLTest extends NotificationTestCase
     public void testGT() throws Exception
     {
         runEvaluation("TRUE", "1>0");
+        runEvaluation("TRUE", "0.2 > 0.1");
+        runEvaluation("TRUE", "1.1 > 1");
         runEvaluation("FALSE", "0>1");
 
         runEvaluation("TRUE", "TRUE > FALSE");
@@ -304,6 +306,8 @@ public class TCLTest extends NotificationTestCase
     public void testLT() throws Exception
     {
         runEvaluation("FALSE", "1<0");
+        runEvaluation("FALSE", "0.2 < 0.1");
+        runEvaluation("FALSE", "1.1 < 1");
         runEvaluation("TRUE", "0<1");
 
         runEvaluation("FALSE", "TRUE < FALSE");
@@ -975,7 +979,6 @@ public class TCLTest extends NotificationTestCase
 
     private void runEvaluation(Any any, String expr) throws Exception
     {
-
         runEvaluation(any, expr, "TRUE");
     }
 
@@ -1000,7 +1003,7 @@ public class TCLTest extends NotificationTestCase
 
     private void runEvaluation(StructuredEvent event, String expr, String expect) throws Exception
     {
-        // todo factor out MessageFactory to NotificationTestCase (all tests)
+        // TODO factor out MessageFactory to NotificationTestCase (all tests)
         MessageFactory _notificationEventFactory = new DefaultMessageFactory(getConfiguration());
 
         Message _event = _notificationEventFactory.newMessage(event);
