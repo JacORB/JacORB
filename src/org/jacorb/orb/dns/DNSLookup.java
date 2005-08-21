@@ -22,10 +22,9 @@ package org.jacorb.orb.dns;
 
 import java.net.InetAddress;
 
-import org.jacorb.util.ObjectUtil;
-
-import org.apache.avalon.framework.configuration.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 public class DNSLookup  
     implements Configurable
