@@ -90,11 +90,6 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         typedEventMessagePool_.dispose();
     }
 
-    public String getControllerName()
-    {
-        return "org.jacorb.notification.jmx.MessageFactoryControl";
-    }
-
     ////////////////////////////////////////
 
     // Used by the Proxies
@@ -137,8 +132,8 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
 
         _mesg.setFilterStage(consumer.getFirstStage());
 
-        _mesg.setStructuredEvent(structuredEvent, consumer.isStartTimeSupported(), consumer
-                .isTimeOutSupported());
+        _mesg.setStructuredEvent(structuredEvent, consumer.getStartTimeSupported(), consumer
+                .getTimeOutSupported());
 
         return _mesg.getHandle();
     }
