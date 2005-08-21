@@ -15,8 +15,8 @@
   &common;
   &xdoclet;
 	
-  <property name="notification.dir"
-      value="${basedir}/src/org/jacorb/notification" />
+  	<property name="notification.dir"
+      		  value="${basedir}/src/org/jacorb/notification" />
 
 	<target name="notification.init" depends="init, check-regexp">
 
@@ -118,6 +118,7 @@
 		description="Generate JMX Interfaces" />
 
 	<target name="jmx.mbean">
+		<!-- MBean Interfaces need to be generated always -->
 		<jacorb-jmxgen>
 			<files>
 				<include name="org/jacorb/notification/**/*.java" />
@@ -130,7 +131,7 @@
 		</jacorb-jmxgen>
 	</target>
 	
-	<target name="jmx.mx4j" if="available.mx4j" >
+	<target name="jmx.mx4j" if="available.mx4j, jmx.enabled" >
 		<jacorb-jmxgen>
 			<files>
 				<include name="org/jacorb/notification/**/*.java" />
@@ -144,7 +145,7 @@
 		</jacorb-jmxgen>
 	</target>
 	
-	<target name="jmx.jboss" >
+	<target name="jmx.jboss" if="jmx.enabled">
 		<jacorb-jmxgen>
 			<files>
 				<include name="org/jacorb/notification/**/*.java" />
