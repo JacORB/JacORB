@@ -65,7 +65,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 
     private SequencePushConsumer mockPushConsumer_;
 
-    private static final AbstractMatcher TASKPROCESSOR_MATCHER = new AbstractMatcher()
+    private AbstractMatcher TASKPROCESSOR_MATCHER = new AbstractMatcher()
     {
         public boolean matches(Object[] expected, Object[] actual)
         {
