@@ -65,7 +65,7 @@ public class FilterProxySupplierTaskTest extends AbstractFilterTaskTestCase
         controlMessage_.replay();
         objectUnderTest_.setMessage(mockMessage_);
         
-        mockFilterStage_.isDisposed();
+        mockFilterStage_.isDestroyed();
         controlFilterStage_.setDefaultReturnValue(false);
         
         mockFilterStage_.hasPriorityFilter();

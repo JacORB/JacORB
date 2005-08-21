@@ -26,7 +26,7 @@ import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.engine.DefaultPushTaskExecutorFactory;
+import org.jacorb.notification.engine.DirectExecutorPushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IAdmin;
@@ -49,11 +49,6 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
     private ProxyPushSupplierImpl objectUnderTest_;
 
-    /**
-     * Constructor for ProxyPushSupplierImplTest.
-     * 
-     * @param name
-     */
     public ProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
@@ -73,6 +68,9 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         mockAdmin.getContainer();
         controlAdmin.setReturnValue(null);
 
+        mockAdmin.getAdminMBean();
+        controlAdmin.setReturnValue("");
+        
         controlAdmin.replay();
 
         MockControl controlConsumerAdmin = MockControl.createControl(ConsumerAdmin.class);
@@ -84,7 +82,7 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
        
         objectUnderTest_ = new ProxyPushSupplierImpl(mockAdmin, getORB(), getPOA(),
-                getConfiguration(), mockTaskProcessor_, new DefaultPushTaskExecutorFactory(1), new OfferManager(),
+                getConfiguration(), mockTaskProcessor_, new DirectExecutorPushTaskExecutorFactory(), new OfferManager(),
                 new SubscriptionManager(), mockConsumerAdmin);
 
         assertEquals(new Integer(10), objectUnderTest_.getID());
@@ -119,12 +117,10 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
         controlTaskProcessor_.setReturnValue(new Object());
 
-        mockTaskProcessor_.schedulePushOperation(objectUnderTest_);
-
         controlTaskProcessor_.replay();
 
         objectUnderTest_.connect_any_push_consumer(mockPushConsumer);
-        objectUnderTest_.deliverMessage(mockMessage);
+        objectUnderTest_.queueMessage(mockMessage);
     }
 
     public static Test suite() throws Exception

@@ -25,10 +25,6 @@ import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.container.DynAnyFactoryComponentAdapter;
-import org.jacorb.notification.container.RepositoryComponentAdapter;
-import org.jacorb.notification.engine.DefaultTaskExecutor;
-import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.servant.TypedConsumerAdminImpl;
 import org.jacorb.test.notification.NotificationTestCase;
@@ -70,7 +66,7 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
         IEventChannel mockChannel = (IEventChannel) controlChannel.getMock();
 
         mockChannel.getEventChannel();
-        controlChannel.setReturnValue(getDefaultChannel());
+        controlChannel.setReturnValue(null);
 
         mockChannel.getContainer();
         controlChannel.setReturnValue(container_);
@@ -81,6 +77,9 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
         mockChannel.getChannelID();
         controlChannel.setReturnValue(20);
 
+        mockChannel.getChannelMBean();
+        controlChannel.setReturnValue("channel");
+        
         controlChannel.replay();
 
         objectUnderTest_ = new TypedConsumerAdminImpl(getORB(), getPOA(), getConfiguration(),
@@ -99,11 +98,6 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
     public void testIDs()
     {
         assertEquals(10, consumerAdmin_.MyID());
-    }
-
-    public void testMyChannel() throws Exception
-    {
-        assertEquals(getDefaultChannel(), consumerAdmin_.MyChannel());
     }
 
     public void testCreateTypedPullSupplier() throws Exception

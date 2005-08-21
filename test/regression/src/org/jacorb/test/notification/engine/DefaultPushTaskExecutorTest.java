@@ -48,7 +48,7 @@ public class DefaultPushTaskExecutorTest extends TestCase
                 .getMock();
 
         mockPushTask.doPush();
-
+        controlPushTask.setVoidCallable();
         controlPushTask.replay();
 
         objectUnderTest_.executePush(mockPushTask);

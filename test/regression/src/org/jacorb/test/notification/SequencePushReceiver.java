@@ -1,5 +1,9 @@
 package org.jacorb.test.notification;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import junit.framework.Assert;
 
 import org.omg.CORBA.IntHolder;
@@ -26,24 +30,38 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
 {
     SequenceProxyPushSupplier pushSupplier_;
 
-    boolean received_ = false;
-
     boolean connected_ = false;
 
-    long timeout_ = 4000;
+    long timeout_ = 2000;
 
     final ORB orb_;
 
+    private int expected = -1;
+    
+    final List received = new ArrayList();
+    
     public SequencePushReceiver(ORB orb)
     {
         orb_ = orb;
     }
 
+    public void setExpected(int expected)
+    {
+        this.expected = expected;
+    }
+    
+    public SequenceProxyPushSupplier getPushSupplier()
+    {
+        return pushSupplier_;
+    }
+    
     public void run()
     {
+        final long start = System.currentTimeMillis();
+        
         synchronized (this)
         {
-            if (!received_)
+            while (!isDone() && (System.currentTimeMillis() < start + timeout_))
             {
                 try
                 {
@@ -56,12 +74,19 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
         }
     }
 
+    private boolean isDone()
+    {
+        boolean done;
+        done = (expected != -1) ? received.size() == expected : received.size() > 0;
+        return done;
+    }
+
     public void push_structured_events(StructuredEvent[] event) throws Disconnected
     {
-        System.err.println("Received: " + event.length);
         synchronized (this)
         {
-            received_ = true;
+            received.addAll(Arrays.asList(event));
+            
             notifyAll();
         }
     }
@@ -94,9 +119,9 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
         connected_ = true;
     }
 
-    public synchronized boolean isEventHandled()
+    public boolean isEventHandled()
     {
-        return received_;
+        return isDone();
     }
 
     public boolean isConnected()
@@ -112,5 +137,10 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
     public void shutdown()
     {
         pushSupplier_.disconnect_sequence_push_supplier();
+    }
+    
+    public List getResult()
+    {
+        return received;
     }
 }

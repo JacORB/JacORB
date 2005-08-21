@@ -26,7 +26,7 @@ import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
-import org.jacorb.notification.engine.DefaultPushTaskExecutorFactory;
+import org.jacorb.notification.engine.DirectExecutorPushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskExecutor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
@@ -69,13 +69,16 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         mockAdmin.getContainer();
         controlAdmin.setReturnValue(null);
 
+        mockAdmin.getAdminMBean();
+        controlAdmin.setReturnValue("admin");
+        
         controlAdmin.replay();
 
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
         controlTaskExecutor_ = MockControl.createControl(TaskExecutor.class);
         objectUnderTest_ = new StructuredProxyPushSupplierImpl(mockAdmin, getORB(), getPOA(),
-                getConfiguration(), mockTaskProcessor_, new DefaultPushTaskExecutorFactory(1), new OfferManager(),
+                getConfiguration(), mockTaskProcessor_, new DirectExecutorPushTaskExecutorFactory(), new OfferManager(),
                 new SubscriptionManager(), null);
 
         assertEquals(new Integer(10), objectUnderTest_.getID());
@@ -102,7 +105,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
         controlTaskProcessor_.replay();
 
-        objectUnderTest_.deliverMessage(mockMessage);
+        objectUnderTest_.queueMessage(mockMessage);
 
         controlMessage.verify();
 
@@ -134,7 +137,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
         objectUnderTest_.disableDelivery();
 
-        objectUnderTest_.deliverMessage(mockMessage);
+        objectUnderTest_.queueMessage(mockMessage);
 
         controlMessage.verify();
 
@@ -173,7 +176,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
         objectUnderTest_.connect_structured_push_consumer(mockStructuredPushConsumer);
 
-        objectUnderTest_.deliverMessage(mockMessage);
+        objectUnderTest_.queueMessage(mockMessage);
 
         objectUnderTest_.pushPendingData();
 
@@ -219,7 +222,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
         objectUnderTest_.connect_structured_push_consumer(mockStructuredPushConsumer);
 
-        objectUnderTest_.deliverMessage(mockMessage);
+        objectUnderTest_.queueMessage(mockMessage);
 
         objectUnderTest_.pushPendingData();
 

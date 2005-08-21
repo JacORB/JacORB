@@ -52,6 +52,9 @@ public class EventChannelTest extends NotifyServerTestCase
 
     public void testDefaultAdmins() throws Exception
     {
+        assertEquals(0, supplierAdmin_.MyID());
+        assertEquals(0, consumerAdmin_.MyID());
+        
         assertEquals(channel_, supplierAdmin_.MyChannel());
         assertEquals(channel_, consumerAdmin_.MyChannel());
 
@@ -124,7 +127,7 @@ public class EventChannelTest extends NotifyServerTestCase
     {
         boolean seen = false;
 
-        for (int i = 0; i < array.length; i++)
+        for (int i = 0; i < array.length && !seen; i++)
         {
             if (array[i] == value)
             {
@@ -349,7 +352,6 @@ public class EventChannelTest extends NotifyServerTestCase
 
         _receiver.shutdown();
         _sender.shutdown();
-
     }
 
     public void testSendEventPullPull() throws Exception
@@ -372,7 +374,6 @@ public class EventChannelTest extends NotifyServerTestCase
 
         _receiver.shutdown();
         _sender.shutdown();
-
     }
 
     /**
@@ -456,15 +457,8 @@ public class EventChannelTest extends NotifyServerTestCase
 
         // test if channel id appears within channel list
         int[] _allFactories = getEventChannelFactory().get_all_channels();
-        boolean _seen = false;
-        for (int x = 0; x < _allFactories.length; ++x)
-        {
-            if (_allFactories[x] == _id.value)
-            {
-                _seen = true;
-            }
-        }
-        assertTrue(_seen);
+        
+        assertTrue(containsValue(_allFactories, _id.value));
 
         EventChannel _sameChannel = getEventChannelFactory().get_event_channel(_id.value);
         assertTrue(_channel._is_equivalent(_sameChannel));

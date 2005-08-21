@@ -21,13 +21,10 @@ package org.jacorb.test.notification;
  *
  */
 
-import java.util.Properties;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.jacorb.notification.AbstractChannelFactory;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
@@ -42,11 +39,7 @@ public class NotificationTestCaseSetup extends TestSetup
 {
     private MutablePicoContainer container_;
 
-    private Thread orbThread_;
-
     private NotificationTestUtils testUtils_;
-
-    private AbstractChannelFactory eventChannelFactory_;
 
     private ORB clientORB_;
 
@@ -77,7 +70,7 @@ public class NotificationTestCaseSetup extends TestSetup
 
         testUtils_ = new NotificationTestUtils(getORB());
 
-        orbThread_ = new Thread(new Runnable()
+        Thread orbThread_ = new Thread(new Runnable()
         {
             public void run()
             {
@@ -108,11 +101,6 @@ public class NotificationTestCaseSetup extends TestSetup
 
     public void tearDown() throws Exception
     {
-        if (eventChannelFactory_ != null)
-        {
-            eventChannelFactory_.dispose();
-        }
-
         container_.dispose();
 
         orb_.shutdown(true);
@@ -125,16 +113,6 @@ public class NotificationTestCaseSetup extends TestSetup
     public ORB getClientORB()
     {
         return clientORB_;
-    }
-
-    public AbstractChannelFactory getFactoryServant() throws Exception
-    {
-        if (eventChannelFactory_ == null)
-        {
-            eventChannelFactory_ = AbstractChannelFactory.newFactory(new Properties());
-        }
-
-        return eventChannelFactory_;
     }
 
     public ORB getORB()

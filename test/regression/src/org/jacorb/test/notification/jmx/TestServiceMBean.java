@@ -19,30 +19,11 @@
  *
  */
 
-package org.jacorb.test.notification.servant;
+package org.jacorb.test.notification.jmx;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-/**
- * @author Alphonse Bendt
- * @version $Id$
- */
-public class PackageTest extends TestCase
+public interface TestServiceMBean
 {
-    public static Test suite() throws Exception
-    {
-        TestSuite suite = new TestSuite();
-        
-        suite.addTest(ProxyPushSupplierImplTest.suite());
-        suite.addTest(StructuredProxyPushSupplierImplTest.suite());
-        suite.addTest(AbstractProxySupplierTest.suite());
-        suite.addTest(SequenceProxyPushSupplierImplTest.suite());
-        suite.addTest(PullMessagesOperationTest.suite());
-        suite.addTest(PullMessagesUtilityTest.suite());
-        suite.addTest(PullMessagesUtilityIntegrationTest.suite());
-        
-        return suite;
-    }
+    void setValue(int v);
+    int getValue();
+    void invokeMethod();
 }

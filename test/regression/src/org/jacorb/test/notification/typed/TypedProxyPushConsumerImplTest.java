@@ -161,12 +161,12 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase
 
         proxyPushConsumer_ = TypedProxyPushConsumerHelper.narrow(objectUnderTest_.activate());
 
-        org.omg.CORBA.Object coff = CoffeeHelper.narrow(proxyPushConsumer_.get_typed_consumer());
+        org.omg.CORBA.Object obj = CoffeeHelper.narrow(proxyPushConsumer_.get_typed_consumer());
 
         // some extra steps involved as local invocations are not
         // supported on dsi servants.
 
-        String coffString = coff.toString();
+        String coffString = obj.toString();
 
         Coffee coffee = CoffeeHelper.narrow(getClientORB().string_to_object(coffString));
 

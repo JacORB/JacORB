@@ -35,6 +35,7 @@ import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.StringHolder;
 import org.omg.CORBA.TRANSIENT;
+import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.EventTypeHelper;
 import org.omg.CosNotification.Property;
@@ -71,6 +72,12 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
     private MockControl controlTaskProcessor_;
 
     private TaskProcessor mockTaskProcessor_;
+
+    private MockControl controlPullCoffeeOperations_;
+
+    private PullCoffeeOperations mockPullCoffee_;
+
+    private PullCoffee pullCoffee_;
 
     public void setUpTest() throws Exception
     {
@@ -109,6 +116,12 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
         controlTypedPullSupplier_ = MockControl.createControl(TypedPullSupplier.class);
         mockTypedPullSupplier_ = (TypedPullSupplier) controlTypedPullSupplier_.getMock();
+
+        controlPullCoffeeOperations_ = MockControl.createControl(PullCoffeeOperations.class);
+
+        mockPullCoffee_ = (PullCoffeeOperations) controlPullCoffeeOperations_.getMock();
+
+        pullCoffee_ = new PullCoffeePOATie(mockPullCoffee_)._this(getClientORB());
     }
 
     public TypedProxyPullConsumerImplTest(String name, NotificationTestCaseSetup setup)
@@ -129,37 +142,45 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
     public void testConnect() throws Exception
     {
-        MockControl controlPullCoffeeOperations = 
-            MockControl.createControl(PullCoffeeOperations.class);
-
-        PullCoffeeOperations mockPullCoffee = 
-            (PullCoffeeOperations) controlPullCoffeeOperations.getMock();
-
-        PullCoffee pullCoffee = 
-            PullCoffeeHelper.narrow(new PullCoffeePOATie(mockPullCoffee)._this(getClientORB()));
-
-        controlPullCoffeeOperations.replay();
-
         mockTypedPullSupplier_.get_typed_supplier();
-        controlTypedPullSupplier_.setReturnValue(pullCoffee);
+        controlTypedPullSupplier_.setReturnValue(pullCoffee_);
 
-        controlTypedPullSupplier_.replay();
+        mockTaskProcessor_.executeTaskPeriodically(0, null, false);
+        controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlTaskProcessor_.setReturnValue(new Object());
+
+        replayAll();
 
         proxyPullConsumer_.connect_typed_pull_supplier(TypedPullSupplierHelper
                 .narrow(new TypedPullSupplierPOATie(mockTypedPullSupplier_)._this(getClientORB())));
 
-        controlTypedPullSupplier_.verify();
-        controlPullCoffeeOperations.verify();
+        verifyAll();
+    }
+
+    public void testConnectInvalidType() throws Exception
+    {
+        TypedPullSupplier _typedPullSupplier = TypedPullSupplierHelper
+                .narrow(new TypedPullSupplierPOATie(mockTypedPullSupplier_)._this(getClientORB()));
+
+        mockTypedPullSupplier_.get_typed_supplier();
+        controlTypedPullSupplier_.setReturnValue(_typedPullSupplier);
+
+        replayAll();
+
+        try
+        {
+            proxyPullConsumer_.connect_typed_pull_supplier(_typedPullSupplier);
+            fail();
+        } catch (TypeError e)
+        {
+            // expected
+        }
+        verifyAll();
     }
 
     public void testTryOperationsAreInvoked() throws Exception
     {
-        MockControl controlPullCoffeeOperations = 
-            MockControl.createControl(PullCoffeeOperations.class);
-        PullCoffeeOperations mockPullCoffeeOperations = 
-            (PullCoffeeOperations) controlPullCoffeeOperations.getMock();
-
-        controlPullCoffeeOperations.setDefaultMatcher(new AbstractMatcher()
+        controlPullCoffeeOperations_.setDefaultMatcher(new AbstractMatcher()
         {
             public boolean matches(Object[] arg0, Object[] arg1)
             {
@@ -167,6 +188,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
                 if (name != null)
                 {
+                    // need to set the out param.
                     name.value = "";
                 }
 
@@ -174,41 +196,39 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
             }
         });
 
-        mockPullCoffeeOperations.try_drinking_coffee(null, null);
+        mockPullCoffee_.try_drinking_coffee(null, null);
 
-        controlPullCoffeeOperations.setReturnValue(false);
+        controlPullCoffeeOperations_.setReturnValue(false);
 
-        mockPullCoffeeOperations.try_cancel_coffee(null);
+        mockPullCoffee_.try_cancel_coffee(null);
 
-        controlPullCoffeeOperations.setReturnValue(false);
-
-        controlPullCoffeeOperations.replay();
+        controlPullCoffeeOperations_.setReturnValue(false);
 
         mockTypedPullSupplier_.get_typed_supplier();
-        controlTypedPullSupplier_.setReturnValue(new PullCoffeePOATie(mockPullCoffeeOperations)._this(getClientORB()));
+        controlTypedPullSupplier_.setReturnValue(pullCoffee_);
 
-        controlTypedPullSupplier_.replay();
+        mockTaskProcessor_.executeTaskPeriodically(0, null, false);
+        controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlTaskProcessor_.setReturnValue(new Object());
 
-        proxyPullConsumer_.connect_typed_pull_supplier(new TypedPullSupplierPOATie(mockTypedPullSupplier_)._this(getClientORB()));
+        replayAll();
+
+        proxyPullConsumer_.connect_typed_pull_supplier(new TypedPullSupplierPOATie(
+                mockTypedPullSupplier_)._this(getClientORB()));
 
         objectUnderTest_.runPullMessage();
 
-        controlPullCoffeeOperations.verify();
-        controlTypedPullSupplier_.verify();
+        verifyAll();
     }
 
     public void testTryOperationsThrowsException() throws Exception
     {
-        MockControl controlPullCoffeeOperations = MockControl.createControl(PullCoffeeOperations.class);
-        PullCoffeeOperations mockPullCoffeeOperations = 
-            (PullCoffeeOperations) controlPullCoffeeOperations.getMock();
+        mockPullCoffee_.try_drinking_coffee(null, null);
+        controlPullCoffeeOperations_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlPullCoffeeOperations_.setThrowable(new TRANSIENT());
 
-        mockPullCoffeeOperations.try_drinking_coffee(null, null);
-        controlPullCoffeeOperations.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlPullCoffeeOperations.setThrowable(new TRANSIENT());
-
-        mockPullCoffeeOperations.try_cancel_coffee(null);
-        controlPullCoffeeOperations.setMatcher(new AbstractMatcher()
+        mockPullCoffee_.try_cancel_coffee(null);
+        controlPullCoffeeOperations_.setMatcher(new AbstractMatcher()
         {
             public boolean matches(Object[] arg0, Object[] arg1)
             {
@@ -216,27 +236,33 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
                 if (name != null)
                 {
+                    // need to set the out param
                     name.value = "jacorb";
                 }
 
                 return true;
             }
         });
-        controlPullCoffeeOperations.setReturnValue(true);
-
-        controlPullCoffeeOperations.replay();
+        controlPullCoffeeOperations_.setReturnValue(true);
 
         mockTypedPullSupplier_.get_typed_supplier();
-        controlTypedPullSupplier_.setReturnValue(new PullCoffeePOATie(mockPullCoffeeOperations)._this(getClientORB()));
+        controlTypedPullSupplier_.setReturnValue(pullCoffee_);
 
-        controlTypedPullSupplier_.replay();
+        mockTaskProcessor_.executeTaskPeriodically(0, null, false);
+        controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlTaskProcessor_.setReturnValue(new Object());
 
-        proxyPullConsumer_.connect_typed_pull_supplier(new TypedPullSupplierPOATie(mockTypedPullSupplier_)._this(getClientORB()));
+        mockTaskProcessor_.processMessage(null);
+        controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
+
+        replayAll();
+
+        proxyPullConsumer_.connect_typed_pull_supplier(new TypedPullSupplierPOATie(
+                mockTypedPullSupplier_)._this(getClientORB()));
 
         objectUnderTest_.runPullMessage();
 
-        controlPullCoffeeOperations.verify();
-        controlTypedPullSupplier_.verify();
+        verifyAll();
     }
 
     public void testFormat() throws Exception
@@ -265,7 +291,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
                         assertEquals("jacorb", _props[1].value.extract_string());
                         assertEquals(20, _props[2].value.extract_long());
-                        
+
                         return true;
                     } catch (Exception e)
                     {
@@ -276,19 +302,15 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
             }
         });
 
-        MockControl controlPullCoffeeOperations = 
-            MockControl.createControl(PullCoffeeOperations.class);
-        PullCoffeeOperations mockPullCoffeeOperations = 
-            (PullCoffeeOperations) controlPullCoffeeOperations.getMock();
-
-        mockPullCoffeeOperations.try_drinking_coffee(null, null);
-        controlPullCoffeeOperations.setMatcher(new AbstractMatcher()
+        mockPullCoffee_.try_drinking_coffee(null, null);
+        controlPullCoffeeOperations_.setMatcher(new AbstractMatcher()
         {
             public boolean matches(Object[] expected, Object[] actual)
             {
                 StringHolder name = (StringHolder) expected[0];
                 IntHolder minutes = (IntHolder) expected[1];
 
+                // need to set the out params
                 if (name != null)
                 {
                     name.value = "jacorb";
@@ -302,10 +324,10 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
                 return true;
             }
         });
-        controlPullCoffeeOperations.setReturnValue(true);
+        controlPullCoffeeOperations_.setReturnValue(true);
 
-        mockPullCoffeeOperations.try_cancel_coffee(null);
-        controlPullCoffeeOperations.setMatcher(new AbstractMatcher()
+        mockPullCoffee_.try_cancel_coffee(null);
+        controlPullCoffeeOperations_.setMatcher(new AbstractMatcher()
         {
             public boolean matches(Object[] expected, Object[] actual)
             {
@@ -313,29 +335,46 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
                 if (name != null)
                 {
+                    // need to set the out param
                     name.value = "";
                 }
 
                 return true;
             }
         });
-        controlPullCoffeeOperations.setReturnValue(false);
-
-        controlPullCoffeeOperations.replay();
+        controlPullCoffeeOperations_.setReturnValue(false);
 
         mockTypedPullSupplier_.get_typed_supplier();
-        controlTypedPullSupplier_.setReturnValue(new PullCoffeePOATie(mockPullCoffeeOperations)._this(getClientORB()));
+        controlTypedPullSupplier_.setReturnValue(pullCoffee_);
 
-        controlTypedPullSupplier_.replay();
+        mockTaskProcessor_.executeTaskPeriodically(0, null, false);
+        controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlTaskProcessor_.setReturnValue(new Object());
 
-        controlTaskProcessor_.replay();
+        replayAll();
 
-        proxyPullConsumer_.connect_typed_pull_supplier(new TypedPullSupplierPOATie(mockTypedPullSupplier_)._this(getClientORB()));
+        proxyPullConsumer_.connect_typed_pull_supplier(new TypedPullSupplierPOATie(
+                mockTypedPullSupplier_)._this(getClientORB()));
 
         objectUnderTest_.runPullMessage();
 
-        controlPullCoffeeOperations.verify();
+        verifyAll();
+    }
+
+    private void verifyAll()
+    {
         controlTypedPullSupplier_.verify();
+        controlAdmin_.verify();
+        controlSupplierAdmin_.verify();
+        controlTaskProcessor_.verify();
+        controlPullCoffeeOperations_.verify();
+    }
+
+    private void replayAll()
+    {
+        controlPullCoffeeOperations_.replay();
+        controlTypedPullSupplier_.replay();
+        controlTaskProcessor_.replay();
     }
 
     public static Test suite() throws Exception

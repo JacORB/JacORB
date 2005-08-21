@@ -46,6 +46,4 @@ public class NotifyServerTestSetup extends ClientServerSetup
     {
        return NotifyServerTestRunner.class.getName();
     }
-    
-    
 }

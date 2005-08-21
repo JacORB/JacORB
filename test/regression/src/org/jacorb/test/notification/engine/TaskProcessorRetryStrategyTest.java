@@ -62,10 +62,14 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
     
     public void testSuccessfulRetryDisposes() throws Exception
     {        
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setReturnValue(true);
         controlConsumer_.replay();
         
         mockPushOperation_.invokePush();
+        controlPushOperation_.setVoidCallable();
         mockPushOperation_.dispose();
+        controlPushOperation_.setVoidCallable();
         
         controlPushOperation_.replay();
         
@@ -79,12 +83,15 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
     }
     
     public void testNotSuccessfulRetryDisposes() throws Exception
-    {        
+    {   
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setReturnValue(true);
+        
         mockConsumer_.incErrorCounter();
         controlConsumer_.setDefaultReturnValue(0);
         
         mockConsumer_.isRetryAllowed();
-        controlConsumer_.setDefaultReturnValue(false);
+        controlConsumer_.setReturnValue(false);
         
         mockConsumer_.destroy();
         controlConsumer_.replay();
@@ -111,7 +118,7 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
         controlConsumer_.setDefaultReturnValue(0);
         
         mockConsumer_.isRetryAllowed();
-        controlConsumer_.setReturnValue(true, 2);
+        controlConsumer_.setDefaultReturnValue(true);
         controlConsumer_.replay();
         
         mockPushOperation_.invokePush();

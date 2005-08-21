@@ -42,7 +42,9 @@ public class PackageTest extends TestCase
 
         _suite.addTest(EventChannelFactoryTest.suite());
         _suite.addTest(TimeoutTest.suite());
+        _suite.addTest(TimeoutIntegrationTest.suite());
         _suite.addTest(StopTimeTest.suite());
+        _suite.addTest(StopTimeIntegrationTest.suite());
         _suite.addTest(StartTimeTest.suite());
         _suite.addTest(EventChannelTest.suite());
         _suite.addTest(CosEventChannelTest.suite());

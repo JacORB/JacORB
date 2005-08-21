@@ -135,12 +135,12 @@ public class MessageFactoryTest extends NotificationTestCase
         Message _mesg = messageFactory_.newMessage(_wrappedStructuredEvent,
                 new AbstractProxyConsumerI()
                 {
-                    public boolean isStartTimeSupported()
+                    public boolean getStartTimeSupported()
                     {
                         return false;
                     }
 
-                    public boolean isTimeOutSupported()
+                    public boolean getTimeOutSupported()
                     {
                         return false;
                     }
@@ -179,12 +179,12 @@ public class MessageFactoryTest extends NotificationTestCase
 
         Message _mesg = messageFactory_.newMessage(_wrappedAny, new AbstractProxyConsumerI()
         {
-            public boolean isStartTimeSupported()
+            public boolean getStartTimeSupported()
             {
                 return false;
             }
 
-            public boolean isTimeOutSupported()
+            public boolean getTimeOutSupported()
             {
                 return false;
             }

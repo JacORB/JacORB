@@ -66,8 +66,9 @@ public class AllTest extends JacORBTestSuite
             _suite.addTest(org.jacorb.test.notification.typed.PackageTest.suite());
         } catch (Exception e)
         {
-            System.err
-                    .println("TypedChannel Tests depend on accessible InterfaceRepository. Will be skipped.");
+            System.err.println("TypedChannel Tests depend on accessible InterfaceRepository.");
+            System.err.println("Will be skipped. See org/jacorb/test/notification/typed/README");
+            System.err.println("for details.");
         }
 
         return _suite;

@@ -39,9 +39,10 @@ import org.omg.PortableServer.POAHelper;
 
 public class EchoServerImpl extends EchoServerPOA
 {
-
     public void acceptAny( Any any )
-    {}
+    {
+        // ingored
+    }
 
     public static void main( String[] args ) throws Exception
     {

@@ -94,7 +94,7 @@ public class TimeoutTest extends NotificationTestCase
     {
         structuredEvent_.header.variable_header = new Property[1];
 
-        long _timeout = 1234L;
+        long _timeout = 1000000;
 
         Any _any = getORB().create_any();
 
@@ -104,11 +104,11 @@ public class TimeoutTest extends NotificationTestCase
 
         Message _event = messageFactory_.newMessage(structuredEvent_,
                                                     new AbstractProxyConsumerI() {
-                                                        public boolean isStartTimeSupported() {
+                                                        public boolean getStartTimeSupported() {
                                                             return true;
                                                         }
 
-                                                        public boolean isTimeOutSupported() {
+                                                        public boolean getTimeOutSupported() {
                                                             return true;
                                                         }
 
@@ -117,7 +117,7 @@ public class TimeoutTest extends NotificationTestCase
                                                         }
                                                         });
         assertTrue(_event.hasTimeout());
-        assertEquals(_timeout, _event.getTimeout());
+        assertEquals(100, _event.getTimeout());
     }
 
     public static Test suite() throws Exception

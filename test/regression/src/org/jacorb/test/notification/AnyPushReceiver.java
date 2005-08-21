@@ -21,18 +21,13 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.PushConsumerPOA;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.PortableServer.POA;
 
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestClientOperations
 {
-    Any event_ = null;
-
     ORB orb_;
-
-    POA poa_;
 
     long receiveTime_;
 
@@ -44,17 +39,15 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     int numberOfExpectedEvents_ = 1;
 
-    final SynchronizedInt received_ = new SynchronizedInt(0);
+    private final SynchronizedInt received_ = new SynchronizedInt(0);
 
-    long TIMEOUT = 4000L;
-
-    long TIMEOUT_OFF = 0;
+    long timeout_ = 4000L;
 
     int filterId_ = Integer.MIN_VALUE;
 
     ConsumerAdmin myAdmin_;
 
-    private Object lock_ = new Object();
+    private final Object lock_ = new Object();
 
     public AnyPushReceiver(ORB orb)
     {
@@ -65,7 +58,6 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
     {
         numberOfExpectedEvents_ = number;
     }
-
 
     public void setFilter(Filter filter)
     {
@@ -86,8 +78,6 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     public boolean isEventHandled()
     {
-        System.out.println("expected: " + numberOfExpectedEvents_ + " received: " + received_);
-
         if (numberOfExpectedEvents_ > 0)
         {
             return received_.get() == numberOfExpectedEvents_;
@@ -98,7 +88,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     public void setTimeOut(long timeout)
     {
-        TIMEOUT = timeout;
+        timeout_ = timeout;
     }
 
     public void setBarrier(CyclicBarrier barrier)
@@ -118,8 +108,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
     }
 
     public void connect(EventChannel channel, boolean useOrSemantic)
-
-    throws AdminLimitExceeded, TypeError, AlreadyConnected, AdminNotFound
+        throws AdminLimitExceeded, TypeError, AlreadyConnected, AdminNotFound
     {
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
@@ -154,18 +143,14 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     public void run()
     {
-
         if (!isEventHandled())
         {
             try
             {
                 synchronized (lock_)
-                {
-                    
-                    System.err.println("will wait " + TIMEOUT);
-                    lock_.wait(TIMEOUT);
+                {               
+                    lock_.wait(timeout_);
                 }
-
             } catch (InterruptedException e)
             {
                 // ignored

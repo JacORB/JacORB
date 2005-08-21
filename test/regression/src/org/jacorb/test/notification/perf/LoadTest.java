@@ -91,8 +91,25 @@ public class LoadTest extends NotificationTestCase
         final List received = new ArrayList();
 
         StructuredPushSender sender = new StructuredPushSender(getClientORB());
-        
-        StructuredPushReceiver receiver = new StructuredPushReceiver(getClientORB());
+
+        StructuredPushReceiver receiver = new StructuredPushReceiver(getClientORB())
+        {
+            public void push_structured_event(StructuredEvent event)
+                    throws org.omg.CosEventComm.Disconnected
+            {
+                try
+                {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+                
+                System.out.println("Received ...");
+                
+                super.push_structured_event(event);
+            }
+        };
 
         System.out.println("connect sender");
         sender.connect(channel, true);
@@ -102,7 +119,7 @@ public class LoadTest extends NotificationTestCase
         boolean _active = active;
 
         int batchSize = 1000;
-        
+
         while (_active)
         {
             for (int x = 0; x < batchSize; ++x)
@@ -130,10 +147,10 @@ public class LoadTest extends NotificationTestCase
                 _active = active;
             }
             Thread.sleep(4000);
-            
-            assertEquals(batchSize, received.size());
-            
-            _active = false;
+
+            // assertEquals(batchSize, received.size());
+
+            // _active = false;
         }
 
         Thread.sleep(60000);

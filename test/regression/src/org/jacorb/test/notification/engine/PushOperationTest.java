@@ -59,13 +59,14 @@ public class PushOperationTest extends TestCase
         Message mockMessage = (Message) controlMessage.getMock();
 
         MockControl controlMessage2 = MockControl.createControl(Message.class);
-        Message mockMessage2 = (Message) controlMessage.getMock();
+        Message mockMessage2 = (Message) controlMessage2.getMock();
 
         mockMessage.clone();
         controlMessage.setReturnValue(mockMessage2);
 
         mockMessage2.dispose();
-
+        controlMessage2.setVoidCallable();
+        
         controlMessage2.replay();
         controlMessage.replay();
 

@@ -72,13 +72,7 @@ public class AdminLimitTest extends NotificationTestCase
 
             public EventChannel getEventChannel()
             {
-                try
-                {
-                    return getDefaultChannel();
-                } catch (Exception e)
-                {
-                    throw new RuntimeException();
-                }
+                return null;
             }
 
             public int getAdminID()
@@ -95,6 +89,11 @@ public class AdminLimitTest extends NotificationTestCase
             {
                 // nothing to do
             }
+
+            public String getChannelMBean()
+            {
+                return null;
+            }
         };
 
         objectUnderTest_ = new ConsumerAdminImpl(channel, getORB(), getPOA(),
@@ -110,8 +109,6 @@ public class AdminLimitTest extends NotificationTestCase
     public void testBasics() throws Exception
     {
         assertEquals(20, consumerAdmin_.MyID());
-        
-        assertEquals(getDefaultChannel(), consumerAdmin_.MyChannel());
     }
 
     public void testObtainNotificationPullSupplierFiresEvent() throws Exception

@@ -68,7 +68,6 @@ public class GarbageCollectTest extends NotificationTestCase
 
         controlConfiguration_ = MockControl.createControl(Configuration.class);
 
-
         iContainerForTest_ = new IContainer()
         {
             public MutablePicoContainer getContainer()

@@ -68,7 +68,7 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
         IEventChannel mockChannel = (IEventChannel) controlChannel.getMock();
 
         mockChannel.getEventChannel();
-        controlChannel.setReturnValue(getDefaultChannel());
+        controlChannel.setReturnValue(null);
 
         mockChannel.getContainer();
         controlChannel.setReturnValue(container_);
@@ -79,6 +79,9 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
         mockChannel.getChannelID();
         controlChannel.setReturnValue(20);
 
+        mockChannel.getChannelMBean();
+        controlChannel.setReturnValue("channel");
+        
         controlChannel.replay();
 
         objectUnderTest_ = new TypedSupplierAdminImpl(mockChannel, getORB(), getPOA(),
@@ -87,11 +90,6 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
                         .getComponentInstance(SubscriptionManager.class));
 
         supplierAdmin_ = TypedSupplierAdminHelper.narrow(objectUnderTest_.activate());
-    }
-
-    public void testMyChannel() throws Exception
-    {
-        assertEquals(getDefaultChannel(), supplierAdmin_.MyChannel());
     }
 
     public void testCreatePushConsumer() throws Exception

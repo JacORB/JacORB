@@ -186,6 +186,8 @@ public class PerformanceTest extends NotificationTestCase
         measureFilterLatency("$type_name == 'TESTING'", _event, _runs);
 
         measureFilterLatency("$domain_name == 'TESTING'", _event, _runs);
+        
+        Thread.sleep(120000);
     }
 
     private void measureFilterLatency(String filterString, StructuredEvent event, int runs)
@@ -298,6 +300,6 @@ public class PerformanceTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite(PerformanceTest.class, "testLoad");
+        return NotificationTestCase.suite(PerformanceTest.class, "_testMeasureFilterLatency");
     }
 }

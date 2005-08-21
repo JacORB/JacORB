@@ -36,16 +36,11 @@ import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Repository;
 import org.omg.CORBA.RepositoryHelper;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertySeqHelper;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
-import org.omg.CosNotifyFilter.Filter;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.PortableServer.POA;
 import org.picocontainer.MutablePicoContainer;
@@ -57,8 +52,6 @@ import org.picocontainer.MutablePicoContainer;
 public abstract class NotificationTestCase extends TestCase
 {
     private NotificationTestCaseSetup setup_;
-
-    private EventChannel defaultChannel_;
 
     protected Logger logger_;
     
@@ -88,7 +81,7 @@ public abstract class NotificationTestCase extends TestCase
 
     protected void setUpTest() throws Exception
     {
-        // empty on purpose.
+        // empty to be overridden.     
     }
 
     public final void tearDown() throws Exception
@@ -97,11 +90,6 @@ public abstract class NotificationTestCase extends TestCase
         
         tearDownTest();
 
-        if (defaultChannel_ != null)
-        {
-            defaultChannel_.destroy();
-        }
-        
         super.tearDown();
     }
     
@@ -115,42 +103,9 @@ public abstract class NotificationTestCase extends TestCase
         return container_;
     }
 
-    public Filter createFilter() throws Exception
-    {
-        return getDefaultChannel().default_filter_factory().create_filter("EXTENDED_TCL");
-    }
-
     public ORB getClientORB()
     {
         return getSetup().getClientORB();
-    }
-
-    public EventChannel getDefaultChannel()
-    {
-        try
-        {
-            if (defaultChannel_ == null)
-            {
-                defaultChannel_ = getFactory().create_channel(new Property[0], new Property[0],
-                        new IntHolder());
-
-                assertTrue(defaultChannel_.MyFactory()._is_equivalent(getFactory()));
-            }
-
-            return defaultChannel_;
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
-    }
-    
-    public EventChannel resolveChannel() throws Exception
-    {
-        org.omg.CORBA.Object object = getORB().resolve_initial_references("NotificationService");
-        EventChannelFactory factory = EventChannelFactoryHelper.narrow(object);
-        
-        return factory.create_channel(new Property[0], new Property[0], new IntHolder());
     }
 
     public ORB getORB()
@@ -165,50 +120,37 @@ public abstract class NotificationTestCase extends TestCase
 
     public DynAnyFactory getDynAnyFactory() throws Exception
     {
-        return (DynAnyFactory) getPicoContainer().getComponentInstance(DynAnyFactory.class);
+        return (DynAnyFactory) getPicoContainer().getComponentInstanceOfType(DynAnyFactory.class);
     }
 
     public Configuration getConfiguration()
     {
-        return (Configuration) getPicoContainer().getComponentInstance(Configuration.class);
+        return (Configuration) getPicoContainer().getComponentInstanceOfType(Configuration.class);
     }
 
     public MessageFactory getMessageFactory()
     {
-        return (MessageFactory) getPicoContainer().getComponentInstance(MessageFactory.class);
+        return (MessageFactory) getPicoContainer().getComponentInstanceOfType(MessageFactory.class);
     }
 
     public ETCLEvaluator getEvaluator()
     {
-        return (ETCLEvaluator) getPicoContainer().getComponentInstance(ETCLEvaluator.class);
+        return (ETCLEvaluator) getPicoContainer().getComponentInstanceOfType(ETCLEvaluator.class);
     }
 
     public TaskProcessor getTaskProcessor()
     {
-        return (TaskProcessor) getPicoContainer().getComponentInstance(TaskProcessor.class);
+        return (TaskProcessor) getPicoContainer().getComponentInstanceOfType(TaskProcessor.class);
     }
 
     public EventQueueFactory getEventQueueFactory()
     {
-        return (EventQueueFactory) getPicoContainer().getComponentInstance(EventQueueFactory.class);
+        return (EventQueueFactory) getPicoContainer().getComponentInstanceOfType(EventQueueFactory.class);
     }
 
     public NotificationTestUtils getTestUtils()
     {
         return setup_.getTestUtils();
-    }
-
-    public EventChannelFactory getFactory()
-    {
-        try
-        {
-            return EventChannelFactoryHelper.narrow(setup_.getFactoryServant().activate());
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            
-            throw new RuntimeException(e.getMessage());
-        }
     }
 
     private NotificationTestCaseSetup getSetup()
@@ -231,7 +173,7 @@ public abstract class NotificationTestCase extends TestCase
         return suite(suiteName, clazz, "test");
     }
 
-    private static Test suite(String suiteName, Class clazz, String testMethodPrefix)
+    public static Test suite(String suiteName, Class clazz, String testMethodPrefix)
             throws Exception
     {
         TestSuite _suite = new TestSuite(suiteName);
@@ -259,20 +201,20 @@ public abstract class NotificationTestCase extends TestCase
 
     public Any toAny(String s)
     {
-        Any a = getORB().create_any();
+        Any _any = getORB().create_any();
 
-        a.insert_string(s);
+        _any.insert_string(s);
 
-        return a;
+        return _any;
     }
 
     public Any toAny(int i)
     {
-        Any a = getORB().create_any();
+        Any _any = getORB().create_any();
 
-        a.insert_long(i);
+        _any.insert_long(i);
 
-        return a;
+        return _any;
     }
 
     public Any toAny(Property[] props) throws Exception

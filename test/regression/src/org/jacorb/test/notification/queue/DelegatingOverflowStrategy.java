@@ -56,4 +56,9 @@ class DelegatingOverflowStrategy extends EventQueueOverflowStrategy
     {
         return Collections.unmodifiableList(removedEvents_);
     }
+    
+    public String getDiscardPolicyName()
+    {
+        return "TestDiscardPolicy";
+    }
 }

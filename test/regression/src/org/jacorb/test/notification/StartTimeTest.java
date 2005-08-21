@@ -56,12 +56,12 @@ public class StartTimeTest extends NotificationTestCase
 
     AbstractProxyConsumerI proxyConsumerMock_ = new AbstractProxyConsumerI()
     {
-        public boolean isStartTimeSupported()
+        public boolean getStartTimeSupported()
         {
             return true;
         }
 
-        public boolean isTimeOutSupported()
+        public boolean getTimeOutSupported()
         {
             return true;
         }

@@ -160,7 +160,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         StringHolder _name = new StringHolder();
         IntHolder _minutes = new IntHolder();
 
-        objectUnderTest_.getMessageConsumer().deliverMessage(_mesg.getHandle());
+        objectUnderTest_.getMessageConsumer().queueMessage(_mesg.getHandle());
 
         assertTrue(_pullCoffee.try_drinking_coffee(_name, _minutes));
 
@@ -200,7 +200,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
             }
         }.start();
 
-        objectUnderTest_.getMessageConsumer().deliverMessage(_mesg.getHandle());
+        objectUnderTest_.getMessageConsumer().queueMessage(_mesg.getHandle());
 
         assertTrue(_latch.attempt(1000));
 

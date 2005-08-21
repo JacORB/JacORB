@@ -84,7 +84,7 @@ public class FilterConsumerAdminTaskTest extends AbstractFilterTaskTestCase
 
         objectUnderTest_.setMessage(mockMessage_);
 
-        mockFilterStage_.isDisposed();
+        mockFilterStage_.isDestroyed();
         controlFilterStage_.setReturnValue(false);
         
         mockFilterStage_.hasInterFilterGroupOperatorOR();

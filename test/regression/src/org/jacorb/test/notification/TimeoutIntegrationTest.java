@@ -72,11 +72,11 @@ public class TimeoutIntegrationTest extends NotifyServerTestCase
 
     public void testSendEventWithTimeout() throws Exception
     {
-        sendEvent(0, 1000, true);
+        sendEvent(0, 10000000, true);
 
-        sendEvent(2000, 500, false);
+        sendEvent(2000, 5000000, false);
 
-        sendEvent(1000, 2000, true);
+        sendEvent(1000, 20000000, true);
     }
 
     private void sendEvent(long startOffset, long timeout, boolean expect) throws Exception

@@ -34,7 +34,6 @@ public class AnyPushSender extends PushSupplierPOA implements TestClientOperatio
 
     long sendTime_;
 
-
     int runs_;
 
     long interval_;
@@ -158,5 +157,4 @@ public class AnyPushSender extends PushSupplierPOA implements TestClientOperatio
             myAdmin_.destroy();
         }
     }
-
 }
