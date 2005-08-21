@@ -131,7 +131,7 @@ public class AnyMessage extends AbstractMessage
                 }
 
                 typedEventValue_ = _typedEventValue;
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 isTranslationPossible_ = false;
 
                 throw new NoTranslationException();
