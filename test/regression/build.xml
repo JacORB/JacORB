@@ -111,7 +111,8 @@
     <jacorb-javac
       javac-includes="org/jacorb/test/notification/**"
       javac-excludes="org/jacorb/test/notification/util/regexp/**,
-                           org/jacorb/test/notification/plugins/**"
+                           org/jacorb/test/notification/plugins/**,
+    	                       org/jacorb/test/notification/jmx"
       javac-classpathref="test.classpath" />
 
     <antcall target="compile-src-notification-regexp" />
