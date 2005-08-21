@@ -60,10 +60,7 @@ class FilterFactoryComponentAdapter extends AbstractComponentAdapter
                 return lookupFilterFactory(container);
             } catch (Exception e)
             {
-                logger_
-                        .info(
-                                "Could not resolve FilterFactory. Will fall back to builtin FilterFactory.",
-                                e);
+                logger_.info("Could not resolve FilterFactory. Will fall back to builtin FilterFactory.", e);
             }
         }
 
@@ -99,8 +96,8 @@ class FilterFactoryComponentAdapter extends AbstractComponentAdapter
             }
         });
 
-        FilterFactoryImpl servant = (FilterFactoryImpl) _container
-                .getComponentInstanceOfType(FilterFactoryImpl.class);
+        FilterFactoryImpl servant = 
+            (FilterFactoryImpl) _container.getComponentInstanceOfType(FilterFactoryImpl.class);
 
         return FilterFactoryHelper.narrow(servant.activate());
     }
@@ -118,8 +115,7 @@ class FilterFactoryComponentAdapter extends AbstractComponentAdapter
     {
         Configuration config = (Configuration) container.getComponentInstance(Configuration.class);
 
-        String _location = config.getAttribute(Attributes.FILTER_FACTORY,
-                Default.DEFAULT_FILTER_FACTORY);
+        String _location = config.getAttribute(Attributes.FILTER_FACTORY, Default.DEFAULT_FILTER_FACTORY);
 
         return _location;
     }

@@ -92,8 +92,7 @@ public class BiDirGiopPOAComponentAdapter extends DecoratingComponentAdapter
 
             if (isBiDirGiopEnabled(config) && _logger.isInfoEnabled())
             {
-                _logger
-                        .info(BIDIR_GIOP_OPTION + " is set:"
+                _logger.info(BIDIR_GIOP_OPTION + " is set:"
                                 + " Will enable Bidirectional GIOP.");
             }
             
