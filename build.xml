@@ -133,12 +133,20 @@
     <replace file="bin/jaco" token="@@@CLASSPATH@@@"
              value="${jaco.classpath}" />
 
-    <!-- include .bat files for packages built on linux, don't set eol -->
-    <!-- attribute as this is automatically chosen by the fixcrlf task -->
-    <!-- itself -->
+    <condition property="eol" value="crlf">
+        <or>
+            <os family="windows"/>
+            <os family="dos"/>
+        </or>
+    </condition>
+    
+    <!-- osx shell scripts should also be set to LF -->
+    <property name="eol" value="lf" />
+    
     <fixcrlf srcDir="bin"
              includes="*"
-             excludes="*.exe,*.conf,*template*" />
+             excludes="*.exe,*.conf,*template*"
+	     eol="${eol}" />
 
     <chmod perm="ugo+rx">
       <fileset dir="bin">
