@@ -232,11 +232,11 @@ public class DefaultTaskFactory implements Disposable, Configurable, TaskFactory
 
             if (alternateMessage != null)
             {
-                consumer.deliverMessage(alternateMessage);
+                consumer.queueMessage(alternateMessage);
             }
             else
             {
-                consumer.deliverMessage(mesg);
+                consumer.queueMessage(mesg);
             }
         }
     }

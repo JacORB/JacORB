@@ -26,8 +26,6 @@ import org.omg.CosEventComm.Disconnected;
 /**
  * Abstraction of a ProxyPullConsumer.
  *
- * The implementation maintains a connection to a PullSupplier.
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -35,7 +33,7 @@ import org.omg.CosEventComm.Disconnected;
 public interface MessageSupplier {
 
     /**
-     * the implementation pulls one or more events from its Supplier
+     * pull one or more events from the Supplier
      * and hands over the pulled events to the TaskProcessor.
      */
     void runPullMessage() throws Disconnected;

@@ -19,18 +19,13 @@
  *
  */
 
-package org.jacorb.notification.engine;
-
-import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.interfaces.NotifyingDisposable;
-
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+package org.jacorb.notification.interfaces;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public interface TaskExecutor extends Executor, Disposable, NotifyingDisposable
+public interface NotifyingDisposable extends Disposable
 {
-    boolean isTaskQueued();
+    void registerDisposable(Disposable disposable);
 }

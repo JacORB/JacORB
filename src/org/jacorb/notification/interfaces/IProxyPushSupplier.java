@@ -23,43 +23,41 @@ package org.jacorb.notification.interfaces;
 
 import org.jacorb.notification.engine.PushTaskExecutor;
 
-
-public interface IProxyPushSupplier extends MessageConsumer, CallbackingDisposable
+public interface IProxyPushSupplier extends MessageConsumer, NotifyingDisposable
 {
     /**
-     * process pending work. push events to its connected
+     * process pending work. push messages to the connected
      * (Push)Consumer.
      */
     void pushPendingData();
 
     /**
-     * check if this MessageConsumer has pending work to do. pending
-     * work is to push events
-     * to its connected (Push)Consumer.
+     * check if there are messages enqueued.
      */
     boolean hasPendingData();
 
     /**
-     * Disable Deliveries. this MessageConsumer may not invoke remote
-     * operations. events are enqueued instead.
+     * Disable Deliveries. no remote
+     * operations may be used to deliver a message. messages
+     * are enqueued instead.
      */
     void disableDelivery();
     
     /**
-     * reset the error counter for this MessageConsumer to zero.
+     * reset the error count to zero.
      */
     void resetErrorCounter();
 
 
     /**
-     * increment the current error count by one for this MessageConsumer.
+     * increment the current error count by one
      */
     int incErrorCounter();
 
-    /**
-     * 
-     */
     boolean isRetryAllowed();
 
+    /**
+     * schedule the pushTask for execution using this Objects executor.
+     */
     void schedulePush(PushTaskExecutor.PushTask pushTask);
 }

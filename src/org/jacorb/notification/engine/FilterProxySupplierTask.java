@@ -180,7 +180,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         {
             boolean _forward = false;
 
-            if (!arrayCurrentFilterStage_[x].isDisposed())
+            if (!arrayCurrentFilterStage_[x].isDestroyed())
             {
                 Message _currentMessage = getMessage();
 

@@ -2,52 +2,66 @@
 
 <!DOCTYPE project [
   <!ENTITY common SYSTEM "file:../../../../etc/common.xml">
+<!ENTITY xdoclet SYSTEM "file:../../../../etc/common-xdoclet.xml">
 ]>
 
 <project name="notification" default="all" basedir="../../../..">
 
-<!-- ============================================================= -->
-<!--              JacORB - NotificationService build file          -->
-<!-- $Id$ -->
-<!-- ============================================================= -->
+	<!-- ============================================================= -->
+	<!--              JacORB - NotificationService build file          -->
+	<!-- $Id$ -->
+	<!-- ============================================================= -->
 
   &common;
-
+  &xdoclet;
+	
   <property name="notification.dir"
       value="${basedir}/src/org/jacorb/notification" />
 
-  <target name="notification.init" depends="init, check-regexp">
+	<target name="notification.init" depends="init, check-regexp">
 
-    <!-- directory where the etcl grammar is located -->
-    <property name="etcl.grammar.dir"
-      value="${notification.dir}/filter/etcl/grammar" />
+		<!-- directory where the etcl grammar is located -->
+		<property name="dir.etcl.grammar"
+      		value="${notification.dir}/filter/etcl/grammar" />
 
-    <!-- package to which the parser classes are generated -->
-    <property name="etcl.target.package" value="org/jacorb/notification/filter/etcl" />
+		<!-- package to which the parser classes are generated -->
+		<property name="etcl.target.package" value="org/jacorb/notification/filter/etcl" />
 
-    <mkdir dir="${src}/generated/${etcl.target.package}" />
+		<mkdir dir="${src}/generated/${etcl.target.package}" />
 
-    <path id="antlr.classpath">
-      	<pathelement path="${basedir}/lib/antlr-2.7.2.jar" />
-    </path>
-      	
-    <path id="path.wrapper">
-    		<path refid="path.base" />
-     	<pathelement location="${lib}/wrapper-3.1.0.jar" />
-   	</path>
-  </target>
+		<path id="path.antlr">
+			<pathelement path="${basedir}/lib/antlr-2.7.2.jar" />
+		</path>
+
+		<path id="path.wrapper">
+			<path refid="path.base" />
+			<pathelement location="${lib}/wrapper-3.1.0.jar" />
+		</path>
+		
+		<macrodef name="jacorb-antlr">
+			<attribute name="source" />
+			<attribute name="todir" default="${src}/generated" />
+			<attribute name="package" />
+			
+			<sequential>
+				<java classname="antlr.Tool" fork="yes" failonerror="yes"
+				      classpathref="path.antlr" >
+							<arg line="-o @{todir}/@{package} @{source}" />
+				</java>
+			</sequential>
+		</macrodef>
+	</target>
+
+	<!-- This is the default target. It depends upon the private init       -->
+	<!-- (which depends upon the common init). It calls the wrapper so that -->
+	<!-- we can drop out if regexp is not available.                        -->
+	<target name="all" depends="notification.init" description="Compile the notification">
+		<antcall target="all-wrapper" inheritRefs="true"/>
+	</target>
 
 
-  <!-- This is the default target. It depends upon the private init       -->
-  <!-- (which depends upon the common init). It calls the wrapper so that -->
-  <!-- we can drop out if regexp is not available.                        -->
-  <target name="all" depends="notification.init" description="Compile the notification">
-     <antcall target="all-wrapper" inheritRefs="true"/>
-  </target>
-
-
-  <target name="all-fail" unless="regexp.available">
-    <echo>
+	<target name="all-fail" unless="regexp.available">
+		<echo>
       A Patternmatcher is necessary to build and use this
       NotificationService. Use JDK 1.4 or install Jakarta
       Regexp or gnu.regexp
@@ -55,150 +69,171 @@
       Jakarta Regexp is available at http://jakarta.apache.org/regexp
       gnu.regexp is available at http://www.cacas.org/java/gnu/regexp
     </echo>
-  </target>
+	</target>
 
 
-  <target name="all-wrapper" if="regexp.available" depends="all-fail">
-    <antcall target="etcl" inheritRefs="true"/>
-    <antcall target="server" inheritRefs="true"/>
-  </target>
+	<target name="all-wrapper" if="regexp.available" depends="all-fail">
+		<antcall target="etcl" inheritRefs="true"/>
+		<antcall target="jmx" inheritRefs="true" />
+		<antcall target="server" inheritRefs="true"/>
+	</target>
 
 
-  <!-- ====== -->
-  <!-- Parser -->
-  <!-- ====== -->
-  <target name="etcl" description="Generate ETCL Parser" depends="notification.init, etcl.depend, etcl.generate, etcl.compile" />
+	<!-- ====== -->
+	<!-- ETCL Parser -->
+	<!-- ====== -->
+	<target name="etcl" description="Generate ETCL Parser" depends="notification.init, etcl.depend, etcl.generate" />
 
-
-  <!-- check if parser needs to be generated -->
-  <target name="etcl.depend">
-    <uptodate property = "etcl.generate.notRequired"
-      targetfile="${src}/generated/${etcl.target.package}/TCLParser.java" >
-      <srcfiles dir="${etcl.grammar.dir}" includes="**/*.g" />
-    </uptodate>
-  </target>
-
-
-  <!-- generate parser -->
-  <target name="etcl.generate" unless="etcl.generate.notRequired" >
-    <delete>
-      <fileset dir="${src}/generated/${etcl.target.package}" includes="*.java, *.txt" />
-    </delete>
-
-    <copy file="${etcl.grammar.dir}/CommonTokenTypes.txt"
-      todir="${src}/generated/${etcl.target.package}" />
-
-    <java classname="antlr.Tool"  fork="yes" failonerror="yes"
-          classpathref="antlr.classpath" >
-      <arg line="-o ${src}/generated/${etcl.target.package} ${etcl.grammar.dir}/tcl-lexer.g" />
-    </java>
-
-    <java classname="antlr.Tool" fork="yes" failonerror="yes"
-          classpathref="antlr.classpath" >
-      <arg line="-o ${src}/generated/${etcl.target.package} ${etcl.grammar.dir}/comp-lexer.g" />
-    </java>
-
-    <echo message="*****************************************************************" />
-    <echo message="* The Warnings 'Redefinition of token in tokens {...}: TOKEN'   *" />
-    <echo message="* can be ignored. Unfortunately there is no way to disable them *" />
-    <echo message="*****************************************************************" />
-
-    <java classname="antlr.Tool" fork="yes" failonerror="yes" classpathref="antlr.classpath" >
-      <arg line="-o ${src}/generated/${etcl.target.package} ${etcl.grammar.dir}/tcl.g" />
-    </java>
-
-    <!-- didn't like the optional antlr task -->
-    <!--
-    <antlr
-    outputdirectory="${src}/generated/${antlr.target.package}"
-    target="${grammar.dir}/tcl.g" />
-    -->
-  </target>
-
-
-  <!-- compile generated parser and AST Classes -->
-  <target name="etcl.compile" depends="notification.init">
-    <jacorb-javac
-      javac-src="${src}/generated"
-      javac-includes="${etcl.target.package}/*.java" />
-
-    <jacorb-javac
-      javac-includes="${etcl.target.package}/*.java" />
-  </target>
-
-
-  <target name="server" depends="notification.compile.regexp">
-    <jacorb-javac
-      javac-includes="org/jacorb/notification/**/*.java"
-      javac-excludes="org/jacorb/notification/util/*PatternWrapper.java,
-                      org/jacorb/notification/WrapperMain.java,
-	                  org/jacorb/notification/filter/bsh/**,
-      	              org/jacorb/notification/jmx/**" />
+	<!-- check if parser needs to be generated -->
+	<target name="etcl.depend">
+		<uptodate property = "etcl.generate.notRequired"
+      		targetfile="${src}/generated/${etcl.target.package}/TCLParser.java" >
+			<srcfiles dir="${dir.etcl.grammar}" includes="**/*.g" />
+		</uptodate>
+	</target>
 	
-    <jacorb-javac 
-	  javac-classpathref="path.wrapper"
-      javac-includes="org/jacorb/notification/WrapperMain.java" />
-  </target>
+	<!-- generate parser -->
+	<target name="etcl.generate" unless="etcl.generate.notRequired" >
+		<delete>
+			<fileset dir="${src}/generated/${etcl.target.package}" includes="*.java, *.txt" />
+		</delete>
+
+		<copy file="${dir.etcl.grammar}/CommonTokenTypes.txt"
+      		todir="${src}/generated/${etcl.target.package}" />
+
+		<jacorb-antlr package="${etcl.target.package}" source="${dir.etcl.grammar}/tcl-lexer.g" />
+		<jacorb-antlr package="${etcl.target.package}" source="${dir.etcl.grammar}/comp-lexer.g" />
+		
+		<echo message="*****************************************************************" />
+		<echo message="* The Warnings 'Redefinition of token in tokens {...}: TOKEN'   *" />
+		<echo message="* can be ignored. Unfortunately there is no way to disable them *" />
+		<echo message="*****************************************************************" />
+
+		<jacorb-antlr package="${etcl.target.package}" source="${dir.etcl.grammar}/tcl.g" />
+	</target>
+
+	
+	<target name="jmx" 
+		depends="check-jmx, xdoclet.init-jmx, jmx.mbean, jmx.mx4j, jmx.jboss" 
+		description="Generate JMX Interfaces" />
+
+	<target name="jmx.mbean">
+		<jacorb-jmxgen>
+			<files>
+				<include name="org/jacorb/notification/**/*.java" />
+			</files>
+			
+			<tasks>
+				<!-- Create the {0}MBean interface for the MBean -->
+				<mbeaninterface/>
+			</tasks>
+		</jacorb-jmxgen>
+	</target>
+	
+	<target name="jmx.mx4j" if="available.mx4j" >
+		<jacorb-jmxgen>
+			<files>
+				<include name="org/jacorb/notification/**/*.java" />
+				<exclude name="org/jacorb/notification/jmx/jboss/**" />
+			</files>
+			
+			<tasks>
+				<!-- Create the MX4J specific description adaptor class for the MBean -->
+				<mx4jdescription />
+			</tasks>
+		</jacorb-jmxgen>
+	</target>
+	
+	<target name="jmx.jboss" >
+		<jacorb-jmxgen>
+			<files>
+				<include name="org/jacorb/notification/**/*.java" />
+				<exclude name="org/jacorb/notification/jmx/mx4j/**" />
+			</files>
+					
+			<tasks>
+				<!-- Create the JBoss specific XML descriptions for the MBean -->
+				<jbossxmbean destdir="${src}/generated" />
+			</tasks>
+		</jacorb-jmxgen>
+	</target>
+
+	<target name="server" depends="notification.compile.regexp">
+		<jacorb-javac
+      		javac-includes="org/jacorb/notification/**/*.java"
+      		javac-excludes="org/jacorb/notification/util/*PatternWrapper.java,
+                      	org/jacorb/notification/WrapperMain.java,
+	                  	org/jacorb/notification/filter/bsh/**,
+      	              	org/jacorb/notification/jmx/**" />
+
+		<jacorb-javac javac-classpathref="path.wrapper"
+      				 javac-includes="org/jacorb/notification/WrapperMain.java" />
+	</target>
 
 
-  <target name="notification.compile.regexp" 
-    depends="notification.init,
-             notification.compile.regexp.gnu, 
-             notification.compile.regexp.jakarta-regexp,
-             notification.compile.regexp.jdk"/>
+	<target name="notification.compile.regexp" 
+    		depends="notification.init,
+             	notification.compile.regexp.gnu, 
+             	notification.compile.regexp.jakarta-regexp,
+             	notification.compile.regexp.jdk"/>
 
 
-  <target name="notification.compile.regexp.gnu" if="available.regexp.gnu">
-    <echo message="Compiling for gnu.regexp (pre JDK 1.4)" />
-    <jacorb-javac
-      javac-includes="org/jacorb/notification/util/PatternWrapper.java,
-                      org/jacorb/notification/util/GNUPatternWrapper.java" />
-  </target>
+	<target name="notification.compile.regexp.gnu" if="available.regexp.gnu">
+		<echo message="Compiling for gnu.regexp (pre JDK 1.4)" />
+		<jacorb-javac
+      		javac-includes="org/jacorb/notification/util/PatternWrapper.java,
+                      	org/jacorb/notification/util/GNUPatternWrapper.java" />
+	</target>
 
 
-  <target name="notification.compile.regexp.jdk" if="available.regexp.jdk">
-    <echo message="Compiling for java.util.regexp (JDK 1.4+)" />
-    <jacorb-javac
-      javac-includes="org/jacorb/notification/util/PatternWrapper.java,
+	<target name="notification.compile.regexp.jdk" if="available.regexp.jdk">
+		<echo message="Compiling for java.util.regexp (JDK 1.4+)" />
+		<jacorb-javac
+      		javac-includes="org/jacorb/notification/util/PatternWrapper.java,
                       org/jacorb/notification/util/JDK14PatternWrapper.java"/>
+	</target>
 
-  </target>
 
-  
-  <target name="notification.compile.regexp.jakarta-regexp"
-    if="available.regexp.jakarta-regexp" >
-    
-    <echo message="Compiling for org.apache.regexp (Jakarta Regexp)" />
-    <jacorb-javac 
-      javac-includes="org/jacorb/notification/util/PatternWrapper.java,
+	<target name="notification.compile.regexp.jakarta-regexp"
+    			if="available.regexp.jakarta-regexp" >
+
+		<echo message="Compiling for org.apache.regexp (Jakarta Regexp)" />
+		<jacorb-javac 
+      		javac-includes="org/jacorb/notification/util/PatternWrapper.java,
 	                  org/jacorb/notification/util/JakartaRegexpPatternWrapper.java" />
-    
-  </target>
+	</target>
 
 
-  <!-- clean -->
-  <target name="clean"
-    depends="init, clean.classes"
-    description="Erase all generated Artifacts">
-  </target>
+	<!-- clean -->
+	<target name="clean"
+    			depends="init, clean.classes"
+    			description="Erase all compiled classes">
+	</target>
 
 
-  <target name="realclean" depends="clean, clean.antlr" />
+	<target name="realclean" 
+		depends="clean, clean.generated" 
+		description="erase all compiled classes and all generated files" />
 
+	<target name="clean.classes">
+		<delete>
+			<fileset dir="${classdir}"
+         includes="org/jacorb/notification/**" />
+		</delete>
+	</target>
 
-  <target name="clean.classes">
-    <delete>
-      <fileset dir="${classdir}"
-         includes="org/jacorb/notification/**/*.*" />
-    </delete>
-  </target>
+	<target name="clean.generated">
+		<delete>
+			<fileset dir="${src}/generated"
+        				includes="org/jacorb/notification/**" />
+		</delete>
+	</target>
 
-
-  <target name="clean.antlr">
-    <delete>
-      <fileset dir="${src}/generated"
-        includes="org/jacorb/notification/**/*.*" />
-    </delete>
-  </target>
-
+	<target name="jar" depends="init" description="Build a JAR that only contains the NotificationService">
+		<jar destfile="${lib}/jacorb-notification.jar">
+			<fileset dir="${classdir}" >
+				<include name="org/jacorb/notification/**/*.class"/>
+			</fileset>
+		</jar>
+	</target>
 </project>

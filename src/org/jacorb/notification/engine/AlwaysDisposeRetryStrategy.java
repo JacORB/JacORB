@@ -33,7 +33,7 @@ public class AlwaysDisposeRetryStrategy extends AbstractRetryStrategy
     {
         super(pushSupplier, operation);
     }
-    
+
     protected long getTimeToWait()
     {
         return 0;
@@ -41,7 +41,11 @@ public class AlwaysDisposeRetryStrategy extends AbstractRetryStrategy
 
     protected void retryInternal() throws RetryException
     {
-        pushSupplier_.destroy();
+        if (!pushSupplier_.isDestroyed())
+        {
+            pushSupplier_.destroy();
+        }
+        
         dispose();
     }
 }

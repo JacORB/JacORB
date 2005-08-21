@@ -32,12 +32,19 @@ public abstract class EventQueueOverflowStrategy
 {
     public abstract Message removeElementFromQueue( AbstractBoundedEventQueue queue );
 
+    public abstract String getDiscardPolicyName();
+    
     public static final EventQueueOverflowStrategy FIFO =
         new EventQueueOverflowStrategy()
         {
             public Message removeElementFromQueue( AbstractBoundedEventQueue queue )
             {
                 return queue.getOldestElement();
+            }
+            
+            public String getDiscardPolicyName()
+            {
+                return "FifoOrder";
             }
         };
 
@@ -48,6 +55,11 @@ public abstract class EventQueueOverflowStrategy
             {
                 return queue.getYoungestElement();
             }
+            
+            public String getDiscardPolicyName()
+            {
+                return "LifoOrder";
+            }
         };
 
     public static final EventQueueOverflowStrategy LEAST_PRIORITY =
@@ -57,6 +69,11 @@ public abstract class EventQueueOverflowStrategy
             {
                 return queue.getLeastPriority();
             }
+            
+            public String getDiscardPolicyName()
+            {
+               return "PriorityOrder";
+            }
         };
 
     public static final EventQueueOverflowStrategy EARLIEST_TIMEOUT =
@@ -65,6 +82,11 @@ public abstract class EventQueueOverflowStrategy
             public Message removeElementFromQueue( AbstractBoundedEventQueue queue )
             {
                 return queue.getEarliestTimeout();
+            }
+            
+            public String getDiscardPolicyName()
+            {
+                return "TimeoutOrder";
             }
         };
 }

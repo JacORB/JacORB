@@ -144,7 +144,7 @@ public abstract class AbstractFilterTask extends AbstractMessageTask
         arrayCurrentFilterStage_ = EMPTY_FILTERSTAGE;        
     }
 
-    public void handleTaskError(AbstractTask task, Throwable error)
+    public void handleTaskError(AbstractTask task, Exception error)
     {
         logger_.fatalError("Error while Filtering in Task:" + task, error);
     }

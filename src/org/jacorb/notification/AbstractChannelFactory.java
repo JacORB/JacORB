@@ -23,6 +23,7 @@ package org.jacorb.notification;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.AdminPropertySet;
+import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.QoSPropertySet;
 import org.omg.CORBA.Any;
@@ -47,6 +49,9 @@ import org.omg.CORBA.UserException;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContext;
 import org.omg.CosNaming.NamingContextHelper;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNotification.BestEffort;
 import org.omg.CosNotification.ConnectionReliability;
 import org.omg.CosNotification.EventReliability;
@@ -62,8 +67,6 @@ import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoContainer;
-import org.picocontainer.defaults.ComponentAdapterFactory;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
@@ -81,7 +84,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         void shutdownComplete();
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     private static final String STANDARD_IMPL_NAME = "JacORB-NotificationService";
 
@@ -89,7 +92,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
     private static final String EVENTCHANNEL_FACTORY_POA_NAME = "EventChannelFactoryPOA";
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     private NameComponent[] registeredName_ = null;
 
@@ -106,11 +109,9 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         }
     };
 
-    /////////
+    // ///////
 
     protected final MutablePicoContainer container_;
-
-    protected final ComponentAdapterFactory componentAdapterFactory_;
 
     protected final Configuration config_;
 
@@ -124,34 +125,55 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
     private final POA eventChannelFactoryPOA_;
 
+    private final byte[] oid_;
+    
     private final ChannelManager channelManager_ = new ChannelManager();
 
     private final SynchronizedInt eventChannelIDPool_ = new SynchronizedInt(-1);
 
-    ////////////////////////////////////////
+    private final DisposableManager disposableManager_ = new DisposableManager();
 
-    protected AbstractChannelFactory(PicoContainer container, final ORB orb) throws UserException
+    // //////////////////////////////////////
+
+    protected AbstractChannelFactory(final MutablePicoContainer container, final ORB orb)
+            throws UserException
     {
         container_ = PicoContainerFactory.createRootContainer(container, (org.jacorb.orb.ORB) orb);
 
-        config_ = (Configuration) container_.getComponentInstance(Configuration.class);
+        if (container != null)
+        {
+            disposableManager_.addDisposable(new Disposable()
+            {
+                public void dispose()
+                {
+                    container.removeChildContainer(container_);
+                }
+            });
+        }
+        
+        disposableManager_.addDisposable(new Disposable() {
+            public void dispose()
+            {
+                POA _poa = (POA) container_.getComponentInstanceOfType(POA.class);
+                _poa.destroy(false, true);
+            }
+        });
+
+        config_ = (Configuration) container_.getComponentInstanceOfType(Configuration.class);
 
         logger_ = ((org.jacorb.config.Configuration) config_).getNamedLogger(getClass().getName());
 
-        componentAdapterFactory_ = (ComponentAdapterFactory) container_
-                .getComponentInstance(ComponentAdapterFactory.class);
-
-        POA _rootPOA = (POA) container_.getComponentInstance(POA.class);
+        POA _rootPOA = (POA) container_.getComponentInstanceOfType(POA.class);
 
         List _ps = new ArrayList();
-        
-        _ps.add(_rootPOA
-                .create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID));
-        
+
+        _ps.add(_rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID));
+
         BiDirGiopPOAComponentAdapter.addBiDirGiopPolicy(_ps, orb, config_);
-        
-        org.omg.CORBA.Policy[] _policies = (org.omg.CORBA.Policy[]) _ps.toArray(new org.omg.CORBA.Policy[_ps.size()]);
-        
+
+        org.omg.CORBA.Policy[] _policies = (org.omg.CORBA.Policy[]) _ps
+                .toArray(new org.omg.CORBA.Policy[_ps.size()]);
+
         eventChannelFactoryPOA_ = _rootPOA.create_POA(EVENTCHANNEL_FACTORY_POA_NAME, _rootPOA
                 .the_POAManager(), _policies);
 
@@ -160,28 +182,29 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             _policies[x].destroy();
         }
 
+        // todo move upwards
         _rootPOA.the_POAManager().activate();
 
-        byte[] oid = (getObjectName().getBytes());
+        oid_ = (getObjectName().getBytes());
 
-        eventChannelFactoryPOA_.activate_object_with_id(oid, getServant());
+        eventChannelFactoryPOA_.activate_object_with_id(oid_, getServant());
 
-        thisRef_ = eventChannelFactoryPOA_.id_to_reference(oid);
+        thisRef_ = eventChannelFactoryPOA_.id_to_reference(oid_);
 
         if (logger_.isDebugEnabled())
         {
-            logger_.debug("activated EventChannelFactory with OID '" + new String(oid) + "' on '"
+            logger_.debug("activated EventChannelFactory with OID '" + new String(oid_) + "' on '"
                     + eventChannelFactoryPOA_.the_name() + "'");
         }
 
-        ior_ = orb.object_to_string(eventChannelFactoryPOA_.id_to_reference(oid));
+        ior_ = orb.object_to_string(eventChannelFactoryPOA_.id_to_reference(oid_));
 
         corbaLoc_ = createCorbaLoc();
 
         ((org.jacorb.orb.ORB) orb).addObjectKey(getShortcut(), ior_);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     protected abstract AbstractEventChannel newEventChannel() throws ConfigurationException;
 
@@ -194,7 +217,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
     protected abstract Servant getServant();
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     protected int getLocalPort()
     {
@@ -242,8 +265,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
     {
         try
         {
-            eventChannelFactoryPOA_.deactivate_object(eventChannelFactoryPOA_
-                    .servant_to_id(getServant()));
+            eventChannelFactoryPOA_.deactivate_object(oid_);
         } catch (Exception e)
         {
             logger_.fatalError("unable to deactivate object", e);
@@ -251,7 +273,6 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             throw new RuntimeException();
         }
     }
-
 
     protected Configuration getConfiguration()
     {
@@ -268,11 +289,13 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             logger_.error("unable to unregister NameService registration", e);
         }
 
+        deactivate();
+        
         channelManager_.dispose();
-
+        
         container_.dispose();
-
-        getORB().shutdown(true);
+        
+        disposableManager_.dispose();
     }
 
     protected void addToChannels(int id, AbstractEventChannel channel)
@@ -431,7 +454,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
                 destroyMethod_.run();
             }
         };
-        
+
         _shutdown.start();
     }
 
@@ -476,7 +499,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
         logger_.info("NotificationService is going down");
 
-        dispose();
+        destroyMethod_.run();
 
         logger_.info("NotificationService down");
 
@@ -493,8 +516,8 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         return corbaLoc_;
     }
 
-    private static AbstractChannelFactory newChannelFactory(PicoContainer container, ORB orb,
-            boolean typed) throws UserException
+    private static AbstractChannelFactory newChannelFactory(MutablePicoContainer container,
+            ORB orb, boolean typed) throws UserException
     {
         if (typed)
         {
@@ -504,7 +527,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         return new EventChannelFactoryImpl(container, orb);
     }
 
-    public static AbstractChannelFactory newFactory(PicoContainer container, final ORB orb,
+    private static AbstractChannelFactory newFactory(MutablePicoContainer container, final ORB orb,
             boolean startThread, Properties props) throws Exception
     {
         AbstractChannelFactory _factory = newChannelFactory(container, orb, "on".equals(props
@@ -517,7 +540,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
         _factory.printCorbaLoc(props);
 
-        _factory.writeFile(props);
+        _factory.writeIOR(props);
 
         _factory.registerName(props);
 
@@ -538,43 +561,50 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             _orbThread.setDaemon(false);
 
             _orbThread.start();
+            
+            _factory.disposableManager_.addDisposable(new Disposable() {
+                public void dispose() {
+                    orb.shutdown(true);
+                }
+            });
         }
 
         return _factory;
     }
 
-    public static AbstractChannelFactory newFactory(final ORB orb, boolean startThread,
-            Properties props) throws Exception
-    {
-        return newFactory(null, orb, startThread, props);
-    }
-
-    public static AbstractChannelFactory newFactory(PicoContainer container, Properties props)
+    public static AbstractChannelFactory newFactory(ORB optionalORB, MutablePicoContainer optionalContainer, Properties props)
             throws Exception
     {
         props.put("jacorb.implname", STANDARD_IMPL_NAME);
 
-        ORB _orb = ORB.init(new String[] {}, props);
-
-        AbstractChannelFactory factory = newFactory(container, _orb, true, props);
-
-        // factory.startChannels(1);
+        final ORB _orb;
+        if (optionalORB != null)
+        {
+            _orb = optionalORB;
+        }
+        else
+        {
+            _orb = ORB.init(new String[] {}, props);
+        }
+        
+        AbstractChannelFactory factory = newFactory(optionalContainer, _orb, (optionalORB == null), props);
 
         return factory;
     }
 
     public static AbstractChannelFactory newFactory(Properties props) throws Exception
     {
-        return newFactory(null, props);
+        return newFactory(null, null, props);
     }
 
-    private void registerName(Properties props) throws Exception
+    public void registerName(Properties props) throws Exception
     {
         registerName(props.getProperty(Attributes.REGISTER_NAME_ID), props.getProperty(
                 Attributes.REGISTER_NAME_KIND, ""));
     }
 
-    private synchronized void registerName(String nameId, String nameKind) throws Exception
+    public synchronized void registerName(String nameId, String nameKind) throws NotFound,
+            CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName
     {
         if (nameId == null)
         {
@@ -584,18 +614,11 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         namingContext_ = NamingContextHelper.narrow(getORB().resolve_initial_references(
                 "NameService"));
 
-        if (namingContext_ == null)
-        {
-            throw new ConfigurationException("could not resolve initial reference 'NameService'");
-        }
-
         NameComponent[] _name = new NameComponent[] { new NameComponent(nameId, nameKind) };
 
         if (logger_.isInfoEnabled())
         {
-            logger_.info("namingContext.rebind(" + nameId
-                    + ((nameKind != null && nameKind.length() > 0) ? ("." + nameKind) : "")
-                    + " => " + getCorbaLoc() + ")");
+            logger_.info("namingContext.rebind(" + format(_name) + " => " + getCorbaLoc() + ")");
         }
 
         namingContext_.rebind(_name, thisRef_);
@@ -603,16 +626,46 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         registeredName_ = _name;
     }
 
-    private synchronized void unregisterName() throws Exception
+    public synchronized void unregisterName() throws NotFound, CannotProceed, InvalidName
     {
         if (namingContext_ != null)
         {
             if (registeredName_ != null)
             {
+                logger_.info("namingContext.unbind(" + format(registeredName_) + ")");
+
                 namingContext_.unbind(registeredName_);
 
                 registeredName_ = null;
             }
+        }
+    }
+
+    private static String format(NameComponent[] name)
+    {
+        StringBuffer b = new StringBuffer();
+
+        for (int i = 0; i < name.length; ++i)
+        {
+            if (i != 0)
+            {
+                b.append('/');
+            }
+
+            format(name[i], b);
+        }
+
+        return b.toString();
+    }
+
+    private static void format(NameComponent name, StringBuffer b)
+    {
+        b.append(name.id);
+
+        if (name.kind != null)
+        {
+            b.append('.');
+            b.append(name.kind);
         }
     }
 
@@ -649,27 +702,34 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         }
     }
 
-    private void writeFile(Properties props)
+    private void writeIOR(Properties props) throws IOException
     {
         String _iorFileName = (String) props.get(Attributes.IOR_FILE);
 
         if (_iorFileName != null)
         {
-            try
-            {
-                PrintWriter out = new PrintWriter(new FileWriter(_iorFileName));
-                try
-                {
-                    out.println(getIOR());
-                    out.flush();
-                } finally {
-                    out.close();
-                }
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            writeIOR(_iorFileName);
         }
+    }
+
+    public void writeIOR(String fileName) throws IOException
+    {
+        FileWriter out = new FileWriter(fileName);
+
+        try
+        {
+            writeIOR(out);
+            out.flush();
+        } finally
+        {
+            out.close();
+        }
+    }
+
+    private void writeIOR(Writer out)
+    {
+        PrintWriter writer = new PrintWriter(out);
+        writer.println(getIOR());
     }
 
     public POA _default_POA()
@@ -681,7 +741,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
     {
         final MutablePicoContainer _channelContainer = PicoContainerFactory
                 .createChildContainer(container_);
-    
+
         // create identifier
         final int _channelID = createChannelIdentifier();
         IFactory _factory = new IFactory()
@@ -690,18 +750,18 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             {
                 return _channelContainer;
             }
-    
+
             public int getChannelID()
             {
                 return _channelID;
             }
-    
+
             public void destroy()
             {
                 container_.removeChildContainer(_channelContainer);
             }
         };
-        
+
         _channelContainer.registerComponentInstance(IFactory.class, _factory);
         return _channelContainer;
     }

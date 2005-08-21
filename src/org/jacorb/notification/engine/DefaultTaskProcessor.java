@@ -28,9 +28,10 @@ import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.interfaces.IProxyPushSupplier;
+import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
+import org.jacorb.notification.util.DisposableManager;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
 
@@ -38,11 +39,14 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 
 /**
+ * @jmx.mbean 
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class DefaultTaskProcessor implements TaskProcessor, Disposable
+public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManageable, DefaultTaskProcessorMBean
 {
     private class TimeoutTask implements Runnable, Message.MessageStateListener
     {
@@ -129,7 +133,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
     /**
      * TaskExecutor used to invoke match-Operation on filters
      */
-    private TaskExecutor matchTaskExecutor_;
+    private TaskExecutor filterTaskExecutor_;
 
     /**
      * TaskExecutor used to invoke pull-Operation on PullSuppliers.
@@ -146,6 +150,12 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
      */
     private DefaultTaskFactory taskFactory_;
 
+    private final DisposableManager disposables_ = new DisposableManager();
+
+    private int pullWorkerPoolSize_;
+
+    private int filterWorkerPoolSize_;
+    
     // //////////////////////////////////////
 
     /**
@@ -169,16 +179,13 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
 
         logger_.info("create TaskProcessor");
 
-        // create pull worker pool. allow pull workers to die
-        int _pullPoolSize = config.getAttributeAsInteger(Attributes.PULL_POOL_WORKERS,
-                Default.DEFAULT_PULL_POOL_SIZE);
+        pullWorkerPoolSize_ = config.getAttributeAsInteger(Attributes.PULL_POOL_WORKERS,
+                        Default.DEFAULT_PULL_POOL_SIZE);
+        pullTaskExecutor_ = new DefaultTaskExecutor("PullThread", pullWorkerPoolSize_, true);
 
-        pullTaskExecutor_ = new DefaultTaskExecutor("PullThread", _pullPoolSize, true);
-
-        int _filterPoolSize = config.getAttributeAsInteger(Attributes.FILTER_POOL_WORKERS,
-                Default.DEFAULT_FILTER_POOL_SIZE);
-
-        matchTaskExecutor_ = new DefaultTaskExecutor("FilterThread", _filterPoolSize);
+        filterWorkerPoolSize_ = config.getAttributeAsInteger(Attributes.FILTER_POOL_WORKERS,
+                        Default.DEFAULT_FILTER_POOL_SIZE);
+        filterTaskExecutor_ = new DefaultTaskExecutor("FilterThread", filterWorkerPoolSize_);
 
         taskFactory_ = new DefaultTaskFactory(this);
 
@@ -192,7 +199,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
 
     public TaskExecutor getFilterTaskExecutor()
     {
-        return matchTaskExecutor_;
+        return filterTaskExecutor_;
     }
 
     /**
@@ -206,12 +213,14 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
 
         clockDaemon_.shutDown();
 
-        matchTaskExecutor_.dispose();
+        filterTaskExecutor_.dispose();
 
         pullTaskExecutor_.dispose();
 
         taskFactory_.dispose();
 
+        disposables_.dispose();
+        
         logger_.debug("shutdown complete");
     }
 
@@ -284,17 +293,6 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
         _task.schedule();
     }
 
-    /**
-     * Schedule MessageConsumer for a deliver-Operation. Some MessageConsumers (namely
-     * SequenceProxyPushSuppliers) need to push Messages regularely to its connected Consumer.
-     * Schedule a Task to call deliverPendingEvents on the specified MessageConsumer. Also used
-     * after a disabled MessageConsumer is enabled again to push the pending Messages.
-     */
-    public void schedulePushOperation(IProxyPushSupplier pushSupplier) throws InterruptedException
-    {
-        throw new UnsupportedOperationException();
-    }
-
     // //////////////////////////////////////
     // Timer Operations
     // //////////////////////////////////////
@@ -309,8 +307,6 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
 
     public Object executeTaskPeriodically(long intervall, Runnable task, boolean startImmediately)
     {
-        logger_.debug("executeTaskPeriodically");
-
         return getClockDaemon().executePeriodically(intervall, task, startImmediately);
     }
 
@@ -366,5 +362,43 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
         {
             logger_.debug("StructuredEvent: " + e + " has been discarded");
         }
+    }
+
+    public String getJMXObjectName()
+    {
+       return "service=TaskProcessor";
+    }
+
+    public void registerDisposable(Disposable disposable)
+    {
+        disposables_.addDisposable(disposable);
+    }
+    
+    public String[] getJMXNotificationTypes()
+    {
+        return null;
+    }
+    
+    public void setJMXCallback(JMXCallback callback)
+    {
+        // no notifications yet
+    }
+
+    /**
+     * @jmx.managed-attribute description = "FilterPoolWorkers are used to invoke the Filters attached to Proxies and Admins"
+     *                        access = "read-only"
+     */
+    public int getFilterWorkerPoolSize()
+    {
+        return filterWorkerPoolSize_;
+    }
+
+    /**
+     * @jmx.managed-attribute description = "PullWorkers are used to invoke try_pull on PushSupplier-Clients"
+     *                        access = "read-only"
+     */
+    public int getPullWorkerPoolSize()
+    {
+        return pullWorkerPoolSize_;
     }
 }

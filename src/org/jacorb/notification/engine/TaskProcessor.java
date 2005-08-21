@@ -21,7 +21,6 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.interfaces.IProxyPushSupplier;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
 
@@ -29,7 +28,6 @@ import org.jacorb.notification.interfaces.MessageSupplier;
  * @author Alphonse Bendt
  * @version $Id$
  */
-
 
 public interface TaskProcessor
 {
@@ -56,18 +54,7 @@ public interface TaskProcessor
      void scheduleTimedPullTask( MessageSupplier dest )
         throws InterruptedException;
 
-    /**
-     * Schedule MessageConsumer for a deliver-Operation.
-     * Some MessageConsumers (namely SequenceProxyPushSuppliers) need to
-     * push Messages regularely to its
-     * connected Consumer. Schedule a Task to call
-     * deliverPendingEvents on the specified MessageConsumer.
-     * Also used after a disabled MessageConsumer is enabled again to
-     * push the pending Messages.
-     */
-     void schedulePushOperation( IProxyPushSupplier consumer )
-        throws InterruptedException;
-
+  
     ////////////////////////////////////////
     // Timer Operations
     ////////////////////////////////////////
@@ -83,7 +70,4 @@ public interface TaskProcessor
 
 
     Object executeTaskAfterDelay( long delay, Runnable task );
-
-    //    Object executeTaskAt( Date startTime, Runnable task );
-
 }

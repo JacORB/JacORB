@@ -60,7 +60,7 @@ public class PullFromSupplierTask extends AbstractTask
     }
 
 
-    public void handleTaskError(AbstractTask task, Throwable error) {
+    public void handleTaskError(AbstractTask task, Exception error) {
         if (error instanceof Disconnected) {
             target_.destroy();
         }

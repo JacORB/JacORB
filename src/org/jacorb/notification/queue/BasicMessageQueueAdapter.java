@@ -22,6 +22,7 @@
 package org.jacorb.notification.queue;
 
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.queue.MessageQueue.DiscardListener;
 
 /**
  * @author Alphonse Bendt
@@ -147,5 +148,25 @@ public class BasicMessageQueueAdapter implements MessageQueueAdapter
     public String toString()
     {
         return queue_.toString();
+    }
+
+    public String getDiscardPolicyName()
+    {
+        return queue_.getDiscardPolicyName();
+    }
+
+    public String getOrderPolicyName()
+    {
+        return queue_.getOrderPolicyName();
+    }
+
+    public void addDiscardListener(DiscardListener listener)
+    {
+        queue_.addDiscardListener(listener);
+    }
+
+    public void removeDiscardListener(DiscardListener listener)
+    {
+        queue_.removeDiscardListener(listener);
     }
 }

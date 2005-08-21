@@ -61,6 +61,11 @@ public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
 
     ////////////////////////////////////////
 
+    public String getOrderPolicyName()
+    {
+        return "PriorityOrder";
+    }
+    
     private Heap newHeap()
     {
         return new Heap2(maxCapacity_, QueueUtil.DESCENDING_PRIORITY_COMPARATOR);

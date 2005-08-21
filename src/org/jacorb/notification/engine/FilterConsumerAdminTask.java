@@ -114,7 +114,7 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
             boolean _filterForCurrentFilterStageMatched = false;
 
-            if (!arrayCurrentFilterStage_[x].isDisposed())
+            if (!arrayCurrentFilterStage_[x].isDestroyed())
             {
                 _filterForCurrentFilterStageMatched = getMessage().match(arrayCurrentFilterStage_[x]);
             }

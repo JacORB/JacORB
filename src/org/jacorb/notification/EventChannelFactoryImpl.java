@@ -34,10 +34,7 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.PortableServer.Servant;
-import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoContainer;
-import org.picocontainer.defaults.CachingComponentAdapter;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of the
@@ -71,7 +68,7 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
 
     // //////////////////////////////////////
 
-    public EventChannelFactoryImpl(PicoContainer container, ORB orb) throws UserException
+    public EventChannelFactoryImpl(MutablePicoContainer container, ORB orb) throws UserException
     {
         super(container, orb);
 
@@ -143,13 +140,10 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
     {
         final MutablePicoContainer _channelContainer = newContainerForChannel();
 
-        ComponentAdapter _channelComponentAdapter = componentAdapterFactory_
-                .createComponentAdapter(EventChannelImpl.class, EventChannelImpl.class, null);
+        _channelContainer.registerComponentImplementation(AbstractEventChannel.class, EventChannelImpl.class);
 
-        _channelContainer.registerComponent(new CachingComponentAdapter(_channelComponentAdapter));
-
-        EventChannelImpl channel = (EventChannelImpl) _channelContainer
-                .getComponentInstance(EventChannelImpl.class);
+        AbstractEventChannel channel = (AbstractEventChannel) _channelContainer
+                .getComponentInstanceOfType(AbstractEventChannel.class);
 
         return channel;
     }

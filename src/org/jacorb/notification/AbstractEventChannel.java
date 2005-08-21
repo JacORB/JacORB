@@ -31,6 +31,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.FilterStageSource;
+import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.AbstractAdmin;
@@ -55,23 +56,25 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.AdminLimit;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.AdminNotFound;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.defaults.CachingComponentAdapter;
-import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 /**
+ * @jmx.mbean 
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public abstract class AbstractEventChannel implements Disposable, ManageableServant
+public abstract class AbstractEventChannel implements ManageableServant, JMXManageable
 {
     /**
      * This key is reserved for the default supplier admin and the default consumer admin.
@@ -89,12 +92,12 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
     protected final Configuration configuration_;
 
     /**
-     * max number of Suppliers that may be connected at a time to this Channel
+     * max number of Suppliers that may be connected at a time to this Channel (0=unlimited)
      */
     private final SynchronizedInt maxNumberOfSuppliers_ = new SynchronizedInt(0);
 
     /**
-     * max number of Consumers that may be connected at a time to this Channel
+     * max number of Consumers that may be connected at a time to this Channel (0=unlimited)
      */
     private final SynchronizedInt maxNumberOfConsumers_ = new SynchronizedInt(0);
 
@@ -144,8 +147,6 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
      */
     private final SynchronizedInt numberOfSuppliers_ = new SynchronizedInt(0);
 
-    protected boolean duringConstruction_ = true;
-
     private final ProxyEventListener proxyConsumerEventListener_ = new ProxyEventListener()
     {
         public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
@@ -188,6 +189,8 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
 
     private final SynchronizedBoolean destroyed_ = new SynchronizedBoolean(false);
 
+    private JMXManageable.JMXCallback jmxCallback_;
+
     ////////////////////////////////////////
 
     public AbstractEventChannel(IFactory factory, ORB orb, POA poa, Configuration config,
@@ -205,13 +208,10 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
 
         logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
 
-        container_.registerComponent(new CachingComponentAdapter(
-                new ConstructorInjectionComponentAdapter(SubscriptionManager.class,
-                        SubscriptionManager.class)));
+        container_.registerComponentImplementation(SubscriptionManager.class);
 
-        container_.registerComponent(new CachingComponentAdapter(
-                new ConstructorInjectionComponentAdapter(OfferManager.class, OfferManager.class)));
-
+        container_.registerComponentImplementation(OfferManager.class);
+        
         adminSettings_ = new AdminPropertySet(configuration_);
 
         qosSettings_ = new QoSPropertySet(configuration_, QoSPropertySet.CHANNEL_QOS);
@@ -292,15 +292,6 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
     private void removeSupplier()
     {
         numberOfSuppliers_.decrement();
-    }
-
-    public final int getAdminID()
-    {
-        if (duringConstruction_)
-        {
-            return 0;
-        }
-        return adminIdPool_.increment();
     }
 
     protected final boolean isDefaultConsumerAdminActive()
@@ -417,6 +408,8 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
 
     /**
      * destroy this Channel, all created Admins and all Proxies.
+     * 
+     * @jmx.managed-operation description = "Destroy this Channel" impact = "ACTION"
      */
     public final void destroy()
     {
@@ -470,11 +463,19 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
         return numberOfConsumers_.get() + numberOfSuppliers_.get();
     }
 
+    /**
+     * @jmx.managed-attribute description = "maximum number of suppliers that are allowed at a time"
+     *                        access = "read-only"
+     */
     public final int getMaxNumberOfSuppliers()
     {
         return maxNumberOfSuppliers_.get();
     }
 
+    /**
+     * @jmx.managed-attribute description = "maximum number of consumers that are allowed at a time"
+     *                        access = "read-only"
+     */
     public final int getMaxNumberOfConsumers()
     {
         return maxNumberOfConsumers_.get();
@@ -577,7 +578,7 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
     {
         final Integer _key = admin.getID();
 
-        admin.addDisposeHook(new Disposable()
+        admin.registerDisposable(new Disposable()
         {
             public void dispose()
             {
@@ -630,7 +631,7 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
     {
         final Integer _key = admin.getID();
 
-        admin.addDisposeHook(new Disposable()
+        admin.registerDisposable(new Disposable()
         {
             public void dispose()
             {
@@ -737,14 +738,48 @@ public abstract class AbstractEventChannel implements Disposable, ManageableServ
 
     protected abstract AbstractSupplierAdmin newSupplierAdmin(int id);
 
+    /**
+     * @jmx.managed-attribute description="ID that identifies this EventChannel"
+     *                        access = "read-only"
+     */
     public int getID()
     {
         return id_;
     }
 
-    public final void addDisposeHook(Disposable d)
+    public final void registerDisposable(Disposable d)
     {
         disposables_.addDisposable(d);
+    }
+    
+    public String getJMXObjectName()
+    {
+        return "channel=" + getMBeanName();
+    }
+    
+    public final String getMBeanName()
+    {
+        return getMBeanType() + "-" + getID();
+    }
+    
+    protected abstract String getMBeanType();
+    
+    public String[] getJMXNotificationTypes()
+    {
+        return new String[0];
+    }
+    
+    public void setJMXCallback(JMXManageable.JMXCallback callback)
+    {
+        jmxCallback_ = callback;
+    }
+    
+    /**
+     * @jmx.managed-attribute access = "read-only"
+     */
+    public String getIOR()
+    {
+        return container_.getComponentInstanceOfType(EventChannel.class).toString();
     }
 }
 

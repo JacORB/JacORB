@@ -32,14 +32,15 @@ import org.omg.CosEventComm.Disconnected;
  */
 public abstract class AbstractRetryStrategy implements RetryStrategy
 {
-    protected final Logger logger_ = LogUtil.getLogger(getClass().getName());    
+    protected final Logger logger_ = LogUtil.getLogger(getClass().getName());
+
     protected final PushOperation pushOperation_;
 
     protected final IProxyPushSupplier pushSupplier_;
 
     private boolean active_ = true;
-    
-    ////////////////////////////////////////
+
+    // //////////////////////////////////////
 
     public AbstractRetryStrategy(IProxyPushSupplier pushSupplier, PushOperation operation)
     {
@@ -47,7 +48,7 @@ public abstract class AbstractRetryStrategy implements RetryStrategy
         pushOperation_ = operation;
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public void dispose()
     {
@@ -59,13 +60,16 @@ public abstract class AbstractRetryStrategy implements RetryStrategy
         return active_ && pushSupplier_.isRetryAllowed();
     }
 
-    protected void remoteExceptionOccured(Throwable error) throws RetryException
-    { 
+    protected void remoteExceptionOccured(Exception error) throws RetryException
+    {
         logger_.debug("Error during retry", error);
-        
+
         if (isFatalException(error))
         {
-            pushSupplier_.destroy();
+            if (!pushSupplier_.isDestroyed())
+            {
+                pushSupplier_.destroy();
+            }
             active_ = false;
 
             throw new RetryException("fatal exception while retrying push");
@@ -75,7 +79,10 @@ public abstract class AbstractRetryStrategy implements RetryStrategy
 
         if (!isRetryAllowed())
         {
-            pushSupplier_.destroy();
+            if (!pushSupplier_.isDestroyed())
+            {
+                pushSupplier_.destroy();
+            }
             active_ = false;
 
             throw new RetryException("no more retries. giving up.");
@@ -84,7 +91,7 @@ public abstract class AbstractRetryStrategy implements RetryStrategy
         waitUntilNextTry();
     }
 
-    public static boolean isFatalException(Throwable error)
+    public static boolean isFatalException(Exception error)
     {
         if (error instanceof OBJECT_NOT_EXIST)
         {
@@ -94,6 +101,7 @@ public abstract class AbstractRetryStrategy implements RetryStrategy
         {
             return true;
         }
+        
         return false;
     }
 
@@ -106,7 +114,8 @@ public abstract class AbstractRetryStrategy implements RetryStrategy
             waitUntilNextTry();
 
             retryInternal();
-        } else
+        }
+        else
         {
             dispose();
         }

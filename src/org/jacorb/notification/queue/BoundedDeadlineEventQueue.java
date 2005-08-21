@@ -57,6 +57,11 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
 
     ////////////////////////////////////////
 
+    public String getOrderPolicyName()
+    {
+        return "DeadlineOrder";
+    }
+    
     protected Message getNextElement()
     {
         return getEarliestTimeout();

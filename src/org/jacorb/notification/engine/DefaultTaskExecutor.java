@@ -134,7 +134,7 @@ public class DefaultTaskExecutor implements TaskExecutor
         disposeHooks_.dispose();
     }
 
-    public void addDisposeHook(Disposable d)
+    public void registerDisposable(Disposable d)
     {
         disposeHooks_.addDisposable(d);
     }

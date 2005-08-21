@@ -97,7 +97,7 @@ public class ChannelManager implements Disposable
             isChannelsModified_ = true;
         }
 
-        channel.addDisposeHook(new Disposable()
+        channel.registerDisposable(new Disposable()
         {
             public void dispose()
             {
@@ -180,7 +180,7 @@ public class ChannelManager implements Disposable
                         .getValue();
 
                 i.remove();
-                _channel.dispose();
+                _channel.destroy();
             }
         }
 

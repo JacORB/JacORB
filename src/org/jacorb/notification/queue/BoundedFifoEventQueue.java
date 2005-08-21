@@ -53,6 +53,11 @@ public class BoundedFifoEventQueue extends AbstractBoundedEventQueue
         linkedList_ = new LinkedList();
     }
 
+    public String getOrderPolicyName()
+    {
+        return "FifoOrder";
+    }
+    
     public boolean isEmpty()
     {
         return linkedList_.isEmpty();

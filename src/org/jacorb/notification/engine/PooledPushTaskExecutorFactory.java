@@ -21,12 +21,12 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.notification.interfaces.CallbackingDisposable;
+import org.jacorb.notification.interfaces.NotifyingDisposable;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.util.DisposableManager;
 
 public class PooledPushTaskExecutorFactory implements PushTaskExecutorFactory,
-        CallbackingDisposable
+        NotifyingDisposable
 {
     private final PushTaskExecutor executor_;
 
@@ -39,7 +39,7 @@ public class PooledPushTaskExecutorFactory implements PushTaskExecutorFactory,
         executor_ = delegate.newExecutor(this);
     }
 
-    public PushTaskExecutor newExecutor(CallbackingDisposable callbackingDisposable)
+    public PushTaskExecutor newExecutor(NotifyingDisposable callbackingDisposable)
     {
         return executor_;
     }
@@ -49,7 +49,7 @@ public class PooledPushTaskExecutorFactory implements PushTaskExecutorFactory,
         disposableManager_.dispose();
     }
 
-    public void addDisposeHook(Disposable d)
+    public void registerDisposable(Disposable d)
     {
         disposableManager_.addDisposable(d);
     }

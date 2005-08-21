@@ -25,7 +25,7 @@ package org.jacorb.notification.interfaces;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public interface GCDisposable extends CallbackingDisposable
+public interface GCDisposable extends NotifyingDisposable
 {
     void attemptDispose();
 }

@@ -21,9 +21,9 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.notification.interfaces.CallbackingDisposable;
+import org.jacorb.notification.interfaces.NotifyingDisposable;
 
 public interface PushTaskExecutorFactory
 {
-    PushTaskExecutor newExecutor(CallbackingDisposable callbackingDisposable);
+    PushTaskExecutor newExecutor(NotifyingDisposable callbackingDisposable);
 }

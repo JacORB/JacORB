@@ -21,7 +21,7 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.notification.interfaces.CallbackingDisposable;
+import org.jacorb.notification.interfaces.NotifyingDisposable;
 import org.jacorb.notification.interfaces.Disposable;
 
 public class DefaultPushTaskExecutorFactory implements PushTaskExecutorFactory
@@ -33,11 +33,11 @@ public class DefaultPushTaskExecutorFactory implements PushTaskExecutorFactory
         numberOfWorkersPerExecutor_ = numberOfWorkersPerExecutor;
     }
     
-    public PushTaskExecutor newExecutor(CallbackingDisposable callbackingDisposable)
+    public PushTaskExecutor newExecutor(NotifyingDisposable callbackingDisposable)
     {
         final PushTaskExecutor executor = new DefaultPushTaskExecutor(numberOfWorkersPerExecutor_);
 
-        callbackingDisposable.addDisposeHook(new Disposable()
+        callbackingDisposable.registerDisposable(new Disposable()
         {
             public void dispose()
             {

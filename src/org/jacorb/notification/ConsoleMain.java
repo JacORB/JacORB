@@ -36,6 +36,7 @@ public class ConsoleMain
         System.out.println("Usage: ntfy [-printIOR] [-printCorbaloc] " + "[-writeIOR <filename>] "
                 + "[-registerName <nameId>[.<nameKind>]] "
                 + "[-port <oaPort>] [-channels <channels>] [-help]");
+        
         System.exit(0);
     }
 
@@ -47,12 +48,12 @@ public class ConsoleMain
 
         public boolean getDoHelp()
         {
-            return (doHelp);
+            return doHelp;
         }
 
         public Properties getProps()
         {
-            return (props);
+            return props;
         }
 
         CmdLineParser(String[] args)
@@ -95,25 +96,7 @@ public class ConsoleMain
                     {
                         String name = args[++i];
 
-                        int index = name.indexOf(".");
-
-                        if (name.lastIndexOf(".") != index)
-                        {
-                            throw new IllegalArgumentException(name
-                                    + ": argument to -registerName should be "
-                                    + "<nameId> or <nameId>.<nameKind>");
-                        }
-
-                        if (index != -1)
-                        {
-                            props.put(Attributes.REGISTER_NAME_ID, name.substring(0, index));
-
-                            props.put(Attributes.REGISTER_NAME_KIND, name.substring(index + 1));
-                        }
-                        else
-                        {
-                            props.put(Attributes.REGISTER_NAME_ID, name);
-                        }
+                        addCOSNamingName(props, name);
                     }
                     else if (args[i].equals("-typed"))
                     {
@@ -133,8 +116,41 @@ public class ConsoleMain
         }
     }
 
+    public static void addCOSNamingName(Properties props, String name)
+    {
+        int index = name.indexOf(".");
+        if (name.lastIndexOf(".") != index)
+        {
+            throw new IllegalArgumentException(name
+                    + ": argument to -registerName should be "
+                    + "<nameId> or <nameId>.<nameKind>");
+        }
+        if (index != -1)
+        {
+            props.put(Attributes.REGISTER_NAME_ID, name.substring(0, index));
+
+            props.put(Attributes.REGISTER_NAME_KIND, name.substring(index + 1));
+        }
+        else
+        {
+            props.put(Attributes.REGISTER_NAME_ID, name);
+        }
+    }
+    
     public static AbstractChannelFactory newFactory(String[] args) throws Exception
     {
+        Properties props = parseProperties(args);
+        
+        return AbstractChannelFactory.newFactory(props);
+    }
+
+    public static Properties parseProperties(String[] args)
+    {
+        if (args == null)
+        {
+            return new Properties();
+        }
+        
         CmdLineParser _cmdLineParser = new CmdLineParser(args);
 
         if (_cmdLineParser.getDoHelp())
@@ -143,14 +159,10 @@ public class ConsoleMain
 
             System.exit(0);
         }
-
-        Properties props = _cmdLineParser.getProps();
-
-        AbstractChannelFactory _factory = AbstractChannelFactory.newFactory(props);
-
-        return _factory;
+        
+        return _cmdLineParser.getProps();
     }
-
+    
     public static final void main(String[] args) throws Exception
     {
         newFactory(args);

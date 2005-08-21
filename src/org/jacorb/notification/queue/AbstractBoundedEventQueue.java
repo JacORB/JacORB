@@ -21,6 +21,10 @@ package org.jacorb.notification.queue;
  *
  */
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.jacorb.notification.interfaces.Message;
 
 /**
@@ -28,12 +32,13 @@ import org.jacorb.notification.interfaces.Message;
  * @version $Id$
  */
 
-abstract public class AbstractBoundedEventQueue implements MessageQueue
+public abstract class AbstractBoundedEventQueue implements MessageQueue
 {
     private final Object lock_;
 
     private final int capacity_;
 
+    private final List listeners_ = new ArrayList();
     private final EventQueueOverflowStrategy overflowStrategy_;
 
     protected AbstractBoundedEventQueue(int capacity, EventQueueOverflowStrategy overflowStrategy,
@@ -44,22 +49,29 @@ abstract public class AbstractBoundedEventQueue implements MessageQueue
         overflowStrategy_ = overflowStrategy;
     }
 
-    abstract protected Message getEarliestTimeout();
+    public final String getDiscardPolicyName()
+    {
+        return overflowStrategy_.getDiscardPolicyName();
+    }
+    
+    protected abstract Message getEarliestTimeout();
 
-    abstract protected Message getLeastPriority();
+    protected abstract Message getLeastPriority();
 
-    abstract protected Message getNextElement();
+    protected abstract Message getNextElement();
 
-    abstract protected Message getOldestElement();
+    protected abstract Message getOldestElement();
 
-    abstract protected Message getYoungestElement();
+    protected abstract Message getYoungestElement();
 
-    abstract protected Message[] getElements(int max);
+    protected abstract Message[] getElements(int max);
 
-    abstract protected void addElement(Message event);
+    protected abstract void addElement(Message event);
 
-    abstract protected Message[] getAllElements();
+    protected abstract Message[] getAllElements();
 
+    public abstract String getOrderPolicyName();
+    
     public Message[] getAllMessages(boolean wait) throws InterruptedException
     {
         synchronized (lock_)
@@ -150,11 +162,33 @@ abstract public class AbstractBoundedEventQueue implements MessageQueue
             while (getSize() >= capacity_)
             {
                 overflowStrategy_.removeElementFromQueue(this);
+                
+                fireMessageDiscarded();
             }
 
             addElement(event);
 
             lock_.notifyAll();
         }
+    }
+    
+    private void fireMessageDiscarded()
+    {
+        Iterator i = listeners_.iterator();
+        
+        while(i.hasNext())
+        {
+            ((DiscardListener)i.next()).messageDiscarded(capacity_);
+        }
+    }
+    
+    public void addDiscardListener(DiscardListener listener)
+    {
+        listeners_.add(listener);
+    }
+    
+    public void removeDiscardListener(DiscardListener listener)
+    {
+        listeners_.remove(listener);
     }
 }

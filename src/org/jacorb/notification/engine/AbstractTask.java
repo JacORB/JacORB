@@ -29,10 +29,8 @@ import org.jacorb.notification.util.AbstractPoolable;
  */
 
 public abstract class AbstractTask extends AbstractPoolable implements Runnable, Schedulable
-{    
+{
     private TaskExecutor taskExecutor_;
-
-    ////////////////////
 
     protected TaskExecutor getTaskExecutor()
     {
@@ -53,12 +51,9 @@ public abstract class AbstractTask extends AbstractPoolable implements Runnable,
     {
         return true;
     }
-    
+
     /**
-     * template method.
-     * <ol>
-     * <li>Call doWork()
-     * </ol>
+     * run method invoked by TaskExecutor.
      */
     public void run()
     {
@@ -68,18 +63,23 @@ public abstract class AbstractTask extends AbstractPoolable implements Runnable,
             {
                 doWork();
             }
-        } catch (Throwable t)
+        } catch (Exception e)
         {
-            handleTaskError(this, t);
+            handleTaskError(this, e);
         } finally
         {
             dispose();
         }
     }
 
-    abstract void handleTaskError(AbstractTask t, Throwable error);
+    /**
+     * error handler method that will be invoked if an exception occurs during doWork.
+     * 
+     * @param task the task that caused the error.
+     * @param error the exception that was thrown.
+     */
+    abstract void handleTaskError(AbstractTask task, Exception error);
 
-    
     protected void checkInterrupt() throws InterruptedException
     {
         if (Thread.currentThread().isInterrupted())
@@ -89,12 +89,11 @@ public abstract class AbstractTask extends AbstractPoolable implements Runnable,
     }
 
     /**
-     * Run this Task on its configured Executor.
+     * schedule this Task for execution.
      * 
      * @param directRunAllowed
-     *            this param specified if its allowed to run this Task on the calling Thread.
-     * @exception InterruptedException
-     *                if an error occurs
+     *            true, if the task may be run in the calling thread. false, if the TaskExecutor
+     *            should be used.
      */
     protected void schedule(boolean directRunAllowed) throws InterruptedException
     {
@@ -102,14 +101,14 @@ public abstract class AbstractTask extends AbstractPoolable implements Runnable,
     }
 
     /**
-     * Run this Task on the provided Executor.
+     * schedule this Task for execution.
      * 
      * @param executor
-     *            a <code>TaskExecutor</code> value
+     *            TaskExecutor that should execute this Task
+     * 
      * @param directRunAllowed
-     *            a <code>boolean</code> value
-     * @exception InterruptedException
-     *                if an error occurs
+     *            true, if the task may be run in the calling thread. false, if the TaskExecutor
+     *            should be used.
      */
     protected void schedule(TaskExecutor executor, boolean directRunAllowed)
             throws InterruptedException

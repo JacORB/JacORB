@@ -36,12 +36,12 @@ public interface MessageConsumer extends Comparable
     /**
      * Deliver a Message to the associated Consumer.
      */
-    void deliverMessage(Message m);
+    void queueMessage(Message m);
 
     /**
      * check if this MessageConsumer is still valid.
      */
-    boolean isDisposed();
+    boolean isDestroyed();
 
     void destroy();
 }

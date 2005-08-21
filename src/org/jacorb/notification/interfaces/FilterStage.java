@@ -39,7 +39,7 @@ public interface FilterStage extends FilterStageSource
     /**
      * check if this FilterStage has been disposed.
      */
-    boolean isDisposed();
+    boolean isDestroyed();
 
     /**
      * get Filters associated to this FilterStage.

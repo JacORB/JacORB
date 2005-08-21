@@ -22,7 +22,6 @@ package org.jacorb.notification;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.container.CORBAObjectComponentAdapter;
-import org.jacorb.notification.servant.ITypedEventChannel;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
@@ -37,10 +36,7 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryPOATie;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelHelper;
 import org.omg.PortableServer.Servant;
-import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoContainer;
-import org.picocontainer.defaults.CachingComponentAdapter;
 
 /**
  * @author Alphonse Bendt
@@ -50,7 +46,7 @@ import org.picocontainer.defaults.CachingComponentAdapter;
 public class TypedEventChannelFactoryImpl extends AbstractChannelFactory implements
         TypedEventChannelFactoryOperations
 {
-    public TypedEventChannelFactoryImpl(PicoContainer container, ORB orb) throws UserException
+    public TypedEventChannelFactoryImpl(MutablePicoContainer container, ORB orb) throws UserException
     {
         super(container, orb);
 
@@ -80,12 +76,9 @@ public class TypedEventChannelFactoryImpl extends AbstractChannelFactory impleme
     {
         final MutablePicoContainer _container = newContainerForChannel();
 
-        ComponentAdapter typedChannelComponentAdapter = componentAdapterFactory_
-                .createComponentAdapter(ITypedEventChannel.class, TypedEventChannelImpl.class, null);
+        _container.registerComponentImplementation(AbstractEventChannel.class, TypedEventChannelImpl.class);
 
-        _container.registerComponent(new CachingComponentAdapter(typedChannelComponentAdapter));
-
-        return (AbstractEventChannel) _container.getComponentInstance(ITypedEventChannel.class);
+        return (AbstractEventChannel) _container.getComponentInstance(AbstractEventChannel.class);
     }
 
     public int[] get_all_typed_channels()

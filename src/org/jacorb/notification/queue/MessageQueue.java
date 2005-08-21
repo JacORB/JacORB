@@ -30,6 +30,15 @@ import org.jacorb.notification.interfaces.Message;
 
 public interface MessageQueue
 {
+    interface DiscardListener
+    {
+        void messageDiscarded(int maxSize);
+    }
+    
+    void addDiscardListener(DiscardListener listener);
+    
+    void removeDiscardListener(DiscardListener listener);
+    
     /**
      * get the next Message from this queue. which particular event is
      * selected depends on the underlying implementation.
@@ -82,4 +91,8 @@ public interface MessageQueue
      * access the current size of this queue.
      */
     int getSize();
+    
+    String getOrderPolicyName();
+    
+    String getDiscardPolicyName();
 }

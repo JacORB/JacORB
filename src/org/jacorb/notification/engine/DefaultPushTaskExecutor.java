@@ -54,8 +54,8 @@ public class DefaultPushTaskExecutor implements PushTaskExecutor, Disposable
             {
                 try
                 {
-                    PushTaskExecutor.PushTask pushTask = (PushTaskExecutor.PushTask) scheduledPushTasks_
-                            .take();
+                    PushTaskExecutor.PushTask pushTask = 
+                        (PushTaskExecutor.PushTask) scheduledPushTasks_.take();
 
                     if (isActive_.get())
                     {

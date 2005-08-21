@@ -21,16 +21,25 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.NotifyingDisposable;
 
-import EDU.oswego.cs.dl.util.concurrent.Executor;
-
-/**
- * @author Alphonse Bendt
- * @version $Id$
- */
-public interface TaskExecutor extends Executor, Disposable, NotifyingDisposable
+public class DirectExecutorPushTaskExecutorFactory implements PushTaskExecutorFactory
 {
-    boolean isTaskQueued();
+    private final PushTaskExecutor executor_ = new PushTaskExecutor()
+    {
+        public void executePush(PushTask task)
+        {
+            task.doPush();
+        }
+
+        public void dispose()
+        {
+            // ignored
+        }
+    };
+    
+    public PushTaskExecutor newExecutor(NotifyingDisposable callbackingDisposable)
+    {
+        return executor_;
+    }
 }

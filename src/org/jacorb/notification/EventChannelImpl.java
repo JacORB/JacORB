@@ -21,8 +21,8 @@ package org.jacorb.notification;
  */
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.container.CORBAObjectComponentAdapter;
+import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.servant.AbstractAdmin;
 import org.jacorb.notification.servant.AbstractSupplierAdmin;
@@ -45,25 +45,25 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdminHelper;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
-import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.defaults.CachingComponentAdapter;
-import org.picocontainer.defaults.ComponentAdapterFactory;
 
 /**
+ * @jmx:mbean name="EventChannelMBean" description="Control an EventChannel"
+ * extends = "AbstractEventChannelMBean"
+ * 
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class EventChannelImpl extends AbstractEventChannel implements EventChannelOperations
+public class EventChannelImpl extends AbstractEventChannel implements EventChannelOperations, EventChannelImplMBean
 {
     private final EventChannelFactory eventChannelFactory_;
-
+    
     private final EventChannel thisRef_;
 
     private final Servant thisServant_;
-
-    private final ComponentAdapterFactory adapterFactory_;
 
     ////////////////////////////////////////
 
@@ -81,16 +81,10 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
         container_.registerComponent(new CORBAObjectComponentAdapter(EventChannel.class,
                 EventChannelHelper.narrow(thisRef_)));
 
-        adapterFactory_ = (ComponentAdapterFactory) container_
-                .getComponentInstance(ComponentAdapterFactory.class);
-
-        logger_.info("Creating Default Admins");
         default_consumer_admin();
         default_supplier_admin();
 
-        duringConstruction_ = false;
-
-        addDisposeHook(new Disposable()
+        registerDisposable(new Disposable()
         {
             public void dispose()
             {
@@ -113,13 +107,10 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
     {
         final MutablePicoContainer _adminContainer = newContainerForAdmin(id);
 
-        ComponentAdapter _consumerAdminAdapter = adapterFactory_.createComponentAdapter(
-                ConsumerAdminImpl.class, ConsumerAdminImpl.class, null);
+        _adminContainer.registerComponentImplementation(AbstractAdmin.class, ConsumerAdminImpl.class);
 
-        _adminContainer.registerComponent(new CachingComponentAdapter(_consumerAdminAdapter));
-
-        AbstractAdmin _admin = (AbstractAdmin) _adminContainer
-                .getComponentInstance(ConsumerAdminImpl.class);
+        final AbstractAdmin _admin = (AbstractAdmin) _adminContainer
+                .getComponentInstanceOfType(AbstractAdmin.class);
 
         return _admin;
     }
@@ -128,13 +119,10 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
     {
         final MutablePicoContainer _adminContainer = newContainerForAdmin(id);
 
-        ComponentAdapter _supplierAdminAdapter = adapterFactory_.createComponentAdapter(
-                SupplierAdminImpl.class, SupplierAdminImpl.class, null);
+        _adminContainer.registerComponentImplementation(AbstractSupplierAdmin.class, SupplierAdminImpl.class);
 
-        _adminContainer.registerComponent(new CachingComponentAdapter(_supplierAdminAdapter));
-
-        SupplierAdminImpl _admin = (SupplierAdminImpl) _adminContainer
-                .getComponentInstance(SupplierAdminImpl.class);
+        final AbstractSupplierAdmin _admin = (AbstractSupplierAdmin) _adminContainer
+                .getComponentInstanceOfType(AbstractSupplierAdmin.class);
 
         return _admin;
     }
@@ -164,6 +152,11 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
             public MutablePicoContainer getContainer()
             {
                 return _adminContainer;
+            }
+            
+            public String getChannelMBean()
+            {
+                return getJMXObjectName();
             }
 
             public void destroy()
@@ -272,6 +265,11 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
         AbstractAdmin _admin = getDefaultSupplierAdminServant();
 
         return org.omg.CosEventChannelAdmin.SupplierAdminHelper.narrow(_admin.activate());
+    }
+
+    public String getMBeanType()
+    {
+        return "EventChannel";
     }
 }
 

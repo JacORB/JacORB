@@ -21,7 +21,12 @@
 
 package org.jacorb.notification.queue;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.queue.MessageQueue.DiscardListener;
 
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
@@ -32,6 +37,8 @@ import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
  */
 public class RWLockEventQueueDecorator implements MessageQueueAdapter
 {
+    private final List listeners_ = new ArrayList();
+
     /**
      * lock variable used to control access to the reference to the pending messages queue.
      */
@@ -67,6 +74,11 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
 
         try
         {
+            for (Iterator i = listeners_.iterator(); i.hasNext();)
+            {
+                delegate_.removeDiscardListener((DiscardListener) i.next());
+            }
+            
             if (delegate_.hasPendingMessages())
             {
                 Message[] _allMessages = delegate_.getAllMessages();
@@ -76,6 +88,11 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
                 }
             }
             delegate_ = newDelegate;
+            
+            for (Iterator i = listeners_.iterator(); i.hasNext();)
+            {
+                delegate_.addDiscardListener((DiscardListener) i.next());
+            }
         } finally
         {
             delegateLock_.writeLock().release();
@@ -190,7 +207,7 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
     {
         try
         {
-            delegateLock_.writeLock().acquire();
+            delegateLock_.readLock().acquire();
         } catch (InterruptedException e)
         {
             // ignore exception. force dispose.
@@ -201,12 +218,85 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
             delegate_.clear();
         } finally
         {
-            delegateLock_.writeLock().release();
+            delegateLock_.readLock().release();
         }
     }
-    
+
     public String toString()
     {
-        return delegate_.toString();
+        acquireReadLock();
+
+        try
+        {
+            return delegate_.toString();
+        } finally
+        {
+            delegateLock_.readLock().release();
+        }
+    }
+
+    private void acquireReadLock()
+    {
+        try
+        {
+            delegateLock_.readLock().acquire();
+        } catch (InterruptedException e)
+        {
+            throw new RuntimeException();
+        }
+    }
+
+    public String getDiscardPolicyName()
+    {
+        acquireReadLock();
+
+        try
+        {
+            return delegate_.getDiscardPolicyName();
+        } finally
+        {
+            delegateLock_.readLock().release();
+        }
+    }
+
+    public String getOrderPolicyName()
+    {
+        acquireReadLock();
+
+        try
+        {
+            return delegate_.getOrderPolicyName();
+        } finally
+        {
+            delegateLock_.readLock().release();
+        }
+    }
+
+    public void addDiscardListener(DiscardListener listener)
+    {
+        acquireReadLock();
+
+        try
+        {
+            listeners_.add(listener);
+            delegate_.addDiscardListener(listener);
+        } finally
+        {
+            delegateLock_.readLock().release();
+        }
+    }
+
+    public void removeDiscardListener(DiscardListener listener)
+    {
+        acquireReadLock();
+
+        try
+        {
+            listeners_.remove(listener);
+            delegate_.removeDiscardListener(listener);
+        } finally
+        {
+            delegateLock_.readLock().release();
+        }
     }
 }
