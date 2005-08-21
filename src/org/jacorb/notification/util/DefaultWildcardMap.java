@@ -109,11 +109,11 @@ class EntryList
 
     private PatternWrapper myPattern_;
 
-    private final char[] key_;
+    final char[] key_;
 
     private final int start_;
 
-    private int end_;
+    int end_;
 
     private final int depth_;
 
@@ -667,7 +667,6 @@ class EntryList
 
     private static void splitEntryList(EntryList list, int offset)
     {
-
         EntryList _ret = new EntryList(list.key_, list.start_ + offset, list.end_, list.depth_
                 + offset, list.myEntry_, list.entries_.length);
 

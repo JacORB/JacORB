@@ -193,7 +193,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
                     try
                     {
                         poolsToCheck[x].run();
-                    } catch (Throwable t)
+                    } catch (Exception t)
                     {
                         // should not happen
                         sLogger_.error("Error cleaning up Pool", t);

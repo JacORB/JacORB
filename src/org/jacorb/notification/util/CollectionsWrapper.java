@@ -70,6 +70,7 @@ public class CollectionsWrapper
 
     private static class SingletonList extends AbstractList implements Serializable
     {
+        private static final long serialVersionUID = 1L;
         private final Object singletonElement_;
 
         SingletonList(Object element)

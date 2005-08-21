@@ -33,10 +33,9 @@ import org.jacorb.notification.interfaces.Disposable;
 
 public abstract class AbstractPoolable implements Disposable
 {
-    private AbstractObjectPool objectPool_;
-
     protected final Logger logger_ = LogUtil.getLogger(getClass().getName());
-
+    
+    private AbstractObjectPool objectPool_;
 
     /**
      * The call to this Method indicates that this Object is not needed by the user anymore. After a
