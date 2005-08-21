@@ -253,7 +253,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     /**
      * satisfy abstract method from BaseAST. Not used.
      */
-    public void initialize(int t, String txt)
+    public final void initialize(int t, String txt)
     {
         // no op
     }
@@ -261,7 +261,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     /**
      * satisfy abstract method from BaseAST. Not used.
      */
-    public void initialize(AST t)
+    public final void initialize(AST t)
     {
         // no op
     }
@@ -269,7 +269,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     /**
      * satisfy abstract method from BaseAST. Not used.
      */
-    public void initialize(Token tok)
+    public final void initialize(Token tok)
     {
         // no op
     }
