@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [
+  <!ENTITY common  SYSTEM "file:../../../../../../etc/common.xml">
+  <!ENTITY xdoclet SYSTEM "file:../../../../../../etc/common-xdoclet.xml">
+]>
+
+<project name="jboss-cosnotify" default="sar" basedir="../../../../../..">
+	
+	&common;
+		
+	<target name="init.local" depends="init">
+		<property name="jboss.home" value="/Users/alf/Developer/JBoss/jboss-4.0.2" />
+
+		<property name="jmx.pkg" value="org/jacorb/notification/jmx" />
+		<property name="jmx.dir" value="${src}/${jmx.pkg}" />
+
+		<property name="artifact.name" value="jboss-cosnotification" />
+		<property name="jar.name" value="${artifact.name}.jar" />
+		<property name="sar.name" value="${artifact.name}.sar" />
+
+		<property name="path.sar" value="${lib}/${sar.name}" />
+		<property name="path.jar" value="${lib}/${jar.name}" />
+
+		<property name="dir.deploy" value="${jboss.home}/server/all/deploy" />
+
+		<path id="classpath">
+			<pathelement location="${jacorb.home}/lib/jacorb.jar" />
+			<pathelement location="${jboss.home}/lib/jboss-system.jar"/>
+			<pathelement location="${jboss.home}/lib/jboss-jmx.jar"/>
+			<pathelement location="${jboss.home}/lib/jboss-common.jar"/>
+			<pathelement location="${jboss.home}/lib/dom4j.jar"/>
+			<pathelement location="${jboss.home}/server/all/lib/avalon-framework.jar" />
+			<pathelement location="${jboss.home}/server/all/lib/jboss-iiop.jar" />
+		</path>
+	</target>
+
+	<target name="compile" depends="init.local">
+		<jacorb-javac javac-includes="${jmx.pkg}/*.java, ${jmx.pkg}/jboss/*.java" />
+	</target>
+
+	<target name="jar" depends="init.local, compile" >
+		<jar destfile="${path.jar}" basedir="${classdir}" >
+			<include name="${jmx.pkg}/jboss/*.class" />
+			
+			<fileset dir="${src}/generated">
+				<include name="${jmx.pkg}/jboss/*.xml" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="sar" depends="init.local, jar" >
+		<jar destfile="${path.sar}" >
+			<fileset dir="${lib}">
+				<include name="${jar.name}" />
+			</fileset>
+
+			<zipfileset dir="${src}/${jmx.pkg}/jboss" prefix="META-INF">
+				<include name="jboss-service.xml" />
+			</zipfileset>
+
+			<zipfileset file="${basedir}/../nanocontainer-remoting/remoting/target/nanocontainer-remoting-1.0-SNAPSHOT.jar" />
+
+			<zipfileset file="${lib}/picocontainer-1.2-021105.jar" />
+		</jar>
+	</target>
+
+	<target name="deploy" depends="init.local, sar" >
+		<copy todir="${dir.deploy}" file="${path.sar}"/>
+	</target>
+
+	<target name="clean" depends="init.local">
+		<delete file="${path.sar}" />
+		<delete file="${path.jar}" />
+	</target>
+		
+</project>

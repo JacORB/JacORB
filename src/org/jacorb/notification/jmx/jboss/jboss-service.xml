@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server>
+
+<server>
+  <classpath codebase="lib" archives="jacorb.jar, jboss-cosnotification.jar, nanocontainer-jmx-1.0-SNAPSHOT.jar, picocontainer-1.2-021105.jar"/>
+    <mbean code="org.jacorb.notification.jmx.jboss.JBossCOSNotificationService" 
+         name="NotificationService:type=EventChannelFactory"
+         xmbean-dd="org/jacorb/notification/jmx/jboss/JBossCOSNotificationService.xml" >
+    <depends>jboss:service=CorbaORB</depends>
+  </mbean>
+  
+</server>
