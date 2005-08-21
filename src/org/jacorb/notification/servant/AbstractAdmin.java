@@ -38,6 +38,7 @@ import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.util.DisposableManager;
@@ -58,10 +59,7 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
-import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.defaults.CachingComponentAdapter;
-import org.picocontainer.defaults.ComponentAdapterFactory;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
@@ -69,12 +67,15 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 /**
  * Abstract Baseclass for Adminobjects.
  * 
+ * @jmx.mbean
+ * @jboss.xmbean 
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public abstract class AbstractAdmin implements QoSAdminOperations,
-        FilterAdminOperations, FilterStage, ManageableServant
+        FilterAdminOperations, FilterStage, ManageableServant, JMXManageable
 {
     private static final class ITypedAdminImpl implements ITypedAdmin
     {
@@ -118,6 +119,11 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         {
             container_.unregisterComponent(ITypedAdmin.class);
             admin_.destroy();
+        }
+
+        public String getAdminMBean()
+        {
+            return admin_.getAdminMBean();
         }
     }
 
@@ -168,7 +174,9 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     public final int channelID_;
 
-    private final ComponentAdapterFactory componentAdapterFactory_;
+    private final String parentMBean_;
+
+    private JMXManageable.JMXCallback jmxCallback_;
 
     ////////////////////////////////////////
 
@@ -176,6 +184,8 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
             MessageFactory messageFactory, OfferManager offerManager,
             SubscriptionManager subscriptionManager)
     {
+        parentMBean_ = channel.getChannelMBean();
+        
         container_ = channel.getContainer();
 
         id_ = new Integer(channel.getAdminID());
@@ -196,12 +206,9 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         offerManager_ = offerManager;
 
         subscriptionManager_ = subscriptionManager;
-
-        componentAdapterFactory_ = (ComponentAdapterFactory) container_
-                .getComponentInstance(ComponentAdapterFactory.class);
     }
 
-    public final void addDisposeHook(Disposable d)
+    public final void registerDisposable(Disposable d)
     {
         disposables_.addDisposable(d);
     }
@@ -281,6 +288,11 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         return getID().intValue();
     }
 
+    public final int getChannelID()
+    {
+        return channelID_;
+    }
+    
     public Property[] get_qos()
     {
         return qosSettings_.get_qos();
@@ -299,7 +311,10 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         qosSettings_.validate_qos(props, propertyRangeSeqHolder);
     }
 
-    public void destroy()
+    /**
+     * @jmx.managed-operation description = "Destroy this Admin" impact = "ACTION"
+     */
+    public final void destroy()
     {
         checkDestroyStatus();
 
@@ -365,7 +380,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         return id_;
     }
 
-    public boolean isDisposed()
+    public boolean isDestroyed()
     {
         return disposed_.get();
     }
@@ -564,7 +579,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
         // this hook is run when proxy.dispose() is called.
         // it removes proxy from map again.
-        proxy.addDisposeHook(new Disposable()
+        proxy.registerDisposable(new Disposable()
         {
             public void dispose()
             {
@@ -576,6 +591,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
                 }
             }
         });
+        
     }
 
     public final List getProxies()
@@ -605,7 +621,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     {
         final MutablePicoContainer _container = newContainerForNotifyStyleProxy();
 
-        final IAdmin _admin = (IAdmin) _container.getComponentInstance(IAdmin.class);
+        final IAdmin _admin = (IAdmin) _container.getComponentInstanceOfType(IAdmin.class);
 
         ITypedAdmin _typedAdmin = new ITypedAdminImpl(_admin, _container, supportedInterface);
 
@@ -647,16 +663,45 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
             {
                 container_.removeChildContainer(_containerForProxy);
             }
+
+            public String getAdminMBean()
+            {
+                return getJMXObjectName();
+            }
         };
 
         _containerForProxy.registerComponentInstance(IAdmin.class, _admin);
 
         return _containerForProxy;
     }
-
-    protected ComponentAdapter newComponentAdapter(Object key, Class implementation)
+    
+    public final String getJMXObjectName()
     {
-        return new CachingComponentAdapter(componentAdapterFactory_.createComponentAdapter(key,
-                implementation, null));
+        return "admin=" + getMBeanName() + ", " + parentMBean_;
+    }
+
+    public final String getMBeanName()
+    {
+        return getMBeanType() + "-" + getID();
+    } 
+    
+    abstract protected String getMBeanType();
+    
+    public String[] getJMXNotificationTypes()
+    {
+        return new String[0];
+    }
+    
+    public final void setJMXCallback(JMXManageable.JMXCallback callback)
+    {
+        jmxCallback_ = callback;
+    }
+    
+    protected final void sendNotification(String type, String message)
+    {
+        if (jmxCallback_ != null)
+        {
+            jmxCallback_.sendJMXNotification(type, message);
+        }
     }
 }

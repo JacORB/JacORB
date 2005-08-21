@@ -55,12 +55,15 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.defaults.CachingComponentAdapter;
 
 /**
+ * @jmx.mbean extends = "AbstractAdminMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class SupplierAdminImpl extends AbstractSupplierAdmin implements SupplierAdminOperations,
-        Disposable
+        Disposable, SupplierAdminImplMBean
 {
     private FilterStageSource subsequentFilterStagesSource_;
 
@@ -68,7 +71,7 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
 
     private final SupplierAdmin thisCorbaRef_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public SupplierAdminImpl(IEventChannel channelServant, ORB orb, POA poa, Configuration config,
             MessageFactory messageFactory, OfferManager offerManager,
@@ -83,7 +86,7 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
         container_.registerComponent(new CachingComponentAdapter(new CORBAObjectComponentAdapter(
                 SupplierAdmin.class, thisCorbaRef_)));
 
-        addDisposeHook(new Disposable()
+        registerDisposable(new Disposable()
         {
             public void dispose()
             {
@@ -211,11 +214,11 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
         {
             MutablePicoContainer _container = newContainerForEventStyleProxy();
 
-            _container.registerComponent(newComponentAdapter(ECProxyPushConsumerImpl.class,
-                    ECProxyPushConsumerImpl.class));
+            _container.registerComponentImplementation(AbstractProxyConsumer.class,
+                    ECProxyPushConsumerImpl.class);
 
             AbstractProxyConsumer _servant = (AbstractProxyConsumer) _container
-                    .getComponentInstance(ECProxyPushConsumerImpl.class);
+                    .getComponentInstanceOfType(AbstractProxyConsumer.class);
 
             _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(this));
 
@@ -239,11 +242,11 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
         {
             MutablePicoContainer _container = newContainerForEventStyleProxy();
 
-            _container.registerComponent(newComponentAdapter(ECProxyPullConsumerImpl.class,
-                    ECProxyPullConsumerImpl.class));
+            _container.registerComponentImplementation(AbstractProxyConsumer.class,
+                    ECProxyPullConsumerImpl.class);
 
             AbstractProxyConsumer _servant = (AbstractProxyConsumer) _container
-                    .getComponentInstance(ECProxyPullConsumerImpl.class);
+                    .getComponentInstanceOfType(AbstractProxyConsumer.class);
 
             _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(this));
 
@@ -260,7 +263,7 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
         }
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public List getSubsequentFilterStages()
     {
@@ -318,11 +321,10 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
 
         final MutablePicoContainer _containerForProxy = newContainerForNotifyStyleProxy();
 
-        _containerForProxy.registerComponent(newComponentAdapter(AbstractProxyConsumer.class,
-                _clazz));
+        _containerForProxy.registerComponentImplementation(AbstractProxyConsumer.class, _clazz);
 
         _servant = (AbstractProxyConsumer) _containerForProxy
-                .getComponentInstance(AbstractProxyConsumer.class);
+                .getComponentInstanceOfType(AbstractProxyConsumer.class);
 
         _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(this));
 
@@ -354,14 +356,19 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
 
         final MutablePicoContainer _containerForProxy = newContainerForNotifyStyleProxy();
 
-        _containerForProxy.registerComponent(newComponentAdapter(AbstractProxyConsumer.class,
-                _proxyClazz));
+        _containerForProxy
+                .registerComponentImplementation(AbstractProxyConsumer.class, _proxyClazz);
 
         _servant = (AbstractProxyConsumer) _containerForProxy
-                .getComponentInstance(AbstractProxyConsumer.class);
+                .getComponentInstanceOfType(AbstractProxyConsumer.class);
 
         _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(this));
 
         return _servant;
+    }
+
+    public String getMBeanType()
+    {
+        return "SupplierAdmin";
     }
 }

@@ -21,15 +21,18 @@ package org.jacorb.notification.servant;
  *
  */
 
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerPOATie;
@@ -39,12 +42,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyConsumerMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class SequenceProxyPushConsumerImpl extends StructuredProxyPushConsumerImpl implements
-        SequenceProxyPushConsumerOperations
+public class SequenceProxyPushConsumerImpl extends AbstractProxyConsumer implements
+        SequenceProxyPushConsumerOperations, SequenceProxyPushConsumerImplMBean, AbstractProxyConsumerI
 {
     private SequencePushSupplier sequencePushSupplier_;
 
@@ -88,12 +94,14 @@ public class SequenceProxyPushConsumerImpl extends StructuredProxyPushConsumerIm
     {
         checkStillConnected();
 
-        for (int x = 0; x < events.length; ++x)
+        Message[] _messages = newMessages(events);
+        
+        for (int x = 0; x < _messages.length; ++x)
         {
-            push_structured_event(events[x]);
+            processMessage(_messages[x]);
         }
     }
-
+    
     public void disconnect_sequence_push_consumer()
     {
         destroy();
@@ -107,5 +115,10 @@ public class SequenceProxyPushConsumerImpl extends StructuredProxyPushConsumerIm
         }
 
         return thisServant_;
+    }
+
+    public org.omg.CORBA.Object activate()
+    {
+        return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
 }

@@ -62,7 +62,7 @@ abstract public class FilterStageListManager {
 
                 List _listProxy = new List() {
                         public void add(FilterStage d) {
-                            if (!d.isDisposed()) {
+                            if (!d.isDestroyed()) {
                                 _newList.add(d);
                             }
                         }

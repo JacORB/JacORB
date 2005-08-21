@@ -21,12 +21,15 @@ package org.jacorb.notification.servant;
  */
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
@@ -41,6 +44,7 @@ import org.omg.CORBA.Request;
 import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosTypedEventComm.TypedPullSupplier;
@@ -51,12 +55,16 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
- * @Author Alphonse Bendt
+ * @jmx.mbean extends = "AbstractProxyConsumerMBean"
+ * @jboss.xmbean
+ * 
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
-        TypedProxyPullConsumerOperations, MessageSupplier, ITypedProxy
+        TypedProxyPullConsumerOperations, MessageSupplier, MessageSupplierDelegate, ITypedProxy,
+        TypedProxyPullConsumerImplMBean
 {
     private String[] tryPullOperations_;
 
@@ -66,24 +74,34 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
     private InterfaceDef interfaceDef_;
 
-    private final static Object[] STRING_ARRAY_TEMPLATE = new String[0];
-
-    private final String expectedInterface_;
+    private final String supportedInterface_;
 
     private final Map operationDescriptions_ = new HashMap();
 
     private final Map fullQualifiedOperationNames_ = new HashMap();
 
-    // ////////////////////////////
+    private final PullMessagesUtility pollUtil_;
+
+    private long pollInterval_;
+
+    private final PullMessagesOperation pullMessagesOperation_;
 
     public TypedProxyPullConsumerImpl(ITypedAdmin admin, SupplierAdmin supplierAdmin, ORB orb,
-            POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory messageFactory,
-            OfferManager offerManager, SubscriptionManager subscriptionManager)
+            POA poa, Configuration config, TaskProcessor taskProcessor,
+            MessageFactory messageFactory, OfferManager offerManager,
+            SubscriptionManager subscriptionManager)
     {
-        super(admin, orb, poa, conf, taskProcessor, messageFactory, supplierAdmin, offerManager,
+        super(admin, orb, poa, config, taskProcessor, messageFactory, supplierAdmin, offerManager,
                 subscriptionManager);
 
-        expectedInterface_ = admin.getSupportedInterface();
+        supportedInterface_ = admin.getSupportedInterface();
+
+        pollUtil_ = new PullMessagesUtility(taskProcessor, this);
+
+        pollInterval_ = config.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
+                Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+
+        pullMessagesOperation_ = new PullMessagesOperation(this);
     }
 
     // ////////////////////////////
@@ -105,13 +123,15 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
         if (interfaceDef_ == null)
         {
-            throw new NullPointerException();
+            throw new TypeError("Could not access Interface Definition for TypedPullSupplier [" + typedPullSupplier_ + "]");
         }
 
-        if (!typedPullSupplier_._is_a(expectedInterface_))
+        if (!typedPullSupplier_._is_a(supportedInterface_))
         {
             throw new TypeError();
         }
+
+        pollUtil_.startTask(pollInterval_);
     }
 
     private String[] getTryPullOperations()
@@ -128,17 +148,78 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
                             _fullIfDescription.operations[x]);
                 }
             }
-            
+
             tryPullOperations_ = (String[]) operationDescriptions_.keySet().toArray(
-                    STRING_ARRAY_TEMPLATE);
+                    new String[operationDescriptions_.size()]);
         }
-        
+
         return tryPullOperations_;
     }
 
-    public void runPullMessage()
+    public MessageSupplierDelegate.PullResult pullMessages()
     {
-        runPullMessageInternal();
+        String[] _tryPullOperations = getTryPullOperations();
+        Map _successFulRequests = new HashMap();
+
+        for (int x = 0; x < _tryPullOperations.length; ++x)
+        {
+            Request _request = prepareRequest(_tryPullOperations[x]);
+
+            if (logger_.isDebugEnabled())
+            {
+                logger_.debug("invoke " + _tryPullOperations[x]);
+            }
+
+            try
+            {
+                _request.invoke();
+
+                Any _result = _request.result().value();
+
+                boolean _success = _result.extract_boolean();
+
+                if (_success)
+                {
+                    String _operationNameWithoutTry = _tryPullOperations[x].substring(4);
+                    _successFulRequests.put(_operationNameWithoutTry, _request);
+                }
+            } catch (Exception e)
+            {
+                if (logger_.isInfoEnabled())
+                {
+                    String _mesg = "Operation " + _tryPullOperations[x] + " failed: Ignore";
+                    if (logger_.isDebugEnabled())
+                    {
+                        logger_.debug(_mesg, e);
+                    }
+                    else
+                    {
+                        logger_.info(_mesg);
+                    }
+                }
+            }
+        }
+
+        return new MessageSupplierDelegate.PullResult(_successFulRequests, true);
+    }
+
+    public void queueMessages(PullResult data)
+    {
+        Map _successfulRequests = (Map) data.data_;
+
+        for (Iterator i = _successfulRequests.keySet().iterator(); i.hasNext();)
+        {
+            String _operationNameWithoutTry = (String) i.next();
+            Request _request = (Request) _successfulRequests.get(_operationNameWithoutTry);
+            String _operationName = getFullQualifiedName(_operationNameWithoutTry);
+
+            Message _mesg = getMessageFactory().newMessage(supportedInterface_, _operationName,
+                    _request.arguments(), this);
+
+            checkMessageProperties(_mesg);
+
+            processMessage(_mesg);
+        }
     }
 
     private OperationDescription getOperationDescription(String operation)
@@ -179,46 +260,6 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
         return _request;
     }
 
-    private void runPullMessageInternal()
-    {
-        String[] _tryPullOperations = getTryPullOperations();
-
-        for (int x = 0; x < _tryPullOperations.length; ++x)
-        {
-            Request _request = prepareRequest(_tryPullOperations[x]);
-
-            if (logger_.isDebugEnabled())
-            {
-                logger_.debug("invoke " + _tryPullOperations[x]);
-            }
-
-            try
-            {
-                _request.invoke();
-
-                Any _result = _request.result().value();
-
-                boolean _success = _result.extract_boolean();
-
-                if (_success)
-                {
-                    String _operationNameWithoutTry = _tryPullOperations[x].substring(4);
-                    String _operationName = getFullQualifiedName(_operationNameWithoutTry);
-
-                    Message _mesg = getMessageFactory().newMessage(expectedInterface_,
-                            _operationName, _request.arguments(), this);
-
-                    checkMessageProperties(_mesg);
-
-                    processMessage(_mesg);
-                }
-            } catch (Exception e)
-            {
-                logger_.error("An error occured while invoking " + _tryPullOperations[x], e);
-            }
-        }
-    }
-
     public void disconnect_pull_consumer()
     {
         destroy();
@@ -236,6 +277,8 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
     public void disconnectClient()
     {
+        pollUtil_.stopTask();
+
         if (pullSupplier_ != null)
         {
             pullSupplier_.disconnect_pull_supplier();
@@ -250,5 +293,18 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
             thisServant_ = new TypedProxyPullConsumerPOATie(this);
         }
         return thisServant_;
+    }
+
+    /**
+     * @jmx.managed-attribute access = "read-only"
+     */
+    public String getSupportedInterface()
+    {
+        return supportedInterface_;
+    }
+
+    public void runPullMessage() throws Disconnected
+    {
+        pullMessagesOperation_.runPull();
     }
 }

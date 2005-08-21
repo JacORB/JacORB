@@ -54,12 +54,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyPushSupplierMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
-        TypedProxyPushSupplierOperations, ITypedProxy
+        TypedProxyPushSupplierOperations, ITypedProxy, TypedProxyPushSupplierImplMBean
 {
     private class PushTypedOperation implements PushOperation 
     {
@@ -128,15 +131,6 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
         return ProxyType.PUSH_TYPED;
     }
 
-    public MessageConsumer getMessageConsumer()
-    {
-        return this;
-    }
-
-    public List getSubsequentFilterStages()
-    {
-        return null;
-    }
 
     public org.omg.CORBA.Object activate()
     {
@@ -226,7 +220,7 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
             try
             {
                 deliverMessageInternal(_request);
-            } catch (Throwable t)
+            } catch (Exception t)
             {
                 PushTypedOperation _failedOperation = new PushTypedOperation(_request);
 
@@ -271,5 +265,14 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
     protected long getCost()
     {
         return timeSpent_;
+    }
+    
+    /**
+     * @jmx.managed-attribute
+     *                        access = "read-only"
+     */
+    public String getSupportedInterface()
+    {
+        return supportedInterface_;
     }
 }

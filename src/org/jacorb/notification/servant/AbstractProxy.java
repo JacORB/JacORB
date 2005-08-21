@@ -21,8 +21,10 @@ package org.jacorb.notification.servant;
  *
  */
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -36,6 +38,7 @@ import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.QoSPropertySet;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -64,12 +67,15 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 /**
+ * @jmx.mbean
+ * @jboss.xmbean 
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOperations,
-        FilterStage, Disposable, ManageableServant, Configurable
+        FilterStage, ManageableServant, Configurable, JMXManageable, AbstractProxyMBean
 {
     private final MappingFilter nullMappingFilterRef_;
 
@@ -120,12 +126,23 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     private final PicoContainer container_;
 
-    ////////////////////////////////////////
+    private org.omg.CORBA.Object client_;
+
+    private final String parentMBean_;
+
+    protected final Set eventTypes_ = new HashSet();
+    
+    private JMXManageable.JMXCallback jmxCallback_;
+
+    protected Configuration config_;
+    
+    // //////////////////////////////////////
 
     protected AbstractProxy(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor, OfferManager offerManager,
             SubscriptionManager subscriptionManager)
     {
+        parentMBean_ = admin.getAdminMBean();
         id_ = new Integer(admin.getProxyID());
         isIDPublic_ = admin.isIDPublic();
         container_ = admin.getContainer();
@@ -133,14 +150,13 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         orb_ = orb;
         poa_ = poa;
         taskProcessor_ = taskProcessor;
-
+        
         offerManager_ = offerManager;
         subscriptionManager_ = subscriptionManager;
 
         filterManager_ = new FilterManager();
 
-        nullMappingFilterRef_ = MappingFilterHelper.narrow(orb.string_to_object(orb
-                .object_to_string(null)));
+        nullMappingFilterRef_ = MappingFilterHelper.narrow(orb.string_to_object(orb.object_to_string(null)));
 
         logger_ = ((org.jacorb.config.Configuration) conf).getNamedLogger(getClass().getName());
 
@@ -155,12 +171,12 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     public void configure(Configuration conf)
     {
-        // no op
+        config_ = conf;
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
-    public void addDisposeHook(Disposable d)
+    public void registerDisposable(Disposable d)
     {
         disposables_.addDisposable(d);
     }
@@ -185,9 +201,9 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         return taskProcessor_;
     }
 
-    //////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////
     // delegate FilterAdmin Operations to FilterManager //
-    //////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////
 
     public final int add_filter(Filter filter)
     {
@@ -214,7 +230,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         filterManager_.remove_all_filters();
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     // TODO implement
     public void validate_event_qos(Property[] qosProps, NamedPropertyRangeSeqHolder propSeqHolder)
@@ -301,7 +317,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
             getPOA().deactivate_object(_oid);
         } catch (Exception e)
         {
-            logger_.fatalError("Couldn't deactivate Proxy", e);
+            logger_.error("Couldn't deactivate Proxy", e);
         }
     }
 
@@ -317,14 +333,14 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
             }
         } catch (Exception e)
         {
-            logger_.error("disconnect_client raised an unexpected error: " + "ignore", e);
+            logger_.error("disconnect_client raised an unexpected error: ignore", e);
         } finally
         {
             connected_.set(false);
         }
     }
 
-    public final boolean isDisposed()
+    public final boolean isDestroyed()
     {
         return destroyed_.get();
     }
@@ -333,18 +349,21 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     {
         if (!destroyed_.commit(false, true))
         {
-            logger_.fatalError("dispose has been called twice");
+            logger_.error("Already destroyed");
 
             throw new OBJECT_NOT_EXIST();
         }
     }
 
+    /**
+     * @jmx.managed-operation description = "Destroy this Proxy" impact = "ACTION" 
+     */
     public final void destroy()
     {
         checkDestroyStatus();
 
         container_.dispose();
-        
+
         List list = container_.getComponentInstancesOfType(IContainer.class);
         for (Iterator i = list.iterator(); i.hasNext();)
         {
@@ -359,23 +378,23 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
         disposeInProgress_.set(true);
 
-        //////////////////////////////
+        // ////////////////////////////
 
         tryDisconnectClient();
 
-        //////////////////////////////
+        // ////////////////////////////
 
         deactivate();
 
-        //////////////////////////////
+        // ////////////////////////////
 
         removeListener();
 
-        //////////////////////////////
+        // ////////////////////////////
 
         remove_all_filters();
 
-        //////////////////////////////
+        // ////////////////////////////
 
         disposables_.dispose();
     }
@@ -392,7 +411,11 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         return isInterFilterGroupOperatorOR_;
     }
 
-    public final boolean isConnected()
+    /**
+     * @jmx.managed-attribute description = "Connection Status."
+     *                        access = "read-only"
+     */
+    public final boolean getConnected()
     {
         return !disposeInProgress_.get() && connected_.get();
     }
@@ -417,11 +440,19 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         return priorityFilter_;
     }
 
+    /**
+     * @jmx.managed-operation impact = "ACTION" 
+     *                        description = "reset the error counter to its initial value" 
+     */
     public void resetErrorCounter()
     {
         errorCounter_.set(0);
     }
-
+ 
+    /**
+     * @jmx.managed-attribute description = "error counter" 
+     *                        access = "read-only"
+     */
     public final int getErrorCounter()
     {
         return errorCounter_.get();
@@ -432,7 +463,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         return errorCounter_.increment();
     }
 
-    protected boolean isSuspended()
+    public boolean isSuspended()
     {
         return !active_.get();
     }
@@ -470,8 +501,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     }
 
     /**
-     * this is an extension point.
-     * invoked when resume_connection was called successfully.
+     * this is an extension point. invoked when resume_connection was called successfully.
      */
     protected void connectionResumed()
     {
@@ -509,6 +539,8 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     protected void connectClient(org.omg.CORBA.Object client)
     {
         connected_.set(true);
+        
+        client_ = client;
     }
 
     /**
@@ -524,8 +556,86 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
                 + "Proxy thinks Client is still connected. The Proxy will be destroyed.", e);
 
         destroy();
-        //container_.dispose();
     }
 
     protected abstract void removeListener();
+
+    public final String getJMXObjectName()
+    {
+        return "proxy=" + getMBeanName() + ", " + parentMBean_;
+    }
+    
+    public final String getMBeanName()
+    {
+        return getMBeanType() + "-" + getID();
+    }
+
+    protected String getMBeanType()
+    {
+        String clazzName = getClass().getName();
+        
+        String rawClazz = clazzName.substring(clazzName.lastIndexOf('.') + 1);
+        
+        return rawClazz.substring(0, rawClazz.length() - "Impl".length());
+    }
+    
+    public String[] getJMXNotificationTypes()
+    {
+        return (String[]) eventTypes_.toArray(new String[eventTypes_.size()]);
+    }
+    
+    public void setJMXCallback(JMXManageable.JMXCallback callback)
+    {
+        jmxCallback_ = callback;
+    }
+    
+    protected void sendNotification(String type, String message)
+    {
+        if (jmxCallback_ != null)
+        {
+            jmxCallback_.sendJMXNotification(type, message);
+        }
+    }
+    
+    /**
+     * @jmx.managed-attribute description = "current Status for this Proxy (NOT CONNECTED|ACTIVE|SUSPENDED|DESTROYED)"
+     *                        access = "read-only"
+     */
+    public String getStatus()
+    {
+        final String _status;
+        
+        if (destroyed_.get())
+        {
+            _status =  "DESTROYED";
+        } 
+        else if (!connected_.get())
+        {
+            _status = "NOT CONNECTED";
+        } else
+        {
+            _status = active_.get() ? "ACTIVE" : "SUSPENDED";
+        }
+        
+        return _status;
+    }
+    
+    /**
+     * @jmx.managed-attribute description = "IOR of the connected client" 
+     *                        access = "read-only"
+     */
+    public String getClientIOR()
+    {
+        return (client_ != null) ? orb_.object_to_string(client_) : "";
+    }
+    
+    /**
+     * @jmx.managed-attribute description = "InterFilterGroupOperator used for this proxy" 
+     *                        access = "read-only" 
+     *                        currencyTimeLimit = "-1"
+     */
+    public String getInterFilterGroupOperator()
+    {
+        return isInterFilterGroupOperatorOR_ ? "OR_OP" : "AND_OP";
+    }
 }

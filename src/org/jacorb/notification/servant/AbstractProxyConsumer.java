@@ -20,6 +20,7 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avalon.framework.configuration.Configuration;
@@ -41,6 +42,7 @@ import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Priority;
 import org.omg.CosNotification.StartTimeSupported;
 import org.omg.CosNotification.StopTimeSupported;
+import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.Timeout;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
@@ -54,12 +56,15 @@ import org.omg.PortableServer.POA;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractProxyConsumerI,
-        NotifyPublishOperations
+public abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractProxyConsumerI,
+        NotifyPublishOperations, AbstractProxyConsumerMBean
 {
     private final static EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
@@ -67,6 +72,7 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
 
     private final MessageFactory messageFactory_;
 
+    // TODO check StartTime, StopTime, TimeOut: naming and usage is inconsistent.
     private final SynchronizedBoolean isStartTimeSupported_ = new SynchronizedBoolean(true);
 
     private final SynchronizedBoolean isStopTimeSupported_ = new SynchronizedBoolean(true);
@@ -79,6 +85,8 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
 
     protected final SupplierAdmin supplierAdmin_;
 
+    private int messageCounter_ = 0;
+    
     // //////////////////////////////////////
 
     protected AbstractProxyConsumer(IAdmin admin, ORB orb, POA poa, Configuration conf,
@@ -173,7 +181,7 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
     protected void checkMessageProperties(Message m)
     {
         // No Op
-        // TODO fixme
+        // TODO implement
     }
 
     public FilterStage getFirstStage()
@@ -181,12 +189,20 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
         return this;
     }
 
-    public boolean isTimeOutSupported()
+    /**
+     * @jmx.managed-attribute description = "Does this ProxyConsumer support the per Message Option TimeOut"
+     *                        access = "read-only"
+     */
+    public boolean getTimeOutSupported()
     {
         return isStopTimeSupported_.get();
     }
 
-    public boolean isStartTimeSupported()
+    /**
+     * @jmx.managed-attribute description = "Does this ProxyConsumer support the per Message Option StartTime"
+     *                        access = "read-only"
+     */
+    public boolean getStartTimeSupported()
     {
         return isStartTimeSupported_.get();
     }
@@ -313,7 +329,7 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
             subscriptionListener_ = NotifySubscribeHelper.narrow(client);
 
             logger_.debug("successfully narrowed connecting Supplier to NotifySubscribe");
-        } catch (Throwable t)
+        } catch (Exception e)
         {
             logger_.info("connecting Supplier does not support subscription_change");
         }
@@ -327,5 +343,31 @@ abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractPr
     protected void processMessage(Message mesg)
     {
         getTaskProcessor().processMessage(mesg);
+        
+        messageCounter_++;
+    }
+    
+    /**
+     * @jmx.managed-attribute description = "Total number of Messages received by this ProxyConsumer"
+     *                        access = "read-only"
+     */
+    public final int getMessageCount()
+    {
+        return messageCounter_;
+    }
+
+    protected Message[] newMessages(StructuredEvent[] events)
+    {
+        final List _result = new ArrayList(events.length);
+        final MessageFactory _messageFactory = getMessageFactory();
+        
+        for (int i = 0; i < events.length; ++i)
+        {
+            final Message _newMessage = _messageFactory.newMessage(events[i], this);
+            checkMessageProperties(_newMessage);
+            _result.add(_newMessage);
+        }
+        
+        return (Message[]) _result.toArray(new Message[_result.size()]);
     }
 }

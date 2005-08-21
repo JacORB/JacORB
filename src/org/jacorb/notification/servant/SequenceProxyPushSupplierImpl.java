@@ -21,6 +21,8 @@ package org.jacorb.notification.servant;
  *
  */
 
+import java.util.List;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
@@ -29,8 +31,9 @@ import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.PushTaskExecutor;
 import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.engine.PushTaskExecutor.PushTask;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.util.CollectionsWrapper;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetAdapter;
 import org.omg.CORBA.ORB;
@@ -42,7 +45,9 @@ import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
 import org.omg.CosNotifyComm.SequencePushConsumer;
@@ -54,13 +59,29 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedLong;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyPushSupplierMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierImpl implements
-        SequenceProxyPushSupplierOperations
+public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
+        SequenceProxyPushSupplierOperations, SequenceProxyPushSupplierImplMBean
 {
+    private final PushTaskExecutor.PushTask flushPendingData_ = new PushTaskExecutor.PushTask()
+    {
+        public void doPush()
+        {
+            deliverPendingMessages(true);
+        }
+        
+        public void cancel()
+        {
+            // ignore, only depends on settings of ProxyPushSupplier
+        }
+    };
+    
     private class PushSequenceOperation implements PushOperation
     {
         private final StructuredEvent[] structuredEvents_;
@@ -93,26 +114,13 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
         configurePacingInterval();
 
-        final PushTask flushTask = new PushTaskExecutor.PushTask()
-        {
-            public void doPush()
-            {
-                deliverPendingMessages(true);
-            }
-            
-            public void cancel()
-            {
-                // ignore, only depends on settings of ProxyPushSupplier
-            }
-        };
-        
-        schedulePushOperation_ = new Runnable()
+        scheduleFlushPendingData_ = new Runnable()
         {
             public void run()
             {
-                if (!isDisposed() && !isSuspended() && isEnabled())
+                if (!isDestroyed() && !isSuspended() && isEnabled())
                 {
-                    schedulePush(flushTask);
+                    schedulePush(flushPendingData_);
                 }
             }
         };
@@ -134,7 +142,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         });
     }
 
-    private final Runnable schedulePushOperation_;
+    private final Runnable scheduleFlushPendingData_;
     
     /**
      * The connected SequencePushConsumer.
@@ -153,19 +161,12 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
     /**
      * how long to wait between two scheduled deliveries.
+     * (0 equals no scheduled deliveries).
      */
     private final SynchronizedLong pacingInterval_ = new SynchronizedLong(0);
 
     private long timeSpent_ = 0;
 
-    /**
-     * this callback is called by the TimerDaemon. Check if there are pending Events and deliver
-     * them to the Consumer. As there's only one TimerDaemon its important to block the daemon only
-     * a minimal amount of time. Therefor the Callback does not do the actual delivery. Instead a
-     * DeliverTask is scheduled for this Supplier.
-     */
-    // private Runnable timerCallback_;
-    // //////////////////////////////////////
     public ProxyType MyType()
     {
         return ProxyType.PUSH_SEQUENCE;
@@ -179,7 +180,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         deliverPendingMessages(false);
     }
 
-    private void deliverPendingMessages(boolean flush)
+    public void deliverPendingMessages(boolean flush)
     {
         final Message[] _messages;
 
@@ -206,7 +207,7 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
             try
             {
                 deliverPendingMessagesInternal(_structuredEvents);
-            } catch (Throwable e)
+            } catch (Exception e)
             {
                 PushSequenceOperation _failedOperation = new PushSequenceOperation(
                         _structuredEvents);
@@ -268,9 +269,21 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
     {
         if (pacingInterval_.get() > 0 && taskId_ == null)
         {
-            taskId_ = getTaskProcessor().executeTaskPeriodically(pacingInterval_.get(),
-                    schedulePushOperation_, true);
+            final long _interval = timeT2millis();
+            taskId_ = getTaskProcessor().executeTaskPeriodically(_interval,
+                    scheduleFlushPendingData_, true);
         }
+    }
+
+    public long timeT2millis()
+    {
+        final long timeT = pacingInterval_.get();
+        return time2millis(timeT);
+    }
+
+    public static long time2millis(final long timeT)
+    {
+        return timeT / 10000;
     }
 
     synchronized private void stopCronJob()
@@ -284,8 +297,10 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
     private void checkCronJob()
     {
-        if (pacingInterval_.get() > 0)
+        if (getConnected() && pacingInterval_.get() > 0)
         {
+            stopCronJob();
+            
             startCronJob();
         }
         else
@@ -351,5 +366,10 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
     protected long getCost()
     {
         return timeSpent_;
+    }
+    
+    public org.omg.CORBA.Object activate()
+    {
+        return SequenceProxyPushSupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 }

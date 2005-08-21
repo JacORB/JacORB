@@ -33,10 +33,12 @@ import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Object;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
@@ -49,7 +51,7 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class SequenceProxyPullSupplierImpl extends StructuredProxyPullSupplierImpl implements
+public class SequenceProxyPullSupplierImpl extends AbstractProxySupplier implements
         SequenceProxyPullSupplierOperations
 {
     private static final StructuredEvent[] UNDEFINED_SEQUENCE;
@@ -58,7 +60,7 @@ public class SequenceProxyPullSupplierImpl extends StructuredProxyPullSupplierIm
 
     static
     {
-        UNDEFINED_SEQUENCE = new StructuredEvent[] { UNDEFINED_STRUCTURED_EVENT };
+        UNDEFINED_SEQUENCE = new StructuredEvent[] { StructuredProxyPullSupplierImpl.UNDEFINED_STRUCTURED_EVENT };
     }
 
     ////////////////////////////////////////
@@ -170,5 +172,16 @@ public class SequenceProxyPullSupplierImpl extends StructuredProxyPullSupplierIm
         }
 
         return thisServant_;
+    }
+
+    protected long getCost()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public Object activate()
+    {
+        return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 }

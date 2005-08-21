@@ -30,15 +30,19 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.queue.EventQueueFactory;
+import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.MessageQueueAdapter;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetAdapter;
+import org.omg.CORBA.Any;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.DiscardPolicy;
 import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.MaxEventsPerConsumer;
 import org.omg.CosNotification.OrderPolicy;
+import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
@@ -50,20 +54,55 @@ import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.PortableServer.POA;
 
 /**
- * Abstract base class for ProxySuppliers. This class provides following logic for the different
- * ProxySuppliers:
+ * Abstract base class for ProxySuppliers. This class provides base functionality
+ * for the different ProxySuppliers:
  * <ul>
  * <li>queue management,
  * <li>error threshold settings.
  * </ul>
+ * 
+ * @jmx.mbean extends = "AbstractProxyMBean"
+ * @jboss.xmbean
+ * 
+ * @--jmx.notification    name = "notification.proxy.message_discarded"
+ *                      description = "queue overflow causes messages to be discarded"
+ *                      notificationType = "java.lang.String"
  * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public abstract class AbstractProxySupplier extends AbstractProxy implements MessageConsumer,
-        NotifySubscribeOperations
+        NotifySubscribeOperations, AbstractProxySupplierMBean
 {
+    private static final String EVENT_MESSAGE_DISCARDED = "notification.proxy.message_discarded";
+
+    int numberOfDiscardedMessages_ = 0;
+
+    private MessageQueue.DiscardListener discardListener_ = new MessageQueue.DiscardListener()
+    {
+        private long sendTimestamp_;
+        private int discardedMessagesSinceLastBroadcast_ = 1;
+
+        public void messageDiscarded(int maxSize)
+        {
+            numberOfDiscardedMessages_++;
+
+            // max. one notification every five second
+            if (!((System.currentTimeMillis() - sendTimestamp_) < 5000))
+            {
+                sendNotification(EVENT_MESSAGE_DISCARDED, discardedMessagesSinceLastBroadcast_
+                        + " Message(s) discarded. Queue Limit: " + maxSize);
+                sendTimestamp_ = System.currentTimeMillis();
+                discardedMessagesSinceLastBroadcast_ = 1;
+            }
+            else
+            {
+                ++discardedMessagesSinceLastBroadcast_;
+            }
+        }
+    };
+
     private static final Runnable EMPTY_RUNNABLE = new Runnable()
     {
         public void run()
@@ -93,12 +132,12 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     // //////////////////////////////////////
 
     protected AbstractProxySupplier(IAdmin admin, ORB orb, POA poa, Configuration conf,
-            TaskProcessor taskProcessor, OfferManager offerManager, SubscriptionManager subscriptionManager,
-            ConsumerAdmin consumerAdmin)
+            TaskProcessor taskProcessor, OfferManager offerManager,
+            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
             throws ConfigurationException
     {
         super(admin, orb, poa, conf, taskProcessor, offerManager, subscriptionManager);
-        
+
         consumerAdmin_ = consumerAdmin;
 
         eventQueueFactory_ = new EventQueueFactory(conf);
@@ -111,9 +150,8 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
             logger_.info("set Error Threshold to : " + errorThreshold_);
         }
 
-        qosSettings_.addPropertySetListener(
-                new String[] { OrderPolicy.value, DiscardPolicy.value },
-                eventQueueConfigurationChangedCB);
+        qosSettings_.addPropertySetListener(new String[] { OrderPolicy.value, DiscardPolicy.value,
+                MaxEventsPerConsumer.value }, eventQueueConfigurationChangedCB);
 
         try
         {
@@ -121,10 +159,14 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
                     qosSettings_);
 
             pendingMessages_ = new RWLockEventQueueDecorator(initialEventQueue);
+
+            pendingMessages_.addDiscardListener(discardListener_);
         } catch (InterruptedException e)
         {
             throw new RuntimeException();
         }
+
+        eventTypes_.add(EVENT_MESSAGE_DISCARDED);
     }
 
     // //////////////////////////////////////
@@ -138,7 +180,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
      * configure pending messages queue. the queue is reconfigured according to the current QoS
      * Settings. the contents of the queue are reorganized according to the new OrderPolicy.
      */
-    private final void configureEventQueue() // throws UnsupportedQoS
+    private final void configureEventQueue()
     {
         MessageQueueAdapter _newQueue = getMessageQueueFactory().newMessageQueue(qosSettings_);
 
@@ -159,8 +201,10 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         }
     };
 
-    
-
+    /**
+     * @jmx.managed-attribute description = "Number of Pending Messages"
+     *                        access = "read-only"
+     */
     public int getPendingMessagesCount()
     {
         try
@@ -170,6 +214,52 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         {
             return -1;
         }
+    }
+
+    /**
+     * @jmx.managed-attribute description = "current OrderPolicy"
+     *                        access = "read-only"
+     */
+    public final String getOrderPolicy()
+    {
+        return pendingMessages_.getOrderPolicyName();
+    }
+
+    /**
+     * @jmx.managed-attribute description = "current DiscardPolicy"
+     *                        access = "read-only"
+     */
+    public final String getDiscardPolicy()
+    {
+        return pendingMessages_.getDiscardPolicyName();
+    }
+
+    /**
+     * @jmx.managed-attribute description = "maximum number of events that may be queued per consumer"
+     *                        access = "read-write"
+     */
+    public final int getMaxEventsPerConsumer()
+    {
+        return qosSettings_.get(MaxEventsPerConsumer.value).extract_long();
+    }
+
+    /**
+     * @jmx.managed-attribute access = "read-write"
+     */
+    public void setMaxEventsPerConsumer(int max)
+    {
+        Any any = getORB().create_any();
+        any.insert_long(max);
+        Property prop = new Property(MaxEventsPerConsumer.value, any);
+        qosSettings_.set_qos(new Property[] { prop });
+    }
+
+    /**
+     * @jmx.managed-attribute access = "read-only"
+     */
+    public int getNumberOfDiscardedMessages()
+    {
+        return numberOfDiscardedMessages_;
     }
 
     public boolean hasPendingData()
@@ -239,33 +329,32 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         }
     }
 
-    public void deliverMessage(final Message message)
+    public void queueMessage(final Message message)
     {
         if (logger_.isDebugEnabled())
         {
-            logger_.debug("deliverMessage() connected=" + isConnected() + " suspended="
+            logger_.debug("deliverMessage() connected=" + getConnected() + " suspended="
                     + isSuspended());
         }
 
-        if (isConnected())
+        if (getConnected())
         {
             enqueue(message);
 
-            messageDelivered();
+            messageQueued();
         }
     }
 
     /**
      * this is an extension point.
      */
-    protected void messageDelivered()
+    protected void messageQueued()
     {
         // no operation
     }
 
     /**
-     * @param max
-     *            maximum number of messages
+     * @param max maximum number of messages
      * @return an array containing at most max Messages
      */
     protected Message[] getUpToMessages(int max)
@@ -410,7 +499,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
             offerListener_ = NotifyPublishHelper.narrow(client);
 
             logger_.debug("successfully narrowed connecting Client to IF NotifyPublish");
-        } catch (Throwable t)
+        } catch (Exception t)
         {
             logger_.info("disable offer_change for connecting Consumer");
         }
@@ -418,7 +507,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 
     public boolean isRetryAllowed()
     {
-        return !isDisposed() && getErrorCounter() < getErrorThreshold();
+        return !isDestroyed() && getErrorCounter() < getErrorThreshold();
     }
 
     protected abstract long getCost();

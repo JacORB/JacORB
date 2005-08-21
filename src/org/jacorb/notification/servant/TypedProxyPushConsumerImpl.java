@@ -54,11 +54,14 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyConsumerMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
-        TypedProxyPushConsumerOperations, ITypedProxy
+        TypedProxyPushConsumerOperations, ITypedProxy, TypedProxyPushConsumerImplMBean
 {
     final String supportedInterface_;
 
@@ -74,7 +77,7 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
 
     private class TypedProxyPushConsumer extends DynamicImplementation
     {
-        final String[] supportedInterfaces_;
+        private final String[] supportedInterfaces_;
 
         TypedProxyPushConsumer()
         {
@@ -247,5 +250,14 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
     public org.omg.CORBA.Object activate()
     {
         return TypedProxyPushConsumerHelper.narrow(getServant()._this_object(getORB()));
+    }
+    
+    /**
+     * @jmx.managed-attribute
+     *                        access = "read-only"
+     */
+    public String getSupportedInterface()
+    {
+        return supportedInterface_;
     }
 }

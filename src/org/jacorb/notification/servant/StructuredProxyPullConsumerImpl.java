@@ -21,7 +21,6 @@ package org.jacorb.notification.servant;
  *
  */
 
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.OfferManager;
@@ -40,74 +39,62 @@ import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.StructuredPullSupplier;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
-import EDU.oswego.cs.dl.util.concurrent.Sync;
-
-
 /**
+ * @jmx.mbean extends ="AbstractProxyConsumerMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class StructuredProxyPullConsumerImpl
-    extends AbstractProxyConsumer
-    implements StructuredProxyPullConsumerOperations,
-               MessageSupplier
+public class StructuredProxyPullConsumerImpl extends AbstractProxyConsumer implements
+        StructuredProxyPullConsumerOperations, MessageSupplier, MessageSupplierDelegate,
+        StructuredProxyPullConsumerImplMBean
 {
-    protected final Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
-
-    protected long pollInterval_;
-
     private StructuredPullSupplier pullSupplier_;
 
-    private Object taskId_;
+    private final long pollInterval_;
 
-    private final Runnable runQueueThis_;
+    private final PullMessagesUtility pollUtil_;
 
-    ////////////////////////////////////////
+    private final PullMessagesOperation pullMessagesOperation_;
 
-    public StructuredProxyPullConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory mf, OfferManager offerManager, SubscriptionManager subscriptionManager)
+    // //////////////////////////////////////
+
+    public StructuredProxyPullConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration config,
+            TaskProcessor taskProcessor, MessageFactory mf, OfferManager offerManager,
+            SubscriptionManager subscriptionManager, SupplierAdmin supplierAdmin)
     {
-        super(admin, orb, poa, conf, taskProcessor, mf, null, offerManager, subscriptionManager);
+        super(admin, orb, poa, config, taskProcessor, mf, supplierAdmin, offerManager,
+                subscriptionManager);
 
-        runQueueThis_ = new Runnable()
-        {
-            public void run()
-            {
-                schedulePullTask(StructuredProxyPullConsumerImpl.this);
-            }
-        };
+        pollInterval_ = config.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
+                Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+
+        pollUtil_ = new PullMessagesUtility(taskProcessor, this);
+
+        pullMessagesOperation_ = new PullMessagesOperation(this);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
-    public ProxyType MyType() {
+    public ProxyType MyType()
+    {
         return ProxyType.PULL_STRUCTURED;
     }
-
-
-    public void configure (Configuration conf)
-    {
-        super.configure (conf);
-
-        pollInterval_ =
-            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLL_INTERVAL,
-                                        Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
-    }
-
 
     public void disconnect_structured_pull_consumer()
     {
         destroy();
     }
 
-
-    public synchronized void connect_structured_pull_supplier( StructuredPullSupplier pullSupplier )
-        throws AlreadyConnected
+    public synchronized void connect_structured_pull_supplier(StructuredPullSupplier pullSupplier)
+            throws AlreadyConnected
     {
         checkIsNotConnected();
         pullSupplier_ = pullSupplier;
@@ -115,63 +102,15 @@ public class StructuredProxyPullConsumerImpl
         startTask();
     }
 
-
     protected void connectionSuspended()
     {
         stopTask();
     }
 
-
     public void connectionResumed()
     {
         startTask();
     }
-
-
-    public void runPullMessage() throws Disconnected
-    {
-        if (!isConnected() || isSuspended()) {
-            return;
-        }
-
-        try
-        {
-            runPullEventInternal();
-        }
-        catch (InterruptedException e)
-        {
-            logger_.error("pull interrupted", e);
-        }
-    }
-
-
-    protected void runPullEventInternal()
-        throws InterruptedException,
-               Disconnected
-    {
-        BooleanHolder _hasEvent = new BooleanHolder();
-        _hasEvent.value = false;
-        StructuredEvent _event = null;
-
-        try
-        {
-            pullSync_.acquire();
-            _event = pullSupplier_.try_pull_structured_event( _hasEvent );
-        }
-        finally
-        {
-            pullSync_.release();
-        }
-
-        if ( _hasEvent.value )
-        {
-            Message _mesg =
-                getMessageFactory().newMessage( _event, this );
-
-            processMessage( _mesg );
-        }
-    }
-
 
     protected void disconnectClient()
     {
@@ -181,42 +120,51 @@ public class StructuredProxyPullConsumerImpl
         pullSupplier_ = null;
     }
 
-
     protected void startTask()
     {
-        if ( taskId_ == null )
-        {
-            taskId_ = getTaskProcessor()
-                .executeTaskPeriodically( pollInterval_,
-                                          runQueueThis_,
-                                          true );
-        }
+        pollUtil_.startTask(pollInterval_);
     }
-
 
     protected void stopTask()
     {
-        if ( taskId_ != null )
-        {
-            getTaskProcessor().cancelTask( taskId_ );
-            taskId_ = null;
-        }
+        pollUtil_.stopTask();
     }
-
 
     public synchronized Servant getServant()
     {
-        if ( thisServant_ == null )
+        if (thisServant_ == null)
         {
-            thisServant_ = new StructuredProxyPullConsumerPOATie( this );
+            thisServant_ = new StructuredProxyPullConsumerPOATie(this);
         }
 
         return thisServant_;
     }
 
-
     public org.omg.CORBA.Object activate()
     {
         return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
+    }
+
+    public PullResult pullMessages() throws Disconnected
+    {
+        BooleanHolder _hasEvent = new BooleanHolder();
+        _hasEvent.value = false;
+        StructuredEvent _event = pullSupplier_.try_pull_structured_event(_hasEvent);
+
+        return new MessageSupplierDelegate.PullResult(_event, _hasEvent.value);
+    }
+
+    public void queueMessages(PullResult data)
+    {
+        Message _mesg = getMessageFactory().newMessage((StructuredEvent) data.data_, this);
+
+        checkMessageProperties(_mesg);
+
+        processMessage(_mesg);
+    }
+
+    public void runPullMessage() throws Disconnected
+    {
+        pullMessagesOperation_.runPull();
     }
 }

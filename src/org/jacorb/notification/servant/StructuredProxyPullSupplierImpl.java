@@ -50,12 +50,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean  extends ="AbstractProxyMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier implements
-        StructuredProxyPullSupplierOperations
+        StructuredProxyPullSupplierOperations, StructuredProxyPullSupplierImplMBean
 {
     /**
      * undefined StructuredEvent that is returned on unsuccessful pull operations.

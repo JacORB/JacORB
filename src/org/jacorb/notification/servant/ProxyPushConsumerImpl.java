@@ -40,12 +40,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyConsumerMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ProxyPushConsumerImpl extends AbstractProxyConsumer implements
-        ProxyPushConsumerOperations
+        ProxyPushConsumerOperations, ProxyPushConsumerImplMBean
 {
     private PushSupplier pushSupplier_;
 

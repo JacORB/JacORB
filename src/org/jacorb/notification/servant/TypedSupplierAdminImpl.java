@@ -79,11 +79,10 @@ public class TypedSupplierAdminImpl extends SupplierAdminImpl implements
         {
             final MutablePicoContainer _containerForProxy = newContainerForTypedProxy(type);
 
-            _containerForProxy.registerComponent(newComponentAdapter(
-                    TypedProxyPushConsumerImpl.class, TypedProxyPushConsumerImpl.class));
+            _containerForProxy.registerComponentImplementation(AbstractProxyConsumer.class, TypedProxyPushConsumerImpl.class);
 
-            TypedProxyPushConsumerImpl _servant = (TypedProxyPushConsumerImpl) _containerForProxy
-                    .getComponentInstance(TypedProxyPushConsumerImpl.class);
+            AbstractProxyConsumer _servant = (AbstractProxyConsumer) _containerForProxy
+                    .getComponentInstanceOfType(AbstractProxyConsumer.class);
 
             _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(this));
 
@@ -112,11 +111,10 @@ public class TypedSupplierAdminImpl extends SupplierAdminImpl implements
         {
             final MutablePicoContainer _containerForProxy = newContainerForTypedProxy(type);
 
-            _containerForProxy.registerComponent(newComponentAdapter(
-                    TypedProxyPullConsumerImpl.class, TypedProxyPullConsumerImpl.class));
+            _containerForProxy.registerComponentImplementation(AbstractProxyConsumer.class, TypedProxyPullConsumerImpl.class);
 
-            TypedProxyPullConsumerImpl _servant = (TypedProxyPullConsumerImpl) _containerForProxy
-                    .getComponentInstance(TypedProxyPullConsumerImpl.class);
+            AbstractProxyConsumer _servant = (AbstractProxyConsumer) _containerForProxy
+                    .getComponentInstanceOfType(AbstractProxyConsumer.class);
 
             configureInterFilterGroupOperator(_servant);
 
@@ -144,5 +142,10 @@ public class TypedSupplierAdminImpl extends SupplierAdminImpl implements
     public org.omg.CosEventChannelAdmin.ProxyPullConsumer obtain_typed_pull_consumer(String type)
     {
         throw new NO_IMPLEMENT();
+    }
+    
+    public String getMBeanType()
+    {
+        return "TypedSupplierAdmin";
     }
 }

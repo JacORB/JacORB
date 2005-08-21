@@ -40,4 +40,6 @@ public interface IAdmin extends IContainer
      * @return a boolean value that indicates if the id may be used to look up the Proxy via Admins get_proxy* methods.
      */
     boolean isIDPublic();
+    
+    String getAdminMBean();
 }

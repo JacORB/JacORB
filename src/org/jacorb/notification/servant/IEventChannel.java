@@ -46,4 +46,6 @@ public interface IEventChannel extends IContainer
      * @return the parent Channel.
      */
     EventChannel getEventChannel();
+    
+    String getChannelMBean();
 }

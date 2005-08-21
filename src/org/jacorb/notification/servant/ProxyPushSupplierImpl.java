@@ -45,12 +45,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyPushSupplierMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
-        ProxyPushSupplierOperations
+        ProxyPushSupplierOperations, ProxyPushSupplierImplMBean
 {
     private class PushAnyOperation extends MessagePushOperation 
     {
@@ -95,14 +98,12 @@ public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         pushConsumer_ = null;
     }
 
-    
-
     private void deliverMessageWithRetry(final Message message)
     {
         try
         {
             deliverMessageInternal(message);
-        } catch (Throwable e)
+        } catch (Exception e)
         {
             PushAnyOperation _failedOperation = new PushAnyOperation(message);
 
@@ -143,18 +144,7 @@ public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         connectClient(pushConsumer);
     }
 
-    public List getSubsequentFilterStages()
-    {
-        return CollectionsWrapper.singletonList(this);
-    }
-
-    public MessageConsumer getMessageConsumer()
-    {
-        return this;
-    }
-
    
-
     protected void connectionResumed()
     {
         schedulePush();

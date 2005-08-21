@@ -73,12 +73,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxySupplierMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
-        TypedProxyPullSupplierOperations, ITypedProxy
+        TypedProxyPullSupplierOperations, ITypedProxy, TypedProxyPullSupplierImplMBean
 {
     final Any trueAny_;
 
@@ -292,11 +295,11 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
                 logger_.debug("Create Queue for Operation: "
                         + interfaceDescription.operations[x].name);
 
-                MessageQueueAdapter _messageQueue = getMessageQueueFactory().newMessageQueue(
-                        qosSettings_);
+                MessageQueueAdapter _messageQueue = 
+                    getMessageQueueFactory().newMessageQueue(qosSettings_);
 
-                map.put(interfaceDescription.operations[x].name, new RWLockEventQueueDecorator(
-                        _messageQueue));
+                map.put(interfaceDescription.operations[x].name, 
+                        new RWLockEventQueueDecorator(_messageQueue));
             }
         }
 
@@ -345,11 +348,10 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
             {
                 String _key = (String) i.next();
 
-                RWLockEventQueueDecorator _queueAdapter = (RWLockEventQueueDecorator) messageQueueMap_
-                        .get(_key);
+                RWLockEventQueueDecorator _queueAdapter = 
+                    (RWLockEventQueueDecorator) messageQueueMap_.get(_key);
 
-                MessageQueueAdapter _newQueue = getMessageQueueFactory().newMessageQueue(
-                        qosSettings_);
+                MessageQueueAdapter _newQueue = getMessageQueueFactory().newMessageQueue(qosSettings_);
 
                 _queueAdapter.replaceDelegate(_newQueue);
             }
@@ -357,6 +359,31 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         } catch (InterruptedException e)
         {
             throw new RuntimeException(e.getMessage());
+        }
+    }
+    
+    public int getPendingMessagesCount()
+    {
+        try
+        {
+            Iterator i = messageQueueMap_.keySet().iterator();
+
+            int _count = 0;
+            
+            while (i.hasNext())
+            {
+                String _key = (String) i.next();
+
+                RWLockEventQueueDecorator _queueAdapter = 
+                    (RWLockEventQueueDecorator) messageQueueMap_.get(_key);
+
+                _count += _queueAdapter.getPendingMessagesCount();
+            }
+
+            return _count;
+        } catch (InterruptedException e)
+        {
+            return -1;
         }
     }
 
@@ -433,7 +460,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         return TypedProxyPullSupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 
-    public void deliverMessage(Message message)
+    public void queueMessage(Message message)
     {
         try
         {
@@ -490,5 +517,14 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
     protected long getCost()
     {
         return 0;
+    }
+    
+    /**
+     * @jmx.managed-attribute
+     *                        access = "read-only"
+     */
+    public String getSupportedInterface()
+    {
+        return supportedInterface_;
     }
 }

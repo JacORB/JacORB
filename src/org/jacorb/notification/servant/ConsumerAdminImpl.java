@@ -63,12 +63,15 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.defaults.CachingComponentAdapter;
 
 /**
+ * @jmx.mbean extends = "AbstractAdminMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOperations,
-        Disposable, ProxyEventListener
+        Disposable, ProxyEventListener, ConsumerAdminImplMBean
 {
     private final static class FilterstageWithMessageConsumerComparator implements Comparator
     {
@@ -146,7 +149,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         container_.registerComponent(new CachingComponentAdapter(new CORBAObjectComponentAdapter(
                 ConsumerAdmin.class, thisRef_)));
 
-        addDisposeHook(new Disposable()
+        registerDisposable(new Disposable()
         {
             public void dispose()
             {
@@ -305,10 +308,10 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         {
             MutablePicoContainer _container = newContainerForEventStyleProxy();
 
-            _container.registerComponent(newComponentAdapter(ECProxyPullSupplierImpl.class, ECProxyPullSupplierImpl.class));
+            _container.registerComponentImplementation(AbstractProxy.class, ECProxyPullSupplierImpl.class);
 
-            ProxyPullSupplierImpl _servant = (ProxyPullSupplierImpl) _container
-                    .getComponentInstance(ECProxyPullSupplierImpl.class);
+            AbstractProxy _servant = (AbstractProxy) _container
+                    .getComponentInstanceOfType(AbstractProxy.class);
 
             configureQoS(_servant);
 
@@ -332,10 +335,10 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         {
             MutablePicoContainer _container = newContainerForEventStyleProxy();
 
-            _container.registerComponent(newComponentAdapter(ECProxyPushSupplierImpl.class, ECProxyPushSupplierImpl.class));
+            _container.registerComponentImplementation(AbstractProxy.class, ECProxyPushSupplierImpl.class);
 
-            final ProxyPushSupplierImpl _servant = (ProxyPushSupplierImpl) _container
-                    .getComponentInstance(ECProxyPushSupplierImpl.class);
+            final AbstractProxy _servant = (AbstractProxy) _container
+                    .getComponentInstanceOfType(AbstractProxy.class);
 
             configureQoS(_servant);
 
@@ -373,6 +376,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
 
     public void actionProxyCreationRequest(ProxyEvent event)
     {
+        // ignored
     }
 
     public void actionProxyDisposed(ProxyEvent event)
@@ -411,10 +415,10 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         }
 
         _containerForProxy
-                .registerComponent(newComponentAdapter(AbstractProxySupplier.class, _proxyClass));
+                .registerComponentImplementation(AbstractProxySupplier.class, _proxyClass);
 
         final AbstractProxySupplier _servant = (AbstractProxySupplier) _containerForProxy
-                .getComponentInstance(AbstractProxySupplier.class);
+                .getComponentInstanceOfType(AbstractProxySupplier.class);
 
         return _servant;
     }
@@ -447,11 +451,16 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         final MutablePicoContainer _containerForProxy = newContainerForNotifyStyleProxy();
 
         _containerForProxy
-                .registerComponent(newComponentAdapter(AbstractProxySupplier.class, _proxyClass));
+                .registerComponentImplementation(AbstractProxySupplier.class, _proxyClass);
 
         final AbstractProxySupplier _servant = (AbstractProxySupplier) _containerForProxy
-                .getComponentInstance(AbstractProxySupplier.class);
+                .getComponentInstanceOfType(AbstractProxySupplier.class);
 
         return _servant;
+    }
+    
+    public String getMBeanType()
+    {
+        return "ConsumerAdmin";
     }
 }

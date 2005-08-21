@@ -22,7 +22,7 @@
 package org.jacorb.notification.servant;
 
 /**
- * Internal Interface provided to TypedProxiesthat gives them Information from their Parent Admin.
+ * Internal Interface between TypedProxies and their parent Admin
  * 
  * @author Alphonse Bendt
  * @version $Id$

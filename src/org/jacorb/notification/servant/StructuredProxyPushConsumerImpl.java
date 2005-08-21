@@ -41,12 +41,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyConsumerMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class StructuredProxyPushConsumerImpl extends AbstractProxyConsumer implements
-        StructuredProxyPushConsumerOperations
+        StructuredProxyPushConsumerOperations, StructuredProxyPushConsumerImplMBean
 {
     private StructuredPushSupplier pushSupplier_;
 

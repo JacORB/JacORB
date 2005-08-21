@@ -50,12 +50,15 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxyPushSupplierMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
-        StructuredProxyPushSupplierOperations
+        StructuredProxyPushSupplierOperations, StructuredProxyPushSupplierImplMBean
 {
     private class PushStructuredOperation extends MessagePushOperation 
     {    
@@ -67,7 +70,6 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
             deliverMessageInternal(message_);
         }
     }
-
     
     private final static StructuredPushConsumerOperations NULL_CONSUMER = new StructuredPushConsumerOperations()
     {
@@ -128,7 +130,7 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
         try
         {
             deliverMessageInternal(message);
-        } catch (Throwable e)
+        } catch (Exception e)
         {
             PushStructuredOperation _failedOperation = new PushStructuredOperation(message);
 
@@ -174,16 +176,6 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
         pushConsumer_.disconnect_structured_push_consumer();
 
         pushConsumer_ = NULL_CONSUMER;
-    }
-
-    public List getSubsequentFilterStages()
-    {
-        return CollectionsWrapper.singletonList(this);
-    }
-
-    public MessageConsumer getMessageConsumer()
-    {
-        return this;
     }
 
     public synchronized Servant getServant()

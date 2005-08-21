@@ -42,89 +42,56 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
-import EDU.oswego.cs.dl.util.concurrent.Sync;
-
 /**
+ * @jmx.mbean extends = "AbstractProxyConsumerMBean"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class ProxyPullConsumerImpl
-    extends AbstractProxyConsumer
-    implements ProxyPullConsumerOperations,
-               MessageSupplier
+public class ProxyPullConsumerImpl extends AbstractProxyConsumer implements
+        ProxyPullConsumerOperations, MessageSupplier, MessageSupplierDelegate, ProxyPullConsumerImplMBean
 {
-    /**
-     * this sync is accessed during a pull operation. therby the
-     * maximal number of concurrent pull operations per pull supplier
-     * can be controlled.
-     */
-    private final Sync pullSync_ =
-        new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
-
     /**
      * the connected PullSupplier
      */
     private PullSupplier pullSupplier_;
+
     private long pollInterval_;
-    private Object timerRegistration_;
 
-    /**
-     * Callback that is run by the Timer.
-     */
-    private final Runnable runQueueThis_;
+    private final PullMessagesOperation pullMessagesOperation_;
 
-    //////////////////////////////
-    // Some Management Information
+    private final PullMessagesUtility pollTaskUtility_;
 
-    /**
-     * Total number of pull-Operations
-     */
-    private int pullCounter_;
+    // //////////////////////////////////////
 
-    /**
-     * Total time spent within pull-Operations
-     */
-    private long timeSpentInPull_;
-
-    /**
-     * Total number of successful pull-Operations
-     */
-    private int successfulPullCounter_;
-
-    ////////////////////////////////////////
-
-    public ProxyPullConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory messageFactory, OfferManager offerManager, SubscriptionManager subscriptionManager)
+    public ProxyPullConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, MessageFactory messageFactory, OfferManager offerManager,
+            SubscriptionManager subscriptionManager)
     {
-        super(admin, orb, poa, conf, taskProcessor, messageFactory, null, offerManager, subscriptionManager);
+        super(admin, orb, poa, conf, taskProcessor, messageFactory, null, offerManager,
+                subscriptionManager);
 
+        pollInterval_ = conf.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
+                Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+
+        pullMessagesOperation_ = new PullMessagesOperation(this);
         
-        pollInterval_ =
-            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLL_INTERVAL,
-                                     Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
-    
-        runQueueThis_ = new Runnable()
-        {
-            public void run()
-            {
-                schedulePullTask( ProxyPullConsumerImpl.this );
-            }
-        };    
+        pollTaskUtility_ = new PullMessagesUtility(taskProcessor, this);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
-    public ProxyType MyType() {
+    public ProxyType MyType()
+    {
         return ProxyType.PULL_ANY;
     }
-
 
     public void disconnect_pull_consumer()
     {
         destroy();
     }
-
 
     protected void disconnectClient()
     {
@@ -135,72 +102,22 @@ public class ProxyPullConsumerImpl
         pullSupplier_ = null;
     }
 
-
     protected void connectionSuspended()
     {
         stopTask();
     }
-
 
     protected void connectionResumed()
     {
         startTask();
     }
 
-
     public void runPullMessage() throws Disconnected
     {
-        if ( !isConnected() )
-            {
-                return;
-            }
-
-        try {
-            runPullEventInternal();
-        } catch (InterruptedException e) {
-            logger_.error("pull was interrupted", e);
-        }
+        pullMessagesOperation_.runPull();
     }
 
-
-    private void runPullEventInternal()
-        throws InterruptedException,
-               Disconnected
-    {
-        BooleanHolder hasEvent = new BooleanHolder();
-        Any event = null;
-
-        try {
-            pullSync_.acquire();
-
-            ++pullCounter_;
-
-            long _start = System.currentTimeMillis();
-
-            event = pullSupplier_.try_pull( hasEvent );
-
-            timeSpentInPull_ += System.currentTimeMillis() - _start;
-        }
-        finally {
-            pullSync_.release();
-        }
-
-        if ( hasEvent.value )
-            {
-                ++successfulPullCounter_;
-
-                Message _message =
-                    getMessageFactory().newMessage( event, this );
-
-                checkMessageProperties(_message);
-
-                processMessage( _message );
-            }
-    }
-
-
-    public void connect_any_pull_supplier( PullSupplier pullSupplier )
-        throws AlreadyConnected
+    public void connect_any_pull_supplier(PullSupplier pullSupplier) throws AlreadyConnected
     {
         checkIsNotConnected();
 
@@ -211,47 +128,32 @@ public class ProxyPullConsumerImpl
         startTask();
     }
 
-
-    synchronized private void startTask()
+    private synchronized void startTask()
     {
-        if ( timerRegistration_ == null )
-        {
-            timerRegistration_ =
-                getTaskProcessor().executeTaskPeriodically( pollInterval_,
-                                                            runQueueThis_,
-                                                            true );
-        }
+        pollTaskUtility_.startTask(pollInterval_);
     }
 
-
-    synchronized private void stopTask()
+    private synchronized void stopTask()
     {
-        if ( timerRegistration_ != null )
-        {
-            getTaskProcessor().cancelTask( timerRegistration_ );
-
-            timerRegistration_ = null;
-        }
+        pollTaskUtility_.stopTask();
     }
-
 
     public synchronized Servant getServant()
     {
-        if ( thisServant_ == null )
+        if (thisServant_ == null)
         {
-            thisServant_ = new ProxyPullConsumerPOATie( this );
+            thisServant_ = new ProxyPullConsumerPOATie(this);
         }
 
         return thisServant_;
     }
-
 
     public org.omg.CORBA.Object activate()
     {
         return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
     // todo collect management informations
 
     public long getPollInterval()
@@ -259,21 +161,35 @@ public class ProxyPullConsumerImpl
         return pollInterval_;
     }
 
-
     public long getPullTimer()
     {
-        return timeSpentInPull_;
+        return pullMessagesOperation_.getTimeSpentInPull();
     }
-
 
     public int getPullCounter()
     {
-        return pullCounter_;
+        return pullMessagesOperation_.getPullCounter();
     }
-
 
     public int getSuccessfulPullCounter()
     {
-        return successfulPullCounter_;
+        return pullMessagesOperation_.getSuccessfulPullCounter();
+    }
+
+    public PullResult pullMessages() throws Disconnected
+    {
+        BooleanHolder _hasEvent = new BooleanHolder();
+        Any _event = pullSupplier_.try_pull(_hasEvent);
+
+        return new MessageSupplierDelegate.PullResult(_event, _hasEvent.value);
+    }
+
+    public void queueMessages(PullResult data)
+    {
+        Message _message = getMessageFactory().newMessage((Any) data.data_, this);
+
+        checkMessageProperties(_message);
+
+        processMessage(_message);
     }
 }
