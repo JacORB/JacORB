@@ -52,11 +52,7 @@ public class WeakHashSetTest extends TestCase
         objectUnderTest_ = new WeakHashSet();
     }
 
-    /**
-     * Constructor for WeakHashSetTest.
-     * 
-     * @param name
-     */
+    
     public WeakHashSetTest(String name)
     {
         super(name);
@@ -103,9 +99,7 @@ public class WeakHashSetTest extends TestCase
         assertFalse(i.hasNext());
     }
 
-    /*
-     * Class under test for Object[] toArray()
-     */
+    
     public void testToArray()
     {
         Object[] array = objectUnderTest_.toArray();
@@ -121,9 +115,7 @@ public class WeakHashSetTest extends TestCase
         assertEquals(o1, array[0]);
     }
 
-    /*
-     * Class under test for Object[] toArray(Object[])
-     */
+    
     public void testToArrayObjectArray()
     {
         String s1 = "text";

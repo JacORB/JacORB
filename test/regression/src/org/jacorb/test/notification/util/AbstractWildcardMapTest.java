@@ -50,12 +50,12 @@ public abstract class AbstractWildcardMapTest extends TestCase
         objectUnderTest_.put("hallo3", "Hallo3");
         objectUnderTest_.put("hallo4", "Hallo4");
 
-        Object o = objectUnderTest_.remove("hallo2");
-        assertEquals("Hallo2", o);
+        Object _removed = objectUnderTest_.remove("hallo2");
+        assertEquals("Hallo2", _removed);
 
-        Object[] l = objectUnderTest_.getWithExpansion("hallo2");
+        Object[] _result = objectUnderTest_.getWithExpansion("hallo2");
 
-        assertEquals(0, l.length);
+        assertEquals(0, _result.length);
     }
 
     public void testClear() throws Exception
@@ -75,36 +75,36 @@ public abstract class AbstractWildcardMapTest extends TestCase
     public void testAddStar1() throws Exception
     {
         objectUnderTest_.put("ha*o", "default");
-        Object[] _res = objectUnderTest_.getWithExpansion("hallo");
-        assertTrue(_res.length == 1);
+        Object[] _result = objectUnderTest_.getWithExpansion("hallo");
+        assertTrue(_result.length == 1);
 
-        _res = objectUnderTest_.getWithExpansion("hall");
-        assertTrue(_res.length == 0);
+        _result = objectUnderTest_.getWithExpansion("hall");
+        assertTrue(_result.length == 0);
 
-        _res = objectUnderTest_.getWithExpansion("hao");
-        assertTrue(_res.length == 1);
+        _result = objectUnderTest_.getWithExpansion("hao");
+        assertTrue(_result.length == 1);
 
-        _res = objectUnderTest_.getWithExpansion("hadddddo");
-        assertTrue(_res.length == 1);
+        _result = objectUnderTest_.getWithExpansion("hadddddo");
+        assertTrue(_result.length == 1);
     }
 
     public void testAddStar2() throws Exception
     {
         objectUnderTest_.put("*abc*de", "value");
-        Object[] _res = objectUnderTest_.getWithExpansion("abcde");
-        assertTrue(_res.length == 1);
+        Object[] _result = objectUnderTest_.getWithExpansion("abcde");
+        assertTrue(_result.length == 1);
 
-        _res = objectUnderTest_.getWithExpansion("halloabcde");
-        assertTrue(_res.length == 1);
+        _result = objectUnderTest_.getWithExpansion("halloabcde");
+        assertTrue(_result.length == 1);
 
-        _res = objectUnderTest_.getWithExpansion("abcbla bla blade");
-        assertTrue(_res.length == 1);
+        _result = objectUnderTest_.getWithExpansion("abcbla bla blade");
+        assertTrue(_result.length == 1);
 
-        _res = objectUnderTest_.getWithExpansion("abcde");
-        assertTrue(_res.length == 1);
+        _result = objectUnderTest_.getWithExpansion("abcde");
+        assertTrue(_result.length == 1);
 
-        _res = objectUnderTest_.getWithExpansion("ab cde");
-        assertEquals(0, _res.length);
+        _result = objectUnderTest_.getWithExpansion("ab cde");
+        assertEquals(0, _result.length);
     }
 
     public void testAddStar() throws Exception
@@ -112,14 +112,14 @@ public abstract class AbstractWildcardMapTest extends TestCase
         objectUnderTest_.put("abc*", "value1");
         objectUnderTest_.put("abcd", "value2");
 
-        Object[] _res = objectUnderTest_.getWithExpansion("abc");
-        assertEquals(1, _res.length);
-        assertEquals("value1", _res[0]);
+        Object[] _result = objectUnderTest_.getWithExpansion("abc");
+        assertEquals(1, _result.length);
+        assertEquals("value1", _result[0]);
 
-        _res = objectUnderTest_.getWithExpansion("abcd");
-        assertEquals(2, _res.length);
-        assertTrue("value1".equals(_res[0]) || "value1".equals(_res[1]));
-        assertTrue("value2".equals(_res[0]) || "value2".equals(_res[1]));
+        _result = objectUnderTest_.getWithExpansion("abcd");
+        assertEquals(2, _result.length);
+        assertTrue("value1".equals(_result[0]) || "value1".equals(_result[1]));
+        assertTrue("value2".equals(_result[0]) || "value2".equals(_result[1]));
     }
 
     public void testSplitAfterStar() throws Exception
@@ -128,14 +128,14 @@ public abstract class AbstractWildcardMapTest extends TestCase
         objectUnderTest_.put("abc*ef", "value2");
         objectUnderTest_.put("abc", "value3");
 
-        Object[] _res = objectUnderTest_.getWithExpansion("abcxyzdef");
-        assertEquals(2, _res.length);
+        Object[] _result = objectUnderTest_.getWithExpansion("abcxyzdef");
+        assertEquals(2, _result.length);
 
-        _res = objectUnderTest_.getWithExpansion("abcxyzef");
-        assertEquals(1, _res.length);
+        _result = objectUnderTest_.getWithExpansion("abcxyzef");
+        assertEquals(1, _result.length);
 
-        _res = objectUnderTest_.getWithExpansion("abc");
-        assertEquals(1, _res.length);
+        _result = objectUnderTest_.getWithExpansion("abc");
+        assertEquals(1, _result.length);
     }
 
     public void testExactGet() throws Exception
@@ -160,18 +160,18 @@ public abstract class AbstractWildcardMapTest extends TestCase
         objectUnderTest_.put("name", "wert");
         objectUnderTest_.put("java", "Programming Language");
 
-        Object _old = objectUnderTest_.put("name", "neuer wert");
+        Object _oldValue = objectUnderTest_.put("name", "neuer wert");
 
-        assertEquals("wert", _old);
+        assertEquals("wert", _oldValue);
 
-        Object[] o1 = objectUnderTest_.getWithExpansion("name");
-        Object[] o2 = objectUnderTest_.getWithExpansion("java");
+        Object[] _value1 = objectUnderTest_.getWithExpansion("name");
+        Object[] _value2 = objectUnderTest_.getWithExpansion("java");
 
-        assertEquals(1, o1.length);
-        assertEquals("neuer wert", o1[0]);
+        assertEquals(1, _value1.length);
+        assertEquals("neuer wert", _value1[0]);
 
-        assertEquals(1, o2.length);
-        assertEquals("Programming Language", o2[0]);
+        assertEquals(1, _value2.length);
+        assertEquals("Programming Language", _value2[0]);
     }
 }
 
