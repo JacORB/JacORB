@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../etc/common.xml"> ]>
+
+<project name="libs" default="all" basedir="../..">
+
+	&common;
+	
+	<property name="dir.picocontainer" value="${basedir}/../picocontainer" />
+	<property name="dir.nanocontainer-remoting" value="${basedir}/../nanocontainer-remoting" />
+	
+	<!-- picocontainer revision is the same as nanocontainer revision. -->
+	<!-- use 'svn status ++verbose' to find out the revision (replace + with -) -->
+	<property name="revision" value="2181" />
+	
+	<property name="dir.mx4j" value="/Users/alf/Developer/Library/mx4j-3.0.1" />
+	
+	<property name="dir.src" value="${basedir}/lib/src" />
+	
+	<property name="file.src" value="${dir.src}/picocontainer-1.2-${revision}-src.zip" /> 
+	
+	<target name="zip" description="zip external sources">
+		<zip destfile="${file.src}" >
+			<zipfileset dir="${dir.picocontainer}/container/src/java">
+				<include name="org/picocontainer/**" />
+			</zipfileset>
+			
+			<zipfileset dir="${dir.nanocontainer-remoting}/remoting/src/java">
+				<include name="org/nanocontainer/remoting/jmx/**"/>
+			</zipfileset>
+		</zip>
+	</target>
+	
+	<target name="unzip" description="unzip external sources into src-generated" depends="init" >
+		<unzip dest="${src}/generated" src="${file.src}" />
+	</target>
+	
+	<target name="compile" description="compile external sources" depends="init, unzip" >
+		<path id="classpath">
+			<path refid="path.base" />
+			
+			<fileset dir="${dir.mx4j}/lib">
+				<include name="**/*.jar"/>
+			</fileset>
+		</path>
+		
+		<jacorb-javac javac-includes="org/picocontainer/**, org/nanocontainer/**" javac-src="${src}/generated" javac-classpathref="classpath" />
+	</target>
+	
+	<target name="jar" description="create jars" depends="init, compile">
+		<jar destfile="${lib}/picocontainer-1.2.jar">
+			<fileset dir="${classdir}">
+				<include name="org/picocontainer/**" />
+				<include name="org/nanocontainer/**" />
+			</fileset>
+		</jar>
+	</target>
+	
+	<target name="clean" depends="base-init" >
+		<delete>
+			<fileset dir="${src}/generated">
+				<include name="org/picocontainer/**" />
+				<include name="org/nanocontainer/**" />
+			</fileset>
+			
+			<fileset dir="${basedir}/classes" >
+				<include name="org/picocontainer/**" />
+				<include name="org/nanocontainer/**" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="all" depends="jar" />
+	
+</project>
