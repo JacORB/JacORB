@@ -71,7 +71,7 @@ public class WrapperMain implements WrapperListener
         {
             application_ = ConsoleMain.newFactory(args);
 
-            application_.setDestroyMethod(CMD_WRAPPERMANAGER_STOP);
+           // application_.setDestroyMethod(CMD_WRAPPERMANAGER_STOP);
 
             return null;
         } catch (Exception e)

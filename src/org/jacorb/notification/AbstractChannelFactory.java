@@ -485,7 +485,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         // TODO fetch this from somewhere?
         int _connectionTimeout = 4000;
 
-        int _estimatedShutdowntime = _numberOfClients * _connectionTimeout;
+        int _estimatedShutdowntime = 2000 + _numberOfClients * _connectionTimeout;
 
         if (logger_.isInfoEnabled())
         {
