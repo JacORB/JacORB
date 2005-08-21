@@ -26,12 +26,14 @@ import org.jacorb.notification.filter.EvaluationResult;
 
 import antlr.Token;
 
-public class StringValue extends AbstractTCLNode {
-
+public class StringValue extends AbstractTCLNode
+{
     private final String value_;
+
     private final EvaluationResult result_;
 
-    public StringValue(Token tok) {
+    public StringValue(Token tok)
+    {
         super(tok);
         setName("StringValue");
         value_ = tok.getText();
@@ -40,37 +42,43 @@ public class StringValue extends AbstractTCLNode {
         result_ = EvaluationResult.wrapImmutable(_result);
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitString(this);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitString(this);
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "'" + value_ + "'";
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-         {
-
+    {
         return result_;
     }
 
-    public boolean isNumber() {
+    public boolean isNumber()
+    {
         return (value_.length() == 1);
     }
 
-    public boolean isStatic() {
+    public boolean isStatic()
+    {
         return true;
     }
 
-    public boolean isString() {
+    public boolean isString()
+    {
         return true;
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitString(this);
     }
 }

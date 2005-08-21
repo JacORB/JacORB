@@ -31,21 +31,21 @@ import java.util.Date;
  */
 public abstract class AbstractFilterUsageDecorator
 {
-    private final Date created_ = new Date();
+    long lastUsage_;
+    
+    long matchCount_ = 0;
 
-    protected final FilterInvocationHandler invocationHandler_;
+    long matchStructuredCount_ = 0;
+
+    long matchTypedCount_ = 0;
+    
+    final FilterInvocationHandler invocationHandler_;
+    
+    private final Date created_ = new Date();
     
     protected class FilterInvocationHandler implements InvocationHandler
     {
-        private long lastUsage_;
-
         private final Object delegate_;
-
-        private long matchCount_ = 0;
-
-        private long matchStructuredCount_ = 0;
-
-        private long matchTypedCount_ = 0;
 
         public FilterInvocationHandler(Object delegate)
         {
@@ -58,7 +58,6 @@ public abstract class AbstractFilterUsageDecorator
 
             return method.invoke(delegate_, args);
         }
-
         
         private void updateUsage(Method method)
         {
@@ -78,16 +77,8 @@ public abstract class AbstractFilterUsageDecorator
                 ++matchTypedCount_;
             }
         }
-
-        public long getLastUsage()
-        {
-            return lastUsage_;
-        }
     }
 
-    /**
-     * 
-     */
     public AbstractFilterUsageDecorator(Object delegate)
     {
         super();
@@ -97,11 +88,26 @@ public abstract class AbstractFilterUsageDecorator
 
     public Date getLastUsage()
     {
-        return new Date(invocationHandler_.getLastUsage());
+        return new Date(lastUsage_);
     }
 
     public Date getCreationDate()
     {
         return created_;
+    }
+    
+    public long getMatchCount()
+    {
+        return matchCount_;
+    }
+
+    public long getMatchStructuredCount()
+    {
+        return matchStructuredCount_;
+    }
+
+    public long getMatchTypedCount()
+    {
+        return matchTypedCount_;
     }
 }

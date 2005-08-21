@@ -32,10 +32,15 @@ import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.PortableServer.POA;
 
 /**
+ * @jmx.mbean   name = "ETCLFilter"
+ *              extends = "org.jacorb.notification.filter.AbstractFilterMBean"
+ *              
+ * @jboss.xmbean             
+ *              
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class ETCLFilter extends AbstractFilter
+public class ETCLFilter extends AbstractFilter implements ETCLFilterMBean
 {
     public final static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
 

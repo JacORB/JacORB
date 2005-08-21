@@ -29,45 +29,37 @@ import antlr.Token;
 
 /**
  * A simple node to represent DIV operation
+ * 
  * @version $Id$
  */
 
-public class DivOperator extends BinaryOperator {
-
-    public DivOperator(Token tok) {
+public class DivOperator extends BinaryOperator
+{
+    public DivOperator(Token tok)
+    {
         super(tok);
         setName("DivOperator");
     }
 
-    public String toString() {
+    public String toString()
+    {
         return " /";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
-        throws EvaluationException {
-
-        try {
-            return EvaluationResult.div(left, right);
-        } catch (ArithmeticException e) {
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
+            EvaluationResult rightVal) throws EvaluationException
+    {
+        try
+        {
+            return EvaluationResult.div(left, rightVal);
+        } catch (ArithmeticException e)
+        {
             throw new EvaluationException(e.getMessage());
         }
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        left().acceptInOrder(visitor);
+    protected void visitThis(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitDiv(this);
-        right().acceptInOrder(visitor);
-    }
-
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        left().acceptPostOrder(visitor);
-        right().acceptPostOrder(visitor);
-        visitor.visitDiv(this);
-    }
-
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        visitor.visitDiv(this);
-        left().acceptPreOrder(visitor);
-        right().acceptPreOrder(visitor);
     }
 }

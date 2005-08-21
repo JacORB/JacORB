@@ -297,7 +297,7 @@ public class MappingFilterImpl implements GCDisposable, MappingFilterOperations
         AbstractFilter.attemptDispose(this, usageDecorator_.getLastUsage(), maxIdleTime_);
     }
 
-    public void addDisposeHook(Disposable d)
+    public void registerDisposable(Disposable d)
     {
         disposeHooks_.addDisposable(d);
     }

@@ -53,6 +53,7 @@ public class StaticTypeChecker extends AbstractTCLVisitor
 
     public void visitGt(GtOperator n) throws VisitorException
     {
+        // no check
     }
 
     public void visitPlus(PlusOperator n) throws VisitorException

@@ -32,7 +32,6 @@ import antlr.Token;
 /** A simple node to represent IN operation */
 public class InOperator extends BinaryOperator
 {
-
     public InOperator(Token tok)
     {
         super(tok);
@@ -45,33 +44,16 @@ public class InOperator extends BinaryOperator
     }
 
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
-            EvaluationResult right) throws EvaluationException
+            EvaluationResult rightNode) throws EvaluationException
     {
-
-        Any _any = right.getAny();
-        ETCLEvaluator _evaluator = context.getDynamicEvaluator();
+        Any _any = rightNode.getAny();
+        ETCLEvaluator _evaluator = context.getETCLEvaluator();
 
         return _evaluator.evaluateElementInSequence(context, left, _any);
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    protected void visitThis(AbstractTCLVisitor visitor) throws VisitorException
     {
-        left().acceptInOrder(visitor);
-        visitor.visitIn(this);
-        right().acceptInOrder(visitor);
-    }
-
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        visitor.visitIn(this);
-        left().acceptPreOrder(visitor);
-        right().acceptPreOrder(visitor);
-    }
-
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        left().acceptPostOrder(visitor);
-        right().acceptPostOrder(visitor);
         visitor.visitIn(this);
     }
 }

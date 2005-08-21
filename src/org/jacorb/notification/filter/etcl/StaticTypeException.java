@@ -32,5 +32,4 @@ public class StaticTypeException extends VisitorException
     {
         super(msg);
     }
-
 }

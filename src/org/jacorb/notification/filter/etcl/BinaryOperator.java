@@ -48,6 +48,25 @@ public abstract class BinaryOperator extends UnaryOperator
     }
     
     protected abstract EvaluationResult evaluate(EvaluationContext context, 
-            EvaluationResult left, EvaluationResult right) throws EvaluationException;
+            EvaluationResult left, EvaluationResult rightNode) throws EvaluationException;
 
+    public final void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptInOrder(visitor);
+        visitThis(visitor);
+        right().acceptInOrder(visitor);
+    }
+
+    public final void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        left().acceptPostOrder(visitor);
+        right().acceptPostOrder(visitor);
+        visitThis(visitor);
+    }
+
+    public final void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+        visitThis(visitor);
+        left().acceptPreOrder(visitor);
+        right().acceptPreOrder(visitor);
+    }
+    
+    protected abstract void visitThis(AbstractTCLVisitor visitor) throws VisitorException;
 }

@@ -29,7 +29,6 @@ import antlr.Token;
 /** A simple node to represent NEQ operation */
 public class NeqOperator extends BinaryOperator
 {
-
     public NeqOperator(Token tok)
     {
         super(tok);
@@ -39,14 +38,9 @@ public class NeqOperator extends BinaryOperator
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
             EvaluationResult right) throws EvaluationException
     {
-
         int _comp = left.compareTo(right);
 
-        if (_comp == 0)
-        {
-            return EvaluationResult.BOOL_FALSE;
-        }
-        return EvaluationResult.BOOL_TRUE;
+        return (_comp == 0) ? EvaluationResult.BOOL_FALSE : EvaluationResult.BOOL_TRUE;
     }
 
     public String toString()
@@ -54,24 +48,8 @@ public class NeqOperator extends BinaryOperator
         return "!=";
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        left().acceptInOrder(visitor);
-        visitor.visitNeq(this);
-        right().acceptInOrder(visitor);
-    }
-
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        left().acceptInOrder(visitor);
-        right().acceptInOrder(visitor);
-        visitor.visitNeq(this);
-    }
-
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    protected void visitThis(AbstractTCLVisitor visitor) throws VisitorException
     {
         visitor.visitNeq(this);
-        left().acceptInOrder(visitor);
-        right().acceptInOrder(visitor);
     }
 }

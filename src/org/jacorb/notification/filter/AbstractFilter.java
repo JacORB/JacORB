@@ -44,6 +44,7 @@ import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EvaluationContextFactory;
 import org.jacorb.notification.interfaces.GCDisposable;
+import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.DisposableManager;
@@ -123,14 +124,21 @@ import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
  * proxies to which the filter is attached to receive. Operations are also defined to support
  * administration of this callback list by unique identifier. <br>
  * 
+ * @jmx.mbean name = "Filter"
+ * @jboss.xmbean
+ * 
  * @author Alphonse Bendt
  * @author John Farrell
  * @version $Id$
  */
 
 public abstract class AbstractFilter implements GCDisposable, ManageableServant, Configurable,
-        FilterOperations
+        FilterOperations, JMXManageable, AbstractFilterMBean
 {
+    private static int sCount_ = 0;
+
+    private final int number_ = ++sCount_;
+
     final static RuntimeException NOT_SUPPORTED = new UnsupportedOperationException(
             "this operation is not supported");
 
@@ -647,6 +655,9 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
         }
     }
 
+    /**
+     * @jmx.managed-operation description = "Destroy this Filter" impact = "ACTION"
+     */
     public void destroy()
     {
         dispose();
@@ -789,7 +800,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
             return NO_CONSTRAINTS_MATCH;
         }
-        
+
         logger_.info("Filter has no Expressions");
 
         return CONSTRAINTS_EMPTY;
@@ -947,14 +958,89 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
         disposables_.dispose();
     }
 
-    public void addDisposeHook(Disposable disposeHook)
+    public void registerDisposable(Disposable disposeHook)
     {
         disposables_.addDisposable(disposeHook);
     }
 
+    /**
+     * @jmx.managed-attribute description = "last usage = invoke match operation"
+     *                        access = "read-only"
+     */
     public Date getLastUsage()
     {
         return filterUsageDecorator_.getLastUsage();
+    }
+
+    /**
+     * @jmx.managed-attribute description = "date this filter was created"
+     *                        access = "read-only"
+     */
+    public Date getCreationDate()
+    {
+        return filterUsageDecorator_.getCreationDate();
+    }
+
+    /**
+     * @jmx.managed-attribute description = "number of match invocations on this filter"
+     *                        access = "read-only"
+     */
+    public long getMatchCount()
+    {
+        return filterUsageDecorator_.getMatchCount();
+    }
+
+    /**
+     * @jmx.managed-attribute description = "number of match_structured invocations on this filter"
+     *                        access = "read-only"
+     */
+    public long getMatchStructuredCount()
+    {
+        return filterUsageDecorator_.getMatchStructuredCount();
+    }
+
+    /**
+     * @jmx.managed-attribute description = "number of match_typed invocations on this filter"
+     *                        access = "read-only"
+     */
+    public long getMatchTypedCount()
+    {
+        return filterUsageDecorator_.getMatchTypedCount();
+    }
+
+    /**
+     * @jmx.managed-operation description = "List all Constraints" 
+     *                        impact = "INFO"
+     */
+    public String listContraints()
+    {
+        StringBuffer buffer = new StringBuffer();
+
+        Iterator i = constraints_.entrySet().iterator();
+        while (i.hasNext())
+        {
+            Map.Entry entry = (Map.Entry) i.next();
+
+            ConstraintEntry _constraintEntry = (ConstraintEntry) entry.getValue();
+            _constraintEntry.appendToBuffer(buffer);
+        }
+
+        return buffer.toString();
+    }
+
+    public final String getJMXObjectName()
+    {
+        return "type=filter, number=" + number_ + ", grammar=" + constraint_grammar();
+    }
+
+    public String[] getJMXNotificationTypes()
+    {
+        return new String[0];
+    }
+
+    public void setJMXCallback(JMXCallback callback)
+    {
+        // ignored
     }
 
     public void attemptDispose()

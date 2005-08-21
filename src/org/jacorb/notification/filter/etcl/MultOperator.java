@@ -35,7 +35,6 @@ import antlr.Token;
 
 public class MultOperator extends BinaryOperator
 {
-
     public MultOperator(Token tok)
     {
         super(tok);
@@ -48,30 +47,14 @@ public class MultOperator extends BinaryOperator
     }
 
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
-            EvaluationResult right) throws EvaluationException
+            EvaluationResult rightVal) throws EvaluationException
     {
 
-        return EvaluationResult.mult(right, left);
+        return EvaluationResult.mult(rightVal, left);
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        left().acceptInOrder(visitor);
-        visitor.visitMult(this);
-        right().acceptInOrder(visitor);
-    }
-
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        left().acceptPostOrder(visitor);
-        right().acceptPostOrder(visitor);
-        visitor.visitMult(this);
-    }
-
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    protected void visitThis(AbstractTCLVisitor visitor) throws VisitorException
     {
         visitor.visitMult(this);
-        left().acceptPreOrder(visitor);
-        right().acceptPreOrder(visitor);
     }
 }

@@ -34,6 +34,7 @@ import org.jacorb.notification.filter.etcl.IdentValue;
 import org.jacorb.notification.filter.etcl.ImplicitOperator;
 import org.jacorb.notification.filter.etcl.ImplicitOperatorNode;
 import org.jacorb.notification.filter.etcl.NumberValue;
+import org.jacorb.notification.filter.etcl.TCLParserTokenTypes;
 import org.jacorb.notification.filter.etcl.UnionPositionOperator;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.AbstractPoolable;
@@ -48,7 +49,7 @@ import org.omg.CORBA.Any;
 
 public class EvaluationContext extends AbstractPoolable
 {
-    private final ETCLEvaluator dynamicEvaluator_;
+    private final ETCLEvaluator etclEvaluator_;
 
     private Message message_;
 
@@ -62,7 +63,7 @@ public class EvaluationContext extends AbstractPoolable
 
     public EvaluationContext(ETCLEvaluator evaluator)
     {
-        dynamicEvaluator_ = evaluator;
+        etclEvaluator_ = evaluator;
 
         resultCache_ = new WeakHashMap();
         anyCache_ = new WeakHashMap();
@@ -76,9 +77,9 @@ public class EvaluationContext extends AbstractPoolable
         anyCache_.clear();
     }
 
-    public ETCLEvaluator getDynamicEvaluator()
+    public ETCLEvaluator getETCLEvaluator()
     {
-        return dynamicEvaluator_;
+        return etclEvaluator_;
     }
 
     public Message getCurrentMessage()
@@ -159,8 +160,8 @@ public class EvaluationContext extends AbstractPoolable
             logger_.debug("extractFromAny" + "\n\trootname=" + rootName + "\n\tvalue=" + any);
         }
 
-        EvaluationResult _ret = null;
-        Any _result = null;
+        EvaluationResult _result = null;
+        Any _any = null;
 
         AbstractTCLNode _currentOperator = expr;
         Any _currentAny = any;
@@ -179,79 +180,69 @@ public class EvaluationContext extends AbstractPoolable
             }
 
             // lookup result in cache
-            _result = lookupAny(_currentPath.toString());
+            _any = lookupAny(_currentPath.toString());
 
-            if (_result == null)
+            if (_any == null)
             // cache MISS
             {
                 switch (_currentOperator.getType()) {
-                case AbstractTCLNode.DOT:
+                case TCLParserTokenTypes.DOT:
                     // dots are skipped
                     break;
 
-                case AbstractTCLNode.UNION_POS:
+                case TCLParserTokenTypes.UNION_POS:
                     logger_.debug("evaluate union by position");
                     UnionPositionOperator _upo = (UnionPositionOperator) _currentOperator;
 
                     // default union
                     if (_upo.isDefault())
                     {
-                        _result = getDynamicEvaluator().evaluateUnion(_currentAny);
+                        _any = getETCLEvaluator().evaluateUnion(_currentAny);
                     }
                     else
                     {
-                        _result = getDynamicEvaluator().evaluateUnion(_currentAny,
+                        _any = getETCLEvaluator().evaluateUnion(_currentAny,
                                 _upo.getPosition());
                     }
 
                     break;
 
-                case AbstractTCLNode.IDENTIFIER:
+                case TCLParserTokenTypes.IDENTIFIER:
                     String _identifer = ((IdentValue) _currentOperator).getIdentifier();
 
-                    _result = getDynamicEvaluator().evaluateIdentifier(_currentAny, _identifer);
+                    _any = getETCLEvaluator().evaluateIdentifier(_currentAny, _identifer);
 
                     break;
 
-                case AbstractTCLNode.NUMBER:
+                case TCLParserTokenTypes.NUMBER:
                     int _pos = ((NumberValue) _currentOperator).getNumber().intValue();
 
-                    _result = getDynamicEvaluator().evaluateIdentifier(_currentAny, _pos);
+                    _any = getETCLEvaluator().evaluateIdentifier(_currentAny, _pos);
 
                     break;
 
-                case AbstractTCLNode.IMPLICIT:
+                case TCLParserTokenTypes.IMPLICIT:
                     ImplicitOperator _op = ((ImplicitOperatorNode) _currentOperator).getOperator();
 
-                    if (logger_.isDebugEnabled())
-                    {
-                        logger_.debug(_op + " is an implict Operator");
-                    }
+                    _any = _op.evaluateImplicit(getETCLEvaluator(), _currentAny);
 
-                    _result = _op.evaluateImplicit(getDynamicEvaluator(), _currentAny);
+                    _result = EvaluationResult.fromAny(_any);
 
-                    _ret = EvaluationResult.fromAny(_result);
+                    _result.addAny(_currentAny);
 
-                    _ret.addAny(_currentAny);
+                    return _result;
 
-                    if (logger_.isDebugEnabled())
-                    {
-                        logger_.debug("result=" + _result);
-                    }
-
-                    return _ret;
-
-                case AbstractTCLNode.ARRAY:
+                case TCLParserTokenTypes.ARRAY:
                     int _arrayIndex = ((ArrayOperator) _currentOperator).getArrayIndex();
 
-                    _result = getDynamicEvaluator().evaluateArrayIndex(_currentAny, _arrayIndex);
+                    _any = getETCLEvaluator().evaluateArrayIndex(_currentAny, _arrayIndex);
 
                     break;
 
-                case AbstractTCLNode.ASSOC:
+                case TCLParserTokenTypes.ASSOC:
                     String _assocName = ((AssocOperator) _currentOperator).getAssocName();
 
-                    _result = getDynamicEvaluator().evaluateNamedValueList(_currentAny, _assocName);
+                    _any = getETCLEvaluator().evaluateNamedValueList(_currentAny, _assocName);
 
                     break;
 
@@ -260,27 +251,19 @@ public class EvaluationContext extends AbstractPoolable
                             + AbstractTCLNode.getNameForType(_currentOperator.getType()));
                 }
             }
-            else
-            {
-                logger_.debug("Any Cache HIT");
-            }
 
-            if (_result != null)
+            if (_any != null)
             {
-                storeAny(_currentPath.toString(), _result);
-                _currentAny = _result;
+                storeAny(_currentPath.toString(), _any);
+                _currentAny = _any;
             }
+            
             _currentOperator = (AbstractTCLNode) _currentOperator.getNextSibling();
         }
 
         // Create the EvaluationResult
-        _ret = EvaluationResult.fromAny(_result);
+        _result = EvaluationResult.fromAny(_any);
 
-        if (logger_.isDebugEnabled())
-        {
-            logger_.debug("extracted: " + _ret);
-        }
-
-        return _ret;
+        return _result;
     }
 }

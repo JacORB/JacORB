@@ -63,7 +63,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
     public EvaluationResult evaluate( EvaluationContext context )
         throws EvaluationException
     {
-        EvaluationResult _ret;
+        final EvaluationResult _result;
 
         Message _event = context.getCurrentMessage();
 
@@ -81,7 +81,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
         case AbstractTCLNode.RUNTIME_VAR:
             RuntimeVariableNode _var = ( RuntimeVariableNode ) _left;
 
-            _ret = _event.extractValue( context,
+            _result = _event.extractValue( context,
                                         this,
                                         _var );
 
@@ -90,7 +90,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
         case AbstractTCLNode.DOT:
             // fallthrough
         case AbstractTCLNode.ASSOC:
-            _ret = _event.extractValue(context,
+            _result = _event.extractValue(context,
                                        this );
 
             break;
@@ -100,7 +100,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
                                        + getNameForType(_left.getType()));
         }
 
-        return _ret;
+        return _result;
     }
 
 

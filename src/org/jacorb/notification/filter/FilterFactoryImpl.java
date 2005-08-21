@@ -146,10 +146,6 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
 
     // //////////////////////////////////////
 
-    /**
-     * @param factoryDelegate
-     *            this Factory assumes ownership over the delegate and will dispose it after use.
-     */
     public FilterFactoryImpl(ORB orb, POA poa, Configuration config,
             IFilterFactoryDelegate factoryDelegate)
     {
@@ -163,8 +159,6 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
         config_ = config;
         logger_ = LogUtil.getLogger(config, getClass().getName());
 
-        addDisposeHook(factoryDelegate_);
-
         useGarbageCollector_ = config.getAttributeAsBoolean(Attributes.USE_GC,
                 Default.DEFAULT_USE_GC);
         
@@ -172,11 +166,11 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
         {
             logger_.info("Enable Garbage Collection for Filters");
 
-            final GCThread gc = new GCThread();
+            final GCThread _gcThread = new GCThread();
 
-            addDisposeHook(gc);
+            addDisposeHook(_gcThread);
             
-            gc.start();
+            _gcThread.start();
         }
     }
 
@@ -216,7 +210,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
             {
                 allFilters_.add(filter);
 
-                filter.addDisposeHook(new Disposable()
+                filter.registerDisposable(new Disposable()
                 {
                     public void dispose()
                     {

@@ -38,57 +38,64 @@ import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.InvalidGrammar;
+import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoContainer;
-import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
-import org.picocontainer.defaults.DefaultPicoContainer;
+import org.picocontainer.defaults.ComponentAdapterFactory;
+import org.picocontainer.defaults.ConstructorInjectionComponentAdapterFactory;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Disposable
-{ 
+{
     private final List availableFilters_ = new ArrayList();
 
     private final MutablePicoContainer filterPico_;
 
     private final ORB orb_;
-    
+
     private final Logger logger_;
-    
+
+    private final IContainer container_;
+
+    private final ComponentAdapterFactory componentAdapterFactory_;
+
     // //////////////////////////////////////
 
-    public DefaultFilterFactoryDelegate(IContainer container, Configuration config)
+    public DefaultFilterFactoryDelegate(IContainer container, Configuration config, ComponentAdapterFactory componentAdapterFactory)
     {
-        PicoContainer parent = container.getContainer();
-
-        if (parent != null)
-        {
-            filterPico_ = new DefaultPicoContainer(parent);
-        }
-        else
-        {
-            filterPico_ = new DefaultPicoContainer();
-        }
+        componentAdapterFactory_ = componentAdapterFactory;
         
+        container_ = container;
+
+        MutablePicoContainer parent = container.getContainer();
+
+        filterPico_ = parent;
+
         orb_ = (ORB) parent.getComponentInstanceOfType(ORB.class);
 
         logger_ = LogUtil.getLogger(config, getClass().getName());
-        
+
         loadFilterPlugins(config);
+    }
+    
+    public DefaultFilterFactoryDelegate(IContainer container, Configuration config)
+    {
+        this(container, config, new ConstructorInjectionComponentAdapterFactory());
     }
 
     public void dispose()
     {
-        filterPico_.dispose();
+        container_.destroy();
     }
-    
+
     private void loadFilterPlugins(Configuration conf)
     {
+        ComponentAdapter etclCA = componentAdapterFactory_.createComponentAdapter(ETCLFilter.CONSTRAINT_GRAMMAR, ETCLFilter.class, null);
+        
         // add default ETCL Filter
-        filterPico_.registerComponent(new ConstructorInjectionComponentAdapter(
-                ETCLFilter.CONSTRAINT_GRAMMAR, ETCLFilter.class));
+        filterPico_.registerComponent(etclCA);
 
         availableFilters_.add(ETCLFilter.CONSTRAINT_GRAMMAR);
 
@@ -107,9 +114,10 @@ public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Dis
                 _clazzName = conf.getAttribute(key);
 
                 Class _clazz = ObjectUtil.classForName(_clazzName);
+                
+                ComponentAdapter customCA = componentAdapterFactory_.createComponentAdapter(_grammar, _clazz, null);
 
-                filterPico_.registerComponent(new ConstructorInjectionComponentAdapter(_clazzName,
-                        _clazz));
+                filterPico_.registerComponent(customCA);
 
                 availableFilters_.add(_grammar);
             } catch (ConfigurationException e)
@@ -117,7 +125,7 @@ public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Dis
                 logger_.error("Unable to access attribute: " + key, e);
             } catch (ClassNotFoundException e)
             {
-                logger_.error("Property " + key + ": class " + _clazzName + " is unknown", e);
+                logger_.error("Property " + key + ": Unable to load FilterPlugin " + _clazzName + ". The FilterPlugin will not be available.", e);
             }
         }
     }
@@ -146,21 +154,20 @@ public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Dis
             logger_.error("unable to create FilterServant as grammar " + grammar + " is unknown");
 
             throw new InvalidGrammar("Constraint Language '" + grammar
-                    + "' is not supported. Try one of the following: "
+                    + "' is not supported. Supported are: "
                     + getAvailableConstraintLanguages());
-
         }
 
         return _filterServant;
     }
 
-    public MappingFilterImpl create_mapping_filter_servant(Configuration config,
-            String grammar, Any any) throws InvalidGrammar
+    public MappingFilterImpl create_mapping_filter_servant(Configuration config, String grammar,
+            Any any) throws InvalidGrammar
     {
         AbstractFilter _filter = create_filter_servant(grammar);
-        
+
         return new MappingFilterImpl(orb_, config, _filter, any);
-    }    
+    }
 
     static List getAttributeNamesWithPrefix(Configuration configuration, String prefix)
     {

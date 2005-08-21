@@ -31,7 +31,6 @@ import antlr.Token;
 
 public class AndOperator extends UnaryOperator
 {
-
     public AndOperator(Token tok)
     {
         super(tok);
@@ -46,19 +45,18 @@ public class AndOperator extends UnaryOperator
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left)
             throws EvaluationException
     {
+        boolean _left, _right;
 
-        boolean _l, _r;
+        _left = left.getBool();
 
-        _l = left.getBool();
-
-        if (!_l)
+        if (!_left)
         {
             return EvaluationResult.BOOL_FALSE;
         }
 
-        _r = right().evaluate(context).getBool();
+        _right = right().evaluate(context).getBool();
 
-        return (_r ? EvaluationResult.BOOL_TRUE : EvaluationResult.BOOL_FALSE);
+        return (_right ? EvaluationResult.BOOL_TRUE : EvaluationResult.BOOL_FALSE);
     }
 
     public boolean isStatic()

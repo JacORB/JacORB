@@ -39,15 +39,11 @@ public class GtOperator extends BinaryOperator
     }
 
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
-            EvaluationResult right) throws EvaluationException
+            EvaluationResult rightVal) throws EvaluationException
     {
-        int _comp = left.compareTo(right);
+        int _comp = left.compareTo(rightVal);
 
-        if (_comp == -1 || _comp == 0)
-        {
-            return EvaluationResult.BOOL_FALSE;
-        }
-        return EvaluationResult.BOOL_TRUE;
+        return (_comp <= 0) ? EvaluationResult.BOOL_FALSE : EvaluationResult.BOOL_TRUE;
     }
 
     public String toString()
@@ -55,24 +51,8 @@ public class GtOperator extends BinaryOperator
         return ">";
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    protected void visitThis(AbstractTCLVisitor visitor) throws VisitorException
     {
-        left().acceptInOrder(visitor);
-        visitor.visitGt(this);
-        right().acceptInOrder(visitor);
-    }
-
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        visitor.visitGt(this);
-        left().acceptPreOrder(visitor);
-        right().acceptPreOrder(visitor);
-    }
-
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        left().acceptPostOrder(visitor);
-        right().acceptPostOrder(visitor);
         visitor.visitGt(this);
     }
 }

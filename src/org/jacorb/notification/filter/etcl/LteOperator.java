@@ -30,7 +30,6 @@ import antlr.Token;
 /** A simple node to represent LTE operation */
 public class LteOperator extends BinaryOperator
 {
-
     public LteOperator(Token tok)
     {
         super(tok);
@@ -38,16 +37,11 @@ public class LteOperator extends BinaryOperator
     }
 
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
-            EvaluationResult right) throws EvaluationException
+            EvaluationResult rightNode) throws EvaluationException
     {
+        int _comp = left.compareTo(rightNode);
 
-        int _comp = left.compareTo(right);
-
-        if (_comp == 1)
-        {
-            return EvaluationResult.BOOL_FALSE;
-        }
-        return EvaluationResult.BOOL_TRUE;
+        return (_comp > 0) ? EvaluationResult.BOOL_FALSE : EvaluationResult.BOOL_TRUE;
     }
 
     public String toString()
@@ -57,24 +51,8 @@ public class LteOperator extends BinaryOperator
 
     static final String NAME = "LteOperator";
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        left().acceptInOrder(visitor);
-        visitor.visitLte(this);
-        right().acceptInOrder(visitor);
-    }
-
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
-    {
-        left().acceptPostOrder(visitor);
-        right().acceptPostOrder(visitor);
-        visitor.visitLte(this);
-    }
-
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    protected void visitThis(AbstractTCLVisitor visitor) throws VisitorException
     {
         visitor.visitLte(this);
-        left().acceptPreOrder(visitor);
-        right().acceptPreOrder(visitor);
     }
 }

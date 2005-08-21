@@ -27,67 +27,53 @@ import org.jacorb.notification.filter.EvaluationResult;
 
 import antlr.Token;
 
-public class SubstrOperator extends BinaryOperator {
-
+public class SubstrOperator extends BinaryOperator
+{
     static final String NAME = "SubstrOperator";
 
-    public SubstrOperator(Token tok) {
+    public SubstrOperator(Token tok)
+    {
         super(tok);
         setName(NAME);
     }
 
-
-    public String toString() {
+    public String toString()
+    {
         return " ~";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, 
-            EvaluationResult left, EvaluationResult right)
-        throws EvaluationException {
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
+            EvaluationResult rightVal) throws EvaluationException
+    {
 
         EvaluationResult _res;
 
         String _l, _r;
 
         _l = left.getString();
-        _r = right.getString();
+        _r = rightVal.getString();
 
         int _idx = _r.indexOf(_l);
 
-        if (_idx == -1) {
+        if (_idx == -1)
+        {
             _res = EvaluationResult.BOOL_FALSE;
-        } else {
+        }
+        else
+        {
             _res = EvaluationResult.BOOL_TRUE;
         }
 
         return _res;
     }
 
-    public boolean isStatic() {
+    public boolean isStatic()
+    {
         return (left().isStatic() && right().isStatic());
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor)
-        throws VisitorException {
-
-        left().acceptInOrder(visitor);
+    protected void visitThis(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitSubstr(this);
-        right().acceptInOrder(visitor);
-    }
-
-    public void acceptPostOrder(AbstractTCLVisitor visitor)
-        throws VisitorException {
-
-        left().acceptPostOrder(visitor);
-        right().acceptPostOrder(visitor);
-        visitor.visitSubstr(this);
-    }
-
-    public void acceptPreOrder(AbstractTCLVisitor visitor)
-        throws VisitorException {
-
-        visitor.visitSubstr(this);
-        left().acceptPreOrder(visitor);
-        right().acceptPreOrder(visitor);
     }
 }

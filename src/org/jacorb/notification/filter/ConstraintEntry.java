@@ -51,12 +51,10 @@ public class ConstraintEntry
         return new EventTypeWrapper( constraintInfo_.constraint_expression.event_types[ index ] );
     }
 
-
     public int getEventTypeCount()
     {
         return constraintInfo_.constraint_expression.event_types.length;
     }
-
 
     public int getConstraintId()
     {
@@ -77,5 +75,16 @@ public class ConstraintEntry
     public FilterConstraint getFilterConstraint()
     {
         return filterConstraint_;
+    }
+    
+    public void appendToBuffer(StringBuffer buffer)
+    {
+        buffer.append("Constraint #");
+        buffer.append(getConstraintId());
+        buffer.append(": ");
+        buffer.append(EventTypeWrapper.toString(constraintInfo_.constraint_expression.event_types));
+        buffer.append("\n\t");
+        buffer.append(getConstraintExpression());
+        buffer.append("\n");
     }
 }

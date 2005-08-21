@@ -45,7 +45,7 @@ public class DefaultOperator extends UnaryOperator {
 
         Any _any = left.getAny();
 
-        if (context.getDynamicEvaluator().hasDefaultDiscriminator( _any )) {
+        if (context.getETCLEvaluator().hasDefaultDiscriminator( _any )) {
             return EvaluationResult.BOOL_TRUE;
         }
 

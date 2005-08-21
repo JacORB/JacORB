@@ -28,43 +28,30 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent EQ operation */
-public class EqOperator extends BinaryOperator {
+public class EqOperator extends BinaryOperator
+{
+    private final static String VALUE = "==";
 
-    private static final String VALUE = "==";
-    
-    public EqOperator(Token tok) {
+    public EqOperator(Token tok)
+    {
         super(tok);
         setName("EqOperator");
     }
 
-    public EvaluationResult evaluate(EvaluationContext context, 
-            EvaluationResult left, EvaluationResult right) throws EvaluationException {
-        
-        if (left.compareTo( right) == 0) {
-            return EvaluationResult.BOOL_TRUE;
-        } 
-        return EvaluationResult.BOOL_FALSE;
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
+            EvaluationResult rightVal) throws EvaluationException
+    {
+        return (left.compareTo(rightVal) == 0) ? EvaluationResult.BOOL_TRUE
+                : EvaluationResult.BOOL_FALSE;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return VALUE;
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        left().acceptInOrder(visitor);
-        visitor.visitEq(this);
-        right().acceptInOrder(visitor);
-    }
-
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        visitor.visitEq(this);
-        left().acceptPreOrder(visitor);
-        right().acceptPreOrder(visitor);
-    }
-
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        left().acceptPostOrder(visitor);
-        right().acceptPostOrder(visitor);
+    protected void visitThis(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitEq(this);
     }
 }
