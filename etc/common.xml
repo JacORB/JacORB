@@ -7,6 +7,7 @@
 <target name="base-init" unless="BASE-INIT">
     <property name="dirs.base" value="${basedir}"/>
     <property name="src" value="${dirs.base}/src"/>
+	<property name="src.generated" value="${src}/generated" />
     <property name="lib" value="${dirs.base}/lib"/>
     <property name="idl" value="${dirs.base}/idl"/>
 </target>
@@ -14,15 +15,11 @@
 
 <!-- Call base-init first. The regression tests call this but -->
 <!-- have their own base-init                                 -->
-<target name="init" depends="base-init">
+<target name="init" depends="ant-version, base-init">
     <property name="debug" value="off"/>
  
     <!-- This value only used under Ant 1.5 -->
     <property name="debuglevel" value="lines,source"/>
- 
-    <available classname="org.apache.tools.ant.filters.ClassConstants" 
-        property="ant15"/>
-    <antcall target="ant-version"/>
  
     <condition property="architecture" value="windows">
         <or>
@@ -48,14 +45,16 @@
         <pathelement location="${lib}/antlr-2.7.2.jar"/>
         <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
         <pathelement location="${lib}/concurrent-1.3.2.jar"/>
-        <pathelement location="${lib}/picocontainer-1.2-021105.jar" />
-        <pathelement path="${sun.boot.class.path}"/>
+        <pathelement location="${lib}/picocontainer-1.2.jar" />
+
+		<!-- is it really necessary to have these entries in the classpath? (alphonse bendt) -->
+       	<pathelement path="${sun.boot.class.path}"/>
         <pathelement path="${java.class.path}"/>
     </path>
 
     <path id="sourcepath.base">
       <pathelement location="${src}" />
-      <pathelement location="${src}/generated" />
+      <pathelement location="${src.generated}" />
     </path>
 
     <!-- The 'classpath' property is used as the run time for some tests -->
@@ -72,7 +71,7 @@
       = = = = = = = = = = = = = = = = = -->
 	<macrodef name="jacorb-javac">
     		<attribute name="javac-includes" />
-                <attribute name="javac-encoding" default="ISO-8859-1" />
+		<attribute name="javac-encoding" default="ISO-8859-1" />
     		<attribute name="javac-excludes" default="" />
     		<attribute name="javac-src" default="${src}" />
     		<attribute name="javac-sourcepath" default="sourcepath.base" />
@@ -97,6 +96,17 @@
 <target name="whats-my-classpath" depends="init"
         description="Outputs the classpath that will be used for compilation of the JacORB">
          <echo message="JacORB will be built with the following classpath:${line.separator}${classpath}"/>
+</target>
+
+<target name="check-jmx" depends="init" >
+	<available classname="javax.management.MBeanServer" property="available.jmx" classpathref="path.base" />
+
+	<condition property="available.jmx.mx4j" value="true">
+		<and>
+			<isset property="available.jmx" />
+			<available classname="mx4j.MBeanDescriptionAdapter" classpathref="path.base" />
+		</and>
+	</condition>
 </target>
 
 <!-- check if a regexp library is available -->
@@ -133,7 +143,10 @@
 </target>
 
 <target name="ant-version" unless="ant15">
-   <fail message="Install Ant version 1.5 or later (See http://ant.apache.org/)"/>
+	<available classname="org.apache.tools.ant.filters.ClassConstants" 
+        property="ant15"/>
+
+   <fail unless="ant15" message="Install Ant version 1.5 or later (See http://ant.apache.org/)"/>
 </target>
 
 
