@@ -32,6 +32,9 @@ import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
 /**
+ * Utility class that manages subscriptions of NotifySubscribers and broadcasting of subscription_change
+ * requests.
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
