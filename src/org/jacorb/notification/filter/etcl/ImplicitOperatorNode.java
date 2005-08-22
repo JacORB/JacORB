@@ -34,140 +34,140 @@ import antlr.Token;
  * @version $Id$
  */
 
-public class ImplicitOperatorNode extends AbstractTCLNode {
+public class ImplicitOperatorNode extends AbstractTCLNode
+{
+    static final String TOKEN_DISCRIM = "_d";
 
-    static final String DISCRIM = "_d";
+    static final String TOKEN_LENGTH = "_length";
 
-    static final String LENGTH = "_length";
+    static final String TOKEN_REPOS_ID = "_repos_id";
 
-    static final String REPO_ID = "_repos_id";
+    static final String TOKEN_TYPE_ID = "_type_id";
 
-    static final String TYPE_ID = "_type_id";
+    public final static ImplicitOperator OPERATOR_DISCRIM = new DiscrimOperator();
 
-    public final static ImplicitOperator OPERATOR_DISCRIM =
-        new DiscrimOperator();
+    public final static ImplicitOperator OPERATOR_LENGTH = new LengthOperator();
 
-    public final static ImplicitOperator OPERATOR_LENGTH =
-        new LengthOperator();
+    public final static ImplicitOperator OPERATOR_REPO_ID = new RepoOperator();
 
-    public final static ImplicitOperator OPERATOR_REPO_ID =
-        new RepoOperator();
+    public final static ImplicitOperator OPERATOR_TYPE_ID = new TypeOperator();
 
-    public final static ImplicitOperator OPERATOR_TYPE_ID =
-        new TypeOperator();
+    private final ImplicitOperator operator_;
 
-    static final EvaluationException EVALUATION_EXCEPTION =
-        new EvaluationException();
-
-    ImplicitOperator operator_;
-
-
-    public ImplicitOperatorNode(Token token) {
+    public ImplicitOperatorNode(Token token)
+    {
         super(token);
         String _tokenText = token.getText();
 
-        if (DISCRIM.equals(_tokenText)) {
+        if (TOKEN_DISCRIM.equals(_tokenText))
+        {
             operator_ = OPERATOR_DISCRIM;
-            //operatorName_ = DISCRIM;
+            // operatorName_ = DISCRIM;
             setName("ImplicitOperator - _d");
-        } else if (LENGTH.equals(_tokenText)) {
+        }
+        else if (TOKEN_LENGTH.equals(_tokenText))
+        {
             operator_ = OPERATOR_LENGTH;
-            //            operatorName_ = LENGTH;
+            // operatorName_ = LENGTH;
             setName("ImplicitOperator - _length");
-        } else if (REPO_ID.equals(_tokenText)) {
+        }
+        else if (TOKEN_REPOS_ID.equals(_tokenText))
+        {
             operator_ = OPERATOR_REPO_ID;
-            //operatorName_ = REPO_ID;
+            // operatorName_ = REPO_ID;
             setName("Implicit - _repos_id");
-        } else if (TYPE_ID.equals(_tokenText)) {
+        }
+        else if (TOKEN_TYPE_ID.equals(_tokenText))
+        {
             operator_ = OPERATOR_TYPE_ID;
-            //            operatorName_ = TYPE_ID;
+            // operatorName_ = TYPE_ID;
             setName("Implicit - _type_id");
-        } else {
+        }
+        else
+        {
             throw new RuntimeException();
         }
     }
 
-    public ImplicitOperator getOperator() {
+    public ImplicitOperator getOperator()
+    {
         return operator_;
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
-        throws EvaluationException {
-
+    public EvaluationResult evaluate(EvaluationContext context) throws EvaluationException
+    {
         return null;
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        visitor.visitImplicit(this);
-    }
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
-        visitor.visitImplicit(this);
-    }
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitImplicit(this);
     }
 
-    public String toString() {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
+        visitor.visitImplicit(this);
+    }
+
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
+        visitor.visitImplicit(this);
+    }
+
+    public String toString()
+    {
         return operator_.toString();
     }
-
 }
 
-class RepoOperator implements ImplicitOperator {
-
-    public String toString() {
-        return "_repos_id";
+class RepoOperator implements ImplicitOperator
+{
+    public String toString()
+    {
+        return ImplicitOperatorNode.TOKEN_REPOS_ID;
     }
 
-    public Any evaluateImplicit(ETCLEvaluator evaluator,
-                                Any value) throws EvaluationException {
-
+    public Any evaluateImplicit(ETCLEvaluator evaluator, Any value) throws EvaluationException
+    {
         return evaluator.evaluateRepositoryId(value);
-
     }
 }
 
-
-class TypeOperator implements ImplicitOperator {
-
-    public String toString() {
-        return "_type_id";
+class TypeOperator implements ImplicitOperator
+{
+    public String toString()
+    {
+        return ImplicitOperatorNode.TOKEN_TYPE_ID;
     }
 
-    public Any evaluateImplicit(ETCLEvaluator evaluator,
-                                Any value) throws EvaluationException {
-
+    public Any evaluateImplicit(ETCLEvaluator evaluator, Any value) throws EvaluationException
+    {
         return evaluator.evaluateTypeName(value);
     }
 }
 
-
-class DiscrimOperator implements ImplicitOperator {
-
-    public String toString() {
-        return "_d";
+class DiscrimOperator implements ImplicitOperator
+{
+    public String toString()
+    {
+        return ImplicitOperatorNode.TOKEN_DISCRIM;
     }
 
-    public Any evaluateImplicit(ETCLEvaluator evaluator,
-                                Any value) throws EvaluationException {
-
+    public Any evaluateImplicit(ETCLEvaluator evaluator, Any value) throws EvaluationException
+    {
         return evaluator.evaluateDiscriminator(value);
-
     }
-
 }
 
-
-class LengthOperator implements ImplicitOperator {
-
-    public String toString() {
-        return "_length";
+class LengthOperator implements ImplicitOperator
+{
+    public String toString()
+    {
+        return ImplicitOperatorNode.TOKEN_LENGTH;
     }
 
-    public Any evaluateImplicit(ETCLEvaluator evaluator,
-                                Any value) throws EvaluationException {
-
+    public Any evaluateImplicit(ETCLEvaluator evaluator, Any value) throws EvaluationException
+    {
         return evaluator.evaluateListLength(value);
-
     }
 }

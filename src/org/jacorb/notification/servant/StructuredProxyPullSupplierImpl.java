@@ -21,16 +21,12 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.List;
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -168,16 +164,6 @@ public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier imple
         structuredPullConsumer_.disconnect_structured_pull_consumer();
 
         structuredPullConsumer_ = null;
-    }
-
-    public List getSubsequentFilterStages()
-    {
-        return CollectionsWrapper.singletonList(this);
-    }
-
-    public MessageConsumer getMessageConsumer()
-    {
-        return this;
     }
 
     public void disableDelivery()

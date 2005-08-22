@@ -21,16 +21,12 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.List;
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
@@ -138,16 +134,6 @@ public class SequenceProxyPullSupplierImpl extends AbstractProxySupplier impleme
         success.value = false;
 
         return UNDEFINED_SEQUENCE;
-    }
-
-    public List getSubsequentFilterStages()
-    {
-        return CollectionsWrapper.singletonList(this);
-    }
-
-    public MessageConsumer getMessageConsumer()
-    {
-        return this;
     }
 
     protected void disconnectClient()

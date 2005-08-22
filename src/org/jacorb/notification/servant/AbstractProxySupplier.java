@@ -20,6 +20,8 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.List;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
@@ -33,6 +35,7 @@ import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.MessageQueueAdapter;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
+import org.jacorb.notification.util.CollectionsWrapper;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetAdapter;
 import org.omg.CORBA.Any;
@@ -522,5 +525,15 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     public final boolean hasMessageConsumer()
     {
         return true;
+    }
+    
+    public final List getSubsequentFilterStages()
+    {
+        return CollectionsWrapper.singletonList(this);
+    }
+    
+    public final MessageConsumer getMessageConsumer()
+    {
+        return this;
     }
 }

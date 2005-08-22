@@ -23,7 +23,6 @@ package org.jacorb.notification.servant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.avalon.framework.configuration.Configuration;
@@ -34,7 +33,6 @@ import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.TypedEventMessage;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.queue.MessageQueueAdapter;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 import org.jacorb.notification.util.PropertySet;
@@ -435,15 +433,6 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         return ProxyType.PULL_TYPED;
     }
 
-    public List getSubsequentFilterStages()
-    {
-        return null;
-    }
-
-    public MessageConsumer getMessageConsumer()
-    {
-        return this;
-    }
 
     public Servant getServant()
     {

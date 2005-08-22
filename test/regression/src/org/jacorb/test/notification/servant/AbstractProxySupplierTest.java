@@ -21,15 +21,12 @@
 
 package org.jacorb.test.notification.servant;
 
-import java.util.List;
-
 import junit.framework.Test;
 
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.servant.AbstractProxySupplier;
 import org.jacorb.notification.servant.IAdmin;
 import org.jacorb.test.notification.NotificationTestCase;
@@ -107,16 +104,6 @@ public class AbstractProxySupplierTest extends NotificationTestCase
             }
 
             protected Servant getServant()
-            {
-                return null;
-            }
-
-            public MessageConsumer getMessageConsumer()
-            {
-                return null;
-            }
-
-            public List getSubsequentFilterStages()
             {
                 return null;
             }
