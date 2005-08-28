@@ -137,6 +137,9 @@ public abstract class JacORBLauncher
     public static JacORBLauncher getLauncher (String version,
                                               boolean coverage)
     {
+        if (version.startsWith("tao"))
+            return new TAOLauncher (null, false);
+        
         int index = getVersions().indexOf (version);
         if (index == -1) throw new RuntimeException
         (
