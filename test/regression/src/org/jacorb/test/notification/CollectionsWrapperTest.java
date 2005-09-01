@@ -75,9 +75,9 @@ public class CollectionsWrapperTest extends TestCase
 
     public void testModificationsFail() throws Exception
     {
-        String o = "testling";
+        String data = "testling";
 
-        List list = CollectionsWrapper.singletonList(o);
+        List list = CollectionsWrapper.singletonList(data);
         
         try
         {
@@ -95,6 +95,9 @@ public class CollectionsWrapperTest extends TestCase
         {
             // expected
         }
+        
+        assertEquals(1, list.size());
+        assertEquals(data, list.get(0));
     }
 
     public CollectionsWrapperTest(String name)
