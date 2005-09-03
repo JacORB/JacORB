@@ -1,3 +1,205 @@
+2005-08-22  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/etcl/AbstractTCLVisitor.java,
+	notification/filter/etcl/ImplicitOperatorNode.java,
+	notification/servant/AbstractProxyPushSupplier.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java: code cleanup
+
+2005-08-21  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AbstractChannelFactory.java,
+	notification/WrapperMain.java:
+	(shutdown) wait at least 2 sec
+
+	* notification/build.xml: disable jmx.mx4j and jmx.jboss by default
+
+	* orb/dns/DNSLookup.java: full qualify imports to prevent warning
+	during xdoclet code generation
+
+	* notification/util/AbstractObjectPool.java,
+	notification/util/AbstractPoolable.java,
+	notification/util/CollectionsWrapper.java,
+	notification/util/DefaultWildcardMap.java,
+	notification/util/LogUtil.java,
+	notification/util/WildcardMap.java: small fixes
+
+	* notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxyConsumerI.java,
+	notification/servant/AbstractProxyPushSupplier.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/FilterStageListManager.java,
+	notification/servant/IAdmin.java,
+	notification/servant/IEventChannel.java,
+	notification/servant/ITypedAdmin.java,
+	notification/servant/MessageSupplierDelegate.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/PullMessagesOperation.java,
+	notification/servant/PullMessagesUtility.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java: jmx support and
+	refactoring
+
+	* notification/queue/AbstractBoundedEventQueue.java,
+	notification/queue/BasicMessageQueueAdapter.java,
+	notification/queue/BoundedDeadlineEventQueue.java,
+	notification/queue/BoundedFifoEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/EventQueueOverflowStrategy.java,
+	notification/queue/MessageQueue.java,
+	notification/queue/MessageQueueAdapter.java,
+	notification/queue/RWLockEventQueueDecorator.java: jmx support
+
+	* notification/jmx/BroadcastSupportMBeanDecorator.java,
+	notification/jmx/COSNotificationService.java,
+	notification/jmx/EventChannelFactoryControl.java,
+	notification/jmx/EventChannelFactoryMBean.java,
+	notification/jmx/JMXMain.java,
+	notification/jmx/JMXManageableMBeanProvider.java,
+	notification/jmx/UnregisterObjectNameProviderDecorator.java: core
+	jmx support
+
+	* notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractRetryStrategy.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/AlwaysDisposeRetryStrategy.java,
+	notification/engine/DefaultPushTaskExecutor.java,
+	notification/engine/DefaultPushTaskExecutorFactory.java,
+	notification/engine/DefaultTaskExecutor.java,
+	notification/engine/DefaultTaskFactory.java,
+	notification/engine/DefaultTaskProcessor.java,
+	notification/engine/DirectExecutorPushTaskExecutorFactory.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/PooledPushTaskExecutorFactory.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushTaskExecutorFactory.java,
+	notification/engine/TaskExecutor.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/engine/WaitRetryStrategy.java,
+	notification/interfaces/CallbackingDisposable.java,
+	notification/interfaces/FilterStage.java,
+	notification/interfaces/GCDisposable.java,
+	notification/interfaces/IProxyPushSupplier.java,
+	notification/interfaces/JMXManageable.java,
+	notification/interfaces/MessageConsumer.java,
+	notification/interfaces/MessageSupplier.java,
+	notification/interfaces/NotifyingDisposable.java,
+	notification/AbstractChannelFactory.java,
+	notification/AbstractEventChannel.java,
+	notification/ChannelManager.java, notification/ConsoleMain.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/EventTypeSet.java, notification/OfferManager.java,
+	notification/StructuredEventMessage.java,
+	notification/TypedEventChannelFactoryImpl.java,
+	notification/TypedEventChannelImpl.java, notification/build.xml:
+	jmx support
+
+	* notification/impl/DefaultMessageFactory.java (getControllerName):
+	removed method
+
+	* notification/filter/AbstractFilter.java,
+	notification/filter/AbstractFilterUsageDecorator.java,
+	notification/filter/ConstraintEntry.java,
+	notification/filter/DefaultFilterFactoryDelegate.java,
+	notification/filter/EvaluationContext.java,
+	notification/filter/EvaluationResult.java,
+	notification/filter/FilterFactoryImpl.java,
+	notification/filter/MappingFilterImpl.java: changes for JMX
+	support. code cleanup
+
+	* notification/filter/etcl/grammar/comp-lexer.g,
+	notification/filter/etcl/grammar/tcl-lexer.g,
+	notification/filter/etcl/grammar/tcl.g: updated copyright
+
+	* notification/filter/etcl/AndOperator.java,
+	notification/filter/etcl/BinaryOperator.java,
+	notification/filter/etcl/DefaultOperator.java,
+	notification/filter/etcl/DivOperator.java,
+	notification/filter/etcl/ETCLComponentName.java,
+	notification/filter/etcl/ETCLFilter.java,
+	notification/filter/etcl/EqOperator.java,
+	notification/filter/etcl/GtOperator.java,
+	notification/filter/etcl/GteOperator.java,
+	notification/filter/etcl/InOperator.java,
+	notification/filter/etcl/LtOperator.java,
+	notification/filter/etcl/LteOperator.java,
+	notification/filter/etcl/MultOperator.java,
+	notification/filter/etcl/NeqOperator.java,
+	notification/filter/etcl/StaticTypeChecker.java,
+	notification/filter/etcl/StaticTypeException.java,
+	notification/filter/etcl/StringValue.java,
+	notification/filter/etcl/SubstrOperator.java: changes for JMX
+	support. code cleanup
+
+	* notification/filter/etcl/AbstractTCLNode.java (initialize):
+	made methods final
+
+	* notification/container/PicoContainerFactory.java (createContainer):
+	split method into smaller methods
+
+	* notification/container/FilterFactoryComponentAdapter.java: cosmetics
+
+	* notification/container/CORBAObjectComponentAdapter.java (c'tor):
+	load Helper class via the Service classes Classloader if available
+
+	* notification/container/BiDirGiopPOAComponentAdapter.java: cosmetics
+
+	* notification/SubscriptionManager.java: javadoc
+
+	* notification/AnyMessage.java (toTypedEvent): do not catch Throwable
+
+2005-08-19  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* config/LogKitLoggerFactory.java (c'tor): made constructor public
+
+2005-08-17  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/SequenceProxyPushSupplierImpl.java (c'tor):
+	fix for #625. the periodic flush task did not work properly
+
+2005-08-17  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/giop/GIOPConnection.java: reorder the reconnection test so
+	that any service contexts that are required may be resent
+	following a transport level close and reopen.
+
+	* orb/giop/CodeSet.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java: Add support
+	for configurable native codeset for char and wchar
+
+2005-08-16  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/SequenceProxyPushSupplierImpl.java:
+	(startCronJob) fixed if clause. task would never be started. this
+	fixes #625
+
 2005-08-04  Francisco Revervel  <reverbel@ime.usp.br>
 
 	* orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
@@ -2216,17 +2418,6 @@
 	* orb/giop/GIOPConnection.java (configure):
 	Use new property jacorb.connection.connect_timeout,
 	rather than jacorb.connection.client.pending_reply_timeout.
-
-2004-04-30  Phil Mesnier  <mesnier_p@ociweb.com>
-
-	* orb/ORB.java:
-	Added code to configure the object key map with name/value pairs now stored in attributes of the Configuration. This restores the functionality previously supplied by the Environment.getProperties() method.
-
-2004-04-30  Gerald Brose  <gerald.brose@acm.org>
-
-	* config/Configuration.java, orb/ORB.java:
-	added check for reserved ORBids ("jacorb" and "orb"), moved these
-	to Configuration.getConfiguration
 
 2004-04-30  Phil Mesnier  <mesnier_p@ociweb.com>
 
