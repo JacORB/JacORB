@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
@@ -96,26 +97,29 @@ public class JMXMain implements WrapperListener
 
     private void startHTTPConnector() throws Exception
     {
-        ObjectName name = new ObjectName("connectors:protocol=http");
-        mbeanServer_.createMBean("mx4j.tools.adaptor.http.HttpAdaptor", name, null);
-        mbeanServer_.setAttribute(name, new Attribute("Port", new Integer(8001)));
-        mbeanServer_.setAttribute(name, new Attribute("Host", "localhost"));
-        mbeanServer_.invoke(name, "start", null, null);
+        ObjectName _connectorName = new ObjectName("connectors:protocol=http");
+        mbeanServer_.createMBean("mx4j.tools.adaptor.http.HttpAdaptor", _connectorName, null);
+        // TODO make port default configurable
+        mbeanServer_.setAttribute(_connectorName, new Attribute("Port", new Integer(8001)));
+        mbeanServer_.setAttribute(_connectorName, new Attribute("Host", "localhost"));
+        mbeanServer_.invoke(_connectorName, "start", null, null);
 
-        ObjectName processorName = new ObjectName("Server:name=XSLTProcessor");
-        mbeanServer_.createMBean("mx4j.tools.adaptor.http.XSLTProcessor", processorName, null);
+        ObjectName _processorName = new ObjectName("Server:name=XSLTProcessor");
+        mbeanServer_.createMBean("mx4j.tools.adaptor.http.XSLTProcessor", _processorName, null);
 
-        mbeanServer_.setAttribute(name, new Attribute("ProcessorName", processorName));
+        mbeanServer_.setAttribute(_connectorName, new Attribute("ProcessorName", _processorName));
+        
+        connectors_.add(_connectorName);
     }
 
     private void startIIOPConnector() throws Exception, IOException
     {
-        JMXServiceURL _nameServiceURL = new JMXServiceURL(
-                "service:jmx:iiop://localhost/jndi/COSNotification");
+        JMXServiceURL _serviceURL = new JMXServiceURL("service:jmx:iiop://localhost/jndi/COSNotification");
 
-        HashMap _environment = new HashMap();
+        Map _environment = new HashMap();
         _environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.cosnaming.CNCtxFactory");
 
+        // fetch NameService Ref via ORB
         org.omg.CORBA.Object _nameService = orb_.resolve_initial_references("NameService");
         String _nameServiceIOR = orb_.object_to_string(_nameService);
         _environment.put(Context.PROVIDER_URL, _nameServiceIOR);
@@ -127,11 +131,11 @@ public class JMXMain implements WrapperListener
         // http://sourceforge.net/tracker/index.php?func=detail&aid=1164309&group_id=47745&atid=450647)
         _environment.put("java.naming.corba.orb", orb_);
 
-        // Create the JMXCconnectorServer
-        JMXConnectorServer _connectorServer = JMXConnectorServerFactory.newJMXConnectorServer(
-                _nameServiceURL, _environment, mbeanServer_);
+        // create the JMXCconnectorServer
+        JMXConnectorServer _connectorServer = 
+            JMXConnectorServerFactory.newJMXConnectorServer(_serviceURL, _environment, mbeanServer_);
 
-        // Register the JMXConnectorServer in the MBeanServer
+        // register the JMXConnectorServer in the MBeanServer
         ObjectName _connectorServerName = ObjectName.getInstance("connectors:protocol=iiop");
         mbeanServer_.registerMBean(_connectorServer, _connectorServerName);
 
@@ -147,15 +151,14 @@ public class JMXMain implements WrapperListener
         WrapperManager.log(WrapperManager.WRAPPER_LOG_LEVEL_INFO, "Starting NamingService");
 
         mbeanServer_.invoke(_nameServiceName, "start", null, null);
-        int namingPort = ((Integer) mbeanServer_.getAttribute(_nameServiceName, "Port")).intValue();
+        int _namingPort = ((Integer) mbeanServer_.getAttribute(_nameServiceName, "Port")).intValue();
 
-        String jndiPath = "/jndi/COSNotification";
+        String _jndiPath = "/jndi/COSNotification";
 
-        JMXServiceURL address = new JMXServiceURL(
-                "service:jmx:rmi://localhost/jndi/rmi://localhost:" + namingPort + jndiPath);
+        JMXServiceURL _serviceURL = new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:" + _namingPort + _jndiPath);
 
-        JMXConnectorServer _connectorServer = JMXConnectorServerFactory.newJMXConnectorServer(
-                address, null, mbeanServer_);
+        JMXConnectorServer _connectorServer = 
+            JMXConnectorServerFactory.newJMXConnectorServer(_serviceURL, null, mbeanServer_);
 
         ObjectName _connectorServerName = ObjectName.getInstance("connectors:protocol=rmi");
         mbeanServer_.registerMBean(_connectorServer, _connectorServerName);
@@ -180,8 +183,12 @@ public class JMXMain implements WrapperListener
 
             registerWrapperManager();
 
-            startIIOPConnector();
-
+            if (false)
+            {
+                // does not work with current mx4j release 3.0.1.
+                startIIOPConnector();
+            }
+            
             startHTTPConnector();
 
             startRMIConnector();
@@ -194,8 +201,7 @@ public class JMXMain implements WrapperListener
                 logger_.error("Unable to Start Service", e);
             }
 
-            WrapperManager.log(WrapperManager.WRAPPER_LOG_LEVEL_FATAL, "Unable to Start Service"
-                    + e);
+            WrapperManager.log(WrapperManager.WRAPPER_LOG_LEVEL_FATAL, "Unable to Start Service" + e);
 
             stopConnectors();
 
@@ -255,8 +261,7 @@ public class JMXMain implements WrapperListener
         {
             logger_.error("Error while stopping Service", e);
 
-            WrapperManager
-                    .log(WrapperManager.WRAPPER_LOG_LEVEL_ERROR, "Unable to Stop Service" + e);
+            WrapperManager.log(WrapperManager.WRAPPER_LOG_LEVEL_ERROR, "Unable to Stop Service" + e);
 
             return 1;
         }
