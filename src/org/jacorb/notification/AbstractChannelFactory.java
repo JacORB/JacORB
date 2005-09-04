@@ -65,6 +65,7 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
 
@@ -181,9 +182,6 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         {
             _policies[x].destroy();
         }
-
-        // todo move upwards
-        _rootPOA.the_POAManager().activate();
 
         oid_ = (getObjectName().getBytes());
 
@@ -548,6 +546,9 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
         if (startThread)
         {
+            POA _poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            _poa.the_POAManager().activate();
+            
             Thread _orbThread = new Thread(new Runnable()
             {
                 public void run()
