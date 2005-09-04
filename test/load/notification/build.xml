@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [
+  <!ENTITY common SYSTEM "file:../../../etc/common.xml">
+]>
+
+<project name="notification-load" default="all" basedir="../../..">
+
+	&common;
+		
+	<property name="dir.base" value="${basedir}/test/load/notification" />
+	<property name="dir.work" value="${dir.base}/work" />
+	<property file="${dir.base}/build.properties" />
+	<fail message="the property home.grinder must be set" unless="home.grinder" />
+
+	<path id="cp.grinder">
+		<pathelement location="${home.grinder}/lib/grinder.jar" />
+	</path>
+
+	<target name="all" description="Start Grinder Console and Agents" depends="console, supplier, consumer">
+	</target>
+
+	<target name="copy" depends="set-architecture">
+		<path id="cp.jacorb">
+			<fileset dir="${basedir}/lib">
+				<include name="*.jar" />
+				<exclude name="**/*wrapper*.jar" />
+			</fileset>
+		</path>
+
+		<pathconvert property="cp.string" targetos="${architecture}">
+			<path refid="cp.jacorb" />
+		</pathconvert>
+
+		<copy todir="${dir.work}">
+			<fileset dir="${dir.base}/scripts" />
+		</copy>
+
+		<copy todir="${dir.work}">
+			<fileset dir="${dir.base}">
+				<include name="*.properties.template" />
+			</fileset>
+			<mapper type="glob" from="*.properties.template" to="*.properties" />
+		</copy>
+
+		<replace dir="${dir.work}">
+			<include name="*.properties" />
+			<replacefilter token="@JACORB_HOME@" value="${basedir}" />
+			<replacefilter token="@JACORB_CP@" value="${cp.string}" />
+		</replace>
+	</target>
+
+	<target name="clean">
+		<delete>
+			<fileset dir="${dir.work}">
+				<include name="*" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="console">
+		<property name="spawn" value="true" />
+
+		<java fork="true" spawn="true" classname="net.grinder.Console">
+			<classpath refid="cp.grinder" />
+		</java>
+
+		<sleep seconds="5" />
+	</target>
+
+	<target name="supplier" depends="copy">
+		<property name="spawn" value="false" />
+
+		<java fork="true" spawn="${spawn}" classname="net.grinder.Grinder" dir="${dir.work}">
+			<classpath refid="cp.grinder" />
+			<arg value="supplier.properties" />
+		</java>
+	</target>
+
+	<target name="consumer" depends="copy">
+		<property name="spawn" value="false" />
+
+		<java fork="true" spawn="${spawn}" classname="net.grinder.Grinder" dir="${dir.work}">
+			<classpath refid="cp.grinder" />
+			<arg value="consumer.properties" />
+		</java>
+	</target>
+
+</project>
