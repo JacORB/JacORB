@@ -58,11 +58,7 @@ public class DeadlockBugTest extends TestCase
         objectUnderTest_ = new RWLockEventQueueDecorator(new BasicMessageQueueAdapter(queue));
     }
 
-    /**
-     * Constructor for AbstractProxySupplierTest.
-     * 
-     * @param name
-     */
+    
     public DeadlockBugTest(String name)
     {
         super(name);
