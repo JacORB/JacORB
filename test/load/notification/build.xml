@@ -68,22 +68,24 @@
 		<sleep seconds="5" />
 	</target>
 
-	<target name="supplier" depends="copy">
-		<property name="spawn" value="false" />
+	<macrodef name="grinder-start-agent">
+		<attribute name="file" />
+		<sequential>
+			<property name="spawn" value="false" />
 
-		<java fork="true" spawn="${spawn}" classname="net.grinder.Grinder" dir="${dir.work}">
-			<classpath refid="cp.grinder" />
-			<arg value="supplier.properties" />
-		</java>
+			<java fork="true" spawn="${spawn}" classname="net.grinder.Grinder" dir="${dir.work}">
+				<classpath refid="cp.grinder" />
+				<arg value="@{file}" />
+			</java>
+		</sequential>
+	</macrodef>
+
+	<target name="supplier" depends="copy">
+		<grinder-start-agent file="supplier.properties" />
 	</target>
 
 	<target name="consumer" depends="copy">
-		<property name="spawn" value="false" />
-
-		<java fork="true" spawn="${spawn}" classname="net.grinder.Grinder" dir="${dir.work}">
-			<classpath refid="cp.grinder" />
-			<arg value="consumer.properties" />
-		</java>
+		<grinder-start-agent file="consumer.properties"/>
 	</target>
 
 </project>
