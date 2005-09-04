@@ -22,8 +22,6 @@
 package org.jacorb.notification.jmx;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Properties;
 
 import javax.management.MBeanServer;
@@ -46,7 +44,8 @@ import org.picocontainer.defaults.ConstructorInjectionComponentAdapterFactory;
 import org.picocontainer.defaults.DefaultPicoContainer;
 
 /**
- * @jmx.mbean name="COSNotificationServiceMBean" description="Control the JacORB Notification Service"
+ * @jmx.mbean   name="COSNotificationServiceMBean" 
+ *              description="Control the JacORB Notification Service"
  * 
  * @author Alphonse Bendt
  * @version $Id$
@@ -70,24 +69,25 @@ public class COSNotificationService implements COSNotificationServiceMBean
     private final static String CORBALOC_DEFAULT = "<undefined>";
 
     private final Logger logger_ = LogUtil.getLogger(getClass().getName());
-    
+
     private final Properties properties_;
-    
+
     private final ORB optionalORB_;
-    
-    public COSNotificationService(ORB orb, MBeanServer mbeanServer, DynamicMBeanProvider mbeanProvider, String[] args)
+
+    public COSNotificationService(ORB orb, MBeanServer mbeanServer,
+            DynamicMBeanProvider mbeanProvider, String[] args)
     {
         super();
-        
+
         optionalORB_ = orb;
         properties_ = ConsoleMain.parseProperties(args);
-        
+
         DynamicMBeanProvider _decoratedProvider = new UnregisterObjectNameProviderDecorator(
                 mbeanServer, mbeanProvider);
 
         ComponentAdapterFactory _nonCachingFactory = new JMXExposingComponentAdapterFactory(
                 new ConstructorInjectionComponentAdapterFactory(), mbeanServer,
-                new DynamicMBeanProvider[] {_decoratedProvider});
+                new DynamicMBeanProvider[] { _decoratedProvider });
 
         ComponentAdapterFactory _cachingFactory = new CachingComponentAdapterFactory(
                 _nonCachingFactory);
@@ -95,8 +95,7 @@ public class COSNotificationService implements COSNotificationServiceMBean
         container_ = new DefaultPicoContainer(_cachingFactory);
         container_.registerComponentInstance(ComponentAdapterFactory.class, _nonCachingFactory);
     }
-   
-    
+
     /**
      * @jmx.managed-operation description="create a new channel"
      */
@@ -119,11 +118,8 @@ public class COSNotificationService implements COSNotificationServiceMBean
         } catch (Exception e)
         {
             logger_.error("Error creating Channel", e);
-            
-            StringWriter writer = new StringWriter();
-            e.printStackTrace(new PrintWriter(writer));
 
-            return writer.toString();
+            throw new RuntimeException("Create channel failed: " + e.getMessage());
         }
     }
 
@@ -141,11 +137,9 @@ public class COSNotificationService implements COSNotificationServiceMBean
             return STARTED;
         } catch (Exception e)
         {
-            e.printStackTrace();
-            
             logger_.error("Error starting Service", e);
-            
-            throw new RuntimeException("Start failed");
+
+            throw new RuntimeException("Start failed: " + e.getMessage());
         }
     }
 
@@ -162,8 +156,8 @@ public class COSNotificationService implements COSNotificationServiceMBean
     }
 
     /**
-     * @jmx.managed-attribute description="IOR to access the EventChannelFactory"
-     *                        access = "read-only"
+     * @jmx.managed-attribute   description="IOR to access the EventChannelFactory" 
+     *                          access = "read-only"
      */
     public String getIOR()
     {
@@ -171,8 +165,8 @@ public class COSNotificationService implements COSNotificationServiceMBean
     }
 
     /**
-     * @jmx.managed-attribute description="Corbaloc to access the EventChannelFactory
-     *                        access = "read-only"
+     * @jmx.managed-attribute   description="Corbaloc to access the EventChannelFactory 
+     *                          access = "read-only"
      */
     public String getCorbaloc()
     {
@@ -180,8 +174,8 @@ public class COSNotificationService implements COSNotificationServiceMBean
     }
 
     /**
-     * @jmx.managed-attribute description = "Filename the IOR should be written to"
-     *                        access = "read-write"
+     * @jmx.managed-attribute   description = "Filename the IOR should be written to" 
+     *                          access = "read-write"
      */
     public String getIORFile()
     {
@@ -202,8 +196,8 @@ public class COSNotificationService implements COSNotificationServiceMBean
     }
 
     /**
-     * @jmx.managed-attribute description = "NameService Entry (Optional)"
-     *                        access = "read-write"
+     * @jmx.managed-attribute   description = "NameService Entry (Optional)" 
+     *                          access = "read-write"
      */
     public String getCOSNamingEntry()
     {
@@ -235,8 +229,8 @@ public class COSNotificationService implements COSNotificationServiceMBean
             } catch (Exception e)
             {
                 logger_.error("Error changing COSNaming entry", e);
-                
-                throw new RuntimeException("Changing the COSNaming entry failed");
+
+                throw new RuntimeException("Changing the COSNaming entry failed: " + e.getMessage());
             }
         }
     }
