@@ -12,23 +12,26 @@
     <property name="idl" value="${dirs.base}/idl"/>
 </target>
 
-
-<!-- Call base-init first. The regression tests call this but -->
-<!-- have their own base-init                                 -->
-<target name="init" depends="ant-version, base-init">
-    <property name="debug" value="off"/>
- 
-    <!-- This value only used under Ant 1.5 -->
-    <property name="debuglevel" value="lines,source"/>
- 
+<target name="set-architecture" >
     <condition property="architecture" value="windows">
         <or>
             <os family="windows"/>
             <os family="dos"/>
         </or>
     </condition>
+<property name="architecture" value="unix"/>
+</target>
+
+<!-- Call base-init first. The regression tests call this but -->
+<!-- have their own base-init                                 -->
+<target name="init" depends="ant-version, base-init, set-architecture">
+    <property name="debug" value="off"/>
  
-    <property name="architecture" value="unix"/>
+    <!-- This value only used under Ant 1.5 -->
+    <property name="debuglevel" value="lines,source"/>
+ 
+ 
+    
  
     <!-- Location of the compiled classes -->
     <pathconvert property="classdir" targetos="${architecture}">
