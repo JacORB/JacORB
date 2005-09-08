@@ -74,7 +74,7 @@ class TestRunner:
         grinder.sleep(1000)
         for i in range (0, 1000):
             instrumentedConsumer.push_structured_event(createEvent(1))
-	        grinder.sleep(250)
+	    grinder.sleep(250)
 
         log("done")
         
