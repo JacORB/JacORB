@@ -54,16 +54,6 @@
 
 
    <!-- ==================================================== -->
-   <!--           HTTP client for HTTP Tunneling             -->
-   <!-- ==================================================== -->
-
-
-   <target name="http" depends="init">
-       <ant antfile="${src}/HTTPClient/build.xml" dir="${basedir}"/>
-   </target>
-
-
-   <!-- ==================================================== -->
    <!--                   JacORB implementation              -->
    <!-- ==================================================== -->
 
@@ -82,7 +72,7 @@
       <delete file="${lib}/jacorb.jar" failonerror="false"/>
        <jar jarfile="${lib}/jacorb.jar"
       basedir="${classdir}"
-      includes="org/jacorb/**,org/omg/**, HTTPClient/**"
+      includes="org/jacorb/**,org/omg/**"
       excludes="org/jacorb/idl/**,org/jacorb/demo/**,org/jacorb/test/**"
       manifest="${basedir}/etc/jacorb_jar.manifest"
       index="true"
@@ -193,15 +183,6 @@
       />
    </target>
 
-   <!-- This target creates a jar file that contains the -->
-   <!-- HTTP tunneling classes -->
-   <target name="http_tunneling_jar" depends="init">
-      <delete file="${lib}/http_tunneling.jar"/>
-       <jar jarfile="${lib}/http_tunneling.jar"
-      basedir="${classdir}"
-      includes="HTTPClient/**,org/jacorb/orb/connection/http/*"
-      />
-   </target>
 
    <!-- This target creates a jar file that contains the -->
    <!-- (genrated) OMG and JacORB security classes -->
@@ -227,7 +208,6 @@
       <delete file="${basedir}/bin/ns-wrapper" />
       <delete dir="${classdir}/demo"/>
       <delete dir="${classdir}/org"/>
-      <delete dir="${classdir}/HTTPClient"/>
       <delete dir="${src}/generated/org"/>
       <delete dir="${src}/generated/CORBA"/>
       <ant antfile="build.xml" dir="${src}/org/jacorb" target="clean"/>
@@ -253,10 +233,9 @@
             Use="Yes"
             maxmemory="256m"
             packagenames="org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.level2.*,org.jacorb.security.sas.*,org.omg.*,org.jacorb.notification.*">
-            <!--               packagenames="org.jacorb.*,org.omg.*,HTTPClient,java_cup.*"> -->
+            <!--               packagenames="org.jacorb.*,org.omg.*,java_cup.*"> -->
             <sourcepath>
                 <path refid="sourcepath.base" />
-                <!--            <pathelement path="${src}/HTTPClient" /> -->
                 <!--            <pathelement path="${src}/java_cup" /> -->
             </sourcepath>
         </javadoc>
