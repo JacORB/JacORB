@@ -57,9 +57,6 @@ public class AbstractProxySupplierTest extends NotificationTestCase
 
     private POA mockPOA_;
 
-    /*
-     * @see TestCase#setUp()
-     */
     protected void setUpTest() throws Exception
     {
         MockControl controlIAdmin = MockControl.createControl(IAdmin.class);
@@ -117,7 +114,7 @@ public class AbstractProxySupplierTest extends NotificationTestCase
         controlMessage_ = MockControl.createControl(Message.class);
         mockMessage_ = (Message) controlMessage_.getMock();
 
-        controlClient_ = MockControl.createControl(org.omg.CORBA.Object.class);
+        controlClient_ = MockControl.createNiceControl(org.omg.CORBA.Object.class);
         mockClient_ = (org.omg.CORBA.Object) controlClient_.getMock();
     }
 
@@ -128,11 +125,11 @@ public class AbstractProxySupplierTest extends NotificationTestCase
 
     public void testNotConnectedSupplierDoesNotAccessMessage()
     {
-        controlMessage_.replay();
+        replayAll();
 
         objectUnderTest_.queueMessage(mockMessage_);
 
-        controlMessage_.verify();
+        verifyAll();
     }
 
     public void testConnectedSupplierDoesCloneMessage()
@@ -144,34 +141,46 @@ public class AbstractProxySupplierTest extends NotificationTestCase
         controlClient_.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
         controlClient_.setDefaultReturnValue(false);
 
-        controlMessage_.replay();
-
-        controlClient_.replay();
+        replayAll();
 
         objectUnderTest_.connectClient(mockClient_);
-
         objectUnderTest_.queueMessage(mockMessage_);
 
-        controlMessage_.verify();
+        verifyAll();
     }
 
     public void testDisposeDisposesPendingMessages() throws Exception
     {
         mockPOA_.servant_to_id(null);
         controlPOA_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlPOA_.setReturnValue(new byte[] {1});
-        
+        controlPOA_.setReturnValue(new byte[] { 1 });
+
         mockMessage_.clone();
         controlMessage_.setReturnValue(mockMessage_);
 
         mockMessage_.dispose();
-        controlMessage_.replay();
+
+        replayAll();
 
         objectUnderTest_.connectClient(mockClient_);
         objectUnderTest_.queueMessage(mockMessage_);
         objectUnderTest_.dispose();
 
+        verifyAll();
+    }
+
+    private void verifyAll()
+    {
+        controlClient_.verify();
         controlMessage_.verify();
+        controlPOA_.verify();
+    }
+
+    private void replayAll()
+    {
+        controlClient_.replay();
+        controlPOA_.replay();
+        controlMessage_.replay();
     }
 
     public static Test suite() throws Exception
