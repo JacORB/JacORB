@@ -789,10 +789,16 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
                 {
                     // non critical exception. ignore
                     // and continue with next Constraint
-                    logger_.info("tried to access non existing Property", e);
+                    if (logger_.isInfoEnabled())
+                    {
+                        logger_.info("tried to access non existing Property: " + e.getMessage());
+                    } else if (logger_.isDebugEnabled())
+                    {
+                        logger_.debug("tried to access non existing Property", e);
+                    }
                 } catch (EvaluationException e)
                 {
-                    logger_.fatalError("Error evaluating filter", e);
+                    logger_.error("Error evaluating filter", e);
 
                     throw new UnsupportedFilterableData(e.getMessage());
                 }
@@ -817,8 +823,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
      */
     protected int match_internal(Any anyEvent) throws UnsupportedFilterableData
     {
-        final EvaluationContext _evaluationContext = evaluationContextFactory_
-                .newEvaluationContext();
+        final EvaluationContext _evaluationContext = evaluationContextFactory_.newEvaluationContext();
 
         try
         {
@@ -850,8 +855,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     protected int match_structured_internal(StructuredEvent structuredEvent)
             throws UnsupportedFilterableData
     {
-        final EvaluationContext _evaluationContext = evaluationContextFactory_
-                .newEvaluationContext();
+        final EvaluationContext _evaluationContext = evaluationContextFactory_.newEvaluationContext();
 
         try
         {
@@ -876,8 +880,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
      */
     protected int match_typed_internal(Property[] typedEvent) throws UnsupportedFilterableData
     {
-        final EvaluationContext _evaluationContext = evaluationContextFactory_
-                .newEvaluationContext();
+        final EvaluationContext _evaluationContext = evaluationContextFactory_.newEvaluationContext();
 
         try
         {
