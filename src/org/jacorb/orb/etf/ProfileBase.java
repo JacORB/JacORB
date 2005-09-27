@@ -77,6 +77,17 @@ public abstract class ProfileBase
     */
     public abstract int tag();
     
+
+    /**
+     * Profiles use this method for taking alternative address values
+     * for replacement, such as when an IOR proxy or IMR is in use.
+     * This is a concrete method here to not break existing profiles
+     * that may not be interested in this behavior.
+     */
+    public void patchPrimaryAddress(ProtocolAddressBase replacement)
+    {
+    }
+
     /**
     * ETF defined function to marshal the appropriate information for this
     * transport into the tagged profile.  ORBs will typically need 

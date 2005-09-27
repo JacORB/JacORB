@@ -45,7 +45,7 @@ public abstract class ListenerBase
     /**
     * The profile of this listener's endpoint.
     */
-    protected Profile endpoint = null;
+    protected Profile profile = null;
     
     /**
     * The primary acceptor of this listener.
@@ -221,7 +221,7 @@ public abstract class ListenerBase
      */
     public Profile endpoint()
     {
-        return endpoint.copy();
+        return profile.copy();
     }
     
     protected abstract class Acceptor 

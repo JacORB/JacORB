@@ -42,6 +42,8 @@ public abstract class FactoriesBase
     
     protected static Class profileClz;
 
+    protected static Class addressClz;
+
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
@@ -136,5 +138,35 @@ public abstract class FactoriesBase
         return profile;
     }
     
+
+    // Although not part of the ETF IDL for a Factory object, this is the best
+    // place to add a new method for creating protocol address instances
+    public ProtocolAddressBase create_protocol_address (String addr)
+    {
+        ProtocolAddressBase address = null;
+        int address_start = this.match_tag(addr);
+        if (address_start >= 0) {
+            try {
+                address = (ProtocolAddressBase)addressClz.newInstance();
+                address.configure (configuration);
+            }
+            catch (Exception ie) {
+                throw new org.omg.CORBA.INTERNAL
+                    ("Cannot instantiate etf.ProtocolAddressBase class: " +
+                     ie.getMessage());
+            }
+            // general form is "prot://address"
+            if (!address.fromString(addr.substring(address_start + 2)))
+                throw new org.omg.CORBA.INTERNAL
+                    ("Invalid protocol address string: " + address);
+        }
+        return address;
+    }
+
+    public int match_tag(String address)
+    {
+        return -1;
+    }
+
     public abstract Profile decode_corbaloc (String corbaloc);
 }
