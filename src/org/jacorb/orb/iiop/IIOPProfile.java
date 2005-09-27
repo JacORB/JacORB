@@ -26,8 +26,8 @@ import org.apache.avalon.framework.logger.Logger;
 
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.TaggedComponentList;
+import org.jacorb.orb.etf.ProtocolAddressBase;
 
 import org.omg.ETF.*;
 import org.omg.IOP.*;
@@ -42,8 +42,6 @@ public class IIOPProfile
     extends org.jacorb.orb.etf.ProfileBase
 {
     private IIOPAddress          primaryAddress = null;
-
-    private boolean dnsEnabled = false;
     private Logger logger;
     
     public IIOPProfile()
@@ -91,7 +89,6 @@ public class IIOPProfile
     {
         this.configuration = (org.jacorb.config.Configuration)configuration;
         logger = this.configuration.getNamedLogger("jacorb.iiop.profile");
-        dnsEnabled = configuration.getAttribute("jacorb.dns.enable","off").equals("on");
         if (this.primaryAddress != null)
             this.primaryAddress.configure(configuration);
 
@@ -213,86 +210,6 @@ public class IIOPProfile
         return value;
     }
 
-    /**
-     * This function marshals the appropriate information for this
-     * transport into the tagged profile.  ORBs will typically need
-     * to call the IOR interception points before calling marshal().
-     */
-/*    public void marshal(TaggedProfileHolder tagged_profile,
-                         TaggedComponentSeqHolder components)
-    {
-        TaggedComponent[] allComponents = null;
-        CDROutputStream profileDataStream = null;
-
-        if (components == null)
-        {
-            components = new TaggedComponentSeqHolder(new TaggedComponent[0]);
-        }
-
-        switch( version.minor )
-        {
-            case 2 :
-            {
-                //same as IIOP 1.1
-            }
-            case 1:
-            {
-                // create IIOP 1.1 profile
-
-                // concatenate the two component lists
-
-                allComponents = new TaggedComponent[   this.components.size()
-                                                     + components.value.length ];
-                System.arraycopy( this.components.asArray(), 0,
-                                  allComponents, 0, this.components.size() );
-                System.arraycopy( components.value, 0,
-                                  allComponents, this.components.size(),
-                                  components.value.length );
-
-                ProfileBody_1_1 pb1 = new ProfileBody_1_1
-                (
-                    new org.omg.IIOP.Version( version.major, version.minor ),
-                    dnsEnabled ? primaryAddress.getHostname() : primaryAddress.getIP(),
-                    (short)primaryAddress.getPort(),
-                    objectKey,
-                    allComponents
-                );
-
-                // serialize the profile id 1, leave idx 0 for v.1.0 profile
-                profileDataStream = new CDROutputStream();
-                profileDataStream.beginEncapsulatedArray();
-                ProfileBody_1_1Helper.write( profileDataStream, pb1 );
-
-                tagged_profile.value = new TaggedProfile
-                (
-                    TAG_INTERNET_IOP.value,
-                    profileDataStream.getBufferCopy()
-                );
-                break;
-            }
-            case 0:
-            {
-                // create IIOP 1.0 profile
-                ProfileBody_1_0 pb0 = new ProfileBody_1_0
-                (
-                    new org.omg.IIOP.Version( version.major, version.minor ),
-                    dnsEnabled ? primaryAddress.getHostname() : primaryAddress.getIP(),
-                    (short)primaryAddress.getPort(),
-                    objectKey
-                );
-
-                profileDataStream = new CDROutputStream();
-                profileDataStream.beginEncapsulatedArray();
-                ProfileBody_1_0Helper.write( profileDataStream, pb0 );
-
-                tagged_profile.value = new TaggedProfile
-                (
-                    TAG_INTERNET_IOP.value,
-                    profileDataStream.getBufferCopy()
-                );
-            }
-        }
-    }*/
     
     /**
     * Writes the bytes that would make up the ETF::AddressProfile bytes (new spec)
@@ -303,10 +220,7 @@ public class IIOPProfile
     public void writeAddressProfile(CDROutputStream addressProfileStream)
     {
         org.omg.GIOP.VersionHelper.write( addressProfileStream, version);
-        addressProfileStream.write_string(dnsEnabled
-                                          ? primaryAddress.getHostname()
-                                          : primaryAddress.getIP());
-        addressProfileStream.write_ushort( (short) primaryAddress.getPort());
+        primaryAddress.write (addressProfileStream);
     }
     
     /**
@@ -399,7 +313,7 @@ public class IIOPProfile
         return TAG_INTERNET_IOP.value;
     }
 
-    public IIOPAddress getAddress()
+    public ProtocolAddressBase getAddress()
     {
         return primaryAddress;
     }
@@ -408,32 +322,10 @@ public class IIOPProfile
      * Replaces the host in this profile's primary address with newHost
      * (if it is not null), and the port with newPort (if it is not -1).
      */
-    public void patchPrimaryAddress(String newHost, int newPort)
-    {
-        if (newHost != null)
+    public void patchPrimaryAddress(ProtocolAddressBase replacement)
         {
-            primaryAddress = new IIOPAddress
-                (
-                 newHost,
-                 (newPort != -1) ? newPort
-                 : primaryAddress.getPort()
-                 );
-
-        }
-        else if(newPort != -1)
-        {
-            primaryAddress = new IIOPAddress(primaryAddress.getIP(),
-                                             newPort);
-        }
-        try
-        {
-            primaryAddress.configure(configuration);
-        }
-        catch( ConfigurationException ce)
-        {
-            if (logger.isWarnEnabled())
-                logger.warn("ConfigurationException", ce );
-        }
+        if (replacement instanceof IIOPAddress)
+            primaryAddress = (IIOPAddress)replacement;
     }
 
     public List getAlternateAddresses()

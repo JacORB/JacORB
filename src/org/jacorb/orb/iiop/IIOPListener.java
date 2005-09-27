@@ -34,6 +34,7 @@ import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.orb.factory.*;
 import org.jacorb.orb.*;
+import org.jacorb.orb.etf.ProtocolAddressBase;
 
 /**
  * @author Andre Spiegel
@@ -66,10 +67,10 @@ public class IIOPListener
     private LoopbackAcceptor loopbackAcceptor ;
 
     private boolean supportSSL = false;
-    private boolean dnsEnabled = false;
+    //    private boolean dnsEnabled = false;
     private int serverTimeout = 0;
-    private int oaPort = 0;
-    private int sslPort = 0;
+    private IIOPAddress address = null;
+    private IIOPAddress sslAddress = null;
     private int target_supports = 0;
     private int target_requires = 0;
     private boolean generateSSLComponents = true;
@@ -104,11 +105,35 @@ public class IIOPListener
  
         socketFactoryManager.configure(configuration);
 
-        oaPort = configuration.getAttributeAsInteger("OAPort",0);
-        sslPort = configuration.getAttributeAsInteger("OASSLPort",0);
+        String address_str = configuration.getAttribute("OAAddress",null);
+        if (address_str != null) {
+            ProtocolAddressBase ep = orb.createAddress(address_str);
+            if (ep instanceof IIOPAddress)
+                address = (IIOPAddress)ep;
+        }
+        else {
+            int oaPort = configuration.getAttributeAsInteger("OAPort",0);
+            String oaHost = configuration.getAttribute("OAIAddr","");
+            address = new IIOPAddress(oaHost,oaPort);
+        }
+
+        if (address != null)
+            address.configure (configuration);
+
+        address_str = configuration.getAttribute("OASSLAddress",null);
+        if (address_str != null) {
+            ProtocolAddressBase ep = orb.createAddress(address_str);
+            if (ep instanceof IIOPAddress)
+                sslAddress = (IIOPAddress)ep;
+        }
+        else {
+            int sslPort = configuration.getAttributeAsInteger("OASSLPort",0);
+            String sslHost = configuration.getAttribute("OAIAddr","");
+            sslAddress = new IIOPAddress(sslHost,sslPort);
+        }
  
-        dnsEnabled = 
-            configuration.getAttribute("jacorb.dns.enable","off").equals("on");
+        if (sslAddress != null)
+            sslAddress.configure (configuration);
 
         serverTimeout = 
             configuration.getAttributeAsInteger("jacorb.connection.server.timeout",0);
@@ -135,7 +160,7 @@ public class IIOPListener
 
 
         if (!isSSLRequired() || 
-            configuration.getAttributeAsBoolean("jacorb.security.ssl.always_open_unsecured_endpoint", false))
+            configuration.getAttributeAsBoolean("jacorb.security.ssl.always_open_unsecured_address", false))
         {
             acceptor = new Acceptor();
             ((Acceptor)acceptor).init();
@@ -149,7 +174,7 @@ public class IIOPListener
 
         loopbackAcceptor = new LoopbackAcceptor() ;
 
-        endpoint = createEndPointProfile();
+        profile = createAddressProfile();
 
     }
 
@@ -157,7 +182,7 @@ public class IIOPListener
     /**
      * It is possible that connection requests arrive <i>after</i> the
      * initial creation of the Listener instance but <i>before</i> the
-     * conclusion of the configuration of the specific endpoint in this
+     * conclusion of the configuration of the specific address in this
      * plugin. In order to provide a clear end of this configuration state,
      * we added the listen() method. It is called by the ORB when it ready
      * for incoming connection and thus signals the Listener instance to
@@ -176,7 +201,7 @@ public class IIOPListener
     }
 
     /**
-     * The Listener is instructed to close its endpoint. It shall no
+     * The Listener is instructed to close its address. It shall no
      * longer accept any connection requests and shall close all
      * connections opened by it.
      */
@@ -253,36 +278,22 @@ public class IIOPListener
     }
 
     /**
-     * Creates a new IIOPProfile that describes this transport endpoint.
+     * Creates a new IIOPProfile that describes this transport address.
      */
-    private IIOPProfile createEndPointProfile()
+    private IIOPProfile createAddressProfile()
         throws ConfigurationException
     {
         int port=0;
         if (acceptor != null)
         {
-            port = getConfiguredPort();
-            if (port == 0)
-                port = ((Acceptor)acceptor).getLocalAddress().getPort();
+            if (address.getPort() == 0)
+                address.setPort(((Acceptor)acceptor).getLocalAddress().getPort());
         } 
         else if (sslAcceptor == null)
             throw new org.omg.CORBA.INITIALIZE
-                ("no acceptors found, cannot create endpoint profile");
+                ("no acceptors found, cannot create address profile");
 
-        IIOPProfile result = new IIOPProfile
-        (
-            new IIOPAddress 
-            (
-                // Construct the address either from the symbolic or
-                // numeric host address, depending on what we need later.
-                // Otherwise, we might get an unnecessary DNS lookup
-                // at IOR creation time, which might break the setting
-                // of OAIAddr on a multi-homed host.
-                dnsEnabled ? getHost().getHostName() : getHost().getHostAddress(),
-                port // will be 0 if there is only an SSLAcceptor
-            ), 
-            null
-        );
+        IIOPProfile result = new IIOPProfile(address,null);
         if (sslAcceptor != null && generateSSLComponents)
         {
              result.addComponent (TAG_SSL_SEC_TRANS.value,
@@ -301,81 +312,6 @@ public class IIOPListener
             (short)target_requires,
             (short)sslAcceptor.getLocalAddress().getPort()
         );
-    }
-
-    /**
-     * Returns the IP address that this listener should listen on, if one has 
-     * been configured explicitly. In the absence of an explicit configuration 
-     * (through the <code>"OAIAddr"</code> property), returns null. Eventually 
-     * the returned address will be passed as the `bindAddr' argument to a 
-     * <code>java.net.ServerSocket</code> constructor, so a null address (no 
-     * explicit configuration) means that this listener will accept connections
-     * on any/all local addresses. On the other hand, a non-null address means
-     * that this listener will only accept connect requests to the configured 
-     * IP address.
-     *
-     * @return an <code>InetAddress</code>object with the IP address 
-     *         specified by the <code>"OAIAddr"</code> property, or 
-     *         <code>null</code> if this property has not been defined.
-     */
-    private InetAddress getConfiguredHost()
-    {
-        try
-        {
-            String oa_addr = configuration.getAttribute("OAIAddr","");
-            return (oa_addr.length() == 0) ? null : InetAddress.getByName(oa_addr);
-        }
-//         catch (ConfigurationException e)
-//         {
-//             throw new org.omg.CORBA.INITIALIZE("Could not resolve configured listener host" + 
-//                                                e.getMessage());
-//         }
-        catch (java.net.UnknownHostException e)
-        {
-            throw new org.omg.CORBA.INITIALIZE
-                             ("Could not resolve configured listener host");
-        }
-    }
-
-    /**
-     * Returns the IP address to be placed in this listener's endpoint
-     * profile. The returned value is either an explicitly configured IP 
-     * address or (in the absence of an explicit configuration) is the IP
-     * address of the local host.
-     *
-     * @return an <code>InetAddress</code>object with the IP address 
-     *         specified by the <code>"OAIAddr"</code> property, or 
-     *         (if this property has not been defined) an 
-     *         <code>InetAddress</code>object for the local host.
-     */
-    private InetAddress getHost()
-    {
-        try
-        {
-            InetAddress configuredHost = getConfiguredHost();
-            return (configuredHost == null) ? InetAddress.getLocalHost()
-                                            : configuredHost;
-        }
-        catch (java.net.UnknownHostException e)
-        {
-            throw new org.omg.CORBA.INITIALIZE
-                             ("Could not resolve configured listener host");
-        }
-    }
-
-    /**
-     * Returns the number of the port that this Listener should listen on.
-     * If no port has been specified, returns zero.
-     */
-    private int getConfiguredPort()
-    {
-        return oaPort;
-
-    }
-
-    private int getConfiguredSSLPort()
-    {
-        return sslPort;
     }
 
     /**
@@ -444,7 +380,8 @@ public class IIOPListener
 
             if( logger.isDebugEnabled() )
             {
-                logger.debug( "Created socket listener on " + serverSocket.getInetAddress() );
+                logger.debug( "Created socket listener on " +
+                              serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort() );
             }
        }
 
@@ -496,11 +433,20 @@ public class IIOPListener
 
         public IIOPAddress getLocalAddress()
         {
-            return new IIOPAddress
+            IIOPAddress ep = new IIOPAddress
             (
-                serverSocket.getInetAddress().getHostAddress(),
+                serverSocket.getInetAddress().toString(),
                 serverSocket.getLocalPort()
             );
+            if (configuration != null)
+                try {
+                    ep.configure(configuration);
+                }
+                catch( ConfigurationException ce) {
+                    if (logger.isWarnEnabled())
+                        logger.warn("ConfigurationException", ce );
+                }
+            return ep;
         }
 
         /**
@@ -511,9 +457,9 @@ public class IIOPListener
             try
             {
                 return getServerSocketFactory()
-                           .createServerSocket (getConfiguredPort(),
+                           .createServerSocket (address.getPort(),
                                                 20,
-                                                getConfiguredHost());
+                                                address.getConfiguredHost());
             }
             catch (IOException ex)
             {                
@@ -547,9 +493,9 @@ public class IIOPListener
             try
             {
                 return getSSLServerSocketFactory()
-                            .createServerSocket (getConfiguredSSLPort(),
+                            .createServerSocket (sslAddress.getPort(),
                                                  20,
-                                                 getConfiguredHost());
+                                                 sslAddress.getConfiguredHost());
             }
             catch (IOException e)
             {
@@ -569,24 +515,27 @@ public class IIOPListener
     {
         public void start()
         {
-            IIOPLoopbackRegistry.getRegistry().register(getAddress(), this) ;
+            IIOPLoopbackRegistry.getRegistry().register(getAddress(), this);
         }
         
         public void terminate()
         {
-            IIOPLoopbackRegistry.getRegistry().unregister(getAddress()) ;
+            IIOPLoopbackRegistry.getRegistry().unregister(getAddress());
         }
         
-        public void initLoopback(final IIOPLoopbackInputStream lis, final IIOPLoopbackOutputStream los)
+        public void initLoopback(final IIOPLoopbackInputStream lis,
+                                 final IIOPLoopbackOutputStream los)
         {
-            final IIOPLoopbackConnection connection = new IIOPLoopbackConnection(lis, los) ;
-            deliverConnection(connection) ;
+            final IIOPLoopbackConnection connection =
+                new IIOPLoopbackConnection(lis, los) ;
+            deliverConnection(connection);
         }
         
         private IIOPAddress getAddress()
         {
-            final IIOPProfile profile = (IIOPProfile)IIOPListener.this.endpoint ;
-            return profile.getAddress() ;
+            final IIOPProfile profile =
+                (IIOPProfile)IIOPListener.this.profile;
+            return (IIOPAddress)profile.getAddress();
         }
     }
 }

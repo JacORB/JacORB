@@ -25,8 +25,6 @@ import java.net.*;
 
 import org.apache.avalon.framework.configuration.*;
 
-import org.jacorb.orb.IIOPAddress;
-
 /**
  * ServerIIOPConnection.java
  *

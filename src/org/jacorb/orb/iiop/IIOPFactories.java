@@ -38,6 +38,7 @@ public class IIOPFactories
         connectionClz = ClientIIOPConnection.class;
         listenerClz = IIOPListener.class;
         profileClz = IIOPProfile.class;   
+        addressClz = IIOPAddress.class;
     }
 
 /*    public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
@@ -94,5 +95,16 @@ public class IIOPFactories
         }
         else
             return null;
+    }
+
+    public int match_tag(String address)
+    {
+        if (address == null) return -1;
+        int colon = address.indexOf (':');
+        String token = address.substring (0,colon).toLowerCase();
+        if (token.equals ("iiop") || token.equals ("ssliop"))
+            return colon+1;
+        else
+            return -1;
     }
 }
