@@ -339,8 +339,7 @@ public class BasicAdapter
                 }
                 try
                 {
-                    tmp_poa = tmp_poa._getChildPOA(scopes[i], 
-                                                   request.poaName());
+                    tmp_poa = tmp_poa._getChildPOA( scopes[i] );
                 }
                 catch ( org.jacorb.poa.except.ParentIsHolding p )
                 {

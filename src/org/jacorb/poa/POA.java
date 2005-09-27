@@ -307,8 +307,7 @@ public class POA
      * to create a new poa unter this name
      */
 
-    public org.jacorb.poa.POA _getChildPOA(String adapter_name,
-                                           String full_name)
+    public org.jacorb.poa.POA _getChildPOA( String adapter_name )
         throws ParentIsHolding
     {
         if (!configured)
@@ -321,18 +320,12 @@ public class POA
         if (child == null || child.isDestructionApparent())
         {
 
-            if (adapterActivator == null)
-            {
-                if (orb.getRegisteredAdapterNames().contains(full_name))
-                    throw new org.omg.CORBA.TRANSIENT(
-                            "POA " + full_name + " not created yet");
-                else
-                    throw new org.omg.CORBA.OBJECT_NOT_EXIST(
-                            "no adapter activator exists for " + adapter_name);
-            }
-
             if (isHolding())
                 throw new ParentIsHolding();
+
+            if (adapterActivator == null)
+                throw new org.omg.CORBA.OBJECT_NOT_EXIST("no adapter activator exists for " +
+                                                         adapter_name);
 
             if (isDiscarding())
                 throw new org.omg.CORBA.TRANSIENT("a parent poa is in discarding state");
