@@ -255,7 +255,7 @@ public class BasicAdapter
         if (l != null)
         {
             IIOPProfile profile = (IIOPProfile)l.endpoint();
-            return profile.getAddress().getPort();
+            return ((IIOPAddress)profile.getAddress()).getPort();
         }
         else
         {
@@ -302,13 +302,7 @@ public class BasicAdapter
         if (l != null)
         {
             IIOPProfile profile = (IIOPProfile)l.endpoint();
-            String dnsEnable = 
-                configuration.getAttribute("jacorb.dns.enable","off");
-
-            if (dnsEnable.equals("on"))
-                return profile.getAddress().getHostname();
-            else
-                return profile.getAddress().getIP();
+            return ((IIOPAddress)profile.getAddress()).getHostname();
         }
         else
         {

@@ -53,6 +53,7 @@ public class BiDirConnectionInitializer
         }
         catch (Exception e)
         {
+            e.printStackTrace(System.out);
         }
     }
 

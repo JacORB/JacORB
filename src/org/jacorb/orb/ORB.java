@@ -26,7 +26,9 @@ import java.lang.reflect.*;
 
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.util.*;
-import org.jacorb.orb.iiop.*;
+import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.orb.iiop.IIOPProfile;
+import org.jacorb.orb.etf.*;
 import org.jacorb.orb.policies.*;
 import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.giop.*;
@@ -52,7 +54,6 @@ import org.omg.PortableInterceptor.*;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAManagerPackage.State;
 import org.omg.IOP.*;
-import org.omg.IIOP.*;
 import org.omg.ETF.*;
 
 /**
@@ -79,11 +80,10 @@ public final class ORB
     private boolean giopAdd_1_0_Profiles;
     private String hashTableClassName;
     private boolean useIMR;
-    private boolean useIMREndpoint;
-    private String imrProxyHost = null;
-    private int imrProxyPort = -1;
-    private String iorProxyHost;
-    private int iorProxyPort = -1;
+
+    private ProtocolAddressBase imrProxyAddress = null;
+    private ProtocolAddressBase iorProxyAddress;
+
     private boolean printVersion = true;
 
     /** "initial" references */
@@ -206,20 +206,33 @@ public final class ORB
         useIMR =
             configuration.getAttribute("jacorb.use_imr","off").equals("on");
 
-        imrProxyHost =
+        String host =
             configuration.getAttribute("jacorb.imr.ior_proxy_host",null);
-
-        imrProxyPort =
+        int port =
             configuration.getAttributeAsInteger("jacorb.imr.ior_proxy_port",-1);
+        String address =
+            configuration.getAttribute("jacorb.imr.ior_proxy_address",null);
 
-        useIMREndpoint =
-            configuration.getAttribute("jacorb.use_imr", "on").equals("on");
+        if (address == null) {
+            if (host != null && port != -1)
+                imrProxyAddress = new IIOPAddress (host,port);
+        }
+        else
+            imrProxyAddress = createAddress(address);
 
-        iorProxyHost =
+        host =
             configuration.getAttribute("jacorb.ior_proxy_host", null);
-
-        iorProxyPort =
+        port =
             configuration.getAttributeAsInteger("jacorb.ior_proxy_port",-1);
+        address =
+            configuration.getAttribute("jacorb.ior_proxy_address", null);
+
+        if (address == null) {
+            if (host != null && port != -1)
+                iorProxyAddress = new IIOPAddress (host,port);
+        }
+        else
+            iorProxyAddress = createAddress(address);
 
         printVersion =
             configuration.getAttribute("jacorb.orb.print_version", "on").equals("on");
@@ -279,6 +292,19 @@ public final class ORB
 
             clientConnectionManager.setRequestListener( basicAdapter.getRequestListener() );
         }
+    }
+
+    public ProtocolAddressBase createAddress (String address)
+    {
+        List factorylist = getTransportManager().getFactoriesList();
+        ProtocolAddressBase result = null;
+        for (Iterator i = factorylist.iterator();
+             i.hasNext() && result == null;)
+        {
+            FactoriesBase f = (FactoriesBase)i.next();
+            result = f.create_protocol_address(address);
+        }
+        return result;
     }
 
     /**
@@ -391,7 +417,7 @@ public final class ORB
             {
                 if( logger.isDebugEnabled() )
                 {
-                    logger.debug("findPOA: impl_name mismatch");
+                    logger.debug("findPOA: impl_name mismatch - null != " + implName);
                 }
                 return null;
             }
@@ -402,7 +428,8 @@ public final class ORB
             {
                 if( logger.isDebugEnabled() )
                 {
-                    logger.debug("findPOA: impl_name mismatch");
+                    logger.debug("findPOA: impl_name mismatch - " +
+                                 refImplName + " != " + implName);
                 }
                 return null;
             }
@@ -632,15 +659,15 @@ public final class ORB
             profileComponents.addComponent(create_ORB_TYPE_ID());
             componentMap.put(new Integer(profile.tag()), profileComponents);
 
-            if (profile instanceof IIOPProfile)
+            if (profile instanceof ProfileBase)
             {
                 // use proxy or ImR address if necessary
-                patchAddress((IIOPProfile)profile, repId, _transient);
+                patchAddress((ProfileBase)profile, repId, _transient);
 
                 // patch primary address port to 0 if SSL is required
                 if (poa.isSSLRequired())
                 {
-                    ((IIOPProfile)profile).patchPrimaryAddress(null, 0);
+                    ((ProfileBase)profile).patchPrimaryAddress(null);
             }
         }
 
@@ -671,11 +698,10 @@ public final class ORB
         }
 
         // add GIOP 1.0 profile if necessary
+
         IIOPProfile iiopProfile = findIIOPProfile(profiles);
         if ( (iiopProfile != null)
              && ( this.giopMinorVersion == 0 || this.giopAdd_1_0_Profiles ))
-            //            && (   Environment.giopMinorVersion() == 0
-            //    || Environment.giopAdd_1_0_Profiles()))
         {
             Profile profile_1_0 = iiopProfile.to_GIOP_1_0();
             profiles.add(profile_1_0);
@@ -893,11 +919,16 @@ public final class ORB
             {
                 /* Register the POA */
                 String server_name = implName;
+                ProtocolAddressBase sep = getServerAddress();
+                if (sep != null && sep instanceof IIOPAddress) {
+                    String sep_host = ((IIOPAddress)sep).getHostname();
+                    int sep_port = ((IIOPAddress)sep).getPort();
 
-                imr.registerPOA( server_name + "/" + poa._getQualifiedName(),
+                    imr.registerPOA (server_name + "/" +
+                                     poa._getQualifiedName(),
                                  server_name, // logical server name
-                                 getServerAddress(),
-                                 getServerPort() );
+                                     sep_host, sep_port);
+                }
             }
         }
     }
@@ -943,29 +974,26 @@ public final class ORB
     /**
      * Replace the server address in profile with a proxy address if necessary.
      */
-    private void patchAddress(IIOPProfile profile,
+    private void patchAddress(ProfileBase profile,
                               String repId,
                               boolean _transient)
     {
         if (repId.equals ("IDL:org/jacorb/imr/ImplementationRepository:1.0"))
         {
-            profile.patchPrimaryAddress(imrProxyHost,imrProxyPort);
+            profile.patchPrimaryAddress(imrProxyAddress);
         }
-        else if (!_transient
-                 && useIMR
-                 && useIMREndpoint )
-        {
+        else if (!_transient && useIMR ) {
             getImR();
 
             // The double call to patchPrimaryAddress ensures that either the
             // actual imr address or the environment values are patched into the
             // address, giving precedence to the latter.
-            profile.patchPrimaryAddress(imr.getImRHost(), imr.getImRPort());
-            profile.patchPrimaryAddress(imrProxyHost, imrProxyPort);
+            profile.patchPrimaryAddress(imr.getImRAddress());
+            profile.patchPrimaryAddress(imrProxyAddress);
         }
         else
         {
-            profile.patchPrimaryAddress(iorProxyHost, iorProxyPort);
+            profile.patchPrimaryAddress(iorProxyAddress);
         }
     }
 
@@ -985,93 +1013,44 @@ public final class ORB
         );
     }
 
-
     /**
-     * <code>getServerAddress</code> returns the address to use to locate the
-     * server.  Note that this address will be overwritten by the ImR address in
-     * the IOR of persistent servers if the use_imr and use_imr_endpoint
-     * properties are switched on
+     * <code>getServerAddress</code> returns the address to use to
+     * locate the server.  Note that this address will be overwritten
+     * by the ImR address in the IOR of persistent servers if the
+     * use_imr and use_imr_endpoint properties are switched on
      *
      * @return a <code>String</code>, the address for the server.
      */
-    private String getServerAddress()
+    private ProtocolAddressBase getServerAddress()
     {
-        String address = iorProxyHost;
+        ProtocolAddressBase address = iorProxyAddress;
 
         if( address == null )
         {
             //property not set
-            address = getBasicAdapter().getAddress();
+
+            List eplist = getBasicAdapter().getEndpointProfiles();
+            for (Iterator i = eplist.iterator(); i.hasNext(); ) {
+                Profile p = (Profile)i.next();
+                if (p instanceof IIOPProfile) {
+                    address = ((IIOPProfile)p).getAddress();
+                    break;
+            }
+            }
         }
         else
         {
             if (logger.isInfoEnabled())
             {
-                logger.info("Using proxy host " + address + " in IOR" );
-            }
+                logger.info("Using proxy address " +
+                            address.toString() +
+                            " in IOR" );
         }
+    }
 
         return address;
     }
 
-
-    /**
-     * <code>getServerPort</code> returns the port to use to locate the server.
-     * Note that this port will be overwritten by the ImR port in the IOR of
-     * persistent servers if the use_imr and use_imr_endpoint properties are
-     * switched on.
-     *
-     * @return an <code>int</code>, the port for the server.
-     */
-    private int getServerPort()
-    {
-        int port = -1;
-
-        if( iorProxyPort != -1 )
-        {
-            port = iorProxyPort;
-
-            if( port < 0 )
-            {
-                throw new BAD_QOS( "Negative port numbers are not allowed! " +
-                                   "(check property \"jacorb.ior_proxy_port\")" );
-            }
-
-            if (logger.isInfoEnabled())
-            {
-                logger.info("Using proxy port " + port + " in IOR" );
-            }
-        }
-        else
-        {
-            //property not set
-            port = getBasicAdapter().getPort();
-        }
-
-        return port;
-    }
-
-    /**
-     * Method to check if a Proxy host is configured for the IMR via the
-     * <code>jacorb.imr.ior_proxy_host</code> property.
-     * @param imrAddress The actual host name or IP of the IMR.
-     * @return The proxy host value, if configured, else the supplied actual host.
-     */
-    private String getIMRAddressForIOR(String imrAddress)
-    {
-        return (imrProxyHost == null ? imrAddress : imrProxyHost);
-    }
-
-    /**
-     * Method to check if a Proxy port is configured for the IMR via the
-     * <code>jacorb.imr.ior_proxy_port</code> property.
-     * @param imrPort The port number that the IMR is really running on.
-     * @return The proxy port number, if configured, else the supplied actual port.
-     */
-    private int getIMRPortForIOR(int imrPort)
-    {
-        return imrProxyPort;
-    }
 
     public void poaStateChanged(org.jacorb.poa.POA poa, int new_state)
     {
@@ -1095,22 +1074,21 @@ public final class ORB
     public boolean get_service_information( short service_type,
                                             org.omg.CORBA.ServiceInformationHolder service_information)
     {
-        //          if (( service_type == org.omg.CORBA.Security.value ) && Environment.supportSSL ())
-        //          {
-        //              byte options[] = new byte [5]; // ServiceOption[]
-        //              options[0] = (byte)org.omg.Security.SecurityLevel1.value;
-        //              options[1] = (byte)org.omg.Security.SecurityLevel2.value;
-        //              options[2] = (byte)org.omg.Security.ReplaceORBServices.value;
-        //              options[3] = (byte)org.omg.Security.ReplaceSecurityServices.value;
-        //              options[4] = (byte)org.omg.Security.CommonInteroperabilityLevel0.value;
-        //              org.omg.CORBA.ServiceDetail details[] = new org.omg.CORBA.ServiceDetail [2];
-        //              details[0].service_detail_type = org.omg.Security.SecureTransportType.value;
-        //              details[0].service_detail = org.jacorb.security.ssl.SSLSetup.getMechanismType().getBytes();
-        //              details[1].service_detail_type = org.omg.Security.SecureTransportType.value;
-        //              details[1].service_detail = "001010011".getBytes(); // AuditId, _PublicId, AccessId
-        //              return true;
-        //          }
-        //          else return false;
+//         if (( service_type == org.omg.CORBA.Security.value ) && Environment.supportSSL ()) {
+//             byte options[] = new byte [5]; // ServiceOption[]
+//             options[0] = (byte)org.omg.Security.SecurityLevel1.value;
+//             options[1] = (byte)org.omg.Security.SecurityLevel2.value;
+//             options[2] = (byte)org.omg.Security.ReplaceORBServices.value;
+//             options[3] = (byte)org.omg.Security.ReplaceSecurityServices.value;
+//             options[4] = (byte)org.omg.Security.CommonInteroperabilityLevel0.value;
+//             org.omg.CORBA.ServiceDetail details[] = new org.omg.CORBA.ServiceDetail [2];
+//             details[0].service_detail_type = org.omg.Security.SecureTransportType.value;
+//             details[0].service_detail = org.jacorb.security.ssl.SSLSetup.getMechanismType().getBytes();
+//             details[1].service_detail_type = org.omg.Security.SecureTransportType.value;
+//             details[1].service_detail = "001010011".getBytes(); // AuditId, _PublicId, AccessId
+//             return true;
+//         }
+//         else return false;
         throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 

@@ -251,7 +251,7 @@ public class ContextNode
 		row.addElement( last.kind);
 		row.addElement( pior.getTypeId() );
 		IIOPProfile p = (IIOPProfile)pior.getEffectiveProfile();
-		row.addElement( p.getAddress().getIP() );
+		row.addElement( ((IIOPAddress)p.getAddress()).getIP() );
 					
 		bindingData.addElement( row );
 
@@ -283,7 +283,7 @@ public class ContextNode
 		row.addElement( last.kind);
 		row.addElement( pior.getTypeId() );
 		IIOPProfile p = (IIOPProfile)pior.getEffectiveProfile();
-		row.addElement( p.getAddress().getIP() );
+		row.addElement( ((IIOPAddress)p.getAddress()).getIP() );
 					
 		bindingData.addElement( row );
 	    }
@@ -306,4 +306,3 @@ public class ContextNode
 	}
     }
 }
-

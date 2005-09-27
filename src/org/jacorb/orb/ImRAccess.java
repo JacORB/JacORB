@@ -34,6 +34,11 @@ public interface ImRAccess
 {
     public String getImRHost();
     public int getImRPort();
+    public org.jacorb.orb.etf.ProtocolAddressBase getImRAddress();
+    public void registerPOA( String name,
+                             String server,
+                             org.jacorb.orb.etf.ProtocolAddressBase address)
+        throws org.omg.CORBA.INTERNAL;
     public void registerPOA( String name,
                              String server,
                              String host,
