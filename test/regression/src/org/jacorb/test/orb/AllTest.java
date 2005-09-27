@@ -47,6 +47,7 @@ public class AllTest extends JacORBTestSuite
         suite.addTest (org.jacorb.test.orb.connection.AllTest.suite ());
         suite.addTest (org.jacorb.test.orb.etf.AllTest.suite());
         suite.addTest (org.jacorb.test.orb.AlternateIIOPAddressTest.suite());
+        suite.addTest (org.jacorb.test.orb.AlternateIIOPAddress2Test.suite());
         suite.addTest (org.jacorb.test.orb.AlternateProfileTest.suite());
         suite.addTest (org.jacorb.test.orb.LongLongSeq.suite());
         suite.addTest (org.jacorb.test.orb.RecursiveParam.suite());

@@ -27,6 +27,7 @@ import junit.framework.*;
 
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.iiop.IIOPProfile;
+import org.jacorb.orb.iiop.IIOPAddress;
 
 import org.omg.CORBA.portable.Delegate;
 import org.omg.IOP.TAG_INTERNET_IOP;
@@ -271,8 +272,8 @@ public class AlternateProfileTest extends ClientServerTestCase
               if( cnt == 0 )
               {
                   IIOPProfile prof = new IIOPProfile(profiles[i].profile_data);
-                  assertEquals(prof.getAddress().getIP(), host);
-                  assertEquals(prof.getAddress().getPort(), port);
+                  assertEquals(((IIOPAddress)prof.getAddress()).getIP(), host);
+                  assertEquals(((IIOPAddress)prof.getAddress()).getPort(), port);
                   found = true;
                   break;
               }

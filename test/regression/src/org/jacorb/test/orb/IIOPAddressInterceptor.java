@@ -7,7 +7,7 @@ import org.omg.IOP.*;
 import org.omg.PortableInterceptor.IORInfo;
 import org.omg.PortableInterceptor.IORInterceptor;
 
-import org.jacorb.orb.IIOPAddress;
+import org.jacorb.orb.iiop.IIOPAddress;
 
 /**
  * An IOR Interceptor that adds alternate addresses to IIOP Profiles.

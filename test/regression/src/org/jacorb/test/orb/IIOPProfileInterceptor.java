@@ -7,7 +7,7 @@ import org.omg.IOP.*;
 import org.omg.PortableInterceptor.IORInfo;
 import org.omg.PortableInterceptor.IORInterceptor;
 
-import org.jacorb.orb.IIOPAddress;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.portableInterceptor.IORInfoExt;
 import org.jacorb.orb.iiop.IIOPProfile;
 
@@ -52,7 +52,7 @@ public class IIOPProfileInterceptor
           {
              IIOPAddress addr = (IIOPAddress)i.next();
              IIOPProfile additionalProfile = (IIOPProfile) cloneOfPrimary.clone();
-             additionalProfile.patchPrimaryAddress(addr.getIP(), addr.getPort());
+             additionalProfile.patchPrimaryAddress(addr);
              infoExt.add_profile(additionalProfile);
           }
        }
