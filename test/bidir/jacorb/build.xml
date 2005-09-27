@@ -13,6 +13,8 @@
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
 	<property name="idlflags" value="-I${include}/omg -ir  -d ${dirs.base}/test/${name}/generated"/>
+        <property name="debug" value="off"/>
+        <property name="debuglevel" value="lines,source"/>
    </target>
 
    <target name="all" depends="init,idl">
@@ -21,6 +23,7 @@
 	       includes="*.java"
 	        />
 	<javac srcdir="${dirs.base}"
+               debug="${debug}"
                destdir="${classdir}"
 	       includes="test/${name}/*.java"
 	        />
@@ -36,8 +39,3 @@
          </java>
    </target>
 </project>
-
-
-
-
-

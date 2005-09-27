@@ -33,9 +33,15 @@ public class Server
     public static void main( String[] args )
         throws Exception
     {
+        if( args.length != 1 )
+	{
+            System.out.println( "Usage: jaco Server <ior_file>" );
+            System.exit( 1 );
+        }
+
         Properties props = new Properties();
         props.put( "org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
-                   "org.jacorb.orb.connection.BiDirConnectionInitializer" );
+                   "org.jacorb.orb.giop.BiDirConnectionInitializer" );
 
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, props );
 
@@ -73,4 +79,3 @@ public class Server
         orb.run();
     }        
 }// ServerImpl
-

@@ -62,7 +62,7 @@ public class Client
         // initialize the ORB.
         Properties props = new Properties();
         props.put( "org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
-                   "org.jacorb.orb.connection.BiDirConnectionInitializer" );
+                   "org.jacorb.orb.giop.BiDirConnectionInitializer" );
 
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, props );
 
