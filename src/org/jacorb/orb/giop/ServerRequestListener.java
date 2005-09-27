@@ -264,7 +264,7 @@ public class ServerRequestListener
 
                 try
                 {
-                    tmp_poa = tmp_poa._getChildPOA( res );
+                    tmp_poa = tmp_poa._getChildPOA(res, request.poaName());
                 }
                 catch ( org.jacorb.poa.except.ParentIsHolding p )
                 {
