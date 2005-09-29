@@ -1,3 +1,13 @@
+2005-09-28  Francisco Reverbel  <reverbel@ime.usp.br>
+
+	* poa/POA.java: POA._getChildPOA changed so that an "unborn" child
+	  POA whose parent POA has no adaptor activator is perceived to be
+	  in the holding state while its parent POA is in the holding state.
+	  This change fixes the problem of spurious OBJECT_EXIST replies
+	  at server startup. The problem happens when a request targeted at
+	  a persistent object arrives before the creation of a persistent 
+	  POA for its target.
+		
 2005-08-22  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* notification/filter/etcl/AbstractTCLVisitor.java,
@@ -200,7 +210,7 @@
 	(startCronJob) fixed if clause. task would never be started. this
 	fixes #625
 
-2005-08-04  Francisco Revervel  <reverbel@ime.usp.br>
+2005-08-04  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
 	orb/iiop/IIOPLoopback.java, orb/iiop/IIOPLoopbackConnection.java,
@@ -214,7 +224,7 @@
 	* poa/POA.java: fix for servant_to_id() to correctly activate the
 	object when the implicit_activation policy is set.
 
-2005-06-26  Francisco Revervel  <reverbel@ime.usp.br>
+2005-06-26  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/Delegate.java: Do not try to load a stub for
 	CORBA::Object. The attempt will fail for sure, as there is no
@@ -1288,7 +1298,7 @@
 	NUL-terminated strings, fixing regression test failure
 	testGIOP_1_2_CorrectFragmentedRequest.
 
-2004-10-21  Francisco Revervel  <reverbel@ime.usp.br>
+2004-10-21  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* security/ssl/sun_jsse/SSLSocketFactory.java:
 	  - SSLSocketFactory is now using "SSLv3" instead of "TLS". The call
@@ -2076,7 +2086,7 @@
 
 	(*) various fixes so that Unit tests run again
 
-2004-05-09  Francisco Revervel  <reverbel@ime.usp.br>
+2004-05-09  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* config/LoggerFactory.java: The LoggerFactory interface should be
 	public, as users should be able to plug other logging mechanisms
@@ -2321,7 +2331,7 @@
 
 	* poa/RPPoolManager.java: Fix compile problem
 
-2004-05-06  Francisco Revervel  <reverbel@ime.usp.br>
+2004-05-06  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/CDRInputStream.java:
 	Fix read_Object(Class clz) so that it now works when clz is a stub class.
@@ -3519,7 +3529,7 @@
 	* orb/standardInterceptors/SASComponentInterceptor.java:
 	Whitespace only (tab removal)
 
-2004-02-04  Francisco Revervel  <reverbel@ime.usp.br>
+2004-02-04  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/ServantDelegate.java,
 	orb/portableInterceptor/ServerRequestInfoImpl.java: Fix for bug
@@ -3536,7 +3546,7 @@
 
 	* orb/util/PrintIOR.java: SAS tag components
 
-2004-02-04  Francisco Revervel  <reverbel@ime.usp.br>
+2004-02-04  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/portableInterceptor/InterceptorManager.java: WeakHashMap
 	currents (from Threads to PICurrent instances) replaced by a
@@ -3586,7 +3596,7 @@
 	* orb/iiop/ClientIIOPConnection.java: updated logging to logger
 	framework
 
-2004-02-03  Francisco Revervel  <reverbel@ime.usp.br>
+2004-02-03  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* util/Environment.java: Revert change of the "jacorb.implname"
 	property (from "jacorb.impl_name" back to
@@ -3600,7 +3610,7 @@
 	(print) added check so that no code is generated for included
 	definitions
 
-2004-02-01  Francisco Revervel  <reverbel@ime.usp.br>
+2004-02-01  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* util/Environment.java: Property name changed back to
 	"jacorb.interop.strict_check_on_tc_creation"
@@ -4378,7 +4388,7 @@
 
 	* orb/giop/ClientConnection.java: Fixed compilation error.
 
-2003-12-22  Francisco Revervel  <reverbel@ime.usp.br>
+2003-12-22  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* util/LoggerFactory.java: The visibility of the LoggerFactory
 	interface was changed to public, so that a class can implement
@@ -4445,7 +4455,7 @@
 	* security/ssl/iaik/SSLServerSocketFactory.java:
 	(switchToClientMode) adapted Debug.output() (no more symbolic names...)
 
-2003-12-18  Francisco Revervel  <reverbel@ime.usp.br>
+2003-12-18  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/ServantDelegate.java:
 	- Instead of calling get_servant() directly on an instance of
@@ -4830,7 +4840,7 @@
 	clientPendingReplyTimeout): New static field and access method.
 	(readValue, readValues): Handle the above.
 
-2003-11-28  Francisco Revervel  <reverbel@ime.usp.br>
+2003-11-28  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/ORB.java: Minor fix in a javadoc comment (typo and wrong
 	param names).
@@ -4971,7 +4981,7 @@
 
 	cosmetics
 
-2003-11-07  Francisco Revervel  <reverbel@ime.usp.br>
+2003-11-07  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/giop/TransportManager.java,
 	orb/standardInterceptors/IORInterceptorInitializer.java,
@@ -4992,7 +5002,7 @@
 	context class loader also replaced by calls to
 	Environment.classForName(String).
 
-2003-11-06  Francisco Revervel  <reverbel@ime.usp.br>
+2003-11-06  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* util/Environment.java: Javadoc comments and implementation
 	comments added to classForName().
@@ -5001,7 +5011,7 @@
 
 	* orb/giop/GIOPConnection.java: Correct a boolean test in tryDiscard()
 
-2003-11-05  Francisco Revervel  <reverbel@ime.usp.br>
+2003-11-05  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/Any.java, orb/TypeCode.java: Fixes for bug #404:
 	 - Any.extract_Value() now handle value boxes and abstract interfaces
@@ -5315,7 +5325,7 @@
 	InputStream.read_value(Serializable), which is the standard way to
 	handle indirections.
 
-2003-10-28  Francisco Revervel  <reverbel@ime.usp.br>
+2003-10-28  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/Any.java: Changed insert_Object(org.omg.CORBA.Object o) so
 	that it now takes an object whose repository id starts with
@@ -6860,7 +6870,7 @@
 	notification/notification_build.properties.win_template: removed
 	unnecessary files
 
-2003-07-03  Francisco Revervel  <reverbel@ime.usp.br>
+2003-07-03  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/CDROutputStream.java:
 	    - Added config property jacorb.interop.chunk_custom_rmi_valuetypes.
@@ -6871,7 +6881,7 @@
 
 	* notification/EventChannelFactoryImpl.java: print out IOR to stdout
 
-2003-07-03  Francisco Revervel  <reverbel@ime.usp.br>
+2003-07-03  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/build.xml: Compile org/jacorb/orb/iiop/*.java.
 
