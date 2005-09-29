@@ -320,12 +320,14 @@ public class POA
         if (child == null || child.isDestructionApparent())
         {
 
-            if (isHolding())
-                throw new ParentIsHolding();
-
             if (adapterActivator == null)
-                throw new org.omg.CORBA.OBJECT_NOT_EXIST("no adapter activator exists for " +
-                                                         adapter_name);
+            {
+                if (isHolding())
+                    throw new ParentIsHolding();
+                else
+                    throw new org.omg.CORBA.OBJECT_NOT_EXIST("no adapter activator exists for " +
+                                                             adapter_name);
+            }
 
             if (isDiscarding())
                 throw new org.omg.CORBA.TRANSIENT("a parent poa is in discarding state");
