@@ -568,7 +568,7 @@
               srcdir="idl"
               omgprefix="true"
               includepath="${idl}/omg"
-              includes="**/omg/TimeBase.idl"
+              includes="**/omg/TimeBase.idl, **/omg/CosTime.idl"
               destdir="${src}/generated"/>
    </target>
 
