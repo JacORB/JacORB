@@ -47,10 +47,7 @@ public class TypedEventChannelTest extends TestCase
     private TypedEventChannelFactory typedChannelFactory_;
     private TypedEventChannel objectUnderTest_;
     private AbstractChannelFactory servant_;
-
-    /*
-     * @see TestCase#setUp()
-     */
+   
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -67,9 +64,7 @@ public class TypedEventChannelTest extends TestCase
                 new Property[0], new IntHolder());
     }
 
-    /* (non-Javadoc)
-     * @see junit.framework.TestCase#tearDown()
-     */
+    
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -77,11 +72,7 @@ public class TypedEventChannelTest extends TestCase
         servant_.destroy();
     }
     
-    /**
-     * Constructor for TypedEventChannelTest.
-     * 
-     * @param name
-     */
+   
     public TypedEventChannelTest(String name)
     {
         super(name);
@@ -117,6 +108,8 @@ public class TypedEventChannelTest extends TestCase
     
     public void testCreateConsumerAdmin() throws Exception
     {
+        assertEquals(0, objectUnderTest_.get_all_consumeradmins().length);
+        
         IntHolder id = new IntHolder();
         
         org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdmin admin = objectUnderTest_.new_for_typed_notification_consumers(InterFilterGroupOperator.OR_OP, id);
@@ -131,6 +124,7 @@ public class TypedEventChannelTest extends TestCase
     
     public void testCreateSupplierAdmin() throws Exception
     {
+        assertEquals(0, objectUnderTest_.get_all_supplieradmins().length);
         IntHolder id = new IntHolder();
         
         org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin admin = objectUnderTest_.new_for_typed_notification_suppliers(InterFilterGroupOperator.OR_OP, id);

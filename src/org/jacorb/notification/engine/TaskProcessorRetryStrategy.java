@@ -22,7 +22,7 @@ package org.jacorb.notification.engine;
 
 import org.jacorb.notification.interfaces.IProxyPushSupplier;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Alphonse Bendt
@@ -49,7 +49,7 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy implements
         }
     };
 
-    private SynchronizedBoolean isCancelled_ = new SynchronizedBoolean(false);
+    private AtomicBoolean isCancelled_ = new AtomicBoolean(false);
     
     private final TaskProcessor taskProcessor_;
 

@@ -63,8 +63,8 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.PicoContainer;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @jmx.mbean
@@ -83,7 +83,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     protected final Logger logger_;
 
-    private final SynchronizedBoolean connected_ = new SynchronizedBoolean(false);
+    private final AtomicBoolean connected_ = new AtomicBoolean(false);
 
     protected final QoSPropertySet qosSettings_;
 
@@ -104,11 +104,11 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
      */
     private final FilterManager filterManager_;
 
-    private final SynchronizedBoolean destroyed_ = new SynchronizedBoolean(false);
+    private final AtomicBoolean destroyed_ = new AtomicBoolean(false);
 
-    private final SynchronizedBoolean disposeInProgress_ = new SynchronizedBoolean(false);
+    private final AtomicBoolean disposeInProgress_ = new AtomicBoolean(false);
 
-    private final SynchronizedInt errorCounter_ = new SynchronizedInt(0);
+    private final AtomicInteger errorCounter_ = new AtomicInteger(0);
 
     private final POA poa_;
 
@@ -120,7 +120,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     private final boolean disposedProxyDisconnectsClient_;
 
-    private final SynchronizedBoolean active_ = new SynchronizedBoolean(true);
+    private final AtomicBoolean active_ = new AtomicBoolean(true);
 
     private final DisposableManager disposables_ = new DisposableManager();
 
@@ -347,7 +347,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     protected void checkDestroyStatus() throws OBJECT_NOT_EXIST
     {
-        if (!destroyed_.commit(false, true))
+        if (!destroyed_.compareAndSet(false, true))
         {
             logger_.error("Already destroyed");
 
@@ -460,7 +460,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     public final int incErrorCounter()
     {
-        return errorCounter_.increment();
+        return errorCounter_.getAndIncrement();
     }
 
     public boolean isSuspended()
@@ -472,7 +472,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     {
         checkIsConnected();
 
-        if (!active_.commit(true, false))
+        if (!active_.compareAndSet(true, false))
         {
             throw new ConnectionAlreadyInactive();
         }
@@ -492,7 +492,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     {
         checkIsConnected();
 
-        if (!active_.commit(false, true))
+        if (!active_.compareAndSet(false, true))
         {
             throw new ConnectionAlreadyActive();
         }

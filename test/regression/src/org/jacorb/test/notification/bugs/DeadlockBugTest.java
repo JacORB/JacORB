@@ -32,9 +32,10 @@ import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 
-import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
+import edu.emory.mathcs.backport.java.util.concurrent.CyclicBarrier;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Alphonse Bendt
@@ -46,9 +47,6 @@ public class DeadlockBugTest extends TestCase
 
     Object lock_;
 
-    /*
-     * @see TestCase#setUp()
-     */
     protected void setUp() throws Exception
     {
         lock_ = new Object();
@@ -74,16 +72,16 @@ public class DeadlockBugTest extends TestCase
     { 
         final AnyMessage mesg = new AnyMessage();
 
-        final SynchronizedBoolean received = new SynchronizedBoolean(false);
-        final SynchronizedBoolean delivered = new SynchronizedBoolean(false);
-        final Latch threadsDone = new Latch();
-        final Latch getPutOrder = new Latch();
+        final AtomicBoolean received = new AtomicBoolean(false);
+        final AtomicBoolean delivered = new AtomicBoolean(false);
+        final CountDownLatch threadsDone = new CountDownLatch(1);
+        final CountDownLatch getPutOrder = new CountDownLatch(1);
 
         final CyclicBarrier barrier = new CyclicBarrier(2, new Runnable()
         {
             public void run()
             {
-                threadsDone.release();
+                threadsDone.countDown();
             }
         });
 
@@ -95,13 +93,13 @@ public class DeadlockBugTest extends TestCase
                 {
                     synchronized (lock_)
                     {
-                        getPutOrder.release();
+                        getPutOrder.countDown();
                         objectUnderTest_.getMessageBlocking();
                     }
 
                     received.set(true);
 
-                    barrier.barrier();
+                    barrier.await();
                 } catch (Exception e)
                 {
                     fail();
@@ -115,13 +113,13 @@ public class DeadlockBugTest extends TestCase
             {
                 try
                 {
-                    getPutOrder.acquire();
+                    getPutOrder.await();
 
                     objectUnderTest_.enqeue(mesg.getHandle());
 
                     delivered.set(true);
 
-                    barrier.barrier();
+                    barrier.await();
                 } catch (Exception e)
                 {
                     fail();
@@ -139,7 +137,7 @@ public class DeadlockBugTest extends TestCase
 
         putter.start();
 
-        threadsDone.attempt(1000);
+        threadsDone.await(1000, TimeUnit.MILLISECONDS);
 
         assertTrue(delivered.get());
         assertTrue(received.get());

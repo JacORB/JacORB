@@ -45,6 +45,8 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.TimeBase.TimeTHelper;
 
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+
 public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 {
     private SequenceProxyPushSupplierImpl objectUnderTest_;
@@ -77,6 +79,10 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 
     private PushTaskExecutorFactory mockPushTaskExecutorFactory_;
 
+    private ScheduledFuture mockScheduledFuture_;
+
+    private MockControl controlScheduledFuture_;
+
     public SequenceProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
@@ -84,6 +90,9 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 
     protected void setUpTest() throws Exception
     {
+        controlScheduledFuture_ = MockControl.createControl(ScheduledFuture.class);
+        mockScheduledFuture_ = (ScheduledFuture) controlScheduledFuture_.getMock();
+        
         controlAdmin_ = MockControl.createControl(IAdmin.class);
         mockAdmin_ = (IAdmin) controlAdmin_.getMock();
 
@@ -105,11 +114,13 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         mockPushConsumer_ = (SequencePushConsumer) controlPushConsumer_.getMock();
 
         controlPushTaskExecutorFactory_ = MockControl.createControl(PushTaskExecutorFactory.class);
-        mockPushTaskExecutorFactory_ = (PushTaskExecutorFactory) controlPushTaskExecutorFactory_.getMock();
-        
+        mockPushTaskExecutorFactory_ = (PushTaskExecutorFactory) controlPushTaskExecutorFactory_
+                .getMock();
+
         mockPushTaskExecutorFactory_.newExecutor(null);
         controlPushTaskExecutorFactory_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlPushTaskExecutorFactory_.setReturnValue(new PushTaskExecutor(){
+        controlPushTaskExecutorFactory_.setReturnValue(new PushTaskExecutor()
+        {
             public void executePush(PushTask task)
             {
                 task.doPush();
@@ -120,9 +131,9 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
                 // ignored
             }
         });
-        
+
         controlPushTaskExecutorFactory_.replay();
-        
+
         objectUnderTest_ = new SequenceProxyPushSupplierImpl(mockAdmin_, getORB(), getPOA(),
                 getConfiguration(), mockTaskProcessor_, mockPushTaskExecutorFactory_,
                 new OfferManager(), new SubscriptionManager(), mockConsumerAdmin_);
@@ -130,6 +141,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 
     private void verifyAll()
     {
+        controlScheduledFuture_.verify();
         controlPushTaskExecutorFactory_.verify();
         controlAdmin_.verify();
         controlTaskProcessor_.verify();
@@ -139,6 +151,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 
     private void replayAll()
     {
+        controlScheduledFuture_.replay();
         controlTaskProcessor_.replay();
         controlConsumerAdmin_.replay();
         controlPushConsumer_.replay();
@@ -215,17 +228,16 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 
     public void testSetQoSTwoTimes() throws Exception
     {
-        final Object taskhandle = new Object();
-
         final int interval1 = 10000000;
         final int interval2 = 20000000;
 
         mockTaskProcessor_.executeTaskPeriodically(1000, null, true);
         controlTaskProcessor_.setMatcher(TASKPROCESSOR_MATCHER);
-        controlTaskProcessor_.setReturnValue(taskhandle);
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
 
-        mockTaskProcessor_.cancelTask(taskhandle);
-
+        mockScheduledFuture_.cancel(true);
+        controlScheduledFuture_.setReturnValue(true);
+        
         mockTaskProcessor_.executeTaskPeriodically(2000, null, true);
         controlTaskProcessor_.setReturnValue(null);
 
@@ -267,22 +279,21 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         objectUnderTest_.getMessageConsumer().queueMessage(mockMessage);
 
         controlPushConsumer_.verify();
-        
+
         controlPushConsumer_.reset();
-        
-        mockPushConsumer_.push_structured_events(new StructuredEvent[] {event, event});
-        controlPushConsumer_.setMatcher(new AbstractMatcher(){
+
+        mockPushConsumer_.push_structured_events(new StructuredEvent[] { event, event });
+        controlPushConsumer_.setMatcher(new AbstractMatcher()
+        {
             public boolean matches(Object[] expected, Object[] actual)
             {
-                return 
-                ((StructuredEvent[])expected[0]).length ==
-                ((StructuredEvent[])actual[0]).length;
+                return ((StructuredEvent[]) expected[0]).length == ((StructuredEvent[]) actual[0]).length;
             }
         });
-        
+
         controlPushConsumer_.replay();
         objectUnderTest_.deliverPendingMessages(true);
-        
+
         verifyAll();
     }
 

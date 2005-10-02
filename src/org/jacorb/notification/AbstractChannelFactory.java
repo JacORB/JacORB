@@ -69,7 +69,7 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
@@ -130,7 +130,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
     
     private final ChannelManager channelManager_ = new ChannelManager();
 
-    private final SynchronizedInt eventChannelIDPool_ = new SynchronizedInt(-1);
+    private final AtomicInteger eventChannelIDPool_ = new AtomicInteger(0);
 
     private final DisposableManager disposableManager_ = new DisposableManager();
 
@@ -354,7 +354,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
     private int createChannelIdentifier()
     {
-        return eventChannelIDPool_.increment();
+        return eventChannelIDPool_.getAndIncrement();
     }
 
     private void checkQoSSettings(PropertySet uniqueQoSProperties) throws UnsupportedQoS

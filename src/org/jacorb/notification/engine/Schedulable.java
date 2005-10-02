@@ -27,5 +27,5 @@ package org.jacorb.notification.engine;
  */
 public interface Schedulable
 {
-    void schedule() throws InterruptedException;
+    void schedule();
 }

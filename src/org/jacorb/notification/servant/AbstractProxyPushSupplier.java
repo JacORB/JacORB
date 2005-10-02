@@ -43,18 +43,17 @@ import org.omg.PortableServer.POA;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.defaults.DefaultPicoContainer;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedRef;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @jmx.mbean extends = "AbstractProxySupplierMBean"
  * @jboss.xmbean
  * 
- * @--jmx.notification    name = "notification.proxy.push_failed"
- *                      description = "push to ProxyPushConsumer failed"
- *                      notificationType = "java.lang.String" 
- *                      
+ * @--jmx.notification name = "notification.proxy.push_failed" description = "push to
+ *                     ProxyPushConsumer failed" notificationType = "java.lang.String"
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -62,28 +61,28 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
         IProxyPushSupplier
 {
     private final String NOTIFY_PUSH_FAILED = "notification.proxy.push_failed";
-    
-    private final SynchronizedRef retryStrategyFactory_;
+
+    private final AtomicReference retryStrategyFactory_;
 
     /**
      * flag to indicate that this ProxySupplier should invoke remote calls (push) during
      * deliverMessage.
      */
-    private final SynchronizedBoolean enabled_ = new SynchronizedBoolean(true);
+    private final AtomicBoolean enabled_ = new AtomicBoolean(true);
 
     private final PushTaskExecutor pushTaskExecutor_;
 
-    private final SynchronizedInt pushCounter_ = new SynchronizedInt(0);
-    
-    private final SynchronizedInt pushErrors_ = new SynchronizedInt(0);
-    
+    private final AtomicInteger pushCounter_ = new AtomicInteger(0);
+
+    private final AtomicInteger pushErrors_ = new AtomicInteger(0);
+
     private final PushTaskExecutor.PushTask pushTask_ = new PushTaskExecutor.PushTask()
     {
         public void doPush()
         {
             pushPendingData();
         }
-        
+
         public void cancel()
         {
             // ignore, only depends on settings of ProxyPushSupplier
@@ -100,8 +99,8 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
 
         pushTaskExecutor_ = pushTaskExecutorFactory.newExecutor(this);
 
-        retryStrategyFactory_ = new SynchronizedRef(newRetryStrategyFactory(conf, taskProcessor));
-        
+        retryStrategyFactory_ = new AtomicReference(newRetryStrategyFactory(conf, taskProcessor));
+
         eventTypes_.add(NOTIFY_PUSH_FAILED);
     }
 
@@ -110,16 +109,16 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
         if (isDestroyed())
         {
             operation.dispose();
-            
+
             return;
         }
-        
+
         sendNotification(NOTIFY_PUSH_FAILED, "Push Operation failed");
-        
-        pushErrors_.increment();
-        
+
+        pushErrors_.getAndIncrement();
+
         incErrorCounter();
-        
+
         if (AbstractRetryStrategy.isFatalException(error))
         {
             // push operation caused a fatal exception
@@ -136,7 +135,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
         else if (!isRetryAllowed())
         {
             operation.dispose();
-            
+
             destroy();
         }
         else if (!isDestroyed())
@@ -164,7 +163,8 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
     private RetryStrategy newRetryStrategy(IProxyPushSupplier pushSupplier,
             PushOperation pushOperation)
     {
-        return ((RetryStrategyFactory) retryStrategyFactory_.get()).newRetryStrategy(pushSupplier, pushOperation);
+        return ((RetryStrategyFactory) retryStrategyFactory_.get()).newRetryStrategy(pushSupplier,
+                pushOperation);
     }
 
     private RetryStrategyFactory newRetryStrategyFactory(Configuration config,
@@ -182,30 +182,32 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
             throw new ConfigurationException(Attributes.RETRY_STRATEGY_FACTORY, e);
         }
     }
-    
+
     /**
-     * @jmx.managed-attribute   description = "Factory used to control RetryPolicy"
-     *                          access = "read-write"
+     * @jmx.managed-attribute description = "Factory used to control RetryPolicy" access =
+     *                        "read-write"
      */
     public void setRetryStrategy(String factoryName) throws ClassNotFoundException
     {
-        RetryStrategyFactory factory = newRetryStrategyFactory(config_, getTaskProcessor(), factoryName);
-        
+        RetryStrategyFactory factory = newRetryStrategyFactory(config_, getTaskProcessor(),
+                factoryName);
+
         retryStrategyFactory_.set(factory);
-        
+
         logger_.info("set RetryStrategyFactory: " + factoryName);
     }
-    
+
     /**
-     * @jmx.managed-attribute   description = "Factory used to control RetryPolicy"
-     *                          access = "read-write"
+     * @jmx.managed-attribute description = "Factory used to control RetryPolicy" access =
+     *                        "read-write"
      */
     public String getRetryStrategy()
     {
         return retryStrategyFactory_.get().getClass().getName();
     }
 
-    private RetryStrategyFactory newRetryStrategyFactory(Configuration config, TaskProcessor taskProcessor, String factoryName) throws ClassNotFoundException
+    private RetryStrategyFactory newRetryStrategyFactory(Configuration config,
+            TaskProcessor taskProcessor, String factoryName) throws ClassNotFoundException
     {
         Class factoryClazz = ObjectUtil.classForName(factoryName);
 
@@ -245,16 +247,19 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
     {
         super.resetErrorCounter();
 
-        pushCounter_.increment();
-        
+        pushCounter_.getAndIncrement();
+
         enableDelivery();
     }
 
     public void disableDelivery()
     {
-        logger_.debug("Disable Delivery to ProxySupplier");
+        boolean _wasEnabled = enabled_.getAndSet(false);
 
-        enabled_.set(false);
+        if (_wasEnabled)
+        {
+            logger_.debug("Disabled Delivery to ProxySupplier");
+        }
     }
 
     protected boolean isEnabled()
@@ -264,14 +269,16 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
 
     private void enableDelivery()
     {
-        logger_.debug("Enable Delivery to ProxySupplier");
+        boolean _wasEnabled = enabled_.getAndSet(true);
 
-        enabled_.set(true);
+        if (!_wasEnabled)
+        {
+            logger_.debug("Reenable Delivery to ProxySupplier");
+        }
     }
-    
+
     /**
-     * @jmx.managed-attribute description = "Total Number of Push Operations"
-     *                        access = "read-only"
+     * @jmx.managed-attribute description = "Total Number of Push Operations" access = "read-only"
      */
     public int getPushOperationCount()
     {
@@ -279,17 +286,16 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
     }
 
     /**
-     * @jmx.managed-attribute description = "Number of failed Push-Operations"
-     *                        access = "read-only" 
+     * @jmx.managed-attribute description = "Number of failed Push-Operations" access = "read-only"
      */
     public int getPushErrorCount()
     {
         return pushErrors_.get();
     }
-    
+
     /**
-     * @jmx.managed-attribute description = "Average time (in ms) per Push-Operation"
-     *                        access = "read-only"
+     * @jmx.managed-attribute description = "Average time (in ms) per Push-Operation" access =
+     *                        "read-only"
      */
     public int getAveragePushDuration()
     {

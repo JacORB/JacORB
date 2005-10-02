@@ -35,8 +35,11 @@ import org.jacorb.notification.util.DisposableManager;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
 
-import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
-import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+import edu.emory.mathcs.backport.java.util.concurrent.Executors;
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledExecutorService;
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadFactory;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  * @jmx.mbean 
@@ -50,7 +53,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
 {
     private class TimeoutTask implements Runnable, Message.MessageStateListener
     {
-        Object timerRegistration_;
+        ScheduledFuture timerRegistration_;
 
         final Message message_;
 
@@ -63,7 +66,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
 
         public void actionLifetimeChanged(long timeout)
         {
-            ClockDaemon.cancel(timerRegistration_);
+            timerRegistration_.cancel(true);
             timerRegistration_ = executeTaskAfterDelay(message_.getTimeout(), this);
         }
 
@@ -143,7 +146,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
     /**
      * ClockDaemon to schedule Operation that must be run at a specific time.
      */
-    private ClockDaemon clockDaemon_;
+    private ScheduledExecutorService clockDaemon_;
 
     /**
      * TaskFactory that is used to create new Tasks.
@@ -163,17 +166,16 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
      */
     public DefaultTaskProcessor(Configuration config)
     {
-        clockDaemon_ = new ClockDaemon();
-
-        clockDaemon_.setThreadFactory(new ThreadFactory()
-        {
-            public Thread newThread(Runnable command)
-            {
-                Thread _t = new Thread(command);
-                _t.setName("ClockDaemonThread");
-                return _t;
-            }
-        });
+        clockDaemon_ = Executors.newSingleThreadScheduledExecutor(
+                new ThreadFactory()
+                {
+                    public Thread newThread(Runnable command)
+                    {
+                        Thread _t = new Thread(command);
+                        _t.setName("ClockDaemonThread");
+                        return _t;
+                    }
+                });
 
         logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
 
@@ -211,7 +213,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
     {
         logger_.info("shutdown TaskProcessor");
 
-        clockDaemon_.shutDown();
+        clockDaemon_.shutdown();
 
         filterTaskExecutor_.dispose();
 
@@ -266,17 +268,9 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
      */
     protected void processMessageInternal(Message event)
     {
-        logger_.debug("processMessageInternal");
-
         Schedulable _task = taskFactory_.newFilterProxyConsumerTask(event);
 
-        try
-        {
-            _task.schedule();
-        } catch (InterruptedException ie)
-        {
-            logger_.info("Interrupt while scheduling FilterTask", ie);
-        }
+        _task.schedule();
     }
 
     /**
@@ -300,24 +294,19 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
     /**
      * access the Clock Daemon instance.
      */
-    private ClockDaemon getClockDaemon()
+    private ScheduledExecutorService getClockDaemon()
     {
         return clockDaemon_;
     }
 
-    public Object executeTaskPeriodically(long intervall, Runnable task, boolean startImmediately)
+    public ScheduledFuture executeTaskPeriodically(long intervall, Runnable task, boolean startImmediately)
     {
-        return getClockDaemon().executePeriodically(intervall, task, startImmediately);
+        return getClockDaemon().scheduleAtFixedRate(task, startImmediately ? 0 : intervall, intervall, TimeUnit.MILLISECONDS);
     }
 
-    public void cancelTask(Object id)
+    public ScheduledFuture executeTaskAfterDelay(long delay, Runnable task)
     {
-        ClockDaemon.cancel(id);
-    }
-
-    public Object executeTaskAfterDelay(long delay, Runnable task)
-    {
-        return clockDaemon_.executeAfterDelay(delay, task);
+        return clockDaemon_.schedule(task, delay, TimeUnit.MILLISECONDS);
     }
 
     Object executeTaskAt(long startTime, Runnable task)
@@ -327,7 +316,17 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
 
     Object executeTaskAt(Date startTime, Runnable task)
     {
-        return clockDaemon_.executeAt(startTime, task);
+        long now = System.currentTimeMillis();
+        long then = startTime.getTime();
+        
+        long delay = then - now;
+        
+        if (delay < 1000)
+        {
+            delay = 1000;
+        }
+        
+        return clockDaemon_.schedule(task, delay, TimeUnit.MILLISECONDS);
     }
 
     // //////////////////////////////////////

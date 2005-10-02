@@ -24,9 +24,11 @@ package org.jacorb.notification.servant;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.MessageSupplier;
 
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+
 public class PullMessagesUtility
 {
-    private Object taskId_;
+    private ScheduledFuture taskId_;
 
     private long interval_;
 
@@ -70,7 +72,7 @@ public class PullMessagesUtility
     {
         if (taskId_ != null)
         {
-            taskProcessor_.cancelTask(taskId_);
+            taskId_.cancel(true);
             taskId_ = null;
         }
     }

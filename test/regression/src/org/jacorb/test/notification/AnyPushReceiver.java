@@ -22,8 +22,8 @@ import org.omg.CosNotifyComm.PushConsumerPOA;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
-import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.CyclicBarrier;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestClientOperations
 {
@@ -39,7 +39,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     int numberOfExpectedEvents_ = 1;
 
-    private final SynchronizedInt received_ = new SynchronizedInt(0);
+    private final AtomicInteger received_ = new AtomicInteger(0);
 
     long timeout_ = 4000L;
 
@@ -161,8 +161,8 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
         {
             try
             {
-                barrier_.barrier();
-            } catch (InterruptedException ie)
+                barrier_.await();
+            } catch (Exception e)
             {
                 // ignored
             }
@@ -171,7 +171,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     public void push(Any any) throws Disconnected
     {
-        received_.increment();
+        received_.incrementAndGet();
 
         if (numberOfExpectedEvents_ > 0 && (received_.get() == numberOfExpectedEvents_))
         {

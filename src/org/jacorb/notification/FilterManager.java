@@ -33,7 +33,7 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
@@ -58,7 +58,7 @@ public class FilterManager implements FilterAdminOperations
 
     private final List filtersReadOnlyView_ = Collections.unmodifiableList(filterList_);
 
-    private final SynchronizedInt filterIdPool_ = new SynchronizedInt(0);
+    private final AtomicInteger filterIdPool_ = new AtomicInteger(0);
 
     private final Logger logger_;
     
@@ -80,14 +80,14 @@ public class FilterManager implements FilterAdminOperations
 
     ////////////////////////////////////////
 
-    private Integer getFilterId()
+    private Integer newFilterID()
     {
-        return new Integer(filterIdPool_.increment());
+        return new Integer(filterIdPool_.incrementAndGet());
     }
 
     public int add_filter(Filter filter)
     {
-        Integer _key = getFilterId();
+        Integer _key = newFilterID();
 
         if (logger_.isWarnEnabled())
         {

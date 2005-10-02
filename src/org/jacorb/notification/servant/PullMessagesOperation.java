@@ -24,8 +24,8 @@ package org.jacorb.notification.servant;
 import org.jacorb.notification.conf.Default;
 import org.omg.CosEventComm.Disconnected;
 
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
-import EDU.oswego.cs.dl.util.concurrent.Sync;
+import edu.emory.mathcs.backport.java.util.concurrent.Semaphore;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 public class PullMessagesOperation
 {
@@ -46,7 +46,7 @@ public class PullMessagesOperation
     
     private final MessageSupplierDelegate delegate_;
 
-    private final Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
+    private final Semaphore pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
 
     public PullMessagesOperation(MessageSupplierDelegate delegate)
     {
@@ -72,7 +72,7 @@ public class PullMessagesOperation
     {
         try
         {
-            boolean _acquired = pullSync_.attempt(1000);
+            boolean _acquired = pullSync_.tryAcquire(1000, TimeUnit.MILLISECONDS);
 
             if (_acquired)
             {

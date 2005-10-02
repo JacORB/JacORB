@@ -24,7 +24,7 @@ package org.jacorb.notification.engine;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.NotifyingDisposable;
 
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 
 /**
  * @author Alphonse Bendt

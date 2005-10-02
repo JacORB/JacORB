@@ -70,11 +70,11 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
-import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
-import EDU.oswego.cs.dl.util.concurrent.Sync;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * The Filter interface defines the behaviors supported by objects which encapsulate constraints
@@ -167,7 +167,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
     protected final ReadWriteLock constraintsLock_;
 
-    private final SynchronizedInt constraintIdPool_ = new SynchronizedInt(0);
+    private final AtomicInteger constraintIdPool_ = new AtomicInteger(0);
 
     protected final MessageFactory messageFactory_;
 
@@ -183,7 +183,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
     private final EvaluationContextFactory evaluationContextFactory_;
 
-    private final SynchronizedBoolean isActivated = new SynchronizedBoolean(false);
+    private final AtomicBoolean isActivated = new AtomicBoolean(false);
 
     private static final ConstraintInfo[] EMPTY_CONSTRAINT_INFO = new ConstraintInfo[0];
 
@@ -210,7 +210,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
         evaluationContextFactory_ = evaluationContextFactory;
 
-        constraintsLock_ = new WriterPreferenceReadWriteLock();
+        constraintsLock_ = new ReentrantReadWriteLock();
 
         wildcardMap_ = newWildcardMap(config);
 
@@ -301,7 +301,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
     protected int newConstraintId()
     {
-        return constraintIdPool_.increment();
+        return constraintIdPool_.getAndIncrement();
     }
 
     /**
@@ -334,7 +334,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
         try
         {
             // access writeonly lock
-            constraintsLock_.writeLock().acquire();
+            constraintsLock_.writeLock().lock();
 
             try
             {
@@ -342,7 +342,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
             } finally
             {
                 // give up the lock
-                constraintsLock_.writeLock().release();
+                constraintsLock_.writeLock().unlock();
             }
         } catch (InterruptedException ie)
         {
@@ -427,6 +427,9 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
         return _arrayFilterConstraint;
     }
 
+    /**
+     * create a new FilterConstraint based on the provided ConstraintExp
+     */
     protected abstract FilterConstraint newFilterConstraint(ConstraintExp constraintExp)
             throws InvalidConstraint;
 
@@ -438,7 +441,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
         try
         {
             // write lock
-            constraintsLock_.writeLock().acquire();
+            constraintsLock_.writeLock().lock();
 
             try
             {
@@ -453,7 +456,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
                 notifyCallbacks();
             } finally
             {
-                constraintsLock_.writeLock().release();
+                constraintsLock_.writeLock().unlock();
             }
         } catch (InterruptedException ie)
         {
@@ -565,70 +568,54 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
     public ConstraintInfo[] get_constraints(int[] ids) throws ConstraintNotFound
     {
-        final Sync _lock = constraintsLock_.readLock();
+        final Lock _lock = constraintsLock_.readLock();
 
+        _lock.lock();
         try
         {
-            _lock.acquire();
-            try
-            {
-                final ConstraintInfo[] _constraintInfo = new ConstraintInfo[ids.length];
+            final ConstraintInfo[] _constraintInfo = new ConstraintInfo[ids.length];
 
-                for (int _x = 0; _x < ids.length; ++_x)
+            for (int _x = 0; _x < ids.length; ++_x)
+            {
+                Integer _key = new Integer(ids[_x]);
+
+                if (constraints_.containsKey(_key))
                 {
-                    Integer _key = new Integer(ids[_x]);
-
-                    if (constraints_.containsKey(_key))
-                    {
-                        _constraintInfo[_x] = ((ConstraintEntry) constraints_.get(_key))
-                                .getConstraintInfo();
-                    }
-                    else
-                    {
-                        throw new ConstraintNotFound(ids[_x]);
-                    }
+                    _constraintInfo[_x] = ((ConstraintEntry) constraints_.get(_key))
+                            .getConstraintInfo();
                 }
-
-                return _constraintInfo;
-            } finally
-            {
-                _lock.release();
+                else
+                {
+                    throw new ConstraintNotFound(ids[_x]);
+                }
             }
-        } catch (InterruptedException ie)
-        {
-            Thread.currentThread().interrupt();
 
-            return EMPTY_CONSTRAINT_INFO;
+            return _constraintInfo;
+        } finally
+        {
+            _lock.unlock();
         }
     }
 
     public ConstraintInfo[] get_all_constraints()
     {
+        constraintsLock_.readLock().lock();
+
         try
         {
-            constraintsLock_.readLock().acquire();
+            ConstraintInfo[] _constraintInfo = new ConstraintInfo[constraints_.size()];
 
-            try
+            Iterator _i = constraints_.values().iterator();
+
+            for (int i = 0; i < _constraintInfo.length; i++)
             {
-                ConstraintInfo[] _constraintInfo = new ConstraintInfo[constraints_.size()];
-
-                Iterator _i = constraints_.values().iterator();
-
-                for (int i = 0; i < _constraintInfo.length; i++)
-                {
-                    _constraintInfo[i] = ((ConstraintEntry) _i.next()).getConstraintInfo();
-                }
-
-                return _constraintInfo;
-            } finally
-            {
-                constraintsLock_.readLock().release();
+                _constraintInfo[i] = ((ConstraintEntry) _i.next()).getConstraintInfo();
             }
-        } catch (InterruptedException ie)
-        {
-            Thread.currentThread().interrupt();
 
-            return EMPTY_CONSTRAINT_INFO;
+            return _constraintInfo;
+        } finally
+        {
+            constraintsLock_.readLock().unlock();
         }
     }
 
@@ -636,7 +623,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     {
         try
         {
-            constraintsLock_.writeLock().acquire();
+            constraintsLock_.writeLock().lock();
 
             try
             {
@@ -647,7 +634,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
                 notifyCallbacks();
             } finally
             {
-                constraintsLock_.writeLock().release();
+                constraintsLock_.writeLock().unlock();
             }
         } catch (InterruptedException ie)
         {
@@ -747,22 +734,14 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     private int match_ReadLock(EvaluationContext evaluationContext, Message event)
             throws UnsupportedFilterableData
     {
+        constraintsLock_.readLock().lock();
+
         try
         {
-            constraintsLock_.readLock().acquire();
-
-            try
-            {
-                return match_NoLock(evaluationContext, event);
-            } finally
-            {
-                constraintsLock_.readLock().release();
-            }
-        } catch (InterruptedException ie)
+            return match_NoLock(evaluationContext, event);
+        } finally
         {
-            Thread.currentThread().interrupt();
-
-            return NO_CONSTRAINTS_MATCH;
+            constraintsLock_.readLock().unlock();
         }
     }
 
@@ -792,7 +771,8 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
                     if (logger_.isInfoEnabled())
                     {
                         logger_.info("tried to access non existing Property: " + e.getMessage());
-                    } else if (logger_.isDebugEnabled())
+                    }
+                    else if (logger_.isDebugEnabled())
                     {
                         logger_.debug("tried to access non existing Property", e);
                     }
@@ -823,7 +803,8 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
      */
     protected int match_internal(Any anyEvent) throws UnsupportedFilterableData
     {
-        final EvaluationContext _evaluationContext = evaluationContextFactory_.newEvaluationContext();
+        final EvaluationContext _evaluationContext = evaluationContextFactory_
+                .newEvaluationContext();
 
         try
         {
@@ -855,7 +836,8 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     protected int match_structured_internal(StructuredEvent structuredEvent)
             throws UnsupportedFilterableData
     {
-        final EvaluationContext _evaluationContext = evaluationContextFactory_.newEvaluationContext();
+        final EvaluationContext _evaluationContext = evaluationContextFactory_
+                .newEvaluationContext();
 
         try
         {
@@ -880,7 +862,8 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
      */
     protected int match_typed_internal(Property[] typedEvent) throws UnsupportedFilterableData
     {
-        final EvaluationContext _evaluationContext = evaluationContextFactory_.newEvaluationContext();
+        final EvaluationContext _evaluationContext = evaluationContextFactory_
+                .newEvaluationContext();
 
         try
         {
@@ -967,8 +950,8 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     }
 
     /**
-     * @jmx.managed-attribute description = "last usage = invoke match operation"
-     *                        access = "read-only"
+     * @jmx.managed-attribute description = "last usage = invoke match operation" access =
+     *                        "read-only"
      */
     public Date getLastUsage()
     {
@@ -976,8 +959,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     }
 
     /**
-     * @jmx.managed-attribute description = "date this filter was created"
-     *                        access = "read-only"
+     * @jmx.managed-attribute description = "date this filter was created" access = "read-only"
      */
     public Date getCreationDate()
     {
@@ -985,8 +967,8 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     }
 
     /**
-     * @jmx.managed-attribute description = "number of match invocations on this filter"
-     *                        access = "read-only"
+     * @jmx.managed-attribute description = "number of match invocations on this filter" access =
+     *                        "read-only"
      */
     public long getMatchCount()
     {
@@ -1012,8 +994,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     }
 
     /**
-     * @jmx.managed-operation description = "List all Constraints" 
-     *                        impact = "INFO"
+     * @jmx.managed-operation description = "List all Constraints" impact = "INFO"
      */
     public String listContraints()
     {

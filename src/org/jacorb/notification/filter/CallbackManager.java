@@ -33,7 +33,7 @@ import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifySubscribe;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
@@ -41,7 +41,7 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
  */
 public class CallbackManager extends EventTypeSet implements Disposable
 {
-    private final SynchronizedInt callbackIdPool_ = new SynchronizedInt(0);
+    private final AtomicInteger callbackIdPool_ = new AtomicInteger(0);
 
     private final Map callbacks_ = new HashMap();
 
@@ -49,7 +49,7 @@ public class CallbackManager extends EventTypeSet implements Disposable
 
     public int attach_callback(NotifySubscribe subscriber)
     {
-        final int id = callbackIdPool_.increment();
+        final int id = callbackIdPool_.getAndIncrement();
 
         Integer key = new Integer(id);
 

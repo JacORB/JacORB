@@ -73,63 +73,68 @@ public class BoundedDeadlineEventQueueTest extends TestCase
     {
         mockMessage1_.hasTimeout();
         controlMessage1_.setDefaultReturnValue(false);
-        controlMessage1_.replay();   
-     
+
+        replayAll();
+
         assertNull(objectUnderTest_.getMessage(false));
-        
+
         objectUnderTest_.put(mockMessage1_);
-        
+
         assertEquals(mockMessage1_, objectUnderTest_.getMessage(false));
+
+        verifyAll();
     }
-    
+
     public void testGetAllNonBlocking() throws Exception
     {
         mockMessage1_.hasTimeout();
         controlMessage1_.setDefaultReturnValue(false);
-        controlMessage1_.replay();
-        
+
+        replayAll();
+
         assertEquals(0, objectUnderTest_.getAllMessages(false).length);
-        
+
         objectUnderTest_.put(mockMessage1_);
         objectUnderTest_.put(mockMessage1_);
-        
+
         assertEquals(2, objectUnderTest_.getAllMessages(false).length);
+        verifyAll();
     }
-    
+
     public void testGetAllClearsQueue() throws Exception
     {
         mockMessage1_.hasTimeout();
         controlMessage1_.setDefaultReturnValue(false);
-        controlMessage1_.replay();
-        
+        replayAll();
+
         objectUnderTest_.put(mockMessage1_);
-        
+
         assertEquals(mockMessage1_, objectUnderTest_.getAllMessages(false)[0]);
-        
+
         assertEquals(0, objectUnderTest_.getAllMessages(false).length);
+        verifyAll();
     }
-    
+
     public void testInsert() throws Exception
     {
         mockMessage1_.hasTimeout();
         controlMessage1_.setReturnValue(true);
         mockMessage1_.getTimeout();
         controlMessage1_.setReturnValue(100);
-        controlMessage1_.replay();
 
         mockMessage2_.hasTimeout();
         controlMessage2_.setReturnValue(true);
         mockMessage2_.getTimeout();
         controlMessage2_.setReturnValue(10);
-        controlMessage2_.replay();
+
+        replayAll();
 
         objectUnderTest_.put(mockMessage1_);
         objectUnderTest_.put(mockMessage2_);
 
         assertEquals(mockMessage2_, objectUnderTest_.getMessage(false));
 
-        controlMessage1_.verify();
-        controlMessage2_.verify();
+        verifyAll();
     }
 
     public void testOverflow() throws Exception
@@ -138,20 +143,19 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         controlMessage1_.setDefaultReturnValue(true);
         mockMessage1_.getTimeout();
         controlMessage1_.setDefaultReturnValue(100);
-        controlMessage1_.replay();
 
         mockMessage2_.hasTimeout();
         controlMessage2_.setDefaultReturnValue(true);
         mockMessage2_.getTimeout();
         controlMessage2_.setDefaultReturnValue(10);
-        controlMessage2_.replay();
 
         mockMessage3_.hasTimeout();
         controlMessage3_.setDefaultReturnValue(true);
         mockMessage3_.getTimeout();
         controlMessage3_.setDefaultReturnValue(1);
-        controlMessage3_.replay();
 
+        replayAll();
+        
         objectUnderTest_.put(mockMessage1_);
         objectUnderTest_.put(mockMessage2_);
         objectUnderTest_.put(mockMessage3_);
@@ -162,33 +166,44 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         assertTrue(objectUnderTest_.isEmpty());
         assertNull(objectUnderTest_.getMessage(false));
 
-        controlMessage1_.verify();
-        controlMessage2_.verify();
-        controlMessage3_.verify();
+        verifyAll();
     }
 
     /**
-     * test to provoke a bug i have found by poking around in the sources.
-     * size of array returned by getEvents was size +1. also entries in queue 
-     * could get lost.
+     * test to provoke a bug i have found by poking around in the sources. size of array returned by
+     * getEvents was size +1. also entries in queue could get lost.
      */
     public void testGetEvents() throws Exception
     {
         mockMessage1_.hasTimeout();
         controlMessage1_.setDefaultReturnValue(false);
 
-        controlMessage1_.replay();
-    
         mockMessage2_.hasTimeout();
         controlMessage2_.setDefaultReturnValue(false);
 
-        controlMessage2_.replay();
+        replayAll();
         
         objectUnderTest_.put(mockMessage1_);
         objectUnderTest_.put(mockMessage2_);
-                
+
         assertEquals(1, objectUnderTest_.getMessages(1, false).length);
         assertEquals(1, objectUnderTest_.getMessages(1, false).length);
+        
+        verifyAll();
+    }
+
+    private void replayAll()
+    {
+        controlMessage1_.replay();
+        controlMessage2_.replay();
+        controlMessage3_.replay();
+    }
+
+    private void verifyAll()
+    {
+        controlMessage1_.verify();
+        controlMessage2_.verify();
+        controlMessage3_.verify();
     }
 
     public static Test suite()

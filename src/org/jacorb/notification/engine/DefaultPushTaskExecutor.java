@@ -27,17 +27,17 @@ import java.util.List;
 
 import org.jacorb.notification.interfaces.Disposable;
 
-import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 public class DefaultPushTaskExecutor implements PushTaskExecutor, Disposable
 {
     private static int noOfExecutors_ = 0;
     private final int executorNr_ = noOfExecutors_++;
     
-    final LinkedQueue scheduledPushTasks_ = new LinkedQueue();
+    final LinkedBlockingQueue scheduledPushTasks_ = new LinkedBlockingQueue();
 
-    final SynchronizedBoolean isActive_ = new SynchronizedBoolean(true);
+    final AtomicBoolean isActive_ = new AtomicBoolean(true);
 
     final List workers_ = new ArrayList();
 

@@ -61,8 +61,8 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Abstract Baseclass for Adminobjects.
@@ -166,9 +166,9 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     protected final Map pushServants_ = new HashMap();
 
-    private final SynchronizedInt proxyIdPool_ = new SynchronizedInt(0);
+    private final AtomicInteger proxyIdPool_ = new AtomicInteger(0);
 
-    private final SynchronizedBoolean disposed_ = new SynchronizedBoolean(false);
+    private final AtomicBoolean disposed_ = new AtomicBoolean(false);
 
     private final List proxyEventListener_ = new ArrayList();
 
@@ -240,7 +240,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     int getProxyID()
     {
-        return proxyIdPool_.increment();
+        return proxyIdPool_.getAndIncrement();
     }
 
     public List getFilters()
@@ -331,7 +331,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     private void checkDestroyStatus() throws OBJECT_NOT_EXIST
     {
-        if (!disposed_.commit(false, true))
+        if (!disposed_.compareAndSet(false, true))
         {
             throw new OBJECT_NOT_EXIST();
         }

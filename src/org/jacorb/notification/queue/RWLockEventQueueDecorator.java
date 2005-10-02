@@ -28,8 +28,8 @@ import java.util.List;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.MessageQueue.DiscardListener;
 
-import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
-import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author Alphonse Bendt
@@ -42,7 +42,7 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
     /**
      * lock variable used to control access to the reference to the pending messages queue.
      */
-    private final ReadWriteLock delegateLock_ = new WriterPreferenceReadWriteLock();
+    private final ReadWriteLock delegateLock_ = new ReentrantReadWriteLock();
 
     /**
      * multithreaded access to this member is protected by pendingMessagesLock_
@@ -53,24 +53,23 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
      * 
      */
     public RWLockEventQueueDecorator(MessageQueueAdapter initialDelegate)
-            throws InterruptedException
     {
         super();
 
-        delegateLock_.writeLock().acquire();
+        delegateLock_.writeLock().lock();
 
         try
         {
             delegate_ = initialDelegate;
         } finally
         {
-            delegateLock_.writeLock().release();
+            delegateLock_.writeLock().unlock();
         }
     }
 
     public void replaceDelegate(MessageQueueAdapter newDelegate) throws InterruptedException
     {
-        delegateLock_.writeLock().acquire();
+        delegateLock_.writeLock().lock();
 
         try
         {
@@ -95,186 +94,174 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
             }
         } finally
         {
-            delegateLock_.writeLock().release();
+            delegateLock_.writeLock().unlock();
         }
     }
 
     public void enqeue(Message message) throws InterruptedException
     {
-        delegateLock_.readLock().acquire();
+        delegateLock_.readLock().lock();
 
         try
         {
             delegate_.enqeue(message);
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public boolean hasPendingMessages() throws InterruptedException
     {
-        delegateLock_.readLock().acquire();
+        delegateLock_.readLock().lock();
 
         try
         {
             return delegate_.hasPendingMessages();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public int getPendingMessagesCount() throws InterruptedException
     {
-        delegateLock_.readLock().acquire();
+        delegateLock_.readLock().lock();
 
         try
         {
             return delegate_.getPendingMessagesCount();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public Message getMessageBlocking() throws InterruptedException
     {
-        delegateLock_.readLock().acquire();
+        delegateLock_.readLock().lock();
 
         try
         {
             return delegate_.getMessageBlocking();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public Message getMessageNoBlock() throws InterruptedException
     {
-        delegateLock_.readLock().acquire();
+        delegateLock_.readLock().lock();
 
         try
         {
             return delegate_.getMessageNoBlock();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public Message[] getAllMessages() throws InterruptedException
     {
-        delegateLock_.readLock().acquire();
+        delegateLock_.readLock().lock();
 
         try
         {
             return delegate_.getAllMessages();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public Message[] getUpToMessages(int max) throws InterruptedException
     {
-        delegateLock_.readLock().acquire();
+        delegateLock_.readLock().lock();
 
         try
         {
             return delegate_.getUpToMessages(max);
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public Message[] getAtLeastMessages(int min) throws InterruptedException
     {
-        delegateLock_.readLock().acquire();
+        delegateLock_.readLock().lock();
 
         try
         {
             return delegate_.getAtLeastMessages(min);
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public void clear()
     {
-        try
-        {
-            delegateLock_.readLock().acquire();
-        } catch (InterruptedException e)
-        {
-            // ignore exception. force dispose.
-        }
+        delegateLock_.readLock().lock();
 
         try
         {
             delegate_.clear();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public String toString()
     {
-        acquireReadLock();
+        lockReadLock();
 
         try
         {
             return delegate_.toString();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
-    private void acquireReadLock()
+    private void lockReadLock()
     {
-        try
-        {
-            delegateLock_.readLock().acquire();
-        } catch (InterruptedException e)
-        {
-            throw new RuntimeException();
-        }
+        delegateLock_.readLock().lock();
     }
 
     public String getDiscardPolicyName()
     {
-        acquireReadLock();
+        lockReadLock();
 
         try
         {
             return delegate_.getDiscardPolicyName();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public String getOrderPolicyName()
     {
-        acquireReadLock();
+        lockReadLock();
 
         try
         {
             return delegate_.getOrderPolicyName();
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public void addDiscardListener(DiscardListener listener)
     {
-        acquireReadLock();
+        lockReadLock();
 
         try
         {
@@ -282,13 +269,13 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
             delegate_.addDiscardListener(listener);
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 
     public void removeDiscardListener(DiscardListener listener)
     {
-        acquireReadLock();
+        lockReadLock();
 
         try
         {
@@ -296,7 +283,7 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
             delegate_.removeDiscardListener(listener);
         } finally
         {
-            delegateLock_.readLock().release();
+            delegateLock_.readLock().unlock();
         }
     }
 }

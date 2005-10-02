@@ -18,8 +18,9 @@ import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.Filter;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
@@ -149,13 +150,13 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
 
     public void testObtainSubscriptionTypes_sender_throws_NO_IMPLEMENT() throws Exception
     {
-        final SynchronizedInt subscriptionChangeCounter = new SynchronizedInt(0);
+        final AtomicInteger subscriptionChangeCounter = new AtomicInteger(0);
 
         StructuredPushSender _sender = new StructuredPushSender(getClientORB())
         {
             public void subscription_change(EventType[] added, EventType[] removed)
             {
-                subscriptionChangeCounter.increment();
+                subscriptionChangeCounter.incrementAndGet();
 
                 throw new NO_IMPLEMENT();
             }
@@ -270,7 +271,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
 
     public void testObtainOfferedTypes_receiver_throws_NO_IMPLEMENT() throws Exception
     {
-        final SynchronizedInt offerChangeCalled = new SynchronizedInt(0);
+        final AtomicInteger offerChangeCalled = new AtomicInteger(0);
 
         StructuredPushSender _sender = getPushSender();
 
@@ -278,7 +279,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         {
             public void offer_change(org.omg.CosNotification.EventType[] added,org.omg.CosNotification.EventType[] removed) 
             {
-                offerChangeCalled.increment();
+                offerChangeCalled.incrementAndGet();
                 
                 throw new NO_IMPLEMENT();
             }
@@ -324,7 +325,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
     {
         StructuredPushSender _sender = getPushSender();
 
-        final Latch disconnectedLatch = new Latch();
+        final CountDownLatch disconnectedLatch = new CountDownLatch(1);
         
         StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB())
         {
@@ -337,7 +338,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
             {
                 super.disconnect_structured_push_consumer();
                 
-                disconnectedLatch.release();
+                disconnectedLatch.countDown();
             }
         };
 
@@ -350,7 +351,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         _sender.join();
         _receiver.join();
 
-        assertTrue(disconnectedLatch.attempt(20000));
+        assertTrue(disconnectedLatch.await(20000, TimeUnit.MILLISECONDS));
 
         assertFalse(_receiver.isConnected());
     }

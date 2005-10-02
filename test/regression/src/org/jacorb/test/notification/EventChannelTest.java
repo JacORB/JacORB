@@ -21,7 +21,8 @@ import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  * @author Alphonse Bendt
@@ -54,7 +55,7 @@ public class EventChannelTest extends NotifyServerTestCase
     {
         assertEquals(0, supplierAdmin_.MyID());
         assertEquals(0, consumerAdmin_.MyID());
-        
+
         assertEquals(channel_, supplierAdmin_.MyChannel());
         assertEquals(channel_, consumerAdmin_.MyChannel());
 
@@ -295,21 +296,21 @@ public class EventChannelTest extends NotifyServerTestCase
 
     public void testSendEventPushPush_MisbehavingConsumer() throws Exception
     {
-        final Latch disconnectedLatch = new Latch();
-        
+        final CountDownLatch disconnectedLatch = new CountDownLatch(1);
+
         // start a receiver thread
         AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB())
         {
-            public void push(Any any) 
+            public void push(Any any)
             {
                 throw new TRANSIENT();
             }
-            
+
             public void disconnect_push_consumer()
             {
                 super.disconnect_push_consumer();
-                
-                disconnectedLatch.release();
+
+                disconnectedLatch.countDown();
             }
         };
         _receiver.connect(channel_, false);
@@ -325,7 +326,7 @@ public class EventChannelTest extends NotifyServerTestCase
 
         _sender.run();
 
-        assertTrue(disconnectedLatch.attempt(20000));
+        assertTrue(disconnectedLatch.await(20000, TimeUnit.MILLISECONDS));
 
         assertTrue(!_receiver.isConnected());
 
@@ -383,7 +384,8 @@ public class EventChannelTest extends NotifyServerTestCase
     {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0], new Property[0], _id);
+        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0],
+                new Property[0], _id);
 
         AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(getClientORB());
         _anyPullReceiver.connect(_channel, false);
@@ -417,7 +419,8 @@ public class EventChannelTest extends NotifyServerTestCase
     {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0], new Property[0], _id);
+        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0],
+                new Property[0], _id);
 
         AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(getClientORB());
         _anyPullReceiver.connect(_channel, false);
@@ -453,11 +456,12 @@ public class EventChannelTest extends NotifyServerTestCase
     {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0], new Property[0], _id);
+        EventChannel _channel = getEventChannelFactory().create_channel(new Property[0],
+                new Property[0], _id);
 
         // test if channel id appears within channel list
         int[] _allFactories = getEventChannelFactory().get_all_channels();
-        
+
         assertTrue(containsValue(_allFactories, _id.value));
 
         EventChannel _sameChannel = getEventChannelFactory().get_event_channel(_id.value);

@@ -26,7 +26,8 @@ import org.omg.CosNotifyComm.StructuredPushConsumerPOATie;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
-import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
+import edu.emory.mathcs.backport.java.util.concurrent.BrokenBarrierException;
+import edu.emory.mathcs.backport.java.util.concurrent.CyclicBarrier;
 
 public class StructuredPushReceiver extends Thread implements StructuredPushConsumerOperations,
         TestClientOperations
@@ -101,10 +102,13 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
         {
             try
             {
-                barrier_.barrier();
+                barrier_.await();
             } catch (InterruptedException ie)
             {
                 // ignored
+            } catch (BrokenBarrierException e)
+            {
+                e.printStackTrace();
             }
         }
     }

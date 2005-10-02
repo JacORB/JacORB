@@ -24,11 +24,10 @@ package org.jacorb.notification.engine;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.util.DisposableManager;
 
-import EDU.oswego.cs.dl.util.concurrent.DirectExecutor;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
-import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
-import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
-import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+import edu.emory.mathcs.backport.java.util.concurrent.Executor;
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import edu.emory.mathcs.backport.java.util.concurrent.Executors;
+import edu.emory.mathcs.backport.java.util.concurrent.ThreadFactory;
 
 /**
  * @author Alphonse Bendt
@@ -66,8 +65,6 @@ public class DefaultTaskExecutor implements TaskExecutor
 
     private final DisposableManager disposeHooks_ = new DisposableManager();
     
-    private LinkedQueue channel_;
-
     ////////////////////////////////////////
 
     public static TaskExecutor getDefaultExecutor()
@@ -77,11 +74,6 @@ public class DefaultTaskExecutor implements TaskExecutor
     
     ////////////////////////////////////////
 
-    public DefaultTaskExecutor(final String name, int numberOfThreads)
-    {
-        this(name, numberOfThreads, false);
-    }
-
     public DefaultTaskExecutor(final String name, int numberOfThreads, boolean mayDie)
     {
         if (numberOfThreads < 0)
@@ -90,45 +82,53 @@ public class DefaultTaskExecutor implements TaskExecutor
         }
         else if (numberOfThreads == 0)
         {
-            executor_ = new DirectExecutor();
+            executor_ = new Executor()
+            {
+                public void execute(Runnable command)
+                {
+                    command.run();
+                }
+            };
         }
         else
         {
             ThreadFactory _threadFactory = new DefaultThreadFactory(name);
 
-            channel_ = new LinkedQueue();
-
-            PooledExecutor _executor = new PooledExecutor(channel_);
-
-            _executor.setThreadFactory(_threadFactory);
-            if (!mayDie)
+            final ExecutorService _executor;
+            
+            if (mayDie)
             {
-                _executor.setKeepAliveTime(-1);
+                _executor = Executors.newCachedThreadPool(_threadFactory);
             }
-            _executor.createThreads(numberOfThreads);
-
+            else
+            {
+                _executor = Executors.newFixedThreadPool(numberOfThreads, _threadFactory);
+            }
+            
             executor_ = _executor;
         }
     }
 
-    ////////////////////////////////////////
 
+    public DefaultTaskExecutor(String string, int numberOfThreads)
+    {
+        this(string, numberOfThreads, false);
+    }
+
+    /**
+     * @deprecated impossible to determine if tasks are queued.
+     */
     public boolean isTaskQueued()
     {
-        if (channel_ != null)
-        {
-            return !channel_.isEmpty();
-        }
-
-        return false;
+        return true;
     }
 
     public void dispose()
     {
-        if (executor_ instanceof PooledExecutor)
+        if (executor_ instanceof ExecutorService)
         {
-            ((PooledExecutor) executor_).shutdownNow();
-            ((PooledExecutor) executor_).interruptAll();
+            ((ExecutorService) executor_).shutdown();
+            ((ExecutorService) executor_).shutdownNow();
         }
         
         disposeHooks_.dispose();
@@ -139,9 +139,9 @@ public class DefaultTaskExecutor implements TaskExecutor
         disposeHooks_.addDisposable(d);
     }
     
-    public void execute(Runnable r) throws InterruptedException
+    public void execute(Runnable runnable)
     {
-        executor_.execute(r);
+        executor_.execute(runnable);
     }
 }
 

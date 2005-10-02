@@ -21,8 +21,6 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.List;
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
@@ -31,8 +29,6 @@ import org.jacorb.notification.engine.MessagePushOperation;
 import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
@@ -142,8 +138,14 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
     {
         long now = System.currentTimeMillis();
         pushConsumer_.push_structured_event(message.toStructuredEvent());
-        timeSpent_ += (System.currentTimeMillis() - now);
+        final long _duration = (System.currentTimeMillis() - now);
+        timeSpent_ += _duration;
         resetErrorCounter();
+        
+        if (logger_.isDebugEnabled())
+        {
+            logger_.debug("Push took " + _duration + " ms");
+        }
     }
 
     public void connect_structured_push_consumer(StructuredPushConsumer consumer)

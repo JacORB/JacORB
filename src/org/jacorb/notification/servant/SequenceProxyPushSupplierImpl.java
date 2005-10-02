@@ -21,8 +21,6 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.List;
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
@@ -32,8 +30,6 @@ import org.jacorb.notification.engine.PushTaskExecutor;
 import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.util.CollectionsWrapper;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetAdapter;
 import org.omg.CORBA.ORB;
@@ -45,7 +41,6 @@ import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
@@ -55,8 +50,9 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 import org.omg.TimeBase.TimeTHelper;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedLong;
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @jmx.mbean extends = "AbstractProxyPushSupplierMBean"
@@ -152,18 +148,18 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
     /**
      * registration for the Scheduled DeliverTask.
      */
-    private Object taskId_;
+    private ScheduledFuture taskId_;
 
     /**
      * maximum queue size before a delivery is forced.
      */
-    private final SynchronizedInt maxBatchSize_ = new SynchronizedInt(1);
+    private final AtomicInteger maxBatchSize_ = new AtomicInteger(1);
 
     /**
      * how long to wait between two scheduled deliveries.
      * (0 equals no scheduled deliveries).
      */
-    private final SynchronizedLong pacingInterval_ = new SynchronizedLong(0);
+    private final AtomicLong pacingInterval_ = new AtomicLong(0);
 
     private long timeSpent_ = 0;
 
@@ -290,7 +286,7 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
     {
         if (taskId_ != null)
         {
-            getTaskProcessor().cancelTask(taskId_);
+            taskId_.cancel(true);
             taskId_ = null;
         }
     }

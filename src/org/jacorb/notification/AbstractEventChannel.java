@@ -63,8 +63,8 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @jmx.mbean 
@@ -94,12 +94,12 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     /**
      * max number of Suppliers that may be connected at a time to this Channel (0=unlimited)
      */
-    private final SynchronizedInt maxNumberOfSuppliers_ = new SynchronizedInt(0);
+    private final AtomicInteger maxNumberOfSuppliers_ = new AtomicInteger(0);
 
     /**
      * max number of Consumers that may be connected at a time to this Channel (0=unlimited)
      */
-    private final SynchronizedInt maxNumberOfConsumers_ = new SynchronizedInt(0);
+    private final AtomicInteger maxNumberOfConsumers_ = new AtomicInteger(0);
 
     private final AdminPropertySet adminSettings_;
 
@@ -135,17 +135,17 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
      * 
      * @see #DEFAULT_ADMIN_KEY DEFAULT_ADMIN_KEY.
      */
-    private final SynchronizedInt adminIdPool_ = new SynchronizedInt(1);
+    private final AtomicInteger adminIdPool_ = new AtomicInteger(1);
 
     /**
      * number of Consumers that are connected to this Channel
      */
-    private final SynchronizedInt numberOfConsumers_ = new SynchronizedInt(0);
+    private final AtomicInteger numberOfConsumers_ = new AtomicInteger(0);
 
     /**
      * number of Suppliers that are connected to this Channel
      */
-    private final SynchronizedInt numberOfSuppliers_ = new SynchronizedInt(0);
+    private final AtomicInteger numberOfSuppliers_ = new AtomicInteger(0);
 
     private final ProxyEventListener proxyConsumerEventListener_ = new ProxyEventListener()
     {
@@ -187,7 +187,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     private final int id_;
 
-    private final SynchronizedBoolean destroyed_ = new SynchronizedBoolean(false);
+    private final AtomicBoolean destroyed_ = new AtomicBoolean(false);
 
     private JMXManageable.JMXCallback jmxCallback_;
 
@@ -245,9 +245,9 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     private void addConsumer() throws AdminLimitExceeded
     {
         if ((maxNumberOfConsumers_.get() == 0)
-                || (numberOfConsumers_.compareTo(maxNumberOfConsumers_) < 0))
+                || (numberOfConsumers_.get() < maxNumberOfConsumers_.get()))
         {
-            numberOfConsumers_.increment();
+            numberOfConsumers_.incrementAndGet();
         }
         else
         {
@@ -262,7 +262,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     private void removeConsumer()
     {
-        numberOfConsumers_.decrement();
+        numberOfConsumers_.decrementAndGet();
     }
 
     /**
@@ -274,9 +274,9 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     private void addSupplier() throws AdminLimitExceeded
     {
         if ((maxNumberOfSuppliers_.get() == 0)
-                || (numberOfSuppliers_.compareTo(maxNumberOfSuppliers_) < 0))
+                || (numberOfSuppliers_.get() < maxNumberOfSuppliers_.get()))
         {
-            numberOfSuppliers_.increment();
+            numberOfSuppliers_.incrementAndGet();
         }
         else
         {
@@ -291,7 +291,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     private void removeSupplier()
     {
-        numberOfSuppliers_.decrement();
+        numberOfSuppliers_.decrementAndGet();
     }
 
     protected final boolean isDefaultConsumerAdminActive()
@@ -394,16 +394,10 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     private void configureAdminLimits(PropertySet adminProperties)
     {
         Any _maxConsumers = adminProperties.get(MaxConsumers.value);
-        maxNumberOfConsumers_.set(_maxConsumers.extract_long());
+        setMaxNumberOfConsumers(_maxConsumers.extract_long());
 
         Any _maxSuppliers = adminProperties.get(MaxSuppliers.value);
-        maxNumberOfSuppliers_.set(_maxSuppliers.extract_long());
-
-        if (logger_.isInfoEnabled())
-        {
-            logger_.info("set MaxNumberOfConsumers=" + maxNumberOfConsumers_);
-            logger_.info("set MaxNumberOfSuppliers=" + maxNumberOfSuppliers_);
-        }
+        setMaxNumberOfSuppliers(_maxSuppliers.extract_long());
     }
 
     /**
@@ -413,7 +407,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
      */
     public final void destroy()
     {
-        if (destroyed_.commit(false, true))
+        if (destroyed_.compareAndSet(false, true))
         {
             container_.dispose();
             
@@ -432,8 +426,11 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     public final void dispose()
     {
-        logger_.info("destroy channel " + id_);
-
+        if (logger_.isInfoEnabled())
+        {
+            logger_.info("destroy channel " + id_);
+        }
+        
         deactivate();
 
         disposables_.dispose();
@@ -465,22 +462,58 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     /**
      * @jmx.managed-attribute description = "maximum number of suppliers that are allowed at a time"
-     *                        access = "read-only"
+     *                        access = "read-write"
      */
     public final int getMaxNumberOfSuppliers()
     {
         return maxNumberOfSuppliers_.get();
     }
+    
+    /**
+     * @jmx.managed-attribute access = "read-write"
+     */
+    public void setMaxNumberOfSuppliers(int max)
+    {
+        if (max < 0)
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        maxNumberOfSuppliers_.set(max);   
+        
+        if (logger_.isInfoEnabled())
+        {
+            logger_.info("set MaxNumberOfSuppliers=" + maxNumberOfSuppliers_);
+        }
+    }
 
     /**
      * @jmx.managed-attribute description = "maximum number of consumers that are allowed at a time"
-     *                        access = "read-only"
+     *                        access = "read-write"
      */
     public final int getMaxNumberOfConsumers()
     {
         return maxNumberOfConsumers_.get();
     }
 
+    /**
+     * @jmx.managed-attribute access = "read-write"
+     */
+    public void setMaxNumberOfConsumers(int max)
+    {
+        if (max < 0)
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        maxNumberOfConsumers_.set(max);
+        
+        if (logger_.isInfoEnabled())
+        {
+            logger_.info("set MaxNumberOfConsumers=" + maxNumberOfConsumers_);
+        }
+    }
+    
     public final void deactivate()
     {
         try
@@ -624,7 +657,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     private int createAdminID()
     {
-        return adminIdPool_.increment();
+        return adminIdPool_.incrementAndGet();
     }
 
     private void addToSupplierAdmins(AbstractAdmin admin)

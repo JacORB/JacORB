@@ -37,6 +37,8 @@ import org.omg.CORBA.Any;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyComm.PushConsumer;
 
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -48,6 +50,10 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
     private TaskProcessor mockTaskProcessor_;
 
     private ProxyPushSupplierImpl objectUnderTest_;
+
+    private MockControl controlScheduledFuture_;
+
+    private ScheduledFuture mockScheduledFuture_;
 
     public ProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup)
     {
@@ -86,6 +92,9 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
                 new SubscriptionManager(), mockConsumerAdmin);
 
         assertEquals(new Integer(10), objectUnderTest_.getID());
+        
+        controlScheduledFuture_ = MockControl.createControl(ScheduledFuture.class);
+        mockScheduledFuture_ = (ScheduledFuture) controlScheduledFuture_.getMock();
     }
 
     public void testDeliverMessage_Error() throws Exception
@@ -115,14 +124,28 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
         mockTaskProcessor_.executeTaskAfterDelay(0, null);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlTaskProcessor_.setReturnValue(new Object());
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
 
-        controlTaskProcessor_.replay();
+        replayAll();
 
         objectUnderTest_.connect_any_push_consumer(mockPushConsumer);
         objectUnderTest_.queueMessage(mockMessage);
+        
+        verifyAll();
     }
 
+    private void replayAll()
+    {
+        controlScheduledFuture_.replay();
+        controlTaskProcessor_.replay();
+    }
+    
+    private void verifyAll()
+    {
+        controlScheduledFuture_.verify();
+        controlTaskProcessor_.verify();
+    }
+    
     public static Test suite() throws Exception
     {
         return NotificationTestCase.suite(ProxyPushSupplierImplTest.class);

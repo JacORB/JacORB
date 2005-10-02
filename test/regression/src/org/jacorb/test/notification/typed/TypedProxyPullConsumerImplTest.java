@@ -47,6 +47,8 @@ import org.omg.CosTypedNotifyComm.TypedPullSupplier;
 import org.omg.CosTypedNotifyComm.TypedPullSupplierHelper;
 import org.omg.CosTypedNotifyComm.TypedPullSupplierPOATie;
 
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -79,8 +81,14 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
     private PullCoffee pullCoffee_;
 
+    private MockControl controlScheduledFuture_;
+
+    private ScheduledFuture mockScheduledFuture_;
+
     public void setUpTest() throws Exception
     {
+        controlScheduledFuture_ = MockControl.createControl(ScheduledFuture.class);
+        mockScheduledFuture_ = (ScheduledFuture) controlScheduledFuture_.getMock();
         controlAdmin_ = MockControl.createNiceControl(ITypedAdmin.class);
         mockAdmin_ = (ITypedAdmin) controlAdmin_.getMock();
         mockAdmin_.getProxyID();
@@ -147,7 +155,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
         mockTaskProcessor_.executeTaskPeriodically(0, null, false);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlTaskProcessor_.setReturnValue(new Object());
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
 
         replayAll();
 
@@ -209,7 +217,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
         mockTaskProcessor_.executeTaskPeriodically(0, null, false);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlTaskProcessor_.setReturnValue(new Object());
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
 
         replayAll();
 
@@ -250,7 +258,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
         mockTaskProcessor_.executeTaskPeriodically(0, null, false);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlTaskProcessor_.setReturnValue(new Object());
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
 
         mockTaskProcessor_.processMessage(null);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
@@ -349,7 +357,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
         mockTaskProcessor_.executeTaskPeriodically(0, null, false);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlTaskProcessor_.setReturnValue(new Object());
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
 
         replayAll();
 
@@ -363,6 +371,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
     private void verifyAll()
     {
+        controlScheduledFuture_.verify();
         controlTypedPullSupplier_.verify();
         controlAdmin_.verify();
         controlSupplierAdmin_.verify();
@@ -372,6 +381,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
     private void replayAll()
     {
+        controlScheduledFuture_.replay();
         controlPullCoffeeOperations_.replay();
         controlTypedPullSupplier_.replay();
         controlTaskProcessor_.replay();

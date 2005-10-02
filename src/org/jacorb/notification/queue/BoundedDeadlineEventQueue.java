@@ -23,12 +23,13 @@ package org.jacorb.notification.queue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.Message;
 
-import EDU.oswego.cs.dl.util.concurrent.Heap;
+import edu.emory.mathcs.backport.java.util.PriorityQueue;
 
 /**
  * Note that most of the methods are not thread-safe. this causes no problem as 
@@ -41,7 +42,7 @@ import EDU.oswego.cs.dl.util.concurrent.Heap;
 
 public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
 {
-    private Heap heap_;
+    private final PriorityQueue heap_;
 
     private long counter_ = 0;
 
@@ -52,7 +53,7 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
     {
         super(maxSize, overflowStrategy, new Object());
         
-        heap_ = new Heap( maxSize, QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
+        heap_ = new PriorityQueue(maxSize, QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
     }
 
     ////////////////////////////////////////
@@ -67,80 +68,40 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         return getEarliestTimeout();
     }
 
-
     protected Message getOldestElement()
     {
-        List _all = getAllElementsInternal();
+        return removeFirstElement(QueueUtil.ASCENDING_AGE_COMPARATOR );
+    }
+    
+    private Message removeFirstElement(Comparator comp)
+    {
+        List _entries = copyAllEntries();
 
-        Collections.sort( _all, QueueUtil.ASCENDING_AGE_COMPARATOR );
+        Collections.sort( _entries, comp );
 
-        HeapEntry _oldest = ( HeapEntry ) _all.remove( 0 );
+        HeapEntry _entry = ( HeapEntry ) _entries.get( 0 );
 
-        Heap _newHeap = new Heap( _all.size(), QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
-
-        Iterator i = _all.iterator();
-
-        while ( i.hasNext() )
-        {
-            HeapEntry e = ( HeapEntry ) i.next();
-            _newHeap.insert( e );
-        }
-
-        return _oldest.event_;
+        heap_.remove(_entry);
+        
+        return _entry.event_;
     }
 
 
     protected Message getYoungestElement()
     {
-        List _all = getAllElementsInternal();
-
-        Collections.sort( _all, QueueUtil.DESCENDING_AGE_COMPARATOR );
-
-        HeapEntry _youngest = ( HeapEntry ) _all.remove( 0 );
-
-        Heap _newHeap = new Heap( _all.size(), QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
-
-        Iterator i = _all.iterator();
-
-        while ( i.hasNext() )
-        {
-            HeapEntry e = ( HeapEntry ) i.next();
-            _newHeap.insert( e );
-        }
-
-        heap_ = _newHeap;
-
-        return _youngest.event_;
+        return removeFirstElement( QueueUtil.DESCENDING_AGE_COMPARATOR );
     }
 
 
     protected Message getEarliestTimeout()
     {
-        return ( ( HeapEntry ) heap_.extract() ).event_;
+        return ( ( HeapEntry ) heap_.remove() ).event_;
     }
 
 
     protected Message getLeastPriority()
     {
-        List _all = getAllElementsInternal();
-
-        Collections.sort( _all, QueueUtil.ASCENDING_PRIORITY_COMPARATOR );
-
-        HeapEntry _leastPriority = ( HeapEntry ) _all.remove( 0 );
-
-        Heap _newHeap = new Heap( _all.size(), QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
-
-        Iterator i = _all.iterator();
-
-        while ( i.hasNext() )
-        {
-            HeapEntry e = ( HeapEntry ) i.next();
-            _newHeap.insert( e );
-        }
-
-        heap_ = _newHeap;
-
-        return _leastPriority.event_;
+        return removeFirstElement(QueueUtil.ASCENDING_PRIORITY_COMPARATOR );
     }
 
 
@@ -149,7 +110,7 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
         List _events = new ArrayList();
         Object _element;
 
-        while ( ( _events.size() < max ) && ( _element = heap_.extract() ) != null )
+        while ( ( _events.size() < max ) && ( _element = heap_.remove() ) != null )
         {
             _events.add( ( ( HeapEntry ) _element ).event_ );
         }
@@ -161,27 +122,33 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
 
     protected void addElement( Message event )
     {
-        heap_.insert( new HeapEntry( event, counter_++ ) );
+        heap_.add( new HeapEntry( event, counter_++ ) );
     }
 
 
-    private List getAllElementsInternal()
+    private List copyAllEntries()
     {
         List _events = new ArrayList(heap_.size());
-        Object _element;
 
-        while ( ( _element = heap_.extract() ) != null )
-        {
-            _events.add( _element );
-        }
+        _events.addAll(heap_);
 
         return _events;
+    }
+    
+    
+    private List removeAllEntries()
+    {
+        List _entries = copyAllEntries();
+        
+        heap_.clear();
+        
+        return _entries;
     }
 
 
     protected Message[] getAllElements()
     {
-        List _all = getAllElementsInternal();
+        List _all = removeAllEntries();
 
         Message[] _ret = new Message[ _all.size() ];
 

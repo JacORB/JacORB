@@ -35,7 +35,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must at least implement the method
@@ -127,7 +127,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
 
     private static class ListCleaner extends Thread
     {
-        private SynchronizedBoolean active_ = new SynchronizedBoolean(true);
+        private AtomicBoolean active_ = new AtomicBoolean(true);
 
         public void setInactive()
         {

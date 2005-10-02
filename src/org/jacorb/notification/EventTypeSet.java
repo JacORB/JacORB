@@ -28,8 +28,8 @@ import java.util.TreeSet;
 
 import org.omg.CosNotification.EventType;
 
-import EDU.oswego.cs.dl.util.concurrent.FIFOReadWriteLock;
-import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Utility class that manages Sets of EventTypes. EventTypes can be added and removed.
@@ -46,7 +46,7 @@ public abstract class EventTypeSet
 
     private Set eventTypeSet_ = new TreeSet();
 
-    private final ReadWriteLock readWriteLock_ = new FIFOReadWriteLock();
+    private final ReadWriteLock readWriteLock_ = new ReentrantReadWriteLock();
 
     private final Object arrayViewLock_ = new Object();
 
@@ -58,7 +58,7 @@ public abstract class EventTypeSet
     
     ////////////////////////////////////////
 
-    public void changeSet(EventType[] added, EventType[] removed) throws InterruptedException
+    public void changeSet(EventType[] added, EventType[] removed) 
     {
         final List _addedList = new ArrayList();
 
@@ -68,7 +68,7 @@ public abstract class EventTypeSet
 
         try
         {
-            readWriteLock_.writeLock().acquire();
+            readWriteLock_.writeLock().lock();
 
             Set _modifiedSet = new TreeSet(eventTypeSet_);
 
@@ -121,7 +121,7 @@ public abstract class EventTypeSet
             }
         } finally
         {
-            readWriteLock_.writeLock().release();
+            readWriteLock_.writeLock().unlock();
         }
 
         if (_modified)
@@ -151,11 +151,11 @@ public abstract class EventTypeSet
 
     protected abstract void actionSetChanged(EventType[] added, EventType[] removed);
 
-    protected EventType[] getAllTypes() throws InterruptedException
+    protected EventType[] getAllTypes() 
     {
         try
         {
-            readWriteLock_.readLock().acquire();
+            readWriteLock_.readLock().lock();
 
             updateArrayView();
 
@@ -163,7 +163,7 @@ public abstract class EventTypeSet
 
         } finally
         {
-            readWriteLock_.readLock().release();
+            readWriteLock_.readLock().unlock();
         }
     }
 

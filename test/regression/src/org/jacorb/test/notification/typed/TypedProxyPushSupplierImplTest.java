@@ -51,7 +51,8 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
 import org.omg.CosTypedNotifyComm.TypedPushConsumer;
 import org.omg.CosTypedNotifyComm.TypedPushConsumerPOA;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  * @author Alphonse Bendt
@@ -307,7 +308,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
 
         _event.setAny(_any);
 
-        final Latch _hasReceived = new Latch();
+        final CountDownLatch _hasReceived = new CountDownLatch(1);
         
         // setup mock
         MockCoffee _mockCoffee = new MockCoffee()
@@ -319,7 +320,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
                 assertEquals("alphonse", name);
                 assertEquals(10, minutes);
                 
-                _hasReceived.release();
+                _hasReceived.countDown();
             }
         };
 
@@ -343,7 +344,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         // run test
         objectUnderTest_.getMessageConsumer().queueMessage(_event.getHandle());
 
-        assertTrue(_hasReceived.attempt(5000));
+        assertTrue(_hasReceived.await(5000, TimeUnit.MILLISECONDS));
         
         // verify results
         _mockCoffee.verify();

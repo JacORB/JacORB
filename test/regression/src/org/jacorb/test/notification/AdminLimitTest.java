@@ -42,7 +42,7 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.picocontainer.MutablePicoContainer;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
@@ -186,7 +186,7 @@ public class AdminLimitTest extends NotificationTestCase
     public void testEvents() throws Exception
     {
         IntHolder _proxyId = new IntHolder();
-        final SynchronizedInt _counter = new SynchronizedInt(0);
+        final AtomicInteger _counter = new AtomicInteger(0);
 
         ProxyEventListener _listener = new ProxyEventListener()
         {
@@ -202,7 +202,7 @@ public class AdminLimitTest extends NotificationTestCase
 
             public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
             {
-                _counter.increment();
+                _counter.incrementAndGet();
             }
         };
 

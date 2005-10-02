@@ -23,221 +23,150 @@ package org.jacorb.notification.queue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.Message;
 
-import EDU.oswego.cs.dl.util.concurrent.Heap;
+import edu.emory.mathcs.backport.java.util.PriorityQueue;
 
 /**
- * Note that most of the methods are not thread-safe. this causes no problem as 
- * the methods are not intended to be directly called by clients. instead the superclass
- * implements the interface EventQueue and invokes the methods thereby synchronizing access.
-
+ * Note that the methods do not need to be thread-safe. this causes no problem as the methods are not
+ * intended to be directly called by clients. instead the superclass implements the interface
+ * EventQueue and invokes the methods thereby synchronizing access.
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class BoundedPriorityEventQueue extends AbstractBoundedEventQueue
 {
-    private Heap heap_;
+    private final PriorityQueue heap_;
 
     private long counter_ = 0;
-    
+
     private final int maxCapacity_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
-    public BoundedPriorityEventQueue(int maxSize,
-                                     EventQueueOverflowStrategy overflowStrategy)
+    public BoundedPriorityEventQueue(int maxSize, EventQueueOverflowStrategy overflowStrategy)
     {
         super(maxSize, overflowStrategy, new Object());
 
         maxCapacity_ = maxSize;
-        
-        heap_ = newHeap();
+
+        heap_ = new PriorityQueue(maxCapacity_, QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public String getOrderPolicyName()
     {
         return "PriorityOrder";
     }
-    
-    private Heap newHeap()
-    {
-        return new Heap2(maxCapacity_, QueueUtil.DESCENDING_PRIORITY_COMPARATOR);
-    }
 
     protected Message getNextElement()
     {
-        return ((HeapEntry)heap_.extract()).event_;
+        return ((HeapEntry) heap_.remove()).event_;
     }
-
 
     protected Message getEarliestTimeout()
     {
-        List _all = getAllElementsInternal();
-
-        Collections.sort(_all, QueueUtil.ASCENDING_TIMEOUT_COMPARATOR);
-
-        HeapEntry _earliest = (HeapEntry)_all.remove(0);
-
-        Heap _newHeap = newHeap();
-        
-        Iterator i = _all.iterator();
-
-        while (i.hasNext())
-        {
-            HeapEntry e = (HeapEntry)i.next();
-            _newHeap.insert(e);
-        }
-
-        heap_ = _newHeap;
-
-        return _earliest.event_;
+        return removeFirstElement(QueueUtil.ASCENDING_TIMEOUT_COMPARATOR);
     }
-
 
     protected Message getOldestElement()
     {
-        List _all = getAllElementsInternal();
-
-        Collections.sort(_all, QueueUtil.ASCENDING_AGE_COMPARATOR);
-
-        HeapEntry _oldest = (HeapEntry)_all.remove(0);
-
-        Heap _newHeap = newHeap();
-        
-        Iterator i = _all.iterator();
-
-        while (i.hasNext())
-        {
-            HeapEntry e = (HeapEntry)i.next();
-            _newHeap.insert(e);
-        }
-
-        return _oldest.event_;
+        return removeFirstElement(QueueUtil.ASCENDING_AGE_COMPARATOR);
     }
-
 
     protected Message getYoungestElement()
     {
-        List _all = getAllElementsInternal();
-
-        Collections.sort(_all, QueueUtil.DESCENDING_AGE_COMPARATOR);
-
-        HeapEntry _youngest = (HeapEntry)_all.remove(0);
-
-        Heap _newHeap = newHeap();
-        
-        Iterator i = _all.iterator();
-
-        while (i.hasNext())
-        {
-            HeapEntry e = (HeapEntry)i.next();
-            _newHeap.insert(e);
-        }
-
-        heap_ = _newHeap;
-
-        return _youngest.event_;
+        return removeFirstElement(QueueUtil.DESCENDING_AGE_COMPARATOR);
     }
-
 
     protected Message getLeastPriority()
     {
-        List _all = getAllElementsInternal();
-
-        Collections.sort(_all, QueueUtil.ASCENDING_PRIORITY_COMPARATOR);
-
-        HeapEntry _leastPriority = (HeapEntry)_all.remove(0);
-
-        Heap _newHeap = newHeap();
-        
-        Iterator i = _all.iterator();
-
-        while (i.hasNext())
-        {
-            HeapEntry e = (HeapEntry)i.next();
-            _newHeap.insert(e);
-        }
-
-        heap_ = _newHeap;
-
-        return _leastPriority.event_;
+        return removeFirstElement(QueueUtil.ASCENDING_PRIORITY_COMPARATOR);
     }
-
 
     protected Message[] getElements(int max)
     {
         List _events = new ArrayList();
-        Object _element;
 
-        while ((_element = heap_.extract()) != null && (_events.size() <= max))
+        while ((heap_.peek()) != null && (_events.size() <= max))
         {
-            _events.add(((HeapEntry)_element).event_);
+            _events.add(((HeapEntry) heap_.remove()).event_);
         }
 
-        return (Message[])
-               _events.toArray(QueueUtil.MESSAGE_ARRAY_TEMPLATE);
+        return (Message[]) _events.toArray(QueueUtil.MESSAGE_ARRAY_TEMPLATE);
     }
-
 
     protected void addElement(Message event)
     {
-        heap_.insert(new HeapEntry(event, counter_++));
+        heap_.add(new HeapEntry(event, counter_++));
     }
 
-
-    private List getAllElementsInternal()
+    private List removeAllEntries()
     {
-        List _events = new ArrayList();
-        Object _element;
-
-        while ((_element = heap_.extract()) != null)
-        {
-            _events.add(_element);
-        }
-
-        heap_.clear();
+        List _entries = copyAllEntries();
         
-        return _events;
-    }
+        heap_.clear();
 
+        return _entries;
+    }
 
     protected Message[] getAllElements()
     {
-        List _all = getAllElementsInternal();
+        List _entries = removeAllEntries();
 
-        Message[] _ret = new Message[_all.size()];
+        Message[] _messages = new Message[_entries.size()];
 
-        Iterator i = _all.iterator();
+        Iterator i = _entries.iterator();
 
         int x = 0;
         while (i.hasNext())
         {
-            HeapEntry e = (HeapEntry)i.next();
-            _ret[x++] = e.event_;
+            HeapEntry e = (HeapEntry) i.next();
+            _messages[x++] = e.event_;
         }
 
-        return _ret;
+        return _messages;
     }
 
+    private Message removeFirstElement(Comparator comp)
+    {
+        List _entries = copyAllEntries();
+
+        Collections.sort(_entries, comp);
+
+        HeapEntry _entry = (HeapEntry) _entries.get(0);
+
+        heap_.remove(_entry);
+
+        return _entry.event_;
+    }
+
+    private List copyAllEntries()
+    {
+        List _entries = new ArrayList(heap_.size());
+
+        _entries.addAll(heap_);
+
+        return _entries;
+    }
 
     public boolean isEmpty()
     {
         return (getSize() == 0);
     }
 
-
     public int getSize()
     {
         return heap_.size();
     }
-    
+
     public String toString()
     {
         return heap_.toString();

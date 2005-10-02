@@ -100,23 +100,11 @@ public class OfferManager extends EventTypeSet implements NotifyPublishOperation
 
     public void offer_change(EventType[] added, EventType[] removed) throws InvalidEventType
     {
-        try
-        {
-            changeSet(added, removed);
-        } catch (InterruptedException e)
-        {
-            // ignore
-        }
+        changeSet(added, removed);
     }
 
     public EventType[] obtain_offered_types()
     {
-        try
-        {
-            return getAllTypes();
-        } catch (InterruptedException e)
-        {
-            return EMPTY_EVENT_TYPE;
-        }
+        return getAllTypes();
     }
 }

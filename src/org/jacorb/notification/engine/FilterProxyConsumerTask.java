@@ -32,23 +32,24 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 public class FilterProxyConsumerTask extends AbstractFilterTask
 {
     private static int sCount = 0;
-    private int id_ = ++sCount;
+
+    private final int id_ = ++sCount;
 
     private boolean orSemantic_ = false;
 
-    ////////////////////
+    // //////////////////
 
-    public FilterProxyConsumerTask(TaskFactory factory, TaskExecutor executor) {
+    public FilterProxyConsumerTask(TaskFactory factory, TaskExecutor executor)
+    {
         super(factory, executor);
     }
 
-    ////////////////////
+    // //////////////////
 
     public String toString()
     {
         return "[FilterProxyConsumerTask#" + id_ + "]";
     }
-
 
     public void reset()
     {
@@ -57,24 +58,20 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         orSemantic_ = false;
     }
 
-
     /**
-     * access the Filter hint for next Stage. if the current
-     * FilterStage has InterFilterGroupOperator.OR_OP enabled and a
-     * filter matched the
-     * evaluation of the SupplierAdmin Filters can be skipped.
+     * access the Filter hint for next Stage. if the current FilterStage has
+     * InterFilterGroupOperator.OR_OP enabled and a filter matched the evaluation of the
+     * SupplierAdmin Filters can be skipped.
      */
     public boolean getSkip()
     {
         return orSemantic_;
     }
 
-
     /**
-     * match the attached Priority MappingFilter.
-     * the current Message is matched to the MappingFilter attached to
-     * the current FilterStage. In case of successful match
-     * operation the priority of the Messages is updated accordingly.
+     * match the attached Priority MappingFilter. the current Message is matched to the
+     * MappingFilter attached to the current FilterStage. In case of successful match operation the
+     * priority of the Messages is updated accordingly.
      */
     private void updatePriority()
     {
@@ -82,27 +79,23 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         {
             AnyHolder newPriority = new AnyHolder();
 
-            boolean priorityMatch =
-                getMessage().match( arrayCurrentFilterStage_[ 0 ].getPriorityFilter(),
-                                newPriority );
+            boolean priorityMatch = getMessage().match(
+                    arrayCurrentFilterStage_[0].getPriorityFilter(), newPriority);
 
-            if ( priorityMatch )
+            if (priorityMatch)
             {
-                getMessage().setPriority( newPriority.value.extract_long() );
+                getMessage().setPriority(newPriority.value.extract_long());
             }
-        }
-        catch ( UnsupportedFilterableData e )
+        } catch (UnsupportedFilterableData e)
         {
-            logger_.error( "Error evaluating PriorityFilter", e );
+            logger_.error("Error evaluating PriorityFilter", e);
         }
     }
 
-
     /**
-     * match the attached Lifetime MappingFilter.
-     * the current Message is matched to the MappingFilter attached to
-     * the current FilterStage. In case of successful match
-     * operation the lifetime of the Messages is updated accordingly.
+     * match the attached Lifetime MappingFilter. the current Message is matched to the
+     * MappingFilter attached to the current FilterStage. In case of successful match operation the
+     * lifetime of the Messages is updated accordingly.
      */
     private void updateLifetime()
     {
@@ -110,43 +103,39 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         {
             AnyHolder newLifetime = new AnyHolder();
 
-            boolean lifetimeMatch =
-                getMessage().match( arrayCurrentFilterStage_[ 0 ].getLifetimeFilter(),
-                                newLifetime );
+            boolean lifetimeMatch = getMessage().match(
+                    arrayCurrentFilterStage_[0].getLifetimeFilter(), newLifetime);
 
-            if ( lifetimeMatch )
+            if (lifetimeMatch)
             {
-                getMessage().setTimeout( newLifetime.value.extract_long() );
+                getMessage().setTimeout(newLifetime.value.extract_long());
             }
-        }
-        catch ( UnsupportedFilterableData e )
+        } catch (UnsupportedFilterableData e)
         {
-            logger_.error( "Error evaluating LifetimeFilter", e );
+            logger_.error("Error evaluating LifetimeFilter", e);
         }
     }
 
-
     public void doFilter() throws InterruptedException
     {
-        if ( arrayCurrentFilterStage_[ 0 ].hasPriorityFilter() )
+        if (arrayCurrentFilterStage_[0].hasPriorityFilter())
         {
             updatePriority();
         }
 
-        if ( arrayCurrentFilterStage_[ 0 ].hasLifetimeFilter() )
+        if (arrayCurrentFilterStage_[0].hasLifetimeFilter())
         {
             updateLifetime();
         }
 
         boolean _filterMatch = filter();
 
-        if ( !_filterMatch && arrayCurrentFilterStage_[ 0 ].hasInterFilterGroupOperatorOR() )
+        if (!_filterMatch && arrayCurrentFilterStage_[0].hasInterFilterGroupOperatorOR())
         {
-            if ( logger_.isDebugEnabled() )
+            if (logger_.isDebugEnabled())
             {
-                logger_.debug( "filter failed, but the ProxyConsumer"
-                               + arrayCurrentFilterStage_[ 0 ]
-                               + " has InterFilterGroupOperator OR_OP Enabled" );
+                logger_.debug("filter failed, but the ProxyConsumer" + arrayCurrentFilterStage_[0]
+                        + " has InterFilterGroupOperator OR_OP Enabled");
             }
 
             // no filter attached to the current ProxyConsumer
@@ -155,13 +144,13 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
             // have to continue processing because the Filters
             // attached to the SupplierAdmin still may match.
 
-            addFilterStage( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+            addFilterStage(arrayCurrentFilterStage_[0].getSubsequentFilterStages());
         }
 
-        if ( !isFilterStageListEmpty() )
+        if (!isFilterStageListEmpty())
         {
-            getTaskFactory().newFilterSupplierAdminTask( this ).schedule();
-        } 
+            getTaskFactory().newFilterSupplierAdminTask(this).schedule();
+        }
     }
 
     private boolean filter()
@@ -172,16 +161,16 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         // as an Event passes only 1 ProxyConsumer we can assume
         // constant array size here
 
-        _forward = getMessage().match( arrayCurrentFilterStage_[ 0 ] );
+        _forward = getMessage().match(arrayCurrentFilterStage_[0]);
 
-        if ( _forward )
+        if (_forward)
         {
-            addFilterStage( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+            addFilterStage(arrayCurrentFilterStage_[0].getSubsequentFilterStages());
         }
 
         // check if this destination has OR enabled
         // if this is the case the filtering in the next run can be skipped
-        if ( arrayCurrentFilterStage_[ 0 ].hasInterFilterGroupOperatorOR() )
+        if (arrayCurrentFilterStage_[0].hasInterFilterGroupOperatorOR())
         {
             orSemantic_ = true;
         }
@@ -189,7 +178,8 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         return _forward;
     }
 
-    public void schedule() throws InterruptedException {
+    public void schedule()
+    {
         // directRunAllowed is false here
         // cause the calling thread is usually created by the ORB.
         // exceptions are PullSuppliers.

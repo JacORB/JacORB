@@ -53,7 +53,7 @@ import org.omg.CosNotifyComm.NotifySubscribeHelper;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.PortableServer.POA;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @jmx.mbean extends = "AbstractProxyMBean"
@@ -73,9 +73,9 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements Abs
     private final MessageFactory messageFactory_;
 
     // TODO check StartTime, StopTime, TimeOut: naming and usage is inconsistent.
-    private final SynchronizedBoolean isStartTimeSupported_ = new SynchronizedBoolean(true);
+    private final AtomicBoolean isStartTimeSupported_ = new AtomicBoolean(true);
 
-    private final SynchronizedBoolean isStopTimeSupported_ = new SynchronizedBoolean(true);
+    private final AtomicBoolean isStopTimeSupported_ = new AtomicBoolean(true);
 
     private List subsequentDestinations_;
 

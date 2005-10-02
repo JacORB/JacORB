@@ -28,7 +28,7 @@ import junit.framework.TestSuite;
 
 import org.jacorb.notification.util.AbstractObjectPool;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
@@ -50,7 +50,7 @@ public class ObjectPoolTest extends TestCase
 
     public void testGetReturnsUniqueObject() throws Exception
     {
-        final SynchronizedInt counter = new SynchronizedInt(0);
+        final AtomicInteger counter = new AtomicInteger(0);
 
         int testSize = 10;
 
@@ -58,7 +58,7 @@ public class ObjectPoolTest extends TestCase
         {
             public Object newInstance()
             {
-                return new Integer(counter.increment());
+                return new Integer(counter.incrementAndGet());
             }
         };
 
@@ -76,13 +76,13 @@ public class ObjectPoolTest extends TestCase
 
     public void testMaximumElements() throws Exception
     {
-        final SynchronizedInt counter = new SynchronizedInt(0);
+        final AtomicInteger counter = new AtomicInteger(0);
 
         AbstractObjectPool pool = new AbstractObjectPool("Test", 0, 0, 0, 0, 1)
         {
             public Object newInstance()
             {
-                return new Integer(counter.increment());
+                return new Integer(counter.incrementAndGet());
             }
         };
         

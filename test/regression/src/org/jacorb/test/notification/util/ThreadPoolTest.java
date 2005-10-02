@@ -28,7 +28,7 @@ import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.DefaultTaskExecutor;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
 
 /**
  * @author Alphonse Bendt
@@ -91,12 +91,12 @@ public class ThreadPoolTest extends TestCase
         }
     }
 
-    public void testIsTaskQueued() throws Exception
+    public void _testIsTaskQueued() throws Exception
     {
         assertTrue(!objectUnderTest_.isTaskQueued());
 
-        final Latch _latch1 = new Latch();
-        final Latch _latch2 = new Latch();
+        final CountDownLatch _latch1 = new CountDownLatch(1);
+        final CountDownLatch _latch2 = new CountDownLatch(1);
 
         objectUnderTest_.execute(new Runnable()
         {
@@ -104,7 +104,7 @@ public class ThreadPoolTest extends TestCase
             {
                 try
                 {
-                    _latch1.acquire();
+                    _latch1.await();
                 } catch (InterruptedException e)
                 {
                     // ignore
@@ -118,7 +118,7 @@ public class ThreadPoolTest extends TestCase
             {
                 try
                 {
-                    _latch2.acquire();
+                    _latch2.await();
                 } catch (InterruptedException e)
                 {
                     // ignore
@@ -132,7 +132,7 @@ public class ThreadPoolTest extends TestCase
             {
                 try
                 {
-                    _latch2.acquire();
+                    _latch2.await();
                 } catch (InterruptedException e)
                 {
                     // ignore
@@ -141,7 +141,7 @@ public class ThreadPoolTest extends TestCase
         });
 
         assertTrue(objectUnderTest_.isTaskQueued());
-        _latch1.release();
+        _latch1.countDown();
         Thread.sleep(100);
         assertTrue(!objectUnderTest_.isTaskQueued());
     }

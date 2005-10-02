@@ -102,23 +102,11 @@ public class SubscriptionManager extends EventTypeSet implements NotifySubscribe
 
     public void subscription_change(EventType[] added, EventType[] removed) throws InvalidEventType
     {
-        try
-        {
-            changeSet(added, removed);
-        } catch (InterruptedException e)
-        {
-          // ignore
-        }
+        changeSet(added, removed);
     }
 
     public EventType[] obtain_subscription_types()
     {
-        try
-        {
-            return getAllTypes();
-        } catch (InterruptedException e)
-        {
-            return EMPTY_EVENT_TYPE;
-        }
+        return getAllTypes();
     }
 }

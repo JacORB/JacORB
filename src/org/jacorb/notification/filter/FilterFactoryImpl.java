@@ -47,7 +47,7 @@ import org.omg.CosNotifyFilter.MappingFilterHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Alphonse Bendt
@@ -58,7 +58,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
 {
     private class GCThread extends Thread implements Disposable
     {
-        private final SynchronizedBoolean active = new SynchronizedBoolean(true);
+        private final AtomicBoolean active = new AtomicBoolean(true);
 
         public GCThread()
         {

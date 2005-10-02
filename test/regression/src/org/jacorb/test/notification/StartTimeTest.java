@@ -41,8 +41,9 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+
 
 /**
  * @author Alphonse Bendt
@@ -146,7 +147,7 @@ public class StartTimeTest extends NotificationTestCase
 
     public void processEventWithStartTime(long offset) throws Exception
     {
-        final SynchronizedBoolean failed = new SynchronizedBoolean(true);
+        final AtomicBoolean failed = new AtomicBoolean(true);
         
         structuredEvent_.header.variable_header = new Property[1];
 
@@ -159,7 +160,7 @@ public class StartTimeTest extends NotificationTestCase
 
         final Message _event = messageFactory_.newMessage(structuredEvent_, proxyConsumerMock_);
 
-        final Latch _latch = new Latch();
+        final CountDownLatch _latch = new CountDownLatch(1);
 
         // TODO check if MockTaskProcessor can be used here
         DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor(getConfiguration())
@@ -175,14 +176,14 @@ public class StartTimeTest extends NotificationTestCase
                     failed.set(false);
                 } finally
                 {
-                    _latch.release();
+                    _latch.countDown();
                 }
             }
         };
 
         _taskProcessor.processMessage(_event);
 
-        _latch.acquire();
+        _latch.await();
 
         assertFalse(failed.get());
         

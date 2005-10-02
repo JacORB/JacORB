@@ -30,6 +30,8 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
 import org.omg.CORBA.TRANSIENT;
 
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -37,108 +39,109 @@ import org.omg.CORBA.TRANSIENT;
 public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
 {
     private MockControl controlTaskProcessor_;
+
     private TaskProcessor mockTaskProcessor_;
+
+    private MockControl controlScheduledResult_;
+
+    private ScheduledFuture mockScheduledResult_;
 
     protected void setUpTest()
     {
+        controlScheduledResult_ = MockControl.createControl(ScheduledFuture.class);
+        mockScheduledResult_ = (ScheduledFuture) controlScheduledResult_.getMock();
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
     }
 
     protected AbstractRetryStrategy newRetryStrategy()
     {
-        return new TaskProcessorRetryStrategy(mockConsumer_, mockPushOperation_, mockTaskProcessor_, 10);
+        return new TaskProcessorRetryStrategy(mockConsumer_, mockPushOperation_,
+                mockTaskProcessor_, 10);
     }
-    
-    /**
-     * Constructor for TaskProcessorRetryStrategyTest.
-     * 
-     * @param name
-     */
+
     public TaskProcessorRetryStrategyTest(String name)
     {
         super(name);
     }
-    
+
     public void testSuccessfulRetryDisposes() throws Exception
-    {        
+    {
         mockConsumer_.isRetryAllowed();
         controlConsumer_.setReturnValue(true);
-        controlConsumer_.replay();
-        
+
         mockPushOperation_.invokePush();
-        controlPushOperation_.setVoidCallable();
         mockPushOperation_.dispose();
-        controlPushOperation_.setVoidCallable();
-        
-        controlPushOperation_.replay();
-        
-        controlTaskProcessor_.replay();
-        
-        ((TaskProcessorRetryStrategy)objectUnderTest_).doPush();
-        
-        controlConsumer_.verify();
-        controlPushOperation_.verify();
-        controlTaskProcessor_.verify();
+
+        replayAll();
+
+        ((TaskProcessorRetryStrategy) objectUnderTest_).doPush();
+
+        verifyAll();
     }
-    
+
     public void testNotSuccessfulRetryDisposes() throws Exception
-    {   
+    {
         mockConsumer_.isRetryAllowed();
         controlConsumer_.setReturnValue(true);
-        
+
         mockConsumer_.incErrorCounter();
         controlConsumer_.setDefaultReturnValue(0);
-        
+
         mockConsumer_.isRetryAllowed();
         controlConsumer_.setReturnValue(false);
-        
+
         mockConsumer_.destroy();
-        controlConsumer_.replay();
-        
+
         mockPushOperation_.invokePush();
         controlPushOperation_.setDefaultThrowable(new TRANSIENT());
         mockPushOperation_.dispose();
-        
-        controlPushOperation_.replay();
-                
-        controlTaskProcessor_.replay();
-        
-        ((TaskProcessorRetryStrategy)objectUnderTest_).doPush();
-        
-        controlConsumer_.verify();
-        controlPushOperation_.verify();
-        controlTaskProcessor_.verify();
+
+        replayAll();
+
+        ((TaskProcessorRetryStrategy) objectUnderTest_).doPush();
+
+        verifyAll();
     }
 
-    
     public void testFailedRetryRequeues() throws Exception
     {
         mockConsumer_.incErrorCounter();
         controlConsumer_.setDefaultReturnValue(0);
-        
+
         mockConsumer_.isRetryAllowed();
         controlConsumer_.setDefaultReturnValue(true);
-        controlConsumer_.replay();
-        
+
         mockPushOperation_.invokePush();
         controlPushOperation_.setThrowable(new TRANSIENT());
-           
-        controlPushOperation_.replay();
-                
+
         mockTaskProcessor_.executeTaskAfterDelay(0, null);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlTaskProcessor_.setReturnValue(new Object());
-        
+        controlTaskProcessor_.setReturnValue(mockScheduledResult_);
+
+        replayAll();
+
+        ((TaskProcessorRetryStrategy) objectUnderTest_).doPush();
+
+        verifyAll();
+    }
+
+    private void replayAll()
+    {
+        controlConsumer_.replay();
+        controlPushOperation_.replay();
+        controlScheduledResult_.replay();
         controlTaskProcessor_.replay();
-        
-        ((TaskProcessorRetryStrategy)objectUnderTest_).doPush();
-        
+    }
+
+    private void verifyAll()
+    {
         controlConsumer_.verify();
         controlPushOperation_.verify();
+        controlScheduledResult_.verify();
         controlTaskProcessor_.verify();
     }
-   
+
     public static Test suite()
     {
         return new TestSuite(TaskProcessorRetryStrategyTest.class);

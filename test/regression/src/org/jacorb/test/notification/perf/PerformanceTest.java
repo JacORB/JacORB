@@ -47,8 +47,9 @@ import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.CosNotifyFilter.InvalidGrammar;
 
-import EDU.oswego.cs.dl.util.concurrent.Latch;
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+
 
 /**
  * @author Alphonse Bendt
@@ -242,7 +243,7 @@ public class PerformanceTest extends NotificationTestCase
 
     public void testLoad() throws Exception
     {
-        final SynchronizedBoolean active = new SynchronizedBoolean(true);
+        final AtomicBoolean active = new AtomicBoolean(true);
         
         final StructuredPushReceiver receiver = new StructuredPushReceiver(getClientORB());
         
@@ -261,7 +262,7 @@ public class PerformanceTest extends NotificationTestCase
                 data[x] = testUtils_.getStructuredEvent();
             }
             
-            final Latch latch = new Latch();
+            final CountDownLatch latch = new CountDownLatch(1);
             new Thread()
             {
                 public void run()
@@ -280,11 +281,11 @@ public class PerformanceTest extends NotificationTestCase
 
                     System.out.println("Sent " + data.length);
 
-                    latch.release();
+                    latch.countDown();
                 }
             }.start();
 
-            latch.acquire();
+            latch.await();
 
             System.out.println(receiver);
 

@@ -31,6 +31,8 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.servant.PullMessagesUtility;
 
+import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+
 public class PullMessagesUtilityTest extends TestCase
 {
     private PullMessagesUtility objectUnderTest_;
@@ -43,6 +45,10 @@ public class PullMessagesUtilityTest extends TestCase
 
     private MessageSupplier mockMessageSupplier_;
 
+    private ScheduledFuture mockScheduledFuture_;
+
+    private MockControl controlScheduledFuture_;
+
     public PullMessagesUtilityTest(String name)
     {
         super(name);
@@ -52,6 +58,8 @@ public class PullMessagesUtilityTest extends TestCase
     {
         super.setUp();
 
+        controlScheduledFuture_ = MockControl.createControl(ScheduledFuture.class);
+        mockScheduledFuture_ = (ScheduledFuture) controlScheduledFuture_.getMock();
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
         controlMessageSupplier_ = MockControl.createControl(MessageSupplier.class);
@@ -61,12 +69,14 @@ public class PullMessagesUtilityTest extends TestCase
 
     private void replayAll()
     {
+        controlScheduledFuture_.replay();
         controlTaskProcessor_.replay();
         controlMessageSupplier_.replay();
     }
 
     private void verifyAll()
     {
+        controlScheduledFuture_.verify();
         controlTaskProcessor_.verify();
         controlMessageSupplier_.verify();
     }
@@ -102,7 +112,7 @@ public class PullMessagesUtilityTest extends TestCase
                 return expected[0].equals(actual[0]);
             }
         });
-        controlTaskProcessor_.setReturnValue(new Object());
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
         replayAll();
         objectUnderTest_.startTask(1000);
         verifyAll();
@@ -112,7 +122,7 @@ public class PullMessagesUtilityTest extends TestCase
     {
         mockTaskProcessor_.executeTaskPeriodically(0, null, false);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlTaskProcessor_.setReturnValue(new Object());
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
         replayAll();
 
         objectUnderTest_.startTask(2000);
@@ -132,10 +142,8 @@ public class PullMessagesUtilityTest extends TestCase
     {
         mockTaskProcessor_.executeTaskPeriodically(0, null, false);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
-        final Object _taskId = new Object();
-        controlTaskProcessor_.setReturnValue(_taskId);
-
-        mockTaskProcessor_.cancelTask(_taskId);
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
+        controlScheduledFuture_.expectAndReturn(mockScheduledFuture_.cancel(true), true);
         replayAll();
 
         objectUnderTest_.startTask(2000);
@@ -167,12 +175,12 @@ public class PullMessagesUtilityTest extends TestCase
                 return expected[0].equals(actual[0]);
             }
         });
-        final Object _taskId = new Object();
-        controlTaskProcessor_.setReturnValue(_taskId);
-
-        mockTaskProcessor_.cancelTask(_taskId);
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
+        mockScheduledFuture_.cancel(true);
+        controlScheduledFuture_.setReturnValue(true);
+        
         mockTaskProcessor_.executeTaskPeriodically(2000, null, true);
-        controlTaskProcessor_.setReturnValue(new Object());
+        controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
 
         replayAll();
         objectUnderTest_.startTask(1000);
