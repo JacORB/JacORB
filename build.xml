@@ -253,4 +253,16 @@
             </sourcepath>
         </javadoc>
    </target>
+	
+  <target name="convert.jdk5" description="convert sources to use java.util.concurrent (JDK 1.5+)">
+	<replace dir="${basedir}" token="edu.emory.mathcs.backport." value="">
+		<include name="**/notification/**/*.java" />
+	</replace>
+  </target>
+
+  <target name="convert.jdk4" description="convert sources to use backport-util-concurrent (pre JDK 1.5)">
+	<replace dir="${basedir}" token=" java.util.concurrent." value=" edu.emory.mathcs.backport.java.util.concurrent.">
+		<include name="**/notification/**/*.java" />
+	</replace>
+  </target>
 </project>
