@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.management.Attribute;
 import javax.management.InstanceAlreadyExistsException;
@@ -45,6 +46,7 @@ import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.ConsoleMain;
 import org.jacorb.notification.jmx.JMXManageableMBeanProvider;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
@@ -228,7 +230,9 @@ public class JMXMain implements WrapperListener
 
     private void initORB(String[] args) throws InvalidName, AdapterInactive
     {
-        orb_ = ORB.init(args, null);
+        Properties _props = ConsoleMain.parseProperties(args);
+        
+        orb_ = ORB.init(args, _props);
         logger_ = ((org.jacorb.orb.ORB) orb_).getConfiguration().getNamedLogger(
                 getClass().getName());
 
