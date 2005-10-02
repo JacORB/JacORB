@@ -117,6 +117,7 @@
 		depends="check-jmx, xdoclet.init-jmx, jmx.mbean, jmx.mx4j, jmx.jboss" 
 		description="Generate JMX Interfaces" />
 
+	
 	<target name="jmx.mbean">
 		<!-- MBean Interfaces need to be generated always -->
 		<jacorb-jmxgen>
@@ -133,7 +134,7 @@
 		</jacorb-jmxgen>
 	</target>
 
-	<target name="jmx.mx4j" if="available.mx4j" >
+	<target name="jmx.mx4j" if="available.jmx.mx4j" >
 		<jacorb-jmxgen>
 			<files>
 				<include name="org/jacorb/notification/jmx/mx4j/**" />
