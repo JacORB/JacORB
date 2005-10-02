@@ -1,5 +1,4 @@
 * persistent channels
 * persistent events
-* move util.concurrent to backport of new java.util.concurrent
 
 $Id$
