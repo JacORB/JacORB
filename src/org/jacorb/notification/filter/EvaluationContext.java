@@ -24,7 +24,6 @@ package org.jacorb.notification.filter;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.AbstractMessage;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
 import org.jacorb.notification.filter.etcl.ArrayOperator;
@@ -38,7 +37,6 @@ import org.jacorb.notification.filter.etcl.TCLParserTokenTypes;
 import org.jacorb.notification.filter.etcl.UnionPositionOperator;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.AbstractPoolable;
-import org.jacorb.notification.util.LogUtil;
 import org.omg.CORBA.Any;
 
 /**
@@ -56,8 +54,6 @@ public class EvaluationContext extends AbstractPoolable
     private final Map resultCache_;
 
     private final Map anyCache_;
-
-    private final Logger logger_ = LogUtil.getLogger(getClass().getName());
 
     ////////////////////////////////////////
 
