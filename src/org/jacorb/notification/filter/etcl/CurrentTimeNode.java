@@ -27,6 +27,8 @@ import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
+import org.omg.CosTime.TimeService;
+import org.omg.CosTime.TimeUnavailable;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
@@ -35,19 +37,21 @@ import org.omg.TimeBase.UtcTHelper;
  * @version $Id$
  */
 
-public class CurrentTimeNode extends ETCLComponentName {
-
+public class CurrentTimeNode extends ETCLComponentName
+{
     public static final String SHORT_NAME = "curtime";
+
     private static final String COMP_NAME = "$curtime";
 
     private final static ORB orb_ = ORB.init();
 
-    public EvaluationResult evaluate( EvaluationContext context )
-	throws EvaluationException {
+    private TimeService optionalTimeService_;
 
+    public EvaluationResult evaluate(EvaluationContext context) throws EvaluationException
+    {
         EvaluationResult _result = new EvaluationResult();
 
-        UtcT _curtime = Time.corbaTime();
+        UtcT _curtime = getCurrentTime();
 
         Any _curAny = orb_.create_any();
 
@@ -58,8 +62,35 @@ public class CurrentTimeNode extends ETCLComponentName {
         return _result;
     }
 
-    public String toString() {
-        return COMP_NAME;
+    private UtcT getCurrentTime()
+    {
+        try
+        {
+            if (optionalTimeService_ != null)
+            {
+                return optionalTimeService_.universal_time().utc_time();
+            }
+        } catch (TimeUnavailable e)
+        {
+            return retryGetCurrentTime();
+        }
+
+        return getLocalTime();
     }
 
-} // CurrentTimeNode
+    private UtcT getLocalTime()
+    {
+        return Time.corbaTime();
+    }
+    
+    private UtcT retryGetCurrentTime()
+    {
+        optionalTimeService_ = null;
+        return getLocalTime();
+    }
+
+    public String toString()
+    {
+        return COMP_NAME;
+    }
+}
