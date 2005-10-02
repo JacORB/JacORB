@@ -37,7 +37,7 @@ public class OrOperator extends UnaryOperator
 {
     private static final String NAME = "OrOperator";
 
-    private static final String OR = "or";
+    private static final String STRING_REP = "or";
 
     public OrOperator(Token tok)
     {
@@ -47,7 +47,7 @@ public class OrOperator extends UnaryOperator
 
     public String toString()
     {
-        return OR;
+        return STRING_REP;
     }
 
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left)

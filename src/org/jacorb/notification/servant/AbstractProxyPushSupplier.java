@@ -60,7 +60,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicReference;
 public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier implements
         IProxyPushSupplier
 {
-    private final String NOTIFY_PUSH_FAILED = "notification.proxy.push_failed";
+    private static final String NOTIFY_PUSH_FAILED = "notification.proxy.push_failed";
 
     private final AtomicReference retryStrategyFactory_;
 
