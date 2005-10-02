@@ -47,7 +47,7 @@
         <pathelement location="${lib}/idl.jar"/>
         <pathelement location="${lib}/antlr-2.7.2.jar"/>
         <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
-        <pathelement location="${lib}/concurrent-1.3.2.jar"/>
+        <pathelement location="${lib}/backport-util-concurrent.jar"/>
         <pathelement location="${lib}/picocontainer-1.2.jar" />
 
 		<!-- is it really necessary to have these entries in the classpath? (alphonse bendt) -->
@@ -110,6 +110,17 @@
 			<available classname="mx4j.MBeanDescriptionAdapter" classpathref="path.base" />
 		</and>
 	</condition>
+</target>
+
+<target name="jmx.verify.fail" unless="available.jmx.mx4j" >
+	<echo message="MX4J is not available" />
+</target>
+	
+<target name="jmx.verify" depends="check-jmx, jmx.verify.fail" if="available.jmx.mx4j" >
+	<whichresource property="jmx.jar" class="javax.management.MBeanServer" classpath="${classpath}" />
+	<whichresource property="mx4j.jar" class="mx4j.MBeanDescriptionAdapter" classpath="${classpath}" />
+	<echo message="JMX  is available: ${jmx.jar}" />
+	<echo message="MX4J is available: ${mx4j.jar}" />
 </target>
 
 <!-- check if a regexp library is available -->
