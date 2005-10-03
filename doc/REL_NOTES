@@ -40,6 +40,12 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+post 2.2.2
+==========
+
+      - The IDL compiler can now generate DII stubs, using the new option
+        "-diistub".  Thanks to Thomas Leineweber for adding this feature.
+
 2.2
 ====
 
