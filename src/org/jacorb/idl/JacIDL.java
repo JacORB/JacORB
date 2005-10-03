@@ -61,6 +61,7 @@ public class JacIDL
     private boolean _ami_callback;
     private boolean _force_overwrite;
     private boolean _unchecked_narrow;
+    private boolean _generatediistubs;
 
     private List _defines = new ArrayList();
     private List _undefines = new ArrayList();
@@ -82,6 +83,7 @@ public class JacIDL
         _force_overwrite = false;
         _ami_callback = false;
         _unchecked_narrow = false;
+        _generatediistubs = false;
         _debuglevel = 1;
     }
 
@@ -242,6 +244,11 @@ public class JacIDL
         _unchecked_narrow = flag;
     }
 
+    public void setGenerateDIIStubs(boolean flag)
+    {
+        _generatediistubs = flag;
+    }
+
     // ****************************************************************
     // **** Nested elements
     // ******************************
@@ -336,6 +343,8 @@ public class JacIDL
         parser.forceOverwrite = _force_overwrite;
 
         parser.useUncheckedNarrow = _unchecked_narrow;
+
+        parser.generateDiiStubs = _generatediistubs;
 
         // include path
         if (_includepath != null)
