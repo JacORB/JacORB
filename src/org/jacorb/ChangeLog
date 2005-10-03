@@ -1,13 +1,137 @@
-2005-09-28  Francisco Reverbel  <reverbel@ime.usp.br>
+2005-10-02  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
-	* poa/POA.java: POA._getChildPOA changed so that an "unborn" child
-	  POA whose parent POA has no adaptor activator is perceived to be
-	  in the holding state while its parent POA is in the holding state.
-	  This change fixes the problem of spurious OBJECT_EXIST replies
-	  at server startup. The problem happens when a request targeted at
-	  a persistent object arrives before the creation of a persistent 
-	  POA for its target.
-		
+	* notification/TODO.txt: updated todo list
+
+	* notification/build.xml: added targets for conversion between
+	backport-util-concurrent and java.util.concurrent
+
+	* notification/filter/etcl/OrOperator.java,
+	notification/servant/AbstractProxyPushSupplier.java: fixed
+	compiler warnings
+
+	* notification/filter/EvaluationContext.java: removed superfluous
+	logger
+
+	* notification/build.xml: added targets for conversion between
+	backport-util-concurrent and java.util.concurrent
+
+	* notification/AbstractChannelFactory.java,
+	notification/AbstractEventChannel.java,
+	notification/EventTypeSet.java, notification/FilterManager.java,
+	notification/OfferManager.java,
+	notification/SubscriptionManager.java,
+	notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/DefaultPushTaskExecutor.java,
+	notification/engine/DefaultTaskExecutor.java,
+	notification/engine/DefaultTaskProcessor.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/Schedulable.java,
+	notification/engine/TaskExecutor.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/filter/AbstractFilter.java,
+	notification/filter/CallbackManager.java,
+	notification/filter/FilterFactoryImpl.java,
+	notification/queue/BoundedDeadlineEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/Heap2.java,
+	notification/queue/RWLockEventQueueDecorator.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxyPushSupplier.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/PullMessagesOperation.java,
+	notification/servant/PullMessagesUtility.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/util/AbstractObjectPool.java: replaced
+	util-concurrent with backport-util-concurrent to allow easier
+	transition to jdk 1.5
+
+	* notification/filter/etcl/CurrentTimeNode.java (evaluate):
+	use optional TimeService
+
+	* notification/jmx/mx4j/JMXMain.java (initORB): use specified args
+	to create the ORB
+
+	* notification/filter/bsh/BSHFilter.java: javadoc
+
+	* notification/build.xml: used wrong property
+
+2005-09-29  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* poa/POA.java (_getChildPOA): changed to consider that an
+	"unborn" child POA whose parent POA has no adaptor activator is
+	perceived to be in the holding state while it its parent POA is in
+	the holding state.
+
+2005-09-27  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* imr/ImRAccessImpl.java, naming/namemanager/ContextNode.java,
+	orb/BasicAdapter.java, orb/IIOPAddress.java, orb/ImRAccess.java,
+	orb/ORB.java, orb/giop/BiDirConnectionInitializer.java,
+	orb/giop/BiDirConnectionServerInterceptor.java,
+	orb/util/PrintIOR.java: Replace explicit host/port with
+	ProtocolAddressBase or IIOPAddress as appropriate
+
+	* orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPAddress.java,
+	orb/iiop/IIOPFactories.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPLoopbackRegistry.java, orb/iiop/IIOPProfile.java,
+	orb/iiop/ServerIIOPConnection.java: Integrate support for
+	etfProtocolAddressBase into package.  Listener still can be
+	configured via existing host/port config values or via the new
+	OAAddress env var, 'iiop://myhost:12345'
+
+	* orb/etf/FactoriesBase.java, orb/etf/ListenerBase.java,
+	orb/etf/ProfileBase.java, orb/etf/ProtocolAddressBase.java: Added
+	new base class for manipulating protocol-specific addresses in a
+	generic way.
+
+2005-09-27  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/BasicAdapter.java, orb/ORB.java, orb/dsi/ServerRequest.java,
+	orb/giop/ServerRequestListener.java, poa/POA.java:
+	- The previous change was reverted and the config property
+	  jacorb.registered_adapter_names was dumped.
+	- POA._getChildPOA changed to consider that a POA is in the holding
+	  state while it its parent POA is in the holding state.
+
+	* orb/BasicAdapter.java, orb/ORB.java, orb/dsi/ServerRequest.java,
+	orb/giop/ServerRequestListener.java, poa/POA.java: Added config
+	property jacorb.registered_adapter_names, which tells
+	POA._getChildPOA not to throw
+
+	  OBJECT_NOT_EXIST("no adapter activator exists for " + adapter_name)
+
+	for any of the registered adapter names. It makes POA._getChildPOA
+	throw TRANSIENT instead. The new property solves the problem of
+	spurious OBJECT_NOT_EXIST replies at server startup.
+
+2005-09-10  Gerald Brose  <gerald.brose@acm.org>
+
+	* naming/NameServer.java: removed HTTPClient and HTTP tunneling
+
+2005-09-10  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/AbstractFilter.java (match_NoLock): logging
+
+2005-09-04  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/mx4j/JMXMain.java (start): do not start iiop
+	connector
+
+	* notification/jmx/mx4j/JMXMain.java: fixed IIOP Connector
+	registration, added HTTP connector registration
+
+	* notification/jmx/COSNotificationService.java (createChannel,
+	..): use logger instead of e.printStackTrace
+
+	* notification/AbstractChannelFactory.java (c'tor, newFactory):
+	only activate poamanager if orb is created locally
+
 2005-08-22  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* notification/filter/etcl/AbstractTCLVisitor.java,
@@ -23,7 +147,7 @@
 
 	* notification/AbstractChannelFactory.java,
 	notification/WrapperMain.java:
-	(shutdown) wait at least 2 sec
+	(shutdown): wait at least 2 sec
 
 	* notification/build.xml: disable jmx.mx4j and jmx.jboss by default
 
