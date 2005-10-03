@@ -57,7 +57,7 @@ public class FixedPointType
         return ft;
     }
 
-    private String helperName()
+    public String helperName()
     {
         if (pack_name.length() > 0)
         {
@@ -281,4 +281,33 @@ public class FixedPointType
                           ", invalid format: <" + digits + "," + scale + ">");
         }
     }
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        String fullName = helperName();
+        String className;
+        if (fullName.indexOf('.') > 0)
+        {
+            className = fullName.substring(fullName.lastIndexOf('.') + 1);
+        }
+        else
+        {
+            className = fullName;
+        }
+        String helpername = className + "Helper";
+
+        ps.println("\t\t" + helpername + ".insert("+anyname + ", "+ varname +" )");
+    }
+
+    public void printExtractResult(PrintWriter ps,
+                                    String resultname,
+                                    String anyname,
+                                    String resulttype)
+    {
+        throw new RuntimeException ( "DII-stubs not completely implemented for fixed-point types" );
+
+    }
+
 }

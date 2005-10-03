@@ -568,4 +568,22 @@ public class SequenceType
             throw new RuntimeException("File IO error" + i);
         }
     }
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        ps.println("\t" + helperName() + ".insert(" + anyname + ", " + varname + " );");
+
+    }
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+       throw new RuntimeException("DII Stubs not yet complete for Sequence types");
+    }
+
+
 }

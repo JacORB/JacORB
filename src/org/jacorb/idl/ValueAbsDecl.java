@@ -111,6 +111,10 @@ public class ValueAbsDecl
         return javaName() + "Holder";
     }
 
+    public String helperName() throws NoHelperException {
+        throw new NoHelperException();
+    }
+
     public String toString()
     {
         String n = typeName();
@@ -376,6 +380,21 @@ public class ValueAbsDecl
                 throw new RuntimeException("File IO error" + i);
             }
         }
+    }
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        ps.println( "\t\t" + anyname + ".insert_Value(" + varname + ", " + varname + "._type());");
+    }
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        ps.println("\t\t" + resultname + " = (" + resulttype + ")" + anyname + ".extract_Value();");
     }
 
     public void accept(IDLTreeVisitor visitor)

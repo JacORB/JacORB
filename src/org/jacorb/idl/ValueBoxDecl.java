@@ -424,6 +424,27 @@ public class ValueBoxDecl
         }
     }
 
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        ps.println("\t\t" + anyname + ".type(" + getTypeCodeExpression() +");");
+        ps.println("\t\t" + helperName() + ".write(" + anyname + ".create_output_stream()," + varname + ");");
+
+
+
+    }
+
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        ps.println("\t\t" + resultname + " = (" + resulttype + ")" + anyname + ".extract_Value();");
+    }
+
+
     public void accept(IDLTreeVisitor visitor)
     {
         visitor.visitValue(this);

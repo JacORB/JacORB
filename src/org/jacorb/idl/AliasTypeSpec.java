@@ -501,6 +501,23 @@ public class AliasTypeSpec
         ps.println("}");
     }
 
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        String helpername = className() + "Helper";
+        ps.println("\t\t" + pack_name + "." + helpername + ".insert(" + anyname + ", " + varname + " );");
+    }
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        String helpername = className() + "Helper";
+        ps.println("\t\t" + resultname + " = " + pack_name + "." + helpername + ".extract(" + anyname + ");");
+    }
+
     public void accept(IDLTreeVisitor visitor)
     {
         visitor.visitAlias(this);

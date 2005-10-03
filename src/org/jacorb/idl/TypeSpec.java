@@ -166,8 +166,16 @@ public class TypeSpec
        names here. Such an operation is really only
        necessary for sequence types as a sequence's
        helper is named according to the sequence's
-       element type
+       element type. Therefore, the method helperName()
+       throws an exception. Upon extending this class,
+       the method has to be overwritten, if an helper class
+       exists.
     */
+
+    public String helperName() throws NoHelperException {
+        throw new NoHelperException();
+    }
+
 
     public String printReadExpression( String streamname )
     {
@@ -224,6 +232,37 @@ public class TypeSpec
         ps.println( "\t}\n" );
     }
 
+    /**
+     * Prints the java-commands to insert the variable varname into
+     * the Any anyname
+     *
+     * @param ps Stream, the commands shall be written to
+     * @param anyname Name of the Any into which the variable shall be inserted
+     * @param varname Name of the variable which shall be inserted
+     */
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        type_spec.printInsertIntoAny(ps, anyname, varname );
+    }
+
+    /**
+     * Prints the java-commands to extract the contents of the Any anyname
+     * into a variable resultname with the type resulttype
+     *
+     * @param ps Stream, the commands shall be written to
+     * @param resultname Name of the result variable
+     * @param anyname Name of the Any holding the result
+     * @param resulttype Type of the result variable
+     */
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        type_spec.printExtractResult(ps, resultname, anyname, resulttype);
+    }
 
 
 }

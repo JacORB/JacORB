@@ -319,6 +319,10 @@ public class ValueDecl
         return javaName() + "Holder";
     }
 
+    public String helperName() {
+        return javaName() + "Helper";
+    }
+
     public String typeName()
     {
         return full_name();
@@ -828,6 +832,19 @@ public class ValueDecl
         }
     }
 
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname) {
+        ps.println( "\t\t" + anyname + ".insert_Value(" + varname + ", "+ varname +"._type());");
+    }
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        ps.println("\t\t" + resultname + " = (" + resulttype + ")" + anyname + ".extract_Value();");
+    }
 
     /**
      */

@@ -20,6 +20,8 @@
 
 package org.jacorb.idl;
 
+import java.io.PrintWriter;
+
 /**
  * Represents IDL long long and unsigned long long types
  *
@@ -136,6 +138,26 @@ class LongLongType
         else
             return "extract_longlong";
     }
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        ps.println( "\t\t" + anyname + "."
+                + printInsertExpression() + "(" + varname + ");");
+
+    }
+
+
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        ps.println("\t\t" + resultname + " = " + anyname + "." + printExtractExpression() + "();");
+    }
+
 }
 
 

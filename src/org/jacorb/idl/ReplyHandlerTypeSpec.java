@@ -102,4 +102,21 @@ public class ReplyHandlerTypeSpec
         return streamname + ".write_Object(" + var_name + ");";
     }
 
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        throw new RuntimeException( "Should not be called" );
+    }
+
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        throw new RuntimeException( "Should not be called" );
+    }
+
+
 }

@@ -20,6 +20,8 @@
 
 package org.jacorb.idl;
 
+import java.io.PrintWriter;
+
 /**
  * @author Gerald Brose
  * @version $Id$
@@ -114,6 +116,23 @@ class OctetType
     public String printExtractExpression()
     {
         return "extract_octet";
+    }
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        ps.println( "\t" + anyname + "."
+                 + printInsertExpression() + "(" + varname + ");");
+    }
+
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        ps.println("\t\t" + resultname + " = " + anyname + "." + printExtractExpression() + "();");
     }
 
 }

@@ -186,6 +186,11 @@ public class EnumType
         return typeName() + "Holder";
     }
 
+    public String helperName()
+    {
+        return typeName() + "Helper";
+    }
+
 
     public String getTypeCodeExpression()
     {
@@ -449,6 +454,23 @@ public class EnumType
     {
         return true;
     }
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        ps.println("\t\t" + pack_name + "." + className() + "Helper.insert(" + anyname + ", " + varname + ");");
+    }
+
+
+    public void printExtractResult(PrintWriter ps,
+                                    String resultname,
+                                    String anyname,
+                                    String resulttype)
+    {
+        ps.println("\t\t" + resultname + " = " + pack_name + "." + className() + "Helper.extract(" + anyname + ");");
+    }
+
 
     /**
      */

@@ -101,4 +101,21 @@ public class TypeCodeTypeSpec
         return streamname + ".write_TypeCode(" + var_name + ");";
     }
 
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        ps.println( "\t\t" + anyname + ".insert_TypeCode(" + varname + ");");
+    }
+
+
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        ps.println("\t\t" + resultname + " = (" + resulttype + ")" + anyname + ".extract_TypeCode();");
+    }
+
 }

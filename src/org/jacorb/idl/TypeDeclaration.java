@@ -147,6 +147,11 @@ public class TypeDeclaration
         return type_decl.holderName();
     }
 
+    public String helperName() throws NoHelperException {
+        System.out.println("TypeDecl.helperName() for "+this.getClass());
+        return type_decl.helperName();
+    }
+
     public void print( PrintWriter ps )
     {
         type_decl.print( ps );
@@ -187,4 +192,20 @@ public class TypeDeclaration
     {
         type_decl.accept( visitor );
     }
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        type_decl.printInsertIntoAny(ps, anyname, varname);
+    }
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        type_decl.printExtractResult(ps, resultname, anyname, resulttype);
+    }
+
 }

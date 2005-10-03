@@ -189,6 +189,11 @@ public class Interface
         return toString() + "Holder";
     }
 
+    public String helperName()
+    {
+        return toString() + "Helper";
+    }
+
     public String toString()
     {
         String n = typeName();
@@ -1383,6 +1388,41 @@ public class Interface
             if (replyHandler != null)
                 replyHandler.print (_ps);
         }
+    }
+
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        if (is_abstract)
+        {
+            throw new RuntimeException("DII stubs not yet implemented for abstract interfaces");
+            /*
+            ps.println("\t\tif (s instanceof org.omg.CORBA.Object)");
+            ps.println("\t\t{");
+            ps.println("\t\t\tany.insert_Object((org.omg.CORBA.Object)s);");
+            ps.println("\t\t}");
+            ps.println("\t\telse if (s instanceof java.io.Serializable)");
+            ps.println("\t\t{");
+            ps.println("\t\t\tany.insert_Value((java.io.Serializable)s);");
+            ps.println("\t\t}");
+            ps.println("\t\telse");
+            ps.println("\t\t{");
+            ps.println("\t\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Failed to insert in helper\");");
+            ps.println("\t\t}"); */
+        }
+        else
+        {
+            ps.println( "\t\t" + anyname + ".insert_Object(" + varname + ");");
+        }
+    }
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype) {
+        ps.println("\t\t" + resultname + " = " + helperName() + ".extract(" + anyname + ");" );
     }
 
     public void accept(IDLTreeVisitor visitor)

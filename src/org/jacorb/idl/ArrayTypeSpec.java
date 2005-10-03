@@ -502,4 +502,22 @@ public class ArrayTypeSpec
             throw new RuntimeException("File IO error" + i);
         }
     }
+
+    public void printInsertIntoAny(PrintWriter ps,
+                                   String anyname,
+                                   String varname)
+    {
+        String helpername = className() + "Helper";
+        ps.println("\t\t" + pack_name + "." + helpername + ".insert(" + anyname + ", " + varname + " );");
+    }
+
+    public void printExtractResult(PrintWriter ps,
+                                   String resultname,
+                                   String anyname,
+                                   String resulttype)
+    {
+        throw new RuntimeException("DII-stubs not completely implemented for array types!");
+    }
+ 
+
 }
