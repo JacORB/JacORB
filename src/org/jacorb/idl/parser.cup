@@ -78,6 +78,8 @@ parser code
 
     protected static boolean forceOverwrite;
 
+    protected static boolean generateDiiStubs = false;
+
     protected static String finalString = FINAL;
 
     private static int activeParseThreads;
@@ -200,6 +202,11 @@ parser code
                 if( argv[i].equals("-syntax"))
                 {
                     parse_only = true;
+                    continue;
+                }
+                if( argv[i].equals("-diistub"))
+                {
+                    generateDiiStubs = true;
                     continue;
                 }
                 if( argv[i].equals("-noskel"))

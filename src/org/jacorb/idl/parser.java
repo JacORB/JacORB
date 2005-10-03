@@ -999,6 +999,8 @@ public class parser extends org.jacorb.idl.runtime.lr_parser {
 
     protected static boolean forceOverwrite;
 
+    protected static boolean generateDiiStubs = false;
+
     protected static String finalString = FINAL;
 
     private static int activeParseThreads;
@@ -1121,6 +1123,11 @@ public class parser extends org.jacorb.idl.runtime.lr_parser {
                 if( argv[i].equals("-syntax"))
                 {
                     parse_only = true;
+                    continue;
+                }
+                if( argv[i].equals("-diistub"))
+                {
+                    generateDiiStubs = true;
                     continue;
                 }
                 if( argv[i].equals("-noskel"))
