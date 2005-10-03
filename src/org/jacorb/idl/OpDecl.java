@@ -223,31 +223,15 @@ public class OpDecl
         ps.println( ";" );
     }
 
-    public void printMethod( PrintWriter ps,
-                             String classname,
-                             boolean is_local,
-                             boolean is_abstract)
+    /**
+     * Writes the Stream-based Body of the Method for the stub
+     */
+    public void printStreamBody( PrintWriter ps,
+                                 String classname,
+                                 String idl_name,
+                                 boolean is_local,
+                                 boolean is_abstract)
     {
-        /* in some cases generated name have an underscore prepended for the
-           mapped java name. On the wire, we must use the original name */
-
-        String idl_name = ( name.startsWith( "_" ) ? name.substring( 1 ) : name );
-
-        ps.print( "\tpublic " + opTypeSpec.toString() + " " + name + "(" );
-
-        Enumeration e = paramDecls.elements();
-        if( e.hasMoreElements() )
-            ( (ParamDecl)e.nextElement() ).print( ps );
-
-        for( ; e.hasMoreElements(); )
-        {
-            ps.print( ", " );
-            ( (ParamDecl)e.nextElement() ).print( ps );
-        }
-
-        ps.print( ")" );
-        raisesExpr.print( ps );
-        ps.println( "\n\t{" );
         ps.println( "\t\twhile(true)" );
         ps.println( "\t\t{" );
         // remote part, not for locality constrained objects
@@ -268,7 +252,7 @@ public class OpDecl
 
             //  arguments..
 
-            for( e = paramDecls.elements(); e.hasMoreElements(); )
+            for( Enumeration e = paramDecls.elements(); e.hasMoreElements(); )
             {
                 ParamDecl p = ( (ParamDecl)e.nextElement() );
                 if( p.paramAttribute != ParamDecl.MODE_OUT )
@@ -373,7 +357,7 @@ public class OpDecl
 
         ps.print( "_localServant." + name + "(" );
 
-        for( e = paramDecls.elements(); e.hasMoreElements(); )
+        for( Enumeration e = paramDecls.elements(); e.hasMoreElements(); )
         {
             ParamDecl p = ( (ParamDecl)e.nextElement() );
             ps.print( p.simple_declarator.toString() );
@@ -399,9 +383,173 @@ public class OpDecl
         if( !is_local ) ps.println( "\t\t}\n" );
 
         ps.println( "\t\t}\n" ); // end while
-        ps.println( "\t}\n" ); // end method
     }
 
+    /**
+     * Writes the DII-based Body of the Method for the stub
+     */
+    private void printDIIBody(PrintWriter ps,
+                              String classname,
+                              String idl_name,
+                              boolean is_local,
+                              boolean is_abstract)
+    {
+        ps.println( "\t\torg.omg.CORBA.Request _request = _request( \"" + idl_name + "\" );" );
+        ps.println("");
+
+        //set return type
+        if ( opAttribute == NO_ATTRIBUTE &&
+            !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
+        {
+            //old version
+            //ps.println( "\t\t_r.set_return_type(" + opTypeSpec.typeSpec().getTypeCodeExpression() + ");");
+            //new version, distinguishes different types
+            if (opTypeSpec.typeSpec() instanceof BaseType )
+            {
+                BaseType bt = (BaseType) opTypeSpec.typeSpec();
+                ps.println( "\t\t_request.set_return_type( "+ bt.getTypeCodeExpression() + " );" );
+            }
+            else if (opTypeSpec.typeSpec() instanceof StringType)
+            {
+                StringType st = (StringType) opTypeSpec.typeSpec();
+                ps.println( "\t\t_request.set_return_type( "+ st.getTypeCodeExpression() + " );" );
+            }
+            else
+            {
+                try
+                {
+                    //if there is a helper-class, use it to get the TypeCode for the return value
+                    String helperName = opTypeSpec.typeSpec().helperName();
+                    ps.println("\t\t_request.set_return_type(" + helperName+".type()" + ");");
+                }
+                catch ( NoHelperException e)
+                {
+                    //otherwise use typeCodeExpression
+                    //(the old version)
+                    ps.println( "\t\t_request.set_return_type(" + opTypeSpec.typeSpec().getTypeCodeExpression() + ");");
+                }
+            }
+        }
+        else
+        {
+            //return type void
+            ps.println( "\t\t_request.set_return_type(_orb().get_primitive_tc(org.omg.CORBA.TCKind.tk_void));"  );
+        }
+        ps.println("");
+
+        //put parameters into the request
+        for( Enumeration e2 = paramDecls.elements(); e2.hasMoreElements(); )
+        {
+            ParamDecl p = ( (ParamDecl)e2.nextElement() );
+            p.printAddArgumentStatement(ps, "_request");
+            ps.println("");
+        }
+
+        //add exceptions
+        if (!raisesExpr.empty())
+        {
+            String[] exceptions= raisesExpr.getExceptionClassNames();
+            for (int i=0; i<exceptions.length; i++)
+            {
+                ps.println("\t\t_request.exceptions().add(" + exceptions[i] + "Helper.type());");
+            }
+            ps.println("");
+        }
+
+        //invoke
+        ps.println( "\t\t_request.invoke();" );
+        ps.println("");
+
+        //get Exception
+        ps.println("\t\tjava.lang.Exception _exception = _request.env().exception();");
+        ps.println("\t\tif (_exception != null)");
+        ps.println("\t\t{");
+        if (!raisesExpr.empty())
+        {
+            ps.println("\t\t\tif(_exception instanceof org.omg.CORBA.UnknownUserException)");
+            ps.println("\t\t\t{");
+            ps.println("\t\t\t\torg.omg.CORBA.UnknownUserException _userException = (org.omg.CORBA.UnknownUserException) _exception;");
+            ps.print("\t\t\t\t");
+            String[] raisesExceptions = raisesExpr.getExceptionClassNames();
+            for (int i=0; i<raisesExceptions.length; i++)
+            {
+               ps.println("if (_userException.except.type().equals(" + raisesExceptions[i] + "Helper.type()))");
+               ps.println("\t\t\t\t{");
+               ps.println("\t\t\t\t\tthrow "+raisesExceptions[i] + "Helper.extract(_userException.except);");
+               ps.println("\t\t\t\t}");
+               ps.println("\t\t\t\telse");
+            }
+            ps.println("\t\t\t\t{");
+            ps.println("\t\t\t\t\tthrow new org.omg.CORBA.UNKNOWN();");
+            ps.println("\t\t\t\t}");
+            ps.println("\t\t\t}");
+        }
+
+
+        ps.println( "\t\t\tthrow (org.omg.CORBA.SystemException) _exception;");
+        ps.println( "\t\t}");
+        ps.println("");
+
+        //Get out and inout parameters!
+        for (Enumeration e = paramDecls.elements(); e.hasMoreElements(); )
+        {
+            ParamDecl p = ((ParamDecl)e.nextElement());
+            if( p.paramAttribute != ParamDecl.MODE_IN )
+            {
+                p.printExtractArgumentStatement(ps);
+            } 
+        }
+
+        //get the result
+        if( opAttribute == NO_ATTRIBUTE &&
+            !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
+        {
+            ps.println("\t\t"+opTypeSpec.toString() + " _result;");
+            opTypeSpec.typeSpec().printExtractResult(ps, "_result", "_request.return_value()", opTypeSpec.toString());
+            ps.println("\t\treturn _result;");
+        }
+        else
+            ps.println("\t\treturn;");
+    }
+
+
+    public void printMethod( PrintWriter ps,
+                             String classname,
+                             boolean is_local,
+                             boolean is_abstract)
+    {
+        /* in some cases generated name have an underscore prepended for the
+           mapped java name. On the wire, we must use the original name */
+
+        String idl_name = ( name.startsWith( "_" ) ? name.substring( 1 ) : name );
+
+        ps.print( "\tpublic " + opTypeSpec.toString() + " " + name + "(" );
+
+        Enumeration e = paramDecls.elements();
+        if( e.hasMoreElements() )
+            ( (ParamDecl)e.nextElement() ).print( ps );
+
+        for( ; e.hasMoreElements(); )
+        {
+            ps.print( ", " );
+            ( (ParamDecl)e.nextElement() ).print( ps );
+        }
+
+        ps.print( ")" );
+        raisesExpr.print( ps );
+        ps.println( "\n\t{" );
+
+        if ( parser.generateDiiStubs )
+        {
+            printDIIBody(ps, classname, idl_name, is_local, is_abstract);
+        }
+        else
+        {
+            printStreamBody(ps, classname, idl_name, is_local, is_abstract);
+        }
+
+         ps.println( "\t}\n" ); // end method^M
+     }
 
     public void print_sendc_Method( PrintWriter ps,
                                     String classname )
