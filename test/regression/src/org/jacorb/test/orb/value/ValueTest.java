@@ -21,11 +21,9 @@ package org.jacorb.test.orb.value;
  */
 
 import junit.framework.*;
-import junit.extensions.*;
 
 import org.jacorb.test.common.*;
 import org.omg.CORBA.*;
-import org.jacorb.test.*;
 
 /**
  * Tests IDL valuetypes, especially sharing and null values.
@@ -69,8 +67,7 @@ public class ValueTest extends ClientServerTestCase
         suite.addTest(new ValueTest("test_pass_list", setup));
         suite.addTest(new ValueTest("test_pass_circular_list", setup));
 
-        // comment this in to test bug430
-        //        suite.addTest(new ValueTest("test_pass_list_in_any", setup));
+        suite.addTest(new ValueTest("test_pass_list_in_any", setup));
 
         return setup;
     }
