@@ -46,12 +46,16 @@ public class AllTest extends JacORBTestSuite
         suite.addTest (org.jacorb.test.orb.policies.AllTest.suite());
         suite.addTest (org.jacorb.test.orb.connection.AllTest.suite ());
         suite.addTest (org.jacorb.test.orb.etf.AllTest.suite());
+        // long running test
         suite.addTest (org.jacorb.test.orb.AlternateIIOPAddressTest.suite());
+        // long running test
         suite.addTest (org.jacorb.test.orb.AlternateIIOPAddress2Test.suite());
+        // long running test
         suite.addTest (org.jacorb.test.orb.AlternateProfileTest.suite());
         suite.addTest (org.jacorb.test.orb.LongLongSeq.suite());
         suite.addTest (org.jacorb.test.orb.RecursiveParam.suite());
-
+        suite.addTest(CDROutputStreamTest.suite());
+        
         return suite;
    }
 }
