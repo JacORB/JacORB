@@ -75,8 +75,7 @@ public class BiDirGiopPOAComponentAdapter extends DecoratingComponentAdapter
     {
         final POA rootPOA = (POA) super.getComponentInstance(container);
 
-        Configuration config = (Configuration) container
-                .getComponentInstanceOfType(Configuration.class);
+        Configuration config = (Configuration) container.getComponentInstanceOfType(Configuration.class);
 
         Logger _logger = LogUtil.getLogger(config, getClass().getName());
 
@@ -92,8 +91,9 @@ public class BiDirGiopPOAComponentAdapter extends DecoratingComponentAdapter
 
             if (isBiDirGiopEnabled(config) && _logger.isInfoEnabled())
             {
-                _logger.info(BIDIR_GIOP_OPTION + " is set:"
-                                + " Will enable Bidirectional GIOP.");
+                _logger.info(BIDIR_GIOP_OPTION 
+                             + " is set:"
+                             + " Will enable Bidirectional GIOP.");
             }
             
             org.omg.CORBA.Policy[] _policies = (org.omg.CORBA.Policy[]) _ps

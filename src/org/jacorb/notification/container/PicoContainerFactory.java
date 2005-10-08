@@ -28,11 +28,16 @@ import org.jacorb.notification.engine.ConfigurablePushTaskExecutorFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.filter.impl.DefaultETCLEvaluator;
+import org.jacorb.notification.impl.DefaultEvaluationContextFactory;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.impl.PoolingEvaluationContextFactory;
+import org.jacorb.notification.interfaces.EvaluationContextFactory;
 import org.jacorb.orb.ORB;
+import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.Parameter;
 import org.picocontainer.PicoContainer;
+import org.picocontainer.defaults.BasicComponentParameter;
 import org.picocontainer.defaults.CachingComponentAdapter;
 import org.picocontainer.defaults.CachingComponentAdapterFactory;
 import org.picocontainer.defaults.ComponentAdapterFactory;
@@ -84,20 +89,32 @@ public class PicoContainerFactory
                         new ConstructorInjectionComponentAdapter(PushTaskExecutorFactory.class, ConfigurablePushTaskExecutorFactory.class))));
 
         // etcl evaluator
-
         container.registerComponentImplementation(DefaultETCLEvaluator.class);
 
         // message factory
-
         container.registerComponentImplementation(DefaultMessageFactory.class);
 
         // taskprocessor
-
         container.registerComponentImplementation(DefaultTaskProcessor.class);
 
-        // evaluation context factory
+        registerEvaluationContextFactory(container);
+    }
 
-        container.registerComponentImplementation(PoolingEvaluationContextFactory.class);
+    private static void registerEvaluationContextFactory(final MutablePicoContainer container)
+    {
+        final ConstructorInjectionComponentAdapter _serviceCA = 
+            new ConstructorInjectionComponentAdapter(DefaultEvaluationContextFactory.class, DefaultEvaluationContextFactory.class);
+        
+        final ConstructorInjectionComponentAdapter _poolingServiceCA = 
+            new ConstructorInjectionComponentAdapter(EvaluationContextFactory.class, PoolingEvaluationContextFactory.class, new Parameter[] {BasicComponentParameter.BASIC_DEFAULT, new BasicComponentParameter(DefaultEvaluationContextFactory.class)});
+        
+        final LocalParameterComponentAdapter _localParamCA = 
+            new LocalParameterComponentAdapter(_poolingServiceCA, new ComponentAdapter[] {_serviceCA});
+
+        final ComponentAdapter _cachingCA = 
+            new CachingComponentAdapter(_localParamCA);
+        
+        container.registerComponent(_cachingCA);
     }
 
     private static void registerORBServices(final MutablePicoContainer container)
@@ -112,6 +129,8 @@ public class PicoContainerFactory
         container.registerComponent(new CachingComponentAdapter(new FilterFactoryComponentAdapter()));
 
         container.registerComponent(new CachingComponentAdapter(new RepositoryComponentAdapter()));
+        
+        container.registerComponent(new CurrentTimeUtilComponentAdapter());
     }
 
     private static MutablePicoContainer createContainer(MutablePicoContainer parent, final Logger logger)
@@ -125,11 +144,9 @@ public class PicoContainerFactory
 
     private static MutablePicoContainer createContainer(final Logger logger)
     {
-        final MutablePicoContainer _container;
         final ConstructorInjectionComponentAdapterFactory _nonCachingCAFactory = new ConstructorInjectionComponentAdapterFactory();
-        ComponentAdapterFactory _cachingCAFactory = new CachingComponentAdapterFactory(_nonCachingCAFactory);
-
-        _container = new DefaultPicoContainer(_cachingCAFactory);
+        final ComponentAdapterFactory _cachingCAFactory = new CachingComponentAdapterFactory(_nonCachingCAFactory);
+        final MutablePicoContainer _container = new DefaultPicoContainer(_cachingCAFactory);
 
         _container.registerComponentInstance(ComponentAdapterFactory.class,
                 _nonCachingCAFactory);

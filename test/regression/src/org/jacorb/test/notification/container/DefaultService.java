@@ -21,23 +21,7 @@
 
 package org.jacorb.test.notification.container;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-/**
- * @author Alphonse Bendt
- * @version $Id$
- */
-public class PackageTest extends TestSuite
+public class DefaultService implements Service
 {
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("Tests in package org.jacorb.test.notification.container");
-        
-        suite.addTest(CORBAObjectComponentAdapterTest.suite());
-        suite.addTest(CoreContainerFactoryTest.suite());
-        suite.addTest(LocalParameterComponentAdapterTest.suite());
-        
-        return suite;
-     }
+    // empty
 }
