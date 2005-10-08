@@ -21,6 +21,7 @@
 
 package org.jacorb.notification.impl;
 
+import org.jacorb.notification.filter.CurrentTimeUtil;
 import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.interfaces.EvaluationContextFactory;
@@ -32,12 +33,19 @@ import org.jacorb.notification.interfaces.EvaluationContextFactory;
 public class DefaultEvaluationContextFactory implements EvaluationContextFactory
 {
     private final ETCLEvaluator evaluator_;
+    private final CurrentTimeUtil currentTimeUtil_;
     
-    public DefaultEvaluationContextFactory(ETCLEvaluator evaluator) {
+    public DefaultEvaluationContextFactory(ETCLEvaluator evaluator, CurrentTimeUtil currentTimeUtil) {
         evaluator_ = evaluator;
+        currentTimeUtil_ = currentTimeUtil;
+    }
+    
+    public DefaultEvaluationContextFactory(ETCLEvaluator evaluator)
+    {
+        this (evaluator, CurrentTimeUtil.LOCAL_TIME);
     }
     
     public EvaluationContext newEvaluationContext() {
-        return new EvaluationContext(evaluator_);
+        return new EvaluationContext(evaluator_, currentTimeUtil_);
     }
 }

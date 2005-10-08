@@ -38,6 +38,7 @@ import org.jacorb.notification.filter.etcl.UnionPositionOperator;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.AbstractPoolable;
 import org.omg.CORBA.Any;
+import org.omg.TimeBase.UtcT;
 
 /**
  * @todo remove the static dependeny to package filter.etcl.
@@ -47,28 +48,37 @@ import org.omg.CORBA.Any;
 
 public class EvaluationContext extends AbstractPoolable
 {
-    private final ETCLEvaluator etclEvaluator_;
-
     private Message message_;
+    
+    private final ETCLEvaluator etclEvaluator_;
 
     private final Map resultCache_;
 
     private final Map anyCache_;
 
+    private final CurrentTimeUtil currentTimeUtil_;
+    
     ////////////////////////////////////////
 
-    public EvaluationContext(ETCLEvaluator evaluator)
+    public EvaluationContext(ETCLEvaluator evaluator, CurrentTimeUtil currentTimeUtil)
     {
         etclEvaluator_ = evaluator;
+        currentTimeUtil_ = currentTimeUtil;
 
         resultCache_ = new WeakHashMap();
         anyCache_ = new WeakHashMap();
+    }
+    
+    public EvaluationContext(ETCLEvaluator evaluator)
+    {
+        this(evaluator, CurrentTimeUtil.LOCAL_TIME);
     }
 
     ////////////////////////////////////////
 
     public void reset()
     {
+        message_ = null;
         resultCache_.clear();
         anyCache_.clear();
     }
@@ -78,6 +88,11 @@ public class EvaluationContext extends AbstractPoolable
         return etclEvaluator_;
     }
 
+    public UtcT getCurrentTime()
+    {
+        return currentTimeUtil_.getCurrentTime();
+    }
+    
     public Message getCurrentMessage()
     {
         return message_;
@@ -179,8 +194,8 @@ public class EvaluationContext extends AbstractPoolable
             _any = lookupAny(_currentPath.toString());
 
             if (_any == null)
-            // cache MISS
             {
+                // cache MISS
                 switch (_currentOperator.getType()) {
                 case TCLParserTokenTypes.DOT:
                     // dots are skipped
