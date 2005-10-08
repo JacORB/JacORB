@@ -31,7 +31,7 @@ import org.jacorb.util.ValueHandler;
 public class RepositoryIDTest extends TestCase
 {
     /**
-     * test for bug #91
+     * test for bug #528
      */ 
     public void testClassName()
     {
