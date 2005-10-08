@@ -166,7 +166,13 @@ public class ClientServerSetup extends TestSetup {
                                           "ERR");
         outListener.start();
         errListener.start();
-        String ior = outListener.getIOR();
+        String ior = outListener.getIOR(5000);
+        if (ior == null)
+        {
+            String exc = errListener.getException(1000);
+            
+            fail("could not access IOR. cause maybe: " + exc);
+        }
         serverObject = clientOrb.string_to_object(ior);
     }
 
