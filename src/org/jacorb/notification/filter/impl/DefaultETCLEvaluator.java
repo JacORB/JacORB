@@ -339,9 +339,9 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
             logger_.debug("evaluate assoc " + name + " on a Any of type: " + any.type());
         }
 
-        Any _ret = null;
+        final Any _result;
 
-        String _anyName = evaluateIdentifier(any, NAME).extract_string();
+        final String _anyName = evaluateIdentifier(any, NAME).extract_string();
 
         if (logger_.isDebugEnabled())
         {
@@ -351,10 +351,14 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
         if (name.equals(_anyName))
         {
             logger_.debug("YES");
-            _ret = evaluateIdentifier(any, VALUE);
+            _result = evaluateIdentifier(any, VALUE);
+        }
+        else
+        {
+            _result = null;
         }
 
-        return _ret;
+        return _result;
     }
 
     public Any evaluateArrayIndex(Any any, int index) throws EvaluationException
@@ -438,27 +442,23 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
     {
         try
         {
-            final DynSequence _dynSequence = DynSequenceHelper.narrow(toDynAny(sequence));
-            DynAny _currentComponent;
+            final DynSequence _dynSequence = DynSequenceHelper.narrow(toDynAny(sequence));            
 
             _dynSequence.rewind();
 
-            while (true)
+            do
             {
-                _currentComponent = _dynSequence.current_component();
+                final DynAny _currentComponent = _dynSequence.current_component();
 
-                EvaluationResult _r = EvaluationResult.fromAny(_currentComponent.to_any());
+                final EvaluationResult _currentElement = EvaluationResult.fromAny(_currentComponent.to_any());
 
-                if (element.compareTo(_r) == 0)
+                if (element.compareTo(_currentElement) == 0)
                 {
                     return EvaluationResult.BOOL_TRUE;
                 }
-
-                if (!_dynSequence.next())
-                {
-                    return EvaluationResult.BOOL_FALSE;
-                }
-            }
+            } while (_dynSequence.next());
+                
+            return EvaluationResult.BOOL_FALSE;
         } catch (TypeMismatch e)
         {
             throw newEvaluationException(e);
@@ -481,7 +481,7 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
     {
         try
         {
-            String _strippedIdentifier = stripBackslash(identifier);
+            final String _strippedIdentifier = stripBackslash(identifier);
 
             if (logger_.isDebugEnabled())
             {
@@ -490,6 +490,7 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
 
             DynAny _cursor = any;
 
+            SWITCH_LABEL:
             switch (any.type().kind().value()) {
 
             case TCKind._tk_struct:
@@ -501,7 +502,7 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
 
                 _dynStruct.rewind();
 
-                while (true)
+                do
                 {
                     _currentName = _dynStruct.current_member_name();
 
@@ -514,18 +515,11 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
                     {
                         // expensive operation
                         _cursor = _dynStruct.current_component();
-                        break;
+                        break SWITCH_LABEL;
                     }
-
-                    boolean _hasNext = _dynStruct.next();
-
-                    if (!_hasNext)
-                    {
-                        throw new EvaluationException("struct has no member " + _strippedIdentifier);
-                    }
-                }
-
-                break;
+                } while (_dynStruct.next());
+                
+                throw new EvaluationException("struct has no member " + _strippedIdentifier);
 
             case TCKind._tk_union:
 
