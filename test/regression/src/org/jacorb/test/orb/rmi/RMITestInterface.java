@@ -89,4 +89,8 @@ public interface RMITestInterface
     public java.util.Vector getVectorWithHashtableAsElement() 
             throws java.rmi.RemoteException;
 
+    public Outer outerToOuter(Outer outer) throws java.rmi.RemoteException;
+    
+    public Outer.StaticInner staticInnerToStaticInner(Outer.StaticInner staticInner) 
+        throws java.rmi.RemoteException;
 }

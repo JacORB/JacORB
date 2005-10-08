@@ -1,9 +1,7 @@
-package org.jacorb.test.orb.rmi;
-
 /*
- *        JacORB  - a free Java ORB
+ *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,24 +16,32 @@ package org.jacorb.test.orb.rmi;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
-import junit.framework.*;
+package org.jacorb.test.orb.rmi;
 
-public class AllTest extends TestCase
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.jacorb.ir.RepositoryID;
+import org.jacorb.util.ValueHandler;
+
+public class RepositoryIDTest extends TestCase
 {
-   public AllTest (String name)
-   {
-      super (name);
-   }
-
-   public static Test suite ()
-   {
-        TestSuite suite = new TestSuite ("RMI Tests");
-
-        suite.addTest (org.jacorb.test.orb.rmi.RMITest.suite());
-        suite.addTest(RepositoryIDTest.suite());
-        
-        return suite;
-   }
+    /**
+     * test for bug #91
+     */ 
+    public void testClassName()
+    {
+        String id = ValueHandler.getRMIRepositoryID(Outer.StaticInner.class);
+        String clazzName = RepositoryID.className(id, getClass().getClassLoader());
+        assertEquals(Outer.StaticInner.class.getName(), clazzName);
+    }
+    
+    public static Test suite()
+    {
+        return new TestSuite(RepositoryIDTest.class);
+    }
 }

@@ -31,6 +31,7 @@ import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.orb.rmi.Boo;
 import org.jacorb.test.orb.rmi.Foo;
 import org.jacorb.test.orb.rmi.NegativeArgumentException;
+import org.jacorb.test.orb.rmi.Outer.StaticInner;
 
 public class RMITest extends ClientServerTestCase
 {
@@ -92,6 +93,9 @@ public class RMITest extends ClientServerTestCase
         suite.addTest( new RMITest( "test_getVectorWithHashtableAsElement",
                                      setup ));
 
+        suite.addTest( new RMITest("testPassStaticInnerClass", setup));
+        suite.addTest( new RMITest("testPassInnerClass", setup));
+        
         return setup;
     }
 
@@ -561,6 +565,20 @@ public class RMITest extends ClientServerTestCase
         {
             throw new RuntimeException(re.toString());
         }
+    }
+    
+    public void testPassStaticInnerClass() throws Exception
+    {
+        StaticInner expect = new StaticInner("staticInner");
+        StaticInner result = server.staticInnerToStaticInner(expect);
+        assertEquals(expect, result);
+    }
+    
+    public void testPassInnerClass() throws Exception
+    {
+        Outer expect = new Outer("outer");
+        Outer result = server.outerToOuter(expect);
+        assertEquals(expect, result);
     }
 
 }

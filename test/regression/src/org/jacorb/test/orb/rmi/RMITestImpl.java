@@ -20,9 +20,12 @@ package org.jacorb.test.orb.rmi;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.rmi.RemoteException;
+
 import org.jacorb.test.orb.rmi.Boo;
 import org.jacorb.test.orb.rmi.Foo;
 import org.jacorb.test.orb.rmi.NegativeArgumentException;
+import org.jacorb.test.orb.rmi.Outer.StaticInner;
 
 import javax.rmi.PortableRemoteObject;
 
@@ -220,5 +223,14 @@ public class RMITestImpl
         vector.add(innerHash);
         return vector;
     }
-    
+
+    public Outer outerToOuter(Outer outer) throws RemoteException
+    {
+       return outer;
+    }
+
+    public StaticInner staticInnerToStaticInner(StaticInner staticInner) throws RemoteException
+    {
+        return staticInner;
+    }
 }
