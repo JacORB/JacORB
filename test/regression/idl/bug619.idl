@@ -1,0 +1,15 @@
+module org {
+  module jacorb {
+    module test {
+      module bugs {
+        module bug619 {
+    		 typedef sequence<long> Longs;  
+        	
+        	 interface OutOfMemory {  
+            void push(in Longs data);  
+        	 };  
+        };
+      };
+    };
+  };    
+};
