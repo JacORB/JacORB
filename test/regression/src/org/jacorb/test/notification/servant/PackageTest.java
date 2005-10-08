@@ -33,7 +33,7 @@ public class PackageTest extends TestCase
 {
     public static Test suite() throws Exception
     {
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new TestSuite("Tests in package org.jacorb.test.notification.servant");
         
         suite.addTest(ProxyPushSupplierImplTest.suite());
         suite.addTest(StructuredProxyPushSupplierImplTest.suite());

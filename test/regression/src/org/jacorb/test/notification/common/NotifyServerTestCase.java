@@ -38,6 +38,14 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.CosNotifyFilter.Filter;
 
+/**
+ * base class for notification service integration tests.
+ * this setup class will start a notification service in another
+ * process.
+ * 
+ * @author Alphonse Bendt
+ * @version $Id$
+ */
 public abstract class NotifyServerTestCase extends ClientServerTestCase
 {
     public NotifyServerTestCase(String name, NotifyServerTestSetup setup)
@@ -45,6 +53,9 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
         super(name, setup);
     }
 
+    /**
+     * access the EventChannelFactory 
+     */
     public final EventChannelFactory getEventChannelFactory()
     {
         EventChannelFactory channelFactory = EventChannelFactoryHelper.narrow(setup
@@ -53,6 +64,9 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
         return channelFactory;
     }
 
+    /**
+     * creates an EventChannel with default settings
+     */
     public EventChannel getDefaultChannel() throws UnsupportedAdmin, UnsupportedQoS
     {
         return getEventChannelFactory().create_channel(new Property[0], new Property[0],
@@ -66,6 +80,9 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
         setUpTest();
     }
 
+    /**
+     * do local test setup
+     */
     protected void setUpTest() throws Exception
     {
         // no op
@@ -112,6 +129,9 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
         }
     }
 
+    /**
+     * access an ORB instance
+     */
     public ORB getClientORB()
     {
         return setup.getClientOrb();

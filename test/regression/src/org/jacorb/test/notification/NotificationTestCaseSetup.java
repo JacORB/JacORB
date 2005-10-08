@@ -32,6 +32,10 @@ import org.omg.PortableServer.POAHelper;
 import org.picocontainer.MutablePicoContainer;
 
 /**
+ * helper class for internal notification service tests.
+ * this class sets up basic parts of the notification
+ * service internals to support writing Unit tests.
+ * 
  * @author Alphonse Bendt
  */
 
@@ -59,7 +63,7 @@ public class NotificationTestCaseSetup extends TestSetup
         return testUtils_;
     }
 
-    public void setUp() throws Exception
+    public final void setUp() throws Exception
     {
         super.setUp();
 
@@ -99,7 +103,7 @@ public class NotificationTestCaseSetup extends TestSetup
         clientOrbThread.start();
     }
 
-    public void tearDown() throws Exception
+    public final void tearDown() throws Exception
     {
         container_.dispose();
 

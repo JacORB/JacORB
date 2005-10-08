@@ -46,6 +46,8 @@ import org.omg.PortableServer.POA;
 import org.picocontainer.MutablePicoContainer;
 
 /**
+ * helper class for notification service unit tests.
+ * 
  * @author Alphonse Bendt
  */
 
