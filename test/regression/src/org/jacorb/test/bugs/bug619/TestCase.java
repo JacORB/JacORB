@@ -37,7 +37,9 @@ public class TestCase extends ClientServerTestCase
     private class Pusher extends Thread
     {
         private boolean success;
+
         private Exception exception;
+
         private final int[] data;
 
         public Pusher(int[] data)
@@ -50,21 +52,30 @@ public class TestCase extends ClientServerTestCase
             try
             {
                 server.push(data);
+                synchronized (this)
+                {
+                    success = true;
+                    notifyAll();
+                }
             } catch (Exception e)
             {
-                exception = e;
+                synchronized (this)
+                {
+                    exception = e;
+                    notifyAll();
+                }
             }
         }
-        
+
         public void verify(long timeout) throws Exception
         {
             long waitUntil = System.currentTimeMillis() + timeout;
-            
-            synchronized(this)
+
+            synchronized (this)
             {
                 while (!success && exception == null && System.currentTimeMillis() < waitUntil)
                 {
-                    try 
+                    try
                     {
                         wait(timeout);
                     } catch (InterruptedException e)
@@ -72,12 +83,12 @@ public class TestCase extends ClientServerTestCase
                         // ignore
                     }
                 }
-                                
+
                 if (exception != null)
                 {
                     throw exception;
                 }
-                
+
                 if (!success)
                 {
                     throw new RuntimeException("No response within " + timeout);
@@ -98,7 +109,7 @@ public class TestCase extends ClientServerTestCase
         {
             Pusher pusher = new Pusher(data);
             pusher.run();
-            
+
             try
             {
                 pusher.verify(2000);
