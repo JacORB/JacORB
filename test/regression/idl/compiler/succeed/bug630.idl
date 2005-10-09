@@ -1,0 +1,19 @@
+module org
+{
+	module jacorb
+	{
+		module test
+      	{
+         	module idl
+         	{
+         		module bug630
+         		{
+  					const long CONST_INT = 1;
+  					typedef sequence<long, CONST_INT + 1> SomeLongs;
+				};
+			};
+		};
+	};
+};
+		
+	
