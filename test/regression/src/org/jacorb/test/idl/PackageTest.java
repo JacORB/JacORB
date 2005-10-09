@@ -33,18 +33,10 @@ public class PackageTest extends TestCase
    {
       TestSuite suite = new TestSuite ("Package idl");
 
-      suite.addTest (LongTest.suite ());
-      suite.addTest (FloatTest.suite ());
-      suite.addTest (PragmaTest.suite ());
-      suite.addTest (ModuleTest.suite ());
-      suite.addTest (CharTest.suite ());
-      suite.addTest (TypeDefTest.suite ());
-      suite.addTest (InterfaceTest.suite ());
-      suite.addTest (UnionTest.suite ());
-      suite.addTest (ValueTest.suite ());
-      suite.addTest (MiscTest.suite ());
-      suite.addTest (MiscFailureTest.suite ());
-
+      suite.addTest(ValidIDLWithExtraSetupTest.suite());
+      suite.addTest(ParseValidIDLTest.suite ());
+      suite.addTest(ParseInvalidIDLTest.suite ());
+      
       return suite;
    }
 }
