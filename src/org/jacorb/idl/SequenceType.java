@@ -317,7 +317,7 @@ public class SequenceType
         if (max != null)
         {
             max.parse();
-            length = Integer.parseInt(max.value());
+            length = max.pos_int_const();
 
         }
 
