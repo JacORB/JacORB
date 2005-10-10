@@ -53,7 +53,7 @@ ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 ##################################
 
 # if on, the ORB's version number and a copyright statement is printed
-# any time the ORB is initialized 
+# any time the ORB is initialized
 jacorb.orb.print_version=on
 
 ##################################
@@ -63,8 +63,8 @@ jacorb.orb.print_version=on
 ##################################
 
 # Name of the factory class that plugs in a given log kit
-# The default value is JacORB's own factory for the Apache 
-# LogKit. Only edit (or uncomment) if you want a different 
+# The default value is JacORB's own factory for the Apache
+# LogKit. Only edit (or uncomment) if you want a different
 # log kit.
 #jacorb.log.loggerFactory=org.jacorb.util.LogKitLoggerFactory
 
@@ -309,6 +309,21 @@ jacorb.interop.chunk_custom_rmi_valuetypes=on
 ###########################################
 
 #
+# Some times it is necessary to present an endpoint alias in an IOR
+# to allow clients outside a firewall to get a connection to a server
+# that is behind a NAT'ing firewall.
+#
+# WARNING: this is just "dumb" replacing, so you
+# have to take care of your configuration!
+#
+
+# The general form of this address is <protocol key>://<address>
+# The protocol key in the address must match the protocol(s) used by
+# the server. See the section on configuring Transport Factories for
+# information on loading specific protocols.
+#jacorb.ior_proxy_address=iiop://1.2.3.4:4711
+
+# Deprecated IIOP-specific form:
 # with these two properties it is possible to
 # tell the ORB what IP/port IORs should contain,
 # if the ServerSockets IP/port can't be used
@@ -320,7 +335,6 @@ jacorb.interop.chunk_custom_rmi_valuetypes=on
 
 #jacorb.ior_proxy_host=1.2.3.4
 #jacorb.ior_proxy_port=4711
-
 
 ###########################################
 #                                         #
@@ -334,6 +348,10 @@ jacorb.interop.chunk_custom_rmi_valuetypes=on
 #OAIAddr=1.2.3.4
 #OAPort=4711
 
+# A new protocol-independent configuration is available
+# for use to configure an explicit endpoint using IIOP or
+# other protocols.
+#OAAddress=iiop://1.2.3.4:4711
 
 ############################
 #                          #
@@ -405,6 +423,8 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 #jacorb.imr.ior_proxy_host=1.2.3.4
 #jacorb.imr.ior_proxy_port=4711
 
+# protocol-independent form for assigning imr proxy endpoint
+#jacorb.imr.ior_proxy_address=iiop://1.2.3.4:4711
 
 #########################
 #                       #
@@ -470,7 +490,7 @@ jacorb.security.ssl.server.required_options=0
 
 # The name and location of the keystore. This may be absolute or
 # relative to the home directory, or a file retrievable through the
-# classloader. 
+# classloader.
 #
 # NOTE (for Sun JSSE users): The "javax.net.ssl.trustStore[Password]"
 # properties don't seem to take effect, so you may want to add trusted
@@ -523,7 +543,7 @@ jacorb.security.ssl.client.cipher_suites=
 # Will be used to intialise the SSLContext. See JSSE docs for javax.net.ssl.SSLContext#init().
 # Must be capable of instantiation via a no arg constructor.
 #jacorb.security.ssl.client.trust_manager=my.trust.Manager
-#jacorb.security.ssl.server.trust_manager=my.trust.Manager 
+#jacorb.security.ssl.server.trust_manager=my.trust.Manager
 
 #########################
 #                       #
@@ -585,7 +605,7 @@ jacorb.poa.queue_min=10
 
 #jacorb.transport.server.listeners=0
 
-# Name of a class that selects the transport profile to use on the 
+# Name of a class that selects the transport profile to use on the
 # client side.
 
 #jacorb.transport.client.selector=org.jacorb.orb.DefaultProfileSelector
@@ -744,4 +764,3 @@ jacorb.SAS.TSS.log.verbosity=INFO
 
 
 # any other custom properties can be added here.
-
