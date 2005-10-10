@@ -40,11 +40,11 @@ import org.jacorb.orb.etf.ProtocolAddressBase;
  * @author Andre Spiegel
  * @version $Id$
  */
-public class IIOPListener 
+public class IIOPListener
     extends org.jacorb.orb.etf.ListenerBase
 {
     /** the maximum set of security options supported by the SSL mechanism */
-    private static final int MAX_SSL_OPTIONS = Integrity.value |         
+    private static final int MAX_SSL_OPTIONS = Integrity.value |
                                                Confidentiality.value |
                                                DetectReplay.value |
                                                DetectMisordering.value |
@@ -58,7 +58,7 @@ public class IIOPListener
                                                DetectReplay.value |
                                                DetectMisordering.value;
 
-    
+
     private SocketFactoryManager socketFactoryManager = null;
     private ServerSocketFactory    serverSocketFactory    = null;
     private SSLServerSocketFactory sslServerSocketFactory = null;
@@ -78,9 +78,9 @@ public class IIOPListener
     public IIOPListener()
     {
     }
-    
+
     /**
-    * @deprecated Use no-args version and then configure(). 
+    * @deprecated Use no-args version and then configure().
     */
     public IIOPListener(ORB orb)
     {
@@ -93,16 +93,16 @@ public class IIOPListener
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)configuration;
-        
+
         if (orb == null)
         {
             // c.f. with the constructor taking an ORB param.
             this.orb = this.configuration.getORB();
             socketFactoryManager = new SocketFactoryManager(this.orb);
         }
-        
+
         logger = this.configuration.getNamedLogger("jacorb.iiop.listener");
- 
+
         socketFactoryManager.configure(configuration);
 
         String address_str = configuration.getAttribute("OAAddress",null);
@@ -131,25 +131,25 @@ public class IIOPListener
             String sslHost = configuration.getAttribute("OAIAddr","");
             sslAddress = new IIOPAddress(sslHost,sslPort);
         }
- 
+
         if (sslAddress != null)
             sslAddress.configure (configuration);
 
-        serverTimeout = 
+        serverTimeout =
             configuration.getAttributeAsInteger("jacorb.connection.server.timeout",0);
 
         supportSSL =
             configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
 
-        target_supports = 
+        target_supports =
             Integer.parseInt(
                 configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
                 16); // 16 is the base as we take the string value as hex!
-        
+
         // make sure that the minimum options are always in the set of supported options
         target_supports |= MIN_SSL_OPTIONS;
 
-        target_requires = 
+        target_requires =
             Integer.parseInt(
                 configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
                 16);
@@ -159,7 +159,7 @@ public class IIOPListener
             configuration.getAttribute("jacorb.security.ssl_components_added_by_ior_interceptor","off").equals("off");
 
 
-        if (!isSSLRequired() || 
+        if (!isSSLRequired() ||
             configuration.getAttributeAsBoolean("jacorb.security.ssl.always_open_unsecured_address", false))
         {
             acceptor = new Acceptor();
@@ -178,7 +178,7 @@ public class IIOPListener
 
     }
 
-    
+
     /**
      * It is possible that connection requests arrive <i>after</i> the
      * initial creation of the Listener instance but <i>before</i> the
@@ -193,10 +193,10 @@ public class IIOPListener
     public void listen()
     {
         super.listen();
-        
+
         if (sslAcceptor != null)
             sslAcceptor.start();
-        
+
         loopbackAcceptor.start() ;
     }
 
@@ -206,9 +206,9 @@ public class IIOPListener
      * connections opened by it.
      */
     public void destroy()
-    {        
+    {
         loopbackAcceptor.terminate() ;
-        
+
         if (sslAcceptor != null)
             sslAcceptor.terminate();
 
@@ -253,7 +253,7 @@ public class IIOPListener
     private ServerSocketFactory getServerSocketFactory()
     {
         if (serverSocketFactory == null)
-        {            
+        {
             serverSocketFactory =
                 socketFactoryManager.getServerSocketFactory();
         }
@@ -268,7 +268,7 @@ public class IIOPListener
     {
         if (sslServerSocketFactory == null)
         {
-            sslServerSocketFactory = 
+            sslServerSocketFactory =
                 orb.getBasicAdapter().getSSLSocketFactory();
 
             if (sslServerSocketFactory == null)
@@ -283,12 +283,11 @@ public class IIOPListener
     private IIOPProfile createAddressProfile()
         throws ConfigurationException
     {
-        int port=0;
         if (acceptor != null)
         {
             if (address.getPort() == 0)
                 address.setPort(((Acceptor)acceptor).getLocalAddress().getPort());
-        } 
+        }
         else if (sslAcceptor == null)
             throw new org.omg.CORBA.INITIALIZE
                 ("no acceptors found, cannot create address profile");
@@ -299,7 +298,7 @@ public class IIOPListener
              result.addComponent (TAG_SSL_SEC_TRANS.value,
                                   createSSL(), SSLHelper.class);
         }
-        
+
         result.configure(configuration);
         return result;
     }
@@ -308,7 +307,7 @@ public class IIOPListener
     {
         return new SSL
         (
-            (short)target_supports, 
+            (short)target_supports,
             (short)target_requires,
             (short)sslAcceptor.getLocalAddress().getPort()
         );
@@ -329,7 +328,7 @@ public class IIOPListener
         catch (IOException ex)
         {
             if (logger.isErrorEnabled())
-            { 
+            {
                 logger.error("Could not create connection from socket: " + ex);
             }
             return;
@@ -361,13 +360,13 @@ public class IIOPListener
 
     // Acceptor classes below this line
 
-    protected class Acceptor 
+    protected class Acceptor
         extends org.jacorb.orb.etf.ListenerBase.Acceptor
     {
         protected ServerSocket serverSocket;
-        
+
         protected boolean terminated = false;
-        
+
         public Acceptor()
         {
             // initialization deferred to init() method due to JDK bug
@@ -462,7 +461,7 @@ public class IIOPListener
                                                 address.getConfiguredHost());
             }
             catch (IOException ex)
-            {                
+            {
                 logger.warn(ex.getMessage());
                 throw new org.omg.CORBA.INITIALIZE ("Could not create server socket");
             }
@@ -473,7 +472,7 @@ public class IIOPListener
          * connection has been established.  Subclass implementations
          * must call super.setup() first.
          */
-        protected void setup(Socket socket) 
+        protected void setup(Socket socket)
             throws IOException
         {
              socket.setSoTimeout(serverTimeout);
@@ -485,7 +484,7 @@ public class IIOPListener
         }
     }
 
-    private class SSLAcceptor 
+    private class SSLAcceptor
         extends Acceptor
     {
         protected ServerSocket createServerSocket()
@@ -517,12 +516,12 @@ public class IIOPListener
         {
             IIOPLoopbackRegistry.getRegistry().register(getAddress(), this);
         }
-        
+
         public void terminate()
         {
             IIOPLoopbackRegistry.getRegistry().unregister(getAddress());
         }
-        
+
         public void initLoopback(final IIOPLoopbackInputStream lis,
                                  final IIOPLoopbackOutputStream los)
         {
@@ -530,7 +529,7 @@ public class IIOPListener
                 new IIOPLoopbackConnection(lis, los) ;
             deliverConnection(connection);
         }
-        
+
         private IIOPAddress getAddress()
         {
             final IIOPProfile profile =
