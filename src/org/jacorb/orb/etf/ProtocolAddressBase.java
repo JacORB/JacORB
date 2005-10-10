@@ -59,7 +59,13 @@ public abstract class ProtocolAddressBase
 
     public abstract void write (CDROutputStream s);
 
-    public abstract byte [] toCDR ();
+    public byte [] toCDR ()
+    {
+    	CDROutputStream out = new CDROutputStream();
+    	out.beginEncapsulatedArray();
+    	this.write(out);
+    	return out.getBufferCopy();
+    }
 
     // this must be defined for each subclass.
 // static public <specifictype> read (CDRInputStream s);

@@ -221,15 +221,6 @@ public class IIOPAddress
         return new IIOPAddress (hostname,port);
     }
 
-    public byte[] toCDR()
-    {
-    	CDROutputStream out = new CDROutputStream();
-    	out.beginEncapsulatedArray();
-    	out.write_string(getIP());
-    	out.write_ushort((short)port);
-    	return out.getBufferCopy();
-    }
-
     /**
     * Method for use by the PrintIOR utility. Previously it called
     * getHostname() which may or may not have returned what was
