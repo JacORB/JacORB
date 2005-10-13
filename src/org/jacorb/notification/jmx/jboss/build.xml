@@ -59,9 +59,8 @@
 				<include name="jboss-service.xml" />
 			</zipfileset>
 
-			<zipfileset file="${basedir}/../nanocontainer-remoting/remoting/target/nanocontainer-remoting-1.0-SNAPSHOT.jar" />
-
-			<zipfileset file="${lib}/picocontainer-1.2-021105.jar" />
+			<zipfileset file="${lib}/backport-util-concurrent.jar" />
+			<zipfileset file="${lib}/picocontainer-1.2.jar" />
 		</jar>
 	</target>
 
