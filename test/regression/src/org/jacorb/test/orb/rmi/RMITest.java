@@ -21,6 +21,7 @@ package org.jacorb.test.orb.rmi;
  */
 
 import java.rmi.Remote;
+import java.util.Collections;
 import java.util.Properties;
 import javax.rmi.PortableRemoteObject;
 import junit.framework.Test;
@@ -95,6 +96,7 @@ public class RMITest extends ClientServerTestCase
 
         suite.addTest( new RMITest("testPassStaticInnerClass", setup));
         suite.addTest( new RMITest("testPassInnerClass", setup));
+        suite.addTest( new RMITest("testPassCollection", setup));
         
         return setup;
     }
@@ -580,5 +582,9 @@ public class RMITest extends ClientServerTestCase
         Outer result = server.outerToOuter(expect);
         assertEquals(expect, result);
     }
-
+    
+    public void testPassCollection() throws Exception
+    {
+        assertEquals(0, server.sizeOfCollection(Collections.EMPTY_LIST));
+    }
 }

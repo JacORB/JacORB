@@ -21,6 +21,7 @@ package org.jacorb.test.orb.rmi;
  */
 
 import java.rmi.RemoteException;
+import java.util.Collection;
 
 import org.jacorb.test.orb.rmi.Boo;
 import org.jacorb.test.orb.rmi.Foo;
@@ -232,5 +233,10 @@ public class RMITestImpl
     public StaticInner staticInnerToStaticInner(StaticInner staticInner) throws RemoteException
     {
         return staticInner;
+    }
+
+    public int sizeOfCollection(Collection c) throws RemoteException
+    {
+        return c.size();
     }
 }

@@ -1,5 +1,8 @@
 package org.jacorb.test.orb.rmi;
 
+import java.rmi.RemoteException;
+import java.util.Collection;
+
 import org.jacorb.test.orb.rmi.Boo;
 import org.jacorb.test.orb.rmi.Foo;
 import org.jacorb.test.orb.rmi.NegativeArgumentException;
@@ -93,4 +96,7 @@ public interface RMITestInterface
     
     public Outer.StaticInner staticInnerToStaticInner(Outer.StaticInner staticInner) 
         throws java.rmi.RemoteException;
+    
+    public int sizeOfCollection(Collection c) throws java.rmi.RemoteException;
+    
 }
