@@ -46,6 +46,10 @@ public class ParseInvalidIDLTest extends AbstractIDLTestcase
     public void testParseInvalidIDLFails() 
     {
         runJacIDL(true);
+        // if a test fails the directory 
+        // will not be deleted. this way
+        // the contents can be inspected.
+        deleteRecursively(dirGeneration);
     }
 
     public static Test suite()

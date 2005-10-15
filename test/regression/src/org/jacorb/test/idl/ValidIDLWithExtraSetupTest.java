@@ -42,28 +42,31 @@ import org.jacorb.test.common.TestUtils;
  */
 public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 {
-    private final String arg0;
-
-    public ValidIDLWithExtraSetupTest(String arg0, String file)
+    private final String additionalArgument;
+    
+    public ValidIDLWithExtraSetupTest(String argument, String file)
     {
         super("testMiscParseGood", new File(file));
-        this.arg0 = arg0;
+        additionalArgument = argument;
     }
 
     protected String[] createJacIDLArgs()
     {
         String file[] = new String[4];
-        file[0] = arg0;
+        file[0] = additionalArgument;
         file[1] = "-d";
-        file[2] = TestUtils.testHome() + "/src/generated";
-        file[3] = filePath;
+        file[2] = dirGeneration.getAbsolutePath();
+        file[3] = idlFile.getAbsolutePath();
         
         return file;
     }
     
-    public void testMiscParseGood()
+    public void testMiscParseGood() throws Exception
     {
         runJacIDL(false);
+        compileGeneratedSources(false);
+        deleteRecursively(dirGeneration);
+        deleteRecursively(dirCompilation);
     }
     
     public static Test suite()
@@ -71,9 +74,9 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         TestSuite suite = new TestSuite();
         
         final String testHome = TestUtils.testHome();
-        suite.addTest(new ValidIDLWithExtraSetupTest("-DBLUB", testHome + "/idl/compiler/succeed/defined.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-I" + testHome + "/../../idl/omg", testHome + "/idl/compiler/succeed/Interoperability.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-DDefB", testHome + "/idl/compiler/succeed/Ping1.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest("-DBLUB", testHome + "/idl/compiler/misc/defined.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest("-I" + testHome + "/../../idl/omg", testHome + "/idl/compiler/misc/Interoperability.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest("-DDefB", testHome + "/idl/compiler/misc/Ping1.idl"));
         
         return suite;
     }

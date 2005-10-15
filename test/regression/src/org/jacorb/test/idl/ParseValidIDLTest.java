@@ -46,11 +46,18 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
     public void testCanParseValidIDL() throws Exception
     {
         runJacIDL(false);
+        compileGeneratedSources(false);
+        
+        // if a test fails the directory 
+        // will not be deleted. this way
+        // the contents can be inspected.
+        deleteRecursively(dirCompilation);
+        deleteRecursively(dirGeneration);
     }
 
     public static Test suite() 
     {
         final String dir = TestUtils.testHome() + "/idl/compiler/succeed";
-        return suite(dir, new String[] {"defined.idl", "Interoperability.idl", "Ping1.idl"}, ParseValidIDLTest.class);
+        return suite(dir, ParseValidIDLTest.class);
     }
 }
