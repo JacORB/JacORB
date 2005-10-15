@@ -5,30 +5,28 @@ module org {
         module bug401 {
   
           valuetype A {
-	    public long aa;
+	    		public long aa;
           };
 
           valuetype B : A {
-	    public long bb;
+	    		public long bb;
           };
 
           interface AnyServer {
-	    A getA();
-	    B getB();
+	    		A getA();
+	    		B getB();
 
-	    // get an A passed as an any
-	    any getAnyA();
+	    		// get an A passed as an any
+	    		any getAnyA();
 
-	    // get a B passsed as an any
-	    any getAnyB();
+	    		// get a B passsed as an any
+	    		any getAnyB();
 
             // return a sequence of A and B as Anys
+	    		typedef sequence<any> AnySeq;
 
-	    typedef sequence<any> AnySeq;
-
-	    AnySeq getAnyAB();
+	    		AnySeq getAnyAB();
           };
-
         };
       };
     };

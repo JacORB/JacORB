@@ -19,33 +19,41 @@
 
 */
 
-module bug345 {
-
-    interface Foo {
-        struct State {
-            string s;
-        };
+module org
+{
+	module jacorb
+   	{
+		module test
+      	{
+         	module bugs
+         	{
+				module bug345 {
+    					interface Foo {
+        					struct State {
+            					string s;
+        					};
         
-        readonly attribute State fooState;        
-   };
+        					readonly attribute State fooState;        
+   					};
 
-    interface Bar : Foo {
-        struct State {
-            long l;
-        };
+    					interface Bar : Foo {
+        					struct State {
+            					long l;
+        					};
 
-        readonly attribute State barState;
-        
-   };
+        					readonly attribute State barState;
+   					};
 
-    interface Baz : Bar {
-        struct State {
-            short m;
-        };
+    					interface Baz : Bar {
+        					struct State {
+            					short m;
+        					};
 
-        readonly attribute State bazState;
-        
-   };
-
-
+        					readonly attribute State bazState;
+   					};
+				};
+			};
+		};
+	};
 };
+		
