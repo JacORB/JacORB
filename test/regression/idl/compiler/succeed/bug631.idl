@@ -1,0 +1,19 @@
+module org
+{
+	module jacorb
+	{
+		module test
+      	{
+         	module idl
+         	{
+         		module bug630
+         		{
+  					interface B {
+    						const short VALUE = 32768;
+  					};
+				};
+			};
+		};
+	};
+};
+		

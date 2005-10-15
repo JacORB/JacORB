@@ -1,0 +1,22 @@
+module org
+{
+	module jacorb
+	{
+		module test
+      	{
+         	module idl
+         	{
+         		module bug505
+         		{
+         		 	valuetype PhoneNumber string<10>;
+    					union SomeKey switch (short) {
+    					case 0:
+        					PhoneNumber tn;
+    					case 1:
+        					long id;
+        				};	
+				};
+			};
+		};
+	};
+};

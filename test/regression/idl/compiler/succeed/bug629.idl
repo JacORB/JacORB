@@ -1,0 +1,26 @@
+module org
+{
+	module jacorb
+	{
+		module test
+      	{
+         	module idl
+         	{
+         		module bug630
+         		{
+  					interface A {
+  						void foo();
+					};
+
+					interface B {
+  						struct Test {
+    							A As[2];
+  						};
+					};
+				};
+			};
+		};
+	};
+};
+		
+	
