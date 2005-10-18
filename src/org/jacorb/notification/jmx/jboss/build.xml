@@ -2,7 +2,7 @@
 
 <!DOCTYPE project [
   <!ENTITY common  SYSTEM "file:../../../../../../etc/common.xml">
-  <!ENTITY xdoclet SYSTEM "file:../../../../../../etc/common-xdoclet.xml">
+<!ENTITY xdoclet SYSTEM "file:../../../../../../etc/common-xdoclet.xml">
 ]>
 
 <project name="jboss-cosnotify" default="sar" basedir="../../../../../..">
@@ -26,31 +26,34 @@
 
 		<path id="classpath">
 			<pathelement location="${jacorb.home}/lib/jacorb.jar" />
-			<pathelement location="${jboss.home}/lib/jboss-system.jar"/>
-			<pathelement location="${jboss.home}/lib/jboss-jmx.jar"/>
-			<pathelement location="${jboss.home}/lib/jboss-common.jar"/>
-			<pathelement location="${jboss.home}/lib/dom4j.jar"/>
+			<pathelement location="${jacorb.home}/lib/picocontainer-1.2.jar" />
+			<pathelement location="${jacorb.home}/lib/backport-util-concurrent.jar" />
+			<pathelement location="${jacorb.home}/lib/mx4j.jar" />
+			<pathelement location="${jboss.home}/lib/jboss-system.jar" />
+			<pathelement location="${jboss.home}/lib/jboss-jmx.jar" />
+			<pathelement location="${jboss.home}/lib/jboss-common.jar" />
+			<pathelement location="${jboss.home}/lib/dom4j.jar" />
 			<pathelement location="${jboss.home}/server/all/lib/avalon-framework.jar" />
 			<pathelement location="${jboss.home}/server/all/lib/jboss-iiop.jar" />
 		</path>
 	</target>
 
 	<target name="compile" depends="init.local">
-		<jacorb-javac javac-includes="${jmx.pkg}/*.java, ${jmx.pkg}/jboss/*.java" />
+		<jacorb-javac javac-includes="${jmx.pkg}/*.java, ${jmx.pkg}/jboss/*.java" java-classpathref="classpath" />
 	</target>
 
-	<target name="jar" depends="init.local, compile" >
-		<jar destfile="${path.jar}" basedir="${classdir}" >
+	<target name="jar" depends="init.local, compile">
+		<jar destfile="${path.jar}" basedir="${classdir}">
 			<include name="${jmx.pkg}/jboss/*.class" />
-			
+
 			<fileset dir="${src}/generated">
 				<include name="${jmx.pkg}/jboss/*.xml" />
 			</fileset>
 		</jar>
 	</target>
 
-	<target name="sar" depends="init.local, jar" >
-		<jar destfile="${path.sar}" >
+	<target name="sar" depends="init.local, jar">
+		<jar destfile="${path.sar}">
 			<fileset dir="${lib}">
 				<include name="${jar.name}" />
 			</fileset>
@@ -64,13 +67,13 @@
 		</jar>
 	</target>
 
-	<target name="deploy" depends="init.local, sar" >
-		<copy todir="${dir.deploy}" file="${path.sar}"/>
+	<target name="deploy" depends="init.local, sar">
+		<copy todir="${dir.deploy}" file="${path.sar}" />
 	</target>
 
 	<target name="clean" depends="init.local">
 		<delete file="${path.sar}" />
 		<delete file="${path.jar}" />
 	</target>
-		
+
 </project>
