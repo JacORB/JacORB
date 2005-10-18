@@ -28,7 +28,6 @@
 			<pathelement location="${jacorb.home}/lib/jacorb.jar" />
 			<pathelement location="${jacorb.home}/lib/picocontainer-1.2.jar" />
 			<pathelement location="${jacorb.home}/lib/backport-util-concurrent.jar" />
-			<pathelement location="${jacorb.home}/lib/mx4j.jar" />
 			<pathelement location="${jboss.home}/lib/jboss-system.jar" />
 			<pathelement location="${jboss.home}/lib/jboss-jmx.jar" />
 			<pathelement location="${jboss.home}/lib/jboss-common.jar" />
@@ -38,8 +37,14 @@
 		</path>
 	</target>
 
-	<target name="compile" depends="init.local">
-		<jacorb-javac javac-includes="${jmx.pkg}/*.java, ${jmx.pkg}/jboss/*.java" java-classpathref="classpath" />
+	<target name="compile.jacorb" >
+		<ant antfile="${basedir}/src/org/jacorb/notification/build.xml" target="jmx" >
+			<property name="jbossmx.enabled" value="true" />
+		</ant>
+	</target>
+	
+	<target name="compile" depends="init.local, compile.jacorb">
+		<jacorb-javac javac-includes="${jmx.pkg}/*.java, ${jmx.pkg}/jboss/*.java" javac-classpathref="classpath" />
 	</target>
 
 	<target name="jar" depends="init.local, compile">
