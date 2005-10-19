@@ -36,8 +36,6 @@ public class BSHFilterTest extends NotificationTestCase
         objectUnderTest_ = new BSHFilter(getConfiguration(), new DefaultEvaluationContextFactory(
                 getEvaluator()), new DefaultMessageFactory(getConfiguration()), getORB(), getPOA());
 
-        objectUnderTest_.configure(getConfiguration());
-
         testData_ = getORB().create_any();
 
         testData_.insert_long(10);
