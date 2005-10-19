@@ -106,7 +106,7 @@ public class CallbackManager extends EventTypeSet implements Disposable
         }
     }
     
-    public void replaceWith(EventType[] replacement) throws InterruptedException
+    public void replaceWith(EventType[] replacement)
     {
         changeSet(replacement, getAllTypes());
     }

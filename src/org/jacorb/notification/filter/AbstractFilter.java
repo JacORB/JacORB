@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
@@ -132,7 +131,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLo
  * @version $Id$
  */
 
-public abstract class AbstractFilter implements GCDisposable, ManageableServant, Configurable,
+public abstract class AbstractFilter implements GCDisposable, ManageableServant, 
         FilterOperations, JMXManageable, AbstractFilterMBean
 {
     private static int sCount_ = 0;
@@ -184,8 +183,6 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     private final EvaluationContextFactory evaluationContextFactory_;
 
     private final AtomicBoolean isActivated = new AtomicBoolean(false);
-
-    private static final ConstraintInfo[] EMPTY_CONSTRAINT_INFO = new ConstraintInfo[0];
 
     private final long maxIdleTime_;
 
@@ -265,11 +262,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
                 + " is no valid WildcardMap Implementation");
     }
 
-    public final void configure(Configuration conf)
-    {
-        // config is fetched via c'tor.
-    }
-
+    
     public org.omg.CORBA.Object activate()
     {
         if (thisRef_ == null)
@@ -331,30 +324,22 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     {
         FilterConstraint[] _arrayFilterConstraint = newFilterConstraints(constraintExp);
 
+        // access writeonly lock
+        constraintsLock_.writeLock().lock();
+
         try
         {
-            // access writeonly lock
-            constraintsLock_.writeLock().lock();
-
-            try
-            {
-                return add_constraint(constraintExp, _arrayFilterConstraint);
-            } finally
-            {
-                // give up the lock
-                constraintsLock_.writeLock().unlock();
-            }
-        } catch (InterruptedException ie)
+            return add_constraint(constraintExp, _arrayFilterConstraint);
+        } finally
         {
-            // propagate without throwing
-            Thread.currentThread().interrupt();
-
-            return EMPTY_CONSTRAINT_INFO;
+            // give up the lock
+            constraintsLock_.writeLock().unlock();
         }
+
     }
 
     private ConstraintInfo[] add_constraint(ConstraintExp[] constraintExp,
-            FilterConstraint[] filterConstraints) throws InterruptedException
+            FilterConstraint[] filterConstraints)
     {
         final ConstraintInfo[] _arrayConstraintInfo = new ConstraintInfo[filterConstraints.length];
 
@@ -438,29 +423,23 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     public void modify_constraints(int[] deleteIds, ConstraintInfo[] constraintInfo)
             throws ConstraintNotFound, InvalidConstraint
     {
+        // write lock
+        constraintsLock_.writeLock().lock();
+
         try
         {
-            // write lock
-            constraintsLock_.writeLock().lock();
+            Integer[] _deleteKeys = checkConstraintsToBeDeleted(deleteIds);
 
-            try
-            {
-                Integer[] _deleteKeys = checkConstraintsToBeDeleted(deleteIds);
+            FilterConstraint[] _arrayConstraintEvaluator = checkConstraintsToBeModified(constraintInfo);
 
-                FilterConstraint[] _arrayConstraintEvaluator = checkConstraintsToBeModified(constraintInfo);
+            deleteConstraints(_deleteKeys);
 
-                deleteConstraints(_deleteKeys);
+            modifyConstraints(constraintInfo, _arrayConstraintEvaluator);
 
-                modifyConstraints(constraintInfo, _arrayConstraintEvaluator);
-
-                notifyCallbacks();
-            } finally
-            {
-                constraintsLock_.writeLock().unlock();
-            }
-        } catch (InterruptedException ie)
+            notifyCallbacks();
+        } finally
         {
-            Thread.currentThread().interrupt();
+            constraintsLock_.writeLock().unlock();
         }
     }
 
@@ -621,24 +600,18 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
     public void remove_all_constraints()
     {
+        constraintsLock_.writeLock().lock();
+
         try
         {
-            constraintsLock_.writeLock().lock();
+            constraints_.clear();
 
-            try
-            {
-                constraints_.clear();
+            wildcardMap_.clear();
 
-                wildcardMap_.clear();
-
-                notifyCallbacks();
-            } finally
-            {
-                constraintsLock_.writeLock().unlock();
-            }
-        } catch (InterruptedException ie)
+            notifyCallbacks();
+        } finally
         {
-            Thread.currentThread().interrupt();
+            constraintsLock_.writeLock().unlock();
         }
     }
 
@@ -673,11 +646,11 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
      */
     static private class ConstraintIterator implements Iterator
     {
-        final Object[] arrayOfLists_;
+        private final Object[] arrayOfLists_;
 
-        Iterator current_;
+        private Iterator currentIterator_;
 
-        int currentListIdx_ = 0;
+        private int currentListIdx_ = 0;
 
         ConstraintIterator(Object[] arrayOfLists)
         {
@@ -685,7 +658,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
             if (arrayOfLists_.length == 0)
             {
-                current_ = null;
+                currentIterator_ = null;
             }
             else
             {
@@ -695,31 +668,31 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
         private void switchIterator()
         {
-            current_ = ((List) arrayOfLists_[currentListIdx_]).iterator();
+            currentIterator_ = ((List) arrayOfLists_[currentListIdx_]).iterator();
         }
 
         public boolean hasNext()
         {
-            return current_ != null && current_.hasNext();
+            return currentIterator_ != null && currentIterator_.hasNext();
         }
 
         public Object next()
         {
-            if (current_ == null)
+            if (currentIterator_ == null)
             {
                 throw new NoSuchElementException();
             }
 
-            Object _ret = current_.next();
+            Object _nextValue = currentIterator_.next();
 
-            if (!current_.hasNext() && currentListIdx_ < arrayOfLists_.length - 1)
+            if (!currentIterator_.hasNext() && currentListIdx_ < arrayOfLists_.length - 1)
             {
                 ++currentListIdx_;
 
                 switchIterator();
             }
 
-            return _ret;
+            return _nextValue;
         }
 
         public void remove()
@@ -902,7 +875,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
         return callbackManager_.get_callbacks();
     }
 
-    private void notifyCallbacks() throws InterruptedException
+    private void notifyCallbacks()
     {
         final Iterator i = constraints_.keySet().iterator();
         final List eventTypes = new ArrayList();
