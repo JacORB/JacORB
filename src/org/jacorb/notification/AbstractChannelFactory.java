@@ -612,8 +612,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             return;
         }
 
-        namingContext_ = NamingContextHelper.narrow(getORB().resolve_initial_references(
-                "NameService"));
+        namingContext_ = NamingContextHelper.narrow(getORB().resolve_initial_references("NameService"));
 
         NameComponent[] _name = new NameComponent[] { new NameComponent(nameId, nameKind) };
 
@@ -633,8 +632,11 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         {
             if (registeredName_ != null)
             {
-                logger_.info("namingContext.unbind(" + format(registeredName_) + ")");
-
+                if (logger_.isInfoEnabled())
+                {
+                    logger_.info("namingContext.unbind(" + format(registeredName_) + ")");
+                }
+                
                 namingContext_.unbind(registeredName_);
 
                 registeredName_ = null;
