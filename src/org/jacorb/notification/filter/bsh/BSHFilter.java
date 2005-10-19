@@ -57,6 +57,11 @@ public class BSHFilter extends AbstractFilter
 {
     public static final String CONSTRAINT_GRAMMAR = "BSH";
 
+    /**
+     * as instances of this class will be created using picocontainer the class
+     * can specify its dependencies in the constructor. picocontainer will fill
+     * in the appropiate values (as long as they are registered).
+     */
     public BSHFilter(Configuration config, EvaluationContextFactory evaluationContextFactory,
             MessageFactory messageFactory, ORB orb, POA poa) throws ConfigurationException
     {
