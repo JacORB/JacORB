@@ -7,6 +7,7 @@
          name="NotificationService:type=EventChannelFactory"
          xmbean-dd="org/jacorb/notification/jmx/jboss/JBossCOSNotificationService.xml" >
     <depends>jboss:service=CorbaORB</depends>
+    <depends>jboss:service=CorbaNaming</depends>
   </mbean>
   
 </server>

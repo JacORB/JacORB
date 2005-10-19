@@ -202,7 +202,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
         }
 
         delegate_ = new COSNotificationService(_orb, MBeanServerLocator.locateJBoss(),
-                new JMXManageableXMBeanProvider(DEFAULT_DOMAIN), new String[0]);
+                new JMXManageableXMBeanProvider(DEFAULT_DOMAIN), new String[] { "-channels", "1", "-registerName", "NotificationService", });
 
         bind(NAMING_NAME, "org.omg.CosNotifyChannelAdmin.EventChannelFactory");
 
