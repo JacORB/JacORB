@@ -83,7 +83,7 @@ public class UnregisterObjectNameProviderDecorator implements DynamicMBeanProvid
                 });
             } catch (ClassCastException e)
             {
-                // ignore
+                // ignore as componentInstance is not a JMXManageable
             }
         }
 
