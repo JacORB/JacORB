@@ -697,9 +697,9 @@ public class CDROutputStream
 
     public final void increaseSize(final  int amount)
     {
-        pos += amount;
-
         check( amount );
+        
+        pos += amount;
     }
 
     public void setBuffer(final byte[] b)
