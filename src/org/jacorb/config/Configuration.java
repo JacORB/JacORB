@@ -20,7 +20,6 @@ package org.jacorb.config;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.*;
 
@@ -75,8 +74,6 @@ public class Configuration
     
     private static final int DEFAULT_LOG_LEVEL = 0;
 
-    private Configuration config;
-    private String configName; 
     private ORB orb = null;
 
     /** root logger instance for this configuration */
@@ -89,19 +86,6 @@ public class Configuration
     private final String loggerFactoryClzName = 
        "org.jacorb.config.LogKitLoggerFactory";
 
-
-    /**
-     * Create a configuration with a given name and load configuration
-     * properties from the file <name>.properties
-     */
-
-//     Configuration(String name)
-//         throws ConfigurationException
-//     {
-//         super(name);
-//         init(name, null);
-//         initLogging();
-//     }
 
     /**
      * Factory method
@@ -129,10 +113,11 @@ public class Configuration
         {
             // check for legal values
             if (myOrbID.equals("orb") || myOrbID.equals("jacorb"))
+            {
                 throw new ConfigurationException("Illegal orbID, <" + 
                                                   myOrbID + "> is reserved");
-            else
-                orbID = myOrbID;
+            }
+            orbID = myOrbID;
         }
 
         return new Configuration(orbID, props, orb, isApplet);
@@ -549,7 +534,6 @@ public class Configuration
      */
 
     private void initLogging()
-        throws ConfigurationException
     {
         String logFileName = 
             getAttribute("jacorb.logfile", "");
@@ -650,7 +634,9 @@ public class Configuration
     
     public static final String getLoggerName(Class clz)
     {
-        String packageName = clz.getPackage().getName();
+        final String clazzName = clz.getName();
+        final String packageName = clazzName.substring(0, clazzName.lastIndexOf('.'));
+        
         if (packageName != null && packageName.startsWith("org.jacorb"))
         {
             return packageName.substring(4);
@@ -699,15 +685,7 @@ public class Configuration
     public Object getAttributeAsObject( String key )
         throws ConfigurationException
     {
-        String className = null;
-        try
-        {
-            className = getAttribute( key );
-        }
-        catch( Exception e )
-        {
-            // ignore
-        }
+        String className = getAttribute(key, null);
 
         if(  className != null && className.length() > 0 )
         {
@@ -722,10 +700,8 @@ public class Configuration
                                                   key +"<: " + e );
             }
         }
-        else
-        {
-            return null;
-        }
+        
+        return null;
     }
 
     public boolean getAttributeAsBoolean(String key)
@@ -738,10 +714,8 @@ public class Configuration
             s = s.trim().toLowerCase();
             return ON.equals(s) || TRUE.equals(s);
         }
-        else
-        {
-            return false;
-        }
+        
+        return false;
     }
 
     public boolean getAttributeAsBoolean(String key, boolean defaultValue)
@@ -753,9 +727,7 @@ public class Configuration
             s = s.trim().toLowerCase();
             return ON.equals(s) || TRUE.equals(s);
         }
-        else
-        {
-            return defaultValue;
-        }
+        
+        return defaultValue;
     }
 }
