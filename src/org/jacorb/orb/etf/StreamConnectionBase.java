@@ -21,8 +21,7 @@ package org.jacorb.orb.etf;
 
 import java.io.*;
 
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * This an abstract base implementation of the ETF::Connection interface.
@@ -48,6 +47,7 @@ public abstract class StreamConnectionBase
     
     protected StreamConnectionBase()
     {
+        super();
     }
     
     /**
@@ -56,7 +56,7 @@ public abstract class StreamConnectionBase
     */
     protected StreamConnectionBase(StreamConnectionBase other)
     {
-        super((ConnectionBase)other);
+        super(other);
         this.in_stream = other.in_stream;
         this.out_stream = other.out_stream;
     }
@@ -97,10 +97,8 @@ public abstract class StreamConnectionBase
                     }
                     throw new org.omg.CORBA.TIMEOUT();
                 }
-                else
-                {
-                    throw new org.omg.CORBA.TRANSIENT ("Interrupted I/O: " + e);
-                }
+                
+                throw new org.omg.CORBA.TRANSIENT ("Interrupted I/O: " + e);
             }
             catch( IOException se )
             {
@@ -156,7 +154,9 @@ public abstract class StreamConnectionBase
             {
                 byte[] b = b_out.toByteArray();
                 if (logger.isInfoEnabled())
-                    logger.info("sendMessages(): " + new String( b) );
+                {
+                    logger.info("sendMessages(): " + ObjectUtil.bufToString(b, 0, b.length) );
+                }
                 b_out.reset();
             }
             out_stream.flush();

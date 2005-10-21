@@ -172,19 +172,20 @@ public class ObjectUtil
         }
     }
 
-    public static synchronized String bufToString( byte bs[],
-                                                   int start,
-                                                   int len)
+    public static String bufToString( byte bs[],
+            int start,
+            int len)
     {
-        StringBuffer result = new StringBuffer();
-        StringBuffer chars = new StringBuffer();
+        final StringBuffer result = new StringBuffer();
+        final StringBuffer chars = new StringBuffer();
 
         for ( int i = start; i < (start + len); i++ )
         {
             if ((i % 16 ) == 0)
             {
                 result.append( chars.toString() );
-                chars = new StringBuffer();
+                result.append( "\n" ); 
+                chars.setLength(0);
             }
 
             chars.append( toAscii( bs[i] ));
@@ -209,6 +210,12 @@ public class ObjectUtil
             //additional whitespaces after four bytes
             pad += (delta_bytes / 4);
 
+            // additional whitespace after completed 4 byte block
+            if ((delta_bytes % 4) > 0)
+            {
+                pad += 1;
+            }
+            
             for ( int i = 0; i < pad; i++ )
             {
                 chars.insert( 0, ' ' );
@@ -249,10 +256,8 @@ public class ObjectUtil
         {
             return (char) b;
         }
-        else
-        {
-            return '.';
-        }
+        
+        return '.';
     }
 
     /**
@@ -280,8 +285,4 @@ public class ObjectUtil
         }
         return props;
     }
-
-
-
-
 }
