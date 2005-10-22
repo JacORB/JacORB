@@ -2,25 +2,33 @@
 
 <!DOCTYPE project [
   <!ENTITY common  SYSTEM "file:../../../../../../etc/common.xml">
-<!ENTITY xdoclet SYSTEM "file:../../../../../../etc/common-xdoclet.xml">
+  <!ENTITY xdoclet SYSTEM "file:../../../../../../etc/common-xdoclet.xml">
 ]>
 
-<project name="jboss-cosnotify" default="sar" basedir="../../../../../..">
+<!-- $Id$ -->
+<project name="jboss-cosnotification" default="sar" basedir="../../../../../..">
 	
 	&common;
-		
-	<target name="init.local" depends="init">
-		<property name="jboss.home" value="/Users/alf/Developer/JBoss/jboss-4.0.2" />
+	
+	<property file="${basedir}/build.properties" />
+	<property environment="env" />
+	
+	<target name="locate-jboss" unless="jboss.home">
+		<fail unless="${env.JBOSS_HOME}" message="unable to locate JBoss. Either add jboss.home=... to build properties, invoke ant with -Djboss.home=... or set the environment variable JBOSS_HOME=..."/>
+		<property name="jboss.home" value="${env.JBOSS_HOME}" />
+		<echo level="verbose" message="set jboss.home to ${jboss.home}" />
+	</target>
+	
+	<target name="init.local" depends="init, locate-jboss">
+		<property name="pkg.project" value="org/jacorb/notification/jmx" />
+		<property name="dir.project" value="${src}/${pkg.project}" />
 
-		<property name="jmx.pkg" value="org/jacorb/notification/jmx" />
-		<property name="jmx.dir" value="${src}/${jmx.pkg}" />
+		<property name="name.artifact" value="jboss-cosnotification" />
+		<property name="name.jar" value="${name.artifact}.jar" />
+		<property name="name.sar" value="${name.artifact}.sar" />
 
-		<property name="artifact.name" value="jboss-cosnotification" />
-		<property name="jar.name" value="${artifact.name}.jar" />
-		<property name="sar.name" value="${artifact.name}.sar" />
-
-		<property name="path.sar" value="${lib}/${sar.name}" />
-		<property name="path.jar" value="${lib}/${jar.name}" />
+		<property name="path.sar" value="${lib}/${name.sar}" />
+		<property name="path.jar" value="${lib}/${name.jar}" />
 
 		<property name="dir.deploy" value="${jboss.home}/server/all/deploy" />
 
@@ -44,26 +52,26 @@
 	</target>
 	
 	<target name="compile" depends="init.local, compile.jacorb">
-		<jacorb-javac javac-includes="${jmx.pkg}/*.java, ${jmx.pkg}/jboss/*.java" javac-classpathref="classpath" />
+		<jacorb-javac javac-includes="${pkg.project}/*.java, ${pkg.project}/jboss/*.java" javac-classpathref="classpath" />
 	</target>
 
 	<target name="jar" depends="init.local, compile">
 		<jar destfile="${path.jar}" basedir="${classdir}">
-			<include name="${jmx.pkg}/jboss/*.class" />
+			<include name="${pkg.project}/jboss/*.class" />
 
 			<fileset dir="${src}/generated">
-				<include name="${jmx.pkg}/jboss/*.xml" />
+				<include name="${pkg.project}/jboss/*.xml" />
 			</fileset>
 		</jar>
 	</target>
 
-	<target name="sar" depends="init.local, jar">
+	<target name="sar" depends="init.local, jar" description="build the JacORB COSNotification JBoss-SAR" >
 		<jar destfile="${path.sar}">
 			<fileset dir="${lib}">
-				<include name="${jar.name}" />
+				<include name="${name.jar}" />
 			</fileset>
 
-			<zipfileset dir="${src}/${jmx.pkg}/jboss" prefix="META-INF">
+			<zipfileset dir="${src}/${pkg.project}/jboss" prefix="META-INF">
 				<include name="jboss-service.xml" />
 			</zipfileset>
 
