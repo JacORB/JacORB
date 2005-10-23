@@ -85,7 +85,7 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
         pushToConsumers();
     }
 
-    private void pushToConsumers() throws InterruptedException
+    private void pushToConsumers()
     {
         // if we are filtering Outgoing events its
         // possible that deliveries can be made as soon as
