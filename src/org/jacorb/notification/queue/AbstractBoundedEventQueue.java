@@ -66,7 +66,7 @@ public abstract class AbstractBoundedEventQueue implements MessageQueue
 
     protected abstract Message[] getElements(int max);
 
-    protected abstract void addElement(Message event);
+    protected abstract void addElement(Message message);
 
     protected abstract Message[] getAllElements();
 
