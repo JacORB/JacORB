@@ -76,7 +76,6 @@ public class QoSPropertySet extends PropertySet
     private static final Set sValidChannelQoSNames_;
     private static final Set sValidAdminQoSNames_;
     private static final Set sValidProxyQoSNames_;
-    private static final Set sValidMessageQoSNames_;
 
     private static final Any connectionReliabilityLow_;
     private static final Any connectionReliabilityHigh_;
@@ -150,8 +149,6 @@ public class QoSPropertySet extends PropertySet
         _validMessageQoS.add(StopTime.value);
         _validMessageQoS.add(Timeout.value);
 
-        sValidMessageQoSNames_ = Collections.unmodifiableSet(_validMessageQoS);
-        
         ////////////////////
 
         connectionReliabilityHigh_ = sORB.create_any();
