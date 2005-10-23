@@ -78,7 +78,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
 
         switch (_left.getType()) {
 
-        case AbstractTCLNode.RUNTIME_VAR:
+        case TCLParserTokenTypes.RUNTIME_VAR:
             RuntimeVariableNode _var = ( RuntimeVariableNode ) _left;
 
             _result = _event.extractValue( context,
@@ -87,9 +87,9 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
 
             break;
 
-        case AbstractTCLNode.DOT:
+        case TCLParserTokenTypes.DOT:
             // fallthrough
-        case AbstractTCLNode.ASSOC:
+        case TCLParserTokenTypes.ASSOC:
             _result = _event.extractValue(context,
                                        this );
 
