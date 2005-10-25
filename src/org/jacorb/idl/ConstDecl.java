@@ -127,52 +127,9 @@ class ConstDecl extends Declaration
 
     public void printContained(PrintWriter ps)
     {
-        TypeSpec ts = const_type.symbol.typeSpec();
-        boolean alias = ts instanceof AliasTypeSpec;
-
-        if (ts instanceof AliasTypeSpec)
-        {
-            ts = ((AliasTypeSpec)ts).originalType();
-        }
-
         ps.print("\t" + const_type + " " + name + " = ");
-        if (ts instanceof IntType && ((IntType)ts).type_spec instanceof ShortType)
-        {
-            // short constant values have to be cast explicitly
-            ps.print("(short)(");
-            const_expr.print(ps);
-            ps.println(");");
-        }
-        else if (ts instanceof LongLongType)
-        {
-            ps.print (const_expr.toString () + ';');
-        }
-        else if (ts instanceof FloatType)
-        {
-            // float constant values have to be cast explicitly
-            ps.print("(float)(");
-            const_expr.print(ps);
-            ps.println(");");
-        }
-        else if (ts instanceof FixedPointConstType)
-        {
-            // fixed point values have to be created explicitly
-            ps.print("new java.math.BigDecimal(");
-            const_expr.print(ps);
-            ps.println(");");
-        }
-        else if (ts instanceof OctetType)
-        {
-            // float constant values have to be cast explicitly
-            ps.print("(byte)(");
-            const_expr.print(ps);
-            ps.println(");");
-        }
-        else
-        {
-            const_expr.print(ps);
-            ps.println(";");
-        }
+        ps.print(getValue());
+        ps.println(";");
     }
 
     boolean contained()
@@ -255,46 +212,11 @@ class ConstDecl extends Declaration
                 pw.println("public interface " + className);
                 pw.println("{");
 
-                TypeSpec ts = const_type.symbol.typeSpec();
-                if (ts instanceof AliasTypeSpec)
-                {
-                    ts = ((AliasTypeSpec)ts).originalType();
-                }
-
                 pw.print("\t" + const_type.toString() + " value = ");
 
-                if (logger.isWarnEnabled())
-                    logger.warn("ConstDecl, ts " +
-                                const_type.toString() + " " + ts.getClass());
+                pw.print(getValue());
+                pw.println(";");
 
-                if (ts instanceof ShortType)
-                {
-                    // short constant values have to be cast explicitly
-                    pw.print("(short)(" + const_expr.toString() + ");");
-                }
-                else if (ts instanceof LongLongType)
-                {
-                    pw.print (const_expr.toString () + ';');
-                }
-                else if (ts instanceof FloatType)
-                {
-                    // float constant values have to be cast explicitly
-                    pw.println("(float)(" + const_expr.toString() + ");");
-                }
-                else if (ts instanceof OctetType)
-                {
-                    // float constant values have to be cast explicitly
-                    pw.println("(byte)(" + const_expr.toString() + ");");
-                }
-                else if (ts instanceof FixedPointConstType ||
-                         ts instanceof FixedPointType)
-                {
-                    pw.println("new java.math.BigDecimal (" + const_expr.toString() + ");");
-                }
-                else
-                {
-                    pw.println(const_expr.toString() + ";");
-                }
                 pw.println("}");
                 pw.close();
             }
@@ -302,6 +224,46 @@ class ConstDecl extends Declaration
         catch (java.io.IOException i)
         {
             throw new RuntimeException("File IO error" + i);
+        }
+    }
+
+    private String getValue()
+    {
+        TypeSpec ts = const_type.symbol.typeSpec();
+        if (ts instanceof AliasTypeSpec)
+        {
+            ts = ((AliasTypeSpec)ts).originalType();
+        }
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("ConstDecl(" + name + ": " + 
+                         ts.getClass() + ") = " + const_type.toString());
+        }
+
+        if (ts instanceof ShortType)
+        {
+            // short constant values have to be cast explicitly
+            return ("(short)(" + const_expr.toString() + ")");
+        }
+        else if (ts instanceof FloatType)
+        {
+            // float constant values have to be cast explicitly
+            return ("(float)(" + const_expr.toString() + ")");
+        }
+        else if (ts instanceof OctetType)
+        {
+            // byte constant values have to be cast explicitly
+            return ("(byte)(" + const_expr.toString() + ")");
+        }
+        else if (ts instanceof FixedPointConstType ||
+                 ts instanceof FixedPointType)
+        {
+            return ("new java.math.BigDecimal (" + const_expr.toString() + ")");
+        }
+        else
+        {
+            return const_expr.toString();
         }
     }
 }
