@@ -1,3 +1,29 @@
+2005-10-25  Duane Griffin  <d.griffin@psenterprise.com>
+
+	* idl/ConstDecl.java (getValue, print, printContained): Refactor
+	common code from print methods into separate method to get the
+	declaration's value. Ensure that this method correctly handles
+	short type codes (bug #631).
+
+	* idl/Interface.java (parse): Fix bug where the compiler tries to
+	parse the interface twice (bug #629).
+	(parsed): New field.
+
+2005-10-25  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPConnection.java (setTimeout): Synchronize,
+	otherwise the socket may be null'ed before we get a chance to set
+	the timeout.
+
+	* orb/giop/ServerGIOPConnection.java (tryClose): Add debug statements.
+
+	* orb/giop/GIOPConnection.java (getMessage): Add debug messages.
+	(sendMessage): If the transport connect fails, set do_close to true.
+
+	* orb/ORB.java (shutdown): Call GIOPConnectionManager.shutdown().
+
+	* orb/giop/GIOPConnectionManager.java (shutdown): New method.
+
 2005-10-23  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* notification/queue/AbstractBoundedEventQueue.java (addElement):
