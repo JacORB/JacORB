@@ -1,3 +1,13 @@
+2005-10-25  Andre Spiegel  <spiegel@gnu.org>
+
+	Patch by Trevor Harmon, fixing bug #622.
+	
+	* orb/standardInterceptors/SSLComponentInterceptor.java
+	(establish_components): Disambiguate TAG_SSL_SEC_TRANS for OpenORB
+	compatibility.
+
+	* orb/iiop/IIOPProfile.java (decode_extensions, getSSL): Likewise.
+
 2005-10-25  Duane Griffin  <d.griffin@psenterprise.com>
 
 	* idl/ConstDecl.java (getValue, print, printContained): Refactor
