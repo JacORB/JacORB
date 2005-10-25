@@ -1,3 +1,153 @@
+2005-10-23  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/queue/AbstractBoundedEventQueue.java (addElement):
+	renamed param
+
+	* notification/util/QoSPropertySet.java: removed unused member
+
+	* notification/engine/FilterConsumerAdminTask.java (pushToConsumer):
+	removed unnecessary exception
+
+	* notification/filter/etcl/ETCLComponentName.java (evaluate):
+	reference static fields directly
+
+2005-10-22  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/jboss/build.xml: jboss.home is now configurable
+	form the outside
+
+2005-10-21  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* orb/CDROutputStream.java (increaseSize): fixed bug #607. check
+	would cause an ArrayOutOfBounds under certain circumstances (see
+	testcase). thanks to Roland Scheel for reporting this bug and
+	supplying a patch
+
+	* orb/etf/StreamConnectionBase.java, util/ObjectUtil.java (flush):
+	applied patch for bug #546. buffer content was not
+	correctly traced.
+	(bufToString): removed unnecessary synchronization
+
+	thanks to marc heide for the bug report and the patch.
+
+	* config/Configuration.java (getLoggerName): changed
+	implementation as clz.getPackage() may return null.  this fixes
+	bug #623 which was reported by Oliver Pajonk who also supplied a
+	patch.
+
+2005-10-19  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/UnregisterObjectNameProviderDecorator.java: doc
+
+	* notification/filter/bsh/BSHFilter.java: javadoc
+
+	* notification/filter/AbstractFilter.java,
+	notification/filter/CallbackManager.java: InterruptedException
+	does not occur any moredue to the switch to
+	backport-util-concurrent
+
+	* notification/AbstractChannelFactory.java: cosmetics
+
+	* notification/NotifyServer.java: imports
+
+2005-10-19  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* notification/jmx/jboss/JBossCOSNotificationService.java,
+	notification/jmx/jboss/jboss-service.xml: Create channel and
+	register with NamingService
+
+2005-10-18  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/jboss/build.xml: generate jboss jmx before compile
+
+	* notification/jmx/jboss/build.xml: fixes by david robison
+
+2005-10-13  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/jboss/build.xml,
+	notification/jmx/jboss/jboss-service.xml: corrected lib paths
+
+2005-10-12  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* notification/NotifyServer.java: Allows Notification service to
+	be instantiated by a separate program.
+
+2005-10-10  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/etf/ProtocolAddressBase.java, orb/iiop/IIOPAddress.java:
+	Refactored the toCDR() implementation, moving the generic parts to
+	ProtocolAddressBase, and having that call write() to get the
+	protocol specific details written
+
+	* orb/iiop/IIOPListener.java: Removed unused local variable
+
+2005-10-09  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* idl/SequenceType.java: fix for bug 630.thanks to Duane Griffin
+
+2005-10-08  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/CurrentTimeUtil.java,
+	notification/filter/EvaluationContext.java,
+	notification/filter/etcl/CurrentTimeNode.java,
+	notification/impl/DefaultEvaluationContextFactory.java,
+	notification/impl/PoolingEvaluationContextFactory.java: allow etcl
+	evaluation to access a COSTime Service
+
+	* notification/container/BiDirGiopPOAComponentAdapter.java,
+	notification/container/CurrentTimeUtilComponentAdapter.java,
+	notification/container/LocalParameterComponentAdapter.java,
+	notification/container/PicoContainerFactory.java: added pico
+	ComponentAdapter that allows specification of local params
+
+	* notification/filter/impl/DefaultETCLEvaluator.java:
+	minor code cleanup
+
+2005-10-03  Andre Spiegel  <spiegel@gnu.org>
+
+	Patch by Thomas Leineweber to add generation of DII stubs,
+	see bug #628.
+	
+	* idl/OpDecl.java (printDIIBody, printStreamBody): New methods.
+	(printMethod): Use them.
+
+	* idl/ParamDecl.java
+	(printAddArgumentStatement, printExtractArgumentStatement): New
+	methods.
+
+	* idl/NoHelperException.java: Initial revision.
+
+	* idl/AliasTypeSpec.java, idl/AnyType.java,
+	idl/ArrayTypeSpec.java, idl/BooleanType.java, idl/CharType.java,
+	idl/ConstrTypeSpec.java, idl/DoubleType.java, idl/EnumType.java,
+	idl/ExceptionHolderTypeSpec.java, idl/FixedPointType.java,
+	idl/FloatType.java, idl/Interface.java, idl/LongLongType.java,
+	idl/LongType.java, idl/ObjectTypeSpec.java, idl/OctetType.java,
+	idl/ReplyHandlerTypeSpec.java, idl/SequenceType.java,
+	idl/ShortType.java, idl/StringType.java, idl/StructType.java,
+	idl/TypeCodeTypeSpec.java, idl/TypeDeclaration.java,
+	idl/TypeSpec.java, idl/UnionType.java, idl/ValueAbsDecl.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java, idl/VectorType.java:
+	(printInsertIntoAny, printExtractResult): New methods.
+
+	* idl/parser.cup, idl/parser.java
+	(generateDiiStubs): New field.
+	(compile): Set it from new option -diistub.
+
+	* idl/JacIDL.java
+	(_generateDiiStubs): New field.
+	(setGenerateDiiStubs): New method.
+	(c'tor, execute): Use it.
+
+2005-10-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/NameTable.java (define, inheritFrom): Prevent shadowed
+	definitions from crashing the compiler. Thanks to Duane Griffin
+	and Thomas Leineweber, this fixes bug #470, bug #517, bug #616.
+
+	* idl/ReplyHandler.java (createInheritanceSpec): Properly handle
+	inheritance scope.  Patch by Duane Griffin, fixing bug #606.
+
 2005-10-02  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* notification/TODO.txt: updated todo list
@@ -1548,10 +1698,11 @@
 2004-09-02  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
 	* notification/servant/AbstractProxy.java (diposeInProgress_): new
-	member to indicate shutdown(dispose): set disposeInProgress_ as
-	first action(isConnected): only return true if dispose is not in
-	progress(tryDisconnectClient): check disposeInProgress_ instead
-	of isConnected(). otherwise consumer would not be disconnected
+	member to indicate shutdown
+	(dispose): set disposeInProgress_ as first action
+	(isConnected): only return true if dispose is not in progress
+	(tryDisconnectClient): check disposeInProgress_ instead of
+	isConnected(). otherwise consumer would not be disconnected
 
 2004-08-27  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
@@ -1559,11 +1710,13 @@
 	notification/servant/ProxyPushSupplierImpl.java,
 	notification/servant/SequenceProxyPushSupplierImpl.java,
 	notification/servant/StructuredProxyPushSupplierImpl.java,
-	notification/servant/TypedProxyPushSupplierImpl.java (PushToConsumerTask):
-	do not reset error counter here(*PushSupplierImpl): reset error
-	counter after remote push was invoked successfullythis should
-	fix a bug where dead consumer were not properly disconnected from
-	the channel
+	notification/servant/TypedProxyPushSupplierImpl.java
+	(PushToConsumerTask): do not reset error counter here
+	(*PushSupplierImpl): reset error counter after remote push was
+	invoked successfully
+
+	this should fix a bug where dead consumer were not properly
+	disconnected from the channel
 
 	http://lists.spline.inf.fu-berlin.de/pipermail/jacorb-developer/2004-August/006737.html
 
@@ -1574,7 +1727,7 @@
 	* orb/iiop/IIOPProfile.java: Oops. Cut and paste error in previous fix.
 
 	* orb/iiop/IIOPProfile.java (equals): Fix for bug #507. No account
-	was taken of SSL listen port when caomparing profiles.
+	was taken of SSL listen port when comparing profiles.
 
 	Thanks to Norrie Quinn for suggesting a fix.
 
