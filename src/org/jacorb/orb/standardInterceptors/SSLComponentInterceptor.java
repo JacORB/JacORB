@@ -122,7 +122,7 @@ public class SSLComponentInterceptor
 
                 SSLHelper.write( sslDataStream , ssl );
 
-                tc = new TaggedComponent( TAG_SSL_SEC_TRANS.value,
+                tc = new TaggedComponent( org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value,
                                           sslDataStream.getBufferCopy() );
 
                 sslDataStream.close ();
