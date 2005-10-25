@@ -1738,6 +1738,10 @@ public final class ORB
             logger.debug("ORB going shutdown (cleaning up ORB...)");
         }
 
+        if (giop_connection_manager != null)
+        {
+            giop_connection_manager.shutdown();
+        }
         clientConnectionManager.shutdown();
         knownReferences.clear();
         bufferManager.release();
