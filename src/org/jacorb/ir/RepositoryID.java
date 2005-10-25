@@ -53,6 +53,8 @@ public class RepositoryID
     {
         if (repId.startsWith ("RMI:"))
         {
+            // TODO should convertFromISOLatin1 be called in else branch also?
+            repId = convertFromISOLatin1(repId);
             return repId.substring (4, repId.indexOf (':', 4))
                    + ( suffix != null ? suffix : "" );
         }
@@ -85,6 +87,31 @@ public class RepositoryID
         }
     }
 
+    /**
+     * Convert the repository ID with escape sequences back to original strings.
+     * 
+     * com.sun.corba.se.internal.orbutil.RepositoryId
+     * contains an implementation of this conversion.
+     * however the method is private and its an internal sun class.
+     */
+    private static String convertFromISOLatin1 (String id) {
+        StringBuffer dest = new StringBuffer(id.length());
+        int pos = 0;
+        int index = -1;
+
+        while ((index = id.indexOf("\\U", pos)) != -1){
+            dest.append(id.substring(pos, index));
+            pos = index + 6;
+            // convert the hexa val in 4 char into one char
+            char theChar = (char)(Integer.parseInt(id.substring(index+2, index+6), 16));
+            dest.append(theChar);
+        }
+        if (pos < id.length()) {
+          dest.append(id.substring(pos));
+        }
+        return dest.toString();
+    }
+    
     private static final String reversePrefix (String prefix)
     {
         StringTokenizer tok    = new StringTokenizer (prefix, ".");
