@@ -207,6 +207,29 @@ public class GIOPConnectionManager
         }
         return connection;
     }
+    
+    /**
+     * Closes all server-side GIOP connections.
+     */
+    public void shutdown()
+    {
+        List connections = null;
+        synchronized (server_giop_connections)
+        {
+            connections = new ArrayList (server_giop_connections);
+        }
+
+        if (logger.isDebugEnabled())
+            logger.debug ("GIOPConnectionManager.shutdown(), " + 
+                          connections.size() + " connections");
+
+        for (Iterator i=connections.iterator(); i.hasNext();)
+        {
+            ServerGIOPConnection c = (ServerGIOPConnection)i.next();
+            c.tryClose();
+        }
+        
+    }
 
     private StatisticsProvider getStatisticsProvider()
     {
