@@ -41,6 +41,7 @@ public class Interface
     private boolean is_local = false;
     private boolean is_abstract = false;
     private ScopeData scopeData;
+    private boolean parsed = false;
 
     private ReplyHandler replyHandler = null;
 
@@ -225,6 +226,16 @@ public class Interface
     {
         boolean justAnotherOne = false;
 
+        if (parsed)
+        {
+            // there are occasions where the compiler may try to parse
+            // an Interface type spec for a second time, viz if it is
+            // referred to through a scoped name in another struct member.
+            // that's not a problem, but we have to skip parsing again!
+            // Fixes bug #629, copied from fix for bug #84
+            return;
+        }
+
         escapeName();
 
         ConstrTypeSpec ctspec = new ConstrTypeSpec(new_num());
@@ -366,6 +377,8 @@ public class Interface
             // pending further parsing
             parser.set_pending(full_name());
         }
+
+        parsed = true;
     }
 
 
