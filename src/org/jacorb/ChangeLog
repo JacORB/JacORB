@@ -1,3 +1,9 @@
+2005-10-25  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* ir/RepositoryID.java (className): invoke convertFromISOLatin1
+	when creating a RMI RepositoryID.  thanks to Lionel Chevry for
+	supplying the patch.  fix for bug #528.
+
 2005-10-25  Andre Spiegel  <spiegel@gnu.org>
 
 	Patch by Trevor Harmon, fixing bug #622.
