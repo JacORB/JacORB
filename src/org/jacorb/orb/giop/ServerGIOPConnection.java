@@ -82,6 +82,10 @@ public class ServerGIOPConnection
     {
         if( tryDiscard() )
         {
+            if (logger.isDebugEnabled())
+                logger.debug("ServerGIOPConnection.tryClose() " +
+                             this.toString() + " will send close connection");
+                
             sendCloseConnection();
 
             closeOnReadTimeout = true;
@@ -95,6 +99,10 @@ public class ServerGIOPConnection
         }
         else
         {
+            if (logger.isDebugEnabled())
+                logger.debug("ServerGIOPConnection.tryClose() " +
+                             this.toString() + " cannot close connection");
+                
             return false;
         }
     }
