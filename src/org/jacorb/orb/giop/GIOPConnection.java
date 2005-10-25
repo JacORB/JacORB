@@ -280,11 +280,15 @@ public abstract class GIOPConnection
         }
         catch (org.omg.CORBA.COMM_FAILURE ex)
         {
+            if (logger.isDebugEnabled())
+                logger.debug("GIOPConnection.getMessage(): COMM_FAILURE");
             this.streamClosed();
             return null;
         }
         catch (org.omg.CORBA.TIMEOUT ex)
         {
+            if (logger.isDebugEnabled())
+                logger.debug("GIOPConnection.getMessage(): TIMEOUT");
             this.readTimedOut();
             return null;
         }
@@ -813,8 +817,17 @@ public abstract class GIOPConnection
 
                 synchronized (connect_sync)
                 {
-                    transport.connect (profile, timeout);
-                    connect_sync.notifyAll();
+                    try
+                    {
+                        transport.connect (profile, timeout);
+                        connect_sync.notifyAll();
+                    }
+                    catch (RuntimeException ex)
+                    {
+                        do_close = true;
+                        connect_sync.notifyAll();
+                        throw ex;
+                    }
                 }
 
             }
