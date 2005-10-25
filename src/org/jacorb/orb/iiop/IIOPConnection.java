@@ -56,7 +56,7 @@ public abstract class IIOPConnection
         return use_ssl;
     }
 
-    protected void setTimeout(int timeout)
+    protected synchronized void setTimeout(int timeout)
     {
         if (socket != null)
         {
