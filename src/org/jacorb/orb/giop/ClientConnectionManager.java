@@ -183,11 +183,25 @@ public class ClientConnectionManager
      */
     public synchronized void releaseConnection( ClientConnection c )
     {
-        // hasNoMoreClients now merged into decClients.
         if ( c.decClients() )
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug ("releasing connection to " + c.getInfo());
+            }
             c.close();
             connections.remove(c.getRegisteredProfile());
+        }
+        else
+        {
+            // not sure if this should be a warning or even an error
+            if (logger.isDebugEnabled())
+            {
+                logger.debug ("cannot release connection to " 
+                              + c.getInfo() + 
+                              " (still has " + c.numClients()
+                              + " clients)");
+            }
         }
     }
 
