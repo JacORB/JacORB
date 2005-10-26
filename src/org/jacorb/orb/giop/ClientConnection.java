@@ -249,6 +249,13 @@ public class ClientConnection
         return result;
     }
 
+    /**
+     * Returns the number of clients currently using this connection.
+     */
+    public int numClients() 
+    {
+        return client_count;
+    }
 
     public boolean isClientInitiated()
     {
