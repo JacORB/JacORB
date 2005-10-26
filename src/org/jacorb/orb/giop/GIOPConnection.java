@@ -239,10 +239,19 @@ public abstract class GIOPConnection
          }
     }
 
-
+    /**
+     * Called by this.getMessage() to signal that the attempt to
+     * read a message resulted in a timeout.  This method is implemented
+     * differently on the client and server side.
+     */
     protected abstract void readTimedOut();
-    protected abstract void streamClosed();
 
+    /**
+     * Called by this.getMessage() to signal that the underlying transport
+     * was closed while attempting to read a message.  This method is
+     * implemented differently on the client and server side.
+     */
+    protected abstract void streamClosed();
 
     /**
      * Read a GIOP message from the stream. This will first try to

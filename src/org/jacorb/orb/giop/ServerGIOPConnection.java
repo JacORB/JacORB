@@ -75,8 +75,17 @@ public class ServerGIOPConnection
 
 
     /*
-     * <code>tryClose</close> called by GIOPConnectionManager::createServerGIOPConnection
-     * if there are too many GIOP connections or if we have timed out with nothing pending.
+     * Try an orderly shutdown of this connection by sending a
+     * CloseConnection message.  The CORBA spec only allows us to
+     * do that if we have no more pending messages for which we
+     * haven't sent a reply yet (CORBA 3.0, 15.5.1.1).  If there are
+     * pending messages, this method does nothing and returns false.
+     * If there are no pending messages, it sets the connection into
+     * discarding mode, sends the CloseConnection message, and reports
+     * the connection as closed to any connection_listener that's registered
+     * with this connection.  The actual closing of the connection will happen
+     * later, when the transport gets closed by the client, or the final
+     * timeout has passed.
      */
     boolean tryClose()
     {
@@ -183,26 +192,32 @@ public class ServerGIOPConnection
         }
     }
 
-
+    /**
+     * Server-side implementation what to do when a read timeout occurs.
+     * We react by trying an orderly shutdown that's initiated with
+     * a CloseConnection message.  If this timeout occured after we have
+     * already sent CloseConnection, just close down unconditionally.
+     */
     protected void readTimedOut()
     {
         if( closeOnReadTimeout )
         {
+            // we get here if we have sent a CloseConnection message
+            // on this connection before
             close();
         }
         else
         {
-            /*
-             * If we don't have any more pending messages, we'll send a
-             * GIOP CloseConnection message (done by tryClose() ).
-             */
+            // attempt an orderly shutdown by sending a CloseConnection
+            // message
             tryClose();
         }
     }
 
     /**
-     * We're server side and can't reopen, therefore close completely
-     * if stream closed.
+     * Server-side implementation what to do if the underlying transport
+     * gets closed during a read operation. Since we're server-side and
+     * can't reopen, we simply close completely.
      */
     protected void streamClosed()
     {

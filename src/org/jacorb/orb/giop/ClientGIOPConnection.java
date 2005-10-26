@@ -55,7 +55,15 @@ public class ClientGIOPConnection
             configuration.getAttribute("jacorb.connection.client.timeout_ignores_pending_messages","off").equals("on");
     }
 
-
+    /**
+     * Client-side implementation what to do when a read on the
+     * underlying transport times out.  If we have no pending messages
+     * for which we haven't received a reply yet, or if the property
+     * jacorb.connection.client.timeout_ignores_pending_messages is on,
+     * then we close the transport, but allow it to be reopened later.
+     * If we have pending message and are not allowed to ignore that,
+     * do nothing.
+     */
     protected void readTimedOut()
     {
         synchronized( pendingUndecidedSync )
@@ -71,6 +79,11 @@ public class ClientGIOPConnection
         }
     }
 
+    /**
+     * Client-side implementation what to do when the underlying transport
+     * is closed during a read operation.  We mark the transport as closed
+     * and allow it to be reopened later, when the client retries.
+     */
     protected void streamClosed()
     {
         closeAllowReopen();
@@ -81,6 +94,11 @@ public class ClientGIOPConnection
         }
     }
 
+    /**
+     * Closes the underlying transport, but keeps this ClientGIOPConnection
+     * alive.  If, subsequently, another request is sent to this connection,
+     * it will try to reopen the transport.
+     */
     public void closeAllowReopen()
     {
         try
