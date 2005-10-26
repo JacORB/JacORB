@@ -224,16 +224,17 @@ public class ClientConnection
         return id;
     }
 
+    /**
+     * Increments the number of clients.
+     */
     public synchronized void incClients()
     {
         client_count++;
     }
 
     /**
-     * This method decrements the number of clients. If the number reaches
-     * zero it also calls close.
-     *
-     * @return a <code>boolean</code> value, true if client_count is zero.
+     * Decrements the number of clients and returns true if the number
+     * reaches zero.
      */
     public synchronized boolean decClients()
     {
