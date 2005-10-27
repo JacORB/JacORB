@@ -378,17 +378,17 @@ public class QoSPropertySet extends PropertySet
     }
 
 
-    private void checkPropertyValues(Property[] ps, List errors)
+    private void checkPropertyValues(Property[] props, List errors)
     {
-        for (int x = 0; x < ps.length; ++x) {
-            String _propertyName = ps[x].name;
-            Any _value = ps[x].value;
+        for (int x = 0; x < props.length; ++x) {
+            final String _name = props[x].name;
+            final Any _value = props[x].value;
 
             try {
-                if (ConnectionReliability.value.equals(_propertyName)) {
+                if (ConnectionReliability.value.equals(_name)) {
 
-                    short _connectionReliability =
-                        checkIsShort(_propertyName, _value, errors);
+                    final short _connectionReliability =
+                        checkIsShort(_name, _value, errors);
 
                     switch (_connectionReliability)
                         {
@@ -399,16 +399,16 @@ public class QoSPropertySet extends PropertySet
                         default:
                             logError(errors,
                                      QoSError_code.BAD_VALUE,
-                                     _propertyName,
+                                     _name,
                                      _value,
                                      connectionReliabilityLow_,
                                      connectionReliabilityHigh_ );
                         }
-                } else if (EventReliability.value.equals(_propertyName)) {
+                } else if (EventReliability.value.equals(_name)) {
 
-                    short _eReliability = checkIsShort(_propertyName, _value, errors);
+                    final short _eventReliability = checkIsShort(_name, _value, errors);
 
-                    switch (_eReliability)
+                    switch (_eventReliability)
                         {
                         case BestEffort.value:
                             // fallthrough
@@ -417,16 +417,16 @@ public class QoSPropertySet extends PropertySet
                         default:
                             logError(errors,
                                      QoSError_code.BAD_VALUE,
-                                     _propertyName,
+                                     _name,
                                      _value,
                                      eventReliabilityLow_,
                                      eventReliabilityHigh_);
                         }
-                } else if (OrderPolicy.value.equals(_propertyName)) {
+                } else if (OrderPolicy.value.equals(_name)) {
 
-                    short _oPolicy = checkIsShort(_propertyName, _value, errors);
+                    final short _orderPolicy = checkIsShort(_name, _value, errors);
 
-                    switch (_oPolicy)
+                    switch (_orderPolicy)
                         {
                         case AnyOrder.value:
                             break;
@@ -439,15 +439,15 @@ public class QoSPropertySet extends PropertySet
                         default:
                             logError(errors,
                                      QoSError_code.BAD_VALUE,
-                                     _propertyName,
+                                     _name,
                                      _value,
                                      orderPolicyLow_,
                                      orderPolicyHigh_);
                         }
-                } else if (DiscardPolicy.value.equals(_propertyName)) {
-                    short _dPolicy = checkIsShort(_propertyName, _value, errors);
+                } else if (DiscardPolicy.value.equals(_name)) {
+                    final short _discardPolicy = checkIsShort(_name, _value, errors);
 
-                    switch (_dPolicy)
+                    switch (_discardPolicy)
                         {
                         case AnyOrder.value:
                             break;
@@ -462,14 +462,14 @@ public class QoSPropertySet extends PropertySet
                         default:
                             logError(errors,
                                      QoSError_code.BAD_VALUE,
-                                     _propertyName,
+                                     _name,
                                      _value,
                                      discardPolicyLow_,
                                      discardPolicyHigh_);
                         }
                 }
             } catch (BAD_OPERATION e) {
-                // Nothing to do. a error has already been added to
+                // Nothing to do. an error has already been added to
                 // List 'errors'.
             }
         }
