@@ -218,7 +218,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
         listManager_ = new FilterStageListManager()
         {
-            public void fetchListData(FilterStageListManager.List list)
+            public void fetchListData(FilterStageListManager.FilterStageList list)
             {
                 synchronized (modifyConsumerAdminsLock_)
                 {
