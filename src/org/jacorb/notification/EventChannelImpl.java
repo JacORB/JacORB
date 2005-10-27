@@ -48,7 +48,7 @@ import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
 
 /**
- * @jmx:mbean name="EventChannelMBean" description="Control an EventChannel"
+ * @jmx.mbean name="EventChannelMBean" description="Control an EventChannel"
  * extends = "AbstractEventChannelMBean"
  * 
  * @jboss.xmbean
