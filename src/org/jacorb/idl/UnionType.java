@@ -1232,7 +1232,13 @@ public class UnionType
 
                 if (t instanceof ConstrTypeSpec)
                 {
-                    ps.print(t.typeSpec().toString() + "Helper.type(),");
+                    try
+                    {
+                        ps.print(t.typeSpec().helperName() + ".type(),");
+                    } catch (NoHelperException ex)
+                    {
+                        ps.print(t.typeSpec().getTypeCodeExpression() + ",");
+                    }
                 }
                 else
                 {
