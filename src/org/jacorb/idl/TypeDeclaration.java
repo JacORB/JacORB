@@ -50,7 +50,7 @@ public class TypeDeclaration
     public TypeDeclaration declaration()
     {
         return type_decl;
-    };
+    }
 
     public String typeName()
     {
@@ -148,7 +148,11 @@ public class TypeDeclaration
     }
 
     public String helperName() throws NoHelperException {
-        System.out.println("TypeDecl.helperName() for "+this.getClass());
+        if (type_decl == null)
+        {
+            throw new NoHelperException();
+        }
+        
         return type_decl.helperName();
     }
 
