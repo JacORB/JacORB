@@ -50,7 +50,7 @@ import org.omg.PortableServer.Servant;
  */
 
 public class SequenceProxyPushConsumerImpl extends AbstractProxyConsumer implements
-        SequenceProxyPushConsumerOperations, SequenceProxyPushConsumerImplMBean, AbstractProxyConsumerI
+        SequenceProxyPushConsumerOperations, SequenceProxyPushConsumerImplMBean, IProxyConsumer
 {
     private SequencePushSupplier sequencePushSupplier_;
 

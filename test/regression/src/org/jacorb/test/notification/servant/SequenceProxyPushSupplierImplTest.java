@@ -260,9 +260,8 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         MockControl controlMessage = MockControl.createNiceControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
 
-        mockMessage.clone();
-        controlMessage.setReturnValue(mockMessage);
-
+        controlMessage.expectAndReturn(mockMessage.clone(), mockMessage, MockControl.ONE_OR_MORE);
+        
         mockMessage.toStructuredEvent();
         controlMessage.setReturnValue(event);
 

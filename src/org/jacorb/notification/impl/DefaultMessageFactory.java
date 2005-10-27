@@ -28,7 +28,7 @@ import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.TypedEventMessage;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.servant.AbstractProxyConsumerI;
+import org.jacorb.notification.servant.IProxyConsumer;
 import org.jacorb.notification.util.AbstractObjectPool;
 import org.jacorb.notification.util.AbstractPoolablePool;
 import org.omg.CORBA.Any;
@@ -97,7 +97,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
     /**
      * create a Message wrapping an unstructured event.
      */
-    public Message newMessage(Any any, AbstractProxyConsumerI consumer)
+    public Message newMessage(Any any, IProxyConsumer consumer)
     {
         if (StructuredEventHelper.type().equals(any.type()))
         {
@@ -116,7 +116,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
     /**
      * create a Message wrapping a structured event.
      */
-    public Message newMessage(StructuredEvent structuredEvent, AbstractProxyConsumerI consumer)
+    public Message newMessage(StructuredEvent structuredEvent, IProxyConsumer consumer)
     {
         final String _typeName = structuredEvent.header.fixed_header.event_type.type_name;
 
@@ -142,7 +142,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
      * create a Message wrapping a typed event.
      */
     public Message newMessage(String interfaceName, String operationName, NVList args,
-            AbstractProxyConsumerI consumer)
+            IProxyConsumer consumer)
     {
         try
         {

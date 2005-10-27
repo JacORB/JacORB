@@ -22,6 +22,7 @@ package org.jacorb.notification.servant;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.jacorb.notification.interfaces.FilterStage;
 
@@ -32,19 +33,19 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 abstract public class FilterStageListManager {
 
-    public interface List {
-        void add(FilterStage d);
+    public interface FilterStageList {
+        void add(FilterStage filterStage);
     }
 
     ////////////////////////////////////////
 
     private final Object lock_ = new Object();
 
-    private java.util.List checkedList_ = Collections.EMPTY_LIST;
+    private List checkedList_ = Collections.EMPTY_LIST;
 
     private boolean sourceModified_;
 
-    private java.util.List readOnlyView_ = Collections.EMPTY_LIST;
+    private List readOnlyView_ = Collections.EMPTY_LIST;
 
     ////////////////////////////////////////
 
@@ -55,12 +56,12 @@ abstract public class FilterStageListManager {
     }
 
 
-    public java.util.List getList() {
+    public List getList() {
         synchronized(lock_) {
             if (sourceModified_) {
-                final java.util.List _newList = new ArrayList();
+                final List _newList = new ArrayList();
 
-                List _listProxy = new List() {
+                FilterStageList _listProxy = new FilterStageList() {
                         public void add(FilterStage d) {
                             if (!d.isDestroyed()) {
                                 _newList.add(d);
@@ -74,16 +75,16 @@ abstract public class FilterStageListManager {
                 readOnlyView_ = Collections.unmodifiableList(checkedList_);
                 sourceModified_ = false;
             }
-            sortCheckedList(checkedList_);
+            doSortCheckedList(checkedList_);
             
             return readOnlyView_;
         }
     }
 
-    protected void sortCheckedList(java.util.List list)
+    protected void doSortCheckedList(List list)
     {
         // No OP
     }
 
-    abstract protected void fetchListData(List listProxy);
+    abstract protected void fetchListData(FilterStageList listProxy);
 }

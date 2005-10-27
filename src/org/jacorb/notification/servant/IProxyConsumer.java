@@ -27,7 +27,7 @@ import org.jacorb.notification.interfaces.FilterStage;
  * @version $Id$
  */
 
-public interface AbstractProxyConsumerI {
+public interface IProxyConsumer {
     boolean getStartTimeSupported();
     boolean getTimeOutSupported();
     FilterStage getFirstStage();

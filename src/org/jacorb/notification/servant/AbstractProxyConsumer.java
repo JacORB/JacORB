@@ -63,7 +63,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  * @version $Id$
  */
 
-public abstract class AbstractProxyConsumer extends AbstractProxy implements AbstractProxyConsumerI,
+public abstract class AbstractProxyConsumer extends AbstractProxy implements IProxyConsumer,
         NotifyPublishOperations, AbstractProxyConsumerMBean
 {
     private final static EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];

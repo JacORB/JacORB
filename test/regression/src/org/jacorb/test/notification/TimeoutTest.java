@@ -26,7 +26,7 @@ import junit.framework.Test;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.servant.AbstractProxyConsumerI;
+import org.jacorb.notification.servant.IProxyConsumer;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -103,7 +103,7 @@ public class TimeoutTest extends NotificationTestCase
         structuredEvent_.header.variable_header[0] = new Property(Timeout.value, _any);
 
         Message _event = messageFactory_.newMessage(structuredEvent_,
-                                                    new AbstractProxyConsumerI() {
+                                                    new IProxyConsumer() {
                                                         public boolean getStartTimeSupported() {
                                                             return true;
                                                         }

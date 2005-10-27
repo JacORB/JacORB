@@ -7,7 +7,7 @@ import junit.framework.Test;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.servant.AbstractProxyConsumerI;
+import org.jacorb.notification.servant.IProxyConsumer;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
@@ -133,7 +133,7 @@ public class MessageFactoryTest extends NotificationTestCase
         StructuredEventHelper.insert(_wrappedStructuredEvent, testStructured_);
 
         Message _mesg = messageFactory_.newMessage(_wrappedStructuredEvent,
-                new AbstractProxyConsumerI()
+                new IProxyConsumer()
                 {
                     public boolean getStartTimeSupported()
                     {
@@ -177,7 +177,7 @@ public class MessageFactoryTest extends NotificationTestCase
 
         _wrappedAny.remainder_of_body = testPerson_;
 
-        Message _mesg = messageFactory_.newMessage(_wrappedAny, new AbstractProxyConsumerI()
+        Message _mesg = messageFactory_.newMessage(_wrappedAny, new IProxyConsumer()
         {
             public boolean getStartTimeSupported()
             {

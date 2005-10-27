@@ -80,7 +80,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 {
     private static final String EVENT_MESSAGE_DISCARDED = "notification.proxy.message_discarded";
 
-    int numberOfDiscardedMessages_ = 0;
+    private int numberOfDiscardedMessages_ = 0;
 
     private MessageQueue.DiscardListener discardListener_ = new MessageQueue.DiscardListener()
     {
@@ -282,7 +282,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 
         try
         {
-            pendingMessages_.enqeue(message);
+            pendingMessages_.enqeue(_copy);
 
             if (logger_.isDebugEnabled())
             {

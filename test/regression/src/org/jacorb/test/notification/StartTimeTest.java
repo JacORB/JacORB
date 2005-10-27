@@ -29,7 +29,7 @@ import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.servant.AbstractProxyConsumerI;
+import org.jacorb.notification.servant.IProxyConsumer;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
@@ -55,7 +55,7 @@ public class StartTimeTest extends NotificationTestCase
 
     StructuredEvent structuredEvent_;
 
-    AbstractProxyConsumerI proxyConsumerMock_ = new AbstractProxyConsumerI()
+    IProxyConsumer proxyConsumerMock_ = new IProxyConsumer()
     {
         public boolean getStartTimeSupported()
         {

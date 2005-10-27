@@ -20,8 +20,6 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.List;
-
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.NoTranslationException;
@@ -32,7 +30,6 @@ import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CORBA.ARG_IN;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.ORB;

@@ -240,10 +240,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         } catch (InconsistentTypeCode e)
         {
             throw new RuntimeException();
-        } catch (InterruptedException e)
-        {
-            throw new RuntimeException();
-        }
+        } 
     }
 
     private void ensureMethodOnlyUsesOutParams(OperationDescription operation)
@@ -282,7 +279,6 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
     }
 
     private final Map newMessageQueueMap(FullInterfaceDescription interfaceDescription)
-            throws InterruptedException
     {
         Map map = new HashMap();
 
