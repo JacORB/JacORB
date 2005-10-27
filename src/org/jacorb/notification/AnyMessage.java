@@ -79,8 +79,8 @@ public class AnyMessage extends AbstractMessage
 
     private Property[] typedEventValue_;
 
-    private boolean isTranslationPossible_ = true;
-
+    private NoTranslationException translationException_ = null;
+    
     ////////////////////////////////////////
 
     public synchronized void setAny( Any any )
@@ -96,7 +96,7 @@ public class AnyMessage extends AbstractMessage
         anyValue_ = null;
         structuredEventValue_ = null;
         typedEventValue_ = null;
-        isTranslationPossible_ = true;
+        translationException_ = null;
     }
 
 
@@ -114,8 +114,8 @@ public class AnyMessage extends AbstractMessage
 
     public synchronized Property[] toTypedEvent() throws NoTranslationException
     {
-        if (!isTranslationPossible_) {
-            throw new NoTranslationException();
+        if (translationException_ != null) {
+            throw translationException_;
         }
 
         if (typedEventValue_ == null) {
@@ -132,9 +132,9 @@ public class AnyMessage extends AbstractMessage
 
                 typedEventValue_ = _typedEventValue;
             } catch (Exception e) {
-                isTranslationPossible_ = false;
+                translationException_ = new NoTranslationException(e);
 
-                throw new NoTranslationException();
+                throw translationException_;
             }
         }
         return typedEventValue_;

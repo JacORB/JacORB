@@ -29,11 +29,6 @@ public class NoTranslationException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public NoTranslationException()
-    {
-        super();
-    }
-    
     public NoTranslationException(Exception cause)
     {
         super(cause.getMessage());
