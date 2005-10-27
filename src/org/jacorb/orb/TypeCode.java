@@ -380,6 +380,7 @@ public class TypeCode
         value_modifier = type_modifier;
         content_type = concrete_base;
         setValueMembers(members);
+        resolveRecursion(this);
     }
 
     /**
@@ -1470,6 +1471,12 @@ public class TypeCode
                   {
                      tc.resolveRecursion (actual);
                   }
+               }
+               break;
+            case  -1: // create_recursive_tc sets kind to -1
+               if (tc.id.equals (actual.id))
+               {
+                   tc.setActualTC (actual);
                }
                break;
             }
