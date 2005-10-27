@@ -57,10 +57,11 @@ public class AssocOperator extends AbstractTCLNode
 
     public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
-
+                // no operation
     }
 
     public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
     {
+                // no operation
     }
 }

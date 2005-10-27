@@ -56,31 +56,34 @@ public class DomainNameShorthandNode
         return COMP_NAME;
     }
 
-    public void acceptInOrder(AbstractTCLVisitor v) {
-
+    public void acceptInOrder(AbstractTCLVisitor v) 
+    {
+        // no op
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor v) {
-
+    public void acceptPostOrder(AbstractTCLVisitor v) 
+    {
+        // no op
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor v) {
-
+    public void acceptPreOrder(AbstractTCLVisitor v) 
+    {
+        // no op
     }
 
     public EvaluationResult evaluate( EvaluationContext context )
         throws EvaluationException {
 
-        Message _event = context.getCurrentMessage();
-
-        EvaluationResult _result = new EvaluationResult();
-
+        final Message _event = context.getCurrentMessage();
+        final EvaluationResult _result;
+        
         switch (_event.getType()) {
         case Message.TYPE_ANY:
             _result = expandedPath_.evaluate(context);
             break;
         case Message.TYPE_STRUCTURED:
             String _domainName = _event.toStructuredEvent().header.fixed_header.event_type.domain_name;
+            _result = new EvaluationResult();
             _result.setString(_domainName);
             break;
         default:

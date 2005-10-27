@@ -36,9 +36,9 @@ public class NeqOperator extends BinaryOperator
     }
 
     public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left,
-            EvaluationResult right) throws EvaluationException
+            EvaluationResult rightResult) throws EvaluationException
     {
-        int _comp = left.compareTo(right);
+        int _comp = left.compareTo(rightResult);
 
         return (_comp == 0) ? EvaluationResult.BOOL_FALSE : EvaluationResult.BOOL_TRUE;
     }

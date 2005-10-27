@@ -56,18 +56,19 @@ public class PropertyShorthandNode extends AbstractTCLNode
             shorthandVariableHeader_ = (ETCLComponentName) TCLParser
                     .parse("$.header.variable_header(" + value + ")");
 
-            shorthandVariableHeader_.acceptInOrder(new TCLCleanUp());
+            final TCLCleanUp etclCleanup = new TCLCleanUp();
+            shorthandVariableHeader_.acceptInOrder(etclCleanup);
 
             shorthandFilterableData_ = (ETCLComponentName) TCLParser.parse("$.filterable_data("
                     + value + ")");
 
-            shorthandFilterableData_.acceptInOrder(new TCLCleanUp());
+            shorthandFilterableData_.acceptInOrder(etclCleanup);
 
             shorthandDefault_ = (ETCLComponentName) TCLParser.parse("$." + value);
-            shorthandDefault_.acceptInOrder(new TCLCleanUp());
+            shorthandDefault_.acceptInOrder(etclCleanup);
 
             shorthandDefaultAny_ = (ETCLComponentName) TCLParser.parse("$(" + value + ")");
-            shorthandDefaultAny_.acceptInOrder(new TCLCleanUp());
+            shorthandDefaultAny_.acceptInOrder(etclCleanup);
 
         } catch (ParseException e)
         {
@@ -81,7 +82,7 @@ public class PropertyShorthandNode extends AbstractTCLNode
     public EvaluationResult evaluate(EvaluationContext context)
             throws PropertyDoesNotExistException
     {
-        Message _event = context.getCurrentMessage();
+        final Message _event = context.getCurrentMessage();
         EvaluationResult _res = null;
 
         try

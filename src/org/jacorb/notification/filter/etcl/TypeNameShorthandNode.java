@@ -61,20 +61,25 @@ public class TypeNameShorthandNode extends ETCLComponentName
     }
 
     public void acceptInOrder( AbstractTCLVisitor v )
-    {}
+    {
+        // no operation
+    }
 
     public void acceptPostOrder( AbstractTCLVisitor v )
-    {}
+    {
+        // no operation
+    }
 
     public void acceptPreOrder( AbstractTCLVisitor v )
-    {}
+    {
+        // no operation
+    }
 
     public EvaluationResult evaluate( EvaluationContext context )
         throws EvaluationException
     {
-        Message _event = context.getCurrentMessage();
-
-        EvaluationResult _result;
+        final Message _event = context.getCurrentMessage();
+        final EvaluationResult _result;
 
         switch ( _event.getType() )
         {

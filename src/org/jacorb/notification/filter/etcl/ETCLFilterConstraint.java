@@ -31,10 +31,7 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 
 /**
- * Representation of a Constraint.
- * A {@link org.jacorb.notification.FilterImpl FilterImpl} encapsulates
- * several Constraints. Each Constraint is represented by an instance
- * of this Class.
+ * Representation of a ETCL Filter Constraint.
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -45,7 +42,7 @@ public class ETCLFilterConstraint implements FilterConstraint
     /**
      * AST for the Constraint
      */
-    private AbstractTCLNode rootNode_;
+    private final AbstractTCLNode rootNode_;
 
     ////////////////////////////////////////
 
