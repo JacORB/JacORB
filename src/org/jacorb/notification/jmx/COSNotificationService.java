@@ -85,15 +85,15 @@ public class COSNotificationService implements COSNotificationServiceMBean
         DynamicMBeanProvider _decoratedProvider = new UnregisterObjectNameProviderDecorator(
                 mbeanServer, mbeanProvider);
 
-        ComponentAdapterFactory _nonCachingFactory = new JMXExposingComponentAdapterFactory(
+        ComponentAdapterFactory _defaultCAF = new JMXExposingComponentAdapterFactory(
                 new ConstructorInjectionComponentAdapterFactory(), mbeanServer,
                 new DynamicMBeanProvider[] { _decoratedProvider });
 
-        ComponentAdapterFactory _cachingFactory = new CachingComponentAdapterFactory(
-                _nonCachingFactory);
+        ComponentAdapterFactory _cachingCAF = new CachingComponentAdapterFactory(
+                _defaultCAF);
 
-        container_ = new DefaultPicoContainer(_cachingFactory);
-        container_.registerComponentInstance(ComponentAdapterFactory.class, _nonCachingFactory);
+        container_ = new DefaultPicoContainer(_cachingCAF);
+        container_.registerComponentInstance(ComponentAdapterFactory.class, _defaultCAF);
     }
 
     /**
