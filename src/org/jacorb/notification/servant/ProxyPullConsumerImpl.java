@@ -176,7 +176,7 @@ public class ProxyPullConsumerImpl extends AbstractProxyConsumer implements
         return pullMessagesOperation_.getSuccessfulPullCounter();
     }
 
-    public PullResult pullMessages() throws Disconnected
+    public MessageSupplierDelegate.PullResult pullMessages() throws Disconnected
     {
         BooleanHolder _hasEvent = new BooleanHolder();
         Any _event = pullSupplier_.try_pull(_hasEvent);

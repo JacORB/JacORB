@@ -145,7 +145,7 @@ public class StructuredProxyPullConsumerImpl extends AbstractProxyConsumer imple
         return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
 
-    public PullResult pullMessages() throws Disconnected
+    public MessageSupplierDelegate.PullResult pullMessages() throws Disconnected
     {
         BooleanHolder _hasEvent = new BooleanHolder();
         _hasEvent.value = false;
