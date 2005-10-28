@@ -32,32 +32,23 @@ import org.jacorb.notification.conf.Attributes;
 
 public class ConsoleMain
 {
-    private static void help()
+    public static void help()
     {
-        System.out.println("Usage: ntfy [-printIOR] [-printCorbaloc] " + "[-writeIOR <filename>] "
+        System.out.println("valid arguments: [-printIOR] [-printCorbaloc] " + "[-writeIOR <filename>] "
                 + "[-registerName <nameId>[.<nameKind>]] "
                 + "[-port <oaPort>] [-channels <channels>] [-help]");
-        
-        System.exit(0);
     }
 
     private static class CmdLineParser
     {
-        private boolean doHelp = false;
-
         private Properties props = new Properties();
-
-        public boolean getDoHelp()
-        {
-            return doHelp;
-        }
 
         public Properties getProps()
         {
             return props;
         }
 
-        CmdLineParser(String[] args)
+        public CmdLineParser(String[] args)
         {
             perform(args);
         }
@@ -79,7 +70,8 @@ public class ConsoleMain
                     }
                     else if (args[i].equals("-help"))
                     {
-                        doHelp = true;
+                        // TODO exception is used as goto here.
+                        throw new IllegalArgumentException("usage");
                     }
                     else if (args[i].equals("-port"))
                     {
@@ -105,14 +97,12 @@ public class ConsoleMain
                     }
                     else
                     {
-                        System.out.println("Unknown argument: " + args[i]);
-
-                        doHelp = true;
+                        throw new IllegalArgumentException("unknown Argument: " + args[i]);
                     }
                 }
             } catch (ArrayIndexOutOfBoundsException e)
             {
-                doHelp = true;
+                throw new IllegalArgumentException("illegal number of arguments");
             }
         }
     }
@@ -154,13 +144,6 @@ public class ConsoleMain
         
         CmdLineParser _cmdLineParser = new CmdLineParser(args);
 
-        if (_cmdLineParser.getDoHelp())
-        {
-            help();
-
-            System.exit(0);
-        }
-        
         return _cmdLineParser.getProps();
     }
     
@@ -173,6 +156,7 @@ public class ConsoleMain
         
         StringTokenizer tokenizer = new StringTokenizer(argString, " ");
         String[] result = new String[tokenizer.countTokens()];
+        
         for (int i = 0; i < result.length; ++i)
         {
             result[i] = tokenizer.nextToken();
@@ -183,6 +167,15 @@ public class ConsoleMain
     
     public static final void main(String[] args) throws Exception
     {
-        newFactory(args);
+        try
+        {
+            newFactory(args);
+        }
+        catch (IllegalArgumentException e)
+        {
+            System.out.println(e.getMessage());
+            
+            help();
+        }
     }
 }
