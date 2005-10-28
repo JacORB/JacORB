@@ -65,6 +65,7 @@ public class PackageTest extends TestCase
         _suite.addTest(StructuredEventMessageTest.suite());
         _suite.addTest(TypedEventMessageTest.suite());
         _suite.addTest(FilterManagerTest.suite());
+        _suite.addTest(ConsoleMainTest.suite());
         
         return _suite;
     }
