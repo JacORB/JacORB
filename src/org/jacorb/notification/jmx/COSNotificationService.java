@@ -234,4 +234,9 @@ public class COSNotificationService implements COSNotificationServiceMBean
             }
         }
     }
+    
+    public org.omg.CORBA.Object getEventChannelFactory()
+    {
+        return factory_.activate();
+    }
 }
