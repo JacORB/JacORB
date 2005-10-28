@@ -15,6 +15,8 @@
   &common;
   &xdoclet;
 	
+	<property file="${basedir}/build.properties" />
+	
   	<property name="dir.notification" value="${basedir}/src/org/jacorb/notification" />
 
 	<target name="notification.init" depends="init, check-regexp">
@@ -176,7 +178,9 @@
 		</jacorb-jmxgen>
 	</target>
 
-	<target name="server" depends="notification.compile.regexp">
+	<target name="server" depends="server.compile, server.sar" />
+	
+	<target name="server.compile" depends="notification.compile.regexp">
 		<jacorb-javac javac-includes="org/jacorb/notification/**/*.java" javac-excludes="org/jacorb/notification/util/*PatternWrapper.java,
                       	org/jacorb/notification/WrapperMain.java,
 	                  	org/jacorb/notification/filter/bsh/**,
@@ -185,7 +189,7 @@
 		<jacorb-javac javac-classpathref="path.wrapper" javac-includes="org/jacorb/notification/WrapperMain.java" />
 	</target>
 
-
+	
 	<target name="notification.compile.regexp" depends="notification.init,
              	notification.compile.regexp.gnu, 
              	notification.compile.regexp.jakarta-regexp,
@@ -198,13 +202,11 @@
                       	org/jacorb/notification/util/GNUPatternWrapper.java" />
 	</target>
 
-
 	<target name="notification.compile.regexp.jdk" if="available.regexp.jdk">
 		<echo message="Compiling for java.util.regexp (JDK 1.4+)" />
 		<jacorb-javac javac-includes="org/jacorb/notification/util/PatternWrapper.java,
                       org/jacorb/notification/util/JDK14PatternWrapper.java" />
 	</target>
-
 
 	<target name="notification.compile.regexp.jakarta-regexp" if="available.regexp.jakarta-regexp">
 
@@ -213,6 +215,10 @@
 	                  org/jacorb/notification/util/JakartaRegexpPatternWrapper.java" />
 	</target>
 
+	
+	<target name="server.sar" if="jbossmx.enabled">
+		<ant antfile="${basedir}/src/org/jacorb/notification/jmx/jboss/build.xml" />
+	</target>
 
 	<!-- clean -->
 	<target name="clean" depends="init, clean.classes" description="Erase all compiled classes">
