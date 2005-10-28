@@ -56,11 +56,8 @@ public class BSHFilterTest extends NotificationTestCase
      */
     public void testReturnTrue() throws Exception
     {
-        String filterExpr = "return true";
+        attachFilter("return true");
 
-        attachFilter(filterExpr);
-
-        // this should match
         assertTrue(objectUnderTest_.match(testData_));
     }
 
@@ -68,7 +65,7 @@ public class BSHFilterTest extends NotificationTestCase
     {
         attachFilter("event.extract_long() == 10");
 
-        objectUnderTest_.match(testData_);
+        assertTrue(objectUnderTest_.match(testData_));
     }
 
     public void testReturnFalse() throws Exception
