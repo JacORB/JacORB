@@ -22,10 +22,15 @@
 package org.jacorb.notification.jmx.jboss;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.Name;
 import javax.naming.Reference;
+import javax.naming.spi.ObjectFactory;
 
+import org.jacorb.notification.ConsoleMain;
 import org.jacorb.notification.jmx.COSNotificationService;
 import org.jboss.iiop.CorbaORBService;
 import org.jboss.mx.util.MBeanServerLocator;
@@ -37,6 +42,12 @@ import org.omg.CORBA.ORB;
  * 
  * @jmx.mbean   name = "JBossCOSNotificationService" 
  *              extends = "org.jboss.system.ServiceMBean"
+ *              persistPolicy = "OnUpdate" 
+ *              persistPeriod = "10" 
+ *              persistLocation = "${jboss.server.data.dir}" 
+ *              persistName = "COSNotification.ser" 
+ *              state-action-on-update = "keep-running" 
+ *              persistence-manager = "org.jboss.mx.persistence.ObjectStreamPersistenceManager"
  * 
  * @jboss.xmbean
  * 
@@ -44,7 +55,7 @@ import org.omg.CORBA.ORB;
  * @version $Id$
  */
 public class JBossCOSNotificationService extends ServiceMBeanSupport implements
-        JBossCOSNotificationServiceMBean
+        JBossCOSNotificationServiceMBean, ObjectFactory
 {
     public final static String NAMING_NAME = "COSNotification";
 
@@ -53,10 +64,16 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     private static final String NOT_RUNNING = "Not Started";
 
     private COSNotificationService delegate_;
-    
+
+    private String iorFileName_;
+
+    private String cosNamingEntry_;
+
+    private String additionalArguments_;
+
     // operation from super interfaces
     // this is redundant but otherwise xmbean is not generated correctly
-    
+
     /**
      * @jmx.managed-attribute access = "read-only"
      */
@@ -64,7 +81,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     {
         return super.getName();
     }
-    
+
     /**
      * @jmx.managed-attribute access = "read-only"
      */
@@ -72,7 +89,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     {
         return super.getState();
     }
-    
+
     /**
      * @jmx.managed-attribute access = "read-only"
      */
@@ -80,103 +97,114 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     {
         return super.getStateString();
     }
-    
+
     /**
-     * @--jmx.managed-operation   description = "Detyped lifecycle invocation"
+     * @--jmx.managed-operation description = "Detyped lifecycle invocation" 
      *                          impact = "ACTION"
      */
     public void jbossInternalLifecycle(String method) throws Exception
     {
         super.jbossInternalLifecycle(method);
     }
-    
+
     /**
-     * @jmx.managed-operation   description = "create the service, do expensive operations etc"
+     * @jmx.managed-operation   description = "create the service, do expensive operations etc" 
      *                          impact = "ACTION"
      */
     public void create() throws Exception
     {
         super.create();
     }
-    
+
     /**
-     * @jmx.managed-operation   description = "start the service, create is already called"
+     * @jmx.managed-operation   description = "start the service, create is already called" 
      *                          impact = "ACTION"
      */
     public void start() throws Exception
     {
         super.start();
     }
-    
+
     /**
-     * @jmx.managed-operation   description = "stop the service"
+     * @jmx.managed-operation   description = "stop the service" 
      *                          impact = "ACTION"
      */
     public void stop()
     {
         super.stop();
     }
-    
+
     /**
-     * @jmx.managed-operation   description = "destroy the service, tear down"
+     * @jmx.managed-operation   description = "destroy the service, tear down" 
      *                          impact = "ACTION"
      */
     public void destroy()
     {
         super.destroy();
     }
-    
+
     /**
      * @jmx.managed-operation   description="create a new channel" 
      *                          impact = "ACTION"
      */
     public String createChannel()
     {
-        return delegate_ == null ? NOT_RUNNING : delegate_.createChannel();
+        return isStarted() ? delegate_.createChannel() : NOT_RUNNING;
     }
 
     /**
-     * @jmx.managed-attribute description = "NameService Entry (Optional)"
-     *                        access = "read-write"
+     * @jmx.managed-attribute   description = "NameService Entry (Optional)" 
+     *                          access = "read-write"
      */
     public String getCOSNamingEntry()
     {
-        return delegate_ == null ? NOT_RUNNING : delegate_.getCOSNamingEntry();
-    }
-
-    /**
-     * @jmx.managed-attribute description="Corbaloc to access the EventChannelFactory"
-     *                        access = "read-only"
-     */
-    public String getCorbaloc()
-    {
-        return delegate_ == null ? NOT_RUNNING : delegate_.getCorbaloc();
-    }
-
-    /**
-     * @jmx.managed-attribute description="IOR to access the EventChannelFactory"
-     *                        access = "read-only"
-     */
-    public String getIOR()
-    {
-        return delegate_ == null ? NOT_RUNNING :  delegate_.getIOR();
-    }
-
-    /**
-     * @jmx.managed-attribute description = "Filename the IOR should be written to"
-     *                        access = "read-write"
-     */
-    public String getIORFile()
-    {
-        return delegate_ == null ? NOT_RUNNING : delegate_.getIORFile();
+        return cosNamingEntry_;
     }
 
     /**
      * @jmx.managed-attribute access = "read-write"
      */
-    public void setCOSNamingEntry(String registerName)
+    public void setCOSNamingEntry(String cosNamingEntry)
     {
-        delegate_.setCOSNamingEntry(registerName);
+        cosNamingEntry_ = cosNamingEntry;
+
+        if (isStarted())
+        {
+            updateCOSNamingEntry();
+        }
+    }
+
+    private void updateCOSNamingEntry()
+    {
+        delegate_.setCOSNamingEntry(cosNamingEntry_);
+        log.info("Bound to COSNaming name: " + cosNamingEntry_);
+    }
+
+    /**
+     * @jmx.managed-attribute   description="Corbaloc to access the EventChannelFactory" 
+     *                          access = "read-only"
+     */
+    public String getCorbaloc()
+    {
+        return isStarted() ? delegate_.getCorbaloc() : NOT_RUNNING;
+    }
+
+    /**
+     * @jmx.managed-attribute   description="IOR to access the EventChannelFactory" 
+     *                          access = "read-only"
+     */
+    public String getIOR()
+    {
+        return isStarted() ? delegate_.getIOR() : NOT_RUNNING;
+    }
+
+    /**
+     * @jmx.managed-attribute   description = "Filename the IOR should be written to" 
+     *                          access = "read-write"
+     */
+    public String getIORFile()
+    {
+        return iorFileName_;
     }
 
     /**
@@ -184,7 +212,36 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
      */
     public void setIORFile(String filename) throws IOException
     {
-        delegate_.setIORFile(filename);
+        iorFileName_ = filename;
+
+        if (isStarted())
+        {
+            updateIORFile();
+        }
+    }
+
+    private void updateIORFile() throws IOException
+    {
+        delegate_.setIORFile(iorFileName_);
+        log.info("set IOR filename to " + iorFileName_);
+    }
+
+    /**
+     * @jmx.managed-attribute access = "read-write"
+     */
+    public void setAdditionalArguments(String additionalArguments)
+    {
+        additionalArguments_ = additionalArguments;
+    }
+
+    /**
+     * @jmx.managed-attribute description = "Additional startup arguments. Setting these on an
+     *                        already running service will have no effect!" 
+     *                        access = "read-write"
+     */
+    public String getAdditionalArguments()
+    {
+        return additionalArguments_;
     }
 
     protected void startService() throws Exception
@@ -201,10 +258,16 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
             _context.close();
         }
 
+        String[] args = ConsoleMain.splitArgs(additionalArguments_);
+
         delegate_ = new COSNotificationService(_orb, MBeanServerLocator.locateJBoss(),
-                new JMXManageableXMBeanProvider(DEFAULT_DOMAIN), new String[] { "-channels", "1", "-registerName", "NotificationService", });
+                new JMXManageableXMBeanProvider(DEFAULT_DOMAIN), args);
 
         bind(NAMING_NAME, "org.omg.CosNotifyChannelAdmin.EventChannelFactory");
+
+        updateIORFile();
+
+        updateCOSNamingEntry();
 
         delegate_.start();
 
@@ -218,6 +281,24 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
         log.info("COSNotificationService stopped");
     }
 
+    public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment)
+            throws Exception
+    {
+        String s = name.toString();
+        if (getLog().isTraceEnabled())
+        {
+            getLog().trace(
+                    "getObjectInstance: obj.getClass().getName=\"" + obj.getClass().getName()
+                            + "\n                   name=" + s);
+        }
+        if (NAMING_NAME.equals(s))
+        {
+            return delegate_.getEventChannelFactory();
+        }
+        
+        throw new IllegalArgumentException();
+    }
+
     private void bind(String name, String className) throws Exception
     {
         Reference _ref = new Reference(className, getClass().getName(), null);
@@ -226,6 +307,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
         try
         {
             _context.bind("java:/" + name, _ref);
+            log.info("Bound to JNDI name: " + name);
         } finally
         {
             _context.close();
@@ -235,7 +317,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     private void unbind(String name) throws Exception
     {
         InitialContext _context = new InitialContext();
-        
+
         try
         {
             _context.unbind("java:/" + name);
@@ -243,5 +325,10 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
         {
             _context.close();
         }
+    }
+
+    private boolean isStarted()
+    {
+        return getState() == STARTED;
     }
 }
