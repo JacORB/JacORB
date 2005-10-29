@@ -1,3 +1,93 @@
+2005-10-28  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/jboss/JBossCOSNotificationService.java:
+	MBean uses persistent storage now to control initial notfiy settings
+
+	* notification/ConsoleMain.java (help): don't invoke System.exit
+
+	* notification/build.xml, notification/jmx/jboss/build.xml:
+	inverted build file dependency. main notify build now invokes sar
+	build file
+
+	* notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java:
+	reference inner class full qualified
+
+	* notification/jmx/COSNotificationService.java (getEventChannelFactory):
+	new method
+
+	* notification/ConsoleMain.java (splitArgs): new method
+
+2005-10-27  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/etcl/ArrayOperator.java,
+	notification/filter/etcl/AssocOperator.java,
+	notification/filter/etcl/DomainNameShorthandNode.java,
+	notification/filter/etcl/ETCLFilterConstraint.java,
+	notification/filter/etcl/EventNameShorthandNode.java,
+	notification/filter/etcl/NeqOperator.java,
+	notification/filter/etcl/PropertyShorthandNode.java,
+	notification/filter/etcl/TypeNameShorthandNode.java: code
+	cleanup (compiler warnings)
+
+	* notification/MessageFactory.java,
+	notification/impl/DefaultMessageFactory.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxyConsumerI.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/FilterStageListManager.java,
+	notification/servant/IProxyConsumer.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java: renamed
+	interface AbstractProxyConsumerI => IProxyConsumer
+
+	* notification/jmx/COSNotificationService.java (c'tor):
+	renamed variables
+
+	* notification/util/QoSPropertySet.java (checkPropertyValues):
+	renamed variables
+
+	* notification/AbstractEventChannel.java: renamed Interface
+
+	* notification/WrapperMain.java (start): print out exception
+	during start using wrapper logger
+
+	* notification/AnyMessage.java,
+	notification/NoTranslationException.java,
+	notification/StructuredEventMessage.java: changed Exception c'tor
+
+	* notification/EventChannelImpl.java: renamed xdoclet tag
+
+	* orb/TypeCode.java (c'tor): invoke resolveRecursion
+	(resolveRecursion): resolve actual typecode if this is an
+	recursive typecode. this fixes bug #430. thanks to Dongjun Sun
+	for supplying the patch
+
+	* idl/TypeDeclaration.java (helperName): throw NoHelperException
+	if type_decl is null
+
+	* idl/UnionType.java (printHelperClass): applied patch for
+	bug #505: IDL compiler generated wrong code for union with
+	value-box. thanks to Thomas Leineweber for supplying the patch
+
+2005-10-26  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/ClientConnectionManager.java (releaseConnection):
+	Add debug statements.
+
+	* orb/giop/ClientConnection.java (numClients): New method.
+
+	* orb/giop/ClientGIOPConnection.java,
+	orb/giop/GIOPConnection.java, orb/giop/ServerGIOPConnection.java:
+	Add a few javadocs.
+
+	* orb/giop/ClientConnection.java (decClients, incClients):
+	Update javadoc.
+
 2005-10-25  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* ir/RepositoryID.java (className): invoke convertFromISOLatin1
