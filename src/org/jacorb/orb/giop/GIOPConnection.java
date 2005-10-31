@@ -49,6 +49,9 @@ import org.jacorb.util.*;
 public abstract class GIOPConnection
     extends java.io.OutputStream
 {
+    /**
+     * Profile describing the remote endpoint of this connection.
+     */
     protected org.omg.ETF.Profile    profile   = null;
     protected org.omg.ETF.Connection transport = null;
 
@@ -62,7 +65,7 @@ public abstract class GIOPConnection
     private Object write_sync = new Object();
 
     private org.jacorb.config.Configuration configuration;
-    private Logger logger;
+    protected Logger logger;
 
     /*
      * Connection OSF character formats.
@@ -227,6 +230,8 @@ public abstract class GIOPConnection
             while (!transport.is_connected() &&
                    !do_close)
             {
+                if (logger.isDebugEnabled())
+                    logger.debug (this.toString() + ": will wait until connected");
                 try
                 {
                     connect_sync.wait();
@@ -290,14 +295,14 @@ public abstract class GIOPConnection
         catch (org.omg.CORBA.COMM_FAILURE ex)
         {
             if (logger.isDebugEnabled())
-                logger.debug("GIOPConnection.getMessage(): COMM_FAILURE");
+                logger.debug(this.toString() + ": getMessage() -- COMM_FAILURE");
             this.streamClosed();
             return null;
         }
         catch (org.omg.CORBA.TIMEOUT ex)
         {
             if (logger.isDebugEnabled())
-                logger.debug("GIOPConnection.getMessage(): TIMEOUT");
+                logger.debug(this.toString() + ": getMessage() -- TIMEOUT");
             this.readTimedOut();
             return null;
         }
@@ -820,9 +825,8 @@ public abstract class GIOPConnection
                 tcs_negotiated = false;
 
                 if (logger.isDebugEnabled())
-                {
-                    logger.debug("GIOPConnection sendMessage opening transport");
-                }
+                    logger.debug(this.toString() 
+                                 + ": sendMessage() -- opening transport");
 
                 synchronized (connect_sync)
                 {
@@ -833,6 +837,9 @@ public abstract class GIOPConnection
                     }
                     catch (RuntimeException ex)
                     {
+                        if (logger.isDebugEnabled())
+                            logger.debug(this.toString()
+                                         + ": sendMessage() -- failed to open transport");
                         do_close = true;
                         connect_sync.notifyAll();
                         throw ex;
@@ -867,7 +874,12 @@ public abstract class GIOPConnection
 
     public void close()
     {
-         synchronized (connect_sync)
+        if (logger.isDebugEnabled())
+        {
+            logger.debug(this.toString() + ": close()" );
+        }
+
+        synchronized (connect_sync)
          {
             if( connection_listener != null )
             {
@@ -877,11 +889,6 @@ public abstract class GIOPConnection
             transport.close();
             do_close = true;
             connect_sync.notifyAll();
-         }
-
-         if (logger.isDebugEnabled())
-         {
-             logger.debug("GIOPConnection closed (terminated)." );
          }
     }
 
@@ -972,5 +979,5 @@ public abstract class GIOPConnection
         }
         cubbyholes[id] = obj;
     }
-
+    
 }// GIOPConnection
