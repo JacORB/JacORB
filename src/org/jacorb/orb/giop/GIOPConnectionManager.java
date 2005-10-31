@@ -171,6 +171,9 @@ public class GIOPConnectionManager
             server_giop_connections.add( connection );
         }
         
+        if (logger.isDebugEnabled())
+            logger.debug ("GIOPConnectionManager: created new " + connection.toString());
+        
         return connection;
     }
 
