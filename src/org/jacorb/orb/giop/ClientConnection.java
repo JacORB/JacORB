@@ -399,7 +399,7 @@ public class ClientConnection
     {
         if (logger.isInfoEnabled())
         {
-            logger.info("Received CloseConnection message");
+            logger.info("Received CloseConnection on " + connection.toString());
         }
 
         if( client_initiated )
