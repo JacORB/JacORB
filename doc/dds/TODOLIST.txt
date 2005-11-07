@@ -1,0 +1,12 @@
+DDS for JacORB
+--------------
+
+TODO LIST
+---------
+(suggestions and contributions are welcome)
+
+Position example (reuse for http://www-adele.imag.fr/~donsez/dev/osgi/poitracker/readme.htmlconsumer code )
+Example with OSGi bundles (http://www-adele.imag.fr/~donsez/dev/osgi/corbaservice/).
+DLRL (Data Local Reconstruction Layer) implementation
+finalize DDS implementation
+add more QoS

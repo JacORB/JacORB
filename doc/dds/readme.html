@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+   <title>Open-source Java-based DDS (Data Distribution Service) implementation </title>
+
+   <LINK REL=STYLESHEET TYPE="text/css" HREF="style.css">
+
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+   <meta id="Author" content="Fouad Allaoui allfou@gmail.com">
+   <meta id="Author" content="Ahmed Ould Yehdih ahmed.yehdih@gmail.com">
+   <meta id="Advisor" content="Didier Donsez didier.donsez@imag.fr">
+
+<style type="text/css">
+
+
+table.console {
+border: 1;
+width: 92%; margin-left: 4%; margin-right: 4%;
+padding: 2; cell-spacing: 2;
+} 
+
+table.console tr.header {
+text-align: left; background-color: rgb(0, 0, 255); color: rgb(255, 255, 255);
+font-weight: bold; font-family: courier new,courier,monospace; 
+} 
+
+table.console tr {
+text-align: left; background-color: rgb(60, 30, 60); color: rgb(255, 255, 255);
+font-weight: bold; font-family: courier new,courier,monospace;
+} 
+
+/*
+pre.console {
+text-align: left; background-color: rgb(0, 0, 0); color: rgb(255, 255, 255); font-weight: bold; font-family: courier new,courier,monospace; width: 90%; margin-left: 5%; margin-right: 5%;
+} 
+*/
+
+table.code {
+border: 1;
+width: 92%; margin-left: 4%; margin-right: 4%;
+padding: 2; cell-spacing: 2;
+} 
+
+table.code tr.header {
+text-align: left; background-color: rgb(0, 0, 255); color: rgb(255, 255, 255);
+font-weight: bold; font-family: courier new,courier,monospace; 
+} 
+
+table.code tr {
+text-align: left; background-color: rgb(255, 255, 200); color: rgb(0, 0, 0);
+font-weight: bold; font-family: courier new,courier,monospace;
+} 
+
+/*
+pre.code {
+text-align: left;
+background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);
+font-weight: bold;
+font-family: courier new,courier,monospace;
+width: 90%;
+margin-left: 5%;
+margin-right: 5%;
+} 
+*/
+
+
+</style>
+</head>
+
+<body>
+
+<h1 class="title">Open-source Java-based OMG DDS implementation<br>
+<i><font size="-1">by Fouad Allaoui, Ahmed Yehdih, Didier Donsez (advisor)<br>(Version : 20/08/2005)</font></i>
+</h1>
+
+<!-- BEGIN TOC -->
+
+
+<p id="toc">
+
+<font size="-2">
+<ul>
+<li class="tm2"><a href="#download">Download</a></li>
+<li class="tm2"><a href="#licence">Licence Terms</a></li>
+<li class="tm2"><a href="#presentation">What is Data Distribution Service (DDS) ?</a></li>
+<li class="tm2"><a href="#installation">Installation</a></li>
+<li class="tm2"><a href="#demonstrations">Demonstrations</a></li>
+<li class="tm2"><a href="#documentation">Documentation</a></li>
+<li class="tm2"><a href="#contact">Contact</a></li>
+</ul>
+</font>
+</p>
+
+
+
+</ul>
+</font>
+</p>
+
+
+
+<!-- END TOC -->
+
+<b>The distribution provides an open-source Java-based DDS-DCPS implementation.<br>The purpose of this implementation is pedagogical and demontrations</b>
+
+<h1 class="title" id="download">Download</h1>
+<p>
+Download the <a href="http://www-adele.imag.fr/~donsez/dev/dds/dds.zip">latest distribution</a>.
+</p>
+
+<h1 class="title" id="licence">Licence terms</h1>
+<p>
+Read the <a href="LICENCE.txt">licence terms</a>.
+</p>
+
+
+<h1 class="title" id="presentation">What is Data Distribution Service (DDS) ?</h1>
+<p>
+The Object Management Group (OMG) is an international organization 
+responsible for middleware standards. The OMG has recently adopted 
+the specification for the Data Distribution Service for Real-Time 
+Systems; which establishes a standard interface for publish-subscribe 
+communications. DDS satisfies a long awaited need 
+for a fast, flexible, fault tolerant publish-subscribe based data 
+distribution service.<br><br>
+
+The <a href="http://www.omg.org/docs/formal/04-12-02.pdf">OMG-DDS</a> specification describes two levels of interfaces:<br>
+<ul>
+<li>A lower DCPS (Data-Centric Publish-Subscribe) level that is targeted towards the
+efficient delivery of the proper information to the proper recipients.<br><br></li>
+<li>An optional higher DLRL (Data Local Reconstruction Layer) level, which allows
+for a simple integration of the Service into the application layer.</li>
+</ul>
+
+A report (in french) is provided in the $DDS_HOME/docs directory.
+</p>
+
+
+<h1 class="title" id="installation">Installation</h1>
+<p>
+Follows these steps to install the environement and DDS application :<br>
+<ol>
+<li>install <a href="http://java.sun.com">JDK</a> and <a href http://ant.apache.org>the Java-based build tool Ant</a> (configure your path).</li>
+<li>install an ORB which provides an events services. We have tested our DDS implementation with <a href="http://www.jacorb.org">Jacorb</a></li>
+<li>configure and add the JACORB_HOME variable in your path.</li>
+<li>unzip dds.zip in your installation directory DDS_HOME.</li>
+<li>Launch "ant compile" from your installation directory</li>
+</ol>
+</p>
+
+
+<h1 class="title" id="demonstrations">Demonstrations</h1>
+<h2>Simple example</h2>
+<p>
+The Foo producer produces (and publishes) a random integer.<br>
+Consumers display the current integer into a Swing GUI.<br>
+<i>NB: The Foo example is given in the DDS specification</i><br>
+<br>
+Run the following commands (in seperate consoles) from the installation directory<br>
+<ol>
+<li>start ant NS</li>
+<li>start ant server</li>
+<li>start ant FooP</li>
+<li>start ant FooC</li>
+<li>start ant FooC</li>
+</ol>
+or Launch "ant foo" from your installation directory.
+</p>
+
+<h2>Temperature example</h2>
+<p>
+The temperature producer produces  (and publishes) fictive temperature measurements following a (simple) sinusoidal law.<br>
+Consumers display the current temperature into a Swing GUI.<br>
+<br>
+Run the following commands (in seperate consoles) from the installation directory<br>
+<ol>
+<li>start ant NS</li>
+<li>start ant server</li>
+<li>start ant TempP</li>
+<li>start ant TempC</li>
+<li>start ant TempC</li>
+</ol>
+or Launch "ant temperature" from your installation directory.
+</p>
+
+<h2>Position example</h2>
+<p>
+The position producer produces  (and publishes) fictive positions following a (simple) track for a initial position.<br>
+The consumer is a POITracker (Point-Of-Interest) which display a message when the current position is close one of the stored POIs.<br>
+<b>Not implemented for the moment</b><br>
+Suggestion:
+The consumer could reuse the OSGi <a href="http://www-adele.imag.fr/~donsez/dev/osgi/poitracker/readme.html">POI Tracker</a> code.<br>
+The producer could reuse the OSGi <a href="http://www-adele.imag.fr/~donsez/dev/osgi/gpspositionproducer/readme.html">GPS Position Producer</a> code. 
+</p>
+
+<p>
+<i><b>Nota Bene:</b> Under Windows, do not forget to kill the thread (java.exe)
+after an excecution, else the next execution will not start.</i>
+</p>
+
+<h1 class="title" id="documentation">Documentation</h1>
+<p>
+<ul>
+<li>A MSc (First-year Master of Science) report (<a href="DDS-report-french.doc">in french</a>)</li>
+<li>A MSc defense presentation (<a href="DDS-presentation-french.ppt">in french</a>)</li>
+</ul>
+
+Some links on DDS:
+<ul>
+<li><a href="http://download.ociweb.com/DDS/DDS.pdf">OCI C++ open-source implementation of DDS</a> for <a href="http://www.cs.wustl.edu/~schmidt/TAO.html">TAO</a></li>
+<li>Ramzi KAROUI, <a href="http://www.omg.org/news/meetings/workshops/RT_2005/03-1_Karoui.pdf">CORBA /DDS, COMPETING or COMPLEMENTING THECHNOLOGIES ?</a> at OMG Real-time and Embedded Systems Workshop, July 2005</li>
+<li><a href="http://www.prismtech.com/section-item.asp?sid4=&sid3=&sid2=55&sid=18&id=324">SPLICE</a> (PrismTech/Thales commercial implementation)</li>
+<li><a href="http://www.rti.com/products_ndds.html">NDDS</a> (RTI commercial implementation)</li>
+</ul>
+
+<p>
+
+<h1 class="title" id="contact">Contact</h1>
+<ul>
+<li>Fouad Allaoui<a href="mailto:allfou@gmail.com?subject=DDS">allfou@gmail.com</a></li>
+<li>Ahmed Ould Yehdih<a href="mailto:ahmed.yehdih@gmail.com?subject=DDS">ahmed.yehdih@gmail.com</a></li>
+<li>Didier Donsez<a href="mailto:didier.donsez@imag.fr?subject=DDS">didier.donsez@imag.fr</a></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../etc/common.xml"> ]>
+
+<project name="dds" default="compile" basedir="../../../..">
+
+	  <!-- ==================================================== -->
+	  <!--             ORB build file                         -->
+	  <!-- $Id$ -->
+	  <!-- ==================================================== -->
+
+	   &common;
+
+	   <target name="compile" depends="init,load-taskdef">
+	      <antcall target="jacorb-javac">
+	         <param name="javac-includes" value="org/jacorb/dds/**.java"/>
+	      </antcall>
+	   </target>
+
+
+	<!--===========================================================-->
+	<!--========================   JAVA DOC    ====================-->
+	<!--===========================================================-->
+	<target name="javadoc" depends="compile">
+		<javadoc 
+			sourcepath="${src.dir}"
+			classpathref="project.path"
+			destdir="${apidoc.dir}"
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="${project.fullname} API">
+			<link href="http://java.sun.com/j2se/1.4/docs/api/"/>
+		</javadoc>
+	 </target>
+	
+	
+</project>

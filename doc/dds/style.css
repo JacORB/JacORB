@@ -1,0 +1,136 @@
+/* Created using Style Master from Western Civilisation CSS1 { 183 372 451 409 } */
+BODY {background-color: #ccccff;
+color: black;
+font-family: verdana, helvetica, arial, sans-serif}
+
+P {font-family: verdana, helvetica, arial, sans-serif}
+
+UL {font-family: verdana, helvetica, arial, sans-serif;
+margin-left: 5%}
+
+P.right-justified {text-align: right}
+
+/* For the index pages */
+
+.navigation {background-color: #9999ff;
+border-color: black;
+border-style: solid;
+border-width: medium;
+font-family: verdana, helvetica, arial, sans-serif;
+font-size: 1.4em;
+margin-left: 10%;
+margin-right: 10%;
+text-align: center}
+
+BODY.index {background-color: #ccccff;
+margin-left: 10%;
+margin-right: 10%}
+
+H1, H2, H3, H4, H5, H6 {font-family: verdana, helvetica, arial, sans-serif}
+
+BODY.index H1 {background-color: #9999cc;
+font-size: 1.3em;
+font-weight: bold}
+
+BODY.index H2 {font-size: 1.2em;
+margin-left: 5%}
+
+BODY.index H3 {font-size: 1.1em;
+margin-left: 8%}
+
+BODY.index H4 {font-size: 1em;
+font-weight: normal;
+margin-left: 12%}
+
+BODY.index H5 {font-size: 1em;
+margin-left: 15%}
+
+BODY.index A {background-color: #9999ff;
+color: black;
+text-decoration: none}
+
+BODY.index A:hover {background-color: #cc99cc;
+color: #cc0000;
+text-decoration: none}
+
+BODY.index H1 A {background-color: #9999cc;
+color: black;
+text-decoration: none}
+
+.indextext {}
+
+/* This is for navigation between the contents pages */
+
+.gobackone {font-size: .9em;
+font-weight: bold;
+margin-left: 5%}
+
+.gobacktwo {font-size: .8em;
+font-weight: bold}
+
+.gobackthree {}
+
+.banner {margin-right: 10%;
+text-align: right}
+
+.title {background-color: #cc99ff;
+border-color: black;
+border-style: solid;
+border-width: medium;
+font-size: 1.5em;
+margin-right: 10%;
+padding: .5%;
+text-align: left}
+
+/* This is for the text pages */
+
+BODY.text {font-family: verdana, helvetica, arial, sans-serif;
+margin-left: 10%}
+
+BODY.text .banner {margin-right: 3%;
+text-align: right}
+
+BODY.text .gobackone {font-size: .9em;
+font-weight: bold;
+margin-left: 0px}
+
+BODY.text .gobacktwo {font-size: .8em;
+font-weight: bold;
+margin-left: -5%}
+
+BODY.text .gobackthree {font-size: .7em;
+font-weight: bold;
+margin-left: -9%}
+
+BODY.text H1 {background-color: #cc99ff;
+border-color: black;
+border-style: solid;
+border-width: medium;
+font-family: verdana, helvetica, arial, sans-serif;
+font-size: 1.4em;
+font-weight: normal;
+margin-left: -5%;
+margin-right: 5%;
+text-align: left}
+
+BODY.text H2 {font-size: 1.3em;
+margin-left: -5%}
+
+BODY.text H3 {font-size: 1.2em;
+margin-left: 2%}
+
+BODY.text H4 {font-size: 1.1em;
+margin-left: 2%}
+
+BODY.text H5 {font-size: 1em;
+margin-left: 2%}
+
+BODY.text A {background-color: #9999ff;
+color: black;
+text-decoration: none}
+
+BODY.text A:hover {background-color: #cc99cc;
+color: #cc0000;
+text-decoration: none}
+
+IMG {background-color: #ccccff}
