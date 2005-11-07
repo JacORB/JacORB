@@ -22,7 +22,7 @@
    </target>
 
    <target name="subdirs"
-           depends="template,config,util,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification">
+           depends="template,config,util,orb,poa,imr,ir,naming,events,dds,concurrency,transaction,trading,tracing,security,notification">
 <!--       depends="config,template,util,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification"> -->
 
    </target>
@@ -82,6 +82,10 @@
 
    <target name="events" depends="init">
       <ant antfile="${src}/org/jacorb/events/build.xml" dir="${basedir}"/>
+   </target>
+	
+   <target name="dds" depends="init">
+	      <ant antfile="${src}/org/jacorb/dds/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="trading" depends="init">

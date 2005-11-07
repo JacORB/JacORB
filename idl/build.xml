@@ -14,7 +14,7 @@
    <!-- top-level targets  -->
 
    <target name="all"
-      depends="corba,names,security,events,transactions,concurrency,collections,trading,jacorb,notification" />
+      depends="corba,names,security,events,dds,transactions,concurrency,collections,trading,jacorb,notification" />
 
    <target name="services"
       depends="events,trading,collections,transactions,concurrency" />
@@ -346,6 +346,24 @@
               destdir="${src}/generated"/>
    </target>
 
+   <!--                            -->
+   <!-- data distribution service  -->
+   <!--                            -->
+
+	   <target name="dds" depends="init,load-taskdef">
+	      <jacidl generateir="true"
+	              srcdir="idl"
+	              omgprefix="true"
+	              includepath="${idl}/omg"
+	              includes="omg/dds_dcps.idl"
+	              destdir="${src}/generated"/>	   	
+	      <antcall target="jacorb-javac">
+	         <param name="javac-src" value="${src}/generated"/>
+	         <param name="javac-includes" value="org/omg/dds/**/*.java"/>
+	      </antcall>
+	   </target>
+	
+	
    <!--                      -->
    <!-- transaction service  -->
    <!--                      -->
