@@ -1377,7 +1377,7 @@ public final class ORB
 
         try
         {
-            configure( org.jacorb.config.Configuration.getConfiguration(props, 
+            configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props, 
                                                                         this,
                                                                         false)); // no applet support
         }
@@ -1471,7 +1471,7 @@ public final class ORB
 
         try
         {
-            configure( org.jacorb.config.Configuration.getConfiguration(props, 
+            configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props, 
                                                                         this,
                                                                         true)); //applet support
         }
