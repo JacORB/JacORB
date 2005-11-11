@@ -38,7 +38,7 @@ import org.jboss.system.ServiceMBeanSupport;
 import org.omg.CORBA.ORB;
 
 /**
- * Adaptor to run JMX-enabled NotificationService inside of JBoss.
+ * Adaptor to run a JMX-enabled NotificationService inside of JBoss.
  * 
  * @jmx.mbean   name = "JBossCOSNotificationService" 
  *              extends = "org.jboss.system.ServiceMBean"
@@ -48,8 +48,8 @@ import org.omg.CORBA.ORB;
  *              persistName = "COSNotification.ser" 
  *              state-action-on-update = "keep-running" 
  *              persistence-manager = "org.jboss.mx.persistence.ObjectStreamPersistenceManager"
- * 
- * @jboss.xmbean
+ *              
+ * @jboss.xmbean 
  * 
  * @author Alphonse Bendt
  * @version $Id$
