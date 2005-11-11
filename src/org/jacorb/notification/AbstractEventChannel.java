@@ -56,7 +56,6 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.AdminLimit;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.AdminNotFound;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
@@ -244,15 +243,19 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
      */
     private void addConsumer() throws AdminLimitExceeded
     {
-        if ((maxNumberOfConsumers_.get() == 0)
-                || (numberOfConsumers_.get() < maxNumberOfConsumers_.get()))
+        final int _maxNumberOfConsumers = maxNumberOfConsumers_.get();
+        final int _numberOfConsumers = numberOfConsumers_.incrementAndGet();
+      
+        if (_maxNumberOfConsumers == 0)
         {
-            numberOfConsumers_.incrementAndGet();
-        }
-        else
+            // no limit set
+        } 
+        else if (_numberOfConsumers > _maxNumberOfConsumers)
         {
+            // too many consumers
+            numberOfConsumers_.decrementAndGet();
             Any _any = orb_.create_any();
-            _any.insert_long(maxNumberOfConsumers_.get());
+            _any.insert_long(_maxNumberOfConsumers);
 
             AdminLimit _limit = new AdminLimit("consumer limit", _any);
 
@@ -273,17 +276,22 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
      */
     private void addSupplier() throws AdminLimitExceeded
     {
-        if ((maxNumberOfSuppliers_.get() == 0)
-                || (numberOfSuppliers_.get() < maxNumberOfSuppliers_.get()))
+        final int _numberOfSuppliers = numberOfSuppliers_.incrementAndGet();
+        final int _maxNumberOfSuppliers = maxNumberOfSuppliers_.get();
+        
+        if (_maxNumberOfSuppliers == 0)
         {
-            numberOfSuppliers_.incrementAndGet();
+            // no limit set
         }
-        else
+        else if (_numberOfSuppliers > _maxNumberOfSuppliers)
         {
+            // too many suppliers
+            numberOfSuppliers_.decrementAndGet();
+            
             Any _any = orb_.create_any();
-            _any.insert_long(maxNumberOfSuppliers_.get());
+            _any.insert_long(_maxNumberOfSuppliers);
 
-            AdminLimit _limit = new AdminLimit("suppliers limit", _any);
+            AdminLimit _limit = new AdminLimit("supplier limit", _any);
 
             throw new AdminLimitExceeded("supplier creation request exceeds AdminLimit.", _limit);
         }
@@ -323,40 +331,32 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     public final int[] get_all_consumeradmins()
     {
-        int[] _allKeys;//         }
-
         synchronized (modifyConsumerAdminsLock_)
         {
-            _allKeys = new int[consumerAdminServants_.size()]; // + _defaultConsumerAdmin];
-
-            Iterator i = consumerAdminServants_.keySet().iterator();
-            int x = 0;
-            while (i.hasNext())
+            final int[] _allConsumerAdminKeys = new int[consumerAdminServants_.size()];
+            final Iterator i = consumerAdminServants_.keySet().iterator();
+            
+            for(int x = 0; i.hasNext(); ++x)
             {
-                _allKeys[x++] = ((Integer) i.next()).intValue();
+                _allConsumerAdminKeys[x] = ((Integer) i.next()).intValue();
             }
+            return _allConsumerAdminKeys;
         }
-
-        return _allKeys;
     }
 
     public final int[] get_all_supplieradmins()
     {
-        int[] _allKeys;
-
         synchronized (modifySupplierAdminsLock_)
         {
-            _allKeys = new int[supplierAdminServants_.size()];
-
-            Iterator i = supplierAdminServants_.keySet().iterator();
-            int x = 0;
-            while (i.hasNext())
+            final int[] _allSupplierAdminKeys = new int[supplierAdminServants_.size()];
+            final Iterator i = supplierAdminServants_.keySet().iterator();
+            
+            for(int x = 0; i.hasNext(); ++x)
             {
-                _allKeys[x++] = ((Integer) i.next()).intValue();
+                _allSupplierAdminKeys[x] = ((Integer) i.next()).intValue();
             }
+            return _allSupplierAdminKeys;
         }
-
-        return _allKeys;
     }
 
     public final Property[] get_admin()
@@ -403,7 +403,8 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     /**
      * destroy this Channel, all created Admins and all Proxies.
      * 
-     * @jmx.managed-operation description = "Destroy this Channel" impact = "ACTION"
+     * @jmx.managed-operation   description = "Destroy this Channel" 
+     *                          impact = "ACTION"
      */
     public final void destroy()
     {
@@ -533,6 +534,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     {
         Map _copy = new HashMap(qosSettings_.toMap());
 
+        // remove properties that are not relevant for admins
         _copy.remove(EventReliability.value);
 
         return PropertySet.map2Props(_copy);
@@ -634,7 +636,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     protected AbstractAdmin new_for_consumers_servant(InterFilterGroupOperator filterGroupOperator,
             IntHolder intHolder)
     {
-        AbstractAdmin _admin = newConsumerAdminServant(createAdminID());
+        final AbstractAdmin _admin = newConsumerAdminServant(createAdminID());
 
         _admin.setInterFilterGroupOperator(filterGroupOperator);
 
@@ -684,7 +686,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     protected AbstractAdmin new_for_suppliers_servant(InterFilterGroupOperator filterGroupOperator,
             IntHolder intHolder)
     {
-        AbstractAdmin _admin = newSupplierAdminServant(createAdminID());
+        final AbstractAdmin _admin = newSupplierAdminServant(createAdminID());
 
         intHolder.value = _admin.getID().intValue();
 
@@ -695,7 +697,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
             _admin.set_qos(createQoSPropertiesForAdmin());
         } catch (UnsupportedQoS e)
         {
-            logger_.fatalError("error setting qos", e);
+            logger_.error("error setting qos", e);
         }
 
         _admin.addProxyEventListener(proxyConsumerEventListener_);
@@ -722,7 +724,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
                     _admin.set_qos(createQoSPropertiesForAdmin());
                 } catch (UnsupportedQoS e)
                 {
-                    logger_.fatalError("unable to set qos", e);
+                    logger_.error("unable to set qos", e);
                 }
 
                 addToSupplierAdmins(_admin);
@@ -736,9 +738,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     private AbstractAdmin newConsumerAdminServant(int id)
     {
-        AbstractAdmin _admin = newConsumerAdmin(id);
-
-        return _admin;
+        return newConsumerAdmin(id);
     }
 
     protected abstract AbstractAdmin newConsumerAdmin(int id);
@@ -762,7 +762,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     private AbstractAdmin newSupplierAdminServant(int id)
     {
-        AbstractSupplierAdmin _admin = newSupplierAdmin(id);
+        final AbstractSupplierAdmin _admin = newSupplierAdmin(id);
 
         _admin.setSubsequentFilterStageSource(new FilterStageSourceAdapter(this));
 
@@ -774,6 +774,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     /**
      * @jmx.managed-attribute description="ID that identifies this EventChannel"
      *                        access = "read-only"
+     *                        currencyTimeLimit = "2147483647"
      */
     public int getID()
     {
@@ -805,14 +806,6 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     public void setJMXCallback(JMXManageable.JMXCallback callback)
     {
         jmxCallback_ = callback;
-    }
-    
-    /**
-     * @jmx.managed-attribute access = "read-only"
-     */
-    public String getIOR()
-    {
-        return container_.getComponentInstanceOfType(EventChannel.class).toString();
     }
 }
 

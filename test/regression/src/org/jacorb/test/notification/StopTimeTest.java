@@ -26,7 +26,7 @@ import java.util.HashSet;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.Message;
@@ -47,7 +47,7 @@ import org.omg.TimeBase.UtcTHelper;
 public class StopTimeTest extends NotificationTestCase
 {
     private StructuredEvent structuredEvent_;
-    private MessageFactory messageFactory_;
+    private DefaultMessageFactory messageFactory_;
 
     public StopTimeTest(String name, NotificationTestCaseSetup setup)
     {
@@ -57,6 +57,7 @@ public class StopTimeTest extends NotificationTestCase
     public void setUpTest()
     {
         messageFactory_ = new DefaultMessageFactory(getConfiguration());
+        addDisposable(messageFactory_);
         
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -101,7 +102,9 @@ public class StopTimeTest extends NotificationTestCase
         final Object lock = new Object();
 
         // TODO check if MockTaskProcessor can be used here
-        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor(getConfiguration())
+        final DefaultTaskFactory _defaultTaskFactory = new DefaultTaskFactory(getConfiguration());
+        addDisposable(_defaultTaskFactory);
+        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor(getConfiguration(), _defaultTaskFactory)
         {
             public void processMessageInternal(Message event)
             {

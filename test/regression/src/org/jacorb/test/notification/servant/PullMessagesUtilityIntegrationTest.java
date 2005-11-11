@@ -24,6 +24,7 @@ package org.jacorb.test.notification.servant;
 import junit.framework.Test;
 
 import org.easymock.MockControl;
+import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.servant.PullMessagesUtility;
@@ -46,13 +47,11 @@ public class PullMessagesUtilityIntegrationTest extends NotificationTestCase
     {
         controlMessageSupplier_ = MockControl.createControl(MessageSupplier.class);
         mockMessageSupplier_ = (MessageSupplier) controlMessageSupplier_.getMock();
-        taskProcessor_ = new DefaultTaskProcessor(getConfiguration());
+        final DefaultTaskFactory _defaultTaskFactory = new DefaultTaskFactory(getConfiguration());
+        addDisposable(_defaultTaskFactory);
+        taskProcessor_ = new DefaultTaskProcessor(getConfiguration(), _defaultTaskFactory);
+        addDisposable(taskProcessor_);
         objectUnderTest_ = new PullMessagesUtility(taskProcessor_ , mockMessageSupplier_);    
-    }
-    
-    protected void tearDownTest() throws Exception
-    {
-        taskProcessor_.dispose();
     }
     
     public void testStartTask() throws Exception

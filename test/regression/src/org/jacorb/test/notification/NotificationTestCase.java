@@ -33,7 +33,9 @@ import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.filter.ETCLEvaluator;
+import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.queue.EventQueueFactory;
+import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -59,6 +61,8 @@ public abstract class NotificationTestCase extends TestCase
     
     private MutablePicoContainer container_;
     
+    private DisposableManager disposables_;
+    
     ///////////////////////////////
 
     public NotificationTestCase(String name, NotificationTestCaseSetup setup)
@@ -72,6 +76,8 @@ public abstract class NotificationTestCase extends TestCase
 
     public final void setUp() throws Exception
     {
+        disposables_ = new DisposableManager();
+        
         container_ = PicoContainerFactory.createChildContainer(setup_.getPicoContainer());
         
         logger_ = ((org.jacorb.config.Configuration) getConfiguration()).getNamedLogger(getClass()
@@ -92,6 +98,8 @@ public abstract class NotificationTestCase extends TestCase
         
         tearDownTest();
 
+        disposables_.dispose();
+        
         super.tearDown();
     }
     
@@ -201,6 +209,11 @@ public abstract class NotificationTestCase extends TestCase
         }
     }
 
+    protected void addDisposable(Disposable d)
+    {
+        disposables_.addDisposable(d);
+    }
+    
     public Any toAny(String s)
     {
         Any _any = getORB().create_any();

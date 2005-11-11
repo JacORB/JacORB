@@ -44,7 +44,7 @@ public class LocalParameterComponentAdapter extends DecoratingComponentAdapter
 
     public Object getComponentInstance(PicoContainer container) throws PicoInitializationException, PicoIntrospectionException
     {
-        MutablePicoContainer _helperContainer = new DefaultPicoContainer(container);
+        final MutablePicoContainer _helperContainer = new DefaultPicoContainer(container);
         for (int i = 0; i < helperCAs_.length; ++i)
         {
             _helperContainer.registerComponent(helperCAs_[i]);

@@ -25,6 +25,7 @@ import java.util.Date;
 
 import junit.framework.Test;
 
+import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
@@ -51,11 +52,11 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 public class StartTimeTest extends NotificationTestCase
 {
-    DefaultMessageFactory messageFactory_;
+    private DefaultMessageFactory messageFactory_;
 
-    StructuredEvent structuredEvent_;
+    private StructuredEvent structuredEvent_;
 
-    IProxyConsumer proxyConsumerMock_ = new IProxyConsumer()
+    private IProxyConsumer proxyConsumerMock_ = new IProxyConsumer()
     {
         public boolean getStartTimeSupported()
         {
@@ -83,7 +84,8 @@ public class StartTimeTest extends NotificationTestCase
     public void setUpTest() throws Exception
     {
         messageFactory_ = new DefaultMessageFactory(getConfiguration());
-
+        addDisposable(messageFactory_);
+        
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
         FixedEventHeader _fixed = new FixedEventHeader();
@@ -97,11 +99,6 @@ public class StartTimeTest extends NotificationTestCase
         structuredEvent_.filterable_data = new Property[0];
 
         structuredEvent_.remainder_of_body = getORB().create_any();
-    }
-
-    public void tearDownTest() throws Exception
-    {
-        messageFactory_.dispose();
     }
 
     public void testStructuredEventWithoutStartTimeProperty() throws Exception
@@ -163,7 +160,9 @@ public class StartTimeTest extends NotificationTestCase
         final CountDownLatch _latch = new CountDownLatch(1);
 
         // TODO check if MockTaskProcessor can be used here
-        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor(getConfiguration())
+        final DefaultTaskFactory _defaultTaskFactory = new DefaultTaskFactory(getConfiguration());
+        addDisposable(_defaultTaskFactory);
+        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor(getConfiguration(), _defaultTaskFactory)
         {
             public void processMessageInternal(Message event)
             {
