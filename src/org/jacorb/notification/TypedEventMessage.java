@@ -92,10 +92,8 @@ public class TypedEventMessage extends AbstractMessage
 
     ////////////////////////////////////////
 
-    public void reset()
+    public void doReset()
     {
-        super.reset();
-
         typedEvent_ = null;
         parameters_ = null;
         filterableHeader_ = null;
@@ -108,7 +106,7 @@ public class TypedEventMessage extends AbstractMessage
         return sTypedKey;
     }
 
-    public void setTypedEvent(String interfaceName, String operation, Property[] params)
+    public synchronized void setTypedEvent(String interfaceName, String operation, Property[] params)
     {
         idlInterfaceName_ = interfaceName;
 
@@ -117,12 +115,12 @@ public class TypedEventMessage extends AbstractMessage
         parameters_ = params;
     }
 
-    public void setTypedEvent(Property[] props)
+    public synchronized void setTypedEvent(Property[] props)
     {
         parameters_ = props;
     }
 
-    private Property[] getFilterableHeader()
+    private synchronized Property[] getFilterableHeader()
     {
         if (filterableHeader_ == null)
         {
@@ -140,7 +138,7 @@ public class TypedEventMessage extends AbstractMessage
         return filterableHeader_;
     }
 
-    public Any toAny()
+    public synchronized Any toAny()
     {
         if (anyValue_ == null)
         {
@@ -153,7 +151,7 @@ public class TypedEventMessage extends AbstractMessage
         return anyValue_;
     }
 
-    public StructuredEvent toStructuredEvent()
+    public synchronized StructuredEvent toStructuredEvent()
     {
         if (structuredEventValue_ == null)
         {
@@ -166,7 +164,7 @@ public class TypedEventMessage extends AbstractMessage
         return structuredEventValue_;
     }
 
-    public Property[] toTypedEvent()
+    public synchronized Property[] toTypedEvent()
     {
         if (typedEvent_ == null)
         {
@@ -200,7 +198,7 @@ public class TypedEventMessage extends AbstractMessage
         throw new EvaluationException();
     }
 
-    public EvaluationResult extractVariableHeader(EvaluationContext evaluationContext,
+    public synchronized EvaluationResult extractVariableHeader(EvaluationContext evaluationContext,
             ComponentName componentName, String headerName) throws EvaluationException
     {
         for (int x = 0; x < parameters_.length; ++x)

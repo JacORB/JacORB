@@ -89,10 +89,8 @@ public class AnyMessage extends AbstractMessage
     }
 
 
-    public synchronized void reset()
+    public void doReset()
     {
-        super.reset();
-
         anyValue_ = null;
         structuredEventValue_ = null;
         typedEventValue_ = null;

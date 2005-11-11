@@ -367,12 +367,19 @@ public abstract class AbstractMessage extends AbstractPoolable
      */
     protected int referenced_ = 0;
 
-    public void reset()
+    public synchronized final void reset()
     {
         referenced_ = 0;
         currentFilterStage_ = null;
+        
+        doReset();
     }
 
+    protected void doReset()
+    {
+        // no operation
+    }
+    
     /**
      * Add a reference on this NotificationEvent. After Usage removeReference must be called.
      */

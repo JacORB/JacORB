@@ -89,10 +89,8 @@ public class StructuredEventMessage extends AbstractMessage
         parseQosSettings(startTimeSupported, timeOutSupported);
     }
 
-    public synchronized void reset()
+    public void doReset()
     {
-        super.reset();
-
         anyValue_ = null;
         structuredEventValue_ = null;
         typedEventValue_ = null;
@@ -157,30 +155,30 @@ public class StructuredEventMessage extends AbstractMessage
         return typedEventValue_;
     }
 
-    public String getConstraintKey()
+    public synchronized String getConstraintKey()
     {
         return constraintKey_;
     }
 
     public EvaluationResult extractFilterableData(EvaluationContext context, ComponentName root,
-            String v) throws EvaluationException
+            String name) throws EvaluationException
     {
         Any _any = context.getETCLEvaluator().evaluatePropertyList(
-                toStructuredEvent().filterable_data, v);
+                toStructuredEvent().filterable_data, name);
 
         return EvaluationResult.fromAny(_any);
     }
 
     public EvaluationResult extractVariableHeader(EvaluationContext context, ComponentName root,
-            String v) throws EvaluationException
+            String name) throws EvaluationException
     {
         Any _any = context.getETCLEvaluator().evaluatePropertyList(
-                toStructuredEvent().header.variable_header, v);
+                toStructuredEvent().header.variable_header, name);
 
         return EvaluationResult.fromAny(_any);
     }
 
-    private void parseQosSettings(boolean startTimeSupported, boolean timeoutSupported)
+    private synchronized void parseQosSettings(boolean startTimeSupported, boolean timeoutSupported)
     {
         Property[] props = toStructuredEvent().header.variable_header;
 
@@ -222,12 +220,12 @@ public class StructuredEventMessage extends AbstractMessage
         return startTime_ != null;
     }
 
-    public long getStartTime()
+    public synchronized long getStartTime()
     {
         return startTime_.getTime();
     }
 
-    public boolean hasStopTime()
+    public synchronized boolean hasStopTime()
     {
         return stopTime_ != null;
     }
@@ -237,17 +235,17 @@ public class StructuredEventMessage extends AbstractMessage
         return stopTime_.getTime();
     }
 
-    public boolean hasTimeout()
+    public synchronized boolean hasTimeout()
     {
         return isTimeoutSet_;
     }
 
-    public long getTimeout()
+    public synchronized long getTimeout()
     {
         return timeout_;
     }
 
-    private void setTimeout(long timeout)
+    private synchronized void setTimeout(long timeout)
     {
         isTimeoutSet_ = true;
         timeout_ = timeout;
@@ -258,7 +256,7 @@ public class StructuredEventMessage extends AbstractMessage
         return filter.match_structured(toStructuredEvent());
     }
 
-    public int getPriority()
+    public synchronized int getPriority()
     {
         return priority_;
     }
