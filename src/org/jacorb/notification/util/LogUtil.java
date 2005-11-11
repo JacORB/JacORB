@@ -28,6 +28,7 @@ import java.util.Properties;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
+import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.config.LogKitLoggerFactory;
 import org.jacorb.config.LoggerFactory;
 import org.jacorb.util.ObjectUtil;
@@ -49,7 +50,7 @@ public class LogUtil
     {
         try
         {
-            Configuration config = Configuration.getConfiguration(new Properties(), null, false);
+            Configuration config = JacORBConfiguration.getConfiguration(new Properties(), null, false);
             
             LoggerFactory factory = newLog4jLoggerFactory(config);
             
