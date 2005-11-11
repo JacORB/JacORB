@@ -32,5 +32,5 @@ import edu.emory.mathcs.backport.java.util.concurrent.Executor;
  */
 public interface TaskExecutor extends Executor, Disposable, NotifyingDisposable
 {
-    boolean isTaskQueued();
+    // empty
 }

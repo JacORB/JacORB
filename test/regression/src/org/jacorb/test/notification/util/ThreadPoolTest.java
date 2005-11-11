@@ -28,12 +28,9 @@ import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.DefaultTaskExecutor;
 
-import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
-
 /**
  * @author Alphonse Bendt
  */
-
 public class ThreadPoolTest extends TestCase
 {
     private DefaultTaskExecutor objectUnderTest_;
@@ -89,61 +86,6 @@ public class ThreadPoolTest extends TestCase
         {
             // expected
         }
-    }
-
-    public void _testIsTaskQueued() throws Exception
-    {
-        assertTrue(!objectUnderTest_.isTaskQueued());
-
-        final CountDownLatch _latch1 = new CountDownLatch(1);
-        final CountDownLatch _latch2 = new CountDownLatch(1);
-
-        objectUnderTest_.execute(new Runnable()
-        {
-            public void run()
-            {
-                try
-                {
-                    _latch1.await();
-                } catch (InterruptedException e)
-                {
-                    // ignore
-                }
-            }
-        });
-
-        objectUnderTest_.execute(new Runnable()
-        {
-            public void run()
-            {
-                try
-                {
-                    _latch2.await();
-                } catch (InterruptedException e)
-                {
-                    // ignore
-                }
-            }
-        });
-
-        objectUnderTest_.execute(new Runnable()
-        {
-            public void run()
-            {
-                try
-                {
-                    _latch2.await();
-                } catch (InterruptedException e)
-                {
-                    // ignore
-                }
-            }
-        });
-
-        assertTrue(objectUnderTest_.isTaskQueued());
-        _latch1.countDown();
-        Thread.sleep(100);
-        assertTrue(!objectUnderTest_.isTaskQueued());
     }
 
     public ThreadPoolTest(String name)

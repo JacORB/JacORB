@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.engine.ConfigurablePushTaskExecutorFactory;
+import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.filter.impl.DefaultETCLEvaluator;
@@ -95,6 +96,7 @@ public class PicoContainerFactory
         container.registerComponentImplementation(DefaultMessageFactory.class);
 
         // taskprocessor
+        container.registerComponentImplementation(DefaultTaskFactory.class);
         container.registerComponentImplementation(DefaultTaskProcessor.class);
 
         registerEvaluationContextFactory(container);
@@ -102,6 +104,9 @@ public class PicoContainerFactory
 
     private static void registerEvaluationContextFactory(final MutablePicoContainer container)
     {
+        // PoolingEvaluationContextFactory depends on DefaultEvaluationContextFactory.
+        // however both implement the same interface users depend on which causes an ambiguity.
+        // therefore DefaultEvaluationContextFactory should be only visible to PoolingEvaluationContextFactory.
         final ConstructorInjectionComponentAdapter _serviceCA = 
             new ConstructorInjectionComponentAdapter(DefaultEvaluationContextFactory.class, DefaultEvaluationContextFactory.class);
         
@@ -120,16 +125,23 @@ public class PicoContainerFactory
     private static void registerORBServices(final MutablePicoContainer container)
     {
         // register services that need to be looked up via orb using custom componentadapter
+        
+        // POA
         container.registerComponent(new CachingComponentAdapter(new BiDirGiopPOAComponentAdapter(new POAComponentAdapter())));
 
+        // DynAnyFactory
         container.registerComponent(new CachingComponentAdapter(new DynAnyFactoryComponentAdapter()));
 
+        // Configuration
         container.registerComponent(new CachingComponentAdapter(new ConfigurationComponentAdapter()));
 
+        // FilterFactory
         container.registerComponent(new CachingComponentAdapter(new FilterFactoryComponentAdapter()));
 
+        // IFR
         container.registerComponent(new CachingComponentAdapter(new RepositoryComponentAdapter()));
         
+        // CurrentTimeUtil
         container.registerComponent(new CurrentTimeUtilComponentAdapter());
     }
 
@@ -157,9 +169,7 @@ public class PicoContainerFactory
 
     public static MutablePicoContainer createChildContainer(MutablePicoContainer parent)
     {
-        MutablePicoContainer child = parent.makeChildContainer();
-
-        return child;
+        return parent.makeChildContainer();
     }
 
 
@@ -172,32 +182,32 @@ public class PicoContainerFactory
     {
         try
         {
-            Constructor[] ctors = clazzToBeCreated.getConstructors();
+            Constructor[] _ctors = clazzToBeCreated.getConstructors();
 
-            StringBuffer b = new StringBuffer();
-            for (int i = 0; i < ctors.length; i++)
+            StringBuffer _buffer = new StringBuffer();
+            for (int i = 0; i < _ctors.length; i++)
             {
-                Constructor constructor = ctors[i];
+                Constructor _ctor = _ctors[i];
 
-                b.append(constructor);
-                b.append("\n");
-                Class[] params = constructor.getParameterTypes();
+                _buffer.append(_ctor);
+                _buffer.append("\n");
+                Class[] _params = _ctor.getParameterTypes();
 
-                for (int j = 0; j < params.length; j++)
+                for (int j = 0; j < _params.length; j++)
                 {
-                    Class param = params[j];
+                    Class _param = _params[j];
 
-                    boolean resolvable = container.getComponentInstanceOfType(param) != null;
-                    b.append(j);
-                    b.append(": ");
-                    b.append(param);
-                    b.append(" -> ");
-                    b.append(resolvable);
-                    b.append("\n");
+                    boolean resolvable = container.getComponentInstanceOfType(_param) != null;
+                    _buffer.append(j);
+                    _buffer.append(": ");
+                    _buffer.append(_param);
+                    _buffer.append(" -> ");
+                    _buffer.append(resolvable);
+                    _buffer.append("\n");
                 }
             }
 
-            System.err.println(b.toString());
+            System.err.println(_buffer.toString());
         } catch (Exception e)
         {
             e.printStackTrace();

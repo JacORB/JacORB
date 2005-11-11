@@ -35,8 +35,6 @@ public interface TaskProcessor
 {
     TaskFactory getTaskFactory();
 
-    TaskExecutor getFilterTaskExecutor();
-
     /**
      * process a Message. the various settings for the Message
      * (timeout, starttime, stoptime) are checked and applied.

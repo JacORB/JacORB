@@ -30,21 +30,19 @@ import org.jacorb.notification.interfaces.Message;
  */
 public interface TaskFactory
 {
-    public abstract Schedulable newFilterProxyConsumerTask(Message message);
+    Schedulable newFilterProxyConsumerTask(Message message);
 
-    public abstract Schedulable newFilterSupplierAdminTask(FilterProxyConsumerTask t);
+    Schedulable newFilterSupplierAdminTask(FilterProxyConsumerTask previousTask);
 
-    public abstract Schedulable newFilterConsumerAdminTask(FilterSupplierAdminTask t);
+    Schedulable newFilterConsumerAdminTask(FilterSupplierAdminTask previousTask);
 
-    public abstract Schedulable newFilterProxySupplierTask(FilterConsumerAdminTask task);
+    Schedulable newFilterProxySupplierTask(FilterConsumerAdminTask previousTask);
 
-    ////////////////////////////////////////
-    
-    public abstract void enqueueMessage(FilterStage[] nodes, Message event);
+    void enqueueMessage(FilterStage[] nodes, Message event);
 
     /**
      * factory method to create PushToConsumer Tasks. The Tasks are
      * initialized with the data taken from a FilterProxySupplierTask.
      */
-    public abstract void enqueueMessage(FilterProxySupplierTask task);
+    void enqueueMessage(FilterProxySupplierTask previousTask);
 }

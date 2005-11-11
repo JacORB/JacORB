@@ -75,11 +75,12 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         }
     }
 
-    public static final AlternateMessageMap EMPTY_MAP = new AlternateMessageMap(
-            Collections.EMPTY_MAP)
+    public static final AlternateMessageMap EMPTY_MAP = 
+        new AlternateMessageMap(Collections.EMPTY_MAP)
     {
         public void clear()
         {
+            // nothing to do
         }
     };
 
@@ -138,7 +139,14 @@ public class FilterProxySupplierTask extends AbstractFilterTask
             }
         } catch (UnsupportedFilterableData e)
         {
-            //             logger_.error("error evaluating PriorityFilter", e);
+            if (logger_.isDebugEnabled())
+            {
+                logger_.debug("unable to evaluate PriorityFilter", e);
+            }
+            else if (logger_.isInfoEnabled())
+            {
+                logger_.info("unable to evaluate PriorityFilter");
+            }
         }
 
         return _currentMessage;
@@ -168,7 +176,14 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
         } catch (UnsupportedFilterableData e)
         {
-            //             logger_.error("error evaluating PriorityFilter", e);
+            if (logger_.isDebugEnabled())
+            {
+                logger_.debug("unable to evaluate PriorityFilter", e);
+            }
+            else if (logger_.isInfoEnabled())
+            {
+                logger_.info("unable to evaluate PriorityFilter");
+            }
         }
 
         return _currentMessage;

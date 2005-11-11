@@ -21,8 +21,9 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
@@ -34,60 +35,70 @@ import org.jacorb.notification.util.AbstractPoolablePool;
  * @version $Id$
  */
 
-public class DefaultTaskFactory implements Disposable, Configurable, TaskFactory
+public class DefaultTaskFactory implements Disposable, TaskFactory
 {
-    final TaskProcessor taskProcessor_;
-
-    private final AbstractPoolablePool filterProxyConsumerTaskPool_ = new AbstractPoolablePool(
-            "FilterProxyConsumerTaskPool")
+    /**
+     * TaskExecutor used to invoke match-Operation on filters
+     */
+    private final TaskExecutor filterTaskExecutor_;
+    
+    private final int filterWorkerPoolSize_;
+    
+    private final AbstractPoolablePool filterProxyConsumerTaskPool_ = 
+        new AbstractPoolablePool("FilterProxyConsumerTaskPool")
     {
         public Object newInstance()
         {
             return new FilterProxyConsumerTask(DefaultTaskFactory.this,
-                    taskProcessor_.getFilterTaskExecutor());
+                    filterTaskExecutor_);
         }
     };
 
-    private final AbstractPoolablePool filterSupplierAdminTaskPool_ = new AbstractPoolablePool(
-            "FilterSupplierAdminTaskPool")
+    private final AbstractPoolablePool filterSupplierAdminTaskPool_ = 
+        new AbstractPoolablePool("FilterSupplierAdminTaskPool")
     {
         public Object newInstance()
         {
             return new FilterSupplierAdminTask(DefaultTaskFactory.this,
-                    taskProcessor_.getFilterTaskExecutor());
+                    filterTaskExecutor_);
         }
     };
 
-    private final AbstractPoolablePool filterConsumerAdminTaskPool_ = new AbstractPoolablePool(
-            "FilterConsumerAdminTaskPool")
+    private final AbstractPoolablePool filterConsumerAdminTaskPool_ = 
+        new AbstractPoolablePool("FilterConsumerAdminTaskPool")
     {
         public Object newInstance()
         {
             return new FilterConsumerAdminTask(DefaultTaskFactory.this,
-                    taskProcessor_.getFilterTaskExecutor());
+                    filterTaskExecutor_);
         }
     };
 
-    private final AbstractPoolablePool filterProxySupplierTaskPool_ = new AbstractPoolablePool(
-            "FilterProxySupplierTaskPool")
+    private final AbstractPoolablePool filterProxySupplierTaskPool_ = 
+        new AbstractPoolablePool("FilterProxySupplierTaskPool")
     {
         public Object newInstance()
         {
             return new FilterProxySupplierTask(DefaultTaskFactory.this,
-                    taskProcessor_.getFilterTaskExecutor());
+                    filterTaskExecutor_);
         }
     };
 
     // //////////////////////////////////////
 
-    public DefaultTaskFactory(TaskProcessor taskProcessor)
+    public DefaultTaskFactory(Configuration config)
     {
-        taskProcessor_ = taskProcessor;
+        filterWorkerPoolSize_ = config.getAttributeAsInteger(Attributes.FILTER_POOL_WORKERS,
+                Default.DEFAULT_FILTER_POOL_SIZE);
+        
+        filterTaskExecutor_ = new DefaultTaskExecutor("FilterThread", filterWorkerPoolSize_);
+        
+        configure(config);
     }
 
     // //////////////////////////////////////
 
-    public void configure(Configuration conf)
+    private void configure(Configuration conf)
     {
         filterProxyConsumerTaskPool_.configure(conf);
         filterProxySupplierTaskPool_.configure(conf);
@@ -97,6 +108,7 @@ public class DefaultTaskFactory implements Disposable, Configurable, TaskFactory
 
     public void dispose()
     {
+        filterTaskExecutor_.dispose();
         filterProxyConsumerTaskPool_.dispose();
         filterProxySupplierTaskPool_.dispose();
         filterConsumerAdminTaskPool_.dispose();
@@ -121,8 +133,6 @@ public class DefaultTaskFactory implements Disposable, Configurable, TaskFactory
 
         return task;
     }
-
-    // //////////////////////////////////////
 
     // //////////////////////////////////////
     // Factory methods for FilterSupplierAdminTasks
@@ -153,8 +163,6 @@ public class DefaultTaskFactory implements Disposable, Configurable, TaskFactory
     }
 
     // //////////////////////////////////////
-
-    // //////////////////////////////////////
     // Factory methods for FilterConsumerAdminTasks
     // //////////////////////////////////////
 
@@ -173,8 +181,6 @@ public class DefaultTaskFactory implements Disposable, Configurable, TaskFactory
 
         return _newTask;
     }
-
-    // //////////////////////////////////////
 
     // //////////////////////////////////////
     // Factory methods for FilterProxySupplierTasks
@@ -197,8 +203,6 @@ public class DefaultTaskFactory implements Disposable, Configurable, TaskFactory
 
         return _newTask;
     }
-
-    // //////////////////////////////////////
 
     // //////////////////////////////////////
     // Factory methods for AbstractDeliverTasks

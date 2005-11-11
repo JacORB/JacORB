@@ -28,6 +28,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.Executor;
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
 import edu.emory.mathcs.backport.java.util.concurrent.Executors;
 import edu.emory.mathcs.backport.java.util.concurrent.ThreadFactory;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
@@ -36,41 +37,41 @@ import edu.emory.mathcs.backport.java.util.concurrent.ThreadFactory;
 
 public class DefaultTaskExecutor implements TaskExecutor
 {
+    private final class DirectExecutor implements Executor
+    {
+        public void execute(Runnable command)
+        {
+            // execute in current thread
+            command.run();
+        }
+    }
+
     private static final class DefaultThreadFactory implements ThreadFactory
     {
-        private int counter_ = 0;
+        private final AtomicInteger counter_ = new AtomicInteger(0);
 
-        private final String name;
+        private final String name_;
 
         private DefaultThreadFactory(String name)
         {
             super();
-            this.name = name;
+            name_ = name;
         }
 
-        public synchronized Thread newThread(Runnable task)
+        public Thread newThread(Runnable task)
         {
             Thread _thread = new Thread(task);
 
             _thread.setDaemon(true);
-            _thread.setName(name + "#" + (counter_++));
+            _thread.setName(name_ + "#" + (counter_.getAndIncrement()));
 
             return _thread;
         }
     }
 
-    private static final DefaultTaskExecutor DIRECT_EXECUTOR = new DefaultTaskExecutor("Direct", 0);
-
     private final Executor executor_;
 
     private final DisposableManager disposeHooks_ = new DisposableManager();
-    
-    ////////////////////////////////////////
-
-    public static TaskExecutor getDefaultExecutor()
-    {
-        return DIRECT_EXECUTOR;
-    }
     
     ////////////////////////////////////////
 
@@ -82,13 +83,7 @@ public class DefaultTaskExecutor implements TaskExecutor
         }
         else if (numberOfThreads == 0)
         {
-            executor_ = new Executor()
-            {
-                public void execute(Runnable command)
-                {
-                    command.run();
-                }
-            };
+            executor_ = new DirectExecutor();
         }
         else
         {
@@ -109,18 +104,9 @@ public class DefaultTaskExecutor implements TaskExecutor
         }
     }
 
-
     public DefaultTaskExecutor(String string, int numberOfThreads)
     {
         this(string, numberOfThreads, false);
-    }
-
-    /**
-     * @deprecated impossible to determine if tasks are queued.
-     */
-    public boolean isTaskQueued()
-    {
-        return true;
     }
 
     public void dispose()
