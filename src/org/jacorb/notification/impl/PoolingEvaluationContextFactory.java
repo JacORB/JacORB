@@ -45,7 +45,7 @@ public class PoolingEvaluationContextFactory implements EvaluationContextFactory
                 return delegate.newEvaluationContext();
             }
 
-            public void activateObject(Object o)
+            public void doActivateObject(Object o)
             {
                 AbstractPoolable obj = (AbstractPoolable) o;
                 obj.reset();

@@ -38,12 +38,12 @@ public abstract class AbstractPoolablePool extends AbstractObjectPool
         super(name);
     }
 
-    public void passivateObject(Object o)
+    public void doPassivateObject(Object o)
     {
         ((AbstractPoolable) o).reset();
     }
 
-    public void activateObject(Object o)
+    public void doActivateObject(Object o)
     {
         ((AbstractPoolable) o).setObjectPool(this);
     }
