@@ -26,8 +26,6 @@ import java.io.IOException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
-import org.jacorb.orb.*;
-
 public class PortRangeServerSocketFactory 
     extends PortRangeFactory 
     implements ServerSocketFactory
@@ -36,11 +34,22 @@ public class PortRangeServerSocketFactory
     public static final String MAX_PROP = "jacorb.net.server_socket_factory.port.max";
 
     private Logger logger;
-
-    public void configure(Configuration configuration)
+    private final ServerSocketFactory delegate;
+    
+    public PortRangeServerSocketFactory()
+    {
+        this(new DefaultServerSocketFactory());
+    }
+    
+    public PortRangeServerSocketFactory(ServerSocketFactory delegate)
+    {
+        this.delegate = delegate;
+    }
+    
+    public void configure(org.apache.avalon.framework.configuration.Configuration config)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
+        this.configuration = (org.jacorb.config.Configuration)config;
         logger = this.configuration.getNamedLogger("jacorb.orb.port_rang_fctry");
 
        // Get configured max and min port numbers
@@ -57,18 +66,23 @@ public class PortRangeServerSocketFactory
     public ServerSocket createServerSocket (int port, int backlog)
         throws IOException
     {
-        int localPort;
-        ServerSocket socket;
-
-        for (localPort = portMin; localPort <= portMax; localPort++)
+        if (port <= portMax && port >= portMin)
         {
             try
             {
-                socket = new ServerSocket (localPort, backlog);
-                if (logger.isDebugEnabled())
-                    logger.debug("PortRangeServerSocketFactory: Created server socket at "
-                                 + ":" + localPort);
-                return socket;
+                return doCreateServerSocket(port, backlog);
+            }
+            catch (IOException e)
+            {
+                // ignored 
+            }
+        }
+        
+        for (int localPort = portMin; localPort <= portMax; localPort++)
+        {
+            try
+            {
+                return doCreateServerSocket(localPort, backlog);
             }
             catch (IOException ex)
             {
@@ -76,34 +90,41 @@ public class PortRangeServerSocketFactory
             }
         }
 
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("Cannot create server socket between ports " + 
-                         portMin + " and " + portMax);
-        }
-
-        throw new BindException ("PortRangeServerSocketFactory: no free port between "
-                                 + portMin + " and " + portMax);
+        return handleCreationFailed();
     }
 
-    public ServerSocket createServerSocket
-        (int port, int backlog, InetAddress ifAddress)
+    private ServerSocket doCreateServerSocket(int port, int backlog) 
         throws IOException
     {
-        int localPort;
-        ServerSocket socket;
+        final ServerSocket socket = delegate.createServerSocket(port, backlog);
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("PortRangeServerSocketFactory: Created server socket at "
+                         + ":" + port);
+        }
+        return socket;
+    }
 
-        for (localPort = portMin; localPort <= portMax; localPort++)
+    public ServerSocket createServerSocket(int port, int backlog, InetAddress ifAddress)
+        throws IOException
+    {
+        if (port <= portMax && port >= portMin)
         {
             try
             {
-                socket = new ServerSocket(localPort, backlog, ifAddress);
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug("Created server socket at "
-                                 + ":" + localPort);
-                }
-                return socket;
+                return doCreateServerSocket(port, backlog, ifAddress);
+            }
+            catch (IOException e)
+            {
+                // ignore 
+            }
+        }
+        
+        for (int localPort = portMin; localPort <= portMax; localPort++)
+        {
+            try
+            {
+                return doCreateServerSocket(localPort, backlog, ifAddress);
             }
             catch (IOException ex)
             {
@@ -111,33 +132,41 @@ public class PortRangeServerSocketFactory
             }
         }
 
+        return handleCreationFailed();
+    }
+
+    private ServerSocket doCreateServerSocket(int localPort, int backlog, InetAddress ifAddress) 
+        throws IOException
+    {
+        final ServerSocket socket = delegate.createServerSocket(localPort, backlog, ifAddress);
         if (logger.isDebugEnabled())
         {
-            logger.debug("Cannot create server socket between ports " + 
-                         portMin + " and " + portMax);
+            logger.debug("Created server socket at "
+                         + ":" + localPort);
         }
-
-        throw new BindException ("PortRangeServerSocketFactory: no free port between "
-                                 + portMin + " and " + portMax);
+        return socket;
     }
 
     public ServerSocket createServerSocket(int port)
-        throws IOException
+        throws BindException
     {
-        int localPort;
-        ServerSocket socket;
-
-        for (localPort = portMin; localPort <= portMax; localPort++)
+        if (port <= portMax && port >= portMin)
         {
             try
             {
-                socket = new ServerSocket(localPort);
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug("Created server socket at "
-                                 + ":" + localPort);
-                }
-                return socket;
+                return doCreateServerSocket(port);
+            }
+            catch (IOException e)
+            {
+                // ignored
+            }
+        }
+        
+        for (int localPort = portMin; localPort <= portMax; localPort++)
+        {
+            try
+            {
+                return doCreateServerSocket(localPort);
             }
             catch (IOException ex)
             {
@@ -145,11 +174,28 @@ public class PortRangeServerSocketFactory
             }
         }
 
+        return handleCreationFailed();
+    }
+
+    private ServerSocket doCreateServerSocket(int port) throws IOException
+    {
+        final ServerSocket socket = delegate.createServerSocket(port);
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Created server socket at "
+                         + ":" + port);
+        }
+        return socket;
+    }
+    
+    private ServerSocket handleCreationFailed() throws BindException
+    {
         if (logger.isDebugEnabled())
         {
             logger.debug("Cannot create server socket between ports " + 
                          portMin + " and " + portMax);
         }
+
         throw new BindException ("PortRangeServerSocketFactory: no free port between "
                                  + portMin + " and " + portMax);
     }

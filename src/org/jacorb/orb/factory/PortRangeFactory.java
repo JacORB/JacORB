@@ -20,14 +20,8 @@ package org.jacorb.orb.factory;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.net.*;
-import java.io.IOException;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-
-import org.jacorb.util.*;
-import org.jacorb.orb.*;
 
 public abstract class PortRangeFactory
     implements Configurable

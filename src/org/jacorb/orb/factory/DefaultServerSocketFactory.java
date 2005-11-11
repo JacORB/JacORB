@@ -25,8 +25,6 @@ import java.io.IOException;
 
 public class DefaultServerSocketFactory implements ServerSocketFactory
 {
-    public DefaultServerSocketFactory () {}
-
     public ServerSocket createServerSocket (int port)
         throws IOException
     {
