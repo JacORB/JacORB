@@ -65,6 +65,7 @@ public abstract class ConnectionBase
     
     protected ConnectionBase()
     {
+        super();
     }
     
     /**
@@ -79,12 +80,11 @@ public abstract class ConnectionBase
         this.profile = other.profile;
     }
     
-    public void configure(Configuration configuration)
+    public void configure(Configuration config)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
-        logger = this.configuration.getNamedLogger(
-                 this.configuration.getLoggerName(this.getClass()));
+        configuration = (org.jacorb.config.Configuration)config;
+        logger = configuration.getNamedLogger(configuration.getLoggerName(getClass()));
 
         if( configuration.getAttribute("jacorb.debug.dump_outgoing_messages","off").equals("on"))
         {
