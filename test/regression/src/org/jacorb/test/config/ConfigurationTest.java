@@ -21,14 +21,18 @@
 
 package org.jacorb.test.config;
 
+import java.util.Properties;
+
 import org.jacorb.config.Configuration;
+import org.jacorb.config.JacORBConfiguration;
 
 import junit.framework.TestCase;
 
 public class ConfigurationTest extends TestCase
 {
-    public void testGetLoggerName()
+    public void testGetLoggerName() throws Exception
     {
-        assertEquals("jacorb.test.config", Configuration.getLoggerName(getClass()));
+        Configuration config = JacORBConfiguration.getConfiguration(new Properties(), null, false);
+        assertEquals("jacorb.test.config", config.getLoggerName(getClass()));
     }
 }
