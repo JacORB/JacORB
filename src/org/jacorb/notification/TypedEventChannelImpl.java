@@ -224,4 +224,13 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
     {
         return "TypedEventChannel";
     }
+    
+    /**
+     * @jmx.managed-attribute   access = "read-only"
+     *                          currencyTimeLimit = "2147483647"
+     */
+    public String getIOR()
+    {
+        return orb_.object_to_string(thisRef_);
+    }
 }
