@@ -530,4 +530,13 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     {
         return this;
     }
+    
+    /**
+     * @jmx.managed-operation   impact = "ACTION"
+     *                          description = "delete all queued Messages"
+     */
+    public void clearPendingMessageQueue()
+    {
+        pendingMessages_.clear();
+    }
 }
