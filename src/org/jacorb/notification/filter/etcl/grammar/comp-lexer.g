@@ -120,9 +120,6 @@ TYPE_ID    : "_type_id";
 REPO_ID    : "_repos_id";
 LENGTH     : "_length";
 
-// STRING
-//     : '\''! TEXTCHARS '\''!
-//     ;
 
 IDENTIFIER
 options {testLiterals=true;}
@@ -151,20 +148,6 @@ NUMBER
     | ('1'..'9') (DIGIT)*
     ;
 
-// protected TEXTCHARS
-//     : // empty
-//     | TEXTCHAR TEXTCHARS
-//     ;
-
-// protected TEXTCHAR
-//     : ALPHA
-//     | DIGIT
-//     | OTHER
-//     | OTHER_TEXT
-//     | ' '
-//     | SPECIAL
-//     ;
-
 protected DIGITS
     : (DIGIT)+
     ;
@@ -181,13 +164,3 @@ protected OTHER
      : ('_'|':'|'/')
      ;
 
-// // these may appear within text but not within identifiers
-// protected OTHER_TEXT
-//     : ('.')
-//     ;
-
-// protected SPECIAL
-//      : '\\'!
-//         ( '\''
-//         | '\\' )
-//      ;

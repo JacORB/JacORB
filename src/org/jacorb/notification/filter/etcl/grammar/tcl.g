@@ -175,7 +175,7 @@ expr
     ;
 
 term
-    : factor_not ((MULT^ |DIV^)factor_not)*
+    : factor_not ((MULT^ |DIV^) factor_not)*
     ;
 
 factor_not
