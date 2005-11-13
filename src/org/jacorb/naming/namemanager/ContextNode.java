@@ -21,8 +21,6 @@ package org.jacorb.naming.namemanager;
  */
 
 import org.omg.CosNaming.*;
-import org.jacorb.naming.*;
-import org.jacorb.orb.*;
 import org.jacorb.orb.iiop.*;
 
 import java.util.*;
@@ -97,25 +95,20 @@ public class ContextNode
 
     public String toString()
     {
-	if( binding == null )
-	    return "RootContext";
-	else
-	{
-            if (myName == null )
-            {
-                NameComponent[] name = binding.binding_name;
-                String kind = name[name.length-1].kind;
-                myName =  name[name.length-1].id + 
-                    ( kind != null && kind.length() > 0 ? "." + kind : "");
-            }
-            return myName;
-	}
-    }
+        if (binding == null)
+        {
+            return "RootContext";
+        }
 
-    /**
-     * 
-     * @param name java.lang.String
-     */
+        if (myName == null)
+        {
+            NameComponent[] name = binding.binding_name;
+            String kind = name[name.length - 1].kind;
+            myName = name[name.length - 1].id
+                    + (kind != null && kind.length() > 0 ? "." + kind : "");
+        }
+        return myName;
+    }
 
     public void unbind(NameComponent [] nc) 
 	throws org.omg.CosNaming.NamingContextPackage.NotFound,
@@ -245,14 +238,7 @@ public class ContextNode
 		    // continue
 		    continue;
 		}
-		Vector row = new Vector();
-
-		row.addElement( last.id );
-		row.addElement( last.kind);
-		row.addElement( pior.getTypeId() );
-		IIOPProfile p = (IIOPProfile)pior.getEffectiveProfile();
-		row.addElement( ((IIOPAddress)p.getAddress()).getIP() );
-					
+		Vector row = createRow(last, pior);
 		bindingData.addElement( row );
 
 	    }
@@ -277,14 +263,8 @@ public class ContextNode
 		    // continue
 		    continue;
 		}
-		Vector row = new Vector();
-
-		row.addElement( last.id );
-		row.addElement( last.kind);
-		row.addElement( pior.getTypeId() );
-		IIOPProfile p = (IIOPProfile)pior.getEffectiveProfile();
-		row.addElement( ((IIOPAddress)p.getAddress()).getIP() );
-					
+		Vector row = createRow(last, pior);
+        
 		bindingData.addElement( row );
 	    }
 	
@@ -304,5 +284,19 @@ public class ContextNode
 	{
 	    e.printStackTrace();
 	}
+    }
+
+    private Vector createRow(NameComponent last, org.jacorb.orb.ParsedIOR pior)
+    {
+        Vector row = new Vector();
+
+		row.addElement( last.id );
+		row.addElement( last.kind);
+		row.addElement( pior.getTypeId() );
+		IIOPProfile p = (IIOPProfile)pior.getEffectiveProfile();
+		final IIOPAddress iiopAddress = (IIOPAddress)p.getAddress();
+        row.addElement( iiopAddress.getIP() );
+		row.addElement( Integer.toString(iiopAddress.getPort()) );
+        return row;
     }
 }
