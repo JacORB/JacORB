@@ -31,7 +31,7 @@ public class NSTableModel
     public NSTableModel() 
     {
 	super();
-	String [] colNames = {"Name", "Kind", "Type", "Host"};
+	String [] colNames = {"Name", "Kind", "Type", "Host", "Port"};
 	super.setColumnIdentifiers(convertToVector(colNames));
     }
 
@@ -40,7 +40,7 @@ public class NSTableModel
      */
     public int getColumnCount() 
     {
-	return 4;
+	return 5;
     }
 
     /**
