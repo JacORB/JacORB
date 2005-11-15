@@ -158,7 +158,7 @@ public class TransportManager
      * Returns an ETF Factories object for the given tag, or null
      * if no Factories class has been defined for this tag.
      */
-    public org.omg.ETF.Factories getFactories(int tag)
+    public synchronized org.omg.ETF.Factories getFactories(int tag)
     {
         if (factoriesMap == null)
         {
@@ -172,7 +172,7 @@ public class TransportManager
      * in the same order as they were specified in the
      * jacorb.transport.factories property.
      */
-    public List getFactoriesList()
+    public synchronized List getFactoriesList()
     {
         if (factoriesList == null)
         {
