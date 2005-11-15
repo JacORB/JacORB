@@ -1,3 +1,124 @@
+2005-11-15  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/TransportManager.java (getFactories, getFactoriesList):
+	Synchronized, fixing bug #642.  Thanks to Justin Permar for the
+	report.
+
+2005-11-15  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* idl/ValueDecl.java: this is a fix for bug #512. unwind
+	valuetype inheritance specifications which have been
+	typedef'd. thanks to thomas leineweber for providing the patch
+
+2005-11-13  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* naming/namemanager/ContextNode.java: feature request #427
+	populate 5th row with port number
+
+	* naming/namemanager/NSTableModel.java: feature request #427
+	(getColumnCount, c'tor): added a 5th row (Portnumber)
+
+2005-11-11  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* orb/factory/DefaultServerSocketFactory.java,
+	orb/factory/PortRangeFactory.java,
+	orb/factory/PortRangeServerSocketFactory.java:
+	this is a fix for #645
+	if the specified port param lies within the port range of
+	the Factory it first tries to open this port. If this fails
+	another port from the port range is tried.  i have also
+	refactored PortRangeServerSocketFactory to delegate the actual
+	creation to an instance of DefaultServerSocketFactory and added a
+	testcase.
+
+	* notification/impl/PoolingEvaluationContextFactory.java,
+	notification/util/AbstractObjectPool.java,
+	notification/util/AbstractPoolablePool.java: renamed template
+	methods to begin with do...
+
+	* notification/impl/DefaultMessageFactory.java: code cleanup
+
+	* notification/util/LogUtil.java: renamed class Configuration to
+	JacORBConfiguration and extracted the interface Configuration.
+
+	* notification/container/PicoContainerFactory.java,
+	notification/engine/AbstractFilterTask.java,
+	notification/engine/DefaultTaskExecutor.java,
+	notification/engine/DefaultTaskFactory.java,
+	notification/engine/DefaultTaskProcessor.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/TaskExecutor.java,
+	notification/engine/TaskFactory.java,
+	notification/engine/TaskProcessor.java: removed isTaskQueued logic
+	as it is not supported by the underlying util.concurrent lib
+
+	* notification/container/LocalParameterComponentAdapter.java,
+	notification/NotifyServer.java: code cleanup
+
+	* notification/EventChannelImpl.java,
+	notification/TypedEventChannelImpl.java (getIOR): new channel
+	specific implementation
+
+	* notification/AbstractMessage.java, notification/AnyMessage.java,
+	notification/StructuredEventMessage.java,
+	notification/TypedEventMessage.java (reset): method is final and
+	invokes template method doReset which may be subclassed
+
+	* notification/AbstractEventChannel.java: code cleanup
+
+	* orb/etf/ConnectionBase.java (configure): renamed class
+	Configuration to JacORBConfiguration.
+
+	* orb/ORB.java (set_parameters): renamed class Configuration to
+	JacORBConfiguration.
+
+	* config/Configuration.java, config/JacORBConfiguration.java:
+	renamed class Configuration to JacORBConfiguration and extracted
+	the interface Configuration.
+
+	* notification/filter/etcl/grammar/comp-lexer.g,
+	notification/filter/etcl/grammar/tcl.g: code cleanup
+
+	* notification/jmx/jboss/JBossCOSNotificationService.java: javadoc
+
+	* notification/servant/AbstractProxySupplier.java
+	(clearPendingMessageQueue): new management operation
+
+2005-11-07  Gerald Brose  <gerald.brose@acm.org>
+
+	* build.xml: Added rules to build DDS
+
+	* dds/DomainParticipantFactoryImpl.java,
+	dds/DomainParticipantImpl.java, dds/EntityImpl.java,
+	dds/PublisherImpl.java, dds/SubscriberImpl.java,
+	dds/Supplier.java, dds/ThreadSubscriber.java, dds/TopicImpl.java,
+	dds/build.xml: *** empty log message ***
+
+2005-10-31  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/ClientConnection.java (closeConnectionReceived):
+	Include connection id in debug message.
+
+	* orb/giop/GIOPConnectionManager.java (createServerGIOPConnection):
+	Add debug logging.
+
+	* orb/giop/ServerGIOPConnection.java (toString): Overridden to
+	display target profile and hex id of the object.
+	(readTimedOut, streamClosed, tryClose): Improve debug logging.
+
+	* orb/giop/GIOPConnection.java (logger): Protected instead of private.
+	(profile): Add javadoc.
+	(close, getMessage, sendMessage, waitUntilConnected): Improve
+	debug logging.
+
+	* orb/giop/ClientGIOPConnection.java (toString):
+	Overridden to display target profile and hex id of the object.
+	(closeAllowReopen, readTimedOut, streamClosed): Improve debug logging.
+
+	* orb/giop/ClientConnectionManager.java:
+	(addConnection(GIOPConnection)): Method removed, was unused.
+	Debug logging enhanced in several methods.
+
 2005-10-28  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* notification/jmx/jboss/JBossCOSNotificationService.java:
