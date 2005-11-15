@@ -1,0 +1,11 @@
+module bug512 {
+    valuetype type1 {
+		private long test1;
+		public string test2;
+    };
+    typedef type1 type1alias;
+
+    valuetype type2 : type1alias {
+        public long test3;
+    };
+};

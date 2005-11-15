@@ -195,8 +195,8 @@ public class ValueDecl
             Iterator iter = operations.iterator();
             while(iter.hasNext())
             {
-                IdlSymbol sym = (IdlSymbol)iter.next();
-                sym.parse();
+                IdlSymbol idlSymbol = (IdlSymbol)iter.next();
+                idlSymbol.parse();
             }
 
             if (logger.isWarnEnabled())
@@ -206,12 +206,12 @@ public class ValueDecl
             iter = exports.iterator();
             while(iter.hasNext())
             {
-                IdlSymbol sym = (IdlSymbol)iter.next();
-                sym.parse();
+                IdlSymbol idlSymbol = (IdlSymbol)iter.next();
+                idlSymbol.parse();
 
-                if (sym instanceof AttrDecl)
+                if (idlSymbol instanceof AttrDecl)
                 {
-                    Enumeration e = ((AttrDecl)sym).getOperations();
+                    Enumeration e = ((AttrDecl)idlSymbol).getOperations();
                     while(e.hasMoreElements())
                         operations.add(e.nextElement());
                 }
@@ -221,8 +221,8 @@ public class ValueDecl
             iter = factories.iterator();
             while(iter.hasNext())
             {
-                IdlSymbol sym = (IdlSymbol)iter.next();
-                sym.parse();
+                IdlSymbol idlSymbol = (IdlSymbol)iter.next();
+                idlSymbol.parse();
             }
 
             // check inheritance rules
@@ -233,9 +233,9 @@ public class ValueDecl
                 for(Enumeration e = inheritanceSpec.getValueTypes();
                     e.hasMoreElements();)
                 {
-                    ScopedName name = (ScopedName)e.nextElement();
-                    ConstrTypeSpec ts =
-                        (ConstrTypeSpec)name.resolvedTypeSpec().typeSpec();
+                    ScopedName scopedName = (ScopedName)e.nextElement();
+		    
+                    ConstrTypeSpec ts = unwindTypedefs(scopedName);
 
                     if (ts.declaration() instanceof Value)
                     {
@@ -250,28 +250,22 @@ public class ValueDecl
                         h.put(ts.full_name(), "");
                         continue;
                     }
-                    else
-                    {
-                        logger.error(" Declaration is " + ts.declaration().getClass());
-                        parser.fatal_error("Non-value type in inheritance spec: \n\t" +
-                                           inheritanceSpec, token);
-                    }
+                    logger.error(" Declaration is " + ts.declaration().getClass());
+                    parser.fatal_error("Non-value type in inheritance spec: \n\t" +
+                                        inheritanceSpec, token);
                 }
 
                 for(Enumeration e = inheritanceSpec.getSupportedInterfaces();
                     e.hasMoreElements();)
                 {
-                    ScopedName name = (ScopedName)e.nextElement();
-                    ConstrTypeSpec ts = (ConstrTypeSpec)name.resolvedTypeSpec().typeSpec();
+                    ScopedName scopedName = (ScopedName)e.nextElement();
+                    ConstrTypeSpec ts = (ConstrTypeSpec)scopedName.resolvedTypeSpec().typeSpec();
                     if (ts.declaration() instanceof Interface)
                     {
                         continue;
                     }
-                    else
-                    {
-                        parser.fatal_error("Non-interface type in supported interfaces list:\n\t" +
-                                           inheritanceSpec, token);
-                    }
+                    parser.fatal_error("Non-interface type in supported interfaces list:\n\t" +
+                                        inheritanceSpec, token);
                 }
             }
             NameTable.parsed_interfaces.put(full_name(), "");
@@ -284,6 +278,30 @@ public class ValueDecl
             parser.set_pending(full_name());
         }
 
+    }
+
+    private ConstrTypeSpec unwindTypedefs(ScopedName scopedName)
+    {
+        TypeSpec resolvedTSpec = scopedName.resolvedTypeSpec();
+        //unwind any typedefs
+        while (resolvedTSpec instanceof AliasTypeSpec )
+        {
+            resolvedTSpec =
+                ((AliasTypeSpec)resolvedTSpec).originalType();
+        }
+
+        if (! (resolvedTSpec instanceof ConstrTypeSpec))
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Illegal inheritance spec, not a constr. type but " +
+                             resolvedTSpec.getClass() + ", name " + scopedName );
+            }
+            parser.fatal_error("Illegal inheritance spec (not a constr. type): " +
+                               inheritanceSpec, token);
+        }
+
+        return (ConstrTypeSpec) resolvedTSpec;
     }
 
     public void setEnclosingSymbol(IdlSymbol s)
@@ -339,33 +357,31 @@ public class ValueDecl
         {
             return this.getRecursiveTypeCodeExpression();
         }
-        else
+        
+        knownTypes.add(this);
+        StringBuffer result = new StringBuffer
+        ("org.omg.CORBA.ORB.init().create_value_tc (" +
+                // id, name
+                "\"" + id() + "\", " + "\"" + name + "\", " +
+                // type modifier
+                "(short)" +
+                (this.isCustomMarshalled()
+                        // symbolic constants might not be defined under jdk 1.1
+                        ? 1 // org.omg.CORBA.VM_CUSTOM.value
+                                : 0 // org.omg.CORBA.VM_NONE.value
+                ) + ", " +
+                // concrete base type
+                "null, " +
+                // value members
+        "new org.omg.CORBA.ValueMember[] {");
+        for(Iterator i = stateMembers.v.iterator(); i.hasNext();)
         {
-            knownTypes.add(this);
-            StringBuffer result = new StringBuffer
-                ("org.omg.CORBA.ORB.init().create_value_tc (" +
-                 // id, name
-                 "\"" + id() + "\", " + "\"" + name + "\", " +
-                 // type modifier
-                 "(short)" +
-                 (this.isCustomMarshalled()
-                  // symbolic constants might not be defined under jdk 1.1
-                  ? 1 // org.omg.CORBA.VM_CUSTOM.value
-                  : 0 // org.omg.CORBA.VM_NONE.value
-                  ) + ", " +
-                 // concrete base type
-                 "null, " +
-                 // value members
-                 "new org.omg.CORBA.ValueMember[] {");
-            for(Iterator i = stateMembers.v.iterator(); i.hasNext();)
-            {
-                StateMember m = (StateMember)i.next();
-                result.append(getValueMemberExpression(m, knownTypes));
-                if (i.hasNext()) result.append(", ");
-            }
-            result.append("})");
-            return result.toString();
+            StateMember m = (StateMember)i.next();
+            result.append(getValueMemberExpression(m, knownTypes));
+            if (i.hasNext()) result.append(", ");
         }
+        result.append("})");
+        return result.toString();
     }
 
     private String getValueMemberExpression(StateMember m, Set knownTypes)
@@ -485,21 +501,21 @@ public class ValueDecl
                     if (e.hasMoreElements())
                     {
                         ScopedName scopedName = (ScopedName)e.nextElement();
-                        ConstrTypeSpec ts =
-                            (ConstrTypeSpec)scopedName.resolvedTypeSpec().typeSpec();
+                        ConstrTypeSpec ts = unwindTypedefs(scopedName);
+                            //(ConstrTypeSpec)scopedName.resolvedTypeSpec().typeSpec();
 
                         // abstract base valuetypes are mapped to interfaces, so
                         // we "implement"
                         if (ts.c_type_spec instanceof ValueAbsDecl)
                         {
-                            implementsBuffer.append(", " + scopedName.toString());
+                            implementsBuffer.append(", " + ts.toString());
                         }
                         else
                         {
                             // stateful base valuetypes are mapped to classes, so
                             // we  "extend"
                             first = false;
-                            extendsBuffer.append(scopedName.toString());
+                            extendsBuffer.append(ts.toString());
                         }
                     }
 
@@ -586,18 +602,15 @@ public class ValueDecl
                         {
                             break;
                         }
+                        Truncatable t = v.inheritanceSpec.truncatable;
+                        if (t != null)
+                        {
+                            sb.append(", \"" + t.getId() + "\"");
+                            scopedName = t.scopedName;
+                        }
                         else
                         {
-                            Truncatable t = v.inheritanceSpec.truncatable;
-                            if (t != null)
-                            {
-                                sb.append(", \"" + t.getId() + "\"");
-                                scopedName = t.scopedName;
-                            }
-                            else
-                            {
-                                break;
-                            }
+                            break;
                         }
                     }
                 }
@@ -846,14 +859,8 @@ public class ValueDecl
         ps.println("\t\t" + resultname + " = (" + resulttype + ")" + anyname + ".extract_Value();");
     }
 
-    /**
-     */
-
     public void accept(IDLTreeVisitor visitor)
     {
         visitor.visitValue(this);
     }
-
-
-
 }
