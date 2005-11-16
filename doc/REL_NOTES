@@ -46,6 +46,19 @@ post 2.2.2
       - The IDL compiler can now generate DII stubs, using the new option
         "-diistub".  Thanks to Thomas Leineweber for adding this feature.
 
+      - New properties are available for assigning protocol-independent
+        addresses:
+         * OAAddress=<protocol_name>://<protocol_address>
+           for example: OAAddress=iiop://myhost:1234
+           OAIAddr and OAPort are still used to make IIOP-specific addresses,
+           but are superceded by OAAddress
+         * jacorb.ior_proxy_address=<prot_name>://<prot_addr>
+           supercedes jacorb.ior_proxy_host and jacorb.proxy_port
+         * jacorb.imr.ior_proxy_address
+        Note that OASSLPort is still necessary when configuring a specific
+        SSL port number even when using OAAddress.
+
+
 2.2
 ====
 
@@ -66,9 +79,9 @@ post 2.2.2
            the clocks of the client and server machine are synchronized to
            the same order of magnitude as the timeout.  The default for
            this property is off, unlike previous releases, where this check
-           was always done. 
+           was always done.
 
-         * IDL compile has a new option -in <file> with which it will accept 
+         * IDL compile has a new option -in <file> with which it will accept
            files that do not end in ".idl"
 
       - maintenance:
@@ -90,7 +103,7 @@ post 2.2.2
 
          * CDR 1.2 Portable Interceptor codec
 
-         * "-cldc10" IDL compiler option to generate J2ME/CLDC1.0 
+         * "-cldc10" IDL compiler option to generate J2ME/CLDC1.0
            compatible stub code
 
          * Removed deprecated option -i on the IDL Compiler
