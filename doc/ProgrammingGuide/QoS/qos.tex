@@ -182,7 +182,7 @@ is thrown back to the client.
 \item Optionally, the server-side ORB may also check at this point
 whether the \emph{Reply End Time} has already elapsed, and not
 actually invoke the target in this case (throwing back an {\tt
-org.omg.CORBA.TIMEOUT} to the client as well).  Since the {\tt Reply
+org.omg.CORBA.TIMEOUT} to the client as well).  Since the \emph{Reply
   End Time} would then be checked both on the client and the server
 side, this requires that the clocks on both machines are synchronized
 at least to the same order of magnitude as the timeout itself.  This
@@ -215,21 +215,21 @@ you should specify a \mbox{\emph{RelativeRoundtripTimeoutPolicy}}.
 \clearpage{}
 \subsection*{Programming}
 
-In CORBA, points of time are specified to an accuracy of 100~ns, using
+In CORBA, points of time are specified to an accuracy of 100~nanoseconds, using
 values of struct {\tt TimeBase::UtcT}.  To allow easy manipulation of such
 values from Java, JacORB provides a number of static methods in {\tt
 org.jacorb.util.Time}.  For example, to convert the current Java time
 into a {\tt UtcT} value, write
 
 \begin{verbatim}
-UtcT currentTime = org.jacorb.util.corbaTime();
+UtcT currentTime = org.jacorb.util.Time.corbaTime();
 \end{verbatim}
 
-To create a {\tt UtcT} value that specifies a time $n$~ms in the
+To create a {\tt UtcT} value that specifies a time $n$~milliseconds in the
 future, you can write
 
 \begin{verbatim}
-UtcT time = org.jacorb.util.corbaFuture (10000 * n);
+UtcT time = org.jacorb.util.Time.corbaFuture (10000 * n);
 \end{verbatim}
 
 (The argument to {\tt corbaFuture()} is in CORBA time units of
