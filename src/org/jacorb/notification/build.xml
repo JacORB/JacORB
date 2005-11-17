@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE project [
-  <!ENTITY common SYSTEM "file:../../../../etc/common.xml">
-<!ENTITY xdoclet SYSTEM "file:../../../../etc/common-xdoclet.xml">
+  <!ENTITY common  SYSTEM "file:../../../../etc/common.xml" >
+  <!ENTITY xdoclet SYSTEM "file:../../../../etc/common-xdoclet.xml" >
 ]>
 
 <project name="notification" default="all" basedir="../../../..">
@@ -12,14 +12,14 @@
 	<!-- $Id$ -->
 	<!-- ============================================================= -->
 
-  &common;
-  &xdoclet;
-	
+  	&common;
+  	&xdoclet;
+ 
 	<property file="${basedir}/build.properties" />
 	
   	<property name="dir.notification" value="${basedir}/src/org/jacorb/notification" />
 
-	<target name="notification.init" depends="init, check-regexp">
+	<target name="init.local" depends="init">
 
 		<!-- directory where the etcl grammar is located -->
 		<property name="dir.etcl.grammar" value="${dir.notification}/filter/etcl/grammar" />
@@ -54,10 +54,7 @@
 	<!-- This is the default target. It depends upon the private init       -->
 	<!-- (which depends upon the common init). It calls the wrapper so that -->
 	<!-- we can drop out if regexp is not available.                        -->
-	<target name="all" depends="notification.init" description="Compile the notification">
-		<antcall target="all-wrapper" inheritRefs="true" />
-	</target>
-
+	<target name="all" depends="check-regexp, all-fail, all-wrapper" description="Compile the notification" />
 
 	<target name="all-fail" unless="regexp.available">
 		<echo>
@@ -70,18 +67,16 @@
     </echo>
 	</target>
 
-
-	<target name="all-wrapper" if="regexp.available" depends="all-fail">
-		<antcall target="etcl" inheritRefs="true" />
-		<antcall target="jmx" inheritRefs="true" />
-		<antcall target="server" inheritRefs="true" />
+	<target name="all-wrapper" if="regexp.available" >
+		<antcall target="all-build" inheritRefs="false" inheritAll="false" />		
 	</target>
+	
+	<target name="all-build" depends="etcl, jmx, compile" />
 
-
-	<!-- ====== -->
+	<!-- =========== -->
 	<!-- ETCL Parser -->
-	<!-- ====== -->
-	<target name="etcl" description="Generate ETCL Parser" depends="notification.init, etcl.depend, etcl.generate" />
+	<!-- =========== -->
+	<target name="etcl" description="Generate ETCL Parser" depends="init.local, etcl.depend, etcl.generate" />
 
 	<!-- check if parser needs to be generated -->
 	<target name="etcl.depend">
@@ -110,7 +105,7 @@
 	</target>
 
 
-	<target name="jmx" depends="check-jmx, xdoclet.init-jmx, jmx.mbean, jmx.mx4j, jmx.jboss" description="Generate JMX Interfaces" />
+	<target name="jmx" depends="init.local, check-jmx, xdoclet.init-jmx, jmx.mbean, jmx.mx4j, jmx.jboss" description="Generate JMX Interfaces" />
 
 
 	<target name="jmx.mbean">
@@ -130,6 +125,7 @@
 	</target>
 
 	<target name="jmx.mx4j" if="available.jmx.mx4j">
+		<!-- create mx4j specific MBean interfaces -->
 		<jacorb-jmxgen>
 			<files>
 				<include name="org/jacorb/notification/jmx/mx4j/**" />
@@ -155,6 +151,7 @@
 	</target>
 
 	<target name="jmx.jboss" if="jbossmx.enabled">
+		<!-- create JBoss specific MBean interfaces -->
 		<jacorb-jmxgen>
 			<files>
 				<include name="org/jacorb/notification/jmx/jboss/**" />
@@ -178,38 +175,38 @@
 		</jacorb-jmxgen>
 	</target>
 
-	<target name="server" depends="server.compile, server.sar" />
+	<target name="compile" depends="init.local, compile.regexp, compile.server, server.sar" description="Compile JacORB Notification Service" />
 	
-	<target name="server.compile" depends="notification.compile.regexp">
-		<jacorb-javac javac-includes="org/jacorb/notification/**/*.java" javac-excludes="org/jacorb/notification/util/*PatternWrapper.java,
-                      	org/jacorb/notification/WrapperMain.java,
-	                  	org/jacorb/notification/filter/bsh/**,
-      	              	org/jacorb/notification/jmx/**" />
+	<target name="compile.server" >
+		<jacorb-javac 	javac-includes="org/jacorb/notification/**/*.java" 
+					 	javac-excludes="org/jacorb/notification/util/*PatternWrapper.java,
+                      			org/jacorb/notification/WrapperMain.java,
+	                  			org/jacorb/notification/filter/bsh/**,
+      	              			org/jacorb/notification/jmx/**" />
 
 		<jacorb-javac javac-classpathref="path.wrapper" javac-includes="org/jacorb/notification/WrapperMain.java" />
 	</target>
 
 	
-	<target name="notification.compile.regexp" depends="notification.init,
-             	notification.compile.regexp.gnu, 
-             	notification.compile.regexp.jakarta-regexp,
-             	notification.compile.regexp.jdk" />
+	<target 	name="compile.regexp" 
+			depends="compile.regexp.gnu, 
+             	compile.regexp.jakarta-regexp,
+             	compile.regexp.jdk" />
 
 
-	<target name="notification.compile.regexp.gnu" if="available.regexp.gnu">
+	<target name="compile.regexp.gnu" if="available.regexp.gnu">
 		<echo message="Compiling for gnu.regexp (pre JDK 1.4)" />
 		<jacorb-javac javac-includes="org/jacorb/notification/util/PatternWrapper.java,
                       	org/jacorb/notification/util/GNUPatternWrapper.java" />
 	</target>
 
-	<target name="notification.compile.regexp.jdk" if="available.regexp.jdk">
+	<target name="compile.regexp.jdk" if="available.regexp.jdk">
 		<echo message="Compiling for java.util.regexp (JDK 1.4+)" />
 		<jacorb-javac javac-includes="org/jacorb/notification/util/PatternWrapper.java,
                       org/jacorb/notification/util/JDK14PatternWrapper.java" />
 	</target>
 
-	<target name="notification.compile.regexp.jakarta-regexp" if="available.regexp.jakarta-regexp">
-
+	<target name="compile.regexp.jakarta-regexp" if="available.regexp.jakarta-regexp">
 		<echo message="Compiling for org.apache.regexp (Jakarta Regexp)" />
 		<jacorb-javac javac-includes="org/jacorb/notification/util/PatternWrapper.java,
 	                  org/jacorb/notification/util/JakartaRegexpPatternWrapper.java" />
@@ -221,11 +218,9 @@
 	</target>
 
 	<!-- clean -->
-	<target name="clean" depends="init, clean.classes" description="Erase all compiled classes">
-	</target>
+	<target name="clean" depends="init, clean.classes" description="remove all compiled classes" />
 
-
-	<target name="realclean" depends="clean, clean.generated" description="erase all compiled classes and all generated files" />
+	<target name="realclean" depends="clean, clean.generated" description="remove all compiled classes and all generated files" />
 
 	<target name="clean.classes">
 		<delete>
@@ -239,7 +234,7 @@
 		</delete>
 	</target>
 
-	<target name="jar" depends="init" description="Build a JAR that only contains the NotificationService">
+	<target name="jar" depends="init.local" description="Build a JAR that only contains the NotificationService">
 		<jar destfile="${lib}/jacorb-notification.jar">
 			<fileset dir="${classdir}">
 				<include name="org/jacorb/notification/**/*.class" />
