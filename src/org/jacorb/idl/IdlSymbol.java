@@ -155,11 +155,13 @@ public class IdlSymbol
 
     public void escapeName()
     {
-        if( !name.startsWith( "_" ) &&
+        if( !isEscaped() &&
             // Not escaping Messaging.ExceptionHolder
             !pack_name.startsWith( "org.omg.Messaging" ) &&
             lexer.strictJavaEscapeCheck( name ) )
         {
+            if(name.indexOf('.') > 0)
+                logger.warn("Dots within a simple name!");
             name = "_" + name;
         }
     }
