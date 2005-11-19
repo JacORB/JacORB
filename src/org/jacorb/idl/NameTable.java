@@ -28,8 +28,9 @@ package org.jacorb.idl;
  *
  */
 
-import java.io.PrintWriter;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
 class NameTable
 {
@@ -47,8 +48,6 @@ class NameTable
      */
 
     private static Hashtable operationSources = new Hashtable();
-
-    private static String s = "";
 
     public static Hashtable parsed_interfaces = new Hashtable();
 
