@@ -206,11 +206,11 @@ public class ScopedName
 
     public void escapeName()
     {
-        if( !name.startsWith( "_" ) )
+        if( !isEscaped(typeName) )
         {
             // if the type name is not a simple name, then insert the escape
             // char after the last dot
-            if( typeName.indexOf( '.' ) > 0 )
+            if( typeName.indexOf( '.' ) > -1 )
             {
                 if( lexer.strictJavaEscapeCheck( typeName.substring( typeName.lastIndexOf( '.' ) + 1 )))
                 {
@@ -224,9 +224,10 @@ public class ScopedName
                 if( lexer.strictJavaEscapeCheck( typeName ))
                     typeName = "_" + typeName;
             }
-            if( logger.isInfoEnabled() )
-                logger.info( "ScopedName.escapeName " + typeName );
         }
+        
+        if( logger.isInfoEnabled() )
+            logger.info( "ScopedName.escapeName " + typeName );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -264,8 +265,16 @@ public class ScopedName
             parser.fatal_error( "Not a type: " + resolvedName, token );
         return resolvedSpec;
     }
-
-
+    
+    public boolean isEscaped(String name) {
+        String last = null;
+        if (name.indexOf('.') > -1)
+            last = name.substring(name.lastIndexOf('.')+1);
+        else
+            last = name;               
+        return last.startsWith("_");
+    }
+    
     public String resolvedName()
     {
         if( !resolved )
@@ -345,7 +354,7 @@ public class ScopedName
 
         // now, check if name is known by itself (either because it is global
         // or it is a qualified name) 
-        if( (global || result.indexOf('.') > 0 ) 
+        if( (global || result.indexOf('.') > -1 ) 
         		&& NameTable.isDefined(result) )
         {
             String unmappedResult = unMap( result );
@@ -609,7 +618,8 @@ public class ScopedName
     {
         String n = unPseudo( resolvedName( pack_name, typeName ) );
 
-        if( n.endsWith( "PackagePackage" ) || !n.startsWith( "_" ) && n.endsWith( "Package" ) )
+        // !n.startsWith( "_" )
+        if( n.endsWith( "PackagePackage" ) || !isEscaped(n) && n.endsWith( "Package" ) )
             n = n.substring( 0, n.lastIndexOf( "Package" ) );
 
         return n;
