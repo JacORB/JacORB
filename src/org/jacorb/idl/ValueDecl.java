@@ -535,7 +535,18 @@ public class ValueDecl
                         {
                             // stateful base valuetypes are mapped to classes, so
                             // we "extend"
-                            extendsBuffer.append(", " + scopedName.toString());
+                            //
+                            // applied patch by Thomas Leineweber for bug #492
+                            // 
+                            if (first)
+                            {
+                                extendsBuffer.append(scopedName.toString());
+                                first = false;
+                            }
+                            else
+                            {
+                                extendsBuffer.append(", " + scopedName.toString());
+                            }                            
                         }
                     }
 
