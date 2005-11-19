@@ -407,6 +407,12 @@ public class ValueDecl
             return;
         }
 
+        //no code generation for forward declarations (bug #539)
+        if (!hasBody)
+        {
+            return;
+        }
+                
         try
         {
             String path = parser.out_dir
