@@ -34,12 +34,6 @@ import java.util.*;
  * @author Nicolas Noffke
  * @author Vladimir Mencl
  * @version $Id$
- *
- * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/07/15)
- *
- *   * handle TRANSACTION_ROLLEDBACK raised by commit_one_phase() 
- *     called from commit()
- *
  */
 
 public class CoordinatorImpl 
