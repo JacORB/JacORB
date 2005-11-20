@@ -25,6 +25,7 @@ import org.omg.PortableInterceptor.*;
 import org.omg.IOP.Codec;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TransactionService;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * This interceptor adds a service context with
@@ -42,9 +43,13 @@ public class ClientContextTransferInterceptor
 
     private int slot_id = -1;
     private Codec codec = null;
+    private Logger logger = null;
 
-    public ClientContextTransferInterceptor(int slot_id, Codec codec) 
+    public ClientContextTransferInterceptor (Logger logger, 
+                                             int slot_id, 
+                                             Codec codec) 
     {
+        this.logger = logger;
         this.slot_id = slot_id;
         this.codec = codec;
     }
@@ -75,7 +80,9 @@ public class ClientContextTransferInterceptor
             {
                 ServiceContext ctx = new ServiceContext(TransactionService.value,
                                                         codec.encode(any));
-
+                if (logger.isDebugEnabled())
+                    logger.debug("adding Transaction Service Context"
+                                 + " to outgoing request");
                 ri.add_request_service_context(ctx, false);
             }
         }
