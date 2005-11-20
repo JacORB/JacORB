@@ -23,6 +23,8 @@ package org.jacorb.transaction;
 import org.omg.PortableInterceptor.*;
 import org.jacorb.orb.*;
 import org.omg.IOP.*;
+import org.apache.avalon.framework.logger.Logger;
+
 /**
  * This class registers the ClientContextTransferInterceptor 
  * and the ServerContextTransferInterceptor with the ORB.
@@ -51,6 +53,9 @@ public class TransactionInitializer
         try
         {
             ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB();
+            Logger logger = 
+              ((org.jacorb.orb.ORB)orb).getConfiguration()
+                                       .getNamedLogger("jacorb.tx_service");
             slot_id = info.allocate_slot_id();
             
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, 
@@ -61,7 +66,7 @@ public class TransactionInitializer
             info.register_initial_reference("TransactionCurrent", ts_current);
             
             info.add_client_request_interceptor(
-                   new ClientContextTransferInterceptor(slot_id, codec));
+                   new ClientContextTransferInterceptor(logger, slot_id, codec));
             
             info.add_server_request_interceptor(
                          new ServerContextTransferInterceptor(codec, 
