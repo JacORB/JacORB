@@ -18,14 +18,7 @@ package org.jacorb.transaction;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/05/01)
- *
- *    bug-fix: check for a null reference in kill_channel.
- *
  */
-
-
 import java.util.*;
 
 public class Timer extends Thread{
@@ -157,9 +150,4 @@ public class Timer extends Thread{
     }
 
 }
-
-
-
-
-
 
