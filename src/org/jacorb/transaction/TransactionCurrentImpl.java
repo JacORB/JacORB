@@ -37,22 +37,6 @@ import java.util.*;
  * @author Nicolas Noffke
  * @author Vladimir Mencl
  * @version $Id$
- *
- * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/07/15)
- *
- *   * Current.commit() catches and rethrows TRANSACTION_ROLLEDBACK
- *     (and removes the association of the transaction with the current thread)
- *
- * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/05/01)
- *
- *   * implemented suspend() and resume()
- *
- *   * added setCurrentThreadContext() used by suspend()
- *
- *   * made slot_id static so that it can be used from getControl
- *
- *   * extra dependency: suspend() and resume() used by 
- *     ServerContextTransferInterceptor to set/rest context
  */
 
 public class TransactionCurrentImpl 
