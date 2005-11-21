@@ -29,7 +29,7 @@ import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.CDRInputStream;
 
 /**
- * @author Andre Spiegel
+ * @author Andre Spiegel, Phil Mesnier
  * @version $Id$
  */
 public class IIOPAddress
@@ -38,6 +38,11 @@ public class IIOPAddress
     private String source_name = null; // initializing string
     private InetAddress host = null;
     private int port;               // 0 .. 65536
+
+    // if this address is used as part of an alias, the hostname may be
+    // unresolvable. Thus regardless of the dnsEnabled state, the source
+    // name as given will be reported.
+    private boolean unresolvable = false;
 
     private boolean dnsEnabled = false;
     private Logger logger;
@@ -51,10 +56,11 @@ public class IIOPAddress
      *     converted by adding 65536 to it; this helps using values that were
      *     previously stored in a Java <code>short</code>.
      */
+
     public IIOPAddress(String hoststr, int port)
     {
         source_name = hoststr;
-        init_host ();
+        //        init_host ();
 
         if (port < 0)
             this.port = port + 65536;
@@ -80,31 +86,103 @@ public class IIOPAddress
 
     private void init_host()
     {
+        InetAddress localhost = null;
         try {
-            if (source_name == null || source_name.length() == 0 ) {
-                host = InetAddress.getLocalHost();
-            }
-            else {
-                String hostname = null;
-                String ip = null;
-
-                int slash = source_name.indexOf('/');
-                if (slash == -1)
-                    ip = source_name;
-                else {
-                    ip = source_name.substring(slash+1);
-                    if (slash > 0)
-                        hostname = source_name.substring(0,slash);
-                }
-                host = InetAddress.getByName(ip);
-            }
+            localhost = InetAddress.getLocalHost();
         }
         catch (UnknownHostException ex) {
-            throw new RuntimeException("could not resolve hostname: "
-                                       + source_name);
+            byte lhaddr[] = {127,0,0,1};
+            try {
+                localhost = InetAddress.getByAddress("127.0.0.1",lhaddr);
+            } catch (UnknownHostException ex2) {
+            }
+        }
+
+        if (source_name == null || source_name.length() == 0 ) {
+            host = localhost;
+        }
+        else {
+            String hostname = null;
+            String ip = null;
+
+            int slash = source_name.indexOf('/');
+            if (slash == -1)
+                ip = source_name;
+            else {
+                ip = source_name.substring(slash+1);
+                if (slash > 0)
+                    hostname = source_name.substring(0,slash);
+            }
+
+            byte hostIP[] = new byte[4];
+            try {
+                if (dnsEnabled || !isIP (ip, hostIP)
+                    host = InetAddress.getByName(ip);
+                else
+                    host = InetAddress.getByAddress(hostIP);
+            }
+            catch (UnknownHostException ex) {
+                if (logger != null && logger.isWarnEnabled())
+                    logger.warn ("init_host, " + source_name + " unresolvable" );
+                unresolvable = true;
+                try {
+                    host = InetAddress.getByAddress(source_name,
+                                                    localhost.getAddress());
+                } catch (UnknownHostException ex2) {
+                }
+            }
         }
     }
 
+
+    /**
+     * Returns true if host is a numeric IP address, and puts the
+     * converted string into the supplied buffer.
+     */
+   private static boolean isIP (String host, byte [] buffer)
+    {
+        int index       = 0;
+        int numberStart = 0;
+        int length      = host.length();
+        char ch = ' ';
+
+        for (int i = 0; i < 4; i++)
+        {
+            int octet = 0;
+            while (true)
+            {
+                if (index >= length)
+                    break;
+                ch = host.charAt(index);
+                if (ch == '.')
+                    break;
+                if (ch < '0' || ch > '9')
+                    return false;
+                else
+                    octet = (octet * 10) + (ch - '0');
+                index++;
+            }
+            if (octet < 256)
+                buffer[i] = (byte)octet;
+            else
+                return false;
+
+            if (index >= length && i == 3
+                && (index - numberStart) <= 3 && (index-numberStart) > 0)
+            {
+                return true;
+            }
+            else if (ch == '.' && (index - numberStart) <= 3
+                               && (index - numberStart) > 0)
+            {
+                index++;
+                numberStart = index;
+            }
+            else
+                return false;
+        }
+        return false;
+    }
 
     public static IIOPAddress read(org.omg.CORBA.portable.InputStream in)
     {
@@ -114,7 +192,6 @@ public class IIOPAddress
         return addr;
     }
 
-
     /**
      * Returns the host part of this IIOPAddress, as a numeric IP address in
      * dotted decimal form.  If the numeric IP address was specified when
@@ -123,6 +200,10 @@ public class IIOPAddress
      */
     public String getIP()
     {
+        if (host == null)
+            init_host();
+        if (unresolvable)
+            return source_name;
         return host.getHostAddress();
     }
 
@@ -134,7 +215,12 @@ public class IIOPAddress
      */
     public String getHostname()
     {
-        return dnsEnabled ? host.getHostName() : host.getHostAddress();
+        if (host == null)
+            init_host();
+        if (unresolvable)
+            return source_name;
+        return dnsEnabled ? host.getCanonicalHostName() :
+            host.getHostAddress();
     }
 
     /**
@@ -143,7 +229,13 @@ public class IIOPAddress
      */
     public InetAddress getConfiguredHost()
     {
-        return (source_name == null || source_name.length() == 0) ? null : host;
+        if (source_name == null || source_name.length() == 0)
+            return null;
+        else {
+            if (host == null)
+                init_host();
+            return host;
+        }
     }
 
     /**
@@ -166,7 +258,7 @@ public class IIOPAddress
         {
             IIOPAddress x = (IIOPAddress)other;
             if (this.port == x.port)
-                return this.host.equals(x.host);
+                return this.source_name.equals(x.source_name);
             else
                 return false;
         }
@@ -176,7 +268,7 @@ public class IIOPAddress
 
     public int hashCode()
     {
-        return this.host.hashCode() + port;
+        return this.source_name.hashCode() + port;
     }
 
     public String toString()

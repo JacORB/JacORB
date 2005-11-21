@@ -213,12 +213,20 @@ public final class ORB
         String address =
             configuration.getAttribute("jacorb.imr.ior_proxy_address",null);
 
-        if (address == null) {
-            if (host != null && port != -1)
-                imrProxyAddress = new IIOPAddress (host,port);
+        try {
+            if (address == null) {
+                if (host != null && port != -1) {
+                    imrProxyAddress = new IIOPAddress ();
+                    imrProxyAddress.configure(configuration);
+                    imrProxyAddress.fromString (host  + ":" + port);
+                }
+            }
+            else
+                imrProxyAddress = createAddress(address);
+        } catch (Exception ex) {
+            if (logger.isErrorEnabled())
+                logger.error ("error initializing imrProxyAddress",ex);
         }
-        else
-            imrProxyAddress = createAddress(address);
 
         host =
             configuration.getAttribute("jacorb.ior_proxy_host", null);
@@ -227,13 +235,20 @@ public final class ORB
         address =
             configuration.getAttribute("jacorb.ior_proxy_address", null);
 
-        if (address == null) {
-            if (host != null && port != -1)
-                iorProxyAddress = new IIOPAddress (host,port);
+        try {
+            if (address == null) {
+                if (host != null && port != -1) {
+                    iorProxyAddress = new IIOPAddress ();
+                    iorProxyAddress.configure(configuration);
+                    iorProxyAddress.fromString (host  + ":" + port);
+                }
+            }
+            else
+                iorProxyAddress = createAddress(address);
+        } catch (Exception ex) {
+            if (logger.isErrorEnabled())
+                logger.error ("error initializing iorProxyAddress",ex);
         }
-        else
-            iorProxyAddress = createAddress(address);
-
         printVersion =
             configuration.getAttribute("jacorb.orb.print_version", "on").equals("on");
 
@@ -1377,7 +1392,7 @@ public final class ORB
 
         try
         {
-            configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props, 
+            configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
                                                                         this,
                                                                         false)); // no applet support
         }
@@ -1464,14 +1479,14 @@ public final class ORB
      * org.omg.CORBA.ORB
      */
 
-    protected void set_parameters(java.applet.Applet app, 
+    protected void set_parameters(java.applet.Applet app,
                                   java.util.Properties props)
     {
         _props = props;
 
         try
         {
-            configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props, 
+            configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
                                                                         this,
                                                                         true)); //applet support
         }
@@ -2294,9 +2309,9 @@ public final class ORB
 
     }
 
-    // Even though the methods connect(obj) and disconnect(obj) are 
-    // deprecated, they are implemented here because the server-side 
-    // programming model traditionally used by RMI/IIOP strongly relies 
+    // Even though the methods connect(obj) and disconnect(obj) are
+    // deprecated, they are implemented here because the server-side
+    // programming model traditionally used by RMI/IIOP strongly relies
     // on them.
 
     /**
@@ -2324,16 +2339,16 @@ public final class ORB
             wrappedHandler = (org.omg.CORBA.portable.InvokeHandler)objectImpl;
         }
 
-        public String[] _all_interfaces(org.omg.PortableServer.POA poa, 
+        public String[] _all_interfaces(org.omg.PortableServer.POA poa,
                                         byte[] objectID)
         {
             return ((org.omg.CORBA.portable.ObjectImpl)wrappedHandler)._ids();
         }
 
         public org.omg.CORBA.portable.OutputStream _invoke(
-                                String method, 
-                                org.omg.CORBA.portable.InputStream input, 
-                                org.omg.CORBA.portable.ResponseHandler handler) 
+                                String method,
+                                org.omg.CORBA.portable.InputStream input,
+                                org.omg.CORBA.portable.ResponseHandler handler)
             throws org.omg.CORBA.SystemException
         {
             return wrappedHandler._invoke(method, input, handler);
@@ -2341,23 +2356,23 @@ public final class ORB
 
     }
 
-        public void connect(org.omg.CORBA.Object obj) 
+        public void connect(org.omg.CORBA.Object obj)
     {
         if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
-            throw new BAD_PARAM("connect parameter must extend " + 
+            throw new BAD_PARAM("connect parameter must extend " +
                                 "org.omg.CORBA.portable.ObjectImpl");
-        
+
         if (!(obj instanceof org.omg.CORBA.portable.InvokeHandler))
             throw new BAD_PARAM("connect parameter must implement " +
                                 "org.omg.CORBA.portable.InvokeHandler");
-        
+
         synchronized (connectedObjects)
         {
             if (connectedObjects.containsKey(obj) == false)
             {
-                org.omg.CORBA.portable.ObjectImpl objectImpl = 
+                org.omg.CORBA.portable.ObjectImpl objectImpl =
                     (org.omg.CORBA.portable.ObjectImpl)obj;
-                org.omg.PortableServer.Servant servant = 
+                org.omg.PortableServer.Servant servant =
                     new HandlerWrapper(objectImpl);
                 org.omg.CORBA.Object ref = servant._this_object(this);
                 objectImpl._set_delegate(
@@ -2366,11 +2381,11 @@ public final class ORB
                 if (firstConnection)
                 {
                     firstConnection = false;
-                    org.omg.PortableServer.POAManager rootPOAManager = 
+                    org.omg.PortableServer.POAManager rootPOAManager =
                         getRootPOA().the_POAManager();
                     if (rootPOAManager.get_state() == State.HOLDING)
                     {
-                        try 
+                        try
                         {
                             rootPOAManager.activate();
                         }
@@ -2391,27 +2406,27 @@ public final class ORB
     public void disconnect(org.omg.CORBA.Object obj)
     {
         if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
-            throw new BAD_PARAM("disconnect parameter must extend " + 
+            throw new BAD_PARAM("disconnect parameter must extend " +
                                 "org.omg.CORBA.portable.ObjectImpl");
-        
+
         if (!(obj instanceof org.omg.CORBA.portable.InvokeHandler))
             throw new BAD_PARAM("disconnect parameter must implement " +
                                 "org.omg.CORBA.portable.InvokeHandler");
-        
+
         synchronized (connectedObjects)
         {
-            org.omg.PortableServer.Servant servant = 
+            org.omg.PortableServer.Servant servant =
                 (org.omg.PortableServer.Servant)connectedObjects.get(obj);
-            
+
             if (servant != null)
             {
                 connectedObjects.remove(obj);
-                try 
+                try
                 {
                     getRootPOA().deactivate_object(
                                         getRootPOA().servant_to_id(servant));
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     // cannot happen
                     if( logger.isErrorEnabled())
