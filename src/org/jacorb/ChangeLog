@@ -1,3 +1,45 @@
+2005-11-21  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/ORB.java, orb/iiop/IIOPAddress.java,
+	orb/iiop/IIOPProfile.java: One more round of fixes to ensure
+	complete backwards compatibility for IIOP Address use
+
+	* orb/ORB.java, orb/iiop/IIOPAddress.java: Fixed problems related
+	to use of unresolvable names in ior proxy configuration
+
+2005-11-20  Andre Spiegel  <spiegel@gnu.org>
+
+	* transaction/TransactionInitializer.java (post_init):
+	Pass a Logger to the ClientContextTransferInterceptor.
+
+	* transaction/ClientContextTransferInterceptor.java (logger):
+	New instance var.
+	(c'tor): Add parameter to pass the logger in.
+	(send_request): Log service context creation at debug level.
+
+2005-11-19  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/ValueDecl.java:
+	(print) applied patch by Thomas Leinweber for bug #539
+
+	* idl/ValueDecl.java: applied patch for #492 by Thomas Leineweber
+
+	* idl/ScopedName.java: (escapeName) fix for bug #610
+
+	* idl/NameTable.java: cosmetics only
+
+	* idl/IdlSymbol.java: new method isEscaped()
+
+2005-11-17  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/build.xml: cleaned up dependencies
+
+2005-11-16  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* idl/parser.java: Refactored static initialization to accomodate
+	Blackdown's 1.4.2-02 JVM on AMD 64-bit host running linux 2.4
+	kernel
+
 2005-11-15  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/giop/TransportManager.java (getFactories, getFactoriesList):
