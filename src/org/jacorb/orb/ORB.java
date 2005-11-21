@@ -215,10 +215,13 @@ public final class ORB
 
         try {
             if (address == null) {
-                if (host != null && port != -1) {
+                if (host != null || port != -1) {
                     imrProxyAddress = new IIOPAddress ();
                     imrProxyAddress.configure(configuration);
-                    imrProxyAddress.fromString (host  + ":" + port);
+                    if (host != null)
+                        ((IIOPAddress)iorProxyAddress).setHostname(host);
+                    if (port != -1)
+                        ((IIOPAddress)iorProxyAddress).setPort(port);
                 }
             }
             else
@@ -237,10 +240,13 @@ public final class ORB
 
         try {
             if (address == null) {
-                if (host != null && port != -1) {
+                if (host != null || port != -1) {
                     iorProxyAddress = new IIOPAddress ();
                     iorProxyAddress.configure(configuration);
-                    iorProxyAddress.fromString (host  + ":" + port);
+                    if (host != null)
+                        ((IIOPAddress)iorProxyAddress).setHostname(host);
+                    if (port != -1)
+                        ((IIOPAddress)iorProxyAddress).setPort(port);
                 }
             }
             else

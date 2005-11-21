@@ -37,7 +37,7 @@ public class IIOPAddress
 {
     private String source_name = null; // initializing string
     private InetAddress host = null;
-    private int port;               // 0 .. 65536
+    private int port = -1;             // 0 .. 65536
 
     // if this address is used as part of an alias, the hostname may be
     // unresolvable. Thus regardless of the dnsEnabled state, the source
@@ -60,7 +60,6 @@ public class IIOPAddress
     public IIOPAddress(String hoststr, int port)
     {
         source_name = hoststr;
-        //        init_host ();
 
         if (port < 0)
             this.port = port + 65536;
@@ -116,7 +115,7 @@ public class IIOPAddress
 
             byte hostIP[] = new byte[4];
             try {
-                if (dnsEnabled || !isIP (ip, hostIP)
+                if (dnsEnabled || !isIP (ip, hostIP))
                     host = InetAddress.getByName(ip);
                 else
                     host = InetAddress.getByAddress(hostIP);
@@ -221,6 +220,17 @@ public class IIOPAddress
             return source_name;
         return dnsEnabled ? host.getCanonicalHostName() :
             host.getHostAddress();
+    }
+
+    /**
+     * Used by the ORB to configure just the hostname portion of a
+     * proxy IOR address
+     */
+
+    public void setHostname (String hn)
+    {
+        host = null;
+        source_name = hn;
     }
 
     /**
@@ -332,6 +342,18 @@ public class IIOPAddress
                 return getHostname() + " / " + getIP();
         else
             return source_name;
+    }
+
+    /**
+     * Package level method used by IIOPProfile to cause selective
+     * replacement of either the hostname or the port or both
+     */
+    void replaceFrom (IIOPAddress other)
+    {
+        if (other.source_name != null)
+            setHostname (other.source_name);
+        if (other.port != -1)
+            setPort(other.port);
     }
 
 }

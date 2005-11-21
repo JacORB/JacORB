@@ -43,12 +43,12 @@ public class IIOPProfile
 {
     private IIOPAddress          primaryAddress = null;
     private Logger logger;
-    
+
     public IIOPProfile()
     {
         super();
     }
-    
+
     public IIOPProfile(byte[] data)
     {
         initFromProfileData(data);
@@ -212,7 +212,7 @@ public class IIOPProfile
         return value;
     }
 
-    
+
     /**
     * Writes the bytes that would make up the ETF::AddressProfile bytes (new spec)
     * to a stream.
@@ -224,7 +224,7 @@ public class IIOPProfile
         org.omg.GIOP.VersionHelper.write( addressProfileStream, version);
         primaryAddress.write (addressProfileStream);
     }
-    
+
     /**
     * Reads the bytes that make up the ETF::AddressProfile bytes (new spec)
     * from a stream.
@@ -327,7 +327,7 @@ public class IIOPProfile
     public void patchPrimaryAddress(ProtocolAddressBase replacement)
         {
         if (replacement instanceof IIOPAddress)
-            primaryAddress = (IIOPAddress)replacement;
+            primaryAddress.replaceFrom((IIOPAddress)replacement);
     }
 
     public List getAlternateAddresses()
@@ -347,7 +347,7 @@ public class IIOPProfile
     /**
      * If there is a component tagged with TAG_CSI_SEC_MECH_LIST,
      * get the SSL port from this component. Return the SSL port in the
-     * TAG_TLS_SEC_TRANS component encapsulated into the transport_mech 
+     * TAG_TLS_SEC_TRANS component encapsulated into the transport_mech
      * field of the first CompoundSecMech of the CSI_SEC_MECH_LIST.
      * Return -1 if there is no component tagged with TAG_CSI_SEC_MECH_LIST
      * or if this component specifies no SSL port.
@@ -356,13 +356,13 @@ public class IIOPProfile
     {
         CompoundSecMechList csmList =
             (CompoundSecMechList)components.getComponent(
-                                            TAG_CSI_SEC_MECH_LIST.value, 
+                                            TAG_CSI_SEC_MECH_LIST.value,
                                             CompoundSecMechListHelper.class);
-        if (csmList != null && csmList.mechanism_list.length > 0) 
+        if (csmList != null && csmList.mechanism_list.length > 0)
         {
-            byte[] tlsSecTransData = 
-                csmList.mechanism_list[0].transport_mech.component_data; 
-            CDRInputStream in = 
+            byte[] tlsSecTransData =
+                csmList.mechanism_list[0].transport_mech.component_data;
+            CDRInputStream in =
                 new CDRInputStream((org.omg.CORBA.ORB)null, tlsSecTransData);
             try
             {
@@ -373,7 +373,7 @@ public class IIOPProfile
                     int ssl_port = tls.addresses[0].port;
                     if (ssl_port != 0)
                     {
-                        if (ssl_port < 0) 
+                        if (ssl_port < 0)
                             ssl_port += 65536;
                         return ssl_port;
                     }
