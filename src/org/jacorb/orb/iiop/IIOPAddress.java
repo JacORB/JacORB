@@ -297,6 +297,8 @@ public class IIOPAddress
         if (colon > 0) {
             source_name = s.substring(0,colon);
         }
+        else
+            source_name = "";
         if (colon < s.length()-1)
             p = Integer.parseInt(s.substring(colon+1));
 
