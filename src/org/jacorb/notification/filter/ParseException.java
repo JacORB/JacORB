@@ -25,19 +25,23 @@ package org.jacorb.notification.filter;
  * @version $Id$
  */
 
-public class ParseException extends Exception {
-
+public class ParseException extends Exception 
+{
     private static final long serialVersionUID = 1L;
     
     private final Exception nested_;
-
-    public ParseException(Exception e) {
+    private final String expression_;
+    
+    public ParseException(String expression, Exception e) 
+    {
         super();
 
         nested_ = e;
+        expression_ = expression;
     }
 
-    public String getMessage() {
-        return nested_.getMessage();
+    public String getMessage() 
+    {
+        return "parse " + expression_ + " caused:\n" + nested_.getMessage();
     }
 }
