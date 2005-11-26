@@ -26,9 +26,9 @@ package org.jacorb.notification.filter.etcl;
 }
 
 {
-    import antlr.TokenStreamSelector;
-    import java.io.StringReader;
-    import org.jacorb.notification.filter.ParseException;
+import antlr.TokenStreamSelector;
+import java.io.StringReader;
+import org.jacorb.notification.filter.ParseException;
 }
 
 class TCLParser extends Parser;
@@ -87,43 +87,48 @@ tokens {
 }
 
 {
-    public static AbstractTCLNode parse( String data )
-        throws ParseException
-    {
-      try {
-        TokenStreamSelector _selector = new TokenStreamSelector();
+public static AbstractTCLNode parse( String data )
+		throws ParseException
+{
+   try 
+   {
+      final TokenStreamSelector _selector = new TokenStreamSelector();
 
-        // set up two Lexers
-        TCLLexer _tclLexer = new TCLLexer( new StringReader( data ) );
-        _tclLexer.setTokenStreamSelector( _selector );
+      // set up two Lexers
+      final TCLLexer _tclLexer = new TCLLexer( new StringReader( data ) );
+      _tclLexer.setTokenStreamSelector( _selector );
 
-        ComponentLexer _compLexer = 
-            new ComponentLexer( _tclLexer.getInputState() );
+      final ComponentLexer _compLexer = 
+         new ComponentLexer( _tclLexer.getInputState() );
 
-        _compLexer.setTokenStreamSelector( _selector );
+      _compLexer.setTokenStreamSelector( _selector );
 
-        _selector.addInputStream( _tclLexer, 
-                                  TCLLexer.LEXER_NAME );
+      _selector.addInputStream( _tclLexer, 
+                                TCLLexer.LEXER_NAME );
 
-        _selector.addInputStream( _compLexer, 
-                                  ComponentLexer.LEXER_NAME );
+      _selector.addInputStream( _compLexer, 
+                                ComponentLexer.LEXER_NAME );
 
-        _selector.select( TCLLexer.LEXER_NAME );
+      _selector.select( TCLLexer.LEXER_NAME );
 
-        // connect the Parser with the two Lexers
-        TCLParser _parser = new TCLParser( _selector );
+      // connect the Parser with the two Lexers
+      final TCLParser _parser = new TCLParser( _selector );
 
-        // begin parse
-        _parser.startRule();
+      // begin parse
+      _parser.startRule();
 
-        // return AST tree
-        return ( AbstractTCLNode ) _parser.getAST();
-      } catch (TokenStreamException e) {
-         throw new ParseException(e);
-      } catch (RecognitionException e) {
-         throw new ParseException(e);
-      }
-    }
+      // return AST tree
+      return ( AbstractTCLNode ) _parser.getAST();
+   } 
+   catch (TokenStreamException e) 
+   {
+      throw new ParseException(data, e);
+   } 
+   catch (RecognitionException e) 
+   {
+      throw new ParseException(data, e);
+   }
+}
 
 }
 

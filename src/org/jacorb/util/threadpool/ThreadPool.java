@@ -34,14 +34,14 @@ import java.util.*;
  */
 public class ThreadPool
 {
-    private int max_threads = 0;
-    private int max_idle_threads = 0;
+    private final int max_threads;
+    private final int max_idle_threads;
 
     private int total_threads = 0;
     private int idle_threads = 0;
 
-    private LinkedList job_queue = null;
-    private ConsumerFactory factory = null;
+    private final LinkedList job_queue;
+    private final ConsumerFactory factory;
 
     public ThreadPool( ConsumerFactory factory )
     {
