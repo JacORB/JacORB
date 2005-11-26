@@ -3,7 +3,7 @@
 #
 # $Id$
 #
-# sh script suitable for starting and stopping 
+# shell script suitable for starting and stopping 
 # the JacORB Notification Service controlled by the Java Service Wrapper
 #
 # Make sure that PIDDIR points to the correct location,
