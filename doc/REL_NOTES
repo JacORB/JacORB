@@ -58,6 +58,11 @@ post 2.2.2
         Note that OASSLPort is still necessary when configuring a specific
         SSL port number even when using OAAddress.
 
+        - ported the notification service to use the 
+          JSR 166 backport (http://www.mathcs.emory.edu/dcl/util/backport-util-concurrent)
+          instead of util.concurrent.
+
+		- added JMX support for the notification service.
 
 2.2
 ====
