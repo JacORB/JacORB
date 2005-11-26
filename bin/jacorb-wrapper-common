@@ -46,6 +46,8 @@ if [ ! -d "$WRAPPER_LIB" ] ; then
     exit 1
 fi
 
+# override the wrapper.jar set in the config file with the
+# one from WRAPPER_HOME
 WRAPPER_ARGS=wrapper.java.library.path.1="$WRAPPER_LIB"
 WRAPPER_ARGS="$WRAPPER_ARGS wrapper.java.classpath.1=""$WRAPPER_LIB""/wrapper.jar"
 
