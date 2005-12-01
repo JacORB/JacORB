@@ -27,8 +27,8 @@ import org.omg.CosNotifyFilter.MappingFilter;
 
 /**
  * Abstraction of a ProxyConsumer, SupplierAdmin, ConsumerAdmin,
- * ProxySupplier. This Interface provides uniform access to use
- * these Classes during processing of a Message.
+ * ProxySupplier. This Interface provides uniform access the methods
+ * which are relevant during processing of a Message.
  *
  * @author Alphonse Bendt
  * @version $Id$
