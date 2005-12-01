@@ -23,11 +23,11 @@
 	<javac srcdir="${dest}"
                destdir="${classdir}"
 	       includes="demo/${name}/**/*.java"
-               classpath="${classdir};${classpath}"
+               classpathref="path.base"
 	        />
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
-               classpath="${classdir};${classpath}"
+               classpathref="path.base"
 	       includes="demo/${name}/foox/**/*.java,demo/${name}/user_poa/**/*.java,demo/${name}/root_poa/*.java,demo/${name}/client/*.java"
 	        />
    </target>

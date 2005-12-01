@@ -53,11 +53,6 @@
       <pathelement location="${src.generated}" />
     </path>
 
-    <!-- The 'classpath' property is used as the run time for some tests -->
-    <pathconvert property="classpath" targetos="${architecture}">
-        <path refid="path.base" />
-    </pathconvert>
-    
     <mkdir dir="${classdir}"/>
     <mkdir dir="${src}/generated"/>
     <filter token="path" value="basedir"/>
