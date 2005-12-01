@@ -78,7 +78,7 @@ public class StructuredEventMessage extends AbstractMessage
     // //////////////////////////////////////
 
     public synchronized void setStructuredEvent(StructuredEvent structuredEvent,
-            boolean startTimeSupported, boolean timeOutSupported)
+            boolean startTimeSupported, boolean stopTimeSupported)
     {
         structuredEventValue_ = structuredEvent;
 
@@ -86,7 +86,7 @@ public class StructuredEventMessage extends AbstractMessage
                 structuredEventValue_.header.fixed_header.event_type.domain_name,
                 structuredEventValue_.header.fixed_header.event_type.type_name);
 
-        parseQosSettings(startTimeSupported, timeOutSupported);
+        parseQosSettings(startTimeSupported, stopTimeSupported);
     }
 
     public void doReset()
@@ -178,7 +178,7 @@ public class StructuredEventMessage extends AbstractMessage
         return EvaluationResult.fromAny(_any);
     }
 
-    private synchronized void parseQosSettings(boolean startTimeSupported, boolean timeoutSupported)
+    private synchronized void parseQosSettings(boolean startTimeSupported, boolean stopTimeSupported)
     {
         Property[] props = toStructuredEvent().header.variable_header;
 
@@ -188,11 +188,11 @@ public class StructuredEventMessage extends AbstractMessage
             {
                 startTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
             }
-            else if (StopTime.value.equals(props[x].name))
+            else if (stopTimeSupported && StopTime.value.equals(props[x].name))
             {
                 stopTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
             }
-            else if (timeoutSupported && Timeout.value.equals(props[x].name))
+            else if (stopTimeSupported && Timeout.value.equals(props[x].name))
             {
                 setTimeout(TimeTHelper.extract(props[x].value) / 10000);
             }
