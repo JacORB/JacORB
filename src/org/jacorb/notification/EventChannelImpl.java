@@ -21,6 +21,8 @@ package org.jacorb.notification;
  */
 
 import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.container.CORBAObjectComponentAdapter;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.interfaces.Disposable;
@@ -81,9 +83,12 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
         container_.registerComponent(new CORBAObjectComponentAdapter(EventChannel.class,
                 EventChannelHelper.narrow(thisRef_)));
 
-        default_consumer_admin();
-        default_supplier_admin();
-
+        if (config.getAttributeAsBoolean(Attributes.LAZY_DEFAULT_ADMIN_INIT, Default.DEFAULT_LAZY_DEFAULT_ADMIN_INIT))
+        {
+            default_consumer_admin();
+            default_supplier_admin();
+        }
+        
         registerDisposable(new Disposable()
         {
             public void dispose()
@@ -109,8 +114,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
         _adminContainer.registerComponentImplementation(AbstractAdmin.class, ConsumerAdminImpl.class);
 
-        final AbstractAdmin _admin = (AbstractAdmin) _adminContainer
-                .getComponentInstanceOfType(AbstractAdmin.class);
+        final AbstractAdmin _admin = (AbstractAdmin) _adminContainer.getComponentInstanceOfType(AbstractAdmin.class);
 
         return _admin;
     }
@@ -129,8 +133,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
     private MutablePicoContainer newContainerForAdmin(final int id)
     {
-        final MutablePicoContainer _adminContainer = PicoContainerFactory
-                .createChildContainer(container_);
+        final MutablePicoContainer _adminContainer = PicoContainerFactory.createChildContainer(container_);
         
         final IEventChannel _channelAdapter = new IEventChannel()
         {
