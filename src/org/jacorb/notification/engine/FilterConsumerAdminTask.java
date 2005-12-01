@@ -36,7 +36,7 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 {
     private static int sCount = 0;
 
-    private int id_ = ++sCount;
+    private final int id_ = ++sCount;
 
     /**
      * this List contains FilterStages (ProxySuppliers) which have a MessageConsumer associated.
@@ -92,16 +92,14 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
         // the ConsumerAdmin Filters are eval'd
         // (if InterFilterGroupOperator.OR_OP is set !)
 
-        FilterStage[] _filterStagesWithMessageConsumer = getFilterStagesWithMessageConsumer();
+        final FilterStage[] _filterStagesWithMessageConsumer = getFilterStagesWithMessageConsumer();
 
         if (_filterStagesWithMessageConsumer.length > 0)
         {
-            getTaskFactory()
-                    .enqueueMessage(_filterStagesWithMessageConsumer, getMessage());
+            getTaskFactory().enqueueMessage(_filterStagesWithMessageConsumer, getMessage());
         }
 
-        Schedulable _filterTaskToBeScheduled = _filterTaskToBeScheduled = getTaskFactory()
-                .newFilterProxySupplierTask(this);
+        final Schedulable _filterTaskToBeScheduled = getTaskFactory().newFilterProxySupplierTask(this);
 
         _filterTaskToBeScheduled.schedule();
     }

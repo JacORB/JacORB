@@ -110,8 +110,6 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
 
     private final Servant thisServant_;
 
-    // Implementation of org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelOperations
-
     public TypedEventChannelImpl(IFactory factory, ORB orb, POA poa, Configuration config,
             FilterFactory filterFactory, TypedEventChannelFactory factoryRef)
     {
@@ -121,8 +119,7 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
 
         thisRef_ = TypedEventChannelHelper.narrow(getServant()._this_object(orb_));
 
-        container_.registerComponent(new CORBAObjectComponentAdapter(TypedEventChannel.class,
-                thisRef_));
+        container_.registerComponent(new CORBAObjectComponentAdapter(TypedEventChannel.class, thisRef_));
 
         typedEventChannelFactory_ = factoryRef;
     }
@@ -158,26 +155,24 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
         return TypedSupplierAdminHelper.narrow(_admin.activate());
     }
 
-    public TypedConsumerAdmin get_consumeradmin(int n) throws AdminNotFound
+    public TypedConsumerAdmin get_consumeradmin(int id) throws AdminNotFound
     {
-        return TypedConsumerAdminHelper.narrow(get_consumeradmin_internal(n).activate());
+        return TypedConsumerAdminHelper.narrow(get_consumeradmin_internal(id).activate());
     }
 
-    public TypedSupplierAdmin get_supplieradmin(int n) throws AdminNotFound
+    public TypedSupplierAdmin get_supplieradmin(int id) throws AdminNotFound
     {
-        return TypedSupplierAdminHelper.narrow(get_supplieradmin_internal(n).activate());
+        return TypedSupplierAdminHelper.narrow(get_supplieradmin_internal(id).activate());
     }
 
     public org.omg.CosTypedEventChannelAdmin.TypedConsumerAdmin for_consumers()
     {
-        return org.omg.CosTypedEventChannelAdmin.TypedConsumerAdminHelper
-                .narrow(default_consumer_admin());
+        return org.omg.CosTypedEventChannelAdmin.TypedConsumerAdminHelper.narrow(default_consumer_admin());
     }
 
     public org.omg.CosTypedEventChannelAdmin.TypedSupplierAdmin for_suppliers()
     {
-        return org.omg.CosTypedEventChannelAdmin.TypedSupplierAdminHelper
-                .narrow(default_supplier_admin());
+        return org.omg.CosTypedEventChannelAdmin.TypedSupplierAdminHelper.narrow(default_supplier_admin());
     }
 
     protected Servant getServant()
@@ -196,8 +191,7 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
 
         _container.registerComponentImplementation(AbstractSupplierAdmin.class, TypedSupplierAdminImpl.class);
 
-        return (AbstractSupplierAdmin) _container
-                .getComponentInstanceOfType(AbstractSupplierAdmin.class);
+        return (AbstractSupplierAdmin) _container.getComponentInstanceOfType(AbstractSupplierAdmin.class);
     }
 
     public AbstractAdmin newConsumerAdmin(final int id)
@@ -206,14 +200,12 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
 
         _container.registerComponentImplementation(AbstractAdmin.class, TypedConsumerAdminImpl.class);
         
-        return (AbstractAdmin) _container
-                .getComponentInstanceOfType(AbstractAdmin.class);
+        return (AbstractAdmin) _container.getComponentInstanceOfType(AbstractAdmin.class);
     }
     
     private MutablePicoContainer newContainerForAdmin(final int id)
     {
-        final MutablePicoContainer _container = PicoContainerFactory
-                .createChildContainer(container_);
+        final MutablePicoContainer _container = PicoContainerFactory.createChildContainer(container_);
         
         _container.registerComponentInstance(new TypedEventChannelAdapter(_container, getJMXObjectName(), id));
        

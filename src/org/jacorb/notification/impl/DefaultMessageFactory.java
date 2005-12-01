@@ -134,7 +134,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         _mesg.setFilterStage(consumer.getFirstStage());
 
         _mesg.setStructuredEvent(structuredEvent, consumer.getStartTimeSupported(), consumer
-                .getTimeOutSupported());
+                .getStopTimeSupported());
 
         return _mesg.getHandle();
     }
