@@ -19,9 +19,9 @@ import org.omg.TimeBase.TimeTHelper;
 
 public class SequenceEventChannelTest extends NotifyServerTestCase
 {
-    EventChannel channel_;
+    private EventChannel channel_;
 
-    StructuredEvent[] testEvent_;
+    private StructuredEvent[] testEvent_;
 
     private NotificationTestUtils testUtils_;
 

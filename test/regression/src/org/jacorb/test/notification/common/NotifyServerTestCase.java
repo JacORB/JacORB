@@ -121,7 +121,7 @@ public abstract class NotifyServerTestCase extends ClientServerTestCase
             String[] testMethods) throws Exception
     {
         Constructor _ctor = clazz.getConstructor(new Class[] { String.class,
-                NotifyServerTestSetup.class });
+                setup.getClass() });
 
         for (int x = 0; x < testMethods.length; ++x)
         {

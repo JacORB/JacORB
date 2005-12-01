@@ -26,9 +26,9 @@ import java.util.HashSet;
 
 import junit.framework.Test;
 
+import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
-import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
@@ -42,12 +42,12 @@ import org.omg.TimeBase.UtcTHelper;
 
 /**
  * @author Alphonse Bendt
+ * @version $Id$
  */
 
 public class StopTimeTest extends NotificationTestCase
 {
     private StructuredEvent structuredEvent_;
-    private DefaultMessageFactory messageFactory_;
 
     public StopTimeTest(String name, NotificationTestCaseSetup setup)
     {
@@ -56,9 +56,6 @@ public class StopTimeTest extends NotificationTestCase
 
     public void setUpTest()
     {
-        messageFactory_ = new DefaultMessageFactory(getConfiguration());
-        addDisposable(messageFactory_);
-        
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
         FixedEventHeader _fixed = new FixedEventHeader();
@@ -95,7 +92,9 @@ public class StopTimeTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
 
-        final Message _event = messageFactory_.newMessage(structuredEvent_);
+        StructuredEventMessage mesg = new StructuredEventMessage();
+        mesg.setStructuredEvent(structuredEvent_, true, true);
+        final Message _event = mesg.getHandle();
 
         final HashSet _received = new HashSet();
 

@@ -29,6 +29,7 @@ import org.jacorb.test.notification.common.NotifyServerTestCase;
 import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
@@ -70,34 +71,35 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
         structuredEvent_.remainder_of_body = getClientORB().create_any();
     }
 
-    public void testA_SendEvent() throws Exception
+    public void testEventWithStartTimeAfterStopTimeIsNotDelivered() throws Exception
     {
         // StartTime +1000ms, StopTime +500ms
-        sendEvent(1000, 500, false);
-
+        sendEvent(1000, 500, false);   
+    }
+    
+    public void testEventWithStopTimeAfterStartTimeIsDelivered() throws Exception
+    {
         // StartTime +1000ms, StopTime +2000ms
         sendEvent(1000, 2000, true);
-
+    }
+    
+    public void testEventWithStopTimeInThePastIsNotDelivered() throws Exception
+    {
         // StartTime now, StopTime in the Past
         sendEvent(0, -1000, false);
     }
 
-    public void testDisableStopTimeSupported() throws Exception
+    public void testDisable_StopTimeSupported() throws Exception
     {
-        if (true)
-        {
-            return;
-        }
-
         Any falseAny = getClientORB().create_any();
         falseAny.insert_boolean(false);
 
-        eventChannel_.set_qos(new Property[] { new Property(StopTimeSupported.value, falseAny) });
-
-        sendEvent(0, 1000, false);
+        eventChannel_ = getEventChannelFactory().create_channel(new Property[] { new Property(StopTimeSupported.value, falseAny) }, new Property[0], new IntHolder());
+        
+        sendEvent(1000, 500, true);
     }
 
-    public void sendEvent(long startOffset, long stopOffset, boolean expect) throws Exception
+    private void sendEvent(long startOffset, long stopOffset, boolean expect) throws Exception
     {
         structuredEvent_.header.variable_header = new Property[2];
 
@@ -144,6 +146,6 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
 
     public static Test suite() throws Exception
     {
-        return NotifyServerTestCase.suite(StopTimeIntegrationTest.class);
+        return NotifyServerTestCase.suite("StopTimeIntegrationTests", StopTimeIntegrationTest.class);
     }
 }

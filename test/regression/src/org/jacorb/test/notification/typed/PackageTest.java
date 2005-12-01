@@ -30,7 +30,6 @@ import junit.framework.TestSuite;
 
 public class PackageTest extends TestCase
 {
-
     public PackageTest(String name)
     {
         super(name);

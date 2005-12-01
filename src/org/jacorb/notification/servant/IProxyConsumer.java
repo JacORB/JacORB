@@ -29,6 +29,6 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 public interface IProxyConsumer {
     boolean getStartTimeSupported();
-    boolean getTimeOutSupported();
+    boolean getStopTimeSupported();
     FilterStage getFirstStage();
 }

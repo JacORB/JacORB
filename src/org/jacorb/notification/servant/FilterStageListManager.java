@@ -31,7 +31,7 @@ import org.jacorb.notification.interfaces.FilterStage;
  * @version $Id$
  */
 
-abstract public class FilterStageListManager {
+public abstract class FilterStageListManager {
 
     public interface FilterStageList {
         void add(FilterStage filterStage);
@@ -62,9 +62,9 @@ abstract public class FilterStageListManager {
                 final List _newList = new ArrayList();
 
                 FilterStageList _listProxy = new FilterStageList() {
-                        public void add(FilterStage d) {
-                            if (!d.isDestroyed()) {
-                                _newList.add(d);
+                        public void add(FilterStage filterStage) {
+                            if (!filterStage.isDestroyed()) {
+                                _newList.add(filterStage);
                             }
                         }
                     };
@@ -75,6 +75,8 @@ abstract public class FilterStageListManager {
                 readOnlyView_ = Collections.unmodifiableList(checkedList_);
                 sourceModified_ = false;
             }
+            // as readOnlyView_ delegates to checkedList_ sorting
+            // will also affect the order of readOnlyView_
             doSortCheckedList(checkedList_);
             
             return readOnlyView_;
@@ -86,5 +88,5 @@ abstract public class FilterStageListManager {
         // No OP
     }
 
-    abstract protected void fetchListData(FilterStageList listProxy);
+    protected abstract void fetchListData(FilterStageList listProxy);
 }

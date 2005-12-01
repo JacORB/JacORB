@@ -31,6 +31,7 @@ import org.jacorb.notification.servant.TypedSupplierAdminImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.omg.CORBA.IntHolder;
+import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin;
@@ -88,7 +89,7 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
                 getConfiguration(), getMessageFactory(), (OfferManager) container_
                         .getComponentInstance(OfferManager.class), (SubscriptionManager) container_
                         .getComponentInstance(SubscriptionManager.class));
-
+        objectUnderTest_.setInterFilterGroupOperator(InterFilterGroupOperator.AND_OP);
         supplierAdmin_ = TypedSupplierAdminHelper.narrow(objectUnderTest_.activate());
     }
 

@@ -79,7 +79,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 {
     private final MappingFilter nullMappingFilterRef_;
 
-    protected final boolean isIDPublic_;
+    private final boolean isIDPublic_;
 
     protected final Logger logger_;
 
@@ -87,7 +87,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     protected final QoSPropertySet qosSettings_;
 
-    protected final Integer id_;
+    private final Integer id_;
 
     protected final OfferManager offerManager_;
 
@@ -95,9 +95,9 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     protected Servant thisServant_;
 
-    protected MappingFilter lifetimeFilter_;
+    private MappingFilter lifetimeFilter_;
 
-    protected MappingFilter priorityFilter_;
+    private MappingFilter priorityFilter_;
 
     /**
      * delegate for FilterAdminOperations
@@ -246,10 +246,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     public final void set_qos(Property[] qosProps) throws UnsupportedQoS
     {
-        if (qosSettings_ != null)
-        {
-            qosSettings_.set_qos(qosProps);
-        }
+        qosSettings_.set_qos(qosProps);
     }
 
     public final Property[] get_qos()
@@ -632,7 +629,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     /**
      * @jmx.managed-attribute description = "InterFilterGroupOperator used for this proxy" 
      *                        access = "read-only" 
-     *                        currencyTimeLimit = "-1"
+     *                        currencyTimeLimit = "2147483647"
      */
     public String getInterFilterGroupOperator()
     {

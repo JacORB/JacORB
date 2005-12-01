@@ -126,6 +126,8 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
     {
         public void actionPropertySetChanged(PropertySet source)
         {
+            logger_.debug("PropertySet changed !!!");
+            
             configureStartTimeSupported();
 
             configureStopTimeSupported();
@@ -150,6 +152,7 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
 
     private void configureStopTimeSupported()
     {
+        logger_.debug("QoSSettings: " + qosSettings_);
         try
         {
             isStopTimeSupported_.set(qosSettings_.get(StopTimeSupported.value).extract_boolean());
@@ -193,7 +196,7 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
      * @jmx.managed-attribute description = "Does this ProxyConsumer support the per Message Option TimeOut"
      *                        access = "read-only"
      */
-    public boolean getTimeOutSupported()
+    public boolean getStopTimeSupported()
     {
         return isStopTimeSupported_.get();
     }

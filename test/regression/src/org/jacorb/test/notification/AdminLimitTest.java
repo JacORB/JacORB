@@ -39,6 +39,7 @@ import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdminOperations;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.picocontainer.MutablePicoContainer;
 
@@ -101,6 +102,7 @@ public class AdminLimitTest extends NotificationTestCase
                         .getComponentInstance(OfferManager.class), (SubscriptionManager) getPicoContainer()
                         .getComponentInstance(SubscriptionManager.class));
 
+        objectUnderTest_.setInterFilterGroupOperator(InterFilterGroupOperator.AND_OP);
         objectUnderTest_.set_qos(_qosSettings.get_qos());
 
         consumerAdmin_ = objectUnderTest_;

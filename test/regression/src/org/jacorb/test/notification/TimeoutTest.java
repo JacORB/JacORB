@@ -108,7 +108,7 @@ public class TimeoutTest extends NotificationTestCase
                                                             return true;
                                                         }
 
-                                                        public boolean getTimeOutSupported() {
+                                                        public boolean getStopTimeSupported() {
                                                             return true;
                                                         }
 

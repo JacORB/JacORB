@@ -63,7 +63,7 @@ public class StartTimeTest extends NotificationTestCase
             return true;
         }
 
-        public boolean getTimeOutSupported()
+        public boolean getStopTimeSupported()
         {
             return true;
         }

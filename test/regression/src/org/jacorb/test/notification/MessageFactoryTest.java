@@ -4,6 +4,7 @@ import java.util.Date;
 
 import junit.framework.Test;
 
+import org.easymock.MockControl;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
@@ -48,9 +49,18 @@ public class MessageFactoryTest extends NotificationTestCase
 
         testStructured_.header.variable_header[0] = new Property(StopTime.value, _any);
 
-        Message _event = messageFactory_.newMessage(testStructured_);
+        MockControl proxyConsumerControl = MockControl.createNiceControl(IProxyConsumer.class);
+        IProxyConsumer proxyConsumerMock = (IProxyConsumer) proxyConsumerControl.getMock();
+        
+        proxyConsumerControl.expectAndReturn(proxyConsumerMock.getStopTimeSupported(), true);
+        
+        proxyConsumerControl.replay();
+        
+        Message _event = messageFactory_.newMessage(testStructured_, proxyConsumerMock);
         assertTrue(_event.hasStopTime());
         assertEquals(_now.getTime(), _event.getStopTime());
+        
+        proxyConsumerControl.verify();
     }
 
     
@@ -140,7 +150,7 @@ public class MessageFactoryTest extends NotificationTestCase
                         return false;
                     }
 
-                    public boolean getTimeOutSupported()
+                    public boolean getStopTimeSupported()
                     {
                         return false;
                     }
@@ -184,7 +194,7 @@ public class MessageFactoryTest extends NotificationTestCase
                 return false;
             }
 
-            public boolean getTimeOutSupported()
+            public boolean getStopTimeSupported()
             {
                 return false;
             }

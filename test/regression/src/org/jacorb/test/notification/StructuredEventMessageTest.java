@@ -20,12 +20,18 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.Date;
+
 import junit.framework.Test;
 
 import org.jacorb.notification.NoTranslationException;
 import org.jacorb.notification.StructuredEventMessage;
+import org.jacorb.util.Time;
+import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StopTime;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.TimeBase.UtcTHelper;
 
 /**
  * @author Alphonse Bendt
@@ -80,6 +86,21 @@ public class StructuredEventMessageTest extends NotificationTestCase
         {
             // expected
         }
+    }
+    
+    public void testTimeoutIsIgnoredIfConsumerDoesNotSupportTimeout()
+    {
+        Date _time = new Date(System.currentTimeMillis());
+
+        Any _any = getClientORB().create_any();
+        UtcTHelper.insert(_any, Time.corbaTime(_time));
+
+        structuredEvent_.header.variable_header = new Property[1];
+        structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
+
+        objectUnderTest_.setStructuredEvent(structuredEvent_, true, false);
+        
+        assertFalse(objectUnderTest_.hasStopTime());
     }
 
     public static Test suite() throws Exception

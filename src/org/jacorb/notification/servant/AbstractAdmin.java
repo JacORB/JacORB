@@ -172,7 +172,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     private final List proxyEventListener_ = new ArrayList();
 
-    public final int channelID_;
+    private final int channelID_;
 
     private final String parentMBean_;
 
@@ -208,14 +208,14 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         subscriptionManager_ = subscriptionManager;
     }
 
-    public final void registerDisposable(Disposable d)
+    public final void registerDisposable(Disposable disposable)
     {
-        disposables_.addDisposable(d);
+        disposables_.addDisposable(disposable);
     }
 
-    public void setInterFilterGroupOperator(InterFilterGroupOperator op)
+    public void setInterFilterGroupOperator(InterFilterGroupOperator operator)
     {
-        filterGroupOperator_ = op;
+        filterGroupOperator_ = operator;
     }
 
     protected POA getPOA()
@@ -283,6 +283,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         return (EventChannel) eventChannelReference_.get();
     }
 
+    
     public final int MyID()
     {
         return getID().intValue();
@@ -303,6 +304,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         qosSettings_.validate_qos(props, new NamedPropertyRangeSeqHolder());
 
         qosSettings_.set_qos(props);
+        logger_.debug("set_qos: " + qosSettings_);
     }
 
     public void validate_qos(Property[] props, NamedPropertyRangeSeqHolder propertyRangeSeqHolder)
@@ -375,6 +377,11 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     public abstract Servant getServant();
 
+    /**
+     * @jmx.managed-attribute description="TODO"
+     *                        access = "read-only" 
+     *                        currencyTimeLimit = "2147483647"
+     */
     public Integer getID()
     {
         return id_;
@@ -389,21 +396,20 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     {
         synchronized (proxyEventListener_)
         {
-            ProxyEvent _event = new ProxyEvent(this);
-
-            Iterator _i = proxyEventListener_.iterator();
+            final ProxyEvent _event = new ProxyEvent(this);
+            final Iterator _i = proxyEventListener_.iterator();
 
             while (_i.hasNext())
             {
-                ProxyEventListener _listener;
-                _listener = (ProxyEventListener) _i.next();
+                final ProxyEventListener _listener = 
+                    (ProxyEventListener) _i.next();
                 _listener.actionProxyCreationRequest(_event);
             }
         }
     }
 
     /**
-     * admin does not have a lifetime filter
+     * admin does never have a lifetime filter
      */
     public boolean hasLifetimeFilter()
     {
@@ -411,7 +417,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     }
 
     /**
-     * admin does not have a priority filter
+     * admin does never have a priority filter
      */
     public boolean hasPriorityFilter()
     {
@@ -434,9 +440,19 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @jmx.managed-attribute description="TODO"
+     *                        access = "read-only" 
+     *                        currencyTimeLimit = "2147483647"
+     */
+    public String getInterFilterGroupOperator()
+    {
+        return (filterGroupOperator_.value() == InterFilterGroupOperator._AND_OP) ? "AND_OP" : "OR_OP";
+    }
+    
     public boolean hasInterFilterGroupOperatorOR()
     {
-        return (filterGroupOperator_ != null && (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP));
+        return (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP);
     }
 
     /**
@@ -445,9 +461,9 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
      */
     protected AbstractProxy getProxy(int id) throws ProxyNotFound
     {
-        Integer _id = new Integer(id);
+        final Integer _id = new Integer(id);
 
-        AbstractProxy _servant = null;
+        AbstractProxy _servant;
 
         synchronized (modifyProxiesLock_)
         {
@@ -478,15 +494,15 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
      */
     protected int[] get_all_notify_proxies(Map map, Object lock)
     {
-        List _allIDsList = new ArrayList();
+        final List _allIDsList = new ArrayList();
 
         synchronized (lock)
         {
-            Iterator _i = map.entrySet().iterator();
+            final Iterator _i = map.entrySet().iterator();
 
             while (_i.hasNext())
             {
-                Map.Entry _entry = (Map.Entry) _i.next();
+                final Map.Entry _entry = (Map.Entry) _i.next();
 
                 if (((AbstractProxy) _entry.getValue()).isIDPublic())
                 {
@@ -495,7 +511,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
             }
         }
 
-        int[] _allIDsArray = new int[_allIDsList.size()];
+        final int[] _allIDsArray = new int[_allIDsList.size()];
 
         for (int x = 0; x < _allIDsArray.length; ++x)
         {
@@ -510,6 +526,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
      */
     protected void configureQoS(AbstractProxy proxy) throws UnsupportedQoS
     {
+        logger_.debug("configure new AbstractProxy with " + qosSettings_);
         proxy.set_qos(qosSettings_.get_qos());
     }
 
@@ -518,8 +535,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
      */
     protected void configureInterFilterGroupOperator(AbstractProxy proxy)
     {
-        if (filterGroupOperator_ != null
-                && (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP))
+        if (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP)
         {
             proxy.setInterFilterGroupOperatorOR(true);
         }
@@ -591,7 +607,6 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
                 }
             }
         });
-        
     }
 
     public final List getProxies()

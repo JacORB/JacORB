@@ -111,26 +111,24 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
 
         listManager_ = new FilterStageListManager()
         {
-            public void fetchListData(FilterStageListManager.FilterStageList listProxy)
+            protected void fetchListData(FilterStageListManager.FilterStageList listProxy)
             {
-                Iterator i = pullServants_.entrySet().iterator();
-
-                while (i.hasNext())
-                {
-                    listProxy.add((FilterStage) ((Map.Entry) i.next()).getValue());
-                }
-
-                i = pushServants_.entrySet().iterator();
-
-                while (i.hasNext())
-                {
-                    listProxy.add((FilterStage) ((Map.Entry) i.next()).getValue());
-                }
+                addAllValues(listProxy, pullServants_);
+                
+                addAllValues(listProxy, pushServants_);
             }
             
             protected void doSortCheckedList(List list)
             {
                 Collections.sort(list, FILTERSTAGE_COMPARATOR);
+            }
+            
+            private void addAllValues(FilterStageListManager.FilterStageList listProxy, Map map)
+            {
+                for (Iterator i = map.entrySet().iterator(); i.hasNext();)
+                {
+                    listProxy.add((FilterStage) ((Map.Entry) i.next()).getValue());
+                }
             }
         };
 
@@ -222,7 +220,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         {
             logger_.fatalError("obtain_notification_pull_supplier: unexpected error", e);
 
-            throw new UNKNOWN();
+            throw new UNKNOWN(e.getMessage());
         }
     }
 
@@ -349,7 +347,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         {
             logger_.fatalError("obtain_push_supplier: exception", e);
 
-            throw new UNKNOWN();
+            throw new UNKNOWN(e.getMessage());
         }
     }
 
