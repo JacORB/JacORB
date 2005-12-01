@@ -3,6 +3,7 @@
 <!DOCTYPE project [
   <!ENTITY common  SYSTEM "file:../../../../etc/common.xml" >
   <!ENTITY xdoclet SYSTEM "file:../../../../etc/common-xdoclet.xml" >
+  <!ENTITY jmx     SYSTEM "file:../../../../etc/common-jmx.xml" >
 ]>
 
 <project name="notification" default="all" basedir="../../../..">
@@ -14,12 +15,11 @@
 
   	&common;
   	&xdoclet;
- 
-	<property file="${basedir}/build.properties" />
+	&jmx;
 	
   	<property name="dir.notification" value="${basedir}/src/org/jacorb/notification" />
 
-	<target name="init.local" depends="init">
+	<target name="init.local" depends="init, jmx.init">
 
 		<!-- directory where the etcl grammar is located -->
 		<property name="dir.etcl.grammar" value="${dir.notification}/filter/etcl/grammar" />
@@ -33,8 +33,10 @@
 			<pathelement path="${basedir}/lib/antlr-2.7.2.jar" />
 		</path>
 
-		<path id="path.wrapper">
+		<path id="classpath">
 			<path refid="path.base" />
+			<path refid="path.mx4j" />
+			<path refid="path.jboss" />
 			<pathelement location="${lib}/wrapper-3.1.0.jar" />
 		</path>
 
@@ -105,9 +107,8 @@
 	</target>
 
 
-	<target name="jmx" depends="init.local, check-jmx, xdoclet.init-jmx, jmx.mbean, jmx.mx4j, jmx.jboss" description="Generate JMX Interfaces" />
-
-
+	<target name="jmx" depends="init.local, xdoclet.init-jmx, jmx.mbean, jmx.mx4j, jmx.jboss" description="Generate JMX Interfaces" />
+	
 	<target name="jmx.mbean">
 		<!-- MBean Interfaces need to be generated always -->
 		<jacorb-jmxgen>
@@ -124,7 +125,7 @@
 		</jacorb-jmxgen>
 	</target>
 
-	<target name="jmx.mx4j" if="available.jmx.mx4j">
+	<target name="jmx.mx4j" if="mx4j.home">
 		<!-- create mx4j specific MBean interfaces -->
 		<jacorb-jmxgen>
 			<files>
@@ -150,7 +151,7 @@
 		</jacorb-jmxgen>
 	</target>
 
-	<target name="jmx.jboss" if="jbossmx.enabled">
+	<target name="jmx.jboss" if="jboss.home">
 		<!-- create JBoss specific MBean interfaces -->
 		<jacorb-jmxgen>
 			<files>
@@ -175,21 +176,25 @@
 		</jacorb-jmxgen>
 	</target>
 
-	<target name="compile" depends="init.local, compile.regexp, compile.server, server.sar" description="Compile JacORB Notification Service" />
+	<target name="compile" depends="init.local, compile.regexp, compile.server" description="Compile JacORB Notification Service" />
 	
 	<target name="compile.server" >
-		<jacorb-javac 	javac-includes="org/jacorb/notification/**/*.java" 
+		<jacorb-javac 	javac-classpathref="classpath"
+						javac-includes="org/jacorb/notification/**/*.java" 
 					 	javac-excludes="org/jacorb/notification/util/*PatternWrapper.java,
                       			org/jacorb/notification/WrapperMain.java,
 	                  			org/jacorb/notification/filter/bsh/**,
       	              			org/jacorb/notification/jmx/**" />
 
-		<jacorb-javac javac-classpathref="path.wrapper" javac-includes="org/jacorb/notification/WrapperMain.java" />
+		<jacorb-javac javac-classpathref="classpath" javac-includes="org/jacorb/notification/WrapperMain.java" />
+		
+		<antcall target="server.sar"></antcall>
 	</target>
 
 	
 	<target 	name="compile.regexp" 
-			depends="compile.regexp.gnu, 
+			depends="check-regexp,
+				compile.regexp.gnu, 
              	compile.regexp.jakarta-regexp,
              	compile.regexp.jdk" />
 
@@ -213,7 +218,7 @@
 	</target>
 
 	
-	<target name="server.sar" if="jbossmx.enabled">
+	<target name="server.sar" if="jboss.home">
 		<ant antfile="${basedir}/src/org/jacorb/notification/jmx/jboss/build.xml" />
 	</target>
 

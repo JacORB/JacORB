@@ -2,24 +2,16 @@
 
 <!DOCTYPE project [
   <!ENTITY common  SYSTEM "file:../../../../../../etc/common.xml">
-  <!ENTITY xdoclet SYSTEM "file:../../../../../../etc/common-xdoclet.xml">
+  <!ENTITY jmx     SYSTEM "file:../../../../../../etc/common-jmx.xml"> 
 ]>
 
 <!-- $Id$ -->
 <project name="jboss-cosnotification" default="sar" basedir="../../../../../..">
 	
 	&common;
+	&jmx;
 	
-	<property file="${basedir}/build.properties" />
-	<property environment="env" />
-	
-	<target name="locate-jboss" unless="jboss.home">
-		<fail unless="${env.JBOSS_HOME}" message="unable to locate JBoss. Either add jboss.home=... to build properties, invoke ant with -Djboss.home=... or set the environment variable JBOSS_HOME=..."/>
-		<property name="jboss.home" value="${env.JBOSS_HOME}" />
-		<echo level="verbose" message="set jboss.home to ${jboss.home}" />
-	</target>
-	
-	<target name="init.local" depends="init, locate-jboss">
+	<target name="init.local" depends="init, jmx.init">
 		<property name="pkg.project" value="org/jacorb/notification/jmx" />
 		<property name="dir.project" value="${src}/${pkg.project}" />
 
@@ -30,24 +22,16 @@
 		<property name="path.sar" value="${lib}/${name.sar}" />
 		<property name="path.jar" value="${lib}/${name.jar}" />
 
-		<property name="dir.deploy" value="${jboss.home}/server/all/deploy" />
-		<property name="dir.jboss.lib" value="${jboss.home}/server/all/lib" />
-		
 		<path id="classpath">
-			<pathelement location="${jacorb.home}/lib/jacorb.jar" />
-			<pathelement location="${jacorb.home}/lib/picocontainer-1.2.jar" />
-			<pathelement location="${jacorb.home}/lib/backport-util-concurrent.jar" />
-			<pathelement location="${jboss.home}/lib/jboss-system.jar" />
-			<pathelement location="${jboss.home}/lib/jboss-jmx.jar" />
-			<pathelement location="${jboss.home}/lib/jboss-common.jar" />
-			<pathelement location="${jboss.home}/lib/dom4j.jar" />
-			<pathelement location="${jboss.home}/server/all/lib/avalon-framework.jar" />
-			<pathelement location="${jboss.home}/server/all/lib/jboss-iiop.jar" />
+			<path refid="path.base" />
+			<path refid="path.jboss" />
 		</path>
 	</target>
 	
 	<target name="compile" depends="init.local">
-		<jacorb-javac javac-includes="${pkg.project}/*.java, ${pkg.project}/jboss/*.java" javac-classpathref="classpath" />
+		<jacorb-javac 	javac-includes="${pkg.project}/*.java, ${pkg.project}/jboss/*.java" 
+						javac-excludes="**/*MBeanDescription.java" 
+						javac-classpathref="classpath" />
 	</target>
 
 	<target name="jar" depends="init.local, compile">
@@ -73,14 +57,15 @@
 			<zipfileset file="${lib}/backport-util-concurrent.jar" />
 			<zipfileset file="${lib}/picocontainer-1.2.jar" />
 		</jar>
+		
 	</target>
 
 	<target name="deploy" depends="init.local, sar">
-		<copy todir="${dir.deploy}" file="${path.sar}" />
+		<copy todir="${jboss.dir.deploy}" file="${path.sar}" />
 	</target>
 	
 	<target name="deploy-jacorb" depends="init.local" >
-		<copy todir="${dir.jboss.lib}" file="${basedir}/lib/jacorb.jar" />
+		<copy todir="${jboss.dir.lib}" file="${basedir}/lib/jacorb.jar" />
 	</target>
 
 	<target name="clean" depends="init.local">
