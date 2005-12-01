@@ -86,9 +86,9 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     protected final ORB orb_;
 
-    protected final POA poa_;
+    private final POA poa_;
 
-    protected final Configuration configuration_;
+    private final Configuration configuration_;
 
     /**
      * max number of Suppliers that may be connected at a time to this Channel (0=unlimited)
@@ -188,7 +188,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     private final AtomicBoolean destroyed_ = new AtomicBoolean(false);
 
-    private JMXManageable.JMXCallback jmxCallback_;
+    protected JMXManageable.JMXCallback jmxCallback_;
 
     ////////////////////////////////////////
 
@@ -374,6 +374,8 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
         qosSettings_.validate_qos(props, new NamedPropertyRangeSeqHolder());
 
         qosSettings_.set_qos(props);
+        
+        logger_.debug("set QoS: " + qosSettings_);
     }
 
     public final void validate_qos(Property[] props,
@@ -412,7 +414,8 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
         {
             container_.dispose();
             
-            List list = container_.getComponentInstancesOfType(IContainer.class);
+            final List list = container_.getComponentInstancesOfType(IContainer.class);
+         
             for (Iterator i = list.iterator(); i.hasNext();)
             {
                 IContainer element = (IContainer) i.next();
@@ -548,9 +551,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
             if (consumerAdminServants_.containsKey(_key))
             {
-                AbstractAdmin _admin = (AbstractAdmin) consumerAdminServants_.get(_key);
-
-                return _admin;
+                return (AbstractAdmin) consumerAdminServants_.get(_key);
             }
 
             throw new AdminNotFound("ID " + identifier + " does not exist.");
@@ -565,9 +566,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
             if (supplierAdminServants_.containsKey(_key))
             {
-                AbstractAdmin _admin = (AbstractAdmin) supplierAdminServants_.get(_key);
-
-                return _admin;
+                return (AbstractAdmin) supplierAdminServants_.get(_key);
             }
 
             throw new AdminNotFound("ID " + identifier + " does not exist.");
@@ -593,13 +592,13 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
             if (_admin == null)
             {
                 _admin = newConsumerAdminServant(DEFAULT_ADMIN_KEY.intValue());
-
+                _admin.setInterFilterGroupOperator(InterFilterGroupOperator.AND_OP);
                 try
                 {
                     _admin.set_qos(createQoSPropertiesForAdmin());
                 } catch (UnsupportedQoS e)
                 {
-                    logger_.fatalError("unable to set qos", e);
+                    logger_.error("unable to set qos", e);
                 }
 
                 addToConsumerAdmins(_admin);
@@ -638,9 +637,9 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
     {
         final AbstractAdmin _admin = newConsumerAdminServant(createAdminID());
 
-        _admin.setInterFilterGroupOperator(filterGroupOperator);
-
         intHolder.value = _admin.getID().intValue();
+
+        _admin.setInterFilterGroupOperator(filterGroupOperator);
 
         try
         {
@@ -697,7 +696,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
             _admin.set_qos(createQoSPropertiesForAdmin());
         } catch (UnsupportedQoS e)
         {
-            logger_.error("error setting qos", e);
+            logger_.error("unable to set QoS", e);
         }
 
         _admin.addProxyEventListener(proxyConsumerEventListener_);
@@ -718,7 +717,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
             if (_admin == null)
             {
                 _admin = newSupplierAdminServant(DEFAULT_ADMIN_KEY.intValue());
-
+                _admin.setInterFilterGroupOperator(InterFilterGroupOperator.AND_OP);
                 try
                 {
                     _admin.set_qos(createQoSPropertiesForAdmin());
@@ -786,7 +785,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
         disposables_.addDisposable(d);
     }
     
-    public String getJMXObjectName()
+    public final String getJMXObjectName()
     {
         return "channel=" + getMBeanName();
     }
