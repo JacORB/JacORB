@@ -76,7 +76,7 @@ public interface Default
 
     String DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT = "on";
 
-    String DEFAULT_LAZY_DEFAULT_ADMIN_INIT = "on";
+    boolean DEFAULT_LAZY_DEFAULT_ADMIN_INIT = true;
 
     String DEFAULT_REJECT_NEW_EVENTS = "off";
 
