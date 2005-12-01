@@ -19,19 +19,16 @@
             <os family="dos"/>
         </or>
     </condition>
-<property name="architecture" value="unix"/>
+    <property name="architecture" value="unix"/>
 </target>
 
 <!-- Call base-init first. The regression tests call this but -->
 <!-- have their own base-init                                 -->
 <target name="init" depends="ant-version, base-init, set-architecture">
-    <property name="debug" value="off"/>
+    <property name="debug" value="true"/>
  
     <!-- This value only used under Ant 1.5 -->
     <property name="debuglevel" value="lines,source"/>
- 
- 
-    
  
     <!-- Location of the compiled classes -->
     <pathconvert property="classdir" targetos="${architecture}">
@@ -43,16 +40,12 @@
     <path id="path.base" >
         <pathelement location="${dirs.base}/classes"/>
         <pathelement location="${basedir}/classes"/>
-        <pathelement location="${lib}/logkit-1.2.jar"/>
-        <pathelement location="${lib}/idl.jar"/>
-        <pathelement location="${lib}/antlr-2.7.2.jar"/>
-        <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
-        <pathelement location="${lib}/backport-util-concurrent.jar"/>
-        <pathelement location="${lib}/picocontainer-1.2.jar" />
-
-		<!-- is it really necessary to have these entries in the classpath? (alphonse bendt) -->
-       	<pathelement path="${sun.boot.class.path}"/>
-        <pathelement path="${java.class.path}"/>
+        
+        <!-- include all jars located in lib except the jacorb.jar -->
+        <fileset dir="${basedir}/lib" >
+        		<include name="*.jar" />
+        		<exclude name="jacorb.jar" />
+        </fileset>
     </path>
 
     <path id="sourcepath.base">
@@ -91,41 +84,25 @@
                debuglevel="${debuglevel}"
                sourcepathref="@{javac-sourcepath}"
                includes="@{javac-includes}"
-               excludes="@{javac-excludes}" />
+               excludes="@{javac-excludes}" >
+			    <src path="@{javac-src}" />
+			    <src path="${src.generated}" />
+			</javac>
     		</sequential>
 	</macrodef>
 </target>
 
 <target name="whats-my-classpath" depends="init"
-        description="Outputs the classpath that will be used for compilation of the JacORB">
-         <echo message="JacORB will be built with the following classpath:${line.separator}${classpath}"/>
-</target>
-
-<target name="check-jmx" depends="init" >
-	<available classname="javax.management.MBeanServer" property="available.jmx" classpathref="path.base" />
-
-	<condition property="available.jmx.mx4j" value="true">
-		<and>
-			<isset property="available.jmx" />
-			<available classname="mx4j.MBeanDescriptionAdapter" classpathref="path.base" />
-		</and>
-	</condition>
-</target>
-
-<target name="jmx.verify.fail" unless="available.jmx.mx4j" >
-	<echo message="MX4J is not available" />
-</target>
-	
-<target name="jmx.verify" depends="check-jmx, jmx.verify.fail" if="available.jmx.mx4j" >
-	<whichresource property="jmx.jar" class="javax.management.MBeanServer" classpath="${classpath}" />
-	<whichresource property="mx4j.jar" class="mx4j.MBeanDescriptionAdapter" classpath="${classpath}" />
-	<echo message="JMX  is available: ${jmx.jar}" />
-	<echo message="MX4J is available: ${mx4j.jar}" />
+        description="Outputs the classpath that will be used for compilation of JacORB">
+         <pathconvert property="_classpath" refid="path.base" pathsep="${line.separator}" />  
+         <echo message="Classpath:${line.separator}${_classpath}"/>
+         <echo />
+         <pathconvert property="_sourcepath" refid="sourcepath.base" pathsep="${line.separator}" />
+         <echo message="Sourcepath:${line.separator}${_sourcepath}" />
 </target>
 
 <!-- check if a regexp library is available -->
-<target name="check-regexp">
-
+<target name="check-regexp" >
    <condition property="available.regexp.jdk" value="true" >
       <or>
          <equals arg2="${ant.java.version}" arg1="1.4"/>
@@ -203,3 +180,12 @@
    </jacorb-javac>
 </target>
 
+		
+<target name="visualize-ant-dependencies" description="run Grand to visualize the ant target dependencies" >
+	<available file="${basedir}/lib/build/grand.jar" property="available.grand" />
+	<fail unless="available.grand" message="Download grand.jar from http://www.ggtools.net/grand/ and put it into ${basedir}/lib/build" />
+	<typedef resource="net/ggtools/grand/antlib.xml" classpath="${basedir}/lib/build/grand.jar" />
+	<mkdir dir="${basedir}/build" />
+	<grand output="${basedir}/build/${ant.project.name}-ant.dot" />
+	<echo message="wrote ${basedir}/build/${ant.project.name}-ant.dot" />
+</target>
