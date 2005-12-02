@@ -57,7 +57,6 @@ import org.omg.CosNotification.DiscardPolicy;
 import org.omg.CosNotification.EventTypeHelper;
 import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.Property;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierHelper;
@@ -81,13 +80,13 @@ import org.omg.PortableServer.Servant;
 public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         TypedProxyPullSupplierOperations, ITypedProxy, TypedProxyPullSupplierImplMBean
 {
-    final Any trueAny_;
+    private final Any trueAny_;
 
-    final Any falseAny_;
+    private final Any falseAny_;
 
     private final DynAnyFactory dynAnyFactory_;
 
-    final String supportedInterface_;
+    private final String supportedInterface_;
 
     private PullConsumer pullConsumer_;
 
@@ -95,9 +94,9 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
 
     private org.omg.CORBA.Object typedProxyPullSupplier_;
 
-    final Map messageQueueMap_;
+    private final Map messageQueueMap_;
 
-    final Map invalidResponses_;
+    private final Map invalidResponses_;
 
     private final Repository repository_;
 
@@ -181,15 +180,15 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         }
     }
 
-    final NVList prepareResponse(Message mesg)
+    private final NVList prepareResponse(Message mesg)
     {
         try
         {
-            Property[] _props = mesg.toTypedEvent();
+            final Property[] _props = mesg.toTypedEvent();
+            
+            final NVList _args = getORB().create_list(_props.length - 1);
 
-            NVList _args = getORB().create_list(_props.length - 1);
-
-            // start at index 1 here. index 0 contains operation name
+            // start at index 1 here. index 0 contains the operation name
             for (int x = 1; x < _props.length; ++x)
             {
                 _args.add_value(_props[x].name, _props[x].value, ARG_OUT.value);
@@ -264,7 +263,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
     private void prepareInvalidResponse(Map map, OperationDescription operation)
             throws InconsistentTypeCode
     {
-        NVList _expectedParams = getORB().create_list(operation.parameters.length);
+        final NVList _expectedParams = getORB().create_list(operation.parameters.length);
 
         for (int x = 0; x < operation.parameters.length; ++x)
         {
@@ -383,7 +382,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
 
     private PropertySetAdapter reconfigureEventQueues_ = new PropertySetAdapter()
     { 
-        public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
+        public void actionPropertySetChanged(PropertySet source)
         {
             configureEventQueue();
         }

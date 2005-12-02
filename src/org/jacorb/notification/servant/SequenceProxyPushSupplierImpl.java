@@ -39,7 +39,6 @@ import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierHelper;
@@ -123,7 +122,7 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
         
         qosSettings_.addPropertySetListener(MaximumBatchSize.value, new PropertySetAdapter()
         {
-            public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
+            public void actionPropertySetChanged(PropertySet source)
             {
                 configureMaxBatchSize();
             }
@@ -131,7 +130,7 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
 
         qosSettings_.addPropertySetListener(PacingInterval.value, new PropertySetAdapter()
         {
-            public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
+            public void actionPropertySetChanged(PropertySet source)
             {
                 configurePacingInterval();
             }

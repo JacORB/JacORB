@@ -46,7 +46,6 @@ import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.MaxEventsPerConsumer;
 import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.Property;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyComm.InvalidEventType;
@@ -192,7 +191,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
 
     private PropertySetAdapter eventQueueConfigurationChangedCB = new PropertySetAdapter()
     {
-        public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
+        public void actionPropertySetChanged(PropertySet source)
         {
             configureEventQueue();
         }

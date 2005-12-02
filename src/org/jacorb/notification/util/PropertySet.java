@@ -76,7 +76,7 @@ public abstract class PropertySet
 
     public void addPropertySetListener(String property, PropertySetListener listener)
     {
-        List _list;
+        final List _list;
 
         if (!listeners_.containsKey(property))
         {
@@ -133,7 +133,7 @@ public abstract class PropertySet
 
     protected void set_properties(Property[] props)
     {
-        HashSet _toBeNotified = new HashSet();
+        final HashSet _toBeNotified = new HashSet();
 
         for (int x = 0; x < props.length; ++x)
         {

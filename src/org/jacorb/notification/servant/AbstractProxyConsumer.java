@@ -126,8 +126,6 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
     {
         public void actionPropertySetChanged(PropertySet source)
         {
-            logger_.debug("PropertySet changed !!!");
-            
             configureStartTimeSupported();
 
             configureStopTimeSupported();
