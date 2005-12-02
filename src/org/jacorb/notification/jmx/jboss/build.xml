@@ -60,11 +60,11 @@
 		
 	</target>
 
-	<target name="deploy" depends="init.local, sar">
+	<target name="deploy-service" depends="init.local, sar">
 		<copy todir="${jboss.dir.deploy}" file="${path.sar}" />
 	</target>
 	
-	<target name="deploy-jacorb" depends="init.local" >
+	<target name="upgrade-jacorb" depends="init.local" >
 		<copy todir="${jboss.dir.lib}" file="${basedir}/lib/jacorb.jar" />
 	</target>
 
