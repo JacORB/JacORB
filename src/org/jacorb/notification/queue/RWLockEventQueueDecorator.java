@@ -45,7 +45,7 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
     private final ReadWriteLock delegateLock_ = new ReentrantReadWriteLock();
 
     /**
-     * multithreaded access to this member is protected by pendingMessagesLock_
+     * multithreaded access to this member is protected by delegateLock__
      */
     private MessageQueueAdapter delegate_;
 
