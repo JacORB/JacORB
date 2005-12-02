@@ -23,6 +23,7 @@
 		<property name="testdir" value="${basedir}/test/regression" />
 		<property name="dirs.base" value="${testdir}" />
 		<property name="src" value="${testdir}/src" />
+		<property name="src.generated" value="${src}/generated" />
 		<property name="idl" value="${testdir}/idl" />
 		<property name="lib" value="${basedir}/lib" />
 
@@ -158,10 +159,10 @@
 
 
 	<target name="compile-src">
-		<antcall target="jacorb-javac">
-			<param name="javac-includes" value="**" />
-			<param name="javac-excludes" value="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**" />
-		</antcall>
+		<jacorb-javac javac-includes="**" 
+			javac-excludes="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**"
+			javac-classpathref="test.classpath" />
+		
 		<antcall target="compile-src-notification" />
 	</target>
 
@@ -179,10 +180,7 @@
 
 
 	<target name="compile-src2" depends="compile-rmi">
-		<antcall target="jacorb-javac">
-			<param name="javac-includes"
-             value="**/RMITestServant.java" />
-		</antcall>
+		<jacorb-javac javac-includes="**/RMITestServant.java" javac-classpathref="test.classpath" />
 	</target>
 
 
