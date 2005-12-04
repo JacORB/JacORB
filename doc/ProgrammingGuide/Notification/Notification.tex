@@ -5,29 +5,40 @@
 The JacORB Notification Service is a partial implementation of
 the Notification Service specified by the OMG.
 
+\section{Unsupported Features}
+
+The JacORB Notification Service does not support persistent connections or events.
+
 \section{Installation}
 \label{sec:installation}
+
+\subsection{JDK 1.3}
 
 If you're using JDK 1.3 and want to use the JacORB Notification
 Service you'll need 
 to download the additional library gnu.regexp from 
 \href{http://www.cacas.org/java/gnu/regexp}{http://www.cacas.org/java/gnu/regexp}
 and put it in your classpath. This is necessary because the JacORB
-Notification Service depends on regular expressions. This
-functionality is available in the JDK since version 1.4. Alternatively
+Notification Service uses regular expressions. Regular expressions are available in the JDK since version 1.4. Alternatively
 you can download Jakarta Regexp \href{http://jakarta.apache.org/regexp}{http://jakarta.apache.org/regexp}.
 
+\subsection{JDK 1.5}
+
+The JacORB Notification Service uses the \href{http://www.mathcs.emory.edu/dcl/util/backport-util-concurrent/}{backport of JSR 166}. If you are using JDK 1.5 you don't need to use this extra library. Instead you can use the standardized java.util.concurrent package. By simply changing the package names inside the
+sources and recompiling you can switch between the two versions.
+
+Change to the directory \texttt{src/org/jacorb/notification} and invoke the command \texttt{ant convert.jdk5}. After that you have to recompile JacORB. The target \texttt{ant convert.jdk4} allows to switch back to backport-util-concurrent (These targets will simply replace all occurences of the string edu.emory.mathcs.backport.java.util.concurrent with java.util.concurrent and vice versa).
+ 
 \section{Running the Notification Service}
 \label{sec:ntfy-running}
 
-Before the JacORB Notification Service can be accessed a server
+Before the JacORB Notification Service can be accessed, a server
 process must be started. Starting
 the notification server is done by running
 
 \cmdline{ntfy [-printIOR] [-printCorbaloc] [-writeIOR \emph{filename}]
   [-registerName \emph{nameID}[.\emph{nameKind}]] [-port \emph{oaPort}] [-channels
   \emph{channels}] [-help]} 
-
 
 \begin{tabbing}
 XX \= XXXXXXXXXXXXXXXXXXXXX \= XX \kill
@@ -36,30 +47,30 @@ XX \= XXXXXXXXXXXXXXXXXXXXX \= XX \kill
 \> -writeIOR \emph{filename} \> write the IOR to a file \\
 \> -registerName \emph{nameId}[.\emph{nameKind}] \> make a Name Service entry
 for the EventChannelFactory. \\
-\> \> The Notification Service resolves the Name Service by \\
-\> \> calling \\
+\> \> The Notification Service will resolve the Name Service \\
+\> \> by invoking \\
 \> \> \texttt{resolve\_initial\_references("NameService")}. \\
 \> \> Ensure that your environment is set up properly. \\
 \> -port \emph{oaport} \> start the Notification Service on the specified
 port. \\
-\> -channels \emph{channels} \> create a number EventChannels. \\
+\> -channels \emph{channels} \> create a number of EventChannels. \\
 \end{tabbing}
 
-\subsection{Running as a NT Service or a UNIX Daemon}
+\subsection{Running as a NT Service or an UNIX Daemon}
 \label{sec:runn-notif-serv-1}
 
 With a little help from
 \href{http://wrapper.tanukisoftware.org}{the Java Service Wrapper} it is
-easy to run the JacORB notification service as a Windows Service or as
-a UNIX daemon. 
+easy to run the JacORB notification service as a NT Service or as
+an UNIX daemon. 
 
 
 \subsubsection{Note for JDK 1.3 Users}
 \label{sec:ntfy-jdk1.3}
 
 As noted if you are running JDK 1.3 you need to provide an
-additional library. If you use the Wrapper you also need to add a
-classpath entry to the Wrapper configuration file.
+additional library. If you use the wrapper you also need to add a
+classpath entry to the wrapper configuration file.
 
 Edit \texttt{bin/NotifyService-Wrapper.conf} and add a classpath
 entry:
@@ -67,7 +78,7 @@ entry:
 \begin{verbatim}
 # Java Classpath (include wrapper.jar)  Add class path elements as
 #  needed starting from 1
-wrapper.java.classpath.1=../lib/wrapper-3.0.3.jar
+wrapper.java.classpath.1=../lib/wrapper-3.x.y.jar
 ...
 wrapper.java.classpath.6=../lib/avalon-framework-4.1.5.jar
 wrapper.java.classpath.7=../lib/gnu.regexp.jar
@@ -76,10 +87,10 @@ wrapper.java.classpath.7=../lib/gnu.regexp.jar
 \subsubsection{Installing and Running as a NT Service}
 \label{sec:windows-service}
 
-The necessary wrapper configuration files are preconfigured in the
+The necessary wrapper configuration files are located in the
 \texttt{JacORB/bin} directory. 
 
-The notification service can be installed as a service by double
+The notification service can be installed as a NT service by double
 clicking on the \texttt{NotifyService-Install-NT.bat} batch file which
 is located in the \texttt{JacORB/bin} directory.
 Alternatively you can open a Command Window and then run the install
@@ -97,20 +108,15 @@ the start button.
 The service can also be started and stopped from within a Command
 Window by using the \texttt{net start JacORB-Notify} and \texttt{net
   stop JacORB-Notify} commands, or 
-by passing commands to the Wrapper.exe executable. 
+by passing commands to the wrapper.exe executable. 
 
 The wrapper is set up to start the JacORB Notification Service
-whenever the machine is rebooted.
-
-The service can be uninstalled by running the
-\texttt{NotifyService-Uninstall-NT.bat} batch file.
-
-See the Windows specific
+whenever the machine is rebooted. The service can be uninstalled by running the
+\texttt{NotifyService-Uninstall-NT.bat} batch file. See the Windows specific
 \href{http://wrapper.tanukisoftware.org/doc/english/launch-win.html}{wrapper
   documentation} for more details.
   
-
-\subsubsection{Installing and Running as a UNIX Daemon}
+\subsubsection{Installing and Running as an UNIX Daemon}
 \label{sec:inst-runn-as}
 
 JacORB is shipped with a \texttt{sh} script which can be used to start
@@ -124,21 +130,22 @@ HP-UX, Macintosh OS X, DEC OSF1, FreeBSD, and SGI Irix systems (Note:
 You don't need to download anything if you are running Windows. All
 necessary stuff is shipped with the JacORB distribution).
 
-Install the Java Service to a appropiate place by unzipping it. Add
-\texttt{\emph{wrapper-dir}/bin} to your PATH variable. If you don't
-want to modify your PATH variable put a link to
-\texttt{\emph{wrapper-dir}/bin/wrapper} in one of the directories
+Install the Java Service Wrapper to a appropiate place by unzipping it 
+(\emph{WRAPPER\_HOME}). Add
+\texttt{\emph{WRAPPER\_HOME}/bin} to your PATH variable. If you don't
+want to modify your PATH variable you can put a link to
+\texttt{\emph{WRAPPER\_HOME}/bin/wrapper} in one of the directories
 that's already in your PATH environment (e.g. \texttt{ln -s
-  /usr/local/wrapper/bin/wrapper /usr/bin}).
+  /usr/local/wrapper/bin/wrapper /usr/local/bin}).
 
 Ensure that the shell-script
 \texttt{JacORB/bin/ntfy-wrapper} has the executable bit set. Note that
-the sh script will attempt to create a pid file in the directory
+the .sh script will attempt to create a pid file in the directory
 specified by the property \texttt{PIDDIR} in the script. If
 the user used to launch the Wrapper does not have permission to write
 to this directory then this will result in an error. An alternative
 that will work in most cases is to write the pid file to another
-directory. To make this change, edit the sh  script and change the following line: 
+directory. To make this change, edit the .sh script and change the following setting: 
 
 \begin{verbatim}
 PIDDIR="."
@@ -148,16 +155,13 @@ to something more appropiate:
 PIDDIR="/var/run"
 \end{verbatim}
 
-
 \paragraph{Running in the console}
 \label{sec:running-console}
 
  The JacORB notification service  can now be run by simply executing
  \texttt{bin/ntfy-wrapper console}.
-
- When running using the console command, output from the notification
+When running using the console command, output from the notification
  service will be visible in the console. 
-
  The notification service can be terminated by hitting CTRL-C in the command
  window. This will cause the Wrapper to shut down the service cleanly.  
 
@@ -167,8 +171,8 @@ PIDDIR="/var/run"
  and are used to control the wrapper and the notification service  as
  a daemon process. The console 
  command will launch the wrapper in the current shell, making it
- possible to kill the application with CTRL-C. The final command,
- dump, will send a kill -3 signal to the wrapper causing the its JVM
+ possible to kill the application with CTRL-C. Finally the command
+ dump will send a kill -3 signal to the wrapper causing its JVM
  to do a full thread dump.  
  
  \paragraph{Running as a Daemon Process}
@@ -188,7 +192,6 @@ PIDDIR="/var/run"
  console is closed. 
  
  To stop the application rerun the script using the \emph{stop} command.
-
  
  \paragraph{Installing The Notification Service To Start on Reboot}
  \label{sec:inst-appl-start}
@@ -197,13 +200,24 @@ PIDDIR="/var/run"
  \href{http://wrapper.tanukisoftware.org/doc/english/launch-nix.html}{wrapper
    documentation} for instructions for some platforms.
 
+\subsection{Running as a JBoss Service}
+
+The JacORB notification service can also be run as a jboss service.
+
+As first step the jacorb.jar that is shipped with jboss (\texttt{JBOSS\_HOME/server/all/lib})
+needs to be replaced to the current version (v2.2.3).
+As next step the jboss-cosnotification.sar file can be deployed into jboss 
+by copying it to \texttt{JBOSS\_HOME/server/all/deploy}.
+
+After starting jboss a mbean for the notification service will show up in
+the jboss jmx management console.
+
 \section{Accessing the Notification Service}
 \label{sec:access-notif-serv}
 
 Configuring a default notification service as the ORB's default is done
 by adding the URL that points to the service to the properties files
 \texttt{.jacorb\_properties}. A valid URL can be obtained in various ways:
-
 \begin{enumerate}
 \item By specifying the option \texttt{-printIOR} as you start the
   notification service a stringified IOR is printed out to the
@@ -433,9 +447,6 @@ Consumers. The third Thread Pool us used to pull Messages from PullSuppliers.
     of its consumer/supplier. &
 
     boolean & on \\ \hline
-
- 
-
   \end{longtable}
 \end{small}
 
@@ -443,8 +454,60 @@ Consumers. The third Thread Pool us used to pull Messages from PullSuppliers.
 
 If you have set the ORBInitializer property as described in Section \ref{sec:setting-up-bidir-orbinitializer} 
 the Notification will automatically configure its POA to use Bidirectional GIOP.
-On Startup the message \texttt{org.omg.PortableInterceptor.ORBInitializerClass.bidir\_init is set: Will enable Bidirectional GIOP.} will be logged at INFO level.
 
+\section{Monitoring the Notification Service}
+\label{sec:ntfy-monitoring}
+
+The JacORB Notification Service provides JMX MBean interfaces which make it possible to monitor and control the Service using a JMX console. This section will describe how to start a JMX enabled Notification Service and how to configure your JMX console to access the exposed MBeans.
+
+\subsection{Download MX4J}
+
+MX4J is an Open Source implementation of the JMX specification. You need to download the current release of MX4J (currently 3.0.1) from the JMX project page \href{mx4j.sourceforge.net}{mx4j.sourceforge.net} and install MX4J in an appropriate place.
+
+\subsection{Edit Java Service Wrapper configuration}
+
+The configuration file \emph{NotifyService-Wrapper-MX4J.conf.template} contains the necessary settings to start the
+JMX enabled Notification Service. You have to edit the classpath. Replace the token @MX4J\_HOME@ with the concrete path to your MX4J installation.
+
+\begin{verbatim}
+# Java Classpath (include wrapper.jar)  Add class path elements as
+#  needed starting from 1
+wrapper.java.classpath.1=../lib/wrapper-3.x.y.jar
+...
+wrapper.java.classpath.8=@MX4J_HOME@/lib/mx4j.jar
+wrapper.java.classpath.9=@MX4J_HOME@/lib/mx4j-remote.jar
+wrapper.java.classpath.10=@MX4J_HOME@/lib/mx4j-tools.jar
+\end{verbatim}
+
+After customization of the configuration file it must be renamed to \emph{NotifyService-Wrapper.conf} as the start script reads its configuration from the so called file. 
+
+\subsection{Start the Service}
+consult section \ref{sec:runn-notif-serv-1} for further details to start the Service.
+
+\subsection{Connecting to the management console}
+
+The Notification Service web management console will be available at
+\href{http://localhost:8001}{http://localhost:8001}.
+
+A JSR 160 RMI connector allows a management console to connect to the Notification Service. The Service URL is \texttt{service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jndi/COSNotification}.
+
+\section{Extending the JacORB Notification Service}
+\subsection{Adding custom Filters}
+
+The JacORB Notification Service supports the full ETCL filter grammar. If you need to use your own specialized filters you have to provide an implementation of the Filter Interface. You can extend the class
+\texttt{org/jacorb/notification/filter/AbstractFilter.java} that provides generic filter management. 
+See the class \texttt{org/jacorb/notification/filter/bsh/BSHFilter.java} for an example of an \href{http://www.beanshell.org/}{Beanshell} based custom filter.
+Additionally to the standard ETCL grammar the FilterFactory will try to
+load all filter grammars specified in jacorb.properties.
+An entry must have the following form:
+\texttt{jacorb.notification.filter.plugin.GRAMMAR=CLASSNAME} where \emph{GRAMMAR} should be replaced by the name of the grammar and \emph{CLASSNAME} should be replaced by the classname of the custom filter implementation.
+
+custom filters can then be created by invoking \texttt{FilterFactory::create\_filter} or \texttt{FilterFactory::create\_mapping\_filter} and specifying \emph{GRAMMAR} as parameter.
+ 
+ %% \section{Miscellaneous}
+ 
+ %%TODO describe grinder
+ 
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
