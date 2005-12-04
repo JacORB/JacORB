@@ -42,3 +42,12 @@
 </target>
 
 <target name="jmx.init" depends="jmx.locate-jboss, jmx.fail-jboss, jmx.init-jboss, jmx.locate-mx4j, jmx.fail-mx4j, jmx.init-mx4j" />
+
+<target name="jmx.verify-classpath" depends="jmx.init"
+        description="Outputs the classpath that will be used for compilation of JacORB">
+         <pathconvert property="_cp.jboss" refid="path.jboss" pathsep="${line.separator}" />  
+         <echo message="JBoss Classpath:${line.separator}${_cp.jboss}"/>
+         <echo />
+         <pathconvert property="_cp.mx4j" refid="path.mx4j" pathsep="${line.separator}" />
+         <echo message="MX4J Classpath:${line.separator}${_cp.mx4j}" />
+</target>
