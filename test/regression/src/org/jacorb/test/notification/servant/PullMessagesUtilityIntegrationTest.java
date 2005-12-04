@@ -28,8 +28,8 @@ import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.servant.PullMessagesUtility;
-import org.jacorb.test.notification.NotificationTestCase;
-import org.jacorb.test.notification.NotificationTestCaseSetup;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 
 public class PullMessagesUtilityIntegrationTest extends NotificationTestCase
 {

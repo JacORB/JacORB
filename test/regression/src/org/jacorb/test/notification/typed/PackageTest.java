@@ -46,7 +46,9 @@ public class PackageTest extends TestCase
         suite.addTest(TypedConsumerAdminImplTest.suite());
         suite.addTest(TypedSupplierAdminImplTest.suite());
         suite.addTest(TypedEventChannelTest.suite());
-
+        suite.addTest(TypedEventChannelFactoryIntegrationTest.suite());
+        suite.addTest(TypedEventChannelIntegrationTest.suite());
+        
         return suite;
     }
 }

@@ -31,6 +31,8 @@ import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IProxyConsumer;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;

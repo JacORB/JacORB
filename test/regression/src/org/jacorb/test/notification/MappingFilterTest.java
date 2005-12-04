@@ -28,6 +28,8 @@ import org.jacorb.notification.filter.MappingFilterImpl;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.impl.DefaultEvaluationContextFactory;
 import org.jacorb.notification.impl.DefaultMessageFactory;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotification.EventType;

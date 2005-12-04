@@ -2,6 +2,7 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
+import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
 import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;

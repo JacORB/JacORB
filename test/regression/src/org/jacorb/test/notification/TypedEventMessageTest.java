@@ -23,6 +23,8 @@ package org.jacorb.test.notification;
 import junit.framework.Test;
 
 import org.jacorb.notification.TypedEventMessage;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.typed.CoffeeHelper;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;

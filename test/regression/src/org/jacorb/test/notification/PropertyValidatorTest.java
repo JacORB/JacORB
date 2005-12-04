@@ -3,6 +3,8 @@ package org.jacorb.test.notification;
 import junit.framework.Test;
 
 import org.jacorb.notification.util.QoSPropertySet;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.BestEffort;
 import org.omg.CosNotification.ConnectionReliability;

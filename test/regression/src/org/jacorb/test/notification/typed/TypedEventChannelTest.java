@@ -32,11 +32,11 @@ import org.jacorb.notification.conf.Attributes;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
-import org.omg.CosTypedEventChannelAdmin.TypedConsumerAdmin;
-import org.omg.CosTypedEventChannelAdmin.TypedSupplierAdmin;
+import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdmin;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannel;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactory;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryHelper;
+import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin;
 
 /**
  * @author Alphonse Bendt
@@ -89,14 +89,12 @@ public class TypedEventChannelTest extends TestCase
 
     public void testForConsumers() throws Exception
     {
-        TypedConsumerAdmin admin = objectUnderTest_.for_consumers();
-        assertNotNull(admin);
+        assertNotNull(objectUnderTest_.for_consumers());
     }
 
     public void testForSuppliers() throws Exception
     {
-        TypedSupplierAdmin admin = objectUnderTest_.for_suppliers();
-        assertNotNull(admin);
+        assertNotNull(objectUnderTest_.for_suppliers());
     }
 
     public void testDefaults() throws Exception
@@ -151,6 +149,20 @@ public class TypedEventChannelTest extends TestCase
         
         org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin admin4 = objectUnderTest_.new_for_typed_notification_suppliers(InterFilterGroupOperator.AND_OP, id);
         assertEquals(InterFilterGroupOperator.AND_OP, admin4.MyOperator());
+    }
+    
+    public void testDefaultConsumerAdmin() throws Exception
+    {
+        TypedConsumerAdmin consumerAdmin = objectUnderTest_.default_consumer_admin();
+        assertEquals(0, consumerAdmin.MyID());
+        assertTrue(consumerAdmin._is_equivalent(objectUnderTest_.get_consumeradmin(0)));
+    }
+    
+    public void testDefaultSupplierAdmin() throws Exception
+    {
+        TypedSupplierAdmin admin = objectUnderTest_.default_supplier_admin();
+        assertEquals(0, admin.MyID());
+        assertTrue(admin._is_equivalent(objectUnderTest_.get_supplieradmin(0)));
     }
     
     public static Test suite()

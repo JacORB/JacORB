@@ -5,6 +5,8 @@ import java.util.Properties;
 import junit.framework.Test;
 
 import org.jacorb.notification.AbstractChannelFactory;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 

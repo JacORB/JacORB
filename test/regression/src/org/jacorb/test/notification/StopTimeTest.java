@@ -30,6 +30,8 @@ import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;

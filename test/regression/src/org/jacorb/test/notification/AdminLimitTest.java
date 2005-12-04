@@ -34,6 +34,8 @@ import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.ConsumerAdminImpl;
 import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.util.QoSPropertySet;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;

@@ -10,6 +10,8 @@ import org.jacorb.notification.filter.ConstraintEntry;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.impl.DefaultEvaluationContextFactory;
 import org.jacorb.notification.impl.DefaultMessageFactory;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;

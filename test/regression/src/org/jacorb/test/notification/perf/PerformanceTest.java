@@ -25,11 +25,11 @@ import junit.framework.Test;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.util.LogUtil;
-import org.jacorb.test.notification.NotificationTestCase;
-import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.TestUtils;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventComm.Disconnected;

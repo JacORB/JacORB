@@ -1,4 +1,4 @@
-package org.jacorb.test.notification;
+package org.jacorb.test.notification.common;
 
 /*
  *        JacORB - a free Java ORB

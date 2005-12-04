@@ -1,4 +1,4 @@
-package org.jacorb.test.notification;
+package org.jacorb.test.notification.common;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,11 +21,9 @@ package org.jacorb.test.notification;
  *
  */
 
-import java.lang.reflect.Constructor;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
@@ -186,28 +184,9 @@ public abstract class NotificationTestCase extends TestCase
     public static Test suite(String suiteName, Class clazz, String testMethodPrefix)
             throws Exception
     {
-        TestSuite _suite = new TestSuite(suiteName);
-
-        NotificationTestCaseSetup _setup = new NotificationTestCaseSetup(_suite);
-
-        String[] _methodNames = TestUtils.getTestMethods(clazz, testMethodPrefix);
-
-        addToSuite(_suite, _setup, clazz, _methodNames);
-
-        return _setup;
+        return TestUtils.suite(clazz, NotificationTestCaseSetup.class, suiteName, testMethodPrefix);
     }
 
-    private static void addToSuite(TestSuite suite, NotificationTestCaseSetup setup, Class clazz,
-            String[] testMethods) throws Exception
-    {
-        Constructor _ctor = clazz.getConstructor(new Class[] { String.class,
-                NotificationTestCaseSetup.class });
-
-        for (int x = 0; x < testMethods.length; ++x)
-        {
-            suite.addTest((Test) _ctor.newInstance(new Object[] { testMethods[x], setup }));
-        }
-    }
 
     protected void addDisposable(Disposable d)
     {

@@ -21,10 +21,15 @@ package org.jacorb.test.common;
  *
  */
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import junit.extensions.TestSetup;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Utility class used to setup JUnit-TestSuite
@@ -36,8 +41,9 @@ import java.util.List;
 public class TestUtils
 {
     private static final String[] STRING_ARRAY_TEMPLATE = new String[0];
+
     private static String testHome = null;
-    
+
     /**
      * this method returns a List of all public Methods which Names start with the Prefix "test" and
      * accept no Parameters e.g:
@@ -46,7 +52,7 @@ public class TestUtils
      * <li>testOperation
      * <li>testSomething
      * </ul>
-     *  
+     * 
      */
     public static String[] getTestMethods(Class clazz)
     {
@@ -72,7 +78,7 @@ public class TestUtils
 
         return (String[]) result.toArray(STRING_ARRAY_TEMPLATE);
     }
-    
+
     /**
      * Returns the name of the home directory of this regression suite.
      */
@@ -85,11 +91,42 @@ public class TestUtils
             if (result.matches("file:/.*?/classes/"))
                 // strip the leading "file:" and the trailing
                 // "/classes/" from the result
-                result = result.substring (5, result.length() - 9); 
+                result = result.substring(5, result.length() - 9);
             else
-                throw new RuntimeException ("cannot find test home");
+                throw new RuntimeException("cannot find test home");
             testHome = result;
         }
         return testHome;
+    }
+
+    public static Test suite(Class testClazz, Class testSetupClazz, String suiteName, String testMethodPrefix)
+            throws Exception
+    {
+        TestSuite suite = new TestSuite(suiteName);
+
+        TestSetup setup = newSetup(suite, testSetupClazz);
+
+        String[] testMethods = getTestMethods(testClazz, testMethodPrefix);
+
+        addToSuite(suite, setup, testClazz, testMethods);
+
+        return setup;
+    }
+
+    private static TestSetup newSetup(Test suite, Class testSetupClazz) throws Exception
+    {
+        Constructor ctor = testSetupClazz.getConstructor(new Class[] { Test.class });
+        return (TestSetup) ctor.newInstance(new Object[] { suite });
+    }
+
+    private static void addToSuite(TestSuite suite, TestSetup setup, Class clazz,
+            String[] testMethods) throws Exception
+    {
+        Constructor _ctor = clazz.getConstructor(new Class[] { String.class, setup.getClass() });
+
+        for (int x = 0; x < testMethods.length; ++x)
+        {
+            suite.addTest((Test) _ctor.newInstance(new Object[] { testMethods[x], setup }));
+        }
     }
 }

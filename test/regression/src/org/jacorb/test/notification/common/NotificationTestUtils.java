@@ -1,5 +1,10 @@
-package org.jacorb.test.notification;
+package org.jacorb.test.notification.common;
 
+import org.jacorb.test.notification.Address;
+import org.jacorb.test.notification.NamedValue;
+import org.jacorb.test.notification.Person;
+import org.jacorb.test.notification.PersonHelper;
+import org.jacorb.test.notification.Profession;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LongSeqHelper;
 import org.omg.CORBA.ORB;

@@ -24,8 +24,8 @@ package org.jacorb.test.notification.evaluate;
 import junit.framework.Test;
 
 import org.jacorb.notification.filter.impl.DefaultETCLEvaluator;
-import org.jacorb.test.notification.NotificationTestCase;
-import org.jacorb.test.notification.NotificationTestCaseSetup;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertyHelper;

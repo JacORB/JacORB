@@ -26,6 +26,8 @@ import junit.framework.Test;
 
 import org.jacorb.notification.NoTranslationException;
 import org.jacorb.notification.StructuredEventMessage;
+import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
