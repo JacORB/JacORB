@@ -88,7 +88,7 @@ public class TypedEventChannelFactoryImpl extends AbstractChannelFactory impleme
 
     public TypedEventChannel get_typed_event_channel(int id) throws ChannelNotFound
     {
-        return TypedEventChannelHelper.narrow(get_event_channel_servant(id));
+        return TypedEventChannelHelper.narrow(get_event_channel_servant(id).activate());
     }
 
     public Servant getServant()
