@@ -812,6 +812,7 @@
 		<delete dir="${classdir}/org" failonerror="false" />
 		<delete dir="${src}/generated" failonerror="false" />
 		<delete dir="${classdir}" failonerror="false" />
+		<delete dir="${basedir}/classes-instrumented" failonerror="false" />
 		<delete file="${src}/orb/rmi/FixSunDelegateBug.java" failonerror="false" />
 	</target>
 
