@@ -152,7 +152,8 @@ public class AbstractIDLTestcase extends TestCase
 
         writer.close();
 
-        String cmd = "javac @" + file.getAbsolutePath();
+        String javaHome = System.getProperty("java.home");
+        String cmd = javaHome + "/bin/javac @" + file.getAbsolutePath();
         try
         {
             Process proc = Runtime.getRuntime().exec(cmd);
