@@ -28,36 +28,10 @@
 		<property name="lib" value="${basedir}/lib" />
 
 		<property name="BASE-INIT" value="true" />
-
-		<macrodef name="jacorb-run-test">
-			<attribute name="client" default="cvs" />
-			<attribute name="server" default="cvs" />
-			<attribute name="coverage" default="false" />
-			<attribute name="test" />
-
-			<sequential>
-				<java classname="org.jacorb.test.common.launch.TestLauncher" classpath="${testdir}/classes">
-					<sysproperty key="jacorb.test.client.version" value="@{client}" />
-					<sysproperty key="jacorb.test.server.version" value="@{server}" />
-					<sysproperty key="jacorb.test.coverage" value="@{coverage}" />
-					<arg value="@{test}" />
-				</java>
-			</sequential>
-		</macrodef>
 	</target>
-
-
-	<target name="check-junit-version" unless="junit-version">
-		<fail message="Need Junit version 3.8.1 or above (See http://www.junit.org)" />
-	</target>
-
 
 	<target name="test-init" depends="test-base-init,init,ant-version,load-taskdef">
-		<condition property="junit-version">
-			<available classname="junit.runner.TestRunListener" />
-		</condition>
-
-		<path id="test.classpath">
+        <path id="test.classpath">
 			<fileset dir="${testdir}/lib">
 				<include name="**/*.jar" />
 			</fileset>
@@ -65,7 +39,21 @@
 			<path refid="path.base" />
 		</path>
 
-		<antcall target="check-junit-version" />
+        <macrodef name="jacorb-run-test">
+			<attribute name="client" default="cvs" />
+			<attribute name="server" default="cvs" />
+			<attribute name="coverage" default="false" />
+			<attribute name="test" />
+
+			<sequential>
+				<java classname="org.jacorb.test.common.launch.TestLauncher" classpathref="test.classpath">
+					<sysproperty key="jacorb.test.client.version" value="@{client}" />
+					<sysproperty key="jacorb.test.server.version" value="@{server}" />
+					<sysproperty key="jacorb.test.coverage" value="@{coverage}" />
+					<arg value="@{test}" />
+				</java>
+			</sequential>
+		</macrodef>
 
 		<property name="dirs.output" value="${testdir}/output" />
 
@@ -98,8 +86,6 @@
 
 		<taskdef resource="emma_ant.properties"
              classpathref="emma.lib"/>
-
-
 	</target>
 
 
@@ -188,7 +174,7 @@
 
 	<target name="run-no-build" depends="test-init">
 		<java classname="org.jacorb.test.common.launch.TestLauncher"
-          classpath="${testdir}/classes">
+          classpathref="test.classpath">
 			<arg value="${test}"/>
 		</java>
 	</target>
@@ -223,7 +209,7 @@
 			<formatter type="plain" />
 			<test name="${test}" outfile="TEST-${test}-jdkorb" todir="${dirs.output}" />
 			<classpath>
-				<path refid="path.base" />
+				<path refid="test.classpath" />
 			</classpath>
 		</junit>
 	</target>
@@ -648,7 +634,7 @@
 		<antcall target="run">
 			<param name="test" value="org.jacorb.test.orb.rmi.AllTest" />
 		</antcall>
-		<antcall target="run-jdk-orb-no-build">
+		<antcall target="run-old-jdk-orb-no-build">
 			<param name="test" value="org.jacorb.test.orb.rmi.AllTest" />
 		</antcall>
 	</target>
@@ -659,7 +645,7 @@
 		<antcall target="run-no-build">
 			<param name="test" value="org.jacorb.test.orb.rmi.AllTest" />
 		</antcall>
-		<antcall target="run-jdk-orb-no-build">
+		<antcall target="run-old-jdk-orb-no-build">
 			<param name="test" value="org.jacorb.test.orb.rmi.AllTest" />
 		</antcall>
 	</target>
