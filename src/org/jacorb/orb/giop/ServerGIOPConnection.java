@@ -243,9 +243,12 @@ public class ServerGIOPConnection
 
     public String toString()
     {
-        return "ServerGIOPConnection to "
-              + profile.toString()
-              + " (" + Integer.toHexString(this.hashCode()) + ")";
+        if (profile != null)
+          return "ServerGIOPConnection to "
+                + profile.toString()
+                + " (" + Integer.toHexString(this.hashCode()) + ")";
+        else
+          return super.toString();
     }
     
 }// ServerGIOPConnection
