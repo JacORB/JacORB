@@ -1,3 +1,83 @@
+2005-12-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/JacORBConfiguration.java (loadPropertiesFromFile,
+	loadPropertiesFromClassPath): Close the input streams after
+	loading the properties. Don't use buffering, because the
+	Properties class does that already.  Improve exception handling.
+
+2005-12-04  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/jboss/build.xml: delete .jar after build of .sar
+
+	* notification/TypedEventChannelFactoryImpl.java
+	(get_typed_event_channel): bugfix. access corba reference instead
+	of servant
+
+2005-12-02  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/jboss/build.xml: renamed targets
+
+	* notification/util/PropertySet.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java: minor
+	refactorings and code cleanup
+
+	* notification/queue/RWLockEventQueueDecorator.java: javadoc
+
+2005-12-01  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/build.xml, notification/jmx/jboss/build.xml:
+	cleaned up build
+
+	* notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/FilterStageListManager.java,
+	notification/servant/IProxyConsumer.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java: minor
+	refactorings and code cleanup
+
+	* notification/interfaces/FilterStage.java: javadoc
+
+	* notification/impl/DefaultMessageFactory.java,
+	notification/engine/FilterConsumerAdminTask.java: code cosmetics
+
+	* notification/conf/Default.java (DEFAULT_LAZY_DEFAULT_ADMIN_INIT):
+	is boolean now
+
+	* notification/TypedEventChannelImpl.java: code cosmetics
+
+	* notification/StructuredEventMessage.java (parseQoSSettings):
+	option StopTime only has an effect if consumer supports stopTime
+
+	* notification/EventChannelImpl.java (c'tor): create admin lazily
+	unless configuration is set
+
+	* notification/AbstractMessage.java: code cosmetics
+
+	* notification/AbstractEventChannel.java:
+	(getDefaultConsumerAdminServant, getDefaultSupplierAdminServant):
+	always set InterFilterGroupOperator
+
+	code cleanup
+
+2005-11-26  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/ParseException.java (c'tor):
+	add etcl expression that caused the parse failure
+
+	* notification/filter/etcl/grammar/tcl.g,
+	util/threadpool/ThreadPool.java: code cosmetics
+
+2005-11-25  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/iiop/IIOPAddress.java: Fix to allow for assignment from a
+	string with an empty hostname
+
 2005-11-21  Phil Mesnier  <phil.mesnier@ociweb.com>
 
 	* orb/ORB.java, orb/iiop/IIOPAddress.java,
