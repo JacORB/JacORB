@@ -455,15 +455,24 @@ public class JacORBConfiguration
     {
         try
         {
-            BufferedInputStream bin =
-                new BufferedInputStream( new FileInputStream(fileName));
+            InputStream in = new FileInputStream(fileName);
             Properties result = new Properties();
-            result.load(bin);
+            result.load(in);
+            in.close();
             return result;
         }
-        catch( java.io.IOException io )
+        catch (java.io.FileNotFoundException ex)
         {
-            //            io.printStackTrace(); //debug only
+            // It's okay to ignore this silently: There was just no
+            // config file there, so the caller is going to look elsewhere.
+            return null;
+        }
+        catch (java.io.IOException ex)
+        {
+            // This is probably a more severe problem with the config file.
+            // Write to the terminal, because we have no logging yet.
+            System.out.println("could not read config file: " + fileName);
+            ex.printStackTrace();
             return null;
         }
     }
@@ -485,12 +494,22 @@ public class JacORBConfiguration
             if (url!=null)           
             {
                 result = new Properties();
-                result.load( url.openStream() );
+                InputStream in = url.openStream();
+                result.load(in);
+                in.close();
             }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // It's okay to ignore this silently: the caller will just look
+            // elsewhere.
         }
         catch (java.io.IOException ioe)
         {
-            ioe.printStackTrace(); //debug only
+            // This is a more severe problem: write to the terminal, because
+            // we have no logging yet.
+            System.out.println("could not read config file: " + name);
+            ioe.printStackTrace();
         }
         return result;
     }
