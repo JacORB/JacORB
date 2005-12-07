@@ -99,7 +99,7 @@ public final class BufferManager
      * configures the singleton
      */
  
-    private void singletonConfigure(Configuration configuration)
+    private synchronized void singletonConfigure(Configuration configuration)
         throws ConfigurationException
     {
         time = 
@@ -299,7 +299,7 @@ public final class BufferManager
         }
     }
 
-    public void release()
+    public synchronized void release()
     {
         // printStatistics();
 	for( int i= MAX; i > 0; )
