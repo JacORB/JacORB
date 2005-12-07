@@ -177,7 +177,8 @@ public class SystemExceptionHelper
 	}
 	catch (Exception e )
 	{
-	    throw new org.omg.CORBA.UNKNOWN(className);
+	    return (org.omg.CORBA.SystemException) 
+                             new org.omg.CORBA.UNKNOWN(className).initCause(e);
 	}
     }
 
