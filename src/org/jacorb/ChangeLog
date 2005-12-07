@@ -1,5 +1,16 @@
 2005-12-07  Andre Spiegel  <spiegel@gnu.org>
 
+	* orb/giop/ServerGIOPConnection.java (toString): Be robust if for
+	some reason we don't have a profile (happens only in testing, I
+	believe).
+
+	* orb/SystemExceptionHelper.java (read): If we cannot instantiate
+	the received exception, return an UNKNOWN SystemException, rather
+	than throwing it.  This fixes bug #627.
+
+	* orb/BufferManager.java (singletonConfigure, release):
+	Synchronize, fixing bug #646.
+
 	* config/JacORBConfiguration.java (loadPropertiesFromFile,
 	loadPropertiesFromClassPath): Close the input streams after
 	loading the properties. Don't use buffering, because the
