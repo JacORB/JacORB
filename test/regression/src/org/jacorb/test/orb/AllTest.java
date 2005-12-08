@@ -55,7 +55,7 @@ public class AllTest extends JacORBTestSuite
         suite.addTest (org.jacorb.test.orb.LongLongSeq.suite());
         suite.addTest (org.jacorb.test.orb.RecursiveParam.suite());
         suite.addTest(CDROutputStreamTest.suite());
-        
+
         return suite;
    }
 }

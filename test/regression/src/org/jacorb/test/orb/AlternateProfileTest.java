@@ -40,7 +40,7 @@ import org.omg.CORBA.ORB;
 /**
  * This test is similar to AlternateIIOPAddressTest, but it uses the
  * special IORInfoExt functions to set up the IORs.
- * 
+ *
  * @jacorb-since 2.2
  * @author Marc Heide
  * @version $Id$
@@ -52,7 +52,7 @@ public class AlternateProfileTest extends ClientServerTestCase
 
     private static final String CORRECT_HOST = "127.0.0.1";
     private static final String WRONG_HOST   = "10.0.1.223"; //"194.138.122.114"
-    private static final String WRONG_HOST_2 = "10.0.1.223"; //"147.54.135.239"
+    private static final String WRONG_HOST_2 = "10.0.1.123"; //"147.54.135.239"
 
     private static final int CORRECT_PORT = 50000;
     private static final int WRONG_PORT   = 50001;
@@ -87,7 +87,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         client_props.setProperty ("jacorb.retries", "0");
         client_props.setProperty ("jacorb.retry_interval", "50");
         client_props.setProperty ("jacorb.connection.client.pending_reply_timeout", "2000");
-        client_props.setProperty ("jacorb.log.verbosity", "4");
+        client_props.setProperty ("jacorb.connection.client.connect_timeout","5000");
 
         Properties server_props = new Properties();
         server_props.setProperty
@@ -141,7 +141,11 @@ public class AlternateProfileTest extends ClientServerTestCase
         }
         catch (org.omg.CORBA.TRANSIENT ex)
         {
-            // ok
+            // ok - unable to resolve the address
+        }
+        catch (org.omg.CORBA.TIMEOUT ex)
+        {
+            // ok - client connection timeout configured.
         }
     }
 
@@ -154,11 +158,15 @@ public class AlternateProfileTest extends ClientServerTestCase
         try
         {
             int result = s.ping (4);
-            fail ("TRANSIENT exception expected");
+            fail ("TRANSIENT or TIMEOUT  exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
         {
-            // ok
+            // ok - unable to resolve the address
+        }
+        catch (org.omg.CORBA.TIMEOUT ex)
+        {
+            // ok - client connection timeout configured.
         }
     }
 
@@ -167,13 +175,14 @@ public class AlternateProfileTest extends ClientServerTestCase
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
         server.addAlternateAddress( CORRECT_HOST, CORRECT_PORT );
         Sample s = server.getObject();
+//         ORB _myOrb = _setup.getClientOrb();
+//         String iorStr = _myOrb.object_to_string(s);
+//         System.out.println(iorStr);
+
         testNumberOfIIOPProfiles(2, s);
         testHostAndPortInIIOPProfile(s, 0, WRONG_HOST, CORRECT_PORT);
         testHostAndPortInIIOPProfile(s, 1, CORRECT_HOST, CORRECT_PORT);
 
-        ORB _myOrb = _setup.getClientOrb();
-        String iorStr = _myOrb.object_to_string(s);
-        System.out.println(iorStr);
         int result = s.ping (99);
         assertEquals (100, result);
     }
@@ -207,13 +216,16 @@ public class AlternateProfileTest extends ClientServerTestCase
         try
         {
             int result = s.ping (33);
-            fail ("TRANSIENT exception expected");
+            fail ("TRANSIENT or TIMEOUT  exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
         {
-            // ok
+            // ok - unable to resolve the address
         }
-
+        catch (org.omg.CORBA.TIMEOUT ex)
+        {
+            // ok - client connection timeout configured.
+        }
     }
 
     /**
@@ -259,7 +271,7 @@ public class AlternateProfileTest extends ClientServerTestCase
        Delegate localObj = ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate();
        jacOrbDelegate = (org.jacorb.orb.Delegate)localObj;
 
-       ParsedIOR pior = jacOrbDelegate.getParsedIOR();
+       //       ParsedIOR pior = jacOrbDelegate.getParsedIOR();
        org.omg.IOP.IOR ior = jacOrbDelegate.getIOR();
 
        TaggedProfile[] profiles = ior.profiles;
@@ -269,7 +281,7 @@ public class AlternateProfileTest extends ClientServerTestCase
        {
            if (profiles[i].tag == TAG_INTERNET_IOP.value)
            {
-              if( cnt == 0 )
+               if( cnt == 0 )
               {
                   IIOPProfile prof = new IIOPProfile(profiles[i].profile_data);
                   assertEquals(((IIOPAddress)prof.getAddress()).getIP(), host);

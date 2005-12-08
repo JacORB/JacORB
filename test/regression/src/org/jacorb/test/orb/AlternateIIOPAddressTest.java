@@ -30,7 +30,7 @@ import org.jacorb.test.common.*;
 
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
- * 
+ *
  * @jacorb-since 2.2
  * @author Andre Spiegel
  * @version $Id$
@@ -38,11 +38,11 @@ import org.jacorb.test.common.*;
 public class AlternateIIOPAddressTest extends ClientServerTestCase
 {
     protected IIOPAddressServer server = null;
-    
+
     private static final String CORRECT_HOST = "127.0.0.1";
     private static final String WRONG_HOST   = "10.0.1.222";
     private static final String WRONG_HOST_2 = "10.0.1.223";
-    
+
     private static final int CORRECT_PORT = 45000;
     private static final int WRONG_PORT   = 45001;
 
@@ -65,20 +65,21 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS",
+        TestSuite suite = new JacORBTestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS ",
                                               AlternateIIOPAddressTest.class);
 
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");
         client_props.setProperty ("jacorb.retry_interval", "50");
+        client_props.setProperty ("jacorb.connection.client.connect_timeout","5000");
 
         Properties server_props = new Properties();
-        server_props.setProperty 
+        server_props.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass."
            + "org.jacorb.test.orb.IIOPAddressORBInitializer", "");
         server_props.setProperty ("OAPort", Integer.toString(CORRECT_PORT));
 
-        ClientServerSetup setup = 
+        ClientServerSetup setup =
         	new ClientServerSetup (suite,
                                    "org.jacorb.test.orb.IIOPAddressServerImpl",
                                    client_props,
@@ -94,7 +95,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
 
         return setup;
     }
-    
+
     public void test_ping()
     {
         Sample s = server.getObject();
@@ -109,7 +110,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         int result = s.ping (77);
         assertEquals (78, result);
     }
-    
+
     public void test_primary_wrong_host()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
@@ -117,14 +118,18 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         try
         {
             int result = s.ping (123);
-            fail ("TRANSIENT exception expected");
+            fail ("TRANSIENT or TIMEOUT exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
         {
-            // ok
+            // ok - unable to resolve the address
+        }
+        catch (org.omg.CORBA.TIMEOUT ex)
+        {
+            // ok - client connection timeout configured.
         }
     }
-    
+
     public void test_primary_wrong_port()
     {
         server.setIORAddress( CORRECT_HOST, WRONG_PORT );
@@ -132,14 +137,18 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         try
         {
             int result = s.ping (4);
-            fail ("TRANSIENT exception expected");
+            fail ("TRANSIENT or TIMEOUT exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
         {
-            // ok
+            // ok - unable to resolve the address
+        }
+        catch (org.omg.CORBA.TIMEOUT ex)
+        {
+            // ok - client connection timeout configured.
         }
     }
-    
+
     public void test_alternate_ok()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
@@ -169,11 +178,15 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         try
         {
             int result = s.ping (33);
-            fail ("TRANSIENT exception expected");
+            fail ("TRANSIENT or TIMEOUT  exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
         {
-            // ok
+            // ok - unable to resolve the address
+        }
+        catch (org.omg.CORBA.TIMEOUT ex)
+        {
+            // ok - client connection timeout configured.
         }
 
     }
