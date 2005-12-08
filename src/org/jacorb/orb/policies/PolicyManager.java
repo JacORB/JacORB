@@ -97,7 +97,7 @@ public class PolicyManager
         org.omg.CORBA.Policy[] result = 
             (org.omg.CORBA.Policy[])policyList.toArray( new org.omg.CORBA.Policy[]{});
 
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled() && result.length > 0)
             logger.debug("get_policy_overrides returns " + result.length + " policies");
 
         return result;
