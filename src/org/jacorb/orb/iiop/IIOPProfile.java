@@ -264,6 +264,9 @@ public class IIOPProfile
     {
         IIOPProfile result = (IIOPProfile)super.clone();  // bitwise copy
 
+        result.primaryAddress = new IIOPAddress(primaryAddress.getHostname(),
+                                                primaryAddress.getPort());
+
         result.version = new org.omg.GIOP.Version(this.version.major,
                                                    this.version.minor);
 

@@ -278,7 +278,11 @@ public class IIOPAddress
 
     public int hashCode()
     {
+        if (this.source_name != null)
         return this.source_name.hashCode() + port;
+        else if (this.host != null)
+            return this.host.hashCode() + port;
+        else return port;
     }
 
     public String toString()
