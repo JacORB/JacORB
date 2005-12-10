@@ -10,16 +10,15 @@ described in this document is JacORB \JacORBVersion.
 
 \section{A Brief CORBA introduction}
 
-The idea behind CORBA is to model distributed resources as objects
-that provide a well-defined interface, and to invoke services through
-remote invocations (RPCs). Since the transfer syntax for
-sending messages to objects is strictly defined, it is possible to
-exchange requests and replies between processes running program
-written in arbitrary programming languages and hosted on arbitrary
-hardware and operating systems. Target addresses are represented as
-{\em Interoperable Object References} (IORs), which contain transport
-addresses as well as identifiers needed to dispatch incoming messages
-to implementations. 
+CORBA models distributed resources as objects that provide a
+well-defined interface. CORBA lets you invoke services through remote
+invocations (RPCs). Since the transfer syntax for sending messages to
+objects is strictly defined, it is possible to exchange requests and
+replies between processes running program written in arbitrary
+programming languages and hosted on arbitrary hardware and operating
+systems. Target addresses are represented as {\em Interoperable Object
+References} (IORs), which contain transport addresses as well as
+identifiers needed to dispatch incoming messages to implementations.
 
 Interfaces to remote objects are described declaratively in an
 programming language-independent {\em Interface Definition Language}
@@ -28,10 +27,12 @@ stub code.
 
 It is important to stress that:
 \begin{itemize}
-\item CORBA objects are abstract entities  seen by clients and
-  represented by artifacts in potentially arbitrary, even non-OO
-  languages. These artifacts are called {\em servants} in CORBA
-  terminology.
+\item CORBA objects as seen by clients are abstract entities. Their
+  behavior is implemented by artifacts in potentially arbitrary, even
+  non-OO languages. These artifacts are called {\em servants} in CORBA
+  terminology. A servant is {\em not} the same as the object. Servants
+  require an ORB implementation to maintain the relationship to
+  objects and to mediate requests and responses.
 \item CORBA objects achieve location transparency, i.e., clients need
   not be (and generally are not) aware of the actual target hosts
   where servants reside. However, complete distribution transparency
@@ -67,8 +68,9 @@ student projects and master theses started adding to it, most notably
 Reimo Tiedemann's POA implementation, and Nicolas Noffke's
 Implementation Repository and Portable Interceptor implementations.
 Other early contributors were Sebastian M{\"u}ller, who wrote the
-Appligator, and Herbert Kiefer, who added a policy domain service
-(which is no longer part of the JacORB distribution). 
+Appligator, and Herbert Kiefer, who added a policy domain service. The
+Appligator and the policy domain service are no longer part of the
+JacORB distribution.
 
 A more recent addition is Alphonse Bendt's implementation of the CORBA
 Notification Services as part of his master's theses. Substantial
