@@ -1455,7 +1455,7 @@ public class parser extends org.jacorb.idl.runtime.lr_parser {
     private static void version()
     {
         System.out.println("JacORB IDL compiler V" +  compiler_version +
-                           ",\n   (C) Gerald Brose, FU Berlin/XTRADYNE Technologies, " +
+                           ",\n   (C) The JacORB Project contributors, " +
                            yearString + ".");
     }
 
