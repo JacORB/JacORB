@@ -410,7 +410,7 @@ of all pending messages. & boolean & \\
 connection open if nothing happens & millisec. & unset \\
 \hline
 \verb"jacorb.connection.max"
-\verb"_server_transports" & This property sets the
+\verb"_server_connections" & This property sets the
   maximum number of TCP/IP connections that will be listened on by the
   server--side ORB & integer & unlimited \\
 \hline
@@ -505,22 +505,45 @@ as true (strictly should be 1 not non zero) & boolean & off \\
 \verb"ass.bidir_init" & This portable interceptor must be configured
 to support bi-directional GIOP & class & unset \\
 \hline
-\verb"jacorb.ior_proxy_host" & The jacorb.ior\_proxy\_host and
-jacorb.ior\_proxy\_port properties inform the ORB what IP/port IORs
-should contain, if the ServerSockets IP/port can't be used (e.g. for
-traffic through a firewall). WARNING: this is just
-ÂdumbÂ replacing, so you have to take care of your
-configuration!  & node & unset \\
+\verb"jacorb.ior_proxy_addre"
+\verb"ss" & Used to supply an alternative
+endpoint in locally created object
+references. This is intended for servers that export IORs for access
+from outside a firewall.  The general form of the value is {\tt
+  <protocol>://<address>}. The protocol name in the value must match
+the protocol(s) used by the server. For example: {\tt
+  iiop://myhost:1234}. The given address is inserted into every IOR
+that the local ORB produces, without any check whether the address is
+valid, except that the protocol must be supported by the ORB, and the
+address must be parsable for that protocol. This property supercedes
+jacorb.ior\_proxy\_host and jacorb.ior\_proxy\_port.
+& string & unset \\
 \hline
-\verb"jacorb.ior_proxy_port" & See jacorb.ior\_proxy\_host above &
+\verb"jacorb.ior_proxy_host" & The properties jacorb.ior\_proxy\_host and
+jacorb.ior\_proxy\_port have been superceded by
+jacorb.ior\_proxy\_address (see above), which is a
+protocol-independent way of specifying endpoint addresses.  The
+host/port properties are still recognized, but if
+jacorb.ior\_proxy\_address is specified, it overrides these properties.
+& node & unset \\
+\hline
+\verb"jacorb.ior_proxy_port" & See jacorb.ior\_proxy\_host and
+jacorb.ior\_proxy\_address above &
 port & unset \\
+\hline
+\verb"OAAddress" & Used to supply an explicit listener protocol and 
+address for servers. The general form of the value is 
+{\tt <protocol>://<address>}. The protocol name must match the
+protocol(s) used by the server. For example: {\tt
+  iiop://myhost:1234}. This property supercedes OAIAddr and OAPort. 
+& string & unset \\
 \hline
 \verb"OAIAddr" & The Object Adapter Internet Address: IP address on
 multi-homed host (this gets encoded in object references). NOTE:
 Addresses like 127.0.0.X will only be accessible from the same
-machine!  & node & unset \\
+machine! (This property is ignored if OAAddress is set.) & node & unset \\
 \hline
-\verb"OAPort" & See OAIAddr above & port & unset \\
+\verb"OAPort" & See OAIAddr above (ignored if OAAddress is set) & port & unset \\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
