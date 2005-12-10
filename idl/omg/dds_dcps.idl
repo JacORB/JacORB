@@ -14,134 +14,128 @@
 
 #pragma prefix "omg.org"
 module dds {
-		typedef DOMAINID_TYPE_NATIVE DomainId_t;
-		typedef   HANDLE_TYPE_NATIVE  InstanceHandle_t;
-		typedef   BUILTIN_TOPIC_KEY_TYPE_NATIVE BuiltinTopicKey_t[3];
-		typedef   sequence<InstanceHandle_t> InstanceHandleSeq;
-		typedef long   ReturnCode_t;
-		typedef   long QosPolicyId_t;
-		typedef sequence<string> StringSeq;
-		  struct Duration_t {
-		long sec;
-		unsigned long nanosec;
-		};
-		struct Time_t {
-		long sec;
-		unsigned long nanosec;
-		};
-		// ----------------------------------------------------------------------
-		// Pre-defined values
-		
-		// ----------------------------------------------------------------------
-		const InstanceHandle_t HANDLE_NIL = HANDLE_NIL_NATIVE;
-		const long LENGTH_UNLIMITED = -1;
-		const long DURATION_INFINITY_SEC = 0x7ffffff;
-		const unsigned long DURATION_INFINITY_NSEC = 0x7ffffff;
-		const long DURATION_ZERO_SEC = 0;
-		const unsigned long DURATION_ZERO_NSEC = 0;
-		const long TIMESTAMP_INVALID_SEC = -1;
-		const unsigned long TIMESTAMP_INVALID_NSEC = 0xffffffff;
-		// ----------------------------------------------------------------------
-		// Return codes
-		// ----------------------------------------------------------------------
-		const ReturnCode_t RETCODE_OK = 0;
-		const ReturnCode_t RETCODE_ERROR = 1;
-		const ReturnCode_t RETCODE_UNSUPPORTED = 2;
-		const ReturnCode_t   RETCODE_BAD_PARAMETER =   3;
-		const ReturnCode_t   RETCODE_PRECONDITION_NOT_MET =   4;
-		const ReturnCode_t   RETCODE_OUT_OF_RESOURCES =   5;
-		const ReturnCode_t   RETCODE_NOT_ENABLED =   6;
-		const ReturnCode_t   RETCODE_IMMUTABLE_POLICY =
-		  7;
-		const ReturnCode_t   RETCODE_INCONSISTENT_POLICY =
-		  8;
-		const ReturnCode_t   RETCODE_ALREADY_DELETED =   9;
-		const ReturnCode_t   RETCODE_TIMEOUT =   10;
-		const ReturnCode_t   RETCODE_NO_DATA =   11;
-		// ----------------------------------------------------------------------
-		// Status to support listeners and conditions
-		// ----------------------------------------------------------------------
-		typedef unsigned long StatusKind;
-		typedef unsigned long StatusKindMask; // bit-mask StatusKind
-		const StatusKind INCONSISTENT_TOPIC_STATUS = 0x0001 << 0;
-		const StatusKind OFFERED_DEADLINE_MISSED_STATUS = 0x0001 << 1;
-		const StatusKind   REQUESTED_DEADLINE_MISSED_STATUS =
-		0x0001 <<   2;
-		const StatusKind   OFFERED_INCOMPATIBLE_QOS_STATUS
-		= 0x0001 <<   5;
-		const StatusKind   REQUESTED_INCOMPATIBLE_QOS_STATUS = 0x0001 <<   6;
-		const StatusKind   SAMPLE_LOST_STATUS
-		= 0x0001 <<   7;
-		const StatusKind   SAMPLE_REJECTED_STATUS = 0x0001 <<   8;
+        typedef DOMAINID_TYPE_NATIVE DomainId_t;
+	typedef   HANDLE_TYPE_NATIVE  InstanceHandle_t;
+	typedef   BUILTIN_TOPIC_KEY_TYPE_NATIVE BuiltinTopicKey_t[3];
+	typedef   sequence<InstanceHandle_t> InstanceHandleSeq;
+	typedef long   ReturnCode_t;
+	typedef   long QosPolicyId_t;
+	typedef sequence<string> StringSeq;
+
+	struct Duration_t {
+	  long sec;
+	   unsigned long nanosec;
+	};
+
+	struct Time_t {
+  	  long sec;
+	  unsigned long nanosec;
+	};
+	// ----------------------------------------------------------------------
+	// Pre-defined values
+	
+	// ----------------------------------------------------------------------
+	const InstanceHandle_t HANDLE_NIL = HANDLE_NIL_NATIVE;
+	const long LENGTH_UNLIMITED = -1;
+	const long DURATION_INFINITY_SEC = 0x7ffffff;
+	const unsigned long DURATION_INFINITY_NSEC = 0x7ffffff;
+	const long DURATION_ZERO_SEC = 0;
+	const unsigned long DURATION_ZERO_NSEC = 0;
+	const long TIMESTAMP_INVALID_SEC = -1;
+	const unsigned long TIMESTAMP_INVALID_NSEC = 0xffffffff;
+	// ----------------------------------------------------------------------
+	// Return codes
+	// ----------------------------------------------------------------------
+	const ReturnCode_t RETCODE_OK = 0;
+	const ReturnCode_t RETCODE_ERROR = 1;
+	const ReturnCode_t RETCODE_UNSUPPORTED = 2;
+	const ReturnCode_t   RETCODE_BAD_PARAMETER =   3;
+	const ReturnCode_t   RETCODE_PRECONDITION_NOT_MET =   4;
+	const ReturnCode_t   RETCODE_OUT_OF_RESOURCES =   5;
+	const ReturnCode_t   RETCODE_NOT_ENABLED =   6;
+	const ReturnCode_t   RETCODE_IMMUTABLE_POLICY =  7;
+	const ReturnCode_t   RETCODE_INCONSISTENT_POLICY =  8;
+	const ReturnCode_t   RETCODE_ALREADY_DELETED =   9;
+	const ReturnCode_t   RETCODE_TIMEOUT =  10;
+	const ReturnCode_t   RETCODE_NO_DATA =   11;
+	// ----------------------------------------------------------------------
+	// Status to support listeners and conditions
+	// ----------------------------------------------------------------------
+	typedef unsigned long StatusKind;
+	typedef unsigned long StatusKindMask; // bit-mask StatusKind
+	const StatusKind INCONSISTENT_TOPIC_STATUS = 0x0001 << 0;
+	const StatusKind OFFERED_DEADLINE_MISSED_STATUS = 0x0001 << 1;
+	const StatusKind   REQUESTED_DEADLINE_MISSED_STATUS = 0x0001 <<   2;
+	const StatusKind   OFFERED_INCOMPATIBLE_QOS_STATUS = 0x0001 <<   5;
+	const StatusKind   REQUESTED_INCOMPATIBLE_QOS_STATUS = 0x0001 <<   6;
+	const StatusKind   SAMPLE_LOST_STATUS= 0x0001 <<   7;
+	const StatusKind   SAMPLE_REJECTED_STATUS = 0x0001 <<   8;
 		  
-		const StatusKind   DATA_ON_READERS_STATUS
-		= 0x0001 <<   9;
-		const StatusKind   DATA_AVAILABLE_STATUS
-		= 0x0001 <<   10;
-		const StatusKind   LIVELINESS_LOST_STATUS = 0x0001 <<
-		  11;
-		const StatusKind   LIVELINESS_CHANGED_STATUS =
-		0x0001 <<   12;
-		const StatusKind   PUBLICATION_MATCH_STATUS =
-		0x0001 <<   13;
-		const StatusKind   SUBSCRIPTION_MATCH_STATUS =
-		0x0001 <<   14;
-		struct InconsistentTopicStatus {
+	const StatusKind   DATA_ON_READERS_STATUS = 0x0001 <<   9;
+	const StatusKind   DATA_AVAILABLE_STATUS = 0x0001 <<   10;
+	const StatusKind   LIVELINESS_LOST_STATUS = 0x0001 <<  11;
+	const StatusKind   LIVELINESS_CHANGED_STATUS = 0x0001 <<   12;
+	const StatusKind   PUBLICATION_MATCH_STATUS = 0x0001 <<   13;
+	const StatusKind   SUBSCRIPTION_MATCH_STATUS = 	0x0001 <<   14;
+
+	struct InconsistentTopicStatus {
 		long total_count;
 		long total_count_change;
-		};
-		struct SampleLostStatus {
+	};
+	struct SampleLostStatus {
 		long total_count;
 		long total_count_change;
-		};
-		enum SampleRejectedStatusKind {
+	};
+	enum SampleRejectedStatusKind {
 		REJECTED_BY_INSTANCE_LIMIT,
 		REJECTED_BY_TOPIC_LIMIT
-		};
-		struct SampleRejectedStatus {
+	};
+
+	struct SampleRejectedStatus {
+ 	long total_count;
+	long total_count_change;
+	SampleRejectedStatusKind last_reason;
+	InstanceHandle_t last_instance_handle;
+	};
+	struct LivelinessLostStatus {
 		long total_count;
 		long total_count_change;
-		SampleRejectedStatusKind last_reason;
-		InstanceHandle_t last_instance_handle;
-		};
-		struct LivelinessLostStatus {
-		long total_count;
-		long total_count_change;
-		};
-		struct LivelinessChangedStatus {
+	};
+	struct LivelinessChangedStatus {
 		long active_count;
 		long inactive_count;
 		long active_count_change;
 		long inactive_count_change;
-		};
-		struct OfferedDeadlineMissedStatus {
+	};
+	struct OfferedDeadlineMissedStatus {
 		long total_count;
 		long total_count_change;
 		InstanceHandle_t last_instance_handle;
-		};
+	};
 		
-		struct RequestedDeadlineMissedStatus {
+	struct RequestedDeadlineMissedStatus {
 		long total_count;
 		long total_count_change;
 		InstanceHandle_t last_instance_handle;
-		};
-		struct QosPolicyCount {
+	};
+	struct QosPolicyCount {
 		QosPolicyId_t policy_id;
 		long count;
-		};
-		typedef sequence<QosPolicyCount> QosPolicyCountSeq;
-		struct OfferedIncompatibleQosStatus {
+	};
+	typedef sequence<QosPolicyCount> QosPolicyCountSeq;
+	struct OfferedIncompatibleQosStatus {
 		long total_count;
 		long total_count_change;
 		QosPolicyId_t last_policy_id;
 		  QosPolicyCountSeq policies;
-		};
-		struct RequestedIncompatibleQosStatus {
+	};
+
+	struct RequestedIncompatibleQosStatus {
 		long total_count;
 		long total_count_change;
 		QosPolicyId_t last_policy_id;
 		  QosPolicyCountSeq policies;
-		};
+	};
 		struct PublicationMatchStatus {
 		long total_count;
 		long total_count_change;
@@ -609,8 +603,9 @@ module dds {
 		ReturnCode_t set_default_participant_qos(in DomainParticipantQos qos);
 		void get_default_participant_qos(out DomainParticipantQos qos);
 		};
+
 		interface   TypeSupport {
-		// ReturnCode_t register_type(in DomainParticipant domain, in string type_name);
+		  // ReturnCode_t register_type(in DomainParticipant domain, in string type_name);
 		};
 		// ----------------------------------------------------------------------
 		interface TopicDescription {
