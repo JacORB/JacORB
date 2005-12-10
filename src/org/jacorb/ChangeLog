@@ -1,3 +1,12 @@
+2005-12-08  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/iiop/IIOPAddress.java, orb/iiop/IIOPProfile.java: Fixed
+	errors found by unit test related to hashing of IIOPAddress and
+	cloning of profiles.
+
+	* orb/policies/PolicyManager.java: toned down excessive debug
+	output by only printing policy retrival metrics when length > 0
+
 2005-12-07  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/giop/ServerGIOPConnection.java (toString): Be robust if for
