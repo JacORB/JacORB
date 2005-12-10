@@ -1,3 +1,341 @@
+2005-12-08  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/AllTest.java, orb/AlternateIIOPAddress2Test.java,
+	orb/AlternateIIOPAddressTest.java, orb/AlternateProfileTest.java,
+	orb/IIOPProfileInterceptor.java: Cleaned up excessive debug
+	output, introduced timeouts where failures were expected
+
+2005-12-05  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/plugins/BSHFilterTest.java:
+	minor refactorings and code cleanup
+
+	* idl/AbstractIDLTestcase.java (compileGeneratedSources):
+	use java.home to locate javac
+
+2005-12-04  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* common/TestUtils.java, notification/AdminLimitTest.java,
+	notification/AnyMessageTest.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPushSender.java,
+	notification/CosEventChannelTest.java,
+	notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MappingFilterTest.java,
+	notification/MessageFactoryTest.java,
+	notification/MessageUtilsTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/PropertyValidatorTest.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullSender.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredEventMessageTest.java,
+	notification/StructuredPullSender.java,
+	notification/StructuredPushSender.java,
+	notification/TimeoutTest.java,
+	notification/TypedEventMessageTest.java,
+	notification/common/NotificationTestCase.java,
+	notification/common/NotificationTestCaseSetup.java,
+	notification/common/NotificationTestUtils.java,
+	notification/common/NotifyServerTestCase.java,
+	notification/common/TypedServerTestCase.java,
+	notification/common/TypedServerTestRunner.java,
+	notification/common/TypedServerTestSetup.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/filter/GarbageCollectTest.java,
+	notification/filter/MappingFilterFactoryTest.java,
+	notification/node/TCLTest.java, notification/perf/LoadTest.java,
+	notification/perf/PerformanceTest.java,
+	notification/perf/PoolTest.java,
+	notification/servant/AbstractProxySupplierTest.java,
+	notification/servant/ProxyPushSupplierImplTest.java,
+	notification/servant/PullMessagesUtilityIntegrationTest.java,
+	notification/servant/SequenceProxyPushSupplierImplTest.java,
+	notification/servant/StructuredProxyPushSupplierImplTest.java,
+	notification/typed/PackageTest.java,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedEventChannelFactoryIntegrationTest.java,
+	notification/typed/TypedEventChannelIntegrationTest.java,
+	notification/typed/TypedEventChannelTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java: code cleanup
+
+2005-12-01  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AdminLimitTest.java,
+	notification/MessageFactoryTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/StartTimeTest.java,
+	notification/StopTimeIntegrationTest.java,
+	notification/StopTimeTest.java,
+	notification/StructuredEventMessageTest.java,
+	notification/TimeoutTest.java,
+	notification/common/NotifyServerTestCase.java,
+	notification/typed/PackageTest.java,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedEventChannelTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java: minor
+	refactorings and code cleanup
+
+2005-11-15  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* orb/factory/AllTest.java: added package test
+
+2005-11-11  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* orb/factory/PortRangeServerSocketFactoryTest.java: this is a fix
+	for #645
+
+	if the specified port param lies within the port range
+	of the Factory it first tries to open this port. If this fails
+	another port from the port range is tried.
+
+	i have also refactored PortRangeServerSocketFactory to delegate
+	the actual creation to an instance of DefaultServerSocketFactory
+	and added a testcase.
+
+	* notification/util/ThreadPoolTest.java: removed isTaskQueued
+	logic as it is not supported by the underlying util.concurrent lib
+
+	* notification/servant/PullMessagesUtilityIntegrationTest.java,
+	notification/NotificationTestCase.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java:
+	code cleanup
+
+	* orb/connection/GIOPConnectionTest.java,
+	util/LogKitLoggerFactoryTest.java (setup): renamed class
+	Configuration to JacORBConfiguration.
+
+	* config/ConfigurationTest.java (testGetLoggerName):
+	renamed class Configuration to JacORBConfiguration.
+
+2005-10-28  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/plugins/BSHFilterTest.java: cosmetics
+
+	* notification/ConsoleMainTest.java,
+	notification/PackageTest.java (splitArgs): new method
+
+2005-10-27  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/MessageFactoryTest.java,
+	notification/StartTimeTest.java, notification/TimeoutTest.java,
+	notification/servant/SequenceProxyPushSupplierImplTest.java:
+	renamed interface AbstractProxyConsumerI => IProxyConsumer
+
+	* notification/servant/AbstractProxySupplierTest.java: new test
+
+2005-10-21  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* config/ConfigurationTest.java (getLoggerName): changed
+	implementation as clz.getPackage() may return null. this fixes
+	bug #623 which was reported by Oliver Pajonk who also supplied a
+	patch.
+
+2005-10-19  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/plugins/BSHFilterTest.java: reflect changes in src
+
+2005-10-16  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* bugs/bug459/TestCase.java: TestCase for bug 459.
+
+2005-10-15  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* idl/AbstractIDLTestcase.java, idl/ParseInvalidIDLTest.java,
+	idl/ParseValidIDLTest.java, idl/ValidIDLWithExtraSetupTest.java:
+	further refactoring of IDL tests. it now possible to run javac
+	from the testcase to check if the generated java files are valid
+
+2005-10-14  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* orb/rmi/RMITest.java, orb/rmi/RMITestImpl.java,
+	orb/rmi/RMITestInterface.java: added testcase for #633
+
+2005-10-09  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* idl/AbstractIDLTestcase.java, idl/CharTest.java,
+	idl/FloatTest.java, idl/InterfaceTest.java, idl/LongTest.java,
+	idl/MiscFailureTest.java, idl/MiscTest.java, idl/ModuleTest.java,
+	idl/PackageTest.java, idl/ParseInvalidIDLTest.java,
+	idl/ParseValidIDLTest.java, idl/PragmaTest.java,
+	idl/TypeDefTest.java, idl/UnionTest.java,
+	idl/ValidIDLWithExtraSetupTest.java, idl/ValueTest.java:
+	refactored IDL compiler tests.
+
+2005-10-08  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* bugs/bug619/TestCase.java (Pusher.run): fixed synchronization
+
+	* bugs/bug619/OutOfMemoryImpl.java, bugs/bug619/TestCase.java:
+	test for bug 619
+
+	* orb/rmi/RepositoryIDTest.java: javadoc
+
+	* common/ClientServerSetup.java, common/StreamListener.java (setUp):
+	fail test if TestServer does not start up within 5 seconds
+
+	* orb/rmi/AllTest.java, orb/rmi/Outer.java, orb/rmi/RMITest.java,
+	orb/rmi/RMITestImpl.java, orb/rmi/RMITestInterface.java,
+	orb/rmi/RepositoryIDTest.java: added tests for bug #91
+	http://www.jacorb.org/cgi-bin/bugzilla/showattachment.cgi?attach_id=91
+
+	* orb/AllTest.java (suite): added testcase for
+	http://www.jacorb.org/cgi-bin/bugzilla/show_bug.cgi?id=607
+
+	* orb/CDROutputStreamTest.java: added test for
+	http://www.jacorb.org/cgi-bin/bugzilla/show_bug.cgi?id=607
+
+	* orb/value/ValueTest.java: activate test for bug #430
+
+	* notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/common/NotifyServerTestCase.java,
+	notification/servant/PackageTest.java: javadoc
+
+	* notification/container/DecoratedService.java,
+	notification/container/DefaultService.java,
+	notification/container/DependsOnService.java,
+	notification/container/LocalParameterComponentAdapterTest.java,
+	notification/container/PackageTest.java,
+	notification/container/Service.java: added pico ComponentAdapter
+	that allows specification of local params
+
+2005-10-02  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AdminLimitTest.java,
+	notification/AnyPushReceiver.java,
+	notification/CosEventPullSender.java,
+	notification/EventChannelTest.java,
+	notification/StartTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredPushReceiver.java,
+	notification/bugs/DeadlockBugTest.java,
+	notification/engine/TaskProcessorRetryStrategyTest.java,
+	notification/perf/AnyTest.java,
+	notification/perf/PerformanceTest.java,
+	notification/queue/BoundedDeadlineEventQueueTest.java,
+	notification/servant/ProxyPushSupplierImplTest.java,
+	notification/servant/PullMessagesUtilityTest.java,
+	notification/servant/SequenceProxyPushSupplierImplTest.java,
+	notification/typed/TypedEventChannelTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/util/ObjectPoolTest.java,
+	notification/util/ThreadPoolTest.java,
+	common/launch/DirectLauncher.java: replaced util-concurrent with
+	backport-util-concurrent to allow easier transition to jdk 1.5
+
+2005-09-27  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/AllTest.java, orb/AlternateIIOPAddress2Test.java,
+	orb/AlternateProfileTest.java, orb/IIOPAddressInterceptor.java,
+	orb/IIOPAddressServerImpl.java, orb/IIOPProfileInterceptor.java:
+	Replace explicit host/port with ProtocolAddressBase or IIOPAddress
+	as appropriate, added new test suite for initializing IIOP
+	addresses using new ProtocolAddress defined string.
+
+2005-09-10  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/AbstractProxySupplierTest.java (test): use
+	nicecontrol for mockPOA
+
+2005-09-04  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/bugs/DeadlockBugTest.java: cosmetics
+
+2005-09-01  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/CollectionsWrapperTest.java (testModificationFail):
+	added assert
+
+2005-08-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/launch/JacORBLauncher.java (getLauncher): If the version
+	argument starts with "tao", return a TAOLauncher.
+
+	* common/launch/TAOLauncher.java: Initial revision.
+
+2005-08-22  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/AbstractProxySupplierTest.java: code cleanup
+
+2005-08-21  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/SequenceProxyPushSupplierImplTest.java (c'tor):
+	create one matcher per test
+
+	* common/launch/DirectLauncher.java:
+	changed location of picocontainer jar
+
+	* notification/AdminLimitTest.java, notification/AllTest.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/EventChannelTest.java,
+	notification/MessageFactoryTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/PackageTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePushReceiver.java,
+	notification/StartTimeTest.java,
+	notification/TimeoutIntegrationTest.java,
+	notification/TimeoutTest.java,
+	notification/common/NotifyServerTestSetup.java,
+	notification/engine/DefaultPushTaskExecutorTest.java,
+	notification/engine/FilterConsumerAdminTaskTest.java,
+	notification/engine/FilterProxySupplierTaskTest.java,
+	notification/engine/PushOperationTest.java,
+	notification/engine/TaskProcessorRetryStrategyTest.java,
+	notification/filter/GarbageCollectTest.java,
+	notification/jmx/COSNotificationServiceTest.java,
+	notification/jmx/JMXNotificationTest.java,
+	notification/jmx/ManageableTestMBean.java,
+	notification/jmx/TestService.java,
+	notification/jmx/TestServiceMBean.java,
+	notification/perf/EchoServerImpl.java,
+	notification/perf/LoadTest.java,
+	notification/perf/PerformanceTest.java,
+	notification/queue/DelegatingOverflowStrategy.java,
+	notification/servant/AbstractProxySupplierTest.java,
+	notification/servant/PackageTest.java,
+	notification/servant/ProxyPushSupplierImplTest.java,
+	notification/servant/PullMessagesOperationTest.java,
+	notification/servant/PullMessagesUtilityIntegrationTest.java,
+	notification/servant/PullMessagesUtilityTest.java,
+	notification/servant/SequenceProxyPushSupplierImplTest.java,
+	notification/servant/StructuredProxyPushSupplierImplTest.java,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java: updated tests
+
+	* notification/node/TCLTest.java (testGT): added tests
+
+	* notification/util/AbstractWildcardMapTest.java,
+	notification/util/DisposableManagerTest.java,
+	notification/util/WeakHashSetTest.java: code cleanup
+
+2005-08-17  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/SequenceEventChannelTest.java,
+	notification/SequencePushReceiver.java (c'tor): fix for #625. the
+	periodic flush task did not work properly
+
 2005-05-16  Andre Spiegel  <spiegel@gnu.org>
 
 	* util/LogKitLoggerFactoryTest.java:
@@ -19,7 +357,8 @@
 2005-05-16  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* notification/common/NotifyServerTestCase.java (getClientORB):
-	convenience method for tests(createFilter): convenience method for tests
+	convenience method for tests
+	(createFilter): convenience method for tests
 
 2005-05-16  Andre Spiegel  <spiegel@gnu.org>
 
