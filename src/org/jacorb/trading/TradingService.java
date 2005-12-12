@@ -20,6 +20,13 @@ import org.apache.avalon.framework.configuration.*;
 import org.omg.CORBA.*;
 import org.omg.CosTrading.*;
 import org.omg.CosTradingRepos.ServiceTypeRepositoryPackage.*;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.POAPackage.InvalidPolicy;
+import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
+import org.omg.PortableServer.POAPackage.ServantNotActive;
 
 import org.jacorb.trading.impl.*;
 import org.jacorb.trading.db.DatabaseMgr;
@@ -44,7 +51,7 @@ public class TradingService
 	return orb;
     }
 
-    public TradingService(DatabaseMgr dbMgr, String iorfile)
+    public TradingService(DatabaseMgr dbMgr, String iorfile) throws Exception
     {
 	// see if we have an interface repository
 	org.omg.CORBA.Repository intRep = null;
@@ -59,9 +66,10 @@ public class TradingService
 	    // ignore - no interface repository available
 	}
 
+    org.omg.PortableServer.POA poa = null;
 	try
 	{
-	    org.omg.PortableServer.POA poa = 
+	    poa = 
                 org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 	    poa.the_POAManager().activate();
 
@@ -78,20 +86,32 @@ public class TradingService
 	    // ignore
 	}
 
+    // create my POA
+
+    org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[3];
+    policies[0] = poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+    policies[1] = poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+    policies[2] = poa.create_request_processing_policy(
+        RequestProcessingPolicyValue.USE_SERVANT_MANAGER);
+    POA traderPOA = poa.create_POA("Trader-POA",
+                                   poa.the_POAManager(),
+                                   policies);
+
 	// retrieve the database objects
 	OfferDatabase offerDb = dbMgr.getOfferDatabase();
 	TypeDatabase typeDb = dbMgr.getTypeDatabase();
 
-	// create the service type repository implementation
-	RepositoryImpl typeRepos = new RepositoryImpl(typeDb, intRep);
-	typeRepos._this_object( orb );
+    // create the service type repository implementation
+    RepositoryImpl typeRepos = new RepositoryImpl(typeDb, intRep);
+    //typeRepos._this_object( orb );
+    traderPOA.activate_object_with_id("Repository".getBytes(), typeRepos);
 
 	// create and initialize the attributes objects
 	SupportAttrib supportAttrib = new SupportAttrib();
 	supportAttrib.setModifiableProperties(getProperty("jtrader.modifiable_properties", true));
 	supportAttrib.setDynamicProperties(getProperty("jtrader.dynamic_properties",true));
 	supportAttrib.setProxyOffers(getProperty("jtrader.proxy_offers",true));
-	supportAttrib.setTypeRepos(typeRepos._this());
+	supportAttrib.setTypeRepos(traderPOA.servant_to_reference(typeRepos));
 
 	ImportAttrib importAttrib = new ImportAttrib();
 	importAttrib.setDefSearchCard(getProperty("jtrader.def_search_card",Integer.MAX_VALUE));
@@ -112,7 +132,7 @@ public class TradingService
 	LinkAttrib linkAttrib = new LinkAttrib();
 	linkAttrib.setMaxLinkFollowPolicy(getProperty("jtrader.max_link_follow_policy",FollowOption.always));
 	//////////////////////////////////////////////////////////////// new!
-
+    
 	TraderComp traderComp = new TraderComp();
 
 
@@ -120,46 +140,46 @@ public class TradingService
 
 	RegisterImpl reg =
 	    new RegisterImpl(traderComp, supportAttrib, offerDb, intRep);
-	reg._this_object(orb);
-	traderComp.setRegisterInterface(reg._this());
+    traderPOA.activate_object_with_id("Register".getBytes(), reg);
+	traderComp.setRegisterInterface(RegisterHelper.narrow(traderPOA.servant_to_reference(reg)));
 
 	LinkImpl link = 
             new LinkImpl(traderComp, 
                          supportAttrib, 
                          linkAttrib);
 
-	link._this_object(orb);
-	traderComp.setLinkInterface(link._this());
+    traderPOA.activate_object_with_id("Link".getBytes(), link);
+    traderComp.setLinkInterface(LinkHelper.narrow(traderPOA.servant_to_reference(link)));
 
 	LookupImpl lookup = 
             new LookupImpl(traderComp, supportAttrib,
                            importAttrib, offerDb, link, 
                            ((org.jacorb.orb.ORB)orb).getConfiguration());
 
-	lookup._this_object(orb);
-	traderComp.setLookupInterface(lookup._this());
+    traderPOA.activate_object_with_id("Lookup".getBytes(), lookup);
+    traderComp.setLookupInterface(LookupHelper.narrow(traderPOA.servant_to_reference(lookup)));
 
 	// creating request_id_stem out of inet-address. Might as well use any other
 	// way of creating a unique string
-	byte[] stem =  orb.object_to_string(lookup._this()).getBytes();
+	byte[] stem =  orb.object_to_string(traderPOA.servant_to_reference(lookup)).getBytes();
 
 
 	AdminImpl admin = new AdminImpl(traderComp, supportAttrib,
 					importAttrib, linkAttrib, 
 					offerDb, stem);
-	admin._this_object(orb);
-	traderComp.setAdminInterface(admin._this());
+    traderPOA.activate_object_with_id("Admin".getBytes(), admin);
+    traderComp.setAdminInterface(AdminHelper.narrow(traderPOA.servant_to_reference(admin)));
 
 	ProxyImpl proxy = new ProxyImpl(traderComp, supportAttrib, offerDb);
-	proxy._this_object(orb);
-	traderComp.setProxyInterface(proxy._this());
+    traderPOA.activate_object_with_id("Proxy".getBytes(), proxy);
+    traderComp.setProxyInterface(ProxyHelper.narrow(traderPOA.servant_to_reference(proxy)));
 	
 	// write the IOR of the Lookup object (if necessary)
 	if (iorfile != null) {
 	    try {
 		FileOutputStream out = new FileOutputStream(iorfile);
 		PrintWriter pw = new PrintWriter(out);
-		pw.println(orb.object_to_string(lookup._this()));
+		pw.println(orb.object_to_string(traderPOA.servant_to_reference(lookup)));
 		pw.flush();
 		out.close();
 	    }
@@ -204,6 +224,10 @@ public class TradingService
 	    System.exit(1);
 	}
 
+    // set the implementation name
+    java.util.Properties props = new java.util.Properties();
+    props.put("jacorb.implname", "Trader");
+
 	// initialize the ORB
 	orb = ORB.init(args,null);
 
@@ -220,8 +244,12 @@ public class TradingService
 	///////// ObjectStore PSE database implementation
 	//dbMgr = new org.jacorb.trading.db.pse.PSEDatabaseMgr(dbpath);
 
-	new TradingService(dbMgr, iorfile);
-	orb.run();
+    try {
+        new TradingService(dbMgr, iorfile);
+        orb.run();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 	
 	dbMgr.shutdown();
 	System.exit(0);
