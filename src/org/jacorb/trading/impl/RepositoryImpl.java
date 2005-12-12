@@ -195,11 +195,13 @@ public class RepositoryImpl
     Enumeration e;
 
     try {
-      m_database.begin(TypeDatabase.READ);
+      m_database.begin(TypeDatabase.WRITE);
 
       checkTypeName(name);
 
       result = findType(name);
+      
+      synchronized (result) {
 
       String[] superTypeNames = m_database.getAllSuperTypes(name);
 
@@ -240,6 +242,7 @@ public class RepositoryImpl
 
       result.props = new PropStruct[props.size()];
       props.copyInto((java.lang.Object[])result.props);
+      }
     }
     finally {
       m_database.end();
