@@ -76,7 +76,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public TypeStruct describeType(String name)
+  public synchronized TypeStruct describeType(String name)
   {
     TypeStruct result = null;
 
@@ -88,7 +88,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public boolean maskType(String name)
+  public synchronized boolean maskType(String name)
   {
     boolean result = false;
 
@@ -103,7 +103,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public boolean unmaskType(String name)
+  public synchronized boolean unmaskType(String name)
   {
     boolean result = false;
 
@@ -118,7 +118,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public String[] getTypes()
+  public synchronized String[] getTypes()
   {
     String[] result = new String[m_types.size()];
 
@@ -131,7 +131,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public String[] getTypesSince(IncarnationNumber inc)
+  public synchronized String[] getTypesSince(IncarnationNumber inc)
   {
     String[] result;
 
@@ -159,7 +159,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public IncarnationNumber createType(
+  public synchronized IncarnationNumber createType(
     String name,
     String interfaceName,
     PropStruct[] props,
@@ -178,7 +178,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public boolean removeType(String name)
+  public synchronized boolean removeType(String name)
   {
     boolean result = false;
 
@@ -192,7 +192,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public String findSubType(String name)
+  public synchronized String findSubType(String name)
   {
     String result = null;
 
@@ -212,7 +212,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  public String[] getAllSuperTypes(String name)
+  public synchronized String[] getAllSuperTypes(String name)
   {
     String[] result = null;
 
@@ -228,7 +228,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  protected void readObjects()
+  protected synchronized void readObjects()
   {
     try {
       FileInputStream fileIn = new FileInputStream(m_dbFile);
@@ -246,7 +246,7 @@ public class TypeDatabaseImpl implements TypeDatabase
   }
 
 
-  protected void writeObjects()
+  protected synchronized void writeObjects()
   {
     try {
       FileOutputStream fileOut = new FileOutputStream(m_dbFile);
@@ -265,7 +265,7 @@ public class TypeDatabaseImpl implements TypeDatabase
    * Returns a vector of strings representing all the super types of
    * this type; this method is called recursively
    */
-  protected Vector findAllSuperTypes(Type type)
+  protected synchronized Vector findAllSuperTypes(Type type)
   {
     Vector result = new Vector();
 

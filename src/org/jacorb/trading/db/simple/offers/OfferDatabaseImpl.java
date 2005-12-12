@@ -69,7 +69,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns true if the offerId is legal, false otherwise */
-  public boolean validateOfferId(String offerId)
+  public synchronized boolean validateOfferId(String offerId)
   {
     return OfferList.validateOfferId(offerId);
   }
@@ -106,7 +106,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Must follow any use of the database */
-  public void end()
+  public synchronized void end()
   {
       // save any modified offer lists
     Enumeration e = m_offerLists.elements();
@@ -126,7 +126,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns true if the offer with the given ID exists */
-  public boolean exists(String offerId)
+  public synchronized boolean exists(String offerId)
   {
     boolean result = false;
 
@@ -139,7 +139,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns true if the offer with the given ID is a proxy offer */
-  public boolean isProxy(String offerId)
+  public synchronized boolean isProxy(String offerId)
   {
     boolean result = false;
 
@@ -152,7 +152,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Creates a new offer, returning the assigned offer ID */
-  public String create(
+  public synchronized String create(
     String serviceType,
     org.omg.CORBA.Object obj,
     Property[] props)
@@ -169,7 +169,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Creates a new proxy offer, returning the assigned offer ID */
-  public String createProxy(
+  public synchronized String createProxy(
     Lookup target,
     String serviceType,
     Property[] props,
@@ -186,7 +186,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Removes the offer with the given ID */
-  public void remove(String offerId)
+  public synchronized void remove(String offerId)
   {
     OfferList list = getList(whichService(offerId));
     if (list != null)
@@ -195,7 +195,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Removes the proxy offer with the given ID */
-  public void removeProxy(String offerId)
+  public synchronized void removeProxy(String offerId)
   {
     OfferList list = getList(whichService(offerId));
     if (list != null)
@@ -204,7 +204,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns a description of the offer with the given ID */
-  public OfferInfo describe(String offerId)
+  public synchronized OfferInfo describe(String offerId)
   {
     OfferInfo result = null;
 
@@ -217,7 +217,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns a description of the proxy offer with the given ID */
-  public ProxyInfo describeProxy(String offerId)
+  public synchronized ProxyInfo describeProxy(String offerId)
   {
     ProxyInfo result = null;
 
@@ -230,7 +230,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Updates the properties of an offer */
-  public void modify(String offerId, Property[] props)
+  public synchronized void modify(String offerId, Property[] props)
   {
     OfferList list = getList(whichService(offerId));
     if (list != null)
@@ -239,7 +239,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns all offers of the given service type */
-  public Hashtable getOffers(String serviceType)
+  public synchronized Hashtable getOffers(String serviceType)
   {
     Hashtable result = null;
 
@@ -252,7 +252,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns all offer IDs of the given service type */
-  public String[] getOfferIds(String serviceType)
+  public synchronized String[] getOfferIds(String serviceType)
   {
     String[] result = null;
 
@@ -265,7 +265,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns all proxy offers of the given service type */
-  public Hashtable getProxyOffers(String serviceType)
+  public synchronized Hashtable getProxyOffers(String serviceType)
   {
     Hashtable result = null;
 
@@ -278,7 +278,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns all proxy offer IDs of the given service type */
-  public String[] getProxyOfferIds(String serviceType)
+  public synchronized String[] getProxyOfferIds(String serviceType)
   {
     String[] result = null;
 
@@ -291,7 +291,7 @@ public class OfferDatabaseImpl implements OfferDatabase
 
 
   /** Returns the service type of the given offer */
-  public String whichService(String offerId)
+  public synchronized String whichService(String offerId)
   {
     return OfferList.whichService(offerId);
   }
@@ -317,7 +317,7 @@ public class OfferDatabaseImpl implements OfferDatabase
   }
 
 
-  protected OfferList createList(String serviceType)
+  protected synchronized OfferList createList(String serviceType)
   {
     OfferList result = new OfferList(serviceType);
     m_offerLists.put(serviceType, result);
@@ -328,7 +328,7 @@ public class OfferDatabaseImpl implements OfferDatabase
   }
 
 
-  protected OfferList readList(String serviceType)
+  protected synchronized OfferList readList(String serviceType)
   {
     OfferList result = null;
 
@@ -352,7 +352,7 @@ public class OfferDatabaseImpl implements OfferDatabase
   }
 
 
-  protected void writeList(OfferList list)
+  protected synchronized void writeList(OfferList list)
   {
     try {
       File listFile = getListFile(list.getServiceType());
@@ -369,7 +369,7 @@ public class OfferDatabaseImpl implements OfferDatabase
   }
 
 
-  protected File getListFile(String serviceType)
+  protected synchronized File getListFile(String serviceType)
   {
     File result = null;
 
@@ -384,7 +384,7 @@ public class OfferDatabaseImpl implements OfferDatabase
   }
 
 
-  protected void readIndex()
+  protected synchronized void readIndex()
   {
     try {
       FileInputStream fileIn = new FileInputStream(m_indexFile);
@@ -403,7 +403,7 @@ public class OfferDatabaseImpl implements OfferDatabase
   }
 
 
-  protected void writeIndex()
+  protected synchronized void writeIndex()
   {
     try {
       FileOutputStream fileOut = new FileOutputStream(m_indexFile);
