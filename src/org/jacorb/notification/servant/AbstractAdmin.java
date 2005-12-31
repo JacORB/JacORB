@@ -282,7 +282,6 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     {
         return (EventChannel) eventChannelReference_.get();
     }
-
     
     public final int MyID()
     {
