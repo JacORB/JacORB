@@ -1,3 +1,25 @@
+2005-12-31  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/AbstractAdmin.java: whitespace
+
+2005-12-12  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* trading/db/simple/types/TypeDatabaseImpl.java,
+	trading/db/simple/offers/OfferDatabaseImpl.java: Sync access to DB
+
+	* trading/impl/RepositoryImpl.java: Sync access to type
+
+	* trading/TradingService.java: Use POA for Trader
+
+2005-12-10  Gerald Brose  <gerald.brose@acm.org>
+
+	* Version 2.2.3 released.
+
+2005-12-10  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/parser.java: updated copyright string: removed
+	company/university reference
+
 2005-12-08  Phil Mesnier  <phil.mesnier@ociweb.com>
 
 	* orb/iiop/IIOPAddress.java, orb/iiop/IIOPProfile.java: Fixed
