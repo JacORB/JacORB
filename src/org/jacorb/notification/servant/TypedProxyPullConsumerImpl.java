@@ -20,6 +20,7 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -158,8 +159,8 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
     public MessageSupplierDelegate.PullResult pullMessages()
     {
-        String[] _tryPullOperations = getTryPullOperations();
-        Map _successFulRequests = new HashMap();
+        final String[] _tryPullOperations = getTryPullOperations();
+        final Map _successFulRequests = new HashMap();
 
         for (int x = 0; x < _tryPullOperations.length; ++x)
         {
@@ -200,12 +201,12 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
             }
         }
 
-        return new MessageSupplierDelegate.PullResult(_successFulRequests, true);
+        return new MessageSupplierDelegate.PullResult(Collections.unmodifiableMap(_successFulRequests), true);
     }
 
     public void queueMessages(PullResult data)
     {
-        Map _successfulRequests = (Map) data.data_;
+        final Map _successfulRequests = (Map) data.data_;
 
         for (Iterator i = _successfulRequests.keySet().iterator(); i.hasNext();)
         {
