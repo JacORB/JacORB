@@ -22,10 +22,19 @@
 package org.jacorb.notification.interfaces;
 
 /**
+ * TODO find a better name for this interface
+ * 
+ * objects implementing this interface allow other Disposables to be
+ * registered. as the main object is disposed, it will also invoke dispose
+ * on all registered Disposables.
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 public interface NotifyingDisposable extends Disposable
 {
+    /**
+     * the hooks registered by this method will be run when dispose is called.
+     */
     void registerDisposable(Disposable disposable);
 }

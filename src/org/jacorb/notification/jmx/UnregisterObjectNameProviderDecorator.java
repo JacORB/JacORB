@@ -34,6 +34,15 @@ import org.nanocontainer.remoting.jmx.JMXRegistrationInfo;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.PicoContainer;
 
+/**
+ * a DynamicMBeanProvider decorator that will add a disposehook to the instance
+ * for which a mbean is created
+ * the disposehook will deregister the mbean from the mbeanserver.
+ *  
+ * @author Alphonse Bendt
+ * @version $Id$
+ */
+
 public class UnregisterObjectNameProviderDecorator implements DynamicMBeanProvider
 {
     private final DynamicMBeanProvider delegate_;
@@ -58,7 +67,7 @@ public class UnregisterObjectNameProviderDecorator implements DynamicMBeanProvid
         {
             try
             {
-                JMXManageable manageable = 
+                final JMXManageable manageable = 
                     (JMXManageable) componentAdapter.getComponentInstance(picoContainer);
 
                 manageable.registerDisposable(new Disposable()
