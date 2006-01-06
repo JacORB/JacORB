@@ -330,7 +330,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
             }
         } catch (Exception e)
         {
-            logger_.error("disconnect_client raised an unexpected error: ignore", e);
+            logger_.info("disconnect_client raised an unexpected error: will be ignored", e);
         } finally
         {
             connected_.set(false);
