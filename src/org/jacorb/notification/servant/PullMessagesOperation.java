@@ -76,10 +76,9 @@ public class PullMessagesOperation
 
             if (_acquired)
             {
-                ++pullCounter_;
-                MessageSupplierDelegate.PullResult _data;
-                
-                long _now = System.currentTimeMillis();
+                final MessageSupplierDelegate.PullResult _data;
+                final long _now = System.currentTimeMillis();
+
                 try
                 {
                     _data = delegate_.pullMessages();
@@ -89,6 +88,8 @@ public class PullMessagesOperation
                     timeSpentInPull_ += (System.currentTimeMillis() - _now);
                 }
 
+                ++pullCounter_;
+                
                 if (_data.success_)
                 {
                     ++successfulPullCounter_;
