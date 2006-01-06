@@ -313,8 +313,10 @@ public class JMXMain implements WrapperListener
 
     public static void main(String[] args) throws Exception
     {
-        JMXMain main = new JMXMain();
+        System.setProperty("javax.management.builder.initial", "mx4j.server.MX4JMBeanServerBuilder");
 
+        JMXMain main = new JMXMain();
+        
         WrapperManager.start(main, args);
     }
 }
