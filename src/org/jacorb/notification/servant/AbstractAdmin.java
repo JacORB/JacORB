@@ -592,7 +592,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
             fireProxyCreated(proxy);
         }
 
-        // this hook is run when proxy.dispose() is called.
+        
         // it removes proxy from map again.
         proxy.registerDisposable(new Disposable()
         {
@@ -606,19 +606,6 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
                 }
             }
         });
-    }
-
-    public final List getProxies()
-    {
-        List _list = new ArrayList();
-
-        synchronized (modifyProxiesLock_)
-        {
-            _list.addAll(pullServants_.values());
-            _list.addAll(pushServants_.values());
-        }
-
-        return _list;
     }
 
     protected MutablePicoContainer newContainerForNotifyStyleProxy()

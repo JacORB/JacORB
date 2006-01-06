@@ -33,11 +33,11 @@ public class DefaultPushTaskExecutorFactory implements PushTaskExecutorFactory
         numberOfWorkersPerExecutor_ = numberOfWorkersPerExecutor;
     }
     
-    public PushTaskExecutor newExecutor(NotifyingDisposable callbackingDisposable)
+    public PushTaskExecutor newExecutor(NotifyingDisposable disposable)
     {
         final PushTaskExecutor executor = new DefaultPushTaskExecutor(numberOfWorkersPerExecutor_);
 
-        callbackingDisposable.registerDisposable(new Disposable()
+        disposable.registerDisposable(new Disposable()
         {
             public void dispose()
             {
