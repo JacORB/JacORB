@@ -1,3 +1,32 @@
+2006-01-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/GIOPConnection.java (sendMessage): Don't close on
+	transport connect failure, since the connection may be reused
+	later.  Thanks to Cliff Zhao for the analysis.
+
+2006-01-06  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/TypedProxyPullConsumerImpl.java (pullMessages):
+	return unmodifiable map
+
+	* notification/servant/PullMessagesOperation.java (runPullInternal):
+	reordered operations so that lock is always released
+
+	* notification/servant/AbstractProxy.java (tryDisconnectClient):
+	changed loglevel of statement
+
+	* notification/servant/AbstractAdmin.java: cosmetics
+
+	* notification/jmx/mx4j/JMXMain.java (main): set system property
+	javax.management.builder so that mx4j is always used. this is
+	necessary on jdk1.5 as it brings its own implementation of jmx
+
+	* notification/jmx/UnregisterObjectNameProviderDecorator.java,
+	notification/interfaces/NotifyingDisposable.java: javadoc
+
+	* notification/engine/DefaultPushTaskExecutorFactory.java:
+	cosmetics
+
 2005-12-31  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
 	* notification/servant/AbstractAdmin.java: whitespace
