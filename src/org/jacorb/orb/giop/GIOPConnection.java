@@ -840,8 +840,6 @@ public abstract class GIOPConnection
                         if (logger.isDebugEnabled())
                             logger.debug(this.toString()
                                          + ": sendMessage() -- failed to open transport");
-                        do_close = true;
-                        connect_sync.notifyAll();
                         throw ex;
                     }
                 }
