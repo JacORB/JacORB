@@ -486,6 +486,11 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         return offerListener_;
     }
 
+    protected final void clientDisconnected()
+    {
+        offerListener_ = null;
+    }
+    
     public void connectClient(org.omg.CORBA.Object client)
     {
         super.connectClient(client);

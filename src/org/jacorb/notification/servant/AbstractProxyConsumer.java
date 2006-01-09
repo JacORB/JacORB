@@ -321,6 +321,11 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
         }
     }
 
+    protected final void clientDisconnected()
+    {
+        subscriptionListener_ = null;
+    }
+    
     protected void connectClient(org.omg.CORBA.Object client)
     {
         super.connectClient(client);
