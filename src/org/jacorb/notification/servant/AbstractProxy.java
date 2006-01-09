@@ -327,6 +327,8 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
                 logger_.info("disconnect_client");
 
                 disconnectClient();
+                
+                client_ = null;
             }
         } catch (Exception e)
         {
@@ -379,10 +381,8 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
         tryDisconnectClient();
 
-        // ////////////////////////////
-
-        deactivate();
-
+        clientDisconnected();
+        
         // ////////////////////////////
 
         removeListener();
@@ -394,8 +394,12 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         // ////////////////////////////
 
         disposables_.dispose();
+
+        deactivate();
     }
 
+    protected abstract void clientDisconnected();
+    
     public abstract ProxyType MyType();
 
     void setInterFilterGroupOperatorOR(boolean b)
