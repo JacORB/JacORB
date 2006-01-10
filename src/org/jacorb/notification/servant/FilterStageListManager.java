@@ -31,13 +31,14 @@ import org.jacorb.notification.interfaces.FilterStage;
  * @version $Id$
  */
 
-public abstract class FilterStageListManager {
-
-    public interface FilterStageList {
+public abstract class FilterStageListManager
+{
+    public interface FilterStageList
+    {
         void add(FilterStage filterStage);
     }
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     private final Object lock_ = new Object();
 
@@ -47,39 +48,60 @@ public abstract class FilterStageListManager {
 
     private List readOnlyView_ = Collections.EMPTY_LIST;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
-    public void actionSourceModified() {
-        synchronized(lock_) {
+    public void actionSourceModified()
+    {
+        synchronized (lock_)
+        {
             sourceModified_ = true;
         }
     }
 
+    public List getList()
+    {
+        synchronized (lock_)
+        {
+            refreshNoLocking();
 
-    public List getList() {
-        synchronized(lock_) {
-            if (sourceModified_) {
-                final List _newList = new ArrayList();
-
-                FilterStageList _listProxy = new FilterStageList() {
-                        public void add(FilterStage filterStage) {
-                            if (!filterStage.isDestroyed()) {
-                                _newList.add(filterStage);
-                            }
-                        }
-                    };
-
-                fetchListData(_listProxy);
-
-                checkedList_ = _newList;
-                readOnlyView_ = Collections.unmodifiableList(checkedList_);
-                sourceModified_ = false;
-            }
             // as readOnlyView_ delegates to checkedList_ sorting
             // will also affect the order of readOnlyView_
             doSortCheckedList(checkedList_);
-            
+
             return readOnlyView_;
+        }
+    }
+
+    public void refresh()
+    {
+        synchronized (lock_)
+        {
+            refreshNoLocking();
+        }
+    }
+
+    private void refreshNoLocking()
+    {
+        if (sourceModified_)
+        {
+            final List _newList = new ArrayList();
+
+            FilterStageList _listProxy = new FilterStageList()
+            {
+                public void add(FilterStage filterStage)
+                {
+                    if (!filterStage.isDestroyed())
+                    {
+                        _newList.add(filterStage);
+                    }
+                }
+            };
+
+            fetchListData(_listProxy);
+
+            checkedList_ = _newList;
+            readOnlyView_ = Collections.unmodifiableList(checkedList_);
+            sourceModified_ = false;
         }
     }
 
