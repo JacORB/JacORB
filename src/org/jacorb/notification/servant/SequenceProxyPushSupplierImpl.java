@@ -363,8 +363,4 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
         return timeSpent_;
     }
     
-    public org.omg.CORBA.Object activate()
-    {
-        return SequenceProxyPushSupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
 }

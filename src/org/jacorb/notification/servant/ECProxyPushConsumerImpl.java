@@ -66,11 +66,4 @@ public class ECProxyPushConsumerImpl
 
         return thisServant_;
     }
-
-
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxyPushConsumerHelper.narrow(getServant()._this_object(getORB()));
-    }
-
 }

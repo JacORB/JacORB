@@ -174,11 +174,6 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
-    
     protected long getCost()
     {
         return 0;

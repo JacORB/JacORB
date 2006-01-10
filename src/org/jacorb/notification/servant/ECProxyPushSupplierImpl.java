@@ -70,8 +70,4 @@ public class ECProxyPushSupplierImpl extends ProxyPushSupplierImpl implements
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxyPushSupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
 }

@@ -271,11 +271,6 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
         return ProxyType.PULL_TYPED;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return TypedProxyPullConsumerHelper.narrow(getServant()._this_object(getORB()));
-    }
-
     public void disconnectClient()
     {
         pollUtil_.stopTask();

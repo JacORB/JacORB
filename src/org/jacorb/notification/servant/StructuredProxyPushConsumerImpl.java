@@ -110,9 +110,4 @@ public class StructuredProxyPushConsumerImpl extends AbstractProxyConsumer imple
         }
         return thisServant_;
     }
-
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
-    }
 }

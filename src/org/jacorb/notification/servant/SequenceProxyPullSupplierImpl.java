@@ -166,8 +166,4 @@ public class SequenceProxyPullSupplierImpl extends AbstractProxySupplier impleme
         return 0;
     }
 
-    public Object activate()
-    {
-        return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
 }

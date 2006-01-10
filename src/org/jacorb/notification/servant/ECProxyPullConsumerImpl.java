@@ -66,9 +66,4 @@ public class ECProxyPullConsumerImpl extends ProxyPullConsumerImpl implements
 
         return thisServant_;
     }
-
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxyPullConsumerHelper.narrow(getServant()._this_object(getORB()));
-    }
 }

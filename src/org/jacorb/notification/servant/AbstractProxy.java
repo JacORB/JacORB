@@ -196,6 +196,17 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         return orb_;
     }
 
+    public final org.omg.CORBA.Object activate()
+    {
+        try
+        {
+            return getPOA().servant_to_reference(getServant());
+        } catch (Exception e)
+        {
+            throw new RuntimeException();
+        }
+    }
+    
     protected TaskProcessor getTaskProcessor()
     {
         return taskProcessor_;
@@ -289,16 +300,6 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         return id_;
     }
 
-    /**
-     * Override this method from the Servant baseclass. Fintan Bolton in his book "Pure CORBA"
-     * suggests that you override this method to avoid the risk that a servant object (like this
-     * one) could be activated by the <b>wrong </b> POA object.
-     */
-    public final POA _default_POA()
-    {
-        return getPOA();
-    }
-
     public final List getFilters()
     {
         return filterManager_.getFilters();
@@ -315,6 +316,10 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         } catch (Exception e)
         {
             logger_.error("Couldn't deactivate Proxy", e);
+        }
+        finally
+        {
+            thisServant_ = null;
         }
     }
 

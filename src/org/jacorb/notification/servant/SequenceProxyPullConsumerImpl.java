@@ -119,11 +119,6 @@ public class SequenceProxyPullConsumerImpl extends AbstractProxyConsumer impleme
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
-    }
-
     public MessageSupplierDelegate.PullResult pullMessages() throws Disconnected
     {
         BooleanHolder _hasEvent = new BooleanHolder();

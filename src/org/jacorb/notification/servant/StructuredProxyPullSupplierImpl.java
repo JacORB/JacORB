@@ -37,13 +37,14 @@ import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierPOATie;
 import org.omg.CosNotifyComm.StructuredPullConsumer;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.POAPackage.ServantNotActive;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 /**
  * @jmx.mbean  extends ="AbstractProxyMBean"
@@ -191,11 +192,6 @@ public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier imple
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
-   
     protected long getCost()
     {
         return 0;

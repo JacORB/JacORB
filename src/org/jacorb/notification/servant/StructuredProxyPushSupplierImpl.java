@@ -189,11 +189,6 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
-    
     protected long getCost()
     {
         return timeSpent_;

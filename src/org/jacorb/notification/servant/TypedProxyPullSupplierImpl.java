@@ -439,11 +439,6 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return TypedProxyPullSupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
-
     public void queueMessage(Message message)
     {
         try

@@ -148,11 +148,6 @@ public class ProxyPullConsumerImpl extends AbstractProxyConsumer implements
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
-    }
-
     // //////////////////////////////////////
     // todo collect management informations
 

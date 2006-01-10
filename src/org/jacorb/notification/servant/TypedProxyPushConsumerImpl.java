@@ -247,11 +247,6 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object activate()
-    {
-        return TypedProxyPushConsumerHelper.narrow(getServant()._this_object(getORB()));
-    }
-    
     /**
      * @jmx.managed-attribute
      *                        access = "read-only"

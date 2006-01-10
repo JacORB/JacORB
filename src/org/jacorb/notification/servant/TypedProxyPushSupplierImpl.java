@@ -129,11 +129,6 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
     }
 
 
-    public org.omg.CORBA.Object activate()
-    {
-        return TypedProxyPushSupplierHelper.narrow(getServant()._this_object(getORB()));
-    }
-
     public void isIDLAssignable(final String ifName) throws IllegalArgumentException
     {
         if (typedConsumer_._is_a(ifName))
