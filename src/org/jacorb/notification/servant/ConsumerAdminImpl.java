@@ -211,7 +211,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
 
         try
         {
-            AbstractProxy _servant = obtain_notification_pull_supplier_servant(clientType);
+            final AbstractProxy _servant = obtain_notification_pull_supplier_servant(clientType);
 
             intHolder.value = _servant.getID().intValue();
 
@@ -240,7 +240,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
     private AbstractProxy obtain_notification_pull_supplier_servant(ClientType clientType)
             throws UnsupportedQoS
     {
-        AbstractProxySupplier _servant = newProxyPullSupplier(clientType);
+        final AbstractProxySupplier _servant = newProxyPullSupplier(clientType);
 
         configureMappingFilters(_servant);
 
@@ -271,7 +271,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
 
         try
         {
-            AbstractProxy _servant = obtain_notification_push_supplier_servant(clientType);
+            final AbstractProxy _servant = obtain_notification_push_supplier_servant(clientType);
 
             intHolder.value = _servant.getID().intValue();
 
@@ -287,7 +287,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
     private AbstractProxy obtain_notification_push_supplier_servant(ClientType clientType)
             throws UnsupportedQoS
     {
-        AbstractProxySupplier _servant = newProxyPushSupplier(clientType);
+        final AbstractProxySupplier _servant = newProxyPushSupplier(clientType);
 
         configureMappingFilters(_servant);
 
@@ -380,6 +380,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
     public void actionProxyDisposed(ProxyEvent event)
     {
         listManager_.actionSourceModified();
+        listManager_.refresh();
     }
 
     public void actionProxyCreated(ProxyEvent event)
