@@ -194,7 +194,7 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
     private AbstractProxy obtain_notification_push_consumer_servant(ClientType clientType)
             throws Exception
     {
-        AbstractProxy _servant = newProxyPushConsumer(clientType);
+        final AbstractProxy _servant = newProxyPushConsumer(clientType);
 
         configureInterFilterGroupOperator(_servant);
 
@@ -336,10 +336,9 @@ public class SupplierAdminImpl extends AbstractSupplierAdmin implements Supplier
     /**
      * factory method to create new ProxyPushConsumerServants.
      */
-    AbstractProxy newProxyPushConsumer(ClientType clientType)
+    private AbstractProxy newProxyPushConsumer(ClientType clientType)
     {
         final AbstractProxyConsumer _servant;
-
         final Class _proxyClazz;
 
         switch (clientType.value()) {
