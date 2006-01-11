@@ -1,3 +1,73 @@
+2006-01-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/threadpool/ThreadPool.java (getJob, putJob): Rewritten so
+	that it properly handles the case when max_idle_threads is
+	reached. This fixes bug #652, thanks to Oguzhan Eris for the
+	patch.
+
+	* orb/Delegate.java (release): Implement to do roughly what
+	finalize() was doing before.  This allows clients to let go of a
+	Delegate programmatically.
+	(finalize): Rewritten to call the above. Thanks to Cliff Zhao for
+	suggesting the patch.
+
+2006-01-10  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/AbstractProxy.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java (activate):
+	pulled implementation to baseclass and fixed it. it was buggy as
+	the wrong poa was used for activation.
+
+	* notification/servant/SupplierAdminImpl.java: cosmetics
+
+	* notification/servant/ConsumerAdminImpl.java (actionProxyDisposed):
+	refresh list of proxies to allow non used servants to be gc'ed
+
+	* notification/servant/FilterStageListManager.java (refresh):
+	added new method that refreshes the list to allow gc to run
+
+	* notification/interfaces/ProxyEventAdapter.java:
+	added listener adapter
+
+	* notification/servant/AbstractProxy.java (tryDisconnectClient):
+	set client_ to null even if an exception gets thrown thanks to
+	David Rodenbaugh for suggesting that fix.
+
+2006-01-09  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/AbstractProxySupplier.java,
+	notification/servant/AbstractProxyConsumer.java: this is a bugfix
+	for bugzilla #654
+	(clientDisconnected): set client reference to null after client
+	disconnect to allow gc'ing of the stub
+
+	* notification/servant/AbstractProxy.java: this is a bugfix for
+	bugzilla #654:
+	(clientDisconnected): new abstract callback method
+	(dispose): invoke clientDisconnected after client has been
+	disconnected
+	(tryDisconnectClient): set member client_ to null after client has
+	been disconnected
+
 2006-01-09  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/giop/GIOPConnection.java (sendMessage): Don't close on
