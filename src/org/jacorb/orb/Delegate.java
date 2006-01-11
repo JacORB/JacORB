@@ -457,25 +457,19 @@ public final class Delegate
         return equals( obj );
     }
 
+    /**
+     * Called when a client-side stub is garbage-collected.
+     * In effect, this method causes the Delegate to unregister
+     * itself from the underlying GIOPConnection.  If there are
+     * no other Delegates using that connection, it will be
+     * closed and disposed of altogether.
+     */
     protected void finalize() throws Throwable
     {
         try
         {
-            if ( connection != null )
-            {
-                // Synchronization for inc/dec of clients is handled inside
-                // releaseConnection.
-                conn_mg.releaseConnection( connection );
-            }
-
-            // Call using string rather than this to prevent data race warning.
-            orb._release( getParsedIOR().getIORString() );
-
-            if ( logger.isDebugEnabled() )
-            {
-                logger.debug("Delegate gc'ed!");
-            }
-        }
+            release(null);
+        } 
         finally
         {
             super.finalize();
@@ -1388,8 +1382,35 @@ public final class Delegate
         return orb;
     }
 
+    /**
+     * Called to indicate that this Delegate will no longer be used by
+     * the client.  The Delegate unregisters itself from the underlying
+     * GIOPConnection.  If there are no other Delegates using that
+     * connection, it will be closed and disposed of altogether.
+     */
     public synchronized void release( org.omg.CORBA.Object self )
     {
+        if (!bound) return;
+
+        synchronized ( bind_sync )
+        {
+            if ( connection != null )
+            {
+                conn_mg.releaseConnection( connection );
+                connection = null;
+            }
+            bound = false;
+
+            // Call using string rather than this to prevent data race
+            // warning.
+            orb._release( getParsedIOR().getIORString() );
+
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug("Delegate released!");
+            }
+        }
+      
     }
 
     /**
