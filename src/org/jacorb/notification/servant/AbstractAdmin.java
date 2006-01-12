@@ -41,6 +41,8 @@ import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.jacorb.notification.lifecycle.IServantLifecyle;
+import org.jacorb.notification.lifecycle.ServantLifecyleControl;
 import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.QoSPropertySet;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
@@ -58,7 +60,6 @@ import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
@@ -75,7 +76,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
  */
 
 public abstract class AbstractAdmin implements QoSAdminOperations,
-        FilterAdminOperations, FilterStage, ManageableServant, JMXManageable
+        FilterAdminOperations, FilterStage, IServantLifecyle, JMXManageable
 {
     private static final class ITypedAdminImpl implements ITypedAdmin
     {
@@ -178,6 +179,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     private JMXManageable.JMXCallback jmxCallback_;
 
+    protected final ServantLifecyleControl servantLifecycle_;
     ////////////////////////////////////////
 
     protected AbstractAdmin(IEventChannel channel, ORB orb, POA poa, Configuration config,
@@ -206,6 +208,8 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         offerManager_ = offerManager;
 
         subscriptionManager_ = subscriptionManager;
+        
+        servantLifecycle_ = new ServantLifecyleControl(this);
     }
 
     public final void registerDisposable(Disposable disposable)
@@ -218,7 +222,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         filterGroupOperator_ = operator;
     }
 
-    protected POA getPOA()
+    public final POA getPOA()
     {
         return poa_;
     }
@@ -231,11 +235,6 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     protected MessageFactory getMessageFactory()
     {
         return messageFactory_;
-    }
-
-    public POA _default_POA()
-    {
-        return getPOA();
     }
 
     int getProxyID()
@@ -357,24 +356,15 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         proxyEventListener_.clear();
     }
 
-    public void deactivate()
+    public final org.omg.CORBA.Object activate()
     {
-        if (logger_.isDebugEnabled())
-        {
-            logger_.debug("deactivate Admin: " + getID());
-        }
-
-        try
-        {
-            byte[] _oid = getPOA().servant_to_id(getServant());
-            getPOA().deactivate_object(_oid);
-        } catch (Exception e)
-        {
-            logger_.error("Couldn't deactivate Admin", e);
-        }
+        return servantLifecycle_.activate();
     }
-
-    public abstract Servant getServant();
+    
+    public final void deactivate()
+    {
+        servantLifecycle_.deactivate();
+    }
 
     /**
      * @jmx.managed-attribute description="TODO"

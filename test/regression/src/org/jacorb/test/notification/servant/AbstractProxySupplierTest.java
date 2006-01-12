@@ -100,12 +100,7 @@ public class AbstractProxySupplierTest extends NotificationTestCase
                 // ignored
             }
 
-            protected Servant getServant()
-            {
-                return null;
-            }
-
-            public Object activate()
+            public Servant newServant()
             {
                 return null;
             }
@@ -151,10 +146,6 @@ public class AbstractProxySupplierTest extends NotificationTestCase
 
     public void testDisposeDisposesPendingMessages() throws Exception
     {
-        mockPOA_.servant_to_id(null);
-        controlPOA_.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlPOA_.setReturnValue(new byte[] { 1 });
-
         mockMessage_.clone();
         controlMessage_.setReturnValue(mockMessage_);
 

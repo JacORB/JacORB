@@ -36,7 +36,6 @@ import org.omg.CosEventComm.PullConsumer;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
-import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
@@ -165,13 +164,9 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
         // as we do not actively deliver events we can ignore this
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new ProxyPullSupplierPOATie(this);
-        }
-        return thisServant_;
+        return new ProxyPullSupplierPOATie(this);
     }
 
     protected long getCost()

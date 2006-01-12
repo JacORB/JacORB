@@ -31,7 +31,6 @@ import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerPOATie;
@@ -102,12 +101,8 @@ public class StructuredProxyPushConsumerImpl extends AbstractProxyConsumer imple
         logger_.info("connect structured_push_supplier");
     }
 
-    public synchronized Servant getServant()
+    public synchronized Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new StructuredProxyPushConsumerPOATie(this);
-        }
-        return thisServant_;
+        return new StructuredProxyPushConsumerPOATie(this);
     }
 }

@@ -35,7 +35,6 @@ import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
@@ -130,14 +129,9 @@ public class StructuredProxyPullConsumerImpl extends AbstractProxyConsumer imple
         pollUtil_.stopTask();
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new StructuredProxyPullConsumerPOATie(this);
-        }
-
-        return thisServant_;
+        return new StructuredProxyPullConsumerPOATie(this);
     }
 
     public MessageSupplierDelegate.PullResult pullMessages() throws Disconnected

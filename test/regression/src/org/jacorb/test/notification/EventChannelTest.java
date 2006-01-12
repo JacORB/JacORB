@@ -8,6 +8,7 @@ import org.jacorb.test.notification.common.NotifyServerTestCase;
 import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNotification.AnyOrder;
 import org.omg.CosNotification.DiscardPolicy;
@@ -237,6 +238,45 @@ public class EventChannelTest extends NotifyServerTestCase
         assertEquals(ih.value, c3.MyID());
     }
 
+    public void testDestroyAdmins() throws Exception
+    {
+        ConsumerAdmin _consumerAdmin = channel_.new_for_consumers(InterFilterGroupOperator.AND_OP,
+                new IntHolder());
+        SupplierAdmin _supplierAdmin = channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP,
+                new IntHolder());
+
+        _consumerAdmin.destroy();
+        _supplierAdmin.destroy();
+
+        try
+        {
+            _consumerAdmin.get_qos();
+            fail();
+        } catch (OBJECT_NOT_EXIST e)
+        {
+            // expected
+        }
+
+        try
+        {
+            _consumerAdmin.get_qos();
+            fail();
+        } catch (OBJECT_NOT_EXIST e)
+        {
+            // expected
+        }
+        channel_.destroy();
+
+        try
+        {
+            channel_.MyFactory();
+            fail();
+        } catch (OBJECT_NOT_EXIST e)
+        {
+            // expected
+        }
+    }
+    
     static void assertContains(int i, int[] is)
     {
         boolean seen = false;

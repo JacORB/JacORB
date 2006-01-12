@@ -46,7 +46,6 @@ import org.omg.CosEventComm.PushSupplier;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosTypedEventChannelAdmin.InterfaceNotSupported;
-import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerPOATie;
 import org.omg.PortableServer.DynamicImplementation;
@@ -238,13 +237,9 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         }
     }
 
-    public Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new TypedProxyPushConsumerPOATie(this);
-        }
-        return thisServant_;
+        return new TypedProxyPushConsumerPOATie(this);
     }
 
     /**

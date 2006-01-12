@@ -35,7 +35,6 @@ import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PullSupplier;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
@@ -138,14 +137,9 @@ public class ProxyPullConsumerImpl extends AbstractProxyConsumer implements
         pollTaskUtility_.stopTask();
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new ProxyPullConsumerPOATie(this);
-        }
-
-        return thisServant_;
+        return new ProxyPullConsumerPOATie(this);
     }
 
     // //////////////////////////////////////

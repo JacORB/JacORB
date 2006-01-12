@@ -37,7 +37,7 @@ import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.container.BiDirGiopPOAComponentAdapter;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.servant.ManageableServant;
+import org.jacorb.notification.lifecycle.ManageableServant;
 import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.PropertySet;

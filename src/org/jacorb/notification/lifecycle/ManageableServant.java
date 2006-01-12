@@ -1,9 +1,9 @@
-package org.jacorb.notification.servant;
+package org.jacorb.notification.lifecycle;
 
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1997-2006 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,8 +26,8 @@ package org.jacorb.notification.servant;
  * @version $Id$
  */
 
-public interface ManageableServant {
-
+public interface ManageableServant 
+{
     org.omg.CORBA.Object activate();
 
     void deactivate();

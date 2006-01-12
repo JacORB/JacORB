@@ -33,7 +33,6 @@ import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushConsumer;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
@@ -146,13 +145,9 @@ public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         schedulePush();
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new ProxyPushSupplierPOATie(this);
-        }
-        return thisServant_;
+        return new ProxyPushSupplierPOATie(this);
     }
 
     public long getCost()

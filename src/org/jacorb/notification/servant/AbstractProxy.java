@@ -39,6 +39,8 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.JMXManageable;
+import org.jacorb.notification.lifecycle.IServantLifecyle;
+import org.jacorb.notification.lifecycle.ServantLifecyleControl;
 import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.QoSPropertySet;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -60,7 +62,6 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.MappingFilterHelper;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
 import org.picocontainer.PicoContainer;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
@@ -75,7 +76,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
  */
 
 public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOperations,
-        FilterStage, ManageableServant, Configurable, JMXManageable, AbstractProxyMBean
+        FilterStage, IServantLifecyle, Configurable, JMXManageable, AbstractProxyMBean
 {
     private final MappingFilter nullMappingFilterRef_;
 
@@ -92,8 +93,6 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     protected final OfferManager offerManager_;
 
     protected final SubscriptionManager subscriptionManager_;
-
-    protected Servant thisServant_;
 
     private MappingFilter lifetimeFilter_;
 
@@ -135,6 +134,8 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     private JMXManageable.JMXCallback jmxCallback_;
 
     protected Configuration config_;
+    
+    private final ServantLifecyleControl servantLifecycle_ = new ServantLifecyleControl(this);
     
     // //////////////////////////////////////
 
@@ -186,7 +187,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         return isIDPublic_;
     }
 
-    protected POA getPOA()
+    public final POA getPOA()
     {
         return poa_;
     }
@@ -198,13 +199,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     public final org.omg.CORBA.Object activate()
     {
-        try
-        {
-            return getPOA().servant_to_reference(getServant());
-        } catch (Exception e)
-        {
-            throw new RuntimeException();
-        }
+        return servantLifecycle_.activate();
     }
     
     protected TaskProcessor getTaskProcessor()
@@ -307,20 +302,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     public final void deactivate()
     {
-        logger_.info("deactivate Proxy");
-
-        try
-        {
-            byte[] _oid = getPOA().servant_to_id(getServant());
-            getPOA().deactivate_object(_oid);
-        } catch (Exception e)
-        {
-            logger_.error("Couldn't deactivate Proxy", e);
-        }
-        finally
-        {
-            thisServant_ = null;
-        }
+        servantLifecycle_.deactivate();
     }
 
     private void tryDisconnectClient()
@@ -332,6 +314,8 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
                 logger_.info("disconnect_client");
 
                 disconnectClient();
+                
+                client_._release();
             }
         } catch (Exception e)
         {
@@ -553,8 +537,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
      */
     protected abstract void disconnectClient();
 
-    protected abstract Servant getServant();
-
+    
     protected void handleDisconnected(Disconnected e)
     {
         logger_.fatalError("Illegal state: Client think it's disconnected. "

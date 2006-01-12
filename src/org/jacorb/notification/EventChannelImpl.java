@@ -65,8 +65,6 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
     
     private final EventChannel thisRef_;
 
-    private final Servant thisServant_;
-
     ////////////////////////////////////////
 
     public EventChannelImpl(IFactory factory, ORB orb, POA poa, Configuration config,
@@ -76,9 +74,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
         eventChannelFactory_ = factoryRef;
 
-        thisServant_ = new EventChannelPOATie(this);
-
-        thisRef_ = EventChannelHelper.narrow(thisServant_._this_object(orb_));
+        thisRef_ = EventChannelHelper.narrow(activate());
 
         container_.registerComponent(new CORBAObjectComponentAdapter(EventChannel.class,
                 EventChannelHelper.narrow(thisRef_)));
@@ -98,14 +94,9 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
         });
     }
 
-    protected Servant getServant()
+    public Servant newServant()
     {
-        return thisServant_;
-    }
-
-    public synchronized org.omg.CORBA.Object activate()
-    {
-        return thisRef_;
+        return new EventChannelPOATie(this);
     }
 
     protected AbstractAdmin newConsumerAdmin(final int id)

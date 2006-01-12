@@ -65,7 +65,7 @@ public class BSHFilter extends AbstractFilter
     public BSHFilter(Configuration config, EvaluationContextFactory evaluationContextFactory,
             MessageFactory messageFactory, ORB orb, POA poa) throws ConfigurationException
     {
-        super(config, evaluationContextFactory, messageFactory, orb, poa);
+        super(config, evaluationContextFactory, messageFactory, poa);
     }
 
     public String constraint_grammar()

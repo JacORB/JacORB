@@ -28,8 +28,6 @@ import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UNKNOWN;
-import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdmin;
-import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdminHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdminOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdminPOATie;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplier;
@@ -47,10 +45,6 @@ import org.picocontainer.MutablePicoContainer;
 public class TypedConsumerAdminImpl extends ConsumerAdminImpl implements
         TypedConsumerAdminOperations
 {
-    private final TypedConsumerAdmin thisRef_;
-
-    ////////////////////////////////////////
-
     public TypedConsumerAdminImpl(ORB orb, POA poa, Configuration config,
             MessageFactory messageFactory, OfferManager offerManager,
             SubscriptionManager subscriptionManager, 
@@ -58,19 +52,14 @@ public class TypedConsumerAdminImpl extends ConsumerAdminImpl implements
     {
         super(channelServant, orb, poa, config, messageFactory, offerManager, subscriptionManager);
   
-        thisRef_ = TypedConsumerAdminHelper.narrow(getServant()._this_object(getORB()));
+        activate();
     }
 
     ////////////////////////////////////////
 
-    protected Servant createServant()
+    public Servant newServant()
     {
         return new TypedConsumerAdminPOATie(this);
-    }
-
-    public org.omg.CORBA.Object activate()
-    {
-        return thisRef_;
     }
 
     public TypedProxyPullSupplier obtain_typed_notification_pull_supplier(String type, IntHolder id)

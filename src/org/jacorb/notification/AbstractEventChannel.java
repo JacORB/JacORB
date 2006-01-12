@@ -33,11 +33,13 @@ import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.FilterStageSource;
 import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.interfaces.ProxyEvent;
+import org.jacorb.notification.interfaces.ProxyEventAdapter;
 import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.jacorb.notification.lifecycle.IServantLifecyle;
+import org.jacorb.notification.lifecycle.ServantLifecyleControl;
 import org.jacorb.notification.servant.AbstractAdmin;
 import org.jacorb.notification.servant.AbstractSupplierAdmin;
 import org.jacorb.notification.servant.FilterStageListManager;
-import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.PropertySet;
@@ -59,7 +61,6 @@ import org.omg.CosNotifyChannelAdmin.AdminNotFound;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
@@ -73,7 +74,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
  * @version $Id$
  */
 
-public abstract class AbstractEventChannel implements ManageableServant, JMXManageable
+public abstract class AbstractEventChannel implements IServantLifecyle, JMXManageable
 {
     /**
      * This key is reserved for the default supplier admin and the default consumer admin.
@@ -146,16 +147,11 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
      */
     private final AtomicInteger numberOfSuppliers_ = new AtomicInteger(0);
 
-    private final ProxyEventListener proxyConsumerEventListener_ = new ProxyEventListener()
+    private final ProxyEventListener proxyConsumerEventListener_ = new ProxyEventAdapter()
     {
         public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
         {
             addConsumer();
-        }
-
-        public void actionProxyCreated(ProxyEvent event)
-        {
-            // No Op
         }
 
         public void actionProxyDisposed(ProxyEvent event)
@@ -164,18 +160,13 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
         }
     };
 
-    private final ProxyEventListener proxySupplierEventListener_ = new ProxyEventListener()
+    private final ProxyEventListener proxySupplierEventListener_ = new ProxyEventAdapter()
     {
-        public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
+    		public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
         {
             addSupplier();
         }
-
-        public void actionProxyCreated(ProxyEvent event)
-        {
-            // No OP
-        }
-
+        
         public void actionProxyDisposed(ProxyEvent event)
         {
             removeSupplier();
@@ -190,6 +181,8 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
 
     protected JMXManageable.JMXCallback jmxCallback_;
 
+    private final ServantLifecyleControl servantLifecyle_;
+    
     ////////////////////////////////////////
 
     public AbstractEventChannel(IFactory factory, ORB orb, POA poa, Configuration config,
@@ -231,10 +224,22 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
                 }
             }
         };
+        
+        servantLifecyle_ = new ServantLifecyleControl(this);
     }
 
     ////////////////////////////////////////
 
+    public final void deactivate()
+    {
+        servantLifecyle_.deactivate();
+    }
+    
+    public final org.omg.CORBA.Object activate()
+    {
+        return servantLifecyle_.activate();
+    }
+    
     /**
      * Callback to help keep track of the number of Consumers.
      * 
@@ -440,12 +445,7 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
         disposables_.dispose();
     }
 
-    /**
-     * Override this method from the Servant baseclass. Fintan Bolton in his book "Pure CORBA"
-     * suggests that you override this method to avoid the risk that a servant object (like this
-     * one) could be activated by the <b>wrong </b> POA object.
-     */
-    public final POA _default_POA()
+    public final POA getPOA()
     {
         return poa_;
     }
@@ -518,21 +518,6 @@ public abstract class AbstractEventChannel implements ManageableServant, JMXMana
         }
     }
     
-    public final void deactivate()
-    {
-        try
-        {
-            poa_.deactivate_object(poa_.servant_to_id(getServant()));
-        } catch (Exception e)
-        {
-            logger_.error("Unable to deactivate EventChannel Object", e);
-
-            throw new RuntimeException();
-        }
-    }
-
-    abstract protected Servant getServant();
-
     private Property[] createQoSPropertiesForAdmin()
     {
         Map _copy = new HashMap(qosSettings_.toMap());

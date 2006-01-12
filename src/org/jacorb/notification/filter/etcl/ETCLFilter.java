@@ -49,7 +49,7 @@ public class ETCLFilter extends AbstractFilter implements ETCLFilterMBean
             MessageFactory messageFactory, 
             ORB orb, POA poa) throws ConfigurationException
     {
-        super(config, evaluationContextFactory, messageFactory, orb, poa);
+        super(config, evaluationContextFactory, messageFactory, poa);
     }
 
     public FilterConstraint newFilterConstraint(ConstraintExp constraintExp)

@@ -27,7 +27,6 @@ import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventChannelAdmin.ProxyPushConsumerHelper;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumerOperations;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumerPOATie;
 import org.omg.PortableServer.POA;
@@ -57,13 +56,8 @@ public class ECProxyPushConsumerImpl
     }
 
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if ( thisServant_ == null )
-        {
-            thisServant_ = new ProxyPushConsumerPOATie( this );
-        }
-
-        return thisServant_;
+        return new ProxyPushConsumerPOATie( this );
     }
 }

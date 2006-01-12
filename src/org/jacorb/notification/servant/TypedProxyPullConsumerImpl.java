@@ -49,7 +49,6 @@ import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosTypedEventComm.TypedPullSupplier;
-import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerPOATie;
 import org.omg.PortableServer.POA;
@@ -282,13 +281,9 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
         }
     }
 
-    public Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new TypedProxyPullConsumerPOATie(this);
-        }
-        return thisServant_;
+        return new TypedProxyPullConsumerPOATie(this);
     }
 
     /**

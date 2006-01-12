@@ -29,12 +29,10 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.Object;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
@@ -150,19 +148,13 @@ public class SequenceProxyPullSupplierImpl extends AbstractProxySupplier impleme
         destroy();
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new SequenceProxyPullSupplierPOATie(this);
-        }
-
-        return thisServant_;
+        return new SequenceProxyPullSupplierPOATie(this);
     }
 
     protected long getCost()
     {
-        // TODO Auto-generated method stub
         return 0;
     }
 

@@ -45,13 +45,13 @@ import org.jacorb.notification.interfaces.EvaluationContextFactory;
 import org.jacorb.notification.interfaces.GCDisposable;
 import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.servant.ManageableServant;
+import org.jacorb.notification.lifecycle.IServantLifecyle;
+import org.jacorb.notification.lifecycle.ServantLifecyleControl;
 import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.LogUtil;
 import org.jacorb.notification.util.WildcardMap;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
@@ -59,17 +59,13 @@ import org.omg.CosNotifyComm.NotifySubscribe;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.ConstraintNotFound;
-import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterOperations;
 import org.omg.CosNotifyFilter.FilterPOATie;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAPackage.ObjectNotActive;
-import org.omg.PortableServer.POAPackage.ServantNotActive;
-import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.omg.PortableServer.Servant;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
 import edu.emory.mathcs.backport.java.util.concurrent.locks.ReadWriteLock;
@@ -131,7 +127,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLo
  * @version $Id$
  */
 
-public abstract class AbstractFilter implements GCDisposable, ManageableServant, 
+public abstract class AbstractFilter implements GCDisposable, IServantLifecyle, 
         FilterOperations, JMXManageable, AbstractFilterMBean
 {
     private static int sCount_ = 0;
@@ -149,8 +145,6 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
             .calcConstraintKey("*", "*");
 
     // //////////////////////////////////////
-
-    private final FilterPOATie servant_;
 
     private final DisposableManager disposables_ = new DisposableManager();
 
@@ -174,27 +168,22 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
     private final POA poa_;
 
-    private final ORB orb_;
-
-    private Filter thisRef_;
-
     private final Logger logger_;
 
     private final EvaluationContextFactory evaluationContextFactory_;
 
-    private final AtomicBoolean isActivated = new AtomicBoolean(false);
-
     private final long maxIdleTime_;
+
+    private final ServantLifecyleControl servantLifecyle_;
 
     // //////////////////////////////////////
 
     protected AbstractFilter(Configuration config,
             EvaluationContextFactory evaluationContextFactory, MessageFactory messageFactory,
-            ORB orb, POA poa) throws ConfigurationException
+            POA poa) throws ConfigurationException
     {
         super();
 
-        orb_ = orb;
         poa_ = poa;
         logger_ = LogUtil.getLogger(config, getClass().getName());
 
@@ -215,14 +204,22 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
 
         filterUsageDecorator_ = new FilterUsageDecorator(this);
 
-        servant_ = new FilterPOATie(filterUsageDecorator_.getFilterOperations());
-
         maxIdleTime_ = config.getAttributeAsLong(Attributes.DEAD_FILTER_INTERVAL,
                 Default.DEFAULT_DEAD_FILTER_INTERVAL);
+        
+        servantLifecyle_ = new ServantLifecyleControl(this);
     }
 
-    // //////////////////////////////////////
+    public final Servant newServant()
+    {
+        return new FilterPOATie(filterUsageDecorator_.getFilterOperations());
+    }
 
+    public final POA getPOA()
+    {
+        return poa_;
+    }
+    
     private WildcardMap newWildcardMap(Configuration config) throws ConfigurationException
     {
         String wildcardMapImpl = config.getAttribute(Attributes.WILDCARDMAP_CLASS,
@@ -263,33 +260,14 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
     }
 
     
-    public org.omg.CORBA.Object activate()
+    public final org.omg.CORBA.Object activate()
     {
-        if (thisRef_ == null)
-        {
-            thisRef_ = servant_._this(orb_);
-
-            isActivated.set(true);
-        }
-
-        return thisRef_;
+        return servantLifecyle_.activate();
     }
 
-    public void deactivate()
+    public final void deactivate()
     {
-        try
-        {
-            poa_.deactivate_object(poa_.servant_to_id(servant_));
-        } catch (WrongPolicy e)
-        {
-            logger_.fatalError("error deactivating object", e);
-        } catch (ObjectNotActive e)
-        {
-            logger_.fatalError("error deactivating object", e);
-        } catch (ServantNotActive e)
-        {
-            logger_.fatalError("error deactivating object", e);
-        }
+        servantLifecyle_.deactivate();
     }
 
     protected int newConstraintId()
@@ -322,7 +300,7 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
      */
     public ConstraintInfo[] add_constraints(ConstraintExp[] constraintExp) throws InvalidConstraint
     {
-        FilterConstraint[] _arrayFilterConstraint = newFilterConstraints(constraintExp);
+        final FilterConstraint[] _arrayFilterConstraint = newFilterConstraints(constraintExp);
 
         // access writeonly lock
         constraintsLock_.writeLock().lock();
@@ -417,8 +395,6 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
      */
     protected abstract FilterConstraint newFilterConstraint(ConstraintExp constraintExp)
             throws InvalidConstraint;
-
-    // //////////
 
     public void modify_constraints(int[] deleteIds, ConstraintInfo[] constraintInfo)
             throws ConstraintNotFound, InvalidConstraint
@@ -900,19 +876,9 @@ public abstract class AbstractFilter implements GCDisposable, ManageableServant,
                 .toArray(EventTypeWrapper.EMPTY_EVENT_TYPE_ARRAY));
     }
 
-    public POA _default_POA()
-    {
-        return poa_;
-    }
-
     public void dispose()
     {
-        if (isActivated.get())
-        {
-            deactivate();
-
-            isActivated.set(false);
-        }
+        deactivate();
 
         disposables_.dispose();
     }

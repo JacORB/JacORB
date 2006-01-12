@@ -32,7 +32,6 @@ import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerPOATie;
@@ -107,13 +106,8 @@ public class SequenceProxyPushConsumerImpl extends AbstractProxyConsumer impleme
         destroy();
     }
 
-    public synchronized Servant getServant()
+    public synchronized Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new SequenceProxyPushConsumerPOATie(this);
-        }
-
-        return thisServant_;
+        return new SequenceProxyPushConsumerPOATie(this);
     }
 }

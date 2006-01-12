@@ -31,14 +31,13 @@ import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.GCDisposable;
-import org.jacorb.notification.servant.ManageableServant;
+import org.jacorb.notification.lifecycle.IServantLifecyle;
+import org.jacorb.notification.lifecycle.ServantLifecyleControl;
 import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.LogUtil;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.CosNotifyFilter.FilterFactoryHelper;
 import org.omg.CosNotifyFilter.FilterFactoryPOA;
 import org.omg.CosNotifyFilter.FilterHelper;
 import org.omg.CosNotifyFilter.InvalidGrammar;
@@ -54,7 +53,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  * @version $Id$
  */
 
-public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, ManageableServant
+public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, IServantLifecyle
 {
     private class GCThread extends Thread implements Disposable
     {
@@ -136,13 +135,13 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
 
     protected final Logger logger_;
 
-    private FilterFactory thisFilter_;
-
     private final IFilterFactoryDelegate factoryDelegate_;
 
     private final boolean useGarbageCollector_;
 
     private final Configuration config_;
+
+    private final ServantLifecyleControl servantLifecycle_;
 
     // //////////////////////////////////////
 
@@ -172,6 +171,8 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
             
             _gcThread.start();
         }
+        
+        servantLifecycle_ = new ServantLifecyleControl(this);
     }
 
     public final void addDisposeHook(Disposable d)
@@ -226,29 +227,17 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
 
     public final void deactivate()
     {
-        try
-        {
-            poa_.deactivate_object(poa_.servant_to_id(getServant()));
-        } catch (Exception e)
-        {
-            logger_.fatalError("cannot deactivate object", e);
-            throw new RuntimeException();
-        }
+        servantLifecycle_.deactivate();
     }
 
-    protected Servant getServant()
+    public Servant newServant()
     {
         return this;
     }
 
-    public synchronized org.omg.CORBA.Object activate()
+    public final org.omg.CORBA.Object activate()
     {
-        if (thisFilter_ == null)
-        {
-            thisFilter_ = FilterFactoryHelper.narrow(getServant()._this_object(orb_));
-        }
-        
-        return thisFilter_;
+        return servantLifecycle_.activate();
     }
 
     public final void dispose()
@@ -262,13 +251,13 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
         }
     }
 
-    public final POA _default_POA()
-    {
-        return poa_;
-    }
-
     protected final ORB getORB()
     {
         return orb_;
+    }
+    
+    public POA getPOA()
+    {
+        return poa_;
     }
 }

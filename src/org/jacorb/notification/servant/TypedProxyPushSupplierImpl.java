@@ -44,7 +44,6 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosTypedEventComm.TypedPushConsumer;
-import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierPOATie;
 import org.omg.PortableServer.POA;
@@ -244,14 +243,9 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
         }
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new TypedProxyPushSupplierPOATie(this);
-        }
-
-        return thisServant_;
+        return new TypedProxyPushSupplierPOATie(this);
     }
 
     protected long getCost()

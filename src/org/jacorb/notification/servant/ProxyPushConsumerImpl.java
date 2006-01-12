@@ -31,7 +31,6 @@ import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushSupplier;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
@@ -110,14 +109,8 @@ public class ProxyPushConsumerImpl extends AbstractProxyConsumer implements
         connectClient(pushSupplier);
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new ProxyPushConsumerPOATie(this);
-        }
-
-        return thisServant_;
+        return new ProxyPushConsumerPOATie(this);
     }
-
 }

@@ -53,7 +53,8 @@ public class AllTest extends JacORBTestSuite
         _suite.addTest(org.jacorb.test.notification.bugs.PackageTest.suite());
         _suite.addTest(org.jacorb.test.notification.filter.PackageTest.suite());
         _suite.addTest(org.jacorb.test.notification.servant.PackageTest.suite());
-        
+        _suite.addTest(org.jacorb.test.notification.lifecycle.PackageTest.suite());
+    
         try
         {
             org.omg.CORBA.Object obj = org.omg.CORBA.ORB.init(new String[0], null)

@@ -59,7 +59,6 @@ import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierPOATie;
 import org.omg.DynamicAny.DynAny;
@@ -428,15 +427,9 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         return ProxyType.PULL_TYPED;
     }
 
-
-    public Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new TypedProxyPullSupplierPOATie(this);
-        }
-        
-        return thisServant_;
+        return new TypedProxyPullSupplierPOATie(this);
     }
 
     public void queueMessage(Message message)
@@ -486,11 +479,8 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
 
     public void disconnectClient()
     {
-        if (pullConsumer_ != null)
-        {
-            pullConsumer_.disconnect_pull_consumer();
-            pullConsumer_ = null;
-        }
+        pullConsumer_.disconnect_pull_consumer();
+        pullConsumer_ = null;
     }
     
     protected long getCost()

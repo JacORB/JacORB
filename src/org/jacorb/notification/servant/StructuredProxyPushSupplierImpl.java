@@ -35,7 +35,6 @@ import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
@@ -180,13 +179,9 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
         pushConsumer_ = NULL_CONSUMER;
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new StructuredProxyPushSupplierPOATie(this);
-        }
-        return thisServant_;
+        return new StructuredProxyPushSupplierPOATie(this);
     }
 
     protected long getCost()

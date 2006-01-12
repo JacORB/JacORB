@@ -43,8 +43,6 @@ import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierPOATie;
 import org.omg.CosNotifyComm.StructuredPullConsumer;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.POAPackage.ServantNotActive;
-import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 /**
  * @jmx.mbean  extends ="AbstractProxyMBean"
@@ -182,14 +180,9 @@ public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier imple
         // as no active deliveries are made this can be ignored
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new StructuredProxyPullSupplierPOATie(this);
-        }
-
-        return thisServant_;
+        return new StructuredProxyPullSupplierPOATie(this);
     }
 
     protected long getCost()

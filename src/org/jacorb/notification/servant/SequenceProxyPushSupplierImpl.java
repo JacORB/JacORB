@@ -41,7 +41,6 @@ import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
 import org.omg.CosNotifyComm.SequencePushConsumer;
@@ -348,14 +347,9 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
         return false;
     }
 
-    public synchronized Servant getServant()
+    public Servant newServant()
     {
-        if (thisServant_ == null)
-        {
-            thisServant_ = new SequenceProxyPushSupplierPOATie(this);
-        }
-
-        return thisServant_;
+        return new SequenceProxyPushSupplierPOATie(this);
     }
 
     protected long getCost()
