@@ -207,7 +207,7 @@ public abstract class AbstractFilter implements GCDisposable, IServantLifecyle,
         maxIdleTime_ = config.getAttributeAsLong(Attributes.DEAD_FILTER_INTERVAL,
                 Default.DEFAULT_DEAD_FILTER_INTERVAL);
         
-        servantLifecyle_ = new ServantLifecyleControl(this);
+        servantLifecyle_ = new ServantLifecyleControl(this, config);
     }
 
     public final Servant newServant()

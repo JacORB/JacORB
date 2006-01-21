@@ -95,4 +95,6 @@ public interface Default
     long DEFAULT_DEAD_FILTER_INTERVAL = 0;
 
     boolean DEFAULT_USE_GC = false;
+
+    String DEFAULT_RUN_SYSTEM_GC = "off";
 }

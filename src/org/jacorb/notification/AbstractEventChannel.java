@@ -225,7 +225,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
             }
         };
         
-        servantLifecyle_ = new ServantLifecyleControl(this);
+        servantLifecyle_ = new ServantLifecyleControl(this, config);
     }
 
     ////////////////////////////////////////

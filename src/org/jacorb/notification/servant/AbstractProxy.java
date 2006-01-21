@@ -135,7 +135,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     protected Configuration config_;
     
-    private final ServantLifecyleControl servantLifecycle_ = new ServantLifecyleControl(this);
+    private final ServantLifecyleControl servantLifecycle_;
     
     // //////////////////////////////////////
 
@@ -167,6 +167,8 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
         qosSettings_ = new QoSPropertySet(conf, QoSPropertySet.PROXY_QOS);
 
+        servantLifecycle_ = new ServantLifecyleControl(this, conf);
+        
         configure(conf);
     }
 

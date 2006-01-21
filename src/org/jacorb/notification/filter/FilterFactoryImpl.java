@@ -172,7 +172,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, I
             _gcThread.start();
         }
         
-        servantLifecycle_ = new ServantLifecyleControl(this);
+        servantLifecycle_ = new ServantLifecyleControl(this, config);
     }
 
     public final void addDisposeHook(Disposable d)

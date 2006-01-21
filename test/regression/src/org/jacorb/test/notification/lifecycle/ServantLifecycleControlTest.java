@@ -63,7 +63,7 @@ public class ServantLifecycleControlTest extends TestCase
         poaMock_ = (POA) poaControl_.getMock();
         lifecycleDelegateControl_ = MockControl.createControl(IServantLifecyle.class);
         lifecycleDelegateMock_ = (IServantLifecyle) lifecycleDelegateControl_.getMock();
-        objectUnderTest_ = new ServantLifecyleControl(lifecycleDelegateMock_);
+        objectUnderTest_ = new ServantLifecyleControl(lifecycleDelegateMock_, false);
 
         lifecycleDelegateMock_.getPOA();
         lifecycleDelegateControl_.setReturnValue(poaMock_, MockControl.ZERO_OR_MORE);

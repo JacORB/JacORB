@@ -52,11 +52,6 @@ public class GarbageCollectTest extends NotificationTestCase
 
     private IContainer iContainerForTest_;
 
-    /**
-     * Constructor for FilterGarbageCollectTest.
-     *
-     * @param name
-     */
     public GarbageCollectTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
@@ -64,8 +59,6 @@ public class GarbageCollectTest extends NotificationTestCase
 
     protected void setUpTest() throws Exception
     {
-        super.setUpTest();
-
         controlConfiguration_ = MockControl.createControl(Configuration.class);
 
         iContainerForTest_ = new IContainer()
@@ -103,6 +96,9 @@ public class GarbageCollectTest extends NotificationTestCase
                 Default.DEFAULT_DEAD_FILTER_INTERVAL);
         controlConfiguration_.setReturnValue(100);
 
+        controlConfiguration_.expectAndReturn(mockConfiguration_.getAttribute(Attributes.RUN_SYSTEM_GC, Default.DEFAULT_RUN_SYSTEM_GC), "off");
+        controlConfiguration_.expectAndReturn(mockConfiguration_.getAttribute(Attributes.RUN_SYSTEM_GC, Default.DEFAULT_RUN_SYSTEM_GC), "off");
+        
         // another picocontainer is necessary so that registered
         // Configuration can be overridden locally to configure
         // garbage collection.  
@@ -110,7 +106,7 @@ public class GarbageCollectTest extends NotificationTestCase
 
         controlConfiguration_.replay();
 
-        // will use local configuration.
+        // will use our mocked configuration.
         FilterFactoryImpl factoryServant_ = new FilterFactoryImpl(getORB(), getPOA(),
                 mockConfiguration_, new DefaultFilterFactoryDelegate(iContainerForTest_, mockConfiguration_));
 

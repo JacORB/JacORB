@@ -119,4 +119,6 @@ public interface Attributes
     String RETRY_STRATEGY_FACTORY = "jacorb.notification.proxysupplier.retrystrategy_factory";
 
     String DEAD_FILTER_INTERVAL = "jacorb.notification.filter.dead_interval";
+
+    String RUN_SYSTEM_GC = "jacorb.notification.servant.deactivate.run_system_gc";
 }

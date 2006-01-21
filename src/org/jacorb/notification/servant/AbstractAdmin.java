@@ -209,7 +209,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
         subscriptionManager_ = subscriptionManager;
         
-        servantLifecycle_ = new ServantLifecyleControl(this);
+        servantLifecycle_ = new ServantLifecyleControl(this, config);
     }
 
     public final void registerDisposable(Disposable disposable)
