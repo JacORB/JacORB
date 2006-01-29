@@ -459,10 +459,10 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
                             removeListener();
                         } catch (InvalidEventType e)
                         {
-                            logger_.error("invalid event type", e);
+                            logger_.warn("invalid event type", e);
                         } catch (Exception e)
                         {
-                            logger_.error("offer_change failed", e);
+                            logger_.warn("offer_change failed", e);
                         }
                     }
                 };
