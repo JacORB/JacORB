@@ -94,7 +94,7 @@ public class SubscriptionManager extends EventTypeSet implements NotifySubscribe
                     _listener.subscription_change(added, removed);
                 } catch (Exception e)
                 {
-                    logger_.error("subscription_change failed for " + _listener, e);
+                    logger_.warn("subscription_change failed for " + _listener, e);
                 }
             }
         }

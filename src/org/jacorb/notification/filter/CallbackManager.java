@@ -101,7 +101,7 @@ public class CallbackManager extends EventTypeSet implements Disposable
                 notifySubscribe.subscription_change(added, removed);
             } catch (InvalidEventType e)
             {
-                logger_.error("error during subscription_change", e);
+                logger_.warn("error during subscription_change", e);
             }
         }
     }

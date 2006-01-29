@@ -92,7 +92,7 @@ public class OfferManager extends EventTypeSet implements NotifyPublishOperation
                     _listener.offer_change(added, removed);
                 } catch (Exception e)
                 {
-                    logger_.error("offer_change failed for " + _listener, e);
+                    logger_.warn("offer_change failed for " + _listener, e);
                 }
             }
         }
