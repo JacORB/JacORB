@@ -600,7 +600,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
     public void registerName(Properties props) throws Exception
     {
-        registerName(props.getProperty(Attributes.REGISTER_NAME_ID), props.getProperty(
+        registerName(props.getProperty(Attributes.REGISTER_NAME_ID, null), props.getProperty(
                 Attributes.REGISTER_NAME_KIND, ""));
     }
 

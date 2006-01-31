@@ -109,6 +109,13 @@ public class ConsoleMain
 
     public static void addCOSNamingName(Properties props, String name)
     {
+        if (name == null || name.length() == 0)
+        {
+            props.remove(Attributes.REGISTER_NAME_ID);
+            props.remove(Attributes.REGISTER_NAME_KIND);
+            return;
+        }
+        
         int index = name.indexOf(".");
         if (name.lastIndexOf(".") != index)
         {
