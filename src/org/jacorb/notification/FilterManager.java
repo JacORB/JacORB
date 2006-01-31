@@ -89,13 +89,13 @@ public class FilterManager implements FilterAdminOperations
     {
         Integer _key = newFilterID();
 
-        if (logger_.isWarnEnabled())
+        if (logger_.isInfoEnabled())
         {
             try
             {
                 if (!((org.omg.CORBA.portable.ObjectImpl) filter)._is_local())
                 {
-                    logger_.warn("filter is not local!");
+                    logger_.info("filter is not local!");
                 }
             } catch (Exception e)
             {
