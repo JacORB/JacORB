@@ -24,12 +24,12 @@ public class ExceptionTest{
 
 	int _correct_results = 0;
 	int _incorrect_results = 0;
-  
+
 	try{
 
 	    //start trader
 	    Runtime _rt = Runtime.getRuntime();
-	    new OutputForwarder(_rt.exec("ts " + args[0] + " -d db"), "Trader");
+	    new OutputForwarder(_rt.exec("trader " + args[0] + " -d db"), "Trader");
 
 	    System.out.println("Press any key when Trader is ready");
 	    System.in.read();
@@ -59,7 +59,7 @@ public class ExceptionTest{
 	    }
 
 	    System.out.println("********** Testing exceptions **********");
-	    
+
 
 	    //IllegalLinkName
 	    try{
@@ -75,14 +75,14 @@ public class ExceptionTest{
 		    System.out.println("Test failed");
 		    _incorrect_results++;
 		}
-	    }	    
+	    }
 
 	    // DuplicateLinkName
 	    try{
 		_link.add_link("link", _lookup, FollowOption.if_no_local, FollowOption.if_no_local);
-		System.out.println("\nExpecting DuplicateLinkName"); 
+		System.out.println("\nExpecting DuplicateLinkName");
 		_link.add_link("link", _lookup, FollowOption.if_no_local, FollowOption.if_no_local);
-	    }catch(Exception _e){		
+	    }catch(Exception _e){
 		System.out.println("Caught "  + _e.toString());
 		if (_e instanceof DuplicateLinkName){
 		    System.out.println("Test passed");
@@ -109,7 +109,7 @@ public class ExceptionTest{
 		    _incorrect_results++;
 		}
 	    }
-	    
+
 	    //DefaultFollowTooPermissive
 	    try{
 		System.out.println("\nExpecting DefaultFollowTooPermissive");
@@ -149,12 +149,12 @@ public class ExceptionTest{
 	    }catch(Exception e){
 		e.printStackTrace();
 	    }
-	    
+
 
 	    System.out.println("\n********** Testing link modification **********");
-	    
+
 	    LinkInfo _info = _link.describe_link("link5");
-	    if (_info.def_pass_on_follow_rule.value() == FollowOption.local_only.value() && 
+	    if (_info.def_pass_on_follow_rule.value() == FollowOption.local_only.value() &&
 		_info.limiting_follow_rule.value() == FollowOption.local_only.value()){
 		System.out.println("Test passed");
 		_correct_results++;
@@ -172,7 +172,7 @@ public class ExceptionTest{
 	     }catch(Exception e){
 		 e.printStackTrace();
 	     }
-	    
+
 	     String[] _links_names = _link.list_links();
 	     boolean _failed = false;
 
@@ -199,7 +199,7 @@ public class ExceptionTest{
 	System.out.println("Incorrect results: " + _incorrect_results);
 
 	System.exit(0);
-    }    
+    }
 } // ExceptionTest
 
 
