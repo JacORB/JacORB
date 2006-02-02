@@ -1,55 +1,61 @@
 #ifndef _map_idl
 #define _map_idl
 
-module Map {
+module test {
+  module idl {
+    module OBV {
+      module Map {
 
-  valuetype Point {
-    public long x;
-    public long y;
-    public string label;
+        valuetype Point {
+          public long x;
+          public long y;
+          public string label;
 
-    void print();
-  };
+          void print();
+        };
 
-  typedef sequence<Point> PointSeq;
+        typedef sequence<Point> PointSeq;
 
-  valuetype ConnectedPoint : truncatable Point {
-    public PointSeq connected_points;
+        valuetype ConnectedPoint : truncatable Point {
+          public PointSeq connected_points;
 
-    void add_connection(in Point p);
-  };
+          void add_connection(in Point p);
+        };
 
-  typedef sequence<ConnectedPoint> ConnectedPointSeq;
+        typedef sequence<ConnectedPoint> ConnectedPointSeq;
 
-  valuetype Label string;
-  typedef sequence<Label> LabelSeq;
+        valuetype Label string;
+        typedef sequence<Label> LabelSeq;
 
-  exception DuplicatePoint {};
-  exception UnknownPoint { Label lab; };
-  exception InvalidPoint {};
+        exception DuplicatePoint {};
+        exception UnknownPoint { Label lab; };
+        exception InvalidPoint {};
 
-  interface PointManager {
+        interface PointManager {
 
-    string get_name();
+          string get_name();
 
-    Point create_point(in long x, in long y, in Label lab,
-                       in boolean connectable)
-      raises(DuplicatePoint, InvalidPoint);
+          Point create_point(in long x, in long y, in Label lab,
+                             in boolean connectable)
+            raises(DuplicatePoint, InvalidPoint);
 
-    Point get_point(in Label lab)
-      raises(UnknownPoint, InvalidPoint);
+          Point get_point(in Label lab)
+            raises(UnknownPoint, InvalidPoint);
 
-    void destroy_point(in Label lab)
-      raises(UnknownPoint, InvalidPoint);
+          void destroy_point(in Label lab)
+            raises(UnknownPoint, InvalidPoint);
 
-    void connect_point(in Label lab,
-                       in LabelSeq connectTo)
-      raises(UnknownPoint, InvalidPoint);
+          void connect_point(in Label lab,
+                             in LabelSeq connectTo)
+            raises(UnknownPoint, InvalidPoint);
 
-    // returns 'scaling_factor' number of copies of 
-    // every created point.
-    PointSeq list_points(in unsigned long scaling_factor);
+          // returns 'scaling_factor' number of copies of 
+          // every created point.
+          PointSeq list_points(in unsigned long scaling_factor);
 	
+        };
+      };
+    };
   };
 };
 

@@ -1,5 +1,4 @@
-package Map;
-
+package test.idl.OBV.Map;
 
 /**
  * <ul>
@@ -15,9 +14,9 @@ package Map;
  * </pre>
  */
 public class PointDefaultFactory
-    implements org.omg.CORBA.portable.ValueFactory 
+    implements org.omg.CORBA.portable.ValueFactory
 {
-    public java.io.Serializable read_value (org.omg.CORBA_2_3.portable.InputStream is) 
+    public java.io.Serializable read_value (org.omg.CORBA_2_3.portable.InputStream is)
     {
         int x = is.read_long();
         int y = is.read_long();

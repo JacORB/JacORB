@@ -35,7 +35,7 @@ public class SessionFactoryServant
             }
             catch( Exception e )
             {
-                org.jacorb.util.Debug.output(1,e);
+                e.printStackTrace();
                 throw new org.omg.CORBA.UNKNOWN();
             }
         }

@@ -7,7 +7,7 @@
   <!-- ==================================================== -->
 
    <target name="init">
-	<property name="name" value="map"/>
+	<property name="name" value="Map"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
@@ -31,8 +31,8 @@
    </target>
 
    <target name="idl" depends="init">
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
+        <java classname="org.jacorb.idl.parser"
+              fork="yes"
               classpath="${lib}/idl.jar;${java.class.path}">
 
 	      <arg line="${idlflags} test/idl/OBV/Map/map.idl"/>
@@ -46,8 +46,3 @@
    </target>
 
 </project>
-
-
-
-
-

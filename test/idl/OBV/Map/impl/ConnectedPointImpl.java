@@ -1,4 +1,5 @@
-package Map;
+package test.idl.OBV.Map;
+
 /**
  * <p>
  * <ul>
@@ -16,8 +17,8 @@ package Map;
  * </pre>
  * </p>
  */
-public class ConnectedPointImpl 
-    extends ConnectedPoint 
+public class ConnectedPointImpl
+    extends ConnectedPoint
 {
     public ConnectedPointImpl() {}
 
@@ -27,7 +28,7 @@ public class ConnectedPointImpl
         label = a_label;
         connected_points = a_connected_points;
     }
- 
+
     /**
      * <p>
      * Operation: <b>::Point::print</b>.

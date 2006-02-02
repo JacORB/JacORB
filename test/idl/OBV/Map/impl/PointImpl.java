@@ -1,4 +1,4 @@
-package Map;
+package test.idl.OBV.Map;
 
 /**
  * <p>
@@ -18,8 +18,8 @@ package Map;
  * </p>
  */
 
-public class PointImpl 
-    extends Point 
+public class PointImpl
+    extends Point
 {
     public PointImpl() {}
 

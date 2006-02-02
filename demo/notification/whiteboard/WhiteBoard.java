@@ -111,7 +111,6 @@ public class WhiteBoard
 	    _constraints[0].event_types = new EventType[] {new EventType(EVENT_DOMAIN, "*")};
 	    _constraints[0].constraint_expr = "$.header.variable_header(" + WORKGROUP_ID + ") != " + _id.intValue();
 
-
 	    _filter.add_constraints(_constraints);
 
 	    SupplierAdmin _supplierAdmin =
@@ -264,4 +263,3 @@ class LocalRegistrationInfo {
     int consumerAdmin_;
     int supplierAdmin_;
 }
-

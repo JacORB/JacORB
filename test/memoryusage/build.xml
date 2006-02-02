@@ -1,17 +1,22 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../etc/common.xml"> ]>
+
 <project name="test" default="all" basedir="../..">
+
+  &common;
 
   <!-- ==================================================== -->
   <!--             Test build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
+   <target name="memoryusage.init">
 	<property name="name" value="memoryusage"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
+        <property name="dest" value="${dirs.base}/test/${name}/generated"/>
 	<property name="idlflags" value="-d ${dirs.base}/test/${name}/generated"/>
    </target>
 
@@ -22,16 +27,28 @@
 	        />
    </target>
 
+
+
+   <target name="idl" depends="memoryusage.init,load-taskdef">
+        <mkdir dir="${dest}" />
+        <jacidl srcdir="test/${name}"
+                destdir="${dest}"
+                includepath="${include}"
+	        includes="*.idl"/>
+   </target>
+
+
+<!--
    <target name="idl" depends="init">
-        <java classname="jacorb.idl.parser" 
-              fork="yes" 
+        <java classname="org.jacorb.idl.parser"
+              fork="yes"
               classpath="${lib}/idl.jar">
 
 	      <arg line="${idlflags}
 	      ${dirs.base}/test/${name}/test.idl"/>
          </java>
    </target>
-
+-->
 
    <target name="clean" depends="init">
            <delete dir="${classdir}/test/memoryusage"/>
@@ -39,8 +56,3 @@
    </target>
 
 </project>
-
-
-
-
-

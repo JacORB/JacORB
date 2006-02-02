@@ -1,9 +1,8 @@
-package Map;
-
+package test.idl.OBV.Map;
 
 /**
  *	Generated from IDL definition of exception "InvalidPoint"
- *	@author JacORB IDL compiler 
+ *	@author JacORB IDL compiler
  */
 
 public final class InvalidPoint
@@ -11,7 +10,7 @@ public final class InvalidPoint
 {
 	public InvalidPoint()
 	{
-		super(Map.InvalidPointHelper.id());
+		super(InvalidPointHelper.id());
 	}
 
 	public InvalidPoint(String value)

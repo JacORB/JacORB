@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!DOCTYPE project [ 
-  <!ENTITY common SYSTEM "file:../../../etc/common.xml" > 
+<!DOCTYPE project [
+  <!ENTITY common SYSTEM "file:../../../etc/common.xml" >
 ]>
 
 <project name="Notification Demo" default="all" basedir="../../..">
@@ -21,7 +21,7 @@
 
     <property name="dir.classes"
       value="${basedir}/classes/demo/notification" />
-    
+
     <mkdir dir="${dir.generated}" />
   </target>
 
@@ -29,23 +29,29 @@
 	<path id="path.src">
 		<pathelement location="${dir.generated}" />
 	</path>
-	
-    <jacorb-javac
+
+    <!-- jacorb-javac
       javac-includes="**/*.java"
       javac-src="${dir.src}"
-	  javac-sourcepath="${dir.generated}" />
+      javac-sourcepath="${dir.generated}" / -->
+
+      	<javac srcdir="${dir.generated}"
+               destdir="${classdir}"/>
+        <javac srcdir="${dir.src}"
+               destdir="${classdir}"/>
+
   </target>
-  
+
   <target name="idl" depends="demo.init, load-taskdef" >
     <jacidl srcdir="${basedir}/demo/notification/whiteboard"
       includepath="${idl}/omg"
       includes="*.idl"
       destdir="${dir.generated}" />
   </target>
-  
+
   <target name="clean">
     <delete dir="${dir.generated}" />
     <delete dir="${basedir}/classes/demo/notification" />
   </target>
-  
+
 </project>
