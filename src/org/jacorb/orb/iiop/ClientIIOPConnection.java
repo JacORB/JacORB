@@ -78,15 +78,15 @@ public class ClientIIOPConnection
         super.configure(configuration);
         //get the client-side timeout property value
 
-        timeout = 
+        timeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.idle_timeout",0 );
-        noOfRetries = 
+        noOfRetries =
             configuration.getAttributeAsInteger("jacorb.retries", 5);
-        retryInterval = 
+        retryInterval =
             configuration.getAttributeAsInteger("jacorb.retry_interval",500);
         doSupportSSL =
             configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
-        transportManager = 
+        transportManager =
             this.configuration.getORB().getTransportManager();
 
     }
@@ -127,17 +127,17 @@ public class ClientIIOPConnection
             {
                 final IIOPLoopbackInputStream lis = new IIOPLoopbackInputStream() ;
                 final IIOPLoopbackOutputStream los = new IIOPLoopbackOutputStream() ;
-                
+
                 loopback.initLoopback(lis, los) ;
-                
+
                 in_stream = lis ;
                 out_stream = los ;
-                
+
                 connected = true;
-                
+
                 //for testing purposes
                 ++openTransports;
-                
+
                 return;
             }
 
@@ -221,18 +221,18 @@ public class ClientIIOPConnection
             }
         }
     }
-    
+
     private IIOPLoopback getLocalLoopback()
     {
         final IIOPProfile iiopProfile = (IIOPProfile)profile ;
         final List addressList = new ArrayList() ;
         addressList.add(iiopProfile.getAddress());
         addressList.addAll(iiopProfile.getAlternateAddresses());
-        
+
         final Iterator addressIterator = addressList.iterator() ;
         final IIOPLoopbackRegistry registry =
             IIOPLoopbackRegistry.getRegistry() ;
-        
+
         while (addressIterator.hasNext())
         {
             final IIOPAddress address = (IIOPAddress)addressIterator.next() ;
@@ -242,7 +242,7 @@ public class ClientIIOPConnection
                 return loopback ;
             }
         }
-        
+
         return null ;
     }
 
@@ -251,7 +251,7 @@ public class ClientIIOPConnection
      * the target profile, starting with the primary IIOP address,
      * and then any alternate IIOP addresses that have been specified.
      */
-    private void createSocket(long time_out) 
+    private void createSocket(long time_out)
         throws IOException
     {
         List addressList = new ArrayList();
@@ -268,7 +268,7 @@ public class ClientIIOPConnection
             {
                 IIOPAddress address = (IIOPAddress)addressIterator.next();
 
-                final SocketFactory factory = 
+                final SocketFactory factory =
                     (use_ssl) ? transportManager.getSSLSocketFactory() :
                     transportManager.getSocketFactory();
 
@@ -319,29 +319,29 @@ public class ClientIIOPConnection
                            self.wait(time_out);
                        }
                    }
-                   catch (InterruptedException _ex) 
+                   catch (InterruptedException _ex)
                    { }
-                   
+
                    if (socket == null)
                    {
                        if (exception == null)
                        {
                            if (logger.isDebugEnabled())
                            {
-                               logger.debug("connect to " + connection_info + 
+                               logger.debug("connect to " + connection_info +
                                             " with timeout=" + time_out + " timed out");
                            }
                            thread.interrupt();
-                           exception = 
+                           exception =
                                new TIMEOUT("connection timeout of " + time_out + " milliseconds expired");
                        }
                        else
-                       {      
+                       {
                            if (logger.isDebugEnabled())
                            {
                                logger.debug("connect to " + connection_info + " with timeout="
                                             + time_out + " raised exception: " + exception.toString());
-                           }                                               
+                           }
                        }
                    }
                 }
@@ -416,7 +416,7 @@ public class ClientIIOPConnection
     }
 
 
-    
+
 
     /**
      * Check if this client should use SSL when connecting to
@@ -425,10 +425,15 @@ public class ClientIIOPConnection
      */
     private void checkSSL()
     {
-        CompoundSecMechList sas
-            = (CompoundSecMechList)((IIOPProfile)profile).getComponent
+        CompoundSecMechList sas;
+        try {
+            sas = (CompoundSecMechList)((IIOPProfile)profile).getComponent
                                            (TAG_CSI_SEC_MECH_LIST.value,
                                             CompoundSecMechListHelper.class);
+        } catch (Throwable ex) {
+            logger.info("Not able to process security mech. component");
+            return;
+        }
 
         TLS_SEC_TRANS tls = null;
         if (sas != null && sas.mechanism_list[0].transport_mech.tag == TAG_TLS_SEC_TRANS.value) {
