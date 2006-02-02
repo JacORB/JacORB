@@ -1,0 +1,21 @@
+module test
+{
+  module servantscaling
+    {
+      interface Session
+	{
+          string getID();
+	};
+
+      enum POA_Kind {PK_SYSTEMID, PK_USERID, PK_DEFSERVANT, PK_SERVANTLOC};
+
+      interface SessionFactory
+	{
+          void create_sessions (in long count);
+
+          Session get_session (in long index);
+
+          void set_poa (in POA_Kind kind);
+	};
+    };
+};
