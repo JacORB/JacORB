@@ -28,13 +28,13 @@
 		</path>
 	</target>
 	
-	<target name="compile" depends="init.local">
+	<target name="compile" depends="init.local" if="jboss.home">
 		<jacorb-javac 	javac-includes="${pkg.project}/*.java, ${pkg.project}/jboss/*.java" 
 						javac-excludes="**/*MBeanDescription.java" 
 						javac-classpathref="classpath" />
 	</target>
 
-	<target name="jar" depends="init.local, compile">
+	<target name="jar" depends="init.local, compile" if="jboss.home">
 		<jar destfile="${path.jar}" basedir="${classdir}">
 			<include name="${pkg.project}/jboss/*.class" />
 
@@ -44,7 +44,7 @@
 		</jar>
 	</target>
 
-	<target name="sar" depends="init.local, jar" description="build the JacORB COSNotification JBoss-SAR" >
+	<target name="sar" depends="init.local, jar" if="jboss.home" description="build the JacORB COSNotification JBoss-SAR" >
 		<jar destfile="${path.sar}">
 			<fileset dir="${lib}">
 				<include name="${name.jar}" />
