@@ -223,7 +223,7 @@
       <delete dir="${classdir}/org"/>
       <delete dir="${src}/generated/org"/>
       <delete dir="${src}/generated/CORBA"/>
-      <ant antfile="build.xml" dir="${src}/org/jacorb" target="clean"/>
+      <ant dir="${src}/org/jacorb" target="clean"/>
    </target>
 
    <target name="realclean" depends="clean" description="Clean the checkout including generated jars">
