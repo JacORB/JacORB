@@ -1,0 +1,7 @@
+module bug643 {
+  interface test1 {
+  };
+  typedef test1 test1alias;
+  interface test2 : test1alias {
+  };
+};

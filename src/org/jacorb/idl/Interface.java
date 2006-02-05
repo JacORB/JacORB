@@ -112,6 +112,32 @@ public class Interface
         throw new RuntimeException("Don't clone me, i am an interface!");
     }
 
+
+    private ConstrTypeSpec unwindTypedefs(ScopedName scopedName)
+    {
+        TypeSpec resolvedTSpec = scopedName.resolvedTypeSpec();
+        //unwind any typedefs
+        while (resolvedTSpec instanceof AliasTypeSpec )
+        {
+            resolvedTSpec =
+                ((AliasTypeSpec)resolvedTSpec).originalType();
+        }
+
+        if (! (resolvedTSpec instanceof ConstrTypeSpec))
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Illegal inheritance spec, not a constr. type but " +
+                             resolvedTSpec.getClass() + ", name " + scopedName );
+            }
+            parser.fatal_error("Illegal inheritance spec (not a constr. type): " +
+                               inheritanceSpec, token);
+        }
+
+        return (ConstrTypeSpec) resolvedTSpec;
+    }
+
+
     public void setEnclosingSymbol(IdlSymbol s)
     {
         if (enclosing_symbol != null && enclosing_symbol != s)
@@ -313,27 +339,7 @@ public class Interface
                 {
                     ScopedName name = (ScopedName) e.nextElement();
 
-                    TypeSpec resolvedTSpec = name.resolvedTypeSpec();
-
-                    // unwind any typedef's interface names
-                    while (resolvedTSpec instanceof AliasTypeSpec )
-                    {
-                        resolvedTSpec =
-                            ((AliasTypeSpec)resolvedTSpec).originalType();
-                    }
-
-                    if (! (resolvedTSpec instanceof ConstrTypeSpec))
-                    {
-                        if (logger.isDebugEnabled())
-                        {
-                            logger.debug("Illegal inheritance spec, not a constr. type but " +
-                                         resolvedTSpec.getClass() + ", name " + name );
-                        }
-                        parser.fatal_error("Illegal inheritance spec (not a constr. type): " +
-                                           inheritanceSpec, token);
-                    }
-
-                    ConstrTypeSpec ts = (ConstrTypeSpec) resolvedTSpec;
+                    ConstrTypeSpec ts = unwindTypedefs(name);
 
                     if (ts.declaration() instanceof Interface)
                     {
@@ -569,7 +575,11 @@ public class Interface
 
                 while (e.hasMoreElements())
                 {
-                    ps.print(", " + (ScopedName) e.nextElement());
+		    ScopedName sne = (ScopedName) e.nextElement();
+		    ConstrTypeSpec ts = unwindTypedefs(sne);
+
+                    ps.print(", " + ts);
+		    
                 }
             }
         }
@@ -631,7 +641,9 @@ public class Interface
                 }
                 else
                 {
-                    ps.print(sne + "Operations");
+                    ConstrTypeSpec ts = unwindTypedefs(sne);
+
+                    ps.print(ts + "Operations");
                 }
 
                 if (e.hasMoreElements())
