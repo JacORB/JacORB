@@ -119,7 +119,12 @@ public class TestUtils
         return (TestSetup) ctor.newInstance(new Object[] { suite });
     }
 
-    private static void addToSuite(TestSuite suite, TestSetup setup, Class clazz,
+    public static void addToSuite(TestSuite suite, TestSetup setup, Class clazz) throws Exception
+    {
+        addToSuite(suite, setup, clazz, getTestMethods(clazz));
+    }
+    
+    public static void addToSuite(TestSuite suite, TestSetup setup, Class clazz,
             String[] testMethods) throws Exception
     {
         Constructor _ctor = clazz.getConstructor(new Class[] { String.class, setup.getClass() });
