@@ -60,7 +60,7 @@ public class RequestProcessor
 {
     private boolean start;
     private boolean terminate;
-    private RPPoolManager poolManager;
+    private final RPPoolManager poolManager;
 
     private RequestController controller;
     private ServerRequest request;
@@ -80,18 +80,18 @@ public class RequestProcessor
     /** this processor's logger instance, obtained from the request controller */
     private Logger logger;
 
-    private static Map specialOperations;
+    private final static Set specialOperations;
     private static int count = 0;
 
     static
     {
-        specialOperations = new HashMap(50);
-        specialOperations.put("_is_a", "");
-        specialOperations.put("_interface", "");
-        specialOperations.put("_non_existent", "");
+        specialOperations = new HashSet(50);
+        specialOperations.add("_is_a");
+        specialOperations.add("_interface");
+        specialOperations.add("_non_existent");
 
-        specialOperations.put("_get_policy", "");
-        specialOperations.put("_set_policy_overrides", "");
+        specialOperations.add("_get_policy");
+        specialOperations.add("_set_policy_overrides");
     }
 
     RequestProcessor (RPPoolManager _poolManager)
@@ -287,7 +287,7 @@ public class RequestProcessor
                                  " invokeOperation on servant (stream based)");
                 }
 
-                if( specialOperations.containsKey(request.operation()))
+                if( specialOperations.contains(request.operation()))
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(servant,
                                                                                       request.operation(),
@@ -310,7 +310,7 @@ public class RequestProcessor
                                  " opname: " + request.operation() +
                                  " invoke operation on servant (dsi based)");
                 }
-                if( specialOperations.containsKey(request.operation()) &&
+                if( specialOperations.contains(request.operation()) &&
                     !(servant instanceof org.jacorb.orb.Forwarder) )
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())
