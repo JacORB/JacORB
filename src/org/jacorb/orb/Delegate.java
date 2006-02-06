@@ -25,13 +25,11 @@ import java.util.*;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.orb.giop.*;
-import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.util.*;
 import org.jacorb.poa.util.POAUtil;
@@ -40,10 +38,8 @@ import org.jacorb.util.ObjectUtil;
 import org.jacorb.config.Configuration;
 
 import org.omg.CORBA.*;
-import org.omg.CORBA.Object;
 import org.omg.CORBA.portable.*;
 import org.omg.GIOP.LocateStatusType_1_2;
-import org.omg.IOP.ServiceContext;
 import org.omg.Messaging.*;
 import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.omg.PortableServer.POAPackage.*;
@@ -115,6 +111,22 @@ public final class Delegate
     private boolean locateOnBind;
 
     /**
+     * 03-09-04: 1.5.2.2
+     * 
+     * boolean threadlocal to ensure that
+     * after servant_preinvoke has returned null the
+     * next call to is_local will return false
+     * so that the stub will choose the non-optimized path 
+     */
+    private final ThreadLocal ignoreNextCallToIsLocal = new ThreadLocal() 
+    {
+        protected java.lang.Object initialValue()
+        {
+            return Boolean.FALSE;
+        }
+    };
+    
+    /**
      * A general note on the synchronization concept
      *
      * The main problem that has to be addressed by synchronization
@@ -135,6 +147,7 @@ public final class Delegate
 
     private Delegate()
     {
+        super();
     }
 
     public Delegate ( org.jacorb.orb.ORB orb, ParsedIOR pior )
@@ -178,16 +191,16 @@ public final class Delegate
     }
 
 
-    public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
+    public void configure(org.apache.avalon.framework.configuration.Configuration config)
         throws org.apache.avalon.framework.configuration.ConfigurationException
     {
-        this.configuration = configuration;
+        this.configuration = config;
         logger = 
-            ((Configuration)configuration).getNamedLogger("jacorb.orb.delegate");
+            ((Configuration)config).getNamedLogger("jacorb.orb.delegate");
         useIMR = 
-            configuration.getAttribute("jacorb.use_imr","off").equals("on");
+            config.getAttribute("jacorb.use_imr","off").equals("on");
         locateOnBind =
-            configuration.getAttribute("jacorb.locate_on_bind","off").equals("on");
+            config.getAttribute("jacorb.locate_on_bind","off").equals("on");
 
         if (objectReference != null)
             _pior = new ParsedIOR( objectReference, orb, logger);
@@ -276,7 +289,7 @@ public final class Delegate
                         new LocateRequestOutputStream
                             ( _pior.get_object_key(),
                               connection.getId(),
-                              ( int ) _pior.getEffectiveProfile().version().minor );
+                              _pior.getEffectiveProfile().version().minor );
 
                     LocateReplyReceiver receiver =
                         new LocateReplyReceiver(orb);
@@ -508,13 +521,10 @@ public final class Delegate
             // TODO: "reconcile" with server-side policy
             return result;
         }
-        else
-        {
-            // if not locally overridden, ask the server
-            return get_policy( self,
-                               policy_type,
-                               request( self, "_get_policy", true ) );
-        }
+        // if not locally overridden, ask the server
+        return get_policy( self,
+                           policy_type,
+                           request( self, "_get_policy", true ) );
     }
 
     /**
@@ -568,6 +578,7 @@ public final class Delegate
             }
             catch ( RemarshalException r )
             {
+                // ignored
             }
             catch ( ApplicationException _ax )
             {
@@ -582,65 +593,72 @@ public final class Delegate
     {
         Policy p = get_client_policy (REQUEST_END_TIME_POLICY_TYPE.value);
         if (p != null)
+        {
             return ((org.omg.Messaging.RequestEndTimePolicy)p).end_time();
-        else
-            return null;
+        }
+        return null;
     }
 
     public UtcT getReplyEndTime()
     {
         Policy p = get_client_policy (REPLY_END_TIME_POLICY_TYPE.value);
         if (p != null)
+        {
             return ((org.omg.Messaging.ReplyEndTimePolicy)p).end_time();
-        else
-            return null;
+        }
+        return null;
     }
 
     public UtcT getRequestStartTime()
     {
         Policy p = get_client_policy (REQUEST_START_TIME_POLICY_TYPE.value);
         if (p != null)
+        {
             return ((org.omg.Messaging.RequestStartTimePolicy)p).start_time();
-        else
-            return null;
+        }
+        return null;
     }
 
     public UtcT getReplyStartTime()
     {
         Policy p = get_client_policy (REPLY_START_TIME_POLICY_TYPE.value);
         if (p != null)
+        {
             return ((org.omg.Messaging.ReplyStartTimePolicy)p).start_time();
-        else
-            return null;
+        }
+        return null;
     }
 
     public long getRelativeRoundtripTimeout()
     {
         Policy p = get_client_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value);
         if (p != null)
+        {
             return ((org.omg.Messaging.RelativeRoundtripTimeoutPolicy)p)
                                                             .relative_expiry();
-        else
-            return -1;
+        }
+        return -1;
     }
 
     public long getRelativeRequestTimeout()
     {
         Policy p = get_client_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value);
         if (p != null)
+        {
             return ((org.omg.Messaging.RelativeRequestTimeoutPolicy)p)
                                                             .relative_expiry();
-        else
-            return -1;
+        }
+        return -1;
     }
 
     public short getSyncScope()
     {
         Policy p = get_client_policy (SYNC_SCOPE_POLICY_TYPE.value);
         if (p != null)
+        {
             return ((org.omg.Messaging.SyncScopePolicy)p).synchronization();
-        else
-            return ((org.omg.Messaging.SYNC_WITH_TRANSPORT.value));
+        }
+        return ((org.omg.Messaging.SYNC_WITH_TRANSPORT.value));
     }
 
     /**
@@ -680,26 +698,23 @@ public final class Delegate
                 servant_postinvoke (self, so);
             }
         }
-        else
-        {
-            org.omg.CORBA.portable.OutputStream os;
-            org.omg.CORBA.portable.InputStream is;
+        
+        org.omg.CORBA.portable.OutputStream os;
+        org.omg.CORBA.portable.InputStream is;
 
-            while (true)
+        while (true)
+        {
+            try
             {
-                try
-                {
-                    os = request (self, "_interface", true);
-                    is = invoke (self, os);
-                    return is.read_Object();
-                }
-                catch (RemarshalException re)
-                {
-                }
-                catch (Exception ex)
-                {
-                    return null;
-                }
+                os = request(self, "_interface", true);
+                is = invoke(self, os);
+                return is.read_Object();
+            } catch (RemarshalException re)
+            {
+                // ignored
+            } catch (Exception ex)
+            {
+                return null;
             }
         }
     }
@@ -721,10 +736,7 @@ public final class Delegate
             {
                 return piorOriginal.getIOR();
             }
-            else
-            {
-                return getParsedIOR().getIOR();
-            }
+            return getParsedIOR().getIOR();
         }
     }
 
@@ -760,6 +772,7 @@ public final class Delegate
                 }
                 catch ( InterruptedException ie )
                 {
+                    // ignored
                 }
             }
 
@@ -783,7 +796,7 @@ public final class Delegate
 
     public org.jacorb.poa.POA getPOA()
     {
-        return ( org.jacorb.poa.POA ) poa;
+        return poa;
     }
 
     /**
@@ -880,43 +893,36 @@ public final class Delegate
                 invoke_oneway (ros, interceptors);
                 return null;
             }
-            else  // response expected, synchronous or asynchronous
+            // response expected, synchronous or asynchronous
+            receiver = new ReplyReceiver(this, ros.operation(), ros.getReplyEndTime(),
+                    interceptors, replyHandler);
+
+            // Store the receiver in pending_replies, so in the
+            // case of a LocationForward a RemarshalException can
+            // be thrown to *all* waiting threads.
+
+            synchronized (pending_replies)
             {
-                receiver = new ReplyReceiver(this,
-                                             ros.operation(),
-                                             ros.getReplyEndTime(),
-                                             interceptors,
-                                             replyHandler );
+                pending_replies.add(receiver);
+            }
 
-                // Store the receiver in pending_replies, so in the
-                // case of a LocationForward a RemarshalException can
-                // be thrown to *all* waiting threads.
-
-                synchronized ( pending_replies )
+            synchronized (bind_sync)
+            {
+                if (ros.getConnection() == connection)
                 {
-                    pending_replies.add ( receiver );
+                    // RequestOutputStream has been created for
+                    // exactly this connection
+                    connection.sendRequest(ros, receiver, ros.requestId(), true); // response
+                                                                                    // expected
                 }
-
-                synchronized ( bind_sync )
+                else
                 {
-                    if ( ros.getConnection() == connection )
-                    {
-                        //RequestOutputStream has been created for
-                        //exactly this connection
-                        connection.sendRequest( ros,
-                                                receiver,
-                                                ros.requestId(),
-                                                true ); // response expected
-                    }
-                    else
-                    {
-                        if (logger.isDebugEnabled())
-                            logger.debug("invoke: RemarshalException");
+                    if (logger.isDebugEnabled())
+                        logger.debug("invoke: RemarshalException");
 
-                        // RequestOutputStream has been created for
-                        // another connection, so try again
-                        throw new RemarshalException();
-                    }
+                    // RequestOutputStream has been created for
+                    // another connection, so try again
+                    throw new RemarshalException();
                 }
             }
         }
@@ -958,10 +964,8 @@ public final class Delegate
 
             return is;
         }
-        else
-        {
-            return null;
-        }
+        
+        return null;
     }
 
     private void invoke_oneway (RequestOutputStream ros,
@@ -1192,83 +1196,81 @@ public final class Delegate
                 servant_postinvoke(self, so);
             }
         }
-        else
+        // The check below avoids trying to load a stub for CORBA.Object.
+        // (It would be faster to check that ids.length > 1, but Sun's
+        // CosNaming JNDI provider calls _is_a() on some weird ObjectImpl 
+        // instances whose _ids() method returns an array of length two,
+        // containing two Strings equal to "IDL:omg.org/CORBA/Object:1.0".)
+        if (!ids[0].equals("IDL:omg.org/CORBA/Object:1.0"))
         {
-            // The check below avoids trying to load a stub for CORBA.Object.
-            // (It would be faster to check that ids.length > 1, but Sun's
-            // CosNaming JNDI provider calls _is_a() on some weird ObjectImpl 
-            // instances whose _ids() method returns an array of length two,
-            // containing two Strings equal to "IDL:omg.org/CORBA/Object:1.0".)
-            if (!ids[0].equals("IDL:omg.org/CORBA/Object:1.0"))
+            // Try to avoid remote call - is it a derived type?
+            try
             {
-                // Try to avoid remote call - is it a derived type?
-                try
+                // Retrieve the local stub for the object in question. Then call the _ids method
+                // and see if any match the logical_type_id otherwise fall back to remote.
+                
+                String classname = RepositoryID.className( ids[0], "_Stub", null );
+                
+                int lastDot = classname.lastIndexOf( '.' );
+                StringBuffer scn = new StringBuffer( classname.substring( 0, lastDot + 1) );
+                scn.append( '_' );
+                scn.append( classname.substring( lastDot + 1 ) );
+                
+                // This will only work if there is a correspondence between the Java class
+                // name and the Repository ID. If prefixes have been using then this mapping
+                // may have been lost.
+                
+                // First, search with stub name
+                // if not found, try with the 'org.omg.stub' prefix to support package
+                // with javax prefix
+                Class stub=null;
+                try 
                 {
-                    // Retrieve the local stub for the object in question. Then call the _ids method
-                    // and see if any match the logical_type_id otherwise fall back to remote.
-
-                    String classname = RepositoryID.className( ids[0], "_Stub", null );
-                
-                    int lastDot = classname.lastIndexOf( '.' );
-                    StringBuffer scn = new StringBuffer( classname.substring( 0, lastDot + 1) );
-                    scn.append( '_' );
-                    scn.append( classname.substring( lastDot + 1 ) );
-
-                    // This will only work if there is a correspondence between the Java class
-                    // name and the Repository ID. If prefixes have been using then this mapping
-                    // may have been lost.
-
-                    // First, search with stub name
-                    // if not found, try with the 'org.omg.stub' prefix to support package
-                    // with javax prefix
-                    Class stub=null;
-                    try 
-                    {
-                        stub = ObjectUtil.classForName( scn.toString());
-                    } 
-                    catch (ClassNotFoundException e) 
-                    {
-                        stub = ObjectUtil.classForName("org.omg.stub."+scn.toString());
-                    }
-                
-                    Method idm = stub.getMethod ( "_ids", (Class[]) null );
-                    String newids[] = (String[] )idm.invoke( stub.newInstance(), (java.lang.Object[]) null );
-
-                    for ( int i = 0; i < newids.length ; i++ )
-                    {
-                        if (newids[i].equals( logical_type_id ) )
-                        {
-                            return true;
-                        }
-                    }
+                    stub = ObjectUtil.classForName( scn.toString());
+                } 
+                catch (ClassNotFoundException e) 
+                {
+                    stub = ObjectUtil.classForName("org.omg.stub."+scn.toString());
                 }
-                // If it fails fall back to a remote call.
-                catch (Throwable e)
+                
+                Method idm = stub.getMethod ( "_ids", (Class[]) null );
+                String newids[] = (String[] )idm.invoke( stub.newInstance(), (java.lang.Object[]) null );
+                
+                for ( int i = 0; i < newids.length ; i++ )
                 {
-                    if (logger.isDebugEnabled())
-                        logger.debug("trying is_a remotely");
+                    if (newids[i].equals( logical_type_id ) )
+                    {
+                        return true;
+                    }
                 }
             }
-
-            org.omg.CORBA.portable.OutputStream os;
-            org.omg.CORBA.portable.InputStream is;
-
-            while (true)
+            // If it fails fall back to a remote call.
+            catch (Throwable e)
             {
-                try
-                {
-                    os = request(self, "_is_a", true);
-                    os.write_string(logical_type_id);
-                    is = invoke(self, os);
-                    return is.read_boolean();
-                }
-                catch (RemarshalException re)
-                {
-                }
-                catch (ApplicationException ax)
-                {
-                    throw new RuntimeException ("Unexpected exception " + ax.getId());
-                }
+                if (logger.isDebugEnabled())
+                    logger.debug("trying is_a remotely");
+            }
+        }
+        
+        org.omg.CORBA.portable.OutputStream os;
+        org.omg.CORBA.portable.InputStream is;
+        
+        while (true)
+        {
+            try
+            {
+                os = request(self, "_is_a", true);
+                os.write_string(logical_type_id);
+                is = invoke(self, os);
+                return is.read_boolean();
+            }
+            catch (RemarshalException re)
+            {
+                // ignored
+            }
+            catch (ApplicationException ax)
+            {
+                throw new RuntimeException ("Unexpected exception " + ax.getId());
             }
         }
     }
@@ -1302,10 +1304,17 @@ public final class Delegate
 
     public boolean is_local(org.omg.CORBA.Object self)
     {
+        if (ignoreNextCallToIsLocal.get() == Boolean.TRUE)
+        {
+            ignoreNextCallToIsLocal.set(Boolean.FALSE);
+            return false;
+        }
+        
         if (orb.hasRequestInterceptors())
         {
             return false;
         }
+        
         return is_really_local(self);
     }
 
@@ -1353,26 +1362,25 @@ public final class Delegate
                 servant_postinvoke(self, so);
             }
         }
-        else
+        
+        org.omg.CORBA.portable.OutputStream os;
+        org.omg.CORBA.portable.InputStream is;
+        
+        while (true)
         {
-            org.omg.CORBA.portable.OutputStream os;
-            org.omg.CORBA.portable.InputStream is;
-
-            while (true)
+            try
             {
-                try
-                {
-                    os = request(self, "_non_existent", true);
-                    is = invoke(self, os);
-                    return is.read_boolean();
-                }
-                catch (RemarshalException re)
-                {
-                }
-                catch (ApplicationException e)
-                {
-                    throw new RuntimeException( "Unexpected exception " + e.getId() );
-                }
+                os = request(self, "_non_existent", true);
+                is = invoke(self, os);
+                return is.read_boolean();
+            }
+            catch (RemarshalException re)
+            {
+                // ignored
+            }
+            catch (ApplicationException e)
+            {
+                throw new RuntimeException( "Unexpected exception " + e.getId() );
             }
         }
     }
@@ -1427,6 +1435,7 @@ public final class Delegate
             }
             catch ( java.io.IOException io )
             {
+                // ignored
             }
         }
         Time.waitFor (getReplyStartTime());
@@ -1498,7 +1507,7 @@ public final class Delegate
                                          requestEndTime,
                                          replyEndTime,
                                          p.get_object_key(),
-                                         ( int ) p.getEffectiveProfile().version().minor );
+                                         p.getEffectiveProfile().version().minor );
 
             // CodeSets are only negotiated once per connection,
             // not for each individual request
@@ -1685,22 +1694,21 @@ public final class Delegate
                     logger.warn("Expected " + expectedType +
                                 " got " + so.servant.getClass() );
                 }
-
+                
+                ignoreNextCallToIsLocal.set(Boolean.TRUE);
+                
                 poa.removeLocalRequest();
                 return null;
             }
-            else
-            {
-                orb.getPOACurrent()._addContext(
+            orb.getPOACurrent()._addContext(
                     Thread.currentThread(),
                     new org.jacorb.poa.LocalInvocationContext(
-                        orb,
-                        poa,
-                        getObjectId(),
-                        ( org.omg.PortableServer.Servant ) so.servant
-                                                             )
-                                               );
-            }
+                            orb,
+                            poa,
+                            getObjectId(),
+                            ( org.omg.PortableServer.Servant ) so.servant
+                    )
+            );
             return so;
         }
         if (logger.isWarnEnabled())
@@ -1715,9 +1723,10 @@ public final class Delegate
         synchronized ( bind_sync )
         {
             if ( piorOriginal != null )
+            {
                 return piorOriginal.getIORString();
-            else
-                return getParsedIOR().getIORString();
+            }
+            return getParsedIOR().getIORString();
         }
 
     }
