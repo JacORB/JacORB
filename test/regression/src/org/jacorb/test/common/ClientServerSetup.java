@@ -173,6 +173,11 @@ public class ClientServerSetup extends TestSetup {
             
             fail("could not access IOR. cause maybe: " + exc);
         }
+        resolveServerObject(ior);
+    }
+
+    protected void resolveServerObject(String ior)
+    {
         serverObject = clientOrb.string_to_object(ior);
     }
 
@@ -186,9 +191,10 @@ public class ClientServerSetup extends TestSetup {
         String serverVersion = System.getProperty ("jacorb.test.server.version",
                                                    "cvs");
         if (comparator.compare (serverVersion, "2.2") >= 0)
+        {
             return "org.jacorb.test.common.TestServer";
-        else
-            return "org.jacorb.test.common.TestServer_before_2_2";
+        }
+        return "org.jacorb.test.common.TestServer_before_2_2";
     }
 
     /**
@@ -229,5 +235,4 @@ public class ClientServerSetup extends TestSetup {
     {
         return clientRootPOA;
     }
-
 }
