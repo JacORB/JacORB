@@ -25,16 +25,19 @@ package org.jacorb.orb.rmi;
  * @version $Id$
  */
 
+import java.rmi.Remote;
+
 import javax.rmi.CORBA.Tie;
 import javax.rmi.CORBA.Stub;
 import javax.rmi.CORBA.Util;
 
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.portable.ObjectImpl;
 
 public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.PortableRemoteObjectDelegate
 {
     private static ORB _orb = null;
-    
+
     /**
      * Return the ORB to be used for RMI communications.
      * @return The ORB
@@ -43,12 +46,12 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
     {
         if ( _orb == null )
         {
-            System.out.println("Unknwon ORB");
+            System.out.println("Unknown ORB");
             _orb = ORB.init( new String[0], null );
         }
         return _orb;
     }
-    
+
     /**
      * Set the ORB to be used for RMI communications.
      * @param orb   The ORB to use
@@ -95,7 +98,7 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
         {
             return obj;
         }
-        
+
         Tie tie = null;
         if ( obj instanceof Tie )
         {
@@ -110,15 +113,37 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
         {
             throw new java.rmi.NoSuchObjectException( "Object not exported" );
         }
-        
-        org.omg.CORBA.Object thisObject = tie.thisObject();
-        if ( thisObject instanceof java.rmi.Remote )
+
+        final org.omg.CORBA.portable.ObjectImpl thisObject = (ObjectImpl) tie.thisObject();
+        final String[] ids = thisObject._ids();
+
+        for (int i = 0; i < ids.length; ++i)
         {
-            return ( java.rmi.Remote ) thisObject;
+            final String repoID = ids[i];
+            final String stubClazzName = newRMIStubName(repoID);
+
+            try
+            {
+                final Stub stub = newStub(stubClazzName, obj.getClass());
+
+                stub._set_delegate(thisObject._get_delegate());
+
+                return (Remote) stub;
+            } catch (ClassNotFoundException e)
+            {
+                // ignored
+            } catch (InstantiationException e)
+            {
+                // ignored
+            } catch (IllegalAccessException e)
+            {
+                // ignored
+            }
         }
+
         throw new java.rmi.NoSuchObjectException( "Object not exported" );
     }
-    
+
     /**
      * Deactivate the exported RMI object.
      * @param obj   The RMI object
@@ -133,7 +158,7 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
         }
         Util.unexportObject( obj );
     }
-    
+
     /**
      * Narrow the remote object.
      * @param obj   The remote object
@@ -147,10 +172,10 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
             throw new ClassCastException("Can't narrow to null class");
         if (obj == null)
             return null;
-        
+
         Class fromClass = obj.getClass();
         Object result = null;
-        
+
         try
         {
             if (newClass.isAssignableFrom(fromClass))
@@ -174,13 +199,13 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
         {
             result = null;
         }
-        
+
         if (result == null)
             throw new ClassCastException("Can't narrow from " + fromClass + " to " + newClass);
-        
+
         return result;
     }
-    
+
     /**
      * @see javax.rmi.CORBA.PortableRemoteObjectDelegate#connect(java.rmi.Remote, java.rmi.Remote)
      */
@@ -188,39 +213,97 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
     {
         throw new Error("Not implemented for PortableRemoteObjectDelegateImpl");
     }
-    
+
     /**
      * Return the Tie object for an RMI object.
      * @param obj   The RMI object.
      * @return  The Tie object
      * @throws java.rmi.server.ExportException
      */
-    static Tie toTie( java.rmi.Remote obj ) throws java.rmi.server.ExportException
+    private Tie toTie(java.rmi.Remote obj) throws java.rmi.server.ExportException
     {
-        for (Class clz = obj.getClass(); clz != null; clz = clz.getSuperclass()) {
+        for (Class clz = obj.getClass(); clz != null; clz = clz.getSuperclass())
+        {
             try
             {
-                String clzName = clz.getName();
-                String[] clzParts = clzName.split("\\.");
-                clzParts[clzParts.length - 1] = "_" + clzParts[clzParts.length - 1] + "_Tie";
-                StringBuffer tieClzName = new StringBuffer("org.omg.stub");
-                for (int i = 0; i < clzParts.length; i++) tieClzName.append("." + clzParts[i]);
-                Class tieClass = Util.loadClass(tieClzName.toString(), Util.getCodebase( clz ), clz.getClassLoader() );
-                return ( javax.rmi.CORBA.Tie ) tieClass.newInstance();
-            }
-            catch ( ClassNotFoundException ex )
+                final String tieClzName = newRMIClassName(clz.getName(), "Tie");
+                return newTie(tieClzName, clz);
+            } catch (ClassNotFoundException ex)
             {
                 //throw new java.rmi.server.ExportException("ClassNotFoundException: " + e, e );
-            }
-            catch (InstantiationException e) 
+            } catch (InstantiationException e)
             {
-                throw new java.rmi.server.ExportException("InstantiationException: " + e, e );
-            }
-            catch (IllegalAccessException e) 
+                throw new java.rmi.server.ExportException("InstantiationException: " + e, e);
+            } catch (IllegalAccessException e)
             {
-                throw new java.rmi.server.ExportException("IllegalAccessException: " + e, e );
+                throw new java.rmi.server.ExportException("IllegalAccessException: " + e, e);
             }
         }
         throw new java.rmi.server.ExportException("Tie class not found ");
+    }
+
+    /**
+     * Java Language to IDL Mapping 00-01-06 1.4.6:
+     * 
+     * The stub class corresponding to an RMI/IDL interface or implementation class may 
+     * either be in the same package as its associated interface or class, or may be further 
+     * qualified by the org.omg.stub package prefix.
+     * 
+     * When loading a stub class corresponding to an interface or class 
+     * <packagename>.<typename>, the class <packagename>._<typename>_Stub shall be 
+     * used if it exists; otherwise, the class org.omg.stub.<packagename>._<typename>_Stub 
+     * shall be used. 
+     */
+    private Stub newStub(String clazzName, Class source) throws InstantiationException, IllegalAccessException, ClassNotFoundException
+    {
+        try
+        {
+            return (Stub) newInstance(clazzName, source);
+        }
+        catch (ClassNotFoundException e)
+        {
+            return (Stub) newInstance("org.omg.stub." + clazzName, source);
+        }
+    }
+    
+    private javax.rmi.CORBA.Tie newTie(String clazzName, Class source) throws InstantiationException, IllegalAccessException, ClassNotFoundException
+    {
+        try
+        {
+            return (Tie) newInstance(clazzName, source);
+        }
+        catch (ClassNotFoundException e)
+        {
+            return (Tie) newInstance("org.omg.stub." + clazzName, source);
+        }
+    }
+    
+    private Object newInstance(String clazzName, Class source) throws InstantiationException, IllegalAccessException, ClassNotFoundException
+    {
+        return loadClass(clazzName, source).newInstance();
+    }
+    
+    private Class loadClass(String clazzName, Class source) throws ClassNotFoundException
+    {
+        return Util.loadClass(clazzName, Util.getCodebase(source), source.getClassLoader());
+    }
+    
+    private String newRMIStubName(final String repoID)
+    {
+        final String clazzName = repoID.substring(4, repoID.lastIndexOf(":"));
+        return newRMIClassName(clazzName, "Stub");
+    }
+
+    private String newRMIClassName(final String name, final String suffix)
+    {
+        final StringBuffer buffer = new StringBuffer(name.length() + 2 + suffix.length());
+        final int idx = name.lastIndexOf('.') + 1;
+        buffer.append(name, 0, idx);
+        buffer.append("_");
+        buffer.append(name, idx, name.length());
+        buffer.append("_");
+        buffer.append(suffix);
+        
+        return buffer.toString();
     }
 }
