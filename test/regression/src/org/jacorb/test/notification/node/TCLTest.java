@@ -142,7 +142,7 @@ public class TCLTest extends NotificationTestCase
 
         testPerson_ = getORB().create_any();
         PersonHelper.insert(testPerson_, _person);
-        return (_person);
+        return _person;
     }
 
     public void setUpTest() throws Exception

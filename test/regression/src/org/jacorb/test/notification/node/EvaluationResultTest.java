@@ -27,14 +27,11 @@ import junit.framework.TestSuite;
 import org.jacorb.notification.filter.EvaluationResult;
 
 /**
- * Unit Test for class EvaluationResult
- * 
  * @author Alphonse Bendt
  */
 
 public class EvaluationResultTest extends TestCase
 {
-
     private EvaluationResult objectUnderTest_;
 
     public void setUp() throws Exception
