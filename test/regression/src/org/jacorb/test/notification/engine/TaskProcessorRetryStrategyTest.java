@@ -60,11 +60,6 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
                 mockTaskProcessor_, 10);
     }
 
-    public TaskProcessorRetryStrategyTest(String name)
-    {
-        super(name);
-    }
-
     public void testSuccessfulRetryDisposes() throws Exception
     {
         mockConsumer_.isRetryAllowed();

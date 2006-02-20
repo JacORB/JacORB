@@ -34,11 +34,6 @@ import org.omg.CORBA.TRANSIENT;
     
 public class WaitRetryStrategyTest extends AbstractRetryStrategyTest
 {
-    public WaitRetryStrategyTest(String name)
-    {
-        super(name);
-    }
-
     public void testRetryTerminatesAndThrowsException() throws Exception
     {
         mockConsumer_.isRetryAllowed();

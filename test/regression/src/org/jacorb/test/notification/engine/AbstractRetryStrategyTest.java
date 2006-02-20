@@ -41,15 +41,6 @@ public abstract class AbstractRetryStrategyTest extends TestCase
 
     protected AbstractRetryStrategy objectUnderTest_;
 
-    /**
-     * Constructor for AbstractRetryStrategyTest.
-     * @param name
-     */
-    public AbstractRetryStrategyTest(String name)
-    {
-        super(name);
-    }
-
     protected final void setUp() throws Exception
     {
         super.setUp();

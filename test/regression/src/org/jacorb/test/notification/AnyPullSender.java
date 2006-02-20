@@ -60,7 +60,6 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
     public void connect(EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded,
             AlreadyConnected, TypeError, AdminNotFound
     {
-
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
 
@@ -126,7 +125,6 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
             {
                 return _event;
             }
-            Thread.yield();
         }
     }
 

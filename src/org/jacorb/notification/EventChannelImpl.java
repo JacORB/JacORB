@@ -76,8 +76,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
         thisRef_ = EventChannelHelper.narrow(activate());
 
-        container_.registerComponent(new CORBAObjectComponentAdapter(EventChannel.class,
-                EventChannelHelper.narrow(thisRef_)));
+        container_.registerComponent(new CORBAObjectComponentAdapter(EventChannel.class, thisRef_));
 
         if (config.getAttributeAsBoolean(Attributes.LAZY_DEFAULT_ADMIN_INIT, Default.DEFAULT_LAZY_DEFAULT_ADMIN_INIT))
         {
@@ -105,9 +104,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
         _adminContainer.registerComponentImplementation(AbstractAdmin.class, ConsumerAdminImpl.class);
 
-        final AbstractAdmin _admin = (AbstractAdmin) _adminContainer.getComponentInstanceOfType(AbstractAdmin.class);
-
-        return _admin;
+        return (AbstractAdmin) _adminContainer.getComponentInstanceOfType(AbstractAdmin.class);
     }
 
     protected AbstractSupplierAdmin newSupplierAdmin(final int id)
@@ -116,10 +113,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
         _adminContainer.registerComponentImplementation(AbstractSupplierAdmin.class, SupplierAdminImpl.class);
 
-        final AbstractSupplierAdmin _admin = (AbstractSupplierAdmin) _adminContainer
-                .getComponentInstanceOfType(AbstractSupplierAdmin.class);
-
-        return _admin;
+        return (AbstractSupplierAdmin) _adminContainer.getComponentInstanceOfType(AbstractSupplierAdmin.class);
     }
 
     private MutablePicoContainer newContainerForAdmin(final int id)
@@ -217,18 +211,18 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
     public ConsumerAdmin new_for_consumers(InterFilterGroupOperator filterGroupOperator,
             IntHolder intHolder)
     {
-        AbstractAdmin _consumerAdminTieImpl = new_for_consumers_servant(filterGroupOperator,
+        final AbstractAdmin _adminServant = new_for_consumers_servant(filterGroupOperator,
                 intHolder);
 
-        return ConsumerAdminHelper.narrow(_consumerAdminTieImpl.activate());
+        return ConsumerAdminHelper.narrow(_adminServant.activate());
     }
 
     public SupplierAdmin new_for_suppliers(InterFilterGroupOperator filterGroupOperator,
             IntHolder intHolder)
     {
-        AbstractAdmin _supplierAdmin = new_for_suppliers_servant(filterGroupOperator, intHolder);
+        final AbstractAdmin _adminServant = new_for_suppliers_servant(filterGroupOperator, intHolder);
 
-        return SupplierAdminHelper.narrow(_supplierAdmin.activate());
+        return SupplierAdminHelper.narrow(_adminServant.activate());
     }
 
     public ConsumerAdmin get_consumeradmin(int identifier) throws AdminNotFound
@@ -246,7 +240,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
      */
     public org.omg.CosEventChannelAdmin.ConsumerAdmin for_consumers()
     {
-        AbstractAdmin _admin = getDefaultConsumerAdminServant();
+        final AbstractAdmin _admin = getDefaultConsumerAdminServant();
 
         return org.omg.CosEventChannelAdmin.ConsumerAdminHelper.narrow(_admin.activate());
     }
@@ -256,7 +250,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
      */
     public org.omg.CosEventChannelAdmin.SupplierAdmin for_suppliers()
     {
-        AbstractAdmin _admin = getDefaultSupplierAdminServant();
+        final AbstractAdmin _admin = getDefaultSupplierAdminServant();
 
         return org.omg.CosEventChannelAdmin.SupplierAdminHelper.narrow(_admin.activate());
     }

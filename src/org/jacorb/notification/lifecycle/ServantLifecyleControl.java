@@ -63,10 +63,12 @@ public class ServantLifecyleControl implements ManageableServant
             try
             {
                 thisRef_ = delegate_.getPOA().servant_to_reference(getServant());
-            } catch (ServantNotActive e)
+            } 
+            catch (ServantNotActive e)
             {
                 throw new RuntimeException();
-            } catch (WrongPolicy e)
+            } 
+            catch (WrongPolicy e)
             {
                 throw new RuntimeException();
             }
@@ -94,16 +96,20 @@ public class ServantLifecyleControl implements ManageableServant
             {
                 final byte[] _oid = _poa.servant_to_id(thisServant_);
                 delegate_.getPOA().deactivate_object(_oid);
-            } catch (WrongPolicy e)
+            } 
+            catch (WrongPolicy e)
             {
                 throw new RuntimeException();
-            } catch (ObjectNotActive e)
+            } 
+            catch (ObjectNotActive e)
             {
                 throw new RuntimeException();
-            } catch (ServantNotActive e)
+            } 
+            catch (ServantNotActive e)
             {
                 throw new RuntimeException();
-            } finally
+            } 
+            finally
             {
                 thisRef_ = null;
                 thisServant_ = null;

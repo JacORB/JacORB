@@ -188,13 +188,13 @@ public class EventChannelTest extends NotifyServerTestCase
 
         int[] _allKeys = channel_.get_all_consumeradmins();
 
-        assertContains(0, _allKeys);
+        assertContains(_allKeys, 0);
 
         IntHolder ih = new IntHolder();
         channel_.new_for_consumers(InterFilterGroupOperator.AND_OP, ih);
 
         _allKeys = channel_.get_all_consumeradmins();
-        assertContains(ih.value, _allKeys);
+        assertContains(_allKeys, ih.value);
 
         try
         {
@@ -217,13 +217,13 @@ public class EventChannelTest extends NotifyServerTestCase
 
         int[] _allKeys = channel_.get_all_supplieradmins();
 
-        assertContains(0, _allKeys);
+        assertContains(_allKeys, 0);
 
         IntHolder ih = new IntHolder();
         channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP, ih);
 
         _allKeys = channel_.get_all_supplieradmins();
-        assertContains(ih.value, _allKeys);
+        assertContains(_allKeys, ih.value);
 
         try
         {
@@ -277,17 +277,9 @@ public class EventChannelTest extends NotifyServerTestCase
         }
     }
     
-    static void assertContains(int i, int[] is)
+    private void assertContains(int[] is, int i)
     {
-        boolean seen = false;
-        for (int x = 0; x < is.length; ++x)
-        {
-            if (is[x] == i)
-            {
-                seen = true;
-            }
-        }
-        Assert.assertTrue(seen);
+        Assert.assertTrue(containsValue(is, i));
     }
 
     public void testSendEventPushPull() throws Exception
@@ -502,7 +494,7 @@ public class EventChannelTest extends NotifyServerTestCase
 
         // test if channel id appears within channel list
         int[] _allFactories = getEventChannelFactory().get_all_channels();
-
+        
         assertTrue(containsValue(_allFactories, _id.value));
 
         EventChannel _sameChannel = getEventChannelFactory().get_event_channel(_id.value);

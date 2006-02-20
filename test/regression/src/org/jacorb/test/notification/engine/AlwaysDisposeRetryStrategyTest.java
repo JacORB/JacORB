@@ -33,16 +33,6 @@ import org.jacorb.notification.engine.AbstractRetryStrategy;
  */
 public class AlwaysDisposeRetryStrategyTest extends AbstractRetryStrategyTest
 {
-    /**
-     * Constructor for NoRetryRetryStrategyTest.
-     * 
-     * @param name
-     */
-    public AlwaysDisposeRetryStrategyTest(String name)
-    {
-        super(name);
-    }
-
     public void testRetryDisposesOperationAndConsumer() throws Exception
     {
         mockConsumer_.isRetryAllowed();
@@ -86,7 +76,6 @@ public class AlwaysDisposeRetryStrategyTest extends AbstractRetryStrategyTest
         return new AlwaysDisposeRetryStrategy(mockConsumer_, mockPushOperation_);
     }
 
-    
     public static Test suite()
     {
         return new TestSuite(AlwaysDisposeRetryStrategyTest.class);

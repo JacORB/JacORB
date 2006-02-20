@@ -561,7 +561,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
     /**
      * fetch the List of all ConsumerAdmins that are connected to this EventChannel.
      */
-    List getAllConsumerAdmins()
+    private List getAllConsumerAdmins()
     {
         return listManager_.getList();
     }
