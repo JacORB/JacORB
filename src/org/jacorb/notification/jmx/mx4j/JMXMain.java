@@ -23,6 +23,7 @@ package org.jacorb.notification.jmx.mx4j;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +49,7 @@ import javax.naming.Context;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.ConsoleMain;
 import org.jacorb.notification.jmx.JMXManageableMBeanProvider;
+import org.jacorb.orb.rmi.PortableRemoteObjectDelegateImpl;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableServer.POA;
@@ -67,6 +69,10 @@ public class JMXMain implements WrapperListener
 {
     public static final String DEFAULT_DOMAIN = "NotificationService";
 
+    private static boolean sUseHTTPConnector = false;
+
+    private static boolean sUseMX4J;
+    
     private ObjectName notificationServiceName_;
 
     private final List connectors_ = new ArrayList();
@@ -99,14 +105,14 @@ public class JMXMain implements WrapperListener
 
     private void startHTTPConnector() throws Exception
     {
-        ObjectName _connectorName = new ObjectName("connectors:protocol=http");
+        final ObjectName _connectorName = new ObjectName("connectors:protocol=http");
         mbeanServer_.createMBean("mx4j.tools.adaptor.http.HttpAdaptor", _connectorName, null);
         // TODO make port default configurable
         mbeanServer_.setAttribute(_connectorName, new Attribute("Port", new Integer(8001)));
         mbeanServer_.setAttribute(_connectorName, new Attribute("Host", "localhost"));
         mbeanServer_.invoke(_connectorName, "start", null, null);
 
-        ObjectName _processorName = new ObjectName("Server:name=XSLTProcessor");
+        final ObjectName _processorName = new ObjectName("Server:name=XSLTProcessor");
         mbeanServer_.createMBean("mx4j.tools.adaptor.http.XSLTProcessor", _processorName, null);
 
         mbeanServer_.setAttribute(_connectorName, new Attribute("ProcessorName", _processorName));
@@ -126,11 +132,6 @@ public class JMXMain implements WrapperListener
         String _nameServiceIOR = orb_.object_to_string(_nameService);
         _environment.put(Context.PROVIDER_URL, _nameServiceIOR);
 
-        // this property is ignored by current 3.0.1 release of MX4J
-        // need to use CVS version of MX4J otherwise JMXConnectorServer will use
-        // the wrong orb.
-        // (see
-        // http://sourceforge.net/tracker/index.php?func=detail&aid=1164309&group_id=47745&atid=450647)
         _environment.put("java.naming.corba.orb", orb_);
 
         // create the JMXCconnectorServer
@@ -139,30 +140,6 @@ public class JMXMain implements WrapperListener
 
         // register the JMXConnectorServer in the MBeanServer
         ObjectName _connectorServerName = ObjectName.getInstance("connectors:protocol=iiop");
-        mbeanServer_.registerMBean(_connectorServer, _connectorServerName);
-
-        _connectorServer.start();
-
-        connectors_.add(_connectorServerName);
-    }
-
-    private void startRMIConnector() throws Exception
-    {
-        ObjectName _nameServiceName = ObjectName.getInstance("naming:type=rmiregistry");
-        mbeanServer_.createMBean("mx4j.tools.naming.NamingService", _nameServiceName, null);
-        WrapperManager.log(WrapperManager.WRAPPER_LOG_LEVEL_INFO, "Starting NamingService");
-
-        mbeanServer_.invoke(_nameServiceName, "start", null, null);
-        int _namingPort = ((Integer) mbeanServer_.getAttribute(_nameServiceName, "Port")).intValue();
-
-        String _jndiPath = "/jndi/COSNotification";
-
-        JMXServiceURL _serviceURL = new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:" + _namingPort + _jndiPath);
-
-        JMXConnectorServer _connectorServer = 
-            JMXConnectorServerFactory.newJMXConnectorServer(_serviceURL, null, mbeanServer_);
-
-        ObjectName _connectorServerName = ObjectName.getInstance("connectors:protocol=rmi");
         mbeanServer_.registerMBean(_connectorServer, _connectorServerName);
 
         _connectorServer.start();
@@ -185,16 +162,13 @@ public class JMXMain implements WrapperListener
 
             registerWrapperManager();
 
-            if (false)
+            startIIOPConnector();
+            
+            if (sUseHTTPConnector)
             {
-                // does not work with current mx4j release 3.0.1.
-                startIIOPConnector();
+                startHTTPConnector();
             }
             
-            startHTTPConnector();
-
-            startRMIConnector();
-
             return null;
         } catch (Exception e)
         {
@@ -217,10 +191,10 @@ public class JMXMain implements WrapperListener
             InstanceAlreadyExistsException, InstanceNotFoundException, MBeanException,
             ReflectionException
     {
-        MX4JCOSNotificationServiceMBean _notificationService = new MX4JCOSNotificationService(orb_,
+        final MX4JCOSNotificationServiceMBean _notificationService = new MX4JCOSNotificationService(orb_,
                 mbeanServer_, new JMXManageableMBeanProvider(DEFAULT_DOMAIN), args);
 
-        StandardMBean _mbean = new StandardMBean(_notificationService,
+        final StandardMBean _mbean = new StandardMBean(_notificationService,
                 MX4JCOSNotificationServiceMBean.class);
 
         mbeanServer_.registerMBean(_mbean, notificationServiceName_);
@@ -233,6 +207,9 @@ public class JMXMain implements WrapperListener
         Properties _props = ConsoleMain.parseProperties(args);
         
         orb_ = ORB.init(args, _props);
+        
+        PortableRemoteObjectDelegateImpl.setORB(orb_);
+        
         logger_ = ((org.jacorb.orb.ORB) orb_).getConfiguration().getNamedLogger(
                 getClass().getName());
 
@@ -313,10 +290,23 @@ public class JMXMain implements WrapperListener
 
     public static void main(String[] args) throws Exception
     {
-        System.setProperty("javax.management.builder.initial", "mx4j.server.MX4JMBeanServerBuilder");
+        List list = new ArrayList(Arrays.asList(args));
+        
+        if (list.remove("-mx4j"))
+        {
+            sUseMX4J = true;
+            System.setProperty("javax.management.builder.initial", "mx4j.server.MX4JMBeanServerBuilder");
+        }
 
+        if (list.remove("-mx4j:http") && sUseMX4J)
+        {
+            sUseHTTPConnector = true;
+        }
+        
+        System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", PortableRemoteObjectDelegateImpl.class.getName());        
+        
         JMXMain main = new JMXMain();
         
-        WrapperManager.start(main, args);
+        WrapperManager.start(main, (String[])list.toArray(new String[list.size()]));
     }
 }
