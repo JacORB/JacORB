@@ -180,7 +180,7 @@ public class StructuredEventMessage extends AbstractMessage
 
     private synchronized void parseQosSettings(boolean startTimeSupported, boolean stopTimeSupported)
     {
-        Property[] props = toStructuredEvent().header.variable_header;
+        final Property[] props = toStructuredEvent().header.variable_header;
 
         for (int x = 0; x < props.length; ++x)
         {
