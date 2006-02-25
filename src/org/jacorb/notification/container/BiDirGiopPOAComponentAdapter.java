@@ -61,11 +61,11 @@ public class BiDirGiopPOAComponentAdapter extends DecoratingComponentAdapter
 
     private static Policy newBiDirGiopPolicy(ORB orb) throws PolicyError
     {
-        Any _any = orb.create_any();
+        final Any _any = orb.create_any();
 
         BidirectionalPolicyValueHelper.insert(_any, BOTH.value);
 
-        Policy _policy = orb.create_policy(BIDIRECTIONAL_POLICY_TYPE.value, _any);
+        final Policy _policy = orb.create_policy(BIDIRECTIONAL_POLICY_TYPE.value, _any);
 
         return _policy;
     }
@@ -75,19 +75,19 @@ public class BiDirGiopPOAComponentAdapter extends DecoratingComponentAdapter
     {
         final POA rootPOA = (POA) super.getComponentInstance(container);
 
-        Configuration config = (Configuration) container.getComponentInstanceOfType(Configuration.class);
+        final Configuration config = (Configuration) container.getComponentInstanceOfType(Configuration.class);
 
-        Logger _logger = LogUtil.getLogger(config, getClass().getName());
+        final Logger _logger = LogUtil.getLogger(config, getClass().getName());
 
         try
         {
-            ORB orb = (ORB) container.getComponentInstanceOfType(ORB.class);
+            final ORB orb = (ORB) container.getComponentInstanceOfType(ORB.class);
 
-            List _ps = new ArrayList();
+            final List _policyList = new ArrayList();
 
-            _ps.add(rootPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION));
+            _policyList.add(rootPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION));
 
-            addBiDirGiopPolicy(_ps, orb, config);
+            addBiDirGiopPolicy(_policyList, orb, config);
 
             if (isBiDirGiopEnabled(config) && _logger.isInfoEnabled())
             {
@@ -96,8 +96,8 @@ public class BiDirGiopPOAComponentAdapter extends DecoratingComponentAdapter
                              + " Will enable Bidirectional GIOP.");
             }
             
-            org.omg.CORBA.Policy[] _policies = (org.omg.CORBA.Policy[]) _ps
-                    .toArray(new org.omg.CORBA.Policy[_ps.size()]);
+            org.omg.CORBA.Policy[] _policies = (org.omg.CORBA.Policy[]) _policyList
+                    .toArray(new org.omg.CORBA.Policy[_policyList.size()]);
 
             POA poa = rootPOA.create_POA("NotifyServicePOA", rootPOA.the_POAManager(), _policies);
 
