@@ -393,7 +393,6 @@ public class TCLTest extends NotificationTestCase
         }
 
         runEvaluation("TRUE", "TRUE or (1/0)");
-
         runEvaluation("FALSE", "FALSE and (1/0)");
     }
 
@@ -559,13 +558,9 @@ public class TCLTest extends NotificationTestCase
 
         runEvaluation(testPerson_, "$.0", "'Firstname'");
 
-        //////////
-
         runEvaluation(testPerson_, "$.home_address.street", "'Takustr.'");
 
         runEvaluation(testPerson_, "$.3.0", "'Takustr.'");
-
-        //////////
 
         runEvaluation(testPerson_, "$.first_name == 'Firstname'");
 
@@ -575,25 +570,17 @@ public class TCLTest extends NotificationTestCase
 
         runEvaluation(testPerson_, "$.age < 30 or $.first_name == 'Adalbert'");
 
-        //////////
-
         runEvaluation(testPerson_, "$.phone_numbers[0]", "'32132132'");
 
         runEvaluation(testPerson_, "$.4[0]", "'32132132'");
 
-        //////////
-
         runEvaluation(testPerson_, "'321' ~ $.phone_numbers[0]");
-
-        //////////
 
         runEvaluation(testPerson_, "$.nv(priority)", "'Very High'");
 
         runEvaluation(testPerson_, "$.5(priority)", "'Very High'");
 
         runEvaluation(testPerson_, "$.nv[0].name == 'priority' and $.nv[0].value == 'Very High'");
-
-        //////////
 
         runEvaluation(testPerson_, "$.nv(stuff) > 'aaa'");
     }
@@ -967,8 +954,6 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("TRUE", "\t\n\r TRUE\n\r \t ");
         runEvaluation("2", "\t1\r+\n\r1\t");
     }
-
-    ////////////////////////////////////////
 
     public static Test suite() throws Exception
     {

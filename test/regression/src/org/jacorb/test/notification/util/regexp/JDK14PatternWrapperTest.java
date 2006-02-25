@@ -31,11 +31,6 @@ import junit.framework.TestSuite;
  */
 public class JDK14PatternWrapperTest extends AbstractPatternWrapperTest
 {
-    public JDK14PatternWrapperTest(String name)
-    {
-        super(name);
-    }
-
     public PatternWrapper newPattern()
     {
         return new JDK14PatternWrapper();
@@ -43,8 +38,6 @@ public class JDK14PatternWrapperTest extends AbstractPatternWrapperTest
 
     public static TestSuite suite()
     {
-        TestSuite suite = new TestSuite(JDK14PatternWrapperTest.class);
-
-        return suite;
+        return new TestSuite(JDK14PatternWrapperTest.class);
     }
 }

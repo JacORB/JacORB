@@ -38,16 +38,6 @@ public class FilterConsumerAdminTaskTest extends AbstractFilterTaskTestCase
 {
     private FilterConsumerAdminTask objectUnderTest_;
 
-    /**
-     * Constructor for FilterConsumerAdminTaskTest.
-     * 
-     * @param name
-     */
-    public FilterConsumerAdminTaskTest(String name)
-    {
-        super(name);
-    }
-
     protected AbstractFilterTask newObjectUnderTest()
     {
         objectUnderTest_ = new FilterConsumerAdminTask(mockTaskFactory_, mockTaskExecutor_);

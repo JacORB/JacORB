@@ -93,15 +93,9 @@ public class EvaluationResultTest extends TestCase
         assertTrue(!objectUnderTest_.getBool());
     }
 
-    public EvaluationResultTest(String name)
-    {
-        super(name);
-    }
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite(EvaluationResultTest.class);
-
-        return suite;
+        return new TestSuite(EvaluationResultTest.class);
     }
 }

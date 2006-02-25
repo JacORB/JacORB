@@ -52,7 +52,6 @@ public class TimeoutTest extends NotificationTestCase
         super(name, setup);
     }
 
-
     public void setUpTest() throws Exception
     {
         messageFactory_ = new DefaultMessageFactory(getConfiguration());

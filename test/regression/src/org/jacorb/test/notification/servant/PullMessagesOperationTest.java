@@ -38,11 +38,6 @@ public class PullMessagesOperationTest extends TestCase
 
     private MessageSupplierDelegate mockMessageSupplier_;
 
-    public PullMessagesOperationTest(String name)
-    {
-        super(name);
-    }
-
     protected void setUp() throws Exception
     {
         super.setUp();

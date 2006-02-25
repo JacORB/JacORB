@@ -43,11 +43,6 @@ public class COSNotificationServiceTest extends TestCase
 
     private ObjectName objectName_;
 
-    public COSNotificationServiceTest(String arg)
-    {
-        super(arg);
-    }
-
     protected void setUp() throws Exception
     {
         super.setUp();

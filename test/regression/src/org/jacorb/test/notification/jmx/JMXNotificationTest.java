@@ -37,11 +37,6 @@ public class JMXNotificationTest extends TestCase
 {
     private MBeanServer mbeanServer_;
 
-    public JMXNotificationTest(String name)
-    {
-        super(name);
-    }
-
     protected void setUp() throws Exception
     {
         super.setUp();

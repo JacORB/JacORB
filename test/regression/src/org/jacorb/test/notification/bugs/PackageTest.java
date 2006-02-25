@@ -34,11 +34,6 @@ import junit.framework.TestSuite;
 
 public class PackageTest extends TestCase
 {
-    public PackageTest(String name)
-    {
-        super(name);
-    }
-
     public static Test suite() throws Exception
     {
         TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.bugs");

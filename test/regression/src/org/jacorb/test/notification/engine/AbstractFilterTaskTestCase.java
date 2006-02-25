@@ -54,11 +54,6 @@ public abstract class AbstractFilterTaskTestCase extends TestCase
     
     private AbstractFilterTask objectUnderTest_;
     
-    public AbstractFilterTaskTestCase(String name)
-    {
-        super(name);
-    }
-    
     protected final void setUp() throws Exception
     {
         super.setUp();

@@ -31,11 +31,6 @@ import org.jacorb.notification.util.GNUPatternWrapper;
 
 public class GNUPatternWrapperTest extends AbstractPatternWrapperTest
 {
-    public GNUPatternWrapperTest(String name)
-    {
-        super(name);
-    }
-
     protected PatternWrapper newPattern()
     {
         return new GNUPatternWrapper();
@@ -43,8 +38,6 @@ public class GNUPatternWrapperTest extends AbstractPatternWrapperTest
 
     public static TestSuite suite()
     {
-        TestSuite suite = new TestSuite(GNUPatternWrapperTest.class);
-
-        return suite;
+        return new TestSuite(GNUPatternWrapperTest.class);
     }
 }

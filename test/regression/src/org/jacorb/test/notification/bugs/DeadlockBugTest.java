@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jacorb.notification.AnyMessage;
-import org.jacorb.notification.queue.BasicMessageQueueAdapter;
+import org.jacorb.notification.queue.DefaultMessageQueueAdapter;
 import org.jacorb.notification.queue.BoundedFifoEventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 import org.jacorb.notification.queue.MessageQueue;
@@ -53,13 +53,7 @@ public class DeadlockBugTest extends TestCase
 
         MessageQueue queue = new BoundedFifoEventQueue(4, EventQueueOverflowStrategy.FIFO, lock_);
 
-        objectUnderTest_ = new RWLockEventQueueDecorator(new BasicMessageQueueAdapter(queue));
-    }
-
-    
-    public DeadlockBugTest(String name)
-    {
-        super(name);
+        objectUnderTest_ = new RWLockEventQueueDecorator(new DefaultMessageQueueAdapter(queue));
     }
 
     /**

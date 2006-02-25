@@ -130,16 +130,6 @@ public class FilterProxyConsumerTaskTest extends AbstractFilterTaskTestCase
         controlMessage_.verify();
     }
 
-    /**
-     * Constructor for FilterProxyConsumerTaskTest.
-     * 
-     * @param name
-     */
-    public FilterProxyConsumerTaskTest(String name)
-    {
-        super(name);
-    }
-
     public static Test suite()
     {
         return new TestSuite(FilterProxyConsumerTaskTest.class);

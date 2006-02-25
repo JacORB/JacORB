@@ -33,23 +33,9 @@ import org.jacorb.notification.engine.FilterSupplierAdminTask;
  */
 public class FilterSupplierAdminTaskTest extends AbstractFilterTaskTestCase
 {
-    private FilterSupplierAdminTask objectUnderTest_;
-
-    /**
-     * Constructor for FilterSupplierAdminTaskTest.
-     * 
-     * @param name
-     */
-    public FilterSupplierAdminTaskTest(String name)
-    {
-        super(name);
-    }
-
     protected AbstractFilterTask newObjectUnderTest()
     {
-        objectUnderTest_ = new FilterSupplierAdminTask(mockTaskFactory_, mockTaskExecutor_);
-        
-        return objectUnderTest_;
+        return new FilterSupplierAdminTask(mockTaskFactory_, mockTaskExecutor_);
     }
 
     public static Test suite()

@@ -53,11 +53,6 @@ public class CallbackManagerTest extends TestCase
         mockSubscription_ = (NotifySubscribe) controlSubscription_.getMock();
     }
 
-    public CallbackManagerTest(String name)
-    {
-        super(name);
-    }
-
     public void testAttach_callback()
     {
         int id = objectUnderTest_.attach_callback(mockSubscription_);

@@ -49,11 +49,6 @@ public class PullMessagesUtilityTest extends TestCase
 
     private MockControl controlScheduledFuture_;
 
-    public PullMessagesUtilityTest(String name)
-    {
-        super(name);
-    }
-
     protected void setUp() throws Exception
     {
         super.setUp();

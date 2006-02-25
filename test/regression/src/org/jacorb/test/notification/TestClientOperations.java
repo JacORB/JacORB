@@ -12,8 +12,8 @@ import org.omg.CosNotifyFilter.FilterNotFound;
  * @version $Id$
  */
 
-public interface TestClientOperations {
-
+public interface TestClientOperations 
+{
     boolean isConnected();
     boolean isEventHandled();
     boolean isError();
@@ -25,5 +25,4 @@ public interface TestClientOperations {
                AdminNotFound;
 
     void shutdown() throws FilterNotFound;
-
 }

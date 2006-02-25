@@ -30,11 +30,6 @@ import org.jacorb.notification.util.JakartaRegexpPatternWrapper;
  */
 public class JakartaRegexpPatternWrapperTest extends AbstractPatternWrapperTest
 {
-    public JakartaRegexpPatternWrapperTest(String name)
-    {
-        super(name);
-    }
-
     public PatternWrapper newPattern()
     {
         return new JakartaRegexpPatternWrapper();
@@ -42,8 +37,6 @@ public class JakartaRegexpPatternWrapperTest extends AbstractPatternWrapperTest
 
     public static TestSuite suite()
     {
-        TestSuite suite = new TestSuite(JakartaRegexpPatternWrapperTest.class);
-
-        return suite;
+        return new TestSuite(JakartaRegexpPatternWrapperTest.class);
     }
 }

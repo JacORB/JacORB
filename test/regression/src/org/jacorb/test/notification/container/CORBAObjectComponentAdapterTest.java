@@ -88,11 +88,6 @@ public class CORBAObjectComponentAdapterTest extends TestCase
         controlObject.verify();
     }
 
-    public CORBAObjectComponentAdapterTest(String name)
-    {
-        super(name);
-    }
-
     public static Test suite()
     {
         return new TestSuite(CORBAObjectComponentAdapterTest.class);

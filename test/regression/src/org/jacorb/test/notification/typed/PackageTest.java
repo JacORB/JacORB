@@ -30,11 +30,6 @@ import junit.framework.TestSuite;
 
 public class PackageTest extends TestCase
 {
-    public PackageTest(String name)
-    {
-        super(name);
-    }
-
     public static TestSuite suite() throws Exception
     {
         TestSuite suite = new TestSuite("TypedEventChannel Tests");

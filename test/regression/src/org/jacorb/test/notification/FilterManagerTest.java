@@ -60,11 +60,6 @@ public class FilterManagerTest extends TestCase
         super.tearDown();
     }
 
-    public FilterManagerTest(String name)
-    {
-        super(name);
-    }
-
     public void testAdd_filter() throws Exception
     {
         assertEquals(0, objectUnderTest_.get_all_filters().length);

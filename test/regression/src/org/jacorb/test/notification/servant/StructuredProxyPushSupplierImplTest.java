@@ -52,9 +52,6 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
     private TaskProcessor mockTaskProcessor_;
 
-    /*
-     * @see TestCase#setUp()
-     */
     protected void setUpTest() throws Exception
     {
         MockControl controlAdmin = MockControl.createControl(IAdmin.class);

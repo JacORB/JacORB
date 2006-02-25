@@ -31,11 +31,6 @@ public class DefaultPushTaskExecutorTest extends TestCase
 {
     private DefaultPushTaskExecutor objectUnderTest_;
 
-    public DefaultPushTaskExecutorTest(String name)
-    {
-        super(name);
-    }
-
     protected void setUp() throws Exception
     {
         objectUnderTest_ = new DefaultPushTaskExecutor(2);

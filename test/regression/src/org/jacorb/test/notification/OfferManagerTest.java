@@ -46,12 +46,6 @@ public class OfferManagerTest extends TestCase {
 
     ////////////////////////////////////////
 
-    public OfferManagerTest (String name) {
-        super(name);
-    }
-
-    ////////////////////////////////////////
-
     public void setUp() throws Exception {
         offerManager_ = new OfferManager();
 

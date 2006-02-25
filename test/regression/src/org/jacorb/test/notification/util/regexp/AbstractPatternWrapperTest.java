@@ -32,11 +32,6 @@ public abstract class AbstractPatternWrapperTest extends TestCase
 {
     protected PatternWrapper objectUnderTest_;
 
-    public AbstractPatternWrapperTest(String name)
-    {
-        super(name);
-    }
-
     public final void setUp()
     {
         objectUnderTest_ = newPattern();

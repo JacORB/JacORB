@@ -29,11 +29,6 @@ public class TestService implements TestServiceMBean, JMXManageable
     private int value_;
     private int invoked_;
     private JMXCallback callback_;
-    
-    public TestService()
-    {
-        super();
-    }
 
     public void setValue(int v)
     {
