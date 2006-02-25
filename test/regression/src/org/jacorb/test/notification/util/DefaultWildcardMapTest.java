@@ -33,11 +33,6 @@ import org.jacorb.notification.util.WildcardMap;
  */
 public class DefaultWildcardMapTest extends AbstractWildcardMapTest
 {
-    public DefaultWildcardMapTest(String name)
-    {
-        super(name);
-    }
-
     WildcardMap newWildcardMap()
     {
         return new DefaultWildcardMap();

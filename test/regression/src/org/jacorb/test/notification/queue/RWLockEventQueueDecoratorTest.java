@@ -42,11 +42,6 @@ public class RWLockEventQueueDecoratorTest extends TestCase
 
     private MessageQueueAdapter mockReplacementQueue_;
 
-    public RWLockEventQueueDecoratorTest(String name)
-    {
-        super(name);
-    }
-
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -71,9 +66,9 @@ public class RWLockEventQueueDecoratorTest extends TestCase
 
     public void testReplaceNonEmpty() throws Exception
     {
-        MockControl controlMessage = MockControl.createControl(Message.class);
-        Message mockMessage = (Message) controlMessage.getMock();
-        Message[] mesgs = new Message[] { mockMessage };
+        final MockControl controlMessage = MockControl.createControl(Message.class);
+        final Message mockMessage = (Message) controlMessage.getMock();
+        final Message[] mesgs = new Message[] { mockMessage };
 
         mockInitialQueue_.hasPendingMessages();
         controlInitialQueue_.setReturnValue(true);

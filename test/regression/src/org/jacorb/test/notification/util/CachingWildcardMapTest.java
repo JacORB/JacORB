@@ -38,11 +38,6 @@ public class CachingWildcardMapTest extends AbstractWildcardMapTest
         return new CachingWildcardMap();
     }
 
-    public CachingWildcardMapTest(String name)
-    {
-        super(name);
-    }
-
     public static Test suite()
     {
         return new TestSuite(CachingWildcardMapTest.class);

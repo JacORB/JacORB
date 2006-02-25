@@ -33,11 +33,6 @@ import org.jacorb.notification.util.WildcardMap;
  */
 public class WeakCacheWildcardMapTest extends AbstractWildcardMapTest
 {
-    public WeakCacheWildcardMapTest(String name)
-    {
-        super(name);
-    }
-
     public WildcardMap newWildcardMap()
     {
         return new WeakCacheWildcardMap();

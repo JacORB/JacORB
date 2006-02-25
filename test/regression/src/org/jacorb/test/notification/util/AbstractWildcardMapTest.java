@@ -13,13 +13,6 @@ public abstract class AbstractWildcardMapTest extends TestCase
 
     ////////////////////////////////////////
 
-    public AbstractWildcardMapTest(String name)
-    {
-        super(name);
-    }
-
-    ////////////////////////////////////////
-
     public void setUp() throws Exception
     {
         objectUnderTest_ = newWildcardMap();
