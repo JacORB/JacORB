@@ -28,16 +28,13 @@ import org.jacorb.notification.queue.MessageQueue.DiscardListener;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class BasicMessageQueueAdapter implements MessageQueueAdapter
+public class DefaultMessageQueueAdapter implements MessageQueueAdapter
 {
     private final MessageQueue queue_;
 
     private static final Message[] EMPTY = new Message[0];
 
-    /**
-     * 
-     */
-    public BasicMessageQueueAdapter(MessageQueue queue)
+    public DefaultMessageQueueAdapter(MessageQueue queue)
     {
         super();
 
@@ -49,7 +46,6 @@ public class BasicMessageQueueAdapter implements MessageQueueAdapter
      */
     public void enqeue(Message message)
     {
-        // enqueue a copy of the Message to ensure this queue owns the Message
         queue_.put(message);
     }
 

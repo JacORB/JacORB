@@ -25,7 +25,7 @@ import org.jacorb.notification.interfaces.Message;
 
 /**
  * Single entry within a Heap. An entry consists of a payload (the
- * Notification) and order of primitive int type. The order member
+ * Notification) and order of primitive long type. The order member
  * is used to keep track in which order the single elements were
  * inserted in a Heap.
  *
@@ -33,8 +33,8 @@ import org.jacorb.notification.interfaces.Message;
  * @version $Id$
  */
 
-public class HeapEntry {
-
+public class HeapEntry 
+{
     final Message event_;
     final long order_;
 

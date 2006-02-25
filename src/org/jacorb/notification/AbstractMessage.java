@@ -68,20 +68,20 @@ public abstract class AbstractMessage extends AbstractPoolable
         /**
          * flag to indicate that the Priority has been changed for this Messagehandle.
          */
-        private boolean isPrioritySet_ = false;
+        private boolean isPriorityOverridden = false;
 
         /**
-         * if isPrioritySet_ is true priority_ contains the Priority for this MessageHandle.
+         * if isPriorityOverridden_ is true priority_ contains the Priority for this MessageHandle.
          */
         private int priority_;
 
         /**
          * flag to indicate that the Timeout has been changed for this Messagehandle.
          */
-        private boolean isTimeoutSet_ = false;
+        private boolean isTimeoutOverridden_ = false;
 
         /**
-         * if isTimeoutSet_ is true timeOut_ contains the Timeout for this MessageHandle.
+         * if isTimeoutOverridden_ is true timeOut_ contains the Timeout for this MessageHandle.
          */
         private long timeOut_;
 
@@ -108,9 +108,9 @@ public abstract class AbstractMessage extends AbstractPoolable
             addReference();
 
             priority_ = priority;
-            isPrioritySet_ = priorityOverride;
+            isPriorityOverridden = priorityOverride;
             timeOut_ = timeout;
-            isTimeoutSet_ = timeoutOverride;
+            isTimeoutOverridden_ = timeoutOverride;
         }
 
         /**
@@ -198,24 +198,23 @@ public abstract class AbstractMessage extends AbstractPoolable
 
         public boolean hasTimeout()
         {
-            return isTimeoutSet_ || AbstractMessage.this.hasTimeout();
+            return isTimeoutOverridden_ || AbstractMessage.this.hasTimeout();
         }
 
         public long getTimeout()
         {
-            if (isTimeoutSet_)
+            if (isTimeoutOverridden_)
             {
                 return timeOut_;
             }
             return AbstractMessage.this.getTimeout();
-
         }
 
         public void setTimeout(long timeout)
         {
             timeOut_ = timeout;
 
-            isTimeoutSet_ = true;
+            isTimeoutOverridden_ = true;
 
             if (eventStateListener_ != null)
             {
@@ -225,14 +224,14 @@ public abstract class AbstractMessage extends AbstractPoolable
 
         public void setPriority(int priority)
         {
-            isPrioritySet_ = true;
+            isPriorityOverridden = true;
 
             priority_ = priority;
         }
 
         public int getPriority()
         {
-            if (isPrioritySet_)
+            if (isPriorityOverridden)
             {
                 return priority_;
             }
@@ -255,7 +254,7 @@ public abstract class AbstractMessage extends AbstractPoolable
             {
                 checkInvalid();
 
-                return new MessageHandle(priority_, isPrioritySet_, timeOut_, isTimeoutSet_);
+                return new MessageHandle(priority_, isPriorityOverridden, timeOut_, isTimeoutOverridden_);
             } catch (IllegalArgumentException e)
             {
                 return null;
@@ -289,6 +288,11 @@ public abstract class AbstractMessage extends AbstractPoolable
         {
             isInvalid_ = true;
         }
+        
+        public long getReceiveTimestamp()
+        {
+            return AbstractMessage.this.getReceiveTimestamp();
+        }
 
         public String toString()
         {
@@ -318,6 +322,8 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     private FilterStage currentFilterStage_;
 
+    private long receiveTimestamp_;
+    
     ////////////////////////////////////////
 
     /**
@@ -328,6 +334,11 @@ public abstract class AbstractMessage extends AbstractPoolable
      * @return a <code>String</code> value
      */
     public abstract String getConstraintKey();
+
+    public long getReceiveTimestamp()
+    {
+        return receiveTimestamp_;
+    }
 
     /**
      * Access this NotificationEvent as Any.
@@ -421,7 +432,7 @@ public abstract class AbstractMessage extends AbstractPoolable
     {
         EvaluationResult _ret = null;
 
-        String _completePath = componentRootNode.getComponentName();
+        final String _completePath = componentRootNode.getComponentName();
 
         if (logger_.isDebugEnabled())
         {
@@ -459,7 +470,7 @@ public abstract class AbstractMessage extends AbstractPoolable
     {
         EvaluationResult _ret = null;
 
-        String _completeExpr = componentRootNode.getComponentName();
+        final String _completeExpr = componentRootNode.getComponentName();
 
         if (logger_.isDebugEnabled())
         {
@@ -504,6 +515,11 @@ public abstract class AbstractMessage extends AbstractPoolable
     {
         return new MessageHandle();
     }
+    
+    public void initReceiveTimestamp()
+    {
+        receiveTimestamp_ = System.currentTimeMillis();
+    }
 
     public abstract boolean hasStartTime();
 
@@ -523,20 +539,20 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     public boolean match(FilterStage filterStage)
     {
-        List _filterList = filterStage.getFilters();
+        final List _filterList = filterStage.getFilters();
 
         if (_filterList.isEmpty())
         {
             return true;
         }
 
-        Iterator _filterIterator = _filterList.iterator();
+        final Iterator _filterIterator = _filterList.iterator();
 
         while (_filterIterator.hasNext())
         {
             try
             {
-                Filter _filter = (Filter) _filterIterator.next();
+                final Filter _filter = (Filter) _filterIterator.next();
 
                 if (match(_filter))
                 {
@@ -579,13 +595,13 @@ public abstract class AbstractMessage extends AbstractPoolable
             type_name = "*";
         }
 
-        StringBuffer _b = new StringBuffer(domain_name);
+        final StringBuffer _buffer = new StringBuffer(domain_name);
 
         // insert a magic string-seperator
         // has no meaning though
-        _b.append("_%_");
-        _b.append(type_name);
+        _buffer.append("_%_");
+        _buffer.append(type_name);
 
-        return _b.toString();
+        return _buffer.toString();
     }
 }

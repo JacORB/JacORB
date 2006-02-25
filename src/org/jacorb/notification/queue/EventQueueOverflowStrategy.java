@@ -28,13 +28,13 @@ import org.jacorb.notification.interfaces.Message;
  * @version $Id$
  */
 
-public abstract class EventQueueOverflowStrategy
+public interface EventQueueOverflowStrategy
 {
-    public abstract Message removeElementFromQueue( AbstractBoundedEventQueue queue );
+    Message removeElementFromQueue( AbstractBoundedEventQueue queue );
 
-    public abstract String getDiscardPolicyName();
+    String getDiscardPolicyName();
     
-    public static final EventQueueOverflowStrategy FIFO =
+    EventQueueOverflowStrategy FIFO =
         new EventQueueOverflowStrategy()
         {
             public Message removeElementFromQueue( AbstractBoundedEventQueue queue )
@@ -48,7 +48,7 @@ public abstract class EventQueueOverflowStrategy
             }
         };
 
-    public static final EventQueueOverflowStrategy LIFO =
+    EventQueueOverflowStrategy LIFO =
         new EventQueueOverflowStrategy()
         {
             public Message removeElementFromQueue( AbstractBoundedEventQueue queue )
@@ -62,7 +62,7 @@ public abstract class EventQueueOverflowStrategy
             }
         };
 
-    public static final EventQueueOverflowStrategy LEAST_PRIORITY =
+    EventQueueOverflowStrategy LEAST_PRIORITY =
         new EventQueueOverflowStrategy()
         {
             public Message removeElementFromQueue( AbstractBoundedEventQueue queue )
@@ -76,7 +76,7 @@ public abstract class EventQueueOverflowStrategy
             }
         };
 
-    public static final EventQueueOverflowStrategy EARLIEST_TIMEOUT =
+    EventQueueOverflowStrategy EARLIEST_TIMEOUT =
         new EventQueueOverflowStrategy()
         {
             public Message removeElementFromQueue( AbstractBoundedEventQueue queue )

@@ -139,6 +139,9 @@ public interface Message extends Disposable
 
     int getType();
 
-
+    
     void actionTimeout();
+    
+    
+    long getReceiveTimestamp();
 }

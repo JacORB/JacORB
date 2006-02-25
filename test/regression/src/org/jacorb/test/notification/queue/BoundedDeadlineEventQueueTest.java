@@ -50,11 +50,6 @@ public class BoundedDeadlineEventQueueTest extends TestCase
 
     private Message mockMessage3_;
 
-    public BoundedDeadlineEventQueueTest(String name)
-    {
-        super(name);
-    }
-
     protected void setUp()
     {
         objectUnderTest_ = new BoundedDeadlineEventQueue(2,
@@ -170,7 +165,8 @@ public class BoundedDeadlineEventQueueTest extends TestCase
     }
 
     /**
-     * test to provoke a bug i have found by poking around in the sources. size of array returned by
+     * test to provoke a bug i have found by poking around in the sources. 
+     * size of array returned by
      * getEvents was size +1. also entries in queue could get lost.
      */
     public void testGetEvents() throws Exception

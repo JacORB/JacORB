@@ -31,7 +31,6 @@ import org.jacorb.notification.servant.AbstractProxySupplier;
 import org.jacorb.notification.servant.IAdmin;
 import org.jacorb.test.notification.common.NotificationTestCase;
 import org.jacorb.test.notification.common.NotificationTestCaseSetup;
-import org.omg.CORBA.Object;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.PortableServer.POA;
@@ -167,6 +166,8 @@ public class AbstractProxySupplierTest extends NotificationTestCase
         
         mockMessage_.clone();
         controlMessage_.setReturnValue(mockClonedMessage);
+        
+        controlClonedMessage.expectAndReturn(mockClonedMessage.getReceiveTimestamp(), 0, MockControl.ZERO_OR_MORE);
         mockMessage_.dispose();
         
         mockClient_._is_a(null);

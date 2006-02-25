@@ -21,15 +21,7 @@ package org.jacorb.notification.queue;
  *
  */
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
 import org.jacorb.notification.interfaces.Message;
-
-import edu.emory.mathcs.backport.java.util.PriorityQueue;
 
 /**
  * Note that most of the methods are not thread-safe. this causes no problem as 
@@ -40,20 +32,12 @@ import edu.emory.mathcs.backport.java.util.PriorityQueue;
  * @version $Id$
  */
 
-public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
+public class BoundedDeadlineEventQueue extends AbstractBoundedEventHeap
 {
-    private final PriorityQueue heap_;
-
-    private long counter_ = 0;
-
-    ////////////////////////////////////////
-
     public BoundedDeadlineEventQueue( int maxSize,
                                       EventQueueOverflowStrategy overflowStrategy )
     {
-        super(maxSize, overflowStrategy, new Object());
-        
-        heap_ = new PriorityQueue(maxSize, QueueUtil.ASCENDING_TIMEOUT_COMPARATOR );
+        super(maxSize, overflowStrategy, new Object(), QueueUtil.ASCENDING_TIMEOUT_COMPARATOR);
     }
 
     ////////////////////////////////////////
@@ -62,118 +46,24 @@ public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
     {
         return "DeadlineOrder";
     }
-    
-    protected Message getNextElement()
-    {
-        return getEarliestTimeout();
-    }
 
     protected Message getOldestElement()
     {
-        return removeFirstElement(QueueUtil.ASCENDING_AGE_COMPARATOR );
+        return removeFirstElement(QueueUtil.ASCENDING_INSERT_ORDER_COMPARATOR );
     }
     
-    private Message removeFirstElement(Comparator comp)
-    {
-        List _entries = copyAllEntries();
-
-        Collections.sort( _entries, comp );
-
-        HeapEntry _entry = ( HeapEntry ) _entries.get( 0 );
-
-        heap_.remove(_entry);
-        
-        return _entry.event_;
-    }
-
-
     protected Message getYoungestElement()
     {
-        return removeFirstElement( QueueUtil.DESCENDING_AGE_COMPARATOR );
+        return removeFirstElement( QueueUtil.DESCENDING_INSERT_ORDER_COMPARATOR );
     }
-
 
     protected Message getEarliestTimeout()
     {
-        return ( ( HeapEntry ) heap_.remove() ).event_;
+        return getNextHeapElement();
     }
-
 
     protected Message getLeastPriority()
     {
         return removeFirstElement(QueueUtil.ASCENDING_PRIORITY_COMPARATOR );
-    }
-
-
-    protected Message[] getElements( int max )
-    {
-        List _events = new ArrayList();
-        Object _element;
-
-        while ( ( _events.size() < max ) && ( _element = heap_.remove() ) != null )
-        {
-            _events.add( ( ( HeapEntry ) _element ).event_ );
-        }
-
-        return ( Message[] )
-               _events.toArray( QueueUtil.MESSAGE_ARRAY_TEMPLATE );
-    }
-
-
-    protected void addElement( Message event )
-    {
-        heap_.add( new HeapEntry( event, counter_++ ) );
-    }
-
-
-    private List copyAllEntries()
-    {
-        List _events = new ArrayList(heap_.size());
-
-        _events.addAll(heap_);
-
-        return _events;
-    }
-    
-    
-    private List removeAllEntries()
-    {
-        List _entries = copyAllEntries();
-        
-        heap_.clear();
-        
-        return _entries;
-    }
-
-
-    protected Message[] getAllElements()
-    {
-        List _all = removeAllEntries();
-
-        Message[] _ret = new Message[ _all.size() ];
-
-        Iterator i = _all.iterator();
-
-        int x = 0;
-
-        while ( i.hasNext() )
-        {
-            HeapEntry e = ( HeapEntry ) i.next();
-            _ret[ x++ ] = e.event_;
-        }
-
-        return _ret;
-    }
-
-
-    public boolean isEmpty()
-    {
-        return ( getSize() == 0 );
-    }
-
-
-    public int getSize()
-    {
-        return heap_.size();
     }
 }

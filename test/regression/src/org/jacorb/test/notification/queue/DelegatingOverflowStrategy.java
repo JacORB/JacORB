@@ -29,7 +29,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.AbstractBoundedEventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 
-class DelegatingOverflowStrategy extends EventQueueOverflowStrategy
+class DelegatingOverflowStrategy implements EventQueueOverflowStrategy
 {
     private final List removedEvents_;
     
@@ -45,11 +45,11 @@ class DelegatingOverflowStrategy extends EventQueueOverflowStrategy
 
     public Message removeElementFromQueue(AbstractBoundedEventQueue queue)
     {
-        Message e = delegate_.removeElementFromQueue(queue);
+        final Message _mesg = delegate_.removeElementFromQueue(queue);
 
-        removedEvents_.add(e);
+        removedEvents_.add(_mesg);
 
-        return e;
+        return _mesg;
     }
     
     public List getRemovedElements()

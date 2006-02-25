@@ -42,11 +42,6 @@ import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 
 public class BoundedPriorityEventQueueTest extends TestCase
 {
-    public BoundedPriorityEventQueueTest(String name)
-    {
-        super(name);
-    }
-
     public static Test suite() throws Exception
     {
         return new TestSuite(BoundedPriorityEventQueueTest.class);
@@ -87,7 +82,6 @@ public class BoundedPriorityEventQueueTest extends TestCase
             Message _event = _queue.getMessage(false);
             assertEquals(10 - x, _event.getPriority());
         }
-
     }
 
     public void testFIFOOverflow() throws Exception

@@ -70,11 +70,11 @@ public class BoundedFifoEventQueue extends AbstractBoundedEventQueue
 
     protected Message getEarliestTimeout()
     {
-        List _sorted = (List) linkedList_.clone();
+        final List _sorted = (List) linkedList_.clone();
 
         Collections.sort(_sorted, QueueUtil.ASCENDING_TIMEOUT_COMPARATOR);
 
-        Message _event = (Message) _sorted.get(0);
+        final Message _event = (Message) _sorted.get(0);
 
         linkedList_.remove(_event);
 
@@ -83,11 +83,11 @@ public class BoundedFifoEventQueue extends AbstractBoundedEventQueue
 
     protected Message getLeastPriority()
     {
-        List _sorted = (List) linkedList_.clone();
+        final List _sorted = (List) linkedList_.clone();
 
         Collections.sort(_sorted, QueueUtil.ASCENDING_PRIORITY_COMPARATOR);
 
-        Message _event = (Message) _sorted.get(0);
+        final Message _event = (Message) _sorted.get(0);
 
         linkedList_.remove(_event);
 
@@ -114,7 +114,8 @@ public class BoundedFifoEventQueue extends AbstractBoundedEventQueue
         try
         {
             return (Message[]) linkedList_.toArray(QueueUtil.MESSAGE_ARRAY_TEMPLATE);
-        } finally
+        } 
+        finally
         {
             linkedList_.clear();
         }
@@ -128,15 +129,15 @@ public class BoundedFifoEventQueue extends AbstractBoundedEventQueue
 
     protected Message[] getElements(int max)
     {
-        int _retSize = (max > linkedList_.size()) ? linkedList_.size() : max;
+        final int _retSize = (max > linkedList_.size()) ? linkedList_.size() : max;
 
-        Message[] _ret = new Message[_retSize];
+        final Message[] _result = new Message[_retSize];
 
         for (int x = 0; x < _retSize; ++x)
         {
-            _ret[x] = (Message) linkedList_.removeFirst();
+            _result[x] = (Message) linkedList_.removeFirst();
         }
 
-        return _ret;
+        return _result;
     }
 }

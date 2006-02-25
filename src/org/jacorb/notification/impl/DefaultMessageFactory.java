@@ -108,9 +108,11 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         }
 
         AnyMessage _mesg = newAnyMessage(any);
+        
+        _mesg.initReceiveTimestamp();
 
         _mesg.setFilterStage(consumer.getFirstStage());
-
+        
         return _mesg.getHandle();
     }
 
@@ -131,11 +133,13 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         StructuredEventMessage _mesg = 
             (StructuredEventMessage) structuredEventMessagePool_.lendObject();
 
+        _mesg.initReceiveTimestamp();
+        
         _mesg.setFilterStage(consumer.getFirstStage());
 
         _mesg.setStructuredEvent(structuredEvent, consumer.getStartTimeSupported(), consumer
                 .getStopTimeSupported());
-
+        
         return _mesg.getHandle();
     }
 
@@ -149,6 +153,8 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         {
             TypedEventMessage _mesg = (TypedEventMessage) typedEventMessagePool_.lendObject();
 
+            _mesg.initReceiveTimestamp();
+            
             Property[] _props = new Property[args.count()];
 
             for (int x = 0; x < _props.length; ++x)

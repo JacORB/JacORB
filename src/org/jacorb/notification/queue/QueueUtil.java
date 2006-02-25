@@ -21,7 +21,9 @@ package org.jacorb.notification.queue;
  *
  */
 
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import org.jacorb.notification.interfaces.Message;
 
@@ -43,12 +45,23 @@ class QueueUtil
 
     static final HeapEntry[] HEAP_ENTRY_ARRAY_TEMPLATE = new HeapEntry[0];
 
+    static Comparator ASCENDING_RECEIVE_TIME_COMPARATOR = new Comparator()
+    {
+        public int compare(Object arg0, Object arg1)
+        {
+            final HeapEntry _left = (HeapEntry) arg0;
+            final HeapEntry _right = (HeapEntry) arg1;
+            
+            return compareLong(_left.event_.getReceiveTimestamp(), _right.event_.getReceiveTimestamp());
+        }
+    };
+    
     static Comparator ASCENDING_TIMEOUT_COMPARATOR = new Comparator()
     {
         public int compare(Object left, Object right)
         {
-            Message _left = toMessage(left);
-            Message _right = toMessage(right);
+            final Message _left = toMessage(left);
+            final Message _right = toMessage(right);
 
             if (_left.hasTimeout())
             {
@@ -56,8 +69,8 @@ class QueueUtil
                 {
                     return -1;
                 }
-
-                return (int) (_left.getTimeout() - _right.getTimeout());
+                
+                return compareLong(_left.getTimeout(), _right.getTimeout());
             }
             else if (_right.hasTimeout())
             {
@@ -68,22 +81,22 @@ class QueueUtil
         }
     };
 
-    static Comparator ASCENDING_AGE_COMPARATOR = new Comparator()
+    static Comparator ASCENDING_INSERT_ORDER_COMPARATOR = new Comparator()
     {
         public int compare(Object left, Object right)
         {
-            HeapEntry _left = (HeapEntry) left;
-            HeapEntry _right = (HeapEntry) right;
+            final HeapEntry _left = (HeapEntry) left;
+            final HeapEntry _right = (HeapEntry) right;
 
-            return (int)(_left.order_ - _right.order_);
+            return compareLong(_left.order_, _right.order_);
         }
     };
 
-    static Comparator DESCENDING_AGE_COMPARATOR = new Comparator()
+    static Comparator DESCENDING_INSERT_ORDER_COMPARATOR = new Comparator()
     {
         public int compare(Object left, Object right)
         {
-            return -ASCENDING_AGE_COMPARATOR.compare(left, right);
+            return -ASCENDING_INSERT_ORDER_COMPARATOR.compare(left, right);
         }
     };
 
@@ -91,9 +104,9 @@ class QueueUtil
     {
         public int compare(Object left, Object right)
         {
-            Message _right = toMessage(right);
+            final Message _right = toMessage(right);
 
-            Message _left = toMessage(left);
+            final Message _left = toMessage(left);
             
             return _left.getPriority() - _right.getPriority();
         }        
@@ -125,4 +138,9 @@ class QueueUtil
         }
         return _message;
     }    
+    
+    private static int compareLong(long left, long right)
+    {
+        return left < right ? -1 : (left == right ? 0 : 1);
+    }
 }

@@ -105,7 +105,7 @@ public class EventQueueFactory implements Configurable
 
     private void setDiscardPolicy(String s)
     {
-        String policy = s.toLowerCase().trim();
+        final String policy = s.toLowerCase().trim();
 
         if (mapDiscardPolicyNameToValue.containsKey(policy))
         {
@@ -119,7 +119,7 @@ public class EventQueueFactory implements Configurable
 
     private void setOrderPolicy(String s)
     {
-        String policy = s.toLowerCase().trim();
+        final String policy = s.toLowerCase().trim();
 
         if (mapOrderPolicyNameToValue.containsKey(policy))
         {
@@ -189,7 +189,7 @@ public class EventQueueFactory implements Configurable
         // fallthrough. will default to FifoOrder
 
         case FifoOrder.value:
-            queue = new BoundedFifoEventQueue(maxEventsPerConsumer, _overflowStrategy);
+            queue = new BoundedReceiveTimeEventQueue(maxEventsPerConsumer, _overflowStrategy);
             break;
 
         case PriorityOrder.value:
@@ -205,7 +205,7 @@ public class EventQueueFactory implements Configurable
                     + " OrderPolicyValue: " + shortOrderPolicy + " unknown");
         }
 
-        return new BasicMessageQueueAdapter(queue);
+        return new DefaultMessageQueueAdapter(queue);
     }
 
     private static short orderPolicyNameToValue(String orderPolicyName)

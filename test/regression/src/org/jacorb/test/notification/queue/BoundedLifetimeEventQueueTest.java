@@ -1,9 +1,7 @@
-package org.jacorb.test.notification.queue;
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1999-2006 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,26 +19,26 @@ package org.jacorb.test.notification.queue;
  *
  */
 
+package org.jacorb.test.notification.queue;
+
+import org.jacorb.notification.queue.BoundedReceiveTimeEventQueue;
+import org.jacorb.notification.queue.EventQueueOverflowStrategy;
+
 import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
-/**
- * @author Alphonse Bendt
- * @version $Id$
- */
-public class PackageTest extends TestCase
+public class BoundedLifetimeEventQueueTest extends TestCase
 {
-    public static Test suite() throws Exception
+    private BoundedReceiveTimeEventQueue objectUnderTest_;
+    private DelegatingOverflowStrategy overflowStrategy_;
+    
+    protected void setUp() throws Exception
     {
-        TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.queue");
-
-        _suite.addTest(BoundedPriorityEventQueueTest.suite());
-        _suite.addTest(BoundedFifoEventQueueTest.suite());
-        _suite.addTest(BoundedDeadlineEventQueueTest.suite());
-        _suite.addTest(RWLockEventQueueDecoratorTest.suite());
-        _suite.addTestSuite(BoundedLifetimeEventQueueTest.class);
-        
-        return _suite;
+        overflowStrategy_ = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.FIFO);
+        objectUnderTest_ = new BoundedReceiveTimeEventQueue(10, overflowStrategy_);
+    }
+    
+    public void testGetMessagesFromEmptyQueue() throws Exception
+    {
+        assertEquals(0, objectUnderTest_.getMessages(10, false).length);
     }
 }

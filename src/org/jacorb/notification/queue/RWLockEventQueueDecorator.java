@@ -80,7 +80,7 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
             
             if (delegate_.hasPendingMessages())
             {
-                Message[] _allMessages = delegate_.getAllMessages();
+                final Message[] _allMessages = delegate_.getAllMessages();
                 for (int x = 0; x < _allMessages.length; ++x)
                 {
                     newDelegate.enqeue(_allMessages[x]);

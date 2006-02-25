@@ -40,11 +40,6 @@ import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 
 public class BoundedFifoEventQueueTest extends TestCase
 {
-    public BoundedFifoEventQueueTest(String name)
-    {
-        super(name);
-    }
-
     private void addEventsToEventQueue(EventQueueOverflowStrategy strategy, List events)
     {
         BoundedFifoEventQueue queue = new BoundedFifoEventQueue(4, strategy);
@@ -146,9 +141,7 @@ public class BoundedFifoEventQueueTest extends TestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite(BoundedFifoEventQueueTest.class);
-
-        return suite;
+        return new TestSuite(BoundedFifoEventQueueTest.class);
     }
 }
 
