@@ -552,7 +552,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
     public final String getJMXObjectName()
     {
-        return "proxy=" + getMBeanName() + ", " + parentMBean_;
+        return parentMBean_ + ", proxy=" + getMBeanName();
     }
     
     public final String getMBeanName()

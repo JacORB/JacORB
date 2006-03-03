@@ -668,7 +668,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     
     public final String getJMXObjectName()
     {
-        return "admin=" + getMBeanName() + ", " + parentMBean_;
+        return parentMBean_ + ", admin=" + getMBeanName();
     }
 
     public final String getMBeanName()
