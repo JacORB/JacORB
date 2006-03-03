@@ -100,7 +100,7 @@ public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
             deliverMessageInternal(message);
         } catch (Exception e)
         {
-            PushAnyOperation _failedOperation = new PushAnyOperation(message);
+            final PushAnyOperation _failedOperation = new PushAnyOperation(message);
 
             handleFailedPushOperation(_failedOperation, e);
         }

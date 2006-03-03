@@ -106,6 +106,8 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
 
     protected void handleFailedPushOperation(PushOperation operation, Exception error)
     {
+        logger_.warn("handle failed pushoperation", error);
+        
         if (isDestroyed())
         {
             operation.dispose();
@@ -123,9 +125,9 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
         {
             // push operation caused a fatal exception
             // destroy the ProxySupplier
-            if (logger_.isErrorEnabled())
+            if (logger_.isWarnEnabled())
             {
-                logger_.error("push raised " + error + ": will destroy ProxySupplier, "
+                logger_.warn("push raised " + error + ": will destroy ProxySupplier, "
                         + "disconnect Consumer", error);
             }
 
@@ -140,7 +142,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
         }
         else if (!isDestroyed())
         {
-            RetryStrategy _retry = newRetryStrategy(this, operation);
+            final RetryStrategy _retry = newRetryStrategy(this, operation);
 
             try
             {
@@ -170,7 +172,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
     private RetryStrategyFactory newRetryStrategyFactory(Configuration config,
             TaskProcessor taskProcessor) throws ConfigurationException
     {
-        String factoryName = config.getAttribute(Attributes.RETRY_STRATEGY_FACTORY,
+        final String factoryName = config.getAttribute(Attributes.RETRY_STRATEGY_FACTORY,
                 Default.DEFAULT_RETRY_STRATEGY_FACTORY);
 
         try
@@ -209,9 +211,9 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
     private RetryStrategyFactory newRetryStrategyFactory(Configuration config,
             TaskProcessor taskProcessor, String factoryName) throws ClassNotFoundException
     {
-        Class factoryClazz = ObjectUtil.classForName(factoryName);
+        final Class factoryClazz = ObjectUtil.classForName(factoryName);
 
-        MutablePicoContainer pico = new DefaultPicoContainer();
+        final MutablePicoContainer pico = new DefaultPicoContainer();
 
         pico.registerComponentInstance(TaskProcessor.class, taskProcessor);
 

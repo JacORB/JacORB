@@ -137,9 +137,9 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
 
         if (ifName.indexOf("Pull") > 0)
         {
-            int idx = ifName.indexOf("Pull");
+            final int idx = ifName.indexOf("Pull");
 
-            StringBuffer _nonPullIF = new StringBuffer();
+            final StringBuffer _nonPullIF = new StringBuffer();
             _nonPullIF.append(ifName.substring(0, idx));
             _nonPullIF.append(ifName.substring(idx + 4));
 
@@ -185,7 +185,7 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
             {
                 _fullQualifiedOperation = EventTypeHelper.extract(_props[0].value).type_name;
 
-                String _idlType = EventTypeHelper.extract(_props[0].value).domain_name;
+                final String _idlType = EventTypeHelper.extract(_props[0].value).domain_name;
 
                 isIDLAssignable(_idlType);
             }
@@ -194,7 +194,7 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
                 throw new IllegalArgumentException();
             }
 
-            int _idx = _fullQualifiedOperation.lastIndexOf("::");
+            final int _idx = _fullQualifiedOperation.lastIndexOf("::");
             final String _operation = _fullQualifiedOperation.substring(_idx + 2);
 
             final Request _request = typedConsumer_._request(_operation);
@@ -213,7 +213,7 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
                 deliverMessageInternal(_request);
             } catch (Exception t)
             {
-                PushTypedOperation _failedOperation = new PushTypedOperation(_request);
+                final PushTypedOperation _failedOperation = new PushTypedOperation(_request);
 
                 handleFailedPushOperation(_failedOperation, t);
             }
@@ -226,9 +226,9 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
         }
     }
 
-    void deliverMessageInternal(final Request request)
+    private void deliverMessageInternal(final Request request)
     {
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         request.invoke();
         timeSpent_ += (System.currentTimeMillis() - now);
         resetErrorCounter();

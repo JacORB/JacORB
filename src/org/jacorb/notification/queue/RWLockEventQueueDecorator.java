@@ -73,7 +73,7 @@ public class RWLockEventQueueDecorator implements MessageQueueAdapter
 
         try
         {
-            for (Iterator i = listeners_.iterator(); i.hasNext();)
+            for (final Iterator i = listeners_.iterator(); i.hasNext();)
             {
                 delegate_.removeDiscardListener((DiscardListener) i.next());
             }

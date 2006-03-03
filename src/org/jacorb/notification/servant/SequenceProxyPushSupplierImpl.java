@@ -203,7 +203,7 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
                 deliverPendingMessagesInternal(_structuredEvents);
             } catch (Exception e)
             {
-                PushSequenceOperation _failedOperation = new PushSequenceOperation(
+                final PushSequenceOperation _failedOperation = new PushSequenceOperation(
                         _structuredEvents);
 
                 handleFailedPushOperation(_failedOperation, e);

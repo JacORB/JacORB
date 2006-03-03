@@ -155,7 +155,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         qosSettings_.addPropertySetListener(new String[] { OrderPolicy.value, DiscardPolicy.value,
                 MaxEventsPerConsumer.value }, eventQueueConfigurationChangedCB);
 
-        MessageQueueAdapter initialEventQueue = 
+        final MessageQueueAdapter initialEventQueue = 
             getMessageQueueFactory().newMessageQueue(qosSettings_);
 
         pendingMessages_ = new RWLockEventQueueDecorator(initialEventQueue);
@@ -178,7 +178,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
      */
     private final void configureEventQueue()
     {
-        MessageQueueAdapter _newQueue = getMessageQueueFactory().newMessageQueue(qosSettings_);
+        final MessageQueueAdapter _newQueue = getMessageQueueFactory().newMessageQueue(qosSettings_);
 
         try
         {
@@ -244,9 +244,9 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
      */
     public void setMaxEventsPerConsumer(int max)
     {
-        Any any = getORB().create_any();
+        final Any any = getORB().create_any();
         any.insert_long(max);
-        Property prop = new Property(MaxEventsPerConsumer.value, any);
+        final Property prop = new Property(MaxEventsPerConsumer.value, any);
         qosSettings_.set_qos(new Property[] { prop });
     }
 

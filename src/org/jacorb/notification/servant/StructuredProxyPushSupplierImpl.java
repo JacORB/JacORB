@@ -103,7 +103,7 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
 
     public void pushPendingData()
     {
-        Message[] _mesgs = getAllMessages();
+        final Message[] _mesgs = getAllMessages();
 
         if (_mesgs != null)
         {
@@ -127,15 +127,15 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
             deliverMessageInternal(message);
         } catch (Exception e)
         {
-            PushStructuredOperation _failedOperation = new PushStructuredOperation(message);
+            final PushStructuredOperation _failedOperation = new PushStructuredOperation(message);
 
             handleFailedPushOperation(_failedOperation, e);
         }
     }
 
-    void deliverMessageInternal(final Message message) throws Disconnected
+    private void deliverMessageInternal(final Message message) throws Disconnected
     {
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         pushConsumer_.push_structured_event(message.toStructuredEvent());
         final long _duration = (System.currentTimeMillis() - now);
         timeSpent_ += _duration;
