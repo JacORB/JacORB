@@ -22,6 +22,7 @@
 package org.jacorb.notification.jmx.mx4j;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -77,7 +78,7 @@ public class JMXMain implements WrapperListener
 
     private final List connectors_ = new ArrayList();
 
-    ORB orb_;
+    private ORB orb_;
 
     private MBeanServer mbeanServer_;
 
@@ -90,9 +91,9 @@ public class JMXMain implements WrapperListener
 
     private void stopConnectors()
     {
-        for (Iterator i = connectors_.iterator(); i.hasNext();)
+        for (final Iterator i = connectors_.iterator(); i.hasNext();)
         {
-            ObjectName name = (ObjectName) i.next();
+            final ObjectName name = (ObjectName) i.next();
             try
             {
                 mbeanServer_.invoke(name, "stop", null, null);
@@ -122,24 +123,24 @@ public class JMXMain implements WrapperListener
 
     private void startIIOPConnector() throws Exception, IOException
     {
-        JMXServiceURL _serviceURL = new JMXServiceURL("service:jmx:iiop://localhost/jndi/COSNotification");
+        final JMXServiceURL _serviceURL = new JMXServiceURL("service:jmx:iiop://localhost/jndi/COSNotification");
 
-        Map _environment = new HashMap();
+        final Map _environment = new HashMap();
         _environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.cosnaming.CNCtxFactory");
 
         // fetch NameService Ref via ORB
         org.omg.CORBA.Object _nameService = orb_.resolve_initial_references("NameService");
-        String _nameServiceIOR = orb_.object_to_string(_nameService);
+        final String _nameServiceIOR = orb_.object_to_string(_nameService);
         _environment.put(Context.PROVIDER_URL, _nameServiceIOR);
 
         _environment.put("java.naming.corba.orb", orb_);
 
         // create the JMXCconnectorServer
-        JMXConnectorServer _connectorServer = 
+        final JMXConnectorServer _connectorServer = 
             JMXConnectorServerFactory.newJMXConnectorServer(_serviceURL, _environment, mbeanServer_);
 
         // register the JMXConnectorServer in the MBeanServer
-        ObjectName _connectorServerName = ObjectName.getInstance("connectors:protocol=iiop");
+        final ObjectName _connectorServerName = ObjectName.getInstance("connectors:protocol=iiop");
         mbeanServer_.registerMBean(_connectorServer, _connectorServerName);
 
         _connectorServer.start();
@@ -156,7 +157,7 @@ public class JMXMain implements WrapperListener
             notificationServiceName_ = ObjectName.getInstance(DEFAULT_DOMAIN
                     + ":type=EventChannelFactory");
 
-            mbeanServer_ = MBeanServerFactory.createMBeanServer();
+            mbeanServer_ = ManagementFactory.getPlatformMBeanServer();
 
             registerNotificationService(args);
 
@@ -204,7 +205,7 @@ public class JMXMain implements WrapperListener
 
     private void initORB(String[] args) throws InvalidName, AdapterInactive
     {
-        Properties _props = ConsoleMain.parseProperties(args);
+        final Properties _props = ConsoleMain.parseProperties(args);
         
         orb_ = ORB.init(args, _props);
         
@@ -213,7 +214,7 @@ public class JMXMain implements WrapperListener
         logger_ = ((org.jacorb.orb.ORB) orb_).getConfiguration().getNamedLogger(
                 getClass().getName());
 
-        Thread _orbRunner = new Thread("ORB-Thread")
+        final Thread _orbRunner = new Thread("ORB-Thread")
         {
             public void run()
             {
@@ -221,7 +222,7 @@ public class JMXMain implements WrapperListener
             }
         };
 
-        POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+        final POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
         _poa.the_POAManager().activate();
 
         _orbRunner.start();
@@ -279,10 +280,10 @@ public class JMXMain implements WrapperListener
         WrapperManager.log(WrapperManager.WRAPPER_LOG_LEVEL_INFO,
                 "Registering WrapperManager MBean");
 
-        ObjectName wrapperManagerName = ObjectName.getInstance(DEFAULT_DOMAIN
+        final ObjectName wrapperManagerName = ObjectName.getInstance(DEFAULT_DOMAIN
                 + ":service=WrapperManager");
 
-        StandardMBean wrapperManagerBean = new StandardMBean(
+        final StandardMBean wrapperManagerBean = new StandardMBean(
                 new org.tanukisoftware.wrapper.jmx.WrapperManager(), WrapperManagerMBean.class);
 
         mbeanServer_.registerMBean(wrapperManagerBean, wrapperManagerName);
@@ -290,7 +291,7 @@ public class JMXMain implements WrapperListener
 
     public static void main(String[] args) throws Exception
     {
-        List list = new ArrayList(Arrays.asList(args));
+        final List list = new ArrayList(Arrays.asList(args));
         
         if (list.remove("-mx4j"))
         {
@@ -305,7 +306,7 @@ public class JMXMain implements WrapperListener
         
         System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", PortableRemoteObjectDelegateImpl.class.getName());        
         
-        JMXMain main = new JMXMain();
+        final JMXMain main = new JMXMain();
         
         WrapperManager.start(main, (String[])list.toArray(new String[list.size()]));
     }
