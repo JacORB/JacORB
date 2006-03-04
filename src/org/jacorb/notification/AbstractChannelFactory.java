@@ -155,8 +155,9 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         disposableManager_.addDisposable(new Disposable() {
             public void dispose()
             {
-                POA _poa = (POA) container_.getComponentInstanceOfType(POA.class);
-                _poa.destroy(false, true);
+                final POA _poa = (POA) container_.getComponentInstanceOfType(POA.class);
+                
+                _poa.destroy(true, false);
             }
         });
 
@@ -434,7 +435,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         // shut down the Notification Service.
         // otherwise ORB.shutdown() would be called inside
         // a remote invocation which causes an exception.
-        Thread _shutdown = new Thread()
+        final Thread _shutdown = new Thread()
         {
             public void run()
             {
