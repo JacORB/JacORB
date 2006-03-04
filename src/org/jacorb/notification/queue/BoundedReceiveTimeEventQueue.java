@@ -35,7 +35,7 @@ public class BoundedReceiveTimeEventQueue extends AbstractBoundedEventHeap
     public BoundedReceiveTimeEventQueue( int maxSize,
                                       EventQueueOverflowStrategy overflowStrategy )
     {
-        super(maxSize, overflowStrategy, new Object(), QueueUtil.ASCENDING_RECEIVE_TIME_COMPARATOR);
+        super(maxSize, overflowStrategy, new Object(), QueueUtil.ASCENDING_INSERT_ORDER_COMPARATOR);
     }
     
     protected Message getEarliestTimeout()
@@ -50,12 +50,12 @@ public class BoundedReceiveTimeEventQueue extends AbstractBoundedEventHeap
 
     protected Message getOldestElement()
     {
-        return removeFirstElement(QueueUtil.DESCENDING_INSERT_ORDER_COMPARATOR);
+        return getNextHeapElement();
     }
 
     protected Message getYoungestElement()
     {
-        return removeFirstElement(QueueUtil.ASCENDING_INSERT_ORDER_COMPARATOR);  
+        return removeFirstElement(QueueUtil.DESCENDING_INSERT_ORDER_COMPARATOR);  
     }
 
     public String getOrderPolicyName()

@@ -22,6 +22,7 @@ package org.jacorb.test.notification.queue;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import org.jacorb.notification.queue.AbstractBoundedEventQueue;
 import org.jacorb.notification.queue.BoundedPriorityEventQueue;
 import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
+import org.jacorb.notification.queue.QueueUtil;
 
 /**
  * @author Alphonse Bendt
@@ -187,6 +189,18 @@ public class BoundedPriorityEventQueueTest extends TestCase
         Message mockMessage = (Message) controlMessage.getMock();
         mockMessage.getPriority();
         controlMessage.setDefaultReturnValue(priority);
+        
+        mockMessage.getReceiveTimestamp();
+        try
+        {
+            // there should be at least 1ms difference between the timestamps
+            Thread.sleep(1);
+        } catch (InterruptedException e)
+        {
+            // ignored
+        }
+        controlMessage.setDefaultReturnValue(System.currentTimeMillis());
+        
         controlMessage.replay();
         
         return mockMessage;

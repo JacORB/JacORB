@@ -21,9 +21,7 @@ package org.jacorb.notification.queue;
  *
  */
 
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
 import org.jacorb.notification.interfaces.Message;
 
@@ -32,7 +30,7 @@ import org.jacorb.notification.interfaces.Message;
  * @version $Id$
  */
 
-class QueueUtil
+public class QueueUtil
 {
     private QueueUtil()
     {
@@ -43,25 +41,12 @@ class QueueUtil
 
     static final Message[] MESSAGE_ARRAY_TEMPLATE = new Message[0];
 
-    static final HeapEntry[] HEAP_ENTRY_ARRAY_TEMPLATE = new HeapEntry[0];
-
-    static Comparator ASCENDING_RECEIVE_TIME_COMPARATOR = new Comparator()
-    {
-        public int compare(Object arg0, Object arg1)
-        {
-            final HeapEntry _left = (HeapEntry) arg0;
-            final HeapEntry _right = (HeapEntry) arg1;
-            
-            return compareLong(_left.event_.getReceiveTimestamp(), _right.event_.getReceiveTimestamp());
-        }
-    };
-    
-    static Comparator ASCENDING_TIMEOUT_COMPARATOR = new Comparator()
+    public static Comparator ASCENDING_TIMEOUT_COMPARATOR = new Comparator()
     {
         public int compare(Object left, Object right)
         {
-            final Message _left = toMessage(left);
-            final Message _right = toMessage(right);
+            final Message _left = (Message) left;
+            final Message _right = (Message) right;
 
             if (_left.hasTimeout())
             {
@@ -81,18 +66,18 @@ class QueueUtil
         }
     };
 
-    static Comparator ASCENDING_INSERT_ORDER_COMPARATOR = new Comparator()
+    public static Comparator ASCENDING_INSERT_ORDER_COMPARATOR = new Comparator()
     {
         public int compare(Object left, Object right)
         {
-            final HeapEntry _left = (HeapEntry) left;
-            final HeapEntry _right = (HeapEntry) right;
+            final Message _left = (Message) left;
+            final Message _right = (Message) right;
 
-            return compareLong(_left.order_, _right.order_);
+            return compareLong(_left.getReceiveTimestamp(), _right.getReceiveTimestamp());
         }
     };
 
-    static Comparator DESCENDING_INSERT_ORDER_COMPARATOR = new Comparator()
+    public static Comparator DESCENDING_INSERT_ORDER_COMPARATOR = new Comparator()
     {
         public int compare(Object left, Object right)
         {
@@ -100,44 +85,25 @@ class QueueUtil
         }
     };
 
-    static Comparator ASCENDING_PRIORITY_COMPARATOR = new Comparator()
+    public static Comparator ASCENDING_PRIORITY_COMPARATOR = new Comparator()
     {
         public int compare(Object left, Object right)
         {
-            final Message _right = toMessage(right);
+            final Message _right = (Message) right;
 
-            final Message _left = toMessage(left);
+            final Message _left = (Message) left;
             
             return _left.getPriority() - _right.getPriority();
         }        
     };
     
-    static Comparator DESCENDING_PRIORITY_COMPARATOR = new Comparator()
+    public static Comparator DESCENDING_PRIORITY_COMPARATOR = new Comparator()
     {
         public int compare(Object left, Object right)
         {
             return -ASCENDING_PRIORITY_COMPARATOR.compare(left, right);
         }
     };
-    
-    static Message toMessage(Object object)
-    {
-        final Message _message;
-        
-        if (object instanceof HeapEntry)
-        {
-            _message = ((HeapEntry) object).event_;
-        }
-        else if (object instanceof Message)
-        {
-            _message = (Message) object;
-        }
-        else
-        {
-            throw new IllegalArgumentException();
-        }
-        return _message;
-    }    
     
     private static int compareLong(long left, long right)
     {

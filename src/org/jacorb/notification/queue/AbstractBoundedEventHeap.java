@@ -24,7 +24,6 @@ package org.jacorb.notification.queue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.Message;
@@ -35,8 +34,6 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
 {
     private final PriorityQueue heap_;
 
-    private long counter_ = 0;
-    
     protected AbstractBoundedEventHeap(int capacity, EventQueueOverflowStrategy overflowStrategy, Object lock, Comparator comparator)
     {
         super(capacity, overflowStrategy, lock);
@@ -67,32 +64,19 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
         final List _entries = copyAllEntries();
         Collections.sort(_entries, comp);
         
-        final HeapEntry _entry1 = (HeapEntry) _entries.get(0);
+        final Message _mesg = (Message) _entries.remove(0);
 
-        final HeapEntry _entry = _entry1;
+        heap_.clear();
+        heap_.addAll(_entries);
         
-        heap_.remove(_entry);
-        
-        return _entry.event_;
+        return _mesg;
     }
     
     protected final Message[] getAllElements()
     {
         final List _entries = removeAllEntries();
 
-        final Message[] _result = new Message[ _entries.size() ];
-        
-        final Iterator i = _entries.iterator();
-
-        int x = 0;
-
-        while ( i.hasNext() )
-        {
-            final HeapEntry e = ( HeapEntry ) i.next();
-            _result[ x++ ] = e.event_;
-        }
-
-        return _result;
+        return (Message[]) _entries.toArray(new Message[_entries.size()]);
     }
     
     public final boolean isEmpty()
@@ -107,7 +91,7 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
     
     protected final void addElement( Message event )
     {
-        heap_.add( new HeapEntry( event, counter_++ ) );
+        heap_.add(event);
     }
     
     protected final Message[] getElements(int max)
@@ -116,7 +100,7 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
 
         while ((heap_.peek()) != null && (_result.size() < max))
         {
-            _result.add(((HeapEntry) heap_.remove()).event_);
+            _result.add(heap_.remove());
         }
 
         return (Message[]) _result.toArray(QueueUtil.MESSAGE_ARRAY_TEMPLATE);
@@ -127,7 +111,7 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
      */
     protected final Message getNextHeapElement()
     {
-        return ( ( HeapEntry ) heap_.remove() ).event_;
+        return ( Message ) heap_.remove();
     }
 
     protected final Message getNextElement()
