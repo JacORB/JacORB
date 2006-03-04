@@ -155,16 +155,16 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
 
     public void pushPendingData()
     {
-        final Message[] messages = getAllMessages();
-
-        for (int i = 0; i < messages.length; ++i)
+        Message _message = null;
+        
+        while((_message = getMessageNoBlock()) != null)
         {
             try
             {
-                deliverMessageWithRetry(messages[i]);
+                deliverMessageWithRetry(_message);
             } finally
             {
-                messages[i].dispose();
+                _message.dispose();
             }
         }
     }

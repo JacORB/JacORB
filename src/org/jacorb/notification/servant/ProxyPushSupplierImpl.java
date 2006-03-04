@@ -116,16 +116,16 @@ public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
 
     public void pushPendingData()
     {
-        Message[] _events = getAllMessages();
-
-        for (int x = 0; x < _events.length; ++x)
-        {
+        Message _message = null;
+        
+        while((_message = getMessageNoBlock()) != null)
+        {        
             try
             {
-                deliverMessageWithRetry(_events[x]);
+                deliverMessageWithRetry(_message);
             } finally
             {
-                _events[x].dispose();
+                _message.dispose();
             }
         }
     }

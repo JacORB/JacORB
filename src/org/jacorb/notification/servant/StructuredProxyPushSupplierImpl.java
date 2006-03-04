@@ -103,19 +103,16 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
 
     public void pushPendingData()
     {
-        final Message[] _mesgs = getAllMessages();
-
-        if (_mesgs != null)
+        Message _message = null;
+        
+        while((_message = getMessageNoBlock()) != null)
         {
-            for (int x = 0; x < _mesgs.length; ++x)
+            try
             {
-                try
-                {
-                    deliverMessageWithRetry(_mesgs[x]);
-                } finally
-                {
-                    _mesgs[x].dispose();
-                }
+                deliverMessageWithRetry(_message);
+            } finally
+            {
+                _message.dispose();
             }
         }
     }
