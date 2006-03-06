@@ -40,7 +40,7 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy implements
         {
             if (pushSupplier_.isRetryAllowed())
             {
-                pushSupplier_.schedulePush(TaskProcessorRetryStrategy.this);
+                pushSupplier_.scheduleTask(TaskProcessorRetryStrategy.this);
             } 
             else
             {
@@ -49,7 +49,7 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy implements
         }
     };
 
-    private AtomicBoolean isCancelled_ = new AtomicBoolean(false);
+    private final AtomicBoolean isCancelled_ = new AtomicBoolean(false);
     
     private final TaskProcessor taskProcessor_;
 
@@ -74,7 +74,6 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy implements
         if (pushSupplier_.isRetryAllowed())
         {
             pushSupplier_.disableDelivery();
-
             taskProcessor_.executeTaskAfterDelay(backoutInterval_, retryPushOperation_);
         }
     }
@@ -88,7 +87,7 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy implements
                 if (pushSupplier_.isRetryAllowed())
                 {
                     pushOperation_.invokePush();
-                    pushSupplier_.pushPendingData();
+                    pushSupplier_.flushPendingEvents();
                 }
 
                 dispose();

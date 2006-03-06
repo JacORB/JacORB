@@ -26,7 +26,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.PushOperation;
-import org.jacorb.notification.engine.PushTaskExecutor;
 import org.jacorb.notification.engine.PushTaskExecutorFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
@@ -63,19 +62,6 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicLong;
 public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         SequenceProxyPushSupplierOperations, SequenceProxyPushSupplierImplMBean
 {
-    private final PushTaskExecutor.PushTask flushPendingData_ = new PushTaskExecutor.PushTask()
-    {
-        public void doPush()
-        {
-            deliverPendingMessages(true);
-        }
-        
-        public void cancel()
-        {
-            // ignore, only depends on settings of ProxyPushSupplier
-        }
-    };
-    
     private class PushSequenceOperation implements PushOperation
     {
         private final StructuredEvent[] structuredEvents_;
@@ -108,13 +94,13 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
 
         configurePacingInterval();
 
-        scheduleFlushPendingData_ = new Runnable()
+        timerTask_ = new Runnable()
         {
             public void run()
             {
-                if (!isDestroyed() && !isSuspended() && isEnabled())
+                if (isEnabled())
                 {
-                    schedulePush(flushPendingData_);
+                    scheduleFlush();
                 }
             }
         };
@@ -136,7 +122,7 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
         });
     }
 
-    private final Runnable scheduleFlushPendingData_;
+    private final Runnable timerTask_;
     
     /**
      * The connected SequencePushConsumer.
@@ -166,52 +152,76 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
         return ProxyType.PUSH_SEQUENCE;
     }
 
-    /**
-     * overrides the superclass version.
-     */
-    public void pushPendingData()
+    public boolean pushEvent()
     {
-        deliverPendingMessages(false);
+        final Message[] _messages = getAtLeastMessages(maxBatchSize_.get());
+        
+        return pushMessages(_messages);
     }
 
-    public void deliverPendingMessages(boolean flush)
+    public void flushPendingEvents()
     {
-        final Message[] _messages;
-
-        if (flush)
+        while (true)
         {
-            _messages = getAllMessages();
-        }
-        else
-        {
-            _messages = getAtLeastMessages(maxBatchSize_.get());
-        }
-
-        if (_messages != null && _messages.length > 0)
-        {
-            final StructuredEvent[] _structuredEvents = new StructuredEvent[_messages.length];
-
-            for (int x = 0; x < _messages.length; ++x)
+            final Message[] _messages = getUpToMessages(maxBatchSize_.get());
+            
+            if (_messages == null)
             {
-                _structuredEvents[x] = _messages[x].toStructuredEvent();
-
-                _messages[x].dispose();
+                break;
             }
-
-            try
+            
+            if (_messages.length == 0)
             {
-                deliverPendingMessagesInternal(_structuredEvents);
-            } catch (Exception e)
+                break;
+            }
+            
+            boolean success = pushMessages(_messages);
+            
+            if (!success)
             {
-                final PushSequenceOperation _failedOperation = new PushSequenceOperation(
-                        _structuredEvents);
-
-                handleFailedPushOperation(_failedOperation, e);
+                break;
             }
         }
     }
+    
+    private boolean pushMessages(final Message[] messages)
+    {
+        if (messages == null)
+        {
+            return false;
+        }
+        
+        if (messages.length == 0)
+        {
+            return false;
+        }
+        
+        final StructuredEvent[] _structuredEvents = new StructuredEvent[messages.length];
 
-    void deliverPendingMessagesInternal(final StructuredEvent[] structuredEvents)
+        for (int x = 0; x < messages.length; ++x)
+        {
+            _structuredEvents[x] = messages[x].toStructuredEvent();
+
+            messages[x].dispose();
+        }
+
+        try
+        {
+            deliverPendingMessagesInternal(_structuredEvents);
+
+            return true;
+        } catch (Exception e)
+        {
+            final PushSequenceOperation _failedOperation = new PushSequenceOperation(
+                    _structuredEvents);
+
+            handleFailedPushOperation(_failedOperation, e);
+
+            return false;
+        }
+    }
+    
+    private void deliverPendingMessagesInternal(final StructuredEvent[] structuredEvents)
             throws Disconnected
     {
         long now = System.currentTimeMillis();
@@ -231,19 +241,19 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
 
         connectClient(consumer);
 
-        startCronJob();
+        startTimerTask();
     }
 
     protected void connectionResumed()
     {
-        schedulePush();
+        scheduleFlush();
         
-        startCronJob();
+        startTimerTask();
     }
 
     protected void connectionSuspended()
     {
-        stopCronJob();
+        stopTimerTask();
     }
 
     public void disconnect_sequence_push_supplier()
@@ -253,19 +263,19 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
 
     protected void disconnectClient()
     {
-        stopCronJob();
+        stopTimerTask();
 
         sequencePushConsumer_.disconnect_sequence_push_consumer();
         sequencePushConsumer_ = null;
     }
 
-    private void startCronJob()
+    private void startTimerTask()
     {
         if (pacingInterval_.get() > 0 && taskId_ == null)
         {
             final long _interval = timeT2millis();
             taskId_ = getTaskProcessor().executeTaskPeriodically(_interval,
-                    scheduleFlushPendingData_, true);
+                    timerTask_, true);
         }
     }
 
@@ -280,7 +290,7 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
         return timeT / 10000;
     }
 
-    synchronized private void stopCronJob()
+    synchronized private void stopTimerTask()
     {
         if (taskId_ != null)
         {
@@ -289,17 +299,17 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
         }
     }
 
-    private void checkCronJob()
+    private void checkTimerTask()
     {
         if (getConnected() && pacingInterval_.get() > 0)
         {
-            stopCronJob();
+            stopTimerTask();
             
-            startCronJob();
+            startTimerTask();
         }
         else
         {
-            stopCronJob();
+            stopTimerTask();
         }
     }
 
@@ -317,7 +327,7 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
                 }
                 pacingInterval_.set(_pacingInterval);
 
-                checkCronJob();
+                checkTimerTask();
 
                 return true;
             }
@@ -356,5 +366,4 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
     {
         return timeSpent_;
     }
-    
 }

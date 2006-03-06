@@ -93,20 +93,24 @@ public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         pushConsumer_ = null;
     }
 
-    private void deliverMessageWithRetry(final Message message)
+    private boolean deliverMessageWithRetry(final Message message)
     {
         try
         {
             deliverMessageInternal(message);
+            
+            return true;
         } catch (Exception e)
         {
             final PushAnyOperation _failedOperation = new PushAnyOperation(message);
 
             handleFailedPushOperation(_failedOperation, e);
+            
+            return false;
         }
     }
 
-    void deliverMessageInternal(final Message message) throws Disconnected
+    private void deliverMessageInternal(final Message message) throws Disconnected
     {
         long now = System.currentTimeMillis();
         pushConsumer_.push(message.toAny());
@@ -114,22 +118,24 @@ public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         resetErrorCounter();
     }
 
-    public void pushPendingData()
+    public boolean pushEvent()
     {
-        Message _message = null;
-        
-        while((_message = getMessageNoBlock()) != null)
-        {        
+        final Message _message = getMessageNoBlock();
+
+        if (_message != null)
+        {
             try
             {
-                deliverMessageWithRetry(_message);
+                return deliverMessageWithRetry(_message);
             } finally
             {
                 _message.dispose();
             }
         }
-    }
 
+        return false;
+    }
+    
     public void connect_any_push_consumer(PushConsumer pushConsumer) throws AlreadyConnected
     {
         checkIsNotConnected();
@@ -139,10 +145,9 @@ public class ProxyPushSupplierImpl extends AbstractProxyPushSupplier implements
         connectClient(pushConsumer);
     }
 
-   
     protected void connectionResumed()
     {
-        schedulePush();
+        scheduleFlush();
     }
 
     public Servant newServant()

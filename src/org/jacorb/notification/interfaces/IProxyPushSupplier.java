@@ -25,17 +25,10 @@ import org.jacorb.notification.engine.PushTaskExecutor;
 
 public interface IProxyPushSupplier extends MessageConsumer, NotifyingDisposable
 {
-    /**
-     * process pending work. push messages to the connected
-     * (Push)Consumer.
-     */
-    void pushPendingData();
+    boolean pushEvent();
 
-    /**
-     * check if there are messages enqueued.
-     */
-    boolean hasPendingData();
-
+    void flushPendingEvents();
+    
     /**
      * Disable Deliveries. no remote
      * operations may be used to deliver a message. messages
@@ -48,7 +41,6 @@ public interface IProxyPushSupplier extends MessageConsumer, NotifyingDisposable
      */
     void resetErrorCounter();
 
-
     /**
      * increment the current error count by one
      */
@@ -57,7 +49,7 @@ public interface IProxyPushSupplier extends MessageConsumer, NotifyingDisposable
     boolean isRetryAllowed();
 
     /**
-     * schedule the pushTask for execution using this Objects executor.
+     * schedule a pushTask for execution using this Objects executor.
      */
-    void schedulePush(PushTaskExecutor.PushTask pushTask);
+    void scheduleTask(PushTaskExecutor.PushTask pushTask);
 }

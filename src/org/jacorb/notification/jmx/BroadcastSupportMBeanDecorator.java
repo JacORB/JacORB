@@ -73,13 +73,18 @@ public class BroadcastSupportMBeanDecorator implements DynamicMBean, Notificatio
             {
                 sendAttributeChanged(name, oldValue, newValue);
             }
+
+            public void sendJMXNotification(String type, String message, Object payload)
+            {
+                sendNotification(type, message, payload);
+            }
         });
     }
 
     private Class getManagementInterface(Class clazz) throws IllegalArgumentException,
             ClassNotFoundException
     {
-        String managementInterfaceName = clazz.getName() + "MBean";
+        final String managementInterfaceName = clazz.getName() + "MBean";
 
         if (clazz.getClassLoader() != null)
         {
@@ -154,13 +159,28 @@ public class BroadcastSupportMBeanDecorator implements DynamicMBean, Notificatio
                         "User attribute change notification") };
     }
 
-    public void sendNotification(String type, String message)
+    public void sendNotification(String type, String message, Object payload)
     {
-        broadCaster_.sendNotification(new Notification(type,// type
+        final Notification _jmxNotification = new Notification(type,// type
                 this, // source
                 ++notificationSequence_, // seq. number
                 message // message
-                ));
+                );
+        if (payload != null)
+        {
+            _jmxNotification.setUserData(payload);
+        }
+        broadCaster_.sendNotification(_jmxNotification);
+    }
+    
+    public void sendNotification(String type, String message)
+    {
+        final Notification _jmxNotification = new Notification(type,// type
+                this, // source
+                ++notificationSequence_, // seq. number
+                message // message
+                );
+        broadCaster_.sendNotification(_jmxNotification);
     }
 
     public void removeNotificationListener(NotificationListener listener,

@@ -86,6 +86,11 @@ public class JMXManageableXMBeanProvider implements DynamicMBeanProvider
                             oldValue == null ? null : oldValue.getClass().getName(), 
                             oldValue, 
                             newValue));
+                }
+
+                public void sendJMXNotification(String type, String message, Object payload)
+                {
+                    sendJMXNotification(type, message);
                 }});
         }
         

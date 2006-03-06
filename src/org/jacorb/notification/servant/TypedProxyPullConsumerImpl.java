@@ -240,15 +240,15 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
     private Request prepareRequest(String operation)
     {
-        Request _request = typedPullSupplier_._request(operation);
+        final Request _request = typedPullSupplier_._request(operation);
 
-        NVList _args = _request.arguments();
+        final NVList _args = _request.arguments();
 
-        OperationDescription _operationDescription = getOperationDescription(operation);
+        final OperationDescription _operationDescription = getOperationDescription(operation);
 
         for (int x = 0; x < _operationDescription.parameters.length; ++x)
         {
-            Any _any = getORB().create_any();
+            final Any _any = getORB().create_any();
 
             _any.type(_operationDescription.parameters[x].type);
 

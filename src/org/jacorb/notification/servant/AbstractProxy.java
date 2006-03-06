@@ -587,6 +587,14 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
         }
     }
     
+    protected void sendNotification(String type, String message, Object payload)
+    {
+        if (jmxCallback_ != null)
+        {
+            jmxCallback_.sendJMXNotification(type, message, payload);
+        }
+    }
+    
     /**
      * @jmx.managed-attribute description = "current Status for this Proxy (NOT CONNECTED|ACTIVE|SUSPENDED|DESTROYED)"
      *                        access = "read-only"

@@ -32,13 +32,10 @@ import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
-import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
 import org.omg.CosNotifyComm.StructuredPushConsumerOperations;
 import org.omg.PortableServer.POA;
@@ -66,21 +63,6 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
         }
     }
     
-    private final static StructuredPushConsumerOperations NULL_CONSUMER = new StructuredPushConsumerOperations()
-    {
-        public void push_structured_event(StructuredEvent event)
-        {
-        }
-
-        public void disconnect_structured_push_consumer()
-        {
-        }
-
-        public void offer_change(EventType[] added, EventType[] removed) throws InvalidEventType
-        {
-        }
-    };
-
     private StructuredPushConsumerOperations pushConsumer_;
 
     private long timeSpent_;
@@ -101,32 +83,38 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
         return ProxyType.PUSH_STRUCTURED;
     }
 
-    public void pushPendingData()
+    public boolean pushEvent()
     {
-        Message _message = null;
-        
-        while((_message = getMessageNoBlock()) != null)
+        final Message _message = getMessageNoBlock();
+
+        if (_message != null)
         {
             try
             {
-                deliverMessageWithRetry(_message);
+                return deliverMessageWithRetry(_message);
             } finally
             {
                 _message.dispose();
             }
         }
+
+        return false;
     }
 
-    private void deliverMessageWithRetry(final Message message)
+    private boolean deliverMessageWithRetry(final Message message)
     {
         try
         {
             deliverMessageInternal(message);
+            
+            return true;
         } catch (Exception e)
         {
             final PushStructuredOperation _failedOperation = new PushStructuredOperation(message);
 
             handleFailedPushOperation(_failedOperation, e);
+            
+            return false;
         }
     }
 
@@ -166,14 +154,14 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxyPushSupplier i
 
     protected void connectionResumed()
     {
-        schedulePush();
+        scheduleFlush();
     }
 
     protected void disconnectClient()
     {
         pushConsumer_.disconnect_structured_push_consumer();
 
-        pushConsumer_ = NULL_CONSUMER;
+        pushConsumer_ = null;
     }
 
     public Servant newServant()

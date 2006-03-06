@@ -266,7 +266,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
 
         for (int x = 0; x < operation.parameters.length; ++x)
         {
-            DynAny _dynAny = dynAnyFactory_
+            final DynAny _dynAny = dynAnyFactory_
                     .create_dyn_any_from_type_code(operation.parameters[x].type);
 
             _expectedParams

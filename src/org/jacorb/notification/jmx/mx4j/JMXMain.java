@@ -26,6 +26,7 @@ import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.ConsoleMain;
@@ -135,6 +137,17 @@ public class JMXMain implements WrapperListener
 
         _environment.put("java.naming.corba.orb", orb_);
 
+        InitialContext context = new InitialContext(new Hashtable(_environment));
+        
+        try
+        {
+            context.unbind("COSNotification");
+        }
+        finally
+        {
+            context.close();
+        }
+        
         // create the JMXCconnectorServer
         final JMXConnectorServer _connectorServer = 
             JMXConnectorServerFactory.newJMXConnectorServer(_serviceURL, _environment, mbeanServer_);

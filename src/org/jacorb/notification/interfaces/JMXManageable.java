@@ -25,6 +25,7 @@ public interface JMXManageable extends NotifyingDisposable
 {
     interface JMXCallback
     {
+        void sendJMXNotification(String type, String message, Object payload);
         void sendJMXNotification(String type, String message);
         void sendJMXAttributeChanged(String name, Object oldValue, Object newValue);
     }

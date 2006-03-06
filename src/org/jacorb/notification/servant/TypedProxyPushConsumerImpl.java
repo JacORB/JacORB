@@ -62,7 +62,7 @@ import org.omg.PortableServer.Servant;
 public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         TypedProxyPushConsumerOperations, ITypedProxy, TypedProxyPushConsumerImplMBean
 {
-    final String supportedInterface_;
+    private final String supportedInterface_;
 
     private TypedProxyPushConsumer typedProxyPushConsumer_;
 
@@ -85,13 +85,13 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
 
         public void invoke(ServerRequest request)
         {
-            NVList _params = getExpectedParamList(request.operation());
+            final NVList _params = getExpectedParamList(request.operation());
 
             request.arguments(_params);
 
-            String _operationName = getFullQualifiedName(request.operation());
+            final String _operationName = getFullQualifiedName(request.operation());
 
-            Message _mesg = getMessageFactory().newMessage(supportedInterface_, _operationName,
+            final Message _mesg = getMessageFactory().newMessage(supportedInterface_, _operationName,
                     _params, TypedProxyPushConsumerImpl.this);
 
             processMessage(_mesg);
@@ -142,7 +142,7 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         throw new IllegalArgumentException("No OperationDescription for " + operation);
     }
 
-    String getFullQualifiedName(String operation)
+    private String getFullQualifiedName(String operation)
     {
         String _fullQualifiedName = (String) fullQualifiedOperationNames_.get(operation);
         if (_fullQualifiedName == null)
@@ -153,11 +153,11 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         return _fullQualifiedName;
     }
 
-    NVList getExpectedParamList(String operation)
+    private NVList getExpectedParamList(String operation)
     {
-        OperationDescription _operation = getOperationDescription(operation);
+        final OperationDescription _operation = getOperationDescription(operation);
 
-        NVList _expectedParams = getORB().create_list(_operation.parameters.length);
+        final NVList _expectedParams = getORB().create_list(_operation.parameters.length);
 
         for (int x = 0; x < _operation.parameters.length; ++x)
         {
@@ -176,7 +176,7 @@ public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
     {
         for (int x = 0; x < interfaceDescription.operations.length; ++x)
         {
-            int _noOfParameters = interfaceDescription.operations[x].parameters.length;
+            final int _noOfParameters = interfaceDescription.operations[x].parameters.length;
 
             for (int y = 0; y < _noOfParameters; ++y)
             {
