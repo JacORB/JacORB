@@ -12,13 +12,13 @@
 	
 	<!-- picocontainer revision is the same as nanocontainer revision. -->
 	<!-- use 'svn status ++verbose' to find out the revision (replace + with -) -->
-	<property name="pico-revision" value="2181" />
+	<property name="pico-revision" value="final" />
 	
 	<property name="dir.mx4j" value="/Users/alf/Developer/Library/mx4j-3.0.1" />
 	
 	<property name="dir.src" value="${basedir}/lib/src" />
 	
-	<property name="file.pico-src" value="${dir.src}/picocontainer-1.2-${pico-revision}-src.zip" /> 
+	<property name="file.pico-src" value="${dir.src}/picocontainer-1.2-src.zip" /> 
 	<property name="file.concurrent-src" value="${dir.src}/backport-util-concurrent-src.zip" />
 	
 	<target name="zip" description="zip external sources">
