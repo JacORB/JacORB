@@ -175,7 +175,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
         objectUnderTest_.queueMessage(mockMessage);
 
-        objectUnderTest_.pushPendingData();
+        objectUnderTest_.pushEvent();
 
         controlMessage.verify();
 
@@ -221,7 +221,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
         objectUnderTest_.queueMessage(mockMessage);
 
-        objectUnderTest_.pushPendingData();
+        objectUnderTest_.pushEvent();
 
         controlMessage.verify();
 

@@ -291,7 +291,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         });
 
         controlPushConsumer_.replay();
-        objectUnderTest_.deliverPendingMessages(true);
+        objectUnderTest_.flushPendingEvents();
 
         verifyAll();
     }
