@@ -87,7 +87,8 @@ public class TaskProcessorRetryStrategy extends AbstractRetryStrategy implements
                 if (pushSupplier_.isRetryAllowed())
                 {
                     pushOperation_.invokePush();
-                    pushSupplier_.flushPendingEvents();
+                    
+                    pushSupplier_.scheduleFlush();
                 }
 
                 dispose();

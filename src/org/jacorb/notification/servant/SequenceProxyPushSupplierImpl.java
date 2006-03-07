@@ -48,6 +48,7 @@ import org.omg.PortableServer.Servant;
 import org.omg.TimeBase.TimeTHelper;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicLong;
 
@@ -163,21 +164,38 @@ public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier imp
     {
         while (true)
         {
-            final Message[] _messages = getUpToMessages(maxBatchSize_.get());
-            
-            if (_messages == null)
+            try
             {
-                break;
-            }
-            
-            if (_messages.length == 0)
-            {
-                break;
-            }
-            
-            boolean success = pushMessages(_messages);
-            
-            if (!success)
+                final boolean _acquired = pushSync_.tryAcquire(1000, TimeUnit.MILLISECONDS);
+
+                if (_acquired)
+                {
+                    try
+                    {
+                        final Message[] _messages = getUpToMessages(maxBatchSize_.get());
+
+                        if (_messages == null)
+                        {
+                            break;
+                        }
+
+                        if (_messages.length == 0)
+                        {
+                            break;
+                        }
+
+                        final boolean _success = pushMessages(_messages);
+
+                        if (!_success)
+                        {
+                            break;
+                        }
+                    } finally
+                    {
+                        pushSync_.release();
+                    }
+                }
+            } catch (InterruptedException e)
             {
                 break;
             }

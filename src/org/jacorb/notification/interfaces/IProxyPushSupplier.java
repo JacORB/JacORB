@@ -25,10 +25,6 @@ import org.jacorb.notification.engine.PushTaskExecutor;
 
 public interface IProxyPushSupplier extends MessageConsumer, NotifyingDisposable
 {
-    boolean pushEvent();
-
-    void flushPendingEvents();
-    
     /**
      * Disable Deliveries. no remote
      * operations may be used to deliver a message. messages
@@ -52,4 +48,6 @@ public interface IProxyPushSupplier extends MessageConsumer, NotifyingDisposable
      * schedule a pushTask for execution using this Objects executor.
      */
     void scheduleTask(PushTaskExecutor.PushTask pushTask);
+
+    void scheduleFlush();
 }

@@ -46,6 +46,8 @@ import org.omg.PortableServer.POA;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.defaults.DefaultPicoContainer;
 
+import edu.emory.mathcs.backport.java.util.concurrent.Semaphore;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicReference;
@@ -79,13 +81,18 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
 
     private final AtomicInteger pushErrors_ = new AtomicInteger(0);
 
+    /**
+     * number of concurrent push operations allowed.
+     */
+    protected final Semaphore pushSync_ = new Semaphore(1);
+    
     private final PushTaskExecutor.PushTask pushTask_ = new PushTaskExecutor.PushTask()
     {
         public void doPush()
         {
             if (isEnabled())
             {
-                pushEvent();
+                tryPushEvent();
             }
         }
 
@@ -125,6 +132,38 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
 
         eventTypes_.add(NOTIFY_PUSH_FAILED);
     }
+
+    private boolean tryPushEvent()
+    {
+        try
+        {
+            boolean _acquired = pushSync_.tryAcquire(1000, TimeUnit.MILLISECONDS);
+            
+            if (_acquired)
+            {
+                try
+                {
+                    return pushEvent();
+                }
+                finally
+                {
+                    pushSync_.release();
+                }
+            }
+            
+            // the scheduled push was not processed.
+            // therfor we need to schedule a push again.
+            schedulePush();
+        }
+        catch (InterruptedException e)
+        {
+            // ignored
+        }
+        
+        return true;
+    }
+    
+    protected abstract boolean pushEvent();
 
     protected void handleFailedPushOperation(PushOperation operation, Exception error)
     {
@@ -258,7 +297,10 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
     
     public void scheduleFlush()
     {
-        scheduleTask(flushTask_);
+        if (isEnabled())
+        {
+            scheduleTask(flushTask_);
+        }
     }
 
     public final void scheduleTask(PushTaskExecutor.PushTask pushTask)
@@ -271,7 +313,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
 
     public void flushPendingEvents()
     {
-        while (pushEvent())
+        while (tryPushEvent())
         {
             // nothing
         }
@@ -300,8 +342,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
 
         if (_wasEnabled)
         {
-            //pushTaskExecutor_.clearQueue();
-            logger_.debug("Disabled Delivery to ProxySupplier");
+            logger_.warn("disabled delivery to ProxySupplier temporarily");
         }
     }
 
@@ -316,7 +357,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
 
         if (!_wasEnabled)
         {
-            logger_.debug("Reenable Delivery to ProxySupplier");
+            logger_.debug("enabled delivery to ProxySupplier");
         }
     }
 
