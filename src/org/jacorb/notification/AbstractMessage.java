@@ -564,6 +564,10 @@ public abstract class AbstractMessage extends AbstractPoolable
                 // error means false
                 logger_.info("unsupported filterable data. match result defaults to false.", e);
             }
+            catch (Exception e)
+            {
+                logger_.warn("unexpected error during match. match result defaults to false", e);
+            }
         }
 
         return false;
