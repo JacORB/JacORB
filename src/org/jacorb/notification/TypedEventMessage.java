@@ -206,7 +206,7 @@ public class TypedEventMessage extends AbstractMessage
             if (parameters_[x].name.equals(headerName))
             {
                 EvaluationResult _result = new EvaluationResult();
-                _result.addAny(parameters_[x].value);
+                _result.setAny(parameters_[x].value);
 
                 return _result;
             }

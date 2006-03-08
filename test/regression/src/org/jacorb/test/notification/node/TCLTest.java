@@ -799,6 +799,13 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_timeAny, "$.time - 1 <= $.time");
     }
 
+    public void testBug671() throws Exception
+    {
+        Any _any = getORB().create_any();
+        _any.insert_longlong(139192928000000000l);
+        runEvaluation(_any, "$ >= 139192928000000000");
+    }
+    
     public void testAccessNonExistingStructMember() throws Exception
     {
         try
@@ -958,7 +965,7 @@ public class TCLTest extends NotificationTestCase
     public static Test suite() throws Exception
     {
         return NotificationTestCase.suite("TCL Parsing and Evaluation Tests", TCLTest.class
-        //, "testAccessNonExistingProperty"
+        //, "testBug"
                 );
     }
 

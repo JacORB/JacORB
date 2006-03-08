@@ -180,6 +180,11 @@ public class EvaluationResult
 
     public long getLongLong() throws DynamicTypeException
     {
+        if (getValue() == null)
+        {
+            return any_.extract_longlong();
+        }
+        
         try
         {
             return ((Double) getValue()).longValue();
@@ -351,6 +356,12 @@ public class EvaluationResult
     {
         any_ = any;
     }
+    
+    public void setAny(Any any)
+    {
+        addAny(any);
+        typeCode_ = any.type().kind().value();
+    }
 
     private static String typeCodeToName(int x)
     {
@@ -423,6 +434,13 @@ public class EvaluationResult
             float _r = other.getFloat();
 
             _result = Float.compare(_l, _r);
+        }
+        else if (isLongLong() || other.isLongLong())
+        {
+            long _l = getLongLong();
+            long _r = getLongLong();
+            
+            _result = (_l<_r ? -1 : (_l==_r ? 0 : 1));
         }
         else
         {
@@ -614,7 +632,7 @@ public class EvaluationResult
             result.setLongLong(any.extract_ulonglong());
             break;
         default:
-            result.addAny(any);
+            result.setAny(any);
             break;
         }
     }

@@ -52,7 +52,7 @@ public class CurrentTimeNode extends ETCLComponentName
 
         UtcTHelper.insert(_curAny, _curtime);
 
-        _result.addAny(_curAny);
+        _result.setAny(_curAny);
 
         return _result;
     }
