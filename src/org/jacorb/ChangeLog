@@ -1,3 +1,237 @@
+2006-03-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (get_client_policy): Optimized so that it does
+	almost nothing when policies are not in use.
+
+	* orb/ORB.java (internalInit): Don't create the PolicyManager yet.
+	(resolve_initial_references): Create the PolicyManager on demand.
+	(getPolicyManager): Add Javadoc to explain that it may return null.
+
+2006-03-08  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AbstractMessage.java: fix for #672
+
+	* notification/TypedEventMessage.java,
+	notification/filter/EvaluationResult.java,
+	notification/filter/etcl/CurrentTimeNode.java: fix for #671
+
+2006-03-07  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/engine/TaskProcessorRetryStrategy.java,
+	notification/interfaces/IProxyPushSupplier.java,
+	notification/servant/AbstractProxyPushSupplier.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java:
+	cosmetics
+	restrict number of concurrent push operations to 1
+
+2006-03-06  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/engine/TaskProcessorRetryStrategy.java,
+	notification/interfaces/IProxyPushSupplier.java,
+	notification/interfaces/JMXManageable.java,
+	notification/jmx/BroadcastSupportMBeanDecorator.java,
+	notification/jmx/jboss/JMXManageableXMBeanProvider.java,
+	notification/jmx/mx4j/JMXMain.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyPushSupplier.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java: cosmetics &
+	changed order of events in case of an error
+
+2006-03-05  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/bsh/BSHFilter.java: cosmetics
+
+2006-03-04  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/queue/AbstractBoundedEventHeap.java,
+	notification/queue/BoundedReceiveTimeEventQueue.java,
+	notification/queue/HeapEntry.java,
+	notification/queue/QueueUtil.java: remove superfluous class
+	HeapEntry
+
+	* notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java (pushPendingData):
+	process notifications in a loop to maintain order
+
+	* notification/AbstractChannelFactory.java (c'tor): don't wait for
+	completion while poa.destroy
+
+2006-03-03  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java (getJMXObjectName): change
+	order of name
+
+	* notification/jmx/mx4j/JMXMain.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/AbstractProxyPushSupplier.java,
+	notification/queue/RWLockEventQueueDecorator.java: cosmetics
+
+2006-02-25  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AbstractMessage.java,
+	notification/impl/DefaultMessageFactory.java,
+	notification/interfaces/Message.java,
+	notification/queue/AbstractBoundedEventHeap.java,
+	notification/queue/AbstractBoundedEventQueue.java,
+	notification/queue/BasicMessageQueueAdapter.java,
+	notification/queue/BoundedDeadlineEventQueue.java,
+	notification/queue/BoundedFifoEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/BoundedReceiveTimeEventQueue.java,
+	notification/queue/DefaultMessageQueueAdapter.java,
+	notification/queue/EventQueueFactory.java,
+	notification/queue/EventQueueOverflowStrategy.java,
+	notification/queue/HeapEntry.java,
+	notification/queue/QueueUtil.java,
+	notification/queue/RWLockEventQueueDecorator.java: added a
+	receivetimestamp to all messages. the fifo event queue willsort
+	incoming messages on the basis of this timestamp.
+
+	* notification/StructuredEventMessage.java,
+	notification/container/BiDirGiopPOAComponentAdapter.java:
+	cosmetics
+
+2006-02-20  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/jmx/mx4j/JMXMain.java (main): allow to choose to
+	run under jdk jmx or mx4j jmx
+
+	* notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/lifecycle/ServantLifecyleControl.java,
+	notification/EventChannelImpl.java,
+	notification/AbstractEventChannel.java: cosmetics
+
+2006-02-06  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* orb/Delegate.java (servant_preinvoke, is_local): if
+	servant_preinvoke fails to return a servant the next call to
+	is_local must return false. this behaviour is required by the
+	java to idl language mapping spec. cosmetics
+
+	* poa/RequestProcessor.java (specialOperations): changed Map to
+	Set as it was only used that way
+
+	* orb/rmi/PortableRemoteObjectDelegateImpl.java (toStub, toTie):
+	load stub and tie classes
+
+2006-02-05  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* poa/RequestProcessor.java: applied patch for bug #540.
+
+	this is a slightly modified version of the suggested fix.
+
+	it is also necessary to check the value of terminate *after* the
+	wait as the thread may be terminated by invoking end().
+
+	thanks to Enul Fekushi for reporting the bug and providing a fix
+
+	* idl/Interface.java: applied patch for bug #643.
+
+	thanks to thomas leineweber for reporting the bug and supplying a patch.
+
+	* notification/jmx/jboss/build.xml: skip targets if jboss.home is
+	not set
+
+2006-02-02  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* trading/test/ExceptionTest.java, trading/test/LoadTest.java,
+	trading/util/QueryPropagator.java: Updated tests and demos to be
+	consistent with other environment changes
+
+	* orb/iiop/ClientIIOPConnection.java: Allow a custom jacorb.jar to
+	exclude sas and other security classes.
+
+2006-01-31  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AbstractChannelFactory.java,
+	notification/ConsoleMain.java (registerName): remove name binding
+	if supplied name is null or empty string
+
+	* notification/FilterManager.java (add_filter): reduce log level
+	to info.
+
+2006-01-29  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/filter/CallbackManager.java (actionSetChanged):
+	change log level
+
+	* notification/servant/AbstractProxySupplier.java (registerListener):
+	change log level
+
+	* notification/OfferManager.java,
+	notification/SubscriptionManager.java (actionSetChanged): change
+	log level
+
+2006-01-21  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AbstractEventChannel.java,
+	notification/conf/Attributes.java, notification/conf/Default.java,
+	notification/filter/AbstractFilter.java,
+	notification/filter/FilterFactoryImpl.java,
+	notification/lifecycle/ServantLifecyleControl.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java: related to
+	#654. optionally run System.gc/System.runfinalization on
+	deactivation of servants.
+
+	thanks to David Rodenbaugh for suggesting this
+
+2006-01-12  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AbstractChannelFactory.java,
+	notification/AbstractEventChannel.java,
+	notification/EventChannelImpl.java,
+	notification/TypedEventChannelImpl.java,
+	notification/filter/AbstractFilter.java,
+	notification/filter/FilterFactoryImpl.java,
+	notification/filter/bsh/BSHFilter.java,
+	notification/filter/etcl/ETCLFilter.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/ManageableServant.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java,
+	notification/lifecycle/IServantLifecyle.java,
+	notification/lifecycle/ManageableServant.java,
+	notification/lifecycle/ServantLifecyleControl.java: refactored
+	servant lifecycle. created own package that contains the logic to
+	activate and deactivate the notify servants.
+
 2006-01-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* util/threadpool/ThreadPool.java (getJob, putJob): Rewritten so
