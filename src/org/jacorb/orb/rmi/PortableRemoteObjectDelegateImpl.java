@@ -298,9 +298,9 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
     {
         final StringBuffer buffer = new StringBuffer(name.length() + 2 + suffix.length());
         final int idx = name.lastIndexOf('.') + 1;
-        buffer.append(name, 0, idx);
+        buffer.append(name.substring(0, idx));
         buffer.append("_");
-        buffer.append(name, idx, name.length());
+        buffer.append(name.substring(idx, name.length()));
         buffer.append("_");
         buffer.append(suffix);
         
