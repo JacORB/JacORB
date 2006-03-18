@@ -83,106 +83,91 @@ public class IIOPAddress
             configuration.getAttribute("jacorb.dns.enable","off").equals("on");
     }
 
+    /*
+     * The InetAddress class can handle both IPv4 and IPv6 addresses.  If the 
+     * address is not in a valid format, an exception is thrown.  For this 
+     * reason, isIP() is no longer needed.
+     * 
+     * The problem with Java versions prior to 1.5 is handling a zone ID.  
+     * In order to maintain compatiblity with Java 1.4.2, a zone ID 
+     * will prompt us to bind to all interfaces and use the host name 
+     * in the IOR.  In the future, this can be changed to properly handle 
+     * the zone ID using the new methods available in Java 1.5.
+     */ 
+
     private void init_host()
     {
         InetAddress localhost = null;
-        try {
+        boolean hasZoneId = false;
+        try 
+        {
             localhost = InetAddress.getLocalHost();
         }
-        catch (UnknownHostException ex) {
-            byte lhaddr[] = {127,0,0,1};
+        catch (UnknownHostException ex) 
+        {
             try {
-                localhost = InetAddress.getByAddress("127.0.0.1",lhaddr);
-            } catch (UnknownHostException ex2) {
+                //get loopback
+                localhost = InetAddress.getByName(null);
+            } 
+            catch (UnknownHostException ex2) 
+            {
             }
         }
 
-        if (source_name == null || source_name.length() == 0 ) {
+        if (source_name == null || source_name.length() == 0 ) 
+        {
             host = localhost;
         }
         else {
-            String hostname = null;
-            String ip = null;
+           //String hostname = source_name;
+           //String ip = null;
 
             int slash = source_name.indexOf('/');
-            if (slash == -1)
-                ip = source_name;
-            else {
-                ip = source_name.substring(slash+1);
                 if (slash > 0)
-                    hostname = source_name.substring(0,slash);
+            {
+                //fixes two problems, 1) if the user specifed
+                //the network bits, 2) if the user used the
+                //name/ip format
+                source_name = source_name.substring(0,slash);
+            }
+            int zone = source_name.indexOf('%');
+            if (zone != -1)
+            {
+                hasZoneId = true;
             }
 
-            byte hostIP[] = new byte[4];
-            try {
-                if (dnsEnabled || !isIP (ip, hostIP))
-                    host = InetAddress.getByName(ip);
-                else
-                    host = InetAddress.getByAddress(hostIP);
+            if (!hasZoneId)
+            {
+                try 
+                {
+                    host = InetAddress.getByName(source_name);
             }
-            catch (UnknownHostException ex) {
+                catch (UnknownHostException ex) 
+                {
                 if (logger != null && logger.isWarnEnabled())
                     logger.warn ("init_host, " + source_name + " unresolvable" );
                 unresolvable = true;
                 try {
-                    host = InetAddress.getByAddress(source_name,
-                                                    localhost.getAddress());
-                } catch (UnknownHostException ex2) {
+                        host = InetAddress.getByName(null); //localhost
                 }
+                    catch (UnknownHostException ex2) 
+                    {
             }
         }
     }
-
-
-    /**
-     * Returns true if host is a numeric IP address, and puts the
-     * converted string into the supplied buffer.
-     */
-   private static boolean isIP (String host, byte [] buffer)
-    {
-        int index       = 0;
-        int numberStart = 0;
-        int length      = host.length();
-        char ch = ' ';
-
-        for (int i = 0; i < 4; i++)
-        {
-            int octet = 0;
-            while (true)
-            {
-                if (index >= length)
-                    break;
-                ch = host.charAt(index);
-                if (ch == '.')
-                    break;
-                if (ch < '0' || ch > '9')
-                    return false;
                 else
-                    octet = (octet * 10) + (ch - '0');
-                index++;
-            }
-            if (octet < 256)
-                buffer[i] = (byte)octet;
-            else
-                return false;
-
-            if (index >= length && i == 3
-                && (index - numberStart) <= 3 && (index-numberStart) > 0)
             {
-                return true;
+                if (logger != null && logger.isWarnEnabled())
+                    logger.warn ("init_host, " + source_name + 
+                            " is local-link address");
+                unresolvable = true;
+                host = null; //will allow binds on all interfaces    
             }
-            else if (ch == '.' && (index - numberStart) <= 3
-                               && (index - numberStart) > 0)
-            {
-                index++;
-                numberStart = index;
-            }
-            else
-                return false;
+            
         }
-        return false;
     }
 
+ 
     public static IIOPAddress read(org.omg.CORBA.portable.InputStream in)
     {
         String host = in.read_string();
@@ -240,7 +225,9 @@ public class IIOPAddress
     public InetAddress getConfiguredHost()
     {
         if (source_name == null || source_name.length() == 0)
+        {
             return null;
+        }
         else {
             if (host == null)
                 init_host();
