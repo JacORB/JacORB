@@ -274,7 +274,10 @@ public class ClientIIOPConnection
 
                 final String ipAddress = address.getIP();
                 final int port = (use_ssl) ? ssl_port : address.getPort();
-                connection_info = ipAddress + ":" + port;
+                if (ipAddress.indexOf(':') == -1)
+                    connection_info = ipAddress + ":" + port;
+                else
+                    connection_info = "[" + ipAddress + "]:" + port;
 
                 if (logger.isDebugEnabled())
                 {
