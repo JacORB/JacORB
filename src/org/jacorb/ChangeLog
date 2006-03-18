@@ -1,3 +1,25 @@
+2006-03-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/rmi/PortableRemoteObjectDelegateImpl.java (newRMIClassName):
+	Restore pre-1.5 compatibility.
+
+	* orb/iiop/ClientIIOPConnection.java (createSocket):
+	Correct indentation.
+
+	Changes by David Hartman to support IPv6:
+	
+	* orb/iiop/IIOPAddress.java (init_host): Handle IPv6. Rewritten to
+	work without isIP().
+	(isIP): Method removed.
+	(getConfiguredHost): Cosmetic change.
+
+	* orb/iiop/ClientIIOPConnection.java (createSocket): Properly
+	initialize connection_info for IPv6.
+
+	* orb/iiop/IIOPProfile.java (clone): Configure the new
+	primaryAddress. This fixes bug #660.
+	(decode_corbaloc): Changes to support IPv6.
+
 2006-03-16  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/Delegate.java (get_client_policy): Optimized so that it does
