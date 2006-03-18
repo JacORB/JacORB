@@ -105,8 +105,15 @@ public class IIOPProfile
         }
     }
 
-
-
+    /**
+     * An IPv6 corbaloc URL is of the format
+     * corbaloc:iiop:[fe80:5443::3333%3]:2809/my_object
+     * where the zone ID seperator is / or % depending on
+     * what the underlying OS supports.
+     * 
+     * This preserves compatilibility with TAO, and falls in 
+     * line with RFC 2732 and discussion on OMG news groups.
+     */
     private void decode_corbaloc(String addr)
     {
         String host = "127.0.0.1"; //default to localhost
@@ -117,14 +124,15 @@ public class IIOPProfile
 
         String errorstr =
             "Illegal IIOP protocol format in object address format: " + addr;
+
         int sep = addr.indexOf(':');
+
         String protocol_identifier = "";
         if( sep != 0)
             protocol_identifier = addr.substring( 0,sep);
         if( sep + 1 == addr.length())
             throw new IllegalArgumentException(errorstr);
         addr = addr.substring(sep + 1);
-
         // decode optional version number
         sep = addr.indexOf( '@' );
         if( sep > -1)
@@ -147,9 +155,33 @@ public class IIOPProfile
         }
         version = new org.omg.GIOP.Version((byte)major,(byte)minor);
 
+        int ipv6SeperatorStart = -1;
+        int ipv6SeperatorEnd = -1;
+        ipv6SeperatorStart = addr.indexOf('[');
+        if (ipv6SeperatorStart != -1) 
+        {
+            ipv6SeperatorEnd = addr.indexOf(']');
+            if (ipv6SeperatorEnd == -1) 
+                throw new IllegalArgumentException(errorstr);
+        }
+
         sep = addr.indexOf(':');
         if( sep != -1 )
         {
+            if (ipv6SeperatorStart != -1) //IPv6
+            {
+                host=addr.substring(ipv6SeperatorStart + 1, ipv6SeperatorEnd);
+                if (addr.charAt(ipv6SeperatorEnd+1) == ':') 
+                {
+                    port=(short)Integer.parseInt(addr.substring(ipv6SeperatorEnd+2));
+                }
+                else
+                {
+                    throw new IllegalArgumentException(errorstr);
+                }
+            }
+            else //IPv4 or hostname
+            {
             try
             {
                 port =(short)Integer.parseInt(addr.substring(sep+1));
@@ -159,6 +191,7 @@ public class IIOPProfile
             {
                 throw new IllegalArgumentException(errorstr);
             }
+        }
         }
         primaryAddress = new IIOPAddress(host,port);
         try
@@ -267,13 +300,21 @@ public class IIOPProfile
         result.primaryAddress = new IIOPAddress(primaryAddress.getHostname(),
                                                 primaryAddress.getPort());
 
+        if (configuration != null)
+        {
+            try
+            {
+                result.primaryAddress.configure(configuration);
+            }
+            catch( ConfigurationException ce)
+            {
+                if (logger.isWarnEnabled())
+                    logger.warn("ConfigurationException", ce );
+            }
+        }
+       
         result.version = new org.omg.GIOP.Version(this.version.major,
                                                    this.version.minor);
-
-        // No need to make a deep copy of the primaryAddress, because
-        // the address can safely be shared between this IIOPProfile
-        // and the clone.  This way, both will profit from any subsequent
-        // DNS resolution of that address.
 
         if (this.objectKey != null)
         {
