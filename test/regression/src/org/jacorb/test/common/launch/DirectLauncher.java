@@ -23,6 +23,7 @@ package org.jacorb.test.common.launch;
 
 import java.util.*;
 import java.io.*;
+import org.jacorb.test.common.TestUtils;
 
 /**
  * Launches a JacORB process by direct invocation of a JVM
@@ -37,7 +38,7 @@ public class DirectLauncher extends JacORBLauncher
     {
         super(jacorbHome, coverage);
     }
-
+        
     public Process launch(String classpath,
                           Properties props,
                           String mainClass,
@@ -46,12 +47,14 @@ public class DirectLauncher extends JacORBLauncher
         Runtime rt = Runtime.getRuntime();
 
         List cmdList = new ArrayList();
+
+        String fullClasspath = TestUtils.pathAppend(classpath, getJacORBLibraryPath());      
         
         String javaHome = System.getProperty("java.home");
         String javaCommand = javaHome + "/bin/java";
         cmdList.add (javaCommand);
         cmdList.add ("-classpath");
-        cmdList.add (classpath + ":" + getJacORBLibraryPath());
+        cmdList.add (fullClasspath);
         cmdList.add ("-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB");
         cmdList.add ("-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton");
         cmdList.addAll (propsToArgList(props));
@@ -59,11 +62,32 @@ public class DirectLauncher extends JacORBLauncher
         cmdList.add (mainClass);
         cmdList.addAll (Arrays.asList(args));
         
-        String[] envp = new String[]
+        String[] envp;
+    
+        if (TestUtils.isWindows())      
         {
-            "JACORB_HOME=" + jacorbHome
-        };
-        
+            envp = new String[3];
+            envp[0] = "JACORB_HOME=" + jacorbHome;
+            try 
+            {
+                envp[1] = "SystemRoot=" + TestUtils.systemRoot();
+            }
+            catch (RuntimeException e) 
+            {
+                System.out.println("WARNING: caught RuntimeException when reading SystemRoot: " + e.getMessage());
+            }
+            catch (IOException e) 
+            {
+                System.out.println("WARNING: caught IOException when reading SystemRoot: " + e.getMessage());
+            }
+            envp[2] = "JACORB_TEST_HOME=" + TestUtils.testHome();
+        }
+        else
+        {
+            envp = new String[1];
+            envp[0] = "JACORB_HOME=" + jacorbHome;
+
+        }
         try
         {
             String[] cmd = toStringArray(cmdList);
@@ -74,7 +98,8 @@ public class DirectLauncher extends JacORBLauncher
             //    if (i<cmd.length-1) System.out.print (" ");
             //}
             //System.out.println();
-            return rt.exec (cmd, envp);
+            Process proc = rt.exec (cmd, envp);
+            return proc;
         }
         catch (IOException ex)
         {
@@ -84,14 +109,15 @@ public class DirectLauncher extends JacORBLauncher
     
     public String getJacORBLibraryPath()
     {
-        return getJacORBPath() + ":"
-             + jacorbHome + "/lib/logkit-1.2.jar:"
-             + jacorbHome + "/lib/avalon-framework-4.1.5.jar:"
-             + jacorbHome + "/lib/backport-util-concurrent.jar:"
-             + jacorbHome + "/lib/antlr-2.7.2.jar:"
-             + jacorbHome + "/lib/picocontainer-1.2.jar";
+        String libPath = getJacORBPath();
+        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/logkit-1.2.jar");
+        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/avalon-framework-4.1.5.jar");
+        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/backport-util-concurrent.jar");
+        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/antlr-2.7.2.jar");
+        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/picocontainer-1.2.jar");
+        return libPath;
     }
-        
+    
     public String getJacORBPath()
     {
         File result = null;
@@ -100,13 +126,16 @@ public class DirectLauncher extends JacORBLauncher
             result = new File (jacorbHome, "classes-instrumented");
             if (!result.exists())
                 System.out.println ("WARNING: JacORB installation " 
-                                    + jacorbHome
-                                    + " is not instrumented; coverage "
-                                    + " will not be available");
+                        + jacorbHome
+                        + " is not instrumented; coverage "
+                        + " will not be available");
             else
-                return result.toString() + ":"
-                     + jacorbHome + "/classes:"
-                     + jacorbHome + "/test/regression/lib/emma.jar";
+            {
+                String jacorbPath = result.toString();
+                jacorbPath = TestUtils.pathAppend(jacorbPath, jacorbHome + "/classes/");
+                jacorbPath = TestUtils.pathAppend(jacorbPath, jacorbHome + "/test/regression/lib/emma.jar");
+                return jacorbPath;
+            }
         }
         result = new File (jacorbHome, "classes/org");
         if (result.exists())

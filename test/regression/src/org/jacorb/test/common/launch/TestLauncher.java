@@ -70,7 +70,7 @@ public class TestLauncher
         {
             this.in = new BufferedReader (new InputStreamReader (in));
         }
-        
+  
         public void run()
         {
             try
@@ -89,7 +89,7 @@ public class TestLauncher
                                     + ex.toString());
             }
         }
-        
+
     }
     
     public static void printTestHeader (PrintWriter out)
@@ -143,7 +143,7 @@ public class TestLauncher
         String cs = System.getProperty("jacorb.test.coverage", "false");
         return cs.equals("true") || cs.equals("on") || cs.equals("yes");
     }
-
+    
     public static String getClientVersion()
     {
         return System.getProperty ("jacorb.test.client.version", "cvs");
@@ -172,6 +172,7 @@ public class TestLauncher
     {
         String dir = TestUtils.testHome() + "/output/" + getTestID();
         File dirF = new File (dir);
+        //File class is platform independent, no need to convert
         if (!dirF.exists()) dirF.mkdir();
         return dir + "/report.txt";
     }
@@ -182,39 +183,68 @@ public class TestLauncher
         outFile = new PrintWriter (new FileWriter (getOutFilename()));
         printTestHeader (outFile);
         printTestHeader (System.out);
-        
+   
         String mainClass = "junit.textui.TestRunner";
-
-        String classpath = TestUtils.testHome() + "/classes:"
-                         + TestUtils.testHome() + "/lib/junit.jar:"
-                         + TestUtils.testHome() + "/lib/easymock-1.1.jar";
-
+        String testHome = TestUtils.osDependentPath(TestUtils.testHome());
+        
+        String classpath = testHome + "/classes/";
+        classpath = TestUtils.pathAppend(classpath, testHome + "/lib/junit.jar");
+        classpath = TestUtils.pathAppend(classpath, testHome + "/lib/easymock-1.1.jar");
+        //Convert to platform dependent path
+        classpath = TestUtils.osDependentPath(classpath);
         Properties props = new Properties();
         props.put("jacorb.test.id", getTestID());
         props.put("jacorb.test.coverage", getCoverage() ? "true" : "false");
         props.put("jacorb.test.client.version", getClientVersion());
         props.put("jacorb.test.server.version", getServerVersion());
         props.put("javax.rmi.CORBA.UtilClass",
-                  "org.jacorb.test.orb.rmi.FixSunDelegateBug");
+            "org.jacorb.test.orb.rmi.FixSunDelegateBug");
+        
+        props.put("jacorb.test.home", testHome);
 
+        if (TestUtils.isWindows()) 
+        {
+            try 
+            {
+                String systemRoot = TestUtils.systemRoot();
+                props.put("jacorb.SystemRoot", systemRoot);
+            }
+            catch (IOException e) 
+            {
+                throw e;
+            }
+            catch (RuntimeException e) 
+            {
+                throw e;
+            }
+        }
+        
+        
         JacORBLauncher launcher = JacORBLauncher.getLauncher
         (
             getClientVersion(), getCoverage()
         );
-
+        
         if (getCoverage())
-            props.put ("emma.coverage.out.file",
-                       launcher.getJacorbHome() 
-                       + "/test/regression/output/" 
-                       + getTestID() + "/coverage-client.ec");
+        {
+            String coveragePath=new String(launcher.getJacorbHome() 
+                    + "/test/regression/output/" 
+                    + getTestID() + "/coverage-client.ec");
+            coveragePath = TestUtils.osDependentPath(coveragePath);
+            props.put ("emma.coverage.out.file", coveragePath);
+        }
+        String printArgs = "";
+        for (int i=0; i<args.length; i++) 
+        {
+            printArgs += args[i] + " ";
+        }	
         
         Process p = launcher.launch(classpath, props, mainClass, args);
-
         Listener outL = new Listener(p.getInputStream());
         outL.start();
         Listener errL = new Listener(p.getErrorStream());
         errL.start();
-
+        
         p.waitFor();
         
         outFile.close();

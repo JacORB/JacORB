@@ -31,6 +31,10 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.Properties;
+
 /**
  * Utility class used to setup JUnit-TestSuite
  * 
@@ -43,6 +47,7 @@ public class TestUtils
     private static final String[] STRING_ARRAY_TEMPLATE = new String[0];
 
     private static String testHome = null;
+    private static String systemRoot = null;
 
     /**
      * this method returns a List of all public Methods which Names start with the Prefix "test" and
@@ -86,21 +91,32 @@ public class TestUtils
     {
         if (testHome == null)
         {
-            URL url = TestUtils.class.getResource("/.");
-            String result = url.toString();
-            if (result.matches("file:/.*?/classes/"))
-                // strip the leading "file:" and the trailing
-                // "/classes/" from the result
-                result = result.substring(5, result.length() - 9);
-            else
-                throw new RuntimeException("cannot find test home");
-            testHome = result;
+            //See if we set it as a property using TestLauncher
+            testHome = System.getProperty ("jacorb.test.home");
+
+            //Try to find it from the run directory
+            if (testHome == null)
+            {
+                URL url = TestUtils.class.getResource("/.");
+
+                String result = url.toString();
+                if (result.matches("file:/.*?"))
+                {
+                    result = result.substring (5, result.length() - 9);
+                }
+                String relativePath="/classes/";
+                if (!pathExists(result, relativePath)) 
+                {
+                    throw new RuntimeException ("cannot find test home");
+                }
+                testHome = osDependentPath(result);
+            }
         }
         return testHome;
     }
 
     public static Test suite(Class testClazz, Class testSetupClazz, String suiteName, String testMethodPrefix)
-            throws Exception
+        throws Exception
     {
         TestSuite suite = new TestSuite(suiteName);
 
@@ -133,5 +149,118 @@ public class TestUtils
         {
             suite.addTest((Test) _ctor.newInstance(new Object[] { testMethods[x], setup }));
         }
+    }
+
+    public static String osDependentPath(String path) 
+    {
+        path=(new File(path)).toString();
+        return path.trim();
+    }
+
+    private static boolean pathExists(String basePath, String suffix) 
+    {
+        File filePath = new File(basePath + suffix);
+        return filePath.exists();
+    }
+
+    public static String pathAppend(String path1, String path2) 
+    {
+        String osDepPath1 = (new File(path1)).toString();
+        String osDepPath2 = (new File(path2)).toString();
+        String pathSeperator = System.getProperty("path.separator");
+        return osDepPath1 + pathSeperator + osDepPath2;
+    }
+    /**
+     * In addition to file and path seperators being differnt,
+     * Windows requires an additional environment variable for 
+     * SystemRoot in DirectLauncer.
+     */
+    public static boolean isWindows() 
+    {
+        return (System.getProperty("os.name").indexOf("Windows") != -1) ;
+    }
+    
+    /**
+     * Returns the SystemRoot, should be used on Windows only.  This
+     * is necessary to pevent the following error:
+     * "Unrecognized Windows Sockets error: 10106: create"
+     */
+    public static String systemRoot() throws RuntimeException, java.io.IOException 
+    {
+
+        if (isWindows()) 
+        {
+            if (systemRoot == null)
+            {
+                //See if we set it as a property using TestLauncher.
+                //This means we are likely in the DirectLauncher
+                systemRoot = System.getProperty ("jacorb.SystemRoot");
+
+                if (systemRoot == null) 
+                {
+                    //We are likely in the TestLauncher, see if we can
+                    //get it from the system environment.
+                    Properties env = new Properties();
+                    try 
+                    {
+                        String setCmd = getSetCommand();
+                        Process proc = Runtime.getRuntime().exec(setCmd);
+                        InputStream ioStream = proc.getInputStream();
+                        env.load(ioStream);
+                        systemRoot = env.getProperty("SystemRoot");
+                        ioStream.close();
+                        proc.destroy();
+                    }   
+                    catch(java.io.IOException e) 
+                    {   
+                        throw e;
+                    }
+                    if (systemRoot == null) 
+                    {
+                        throw new RuntimeException("Could not find SystemRoot, make sure SystemRoot env var is set");
+                    }
+                    //The '\' character gets interpeted as an escape
+                    if (systemRoot.charAt(1) == ':' && systemRoot.charAt(2) != '\\') 
+                    {
+                        String prefix = systemRoot.substring(0, 2);
+                        String suffix = systemRoot.substring(2, systemRoot.length());
+                        systemRoot = prefix + "\\" + suffix;
+                    }
+                }
+            }
+        }
+        else 
+        {
+            throw new RuntimeException("TestUtils.systemRoot() was called on a non-Windows OS");
+        }
+        return systemRoot;
+    }
+    
+    /*
+     * Private method to get the set command.  This is necessary because
+     * if SystemRoot has not been set, it needs to be set for DirectLauncer.
+     */
+    private static String getSetCommand() 
+    {
+        String setCmd;
+        String osName = System.getProperty("os.name");
+
+        if (osName.indexOf("indows")  != -1)
+        {
+            if (osName.indexOf("indows 9") != -1) 
+            {
+                setCmd = "command.com /c set";
+            }
+            else 
+            {
+                setCmd = "cmd.exe /c set";
+            }
+        }
+        else 
+        {
+            setCmd = "/usr/bin/env";
+            //should double check for all unix platforms
+        }
+        return setCmd;
     }
 }
