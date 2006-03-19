@@ -1,3 +1,8 @@
+2006-03-19  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/Environment.java: Improve recognition of JDK version,
+	add check for jdk 1.5.  Patch by Leon Rosenberg.
+
 2006-03-18  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/rmi/PortableRemoteObjectDelegateImpl.java (newRMIClassName):
