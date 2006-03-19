@@ -20,21 +20,36 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
-
 public final class Environment
 {
     /**
-     * <code>JAVA14</code> denotes whether we are using JDK 1.4.
+     * <code>JAVA14</code> denotes whether we are using JDK 1.4 or above.
      */
     static boolean JAVA14 = false;
+
+    /**
+     * <code>JAVA15</code> denotes whether we are using JDK 1.5 or above.
+     */
+    static boolean JAVA15 = false;
 
     static
     {
         String javaVer = System.getProperty ("java.version");
-        JAVA14 = (javaVer.indexOf ("1.4") != -1);
+        int javaVersionAsInt = 0;
+        try
+        {
+            javaVersionAsInt = Integer.parseInt (""+javaVer.charAt(0))*10
+                             + Integer.parseInt (""+javaVer.charAt(2));
+        }
+        catch (Exception javaVersionFormatChanged)
+        {
+            // I don't think this exception can/would ever occur but for
+            // the sake of robustness...
+            javaVersionFormatChanged.printStackTrace();
+        }
+        JAVA14 = javaVersionAsInt >= 14;
+        JAVA15 = javaVersionAsInt >= 15;
     }
-
 
     /**
      * <code>intToPriority</code> returns the priority level for a given integer.
