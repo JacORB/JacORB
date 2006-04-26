@@ -1205,7 +1205,8 @@ public class TypeCode
 
         try
         {
-            while (tc.kind() == org.omg.CORBA.TCKind.tk_alias)
+            while (tc.kind() == org.omg.CORBA.TCKind.tk_alias 
+                || tc.kind() == org.omg.CORBA.TCKind.tk_value_box)
                 tc = tc.content_type();
         }
         catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
@@ -1455,6 +1456,7 @@ public class TypeCode
             {
             case   TCKind._tk_struct:
             case   TCKind._tk_union:
+            case   TCKind._tk_value:
                tc.resolveRecursion (actual);
                break;
             case   TCKind._tk_sequence:
