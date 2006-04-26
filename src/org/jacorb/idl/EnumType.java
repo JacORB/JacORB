@@ -359,6 +359,18 @@ public class EnumType
         pw.println("\t\t}");
         pw.println("\t}");
 
+        pw.println("\tpublic String toString()");
+        pw.println("\t{");
+        pw.println("\t\tswitch (value) {");
+        for (Enumeration e = enumlist.v.elements(); e.hasMoreElements();)
+        {
+            String label = (String) e.nextElement();
+            pw.println("\t\t\tcase _" + label + ": return \"" + label + "\";");
+        }
+        pw.println("\t\t\tdefault: throw new org.omg.CORBA.BAD_PARAM();");
+        pw.println("\t\t}");
+        pw.println("\t}");
+        
         pw.println("\tprotected " + name + "(int i)");
         pw.println("\t{");
         pw.println("\t\tvalue = i;");
