@@ -153,6 +153,10 @@ public class AbstractIDLTestcase extends TestCase
         writer.close();
 
         String javaHome = System.getProperty("java.home");
+        if (javaHome.endsWith("jre"))
+        {
+        	javaHome = javaHome.substring(0, javaHome.length() - 3);
+        }
         String cmd = javaHome + "/bin/javac @" + file.getAbsolutePath();
         try
         {
