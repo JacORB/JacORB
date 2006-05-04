@@ -32,6 +32,9 @@ import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.MARSHAL;
 import org.omg.CosNaming.*;
 import org.omg.GIOP.*;
 import org.omg.IOP.*;
@@ -437,8 +440,7 @@ public class ParsedIOR
 
         if (orb == null)
         {
-            in_ =
-                new CDRInputStream(org.omg.CORBA.ORB.init(), bos.toByteArray());
+            in_ = new CDRInputStream(org.omg.CORBA.ORB.init(), bos.toByteArray());
         }
         else
         {
@@ -451,8 +453,20 @@ public class ParsedIOR
             in_.setLittleEndian(true);
         }
 
-        IOR _ior = IORHelper.read(in_);
-        decode(_ior);
+        try
+        {
+            IOR _ior = IORHelper.read(in_);
+
+            decode(_ior);
+        }
+        catch (MARSHAL e)
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Caught ", e);
+            }
+            throw new BAD_PARAM("Invalid IOR " + e, 10, CompletionStatus.COMPLETED_NO);
+        }
     }
 
     private void parse_corbaloc(String object_reference)
