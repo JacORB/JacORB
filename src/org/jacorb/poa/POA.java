@@ -302,6 +302,16 @@ public class POA
     }
 
     /**
+     * Called from Delegate. To ensure thread safety we use the AOM::incarnate method
+     * when activating a servant with the ServantActivator.
+     */
+    public Servant _incarnateServant(byte[] oid, ServantActivator sa)
+        throws org.omg.PortableServer.ForwardRequest
+    {
+        return aom.incarnate(oid, sa, this);
+    }
+    
+    /**
      * called from orb, returns a registered child poa,
      * if no child poa exists a adapter activator will used
      * to create a new poa unter this name
