@@ -404,7 +404,7 @@ jacorb.imr.connection_timeout=2000
 
 # the implementation name, should be set to a different
 # name in the code of persistent servers
-jacorb.implname=StandardImplName
+# jacorb.implname=StandardImplName
 
 #
 # This is supposed to be a generic startup string for everything

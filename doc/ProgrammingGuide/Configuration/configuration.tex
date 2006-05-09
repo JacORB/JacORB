@@ -714,7 +714,7 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"jacorb.imr.connection_"
 \verb"timeout" & Time in milliseconds that the IR waits until a connection from an application client is terminated. Default is 2000. & millisec. \\
 \hline
-\verb"jacorb.implname" & The implementation name for persistent servers. Persistent servers should set this to a unique name. This is the service name that is registered in the IR. & name \\
+\verb"jacorb.implname" & The implementation name for persistent servers. See \ref{implname}. & name \\
 \hline
 \verb"jacorb.java_exec" & Command used by the IR to start servers. & command \\
 \hline
@@ -803,6 +803,43 @@ no more than queue\_min requests. Default is 10. & integer \\
 \hline
 \end{longtable}
 \end{small}
+
+\subsection{JacORB Implname and CORBA Objects}
+\label{implname}
+A JacORB object key consists of {\tt <impl name>/<poa name>/<object oid>}. The lifespan of CORBA objects are defined by the POA policy LifespanPolicyValue.
+
+Transient objects are those whose lifespans are bounded by the process in which they were created. Once a transient object has been destroyed any clients still holding references to those objects should receive a OBJECT\_NOT\_EXIST. This applies even if the transient object is recreated as it is a new object reference. To achieve this JacORB replaces the implname portion of the key with transient data.
+
+Persistent objects are those that may live beyond the lifetime of the process that created them. The implname property should be configured in this case. It should be set to a unique name to to form part of the object identity. If it is not set, an exception will be thrown. This property may be configured in the jacorb.properties (where an example shows it set to StandardImplName) or in the code of the server e.g.
+\small{
+\begin{verbatim}
+    /* create and set properties */
+    java.util.Properties props = new java.util.Properties();
+    props.setProperty("jacorb.use_imr","on");
+    props.setProperty("jacorb.implname","MyName");
+
+    /* init ORB  */
+    orb = org.omg.CORBA.ORB.init(args, props);
+\end{verbatim}
+}
+
+The implname property allows a program to run with a different implementation name so that it will not accept references created by another persistent POA with the same POA name. A common problem is where the developer has two persistent servers running with the same implname and POA names when one tries to contact the other. Rather than calling server x, server y performs local call. This is because there is no way of distinguishing the two servers; the developer should have used different implnames (e.g. UUIDs).
+
+As it is not possible to construct a transient object with a readable key unlike a persistent object where the developer may configure implname, POA name and object key as they wish, some developers may find it useful to use the objectKeyMap facility within JacORB to refer to their transient objects.
+
+This property provides more readable corbaloc URLs by mapping the actual object key to an arbitrary string. The mapping below would permit clients of a name service to access it using corbaloc::ipaddress:portnum/NameService. The property also accepts the following mappings:
+\begin{itemize}
+\item IOR, resource, jndi, URL (e.g. file, http)
+\end{itemize}
+Note that {\tt jacorb.orb.objectKeyMap.name} is configurable both through the jacorb.properties file and through the proprietary function
+
+{\tt ORB::addObjectKey(String name, String)}
+
+Example usage
+
+{\tt jacorb.orb.objectKeyMap.NameService=file:/home/rnc/NameSingleton.ior}
+
+
 
 %%% Local Variables:
 %%% mode: latex

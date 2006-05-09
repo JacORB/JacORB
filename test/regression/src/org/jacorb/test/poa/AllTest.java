@@ -39,7 +39,8 @@ public class AllTest
         suite.addTest(org.jacorb.test.poa.QueueNoWaitTest.suite());
         suite.addTest(org.jacorb.test.poa.QueueWaitTest.suite());
         suite.addTest(org.jacorb.test.poa.POAActivateTest.suite());
-
+        suite.addTestSuite(ImplNameTest.class);
+        
         return suite;
    }
 }

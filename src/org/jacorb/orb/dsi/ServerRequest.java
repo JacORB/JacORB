@@ -423,9 +423,6 @@ public class ServerRequest
             // not do any harm.
             return out;
 
-        if( !stream_based )
-            throw new INTERNAL("ServerRequest not stream-based!");
-
         out =
             new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.NO_EXCEPTION,

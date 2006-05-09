@@ -64,6 +64,9 @@ post 2.2.2
 
 		- added JMX support for the notification service.
 
+        - POA:
+        	- Fix usage of implname with transient and persistent servers (see the Programming Guide).
+
 2.2
 ====
 

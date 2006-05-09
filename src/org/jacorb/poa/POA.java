@@ -243,8 +243,14 @@ public class POA
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.poa");
 
-        implName =
-            configuration.getAttribute("jacorb.implname","standardImplName").getBytes();
+        String tmp =
+            configuration.getAttribute("jacorb.implname", "");
+        
+        if (tmp.length() > 0)
+        {
+            implName = tmp.getBytes();
+        }
+
         serverId =
             String.valueOf((long)(Math.random()*9999999999L)).getBytes();
 
@@ -497,6 +503,10 @@ public class POA
             }
             catch (ResourceLimitReachedException e)
             {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("Caught " + e + " when queueing " + request.operation());
+                }
                 throw new org.omg.CORBA.TRANSIENT("resource limit reached");
             }
         }
@@ -1132,10 +1142,8 @@ public class POA
     {
         if (poaId == null)
         {
-            byte[] impl_name =
-                POAUtil.maskId( (implName != null) ?
-                                implName :
-                                serverId );
+            final byte[] impl_name = getImplName();
+
             int in_length = impl_name.length;
 
             byte[] poa_name = _getQualifiedName().getBytes();
@@ -1158,6 +1166,41 @@ public class POA
             }
         }
         return poaId;
+    }
+
+
+    private byte[] getImplName()
+    {
+        final byte[] impl;
+        // If we are using a transient object then we must place some random information
+        // in the IOR so that it is unique.
+        if ( ( ! isPersistent() ) || implName == null)
+        {
+            impl = serverId;
+
+            if (logger.isInfoEnabled())
+            {
+                if (isPersistent() )
+                {
+                    logger.info
+                        ("Impl name not set; using server ID: " + (new String (impl)));
+                }
+                else
+                {
+                    logger.info
+                    (
+                        "Using server ID (" +
+                        (new String (impl)) +
+                        ") for transient POA"
+                    );
+                }
+            }
+        }
+        else
+        {
+            impl = implName;
+        }
+        return POAUtil.maskId(impl);
     }
 
     protected org.omg.CORBA.Object getReference
@@ -1939,7 +1982,7 @@ public class POA
                 {
                     if ( implName == null )
                     {
-                        logger.fatalError("cannot create a persistent poa! (implname property is not used)");
+                        logger.fatalError("Cannot create a persistent poa. The implname property has not been set.");
                         return i;
                     }
                 }
