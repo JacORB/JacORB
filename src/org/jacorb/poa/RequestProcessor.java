@@ -229,8 +229,6 @@ public class RequestProcessor
 
                 request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER());
             }
-
-            controller.getORB().set_delegate(servant);        // set the orb
         }
         catch (org.omg.CORBA.SystemException e)
         {
