@@ -46,6 +46,7 @@ import org.omg.PortableServer.POAPackage.*;
 import org.omg.TimeBase.UtcT;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantActivator;
 
 /**
  * JacORB implementation of CORBA object reference
@@ -1635,21 +1636,10 @@ public final class Delegate
 
                     if ( poa.isRetain() )
                     {
-                        // ServantManager is a ServantActivator:
-                        // see if the servant is already activated
-                        try
-                        {
-                            so.servant = poa.id_to_servant( oid );
-                        }
-                        catch( ObjectNotActive ona )
-                        {
-                            // okay, we need to activate it
-                            org.omg.PortableServer.ServantActivator sa =
-                                ( org.omg.PortableServer.ServantActivator ) sm ;
-                            org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
-                            so.servant = sa.incarnate( oid, poa );
-                            orb.set_delegate(so.servant);
-                        }
+                        // ServantManager is a ServantActivator. Use the AOM to
+                        // incarnate this or return the servant. It will correctly
+                        // synchrnoize the requests.
+                        so.servant = poa._incarnateServant(oid, (ServantActivator)sm);
                     }
                     else
                     {
