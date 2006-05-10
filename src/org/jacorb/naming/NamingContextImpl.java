@@ -49,7 +49,7 @@ public class NamingContextImpl
     private Hashtable contexts = new Hashtable();
 
     /** configuration */
-    private org.jacorb.config.Configuration configuration = null;
+    private transient org.jacorb.config.Configuration configuration = null;
 
     /** no tests of bound objects for existence */
     private boolean noPing = false;
