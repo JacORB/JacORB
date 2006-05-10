@@ -1,3 +1,51 @@
+2006-05-09  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/dsi/ServerRequest.java, poa/POA.java:
+	patch for bug 378 (JAC3) from prismtech
+
+	* poa/RequestProcessor.java:
+	patch from prismtech for bug314 (JAC2). testcase
+
+	* poa/POA.java (_incarnateServant):
+	patch from prismtech for bug314 (JAC2). new method
+
+	* orb/Delegate.java (servant_preinvoke):
+	patch from prismtech for bug314 (JAC2).
+
+2006-05-04  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/ParsedIOR.java (parse_stringified_ior): throw BAD_PARAM in
+	case the supplied stringified object reference cannot be decoded.
+
+	see http://www.omg.org/issues/issue4128.txt and page 1121 in CORBA
+	Spec 04-03-12
+
+2006-05-02  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDRInputStream.java:
+	(read) throw checked IOException instead of unchecked
+	runtimeexceptions
+
+	cosmetics
+
+2006-05-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPAddress.java: Patch by David Hartman to allow
+	hiding of zone IDs.
+	(hideZoneID): New field.
+	(configure): Set it from property jacorb.ipv6.hide_zoneid.
+	(write): Hide the zone ID if the property is on.
+	(init_host): Reformat.
+
+2006-04-26  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/EnumType.java (printEnumClass): Add a toString() method.
+	Suggested by Richard Hash in bug #535.
+
+	* orb/TypeCode.java (originalType, resolveRecursion): Correctly
+	resolve indirect recursion for TypeCodes of valuetypes. Patch by
+	Thomas Leineweber, fixing bug #677.
+
 2006-03-19  Andre Spiegel  <spiegel@gnu.org>
 
 	* idl/Environment.java: Improve recognition of JDK version,
