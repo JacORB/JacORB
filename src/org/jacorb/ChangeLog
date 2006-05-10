@@ -1,3 +1,8 @@
+2006-05-10  Andre Spiegel  <spiegel@gnu.org>
+
+	* naming/NamingContextImpl.java (configuration):
+	Made transient, as suggested by David Rodenbaugh in bug #605.
+
 2006-05-09  Alphonse Bendt  <bendt@prismtech.com>
 
 	* orb/dsi/ServerRequest.java, poa/POA.java:
