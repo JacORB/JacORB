@@ -40,6 +40,11 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+2.2.4
+=====
+
+      - JacORB now supports IPv6, thanks to work by David Hartman.
+
 post 2.2.2
 ==========
 
