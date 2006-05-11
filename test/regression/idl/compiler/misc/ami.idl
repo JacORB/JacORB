@@ -1,0 +1,7 @@
+module foo
+{
+   interface bar
+   {
+      short func (in short s);
+   };
+};
