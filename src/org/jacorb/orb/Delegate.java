@@ -1512,7 +1512,15 @@ public final class Delegate
                                          replyEndTime,
                                          p.get_object_key(),
                                          p.getEffectiveProfile().version().minor );
-
+            
+            try{
+            // TODO
+                ros.configure(configuration);
+            } catch (ConfigurationException e)
+            {
+                throw new RuntimeException();
+            }
+            
             // CodeSets are only negotiated once per connection,
             // not for each individual request
             // (CORBA 3.0, 13.10.2.6, second paragraph).
