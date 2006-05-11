@@ -1,3 +1,17 @@
+2006-05-11  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/Interface.java (printInterface, printOperations, unwindTypedefs):
+	another patch related to #643 from thomas leineweber. here is his comment:
+
+	When AMI is used, the AMI-Interface- and -Operations-Class both inherit
+	from the special org.omg.Messaging.ReplyHandler. The IDL-compiler
+	internally can not unwind this type, as the internal representation as
+	org.jacorb.idl.ReplyHanderlTypeSpec does not inherit from
+	ConstrTypeSpec.
+
+	So, I patched the calls to unwindTypedef within Interface.java
+	to exclude this type from being unwound.
+
 2006-05-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* naming/NameServer.java (main): Add shutdown hook as suggested by
