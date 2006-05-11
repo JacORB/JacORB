@@ -61,7 +61,8 @@ public class RMITest extends ClientServerTestCase
         Properties server_props = new Properties();
         server_props.setProperty
             ("jacorb.interop.strict_check_on_tc_creation", "off");
-
+        server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
+        
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.rmi.RMITestServant",
