@@ -23,10 +23,9 @@
 
 package org.omg.CORBA;
 
-abstract public class ORB {
-
+abstract public class ORB 
+{
 	private static final String DEFAULT_ORB_KEY= "org.omg.CORBA.ORBClass";
-	private static final String DEFAULT_ORB_SINGLETON_KEY=  "org.omg.CORBA.ORBSingletonClass";
 	private static final String DEFAULT_ORB_VALUE= "org.jacorb.orb.ORB";
 	private static final String DEFAULT_ORB_SINGLETON_VALUE = "org.jacorb.orb.ORBSingleton";
 	private static final java.lang.Object SYNCHRONIZER = new java.lang.Object();
@@ -34,17 +33,15 @@ abstract public class ORB {
 
 	public static ORB init()
 	{
-		if(_singleton_orb == null)
-		{
-			synchronized(SYNCHRONIZER) 
-			{
-				if(_singleton_orb == null) 
-				{
-					_singleton_orb = create(DEFAULT_ORB_SINGLETON_VALUE);
-					//_singleton_orb.set_parameters((String[]) null, null);
-				}
-			}
-		}
+	    synchronized(SYNCHRONIZER) 
+	    {
+	        if(_singleton_orb == null) 
+	        {
+	            _singleton_orb = create(DEFAULT_ORB_SINGLETON_VALUE);
+	            //_singleton_orb.set_parameters((String[]) null, null);
+	        }
+	    }
+
 		return _singleton_orb;
 	}
 
@@ -61,13 +58,7 @@ abstract public class ORB {
 			className = System.getProperty(DEFAULT_ORB_KEY,  DEFAULT_ORB_VALUE);  
 		}
 		ORB orb = create(className);  
-//  		synchronized(SYNCHRONIZER) 
-//  		{       
-//  			if(_singleton_orb == null) 
-//  			{
-//  				_singleton_orb = orb;    
-//  			}     
-//  		}     
+    
 		orb.set_parameters(args, props);  
 		return orb;
 	}      
@@ -87,11 +78,23 @@ abstract public class ORB {
 		orb.set_parameters(applet, props);  
 		return orb;
 	}
+    
 	private static ORB create(String className) 
-	{     
+	{
+        final ClassLoader cl;
+        
+        if (Thread.currentThread().getContextClassLoader() != null)
+        {
+            cl = Thread.currentThread().getContextClassLoader();
+        }
+        else
+        {
+            cl = ClassLoader.getSystemClassLoader();
+        }
+        
 		try 
 		{       
-			return (ORB) Class.forName(className).newInstance();  
+			return (ORB) Class.forName(className, true, cl).newInstance();  
 		}     
 		catch(Exception e) 
 		{       
@@ -100,24 +103,6 @@ abstract public class ORB {
 		}
 	} 
 
-
-    /*
-    public static ORB init() {
-	throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
-
-    public static ORB init(String[] args, java.util.Properties props) {
-new RuntimeException().printStackTrace();
-
-	throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
-
-
-    public static ORB init(java.applet.Applet app, java.util.Properties props) {
-new RuntimeException().printStackTrace();
-	throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
-    */
     abstract protected void set_parameters(String[] args,
                                     java.util.Properties props);
 
@@ -277,6 +262,5 @@ new RuntimeException().printStackTrace();
                         throws org.omg.CORBA.PolicyError {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
-
 }
 
