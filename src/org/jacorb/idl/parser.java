@@ -959,7 +959,7 @@ public class parser extends org.jacorb.idl.runtime.lr_parser {
     // Compiles out leaving no runtime dependency on Version
     public static final String compiler_version = org.jacorb.util.Version.longVersion;
 
-    private static final String yearString = "1997-2004";
+    private static final String yearString = "1997-2006";
 
     // custom code generators
     public static Class codeGeneratorClass = null;
