@@ -22,6 +22,7 @@ package org.jacorb.orb.dsi;
 
 import java.util.*;
 
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 
 import org.jacorb.orb.CDRInputStream;
@@ -429,7 +430,14 @@ public class ServerRequest
                                   in.getGIOPMinor(),
                                   in.isLocateRequest(), 
                                   logger );
-
+        
+        try
+        {
+            out.configure(orb.getConfiguration());
+        } catch (ConfigurationException e)
+        {
+            throw new RuntimeException();
+        }
         return out;
     }
 
