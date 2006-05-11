@@ -1,3 +1,45 @@
+2006-05-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* naming/NameServer.java (main): Add shutdown hook as suggested by
+	David Rodenbaugh in bug #605.
+
+2006-05-11  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/dsi/ServerRequest.java (createReply): configure the outputstream
+	related to JAC#10
+
+	* orb/ORBSingleton.java (create_*_tc): added methods that take an
+	extra boolean parameter to specify if the members should be
+	checked. user invocations will always be checked.
+
+	this is to allow interoperability with orbs that send compact typecodes.
+	scarab id: JAC#10.
+	this may be also an fix for bugzilla #375
+
+	* orb/Delegate.java (request): configure the outputstream after
+	creation.  related to JAC#10
+
+	* orb/CDROutputStream.java (configure): made method public
+	related to scarab id: JAC#10.
+
+2006-05-11  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/parser.cup, idl/parser.java: JAC#325 Update yearString from
+	2004 to 2006
+
+2006-05-11  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDRInputStream.java (read_Typecode): do not validate members
+	and invoke the newly added orb methods to create typecodes.  this
+	is to allow interoperability with orbs that send compact
+	typecodes.  scarab id: JAC#10.  this may be also an fix for
+	bugzilla #375
+
+2006-05-11  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/parser.cup: Update copyright string to match
+	parser.java. Removed company/university reference.
+
 2006-05-10  Andre Spiegel  <spiegel@gnu.org>
 
 	* naming/NamingContextImpl.java (configuration):
