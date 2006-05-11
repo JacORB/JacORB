@@ -80,12 +80,15 @@ public class AbstractIDLTestcase extends TestCase
         idlFile = file;
 
         dirGeneration = new File(TestUtils.testHome() + "/src-testidl/" + idlFile.getName());
+        deleteRecursively(dirGeneration);
         File dirClasses = new File(TestUtils.testHome() + "/classes-testidl");
+        
         dirClasses.mkdir();
         assertTrue(dirClasses.canWrite());
         assertTrue(dirClasses.isDirectory());
 
         dirCompilation = new File(dirClasses, idlFile.getName());
+        deleteRecursively(dirCompilation);
     }
 
     /**
@@ -153,11 +156,14 @@ public class AbstractIDLTestcase extends TestCase
         writer.close();
 
         String javaHome = System.getProperty("java.home");
+        String testHome = TestUtils.testHome();
+        String classpath = testHome + File.separator + ".." + File.separator + ".." + File.separator + "classes";
+      
         if (javaHome.endsWith("jre"))
         {
-        	javaHome = javaHome.substring(0, javaHome.length() - 3);
+        	javaHome = javaHome.substring(0, javaHome.length() - 4);
         }
-        String cmd = javaHome + "/bin/javac @" + file.getAbsolutePath();
+        String cmd = javaHome + "/bin/javac -classpath " + classpath + " @" + file.getAbsolutePath();
         try
         {
             Process proc = Runtime.getRuntime().exec(cmd);
@@ -181,7 +187,7 @@ public class AbstractIDLTestcase extends TestCase
                     b.append("\n");
                 }
 
-                fail(b.toString());
+                fail(cmd + "\n" + b.toString());
             }
         } catch (Exception e)
         {
