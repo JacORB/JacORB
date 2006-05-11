@@ -1,0 +1,129 @@
+
+
+#include <orb.idl>
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac10
+            {
+               struct C_struct
+               {
+                  short    e_short;
+                  unsigned short  e_ushort;
+                  long    e_long;
+                  unsigned long  e_ulong;
+                  float    e_float;
+                  double    e_double;
+                  char    e_char;
+                  boolean    e_boolean;
+                  octet    e_octet;
+                  any      e_any;
+                  string    e_string;
+                   Object    e_Object;
+                   CORBA::TypeCode    e_TypeCode;
+               };
+
+               union C_union switch(long)
+               {
+                  case 1:  short    e_short;
+                  case 2:  unsigned short  e_ushort;
+                  case 3:  long    e_long;
+                  case 4:  unsigned long  e_ulong;
+                  case 5:  float    e_float;
+                  case 6:  double    e_double;
+                  case 7:  char    e_char;
+                  case 8:  boolean    e_boolean;
+                  case 9:  octet    e_octet;
+                  case 10:  any    e_any;
+                  case 11:  string    e_string;
+                  case 12:  Object    e_Object;
+                  case 14:  CORBA::TypeCode  e_TypeCode;
+               };
+
+               typedef sequence<short>    C_sequence_e_short;
+               typedef sequence<unsigned short> C_sequence_e_ushort;
+               typedef sequence<long>    C_sequence_e_long;
+               typedef sequence<unsigned long>  C_sequence_e_ulong;
+               typedef sequence<float>    C_sequence_e_float;
+               typedef sequence<double>  C_sequence_e_double;
+               typedef sequence<char>    C_sequence_e_char;
+               typedef sequence<boolean>  C_sequence_e_boolean;
+               typedef sequence<octet>    C_sequence_e_octet;
+               typedef sequence<any>    C_sequence_e_any;
+               typedef sequence<string>  C_sequence_e_string;
+               typedef sequence<Object>  C_sequence_e_Object;
+               typedef sequence<CORBA::TypeCode>  C_sequence_e_TypeCode;
+               typedef short    C_array_e_short[2];
+               typedef unsigned short  C_array_e_ushort[2];
+               typedef long    C_array_e_long[2];
+               typedef unsigned long  C_array_e_ulong[2];
+               typedef float    C_array_e_float[2];
+               typedef double    C_array_e_double[2];
+               typedef char    C_array_e_char[2];
+               typedef boolean    C_array_e_boolean[2];
+               typedef octet    C_array_e_octet[2];
+               typedef any    C_array_e_any[2];
+               typedef string    C_array_e_string[2];
+               typedef Object    C_array_e_Object[2];
+               typedef CORBA::TypeCode  C_array_e_TypeCode[2];
+
+
+               exception C_except
+               {
+                  C_struct v1;
+                  C_union v2; // short
+                  C_union v3; // ushort
+                  C_union v4; // long
+                  C_union v5; // ulong
+                  C_union v6; // float
+                  C_union v7; // double
+                  C_union v8; // char
+                  C_union v9; // boolean
+                  C_union v10; // octet
+                  C_union v11; // any
+                  C_union v12; // string
+                  C_union v13; // Object
+                  C_union v15; // TypeCode
+                  C_sequence_e_short v16;
+                  C_sequence_e_ushort v17;
+                  C_sequence_e_long v18;
+                  C_sequence_e_ulong v19;
+                  C_sequence_e_float v20;
+                  C_sequence_e_double v21;
+                  C_sequence_e_char v22;
+                  C_sequence_e_boolean v23;
+                  C_sequence_e_octet v24;
+                  C_sequence_e_any v25;
+                  C_sequence_e_string v26;
+                  C_sequence_e_Object v27;
+                  C_sequence_e_TypeCode v29;
+                  C_array_e_short v30;
+                  C_array_e_ushort v31;
+                  C_array_e_long v32;
+                  C_array_e_ulong v33;
+                  C_array_e_float v34;
+                  C_array_e_double v35;
+                  C_array_e_char v36;
+                  C_array_e_boolean v37;
+                  C_array_e_octet v38;
+                  C_array_e_any v39;
+                  C_array_e_string v40;
+                  C_array_e_Object v41;
+                  C_array_e_TypeCode v43;
+               };
+
+               interface TypeCodeTest
+               {
+                     CORBA::TypeCode respond (in boolean compact, in CORBA::TypeCode argin, out CORBA::TypeCode argout, inout CORBA::TypeCode arginout);
+               };
+            };
+         };
+      };
+   };
+};
