@@ -1115,7 +1115,6 @@ public class CDRInputStream
     {
         Map tcMap = new HashMap();
         org.omg.CORBA.TypeCode result = read_TypeCode( tcMap );
-        tcMap = null;
 
         return result;
     }
@@ -1208,12 +1207,12 @@ public class CDRInputStream
                     {
                         struct_members[i] = new StructMember
                         (
-                            validateMember (read_string()),
+                            read_string(),
                             read_TypeCode (tcMap),
                             null
                         );
                     }
-                    result = orb.create_struct_tc (id, name, struct_members);
+                    result = ((ORBSingleton) orb).create_struct_tc(id, name, struct_members, false);
                     putCachedTypecode( id, result );
                 }
                 getRecursiveTCMap().put (id, result);
@@ -1244,12 +1243,12 @@ public class CDRInputStream
                     {
                         members[i] = new StructMember
                         (
-                            validateMember (read_string()),
-                            read_TypeCode(),
+                            read_string(),
+                            read_TypeCode(tcMap),
                             null
                         );
                     }
-                    result = orb.create_exception_tc (id, name, members);
+                    result = ((ORBSingleton)orb).create_exception_tc (id, name, members, false);
                     putCachedTypecode( id, result );
                 }
                 getRecursiveTCMap().put (id, result);
@@ -1277,9 +1276,9 @@ public class CDRInputStream
                     member_names = new String[member_count];
                     for( int i = 0; i < member_count; i++)
                     {
-                        member_names[i] = validateMember (read_string());
+                        member_names[i] = read_string();
                     }
-                    result = orb.create_enum_tc (id, name, member_names);
+                    result = ((ORBSingleton)orb).create_enum_tc (id, name, member_names, false);
                     putCachedTypecode( id, result );
                 }
                 getRecursiveTCMap().put (id, result);
@@ -1333,15 +1332,14 @@ public class CDRInputStream
 
                         union_members[i] = new UnionMember
                         (
-                            validateMember (read_string()),
+                            read_string(),
                             label,
                             read_TypeCode(tcMap),
                             null
                         );
                     }
 
-                    result = orb.create_union_tc
-                        (id, name, discriminator_type, union_members);
+                    result = ((ORBSingleton)orb).create_union_tc(id, name, discriminator_type, union_members, false);
                     putCachedTypecode( id, result );
                 }
                 getRecursiveTCMap().put (id, result);
@@ -1438,7 +1436,7 @@ public class CDRInputStream
                     {
                         vMembers[i] = new ValueMember
                         (
-                            validateMember (read_string()),
+                            read_string(),
                             null, // id
                             null, // defined_in
                             null, // version
