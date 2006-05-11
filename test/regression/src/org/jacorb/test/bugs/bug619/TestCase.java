@@ -128,7 +128,7 @@ public class TestCase extends ClientServerTestCase
         server = OutOfMemoryHelper.narrow(setup.getServerObject());
     }
 
-    public static Test suite() throws Exception
+    public static Test suite() 
     {
         TestSuite suite = new TestSuite();
 
