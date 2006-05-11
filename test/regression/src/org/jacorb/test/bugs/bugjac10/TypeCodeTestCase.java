@@ -48,7 +48,7 @@ public class TypeCodeTestCase extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite();
+        final TestSuite suite = new TestSuite();
         suite.addTest(createTestSuite(1));
         suite.addTest(createTestSuite(2));
         
@@ -57,7 +57,7 @@ public class TypeCodeTestCase extends ClientServerTestCase
     
     private static Test createTestSuite(int config)
     {
-        TestSuite suite = new TestSuite( "Client/server TypeCode tests" );
+        final TestSuite suite = new TestSuite( "Client/server TypeCode tests" );
 
         Properties props = new Properties();
 
