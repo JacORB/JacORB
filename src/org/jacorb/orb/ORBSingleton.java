@@ -20,7 +20,9 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
@@ -204,77 +206,112 @@ public class ORBSingleton
     }
 
     /**
-     * create an enum TypeCode
+     * Allows the possibility of not checking the name when creating this
+     * typecode.  This is to cater for compact typecodes where the name
+     * may not be set.  Checking of the name will always be true for user
+     * driven requests
+     * @param id
+     * @param name
+     * @param members
+     * @param checkName
+     * @returns TypeCode
      */
-
     public TypeCode create_enum_tc( String id,
                                     String name,
                                     String[] members)
     {
+        return create_enum_tc (id, name, members, true);
+    }
+
+    TypeCode create_enum_tc( String id,
+                             String name,
+                             String [] members,
+                             boolean checkName)
+    {
         checkTCRepositoryId( id );
         checkTCName (name, true);
 
-        // check that member names are legal and unique
-        Hashtable names = new Hashtable() ;
-        for( int i = 0; i < members.length; i++ )
+        if (checkName)
         {
-            boolean fault = false;
-            try
+            // check that member names are legal and unique
+            Map names = new HashMap() ;
+            for( int i = 0; i < members.length; i++ )
             {
-                checkTCName( members[i] );
+                boolean fault = false;
+                try
+                {
+                    checkTCName( members[i] );
+                }
+                catch( BAD_PARAM bp )
+                {
+                    fault = true;
+                }
+                if( names.containsKey( members[i] ) || fault )
+                {
+                    throw new BAD_PARAM("Illegal enum member name: " + members[i],
+                            17, CompletionStatus.COMPLETED_NO );
+                }
+                names.put( members[i], "" );
             }
-            catch( BAD_PARAM bp )
-            {
-                fault = true;
-            }
-            if( names.containsKey( members[i] ) || fault )
-            {
-                throw new BAD_PARAM("Illegal enum member name: " + members[i],
-                                    17, CompletionStatus.COMPLETED_NO );
-            }
-            names.put( members[i], "" );
         }
-        names.clear();
-
+        
         return new org.jacorb.orb.TypeCode( id, name, members);
     }
 
     /**
-     * create an exception TypeCode
+     * Allows the possibility of not checking the name when creating this
+     * typecode.  This is to cater for compact typecodes where the name
+     * may not be set.  Checking of the name will always be true for user
+     * driven requests
+     * @param id
+     * @param name
+     * @param members
+     * @param checkName
+     * @returns TypeCode
      */
-
     public TypeCode create_exception_tc( String id,
                                          String name,
                                          org.omg.CORBA.StructMember[] members)
+    {
+        return create_exception_tc(id, name, members, true);
+    }
+
+    TypeCode create_exception_tc( String id,
+                                  String name,
+                                  org.omg.CORBA.StructMember[] members,
+                                  boolean checkName)
     {
         checkTCRepositoryId( id );
         checkTCName (name, true);
 
         // check that member names are legal and unique
-        Hashtable names = new Hashtable() ;
+        Map names = new HashMap() ;
         for( int i = 0; i < members.length; i++ )
         {
             checkTCMemberType( members[i].type );
-            boolean fault = false;
-            try
+            
+            if (checkName)
             {
-                checkTCName( members[i].name );
+                boolean fault = false;
+                try
+                {
+                    checkTCName( members[i].name );
+                }
+                catch( BAD_PARAM bp )
+                {
+                    fault = true;
+                }
+                if( names.containsKey( members[i].name ) || fault )
+                {
+                    throw new BAD_PARAM("Illegal exception member name: " +
+                            members[i].name,
+                            17, CompletionStatus.COMPLETED_NO );
+                }
+                names.put( members[i].name, "" );
             }
-            catch( BAD_PARAM bp )
-            {
-                fault = true;
-            }
-            if( names.containsKey( members[i].name ) || fault )
-            {
-                throw new BAD_PARAM("Illegal exception member name: " +
-                                    members[i].name,
-                                    17, CompletionStatus.COMPLETED_NO );
-            }
-            names.put( members[i].name, "" );
         }
-        names.clear();
 
-
+        
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_except,
                                             id,
                                             name,
@@ -327,40 +364,58 @@ public class ORBSingleton
     }
 
     /**
-     * create a struct TypeCode
+     * Allows the possibility of not checking the name when creating this
+     * typecode.  This is to cater for compact typecodes where the name
+     * may not be set.  Checking of the name will always be true for user
+     * driven requests
+     * @param id
+     * @param name
+     * @param members
+     * @param checkName
+     * @returns TypeCode
      */
-
     public TypeCode create_struct_tc(String id,
                                      String name,
                                      org.omg.CORBA.StructMember[] members)
+    {       
+        return create_struct_tc (id, name, members, true);
+    }
+
+    TypeCode create_struct_tc(String id,
+                              String name,
+                              org.omg.CORBA.StructMember [] members,
+                              boolean checkName)
     {
         checkTCRepositoryId( id );
         checkTCName (name, true);
 
         // check that member names are legal and unique
-        Hashtable names = new Hashtable() ;
+        Map names = new HashMap() ;
         for( int i = 0; i < members.length; i++ )
         {
-            checkTCMemberType( members[i].type );
-            boolean fault = false;
-            try
+            if (checkName)
             {
-                checkTCName( members[i].name );
+                checkTCMemberType( members[i].type );
+                boolean fault = false;
+                try
+                {
+                    checkTCName( members[i].name );
+                }
+                catch( BAD_PARAM bp )
+                {
+                    fault = true;
+                }
+                if( names.containsKey( members[i].name ) || fault )
+                {
+                    throw new BAD_PARAM("Illegal struct member name: " + members[i].name + (fault? " (Bad PARAM) ": "" ),
+                            17, 
+                            CompletionStatus.COMPLETED_NO );
+                }
+                names.put( members[i].name, "" );
             }
-            catch( BAD_PARAM bp )
-            {
-                fault = true;
-            }
-            if( names.containsKey( members[i].name ) || fault )
-            {
-                throw new BAD_PARAM("Illegal struct member name: " +
-                                    members[i].name + (fault? " (Bad PARAM) ": "" ),
-                                    17, CompletionStatus.COMPLETED_NO );
-            }
-            names.put( members[i].name, "" );
         }
-        names.clear();
 
+        
         org.jacorb.orb.TypeCode tc =
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_struct,
                                          id,
@@ -373,13 +428,29 @@ public class ORBSingleton
     }
 
     /**
-     * create a union TypeCode
+     * Allows the possibility of not checking the name when creating this
+     * typecode.  This is to cater for compact typecodes where the name
+     * may not be set.  Checking of the name will always be true for user
+     * driven requests
+     * @param id
+     * @param name
+     * @param members
+     * @param checkName
+     * @returns TypeCode
      */
-
     public TypeCode create_union_tc( String id,
                                      String name,
                                      TypeCode discriminator_type,
                                      org.omg.CORBA.UnionMember[] members)
+    {
+        return create_union_tc(id, name, discriminator_type, members, true);
+    }
+
+    TypeCode create_union_tc( String id,
+                              String name,
+                              TypeCode discriminator_type,
+                              org.omg.CORBA.UnionMember [] members,
+                              boolean checkName)
     {
         checkTCRepositoryId( id );
         checkTCName (name, true);
@@ -403,7 +474,8 @@ public class ORBSingleton
             )
         {
             throw new BAD_PARAM("Illegal union discriminator type",
-                                20, CompletionStatus.COMPLETED_NO );
+                                20, 
+                                CompletionStatus.COMPLETED_NO );
         }
 
         // check that member names are legal (they do not need to be unique)
@@ -411,24 +483,28 @@ public class ORBSingleton
         for( int i = 0; i < members.length; i++ )
         {
             checkTCMemberType( members[i].type );
-            try
+            
+            if (checkName)
             {
-                checkTCName( members[i].name );
+                try
+                {
+                    checkTCName( members[i].name );
+                }
+                catch( BAD_PARAM bp )
+                {
+                    throw new BAD_PARAM("Illegal union member name: " + members[i].name,
+                                        17, 
+                                        CompletionStatus.COMPLETED_NO );
+                }
             }
-            catch( BAD_PARAM bp )
-            {
-                throw new BAD_PARAM("Illegal union member name: " +
-                                    members[i].name,
-                                    17, CompletionStatus.COMPLETED_NO );
-            }
-
+            
             // check that member type matches discriminator type or is default
 
             org.omg.CORBA.Any label = members[i].label;
             if (! discriminator_type.equivalent( label.type () ) &&
                 ! ( label.type().kind().value() == TCKind._tk_octet &&
                     label.extract_octet() == (byte)0
-                    )
+                  )
                 )
             {
                 throw new BAD_PARAM("Label type does not match discriminator type",
