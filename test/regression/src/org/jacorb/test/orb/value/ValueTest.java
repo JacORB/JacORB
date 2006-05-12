@@ -31,6 +31,7 @@ import org.omg.CORBA.*;
 public class ValueTest extends ClientServerTestCase
 {
     private ValueServer server;
+    private ORB orb;
 
     public ValueTest(String name, ClientServerSetup setup)
     {
@@ -40,6 +41,7 @@ public class ValueTest extends ClientServerTestCase
     public void setUp() throws Exception
     {
         server = ValueServerHelper.narrow( setup.getServerObject() );
+        orb = setup.getClientOrb();
     }
 
     public static Test suite()
@@ -68,6 +70,9 @@ public class ValueTest extends ClientServerTestCase
         suite.addTest(new ValueTest("test_pass_circular_list", setup));
 
         suite.addTest(new ValueTest("test_pass_list_in_any", setup));
+
+        suite.addTest(new ValueTest("test_embedded_valuetype", setup));
+        suite.addTest(new ValueTest("test_get_rowlistdata", setup));
 
         return setup;
     }
@@ -250,5 +255,26 @@ public class ValueTest extends ClientServerTestCase
 
         String result = server.receive_list(n1);
         assertEquals("list of length: 4 -- 1 2 3 4 -- shared", result);
+    }
+
+    /**
+     * <code>test_embedded_valuetype</code> ensures that JacORB can marshal
+     * and unmarshal embedded valuetypes.
+     */
+    public void test_embedded_valuetype()
+    {
+        ((org.omg.CORBA_2_3.ORB)orb).register_value_factory("IDL:org/jacorb/test/orb/value/NodeData:1.0", new NodeDataDefaultFactory());
+        ((org.omg.CORBA_2_3.ORB)orb).register_value_factory("IDL:org/jacorb/test/orb/value/Data:1.0", new DataDefaultFactory());
+
+        NodeData[] n = server.getNodes();
+
+        assertEquals("Nodes length should be two.", n.length, 2);
+    }
+
+    public void test_get_rowlistdata() throws Exception
+    {
+        assertNotNull(server.getData());
+
+        Thread.sleep(1000);
     }
 }

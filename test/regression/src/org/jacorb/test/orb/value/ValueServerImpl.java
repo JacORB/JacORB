@@ -1,10 +1,9 @@
 package org.jacorb.test.orb.value;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import org.omg.CORBA.portable.InputStream;
-import org.omg.CORBA.portable.OutputStream;
-import org.omg.CORBA.portable.ResponseHandler;
 import org.omg.CORBA.Any;
 
 public class ValueServerImpl extends ValueServerPOA
@@ -96,4 +95,50 @@ public class ValueServerImpl extends ValueServerPOA
         return result;
     }
 
+    /**
+     * <code>getNodes</code> returns an embedded valuetype.
+     *
+     * @return a <code>NodeData[]</code> value
+     */
+    public NodeData[] getNodes()
+    {
+        NodeData[] res = new NodeData[2];
+        res[0] = new NodeDataImpl();
+        res[0].data2 = new DataImpl();
+        res[0].data2.id = 17;
+        res[0].id = 1;
+
+        res[1] = new NodeDataImpl();
+        res[1] = new NodeDataImpl();
+        res[1].data1 = new DataImpl();
+        res[1].data1.id = 22;
+        res[1].id = 2;
+        return res;
+    }
+
+    public RowListData getData()
+    {
+        RowListData ret = new RowListDataImpl();
+        ColumnData[] cols = new ColumnDataImpl[2];
+        ret.columns = cols;
+        for(int i=0; i<2;i++)
+        {
+            cols[i] = createColumnData();
+        }
+        return ret;
+    }
+
+    private ColumnData createColumnData()
+    {
+        ColumnData ret = new ColumnDataImpl();
+        String[] val = new String[] {"Teststring1", "TestString2"};
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init();
+        org.omg.CORBA.Any any = orb.create_any();
+
+        ValStringListHelper.insert(any, val);
+
+        ret.values = any;
+        ret.nulls = new boolean[0];
+        return ret;
+    }
 }
