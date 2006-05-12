@@ -72,6 +72,7 @@ post 2.2.2
         - POA:
         	- Fix usage of implname with transient and persistent servers (see the Programming Guide).
 
+		- improve JacIDL Ant task initialisation.
 2.2
 ====
 
