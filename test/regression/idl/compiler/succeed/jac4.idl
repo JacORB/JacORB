@@ -1,0 +1,9 @@
+ module jac4
+ {
+	valuetype TestValuetype;
+ 
+	valuetype TestValuetype
+ 	{
+ 		public string test_string;
+ 	};
+ };
