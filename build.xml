@@ -13,7 +13,7 @@
 
    <!-- top-level target -->
    <target name="all" depends="init,compiler,omg_idl,jacorb,libs"
-      description="Build JacORB. Use -Ddebug=lines,vars,source to compile code with full debugging."/>
+           description="Build JacORB. Use -Ddebug=lines,vars,source to compile code with full debugging."/>
 
 
    <!-- ==================================================== -->
@@ -23,19 +23,19 @@
    <target name="compiler" depends="init,idlsrc,idllib,idlcmd"/>
 
    <target name="idlcmd">
-        <copy overwrite="yes" file="bin/idltemplate" tofile="bin/idl" />
-        <copy overwrite="yes" file="bin/idltemplate.bat" tofile="bin/idl.bat" />
-        <replace file="bin/idl" token="@@@" value="${basedir}"/>
-        <replace file="bin/idl.bat" token="@@@" value="${basedir}"/>
-        <chmod file="bin/idl" perm="ugo+rx"/>
+      <copy overwrite="yes" file="bin/idltemplate" tofile="bin/idl" />
+      <copy overwrite="yes" file="bin/idltemplate.bat" tofile="bin/idl.bat" />
+      <replace file="bin/idl" token="@@@" value="${basedir}"/>
+      <replace file="bin/idl.bat" token="@@@" value="${basedir}"/>
+      <chmod file="bin/idl" perm="ugo+rx"/>
    </target>
 
    <!-- package idl.jar -->
    <target name="idllib" depends="idlsrc" >
-        <jar jarfile="${lib}/idl.jar"
-             basedir="${classdir}"
-             includes="org/jacorb/idl/**"
-       />
+      <jar jarfile="${lib}/idl.jar"
+           basedir="${classdir}"
+           includes="org/jacorb/idl/**"
+           />
    </target>
 
    <target name="idlsrc">
@@ -49,7 +49,7 @@
    <!-- ==================================================== -->
 
    <target name="omg_idl" depends="init">
-        <ant antfile="${basedir}/idl/build.xml" dir="${basedir}"/>
+      <ant antfile="${basedir}/idl/build.xml" dir="${basedir}"/>
    </target>
 
 
@@ -58,7 +58,7 @@
    <!-- ==================================================== -->
 
    <target name="jacorb" depends="init">
-        <ant antfile="${src}/org/jacorb/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/build.xml" dir="${basedir}"/>
    </target>
 
 
@@ -70,31 +70,31 @@
 
    <target name="jar" depends="init">
       <delete file="${lib}/jacorb.jar" failonerror="false"/>
-       <jar jarfile="${lib}/jacorb.jar"
-      basedir="${classdir}"
-      includes="org/jacorb/**,org/omg/**"
-      excludes="org/jacorb/idl/**,org/jacorb/demo/**,org/jacorb/test/**, org/jacorb/notification/jmx/jboss/**"
-      manifest="${basedir}/etc/jacorb_jar.manifest"
-      index="true"
-      />
+      <jar jarfile="${lib}/jacorb.jar"
+           basedir="${classdir}"
+           includes="org/jacorb/**,org/omg/**"
+           excludes="org/jacorb/idl/**,org/jacorb/demo/**,org/jacorb/test/**, org/jacorb/notification/jmx/jboss/**"
+           manifest="${basedir}/etc/jacorb_jar.manifest"
+           index="true"
+           />
    </target>
 
    <target name="jaco" depends="init">
       <!-- Use the java.endorsed.dirs mechanism to replace the SDK CORBA classes with those in jacorb.jar for SDK 1.4 -->
 
-   	 <path id="cp.raw" >
-   	 	<pathelement location="${basedir}/lib/jacorb.jar" />
-   	 	<pathelement location="${basedir}/lib/logkit-1.2.jar" />
-   	 	<pathelement location="${basedir}/lib/avalon-framework-4.1.5.jar" />
-	 </path>
-   	
-   	<pathconvert targetos="unix" property="cp.unix" refid="cp.raw" >
-		<map from="${basedir}" to="${JACORB_HOME}" />
-   	</pathconvert>
-   	
-   	<pathconvert targetos="windows" property="cp.windows" refid="cp.raw" >
-   	</pathconvert>
-   	
+      <path id="cp.raw" >
+         <pathelement location="${basedir}/lib/jacorb.jar" />
+         <pathelement location="${basedir}/lib/logkit-1.2.jar" />
+         <pathelement location="${basedir}/lib/avalon-framework-4.1.5.jar" />
+      </path>
+
+      <pathconvert targetos="unix" property="cp.unix" refid="cp.raw" >
+         <map from="${basedir}" to="${JACORB_HOME}" />
+      </pathconvert>
+
+      <pathconvert targetos="windows" property="cp.windows" refid="cp.raw" >
+      </pathconvert>
+
       <condition property="jaco.classpath" value="-Djava.endorsed.dirs=${JACORB_HOME}/lib -classpath ${cp.unix}:${CLASSPATH}">
          <equals arg1="${ant.java.version}" arg2="1.4"/>
       </condition>
@@ -107,70 +107,70 @@
       <copy overwrite="yes" file="bin/jacotemplate" tofile="bin/jaco" />
       <copy overwrite="yes" file="bin/jacotemplate.bat" tofile="bin/jaco.bat" />
 
-    <copy overwrite="yes" 
-      file="bin/ntfy-wrapper.template"
-      tofile="bin/ntfy-wrapper" />
+      <copy overwrite="yes"
+            file="bin/ntfy-wrapper.template"
+            tofile="bin/ntfy-wrapper" />
 
-    <replace file="bin/ntfy-wrapper" 
-      token="@@@JACORB_HOME@@@"
-      value="${basedir}" />
+      <replace file="bin/ntfy-wrapper"
+               token="@@@JACORB_HOME@@@"
+               value="${basedir}" />
 
-    <copy overwrite="yes" 
-      file="bin/ns-wrapper.template"
-      tofile="bin/ns-wrapper" />
+      <copy overwrite="yes"
+            file="bin/ns-wrapper.template"
+            tofile="bin/ns-wrapper" />
 
-    <replace file="bin/ns-wrapper" 
-      token="@@@JACORB_HOME@@@"
-      value="${basedir}" />
+      <replace file="bin/ns-wrapper"
+               token="@@@JACORB_HOME@@@"
+               value="${basedir}" />
 
 
-    <replace file="bin/jaco.bat" token="@@@CLASSPATH@@@" 
-             value="${jacobat.classpath}"/>
-    <replace file="bin/jaco.bat" token="@@@JACORB_HOME@@@"
-             value="${basedir}" />    
+      <replace file="bin/jaco.bat" token="@@@CLASSPATH@@@"
+               value="${jacobat.classpath}"/>
+      <replace file="bin/jaco.bat" token="@@@JACORB_HOME@@@"
+               value="${basedir}" />
 
-    <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
-             value="${basedir}" />
-    <replace file="bin/jaco" token="@@@JRE_HOME@@@"
-             value="${java.home}" />
-    <replace file="bin/jaco" token="@@@CLASSPATH@@@"
-             value="${jaco.classpath}" />
+      <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
+               value="${basedir}" />
+      <replace file="bin/jaco" token="@@@JRE_HOME@@@"
+               value="${java.home}" />
+      <replace file="bin/jaco" token="@@@CLASSPATH@@@"
+               value="${jaco.classpath}" />
 
-    <condition property="eol" value="crlf">
-        <or>
+      <condition property="eol" value="crlf">
+         <or>
             <os family="windows"/>
             <os family="dos"/>
-        </or>
-    </condition>
-    
-    <!-- shell scripts should always be set to LF -->
-    <property name="eol" value="lf" />
-    
-    <fixcrlf srcDir="bin"
-             includes="*"
-             excludes="*.exe,*.conf,*template*"
-	         eol="${eol}" />
+         </or>
+      </condition>
 
-    <chmod perm="ugo+rx">
-      <fileset dir="bin">
-        <include name="*" />
-        <exclude name="*.bat" />
-        <exclude name="*.exe" />
-        <exclude name="*.conf" />
-        <exclude name="*template*" />
-      </fileset>
-    </chmod>
-    </target>
+      <!-- shell scripts should always be set to LF -->
+      <property name="eol" value="lf" />
+
+      <fixcrlf srcDir="bin"
+               includes="*"
+               excludes="*.exe,*.conf,*template*"
+               eol="${eol}" />
+
+      <chmod perm="ugo+rx">
+         <fileset dir="bin">
+            <include name="*" />
+            <exclude name="*.bat" />
+            <exclude name="*.exe" />
+            <exclude name="*.conf" />
+            <exclude name="*template*" />
+         </fileset>
+      </chmod>
+   </target>
 
    <!-- This target creates a jar file that contains the -->
    <!-- core ORB components and (generated) OMG classes -->
    <target name="core_jacorb_jar" depends="init">
       <delete file="${lib}/core_jacorb.jar"/>
-       <jar jarfile="${lib}/core_jacorb.jar"
-      basedir="${classdir}"
-      includes="org/jacorb/orb/**,org/jacorb/poa/**,org/jacorb/util/**,org/jacorb/security/ssl/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**,org/omg/ETF/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
-            excludes="org/jacorb/poa/gui/*,org/jacorb/util/tracing/*"
-      />
+      <jar jarfile="${lib}/core_jacorb.jar"
+           basedir="${classdir}"
+           includes="org/jacorb/orb/**,org/jacorb/poa/**,org/jacorb/util/**,org/jacorb/security/ssl/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**,org/omg/ETF/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
+           excludes="org/jacorb/poa/gui/*,org/jacorb/util/tracing/*"
+           />
    </target>
 
    <!-- This target creates a jar file that contains the -->
@@ -178,10 +178,10 @@
    <!-- ImR + GUI, IR + GUI, POA GUI, Tracing, Proxy -->
    <target name="jacorb_services_jar" depends="init">
       <delete file="${lib}/jacorb_services.jar"/>
-       <jar jarfile="${lib}/jacorb_services.jar"
-      basedir="${classdir}"
-      includes="org/jacorb/imr/**,org/jacorb/ir/**,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/proxy/*"
-      />
+      <jar jarfile="${lib}/jacorb_services.jar"
+           basedir="${classdir}"
+           includes="org/jacorb/imr/**,org/jacorb/ir/**,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/proxy/*"
+           />
    </target>
 
    <!-- This target creates a jar file that contains the -->
@@ -189,11 +189,11 @@
    <!-- Concurrency, Events, Trading, Transaction, but not Naming -->
    <target name="omg_services_jar" depends="init">
       <delete file="${lib}/omg_services.jar"/>
-       <jar jarfile="${lib}/omg_services.jar"
-      basedir="${classdir}"
-      includes="org/jacorb/concurrency/**,org/jacorb/events/**,org/jacorb/trading/**,org/jacorb/transaction/**,org/omg/Cos*/**"
-            excludes="org/omg/CosNaming/**"
-      />
+      <jar jarfile="${lib}/omg_services.jar"
+           basedir="${classdir}"
+           includes="org/jacorb/concurrency/**,org/jacorb/events/**,org/jacorb/trading/**,org/jacorb/transaction/**,org/omg/Cos*/**"
+           excludes="org/omg/CosNaming/**"
+           />
    </target>
 
 
@@ -201,10 +201,10 @@
    <!-- (genrated) OMG and JacORB security classes -->
    <target name="security_jar" depends="init">
       <delete file="${lib}/security.jar"/>
-       <jar jarfile="${lib}/security.jar"
-      basedir="${classdir}"
-      includes="org/jacorb/security/**,org/omg/Security*/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
-      />
+      <jar jarfile="${lib}/security.jar"
+           basedir="${classdir}"
+           includes="org/jacorb/security/**,org/omg/Security*/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
+           />
    </target>
 
 
@@ -228,7 +228,7 @@
 
    <target name="realclean" depends="clean" description="Clean the checkout including generated jars">
       <delete failonerror="false" >
-        <fileset dir="lib/" includes="jacorb.jar, idl.jar"/>
+         <fileset dir="lib/" includes="jacorb.jar, idl.jar"/>
       </delete >
    </target>
 
@@ -238,31 +238,31 @@
    <!-- ==================================================== -->
 
    <target name="doc" depends="init" description="Create the Javadoc">
-        <mkdir dir="${basedir}/doc/api"/>
-        <javadoc destdir="${basedir}/doc/api"
-            additionalparam="-breakiterator"
-            classpathref="path.base"
-            Splitindex="Yes"
-            Use="Yes"
-            maxmemory="256m"
-            packagenames="org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.level2.*,org.jacorb.security.sas.*,org.omg.*,org.jacorb.notification.*">
-            <!--               packagenames="org.jacorb.*,org.omg.*,java_cup.*"> -->
-            <sourcepath>
-                <path refid="sourcepath.base" />
-                <!--            <pathelement path="${src}/java_cup" /> -->
-            </sourcepath>
-        </javadoc>
-   </target>
-	
-  <target name="convert.jdk5" description="convert sources to use java.util.concurrent (JDK 1.5+)">
-	<replace dir="${basedir}" token="edu.emory.mathcs.backport." value="">
-		<include name="**/notification/**/*.java" />
-	</replace>
-  </target>
+      <mkdir dir="${basedir}/doc/api"/>
 
-  <target name="convert.jdk4" description="convert sources to use backport-util-concurrent (pre JDK 1.5)">
-	<replace dir="${basedir}" token=" java.util.concurrent." value=" edu.emory.mathcs.backport.java.util.concurrent.">
-		<include name="**/notification/**/*.java" />
-	</replace>
-  </target>
+      <javadoc destdir="${basedir}/doc/api"
+               additionalparam="-breakiterator"
+               classpathref="path.base"
+               Splitindex="Yes"
+               Use="Yes"
+               maxmemory="256m"
+               packagenames="org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.level2.*,org.jacorb.security.sas.*,org.omg.*,org.jacorb.notification.*"
+               excludepackagenames="org.jacorb.notification.filter.bsh">
+         <sourcepath>
+            <path refid="sourcepath.base" />
+         </sourcepath>
+      </javadoc>
+   </target>
+
+   <target name="convert.jdk5" description="convert sources to use java.util.concurrent (JDK 1.5+)">
+      <replace dir="${basedir}" token="edu.emory.mathcs.backport." value="">
+         <include name="**/notification/**/*.java" />
+      </replace>
+   </target>
+
+   <target name="convert.jdk4" description="convert sources to use backport-util-concurrent (pre JDK 1.5)">
+      <replace dir="${basedir}" token=" java.util.concurrent." value=" edu.emory.mathcs.backport.java.util.concurrent.">
+         <include name="**/notification/**/*.java" />
+      </replace>
+   </target>
 </project>
