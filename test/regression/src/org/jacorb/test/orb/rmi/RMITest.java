@@ -55,14 +55,21 @@ public class RMITest extends ClientServerTestCase
         TestSuite suite = new TestSuite( "RMI/IIOP tests" );
 
         Properties client_props = new Properties();
-        client_props.setProperty
-            ("jacorb.interop.strict_check_on_tc_creation", "off");
+        client_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
+        client_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
 
         Properties server_props = new Properties();
-        server_props.setProperty
-            ("jacorb.interop.strict_check_on_tc_creation", "off");
+
+        server_props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        server_props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+
+        client_props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        client_props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+
+
+        server_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
         server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
-        
+
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.rmi.RMITestServant",
@@ -98,7 +105,7 @@ public class RMITest extends ClientServerTestCase
         suite.addTest( new RMITest("testPassStaticInnerClass", setup));
         suite.addTest( new RMITest("testPassInnerClass", setup));
         suite.addTest( new RMITest("testPassCollection", setup));
-        
+
         return setup;
     }
 
@@ -385,31 +392,22 @@ public class RMITest extends ClientServerTestCase
         }
     }
 
-    public void test_vectorToValueArray()
+    public void test_vectorToValueArray() throws Exception
     {
-        try
+        Foo[] original = new Foo[4];
+        for (int i = 0; i < original.length; i++)
         {
-            Foo[] original = new Foo[4];
-            for (int i = 0; i < original.length; i++)
-            {
-                original[i] = new Foo(100 + i, "foo vector test");
-            }
-
-            //System.out.println("vectorToValueArray" + " ------------------");
-            java.util.Vector v = server.valueArrayToVector(original);
-            Foo[] echoedBack = server.vectorToValueArray(v);
-            assertEquals(original.length, echoedBack.length);
-            for (int i = 0; i < echoedBack.length; i++)
-            {
-                //System.out.println(echoedBack[i].toString());
-                assertEquals(
-                        RMITestUtil.echoFoo(RMITestUtil.echoFoo(original[i])),
-                        echoedBack[i]);
-            }
+            original[i] = new Foo(100 + i, "foo vector test");
         }
-        catch (java.rmi.RemoteException re)
+
+        java.util.Vector v = server.valueArrayToVector(original);
+        Foo[] echoedBack = server.vectorToValueArray(v);
+        assertEquals(original.length, echoedBack.length);
+        for (int i = 0; i < echoedBack.length; i++)
         {
-            throw new RuntimeException(re.toString());
+            assertEquals(
+                    RMITestUtil.echoFoo(RMITestUtil.echoFoo(original[i])),
+                    echoedBack[i]);
         }
     }
 
@@ -515,7 +513,7 @@ public class RMITest extends ClientServerTestCase
         try
         {
             //System.out.println("getVectorWithObjectArrayAsElement" + " ---");
-            java.util.Vector vector = 
+            java.util.Vector vector =
                 server.getVectorWithObjectArrayAsElement();
             //System.out.println(vector.toString());
             assertTrue(vector.size() == 1);
@@ -535,7 +533,7 @@ public class RMITest extends ClientServerTestCase
         try
         {
             //System.out.println("getVectorWithVectorAsElement" + " --------");
-            java.util.Vector vector = 
+            java.util.Vector vector =
                 server.getVectorWithVectorAsElement();
             //System.out.println(vector.toString());
             assertTrue(vector.size() == 1);
@@ -555,7 +553,7 @@ public class RMITest extends ClientServerTestCase
         try
         {
             //System.out.println("getVectorWithHashtableAsElement" + " -----");
-            java.util.Vector vector = 
+            java.util.Vector vector =
                 server.getVectorWithHashtableAsElement();
             //System.out.println(vector.toString());
             assertTrue(vector.size() == 1);
@@ -569,21 +567,21 @@ public class RMITest extends ClientServerTestCase
             throw new RuntimeException(re.toString());
         }
     }
-    
+
     public void testPassStaticInnerClass() throws Exception
     {
         StaticInner expect = new StaticInner("staticInner");
         StaticInner result = server.staticInnerToStaticInner(expect);
         assertEquals(expect, result);
     }
-    
+
     public void testPassInnerClass() throws Exception
     {
         Outer expect = new Outer("outer");
         Outer result = server.outerToOuter(expect);
         assertEquals(expect, result);
     }
-    
+
     public void testPassCollection() throws Exception
     {
         assertEquals(0, server.sizeOfCollection(Collections.EMPTY_LIST));
