@@ -246,16 +246,16 @@ public class GIOPConnectionTest
         List messages = new Vector();
 
         RequestOutputStream r_out =
-            new RequestOutputStream( (ClientConnection) null, //ClientConnection
-                                     0,           //request id
-                                     "foo",       //operation
-                                     true,        // response expected
-                                     (short)-1,   // SYNC_SCOPE (irrelevant)
-                                     null,        //request start time
+            new RequestOutputStream( orb, //ClientConnection
+                                     (ClientConnection) null,           //request id
+                                     0,       //operation
+                                     "foo",        // response expected
+                                     true,   // SYNC_SCOPE (irrelevant)
+                                     (short)-1,        //request start time
                                      null,        //request end time
                                      null,        //reply start time
-                                     new byte[1], //object key
-                                     2            // giop minor
+                                     null, //object key
+                                     new byte[1], 2            // giop minor
                                      );
 
         //manually write the first half of the string "barbaz"
@@ -341,16 +341,16 @@ public class GIOPConnectionTest
         List messages = new Vector();
 
         RequestOutputStream r_out =
-            new RequestOutputStream( null, //ClientConnection
-                                     0,           //request id
-                                     "foo",       //operation
-                                     true,        //response expected
-                                     (short)-1,   //SYNC_SCOPE (irrelevant)
-                                     null,        //request start time
+            new RequestOutputStream( orb, //ClientConnection
+                                     null,           //request id
+                                     0,       //operation
+                                     "foo",        //response expected
+                                     true,   //SYNC_SCOPE (irrelevant)
+                                     (short)-1,        //request start time
                                      null,        //request end time
                                      null,        //reply end time
-                                     new byte[1], //object key
-                                     0            // giop minor
+                                     null, //object key
+                                     new byte[1], 0            // giop minor
                                      );
 
         r_out.write_string( "bar" );
@@ -540,16 +540,16 @@ public class GIOPConnectionTest
         List messages = new Vector();
 
         RequestOutputStream r_out =
-            new RequestOutputStream( null, //ClientConnection
-                                     0,           //request id
-                                     "foo",       //operation
-                                     true,        //response expected
-                                     (short)-1,   //SYNC_SCOPE (irrelevant)
-                                     null,        //request start time
+            new RequestOutputStream( orb, //ClientConnection
+                                     null,           //request id
+                                     0,       //operation
+                                     "foo",        //response expected
+                                     true,   //SYNC_SCOPE (irrelevant)
+                                     (short)-1,        //request start time
                                      null,        //request end time
                                      null,        //reply end time
-                                     new byte[1], //object key
-                                     1            // giop minor
+                                     null, //object key
+                                     new byte[1], 1            // giop minor
                                      );
 
         r_out.write_string( "bar" );
