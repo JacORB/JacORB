@@ -145,10 +145,10 @@
 
 
 	<target name="compile-src">
-		<jacorb-javac javac-includes="**" 
-			javac-excludes="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**"
+		<jacorb-javac javac-includes="**"
+			javac-excludes="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**,org/jacorb/test/jmx/**"
 			javac-classpathref="test.classpath" />
-		
+
 		<antcall target="compile-src-notification" />
 	</target>
 
@@ -193,7 +193,7 @@
 			<bootclasspath>
 				<path refid="path.base" />
 			</bootclasspath>
-				
+
 			<classpath>
 				<path refid="test.classpath" />
 			</classpath>
@@ -471,7 +471,7 @@
 		</path>
 		<pathconvert dirsep="${file.separator}"
                  pathsep="${path.separator}"
-                 property="coverage.path.string" 
+                 property="coverage.path.string"
                  refid="coverage.path"/>
 		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 			<jvmarg value="-Xbootclasspath/p:${coverage.path.string}"/>
@@ -499,7 +499,7 @@
 			<pathelement location="${basedir}/src" />
 			<pathelement location="${basedir}/src/generated" />
 		</path>
-		
+
 		<emma>
 			<report sourcepathref="path.src"
               columns="name,line,method,class"
@@ -741,7 +741,7 @@
 
 
 	<target name="run-notification-regexp" depends="check-regexp,
-        run-notification-regexp-jdk14, 
+        run-notification-regexp-jdk14,
     		run-notification-regexp-gnu,
         run-notification-regexp-jakarta" />
 
