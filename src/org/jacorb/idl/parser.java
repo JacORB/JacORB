@@ -954,15 +954,13 @@ public class parser extends org.jacorb.idl.runtime.lr_parser {
     private static Hashtable tmpDefines = null;
     private static Hashtable tmpUnDefines = null;
 
-    public static String currentVersion = "";
+    public final static String currentVersion = "";
 
     // Compiles out leaving no runtime dependency on Version
     public static final String compiler_version = org.jacorb.util.Version.longVersion;
 
     private static final String yearString = "1997-2006";
 
-    // custom code generators
-    public static Class codeGeneratorClass = null;
     public static org.jacorb.idl.IDLTreeVisitor generator = null;
 
     private static final String FINAL = " final";
@@ -1025,24 +1023,41 @@ public class parser extends org.jacorb.idl.runtime.lr_parser {
         scopes = new Stack();
         tmpDefines = new Hashtable();
         tmpUnDefines = new Hashtable();
+        generator = null;
+
+        activeParseThreads = 0;
+        InterfaceBody.parseThreads = new Vector();
+        pending_interfaces = new Hashtable();
 
         out_dir = ".";
         package_prefix = null;
 
         parse_only = false;
+        done_parsing = false;
 
         include_state = false;
         generateIR = false;
         generate_skeletons = true;
+        generate_stubs = true;
+        generate_ami_callback = false;
+        generate_ami_polling = false;
 
         strict_names = true;
+        strict_inheritance = true;
+        strict_attributes = true;
 
         generateIncluded = false;
         inhibitionState = false;
         localityContraint = false;
+        useUncheckedNarrow = false;
+        cldc10 = false;
         forceOverwrite = false;
 
+        generateDiiStubs = false;
+
         finalString = FINAL;
+
+        sloppy = false;
 
         String pattern = "[%.11{category}] %.7{priority} : %{message}\\n%{throwable}";
         PatternFormatter formatter = new PatternFormatter( pattern );
@@ -1185,6 +1200,9 @@ public class parser extends org.jacorb.idl.runtime.lr_parser {
                 {
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                         usage(argv, "-backend");
+
+                    // custom code generators
+                    Class codeGeneratorClass = null;
 
                     try
                     {
