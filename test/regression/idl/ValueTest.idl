@@ -1,0 +1,71 @@
+/*
+ * Test IDL for custom valuetypes
+ */
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module orb
+         {
+            module value
+            {
+               custom valuetype CustomValueExample
+               {
+                  private long number_state;
+
+                  public string name_state;
+
+                  readonly attribute long number;
+
+                  void print();
+               };
+
+               interface CustomValueExchange
+               {
+                  void sendValueExample( in CustomValueExample value );
+               };
+
+               valuetype InheritanceValueBase
+               {
+                  private long private_state;
+
+                  public string public_state;
+               };
+
+               valuetype InheritanceSubValue : InheritanceValueBase
+               {
+                  public long a_public_state;
+
+                  void print();
+               };
+
+               interface InheritanceValueExchange
+               {
+                  void sendValueBase( in InheritanceValueBase value );
+
+                  void sendSubValue( in InheritanceSubValue value );
+               };
+
+               valuetype Account
+               {
+                  private string name;
+                  public string address;
+                  private float balance;
+
+                  void debit( in float amount );
+                  void credit( in float amount );
+
+                  factory init( in string name, in string address, in float balance);
+               };
+
+               interface IBank
+               {
+                  Account create_account( in string name, in string address, in float balance ) ;
+               };
+            };
+         };
+      };
+   };
+};

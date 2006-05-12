@@ -20,6 +20,40 @@ module org {
             public Node next;
           };
 
+          // RT992
+          valuetype Data
+          {
+            public long id;
+          };
+
+          valuetype NodeData
+          {
+            public Data data2;
+            public long id;
+            public Data data1;
+          };
+
+          typedef sequence<NodeData> NodeList_t;
+          // End
+
+          // From RT1278
+          valuetype valString wstring;
+          typedef sequence<boolean> BooleanList;
+          typedef sequence<valString> ValStringList;
+          valuetype ColumnData
+          {
+            public any values;
+            public BooleanList nulls;
+          };
+
+          typedef sequence<ColumnData> ColumnDataList;
+          valuetype RowListData
+          {
+            public ColumnDataList columns;
+            public long size;
+          };
+          // End
+
           interface ValueServer {
             string receive_long   (in boxedLong p1, in boxedLong p2);
             string receive_string (in boxedString s1, in boxedString s2);
@@ -28,10 +62,13 @@ module org {
             RecordSeq return_record_sequence (in long length);
 
             string receive_list   (in Node node);
-	    
-	    string receive_list_in_any (in any node);
-          };
 
+            string receive_list_in_any (in any node);
+
+            RowListData getData();
+
+            NodeList_t getNodes();
+          };
         };
       };
     };
