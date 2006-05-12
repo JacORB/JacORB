@@ -137,7 +137,7 @@ public class CDROutputStream
 
     /** True if write_value_internal called writeReplace */
     private boolean writeReplaceCalled = false;
-    
+
     private List deferredArrayQueue = new ArrayList();
 
     private org.omg.CORBA.ORB orb = null;
@@ -156,7 +156,7 @@ public class CDROutputStream
 
     /**
      * This stream is self-configuring, i.e. configure() is private
-     * and only called from the constructor 
+     * and only called from the constructor
      *
      * TODO this led to situations were streams weren't configured properly
      * (see callers of configure) so i changed the method to be public.
@@ -166,15 +166,15 @@ public class CDROutputStream
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        useBOM = 
+        useBOM =
             configuration.getAttribute("jacorb.use_bom","off").equals("on");
 
         chunkCustomRmiValuetypes =
             configuration.getAttribute("jacorb.interop.chunk_custom_rmi_valuetypes","off").equals("on");
-        compactTypeCodes = 
+        compactTypeCodes =
             configuration.getAttributeAsInteger("jacorb.compactTypecodes", 0);
 
-        useIndirection = 
+        useIndirection =
            !( configuration.getAttribute("jacorb.interop.indirection_encoding_disable","off").equals("on"));
     }
 
@@ -702,7 +702,7 @@ public class CDROutputStream
     public final void increaseSize(final  int amount)
     {
         check( amount );
-        
+
         pos += amount;
     }
 
@@ -1387,7 +1387,7 @@ public class CDROutputStream
                 // typecode.
                 cached = (org.omg.CORBA.TypeCode)cachedTypecodes.get (id);
             }
-            
+
             // If we don't have a cached value get the compact form and
             // cache it.
             if (cached == null)
@@ -2346,15 +2346,15 @@ public class CDROutputStream
         }
         else if (value.getClass() == Class.class)
         {
-            String[] repository_ids = new String[] { 
-                    ValueHandler.getRMIRepositoryID(javax.rmi.CORBA.ClassDesc.class) 
+            String[] repository_ids = new String[] {
+                    ValueHandler.getRMIRepositoryID(javax.rmi.CORBA.ClassDesc.class)
             };
             write_value_header(repository_ids);
             start_chunk();
             write_value(ValueHandler.getCodebase((Class)value));
             write_value(ValueHandler.getRMIRepositoryID((Class)value));
             end_chunk();
-        }        
+        }
         else if (value instanceof org.omg.CORBA.portable.StreamableValue)
         {
             org.omg.CORBA.portable.StreamableValue streamable =
@@ -2364,6 +2364,14 @@ public class CDROutputStream
             start_chunk();
             ((org.omg.CORBA.portable.StreamableValue)value)._write(this);
             end_chunk();
+        }
+        else if (value instanceof org.omg.CORBA.portable.CustomValue )
+        {
+            org.omg.CORBA.DataOutputStream outputStream = new DataOutputStream( this );
+
+            write_value_header
+                ( ((org.omg.CORBA.portable.CustomValue )value )._truncatable_ids() );
+            ( ( org.omg.CORBA.portable.CustomValue ) value ).marshal( outputStream );
         }
         else
         {
@@ -2438,10 +2446,10 @@ public class CDROutputStream
                     if (!writeReplaceCalled)
                     {
                         // writeReplace must be called only once for this value
-                        java.io.Serializable newValue = 
+                        java.io.Serializable newValue =
                             ValueHandler.writeReplace(value);
                         writeReplaceCalled = true; // won't call it again
-                        
+
                         if (newValue != value)
                         {
                             // look at the new value
@@ -2469,7 +2477,7 @@ public class CDROutputStream
                     }
                     else
                     {
-                        // Skip writeReplace call 
+                        // Skip writeReplace call
                         // (writeReplace was already called for this value)
                         ValueHandler.writeValue(this, value);
                     }

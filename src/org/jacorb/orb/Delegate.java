@@ -1502,7 +1502,8 @@ public final class Delegate
             ParsedIOR p = getParsedIOR();
 
             RequestOutputStream ros =
-                new RequestOutputStream( connection,
+                new RequestOutputStream( orb,
+                                         connection,
                                          connection.getId(),
                                          operation,
                                          responseExpected,
@@ -1510,8 +1511,7 @@ public final class Delegate
                                          getRequestStartTime(),
                                          requestEndTime,
                                          replyEndTime,
-                                         p.get_object_key(),
-                                         p.getEffectiveProfile().version().minor );
+                                         p.get_object_key(), p.getEffectiveProfile().version().minor );
             
             try{
             // TODO

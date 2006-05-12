@@ -107,7 +107,7 @@ public class ServerRequest
 
         getTimingPolicies();
 
-        object_key = 
+        object_key =
             orb.mapObjectKey(org.jacorb.orb.ParsedIOR.extractObjectKey(in.req_hdr.target, orb));
 
         oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
@@ -425,12 +425,13 @@ public class ServerRequest
             return out;
 
         out =
-            new ReplyOutputStream(requestId(),
+            new ReplyOutputStream(orb,
+                                  requestId(),
                                   ReplyStatusType_1_2.NO_EXCEPTION,
                                   in.getGIOPMinor(),
-                                  in.isLocateRequest(), 
+                                  in.isLocateRequest(),
                                   logger );
-        
+
         try
         {
             out.configure(orb.getConfiguration());
@@ -491,7 +492,7 @@ public class ServerRequest
         out.beginEncapsulatedArray();
         out.write_wstring(message);
         return new ServiceContext (org.omg.IOP.ExceptionDetailMessage.value,
-                				   out.getBufferCopy());
+                                   out.getBufferCopy());
     }
 
     public void setLocationForward(org.omg.PortableServer.ForwardRequest r)

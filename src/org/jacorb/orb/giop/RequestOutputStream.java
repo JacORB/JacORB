@@ -26,6 +26,7 @@ import org.jacorb.orb.CDROutputStream;
 import org.jacorb.util.Time;
 import org.omg.CONV_FRAME.*;
 import org.omg.CORBA.MARSHAL;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.PrincipalHelper;
 import org.omg.GIOP.MsgType_1_1;
 import org.omg.GIOP.TargetAddress;
@@ -82,7 +83,8 @@ public class RequestOutputStream
 
     private ClientConnection connection = null;
 
-    public RequestOutputStream( ClientConnection connection,
+    public RequestOutputStream( org.jacorb.orb.ORB orb,
+                                ClientConnection connection,
                                 int request_id,
                                 String operation,
                                 boolean response_expected,
@@ -90,10 +92,9 @@ public class RequestOutputStream
                                 UtcT requestStartTime,
                                 UtcT requestEndTime,
                                 UtcT replyEndTime,
-                                byte[] object_key,
-                                int giop_minor )
+                                byte[] object_key, int giop_minor )
     {
-        super();
+        super(orb);
 
         setGIOPMinor( giop_minor );
 
@@ -240,25 +241,25 @@ public class RequestOutputStream
     public void write_to(GIOPConnection conn) throws IOException
     {
         if (!conn.isTCSNegotiated())
-        {   
+        {
             // encapsulate context
             CDROutputStream os = new CDROutputStream();
             os.beginEncapsulatedArray();
             CodeSetContextHelper.write
             (
-                os, 
+                os,
                 new CodeSetContext(conn.getTCS(), conn.getTCSW())
             );
             addServiceContext(new ServiceContext
             (
                 org.omg.IOP.CodeSets.value,
-                os.getBufferCopy() 
+                os.getBufferCopy()
             ));
             conn.markTCSNegotiated();
         }
         super.write_to(conn);
     }
-    
+
     /**
      * Returns the timing policies for this request as an array
      * of PolicyValues that can be propagated in a ServiceContext.

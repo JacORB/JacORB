@@ -38,13 +38,24 @@ public class ReplyOutputStream
     private boolean is_locate_reply = false;
     private Logger logger;
 
-    public ReplyOutputStream ( int request_id,
+    public ReplyOutputStream (
+            int request_id,
+            ReplyStatusType_1_2 reply_status,
+            int giop_minor,
+            boolean is_locate_reply,
+            Logger logger)
+    {
+        this(null, request_id, reply_status, giop_minor, is_locate_reply, logger);
+    }
+
+    public ReplyOutputStream ( ORB orb,
+                               int request_id,
                                ReplyStatusType_1_2 reply_status,
                                int giop_minor,
                                boolean is_locate_reply,
                                Logger logger)
     {
-        super();
+        super(orb);
 
         this.is_locate_reply = is_locate_reply;
 

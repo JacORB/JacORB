@@ -38,7 +38,12 @@ public class MessageOutputStream
 {
     public MessageOutputStream()
     {
-        super( (org.omg.CORBA.ORB) null );
+        this( (org.omg.CORBA.ORB) null );
+    }
+
+    public MessageOutputStream(org.omg.CORBA.ORB orb)
+    {
+        super(orb);
     }
 
     /**
