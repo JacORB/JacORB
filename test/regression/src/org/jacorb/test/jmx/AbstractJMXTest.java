@@ -21,6 +21,8 @@
 
 package org.jacorb.test.jmx;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.management.Attribute;
@@ -47,7 +49,9 @@ public abstract class AbstractJMXTest extends ClientServerTestCase
     {
         JMXServiceURL serviceURL = setup.getServiceURL();
         
-        JMXConnector connector = JMXConnectorFactory.connect(serviceURL);
+        Map map = new HashMap();
+        map.put("java.naming.corba.orb", setup.getClientOrb());
+        JMXConnector connector = JMXConnectorFactory.connect(serviceURL, map);
         
         MBeanServerConnection serverConnection = connector.getMBeanServerConnection();
 
