@@ -44,7 +44,7 @@ public class JmxJacorbJacorbTest extends AbstractJMXTest
                    "org.jacorb.orb.ORBSingleton");
         props.put("jacorb.interop.strict_check_on_tc_creation", "off");
         TestSuite suite = new TestSuite();
-        JMXClientServerSetup setup = new JMXClientServerSetup(suite, "ignored", props, props);
+        JMXClientServerSetup setup = new JMXClientServerSetup(suite, props, props);
         
         TestUtils.addToSuite(suite, setup, JmxJacorbJacorbTest.class);
         

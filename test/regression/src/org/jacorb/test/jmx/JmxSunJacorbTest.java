@@ -43,7 +43,7 @@ public class JmxSunJacorbTest extends AbstractJMXTest
         props.put ("org.omg.CORBA.ORBSingletonClass",
                    "com.sun.corba.se.impl.orb.ORBSingleton");
         TestSuite suite = new TestSuite();
-        JMXClientServerSetup setup = new JMXClientServerSetup(suite, "ignored", props, new Properties());
+        JMXClientServerSetup setup = new JMXClientServerSetup(suite, props, new Properties());
         
         TestUtils.addToSuite(suite, setup, JmxSunJacorbTest.class);
         

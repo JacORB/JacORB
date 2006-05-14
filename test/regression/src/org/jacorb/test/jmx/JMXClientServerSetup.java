@@ -35,11 +35,10 @@ public class JMXClientServerSetup extends ClientServerSetup
     private JMXServiceURL serviceURL;
     
     public JMXClientServerSetup(Test test, 
-            String servantName, 
-            Properties clientOrbProperties,
+            Properties clientOrbProperties, 
             Properties serverOrbProperties)
     {
-        super(test, servantName, clientOrbProperties, serverOrbProperties);
+        super(test, "ignored", clientOrbProperties, serverOrbProperties);
     }
     
     protected void resolveServerObject(String ior)
