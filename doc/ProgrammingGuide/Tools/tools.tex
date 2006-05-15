@@ -108,6 +108,103 @@ containing these mappings using the {\tt -i2jpackagefile} switch.
 generator.  The  LALR grammar for  the CORBA IDL  is in the  file {\tt
 org/jacorb/idl/parser.cup}.)
 
+\subsection*{Compiler Options}
+If one is building from Ant it is possible to invoke the compiler directly
+using the supplied Ant task, JacIDL. To add the taskdef add the following
+to the ant script:
+\small{
+\begin{verbatim}
+<taskdef name="jacidl" classname="org.jacorb.idl.JacIDL"/>
+\end{verbatim}
+}
+The task supports all of the options of the IDL compiler.
+
+\begin{small}
+\begin{longtable}{|p{4cm}|p{8.5cm}|p{2cm}|p{2cm}|}
+\caption{JacIDL Configuration}\\
+\hline
+~ \hfill \textbf {Attribute} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf{Required} \hfill ~ & ~ \hfill \textbf {Default} \hfill ~ \endhead
+\hline
+\verb"srcdir" & Location of the IDL files & Yes & \\
+\hline
+\verb"destdir" & Location of the generated java files & Yes & \\
+\hline
+\verb"includes" & Comma-separated list of patterns of files that must be included; all files are included when omitted. & No & \\
+\hline
+\verb"includesfile" & The name of a file that contains include patterns. & No & \\
+\hline
+\verb"excludes" & Comma-separated list of patterns of files that must be excluded; files are excluded when omitted. & No & \\
+\hline
+\verb"excludesfile" & The name of a file that contains include patterns. & No & \\
+\hline
+\verb"defaultexcludes" & Indicates whether default excludes should be used (yes | no); default
+excludes are used when omitted. & No & \\
+\hline
+\verb"includepath" & The path the idl compiler will use to search for included files. & No & \\
+\hline
+\verb"parseonly" & Only perform syntax check without generating code. & No & False\\
+\hline
+\verb"noskel" & Disables generation of POA skeletons & No & False\\
+\hline
+\verb"nostub" & Disables generation of client stubs & No & False\\
+\hline
+\verb"sloppyforward" & Allow forward declarations without later definitions & No & False\\
+\hline
+\verb"sloppynames" & Less strict checking of names for backward compatibility & No & False\\
+\hline
+\verb"generateir" & Generate information required by the Interface Repository & No & False\\
+\hline
+\verb"all" & Generate code for all IDL files, even included ones & No & False\\
+\hline
+\verb"nofinal" & Generate class definitions that are not final & No & False\\
+\hline
+\verb"forceoverwrite" & Generate code even if IDL has not changed. & No & False\\
+\hline
+\verb"uncheckedNarrow" & Use unchecked\_narrow in generated code for IOR parameters in operations. & No & False\\
+\hline
+\verb"ami" & Generate ami callbacks. & No & False\\
+\hline
+\verb"debuglevel" & Set the debug level from 0 to 4. & No & 0\\
+\hline
+\end{longtable}
+\end{small}
+
+\subsection*{Nested Elements}
+
+Several elements may be specified as nested elements. These are {\tt <define>}, {\tt <undefine>}, {\tt <include>}, {\tt <exclude>}, {\tt <patternset>} and {\tt <i2jpackage>}. The format of {\tt <i2jpackage>} is {\tt <i2jpackage names="x:y">}
+
+
+\subsection*{Examples}
+
+The task command
+\small{\begin{verbatim}
+    <jacidl destdir="${generate}"
+            srcdir="${idl}"
+    />
+\end{verbatim}
+}
+
+compiles all *.idl files under the \${idl} directory and stores the .java files in the \${generate} directory.
+
+\small{\begin{verbatim}
+    <jacidl destdir="${generate}" srcdir="${idl}">
+       <define key="GIOP_1_1" value="1"/>
+    </jacidl>
+\end{verbatim}
+}
+
+like above, but additionaly defines the symbol GIOP\_1\_1 and sets its (optional) value to 1.
+
+\small{\begin{verbatim}
+    <jacidl destdir="${generate}"
+            srcdir="${idl}"
+            excludes="**/*foo.idl"
+    />
+\end{verbatim}
+}
+
+like the first example, but exclude all files which end with foo.idl.
+
 \section{ns}
 
 JacORB provides a service for mapping names to network references. The
@@ -196,7 +293,7 @@ JacORB comes with a simple utility to decode an interoperable object reference
 
 \subsection*{Usage}
 
-\cmdline{dior <IOR-string> | -f <filename>}
+\cmdline{dior -i <IOR-string> | -f <filename>}
 
 \subsection*{Example}
 

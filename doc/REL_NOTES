@@ -40,6 +40,11 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+post 2.2.4
+==========
+    - Documentation
+        Updated and merged JacIDL HTML into ProgrammingGuide.
+
 2.2.4
 =====
 
@@ -63,16 +68,16 @@ post 2.2.2
         Note that OASSLPort is still necessary when configuring a specific
         SSL port number even when using OAAddress.
 
-        - ported the notification service to use the 
+        - ported the notification service to use the
           JSR 166 backport (http://www.mathcs.emory.edu/dcl/util/backport-util-concurrent)
           instead of util.concurrent.
 
-		- added JMX support for the notification service.
+        - added JMX support for the notification service.
 
         - POA:
-        	- Fix usage of implname with transient and persistent servers (see the Programming Guide).
+            - Fix usage of implname with transient and persistent servers (see the Programming Guide).
 
-		- improve JacIDL Ant task initialisation.
+        - improve JacIDL Ant task initialisation.
 2.2
 ====
 
@@ -377,36 +382,36 @@ post 2.2.2
 1.4 beta 4:
 ===========
 
-	- bug fixes:
-	      - Fixed bug that would lead to a NullPointerException
-	        when using corbaloc IORs without the explicit protocol
-	        qualifier (i.e. corbaloc::<host>:<port>/<object key>).
+    - bug fixes:
+          - Fixed bug that would lead to a NullPointerException
+            when using corbaloc IORs without the explicit protocol
+            qualifier (i.e. corbaloc::<host>:<port>/<object key>).
 
 
         The following just didn't make it into the beta 3 release
         notes:
 
-	- SSL/JSSE
-	      - added properties
-		      jacorb.security.ssl.server.cipher_suites
-		      jacorb.security.ssl.client.cipher_suites
-		that allow for setting the enabled cipher suites for
-		JSSE
+    - SSL/JSSE
+          - added properties
+              jacorb.security.ssl.server.cipher_suites
+              jacorb.security.ssl.client.cipher_suites
+        that allow for setting the enabled cipher suites for
+        JSSE
 
         - SSL/IAIK
              - incompatibility notice: Please note that the IAIK SSL
-	       and JCE libraries don't work using the JDK 1.4. This is
-	       because the JDK 1.4 only accepts signed cryptography
-	       providers, but the IAIK JCE isn't.
+           and JCE libraries don't work using the JDK 1.4. This is
+           because the JDK 1.4 only accepts signed cryptography
+           providers, but the IAIK JCE isn't.
 
-	- Corbaloc with SSL
+    - Corbaloc with SSL
 
              - added new corbaloc protocol qualifier "ssliop" to allow
-	       for using corbaloc IORs together with SSL. Also added
-	       properties
-	            jacorb.security.ssl.corbaloc_ssliop.supported_options
-	            jacorb.security.ssl.corbaloc_ssliop.required_options
-	       to be able to configure these SSL connections.
+           for using corbaloc IORs together with SSL. Also added
+           properties
+                jacorb.security.ssl.corbaloc_ssliop.supported_options
+                jacorb.security.ssl.corbaloc_ssliop.required_options
+           to be able to configure these SSL connections.
 
 
 1.4 beta 3:
