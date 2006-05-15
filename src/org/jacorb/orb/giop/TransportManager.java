@@ -31,6 +31,7 @@ import org.apache.avalon.framework.configuration.*;
 import org.omg.ETF.*;
 
 import org.jacorb.orb.*;
+import org.jacorb.orb.diop.DIOPFactories;
 import org.jacorb.orb.factory.*;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.util.ObjectUtil;
@@ -82,9 +83,9 @@ public class TransportManager
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = 
+        logger =
             configuration.getNamedLogger("jacorb.orb.giop");
-        socketFactoryManager.configure(configuration); 
+        socketFactoryManager.configure(configuration);
 
         // get factory class names
         factoryClassNames =
@@ -114,10 +115,10 @@ public class TransportManager
             {
                 Class ssl = ObjectUtil.classForName(s);
 
-                Constructor constr = 
+                Constructor constr =
                     ssl.getConstructor( new Class[]{ ORB.class });
 
-                ssl_socket_factory = 
+                ssl_socket_factory =
                     (SocketFactory)constr.newInstance( new Object[]{ orb });
             }
             catch (Exception e)
@@ -160,11 +161,23 @@ public class TransportManager
      */
     public synchronized org.omg.ETF.Factories getFactories(int tag)
     {
-        if (factoriesMap == null)
+        // This isn't ideal. If DIOPFactories was a full implementation then
+        // this class should be added to the
+        // TransportManager::loadFactories. This shortcut block (which is used
+        // by ParsedIOR) and the static caching in DIOPFactories wouldn't be
+        // needed.
+        if (tag == DIOPFactories.TAG_DIOP_UDP)
         {
-            loadFactories();
+            return DIOPFactories.getDIOPFactory();
         }
-        return (Factories)factoriesMap.get (new Integer (tag));
+        else
+        {
+            if (factoriesMap == null)
+            {
+                loadFactories();
+            }
+            return (Factories)factoriesMap.get (new Integer (tag));
+        }
     }
 
     /**
