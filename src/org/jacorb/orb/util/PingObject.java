@@ -24,7 +24,6 @@ package org.jacorb.orb.util;
  * @version $Id$
  */
 
-import org.jacorb.orb.ParsedIOR;
 import java.io.*;
 
 public class PingObject
@@ -34,9 +33,9 @@ public class PingObject
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
         String iorString = null;
 
-        if( args.length < 1 || args.length > 2 )
+        if( args.length != 2 )
         {
-            System.err.println("Usage: java org.jacorb.orb.util.PingObject [ ior_str | -f filename ]");
+            System.err.println("Usage: java org.jacorb.orb.util.PingObject [ -i ior_str | -f filename ]");
             System.exit( 1 );
         }
 
@@ -53,9 +52,14 @@ public class PingObject
                 System.exit(1);
             }
         }
+        else if ( args[0].equals("-i"))
+        {
+            iorString = args[1];
+        }
         else
         {
-            iorString = args[0];
+            System.err.println("Usage: java org.jacorb.orb.util.PingObject [ -i ior_str | -f filename ]");
+            System.exit( 1 );
         }
 
         org.omg.CORBA.Object o = orb.string_to_object( iorString );
