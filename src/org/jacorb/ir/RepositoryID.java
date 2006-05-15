@@ -35,7 +35,7 @@ public class RepositoryID
      * Returns the fully qualified name of the Java class to which
      * the given Repository ID is mapped.
      */
-    public static String className (String repId, 
+    public static String className (String repId,
                                     ClassLoader loader)
     {
         return className (repId, null, loader);
@@ -47,8 +47,8 @@ public class RepositoryID
      * to the class name.  For example, the string "Helper" can be used
      * as the suffix to find the helper class for a given Repository ID.
      */
-    public static String className (String repId, 
-                                    String suffix, 
+    public static String className (String repId,
+                                    String suffix,
                                     ClassLoader loader)
     {
         if (repId.startsWith ("RMI:"))
@@ -63,22 +63,38 @@ public class RepositoryID
             String id = repId.substring (4, repId.lastIndexOf(':'))
                         + ( suffix != null ? suffix : "" );
             if (id.equals ("omg.org/CORBA/WStringValue"))
+            {
                 return "java.lang.String";
+            }
             else
             {
                 int    firstSlash = id.indexOf ("/");
-                String prefix     = id.substring (0, firstSlash);
+                final String prefix;
+                if (firstSlash == -1)
+                {
+                    prefix = "";
+                }
+                else
+                {
+                    prefix = id.substring (0, firstSlash);
+                }
 
                 if (prefix.equals ("omg.org"))
+                {
                     return ir2scopes ("org.omg",
                                       id.substring (firstSlash + 1),
                                       loader);
+                }
                 else if (prefix.indexOf ('.') != -1)
+                {
                     return ir2scopes (reversePrefix (prefix),
                                       id.substring (firstSlash + 1),
                                       loader);
+                }
                 else
+                {
                     return ir2scopes ("", id, loader);
+                }
             }
         }
         else
@@ -89,7 +105,7 @@ public class RepositoryID
 
     /**
      * Convert the repository ID with escape sequences back to original strings.
-     * 
+     *
      * com.sun.corba.se.internal.orbutil.RepositoryId
      * contains an implementation of this conversion.
      * however the method is private and its an internal sun class.
@@ -111,7 +127,7 @@ public class RepositoryID
         }
         return dest.toString();
     }
-    
+
     private static final String reversePrefix (String prefix)
     {
         StringTokenizer tok    = new StringTokenizer (prefix, ".");
@@ -128,8 +144,8 @@ public class RepositoryID
      * FIXME: This method needs documentation.
      * What does this algorithm do, and why is it necessary?  AS.
      */
-    private static String ir2scopes (String prefix, 
-                                     String s, 
+    private static String ir2scopes (String prefix,
+                                     String s,
                                      ClassLoader loader)
     {
         if( s.indexOf("/") < 0)
@@ -185,7 +201,7 @@ public class RepositoryID
             else
                 return "IDL:" + scopesToIR(className) + ":1.0" ;
         }
-	else
+    else
             return org.jacorb.util.ValueHandler.getRMIRepositoryID (c);
     }
 
@@ -227,7 +243,7 @@ public class RepositoryID
      * not be loaded, an IllegalArgumentException will be thrown
      */
     public static String toRepositoryID ( String className,
-                                          boolean resolveClass, 
+                                          boolean resolveClass,
                                           ClassLoader loader )
     {
         if( className.equals("") ||
@@ -281,7 +297,7 @@ public class RepositoryID
      *         BoxedValueHelper class can be found for that ID
      * @throws RuntimeException if creation of the Helper instance fails
      */
-    public static BoxedValueHelper createBoxedValueHelper(String repId, 
+    public static BoxedValueHelper createBoxedValueHelper(String repId,
                                                           ClassLoader loader)
     {
         String className = className(repId, "Helper", loader);
