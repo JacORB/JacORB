@@ -52,14 +52,15 @@ public class ORBSetup extends TestSetup
 
    public static ORB getORB ()
    {
-      return orb;
+       assertNotNull("Not initialized", orb);
+       return orb;
    }
 
    private static synchronized void init (ORBSetup obj)
    {
       if (count == 0)
       {
-         String [] args = new String [0];;
+         String [] args = new String [0];
          Properties props = new Properties ();
 
          props.setProperty
