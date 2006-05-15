@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.*;
 
-import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.util.CorbaLoc;
 
 import org.apache.avalon.framework.logger.Logger;
@@ -54,7 +53,7 @@ public class ParsedIOR
     new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     private Profile effectiveProfile = null;
-    private List    profiles = new ArrayList();
+    private final List profiles = new ArrayList();
 
     /** top-level tagged components, i.e. NOT part of IOP components. Other
      *  tagged components may be part of the profile bodies
@@ -65,11 +64,11 @@ public class ParsedIOR
     private String ior_str = null;
     private IOR ior = null;
 
-    private ORB orb = null;
+    private final ORB orb;
 
     private CodeSetComponentInfo cs_info = null;
     private Integer orbTypeId = null;
-    private Logger logger;
+    private final Logger logger;
 
     /* static part */
 
@@ -115,7 +114,7 @@ public class ParsedIOR
     * <P>
     * It will extract an object key from any given GIOP::TargetAddress
     * assuming an appropriate ETF::Factories implementation is availble
-    * for the profile in use. 
+    * for the profile in use.
     */
     public static byte[] extractObjectKey(TargetAddress addr, ORB orb)
     {
@@ -129,12 +128,12 @@ public class ParsedIOR
                 break;
             case ReferenceAddr.value:
                 IORAddressingInfo info = addr.ior();
-                tp = new TaggedProfile(info.ior.profiles[info.selected_profile_index].tag, 
+                tp = new TaggedProfile(info.ior.profiles[info.selected_profile_index].tag,
                                        info.ior.profiles[info.selected_profile_index].profile_data);
                 break;
         }
         TaggedProfileHolder profile = new TaggedProfileHolder(tp);
-        org.omg.ETF.Factories profileFactory = orb.getTransportManager().getFactories(tp.tag);        
+        org.omg.ETF.Factories profileFactory = orb.getTransportManager().getFactories(tp.tag);
         if (profileFactory != null)
         {
             return profileFactory.demarshal_profile(profile, new TaggedComponentSeqHolder()).get_object_key();
@@ -164,17 +163,8 @@ public class ParsedIOR
     public ParsedIOR( String object_reference, org.omg.CORBA.ORB orb, Logger logger)
         throws IllegalArgumentException
     {
-        if (orb instanceof ORB)
-        {
-            this.orb = (org.jacorb.orb.ORB)orb;
-            parse( object_reference );
-        }
-        else
-        {
-            throw new IllegalArgumentException
-                ("Construct ParsedIOR with full ORB not Singleton");
-        }
-        this.logger = logger;
+        this(orb, logger);
+        parse( object_reference );
     }
 
     /**
@@ -184,19 +174,31 @@ public class ParsedIOR
      * @param orb an <code>org.jacorb.orb.ORB</code> value
      * @exception IllegalArgumentException if an error occurs
      */
-    public ParsedIOR( String object_reference, ORB orb, Logger logger )
+    public ParsedIOR( String object_reference, org.jacorb.orb.ORB orb, Logger logger )
         throws IllegalArgumentException
     {
-        this.orb = orb;
-        this.logger = logger;
+        this(orb, logger);
         parse( object_reference );
     }
 
     public ParsedIOR( IOR _ior, org.jacorb.orb.ORB orb, Logger logger )
     {
-        this.orb = orb;
-        this.logger = logger;
+        this(orb, logger);
         decode( _ior );
+    }
+
+    private ParsedIOR(org.omg.CORBA.ORB orb, Logger logger)
+    {
+        if (!(orb instanceof org.jacorb.orb.ORB))
+        {
+            throw new IllegalArgumentException("Construct ParsedIOR with full ORB not Singleton");
+        }
+        if (logger == null)
+        {
+            throw new IllegalArgumentException();
+        }
+        this.orb = (org.jacorb.orb.ORB)orb;
+        this.logger = logger;
     }
 
     public boolean equals( Object o )
@@ -226,14 +228,14 @@ public class ParsedIOR
                 }
                 default:
                 {
-                    org.omg.ETF.Factories f = 
+                    org.omg.ETF.Factories f =
                         orb.getTransportManager().getFactories (tag);
                     if (f != null)
                     {
                         TaggedProfileHolder tp =
                             new TaggedProfileHolder (_ior.profiles[i]);
-                        profiles.add 
-                            (f.demarshal_profile 
+                        profiles.add
+                            (f.demarshal_profile
                                 (tp,
                                  new TaggedComponentSeqHolder()));
                     }
@@ -247,7 +249,7 @@ public class ParsedIOR
             }
         }
 
-        effectiveProfile = 
+        effectiveProfile =
             orb.getTransportManager().getProfileSelector().selectProfile (profiles,
                                                                           orb.getClientConnectionManager());
         ior = _ior;
@@ -436,7 +438,7 @@ public class ParsedIOR
             bos.write((i1 * 16 + i2));
         }
 
-        CDRInputStream in_ = null;
+        final CDRInputStream in_;
 
         if (orb == null)
         {
@@ -560,7 +562,7 @@ public class ParsedIOR
         {
             if (logger.isErrorEnabled())
                 logger.error(e.getMessage());
-            throw new IllegalArgumentException("Invalid object reference: " + 
+            throw new IllegalArgumentException("Invalid object reference: " +
                                                object_reference);
         }
     }
@@ -595,7 +597,7 @@ public class ParsedIOR
 
         if (content == null)
         {
-            throw new IllegalArgumentException("Failed to read resource: " + 
+            throw new IllegalArgumentException("Failed to read resource: " +
                                                resourceName);
         }
         parse(content);
@@ -646,7 +648,7 @@ public class ParsedIOR
     /**
      * Returns the component with the given tag, searching the effective
      * profile's components first (this is only possible with org.jacorb.orb.etf.ProfileBase implementations),
-     * and then the MULTIPLE_COMPONENTS profile, if one exists.  If no 
+     * and then the MULTIPLE_COMPONENTS profile, if one exists.  If no
      * component with the given tag exists, this method returns null.
      */
     private Object getComponent (int tag, Class helper)
@@ -660,7 +662,7 @@ public class ParsedIOR
         if (result != null)
             return result;
         else
-            return components.getComponent (tag, helper);    
+            return components.getComponent (tag, helper);
     }
 
     private static class LongHelper
@@ -686,10 +688,10 @@ public class ParsedIOR
             return new String (in.read_string());
         }
     }
-    
+
     /**
      * Works like getComponent(), but for component values of type string.
-     */    
+     */
     private String getStringComponent (int tag)
     {
         return (String)getComponent (tag, StringHelper.class);
