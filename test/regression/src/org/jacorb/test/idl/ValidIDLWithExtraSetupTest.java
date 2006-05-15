@@ -79,6 +79,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         suite.addTest(new ValidIDLWithExtraSetupTest("-I" + testHome + "/../../idl/omg", testHome + "/idl/compiler/misc/rt1051.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-DDefB", testHome + "/idl/compiler/misc/Ping1.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-ami_callback", testHome + "/idl/compiler/misc/ami.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest("-ami_callback", testHome + "/idl/compiler/misc/rt1180.idl"));
 
         return suite;
     }

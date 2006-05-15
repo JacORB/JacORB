@@ -1,0 +1,11 @@
+module m1 {
+    interface i1 {
+        void foo();
+    };
+};
+
+module m2 {
+    interface i2 : ::m1::i1 {
+        void bar();
+    };
+};
