@@ -174,6 +174,13 @@ public class ClientConnection
 
         if( tcs == -1 || tcsw == -1 )
         {
+            if (logger.isDebugEnabled())
+            {
+                CodeSetComponent original = info.ForCharData;
+
+                logger.debug("Attempted to negotiate with target codeset " + CodeSet.csName(original.native_code_set) + " to match with " +  CodeSet.csName(CodeSet.getTCSDefault()));
+                logger.debug("Target has " + (original.conversion_code_sets == null ? 0 : original.conversion_code_sets.length) + " conversion codesets and native has " + CodeSet.csName(CodeSet.getConversionDefault()));
+            }
             //if no matching codesets can be found, an exception is
             //thrown
             throw new org.omg.CORBA.CODESET_INCOMPATIBLE(
@@ -252,7 +259,7 @@ public class ClientConnection
     /**
      * Returns the number of clients currently using this connection.
      */
-    public int numClients() 
+    public int numClients()
     {
         return client_count;
     }
