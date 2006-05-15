@@ -27,6 +27,8 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.easymock.MockControl;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.test.orb.BasicServerImpl;
@@ -49,14 +51,16 @@ import org.omg.PortableServer.POAPackage.InvalidPolicy;
 public class ImplNameTest extends TestCase
 {
     private final List orbs = new ArrayList();
-    
+    MockControl loggerControl = MockControl.createControl(Logger.class);
+    Logger loggerMock = (Logger) loggerControl.getMock();
+
     private ORB newORB(Properties props)
     {
         ORB orb = ORB.init(new String[0], props);
         orbs.add(orb);
         return orb;
     }
-    
+
     protected void tearDown() throws Exception
     {
         for (Iterator i = orbs.iterator(); i.hasNext();)
@@ -74,12 +78,12 @@ public class ImplNameTest extends TestCase
     {
         Properties props = new Properties();
         props.setProperty("jacorb.implname", "TEST_RANDOM_COMPONENT");
-        
+
         final ORB orb = newORB(props);
-        
+
         POA rootPoa =
             (POAHelper.narrow( orb.resolve_initial_references( "RootPOA" )));
-        
+
         // Create a child POA
         POA poa = rootPoa.create_POA
         (
@@ -90,15 +94,15 @@ public class ImplNameTest extends TestCase
                     rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                            }
         );
-        
+
         poa.the_POAManager().activate();
-        
+
         // create the object reference
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
-        
-        ParsedIOR pior = new ParsedIOR( orb.object_to_string(obj), orb, null);
-        
+
+        ParsedIOR pior = new ParsedIOR( orb.object_to_string(obj), orb, loggerMock);
+
         assertTrue
         (
                 CorbaLoc.parseKey( pior.get_object_key()).indexOf
@@ -115,12 +119,12 @@ public class ImplNameTest extends TestCase
     {
         Properties props = new Properties();
         props.setProperty("jacorb.implname", "TEST_PERSISTENT_COMPONENT");
-        
+
         ORB orb = newORB(props);
-        
+
         POA rootPoa =
             (POAHelper.narrow( orb.resolve_initial_references( "RootPOA" )));
-        
+
         // Create a child POA
         POA poa = rootPoa.create_POA
         (
@@ -132,15 +136,15 @@ public class ImplNameTest extends TestCase
                     rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                            }
         );
-        
+
         poa.the_POAManager().activate();
-        
+
         // create the object reference
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
-        
-        ParsedIOR pior = new ParsedIOR( orb.object_to_string(obj), orb, null);
-        
+
+        ParsedIOR pior = new ParsedIOR( orb.object_to_string(obj), orb, loggerMock);
+
         assertTrue
         (
                 CorbaLoc.parseKey( pior.get_object_key()).indexOf
@@ -159,13 +163,13 @@ public class ImplNameTest extends TestCase
         Properties props = new Properties();
         props.setProperty("jacorb.implname", "TEST_RANDOM_COMPONENT_TWO");
         props.setProperty("jacorb.logfile.append", "on");
-        
+
         final org.omg.CORBA.ORB orb1 = newORB(props);
         final org.omg.CORBA.ORB orb2;
-        
+
         POA rootPoa =
             (POAHelper.narrow( orb1.resolve_initial_references( "RootPOA" )));
-        
+
         // Create a child POA
         POA poa = rootPoa.create_POA
         (
@@ -177,22 +181,22 @@ public class ImplNameTest extends TestCase
                     rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                            }
         );
-        
+
         poa.the_POAManager().activate();
-        
+
         // create the object reference
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
-        
-        ParsedIOR pior = new ParsedIOR( orb1.object_to_string(obj), orb1, null);
-        
-        
+
+        ParsedIOR pior = new ParsedIOR( orb1.object_to_string(obj), orb1, loggerMock);
+
+
         // Now create number two.
-        
+
         orb2 = newORB(props);
-        
+
         rootPoa = (POAHelper.narrow( orb2.resolve_initial_references( "RootPOA" )));
-        
+
         // Create a child POA
         poa = rootPoa.create_POA
         (
@@ -204,15 +208,15 @@ public class ImplNameTest extends TestCase
                     rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                            }
         );
-        
+
         poa.the_POAManager().activate();
-        
+
         // create the object reference
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         obj = poa.id_to_reference( "Object".getBytes() );
-        
-        ParsedIOR pior2 = new ParsedIOR( orb2.object_to_string(obj), orb1, null);
-        
+
+        ParsedIOR pior2 = new ParsedIOR( orb2.object_to_string(obj), orb1, loggerMock);
+
         assertTrue
         (
                 ! (CorbaLoc.parseKey( pior.get_object_key()).equals
@@ -266,12 +270,12 @@ public class ImplNameTest extends TestCase
     {
         Properties props = new Properties();
         props.setProperty("jacorb.implname", "");
-        
+
         final org.omg.CORBA.ORB orb = newORB(props);
-        
+
         POA rootPoa =
             (POAHelper.narrow( orb.resolve_initial_references( "RootPOA" )));
-        
+
         // Create a child POA
         rootPoa.create_POA
         (
