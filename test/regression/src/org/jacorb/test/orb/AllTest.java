@@ -56,7 +56,8 @@ public class AllTest extends JacORBTestSuite
         suite.addTest (org.jacorb.test.orb.RecursiveParam.suite());
         suite.addTest(CDROutputStreamTest.suite());
         suite.addTestSuite(CreateTypeCodesTest.class);
-        
+        suite.addTest(DIOPIORTest.suite());
+
         return suite;
    }
 }

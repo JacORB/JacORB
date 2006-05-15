@@ -41,7 +41,19 @@
 
    <target name="compile">
       <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/orb/*.java,org/jacorb/orb/iiop/*.java,org/jacorb/orb/dii/*.java,org/jacorb/orb/dsi/*.java,org/jacorb/orb/dynany/*.java,org/jacorb/orb/etf/*.java,org/jacorb/orb/policies/*.java,org/jacorb/orb/factory/*.java,org/jacorb/orb/portableInterceptor/*.java,org/jacorb/orb/giop/*.java,org/jacorb/orb/rmi/*.java,org/jacorb/orb/util/*.java"/>
+         <param name="javac-includes" value="org/jacorb/orb/*.java,
+             org/jacorb/orb/iiop/*.java,
+             org/jacorb/orb/dii/*.java,
+             org/jacorb/orb/dsi/*.java,
+             org/jacorb/orb/dynany/*.java,
+             org/jacorb/orb/etf/*.java,
+             org/jacorb/orb/policies/*.java,
+             org/jacorb/orb/factory/*.java,
+             org/jacorb/orb/portableInterceptor/*.java,
+             org/jacorb/orb/giop/*.java,
+             org/jacorb/orb/rmi/*.java,
+             org/jacorb/orb/util/*.java,
+             org/jacorb/orb/util/diop/*.java"/>
       </antcall>
    </target>
 
