@@ -274,7 +274,5 @@ public class ValueTest extends ClientServerTestCase
     public void test_get_rowlistdata() throws Exception
     {
         assertNotNull(server.getData());
-
-        Thread.sleep(1000);
     }
 }
