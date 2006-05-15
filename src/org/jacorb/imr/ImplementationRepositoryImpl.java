@@ -82,13 +82,12 @@ public class ImplementationRepositoryImpl
     private boolean allow_auto_register = false;
     private boolean check_object_liveness = false;
 
-    private int connection_timeout = 2000;
     private long poaActivationTimeout = 120000; //2 min
 
     private WriteThread wt;
     private boolean updatePending;
     private Shutdown shutdownThread;
-    
+
 
     /**
      * The constructor.
@@ -118,7 +117,7 @@ public class ImplementationRepositoryImpl
         logger = configuration.getNamedLogger("jacorb.imr");
 
         String defaultTableFile = "table.dat";
-        String tableFileStr = configuration.getAttribute("jacorb.imr.table_file", 
+        String tableFileStr = configuration.getAttribute("jacorb.imr.table_file",
                                                          defaultTableFile);
 
         //NOTE: deliberate use of ref equivalence check here. I need to find
@@ -142,7 +141,7 @@ public class ImplementationRepositoryImpl
             _new_table = true;
             if (this.logger.isInfoEnabled())
             {
-                this.logger.info("Table file " + tableFileStr + 
+                this.logger.info("Table file " + tableFileStr +
                                  " does not exist - autocreating it.");
             }
 
@@ -184,7 +183,7 @@ public class ImplementationRepositoryImpl
             {
                 try
                 {
-                    ObjectInputStream _in = 
+                    ObjectInputStream _in =
                         new ObjectInputStream(new FileInputStream(table_file));
                     server_table = (ServerTable)_in.readObject();
                     _in.close();
@@ -207,7 +206,7 @@ public class ImplementationRepositoryImpl
         //should be set. if not, throw
         this.iorFile = configuration.getAttribute("jacorb.imr.ior_file");
 
-        String _backup_file_str = 
+        String _backup_file_str =
             configuration.getAttribute("jacorb.imr.backup_file", "");
 
         //set up server table backup file
@@ -224,10 +223,10 @@ public class ImplementationRepositoryImpl
             if ( ! table_file_backup.exists ())
             {
                 _new_table = true;
-                
+
                 if (this.logger.isInfoEnabled())
                 {
-                    this.logger.info("Backup file " + _backup_file_str + 
+                    this.logger.info("Backup file " + _backup_file_str +
                                      " does not exist - autocreating it.");
                 }
 
@@ -264,30 +263,26 @@ public class ImplementationRepositoryImpl
             configuration.getAttributeAsInteger("jacorb.imr.object_activation_retries",
                                             5);
 
-        this.object_activation_sleep = 
+        this.object_activation_sleep =
             configuration.getAttributeAsInteger("jacorb.imr.object_activation_sleep",
                                             50);
 
-        this.allow_auto_register = 
+        this.allow_auto_register =
             configuration.getAttributeAsBoolean("jacorb.imr.allow_auto_register",
                                                 false);
         this.check_object_liveness =
             configuration.getAttributeAsBoolean("jacorb.imr.check_object_liveness",
                                                 false);
 
-        this.connection_timeout = 
-            configuration.getAttributeAsInteger("jacorb.imr.connection_timeout",
-                                            2000 );
-
-        this.poaActivationTimeout = 
+        this.poaActivationTimeout =
             configuration.getAttributeAsInteger( "jacorb.imr.timeout", 120000);
 
         this.listener = new SocketListener();
         this.listener.configure(configuration);
-        
+
         this.listenerThread = new Thread(listener);
         this.listenerThread.setPriority(Thread.MAX_PRIORITY);
-        this.listenerThread.start();        
+        this.listenerThread.start();
 
         this.wt = new WriteThread ();
         this.wt.setName ("IMR Write Thread");
@@ -381,7 +376,7 @@ public class ImplementationRepositoryImpl
         if (_poa == null)
         {
             //New POAInfo is to be created
-            _poa = new ImRPOAInfo(name, host, port, _server, 
+            _poa = new ImRPOAInfo(name, host, port, _server,
                                   poaActivationTimeout);
             _server.addPOA(_poa);
             server_table.putPOA(name, _poa);
@@ -547,7 +542,7 @@ public class ImplementationRepositoryImpl
                         {
                             if (this.logger.isDebugEnabled())
                             {
-                                this.logger.debug("ImR: Setting server " + 
+                                this.logger.debug("ImR: Setting server " +
                                                   servers[k].name + " down");
                             }
 
@@ -613,7 +608,7 @@ public class ImplementationRepositoryImpl
 
         if (this.logger.isDebugEnabled())
         {
-            this.logger.debug("ImR: server " + name + " on " + 
+            this.logger.debug("ImR: server " + name + " on " +
                               host + " registered");
         }
 
@@ -864,9 +859,9 @@ public class ImplementationRepositoryImpl
      * attributes up, creates a new ImplementationRepositoryImpl instance and
      * runs the ORB.
      */
-    public static void main(String[] args) 
+    public static void main(String[] args)
     {
-        // translate any properties set on the commandline but after the 
+        // translate any properties set on the commandline but after the
         // class name to a properties
         java.util.Properties argProps = ObjectUtil.argsToProps( args );
         argProps.setProperty("jacorb.implname", "the_ImR");
@@ -877,7 +872,7 @@ public class ImplementationRepositoryImpl
         {
             org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, argProps );
 
-            ImplementationRepositoryImpl _imr = 
+            ImplementationRepositoryImpl _imr =
                 new ImplementationRepositoryImpl(orb);
             _imr.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
 
@@ -929,7 +924,7 @@ public class ImplementationRepositoryImpl
         server.awaitRelease();
 
         if(! server.active )
-        {        
+        {
             if (this.logger.isDebugEnabled())
             {
                 this.logger.debug("ImR: server " + server.name + " is down");
@@ -1049,7 +1044,7 @@ public class ImplementationRepositoryImpl
         {
             if (this.logger.isDebugEnabled())
             {
-                this.logger.debug("Failed to invoke Runtime." + method.getName (), 
+                this.logger.debug("Failed to invoke Runtime." + method.getName (),
                                   ex);
             }
         }
@@ -1096,11 +1091,11 @@ public class ImplementationRepositoryImpl
 
             try
             {
-                int endpoint_port = 
+                int endpoint_port =
                     configuration.getAttributeAsInteger(
                         "jacorb.imr.endpoint_port_number",0);
 
-                String endpoint_host = 
+                String endpoint_host =
                     configuration.getAttribute("jacorb.imr.endpoint_host", "");
 
                 if (endpoint_host.length() > 0)
@@ -1124,12 +1119,12 @@ public class ImplementationRepositoryImpl
                 // First deal with DNS; if we are not using DNS do fallback.
                 if( endpoint_host.length() > 0 )
                 {
-                    address = lookup.inverseLookup( 
+                    address = lookup.inverseLookup(
                         InetAddress.getByName( endpoint_host ) );
                 }
                 else
                 {
-                    address = lookup.inverseLookup( 
+                    address = lookup.inverseLookup(
                         InetAddress.getLocalHost() );
                 }
 
@@ -1281,10 +1276,10 @@ public class ImplementationRepositoryImpl
         try
         {
             address = new IIOPAddress (host, port);
-            address.configure(configuration);      
-            
+            address.configure(configuration);
+
             IIOPProfile iiopProfile = new IIOPProfile(address, object_key);
-            iiopProfile.configure(configuration); 
+            iiopProfile.configure(configuration);
 
             connection = cm.getConnection(iiopProfile);
         }
@@ -1368,7 +1363,8 @@ public class ImplementationRepositoryImpl
                                     ParsedIOR.extractObjectKey(in.req_hdr.target, (org.jacorb.orb.ORB)orb)),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
-                              connection );
+                              connection,
+                              false);
         }
 
         public void locateRequestReceived( byte[] request,
@@ -1382,7 +1378,8 @@ public class ImplementationRepositoryImpl
             replyNewLocation( ParsedIOR.extractObjectKey(in.req_hdr.target, (org.jacorb.orb.ORB) orb),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
-                              connection );
+                              connection,
+                              true);
         }
 
         public void cancelRequestReceived( byte[] request,
@@ -1409,7 +1406,8 @@ public class ImplementationRepositoryImpl
         private void replyNewLocation( byte[] object_key,
                                        int request_id,
                                        int giop_minor,
-                                       GIOPConnection connection )
+                                       GIOPConnection connection,
+                                       boolean isLocateRequest)
         {
             String _poa_name =
             POAUtil.extractImplName( object_key ) + '/' +
@@ -1469,7 +1467,7 @@ public class ImplementationRepositoryImpl
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("Object (" + _server.name + ") on "
-                                      + _poa.host + '/' + _poa.port + 
+                                      + _poa.host + '/' + _poa.port +
                                       " not reachable");
                 }
 
@@ -1498,7 +1496,7 @@ public class ImplementationRepositoryImpl
                 new ReplyOutputStream( request_id,
                                        org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
                                        giop_minor,
-                                       false,
+                                       isLocateRequest,
                                        logger);
 
             // The typecode is for org.omg.CORBA.Object, but avoiding
