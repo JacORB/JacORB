@@ -60,19 +60,17 @@ public class AliasTypeSpec
     {
         if (pack_name.length() > 0)
         {
-            String s =
+            String fullName =
                 ScopedName.unPseudoName(pack_name + "." + name);
 
-            if (!s.startsWith("org.omg"))
-            {
-                return omg_package_prefix + s;
-            }
-            else
-                return s;
+            return getFullName(fullName);
         }
         else
+        {
             return ScopedName.unPseudoName(name);
+        }
     }
+
 
     /**
      * @return the type name of this alias, which is the name of the

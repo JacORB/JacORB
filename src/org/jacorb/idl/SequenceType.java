@@ -263,10 +263,7 @@ public class SequenceType
         String s = full_name();
         if (pack_name.length() > 0)
         {
-            if (!s.startsWith("org.omg"))
-            {
-                s = omg_package_prefix + s;
-            }
+            s = getFullName(s);
         }
 
         return s + "Holder";
@@ -281,10 +278,7 @@ public class SequenceType
         String s = full_name();
         if (pack_name.length() > 0)
         {
-            if (!s.startsWith("org.omg"))
-            {
-                s = omg_package_prefix + s;
-            }
+            s = getFullName(s);
         }
 
         return s + "Helper";

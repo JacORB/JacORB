@@ -638,6 +638,21 @@ public class IdlSymbol
         return parser.generateIncluded() && !( inhibitionFlag );
     }
 
+    protected String getFullName(String fullName)
+    {
+        if (fullName.startsWith("org.omg"))
+        {
+            return fullName;
+        }
+
+        if (fullName.startsWith("java.lang"))
+        {
+            return fullName;
+        }
+        return omg_package_prefix + fullName;
+    }
+
+
     /**
      * let the visitor pattern do its work...
      */

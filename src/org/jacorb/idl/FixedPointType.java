@@ -62,15 +62,13 @@ public class FixedPointType
         if (pack_name.length() > 0)
         {
             String s = ScopedName.unPseudoName(pack_name + "." + name);
-            if (!s.startsWith("org.omg"))
-            {
-                return omg_package_prefix + s;
-            }
-            else
-                return s;
+
+            return getFullName(s);
         }
         else
+        {
             return ScopedName.unPseudoName(name);
+        }
     }
 
     public String typeName()

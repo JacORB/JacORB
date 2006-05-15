@@ -117,13 +117,7 @@ public class ValueAbsDecl
 
     public String toString()
     {
-        String n = typeName();
-        if (!n.startsWith("org.omg"))
-        {
-            return omgPrefix() + n;
-        }
-        else
-            return n;
+        return getFullName(typeName());
     }
 
 

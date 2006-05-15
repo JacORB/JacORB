@@ -1,0 +1,29 @@
+#include <orb.idl>
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac307
+            {
+               valuetype WStringValueSequence sequence<CORBA::WStringValue>;
+               valuetype StringValueSequence sequence<CORBA::StringValue>;
+
+               valuetype RetrievalResult
+               {
+                  private WStringValueSequence ids1;
+                  private StringValueSequence ids2;
+
+                  private CORBA::WStringValue nonseqids1;
+                  private CORBA::StringValue nonseqids2;
+
+               };
+            };
+         };
+      };
+   };
+};

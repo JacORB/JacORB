@@ -168,9 +168,10 @@ module CORBA
    pseudo interface ExceptionList {};
 
 
-   valuetype WStringValue {
-      public wstring value;
-   };
+   // Taken from 04-03-12 CORBA 3.0.3
+   valuetype StringValue string;
+   valuetype WStringValue wstring;
+
 
    exception WrongTransaction {};
 };

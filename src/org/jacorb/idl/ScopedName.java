@@ -225,7 +225,7 @@ public class ScopedName
                     typeName = "_" + typeName;
             }
         }
-        
+
         if( logger.isInfoEnabled() )
             logger.info( "ScopedName.escapeName " + typeName );
     }
@@ -265,16 +265,16 @@ public class ScopedName
             parser.fatal_error( "Not a type: " + resolvedName, token );
         return resolvedSpec;
     }
-    
+
     public boolean isEscaped(String name) {
         String last = null;
         if (name.indexOf('.') > -1)
             last = name.substring(name.lastIndexOf('.')+1);
         else
-            last = name;               
+            last = name;
         return last.startsWith("_");
     }
-    
+
     public String resolvedName()
     {
         if( !resolved )
@@ -295,17 +295,17 @@ public class ScopedName
 
 
     /**
-	 * This is the main name resolution algorithm. It resolves a qualified name
-	 * s by replacing it by a fully qualified one, (watch out for typedef'd
-	 * names!)
-	 * 
-	 * @param name
-	 *            the name that is to be resolved. This may be a simple name, 
-	 *            a partially qualified name, or even a fully qualifed name. 
-	 * @param scopeOfOrigin
-	 * 			  the scope from within which the resolution starts
-	 * @return a fully qualified IDL identifier
-	 */
+     * This is the main name resolution algorithm. It resolves a qualified name
+     * s by replacing it by a fully qualified one, (watch out for typedef'd
+     * names!)
+     *
+     * @param name
+     *            the name that is to be resolved. This may be a simple name,
+     *            a partially qualified name, or even a fully qualifed name.
+     * @param scopeOfOrigin
+     * 			  the scope from within which the resolution starts
+     * @return a fully qualified IDL identifier
+     */
 
     private String resolvedName( String scopeOfOrigin, String name )
     {
@@ -321,7 +321,7 @@ public class ScopedName
         boolean global = false;
         if( name.charAt( 0 ) == '.' )
         {
-        	// strip the dot
+            // strip the dot
             name = name.substring( 1 );
             global = true;
         }
@@ -336,13 +336,13 @@ public class ScopedName
         else
             result = name;
 
-        // see if "scope.name" is a defined name. If so, return that 
+        // see if "scope.name" is a defined name. If so, return that
         // definition. First, try to form a combined name
-        if( !global && 
-        		NameTable.isDefined( scopeOfOrigin + "." + result ))
+        if( !global &&
+                NameTable.isDefined( scopeOfOrigin + "." + result ))
         {
-            String unmappedResult = 
-            	unMap( scopeOfOrigin + "."  + result );
+            String unmappedResult =
+                unMap( scopeOfOrigin + "."  + result );
 
             if( logger.isInfoEnabled() )
                 logger.info( "resolve, " + scopeOfOrigin + "."  + result +
@@ -353,9 +353,9 @@ public class ScopedName
         }
 
         // now, check if name is known by itself (either because it is global
-        // or it is a qualified name) 
-        if( (global || result.indexOf('.') > -1 ) 
-        		&& NameTable.isDefined(result) )
+        // or it is a qualified name)
+        if( (global || result.indexOf('.') > -1 )
+                && NameTable.isDefined(result) )
         {
             String unmappedResult = unMap( result );
 
@@ -367,10 +367,10 @@ public class ScopedName
             return unmappedResult + bracketSuffix;
         }
 
-        
+
         // split up all scopes contained in the name
         java.util.StringTokenizer strtok =
-        	new java.util.StringTokenizer( name, "." );
+            new java.util.StringTokenizer( name, "." );
         String nameScopes[] = new String[ strtok.countTokens() ];
         for( int i = 0; strtok.hasMoreTokens(); i++ ) {
             nameScopes[ i ] = strtok.nextToken();
@@ -380,11 +380,11 @@ public class ScopedName
         if( nameScopes.length > 0 )
         {
             // see if the compiler has registerd replacement names for
-        	// our scopes
+            // our scopes
             String replacedPackageName = parser.pack_replace( nameScopes[ 0 ] );
             if( !replacedPackageName.equals( nameScopes[ 0 ] ) )
             {
-                // okay, it has, so rebuild the fully scoped name 
+                // okay, it has, so rebuild the fully scoped name
                 StringBuffer tmpString = new StringBuffer();
                 tmpString.append( replacedPackageName );
                 for( int i = 1; i < nameScopes.length; ++i )
@@ -408,7 +408,7 @@ public class ScopedName
 
         // split up the individual scopes in the scopeOfOrigin
         java.util.StringTokenizer p_strtok =
-        	new java.util.StringTokenizer( scopeOfOrigin, "." );
+            new java.util.StringTokenizer( scopeOfOrigin, "." );
         String packageScopes[] = new String[ p_strtok.countTokens() ];
         for( int i = 0; p_strtok.hasMoreTokens(); i++ )
         {
@@ -416,7 +416,7 @@ public class ScopedName
         }
 
         // If the simple name was not known and we have no scopes at
-		// all, try the global scope. 
+        // all, try the global scope.
         if( nameScopes.length == 0 || packageScopes.length == 0 )
         {
             if( NameTable.isDefined( result ) )
@@ -433,7 +433,7 @@ public class ScopedName
         {
             StringBuffer tmpString = new StringBuffer();
             int minScopesLength = nameScopes.length < packageScopes.length ?
-            		nameScopes.length : packageScopes.length;
+                    nameScopes.length : packageScopes.length;
 
             if( minScopesLength > 1 )
             {
@@ -461,7 +461,7 @@ public class ScopedName
         {
             prefix = parser.package_prefix + ".";
             java.util.StringTokenizer prefix_strtok =
-            	new java.util.StringTokenizer( prefix, "." );
+                new java.util.StringTokenizer( prefix, "." );
             String prefix_scopes[] = new String[ prefix_strtok.countTokens() ];
 
             for( int i = 0; prefix_strtok.hasMoreTokens(); i++ )
@@ -668,8 +668,10 @@ public class ScopedName
     public String toString()
     {
         String n = typeName();
-        if( resolvedTypeSpec() != null && ( !n.startsWith( "org.omg" ) ) )
+        if( resolvedTypeSpec() != null && ( !n.startsWith( "org.omg" ) && !n.startsWith("java.lang")) )
+        {
             n = resolvedTypeSpec().omgPrefix() + n;
+        }
         return n;
     }
 
