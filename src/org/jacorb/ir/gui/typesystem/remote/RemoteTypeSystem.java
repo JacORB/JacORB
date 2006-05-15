@@ -21,6 +21,8 @@ package org.jacorb.ir.gui.typesystem.remote;
  */
 
 import org.omg.CORBA.*;
+import org.omg.CORBA.ORBPackage.InvalidName;
+
 import javax.swing.tree.*;
 import javax.swing.table.*;
 
@@ -29,57 +31,34 @@ import java.util.*;
 import org.jacorb.ir.gui.typesystem.*;
 
 /**
- * @author Joerg v. Frantzius, Gerald Brose.
+ * @author Joerg v. Frantzius
+ * @author Gerald Brose.
  * $Id$
  */
 
 public class RemoteTypeSystem
     extends TypeSystem
 {
-    Repository rep;
-    ORB orb = ORB.init( new String[0], null);
-    private static Hashtable knownIRObjects = new Hashtable();
+    private final Repository rep;
+    private final ORB orb = ORB.init( new String[0], null);
+    private static final Hashtable knownIRObjects = new Hashtable();
 
     private static String test = "";
-    private static int test2;
 
-    /**
-     */
-
-    public RemoteTypeSystem ()
+    public RemoteTypeSystem () throws InvalidName
     {
-        try
-        {
-            this.rep  =
-                RepositoryHelper.narrow(
-                    orb.resolve_initial_references("InterfaceRepository"));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
+        rep  =
+            RepositoryHelper.narrow(orb.resolve_initial_references("InterfaceRepository"));
 
-    /**
-     * @param ior java.lang.String
-     */
+    }
 
     public RemoteTypeSystem (String ior)
     {
-        org.omg.CORBA.Object obj = orb.string_to_object(ior);
-        try
-        {
-            rep = RepositoryHelper.narrow(obj);
-        }
-        catch( org.omg.CORBA.BAD_PARAM bp )
-        {
-            System.out.println("IOR is not a Repository, sorry.");
-            System.exit(0);
-        }
+        rep = RepositoryHelper.narrow(orb.string_to_object(ior));
     }
 
     /**
-     *  Creates a TreeModel that contains only root enthält. To expand
+     *  Creates a TreeModel that contains only root enthï¿½lt. To expand
      *  nodes,     the    TreeExpansionListener    returned    from
      *  getTreeExpansionListener(treeModel)  needs  to be  registered
      *  with JTree.
@@ -119,11 +98,11 @@ public class RemoteTypeSystem
 
         System.out.flush();
 
-        // Typ-Unterscheidung für obj vornehmen und korrespondierendes
+        // Typ-Unterscheidung fï¿½r obj vornehmen und korrespondierendes
         // org.jacorb.ir.gui.typesystem-Objekt erzeugen.
         // knownIRObjects: zu jedem Objekt des IR wird das
         // korrespondierende org.jacorb.ir.gui.typesystem-Objekt
-        // festgehalten, damit letzteres nicht mehrfach für
+        // festgehalten, damit letzteres nicht mehrfach fï¿½r
         /// das selbe IR-Objekt erzeugt wird
         // (die Abbildung von IR-Objekten auf
         // org.jacorb.ir.gui.typesystem-Objekte wird sozusagen injektiv gehalten)
@@ -132,9 +111,9 @@ public class RemoteTypeSystem
         // um das obj in knownIRObjects abzulegen:
         // die von Object geerbte hashcode() Methode reicht
         // hier nicht, weil sie equals() verwendet und
-        // diese Methode nicht für alle möglichen Typen von
+        // diese Methode nicht fï¿½r alle mï¿½glichen Typen von
         ///  obj korrekt redefiniert wurde (testet nur auf
-        // Objekt-Identität)
+        // Objekt-Identitï¿½t)
 
         if ( obj instanceof IRObject )
         {
@@ -148,9 +127,9 @@ public class RemoteTypeSystem
         }
         if( irObject != null )
         {
-            // insbesondere "echte" IRObjects können beim Aufbau
+            // insbesondere "echte" IRObjects kï¿½nnen beim Aufbau
             // des Trees mehrmals referenziert
-            // und dieser Methode als Argument übergeben werden
+            // und dieser Methode als Argument ï¿½bergeben werden
             // if (knownIRObjects.get(ORB.init().object_to_string((org.omg.CORBA.Object)irObject))!=null) {
             //			return (TypeSystemNode)knownIRObjects.get(ORB.init().object_to_string((org.omg.CORBA.Object)irObject));
             //		}
@@ -203,7 +182,7 @@ public class RemoteTypeSystem
                         result = new IROperation(irObject);
                         break;
                         /*   Typedef   ist   eine  abstrakte   Oberklasse,
-                             theoretisch   dürfte   es   kein  Objekt   mit
+                             theoretisch   dï¿½rfte   es   kein  Objekt   mit
                              DefinitionKind._dk_Typedef      geben     case
                              DefinitionKind._dk_Typedef:   result   =   new
                              IRTypedef(irObject); break; */
@@ -262,14 +241,11 @@ public class RemoteTypeSystem
             if ( result instanceof IRInterface &&
                  ((IRInterface)result).getName().equals("Container"))
             {
-                int nanu = ((IRNode)result).irObject.hashCode();
-                int nanu2 = irObject.hashCode();
                 if (test.equals(((IRInterface)result).getAbsoluteName()))
                 {
                     System.out.println("bug!");
                 }
                 test = ((IRInterface)result).getAbsoluteName();
-                test2=((IRNode)result).irObject.hashCode();
             }
 
             if (result != null)
@@ -292,10 +268,10 @@ public class RemoteTypeSystem
         else
         {
             // kein IRObject sondern lokales Objekt
-            // members von Structs, Unions und Enums können nicht
+            // members von Structs, Unions und Enums kï¿½nnen nicht
             // von anderen IRObjects referenziert werden,
-            // wir wollen trotzdem für mögliche mehrfache Aufrufe
-            // das selbe org.jacorb.ir.gui.typesystem-Objekt zurückgeben
+            // wir wollen trotzdem fï¿½r mï¿½gliche mehrfache Aufrufe
+            // das selbe org.jacorb.ir.gui.typesystem-Objekt zurï¿½ckgeben
             if (knownIRObjects.get(obj)!=null) {
                 return (TypeSystemNode)knownIRObjects.get(obj);
             }
@@ -435,15 +411,4 @@ public class RemoteTypeSystem
         }
         return null;
     }
-
-    /**
-     * @param args java.lang.String[]
-     */
-
-    public static void main(String args[])
-    {
-        TreeModel dummy = 	new RemoteTypeSystem().getTreeModel();
-        return;
-    }
-
 }

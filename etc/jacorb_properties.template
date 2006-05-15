@@ -22,7 +22,7 @@
 #ORBInitRef.NameService=file:/c:/NS_Ref
 ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
-
+ORBInitRef.InterfaceRepository=file:/c:/IR_Ref
 
 ########################################
 #                                      #
