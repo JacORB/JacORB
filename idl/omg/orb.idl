@@ -172,7 +172,7 @@ module CORBA
       public wstring value;
    };
 
-
+   exception WrongTransaction {};
 };
 
 

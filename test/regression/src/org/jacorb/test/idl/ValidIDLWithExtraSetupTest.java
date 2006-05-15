@@ -36,14 +36,14 @@ import org.jacorb.test.common.TestUtils;
  * case an additional param is needed.
  * therefor the method createJacIDLArgs has
  * been overwritten.
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
 public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 {
     private final String additionalArgument;
-    
+
     public ValidIDLWithExtraSetupTest(String argument, String file)
     {
         super("testMiscParseGood", new File(file));
@@ -57,10 +57,10 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         file[1] = "-d";
         file[2] = dirGeneration.getAbsolutePath();
         file[3] = idlFile.getAbsolutePath();
-        
+
         return file;
     }
-    
+
     public void testMiscParseGood() throws Exception
     {
         runJacIDL(false);
@@ -68,17 +68,18 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         deleteRecursively(dirGeneration);
         deleteRecursively(dirCompilation);
     }
-    
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite();
-        
+
         final String testHome = TestUtils.testHome();
         suite.addTest(new ValidIDLWithExtraSetupTest("-DBLUB", testHome + "/idl/compiler/misc/defined.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-I" + testHome + "/../../idl/omg", testHome + "/idl/compiler/misc/Interoperability.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest("-I" + testHome + "/../../idl/omg", testHome + "/idl/compiler/misc/rt1051.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-DDefB", testHome + "/idl/compiler/misc/Ping1.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-ami_callback", testHome + "/idl/compiler/misc/ami.idl"));
-        
+
         return suite;
     }
 }

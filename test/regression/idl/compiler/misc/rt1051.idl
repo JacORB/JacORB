@@ -1,0 +1,5 @@
+#include <orb.idl>
+
+interface bar {
+    void op() raises( CORBA::WrongTransaction );
+};
