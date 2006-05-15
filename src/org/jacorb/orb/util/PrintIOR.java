@@ -23,6 +23,7 @@ package org.jacorb.orb.util;
 import org.apache.avalon.framework.logger.Logger;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
@@ -65,13 +66,13 @@ public class PrintIOR
     public static void main(String args[])
     {
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
-        Logger logger = 
+        Logger logger =
             ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.print_ior");
         String line, iorString = null;
 
-        if( args.length < 1 || args.length > 2)
+        if( args.length != 2)
         {
-            System.err.println("Usage: java PrintIOR [ ior_str | -f filename ]");
+            System.err.println("Usage: java PrintIOR [ -i ior_str | -f filename ]");
             System.exit( 1 );
         }
 
@@ -79,12 +80,8 @@ public class PrintIOR
         {
             try
             {
-                // System.out.println ( "arg.length: " + arg.length );
-                // System.out.println ( "arg[ 0 ]: " + arg[ 0 ] );
-                // System.out.println ( "reading IOR from file: " + arg[ 1 ] );
                 BufferedReader br = new BufferedReader ( new FileReader( args[1] ), 2048 );
                 line = br.readLine();
-                // System.out.print ( line );
                 if ( line != null )
                 {
                     iorString = line;
@@ -92,8 +89,9 @@ public class PrintIOR
                     {
                         line = br.readLine();
                         if ( line != null )
+                        {
                             iorString = iorString + line;
-                        // System.out.print ( line );
+                        }
                     }
                 }
             }
@@ -103,9 +101,27 @@ public class PrintIOR
                 System.exit(1);
             }
         }
+        else if ( args[0].equals("-i"))
+        {
+            iorString = args[1];
+        }
         else
         {
-            iorString = args[0];
+            System.err.println("Usage: java PrintIOR [ -i ior_str | -f filename ]");
+            System.exit( 1 );
+        }
+
+        if( logger.isDebugEnabled() )
+        {
+            logger.debug
+            (
+                "Under " +
+                System.getProperty ("os.name") +
+                " the encoding name is " +
+                System.getProperty( "file.encoding" ) +
+                " and the canonical encoding name is " +
+                ( new java.io.OutputStreamWriter( new ByteArrayOutputStream () ) ).getEncoding()
+            );
         }
 
         if( iorString.startsWith( "IOR:" ))
@@ -114,7 +130,9 @@ public class PrintIOR
             printIOR(pior, orb);
         }
         else
+        {
             System.out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
+        }
 
         orb.shutdown(true);
     }
@@ -287,23 +305,23 @@ public class PrintIOR
             }
         }
     }
-    
+
     private static void printNTExportedName(byte[] nameData) {
         // check for token identifier
         if (nameData.length < 2 || nameData[0] != 0x04 || nameData[1] != 0x01) {
             dumpHex(nameData);
             System.out.println();
-            return;            
+            return;
         }
-        
+
         // get mech length
         int mechLen = (nameData[2] << 8) + nameData[3];
         if (mechLen > (nameData.length - 8)) {
             dumpHex(nameData);
             System.out.println();
-            return;            
+            return;
         }
-        
+
         // get name length
         int nameLen = (nameData[mechLen + 4] << 24) +
                       (nameData[mechLen + 5] << 16) +
@@ -312,7 +330,7 @@ public class PrintIOR
         if ((mechLen + nameLen) > (nameData.length - 8)) {
             dumpHex(nameData);
             System.out.println();
-            return;            
+            return;
         }
         byte[] name = new byte[nameLen];
         System.arraycopy(nameData, mechLen + 8, name, 0, nameLen);
@@ -366,6 +384,10 @@ public class PrintIOR
                     System.out.print( ", " );
                 }
             }
+            if (codeSet.ForCharData.conversion_code_sets.length == 0 )
+            {
+                System.out.print("\n");
+            }
 
             System.out.println("\t\tForWChar native code set Id: " +
                                CodeSet.csName(codeSet.ForWcharData.native_code_set ));
@@ -378,6 +400,10 @@ public class PrintIOR
                 {
                     System.out.print( ", " );
                 }
+            }
+            if (codeSet.ForCharData.conversion_code_sets.length == 0 )
+            {
+                System.out.print("\n");
             }
         }
     }
