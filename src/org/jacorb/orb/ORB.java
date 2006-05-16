@@ -21,7 +21,6 @@ package org.jacorb.orb;
  */
 
 import java.util.*;
-import java.io.*;
 import java.lang.reflect.*;
 
 import org.jacorb.imr.ImRAccessImpl;
@@ -42,10 +41,7 @@ import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.INTERNAL;
-import org.omg.CORBA.BAD_QOS;
 import org.omg.CORBA.MARSHAL;
-import org.omg.CORBA.TypeCode;
-import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.portable.ValueFactory;
 import org.omg.CORBA.portable.BoxedValueHelper;
@@ -130,9 +126,6 @@ public final class ORB
 
     private Map objectKeyMap = new HashMap();
 
-    /** properties */
-    private java.util.Properties _props;
-
     /** the ORB object's logger */
     private Logger logger;
 
@@ -142,7 +135,6 @@ public final class ORB
     /* for run() and shutdown()  */
     private Object orb_synch = new java.lang.Object();
     private boolean run = true;
-    private boolean wait = true;
     private boolean shutdown_in_progress = false;
     private boolean destroyed = false;
     private Object shutdown_synch = new Object();
@@ -163,8 +155,6 @@ public final class ORB
 
     /* policy factories, from portable interceptor spec */
     private Map policy_factories = null;
-
-    private static org.omg.CORBA.TCKind kind;
 
     private static final String [] services  =
         {"RootPOA","POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory"};
@@ -1403,8 +1393,6 @@ public final class ORB
 
     protected void set_parameters(String[] args, java.util.Properties props)
     {
-        _props = props;
-
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
@@ -1497,8 +1485,6 @@ public final class ORB
     protected void set_parameters(java.applet.Applet app,
                                   java.util.Properties props)
     {
-        _props = props;
-
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
@@ -2192,8 +2178,9 @@ public final class ORB
         return (create_operation_list (oper));
     }
 
-    // This operation is under deprecation. To be replaced by one above.
-
+    /**
+     * @deprecated use {@link #create_operation_list (org.omg.CORBA.Object)} instead
+     */
     public org.omg.CORBA.NVList create_operation_list
         (org.omg.CORBA.OperationDef oper)
     {
@@ -2215,7 +2202,24 @@ public final class ORB
             param = params[i];
             any = create_any ();
             any.type (param.type);
-            list.add_value (param.name, any, param.mode.value ());
+            switch (param.mode.value())
+            {
+                case org.omg.CORBA.ParameterMode._PARAM_IN:
+                {
+                    list.add_value (param.name, any, org.omg.CORBA.ARG_IN.value);
+                    break;
+                }
+                case org.omg.CORBA.ParameterMode._PARAM_OUT:
+                {
+                    list.add_value (param.name, any, org.omg.CORBA.ARG_OUT.value);
+                    break;
+                }
+                case org.omg.CORBA.ParameterMode._PARAM_INOUT:
+                {
+                    list.add_value (param.name, any, org.omg.CORBA.ARG_INOUT.value);
+                    break;
+                }
+            }
         }
 
         return list;
@@ -2264,8 +2268,6 @@ public final class ORB
      */
     public byte[] mapObjectKey( byte[] originalKey )
     {
-        BufferedReader br        = null;
-        File           iorFile   = null;
         ParsedIOR      pIOR      = null;
         String         found     = null;
         String         original  = null;
