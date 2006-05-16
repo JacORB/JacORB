@@ -217,7 +217,6 @@ public class SequenceType
     public String printWriteStatement(String var_name, String streamname)
     {
         StringBuffer sb = new StringBuffer();
-        String type = typeName();
         if (length != 0)
         {
             sb.append("\t\tif (" + var_name + ".length > " + length + ")\n");
