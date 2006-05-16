@@ -47,15 +47,21 @@ post 2.2.4
         - Document all available loggers
     - IDL Compiler:
          - Fix for ValueType generation
+         - Improve error checking in compiler.
     - ORB:
         - DynValue idl added
+        - Enhance Any equals for value comparison.
+        - Improve typecode error checking.
 2.2.4
 =====
 
-      - JacORB now supports IPv6, thanks to work by David Hartman.
-
-post 2.2.2
-==========
+    - JacORB now supports IPv6, thanks to work by David Hartman.
+    - POA:
+        - Fix usage of implname with transient and persistent servers (see the Programming Guide).
+    - IDL Compiler:
+        - improve JacIDL Ant task initialisation.
+2.2.3
+=====
 
       - The IDL compiler can now generate DII stubs, using the new option
         "-diistub".  Thanks to Thomas Leineweber for adding this feature.
@@ -78,10 +84,7 @@ post 2.2.2
 
         - added JMX support for the notification service.
 
-        - POA:
-            - Fix usage of implname with transient and persistent servers (see the Programming Guide).
 
-        - improve JacIDL Ant task initialisation.
 2.2
 ====
 

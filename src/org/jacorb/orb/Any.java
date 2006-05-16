@@ -149,6 +149,8 @@ public final class Any
             case TCKind._tk_except:
             case TCKind._tk_enum:
             case TCKind._tk_union:
+            case TCKind._tk_value:
+            case TCKind._tk_value_box:
             {
                 CDROutputStream out1, out2;
                 if( !( orb instanceof org.jacorb.orb.ORB ))
@@ -663,12 +665,12 @@ public final class Any
     {
         int kind = typeCode.kind().value();
         if (kind != TCKind._tk_value &&
-	    kind != TCKind._tk_value_box &&
-	    kind != TCKind._tk_abstract_interface &&
+            kind != TCKind._tk_value_box &&
+            kind != TCKind._tk_abstract_interface &&
             kind != TCKind._tk_null)
-	{
+        {
             tc_error ("Cannot extract value!");
-	}
+        }
         return (java.io.Serializable)value;
     }
 

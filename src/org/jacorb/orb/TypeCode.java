@@ -533,10 +533,20 @@ public class TypeCode
 
             if (kind == TCKind._tk_value)
             {
-                if ( type_modifier() != tc.type_modifier() ||
-                     ! concrete_base_type().equal( tc.concrete_base_type() ) )
+                if ( type_modifier() != tc.type_modifier())
                 {
                     return false;
+                }
+                if (concrete_base_type() != null || tc.concrete_base_type() != null)
+                {
+                    if (concrete_base_type() == null || tc.concrete_base_type() == null)
+                    {
+                        return false;
+                    }
+                    if( ! concrete_base_type().equal(tc.concrete_base_type()))
+                    {
+                        return false;
+                    }
                 }
             }
         }
@@ -1205,7 +1215,7 @@ public class TypeCode
 
         try
         {
-            while (tc.kind() == org.omg.CORBA.TCKind.tk_alias 
+            while (tc.kind() == org.omg.CORBA.TCKind.tk_alias
                 || tc.kind() == org.omg.CORBA.TCKind.tk_value_box)
                 tc = tc.content_type();
         }

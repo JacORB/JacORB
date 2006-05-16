@@ -67,13 +67,15 @@ public class ScopedName
     {
         String n = unPseudo( name );
         if( n.endsWith( "PackagePackage" ) || !n.startsWith( "_" ) && n.endsWith( "Package" ) )
+        {
             n = n.substring( 0, n.lastIndexOf( "Package" ) );
+        }
         return n;
     }
 
     private static String unPseudo( String name )
     {
-        if( name.charAt( 0 ) == '.' )
+        if (name.length() > 0 && name.charAt( 0 ) == '.' )
         {
             name = name.substring( 1 );
         }
