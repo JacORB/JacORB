@@ -136,7 +136,6 @@ public class AbstractIDLTestcase extends TestCase
 
         if (files.length == 0)
         {
-            System.err.println("NO FILES");
             return null;
         }
 
@@ -204,7 +203,6 @@ public class AbstractIDLTestcase extends TestCase
             }
             else
             {
-                System.err.println("FAILURE " + e);
                 return null;
             }
         }
