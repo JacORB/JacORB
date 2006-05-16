@@ -22,6 +22,7 @@
 package org.jacorb.test.idl;
 
 import java.io.File;
+import java.lang.reflect.Method;
 
 import junit.framework.Test;
 
@@ -32,7 +33,13 @@ import org.jacorb.test.common.TestUtils;
  * in the directory <TEST_HOME>/idl/compiler/succeed.
  * this test assumes the idl files to be correct and
  * will fail if JacIDL causes an error during processing.
- * 
+ *
+ * additionally if you'd like to verify the compiled classes
+ * you can define a method that must adhere to the following
+ * signature: public void verify_<FILENAME>(ClassLoader cl) {...}
+ * (dots in filename will be converted to _). inside the method you can then
+ * load and inspect the compiled classes.
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -46,16 +53,41 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
     public void testCanParseValidIDL() throws Exception
     {
         runJacIDL(false);
-        compileGeneratedSources(false);
-        
-        // if a test fails the directory 
+        ClassLoader cl = compileGeneratedSources(false);
+
+        try
+        {
+            // test if a verify_ method is available and invoke it
+            String file = idlFile.getName().replace(".", "_");
+            Method method = getClass().getMethod("verify_" + file, new Class[] {ClassLoader.class});
+            method.invoke(this, new Object[] {cl});
+        }
+        catch (NoSuchMethodException e)
+        {
+            // ignored
+        }
+
+        // if a test fails the directory
         // will not be deleted. this way
         // the contents can be inspected.
         deleteRecursively(dirCompilation);
         deleteRecursively(dirGeneration);
     }
 
-    public static Test suite() 
+    /**
+     * related to RT#1445. forward declarations in idl led
+     * to incorrectly generated classes.
+     */
+    public void verify_rt1445_idl(ClassLoader cl) throws Exception
+    {
+        Class nodeClazz = cl.loadClass("tree.Node");
+
+        nodeClazz.getDeclaredField("name");
+        nodeClazz.getDeclaredField("description");
+        nodeClazz.getDeclaredField("children");
+    }
+
+    public static Test suite()
     {
         final String dir = TestUtils.testHome() + "/idl/compiler/succeed";
         return suite(dir, ParseValidIDLTest.class);

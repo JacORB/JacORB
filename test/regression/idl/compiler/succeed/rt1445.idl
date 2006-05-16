@@ -1,0 +1,11 @@
+module tree {
+    struct Node;
+    typedef sequence <Node> NodeList;
+
+    struct Node {
+        string name;
+        string description;
+
+        NodeList children;
+    };
+};
