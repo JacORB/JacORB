@@ -234,7 +234,7 @@ public class ValueDecl
                     e.hasMoreElements();)
                 {
                     ScopedName scopedName = (ScopedName)e.nextElement();
-		    
+
                     ConstrTypeSpec ts = unwindTypedefs(scopedName);
 
                     if (ts.declaration() instanceof Value)
@@ -357,7 +357,7 @@ public class ValueDecl
         {
             return this.getRecursiveTypeCodeExpression();
         }
-        
+
         knownTypes.add(this);
         StringBuffer result = new StringBuffer
         ("org.omg.CORBA.ORB.init().create_value_tc (" +
@@ -412,7 +412,7 @@ public class ValueDecl
         {
             return;
         }
-                
+
         try
         {
             String path = parser.out_dir
@@ -476,7 +476,9 @@ public class ValueDecl
     {
         File outfile = new File(dir, name + ".java");
 
-        if (GlobalInputStream.isMoreRecentThan(outfile))
+        // If we have a body (i.e. we've defined any pending_interface) and the 'more
+        // recent check' is ok then write the file.
+        if (hasBody && GlobalInputStream.isMoreRecentThan(outfile))
         {
             PrintWriter out = new PrintWriter(new FileWriter(outfile));
 
@@ -543,7 +545,7 @@ public class ValueDecl
                             // we "extend"
                             //
                             // applied patch by Thomas Leineweber for bug #492
-                            // 
+                            //
                             if (first)
                             {
                                 extendsBuffer.append(scopedName.toString());
@@ -552,7 +554,7 @@ public class ValueDecl
                             else
                             {
                                 extendsBuffer.append(", " + scopedName.toString());
-                            }                            
+                            }
                         }
                     }
 
@@ -676,15 +678,22 @@ public class ValueDecl
         throws IOException
     {
         if (factories.size() == 0)
+        {
             return;
+        }
 
         File outfile = new File(dir, name + "ValueFactory.java");
-        if (GlobalInputStream.isMoreRecentThan(outfile))
+
+        // If we have a body (i.e. we've defined any pending_interface) and the 'more
+        // recent check' is ok then write the file.
+        if (hasBody && GlobalInputStream.isMoreRecentThan(outfile))
         {
             PrintWriter out = new PrintWriter(new FileWriter(outfile));
 
             if (pack_name.length() > 0)
+            {
                 out.println("package " + pack_name + ";\n");
+            }
 
             printClassComment(out);
 
@@ -752,12 +761,17 @@ public class ValueDecl
         throws IOException
     {
         File outfile = new File(dir, name + "Helper.java");
-        if (GlobalInputStream.isMoreRecentThan(outfile))
+
+        // If we have a body (i.e. we've defined any pending_interface) and the 'more
+        // recent check' is ok then write the file.
+        if (hasBody && GlobalInputStream.isMoreRecentThan(outfile))
         {
             PrintWriter out = new PrintWriter(new FileWriter(outfile));
 
             if (pack_name.length() > 0)
+            {
                 out.println("package " + pack_name + ";\n");
+            }
 
             printClassComment(out);
 
@@ -824,12 +838,17 @@ public class ValueDecl
     private void printHolder(File dir) throws IOException
     {
         File outfile = new File(dir, name + "Holder.java");
-        if (GlobalInputStream.isMoreRecentThan(outfile))
+
+        // If we have a body (i.e. we've defined any pending_interface) and the 'more
+        // recent check' is ok then write the file.
+        if (hasBody && GlobalInputStream.isMoreRecentThan(outfile))
         {
             PrintWriter out = new PrintWriter(new FileWriter(outfile));
 
             if (pack_name.length() > 0)
+            {
                 out.println("package " + pack_name + ";\n");
+            }
 
             printClassComment(out);
 
