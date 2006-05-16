@@ -2,10 +2,10 @@
 % $Id$
 %
 
-This chapter explains the general mechanism for configuring JacORB 
+This chapter explains the general mechanism for configuring JacORB
 and lists all configuration properties. Note that ORB configuration
 has changed from version 2.1 to 2.2, in particular the names and
-locations of the standard configuration files. 
+locations of the standard configuration files.
 
 If you are upgrading from a previous version, please note that JacORB
 will still work with the old files, but you will have to copy your
@@ -21,7 +21,7 @@ properties. There are three options for setting properties:
 
 \begin{itemize}
 \item in properties files
-\item as command line properties, and 
+\item as command line properties, and
 \item as properties passed as arguments to ORB.init() in the code of your
   applications.
 \end{itemize}
@@ -89,7 +89,7 @@ JacORB looks for ORB properties files in these places:
 
 \begin{enumerate}
 \item {\tt jacorb.config.dir/etc/orbid.properties.}, if that exists, or
-\item {\tt jacorb.home/etc/orbid.properties.}, or 
+\item {\tt jacorb.home/etc/orbid.properties.}, or
 \item the current directory ({\tt './orbid.properties.'})
 \item on the class path.
 \end{enumerate}
@@ -110,7 +110,7 @@ would try to load would have been {\tt jacorb.properties}, because
 that is the default value for the ORBid. A good starting point is to
 have a common properties file that sets the {\tt jacorb.config.dir}
 property, and then have put a {\tt jacorb.properties} file in that
-directory. 
+directory.
 
 Note, however, that the added flexibility of using multiple
 configuration files may lead to individual properties defined in
@@ -290,7 +290,31 @@ properties specific to that component, e.g.,\\
 will turn logging off for the naming service, but all other parts of
 the ORB will still use the default log level. The general pattern for
 the log level property is {\tt jacorb.<component>.log.verbosity}.
-Other components are, e.g., poa, or ssl.
+Currently available logging components are
+\begin{small}
+\begin{itemize}
+\item activator
+\item jacorb.giop
+\item jacorb.giop.conn
+\item iiop.conn
+\item imr.locate
+\item imr.state
+\item naming
+\item orb
+\item orb.basic
+\item orb.factory
+\item orb.iiop
+\item orb.interceptors
+\item poa
+\item SAS
+\item SAS.CSS
+\item SAS.GSSUP
+\item SAS.TSS
+\item security
+\item security.jsse
+\item util.tpool
+\end{itemize}
+\end{small}
 
 \subsubsection*{Logging output to a file}
 
@@ -531,11 +555,11 @@ jacorb.ior\_proxy\_address is specified, it overrides these properties.
 jacorb.ior\_proxy\_address above &
 port & unset \\
 \hline
-\verb"OAAddress" & Used to supply an explicit listener protocol and 
-address for servers. The general form of the value is 
+\verb"OAAddress" & Used to supply an explicit listener protocol and
+address for servers. The general form of the value is
 {\tt <protocol>://<address>}. The protocol name must match the
 protocol(s) used by the server. For example: {\tt
-  iiop://myhost:1234}. This property supercedes OAIAddr and OAPort. 
+  iiop://myhost:1234}. This property supercedes OAIAddr and OAPort.
 & string & unset \\
 \hline
 \verb"OAIAddr" & The Object Adapter Internet Address: IP address on
