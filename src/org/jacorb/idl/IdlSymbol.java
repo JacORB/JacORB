@@ -638,15 +638,22 @@ public class IdlSymbol
         return parser.generateIncluded() && !( inhibitionFlag );
     }
 
-    protected String getFullName(String fullName)
+    /**
+     * this method will prepend the
+     * specified name with the omg prefix if
+     * necessary
+     *
+     * @return the full qualified java name
+     */
+    protected String getFullName(String name)
     {
-        if (!fullName.startsWith("org.omg") && !fullName.startsWith ("java.lang"))
+        if (!name.startsWith("org.omg") && !name.startsWith ("java.lang"))
         {
-            return omgPrefix() + fullName;
+            return omgPrefix() + name;
         }
         else
         {
-            return fullName;
+            return name;
         }
     }
 
