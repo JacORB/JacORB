@@ -20,30 +20,27 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-
-import org.omg.DynamicAny.*;
-import org.omg.CORBA.TCKind;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.TypeCode;
 
 /**
  * @author Gerald Brose, FU Berlin
  * @version $Id$
- * 
  */
 
 public class DynAnyFactoryImpl
     extends org.omg.CORBA.LocalObject
     implements org.omg.DynamicAny.DynAnyFactory
 {
-    org.omg.CORBA.ORB orb;
+    private final org.jacorb.orb.ORB orb;
+    private final Logger logger;
 
-    public DynAnyFactoryImpl( org.omg.CORBA.ORB orb )
+    public DynAnyFactoryImpl( org.jacorb.orb.ORB orb )
     {
         this.orb = orb;
-        //	_this_object( orb );
+        logger = orb.getConfiguration().getNamedLogger("jacorb.orb");
     }
 
     public org.omg.DynamicAny.DynAny create_dyn_any( org.omg.CORBA.Any value )
@@ -54,23 +51,23 @@ public class DynAnyFactoryImpl
           org.omg.DynamicAny.DynAny dynAny =
              create_dyn_any_from_type_code( value.type() );
           dynAny.from_any( value );
-          return dynAny; 
+          return dynAny;
        }
        catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
        {
-          iv.printStackTrace();
+           logger.error("unable to create DynAny", iv);
        }
        catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
        {
-          itc.printStackTrace();
+           logger.error("unable to create DynAny", itc);
        }
        throw new InconsistentTypeCode();
     }
 
 
-    public org.omg.DynamicAny.DynAny create_dyn_any_from_type_code( org.omg.CORBA.TypeCode type ) 
-	throws InconsistentTypeCode
-    {     
+    public org.omg.DynamicAny.DynAny create_dyn_any_from_type_code( org.omg.CORBA.TypeCode type )
+    throws InconsistentTypeCode
+    {
         type = TypeCode.originalType( type );
 
         try
@@ -106,7 +103,7 @@ public class DynAnyFactoryImpl
                 case org.omg.CORBA.TCKind._tk_except:
                 case org.omg.CORBA.TCKind._tk_struct:
                 {
-                    return new DynStruct( this , type, orb ) ;                    
+                    return new DynStruct( this , type, orb ) ;
                 }
                 case org.omg.CORBA.TCKind._tk_enum:
                 {
@@ -124,13 +121,18 @@ public class DynAnyFactoryImpl
                 {
                     return new DynUnion( this , type, orb ) ;
                 }
+                case org.omg.CORBA.TCKind._tk_value:
+                {
+                    throw new org.omg.CORBA.NO_IMPLEMENT
+                        ("DynValue is not yet implemented in Jacorb");
+                }
                 default:
                     throw new InconsistentTypeCode();
             }
         }
         catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
         {
-            iv.printStackTrace();
+            logger.error("unable to create DynAny from TypeCode", iv);
         }
         catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
         {

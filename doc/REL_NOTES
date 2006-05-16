@@ -47,6 +47,8 @@ post 2.2.4
         - Document all available loggers
     - IDL Compiler:
          - Fix for ValueType generation
+    - ORB:
+        - DynValue idl added
 2.2.4
 =====
 
