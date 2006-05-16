@@ -43,8 +43,10 @@
 post 2.2.4
 ==========
     - Documentation
-        Updated and merged JacIDL HTML into ProgrammingGuide.
-
+        - Updated and merged JacIDL HTML into ProgrammingGuide.
+        - Document all available loggers
+    - IDL Compiler:
+         - Fix for ValueType generation
 2.2.4
 =====
 
