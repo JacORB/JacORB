@@ -640,16 +640,14 @@ public class IdlSymbol
 
     protected String getFullName(String fullName)
     {
-        if (fullName.startsWith("org.omg"))
+        if (!fullName.startsWith("org.omg") && !fullName.startsWith ("java.lang"))
+        {
+            return omgPrefix() + fullName;
+        }
+        else
         {
             return fullName;
         }
-
-        if (fullName.startsWith("java.lang"))
-        {
-            return fullName;
-        }
-        return omg_package_prefix + fullName;
     }
 
 
