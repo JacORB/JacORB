@@ -73,7 +73,10 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
             //wait 2 secs
             Thread.sleep( 2000 );
         }
-        catch( Exception e ){ e.printStackTrace(); }
+        catch( Exception e )
+        {
+            // ignore
+        }
 
         //all transports must be down by now
         //NOTE: if this doesn't compile, please check if

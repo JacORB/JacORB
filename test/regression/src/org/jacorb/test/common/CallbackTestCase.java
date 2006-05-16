@@ -110,7 +110,6 @@ import junit.framework.*;
  */
 public class CallbackTestCase extends ClientServerTestCase
 {
-
     public CallbackTestCase(String name, ClientServerSetup setup)
     {
         super(name, setup);
@@ -122,28 +121,32 @@ public class CallbackTestCase extends ClientServerTestCase
         private boolean testFailed     = false;
         private String  failureMessage = null;
 
-	protected ReplyHandler() {
-	}
+        protected ReplyHandler() {
+            super();
+        }
 
         public synchronized void wait_for_reply(long timeout)
         {
             try 
             {
                 long start = System.currentTimeMillis();
+                
+                while(!replyReceived && System.currentTimeMillis() < start + timeout)
+                {
+                    this.wait(timeout);
+                }
+                
                 if ( !replyReceived )
                 {
-                    this.wait( timeout );
-                    if ( !replyReceived )
                         junit.framework.Assert.fail
                             ( "no reply within timeout (" 
                               + timeout + "ms)" );
                 }
-                //System.out.println( "waiting time: " +
-                //                    ( System.currentTimeMillis() - start ) );
+
                 if ( testFailed )
+                {
                     junit.framework.Assert.fail( failureMessage );
-                else
-                    ; // ok
+                }
             }
             catch ( InterruptedException e )
             {
