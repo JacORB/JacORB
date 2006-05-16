@@ -2,14 +2,19 @@ package org.jacorb.test.poa;
 
 import java.util.Properties;
 
-import junit.framework.*;
-import junit.extensions.*;
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.*;
-
-import org.jacorb.test.common.*;
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
+import org.jacorb.test.AMI_CallbackServerHandler;
+import org.jacorb.test.AMI_CallbackServerHandlerOperations;
+import org.jacorb.test.AMI_CallbackServerHandlerPOATie;
+import org.jacorb.test.CallbackServer;
+import org.jacorb.test.CallbackServerHelper;
+import org.jacorb.test._CallbackServerStub;
+import org.jacorb.test.common.CallbackTestCase;
+import org.jacorb.test.common.ClientServerSetup;
+import org.omg.Messaging.ExceptionHolder;
 
 /**
  * Overrun the request queue with queue_wait=off.
@@ -136,7 +141,6 @@ public class QueueNoWaitTest extends CallbackTestCase
         {
             wrong_reply( "ex_3" );
         }
-
     }
 
     private AMI_CallbackServerHandler ref ( ReplyHandler handler )
@@ -197,9 +201,11 @@ public class QueueNoWaitTest extends CallbackTestCase
         for (int i=0; i < 50; i++)
         {
             ( ( _CallbackServerStub ) server )
-                    .sendc_delayed_ping( ref( handler ), 10 );
+                    .sendc_delayed_ping( ref( handler ), 1000);
             if (h.exceptionReceived) 
+            {
                 return;
+            }
         }
 
         try 
@@ -207,10 +213,9 @@ public class QueueNoWaitTest extends CallbackTestCase
             Thread.sleep (1000); 
         }
         catch (InterruptedException ex) 
-        {}
-        if (!h.exceptionReceived)
-            fail ("should have raised a TRANSIENT exception");
+        {
+            // ignored
+        }
+        assertTrue("should have raised a TRANSIENT exception", h.exceptionReceived);
     }
-    
-
 }
