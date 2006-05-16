@@ -35,7 +35,7 @@ import org.jacorb.test.common.TestUtils;
  * will fail if JacIDL causes an error during processing.
  *
  * additionally if you'd like to verify the compiled classes
- * you can define a method that must adhere to the following
+ * you can optionally define a method that must adhere to the following
  * signature: public void verify_<FILENAME>(ClassLoader cl) {...}
  * (dots in filename will be converted to _). inside the method you can then
  * load and inspect the compiled classes.
