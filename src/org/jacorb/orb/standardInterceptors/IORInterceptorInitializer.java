@@ -65,7 +65,7 @@ public class IORInterceptorInitializer
         catch (Exception e)
         {
             logger.error("unexpected exception", e);
-            throw new INTERNAL(e.getMessage());
+            throw new INTERNAL(e.toString());
         }
     }
 

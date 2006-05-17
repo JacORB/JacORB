@@ -35,7 +35,7 @@ public class StaticTypeChecker extends AbstractTCLVisitor
             rootNode.acceptPostOrder(this);
         } catch (VisitorException e)
         {
-            throw new StaticTypeException(e.getMessage());
+            throw new StaticTypeException(e.toString());
         }
     }
 

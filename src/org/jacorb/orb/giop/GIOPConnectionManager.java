@@ -22,6 +22,7 @@ package org.jacorb.orb.giop;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
+import java.io.InterruptedIOException;
 import java.util.*;
 
 import org.jacorb.util.ObjectUtil;
@@ -31,7 +32,7 @@ import org.jacorb.util.ObjectUtil;
  * @version $Id$
  */
 
-public class GIOPConnectionManager 
+public class GIOPConnectionManager
     implements Configurable
 {
     /** the configuration object  */
@@ -62,22 +63,22 @@ public class GIOPConnectionManager
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = 
+        logger =
             configuration.getNamedLogger("jacorb.orb.giop.conn");
-        
-        max_server_giop_connections = 
+
+        max_server_giop_connections =
             configuration.getAttributeAsInteger("jacorb.connection.max_server_connections",
                                                 Integer.MAX_VALUE );
-        
-        selection_strategy = (SelectionStrategy)
-            configuration.getAttributeAsObject( 
-                "jacorb.connection.selection_strategy_class" );
-        
-        wait_for_idle_interval =
-            configuration.getAttributeAsInteger( 
-                "jacorb.connection.wait_for_idle_interval", 500 );                
 
-        String s = 
+        selection_strategy = (SelectionStrategy)
+            configuration.getAttributeAsObject(
+                "jacorb.connection.selection_strategy_class" );
+
+        wait_for_idle_interval =
+            configuration.getAttributeAsInteger(
+                "jacorb.connection.wait_for_idle_interval", 500 );
+
+        String s =
             configuration.getAttribute( "jacorb.connection.statistics_provider_class","" );
 
         if( s.length() > 0 )
@@ -90,13 +91,13 @@ public class GIOPConnectionManager
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e.getMessage() );
-                }                        
+                    logger.error( "Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e.toString() );
+                }
             }
         }
 
     }
-    
+
 
     public ServerGIOPConnection createServerGIOPConnection(org.omg.ETF.Profile profile,
                                                            org.omg.ETF.Connection transport,
@@ -114,10 +115,10 @@ public class GIOPConnectionManager
 
                     synchronized( server_giop_connections )
                     {
-                        to_close = 
+                        to_close =
                             selection_strategy.selectForClose( server_giop_connections );
                     }
-                    
+
                     if( to_close != null &&
                         to_close.tryClose() )
                     {
@@ -129,12 +130,9 @@ public class GIOPConnectionManager
                         {
                             Thread.sleep( wait_for_idle_interval );
                         }
-                        catch( Exception e )
+                        catch( InterruptedException e )
                         {
-                            if (logger.isWarnEnabled())
-                            {
-                                logger.warn("During thread.sleep: " + e.getMessage());
-                            }
+                            // ignored
                         }
                     }
                 }
@@ -162,55 +160,53 @@ public class GIOPConnectionManager
         }
         catch( ConfigurationException ce )
         {
-            if (logger.isWarnEnabled())
-                logger.warn("ConfigurationException", ce);
+            logger.warn("ConfigurationException", ce);
         }
 
         synchronized( server_giop_connections )
         {
             server_giop_connections.add( connection );
         }
-        
+
         if (logger.isDebugEnabled())
             logger.debug ("GIOPConnectionManager: created new " + connection.toString());
-        
+
         return connection;
     }
 
-    public void unregisterServerGIOPConnection( 
+    public void unregisterServerGIOPConnection(
         ServerGIOPConnection connection )
     {
         synchronized( server_giop_connections )
         {
             server_giop_connections.remove( connection );
         }
-    } 
+    }
 
-    public GIOPConnection createClientGIOPConnection( 
+    public GIOPConnection createClientGIOPConnection(
         org.omg.ETF.Profile profile,
         org.omg.ETF.Connection transport,
         RequestListener request_listener,
         ReplyListener reply_listener )
     {
-        ClientGIOPConnection connection = 
+        ClientGIOPConnection connection =
             new ClientGIOPConnection( profile,
                                       transport,
                                       request_listener,
                                       reply_listener,
                                       null );
-        
+
         try
         {
             connection.configure( configuration );
         }
         catch( ConfigurationException ce )
         {
-            if (logger.isWarnEnabled())
-                logger.warn("ConfigurationException", ce);
+            logger.warn("ConfigurationException", ce);
         }
         return connection;
     }
-    
+
     /**
      * Closes all server-side GIOP connections.
      */
@@ -223,7 +219,7 @@ public class GIOPConnectionManager
         }
 
         if (logger.isDebugEnabled())
-            logger.debug ("GIOPConnectionManager.shutdown(), " + 
+            logger.debug ("GIOPConnectionManager.shutdown(), " +
                           connections.size() + " connections");
 
         for (Iterator i=connections.iterator(); i.hasNext();)
@@ -231,7 +227,7 @@ public class GIOPConnectionManager
             ServerGIOPConnection c = (ServerGIOPConnection)i.next();
             c.tryClose();
         }
-        
+
     }
 
     private StatisticsProvider getStatisticsProvider()
@@ -241,7 +237,7 @@ public class GIOPConnectionManager
         {
             try
             {
-                result = (StatisticsProvider) 
+                result = (StatisticsProvider)
                     statistics_provider_class.newInstance();
             }
             catch( Exception e )
@@ -251,7 +247,7 @@ public class GIOPConnectionManager
                                   statistics_provider_class + '<');
             }
         }
-        return result;       
+        return result;
     }
 
 }// GIOPConnectionManager

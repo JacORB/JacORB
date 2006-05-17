@@ -138,7 +138,7 @@ public class SSLComponentInterceptor
         catch (Exception e)
         {
             logger.error("unexpected exception", e);
-            throw new INTERNAL(e.getMessage());
+            throw new INTERNAL(e.toString());
         }
     }
 } // SSLComponentInterceptor

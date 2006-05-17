@@ -65,7 +65,7 @@ import org.picocontainer.defaults.CachingComponentAdapter;
 /**
  * @jmx.mbean extends = "AbstractAdminMBean"
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -82,13 +82,13 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         {
             FilterStage left = (FilterStage) l;
             FilterStage right = (FilterStage) r;
-            
+
             return left.getMessageConsumer().compareTo(right.getMessageConsumer());
         }
     }
 
     private static final FilterstageWithMessageConsumerComparator FILTERSTAGE_COMPARATOR = new FilterstageWithMessageConsumerComparator();
-    
+
     private final FilterStageListManager listManager_;
 
     private MappingFilter priorityFilter_;
@@ -110,15 +110,15 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
             protected void fetchListData(FilterStageListManager.FilterStageList listProxy)
             {
                 addAllValues(listProxy, pullServants_);
-                
+
                 addAllValues(listProxy, pushServants_);
             }
-            
+
             protected void doSortCheckedList(List list)
             {
                 Collections.sort(list, FILTERSTAGE_COMPARATOR);
             }
-            
+
             private void addAllValues(FilterStageListManager.FilterStageList listProxy, Map map)
             {
                 for (Iterator i = map.entrySet().iterator(); i.hasNext();)
@@ -204,7 +204,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         {
             logger_.fatalError("obtain_notification_pull_supplier: unexpected error", e);
 
-            throw new UNKNOWN(e.getMessage());
+            throw new UNKNOWN(e.toString());
         }
     }
 
@@ -331,7 +331,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
         {
             logger_.fatalError("obtain_push_supplier: exception", e);
 
-            throw new UNKNOWN(e.getMessage());
+            throw new UNKNOWN(e.toString());
         }
     }
 
@@ -441,7 +441,7 @@ public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOpe
 
         return _servant;
     }
-    
+
     public String getMBeanType()
     {
         return "ConsumerAdmin";

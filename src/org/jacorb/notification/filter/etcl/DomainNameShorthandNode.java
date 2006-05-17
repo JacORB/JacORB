@@ -44,7 +44,7 @@ public class DomainNameShorthandNode
             expandedPath_.acceptInOrder( new TCLCleanUp() );
         } catch (Exception e) {
             // should never happen
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.toString());
         }
     }
 
@@ -56,17 +56,17 @@ public class DomainNameShorthandNode
         return COMP_NAME;
     }
 
-    public void acceptInOrder(AbstractTCLVisitor v) 
+    public void acceptInOrder(AbstractTCLVisitor v)
     {
         // no op
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor v) 
+    public void acceptPostOrder(AbstractTCLVisitor v)
     {
         // no op
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor v) 
+    public void acceptPreOrder(AbstractTCLVisitor v)
     {
         // no op
     }
@@ -76,7 +76,7 @@ public class DomainNameShorthandNode
 
         final Message _event = context.getCurrentMessage();
         final EvaluationResult _result;
-        
+
         switch (_event.getType()) {
         case Message.TYPE_ANY:
             _result = expandedPath_.evaluate(context);

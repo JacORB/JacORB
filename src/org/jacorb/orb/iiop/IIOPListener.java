@@ -353,7 +353,7 @@ public class IIOPListener
         }
         catch( ConfigurationException ce )
         {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
+            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.toString());
         }
         return result;
     }
@@ -400,7 +400,7 @@ public class IIOPListener
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn(e.getMessage());
+                            logger.warn(e.toString());
                         }
                     }
                 }
@@ -425,7 +425,7 @@ public class IIOPListener
             {
                 if (logger.isWarnEnabled())
                 {
-                    logger.warn(e.getMessage());
+                    logger.warn(e.toString());
                 }
             }
         }
@@ -462,7 +462,7 @@ public class IIOPListener
             }
             catch (IOException ex)
             {
-                logger.warn(ex.getMessage());
+                logger.warn("could not create server socket", ex);
                 throw new org.omg.CORBA.INITIALIZE ("Could not create server socket");
             }
         }
@@ -498,7 +498,7 @@ public class IIOPListener
             }
             catch (IOException e)
             {
-                logger.warn(e.getMessage());
+                logger.warn("could not create SSL server socket", e);
                 throw new org.omg.CORBA.INITIALIZE
                                            ("Could not create SSL server socket");
             }

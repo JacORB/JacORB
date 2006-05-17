@@ -40,7 +40,7 @@ public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenType
         }
         catch ( VisitorException e )
         {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.toString());
         }
     }
 

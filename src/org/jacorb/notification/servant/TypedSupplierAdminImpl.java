@@ -89,7 +89,7 @@ public class TypedSupplierAdminImpl extends SupplierAdminImpl implements
         } catch (Exception e)
         {
             logger_.error("unable to create typed notification push consumer", e);
-            throw new INTERNAL(e.getMessage());
+            throw new INTERNAL(e.toString());
         }
     }
 
@@ -120,7 +120,7 @@ public class TypedSupplierAdminImpl extends SupplierAdminImpl implements
         {
             logger_.error("unable to create typed notification push consumer", e);
 
-            throw new INTERNAL(e.getMessage());
+            throw new INTERNAL(e.toString());
         }
     }
 
@@ -134,7 +134,7 @@ public class TypedSupplierAdminImpl extends SupplierAdminImpl implements
     {
         throw new NO_IMPLEMENT();
     }
-    
+
     public String getMBeanType()
     {
         return "TypedSupplierAdmin";

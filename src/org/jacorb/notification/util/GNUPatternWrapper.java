@@ -40,7 +40,7 @@ public class GNUPatternWrapper extends PatternWrapper
             pattern_ = new gnu.regexp.RE(patternString);
         } catch (REException e)
         {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.toString());
         }
     }
 

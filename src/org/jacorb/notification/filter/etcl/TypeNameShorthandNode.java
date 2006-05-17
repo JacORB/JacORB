@@ -46,7 +46,7 @@ public class TypeNameShorthandNode extends ETCLComponentName
         catch ( Exception e )
         {
             // should never happen
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.toString());
         }
     }
 

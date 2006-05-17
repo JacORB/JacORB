@@ -122,7 +122,7 @@ public class DynAny
       }
       catch( Exception e)
       {
-         throw new InvalidValue(e.getMessage());
+         throw new InvalidValue(e.toString());
       }
    }
 
@@ -785,6 +785,6 @@ public class DynAny
    protected final INTERNAL unexpectedException(Exception cause)
    {
        logger.debug("An unexpected error occured", cause);
-       return new INTERNAL(cause.getMessage());
+       return new INTERNAL(cause.toString());
    }
 }

@@ -70,11 +70,11 @@ public class ETCLFilterConstraint implements FilterConstraint
         }
         catch ( StaticTypeException e )
         {
-            throw new InvalidConstraint( e.getMessage(), constraintExp );
+            throw new InvalidConstraint( e.toString(), constraintExp );
         }
         catch ( ParseException e )
         {
-            throw new InvalidConstraint( e.getMessage(), constraintExp );
+            throw new InvalidConstraint( e.toString(), constraintExp );
         }
     }
 

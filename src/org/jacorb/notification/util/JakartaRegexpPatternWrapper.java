@@ -37,7 +37,7 @@ public class JakartaRegexpPatternWrapper extends PatternWrapper {
             }
         catch ( RESyntaxException e )
             {
-                throw new RuntimeException( e.getMessage() );
+                throw new RuntimeException( e.toString() );
             }
     }
 

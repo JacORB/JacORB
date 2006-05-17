@@ -266,7 +266,7 @@ public final class ORB
         catch( BAD_INV_ORDER b)
         {
             logger.fatalError("unexpected exception", b);
-            throw new INTERNAL(b.getMessage());
+            throw new INTERNAL(b.toString());
         }
 
         configureObjectKeyMap(configuration);
@@ -542,7 +542,7 @@ public final class ORB
             }
             catch( ConfigurationException ce )
             {
-                throw new INTERNAL(ce.getMessage());
+                throw new INTERNAL(ce.toString());
             }
         }
         return giop_connection_manager;
@@ -854,8 +854,7 @@ public final class ORB
         }
         catch(ConfigurationException ce)
         {
-            if (logger.isErrorEnabled())
-                logger.error(ce.getMessage(), ce);
+            logger.error("configuration exception", ce);
         }
         return d.getReference( poa );
     }
@@ -880,7 +879,7 @@ public final class ORB
             catch( ConfigurationException ce )
             {
                 throw new org.omg.CORBA.INITIALIZE("ConfigurationException: " +
-                                                   ce.getMessage() );
+                                                   ce.toString() );
             }
             rootpoa._addPOAEventListener( this );
 
@@ -1500,7 +1499,7 @@ public final class ORB
             {
                 logger.error( ce.getMessage());
             }
-            throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
+            throw new org.omg.CORBA.INITIALIZE( ce.toString() );
         }
 
         internalInit();
@@ -1543,7 +1542,7 @@ public final class ORB
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info(e.getMessage());
+                    logger.info(e.toString());
                 }
                 knownReferences = new HashMap();
             }
@@ -1594,7 +1593,7 @@ public final class ORB
                 {
                     if (logger.isWarnEnabled())
                     {
-                        logger.warn( e.getMessage());
+                        logger.warn( e.toString());
                     }
                 }
             }
@@ -2142,7 +2141,7 @@ public final class ORB
             }
             catch( ConfigurationException ce )
             {
-                throw new INTERNAL(ce.getMessage());
+                throw new INTERNAL(ce.toString());
             }
         }
         return transport_manager;
@@ -2421,13 +2420,11 @@ public final class ORB
                         {
                             rootPOAManager.activate();
                         }
-                        catch (AdapterInactive adapterInactive)
+                        catch (AdapterInactive e)
                         {
-                            // cannot happen
-                            if( logger.isErrorEnabled() )
-                            {
-                                logger.error(adapterInactive.getMessage());
-                            }
+                            // should not happen
+                            logger.fatalError("unexpected exception", e);
+                            throw new INTERNAL(e.toString());
                         }
                     }
                 }
@@ -2461,10 +2458,8 @@ public final class ORB
                 catch (Exception e)
                 {
                     // cannot happen
-                    if( logger.isErrorEnabled())
-                    {
-                        logger.error(e.getMessage());
-                    }
+                    logger.fatalError("unexpected exception", e);
+                    throw new INTERNAL(e.toString());
                 }
             }
         }

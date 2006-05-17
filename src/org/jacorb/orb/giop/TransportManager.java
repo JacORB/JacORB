@@ -123,11 +123,9 @@ public class TransportManager
             }
             catch (Exception e)
             {
+                logger.error("SSL support is on, but the ssl socket factory can't be instantiated", e);
 
-                if (logger.isErrorEnabled())
-                    logger.error(e.getMessage());
-
-                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instantiated ("+ e.getMessage()+")!" );
+                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instantiated ("+ e.toString()+")!" );
             }
         }
 

@@ -92,7 +92,7 @@ public class ClientConnectionManager
 
         request_listener = new NoBiDirClientRequestListener(logger);
 
-        socket_factory = 
+        socket_factory =
             transport_manager.getSocketFactoryManager().getSocketFactory();
 
         if (configuration.getAttribute("jacorb.security.support_ssl","off").equals("on") )
@@ -107,15 +107,15 @@ public class ClientConnectionManager
             {
                 Class ssl = ObjectUtil.classForName(s);
 
-                Constructor constr = 
+                Constructor constr =
                     ssl.getConstructor( new Class[]{ ORB.class });
 
-                ssl_socket_factory = 
+                ssl_socket_factory =
                     (SocketFactory)constr.newInstance( new Object[]{ orb });
             }
             catch (Exception e)
             {
-                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instantiated ("+e.getMessage()+")!" );
+                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instantiated (" +e.toString() +")!" );
             }
         }
     }
@@ -181,7 +181,7 @@ public class ClientConnectionManager
         if ( c.decClients() )
         {
             if (logger.isDebugEnabled())
-                logger.debug ("ClientConnectionManager: releasing " 
+                logger.debug ("ClientConnectionManager: releasing "
                               + c.getGIOPConnection().toString());
             c.close();
             connections.remove(c.getRegisteredProfile());

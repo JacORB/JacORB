@@ -46,7 +46,7 @@ public class EventNameShorthandNode extends ETCLComponentName
         catch (Exception e)
         {
             // should never happen
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.toString());
         }
     }
 
@@ -80,7 +80,7 @@ public class EventNameShorthandNode extends ETCLComponentName
     {
         final Message _event = context.getCurrentMessage();
         final EvaluationResult _result;
-        
+
         switch (_event.getType())
         {
             case Message.TYPE_ANY:

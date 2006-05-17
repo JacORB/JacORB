@@ -30,16 +30,16 @@ import org.omg.RTCORBA.ProtocolProperties;
  * @author Andre Spiegel
  * @version $Id$
  */
-public abstract class FactoriesBase 
+public abstract class FactoriesBase
     extends org.omg.ETF._FactoriesLocalBase
     implements Configurable
 {
     protected org.jacorb.config.Configuration configuration;
-    
+
     protected static Class connectionClz;
-    
+
     protected static Class listenerClz;
-    
+
     protected static Class profileClz;
 
     protected static Class addressClz;
@@ -49,7 +49,7 @@ public abstract class FactoriesBase
     {
         this.configuration = (org.jacorb.config.Configuration)configuration;
     }
-    
+
     /**
     * ETF defined operation to create a connection.
     */
@@ -60,9 +60,9 @@ public abstract class FactoriesBase
         {
             connection = (Connection)connectionClz.newInstance();
         }
-        catch (Exception ie)
+        catch (Exception e)
         {
-            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Connection class: " + ie.getMessage());
+            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Connection class: " + e.toString());
         }
         try
         {
@@ -71,13 +71,13 @@ public abstract class FactoriesBase
                 ((Configurable)connection).configure(configuration);
             }
         }
-        catch( ConfigurationException ce )
+        catch( ConfigurationException e )
         {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
+            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
         }
         return connection;
     }
-    
+
     /**
     * ETF defined operation to create a connection.
     */
@@ -90,9 +90,9 @@ public abstract class FactoriesBase
         {
             listener = (Listener)listenerClz.newInstance();
         }
-        catch (Exception ie)
+        catch (Exception e)
         {
-            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Listener class: " + ie.getMessage());
+            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Listener class: " + e.toString());
         }
         try
         {
@@ -101,13 +101,13 @@ public abstract class FactoriesBase
                 ((Configurable)listener).configure(configuration);
             }
         }
-        catch( ConfigurationException ce )
+        catch( ConfigurationException e )
         {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
+            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
         }
         return listener;
     }
-    
+
     public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
                                       TaggedComponentSeqHolder components)
     {
@@ -118,11 +118,11 @@ public abstract class FactoriesBase
         }
         catch (Exception ie)
         {
-            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Profile class: " + ie.getMessage());
+            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Profile class: " + ie.toString());
         }
-        
+
         profile.demarshal(tagged_profile, components);
-        
+
         try
         {
             if (profile instanceof Configurable)
@@ -132,12 +132,12 @@ public abstract class FactoriesBase
         }
         catch( ConfigurationException ce )
         {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
+            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.toString());
         }
-        
+
         return profile;
     }
-    
+
 
     // Although not part of the ETF IDL for a Factory object, this is the best
     // place to add a new method for creating protocol address instances
@@ -153,7 +153,7 @@ public abstract class FactoriesBase
             catch (Exception ie) {
                 throw new org.omg.CORBA.INTERNAL
                     ("Cannot instantiate etf.ProtocolAddressBase class: " +
-                     ie.getMessage());
+                     ie.toString());
             }
             // general form is "prot://address"
             if (!address.fromString(addr.substring(address_start + 2)))

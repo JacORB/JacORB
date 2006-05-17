@@ -86,7 +86,7 @@ public final class DynFixed
       }
       catch( Exception e)
       {
-         throw new InvalidValue(e.getMessage());
+         throw new InvalidValue(e.toString());
       }
    }
 

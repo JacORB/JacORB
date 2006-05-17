@@ -75,7 +75,7 @@ public abstract class PatternWrapper
             } catch (ClassNotFoundException e)
             {
                 // this time its non recoverable ...
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e.toString());
             }
         }
 
@@ -101,7 +101,7 @@ public abstract class PatternWrapper
                 throw REGEXP_NOT_AVAILABLE;
             }
 
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.toString());
         }
     }
 
@@ -109,7 +109,7 @@ public abstract class PatternWrapper
 
     /**
      * Match the given input against this pattern.
-     * 
+     *
      * @param text
      *            the input to be matched
      * @return the index of the last character matched, plus one or zero if the pattern did not

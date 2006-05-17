@@ -135,10 +135,7 @@ public class ClientRequestInfoImpl
             }
             catch (Exception e)
             {
-                if( logger.isDebugEnabled() )
-                {
-                    logger.debug(e.getMessage());
-                }
+                logger.debug("unexpected exception", e);
             }
         }
         //exceptions will be set when available

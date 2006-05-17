@@ -56,7 +56,7 @@ import org.omg.TimeBase.UtcT;
  * @version $Id$
  */
 
-public class ReplyReceiver 
+public class ReplyReceiver
     extends ReplyPlaceholder
     implements Configurable
 {
@@ -108,9 +108,9 @@ public class ReplyReceiver
         throws org.apache.avalon.framework.configuration.ConfigurationException
     {
         this.configuration = configuration;
-        logger = 
+        logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.rep_recv");
-        retry_on_failure = 
+        retry_on_failure =
             configuration.getAttribute("jacorb.connection.client.retry_on_failure","off").equals("on");
     }
 
@@ -125,7 +125,7 @@ public class ReplyReceiver
         Set pending_replies = delegate.get_pending_replies();
         // grab pending_replies lock BEFORE my own,
         // then I will already have it in the replyDone call below.
-        synchronized ( pending_replies ) 
+        synchronized ( pending_replies )
         {
         // This internal synchronization prevents a deadlock
         // when a timeout and a reply coincide, suggested
@@ -136,7 +136,7 @@ public class ReplyReceiver
         {
             if (timeoutException)
                 return; // discard reply
-            
+
             this.in = in;
             delegate.replyDone (this);
 
@@ -205,8 +205,7 @@ public class ReplyReceiver
         }
         catch ( Exception e )
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Exception during callback: " + e.getMessage() );
+            logger.warn("Exception during callback", e);
         }
         finally
         {
@@ -250,7 +249,7 @@ public class ReplyReceiver
         catch ( Exception e )
         {
             if (logger.isWarnEnabled())
-                logger.warn("Exception during callback: " + e.getMessage() );
+                logger.warn("Exception during callback: " + e.toString() );
         }
         finally
         {
@@ -350,7 +349,7 @@ public class ReplyReceiver
     }
 
     private void doRebind ( org.omg.CORBA.Object forward_reference )
-    {   
+    {
         try
         {
             // make other threads that have unreturned replies wait
@@ -389,9 +388,7 @@ public class ReplyReceiver
         }
         catch( java.io.IOException ioe )
         {
-            //should not happen anyway
-            if (logger.isErrorEnabled())
-                logger.error("Exception int reset(): " + ioe.getMessage() );
+            logger.error("unexpected Exception in reset()", ioe );
         }
 
         return new ApplicationException( id, reply );
@@ -481,7 +478,7 @@ public class ReplyReceiver
 
                             if (replyHandler != null)
                             {
-                                ExceptionHolderImpl exHolder = 
+                                ExceptionHolderImpl exHolder =
                                     new ExceptionHolderImpl(new org.omg.CORBA.TIMEOUT());
                                 performExceptionCallback(exHolder);
                             }

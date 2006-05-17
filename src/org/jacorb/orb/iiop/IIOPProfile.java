@@ -426,7 +426,7 @@ public class IIOPProfile
             catch ( Exception ex )
             {
                 logger.debug("unexpected exception", ex);
-                throw new INTERNAL(ex.getMessage());
+                throw new INTERNAL(ex.toString());
             }
         }
         return -1;

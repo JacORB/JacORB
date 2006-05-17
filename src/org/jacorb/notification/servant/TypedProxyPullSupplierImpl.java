@@ -71,7 +71,7 @@ import org.omg.PortableServer.Servant;
 /**
  * @jmx.mbean extends = "AbstractProxySupplierMBean"
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -184,7 +184,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         try
         {
             final Property[] _props = mesg.toTypedEvent();
-            
+
             final NVList _args = getORB().create_list(_props.length - 1);
 
             // start at index 1 here. index 0 contains the operation name
@@ -238,7 +238,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         } catch (InconsistentTypeCode e)
         {
             throw new RuntimeException();
-        } 
+        }
     }
 
     private void ensureMethodOnlyUsesOutParams(OperationDescription operation)
@@ -287,10 +287,10 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
                 logger_.debug("Create Queue for Operation: "
                         + interfaceDescription.operations[x].name);
 
-                MessageQueueAdapter _messageQueue = 
+                MessageQueueAdapter _messageQueue =
                     getMessageQueueFactory().newMessageQueue(qosSettings_);
 
-                map.put(interfaceDescription.operations[x].name, 
+                map.put(interfaceDescription.operations[x].name,
                         new RWLockEventQueueDecorator(_messageQueue));
             }
         }
@@ -340,7 +340,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
             {
                 String _key = (String) i.next();
 
-                RWLockEventQueueDecorator _queueAdapter = 
+                RWLockEventQueueDecorator _queueAdapter =
                     (RWLockEventQueueDecorator) messageQueueMap_.get(_key);
 
                 MessageQueueAdapter _newQueue = getMessageQueueFactory().newMessageQueue(qosSettings_);
@@ -350,10 +350,10 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
 
         } catch (InterruptedException e)
         {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.toString());
         }
     }
-    
+
     public int getPendingMessagesCount()
     {
         try
@@ -361,12 +361,12 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
             Iterator i = messageQueueMap_.keySet().iterator();
 
             int _count = 0;
-            
+
             while (i.hasNext())
             {
                 String _key = (String) i.next();
 
-                RWLockEventQueueDecorator _queueAdapter = 
+                RWLockEventQueueDecorator _queueAdapter =
                     (RWLockEventQueueDecorator) messageQueueMap_.get(_key);
 
                 _count += _queueAdapter.getPendingMessagesCount();
@@ -380,7 +380,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
     }
 
     private PropertySetAdapter reconfigureEventQueues_ = new PropertySetAdapter()
-    { 
+    {
         public void actionPropertySetChanged(PropertySet source)
         {
             configureEventQueue();
@@ -457,7 +457,7 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
             String _operation = _fullQualifiedOperation.substring(idx + 2);
 
             final Message _clonedMessage = (Message) message.clone();
-           
+
             try
             {
                 ((MessageQueueAdapter) messageQueueMap_.get(_operation)).enqeue(_clonedMessage);
@@ -482,12 +482,12 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
         pullConsumer_.disconnect_pull_consumer();
         pullConsumer_ = null;
     }
-    
+
     protected long getCost()
     {
         return 0;
     }
-    
+
     /**
      * @jmx.managed-attribute
      *                        access = "read-only"

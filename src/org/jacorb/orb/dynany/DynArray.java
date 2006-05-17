@@ -71,16 +71,14 @@ public final class DynArray
                     members[i] = dynFactory.create_dyn_any_from_type_code( elementType ).to_any();
                 }
             }
-            catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+            catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
             {
-                logger.debug("DynArray", itc);
-                throw new INTERNAL(itc.getMessage());
+                throw unexpectedException(e);
             }
         }
-        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+        catch( org.omg.CORBA.TypeCodePackage.BadKind e )
         {
-            logger.debug("DynArray", bk);
-            throw new INTERNAL(bk.getMessage());
+            throw unexpectedException(e);
         }
    }
 

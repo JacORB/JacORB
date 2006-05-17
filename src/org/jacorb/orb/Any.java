@@ -937,7 +937,7 @@ public final class Any
             }
             catch( Exception e )
             {
-                throw new INTERNAL( e.getMessage());
+                throw new INTERNAL( e.toString());
             }
         case TCKind._tk_value:
         case TCKind._tk_value_box:

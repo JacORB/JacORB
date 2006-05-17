@@ -46,7 +46,7 @@ import org.omg.CosNotification.StructuredEventHelper;
 
 public class DefaultMessageFactory implements Disposable, MessageFactory
 {
-    private final AbstractObjectPool typedEventMessagePool_ = 
+    private final AbstractObjectPool typedEventMessagePool_ =
         new AbstractPoolablePool("TypedEventMessagePool")
     {
         public Object newInstance()
@@ -55,7 +55,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         }
     };
 
-    private final AbstractObjectPool anyMessagePool_ = 
+    private final AbstractObjectPool anyMessagePool_ =
         new AbstractPoolablePool("AnyMessagePool")
     {
         public Object newInstance()
@@ -64,7 +64,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         }
     };
 
-    private final AbstractObjectPool structuredEventMessagePool_ = 
+    private final AbstractObjectPool structuredEventMessagePool_ =
         new AbstractPoolablePool("StructuredEventMessagePool")
     {
         public Object newInstance()
@@ -108,11 +108,11 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         }
 
         AnyMessage _mesg = newAnyMessage(any);
-        
+
         _mesg.initReceiveTimestamp();
 
         _mesg.setFilterStage(consumer.getFirstStage());
-        
+
         return _mesg.getHandle();
     }
 
@@ -130,16 +130,16 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
             return newMessage(structuredEvent.remainder_of_body, consumer);
         }
 
-        StructuredEventMessage _mesg = 
+        StructuredEventMessage _mesg =
             (StructuredEventMessage) structuredEventMessagePool_.lendObject();
 
         _mesg.initReceiveTimestamp();
-        
+
         _mesg.setFilterStage(consumer.getFirstStage());
 
         _mesg.setStructuredEvent(structuredEvent, consumer.getStartTimeSupported(), consumer
                 .getStopTimeSupported());
-        
+
         return _mesg.getHandle();
     }
 
@@ -154,7 +154,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
             TypedEventMessage _mesg = (TypedEventMessage) typedEventMessagePool_.lendObject();
 
             _mesg.initReceiveTimestamp();
-            
+
             Property[] _props = new Property[args.count()];
 
             for (int x = 0; x < _props.length; ++x)
@@ -167,12 +167,12 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
             _mesg.setTypedEvent(interfaceName, operationName, _props);
 
             _mesg.setFilterStage(consumer.getFirstStage());
-            
+
            return _mesg.getHandle();
         } catch (Bounds e)
         {
             // this should never happen as NamedValue bounds are checked always.
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.toString());
         }
     }
 
@@ -201,7 +201,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         {
             return newMessage(StructuredEventHelper.extract(any));
         }
-        
+
         AnyMessage _mesg = newAnyMessage(any);
 
         return _mesg.getHandle();
@@ -212,7 +212,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
         AnyMessage _mesg = (AnyMessage) anyMessagePool_.lendObject();
 
         _mesg.setAny(any);
-        
+
         return _mesg;
     }
 
@@ -228,7 +228,7 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
             return newMessage(structuredEvent.remainder_of_body);
         }
 
-        StructuredEventMessage _mesg = 
+        StructuredEventMessage _mesg =
             (StructuredEventMessage) structuredEventMessagePool_.lendObject();
 
         _mesg.setStructuredEvent(structuredEvent, false, false);

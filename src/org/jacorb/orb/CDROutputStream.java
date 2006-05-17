@@ -226,7 +226,7 @@ public class CDROutputStream
             }
             catch( ConfigurationException ce )
             {
-                throw new INTERNAL("ConfigurationException: " + ce.getMessage());
+                throw new INTERNAL("ConfigurationException: " + ce);
             }
         }
     }

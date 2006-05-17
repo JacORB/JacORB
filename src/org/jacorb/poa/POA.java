@@ -245,7 +245,7 @@ public class POA
 
         String tmp =
             configuration.getAttribute("jacorb.implname", "");
-        
+
         if (tmp.length() > 0)
         {
             implName = tmp.getBytes();
@@ -316,7 +316,7 @@ public class POA
     {
         return aom.incarnate(oid, sa, this);
     }
-    
+
     /**
      * called from orb, returns a registered child poa,
      * if no child poa exists a adapter activator will used
@@ -806,7 +806,7 @@ public class POA
             }
             catch (ConfigurationException e)
             {
-                throw new org.omg.CORBA.INTERNAL(e.getMessage());
+                throw new org.omg.CORBA.INTERNAL(e.toString());
             }
 
             // notify a poa listener

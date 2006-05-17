@@ -71,13 +71,11 @@ public final class DynEnum
        }
        catch( org.omg.CORBA.TypeCodePackage.BadKind e )
        {
-           logger.debug("DynEnum.constructor", e);
-           throw new INTERNAL(e.getMessage());
+           throw unexpectedException(e);
        }
        catch( org.omg.CORBA.TypeCodePackage.Bounds e )
        {
-           logger.debug("DynEnum.constructor", e);
-           throw new INTERNAL(e.getMessage());
+           throw unexpectedException(e);
        }
   }
 

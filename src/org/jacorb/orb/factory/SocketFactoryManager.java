@@ -42,7 +42,7 @@ public class SocketFactoryManager
 
     /** the configuration object  */
     private Configuration configuration = null;
-    private Logger logger = null; 
+    private Logger logger = null;
     private String serverFactoryClassName = null;
     private String factoryClassName = null;
     private String portNo = null;
@@ -57,7 +57,7 @@ public class SocketFactoryManager
         throws ConfigurationException
     {
         this.configuration = configuration;
-        logger = 
+        logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.factory");
         serverFactoryClassName = configuration.getAttribute(SERVER_FACTORY_PROP, "");
         factoryClassName = configuration.getAttribute(FACTORY_PROP, "");
@@ -127,10 +127,10 @@ public class SocketFactoryManager
              }
              catch (ConfigurationException ce)
              {
-               throw new RuntimeException("Configurable custom socket factory " + 
-                                          className + 
+               throw new RuntimeException("Configurable custom socket factory " +
+                                          className +
                                           " could not be configured!: "+ ce);
-             }   
+             }
           }
           return ((SocketFactory) factory);
        }
@@ -155,17 +155,17 @@ public class SocketFactoryManager
              }
              catch (ConfigurationException ce)
              {
-               throw new RuntimeException("Configurable custom server socket factory " + 
-                                          className + 
+               throw new RuntimeException("Configurable custom server socket factory " +
+                                          className +
                                           " could not be configured!: " + ce);
-             }   
+             }
           }
           return ((ServerSocketFactory) factory);
        }
        else
        {
-           throw new RuntimeException("Custom factory " + 
-                                      className + 
+           throw new RuntimeException("Custom factory " +
+                                      className +
                                       " does not implement ServerSocketFactory");
        }
     }
@@ -206,17 +206,14 @@ public class SocketFactoryManager
         }
         catch (Exception ex)
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug(ex.getMessage());
-            }
-            throw new RuntimeException("Failed to create custom socket factory: " + 
+            logger.debug("Failed to create custom socket factory", ex);
+            throw new RuntimeException("Failed to create custom socket factory: " +
                                        className);
         }
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("SocketFactoryManager: created " + 
+            logger.debug("SocketFactoryManager: created " +
                          factory.getClass().getName());
         }
 
