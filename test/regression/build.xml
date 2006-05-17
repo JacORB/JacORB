@@ -484,7 +484,7 @@
                  refid="coverage.path"/>
         <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
             <jvmarg value="-Xbootclasspath/p:${coverage.path.string}"/>
-            <jvmarg value="-Dtestdir=${testdir}" />
+            <jvmarg value="-Djacorb.test.home=${testdir}" />
             <jvmarg value="-Djacorb.home=${jacorb.home}" />
             <jvmarg value="${rmi.jvmarg}" />
             <jvmarg value="-Djacorb.test.coverage=true"/>
