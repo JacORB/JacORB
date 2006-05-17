@@ -23,6 +23,7 @@ package org.jacorb.test.orb.dynany;
 import junit.framework.*;
 import junit.extensions.TestSetup;
 import org.omg.CORBA.TCKind;
+import org.omg.DynamicAny.DynSequence;
 
 import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.Bound;
@@ -68,6 +69,7 @@ public class DynAnyBoundedSeqTest extends TestCase
       suite.addTest (new DynAnyBoundedSeqTest ("testDestroyDynAny"));
       suite.addTest (new DynAnyBoundedSeqTest ("testDestroyComponent"));
       suite.addTest (new DynAnyBoundedSeqTest ("testCopyDynAny"));
+      suite.addTest (new DynAnyBoundedSeqTest ("testSetLength"));
 
       return osetup;
    }
@@ -88,6 +90,31 @@ public class DynAnyBoundedSeqTest extends TestCase
 
       createDynAnyFromAny (any);
    }
+
+   /**
+    * Tests creating a DynAny object from an Any object using the
+    * DynAnyFactory object.
+    */
+   public void testSetLength() throws Exception
+   {
+      int [] type = null;
+      org.omg.CORBA.Any any = null;
+
+      type = getIntSeq ();
+      any = orb.create_any ();
+      BoundedDataHelper.insert (any, type);
+
+      DynSequence sequence = createDynAnyFromAny (any);
+
+      assertEquals(Bound.value, sequence.get_length());
+
+      sequence.set_length(5);
+      assertEquals(5, sequence.get_length());
+
+      sequence.set_length(0);
+      assertEquals(0, sequence.get_length());
+   }
+
 
 
    /**

@@ -40,7 +40,7 @@ public final class DynSequence
    extends DynAny
    implements org.omg.DynamicAny.DynSequence
 {
-   private Vector members;
+   private final List members = new ArrayList();
    private int length;
    private org.omg.CORBA.TypeCode elementType;
 
@@ -66,7 +66,6 @@ public final class DynSequence
            elementType = TypeCode.originalType( type().content_type() );
            limit = typeCode.length();
            length = 0;
-           members = new Vector();
        }
        catch( org.omg.CORBA.TypeCodePackage.BadKind e )
        {
@@ -109,14 +108,14 @@ public final class DynSequence
             throw new InvalidValue();
          }
 
-         members = new Vector(length);
+         members.clear();
          elementType = TypeCode.originalType( type().content_type() );
 
          for( int i = 0 ; i < length; i++ )
          {
             Any any = (org.jacorb.orb.Any)orb.create_any();
             any.read_value( is, elementType );
-            members.addElement( any );
+            members.add( any );
          }
       }
       catch( org.omg.CORBA.TypeCodePackage.BadKind e )
@@ -143,7 +142,7 @@ public final class DynSequence
       for( int i = 0; i < length; i++)
       {
          out.write_value( elementType,
-                         (CDRInputStream)((Any)members.elementAt(i)).create_input_stream());
+                         (CDRInputStream)((Any)members.get(i)).create_input_stream());
       }
 
       CDRInputStream is = new CDRInputStream( orb, out.getBufferCopy());
@@ -200,25 +199,24 @@ public final class DynSequence
          throw new InvalidValue();
       }
 
-      if( len == 0 )
-      {
-         members = new Vector();
-         pos = -1;
-      }
-
       if (elementType == null)
       {
           throw new INTERNAL ("DynSequence.set_length, elementType null");
       }
 
-      if( len > length )
+      if( len == 0 )
+      {
+         members.clear();
+         pos = -1;
+      }
+      else if( len > length )
       {
          try
          {
             for( int i = length; i < len; i++ )
             {
                // create correctly initialized anys
-               members.addElement( dynFactory.create_dyn_any_from_type_code( elementType ).to_any() );
+               members.add( dynFactory.create_dyn_any_from_type_code( elementType ).to_any() );
             }
          }
          catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
@@ -233,7 +231,12 @@ public final class DynSequence
       }
       else if( len < length )
       {
-         members.setSize(len);
+          int toremove = length - len;
+          for (int x=0; x < toremove; ++x)
+          {
+              int index = length - 1 - x;
+              members.remove(index);
+          }
 
          if( pos > len )
          {
@@ -250,7 +253,7 @@ public final class DynSequence
       Any[] result = new Any[ members.size()];
       for( int i = members.size(); i-- > 0; )
       {
-         result[i] = (Any)members.elementAt(i);
+         result[i] = (Any)members.get(i);
       }
       return result;
    }
@@ -278,10 +281,10 @@ public final class DynSequence
       /** ok now */
       length = value.length;
 
-      members = new Vector();
+      members.clear();
       for( int i = 0; i < length; i++)
       {
-         members.addElement( value[i] );
+         members.add( value[i] );
       }
 
       if( length > 0 )
@@ -303,7 +306,7 @@ public final class DynSequence
       {
          for( int i = members.size(); i-- > 0; )
          {
-            result[i] = dynFactory.create_dyn_any( (Any)members.elementAt(i));
+            result[i] = dynFactory.create_dyn_any( (Any)members.get(i));
          }
          return result;
       }
@@ -331,8 +334,7 @@ public final class DynSequence
    public void destroy()
    {
       super.destroy();
-      members.removeAllElements();
-      members = null;
+      members.clear();
       elementType = null;
    }
 
@@ -345,7 +347,7 @@ public final class DynSequence
 
    protected org.omg.CORBA.Any getRepresentation()
    {
-      return (Any)members.elementAt(pos);
+      return (Any)members.get(pos);
    }
 
 
@@ -389,7 +391,7 @@ public final class DynSequence
       }
       try
       {
-         return dynFactory.create_dyn_any( (Any)members.elementAt(pos) );
+         return dynFactory.create_dyn_any( (Any)members.get(pos) );
       }
       catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
       {
