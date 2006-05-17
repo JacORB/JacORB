@@ -242,9 +242,9 @@ jacorb.interop.indirection_encoding_disable=off
 # for interoperability with Comet.
 jacorb.interop.comet=off
 
-# Some ORBs do not set a byte value of 1 as a CDR encoded boolean true
-# value. Enabling this property interprets any non zero CDR encoded
-# boolean value as true.
+# Some ORBs (e.g. VisiBroker, ORBacus) do not set a byte value of 1
+# as a CDR encoded boolean true value. Enabling this property interprets
+# any non zero CDR encoded boolean value as true.
 jacorb.interop.lax_boolean_encoding=off
 
 # Control whether the method create_abstract_interface_tc performs
