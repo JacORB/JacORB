@@ -66,7 +66,7 @@ public class IdlWriter
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName e )
         {
-            throw new INTERNAL(e.getMessage());
+            throw new INTERNAL(e.toString());
         }
 
         if( ir == null )

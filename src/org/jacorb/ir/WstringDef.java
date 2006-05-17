@@ -42,7 +42,7 @@ public class WstringDef
         }
         catch( Exception e )
         {
-            throw new INTERNAL(e.getMessage());
+            throw new INTERNAL(e.toString());
         }
     }
 

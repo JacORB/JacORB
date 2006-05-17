@@ -24,10 +24,10 @@ import java.io.*;
 import java.util.*;
 
 /**
- * A ReplyHandler receives replies of asynchronous invocations of 
+ * A ReplyHandler receives replies of asynchronous invocations of
  * another interface (we call this interface the "parent" of the
  * ReplyHandler).
- * 
+ *
  * @author Andre Spiegel
  * $Id$
  */
@@ -46,7 +46,7 @@ public class ReplyHandler extends Interface
         body.set_name (name);
         body.my_interface = this;
         body.setEnclosingSymbol (this);
-        body.inheritance_spec = this.inheritanceSpec;      
+        body.inheritance_spec = this.inheritanceSpec;
 
         createOperations (parent);
     }
@@ -80,7 +80,7 @@ public class ReplyHandler extends Interface
             }
         }
     }
-    
+
     /**
      * Creates the operations of this ReplyHandler and puts them into the body.
      */
@@ -97,7 +97,7 @@ public class ReplyHandler extends Interface
               {
                     createOperationsFor ((AttrDecl)d);
               }
-        }      
+        }
     }
 
     /**
@@ -113,7 +113,7 @@ public class ReplyHandler extends Interface
             paramDecls.add (new ParamDecl (ParamDecl.MODE_IN,
                                            d.opTypeSpec,
                                            "ami_return_val"));
-        }    
+        }
         for (Iterator i = d.paramDecls.iterator(); i.hasNext();)
         {
             ParamDecl p = (ParamDecl)i.next();
@@ -121,14 +121,14 @@ public class ReplyHandler extends Interface
             {
                 paramDecls.add (new ParamDecl (ParamDecl.MODE_IN,
                                                p.paramTypeSpec,
-                                               p.simple_declarator));               
+                                               p.simple_declarator));
             }
-        }   
+        }
         body.addDefinition (new OpDecl (this, d.name, paramDecls));
-        body.addDefinition 
+        body.addDefinition
           (new OpDecl (this, d.name + "_excep", excepParameterList()));
     }
-    
+
     /**
      * Creates the ReplyHandler operations for the given attribute declaration
      * of the parent interface, and puts them into the body of this ReplyHandler.
@@ -138,11 +138,11 @@ public class ReplyHandler extends Interface
         for (Iterator i = d.declarators.v.iterator(); i.hasNext();)
         {
             SimpleDeclarator decl = (SimpleDeclarator)i.next();
-            body.addDefinition 
+            body.addDefinition
               (new OpDecl (this, "get_" + decl.name,
                            parameterList (d.param_type_spec, "ami_return_val")));
             body.addDefinition
-              (new OpDecl (this, "get_" + decl.name + "_excep", 
+              (new OpDecl (this, "get_" + decl.name + "_excep",
                            excepParameterList()));
             if (!d.readOnly)
             {
@@ -152,7 +152,7 @@ public class ReplyHandler extends Interface
                   (new OpDecl (this, "set_" + decl.name + "_excep",
                                excepParameterList()));
             }
-        }                  
+        }
     }
 
     /**
@@ -165,7 +165,7 @@ public class ReplyHandler extends Interface
         result.add (new ParamDecl (ParamDecl.MODE_IN, type, name));
         return result;
     }
-    
+
     private List excepParameterList()
     {
         return parameterList (new ExceptionHolderTypeSpec (new_num()),
@@ -176,7 +176,7 @@ public class ReplyHandler extends Interface
     {
         return "IDL:" + full_name().replace('.', '/') + ":1.0";
     }
-        
+
     public void parse()
     {
         if (!NameTable.isDefined ("org.omg.Messaging.ReplyHandler"))
@@ -184,17 +184,17 @@ public class ReplyHandler extends Interface
             try
             {
                 NameTable.define ("org.omg.Messaging.ReplyHandler", "type");
-                TypeMap.typedef ("org.omg.Messaging.ReplyHandler", 
+                TypeMap.typedef ("org.omg.Messaging.ReplyHandler",
                                  new ReplyHandlerTypeSpec (IdlSymbol.new_num()));
-            } 
+            }
             catch (Exception e)
             {
-                throw new RuntimeException (e.getMessage());
+                throw new RuntimeException (e.toString());
             }
         }
 
         ConstrTypeSpec ctspec = new ConstrTypeSpec (this);
-        try 
+        try
         {
             NameTable.define (full_name(), "interface");
             TypeMap.typedef(full_name(), ctspec);
@@ -203,10 +203,10 @@ public class ReplyHandler extends Interface
         {
             parser.error( "Interface " + typeName() + " already defined", token );
         }
-        
+
         body.parse();
     }
-    
+
     public void print (PrintWriter ps)
     {
         printInterface();
@@ -216,7 +216,7 @@ public class ReplyHandler extends Interface
         printImplSkeleton();
         printTieSkeleton();
     }
-            
+
 
 }
 

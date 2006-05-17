@@ -48,7 +48,7 @@ public class StringDef
         catch( Exception e )
         {
             // should not happen
-            throw new INTERNAL(e.getMessage());
+            throw new INTERNAL(e.toString());
         }
     }
 
