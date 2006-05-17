@@ -22,7 +22,6 @@ package org.jacorb.idl.javamapping;
 
 import org.jacorb.idl.*;
 
-import java.io.*;
 import java.util.Enumeration;
 
 /*
@@ -36,8 +35,8 @@ import java.util.Enumeration;
 public class JavaMappingGeneratingVisitor
     implements IDLTreeVisitor
 {
-    /** 
-     * used by the IDL compiler 
+    /**
+     * used by the IDL compiler
      */
 
     public JavaMappingGeneratingVisitor()
@@ -59,8 +58,8 @@ public class JavaMappingGeneratingVisitor
             IdlSymbol s = (IdlSymbol)e.nextElement();
             s.accept( this );
         }
-                
-        // PrintStream ps = new PrintStream( System.out );       
+
+        // PrintStream ps = new PrintStream( System.out );
     }
 
     public void visitDefinitions( Definitions defs )
@@ -103,7 +102,7 @@ public class JavaMappingGeneratingVisitor
         for( int i = 1; i < superInts.length; i++ )
         {
             // skip index 0, which contains the current interface id
-            
+
         }
 
         if( interfce.body != null )
@@ -125,8 +124,8 @@ public class JavaMappingGeneratingVisitor
     }
 
     public void visitMethod( Method m )
-    {         
- 
+    {
+
         if( m.isGetter() )
         {
             ;
@@ -138,7 +137,7 @@ public class JavaMappingGeneratingVisitor
     }
 
     public void visitOpDecl( OpDecl op )
-    {         
+    {
         //    op.opAttribute == OpDecl.ONEWAY ? "true" : "false") );
 
 
@@ -183,19 +182,19 @@ public class JavaMappingGeneratingVisitor
         MemberList members = struct.memberlist;
         if( members != null )
         {
- 
+
             for( Enumeration e = members.elements(); e.hasMoreElements(); )
             {
                 Member m = (Member)e.nextElement();
                 String memberType = typeSpecDesignator( m.type_spec );
-        
- 
+
+
                 if( m.type_spec instanceof VectorType )
                 {
-                    memberType = 
+                    memberType =
                         typeSpecDesignator( ((VectorType)m.type_spec).elementTypeSpec() );
                     length = ((VectorType)m.type_spec).length();
-                    
+
                     if(  m.type_spec instanceof SequenceType )
                     {
                         isSeq = true;
@@ -214,7 +213,7 @@ public class JavaMappingGeneratingVisitor
     }
 
     /**
-     * 
+     *
      */
 
     public void visitEnum( EnumType enumType )
@@ -222,7 +221,7 @@ public class JavaMappingGeneratingVisitor
 
         for( Enumeration e = enumType.enumlist.elements(); e.hasMoreElements(); )
         {
-            // 
+            //
         }
 
     }
@@ -259,7 +258,7 @@ public class JavaMappingGeneratingVisitor
 
         if(  alias.originalType() instanceof VectorType )
         {
-            aliasedType = 
+            aliasedType =
                 typeSpecDesignator( ((VectorType)alias.originalType()).elementTypeSpec());
             length = ((VectorType)alias.originalType()).length();
 
@@ -287,48 +286,43 @@ public class JavaMappingGeneratingVisitor
     /**
      * Type ids
      * @return a string describing a type
-     */ 
+     */
 
     private String typeSpecDesignator( TypeSpec ts )
     {
-        if( ts == null )
-            new RuntimeException().printStackTrace();
-
         if( ! ts.basic() )
         {
             if( ts.typeSpec() instanceof AnyType )
-            {  
+            {
                 return "any";
             }
             else
+            {
                 return ts.id();
+            }
         }
         else
         {
-            
-System.out.println("typeSpecDesignator for " + ts.typeSpec().getClass().getName());
-
             if( ts.typeSpec() instanceof ObjectTypeSpec )
-            {  
+            {
                 return ts.id();
             }
             else if( ts.typeSpec() instanceof ConstrTypeSpec )
-            {  
+            {
                 return  ((ConstrTypeSpec)ts.typeSpec()).id();
             }
             else if( ts.typeSpec() instanceof ScopedName )
-            {  
+            {
                 return typeSpecDesignator ( ((ScopedName)ts.typeSpec()).resolvedTypeSpec() );
-            } 
+            }
             else if( ts.typeSpec() instanceof StringType )
-            {  
+            {
                 return "string";
             }
- 
             else
             {
                 // debug:
-                // System.out.println("typeSpecDesignator for " + 
+                // System.out.println("typeSpecDesignator for " +
                 // ts.typeSpec().getClass().getName());
                 return ts.toString();
             }
