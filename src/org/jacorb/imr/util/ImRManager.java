@@ -26,11 +26,11 @@ import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
 
 /**
- * This class is a command-line tool for administering 
+ * This class is a command-line tool for administering
  * the implementation repository.
- * 
+ *
  * @author Nicolas Noffke
- * 
+ *
  * $Id$
  */
 
@@ -44,18 +44,18 @@ public class ImRManager
      * a program. Leave command and host to "" (not null), if automatic startup
      * is not desired.
      *
-     * @param edit_existing if set to true and the server already exist, 
+     * @param edit_existing if set to true and the server already exist,
      * the entry will be set to the supplied new values.
      */
-    public static void autoRegisterServer( org.omg.CORBA.ORB orb, 
+    public static void autoRegisterServer( org.omg.CORBA.ORB orb,
                                            String server,
-                                           String command, 
+                                           String command,
                                            String host,
                                            boolean edit_existing )
     {
         try
         {
-            Admin admin = 
+            Admin admin =
                 AdminHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
 
             Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
@@ -69,8 +69,7 @@ public class ImRManager
             }
             catch (UnknownServerName n)
             {
-                if (logger.isWarnEnabled())
-                    logger.warn("Unknown Server name: " + n.getMessage());
+                    logger.warn("Unknown Server name", n);
             }
 
             if (info == null)
@@ -84,8 +83,7 @@ public class ImRManager
         }
         catch (Exception e)
         {
-            if (logger.isWarnEnabled())
-                logger.warn(e.getMessage());
+            logger.warn("unexpected exception", e);
         }
     }
 
@@ -109,29 +107,25 @@ public class ImRManager
 
     /**
      * Returns an arbitrary host, on which an imr_ssd is running,
-     * or an empty String, if none is present. 
+     * or an empty String, if none is present.
      */
     public static String getAnyHostName(org.omg.CORBA.ORB orb)
     {
         try
         {
-            Admin admin = 
+            Admin admin =
                 AdminHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
-
-            Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
-            Logger logger = config.getNamedLogger("jacorb.imr.manager");
 
             HostInfo[] hosts = admin.list_hosts();
 
             if (hosts.length > 0)
             {
                 return hosts[0].name;
-            }     
+            }
         }
         catch (Exception e)
         {
-             if (logger.isWarnEnabled())
-                logger.warn(e.getMessage());
+            logger.warn("unexpected exception", e);
         }
 
         return "";
@@ -142,7 +136,7 @@ public class ImRManager
         Admin _admin = null;
         try
         {
-            _admin = 
+            _admin =
                 AdminHelper.narrow( m_orb.resolve_initial_references("ImplementationRepository"));
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName in )
@@ -176,13 +170,13 @@ public class ImRManager
         String _host = null;
         String _command = null;
 
-        try 
+        try
         {
             //evaluate parameters
             for (int i = 2; i < args.length ; i++)
             {
                 if( args[i].equals("-h") )
-                {           
+                {
                     //is next arg available?
                     if ( (++i) < args.length )
                     {
@@ -196,20 +190,20 @@ public class ImRManager
                     }
                 }
                 else if( args[i].equals("-c") )
-                {		
+                {
                     StringBuffer sb = new StringBuffer();
-                    
+
                     for( int j = (i + 1); j < args.length; j++ )
                     {
                         sb.append( args[j] );
-                        
+
                         if( j < (args.length - 1) )
                         {
                             sb.append( ' ' ); //append whitespace
                             //don't append, if last arg
                         }
                     }
-                    
+
                     _command = sb.toString();
                     break; //definitely at end of args
                 }
@@ -223,26 +217,26 @@ public class ImRManager
             if (_host == null)
             {
                 _host = getLocalHostName();
-            }		    
+            }
         }
         catch (Exception _e)
         {
             _e.printStackTrace();
             usage();
         }
-	
+
         if (_command == null)
         {
             _command = "";
         }
-	
+
         Admin _admin = getAdmin();
 
         try
         {
             if (args[0].equals("add"))
             {
-                _admin.register_server(_server_name, _command, _host); 
+                _admin.register_server(_server_name, _command, _host);
             }
             else
             {
@@ -250,10 +244,10 @@ public class ImRManager
                 _admin.edit_server(_server_name, _command, _host);
             }
 
-            System.out.println("Server " + _server_name + " successfully " + 
+            System.out.println("Server " + _server_name + " successfully " +
                                args[0] + "ed");
             System.out.println("Host: >>" + _host + "<<");
-            
+
             if( _command.length() > 0 )
             {
                 System.out.println("Command: >>" + _command + "<<");
@@ -287,7 +281,7 @@ public class ImRManager
             System.out.println(" Please specify a servername / hostname");
             shortUsage();
         }
-    
+
         Admin _admin = getAdmin();
 
         if (args[1].equals("server"))
@@ -295,23 +289,23 @@ public class ImRManager
             try
             {
                 _admin.unregister_server(args[2]);
-	    
-                System.out.println("Server " + args[2] + 
-                                   " successfully removed");	      
+
+                System.out.println("Server " + args[2] +
+                                   " successfully removed");
             }
             catch (Exception _e)
             {
                 _e.printStackTrace();
             }
         }
-        else if (args[1].equals("host")) 
+        else if (args[1].equals("host"))
         {
             try
             {
                 _admin.unregister_host(args[2]);
-	    
-                System.out.println("Host " + args[2] + 
-                                   " successfully removed");	      
+
+                System.out.println("Host " + args[2] +
+                                   " successfully removed");
             }
             catch (Exception _e)
             {
@@ -320,7 +314,7 @@ public class ImRManager
         }
         else
         {
-            System.out.println("Unknown command " + args[1]);            
+            System.out.println("Unknown command " + args[1]);
             shortUsage();
         }
 
@@ -339,7 +333,7 @@ public class ImRManager
         }
 
         Admin _admin = getAdmin();
-	
+
         try
         {
             if (args[1].equals("servers"))
@@ -354,13 +348,13 @@ public class ImRManager
 
                     System.out.println("   " + "Host: " + _info[_i].host);
 
-                    System.out.println("   " + "Command: " + 
+                    System.out.println("   " + "Command: " +
                                        _info[_i].command);
 
-                    System.out.println("   " + "active: " + 
+                    System.out.println("   " + "active: " +
                                        ((_info[_i].active)?"yes":"no"));
 
-                    System.out.println("   " + "holding: " + 
+                    System.out.println("   " + "holding: " +
                                        ((_info[_i].holding)?"yes":"no"));
                 }
             }
@@ -375,7 +369,7 @@ public class ImRManager
                     System.out.println((_i + 1) + ") " +_info[_i].name);
                 }
             }
-            else 
+            else
             {
                 System.out.println("Unrecognized option: " + args[1]);
                 shortUsage();
@@ -413,7 +407,7 @@ public class ImRManager
 
             _admin.hold_server(_server_name);
             System.out.println("Server " + _server_name + " set to holding");
- 	    
+
             if (_timeout > 0)
             {
                 Thread.sleep(_timeout);
@@ -516,21 +510,21 @@ public class ImRManager
         Admin _admin = getAdmin();
 
         boolean _wait = true;
-	
+
         if (args.length == 2)
         {
             if (args[1].toLowerCase().equals("force"))
             {
                 _wait = false;
             }
-            else 
+            else
             {
                 System.out.println("Unrecognized option: " + args[1]);
                 System.out.println("The only possible option is \"force\"");
                 shortUsage();
             }
         }
-		
+
         try
         {
             _admin.shutdown(_wait);
@@ -543,10 +537,10 @@ public class ImRManager
         }
         System.exit(0);
     }
-    
+
     /**
      * Set a server to not active.
-     */    
+     */
     private static void setDown(String[] args)
     {
         if (args.length == 1)
@@ -556,11 +550,11 @@ public class ImRManager
         }
 
         Registration _reg = RegistrationHelper.narrow(getAdmin());
-	
+
         try
         {
             _reg.set_server_down(args[1]);
-            
+
             System.out.println("Server " + args[1] + " set down");
         }
         catch (Exception _e)
@@ -577,7 +571,7 @@ public class ImRManager
         System.out.println("Type \"imr_mg help\" to display the help screen");
         System.exit(-1);
     }
-        
+
 
     /**
      * Print help messages.
@@ -638,7 +632,7 @@ public class ImRManager
     /**
      * Main method.
      */
-    public static void main(String[] args) 
+    public static void main(String[] args)
     {
         if( args.length == 0 )
         {
@@ -672,7 +666,7 @@ public class ImRManager
                 Class.forName("org.jacorb.imr.util.ImRManagerGUI").newInstance();
             else  if (args[0].equals("help"))
                 usage();
-            else 
+            else
             {
                 System.out.println("Unrecognized command: " + args[0]);
                 usage();
@@ -684,7 +678,7 @@ public class ImRManager
             System.exit(0);
         }
     }
-    
+
 } // ImRManager
 
 
