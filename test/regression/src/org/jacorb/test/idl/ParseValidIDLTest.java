@@ -58,7 +58,7 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         try
         {
             // test if a verify_ method is available and invoke it
-            String file = idlFile.getName().replace(".", "_");
+            String file = idlFile.getName().replaceAll("\\.", "_");
             Method method = getClass().getMethod("verify_" + file, new Class[] {ClassLoader.class});
             method.invoke(this, new Object[] {cl});
         }
