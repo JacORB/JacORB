@@ -37,7 +37,9 @@ public final class DynValue
     private static final String DYN_VALUE_NYI =
         ("DynValue is not yet implemented in Jacorb");
 
-    DynValue() {}
+    private DynValue() {
+        super(null, null, null);
+    }
 
     public java.lang.String current_member_name()
         throws TypeMismatch, InvalidValue

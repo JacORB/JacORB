@@ -20,18 +20,18 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTERNAL;
 import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.*;
-
-import java.util.*;
 
 /**
  * CORBA DynArray
  *
- * @author (c) Gerald Brose, FU Berlin 1999
- * $Id$
+ * @author Gerald Brose
+ * @version $Id$
  */
 
 public final class DynArray
@@ -41,132 +41,102 @@ public final class DynArray
     private org.omg.CORBA.TypeCode elementType;
     private org.omg.CORBA.Any[] members;
 
-   DynArray( org.omg.DynamicAny.DynAnyFactory dynFactory,
-             org.omg.CORBA.TypeCode tc)
-      throws InvalidValue, TypeMismatch
+    DynArray( org.omg.DynamicAny.DynAnyFactory dynFactory,
+              org.omg.CORBA.TypeCode type,
+              org.omg.CORBA.ORB orb,
+              Logger logger)
+              throws InvalidValue, TypeMismatch
    {
-      org.omg.CORBA.TypeCode _type = 
-         TypeCode.originalType( tc );
-      
-      if(  _type.kind() != org.omg.CORBA.TCKind.tk_array )
-         throw new TypeMismatch();	
+        super(dynFactory, orb, logger);
 
-      try
-      {
-         type = _type;
-         this.orb = org.omg.CORBA.ORB.init();
-         this.dynFactory = dynFactory;
-         elementType = TypeCode.originalType( type.content_type() );
+        org.omg.CORBA.TypeCode _type =
+            TypeCode.originalType( type );
 
-         limit = type.length();
-         members = new Any[limit];
-         try
-         {
-            for( int i = limit; i-- > 0;)
+        if(  _type.kind() != org.omg.CORBA.TCKind.tk_array )
+        {
+            throw new TypeMismatch();
+        }
+
+        try
+        {
+            typeCode = _type;
+            elementType = TypeCode.originalType( typeCode.content_type() );
+
+            limit = typeCode.length();
+            members = new Any[limit];
+            try
             {
-               members[i] = dynFactory.create_dyn_any_from_type_code( elementType ).to_any();
+                for( int i = limit; i-- > 0;)
+                {
+                    members[i] = dynFactory.create_dyn_any_from_type_code( elementType ).to_any();
+                }
             }
-         }
-         catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
-         {
-            // should never happen
-            itc.printStackTrace();
-         }
-      }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-      {
-         bk.printStackTrace();
-      }
+            catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+            {
+                logger.debug("DynArray", itc);
+                throw new INTERNAL(itc.getMessage());
+            }
+        }
+        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+        {
+            logger.debug("DynArray", bk);
+            throw new INTERNAL(bk.getMessage());
+        }
    }
 
-   DynArray( org.omg.DynamicAny.DynAnyFactory dynFactory,
-             org.omg.CORBA.TypeCode tc, org.omg.CORBA.ORB orb)
-    throws InvalidValue, TypeMismatch
- {
-    org.omg.CORBA.TypeCode _type = 
-       TypeCode.originalType( tc );
-    
-    if(  _type.kind() != org.omg.CORBA.TCKind.tk_array )
-       throw new TypeMismatch();	
-
-    try
-    {
-       type = _type;
-       this.orb = orb;
-       this.dynFactory = dynFactory;
-       elementType = TypeCode.originalType( type.content_type() );
-
-       limit = type.length();
-       members = new Any[limit];
-       try
-       {
-          for( int i = limit; i-- > 0;)
-          {
-             members[i] = dynFactory.create_dyn_any_from_type_code( elementType ).to_any();
-          }
-       }
-       catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
-       {
-          // should never happen
-          itc.printStackTrace();
-       }
-    }
-    catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-    {
-       bk.printStackTrace();
-    }
- 	}   
-   
-   public void from_any(org.omg.CORBA.Any value) 
+   public void from_any(org.omg.CORBA.Any value)
       throws InvalidValue, TypeMismatch
    {
       checkDestroyed ();
-      if( ! type.equivalent( value.type() ))
+      if( ! typeCode.equivalent( value.type() ))
+      {
          throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
+      }
 
-      type = TypeCode.originalType( value.type() );
+      typeCode = TypeCode.originalType( value.type() );
 
       try
-      {	    
+      {
          limit = type().length();
-         elementType = TypeCode.originalType( type.content_type() );
+         elementType = TypeCode.originalType( typeCode.content_type() );
 
          if( limit > 0 )
+         {
             pos = 0;
+         }
 
-         org.omg.CORBA.portable.InputStream is = value.create_input_stream();
+         org.omg.CORBA.portable.InputStream in = value.create_input_stream();
          members = new org.omg.CORBA.Any[limit];
 
          for( int i = 0 ; i < limit; i++ )
          {
             members[i] = org.omg.CORBA.ORB.init().create_any();
-            members[i].read_value(is, elementType);	
-         }	
+            members[i].read_value(in, elementType);
+         }
       }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+      catch( org.omg.CORBA.TypeCodePackage.BadKind e )
       {
-         // should not happen anymore
-         bk.printStackTrace();
+          throw unexpectedException(e);
       }
    }
 
-   public org.omg.CORBA.Any to_any() 
+   public org.omg.CORBA.Any to_any()
    {
       checkDestroyed ();
-      org.jacorb.orb.Any out_any = 
+      org.jacorb.orb.Any out_any =
          (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
       out_any.type( type());
 
-      CDROutputStream os = new CDROutputStream();
+      CDROutputStream out = new CDROutputStream();
 
       for( int i = 0; i < limit; i++)
       {
-         os.write_value( elementType, 
+         out.write_value( elementType,
                          (CDRInputStream)members[i].create_input_stream());
       }
 
-      CDRInputStream is = new CDRInputStream(orb, os.getBufferCopy());
-      out_any.read_value( is, type());
+      CDRInputStream in = new CDRInputStream(orb, out.getBufferCopy());
+      out_any.read_value( in, type());
       return out_any;
    }
 
@@ -178,7 +148,9 @@ public final class DynArray
    {
       checkDestroyed ();
       if( !type().equal( dyn_any.type())  )
+      {
          return false;
+      }
 
       org.omg.DynamicAny.DynArray other =  DynArrayHelper.narrow( dyn_any );
 
@@ -188,7 +160,9 @@ public final class DynArray
       for( int i = 0; i < elements.length; i++ )
       {
          if( ! (elements[i].equal( other_elements[i] )))
+         {
             return false;
+         }
       }
 
       return true;
@@ -202,20 +176,24 @@ public final class DynArray
    }
 
 
-   public void set_elements(org.omg.CORBA.Any[] value) 
+   public void set_elements(org.omg.CORBA.Any[] value)
       throws TypeMismatch, InvalidValue
    {
       checkDestroyed ();
       if( value.length != limit )
+      {
          throw new InvalidValue();
+      }
 
       for( int i = value.length; i-- > 0 ;)
       {
-         org.omg.CORBA.TypeCode tc = 
+         org.omg.CORBA.TypeCode tc =
             TypeCode.originalType( value[i].type() );
 
          if( tc.kind() != elementType.kind() )
+         {
             throw new TypeMismatch();
+         }
       }
 
       /** ok now */
@@ -225,31 +203,33 @@ public final class DynArray
    public org.omg.DynamicAny.DynAny[] get_elements_as_dyn_any()
    {
       checkDestroyed ();
-      org.omg.DynamicAny.DynAny[] result = 
+      org.omg.DynamicAny.DynAny[] result =
          new org.omg.DynamicAny.DynAny[ members.length ];
       try
       {
          for( int i = members.length; i-- > 0; )
+         {
             result[i] = dynFactory.create_dyn_any( members[i]);
+         }
          return result;
       }
-      catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+      catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
       {
-         // should never happen
-         itc.printStackTrace();
+          throw unexpectedException(e);
       }
-      return null;
    }
 
 
-   public void set_elements_as_dyn_any(org.omg.DynamicAny.DynAny[] value) 
+   public void set_elements_as_dyn_any(org.omg.DynamicAny.DynAny[] value)
       throws TypeMismatch, InvalidValue
    {
       checkDestroyed ();
-      org.omg.CORBA.Any [] any_seq = 
+      org.omg.CORBA.Any [] any_seq =
          new org.omg.CORBA.Any[value.length];
       for( int i = value.length; i-- > 0; )
+      {
          any_seq[i] = value[i].to_any();
+      }
 
       set_elements( any_seq );
    }
@@ -262,7 +242,7 @@ public final class DynArray
    }
 
    /**
-     * Returns the DynAny's internal any representation. 
+     * Returns the DynAny's internal any representation.
      * <p>
      * Overrides getRepresentation() in DynAny
      */
@@ -275,21 +255,20 @@ public final class DynArray
    /* iteration interface */
 
    public org.omg.DynamicAny.DynAny current_component()
-   {	
+   {
       checkDestroyed ();
       if( pos == -1 )
+      {
          return null;
+      }
+
       try
       {
          return dynFactory.create_dyn_any( members[pos] );
       }
-      catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+      catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
       {
-         // should never happen
-         itc.printStackTrace();
+          throw unexpectedException(e);
       }
-      return null;
    }
-   
-
 }

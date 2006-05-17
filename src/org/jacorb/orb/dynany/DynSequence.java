@@ -24,6 +24,7 @@ import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
 
 import org.omg.CORBA.INTERNAL;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.*;
 
 import java.util.*;
@@ -33,7 +34,6 @@ import java.util.*;
  *
  * @author (c) Gerald Brose, FU Berlin 1999
  * @version $Id$
- *
  */
 
 public final class DynSequence
@@ -45,67 +45,40 @@ public final class DynSequence
    private org.omg.CORBA.TypeCode elementType;
 
    DynSequence( org.omg.DynamicAny.DynAnyFactory dynFactory,
-                org.omg.CORBA.TypeCode tc )
-      throws InvalidValue, TypeMismatch
-   {
-      org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
-
-      if( _type.kind() != org.omg.CORBA.TCKind.tk_sequence )
-         throw new TypeMismatch();
-
-      try
-      {
-         type = _type;
-
-         this.orb = org.omg.CORBA.ORB.init();
-         this.dynFactory = dynFactory;
-
-         elementType = TypeCode.originalType( type().content_type() );
-         limit = type.length();
-         length = 0;
-         members = new Vector();
-      }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-      {
-         bk.printStackTrace();
-      }
-      if (elementType == null)
-      {
-          throw new INTERNAL ("DynSequence.set_length, elementType null");
-      }
-   }
-
-   DynSequence( org.omg.DynamicAny.DynAnyFactory dynFactory,
-           org.omg.CORBA.TypeCode tc, org.omg.CORBA.ORB orb )
+                org.omg.CORBA.TypeCode type,
+                org.omg.CORBA.ORB orb,
+                Logger logger )
            throws InvalidValue, TypeMismatch
    {
-       org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
+       super(dynFactory, orb, logger);
+
+       org.omg.CORBA.TypeCode _type = TypeCode.originalType( type );
 
        if( _type.kind() != org.omg.CORBA.TCKind.tk_sequence )
-    throw new TypeMismatch();
+       {
+           throw new TypeMismatch();
+       }
 
-	 try
-	 {
-	    type = _type;
-	
-	    this.orb = orb;
-	    this.dynFactory = dynFactory;
-	
-	    elementType = TypeCode.originalType( type().content_type() );
-	    limit = type.length();
-	    length = 0;
-	    members = new Vector();
-	 }
-	 catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-	 {
-	    bk.printStackTrace();
-	 }
-	 if (elementType == null)
-	 {
-	     throw new INTERNAL ("DynSequence.set_length, elementType null");
-	 }
-	}
-   
+       try
+       {
+           typeCode = _type;
+
+           elementType = TypeCode.originalType( type().content_type() );
+           limit = typeCode.length();
+           length = 0;
+           members = new Vector();
+       }
+       catch( org.omg.CORBA.TypeCodePackage.BadKind e )
+       {
+           throw unexpectedException(e);
+       }
+
+       if (elementType == null)
+       {
+           throw new INTERNAL ("DynSequence.set_length, elementType null");
+       }
+   }
+
    public void from_any( org.omg.CORBA.Any value )
       throws InvalidValue, TypeMismatch
    {
@@ -117,7 +90,7 @@ public final class DynSequence
 
       try
       {
-         type = TypeCode.originalType( value.type() );
+         typeCode = TypeCode.originalType( value.type() );
          super.from_any( value );
 
          limit = type().length();
@@ -127,26 +100,30 @@ public final class DynSequence
          length = is.read_long();
 
          if( length > 0 )
+         {
             pos = 0;
+         }
 
          if( limit != 0 && length > limit )
+         {
             throw new InvalidValue();
+         }
 
          members = new Vector(length);
          elementType = TypeCode.originalType( type().content_type() );
 
          for( int i = 0 ; i < length; i++ )
          {
-            Any a = (org.jacorb.orb.Any)orb.create_any();
-            a.read_value( is, elementType );
-            members.addElement( a );
+            Any any = (org.jacorb.orb.Any)orb.create_any();
+            any.read_value( is, elementType );
+            members.addElement( any );
          }
       }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+      catch( org.omg.CORBA.TypeCodePackage.BadKind e )
       {
-         // should not happen anymore
-         bk.printStackTrace();
+          throw unexpectedException(e);
       }
+
       if (elementType == null)
       {
           throw new INTERNAL ("DynSequence.set_length, elementType null");
@@ -160,16 +137,16 @@ public final class DynSequence
       org.jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
       out_any.type( type());
 
-      CDROutputStream os = new CDROutputStream();
-      os.write_long( length );
+      CDROutputStream out = new CDROutputStream();
+      out.write_long( length );
 
       for( int i = 0; i < length; i++)
       {
-         os.write_value( elementType,
+         out.write_value( elementType,
                          (CDRInputStream)((Any)members.elementAt(i)).create_input_stream());
       }
 
-      CDRInputStream is = new CDRInputStream( orb, os.getBufferCopy());
+      CDRInputStream is = new CDRInputStream( orb, out.getBufferCopy());
       out_any.read_value( is, type());
       return out_any;
    }
@@ -182,12 +159,16 @@ public final class DynSequence
    {
       checkDestroyed ();
       if( !type().equal( dyn_any.type())  )
+      {
          return false;
+      }
 
       org.omg.DynamicAny.DynSequence other =  DynSequenceHelper.narrow( dyn_any );
 
       if( other.get_length() != get_length())
+      {
          return false;
+      }
 
       org.omg.CORBA.Any[] elements = get_elements();
       org.omg.CORBA.Any[] other_elements = other.get_elements();
@@ -195,7 +176,9 @@ public final class DynSequence
       for( int i = 0; i < elements.length; i++ )
       {
          if( ! (elements[i].equal( other_elements[i] )))
+         {
             return false;
+         }
       }
 
       return true;
@@ -213,7 +196,9 @@ public final class DynSequence
    {
       checkDestroyed ();
       if( limit > 0 && len > limit )
+      {
          throw new InvalidValue();
+      }
 
       if( len == 0 )
       {
@@ -236,21 +221,24 @@ public final class DynSequence
                members.addElement( dynFactory.create_dyn_any_from_type_code( elementType ).to_any() );
             }
          }
-         catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+         catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
          {
-            // should neever happen
-            itc.printStackTrace();
+             throw unexpectedException(e);
          }
 
          if( pos == -1 )
+         {
             pos = len - length - 1;
+         }
       }
       else if( len < length )
       {
          members.setSize(len);
 
          if( pos > len )
+         {
             pos = -1;
+         }
       }
       length = len;
    }
@@ -261,7 +249,9 @@ public final class DynSequence
       checkDestroyed ();
       Any[] result = new Any[ members.size()];
       for( int i = members.size(); i-- > 0; )
+      {
          result[i] = (Any)members.elementAt(i);
+      }
       return result;
    }
 
@@ -271,14 +261,18 @@ public final class DynSequence
    {
       checkDestroyed ();
       if( limit > 0 && value.length > limit )
+      {
          throw new InvalidValue();
+      }
 
       for( int i = value.length; i-- > 0 ;)
       {
          org.omg.CORBA.TypeCode tc = TypeCode.originalType( value[i].type() );
 
          if( tc.kind() != elementType.kind() )
+         {
             throw new TypeMismatch();
+         }
       }
 
       /** ok now */
@@ -291,10 +285,13 @@ public final class DynSequence
       }
 
       if( length > 0 )
+      {
          pos = 0;
+      }
       else
+      {
          pos = -1;
-
+      }
    }
 
    public org.omg.DynamicAny.DynAny[] get_elements_as_dyn_any()
@@ -305,15 +302,15 @@ public final class DynSequence
       try
       {
          for( int i = members.size(); i-- > 0; )
+         {
             result[i] = dynFactory.create_dyn_any( (Any)members.elementAt(i));
+         }
          return result;
       }
-      catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+      catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
       {
-         // should never happen
-         itc.printStackTrace();
+          throw unexpectedException(e);
       }
-      return null;
    }
 
 
@@ -323,7 +320,9 @@ public final class DynSequence
       checkDestroyed ();
       org.omg.CORBA.Any [] any_seq = new org.omg.CORBA.Any[value.length];
       for( int i = value.length; i-- > 0; )
+      {
          any_seq[i] = value[i].to_any();
+      }
 
       set_elements( any_seq );
    }
@@ -392,12 +391,10 @@ public final class DynSequence
       {
          return dynFactory.create_dyn_any( (Any)members.elementAt(pos) );
       }
-      catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+      catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
       {
-         // should never happen
-         itc.printStackTrace();
+          throw unexpectedException(e);
       }
-      return null;
    }
 
    public int component_count()
@@ -405,5 +402,4 @@ public final class DynSequence
       checkDestroyed ();
       return get_length();
    }
-
 }

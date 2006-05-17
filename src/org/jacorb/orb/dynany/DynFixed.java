@@ -21,7 +21,7 @@ package org.jacorb.orb.dynany;
  */
 
 import org.omg.DynamicAny.DynAnyPackage.*;
-import org.omg.DynamicAny.*;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.*;
 
 import java.math.BigDecimal;
@@ -29,51 +29,55 @@ import java.math.BigDecimal;
 /**
  * CORBA DynFixed
  *
- * Written by Jason Courage
- *
- * @author Jason Courage, PrismTech Ltd, March 2002 
- * $Id$
- *
+ * @author Jason Courage
+ * @version $Id$
  */
 
 public final class DynFixed
    extends DynAny
    implements org.omg.DynamicAny.DynFixed
 {
-   /* our representation of a fixed type any is the any itself */
-   private org.omg.CORBA.Any anyRepresentation = null;
-
+   /**
+    *  our representation of a fixed type any is the any itself
+    */
+   private org.omg.CORBA.Any anyRepresentation;
 
    DynFixed( org.omg.DynamicAny.DynAnyFactory dynFactory,
-             org.omg.CORBA.TypeCode tc)
+             org.omg.CORBA.TypeCode type,
+             ORB orb,
+             Logger logger)
       throws TypeMismatch
    {
-      org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
+       super(dynFactory, orb, logger);
+
+      org.omg.CORBA.TypeCode _type = TypeCode.originalType( type );
 
       if( _type.kind().value() != org.omg.CORBA.TCKind._tk_fixed )
+      {
          throw new TypeMismatch();
+      }
 
-      type = _type;
-      this.orb = org.omg.CORBA.ORB.init();
-      this.dynFactory = dynFactory;
+      typeCode = _type;
       pos = -1;
 
       anyRepresentation = orb.create_any ();
-      anyRepresentation.insert_fixed (new BigDecimal ("0"), tc);
+      anyRepresentation.insert_fixed (new BigDecimal ("0"), type);
    }
 
    /**
     * Overrides from_any() in DynAny
     */
 
-   public void from_any(org.omg.CORBA.Any value) 
+   public void from_any(org.omg.CORBA.Any value)
       throws InvalidValue, TypeMismatch
    {
       checkDestroyed ();
       if( ! value.type().equivalent( type()) )
+      {
          throw new TypeMismatch();
+      }
 
-      type = TypeCode.originalType( value.type() );
+      typeCode = TypeCode.originalType( value.type() );
 
       try
       {
@@ -82,8 +86,7 @@ public final class DynFixed
       }
       catch( Exception e)
       {
-         e.printStackTrace();
-         throw new InvalidValue();
+         throw new InvalidValue(e.getMessage());
       }
    }
 
@@ -92,15 +95,14 @@ public final class DynFixed
       return anyRepresentation.extract_fixed().toString();
    }
 
-   public boolean set_value( String val )
+   public boolean set_value( String value )
       throws TypeMismatch, InvalidValue
    {
-      if ( val == null )
+      if ( value == null )
       {
          throw new TypeMismatch();
       }
-
-      val = val.trim();
+      String val = value.trim();
       if ( val.endsWith ("D") || val.endsWith ("d") )
       {
          val = val.substring( 0, val.length() - 1 );
@@ -115,7 +117,7 @@ public final class DynFixed
       {
          throw new TypeMismatch();
       }
-      
+
       boolean truncate = false;
       try
       {
@@ -128,44 +130,44 @@ public final class DynFixed
          }
          else if ( extra < 0 )
          {
-            StringBuffer sb = new StringBuffer (val);
+            StringBuffer buffer = new StringBuffer (val);
 
             // add the decimal point if necessary
             if ( val.indexOf('.') == -1 )
             {
-               sb.append(".");
+               buffer.append('.');
             }
 
             // pad the value with zeros to fit the scale of the typecode
             for ( int i = extra; i < 0; i++ )
             {
-               sb.append("0");
+               buffer.append('0');
             }
-            val = sb.toString();
+            val = buffer.toString();
          }
          fixed_value = new BigDecimal( val );
-      
+
          org.omg.CORBA.FixedHolder holder =
             new org.omg.CORBA.FixedHolder( fixed_value );
-         org.omg.CORBA.TypeCode tc = holder._type();
 
-         if ( tc.fixed_digits() > type().fixed_digits() )
+         org.omg.CORBA.TypeCode type = holder._type();
+
+         if ( type.fixed_digits() > type().fixed_digits() )
          {
             throw new InvalidValue();
          }
-         anyRepresentation.insert_fixed( fixed_value, tc );
+         anyRepresentation.insert_fixed( fixed_value, type );
       }
-      catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+      catch ( org.omg.CORBA.TypeCodePackage.BadKind e )
       {
-          bk.printStackTrace();
-         // should never happen
+          throw unexpectedException(e);
       }
+
       return( ! truncate );
    }
-   
+
    protected org.omg.CORBA.Any getRepresentation()
    {
       return anyRepresentation;
    }
-
 }

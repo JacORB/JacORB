@@ -39,6 +39,7 @@ public class DynAnyFactoryImpl
 
     public DynAnyFactoryImpl( org.jacorb.orb.ORB orb )
     {
+        super();
         this.orb = orb;
         logger = orb.getConfiguration().getNamedLogger("jacorb.orb");
     }
@@ -65,14 +66,14 @@ public class DynAnyFactoryImpl
     }
 
 
-    public org.omg.DynamicAny.DynAny create_dyn_any_from_type_code( org.omg.CORBA.TypeCode type )
+    public org.omg.DynamicAny.DynAny create_dyn_any_from_type_code( org.omg.CORBA.TypeCode typeCode )
     throws InconsistentTypeCode
     {
-        type = TypeCode.originalType( type );
+        final org.omg.CORBA.TypeCode _type = TypeCode.originalType( typeCode );
 
         try
         {
-            switch( type.kind().value() )
+            switch( _type.kind().value() )
             {
                 case org.omg.CORBA.TCKind._tk_null:
                 case org.omg.CORBA.TCKind._tk_void:
@@ -94,32 +95,32 @@ public class DynAnyFactoryImpl
                 case org.omg.CORBA.TCKind._tk_wchar:
                 case org.omg.CORBA.TCKind._tk_wstring:
                 {
-                   return new DynAny( this , type, orb ) ;
+                   return new DynAny( this , _type, orb, logger) ;
                 }
                 case org.omg.CORBA.TCKind._tk_fixed:
                 {
-                    return new DynFixed( this , type ) ;
+                    return new DynFixed( this , _type, orb, logger) ;
                 }
                 case org.omg.CORBA.TCKind._tk_except:
                 case org.omg.CORBA.TCKind._tk_struct:
                 {
-                    return new DynStruct( this , type, orb ) ;
+                    return new DynStruct( this , _type, orb, logger) ;
                 }
                 case org.omg.CORBA.TCKind._tk_enum:
                 {
-                    return new DynEnum( this , type, orb ) ;
+                    return new DynEnum( this , _type, orb, logger) ;
                 }
                 case org.omg.CORBA.TCKind._tk_array:
                 {
-                    return new DynArray( this , type, orb ) ;
+                    return new DynArray( this , _type, orb, logger) ;
                 }
                 case org.omg.CORBA.TCKind._tk_sequence:
                 {
-                    return new DynSequence( this , type, orb ) ;
+                    return new DynSequence( this , _type, orb, logger ) ;
                 }
                 case org.omg.CORBA.TCKind._tk_union:
                 {
-                    return new DynUnion( this , type, orb ) ;
+                    return new DynUnion( this , _type, orb, logger ) ;
                 }
                 case org.omg.CORBA.TCKind._tk_value:
                 {

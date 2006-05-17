@@ -20,112 +20,86 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTERNAL;
 import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.*;
 
 /**
  * CORBA DynEnum
  *
- * @author (c) Gerald Brose, FU Berlin 1999
- * $Id$
+ * @author Gerald Brose
+ * @version $Id$
  */
 
 public final class DynEnum
    extends DynAny
    implements org.omg.DynamicAny.DynEnum
 {
-   private int enum_value;
+   private int enumValue;
    private int max;
    private String [] member_names;
 
-    DynEnum( org.omg.DynamicAny.DynAnyFactory dynFactory,
-           org.omg.CORBA.TypeCode tc,org.omg.CORBA.ORB orb)
+   DynEnum( org.omg.DynamicAny.DynAnyFactory dynFactory,
+            org.omg.CORBA.TypeCode type,
+            org.omg.CORBA.ORB orb,
+            Logger logger)
      throws InvalidValue, TypeMismatch
   {
-     org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
+       super(dynFactory, orb, logger);
 
-     if( _type.kind().value() != org.omg.CORBA.TCKind._tk_enum )
-        throw new TypeMismatch();
+       org.omg.CORBA.TypeCode _type = TypeCode.originalType( type );
 
-     type = _type;
+       if( _type.kind().value() != org.omg.CORBA.TCKind._tk_enum )
+       {
+           throw new TypeMismatch();
+       }
 
-     this.orb = orb;
-     this.dynFactory = dynFactory;
-     pos = -1;
-     enum_value = 0;
+       typeCode = _type;
+       pos = -1;
+       enumValue = 0;
 
-     try
-     {	  
-        member_names = new String[ type().member_count()];
-        max = member_names.length;
-        for( int i = 0; i < member_names.length; i++ )
-           member_names[i] = type().member_name(i);
-     }
-     catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-     {	    
-        // should not happen
-        bk.printStackTrace();
-     }
-     catch( org.omg.CORBA.TypeCodePackage.Bounds b )
-     {	    
-        // should not happen
-        b.printStackTrace();
-     }    
+       try
+       {
+           member_names = new String[ type().member_count()];
+           max = member_names.length;
+           for( int i = 0; i < member_names.length; i++ )
+           {
+               member_names[i] = type().member_name(i);
+           }
+       }
+       catch( org.omg.CORBA.TypeCodePackage.BadKind e )
+       {
+           logger.debug("DynEnum.constructor", e);
+           throw new INTERNAL(e.getMessage());
+       }
+       catch( org.omg.CORBA.TypeCodePackage.Bounds e )
+       {
+           logger.debug("DynEnum.constructor", e);
+           throw new INTERNAL(e.getMessage());
+       }
   }
-     
-   DynEnum( org.omg.DynamicAny.DynAnyFactory dynFactory,
-            org.omg.CORBA.TypeCode tc)
-      throws InvalidValue, TypeMismatch
-   {
-      org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
-
-      if( _type.kind().value() != org.omg.CORBA.TCKind._tk_enum )
-         throw new TypeMismatch();
-
-      type = _type;
-
-      this.orb = org.omg.CORBA.ORB.init();
-      this.dynFactory = dynFactory;
-      pos = -1;
-      enum_value = 0;
-
-      try
-      {	  
-         member_names = new String[ type().member_count()];
-         max = member_names.length;
-         for( int i = 0; i < member_names.length; i++ )
-            member_names[i] = type().member_name(i);
-      }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-      {	    
-         // should not happen
-         bk.printStackTrace();
-      }
-      catch( org.omg.CORBA.TypeCodePackage.Bounds b )
-      {	    
-         // should not happen
-         b.printStackTrace();
-      }    
-   }
 
 
    /**
     * Overrides  from_any() in DynAny
     */
 
-   public void from_any( org.omg.CORBA.Any value ) 
+   public void from_any( org.omg.CORBA.Any value )
       throws InvalidValue, TypeMismatch
    {
       checkDestroyed ();
       if( ! value.type().equivalent( type()) )
+      {
          throw new TypeMismatch();
+      }
 
-      type = TypeCode.originalType( value.type() );
+      typeCode = TypeCode.originalType( value.type() );
 
       try
-      {	    
-         enum_value = value.create_input_stream().read_long();
+      {
+         enumValue = value.create_input_stream().read_long();
          member_names = new String[ type().member_count()];
          max = member_names.length;
          for( int i = 0; i < member_names.length; i++ )
@@ -133,15 +107,13 @@ public final class DynEnum
             member_names[i] = type().member_name(i);
          }
       }
-      catch( org.omg.CORBA.TypeCodePackage.Bounds b )
-      {	    
-         // should not happen
-         b.printStackTrace();
-      }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+      catch( org.omg.CORBA.TypeCodePackage.Bounds e )
       {
-         // should not happen anymore
-         bk.printStackTrace();
+          throw unexpectedException(e);
+      }
+      catch( org.omg.CORBA.TypeCodePackage.BadKind e )
+      {
+          throw unexpectedException(e);
       }
    }
 
@@ -153,60 +125,68 @@ public final class DynEnum
    {
       checkDestroyed ();
       if( !type().equal( dyn_any.type()))
+      {
          return false;
+      }
 
       return DynEnumHelper.narrow( dyn_any).get_as_ulong() == get_as_ulong();
    }
 
 
-   public org.omg.CORBA.Any to_any() 
+   public org.omg.CORBA.Any to_any()
    {
       checkDestroyed ();
-      CDROutputStream os = new CDROutputStream();
-      os.write_long( enum_value );
+      CDROutputStream out = new CDROutputStream();
+      out.write_long( enumValue );
 
-      org.jacorb.orb.Any out_any = 
+      org.jacorb.orb.Any out_any =
          (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
-      out_any.type(type());	
-      out_any.read_value( new CDRInputStream(orb, os.getBufferCopy()), type());
+      out_any.type(type());
+      out_any.read_value( new CDRInputStream(orb, out.getBufferCopy()), type());
       return out_any;
    }
 
    public java.lang.String get_as_string()
    {
       checkDestroyed ();
-      return member_names[ enum_value ];
+      return member_names[ enumValue ];
    }
-	
+
    public void set_as_string( java.lang.String arg )
       throws InvalidValue
    {
       checkDestroyed ();
       int i = 0;
       while( i < member_names.length && !(arg.equals(member_names[i])) )
+      {
          i++;
+      }
 
       if( i < member_names.length )
+      {
          set_as_ulong(i);
+      }
       else
+      {
          throw new InvalidValue();
+      }
    }
 
    public int get_as_ulong()
    {
       checkDestroyed ();
-      return enum_value;
+      return enumValue;
    }
-    
+
    public void set_as_ulong(int arg)
       throws InvalidValue
    {
       checkDestroyed ();
       if( arg < 0 || arg > max )
+      {
          throw new InvalidValue();
+      }
 
-      enum_value = arg;
+      enumValue = arg;
    }
-
-
 }

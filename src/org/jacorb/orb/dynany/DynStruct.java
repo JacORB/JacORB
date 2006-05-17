@@ -20,15 +20,17 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTERNAL;
 import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.*;
 
 /**
  * CORBA DynStruct
  *
- * @author (c) Gerald Brose, FU Berlin 1999
- * $Id$
+ * @author Gerald Brose
+ * @version $Id$
  */
 
 public final class DynStruct
@@ -38,180 +40,138 @@ public final class DynStruct
     private org.omg.DynamicAny.NameValuePair[] members;
 
     /** only set if this represents an exception */
-    private String exception_msg;
+    private String exceptionMsg;
 
-    DynStruct( org.omg.DynamicAny.DynAnyFactory dynFactory, 
-               org.omg.CORBA.TypeCode tc)
-        throws InvalidValue, TypeMismatch
+    DynStruct( org.omg.DynamicAny.DynAnyFactory dynFactory,
+            org.omg.CORBA.TypeCode type,
+            org.omg.CORBA.ORB orb,
+            Logger logger)
+            throws InvalidValue, TypeMismatch
     {
-        org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
+        super(dynFactory, orb, logger);
 
-        if( _type.kind().value() != org.omg.CORBA.TCKind._tk_except && 
-            _type.kind().value() != org.omg.CORBA.TCKind._tk_struct )
+        org.omg.CORBA.TypeCode _type = TypeCode.originalType( type );
+
+        if( _type.kind().value() != org.omg.CORBA.TCKind._tk_except &&
+                _type.kind().value() != org.omg.CORBA.TCKind._tk_struct )
+        {
             throw new TypeMismatch();
+        }
 
-        this.orb = org.omg.CORBA.ORB.init();
-        this.dynFactory = dynFactory;
-
-        type = _type;
+        typeCode = _type;
 
         try
         {
-            /* initialize position for all except empty exceptions */	
+            /* initialize position for all except empty exceptions */
             if( !isEmptyEx () )
             {
                 pos = 0;
             }
             if( _type.kind().value() == org.omg.CORBA.TCKind._tk_except )
-                exception_msg = type.id();
+            {
+                exceptionMsg = typeCode.id();
+            }
 
-            limit = type.member_count();
+            limit = typeCode.member_count();
             members = new NameValuePair[limit];
             for( int i = 0 ; i < limit; i++ )
-            {		
-                org.omg.CORBA.TypeCode _tc = 
-                    TypeCode.originalType( type.member_type(i) );
+            {
+                org.omg.CORBA.TypeCode _tc =
+                    TypeCode.originalType( typeCode.member_type(i) );
                 members[i] =
                     new NameValuePair(
-                                      type.member_name(i),
-                                      dynFactory.create_dyn_any_from_type_code( _tc ).to_any());
+                            typeCode.member_name(i),
+                            dynFactory.create_dyn_any_from_type_code( _tc ).to_any());
 
             }
         }
-        catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+        catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
         {
-            itc.printStackTrace();
+            logger.debug("DynStruct.constructor", e);
+            throw new INTERNAL(e.getMessage());
         }
-        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+        catch( org.omg.CORBA.TypeCodePackage.BadKind e )
         {
-            bk.printStackTrace();
+            logger.debug("DynStruct.constructor", e);
+            throw new INTERNAL(e.getMessage());
         }
-        catch( org.omg.CORBA.TypeCodePackage.Bounds b )
+        catch( org.omg.CORBA.TypeCodePackage.Bounds e )
         {
-            b.printStackTrace();
-        }   	
+            logger.debug("DynStruct.constructor", e);
+            throw new INTERNAL(e.getMessage());
+        }
     }
-    DynStruct( org.omg.DynamicAny.DynAnyFactory dynFactory, 
-            org.omg.CORBA.TypeCode tc,org.omg.CORBA.ORB orb)
-     throws InvalidValue, TypeMismatch
-    {
-     org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
 
-     if( _type.kind().value() != org.omg.CORBA.TCKind._tk_except && 
-         _type.kind().value() != org.omg.CORBA.TCKind._tk_struct )
-         throw new TypeMismatch();
-
-     this.orb = orb;
-     this.dynFactory = dynFactory;
-
-     type = _type;
-
-     try
-     {
-         /* initialize position for all except empty exceptions */	
-         if( !isEmptyEx () )
-         {
-             pos = 0;
-         }
-         if( _type.kind().value() == org.omg.CORBA.TCKind._tk_except )
-             exception_msg = type.id();
-
-         limit = type.member_count();
-         members = new NameValuePair[limit];
-         for( int i = 0 ; i < limit; i++ )
-         {		
-             org.omg.CORBA.TypeCode _tc = 
-                 TypeCode.originalType( type.member_type(i) );
-             members[i] =
-                 new NameValuePair(
-                                   type.member_name(i),
-                                   dynFactory.create_dyn_any_from_type_code( _tc ).to_any());
-
-         }
-     }
-     catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
-     {
-         itc.printStackTrace();
-     }
-     catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-     {
-         bk.printStackTrace();
-     }
-     catch( org.omg.CORBA.TypeCodePackage.Bounds b )
-     {
-         b.printStackTrace();
-     }   	
-    }    
-
-    public void from_any(org.omg.CORBA.Any value) 
+    public void from_any(org.omg.CORBA.Any value)
         throws InvalidValue, TypeMismatch
     {
         checkDestroyed ();
 
         if( !value.type().equivalent( type() ))
+        {
             throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
+        }
 
-        type = TypeCode.originalType( value.type() );
+        typeCode = TypeCode.originalType( value.type() );
 
         try
-        {      
+        {
             limit = type().member_count();
             members = new NameValuePair[limit];
-            org.omg.CORBA.portable.InputStream is = 
+            org.omg.CORBA.portable.InputStream is =
                 value.create_input_stream();
 
-            if( type.kind().value() == org.omg.CORBA.TCKind._tk_except )
+            if( typeCode.kind().value() == org.omg.CORBA.TCKind._tk_except )
             {
-                exception_msg = is.read_string();
+                exceptionMsg = is.read_string();
             }
 
             for( int i = 0 ; i < limit; i++ )
             {
                 try
                 {
-                    Any a = (org.jacorb.orb.Any)orb.create_any();
-                    a.read_value(is, 
-                                 TypeCode.originalType(type.member_type(i)));
+                    Any any = (org.jacorb.orb.Any)orb.create_any();
+                    any.read_value(is,
+                                 TypeCode.originalType(typeCode.member_type(i)));
 
-                    members[i] = new NameValuePair( type().member_name(i), a);
+                    members[i] = new NameValuePair( type().member_name(i), any);
                 }
-                catch( org.omg.CORBA.TypeCodePackage.Bounds b )
+                catch( org.omg.CORBA.TypeCodePackage.Bounds e )
                 {
-                    b.printStackTrace();
-                }   	
-            }	
+                    throw unexpectedException(e);
+                }
+            }
         }
-        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+        catch( org.omg.CORBA.TypeCodePackage.BadKind e )
         {
-            // should not happen anymore
-            bk.printStackTrace();
+            throw unexpectedException(e);
         }
-         
+
         super.from_any( value );
     }
 
 
-    public org.omg.CORBA.Any to_any() 
+    public org.omg.CORBA.Any to_any()
     {
         checkDestroyed ();
-        org.jacorb.orb.Any out_any = 
+        org.jacorb.orb.Any out_any =
             (org.jacorb.orb.Any)orb.create_any();
         out_any.type( type());
 
-        CDROutputStream os = new CDROutputStream();
+        CDROutputStream out = new CDROutputStream();
 
         if( type().kind().value() == org.omg.CORBA.TCKind._tk_except )
         {
-            os.write_string( exception_msg );
+            out.write_string( exceptionMsg );
         }
 
         for( int i = 0; i < members.length; i++)
         {
-            os.write_value( members[i].value.type(), 
+            out.write_value( members[i].value.type(),
                             (CDRInputStream)members[i].value.create_input_stream());
         }
 
-        CDRInputStream is = new CDRInputStream(orb, os.getBufferCopy());
+        CDRInputStream is = new CDRInputStream(orb, out.getBufferCopy());
         out_any.read_value( is, type());
         return out_any;
     }
@@ -224,7 +184,9 @@ public final class DynStruct
     {
         checkDestroyed ();
         if( !type().equal( dyn_any.type())  )
+        {
             return false;
+        }
 
         org.omg.DynamicAny.DynStruct other =  DynStructHelper.narrow( dyn_any );
 
@@ -233,8 +195,10 @@ public final class DynStruct
 
         for( int i = 0; i < elements.length; i++ )
         {
-            if( !(elements[i].value.equal( other_elements[i].value ))) 
+            if( !(elements[i].value.equal( other_elements[i].value )))
+            {
                 return false;
+            }
         }
 
         return true;
@@ -256,7 +220,7 @@ public final class DynStruct
         {
             throw new InvalidValue ();
         }
-        return members[pos].id;	
+        return members[pos].id;
     }
 
 
@@ -272,7 +236,7 @@ public final class DynStruct
         if (pos == -1)
         {
             throw new InvalidValue ();
-        }      
+        }
         return members[pos].value.type().kind();
     }
 
@@ -289,8 +253,10 @@ public final class DynStruct
     {
         checkDestroyed ();
         if( nvp.length != limit )
+        {
             throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
- 
+        }
+
         for( int i = 0; i < limit; i++ )
         {
             if( ! nvp[i].value.type().equivalent( members[i].value.type() ))
@@ -299,9 +265,11 @@ public final class DynStruct
             }
 
             if(! (nvp[i].id.equals("") || nvp[i].id.equals( members[i].id )))
+            {
                 throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
+            }
         }
-        members = nvp;	
+        members = nvp;
     }
 
 
@@ -313,39 +281,46 @@ public final class DynStruct
         {
             for( int i = 0; i < limit; i++ )
             {
-                result[i] = new NameDynAnyPair( members[i].id, 
-                                                dynFactory.create_dyn_any( members[i].value )); 
-            }	
+                result[i] = new NameDynAnyPair( members[i].id,
+                                                dynFactory.create_dyn_any( members[i].value ));
+            }
+
+            return result;
         }
-        catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+        catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
         {
-            itc.printStackTrace();
+            throw unexpectedException(e);
         }
-        return result ;
     }
 
 
-    public void set_members_as_dyn_any(org.omg.DynamicAny.NameDynAnyPair[] nvp) 
+    public void set_members_as_dyn_any(org.omg.DynamicAny.NameDynAnyPair[] nvp)
         throws TypeMismatch, InvalidValue
     {
         checkDestroyed ();
         if( nvp.length != limit )
+        {
             throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
+        }
 
         for( int i = 0; i < limit; i++ )
         {
             if(! nvp[i].value.type().equivalent( members[i].value.type() ))
+            {
                 throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
-	    
+            }
+
             if(! (nvp[i].id.equals("") || nvp[i].id.equals( members[i].id )))
+            {
                 throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
-	    
+            }
+
         }
         members = new NameValuePair[nvp.length];
         for( int i = 0; i < limit; i++ )
         {
             members[i] = new NameValuePair( nvp[i].id, nvp[i].value.to_any() );
-        }	
+        }
     }
 
     public void destroy()
@@ -367,9 +342,9 @@ public final class DynStruct
 
     /* iteration interface */
 
-    public org.omg.DynamicAny.DynAny current_component() 
+    public org.omg.DynamicAny.DynAny current_component()
         throws TypeMismatch
-    {	
+    {
         checkDestroyed ();
         try
         {
@@ -385,25 +360,22 @@ public final class DynStruct
             }
             return dynFactory.create_dyn_any( members[pos].value );
         }
-        catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+        catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
         {
-            itc.printStackTrace();
+            throw unexpectedException(e);
         }
-        return null;
     }
 
     private boolean isEmptyEx ()
     {
         try
         {
-            return (type.kind().value() == org.omg.CORBA.TCKind._tk_except && 
-                    type.member_count() == 0);
+            return (typeCode.kind().value() == org.omg.CORBA.TCKind._tk_except &&
+                    typeCode.member_count() == 0);
         }
-        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+        catch( org.omg.CORBA.TypeCodePackage.BadKind e )
         {
-            bk.printStackTrace();
+            throw unexpectedException(e);
         }
-        return false;
     }
-   
 }
