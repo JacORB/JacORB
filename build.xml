@@ -265,4 +265,61 @@
          <include name="**/notification/**/*.java" />
       </replace>
    </target>
+
+
+   <!-- ==================================================== -->
+   <!--                  PMD                                 -->
+   <!-- ==================================================== -->
+
+   <target name="load-pmd-taskdef" depends="init">
+      <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpath="${classpath}"/>
+   </target>
+
+
+   <target name="pmd" depends="init,load-pmd-taskdef">
+      <pmd rulesetfiles="${basedir}/etc/pmd-ruleset.xml" shortFilenames="true">
+         <formatter type="summaryhtml" toFile="pmd_report.html"/>
+         <fileset dir="${src}/org/jacorb">
+<!-- So much is generated code is there much point? -->
+<!--             <include name="idl/**/*.java"/>    -->
+            <include name="imr/**/*.java"/>
+            <include name="orb/**/*.java"/>
+            <include name="poa/**/*.java"/>
+            <include name="security/**/*.java"/>
+            <include name="util/**/*.java"/>
+<!-- Exclude tracing as very old unsupported code -->
+            <exclude name="util/tracing/*.java"/>
+         </fileset>
+      </pmd>
+   </target>
+
+
+   <!-- ==================================================== -->
+   <!--                FINDBUGS                              -->
+   <!-- ==================================================== -->
+
+   <target name="load-findbugs-taskdef" depends="init">
+      <taskdef name="findBugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+   </target>
+
+   <target name="findbugs" depends="load-findbugs-taskdef">
+      <property environment="Env"/>
+      <findBugs home="${Env.FINDBUGS_HOME}"
+                output="html"
+                outputFile="${basedir}/findbugs_report.html"
+                excludeFilter="${basedir}/etc/findbugs-ruleset.xml"
+                reportLevel="medium"
+                effort="default"
+                jvmargs="-Xmx500M"
+                timeout="12000000">
+         <sourcePath path="${src}"/>
+         <auxClasspath path="${classpath}"/>
+         <systemProperty name="findbugs.de.comment" value="true"/>
+         <class location="${basedir}/classes/org/jacorb/imrutility"/>
+         <class location="${basedir}/classes/org/jacorb/orb"/>
+         <class location="${basedir}/classes/org/jacorb/poa"/>
+         <class location="${basedir}/classes/org/jacorb/security"/>
+         <class location="${basedir}/classes/org/jacorb/util"/>
+      </findBugs>
+   </target>
 </project>
