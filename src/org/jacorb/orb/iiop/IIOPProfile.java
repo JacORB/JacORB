@@ -32,6 +32,7 @@ import org.jacorb.orb.etf.ProtocolAddressBase;
 import org.omg.ETF.*;
 import org.omg.IOP.*;
 import org.omg.SSLIOP.*;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CSIIOP.*;
 
 /**
@@ -84,23 +85,25 @@ public class IIOPProfile
         this.corbalocStr = corbaloc;
     }
 
-    public void configure(Configuration configuration)
+    public void configure(Configuration config)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
-        logger = this.configuration.getNamedLogger("jacorb.iiop.profile");
-        if (this.primaryAddress != null)
-            this.primaryAddress.configure(configuration);
+        configuration = (org.jacorb.config.Configuration)config;
+        logger = configuration.getNamedLogger("jacorb.iiop.profile");
+        if (primaryAddress != null)
+        {
+            primaryAddress.configure(config);
+        }
 
-        if (this.corbalocStr != null)
+        if (corbalocStr != null)
         {
             try
             {
-                this.decode_corbaloc(this.corbalocStr);
+                decode_corbaloc(corbalocStr);
             }
             catch(Exception e)
             {
-                e.printStackTrace(); // debug
+                logger.debug("unable to decode_corbaloc", e);
             }
         }
     }
@@ -110,8 +113,8 @@ public class IIOPProfile
      * corbaloc:iiop:[fe80:5443::3333%3]:2809/my_object
      * where the zone ID seperator is / or % depending on
      * what the underlying OS supports.
-     * 
-     * This preserves compatilibility with TAO, and falls in 
+     *
+     * This preserves compatilibility with TAO, and falls in
      * line with RFC 2732 and discussion on OMG news groups.
      */
     private void decode_corbaloc(String addr)
@@ -158,10 +161,10 @@ public class IIOPProfile
         int ipv6SeperatorStart = -1;
         int ipv6SeperatorEnd = -1;
         ipv6SeperatorStart = addr.indexOf('[');
-        if (ipv6SeperatorStart != -1) 
+        if (ipv6SeperatorStart != -1)
         {
             ipv6SeperatorEnd = addr.indexOf(']');
-            if (ipv6SeperatorEnd == -1) 
+            if (ipv6SeperatorEnd == -1)
                 throw new IllegalArgumentException(errorstr);
         }
 
@@ -171,7 +174,7 @@ public class IIOPProfile
             if (ipv6SeperatorStart != -1) //IPv6
             {
                 host=addr.substring(ipv6SeperatorStart + 1, ipv6SeperatorEnd);
-                if (addr.charAt(ipv6SeperatorEnd+1) == ':') 
+                if (addr.charAt(ipv6SeperatorEnd+1) == ':')
                 {
                     port=(short)Integer.parseInt(addr.substring(ipv6SeperatorEnd+2));
                 }
@@ -200,8 +203,7 @@ public class IIOPProfile
         }
         catch( ConfigurationException ce)
         {
-            if (logger.isWarnEnabled())
-                logger.warn("ConfigurationException", ce );
+            logger.warn("ConfigurationException", ce );
         }
         decode_extensions(protocol_identifier.toLowerCase());
     }
@@ -276,8 +278,7 @@ public class IIOPProfile
             }
             catch( ConfigurationException ce)
             {
-                if (logger.isWarnEnabled())
-                    logger.warn("ConfigurationException", ce );
+                logger.warn("ConfigurationException", ce );
             }
         }
     }
@@ -308,11 +309,10 @@ public class IIOPProfile
             }
             catch( ConfigurationException ce)
             {
-                if (logger.isWarnEnabled())
-                    logger.warn("ConfigurationException", ce );
+                logger.warn("ConfigurationException", ce );
             }
         }
-       
+
         result.version = new org.omg.GIOP.Version(this.version.major,
                                                    this.version.minor);
 
@@ -369,7 +369,7 @@ public class IIOPProfile
      * (if it is not null), and the port with newPort (if it is not -1).
      */
     public void patchPrimaryAddress(ProtocolAddressBase replacement)
-        {
+    {
         if (replacement instanceof IIOPAddress)
             primaryAddress.replaceFrom((IIOPAddress)replacement);
     }
@@ -425,6 +425,8 @@ public class IIOPProfile
             }
             catch ( Exception ex )
             {
+                logger.debug("unexpected exception", ex);
+                throw new INTERNAL(ex.getMessage());
             }
         }
         return -1;
@@ -439,7 +441,9 @@ public class IIOPProfile
     {
         SSL ssl = getSSL();
         if (ssl == null)
+        {
             return getTLSPortFromCSIComponent();
+        }
         else
         {
             int port = ssl.port;
@@ -476,5 +480,4 @@ public class IIOPProfile
     {
         return primaryAddress.toString();
     }
-
 }

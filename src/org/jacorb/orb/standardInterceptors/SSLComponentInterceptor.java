@@ -21,8 +21,10 @@
 package org.jacorb.orb.standardInterceptors;
 
 import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
 
 import org.omg.PortableInterceptor.*;
+import org.omg.CORBA.INTERNAL;
 import org.omg.IOP.*;
 import org.omg.SSLIOP.*;
 
@@ -39,7 +41,8 @@ public class SSLComponentInterceptor
     extends org.omg.CORBA.LocalObject
     implements IORInterceptor, Configurable
 {
-    private ORB orb = null;
+    private final ORB orb;
+    private final Logger logger;
     private TaggedComponent tc = null;
     private short supported = 0;
     private short required = 0;
@@ -49,17 +52,18 @@ public class SSLComponentInterceptor
    {
         this.orb = orb;
         configure( orb.getConfiguration());
+        logger = orb.getConfiguration().getNamedLogger(getClass().getName());
     }
 
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        supported = 
+        supported =
             Short.parseShort(
                 configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
                 16); // 16 is the base as we take the string value as hex!
 
-        required = 
+        required =
             Short.parseShort(
                 configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
                 16);
@@ -133,8 +137,8 @@ public class SSLComponentInterceptor
         }
         catch (Exception e)
         {
-            // should not happen
-            e.printStackTrace();
+            logger.error("unexpected exception", e);
+            throw new INTERNAL(e.getMessage());
         }
     }
 } // SSLComponentInterceptor

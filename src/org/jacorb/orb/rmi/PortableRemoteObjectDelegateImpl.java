@@ -36,7 +36,7 @@ import org.omg.CORBA.portable.ObjectImpl;
 
 public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.PortableRemoteObjectDelegate
 {
-    private static ORB _orb = null;
+    private static org.jacorb.orb.ORB _orb = null;
 
     /**
      * Return the ORB to be used for RMI communications.
@@ -46,8 +46,7 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
     {
         if ( _orb == null )
         {
-            System.out.println("Unknown ORB");
-            _orb = ORB.init( new String[0], null );
+            _orb = (org.jacorb.orb.ORB)ORB.init( new String[0], null );
         }
         return _orb;
     }
@@ -62,7 +61,7 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
         {
             throw new IllegalStateException( "RMI orb has already been initialized" );
         }
-        _orb = orb;
+        _orb = (org.jacorb.orb.ORB)orb;
     }
 
     /**
@@ -71,7 +70,11 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
      */
     public void exportObject( java.rmi.Remote obj ) throws java.rmi.RemoteException
     {
-        if (obj == null) throw new NullPointerException();
+        if (obj == null)
+        {
+            throw new IllegalArgumentException();
+        }
+
         if ( obj instanceof Stub )
         {
             throw new java.rmi.server.ExportException( "Attempted to export a stub class" );
@@ -169,41 +172,29 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
     public Object narrow( Object obj, Class newClass ) throws ClassCastException
     {
         if (newClass == null)
+        {
             throw new ClassCastException("Can't narrow to null class");
+        }
         if (obj == null)
+        {
             return null;
+        }
 
         Class fromClass = obj.getClass();
-        Object result = null;
 
         try
         {
             if (newClass.isAssignableFrom(fromClass))
-                result = obj;
-            else
             {
-                Class[] cs = fromClass.getInterfaces();
-                Exception e1 = new Exception();
-                try
-                {
-                    throw e1;
-                }
-                catch(Exception ee)
-                {
-                    ee.printStackTrace();
-                }
-                System.exit(2);
+                return obj;
             }
         }
         catch(Exception e)
         {
-            result = null;
+            // ignored
         }
 
-        if (result == null)
-            throw new ClassCastException("Can't narrow from " + fromClass + " to " + newClass);
-
-        return result;
+        throw new ClassCastException("Can't narrow from " + fromClass + " to " + newClass);
     }
 
     /**
@@ -211,7 +202,7 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
      */
     public void connect( java.rmi.Remote target, java.rmi.Remote source ) throws java.rmi.RemoteException
     {
-        throw new Error("Not implemented for PortableRemoteObjectDelegateImpl");
+        throw new UnsupportedOperationException("Not implemented for PortableRemoteObjectDelegateImpl");
     }
 
     /**
@@ -228,15 +219,16 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
             {
                 final String tieClzName = newRMIClassName(clz.getName(), "Tie");
                 return newTie(tieClzName, clz);
-            } catch (ClassNotFoundException ex)
+            }
+            catch (ClassNotFoundException e)
             {
-                //throw new java.rmi.server.ExportException("ClassNotFoundException: " + e, e );
+                throw new java.rmi.server.ExportException("ClassNotFoundException: ", e );
             } catch (InstantiationException e)
             {
-                throw new java.rmi.server.ExportException("InstantiationException: " + e, e);
+                throw new java.rmi.server.ExportException("InstantiationException: ", e);
             } catch (IllegalAccessException e)
             {
-                throw new java.rmi.server.ExportException("IllegalAccessException: " + e, e);
+                throw new java.rmi.server.ExportException("IllegalAccessException: ", e);
             }
         }
         throw new java.rmi.server.ExportException("Tie class not found ");
@@ -244,15 +236,15 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
 
     /**
      * Java Language to IDL Mapping 00-01-06 1.4.6:
-     * 
-     * The stub class corresponding to an RMI/IDL interface or implementation class may 
-     * either be in the same package as its associated interface or class, or may be further 
+     *
+     * The stub class corresponding to an RMI/IDL interface or implementation class may
+     * either be in the same package as its associated interface or class, or may be further
      * qualified by the org.omg.stub package prefix.
-     * 
-     * When loading a stub class corresponding to an interface or class 
-     * <packagename>.<typename>, the class <packagename>._<typename>_Stub shall be 
-     * used if it exists; otherwise, the class org.omg.stub.<packagename>._<typename>_Stub 
-     * shall be used. 
+     *
+     * When loading a stub class corresponding to an interface or class
+     * <packagename>.<typename>, the class <packagename>._<typename>_Stub shall be
+     * used if it exists; otherwise, the class org.omg.stub.<packagename>._<typename>_Stub
+     * shall be used.
      */
     private Stub newStub(String clazzName, Class source) throws InstantiationException, IllegalAccessException, ClassNotFoundException
     {
@@ -265,7 +257,7 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
             return (Stub) newInstance("org.omg.stub." + clazzName, source);
         }
     }
-    
+
     private javax.rmi.CORBA.Tie newTie(String clazzName, Class source) throws InstantiationException, IllegalAccessException, ClassNotFoundException
     {
         try
@@ -277,17 +269,17 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
             return (Tie) newInstance("org.omg.stub." + clazzName, source);
         }
     }
-    
+
     private Object newInstance(String clazzName, Class source) throws InstantiationException, IllegalAccessException, ClassNotFoundException
     {
         return loadClass(clazzName, source).newInstance();
     }
-    
+
     private Class loadClass(String clazzName, Class source) throws ClassNotFoundException
     {
         return Util.loadClass(clazzName, Util.getCodebase(source), source.getClassLoader());
     }
-    
+
     private String newRMIStubName(final String repoID)
     {
         final String clazzName = repoID.substring(4, repoID.lastIndexOf(":"));
@@ -303,7 +295,7 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
         buffer.append(name.substring(idx, name.length()));
         buffer.append("_");
         buffer.append(suffix);
-        
+
         return buffer.toString();
     }
 }

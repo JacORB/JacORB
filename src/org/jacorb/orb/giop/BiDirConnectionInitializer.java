@@ -20,6 +20,7 @@
 
 package org.jacorb.orb.giop;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.*;
 
 import org.omg.PortableInterceptor.*;
@@ -27,37 +28,39 @@ import org.omg.IOP.*;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 
 /**
- *
  * @author Nicolas Noffke
  * @version $Id$
  */
 
-public class BiDirConnectionInitializer 
-  extends org.omg.CORBA.LocalObject 
+public class BiDirConnectionInitializer
+  extends org.omg.CORBA.LocalObject
   implements ORBInitializer
 {
-    public void post_init(ORBInitInfo info) 
+    public void post_init(ORBInitInfo info)
     {
+        final ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
+        final Logger logger = orb.getConfiguration().getNamedLogger("org.jacorb.interceptors.ior_init");
+
         try
         {
-            ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
-            Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, 
+            Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value,
                                              (byte) 1, (byte) 0);
             Codec codec = info.codec_factory().create_codec(encoding);
 
             info.add_client_request_interceptor( new BiDirConnectionClientInterceptor( orb, codec ));
             info.add_server_request_interceptor( new BiDirConnectionServerInterceptor( orb, codec ));
-            
+
             info.register_policy_factory( BIDIRECTIONAL_POLICY_TYPE.value,
                                           new BiDirPolicyFactory() );
         }
         catch (Exception e)
         {
-            e.printStackTrace(System.out);
+            logger.error("BiDirConnectionInitializer.post_init", e);
         }
     }
 
-    public void pre_init(ORBInitInfo info) 
-    {    
+    public void pre_init(ORBInitInfo info)
+    {
+        // do nothing
     }
 } // BiDirConnectionInitializer

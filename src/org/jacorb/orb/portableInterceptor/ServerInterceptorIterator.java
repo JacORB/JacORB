@@ -44,9 +44,9 @@ public class ServerInterceptorIterator
 
     private ServerRequestInfoImpl info = null;
 
-    public ServerInterceptorIterator(Interceptor[] interceptors) 
+    public ServerInterceptorIterator(Interceptor[] interceptors)
     {
-	super(interceptors);
+        super(interceptors);
     }
 
     /**
@@ -54,82 +54,83 @@ public class ServerInterceptorIterator
      * nextElement() until !hasMoreElements().
      */
     public void iterate( ServerRequestInfoImpl info, short op )
-	throws UserException
+    throws UserException
     {
-      
-	this.info = info;
-	this.op = op;
 
-	//set sending_exception right
-	info.update();
-	info.caller_op = op;
+        this.info = info;
+        this.op = op;
 
-	// ok, op <= RECEIVE_REQUEST is more efficient but 
-	// less understandable
-	setDirection( (op == RECEIVE_REQUEST_SERVICE_CONTEXTS) || 
-		      (op == RECEIVE_REQUEST));
+        //set sending_exception right
+        info.update();
+        info.caller_op = op;
 
-	iterate();
+        // ok, op <= RECEIVE_REQUEST is more efficient but
+        // less understandable
+        setDirection( (op == RECEIVE_REQUEST_SERVICE_CONTEXTS) ||
+                (op == RECEIVE_REQUEST));
 
-	//propagate last exception upwards
-	if ( interceptor_ex != null )
-	    if (interceptor_ex instanceof ForwardRequest)
-		throw (ForwardRequest) interceptor_ex;
-	    else
-		throw (org.omg.CORBA.SystemException) interceptor_ex;
+        iterate();
+
+        //propagate last exception upwards
+        if ( interceptor_ex != null )
+        {
+            if (interceptor_ex instanceof ForwardRequest)
+            {
+                throw (ForwardRequest) interceptor_ex;
+            }
+            else
+            {
+                throw (org.omg.CORBA.SystemException) interceptor_ex;
+            }
+        }
     }
 
     protected void invoke(Interceptor interceptor)
-	throws UserException
+    throws UserException
     {
-
-	try
+        try
         {
-	    switch (op) 
+            switch (op)
             {
-	    case RECEIVE_REQUEST_SERVICE_CONTEXTS :
-		((ServerRequestInterceptor) interceptor).
-		    receive_request_service_contexts(info);
-		break;
-	    case RECEIVE_REQUEST :
-		((ServerRequestInterceptor) interceptor).receive_request(info);
-		break;
-	    case SEND_REPLY :
-		((ServerRequestInterceptor) interceptor).send_reply(info);
-		break;
-	    case SEND_EXCEPTION :
-		((ServerRequestInterceptor) interceptor).send_exception(info);
-		break;
-	    case SEND_OTHER :
-		((ServerRequestInterceptor) interceptor).send_other(info);
-		break;
-	    }
-	}
+            case RECEIVE_REQUEST_SERVICE_CONTEXTS :
+                ((ServerRequestInterceptor) interceptor).
+                receive_request_service_contexts(info);
+                break;
+            case RECEIVE_REQUEST :
+                ((ServerRequestInterceptor) interceptor).receive_request(info);
+                break;
+            case SEND_REPLY :
+                ((ServerRequestInterceptor) interceptor).send_reply(info);
+                break;
+            case SEND_EXCEPTION :
+                ((ServerRequestInterceptor) interceptor).send_exception(info);
+                break;
+            case SEND_OTHER :
+                ((ServerRequestInterceptor) interceptor).send_other(info);
+                break;
+            }
+        }
         catch (ForwardRequest _fwd)
         {
-	    reverseDirection();
-	    op = SEND_OTHER;
-	
+            reverseDirection();
+            op = SEND_OTHER;
+
             info.reply_status = LOCATION_FORWARD.value;
 
-	    info.forward_reference = _fwd.forward;
+            info.forward_reference = _fwd.forward;
 
-	    interceptor_ex = _fwd;
-	}
+            interceptor_ex = _fwd;
+        }
         catch (org.omg.CORBA.SystemException _sysex)
         {
-	    reverseDirection();
-	    op = SEND_EXCEPTION;
-	    interceptor_ex = _sysex;
+            reverseDirection();
+            op = SEND_EXCEPTION;
+            interceptor_ex = _sysex;
 
-	    SystemExceptionHelper.insert(info.sending_exception, _sysex);
-	}
-        catch (Throwable th)
-        {
-            th.printStackTrace();
-	}
+            SystemExceptionHelper.insert(info.sending_exception, _sysex);
+        }
 
-	info.caller_op = op;
+        info.caller_op = op;
     }
 } // ServerInterceptorIterator
 
