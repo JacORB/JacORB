@@ -185,7 +185,7 @@
 
     <target name="run-old" depends="test-init">
         <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
-            <jvmarg value="-Dtestdir=${testdir}" />
+            <jvmarg value="-Djacorb.test.home=${testdir}" />
             <jvmarg value="-Djacorb.home=${jacorb.home}" />
             <jvmarg value="${rmi.jvmarg}" />
             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
@@ -205,7 +205,7 @@
 
     <target name="run-old-jdk-orb-no-build" depends="test-init" if="use.jdk.orb">
         <junit fork="yes" printsummary="withOutAndErr">
-            <jvmarg value="-Dtestdir=${testdir}" />
+            <jvmarg value="-Djacorb.test.home=${testdir}" />
             <formatter type="plain" />
             <test name="${test}" outfile="TEST-${test}-jdkorb" todir="${dirs.output}" />
             <classpath>
