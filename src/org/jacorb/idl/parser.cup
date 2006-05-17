@@ -27,8 +27,8 @@ parser code
 {:
     static String command_line[] = null;
 
-    public static Hashtable pack_replace = new Hashtable();
-    public static Stack scopes = new Stack();
+    public static Hashtable pack_replace = null;
+    public static Stack scopes = null;
     private static Hashtable tmpDefines = null;
     private static Hashtable tmpUnDefines = null;
 
@@ -96,6 +96,7 @@ parser code
     protected static void init()
     {
         command_line = null;
+        pending_interfaces = new Hashtable();
         pack_replace = new Hashtable();
         scopes = new Stack();
         tmpDefines = new Hashtable();
@@ -618,7 +619,7 @@ parser code
 
     // forward declared interfaces are put into this list
 
-    static Hashtable pending_interfaces = new Hashtable();
+    static Hashtable pending_interfaces = null;
 
     public static synchronized void set_pending( String name )
     {

@@ -30,9 +30,9 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
 /**
- * The Interface Repository. 
+ * The Interface Repository.
  * <p>
- * This class represents the repository itself as 
+ * This class represents the repository itself as
  * well as the executable server.
  * <p>
  * Methods from the "write" interface to the IR
@@ -56,10 +56,10 @@ public class RepositoryImpl
     private POA poa;
     private ClassLoader loader;
 
-    public static char 	        fileSeparator = 
+    public static char 	        fileSeparator =
         System.getProperty("file.separator").charAt(0);
- 
-    public static String 	pathSeparator = 
+
+    public static String 	pathSeparator =
         System.getProperty("path.separator");
 
     /** the configuration object for this IR instance */
@@ -70,14 +70,14 @@ public class RepositoryImpl
 
     /**
      *  constructor to launch a repository with the contents of <tt>classpath</tt>
-     * 
+     *
      *  @param classpath a classpath string made up of directories separated by ":"
      */
 
-    public RepositoryImpl( String classpath, 
+    public RepositoryImpl( String classpath,
                            String outfile,
                            //#ifjdk 1.2
-                              java.net.URLClassLoader loader ) 
+                              java.net.URLClassLoader loader )
                            //#else
                            //# ClassLoader loader )
                            //#endif
@@ -91,52 +91,52 @@ public class RepositoryImpl
         // parse classpath and create a top-level container for
         // each directory in the path
 
-        StringTokenizer strtok = 
+        StringTokenizer strtok =
             new StringTokenizer( classpath , java.io.File.pathSeparator );
         //            new StringTokenizer( classpath , ";" );
 
-        String [] paths = 
+        String [] paths =
             new String [ strtok.countTokens() ];
 
-        containers = 
+        containers =
             new Container[ paths.length ];
 
         org.omg.CORBA.Object obj;
 
-        org.omg.CORBA.ORB orb = 
+        org.omg.CORBA.ORB orb =
             org.omg.CORBA.ORB.init( new String[0], null );
-        
+
         this.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
 
         poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-        
-        org.omg.CORBA.Repository myRef = 
-            org.omg.CORBA.RepositoryHelper.narrow( 
+
+        org.omg.CORBA.Repository myRef =
+            org.omg.CORBA.RepositoryHelper.narrow(
                 poa.servant_to_reference( new org.omg.CORBA.RepositoryPOATie( this ) ) );
-        
-       
+
+
         for( int i = 0; strtok.hasMoreTokens(); i++ )
         {
             paths[i] =  strtok.nextToken();
-            
+
             if (this.logger.isDebugEnabled())
             {
                 logger.debug("found path: " + paths[i]);
             }
-            
-            containers[i] = new Container( this, paths[i], null, 
+
+            containers[i] = new Container( this, paths[i], null,
                                            loader, poa, logger );
         }
-        
+
         // dummy
         delegate = containers[0];
-        
+
         PrintWriter out = new PrintWriter( new FileOutputStream( outfile ), true);
         out.println( orb.object_to_string( myRef ) );
         setReference( myRef );
         out.close();
         poa.the_POAManager().activate();
-        
+
         if (this.logger.isInfoEnabled())
         {
             //#ifjdk 1.2
@@ -144,13 +144,13 @@ public class RepositoryImpl
             //#else
             //# java.net.URL urls[] = new java.net.URL[0];
             //#endif
-            StringBuffer sb = 
+            StringBuffer sb =
                 new StringBuffer("IR configured for class path: ");
             for( int i = 0; i < urls.length; i++ )
             {
                 sb.append( urls[i].toString() + "\n");
             }
-            
+
             logger.info(sb.toString());
         }
     }
@@ -181,7 +181,7 @@ public class RepositoryImpl
 
         // strip "IDL:" and ":1.0")
 
-        String base = id.substring( id.indexOf(':')+1, 
+        String base = id.substring( id.indexOf(':')+1,
                                     id.lastIndexOf(':')).replace( fileSeparator, '/' );
 
         if( base.startsWith( "omg.org") )
@@ -197,8 +197,8 @@ public class RepositoryImpl
     }
 
     /**
-     * lookup a repository ID 
-     * @param id a string in Repository ID format, 
+     * lookup a repository ID
+     * @param id a string in Repository ID format,
      *         e.g. "IDL:myModule/MyInterface:1.0"
      * @return a reference to the object or null, if not found
      */
@@ -221,14 +221,14 @@ public class RepositoryImpl
     {
         try
         {
-            return org.omg.CORBA.PrimitiveDefHelper.narrow( 
+            return org.omg.CORBA.PrimitiveDefHelper.narrow(
                 poa.servant_to_reference(
-                        new org.omg.CORBA.PrimitiveDefPOATie( 
+                        new org.omg.CORBA.PrimitiveDefPOATie(
                             new org.jacorb.ir.PrimitiveDef( kind.value() ))));
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            logger.error("unexpected exception", e);
             return null;
         }
     }
@@ -264,7 +264,7 @@ public class RepositoryImpl
      * not supported
      */
 
-    public org.omg.CORBA.SequenceDef create_sequence(int bound, 
+    public org.omg.CORBA.SequenceDef create_sequence(int bound,
                                                      org.omg.CORBA.IDLType element_type)
     {
         return null;
@@ -274,7 +274,7 @@ public class RepositoryImpl
      * not supported
      */
 
-    public org.omg.CORBA.ArrayDef create_array(int length, 
+    public org.omg.CORBA.ArrayDef create_array(int length,
                                                org.omg.CORBA.IDLType element_type)
     {
         return null;
@@ -291,7 +291,7 @@ public class RepositoryImpl
     // container
 
     /**
-     * lookup a scoped name in the repository 
+     * lookup a scoped name in the repository
      *
      * @param name	the name to look for
      * @return a reference to the item with the specified name
@@ -317,23 +317,23 @@ public class RepositoryImpl
     }
 
     /**
-     * lookup a simple name in the repository 
+     * lookup a simple name in the repository
      * (neither scoped nor ID formatted)
-     * 
+     *
      * @param search_name the name to look for
-     * @param levels_to_search  if 1, search only this object, if -1, search 
+     * @param levels_to_search  if 1, search only this object, if -1, search
      *         all containers contained in this repository, else search
      *         until the specified depth is reached
      * @param limit_type  limit the description to objects of this type
      * @param exclude_inherited	exclude inherited items from the description
-     * @return an array of items with the specified name 
+     * @return an array of items with the specified name
      */
 
     public org.omg.CORBA.Contained[] lookup_name(
-				String search_name, 
-				int levels_to_search, 
-				org.omg.CORBA.DefinitionKind limit_type, 
-				boolean exclude_inherited )
+                String search_name,
+                int levels_to_search,
+                org.omg.CORBA.DefinitionKind limit_type,
+                boolean exclude_inherited )
     {
         if (this.logger.isDebugEnabled())
         {
@@ -345,12 +345,12 @@ public class RepositoryImpl
 
         for( int i = 0; i < containers.length; i++ )
         {
-            intermediate.addElement( containers[i].lookup_name( search_name, 
-                                                                levels_to_search,  
-                                                                limit_type, 
+            intermediate.addElement( containers[i].lookup_name( search_name,
+                                                                levels_to_search,
+                                                                limit_type,
                                                                 exclude_inherited ));
         }
-        
+
         int size = 0;
         for( int i = 0; i < intermediate.size(); i++ )
         {
@@ -361,14 +361,14 @@ public class RepositoryImpl
 
         for( int i = 0; i < intermediate.size(); i++ )
         {
-            org.omg.CORBA.Contained[] src = 
+            org.omg.CORBA.Contained[] src =
                 (org.omg.CORBA.Contained[])intermediate.elementAt(i);
 
             System.arraycopy( src, 0, result, start, src.length );
             start += src.length;
         }
 
-	return result;
+    return result;
     }
 
 
@@ -379,17 +379,17 @@ public class RepositoryImpl
      * @return an array of items contained in this repository
      */
 
-    public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type, 
+    public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type,
                                               boolean exclude_inherited)
     {
         org.omg.CORBA.Contained[] result = null;
         Vector intermediate = new Vector();
         for( int i = 0; i < containers.length; i++ )
         {
-            intermediate.addElement( containers[i].contents( limit_type, 
+            intermediate.addElement( containers[i].contents( limit_type,
                                                              exclude_inherited ));
         }
-        
+
         int size = 0;
         for( int i = 0; i < intermediate.size(); i++ )
         {
@@ -402,14 +402,14 @@ public class RepositoryImpl
         // assemble result array
         for( int i = 0; i < intermediate.size(); i++ )
         {
-            org.omg.CORBA.Contained[] src = 
+            org.omg.CORBA.Contained[] src =
                 (org.omg.CORBA.Contained[])intermediate.elementAt(i);
 
             System.arraycopy( src, 0, result, start, src.length );
             start += src.length;
         }
 
-	return result;
+    return result;
     }
 
 
@@ -421,9 +421,9 @@ public class RepositoryImpl
      * @return an array of descriptions
      */
 
-    public org.omg.CORBA.ContainerPackage.Description[] describe_contents( 
-                           org.omg.CORBA.DefinitionKind limit_type,	
-                           boolean exclude_inherited, 
+    public org.omg.CORBA.ContainerPackage.Description[] describe_contents(
+                           org.omg.CORBA.DefinitionKind limit_type,
+                           boolean exclude_inherited,
                            int max_returned_objs)
     {
         org.omg.CORBA.Contained[] c = contents( limit_type, exclude_inherited );
@@ -432,9 +432,9 @@ public class RepositoryImpl
             size = max_returned_objs;
         else
             size = c.length;
-        org.omg.CORBA.ContainerPackage.Description[] result = 
+        org.omg.CORBA.ContainerPackage.Description[] result =
             new org.omg.CORBA.ContainerPackage.Description[size];
-        for( int i = 0; i < size; i++ ) 
+        for( int i = 0; i < size; i++ )
         {
             result[i] = new org.omg.CORBA.ContainerPackage.Description();
             org.omg.CORBA.ContainedPackage.Description cd_descr = c[i].describe();
@@ -451,7 +451,7 @@ public class RepositoryImpl
         // do nothing
     }
 
-    public void loadContents() 
+    public void loadContents()
     {
         if (this.logger.isInfoEnabled())
         {
@@ -473,16 +473,16 @@ public class RepositoryImpl
         }
     }
 
-    public org.omg.CORBA.ModuleDef create_module( String id, 
-                                                  String name, 
+    public org.omg.CORBA.ModuleDef create_module( String id,
+                                                  String name,
                                                   String version)
     {
         return delegate.create_module( id,  name,  version);
     }
 
     public org.omg.CORBA.ConstantDef create_constant( String id, String name,
-                                                      String version, 
-                                                      org.omg.CORBA.IDLType type, 
+                                                      String version,
+                                                      org.omg.CORBA.IDLType type,
                                                       org.omg.CORBA.Any value)
     {
         return delegate.create_constant(  id,  name, version, type, value);
@@ -496,17 +496,17 @@ public class RepositoryImpl
         return delegate.create_struct( id, name, version, members);
     }
 
-    public org.omg.CORBA.UnionDef create_union( String id, 
-                                                String name,  
-                                                String version, 
-                                                org.omg.CORBA.IDLType 
-                                                discriminator_type, 
+    public org.omg.CORBA.UnionDef create_union( String id,
+                                                String name,
+                                                String version,
+                                                org.omg.CORBA.IDLType
+                                                discriminator_type,
                                                 org.omg.CORBA.UnionMember[] members)
     {
         return delegate.create_union( id,  name, version, discriminator_type, members);
     }
 
-    public org.omg.CORBA.EnumDef create_enum( String id, 
+    public org.omg.CORBA.EnumDef create_enum( String id,
                                               String name,
                                               String version,
                                               String[] members)
@@ -514,18 +514,18 @@ public class RepositoryImpl
         return delegate.create_enum(  id,  name, version, members);
     }
 
-    public org.omg.CORBA.AliasDef create_alias( String id, 
-                                                String name,  
-                                                String version, 
+    public org.omg.CORBA.AliasDef create_alias( String id,
+                                                String name,
+                                                String version,
                                                 org.omg.CORBA.IDLType original_type)
     {
         return delegate.create_alias(  id,  name, version, original_type);
     }
 
     public org.omg.CORBA.ExceptionDef create_exception( String id,
-                                                        String name, 
-                                                        String version, 
-                                                        org.omg.CORBA.StructMember[] member ) 
+                                                        String name,
+                                                        String version,
+                                                        org.omg.CORBA.StructMember[] member )
     {
         return delegate.create_exception(id, name, version, member);
     }
@@ -534,13 +534,13 @@ public class RepositoryImpl
      * not supported
      */
 
-    public org.omg.CORBA.InterfaceDef create_interface(String id, 
-                                                       String name, 
-                                                       String version, 
-                                                       org.omg.CORBA.InterfaceDef[] base_interfaces, 
+    public org.omg.CORBA.InterfaceDef create_interface(String id,
+                                                       String name,
+                                                       String version,
+                                                       org.omg.CORBA.InterfaceDef[] base_interfaces,
                                                        boolean is_abstract )
     {
-        return delegate.create_interface( id,  name,  version, 
+        return delegate.create_interface( id,  name,  version,
                     base_interfaces, is_abstract );
     }
 
@@ -548,9 +548,9 @@ public class RepositoryImpl
      * not supported
      */
 
-    public org.omg.CORBA.ValueBoxDef create_value_box(String id, 
-                                                      String name, 
-                                                      String version, 
+    public org.omg.CORBA.ValueBoxDef create_value_box(String id,
+                                                      String name,
+                                                      String version,
                                                       org.omg.CORBA.IDLType type)
     {
         return delegate.create_value_box(id, name, version, type);
@@ -561,18 +561,18 @@ public class RepositoryImpl
      */
 
     public  org.omg.CORBA.ValueDef create_value(
-                                     String id, 
-                                     String name, 
+                                     String id,
+                                     String name,
                                      String version,
-                                     boolean is_custom, 
-                                     boolean is_abstract, 
-                                     org.omg.CORBA.ValueDef base_value, 
-                                     boolean is_truncatable, 
-                                     org.omg.CORBA.ValueDef[] abstract_base_values, 
-                                     org.omg.CORBA.InterfaceDef[] supported_interfaces, 
+                                     boolean is_custom,
+                                     boolean is_abstract,
+                                     org.omg.CORBA.ValueDef base_value,
+                                     boolean is_truncatable,
+                                     org.omg.CORBA.ValueDef[] abstract_base_values,
+                                     org.omg.CORBA.InterfaceDef[] supported_interfaces,
                                      org.omg.CORBA.Initializer[] initializers)
     {
-        return delegate.create_value(id, name, version,is_custom, is_abstract, base_value, is_truncatable, 
+        return delegate.create_value(id, name, version,is_custom, is_abstract, base_value, is_truncatable,
                                      abstract_base_values,  supported_interfaces,  initializers);
     }
 
@@ -581,13 +581,13 @@ public class RepositoryImpl
      * not supported
      */
 
-    public org.omg.CORBA.NativeDef create_native(String id, 
-                                                 String name, 
+    public org.omg.CORBA.NativeDef create_native(String id,
+                                                 String name,
                                                  String version)
     {
         return delegate.create_native( id,  name,  version);
     }
- 
+
 
     public void destroy()
     {
