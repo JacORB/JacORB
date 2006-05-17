@@ -20,88 +20,55 @@ package org.jacorb.test.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.test.common.ORBSetup;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.jacorb.test.orb.BasicServerImpl;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-
-import org.omg.PortableServer.*;
-import org.omg.PortableServer.POAPackage.*;
-import org.omg.CORBA.*;
+import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 
 /**
  * <code>POAActivateTest</code> tests rapid activation and deactivation of
  * objects in order to ensure the threading is correct.
  *
- * @author <a href="mailto:rnc@prismtechnologies.com"></a>
- * @version 1.0
+ * @author Nick Cross
+ * @version $Id$
  */
 public class POAActivateTest extends TestCase
 {
-    /**
-     * <code>orb</code> is used to obtain the root poa.
-     */
-    private static org.omg.CORBA.ORB orb = null;
+    private org.omg.CORBA.ORB orb;
 
-
-    /**
-     * <code>POAActivateTest</code> constructor - for JUnit.
-     *
-     * @param name a <code>String</code> value
-     */
-    public POAActivateTest (String name)
+    protected void setUp() throws Exception
     {
-        super (name);
+        orb = ORB.init(new String[0], null);
     }
 
-
-    /**
-     * <code>suite</code> lists the tests for Junit to run.
-     *
-     * @return a <code>Test</code> value
-     */
-    public static Test suite ()
+    protected void tearDown() throws Exception
     {
-        TestSuite suite = new TestSuite ("POA Activation/Deactivation Tests");
-        Setup setup = new Setup( suite );
-        ORBSetup osetup = new ORBSetup( setup );
-
-        suite.addTest (new POAActivateTest ("testActivateDeactivate1"));
-        suite.addTest (new POAActivateTest ("testActivateDeactivate2"));
-        suite.addTest (new POAActivateTest ("testActivateDeactivate3"));
-
-        return osetup;
+        orb.shutdown(true);
     }
-
 
     /**
      * <code>testActivateDeactivate1</code> tests activating an object without
      * ID (i.e. using a new one each time) and using servant_to_id to obtain
      * the ID to deactivate_the_object.
      */
-    public void testActivateDeactivate1 ()
+    public void testActivateDeactivate1 () throws Exception
     {
-        try
+        POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+
+        poa.the_POAManager().activate();
+
+        BasicServerImpl soi = new BasicServerImpl();
+
+        for (int count=0;count<100;count++)
         {
-            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
-            poa.the_POAManager().activate();
-
-            BasicServerImpl soi = new BasicServerImpl();
-
-            for (int count=0;count<100;count++)
-            {
-//                System.out.println("Iteration #"+count+" - activating object");
-                poa.activate_object( soi);
-//                System.out.println("Iteration #"+count+" - deactivating object");
-                poa.deactivate_object(poa.servant_to_id(soi));
-            }
-        }
-        catch( Exception e )
-        {
-            fail( "unexpected exception: " + e );
+            poa.activate_object( soi);
+            poa.deactivate_object(poa.servant_to_id(soi));
         }
     }
 
@@ -110,7 +77,57 @@ public class POAActivateTest extends TestCase
      * <code>testActivateDeactivate2</code> tests activating and deactivating
      * the object using the same ID.
      */
-    public void testActivateDeactivate2 ()
+    public void testActivateDeactivate2 () throws Exception
+    {
+        POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+
+        poa.the_POAManager().activate();
+
+        BasicServerImpl soi = new BasicServerImpl();
+
+        // This will activate it so do deactivate first
+        byte []id = poa.servant_to_id( soi );
+
+        for (int count=0;count<100;count++)
+        {
+            poa.deactivate_object(id);
+            poa.activate_object_with_id(id, soi);
+        }
+    }
+
+
+    /**
+     * <code>testActivateDeactivate3</code> tests activating an object using a POA policy
+     * of MULTIPLE_ID.
+     */
+    public void testActivateDeactivate3 () throws Exception
+    {
+        POA rootPoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+
+        // create POA
+        Policy policies[] = new Policy[3];
+        policies[0] = rootPoa.create_id_assignment_policy(
+                org.omg.PortableServer.IdAssignmentPolicyValue.SYSTEM_ID);
+        policies[1] = rootPoa.create_id_uniqueness_policy(
+                org.omg.PortableServer.IdUniquenessPolicyValue.MULTIPLE_ID);
+        policies[2] = rootPoa.create_servant_retention_policy(
+                org.omg.PortableServer.ServantRetentionPolicyValue.RETAIN);
+
+        POA poa = rootPoa.create_POA("system_id", rootPoa.the_POAManager(), policies);
+
+        BasicServerImpl soi = new BasicServerImpl();
+
+        byte [] id = poa.activate_object(soi);
+
+        for (int count=0;count<100;count++)
+        {
+            poa.deactivate_object(id);
+            poa.activate_object_with_id( id, soi);
+        }
+    }
+
+
+    public void testActivateDeactivate4 () throws Exception
     {
         try
         {
@@ -120,93 +137,14 @@ public class POAActivateTest extends TestCase
 
             BasicServerImpl soi = new BasicServerImpl();
 
-            // This will activate it so do deactivate first
-            byte []id = poa.servant_to_id( soi );
-
-            for (int count=0;count<100;count++)
-            {
-                poa.deactivate_object(id);
-                poa.activate_object_with_id(id, soi);
-            }
+            poa.activate_object( soi);
+            poa.activate_object( soi);
+            fail();
         }
-        catch( Exception e )
+        catch (ServantAlreadyActive e)
         {
-            fail( "unexpected exception: " + e );
-        }
-    }
-
-
-    /**
-     * <code>testActivateDeactivate3</code> tests activating an object using a POA policy
-     * of MULTIPLE_ID.
-     */
-    public void testActivateDeactivate3 ()
-    {
-        try
-        {
-            POA rootPoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
-            // create POA
-            Policy policies[] = new Policy[3];
-            policies[0] = rootPoa.create_id_assignment_policy(
-                org.omg.PortableServer.IdAssignmentPolicyValue.SYSTEM_ID);
-            policies[1] = rootPoa.create_id_uniqueness_policy(
-                org.omg.PortableServer.IdUniquenessPolicyValue.MULTIPLE_ID);
-            policies[2] = rootPoa.create_servant_retention_policy(
-                org.omg.PortableServer.ServantRetentionPolicyValue.RETAIN);
-
-            POA poa = rootPoa.create_POA("system_id", rootPoa.the_POAManager(), policies);
-
-            BasicServerImpl soi = new BasicServerImpl();
-
-            byte [] id = poa.activate_object(soi);
-
-            for (int count=0;count<100;count++)
-            {
-                poa.deactivate_object(id);
-                poa.activate_object_with_id( id, soi);
-           }
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "unexpected exception: " + e );
-        }
-    }
-
-
-
-
-    /**
-     * <code>Setup</code> is an inner class to initialize the ORB.
-     */
-    private static class Setup extends TestSetup
-    {
-        /**
-         * Creates a new <code>Setup</code> instance.
-         *
-         * @param test a <code>Test</code> value
-         */
-        public Setup (Test test)
-        {
-            super (test);
-        }
-
-        /**
-         * <code>setUp</code> sets the orb variable.
-         */
-        protected void setUp ()
-        {
-            org.omg.CORBA.Object obj = null;
-
-            orb = ORBSetup.getORB ();
-        }
-
-        /**
-         * <code>tearDown</code> does nothing for this test.
-         */
-        protected void tearDown ()
-        {
+            // Thats expected
+            return;
         }
     }
 }

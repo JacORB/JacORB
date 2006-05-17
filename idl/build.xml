@@ -25,7 +25,7 @@
    <!-- ==================================================== -->
 
    <target name="corba"
-           depends="orb,sysex,dynany,portableserver,iop,rtcorba,etf,iiop,giop,conf,messaging,interceptor,compile"/>
+           depends="orb,sysex,portableserver,dynany,iop,rtcorba,etf,iiop,giop,conf,messaging,interceptor,compile"/>
 
    <target name="compile">
       <antcall target="jacorb-javac">
@@ -350,20 +350,20 @@
    <!-- data distribution service  -->
    <!--                            -->
 
-	   <target name="dds" depends="init,load-taskdef">
-	      <jacidl generateir="true"
-	              srcdir="idl"
-	              omgprefix="true"
-	              includepath="${idl}/omg"
-	              includes="omg/dds_dcps.idl"
-	              destdir="${src}/generated"/>	   	
-	      <antcall target="jacorb-javac">
-	         <param name="javac-src" value="${src}/generated"/>
-	         <param name="javac-includes" value="org/omg/dds/**/*.java"/>
-	      </antcall>
-	   </target>
-	
-	
+       <target name="dds" depends="init,load-taskdef">
+          <jacidl generateir="true"
+                  srcdir="idl"
+                  omgprefix="true"
+                  includepath="${idl}/omg"
+                  includes="omg/dds_dcps.idl"
+                  destdir="${src}/generated"/>
+          <antcall target="jacorb-javac">
+             <param name="javac-src" value="${src}/generated"/>
+             <param name="javac-includes" value="org/omg/dds/**/*.java"/>
+          </antcall>
+       </target>
+
+
    <!--                      -->
    <!-- transaction service  -->
    <!--                      -->
@@ -489,13 +489,13 @@
    <!--     Notification service  -->
    <!--                           -->
 
-   <target name="notification" 
-     depends="init,load-taskdef,notif,typed,jms-interop" 
+   <target name="notification"
+     depends="init,load-taskdef,notif,typed,jms-interop"
      description="Compile Notification Service IDL">
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${src}/generated"/>
-         <param name="javac-includes" 
-	   value="org/omg/CosNotification/*.java,org/omg/CosNotify**/*.java,org/omg/CosTyped*/**/*.java"/>
+         <param name="javac-includes"
+       value="org/omg/CosNotification/*.java,org/omg/CosNotify**/*.java,org/omg/CosTyped*/**/*.java"/>
       </antcall>
    </target>
 
@@ -512,7 +512,7 @@
       includepath="${idl}/omg"
       includes="**/omg/CosNotifyComm.idl,**/omg/CosNotifyFilter.idl"
       destdir="${src}/generated"/>
-    <jacidl 
+    <jacidl
       srcdir="${idl}/jacorb"
       includepath="${idl}/omg"
       includes="notification.idl"
@@ -547,12 +547,12 @@
    </target>
 
    <target name="jms-interop">
-   	<jacidl generateir="true"
-	 	srcdir="idl"
-		omgprefix="true"
-		includepath="${idl}/omg"
-		includes="**/omg/CosBridgeAdmin.idl"
-		destdir="${src}/generated" />
+       <jacidl generateir="true"
+         srcdir="idl"
+        omgprefix="true"
+        includepath="${idl}/omg"
+        includes="**/omg/CosBridgeAdmin.idl"
+        destdir="${src}/generated" />
    </target>
 
    <!--                      -->

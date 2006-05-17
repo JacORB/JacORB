@@ -38,7 +38,7 @@ public class AllTest
         suite.addTest(org.jacorb.test.poa.Deactivate.suite());
         suite.addTest(org.jacorb.test.poa.QueueNoWaitTest.suite());
         suite.addTest(org.jacorb.test.poa.QueueWaitTest.suite());
-        suite.addTest(org.jacorb.test.poa.POAActivateTest.suite());
+        suite.addTest(new TestSuite(POAActivateTest.class));
         suite.addTestSuite(ImplNameTest.class);
         suite.addTest(BiDirDelegateTest.suite());
         
