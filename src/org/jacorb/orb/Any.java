@@ -937,7 +937,6 @@ public final class Any
             }
             catch( Exception e )
             {
-                e.printStackTrace();
                 throw new INTERNAL( e.getMessage());
             }
         case TCKind._tk_value:

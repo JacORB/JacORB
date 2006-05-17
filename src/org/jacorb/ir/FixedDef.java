@@ -1,5 +1,7 @@
 package org.jacorb.ir;
 
+import org.omg.CORBA.INTERNAL;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -38,7 +40,7 @@ public class FixedDef
         }
         catch( Exception e )
         {
-            e.printStackTrace(); // should not happen
+            throw new INTERNAL(e.getMessage());
         }
     }
 
@@ -62,7 +64,6 @@ public class FixedDef
         scale = arg;
     }
 
-
     public void define()
     {
     }
@@ -70,7 +71,6 @@ public class FixedDef
     public void destroy()
     {
     }
-
 }
 
 

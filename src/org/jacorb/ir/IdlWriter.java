@@ -22,8 +22,10 @@ package org.jacorb.ir;
 
 import java.io.*;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.TypeCode;
-import org.omg.CORBA.TCKind;
+import org.omg.CORBA.INTERNAL;
 import org.omg.DynamicAny.*;
 
 /**
@@ -33,68 +35,51 @@ import org.omg.DynamicAny.*;
  * @version $Id$
  */
 
-public class IdlWriter 
+public class IdlWriter
 {
-    private PrintStream ps; 
+    private final PrintStream printStream;
+    private final org.omg.CORBA.Repository ir;
+    private final DynAnyFactory factory;
+    private final Logger logger;
     private int indent = 0;
-    private org.omg.CORBA.ORB orb ;
-    private org.omg.CORBA.Repository ir = null;
-    private DynAnyFactory factory;
 
     /**
-     *  create a new IdlWriter for the default JacORB IR 
+     *  create a new IdlWriter for the default JacORB IR
      *  which writes to a specific PrintStream
-     * 
-     *  @param _ps	a PrintStream
+     *
+     *  @param orb
+     *  @param ps	a PrintStream
+     *  @param logger
      */
 
-    public IdlWriter( PrintStream _ps )
+    public IdlWriter( ORB orb, PrintStream ps, Logger logger )
     {
-        ps = _ps;
+        printStream = ps;
+        this.logger = logger;
+
         try
         {
-            orb = org.omg.CORBA.ORB.init((String[])null, null);
-            ir = org.omg.CORBA.RepositoryHelper.narrow( 
+            ir = org.omg.CORBA.RepositoryHelper.narrow(
                      orb.resolve_initial_references("InterfaceRepository"));
-            factory = 
+            factory =
                 org.omg.DynamicAny.DynAnyFactoryHelper.narrow (orb.resolve_initial_references ("DynAnyFactory"));
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName e )
-        {}
+        {
+            throw new INTERNAL(e.getMessage());
+        }
 
         if( ir == null )
         {
-            System.err.println("No IR configured! Exiting..");
+            logger.fatalError("No IR configured! Exiting..");
             System.exit(1);
         }
     }
 
-    /**
-     *  create a new IdlWriter for a specific IR which writes 
-     *  to a specific PrintStream
-     * 
-     *  @param _ps	a PrintStream
-     *  @param _ir	a Repository
-     */
-
-    public IdlWriter( PrintStream _ps, org.omg.CORBA.Repository _ir )
-    {
-        ps = _ps;
-        try
-        {
-            orb = org.omg.CORBA.ORB.init((String[])null, null);
-            ir = _ir;
-            factory = 
-                org.omg.DynamicAny.DynAnyFactoryHelper.narrow (orb.resolve_initial_references ("DynAnyFactory"));
-        }
-        catch( org.omg.CORBA.ORBPackage.InvalidName e )
-        {}
-    }
-
     public void close()
     {
-        ps.flush();
-        ps.close();
+        printStream.flush();
+        printStream.close();
     }
 
     private void indent(int indentation)
@@ -105,23 +90,23 @@ public class IdlWriter
     private void print( String s )
     {
         for( int i = 0; i < indent; i++ )
-            ps.print(" ");
-        ps.print(s);
+            printStream.print(" ");
+        printStream.print(s);
     }
 
     /**
      *  print the IDL definition for a contained objec
-     * 
-     *  @param c	the contained object 
+     *
+     *  @param c	the contained object
      *  @param indentation	how many spaces to use for indentation
      */
 
-    public void printContained( org.omg.CORBA.Contained c, 
+    public void printContained( org.omg.CORBA.Contained c,
                                 int indentation )
     {
         org.omg.CORBA.ContainedPackage.Description descr = c.describe();
 
-        switch (descr.kind.value()) 
+        switch (descr.kind.value())
         {
         case org.omg.CORBA.DefinitionKind._dk_Module:
             {
@@ -131,9 +116,9 @@ public class IdlWriter
             }
         case org.omg.CORBA.DefinitionKind._dk_Interface:
             {
-                org.omg.CORBA.InterfaceDef idef = 
-                    org.omg.CORBA.InterfaceDefHelper.narrow(  
-                        ir.lookup_id(  
+                org.omg.CORBA.InterfaceDef idef =
+                    org.omg.CORBA.InterfaceDefHelper.narrow(
+                        ir.lookup_id(
                             org.omg.CORBA.InterfaceDescriptionHelper.extract(descr.value).id ));
                 printInterface( idef,
                                 indentation+3 );
@@ -192,21 +177,21 @@ public class IdlWriter
 
     /**
      *  print the IDL definition for a module
-     * 
-     *  @param mdes	the module description 
+     *
+     *  @param mdes	the module description
      *  @param indentation	how many spaces to use for indentation
      */
 
-    public void printModule( org.omg.CORBA.ModuleDescription mdes, 
+    public void printModule( org.omg.CORBA.ModuleDescription mdes,
                              int indentation )
     {
         indent( indentation );
 
-        org.omg.CORBA.ModuleDef mdef = 
+        org.omg.CORBA.ModuleDef mdef =
             org.omg.CORBA.ModuleDefHelper.narrow( ir.lookup_id( mdes.id ));
         print("module " + mdef.name() + "\n" );
         print("{\n");
-        org.omg.CORBA.Contained[] contents = 
+        org.omg.CORBA.Contained[] contents =
             mdef.contents( org.omg.CORBA.DefinitionKind.dk_all, true );
 
         for( int x = 0; x < contents.length; x++){
@@ -218,16 +203,16 @@ public class IdlWriter
     }
 
 
-    /** 
+    /**
      * print an IDL interface
      */
 
-    public void printInterface( org.omg.CORBA.InterfaceDef idef, 
+    public void printInterface( org.omg.CORBA.InterfaceDef idef,
                                 int indentation )
     {
-        org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription idfid = 
+        org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription idfid =
             idef.describe_interface();
-        org.omg.CORBA.Contained[] contents = 
+        org.omg.CORBA.Contained[] contents =
             idef.contents( org.omg.CORBA.DefinitionKind.dk_all, true );
 
         indent( indentation );
@@ -256,11 +241,11 @@ public class IdlWriter
     /** print an IDL exception def
      */
 
-    public void printException( org.omg.CORBA.ExceptionDescription e, 
+    public void printException( org.omg.CORBA.ExceptionDescription e,
                                 int indentation )
     {
-        org.omg.CORBA.ExceptionDef e_def = 
-            org.omg.CORBA.ExceptionDefHelper.narrow( ir.lookup_id( e.id )); 
+        org.omg.CORBA.ExceptionDef e_def =
+            org.omg.CORBA.ExceptionDefHelper.narrow( ir.lookup_id( e.id ));
 
         if( e_def != null )
         {
@@ -269,14 +254,16 @@ public class IdlWriter
             print( "exception " + e.name + " {" + "\n" );
             indent( indentation + 3 );
             for( int i = 0; i< members.length; i++){
-                print( TypeCode.idlTypeName( members[i].type ) + " " + members[i].name + 
+                print( TypeCode.idlTypeName( members[i].type ) + " " + members[i].name +
                        ";" + "\n" );
             }
             indent( indentation );
             print( "};" + "\n\n" );
-        } 
-        else 
-            System.err.println("Error, could not find excpetion " + e.id + " in IR ");
+        }
+        else
+        {
+            logger.error("Error, could not find exception " + e.id + " in IR ");
+        }
     }
 
     /** print an IDL struct def
@@ -284,13 +271,13 @@ public class IdlWriter
 
     public void printStruct( org.omg.CORBA.TypeDescription t, int indentation )
     {
-        org.omg.CORBA.StructDef s_def = 
-            org.omg.CORBA.StructDefHelper.narrow(ir.lookup_id( t.id )); 
+        org.omg.CORBA.StructDef s_def =
+            org.omg.CORBA.StructDefHelper.narrow(ir.lookup_id( t.id ));
 
         if( s_def != null )
         {
             org.omg.CORBA.StructMember [] members = s_def.members();
-            org.omg.CORBA.Contained [] contents = 
+            org.omg.CORBA.Contained [] contents =
                 s_def.contents(org.omg.CORBA.DefinitionKind.dk_all, false);
 
             indent( indentation );
@@ -307,69 +294,70 @@ public class IdlWriter
             {
                 printContained( contents[i], indentation  );
             }
-			
+
             indent( indentation );
             print( "};" + "\n\n" );
-        } 
-        else 
-            System.err.println("Error, could not find struct " + t.id + " in IR ");
-
+        }
+        else
+        {
+            logger.error("Error, could not find struct " + t.id + " in IR ");
+        }
     }
 
 
     /** print an IDL const
      */
 
-    public void printConstant( org.omg.CORBA.ConstantDescription c, 
+    public void printConstant( org.omg.CORBA.ConstantDescription c,
                                int indentation )
     {
         indent( indentation );
-        StringBuffer sb = 
-            new StringBuffer (  "const " + TypeCode.idlTypeName( c.type ) 
+        StringBuffer sb =
+            new StringBuffer (  "const " + TypeCode.idlTypeName( c.type )
                                 + " " + c.name + " = " );
         switch ( c.type.kind().value() )
         {
-        case org.omg.CORBA.TCKind._tk_string: 
-            sb.append( "\"" + c.value.extract_string() + "\"" ); 
+        case org.omg.CORBA.TCKind._tk_string:
+            sb.append( "\"" + c.value.extract_string() + "\"" );
             break;
-        case org.omg.CORBA.TCKind._tk_wstring: 
-            sb.append( "\"" + c.value.extract_wstring() + "\"" ); 
+        case org.omg.CORBA.TCKind._tk_wstring:
+            sb.append( "\"" + c.value.extract_wstring() + "\"" );
             break;
-        case org.omg.CORBA.TCKind._tk_boolean: 
-            sb.append( c.value.extract_boolean() ); 
+        case org.omg.CORBA.TCKind._tk_boolean:
+            sb.append( c.value.extract_boolean() );
             break;
-        case org.omg.CORBA.TCKind._tk_long: 
-            sb.append( c.value.extract_long() ); 
+        case org.omg.CORBA.TCKind._tk_long:
+            sb.append( c.value.extract_long() );
             break;
-        case org.omg.CORBA.TCKind._tk_ulong: 
-            sb.append( c.value.extract_ulong() ); 
+        case org.omg.CORBA.TCKind._tk_ulong:
+            sb.append( c.value.extract_ulong() );
             break;
-        case org.omg.CORBA.TCKind._tk_longlong: 
-            sb.append( c.value.extract_longlong() ); 
+        case org.omg.CORBA.TCKind._tk_longlong:
+            sb.append( c.value.extract_longlong() );
             break;
-        case org.omg.CORBA.TCKind._tk_ulonglong: 
-            sb.append( c.value.extract_ulonglong() ); 
+        case org.omg.CORBA.TCKind._tk_ulonglong:
+            sb.append( c.value.extract_ulonglong() );
             break;
-        case org.omg.CORBA.TCKind._tk_short: 
-          sb.append( c.value.extract_short() ); 
+        case org.omg.CORBA.TCKind._tk_short:
+          sb.append( c.value.extract_short() );
           break;
-        case org.omg.CORBA.TCKind._tk_ushort: 
-          sb.append( c.value.extract_ushort() ); 
+        case org.omg.CORBA.TCKind._tk_ushort:
+          sb.append( c.value.extract_ushort() );
           break;
         case org.omg.CORBA.TCKind._tk_float:
-          sb.append( c.value.extract_float() ); 
+          sb.append( c.value.extract_float() );
           break;
-        case org.omg.CORBA.TCKind._tk_octet: 
-          sb.append( c.value.extract_octet() ); 
+        case org.omg.CORBA.TCKind._tk_octet:
+          sb.append( c.value.extract_octet() );
           break;
-        case org.omg.CORBA.TCKind._tk_char: 
-          sb.append( "\'" + c.value.extract_char() + "\'" ); 
+        case org.omg.CORBA.TCKind._tk_char:
+          sb.append( "\'" + c.value.extract_char() + "\'" );
           break;
-        case org.omg.CORBA.TCKind._tk_wchar: 
-          sb.append( "\'" + c.value.extract_wchar() + "\'" ); 
+        case org.omg.CORBA.TCKind._tk_wchar:
+          sb.append( "\'" + c.value.extract_wchar() + "\'" );
           break;
-        case org.omg.CORBA.TCKind._tk_fixed: 
-          sb.append( c.value.extract_fixed() ); 
+        case org.omg.CORBA.TCKind._tk_fixed:
+          sb.append( c.value.extract_fixed() );
           break;
         }
 
@@ -380,7 +368,7 @@ public class IdlWriter
     /** print an IDL attribute
      */
 
-    public void printAttribute( org.omg.CORBA.AttributeDescription a, 
+    public void printAttribute( org.omg.CORBA.AttributeDescription a,
                                 int indentation )
     {
         indent( indentation );
@@ -395,11 +383,11 @@ public class IdlWriter
     /** print an IDL Enum
      */
 
-    public void printEnum( org.omg.CORBA.TypeDescription t, 
+    public void printEnum( org.omg.CORBA.TypeDescription t,
                            int indentation )
     {
         org.omg.CORBA.EnumDef e_def =
-            org.omg.CORBA.EnumDefHelper.narrow( ir.lookup_id( t.id )); 
+            org.omg.CORBA.EnumDefHelper.narrow( ir.lookup_id( t.id ));
         if( e_def != null )
         {
             String [] members = e_def.members();
@@ -411,25 +399,27 @@ public class IdlWriter
                 vals.append( "," + members[i] );
             }
             print( "enum " + e_def.name() + " {" + vals + "};" + "\n\n" );
-        } 
-        else 
-            System.err.println("Error, could not find enum " + t.id + " in IR ");
+        }
+        else
+        {
+            logger.error("Error, could not find enum " + t.id + " in IR ");
+        }
 
     }
 
     /** print an IDL Union
      */
 
-    public void printUnion( org.omg.CORBA.TypeDescription t, 
+    public void printUnion( org.omg.CORBA.TypeDescription t,
                             int indentation )
     {
-        org.omg.CORBA.UnionDef u_def = 
-            org.omg.CORBA.UnionDefHelper.narrow( ir.lookup_id( t.id )); 
+        org.omg.CORBA.UnionDef u_def =
+            org.omg.CORBA.UnionDefHelper.narrow( ir.lookup_id( t.id ));
         if( u_def != null )
         {
             org.omg.CORBA.UnionMember [] members = u_def.members();
             indent( indentation );
-            print( "union " + u_def.name() + " switch ( " + 
+            print( "union " + u_def.name() + " switch ( " +
                    TypeCode.idlTypeName(u_def.discriminator_type())
                    +  " )\n");
             print("{\n" );
@@ -444,69 +434,71 @@ public class IdlWriter
                 }
                 else if( members[i].label.type().kind() == org.omg.CORBA.TCKind.tk_char )
                 {
-                    print("case \'" + members[i].label.extract_char() + "\' : " +  
-                          TypeCode.idlTypeName(members[i].type) + " " 
+                    print("case \'" + members[i].label.extract_char() + "\' : " +
+                          TypeCode.idlTypeName(members[i].type) + " "
                           + members[i].name + ";" + "\n");
                 }
                 else if( members[i].label.type().kind() == org.omg.CORBA.TCKind.tk_enum )
                 {
                     // int val = members[i].label.extract_long();
-                    try 
+                    try
                     {
-                        DynEnum dEnum = 
-                            DynEnumHelper.narrow( 
+                        DynEnum dEnum =
+                            DynEnumHelper.narrow(
                                   factory.create_dyn_any( members[i].label ));
 
-                        // print("case " + members[i].label.type().member_name(val) + " : " +  
-                       print("case " + dEnum.get_as_string() + " : " +  
-                              TypeCode.idlTypeName(members[i].type) + " " + 
+                        // print("case " + members[i].label.type().member_name(val) + " : " +
+                       print("case " + dEnum.get_as_string() + " : " +
+                              TypeCode.idlTypeName(members[i].type) + " " +
                               members[i].name + ";" + "\n");
                     }
                     catch( Exception bk )
                     {
-                        bk.printStackTrace();
+                        logger.error("unexpected exception", bk);
                     }
                 }
                 else
-                    print("case " + members[i].label.type() + " : " +  
+                    print("case " + members[i].label.type() + " : " +
                           TypeCode.idlTypeName(members[i].type) + " " +
                           members[i].name + ";" + "\n");
             }
             if( def_idx != -1 )
             {
-                print("default : " +  TypeCode.idlTypeName(members[def_idx].type) + " " + 
+                print("default : " +  TypeCode.idlTypeName(members[def_idx].type) + " " +
                       members[def_idx].name +";" + "\n" );
             }
             indent( indentation );
             print( "};" + "\n\n");
-        } 
-        else 
-            System.err.println("Error, could not find union " + 
+        }
+        else
+        {
+            logger.error("Error, could not find union " +
                                t.id + " in IR ");
+        }
     }
 
-    /** 
+    /**
      * print an IDL alias
      */
 
     public void printAlias( org.omg.CORBA.TypeDescription t, int indentation )
     {
-        org.omg.CORBA.AliasDef adef = 
+        org.omg.CORBA.AliasDef adef =
             org.omg.CORBA.AliasDefHelper.narrow( ir.lookup_id( t.id ));
         indent( indentation );
 
         String originalTypeName = TypeCode.idlTypeName( adef.original_type_def().type());
 
-        print("typedef " + originalTypeName + 
+        print("typedef " + originalTypeName +
                   " " + adef.name() + ";\n\n");
 
     }
 
-    /** 
+    /**
      * print an IDL operation
      */
 
-    public void printOperation(org.omg.CORBA.OperationDescription op, 
+    public void printOperation(org.omg.CORBA.OperationDescription op,
                                int indentation )
     {
         indent( indentation );
@@ -539,7 +531,7 @@ public class IdlWriter
     }
 
 
-    public void printParameter( org.omg.CORBA.ParameterDescription p, 
+    public void printParameter( org.omg.CORBA.ParameterDescription p,
                                 String separator )
     {
         if( p.mode.equals( org.omg.CORBA.ParameterMode.PARAM_OUT) )

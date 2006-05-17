@@ -119,10 +119,10 @@ public abstract class Contained
                     }
 
                     org.jacorb.ir.InterfaceDef idef =
-                        new org.jacorb.ir.InterfaceDef( c, 
-                                                        helperClass, 
-                                                        path, 
-                                                        _defined_in, 
+                        new org.jacorb.ir.InterfaceDef( c,
+                                                        helperClass,
+                                                        path,
+                                                        _defined_in,
                                                         ir,
                                                         loader,
                                                         poa,
@@ -141,8 +141,8 @@ public abstract class Contained
                 try
                 {
                     Field f = c.getDeclaredField("value");
-                    return new org.jacorb.ir.ConstantDef( c, 
-                                                          _defined_in, 
+                    return new org.jacorb.ir.ConstantDef( c,
+                                                          _defined_in,
                                                           ir,
                                                           logger);
                 }
@@ -159,8 +159,8 @@ public abstract class Contained
             try
             {
             */
-                return new org.jacorb.ir.ExceptionDef(c, 
-                                                      _defined_in, 
+                return new org.jacorb.ir.ExceptionDef(c,
+                                                      _defined_in,
                                                       ir,
                                                       loader,
                                                       poa,
@@ -187,26 +187,26 @@ public abstract class Contained
                 switch( tc.kind().value())
                 {
                 case org.omg.CORBA.TCKind._tk_struct:
-                    return new org.jacorb.ir.StructDef( c, 
-                                                        path, 
-                                                        _defined_in, 
+                    return new org.jacorb.ir.StructDef( c,
+                                                        path,
+                                                        _defined_in,
                                                         ir,
                                                         logger,
-                                                        loader, 
+                                                        loader,
                                                         poa );
                 case org.omg.CORBA.TCKind._tk_enum:
-                    return new org.jacorb.ir.EnumDef( 
-                                                     c, 
-                                                     _defined_in, 
+                    return new org.jacorb.ir.EnumDef(
+                                                     c,
+                                                     _defined_in,
                                                      ir,
                                                      loader );
                 case org.omg.CORBA.TCKind._tk_union:
-                    return new org.jacorb.ir.UnionDef( c, 
-                                                       path,  
-                                                       _defined_in, 
+                    return new org.jacorb.ir.UnionDef( c,
+                                                       path,
+                                                       _defined_in,
                                                        ir,
                                                        loader,
-                                                       logger, 
+                                                       logger,
                                                        poa);
                 default:
                     return null;
@@ -231,10 +231,10 @@ public abstract class Contained
                     (org.omg.CORBA.TypeCode)c.getDeclaredMethod("type", (Class[]) null).invoke(null, (java.lang.Object[]) null);
                 if( tc.kind() == org.omg.CORBA.TCKind.tk_alias )
                 {
-                    return new AliasDef(tc, 
-                                        _defined_in, 
-                                        ir, 
-                                        logger, 
+                    return new AliasDef(tc,
+                                        _defined_in,
+                                        ir,
+                                        logger,
                                         poa);
                 }
             }
@@ -249,7 +249,7 @@ public abstract class Contained
         }
     }
 
-    public static org.omg.CORBA.Contained createContainedReference( 
+    public static org.omg.CORBA.Contained createContainedReference(
         Contained containedObject,
         Logger logger,
         POA poa )
@@ -311,7 +311,7 @@ public abstract class Contained
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            logger.error("unexpected exception", e);
             return null;
         }
     }

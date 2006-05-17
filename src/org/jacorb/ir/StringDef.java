@@ -20,6 +20,7 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.INTF_REPOS;
 
 public class StringDef
@@ -46,7 +47,8 @@ public class StringDef
         }
         catch( Exception e )
         {
-            e.printStackTrace(); // should not happen
+            // should not happen
+            throw new INTERNAL(e.getMessage());
         }
     }
 

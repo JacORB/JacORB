@@ -265,7 +265,8 @@ public final class ORB
         }
         catch( BAD_INV_ORDER b)
         {
-            b.printStackTrace(); // cannot happen!
+            logger.fatalError("unexpected exception", b);
+            throw new INTERNAL(b.getMessage());
         }
 
         configureObjectKeyMap(configuration);
@@ -1403,10 +1404,12 @@ public final class ORB
         {
             if ( logger != null && logger.isErrorEnabled())
             {
-                logger.error( ce.getMessage());
+                logger.error("error during configuration", ce);
             }
             else
+            {
                 ce.printStackTrace();
+            }
 
             throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
         }

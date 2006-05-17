@@ -22,7 +22,10 @@ package org.jacorb.ir;
 
 import java.io.*;
 
-public class QueryIR 
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.ORB;
+
+public class QueryIR
 {
     public static void main( String[] args )
     {
@@ -32,28 +35,30 @@ public class QueryIR
             System.exit(1);
         }
 
-        try 
+        try
         {
-            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, null );
-            org.omg.CORBA.Repository ir = 
+            ORB orb = (ORB) org.omg.CORBA.ORB.init( args, null );
+            org.omg.CORBA.Repository ir =
                 org.omg.CORBA.RepositoryHelper.narrow( orb.resolve_initial_references( "InterfaceRepository"));
-				
+
+            Logger logger = orb.getConfiguration().getNamedLogger("jacorb.ir");
+
             if( ir == null )
             {
                 System.out.println( "Could not find IR.");
                 System.exit(1);
-            }  
-						 
+            }
+
             org.omg.CORBA.Contained c = ir.lookup_id( args[0] );
-			
+
             if( c != null )
             {
-                IdlWriter idlw = new IdlWriter(System.out);
+                IdlWriter idlw = new IdlWriter(orb, System.out, logger);
                 idlw.printContained( c, 2 );
-            } 
-            else 
+            }
+            else
                 System.out.println( args[0] + " not found in IR.");
-        } 
+        }
         catch ( Exception e)
         {
             e.printStackTrace();

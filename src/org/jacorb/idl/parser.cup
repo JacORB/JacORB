@@ -185,7 +185,6 @@ parser code
         }
         catch( Exception e )
         {
-            e.printStackTrace();
             lexer.emit_error( "Exception: " + e.toString() );
             usage( argv, e.getMessage() );
         }

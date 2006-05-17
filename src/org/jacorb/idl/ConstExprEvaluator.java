@@ -102,7 +102,9 @@ public class ConstExprEvaluator
     public Double getValue()
     {
         if (expression == null)
+        {
             return null;
+        }
 
         try
         {
@@ -111,7 +113,8 @@ public class ConstExprEvaluator
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            lexer.emit_error("unexpected exception: " + e.getMessage());
+            // TODO throw exception?
             return null;
         }
     }

@@ -126,9 +126,8 @@ public class TypeSpec
         }
         catch( NullPointerException np )
         {
-            np.printStackTrace();
             org.jacorb.idl.parser.fatal_error( "Compiler Error for " +
-                                               type_spec + " " + typeName(), null );
+                                               type_spec + " " + typeName() + " " + np.getMessage(), null );
         }
         return null;
     }

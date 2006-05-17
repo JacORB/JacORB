@@ -87,24 +87,24 @@ public class BasicAdapter
 
     /**
      * configure the BasicAdapter
-     */ 
+     */
 
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        this.configuration = 
+        this.configuration =
             (org.jacorb.config.Configuration)myConfiguration;
-        logger = 
+        logger =
             configuration.getNamedLogger("jacorb.orb.basic");
 
-        socket_factory = 
+        socket_factory =
             transport_manager.getSocketFactoryManager().getServerSocketFactory();
 
         if( configuration.getAttribute("jacorb.security.support_ssl","off").equals("on"))
         {
             if( ssl_socket_factory == null )
             {
-                String s = 
+                String s =
                     configuration.getAttribute( "jacorb.ssl.server_socket_factory","" );
                 if(  s.length() == 0 )
                 {
@@ -115,10 +115,10 @@ public class BasicAdapter
                 {
                     Class ssl = ObjectUtil.classForName( s );
 
-                    Constructor constr = 
+                    Constructor constr =
                         ssl.getConstructor( new Class[]{org.jacorb.orb.ORB.class });
 
-                    ssl_socket_factory = 
+                    ssl_socket_factory =
                         (SSLServerSocketFactory)constr.newInstance( new Object[]{ orb });
 
                     ((Configurable)ssl_socket_factory).configure(configuration);
@@ -170,7 +170,7 @@ public class BasicAdapter
         throws ConfigurationException
     {
         List result = new ArrayList();
-        List tags = 
+        List tags =
             configuration.getAttributeList("jacorb.transport.server.listeners");
 
         if (tags.isEmpty())
@@ -380,7 +380,8 @@ public class BasicAdapter
         {
             request.setSystemException( new org.omg.CORBA.UNKNOWN( th.toString()) );
             request.reply();
-            th.printStackTrace(); // TODO
+            logger.warn("unexpected exception", th);
+            // TODO throw exception?
         }
     }
 
