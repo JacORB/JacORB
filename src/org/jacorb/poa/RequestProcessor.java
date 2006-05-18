@@ -67,7 +67,7 @@ public class RequestProcessor
     private Servant servant;
     private ServantManager servantManager;
     private CookieHolder cookieHolder;
-    
+
     /**
      * Whether to check for expiry of any ReplyEndTimePolicy.  Normally,
      * it is sufficient to check this on the client side, but the additional
@@ -206,7 +206,7 @@ public class RequestProcessor
 
     private void invokeIncarnate()
     {
-    	if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
             logger.debug("rid: " + request.requestId() +
                          " opname: " + request.operation() +
@@ -220,7 +220,7 @@ public class RequestProcessor
                                                      controller.getPOA());
             if (servant == null)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
                     logger.warn("rid: " + request.requestId() +
                                 " opname: " + request.operation() +
@@ -237,7 +237,7 @@ public class RequestProcessor
                 logger.warn("rid: "+request.requestId() +
                             " opname: " + request.operation() +
                             " incarnate: system exception was thrown (" +
-                            e.toString() + ")");
+                            e + ")");
             }
             request.setSystemException(e);
         }
@@ -248,7 +248,7 @@ public class RequestProcessor
                 logger.warn("rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " incarnate: forward exception was thrown (" +
-                            e.getMessage() + ")");
+                            e + ")");
             }
             request.setLocationForward(e);
 
@@ -261,9 +261,9 @@ public class RequestProcessor
                 logger.error("rid: " + request.requestId() +
                              " opname: " + request.operation() +
                              " incarnate: throwable was thrown (" +
-                             e.getClass().getName() + ")", e);
+                             e + ")", e);
             }
-            request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage()));
+            request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.toString()));
         }
     }
 
@@ -278,7 +278,7 @@ public class RequestProcessor
         {
             if (servant instanceof org.omg.CORBA.portable.InvokeHandler)
             {
-            	if (logger.isDebugEnabled())
+                if (logger.isDebugEnabled())
                 {
                     logger.debug("rid: " + request.requestId() +
                                  " opname: " + request.operation() +
@@ -302,7 +302,7 @@ public class RequestProcessor
             }
             else if (servant instanceof org.omg.PortableServer.DynamicImplementation)
             {
-            	if (logger.isDebugEnabled())
+                if (logger.isDebugEnabled())
                 {
                     logger.debug("rid: " + request.requestId() +
                                  " opname: " + request.operation() +
@@ -324,7 +324,7 @@ public class RequestProcessor
             }
             else
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
                     logger.warn("rid: " + request.requestId() +
                                 " opname: " + request.operation() +
@@ -340,7 +340,7 @@ public class RequestProcessor
                 logger.info("rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " invocation: system exception was thrown (" +
-                            e.toString() + ")");
+                            e + ")");
             }
             request.setSystemException(e);
         }
@@ -348,11 +348,11 @@ public class RequestProcessor
         {
             /* not spec. */
             if (logger.isErrorEnabled())
-            {   
+            {
                 logger.error("rid: " + request.requestId() +
                              " opname: " + request.operation() +
                              " invocation: throwable was thrown (" +
-                             e.getClass().getName() + ")", e);  
+                             e + ")", e);
             }
             request.setSystemException (new org.omg.CORBA.UNKNOWN(e.toString()));
         }
@@ -387,7 +387,7 @@ public class RequestProcessor
                 logger.info("rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " postinvoke: system exception was thrown (" +
-                            e.getMessage()+")");
+                            e + ")");
             }
             request.setSystemException(e);
 
@@ -399,9 +399,9 @@ public class RequestProcessor
             {
                 logger.warn("rid: " + request.requestId() +
                             " opname: " + request.operation() +
-                            " postinvoke: throwable was thrown" + e.getMessage());
+                            " postinvoke: throwable was thrown" + e);
             }
-            request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER());
+            request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.toString()));
             /* which system exception I should raise? */
         }
     }
@@ -413,7 +413,7 @@ public class RequestProcessor
 
     private void invokePreInvoke()
     {
-    	if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
             logger.debug("rid: " + request.requestId() +
                          " opname: " + request.operation() +
@@ -428,7 +428,7 @@ public class RequestProcessor
                                                                   cookieHolder);
             if (servant == null)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
                     logger.warn("rid: " + request.requestId() +
                                 " opname: " + request.operation() +
@@ -446,7 +446,7 @@ public class RequestProcessor
                 logger.info("rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " preinvoke: system exception was thrown (" +
-                            e.getMessage() +")");
+                            e + ")");
             }
             request.setSystemException(e);
 
@@ -458,7 +458,7 @@ public class RequestProcessor
                 logger.info("rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " preinvoke: forward exception was thrown (" +
-                            e.getMessage() + ")");
+                            e + ")");
             }
             request.setLocationForward(e);
         }
@@ -470,9 +470,9 @@ public class RequestProcessor
                 logger.warn("rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " preinvoke: throwable was thrown, " +
-                            e.getMessage());
+                            e );
             }
-            request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage()));
+            request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.toString()));
             /* which system exception I should raise? */
         }
     }
@@ -544,9 +544,13 @@ public class RequestProcessor
         if (servantManager != null)
         {
             if (servantManager instanceof org.omg.PortableServer.ServantActivator)
+            {
                 invokeIncarnate();
+            }
             else
+            {
                 invokePreInvoke();
+            }
         }
 
         if (servant != null)
@@ -584,8 +588,9 @@ public class RequestProcessor
                     }
                 }
                 else if (servant instanceof org.omg.PortableServer.DynamicImplementation)
+                {
                     request.setServerRequestInfo(info);
-
+                }
             }
 
             invokeOperation();
@@ -710,7 +715,7 @@ public class RequestProcessor
                         // ignored
                     }
                 }
-                
+
                 if (terminate)
                 {
                     return;
