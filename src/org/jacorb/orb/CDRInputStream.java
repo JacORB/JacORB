@@ -940,6 +940,13 @@ public class CDRInputStream
 
     public final org.omg.CORBA.Object read_Object()
     {
+        if (! (orb instanceof org.jacorb.orb.ORB))
+        {
+            throw new MARSHAL
+                ( "Cannot use the singleton ORB to receive object references, "
+                       + "please initialize a full ORB instead.");
+        }
+
         handle_chunking();
 
         org.omg.IOP.IOR ior = org.omg.IOP.IORHelper.read(this);
@@ -951,14 +958,7 @@ public class CDRInputStream
         }
         else
         {
-            if( !(orb instanceof org.jacorb.orb.ORB))
-            {
-                throw new MARSHAL( "Cannot use the singleton ORB to receive object references, please initialize a full ORB instead.");
-            }
-            else
-            {
-                return ((org.jacorb.orb.ORB)orb)._getObject( pior );
-            }
+            return ((org.jacorb.orb.ORB)orb)._getObject( pior );
         }
     }
 

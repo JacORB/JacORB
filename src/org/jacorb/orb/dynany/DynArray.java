@@ -108,7 +108,7 @@ public final class DynArray
 
          for( int i = 0 ; i < limit; i++ )
          {
-            members[i] = org.omg.CORBA.ORB.init().create_any();
+            members[i] = orb.create_any();
             members[i].read_value(in, elementType);
          }
       }

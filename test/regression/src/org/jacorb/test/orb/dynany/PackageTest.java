@@ -44,6 +44,9 @@ public class PackageTest extends TestCase
       suite.addTest (DynAnyEmptyExTest.suite ());
       suite.addTest (DynAnyUnionTest.suite ());
       suite.addTest (DynAnyUnionIntTest.suite ());
+      suite.addTestSuite(DynAnyObjectTest.class);
+      suite.addTestSuite(DynAnyArrayObjectTest.class);
+      suite.addTestSuite(DynAnySeqObjectTest.class);
 
       return suite;
    }

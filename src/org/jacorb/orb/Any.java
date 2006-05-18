@@ -554,19 +554,16 @@ public final class Any
     {
         value = o;
 
-        org.omg.CORBA.ORB orb = null;
         String typeId = null;
         String name = "";
 
         if (value == null)
         {
-           orb = org.omg.CORBA.ORB.init();
            typeId = "IDL:omg.org/CORBA/Object:1.0";
            name = "Object";
         }
         else
         {
-           orb = ((org.omg.CORBA.portable.ObjectImpl)o)._orb();
            typeId = ((org.omg.CORBA.portable.ObjectImpl)o)._ids()[0];
 
            // check if the repository Id is in IDL format
@@ -598,14 +595,6 @@ public final class Any
         if( type.kind().value() != TCKind._tk_objref )
             tc_error("Illegal, non-object TypeCode!");
 
-        if( value == null )
-        {
-            orb = org.omg.CORBA.ORB.init();
-        }
-        else
-        {
-            orb = ((org.omg.CORBA.portable.ObjectImpl)o)._orb();
-        }
         value = o;
         typeCode = type;
     }
@@ -717,9 +706,13 @@ public final class Any
         {
             org.jacorb.orb.CDROutputStream out;
             if( !( orb instanceof org.jacorb.orb.ORB ))
+            {
                 out = new org.jacorb.orb.CDROutputStream();
+            }
             else
+            {
                 out = new org.jacorb.orb.CDROutputStream(orb);
+            }
             write_value(out);
             return new org.jacorb.orb.CDRInputStream(orb, out.getBufferCopy());
         }
