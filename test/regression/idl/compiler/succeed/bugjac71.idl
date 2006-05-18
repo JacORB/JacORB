@@ -1,0 +1,21 @@
+//File "GenericNRMDefs.idl"
+
+module bugjac71
+{
+      /**
+       * Contains first const...
+       */
+      interface Top
+      {
+         const string CLASS = "ObjectClass";
+      };
+
+      /**
+       *  Second const should override
+       */
+      interface SubNetwork : Top
+      {
+         const string CLASS = "SubNetwork";
+         const string setOfMcc = "setOfMcc";
+      };
+};
