@@ -285,12 +285,24 @@ public class IIOPListener
     {
         if (acceptor != null)
         {
+
             if (address.getPort() == 0)
+            {
                 address.setPort(((Acceptor)acceptor).getLocalAddress().getPort());
+            }
+            else
+            {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug ("Using port " + address.getPort());
+                }
+            }
         }
         else if (sslAcceptor == null)
+        {
             throw new org.omg.CORBA.INITIALIZE
                 ("no acceptors found, cannot create address profile");
+        }
 
         IIOPProfile result = new IIOPProfile(address,null);
         if (sslAcceptor != null && generateSSLComponents)
