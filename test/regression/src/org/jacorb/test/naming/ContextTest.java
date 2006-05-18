@@ -7,6 +7,7 @@ package org.jacorb.test.naming;
  *
  */
 
+import java.io.File;
 import java.util.Properties;
 
 import org.omg.CosNaming.*;
@@ -49,13 +50,20 @@ public class ContextTest extends ClientServerTestCase
    public static Test suite()
    {
       TestSuite suite = new TestSuite("Naming Context Tests");
-      
+
+      String dir = System.getProperty("java.io.tmpdir");
+      dir += File.separator + "contextTest-" + System.currentTimeMillis();
+      File tmpDir = new File(dir);
+      assertTrue(tmpDir.mkdir());
+      tmpDir.deleteOnExit();
+
       Properties clientProps = new Properties();
       Properties serverProps = new Properties();
 
       serverProps.put("jacorb.naming.ior_filename", "");
       serverProps.put("jacorb.naming.print_ior", "true");
-      
+      serverProps.put("jacorb.naming.db_dir", dir);
+
       ClientServerSetup setup = new ClientServerSetup( suite , "ignored", clientProps, serverProps)
       {
           public String getTestServerMain()
@@ -85,7 +93,7 @@ public class ContextTest extends ClientServerTestCase
            AlreadyBound! */
         try
         {
-            NamingContextExtHelper.narrow(rootContext.bind_new_context( failureName ));               
+            NamingContextExtHelper.narrow(rootContext.bind_new_context( failureName ));
 
             fail("NamingContext was expected to be already bound!");
         }
