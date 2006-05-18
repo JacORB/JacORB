@@ -115,7 +115,8 @@ public abstract class VectorType
         else if( ts instanceof BaseType ||
                 ts instanceof TypeCodeTypeSpec ||
                 ts instanceof ConstrTypeSpec || // for value types
-                ts instanceof TemplateTypeSpec )
+                ts instanceof TemplateTypeSpec ||
+                ts instanceof ObjectTypeSpec)
         {
             return ts.getTypeCodeExpression();
         }

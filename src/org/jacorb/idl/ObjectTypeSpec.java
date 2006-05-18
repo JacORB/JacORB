@@ -78,7 +78,7 @@ public class ObjectTypeSpec
      */
     public String getTypeCodeExpression()
     {
-        return "org.omg.CORBA.ORB.init().create_interface_tc(\"" + id() + "\",\"Object\")";
+        return "org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_objref)";
     }
 
     public String id()

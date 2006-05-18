@@ -47,8 +47,9 @@ post 2.2.4
         - Document all available loggers
         - Improved property documentation
     - IDL Compiler:
-         - Fix for ValueType generation
-         - Improve error checking in compiler.
+        - Fix for ValueType generation
+        - Improve error checking in compiler.
+        - Fix to remove ObjectHelper class generation.
     - ORB:
         - DynValue idl added
         - Enhance Any equals for value comparison.
