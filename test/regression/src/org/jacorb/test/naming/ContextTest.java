@@ -72,14 +72,24 @@ public class ContextTest extends ClientServerTestCase
         }
       };
 
-      suite.addTest (new  ContextTest("testCreateContextSuccess", setup));
-      suite.addTest (new  ContextTest("testCreateContextFailure", setup));
-      suite.addTest (new  ContextTest("testUnbindContext", setup));
+      suite.addTest (new  ContextTest("testNameService", setup));
 
       return setup;
    }
 
-    public void testUnbindContext() throws Exception
+   /**
+    * this is a bad example of an JUnit test as the testmethods need to be run in a particular order
+    * to succeed. to make this explicit i've renamed the testmethods to step1-step3 and
+    * have introduced a test method that invokes them in the proper order.
+    */
+   public void testNameService() throws Exception
+   {
+       step1_CreateContextSuccess();
+       step2_CreateContextFailure();
+       step3_UnbindContext();
+   }
+
+    private void step3_UnbindContext() throws Exception
     {
         rootContext.unbind(failureName);
         rootContext.unbind(secondName);
@@ -87,7 +97,7 @@ public class ContextTest extends ClientServerTestCase
     }
 
 
-   public void testCreateContextFailure() throws Exception
+   private void step2_CreateContextFailure() throws Exception
    {
         /* create a subcontext with an existing name, must fail with
            AlreadyBound! */
@@ -106,7 +116,7 @@ public class ContextTest extends ClientServerTestCase
    /**
      * Test creating and resolving contexts
      */
-    public void testCreateContextSuccess() throws Exception
+    private void step1_CreateContextSuccess() throws Exception
     {
         /* create new contexts */
         NamingContextExtHelper.narrow(rootContext.bind_new_context(firstName));
