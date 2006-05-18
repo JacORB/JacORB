@@ -482,7 +482,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i2jpackage x:y][-i2jpackagefile <filename>][-cldc10][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax][-in inputfile] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i2jpackage x:y][-i2jpackagefile <filename>][-cldc10][-ir][-nofinal][-noskel][-nostub][-diistub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax][-in inputfile] <filelist>");
     }
 
 
@@ -538,6 +538,7 @@ parser code
         System.out.println("\t-unchecked_narrow\t\tuse unchecked_narrow in generated code for IOR parameters in operations");
         System.out.println("\t-noskel\t\tdisables generation of POA skeletons");
         System.out.println("\t-nostub\t\tdisables generation of client stubs");
+        System.out.println("\t-diistub\t\tgenerate dii-based client stubs");
         System.out.println("\t-cldc10\t\tcode generation compatible with J2ME/CLDC 1.0");
         System.out.println("\t-sloppy_forward\tallow forward declarations wo. later definitions");
         System.out.println("\t-sloppy_names\tless strict checking of module name scoping");

@@ -76,6 +76,8 @@ remote tests \\
 \> -noskel \>disables generation of POA skeletons (e.g., for
 client-side use)\\
 \> -nostub \>disables generation of client stubs (for server-side use)\\
+\> -diistub \>generate DII-based client stubs \\
+\> \> (default is off)\\
 \> -sloppy\_forward \> allow forward declarations without later
 definitions\\
 \> \> (useful only for separate compilation).\\
@@ -147,6 +149,8 @@ excludes are used when omitted. & No & \\
 \verb"noskel" & Disables generation of POA skeletons & No & False\\
 \hline
 \verb"nostub" & Disables generation of client stubs & No & False\\
+\hline
+\verb"diistub" & Generate DII-based client stubs & No & False\\
 \hline
 \verb"sloppyforward" & Allow forward declarations without later definitions & No & False\\
 \hline
