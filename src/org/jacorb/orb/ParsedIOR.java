@@ -421,8 +421,16 @@ public class ParsedIOR
 
     private void parse_stringified_ior(String object_reference)
     {
+        int length = object_reference.length();
+        int cnt    = (length - 4) / 2;
+
+        if ( ( length % 2 ) != 0 )
+        {
+            throw new BAD_PARAM("Odd number of characters within object reference");
+        }
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        int cnt = (object_reference.length() - 4) / 2;
+
         for (int j = 0; j < cnt; j++)
         {
             char c1 = object_reference.charAt(j * 2 + 4);
