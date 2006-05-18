@@ -325,7 +325,7 @@ public class NamingContextImpl
     {
         // Check if object purging enabled
 
-        if (! doPurge) 
+        if (! doPurge)
         {
            return;
         }
@@ -549,7 +549,7 @@ public class NamingContextImpl
             {
                 logger.error ("failed to create new context", ue);
             }
-            throw new RuntimeException ("failed to create new context: " 
+            throw new RuntimeException ("failed to create new context: "
                                         + ue.toString());
         }
         return NamingContextExtHelper.narrow(ctx);
@@ -601,7 +601,7 @@ public class NamingContextImpl
 
             if (result == null)
                 throw new NotFound(NotFoundReason.missing_node, n.components());
-            
+
             if ( !noPing && isDead(result))
             {
                 throw new NotFound(NotFoundReason.missing_node, n.components());
@@ -728,7 +728,8 @@ public class NamingContextImpl
     void init(org.omg.PortableServer.POA poa)
     {
         this.poa = poa;
-
+        ((org.jacorb.orb.ORB)orb).set_delegate(this);
+        
         /**
          * Recreate tables. For serialization, object references
          * have been transformed into strings
