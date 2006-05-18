@@ -163,12 +163,29 @@ In the same way as the {\tt custom.props} property in the example
 above, arbitrary other Java properties can be passed to JacORB
 programs using the {\tt -D<prop name>=<prop value>} command line
 syntax for the {\tt java} interpreter, but can be used in the same way
-with the {\tt jaco} script. Note that the properties must precede the
-class name on the command line.
+with the {\tt jaco} script. Note that the properties must precede
+the class name on the command line. For example to override the
+ORB initial references for NameService the following may be used:
+
+\small{
+\begin{verbatim}
+    jaco -DORBInitRef.NameService=file:///usr/users/...../NameService.ior
+        Server
+\end{verbatim}
 
 The ORB configuration mechanism will give configuration properties
 passed in this way precedence over property values found in
 configuration files.
+
+Anything that follows after the class name is interpreted (by {\tt java}) as a
+command line argument to the class and will be visible in the {\tt args}
+parameter of the classes main method. For example
+
+\small{
+\begin{verbatim}
+    jaco Server
+        -ORBInitRef.NameService=file:///usr/users/..../NameService.ior
+\end{verbatim}
 
 \subsection{Arguments to ORB.init()}
 
@@ -222,7 +239,7 @@ object reference, e.g., to the initial name service.
 # are handled properly and cause no harm!
 
 #ORBInitRef.NameService=corbaloc::160.45.110.41:38693/StandardNS/NameServer-POA/_root
-#ORBInitRef.NameService=file:/c:/NS_Ref
+#ORBInitRef.NameService=file://c:/NS_Ref
 ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
 \end{verbatim}
@@ -862,7 +879,7 @@ Note that {\tt jacorb.orb.objectKeyMap.name} is configurable both through the ja
 
 Example usage
 
-{\tt jacorb.orb.objectKeyMap.NameService=file:/home/rnc/NameSingleton.ior}
+{\tt jacorb.orb.objectKeyMap.NameService=file:///home/rnc/NameSingleton.ior}
 
 
 

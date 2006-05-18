@@ -46,6 +46,7 @@ post 2.2.4
         - Updated and merged JacIDL HTML into ProgrammingGuide.
         - Document all available loggers
         - Improved property documentation
+        - Improved command line documentation.
     - IDL Compiler:
         - Fix for ValueType generation
         - Improve error checking in compiler.
