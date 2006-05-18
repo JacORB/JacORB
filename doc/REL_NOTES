@@ -54,6 +54,8 @@ post 2.2.4
         - DynValue idl added
         - Enhance Any equals for value comparison.
         - Improve typecode error checking.
+    - IDL:
+        - Added CosProperty.idl
 2.2.4
 =====
 

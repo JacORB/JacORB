@@ -14,10 +14,10 @@
    <!-- top-level targets  -->
 
    <target name="all"
-      depends="corba,names,security,events,dds,transactions,concurrency,collections,trading,jacorb,notification" />
+      depends="corba,names,security,events,dds,transactions,concurrency,collections,trading,jacorb,notification,property" />
 
    <target name="services"
-      depends="events,trading,collections,transactions,concurrency" />
+      depends="events,trading,collections,transactions,concurrency,property" />
 
 
    <!-- ==================================================== -->
@@ -316,6 +316,24 @@
          <param name="javac-includes" value="org/omg/CosNaming/**/*.java,org/omg/CosNaming/*.java"/>
       </antcall>
    </target>
+
+    <!--                      -->
+    <!-- property service  -->
+    <!--                      -->
+
+    <target name="property">
+        <jacidl generateir="true"
+             srcdir="idl"
+            omgprefix="true"
+            includepath="${idl}/omg"
+            includes="**/omg/CosProperty.idl"
+            destdir="${src}/generated"/>
+
+        <antcall target="jacorb-javac">
+            <param name="javac-src" value="${src}/generated"/>
+            <param name="javac-includes" value="org/omg/CosPropertyService/**/*.java"/>
+        </antcall>
+    </target>
 
    <!--                -->
    <!-- event service  -->
