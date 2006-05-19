@@ -34,7 +34,6 @@ import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.Time;
 
-import org.omg.CORBA.INTERNAL;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.IOP.INVOCATION_POLICIES;
 import org.omg.IOP.ServiceContext;
@@ -214,7 +213,7 @@ public class ServerRequest
                     {
                         nv.value().read_value( in, nv.value().type() );
                     }
-                    catch (Exception ex)
+                    catch (Exception e1)
                     {
                         throw new org.omg.CORBA.MARSHAL("Couldn't unmarshal object of type "
                                                         + nv.value().type() + " in ServerRequest.");
@@ -225,7 +224,7 @@ public class ServerRequest
             {
                 in.reset();
             }
-            catch (Exception ex)
+            catch (Exception e1)
             {
                 throw new org.omg.CORBA.UNKNOWN("Could not reset input stream");
             }
@@ -373,7 +372,7 @@ public class ServerRequest
                                     {
                                         nv.send( out );
                                     }
-                                    catch (Exception ex)
+                                    catch (Exception e1)
                                     {
                                         throw new org.omg.CORBA.MARSHAL("Couldn't return (in)out arg of type "
                                                                         + nv.value().type() + " in ServerRequest.");
@@ -645,9 +644,10 @@ public class ServerRequest
     public org.omg.CORBA.Object getForwardReference()
     {
         if (location_forward != null)
+        {
             return location_forward.forward_reference;
-        else
-            return null;
+        }
+        return null;
     }
 
     public GIOPConnection getConnection()
