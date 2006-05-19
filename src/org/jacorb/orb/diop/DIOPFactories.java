@@ -90,13 +90,10 @@ public class DIOPFactories extends org.omg.ETF._FactoriesLocalBase
                 ("wrong profile for DIOP transport, tag: "
                  + tagged_profile.value.tag);
         }
-        else
-        {
-            IIOPProfile result
-                = new IIOPProfile (tagged_profile.value.profile_data);
-            components.value = result.getComponents().asArray();
-            return result;
-        }
+        
+        IIOPProfile result = new IIOPProfile(tagged_profile.value.profile_data);
+        components.value = result.getComponents().asArray();
+        return result;
     }
 
     public int profile_tag()
@@ -113,9 +110,7 @@ public class DIOPFactories extends org.omg.ETF._FactoriesLocalBase
         {
             return new IIOPProfile(corbaloc);
         }
-        else
-        {
-            return null;
-        }
+        
+        return null;
     }
 }
