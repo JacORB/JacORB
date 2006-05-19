@@ -56,7 +56,6 @@ public class JacIDL
     private boolean _nostub;
     private boolean _sloppyforward;
     private boolean _sloppynames;
-    private boolean _includestate;
     private boolean _nofinal;
     private boolean _ami_callback;
     private boolean _force_overwrite;
@@ -418,20 +417,20 @@ public class JacIDL
             }
 
         }
-        catch (IOException ex)
+        catch (IOException e)
         {
-            System.err.println(ex);
-            throw new BuildException();
+            e.printStackTrace();
+            throw new BuildException(e.toString());
         }
-        catch (ParseException ex)
+        catch (ParseException e)
         {
-            System.err.println(ex);
-            throw new BuildException();
+            e.printStackTrace();
+            throw new BuildException(e.toString());
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            System.err.println(ex);
-            throw new BuildException();
+            e.printStackTrace();
+            throw new BuildException(e.toString());
         }
     }
 
@@ -477,20 +476,6 @@ public class JacIDL
     {
 
         return _compileList;
-    }
-
-    private static boolean fileExists(String filename)
-    {
-
-        if (filename == null || filename.length() == 0) return false;
-        File file = new File(filename);
-        return (file.exists() && file.isFile());
-    }
-
-    private static boolean dirExists(File dir)
-    {
-
-        return (dir.exists() && dir.isDirectory());
     }
 
     private void setupDefines()
