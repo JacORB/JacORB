@@ -29,7 +29,6 @@ package org.jacorb.idl;
 class TemplateTypeSpec
     extends SimpleTypeSpec
 {
-
     protected boolean typedefd = false;
 
     public TemplateTypeSpec( int num )
@@ -40,7 +39,10 @@ class TemplateTypeSpec
     public void parse()
         throws ParseException
     {
-        type_spec.parse();
+        if (type_spec != null)
+        {
+            type_spec.parse();
+        }
     }
 
     /**

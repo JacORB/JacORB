@@ -24,6 +24,7 @@ import junit.framework.*;
 
 import org.jacorb.test.bugs.bugjac10.TypeCodeTestCase;
 import org.jacorb.test.bugs.bugjac69.InvalidIORTest;
+import org.jacorb.test.bugs.bugjac81.BoundedStringTest;
 import org.jacorb.test.common.*;
 
 /**
@@ -55,6 +56,8 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(org.jacorb.test.bugs.bug619.TestCase.suite());
       suite.addTest(TypeCodeTestCase.suite());
       suite.addTestSuite(InvalidIORTest.class);
+      suite.addTestSuite(BoundedStringTest.class);
+
       return suite;
    }
 }

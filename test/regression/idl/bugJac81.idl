@@ -1,0 +1,22 @@
+module org
+{
+  module jacorb
+  {
+     module test
+     {
+        module bugs
+        {
+           module bugjac81
+           {
+              typedef string<80> BoundError;
+
+              struct StructOne
+              {
+                 string<49> NormalBound;
+                 string     NormalString;
+              };
+           };
+        };
+     };
+  };
+};

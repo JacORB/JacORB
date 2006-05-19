@@ -51,6 +51,7 @@ post 2.2.4
         - Fix for ValueType generation
         - Improve error checking in compiler.
         - Fix to remove ObjectHelper class generation.
+        - Fix typedef bounded string generation bug.
     - ORB:
         - DynValue idl added
         - Enhance Any equals for value comparison.

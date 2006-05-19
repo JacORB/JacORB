@@ -31,7 +31,6 @@ public class StringType
     extends TemplateTypeSpec
 {
     public ConstExpr max = null;
-    private int length = 0;
     private boolean wide = false;
 
     public StringType( int num )
@@ -54,7 +53,9 @@ public class StringType
         StringType s = new StringType( new_num() );
         s.max = max;
         if( wide )
+        {
             s.setWide();
+        }
         s.parse();
         return s;
     }
@@ -107,9 +108,23 @@ public class StringType
     public String getTypeCodeExpression()
     {
         if( wide )
-            return "org.omg.CORBA.ORB.init().create_wstring_tc(" + length + ")";
+        {
+            return
+            (
+                "org.omg.CORBA.ORB.init().create_wstring_tc(" +
+                (max == null ? 0 : max.pos_int_const()) +
+                ')'
+            );
+        }
         else
-            return "org.omg.CORBA.ORB.init().create_string_tc(" + length + ")";
+        {
+            return
+            (
+                "org.omg.CORBA.ORB.init().create_string_tc(" +
+                (max == null ? 0 : max.pos_int_const()) +
+                ')'
+            );
+        }
     }
 
 
@@ -171,11 +186,10 @@ public class StringType
         ps.println("\t\t" + resultname + " = " + anyname + "." + printExtractExpression() + "();");
    }
 
-    public void parse()
-    {
-        if( max != null )
-            length = max.pos_int_const();
-    }
+   public void setSize(ConstExpr max_)
+   {
+       max = max_;
+   }
 }
 
 

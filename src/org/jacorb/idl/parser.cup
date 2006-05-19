@@ -2038,10 +2038,12 @@ sequence_type ::=
 // # 62
 string_type ::=
           STRING LESSTHAN positive_int_const:pic GREATERTHAN
-          {: RESULT.max = pic.const_expr; :}
+          {:
+               RESULT.setSize(pic.const_expr);
+          :}
         | WSTRING LESSTHAN positive_int_const:pic GREATERTHAN
           {:
-                RESULT.max = pic.const_expr;
+                RESULT.setSize(pic.const_expr);
                 RESULT.setWide();
           :}
         | STRING
