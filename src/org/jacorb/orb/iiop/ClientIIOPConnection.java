@@ -167,7 +167,8 @@ public class ClientIIOPConnection
                         logger.info("Connected to " + connection_info +
                                     " from local port " +
                                     socket.getLocalPort() +
-                                    ( this.isSSL() ? " via SSL" : "" ));
+                                    ( this.isSSL() ? " via SSL" : "" ) +
+                                    ( (timeout != 0) ? " Timeout: " + timeout : ""));
                     }
 
                     connected = true;
