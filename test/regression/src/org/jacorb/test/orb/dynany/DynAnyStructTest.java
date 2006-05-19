@@ -23,6 +23,7 @@ package org.jacorb.test.orb.dynany;
 import junit.framework.*;
 import junit.extensions.TestSetup;
 
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.TCKind;
 import org.omg.DynamicAny.NameValuePair;
 import org.omg.DynamicAny.NameDynAnyPair;
@@ -35,7 +36,7 @@ import org.jacorb.test.StructTypeHelper;
  * DynAnyStructTest.java
  *
  * DynAny tests for struct types.
- *
+ * @version $Id$
  */
 
 public class DynAnyStructTest extends TestCase
@@ -75,6 +76,7 @@ public class DynAnyStructTest extends TestCase
       suite.addTest (new DynAnyStructTest ("testDestroyDynAny"));
       suite.addTest (new DynAnyStructTest ("testDestroyComponent"));
       suite.addTest (new DynAnyStructTest ("testCopyDynAny"));
+      suite.addTest (new DynAnyStructTest ("testCreateStructTypecodeFail"));
 
       return osetup;
    }
@@ -886,6 +888,32 @@ public class DynAnyStructTest extends TestCase
       msg += "is not equal to the DynAny object it was copied from";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
+
+
+   public void testCreateStructTypecodeFail ()
+   {
+      try
+      {
+          final org.omg.CORBA.StructMember [] members =
+          new org.omg.CORBA.StructMember [1];
+
+          members [0] = new org.omg.CORBA.StructMember
+          (
+              "1field",
+              orb.get_primitive_tc (TCKind.tk_char),
+              null
+          );
+
+          orb.create_struct_tc (ID, "Struct", members);
+
+          fail ("Failed to throw an exception");
+      }
+      catch (BAD_PARAM e)
+      {
+          // expected
+      }
+   }
+
 
 
    private static class Setup extends TestSetup
