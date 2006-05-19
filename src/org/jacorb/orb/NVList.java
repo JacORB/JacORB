@@ -30,89 +30,80 @@ import java.util.*;
 public class NVList
     extends org.omg.CORBA.NVList
 {
-    private Vector list;
-    private org.omg.CORBA.ORB orb;
+    private final List list;
+    private final org.omg.CORBA.ORB orb;
+
+    private NVList(org.omg.CORBA.ORB orb, List list)
+    {
+        this.orb = orb;
+        this.list = Collections.synchronizedList(list);
+    }
 
     NVList(org.omg.CORBA.ORB orb)
     {
-	this.orb = orb;
-	list = new Vector();
+        this(orb, new ArrayList());
     }
 
     NVList(org.omg.CORBA.ORB orb, int count)
     {
-	this.orb = orb;
-	list = new Vector(count);
+        this(orb, new ArrayList(count));
     }
-
+    
     public int count()
     {
-	return list.size();
+        return list.size();
     }
 
     public org.omg.CORBA.NamedValue add( int item_flags)
     {
-	org.omg.CORBA.NamedValue nv =  orb.create_named_value("", null, item_flags);
-	list.addElement( nv );
-	return nv;
+        org.omg.CORBA.NamedValue nv = orb.create_named_value("", null, item_flags);
+        list.add(nv);
+        return nv;
     }
 
     public org.omg.CORBA.NamedValue add_item(java.lang.String item_name, 
 					     int item_flags)
     {
-	org.omg.CORBA.NamedValue nv =  orb.create_named_value(item_name, null, item_flags);
-	list.addElement( nv );
-	return nv;
+        org.omg.CORBA.NamedValue nv = orb.create_named_value(item_name, null, item_flags);
+        list.add(nv);
+        return nv;
     }
 
     public org.omg.CORBA.NamedValue add_value(java.lang.String item_name, 
 					      org.omg.CORBA.Any value, 
 					      int item_flags )
     {
-	org.omg.CORBA.NamedValue nv =  orb.create_named_value(item_name, value, item_flags);
-	list.addElement( nv );
-	return nv;
+        org.omg.CORBA.NamedValue nv = orb.create_named_value(item_name, value, item_flags);
+        list.add(nv);
+        return nv;
     }
 
-    public org.omg.CORBA.NamedValue item(int index) 
-	throws org.omg.CORBA.Bounds
+    public org.omg.CORBA.NamedValue item(int index) throws org.omg.CORBA.Bounds
     {
-	try 
-	{
-	    return (NamedValue)list.elementAt(index);
-	} 
-	catch ( ArrayIndexOutOfBoundsException e )
-	{
-	    throw new  org.omg.CORBA.Bounds();
-	}
+        try
+        {
+            return (NamedValue) list.get(index);
+        } 
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            throw new org.omg.CORBA.Bounds(e.toString());
+        }
     }
 
-    public void remove(int index) 
-	throws org.omg.CORBA.Bounds
+    public void remove(int index) throws org.omg.CORBA.Bounds
     {
-	try 
-	{
-	    list.removeElementAt(index);
-	} 
-	catch ( ArrayIndexOutOfBoundsException e )
-	{
-	    throw new org.omg.CORBA.Bounds();
-	}
+        try
+        {
+            list.remove(index);
+        } 
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            throw new org.omg.CORBA.Bounds(e.toString());
+        }
     }
 
-    public java.util.Enumeration enumerate()
+    public Iterator iterator()
     {
-	return list.elements();
+        return list.iterator();
     }
-
-
-
 }
-
-
-
-
-
-
-
-

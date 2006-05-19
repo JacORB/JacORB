@@ -28,6 +28,7 @@ import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.giop.*;
 
 import java.util.Enumeration;
+import java.util.Iterator;
 
 /**
  * DII requests
@@ -209,10 +210,10 @@ public class Request
             result_value.value().read_value( reply, result_value.value().type() );
 
         /** get out/inout parameters if any */
-        for( Enumeration e = ((org.jacorb.orb.NVList)arguments).enumerate(); e.hasMoreElements();)
+        for( Iterator e = ((org.jacorb.orb.NVList)arguments).iterator(); e.hasNext();)
         {
             org.jacorb.orb.NamedValue nv =
-                (org.jacorb.orb.NamedValue)e.nextElement();
+                (org.jacorb.orb.NamedValue)e.next();
             if( nv.flags() != org.omg.CORBA.ARG_IN.value )
                 nv.receive(reply);
         }
@@ -230,11 +231,13 @@ public class Request
 
             ros.setRequest(this);
 
-            for( Enumeration e = ((org.jacorb.orb.NVList)arguments).enumerate(); e.hasMoreElements();)
+            for( Iterator it = ((org.jacorb.orb.NVList)arguments).iterator(); it.hasNext();)
             {
-                org.jacorb.orb.NamedValue nv = (org.jacorb.orb.NamedValue)e.nextElement();
+                org.jacorb.orb.NamedValue nv = (org.jacorb.orb.NamedValue)it.next();
                 if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
+                {
                     nv.send(ros);
+                }
             }
 
             try

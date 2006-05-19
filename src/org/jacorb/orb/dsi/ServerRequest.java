@@ -200,11 +200,11 @@ public class ServerRequest
         if( args != null )
         {
             in.mark(0);
-            for( java.util.Enumeration e = args.enumerate();
-                 e.hasMoreElements(); )
+            for( Iterator e = args.iterator();
+                 e.hasNext(); )
             {
                 org.omg.CORBA.NamedValue nv =
-                    (org.omg.CORBA.NamedValue)e.nextElement();
+                    (org.omg.CORBA.NamedValue)e.next();
 
                 if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
                 {
@@ -359,11 +359,11 @@ public class ServerRequest
 
                         if( args != null )
                         {
-                            for( java.util.Enumeration e = args.enumerate();
-                                 e.hasMoreElements(); )
+                            for( Iterator e = args.iterator();
+                                 e.hasNext(); )
                             {
                                 org.jacorb.orb.NamedValue nv =
-                                    (org.jacorb.orb.NamedValue)e.nextElement();
+                                    (org.jacorb.orb.NamedValue)e.next();
 
                                 if( nv.flags() != org.omg.CORBA.ARG_IN.value )
                                 {
