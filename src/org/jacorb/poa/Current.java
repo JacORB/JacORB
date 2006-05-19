@@ -20,8 +20,6 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.poa.except.*;
-
 import org.omg.PortableServer.CurrentPackage.NoContext;
 
 import java.util.*;
@@ -30,7 +28,7 @@ import java.util.*;
  * This class provides access to the identity of the object on which a method
  * was invoked and the responsible POA for this object.
  *
- * @author Reimo Tiedemann, FU Berlin
+ * @author Reimo Tiedemann
  * @version $Id$
  */
 
