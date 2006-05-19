@@ -20,7 +20,6 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.INTERNAL;
 import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
 
@@ -45,7 +44,7 @@ public final class DynArray
               org.omg.CORBA.TypeCode type,
               org.omg.CORBA.ORB orb,
               Logger logger)
-              throws InvalidValue, TypeMismatch
+              throws TypeMismatch
    {
         super(dynFactory, orb, logger);
 
@@ -130,7 +129,7 @@ public final class DynArray
       for( int i = 0; i < limit; i++)
       {
          out.write_value( elementType,
-                         (CDRInputStream)members[i].create_input_stream());
+                          members[i].create_input_stream());
       }
 
       CDRInputStream in = new CDRInputStream(orb, out.getBufferCopy());

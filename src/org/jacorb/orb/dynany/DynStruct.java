@@ -51,7 +51,7 @@ public final class DynStruct
             org.omg.CORBA.TypeCode type,
             org.omg.CORBA.ORB orb,
             Logger logger)
-            throws InvalidValue, TypeMismatch
+            throws TypeMismatch
     {
         super(dynFactory, orb, logger);
 
@@ -170,7 +170,7 @@ public final class DynStruct
         for( int i = 0; i < members.length; i++)
         {
             out.write_value( members[i].value.type(),
-                            (CDRInputStream)members[i].value.create_input_stream());
+                             members[i].value.create_input_stream());
         }
 
         CDRInputStream is = new CDRInputStream(orb, out.getBufferCopy());

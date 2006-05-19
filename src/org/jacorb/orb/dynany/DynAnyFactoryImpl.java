@@ -131,15 +131,10 @@ public class DynAnyFactoryImpl
                     throw new InconsistentTypeCode();
             }
         }
-        catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
-        {
-            logger.error("unable to create DynAny from TypeCode", iv);
-        }
         catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
         {
             throw new InconsistentTypeCode();
         }
-        return null;
     }
 }
 

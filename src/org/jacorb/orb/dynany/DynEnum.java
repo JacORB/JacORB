@@ -20,7 +20,6 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.INTERNAL;
 import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
 import org.apache.avalon.framework.logger.Logger;
@@ -45,7 +44,7 @@ public final class DynEnum
             org.omg.CORBA.TypeCode type,
             org.omg.CORBA.ORB orb,
             Logger logger)
-     throws InvalidValue, TypeMismatch
+     throws TypeMismatch
   {
        super(dynFactory, orb, logger);
 

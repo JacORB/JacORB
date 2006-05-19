@@ -48,7 +48,7 @@ public final class DynSequence
                 org.omg.CORBA.TypeCode type,
                 org.omg.CORBA.ORB orb,
                 Logger logger )
-           throws InvalidValue, TypeMismatch
+           throws TypeMismatch
    {
        super(dynFactory, orb, logger);
 
@@ -142,7 +142,7 @@ public final class DynSequence
       for( int i = 0; i < length; i++)
       {
          out.write_value( elementType,
-                         (CDRInputStream)((Any)members.get(i)).create_input_stream());
+                          ((Any)members.get(i)).create_input_stream());
       }
 
       CDRInputStream is = new CDRInputStream( orb, out.getBufferCopy());
