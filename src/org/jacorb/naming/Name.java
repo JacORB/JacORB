@@ -21,6 +21,8 @@ package org.jacorb.naming;
  */
 
 import  java.util.*;
+
+import org.omg.CORBA.INTERNAL;
 import  org.omg.CosNaming.*;
 import  org.omg.CosNaming.NamingContextPackage.*;
 
@@ -29,7 +31,7 @@ import  org.omg.CosNaming.NamingContextPackage.*;
  * between Names and their string representation
  *
  * @author Gerald Brose, FU Berlin
- * @version $Id$ 
+ * @version $Id$
  */
 
 public class Name
@@ -39,13 +41,13 @@ public class Name
     private NameComponent baseName;
 
     /** context part of this Name */
-    private NameComponent[] ctxName; 
+    private NameComponent[] ctxName;
 
     public Name()
     {
-	fullName = null;
-	baseName = null;
-	ctxName = null;
+    fullName = null;
+    baseName = null;
+    ctxName = null;
     }
 
     /**
@@ -54,117 +56,118 @@ public class Name
      */
 
     public Name(NameComponent[] n)
-	throws InvalidName
+    throws InvalidName
     {
-	if( n == null || n.length == 0 )
-	    throw new InvalidName();
+    if( n == null || n.length == 0 )
+        throw new InvalidName();
 
-	fullName = n;
-	baseName = n[ n.length-1 ];
-	if( n.length > 1 )
-	{
-	    ctxName = new NameComponent[n.length-1];
-	    for( int i = 0; i< n.length-1; i++ )
-		ctxName[i] = n[i];
-	} 
-	else
-	    ctxName = null;
+    fullName = n;
+    baseName = n[ n.length-1 ];
+    if( n.length > 1 )
+    {
+        ctxName = new NameComponent[n.length-1];
+        for( int i = 0; i< n.length-1; i++ )
+        ctxName[i] = n[i];
+    }
+    else
+        ctxName = null;
     }
 
     /**
      *	create a name from a stringified name
      *	@param String structured_name
-     */ 
+     */
 
     public Name(String string_name)
-	throws org.omg.CosNaming.NamingContextPackage.InvalidName
+    throws org.omg.CosNaming.NamingContextPackage.InvalidName
     {
-	this( toName( string_name) );
+    this( toName( string_name) );
     }
 
     /**
      *	create a name from a singleNameComponent
      *	@param org.omg.CosNaming.NameComponent n
-     * 
+     *
      */
 
     public Name(org.omg.CosNaming.NameComponent n)
-	throws org.omg.CosNaming.NamingContextPackage.InvalidName
+    throws org.omg.CosNaming.NamingContextPackage.InvalidName
     {
-	if( n == null )
-	    throw new org.omg.CosNaming.NamingContextPackage.InvalidName();
-	baseName = n;
-	fullName = new org.omg.CosNaming.NameComponent[1];
-	fullName[0] = n;
-	ctxName = null;
+    if( n == null )
+        throw new org.omg.CosNaming.NamingContextPackage.InvalidName();
+    baseName = n;
+    fullName = new org.omg.CosNaming.NameComponent[1];
+    fullName[0] = n;
+    ctxName = null;
     }
 
     /**
-     *	@return a NameComponent object representing the unstructured 
-     *	base name of this structured name 
+     *	@return a NameComponent object representing the unstructured
+     *	base name of this structured name
      */
 
     public org.omg.CosNaming.NameComponent baseNameComponent()
     {
-	return baseName;
+    return baseName;
     }
 
 
     public String kind()
     {
-	return baseName.kind;
+    return baseName.kind;
     }
 
     /**
-     *	@return this name as an array of org.omg.CosNaming.NameComponent, 
+     *	@return this name as an array of org.omg.CosNaming.NameComponent,
      *	neccessary for a number of operations on naming context
      */
 
     public org.omg.CosNaming.NameComponent[] components()
     {
-	return fullName;
+    return fullName;
     }
 
     /**
-     *	@return a Name object representing the name of the enclosing context 
+     *	@return a Name object representing the name of the enclosing context
      */
 
     public Name ctxName()
     {
-	// null if no further context 
-	if( ctxName != null )
-	{
-	    try 
-	    {
-		return new Name(ctxName);
-	    } 
-	    catch ( org.omg.CosNaming.NamingContextPackage.InvalidName im)
-	    {
-		im.printStackTrace();
-		return null;
-	    }
-	}
-	else 
-	    return null;
+        // null if no further context
+        if( ctxName != null )
+        {
+            try
+            {
+                return new Name(ctxName);
+            }
+            catch ( org.omg.CosNaming.NamingContextPackage.InvalidName e)
+            {
+                throw new INTERNAL(e.toString());
+            }
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public boolean equals( Object obj )
     {
-	if( obj == null ) return false;
-	if( !(obj instanceof Name) ) return false;
-	return( toString().equals( obj.toString() ));
+    if( obj == null ) return false;
+    if( !(obj instanceof Name) ) return false;
+    return( toString().equals( obj.toString() ));
     }
 
 
     public Name fullName()
-	throws org.omg.CosNaming.NamingContextPackage.InvalidName
+    throws org.omg.CosNaming.NamingContextPackage.InvalidName
     {
-	return new Name(fullName);
+    return new Name(fullName);
     }
 
     public int hashCode()
     {
-	return toString().hashCode();
+    return toString().hashCode();
     }
 
     /**
@@ -173,14 +176,14 @@ public class Name
 
     public String toString()
     {
-	try
-	{
-	    return toString(fullName);
-	}
-	catch( InvalidName in )
-	{
-	    return "<invalid>";
-	}
+    try
+    {
+        return toString(fullName);
+    }
+    catch( InvalidName in )
+    {
+        return "<invalid>";
+    }
     }
 
     /**
@@ -188,7 +191,7 @@ public class Name
      */
 
     private static org.omg.CosNaming.NameComponent getComponent (String sn)
-	throws org.omg.CosNaming.NamingContextPackage.InvalidName
+    throws org.omg.CosNaming.NamingContextPackage.InvalidName
     {
         char ch;
         int len = sn.length ();
@@ -204,12 +207,12 @@ public class Name
             {
                 // Escaped character
 
-    	        i++;
+                i++;
                 if (i >= len)
                 {
                     throw new InvalidName ();
                 }
-	        ch = sn.charAt (i);
+            ch = sn.charAt (i);
             }
             else if (ch == '.')
             {
@@ -219,8 +222,8 @@ public class Name
                 {
                     throw new InvalidName ();
                 }
-                inKind = true;	
-                continue;  	
+                inKind = true;
+                continue;
             }
             if (inKind)
             {
@@ -241,37 +244,37 @@ public class Name
      * @throws org.omg.CosNaming.NamingContextPackage.InvalidName
      */
 
-    public static org.omg.CosNaming.NameComponent[] toName( String sn ) 
-	throws org.omg.CosNaming.NamingContextPackage.InvalidName
+    public static org.omg.CosNaming.NameComponent[] toName( String sn )
+    throws org.omg.CosNaming.NamingContextPackage.InvalidName
     {
-	if( sn == null || sn.length() == 0 || sn.startsWith("/"))
-	    throw new InvalidName();
+    if( sn == null || sn.length() == 0 || sn.startsWith("/"))
+        throw new InvalidName();
 
-	Vector v = new Vector();
+    Vector v = new Vector();
 
-	int start = 0;
-	int i = 0;
-	for( ; i < sn.length(); i++ )
-	{
-	    if( sn.charAt(i) == '/' && sn.charAt(i-1) != '\\')
-	    {
-		if( i-start == 0 )
-		    throw new InvalidName();
-		v.addElement( getComponent( sn.substring( start, i )));
-		start = i+1;
-	    }
-	}
-	if( start < i )
-	    v.addElement( getComponent( sn.substring( start, i )));
-	
-	org.omg.CosNaming.NameComponent[] result = 
+    int start = 0;
+    int i = 0;
+    for( ; i < sn.length(); i++ )
+    {
+        if( sn.charAt(i) == '/' && sn.charAt(i-1) != '\\')
+        {
+        if( i-start == 0 )
+            throw new InvalidName();
+        v.addElement( getComponent( sn.substring( start, i )));
+        start = i+1;
+        }
+    }
+    if( start < i )
+        v.addElement( getComponent( sn.substring( start, i )));
+
+    org.omg.CosNaming.NameComponent[] result =
             new org.omg.CosNaming.NameComponent[v.size()];
-	
-	for( int j = 0; j < result.length; j++ )
-	{	
-	    result[j] = (org.omg.CosNaming.NameComponent)v.elementAt(j);
-	}
-	return result;
+
+    for( int j = 0; j < result.length; j++ )
+    {
+        result[j] = (org.omg.CosNaming.NameComponent)v.elementAt(j);
+    }
+    return result;
     }
 
     /**
@@ -279,28 +282,28 @@ public class Name
      */
 
     public static String toString( org.omg.CosNaming.NameComponent[] n)
-	throws org.omg.CosNaming.NamingContextPackage.InvalidName
+    throws org.omg.CosNaming.NamingContextPackage.InvalidName
     {
-	if( n == null || n.length == 0 )
-	    throw new org.omg.CosNaming.NamingContextPackage.InvalidName();
+    if( n == null || n.length == 0 )
+        throw new org.omg.CosNaming.NamingContextPackage.InvalidName();
 
-	StringBuffer b = new StringBuffer();
-	for( int i = 0; i < n.length; i++ )
-	{
-	    if( i > 0 )
-		b.append("/");
+    StringBuffer b = new StringBuffer();
+    for( int i = 0; i < n.length; i++ )
+    {
+        if( i > 0 )
+        b.append("/");
 
-	    if( n[i].id.length() > 0 )
-		b.append( escape(n[i].id) );
+        if( n[i].id.length() > 0 )
+        b.append( escape(n[i].id) );
 
-	    if( n[i].kind.length() > 0 || 
-		n[i].id.length() == 0 )
-		b.append(".");
+        if( n[i].kind.length() > 0 ||
+        n[i].id.length() == 0 )
+        b.append(".");
 
-	    if( n[i].kind.length() > 0 )
-		b.append( escape(n[i].kind) );
-	}
-	return b.toString();
+        if( n[i].kind.length() > 0 )
+        b.append( escape(n[i].kind) );
+    }
+    return b.toString();
     }
 
     /**
@@ -309,18 +312,18 @@ public class Name
 
     private static String escape(String s)
     {
-	StringBuffer sb = new StringBuffer(s);
-	for( int i = 0; i < sb.length(); i++ )
-	{
-	    if( sb.charAt(i) == '/' || 
-		sb.charAt(i) == '\\' || 
-		sb.charAt(i) == '.' )
-	    {
-		sb.insert(i, '\\');
-		i++;
-	    }
-	}
-	return sb.toString();
+    StringBuffer sb = new StringBuffer(s);
+    for( int i = 0; i < sb.length(); i++ )
+    {
+        if( sb.charAt(i) == '/' ||
+        sb.charAt(i) == '\\' ||
+        sb.charAt(i) == '.' )
+        {
+        sb.insert(i, '\\');
+        i++;
+        }
+    }
+    return sb.toString();
     }
 
 }

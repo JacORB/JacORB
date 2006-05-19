@@ -24,6 +24,7 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
+import org.omg.CORBA.INTERNAL;
 import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CosNaming.NamingContextExtPackage.*;
@@ -498,9 +499,10 @@ public class NamingContextImpl
                 byte[] oid = rootPoa.activate_object( new BindingIteratorImpl( rest ) );
                 o = rootPoa.id_to_reference(oid);
             }
-            catch ( Exception ue )
+            catch ( Exception e )
             {
-                ue.printStackTrace();
+                logger.error("unexpected exception", e);
+                throw new INTERNAL(e.toString());
             }
 
             bi.value = BindingIteratorHelper.narrow(o);
@@ -729,7 +731,7 @@ public class NamingContextImpl
     {
         this.poa = poa;
         ((org.jacorb.orb.ORB)orb).set_delegate(this);
-        
+
         /**
          * Recreate tables. For serialization, object references
          * have been transformed into strings

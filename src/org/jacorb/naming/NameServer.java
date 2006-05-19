@@ -75,21 +75,21 @@ public class NameServer
         throws ConfigurationException
     {
         configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = 
+        logger =
             configuration.getNamedLogger("jacorb.naming");
 
         printIOR = configuration.getAttributeAsBoolean("jacorb.naming.print_ior", false);
-        
-        time_out = 
+
+        time_out =
             configuration.getAttributeAsInteger("jacorb.naming.time_out",0);
 
-        fileName = 
+        fileName =
             configuration.getAttribute("jacorb.naming.ior_filename", "");
 
         /* which directory to store/load in? */
-        String directory = 
+        String directory =
             configuration.getAttribute("jacorb.naming.db_dir", "");
-        
+
         if( !directory.equals("") )
             filePrefix = directory + File.separatorChar + filePrefix;
 
@@ -99,15 +99,15 @@ public class NameServer
             // don't supply "imr_register", so a ns started by an imr_ssd
             // won't try to register himself again.
 
-            String command = 
+            String command =
                 configuration.getAttribute("jacorb.java_exec", "") + commandSuffix;
-            
-            ImRManager.autoRegisterServer( orb, 
-                                           "StandardNS", 
+
+            ImRManager.autoRegisterServer( orb,
+                                           "StandardNS",
                                            command,
                                            ImRManager.getLocalHostName(),
                                            true); //edit existing
-        }       
+        }
     }
 
 
@@ -186,7 +186,7 @@ public class NameServer
 
             if( n == null )
             {
-                n = new NamingContextImpl();               
+                n = new NamingContextImpl();
             }
 
             n.init(adapter);
@@ -229,9 +229,7 @@ public class NameServer
             }
             catch( IOException io )
             {
-                io.printStackTrace();
-                logger.error("Error opening output file " + filePrefix + oidStr );
-                //  System.exit(1);
+                logger.error("Error opening output file " + filePrefix + oidStr, io );
             }
         }
     }
@@ -252,7 +250,7 @@ public class NameServer
             // TODO: is this correct? needs testing
             commandSuffix = " org.jacorb.naming.NameServer";
 
-            // translate any properties set on the commandline but after the 
+            // translate any properties set on the commandline but after the
             // class name to a properties
             java.util.Properties argProps = ObjectUtil.argsToProps( args );
 
@@ -269,14 +267,14 @@ public class NameServer
             props.put("jacorb.orb.objectKeyMap.NameService",
                       "StandardNS/NameServer-POA/_root");
 
-            /* any command line properties set _after_ the class name will also 
+            /* any command line properties set _after_ the class name will also
                be considered */
             props.putAll( argProps );
 
             /* intialize the ORB and Root POA */
             orb = org.omg.CORBA.ORB.init(args, props);
 
-            Configuration config = 
+            Configuration config =
                 ((org.jacorb.orb.ORB)orb).getConfiguration();
 
             /* configure the name service using the ORB configuration */
@@ -328,7 +326,7 @@ public class NameServer
                     out.println( orb.object_to_string(obj) );
                     out.close();
                 }
-                
+
                 if (printIOR)
                 {
                     System.out.println("SERVER IOR: " + orb.object_to_string(obj));
@@ -336,7 +334,7 @@ public class NameServer
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
+                logger.error("unexpected exception", e);
                 throw new RuntimeException(e.getMessage());
             }
 
