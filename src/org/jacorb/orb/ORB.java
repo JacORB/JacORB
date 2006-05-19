@@ -81,7 +81,7 @@ public final class ORB
     private ProtocolAddressBase imrProxyAddress = null;
     private ProtocolAddressBase iorProxyAddress;
 
-    private boolean printVersion = true;
+
 
     /** "initial" references */
     private Map initial_references = new HashMap();
@@ -246,17 +246,8 @@ public final class ORB
             if (logger.isErrorEnabled())
                 logger.error ("error initializing iorProxyAddress",ex);
         }
-        printVersion =
-            configuration.getAttribute("jacorb.orb.print_version", "on").equals("on");
 
-        if( printVersion && logger.isInfoEnabled())
-        {
-            logger.info("\n\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
-                        "\tJacORB V " + versionString + ", www.jacorb.org\n" +
-                        "\t(C) The JacORB project " +
-                        dateString + "\n" +
-                        "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        }
+        printVersion(configuration);
 
         BufferManager.configure( configuration);
         try
@@ -270,6 +261,25 @@ public final class ORB
         }
 
         configureObjectKeyMap(configuration);
+    }
+
+    private void printVersion(org.jacorb.config.Configuration configuration)
+    {
+        final boolean printVersion =
+            configuration.getAttribute("jacorb.orb.print_version", "on").equals("on");
+
+        if (!printVersion)
+        {
+            return;
+        }
+
+        final Logger logger = configuration.getNamedLogger("jacorb.orb.print_version");
+
+        logger.info("\n\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
+                    "\tJacORB V " + versionString + ", www.jacorb.org\n" +
+                    "\t(C) The JacORB project " +
+                    dateString + "\n" +
+                    "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
     /**

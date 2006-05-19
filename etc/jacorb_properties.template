@@ -56,6 +56,11 @@ ORBInitRef.InterfaceRepository=file:/c:/IR_Ref
 # any time the ORB is initialized
 jacorb.orb.print_version=on
 
+# the logger used to print out the version number
+# should always be set at least to INFO level otherwise
+# nothing will be printed out
+jacorb.orb.print_version.log.verbosity = 3
+
 ##################################
 #                                #
 #  Default Logging configuration #
