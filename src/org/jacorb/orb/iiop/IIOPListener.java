@@ -22,7 +22,6 @@ package org.jacorb.orb.iiop;
  */
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
 
@@ -33,7 +32,6 @@ import org.omg.SSLIOP.*;
 import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.orb.factory.*;
-import org.jacorb.orb.*;
 import org.jacorb.orb.etf.ProtocolAddressBase;
 
 /**
@@ -78,16 +76,6 @@ public class IIOPListener
     public IIOPListener()
     {
     }
-
-    /**
-    * @deprecated Use no-args version and then configure().
-    */
-    public IIOPListener(ORB orb)
-    {
-        super(orb);
-        socketFactoryManager = new SocketFactoryManager(orb);
-    }
-
 
     public void configure(Configuration configuration)
         throws ConfigurationException
@@ -162,7 +150,7 @@ public class IIOPListener
         if (!isSSLRequired() ||
             configuration.getAttributeAsBoolean("jacorb.security.ssl.always_open_unsecured_address", false))
         {
-            acceptor = new Acceptor();
+            acceptor = new Acceptor("ServerSocketListener");
             ((Acceptor)acceptor).init();
         }
 
@@ -379,10 +367,12 @@ public class IIOPListener
 
         protected boolean terminated = false;
 
-        public Acceptor()
+        protected Acceptor(String name)
         {
+            super();
             // initialization deferred to init() method due to JDK bug
             setDaemon(true);
+            setName(name);
         }
 
         public void init()
@@ -499,6 +489,11 @@ public class IIOPListener
     private class SSLAcceptor
         extends Acceptor
     {
+        private SSLAcceptor()
+        {
+            super("SSLServerSocketListener");
+        }
+
         protected ServerSocket createServerSocket()
         {
             try

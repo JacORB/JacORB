@@ -1015,7 +1015,8 @@ public final class Delegate
             {
                 connection.sendRequest (ros, false);
             }
-        }).start();
+        },
+        "PassToTransport").start();
     }
 
     private boolean try_rebind()
@@ -1253,7 +1254,7 @@ public final class Delegate
             // If it fails fall back to a remote call.
             catch (Exception e)
             {
-            	logger.debug("trying is_a remotely");
+                logger.debug("trying is_a remotely");
             }
         }
 

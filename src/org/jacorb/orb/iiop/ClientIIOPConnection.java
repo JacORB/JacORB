@@ -316,6 +316,9 @@ public class ClientIIOPConnection
                             }
                         }
                     } );
+
+                    thread.setName("SocketConnectorThread");
+
                    thread.setDaemon(true);
                    try
                    {

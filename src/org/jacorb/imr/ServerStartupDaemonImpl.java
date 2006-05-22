@@ -93,23 +93,23 @@ public class ServerStartupDaemonImpl
             throw new ConfigurationException("Caught Exception", e);
         }
 
-        stdout_pool = new ThreadPool( new OutputForwarderFactory( new InputStreamSelector(){
-                public InputStream getInputStream( Process p )
-                {
-                    return p.getInputStream();
-                }
-            }),
-                                      100, //max threads
-                                      10 );//max idle threads
+        stdout_pool = new ThreadPool( null,
+                                      new OutputForwarderFactory( new InputStreamSelector(){
+                                            public InputStream getInputStream( Process p )
+                                            {
+                                                return p.getInputStream();
+                                            }
+                                        }), //max threads
+                                      100, 10 );//max idle threads
 
-        stderr_pool = new ThreadPool( new OutputForwarderFactory( new InputStreamSelector(){
-                public InputStream getInputStream( Process p )
-                {
-                    return p.getErrorStream();
-                }
-            }),
-                                      100, //max threads
-                                      10 );//max idle threads
+        stderr_pool = new ThreadPool( null,
+                                      new OutputForwarderFactory( new InputStreamSelector(){
+                                            public InputStream getInputStream( Process p )
+                                            {
+                                                return p.getErrorStream();
+                                            }
+                                        }), //max threads
+                                      100, 10 );//max idle threads
 
     }
 

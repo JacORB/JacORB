@@ -40,7 +40,7 @@ import org.apache.avalon.framework.configuration.*;
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class WIOPFactories 
+public class WIOPFactories
     extends _FactoriesLocalBase
     implements Configurable
 {
@@ -76,7 +76,7 @@ public class WIOPFactories
                                      int stacksize,
                                      short base_priority)
     {
-        IIOPListener delegate = new IIOPListener(orb)
+        IIOPListener delegate = new IIOPListener()
         {
             protected Connection createServerConnection (Socket socket,
                                                          boolean is_ssl)

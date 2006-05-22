@@ -447,6 +447,7 @@ public class ReplyReceiver
 
         public Timer (UtcT endTime)
         {
+            super("ReplyReceiverTimer");
             this.endTime = endTime;
         }
 

@@ -1087,7 +1087,7 @@ public class ImplementationRepositoryImpl
             throws ConfigurationException
         {
             // Moved from the constructor to facilitate logging.
-            receptor_pool = MessageReceptorPool.getInstance(myConfiguration);
+            receptor_pool = new MessageReceptorPool("ImplementationRepository", myConfiguration);
 
             try
             {

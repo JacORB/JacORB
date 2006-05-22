@@ -47,12 +47,12 @@ public final class BufferManager
     private byte[] bufferMax = null;
 
     /** the maximal buffer size managed since the buffer
-	pool is ordered by buffer size in log2 steps */
+    pool is ordered by buffer size in log2 steps */
 
     private static int MAX;
 
     /** the buffer at pos n has size 2**(n+MIN_OFFSET)
-	so the smallest available buffer is 2**MIN_OFFSET,
+    so the smallest available buffer is 2**MIN_OFFSET,
         the largest buffers managed are 2**(MIN_OFFSET+MAX-1)
     */
 
@@ -98,21 +98,21 @@ public final class BufferManager
     /**
      * configures the singleton
      */
- 
+
     private synchronized void singletonConfigure(Configuration configuration)
         throws ConfigurationException
     {
-        time = 
+        time =
             configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
 
-        MAX = 
+        MAX =
             configuration.getAttributeAsInteger("jacorb.maxManagedBufSize", 18);
 
-	bufferPool = new List[ MAX ];
+    bufferPool = new List[ MAX ];
 
-	for( int i = 0; i < MAX; i++)
+    for( int i = 0; i < MAX; i++)
         {
-	    bufferPool[ i ] = new ArrayList();
+        bufferPool[ i ] = new ArrayList();
         }
 
         /* create a number of buffers for the preferred memory buffer
@@ -160,12 +160,12 @@ public final class BufferManager
 
     private static final int log2up(int n)
     {
-	int l =0;
-	int nn = n-1;
-	while( (nn >>l) != 0 )
-	    l++;
+    int l =0;
+    int nn = n-1;
+    while( (nn >>l) != 0 )
+        l++;
 
-	return l;
+    return l;
     }
 
 
@@ -175,12 +175,12 @@ public final class BufferManager
 
     private static final int log2down(int n)
     {
-	int l =0;
-	int nn = n;
-	while( (nn >>l) != 0 )
-	    l++;
+    int l =0;
+    int nn = n;
+    while( (nn >>l) != 0 )
+        l++;
 
-	return l-1;
+    return l-1;
     }
 
 
@@ -302,11 +302,11 @@ public final class BufferManager
     public synchronized void release()
     {
         // printStatistics();
-	for( int i= MAX; i > 0; )
-	{
-	    i--;
-	    bufferPool[i].clear();
-	}
+    for( int i= MAX; i > 0; )
+    {
+        i--;
+        bufferPool[i].clear();
+    }
         if (reaper != null)
         {
             reaper.done = true;
@@ -322,6 +322,7 @@ public final class BufferManager
 
         public Reaper (int sleepInterval)
         {
+            super("BufferManagerReaper");
             // Convert from seconds to milliseconds
             this.sleepInterval = (sleepInterval * 1000);
         }

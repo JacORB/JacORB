@@ -39,12 +39,10 @@ public class MessageReceptorPool
 {
     private static final int MAX_DEFAULT = 1000;
 
-    private static MessageReceptorPool singleton = null;
-
     private int maxConnectionThreads = 1000;
     private ThreadPool pool = null;
 
-    private MessageReceptorPool(Configuration myConfiguration)
+    public MessageReceptorPool(String threadNamePrefix, Configuration myConfiguration)
     {
         org.jacorb.config.Configuration configuration =
             (org.jacorb.config.Configuration) myConfiguration;
@@ -63,25 +61,15 @@ public class MessageReceptorPool
             logger.debug("Maximum connection threads: " + maxConnectionThreads);
         }
 
-        pool = 
-            new ThreadPool( new ConsumerFactory(){
-                    public Consumer create()
-                    {
-                        return new MessageReceptor();
-                    }
-                },
-                               maxConnectionThreads, //maximum number of connections
-                               5 ); //max idle threads
-    }
-
-    public static synchronized MessageReceptorPool getInstance(Configuration myConfiguration)
-    {
-        if( singleton == null )
-        {
-            singleton = new MessageReceptorPool(myConfiguration);
-        }
-
-        return singleton;
+        pool =
+            new ThreadPool( threadNamePrefix,
+                               new ConsumerFactory(){
+                                    public Consumer create()
+                                    {
+                                        return new MessageReceptor();
+                                    }
+                                }, //maximum number of connections
+                               maxConnectionThreads, 5 ); //max idle threads
     }
 
     public void connectionCreated( GIOPConnection conn )

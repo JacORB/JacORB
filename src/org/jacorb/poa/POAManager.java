@@ -20,8 +20,9 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.omg.CORBA.INTERNAL;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAManagerPackage.State;
@@ -37,8 +38,8 @@ public class POAManager
     extends org.omg.PortableServer._POAManagerLocalBase
 {
     public State state = State.HOLDING;
-    private org.jacorb.orb.ORB orb;
-    private Vector poas = new Vector();
+    private final org.jacorb.orb.ORB orb;
+    private final List poas = new ArrayList();
     private POAManagerMonitor monitor;
     protected boolean poaCreationFailed;
 
@@ -79,8 +80,7 @@ public class POAManager
 
             synchronized (this)
             {
-                poaArray = new POA[poas.size()];
-                poas.copyInto(poaArray);
+                poaArray = (POA[]) poas.toArray(new POA[poas.size()]);
             }
             // notify all registered poas
             Thread thread = new Thread()
@@ -95,6 +95,7 @@ public class POAManager
                     }
                 }
             };
+            thread.setName("POAChangeToActive");
             thread.start();
         }
     }
@@ -124,8 +125,7 @@ public class POAManager
 
             synchronized (this)
             {
-                poaArray = new POA[poas.size()];
-                poas.copyInto(poaArray);
+                poaArray = (POA[]) poas.toArray(new POA[poas.size()]);
             }
             // notify all registered poas
             Thread thread = new Thread()
@@ -140,6 +140,7 @@ public class POAManager
                     }
                 }
             };
+            thread.setName("POAChangeToInactive");
             thread.start();
             if (wait_for_completion)
             {
@@ -175,8 +176,7 @@ public class POAManager
 
             synchronized (this)
             {
-                poaArray = new POA[poas.size()];
-                poas.copyInto(poaArray);
+                poaArray = (POA[]) poas.toArray(new POA[poas.size()]);
             }
             // notify all registered poas
             Thread thread = new Thread()
@@ -191,6 +191,7 @@ public class POAManager
                     }
                 }
             };
+            thread.setName("POAChangeToDiscarding");
             thread.start();
             if (wait_for_completion)
             {
@@ -211,10 +212,10 @@ public class POAManager
     protected synchronized POA getRegisteredPOA(String name)
     {
         POA result;
-        Enumeration en = poas.elements();
-        while (en.hasMoreElements())
+        Iterator en = poas.iterator();
+        while (en.hasNext())
         {
-            result = (POA) en.nextElement();
+            result = (POA) en.next();
             if (name.equals(result._getQualifiedName()))
             {
                 return result;
@@ -253,8 +254,7 @@ public class POAManager
 
             synchronized (this)
             {
-                poaArray = new POA[poas.size()];
-                poas.copyInto(poaArray);
+                poaArray = (POA[]) poas.toArray(new POA[poas.size()]);
             }
             // notify all registered poas
             Thread thread = new Thread()
@@ -269,6 +269,7 @@ public class POAManager
                     }
                 }
             };
+            thread.setName("POAChangeToHolding");
             thread.start();
             if (wait_for_completion)
             {
@@ -286,10 +287,16 @@ public class POAManager
      */
     private boolean isInInvocationContext()
     {
-        try {
-            if (orb.getPOACurrent().getORB() == orb) return true;
-
-        } catch (org.omg.PortableServer.CurrentPackage.NoContext e) {}
+        try
+        {
+            if (orb.getPOACurrent().getORB() == orb)
+            {
+                return true;
+            }
+        }
+        catch (org.omg.PortableServer.CurrentPackage.NoContext e)
+        {
+        }
         return false;
     }
 
@@ -298,7 +305,7 @@ public class POAManager
     {
         if (!poas.contains(poa))
         {
-            poas.addElement(poa);
+            poas.add(poa);
             monitor.addPOA(poa._getQualifiedName());
         }
     }
@@ -312,7 +319,7 @@ public class POAManager
 
     protected synchronized void unregisterPOA(POA poa)
     {
-        poas.removeElement(poa);
+        poas.remove(poa);
         monitor.removePOA(poa._getQualifiedName());
     }
 

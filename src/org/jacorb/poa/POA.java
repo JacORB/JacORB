@@ -973,6 +973,7 @@ public class POA
                 makeDestructionComplete();
             }
         };
+        thread.setName("POADestructor");
         thread.start();
         if (wait_for_completion)
         {
@@ -987,9 +988,13 @@ public class POA
     private byte[] extractWatermark(byte[] id)
     {
         if( id.length < watermark.length )
+        {
             return new byte[0];
+        }
         else
+        {
             return IdUtil.extract(id, id.length-watermark.length, watermark.length);
+        }
     }
 
 

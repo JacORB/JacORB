@@ -85,7 +85,7 @@ public class ClientConnectionManager
         throws ConfigurationException
     {
         // Moved from the constructor to facilitate logging.
-        receptor_pool = MessageReceptorPool.getInstance(myConfiguration);
+        receptor_pool = new MessageReceptorPool("ClientMessageReceptor", myConfiguration);
 
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.orb.giop");
