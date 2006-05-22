@@ -22,7 +22,10 @@ package org.jacorb.orb;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+import org.jacorb.config.JacORBConfiguration;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
@@ -30,6 +33,7 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.CompletionStatus;
 
 import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -38,19 +42,39 @@ import org.apache.avalon.framework.configuration.*;
 
 public class ORBSingleton
     extends org.omg.CORBA_2_5.ORB
-    implements  Configurable
 {
     private boolean doStrictCheckOnTypecodeCreation = false;
+    private final Logger logger;
 
-    public void configure(Configuration configuration)
-        throws ConfigurationException
+    public ORBSingleton()
     {
-        doStrictCheckOnTypecodeCreation = 
-            configuration.getAttribute("jacorb.interop.strict_check_on_tc_creation", "on").equals("on");
-                  
+        super();
+
+        Properties emptyProps = new Properties();
+
+        try
+        {
+            Configuration configuration = JacORBConfiguration.getConfiguration(emptyProps,
+                    null,
+                    false);
+
+            logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.singleton");
+
+            configure(configuration);
+        } catch (ConfigurationException e)
+        {
+            throw new INTERNAL(e.toString());
+        }
     }
 
-    
+    protected void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        doStrictCheckOnTypecodeCreation =
+            configuration.getAttribute("jacorb.interop.strict_check_on_tc_creation", "on").equalsIgnoreCase("on");
+    }
+
+
     /* factory methods: */
 
     public org.omg.CORBA.Any create_any()
@@ -245,6 +269,7 @@ public class ORBSingleton
                 catch( BAD_PARAM bp )
                 {
                     fault = true;
+                    logger.debug("Typecode name check failed", bp);
                 }
                 if( names.containsKey( members[i] ) || fault )
                 {
@@ -254,7 +279,7 @@ public class ORBSingleton
                 names.put( members[i], "" );
             }
         }
-        
+
         return new org.jacorb.orb.TypeCode( id, name, members);
     }
 
@@ -289,7 +314,7 @@ public class ORBSingleton
         for( int i = 0; i < members.length; i++ )
         {
             checkTCMemberType( members[i].type );
-            
+
             if (checkName)
             {
                 boolean fault = false;
@@ -300,6 +325,7 @@ public class ORBSingleton
                 catch( BAD_PARAM bp )
                 {
                     fault = true;
+                    logger.debug("Typecode name check failed", bp);
                 }
                 if( names.containsKey( members[i].name ) || fault )
                 {
@@ -311,7 +337,7 @@ public class ORBSingleton
             }
         }
 
-        
+
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_except,
                                             id,
                                             name,
@@ -346,7 +372,7 @@ public class ORBSingleton
     public TypeCode create_sequence_tc( int bound, TypeCode element_type)
     {
         checkTCMemberType( element_type );
-        TypeCode tc = 
+        TypeCode tc =
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_sequence,
                                          bound,
                                          element_type);
@@ -377,7 +403,7 @@ public class ORBSingleton
     public TypeCode create_struct_tc(String id,
                                      String name,
                                      org.omg.CORBA.StructMember[] members)
-    {       
+    {
         return create_struct_tc (id, name, members, true);
     }
 
@@ -404,18 +430,19 @@ public class ORBSingleton
                 catch( BAD_PARAM bp )
                 {
                     fault = true;
+                    logger.debug("Typecode name check failed", bp);
                 }
                 if( names.containsKey( members[i].name ) || fault )
                 {
                     throw new BAD_PARAM("Illegal struct member name: " + members[i].name + (fault? " (Bad PARAM) ": "" ),
-                            17, 
+                            17,
                             CompletionStatus.COMPLETED_NO );
                 }
                 names.put( members[i].name, "" );
             }
         }
 
-        
+
         org.jacorb.orb.TypeCode tc =
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_struct,
                                          id,
@@ -457,7 +484,7 @@ public class ORBSingleton
 
         // check discriminator type
 
-        TypeCode disc_tc = 
+        TypeCode disc_tc =
             org.jacorb.orb.TypeCode.originalType(discriminator_type);
 
         if (disc_tc == null ||
@@ -474,7 +501,7 @@ public class ORBSingleton
             )
         {
             throw new BAD_PARAM("Illegal union discriminator type",
-                                20, 
+                                20,
                                 CompletionStatus.COMPLETED_NO );
         }
 
@@ -483,7 +510,7 @@ public class ORBSingleton
         for( int i = 0; i < members.length; i++ )
         {
             checkTCMemberType( members[i].type );
-            
+
             if (checkName)
             {
                 try
@@ -492,12 +519,13 @@ public class ORBSingleton
                 }
                 catch( BAD_PARAM bp )
                 {
+                    logger.debug("Typecode name check failed", bp);
                     throw new BAD_PARAM("Illegal union member name: " + members[i].name,
-                                        17, 
+                                        17,
                                         CompletionStatus.COMPLETED_NO );
                 }
             }
-            
+
             // check that member type matches discriminator type or is default
 
             org.omg.CORBA.Any label = members[i].label;
