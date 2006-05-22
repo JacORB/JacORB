@@ -255,13 +255,44 @@ chapter \ref{ch:naming}).
 
 \subsection{Logging}
 
-Beginning with version 2.0, JacORB uses external log kit
-implementations for writing logs. The default log kit used by JacORB
-is the Apache LogKit implementation. To plug in different loggers, you
-need to write code for a custom {\tt LoggerFactory} class yourself and
-supply the class name as the value of the {\tt
-  jacorb.log.loggerFactory} property. Any new factory needs to
-implement the interface {\tt org.jacorb.util.LoggerFactory}.
+JacORB uses external log kit implementations for writing logs. The default log
+kit is the Apache LogKit implementation. To plug in another logger, a developer
+must implement the {\tt org.jacorb.util.LoggerFactory} interface and supply that
+class name as the value of the {\tt jacorb.log.loggerFactory} property.
+%%% filbreak is to keep the description of the verbatim with it.
+\filbreak
+The interface is
+\begin{small}
+\begin{verbatim}
+package org.jacorb.util;
+public interface LoggerFactory
+    String getLoggingBackendName();
+    Logger getNamedLogger(String name);
+    Logger getNamedRootLogger(String name);
+    Logger getNamedLogger(String name, String fileName, long maxFileSize)
+    void setDefaultLogFile(String fileName, long maxLogSize)
+\end{verbatim}
+\end{small}
+
+The new factory must return Loggers that implement
+{\tt org.apache.avalon.framework.logger.Logger}. An example is provided (See
+{\tt org.jacorb.util.ConsoleLogger}) which simply uses
+{\tt org.apache.avalon.framework.logger.ConsoleLogger} to output to the terminal e.g.
+\begin{small}
+\begin{verbatim}
+public class ConsoleLoggerFactory implements LoggerFactory
+    public ConsoleLoggerFactory()
+    {
+        target = new ConsoleLogger();
+    }
+...
+    public Logger getNamedLogger(String name)
+    {
+        return target;
+    }
+...
+\end{verbatim}
+\end{small}
 
 \subsubsection*{Log levels and different log components}
 
