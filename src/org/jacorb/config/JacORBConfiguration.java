@@ -43,19 +43,19 @@ public class JacORBConfiguration
     private static final String TRUE = "true";
     private static final String ON = "on";
     private static final String EMPTY_STR = "";
-    
+
     private static final int DEFAULT_LOG_LEVEL = 0;
 
-    private ORB orb = null;
+    private final ORB orb;
 
     /** root logger instance for this configuration */
     private Logger logger = null;
-    
+
     /**  logger factory used to create loggers */
     private LoggerFactory loggerFactory = null;
 
     /**  default class name for logger factory */
-    private final String loggerFactoryClzName = 
+    private final String loggerFactoryClzName =
        "org.jacorb.config.LogKitLoggerFactory";
 
 
@@ -63,14 +63,14 @@ public class JacORBConfiguration
      * Factory method
      */
 
-    public static Configuration getConfiguration(Properties props, 
+    public static Configuration getConfiguration(Properties props,
                                                  ORB orb,
                                                  boolean isApplet)
         throws ConfigurationException
     {
         // determine the ORBId, if set, so we can locate the corresponding
         // configuration
-        String orbID = "jacorb"; // default id 
+        String orbID = "jacorb"; // default id
         String myOrbID = isApplet ? null : System.getProperty("ORBid");
 
         if( props != null )
@@ -78,7 +78,7 @@ public class JacORBConfiguration
             // props override system properties
             String tmp = (String)props.get("ORBid");
             if( tmp != null )
-                myOrbID = tmp; 
+                myOrbID = tmp;
         }
 
         if (myOrbID != null )
@@ -86,7 +86,7 @@ public class JacORBConfiguration
             // check for legal values
             if (myOrbID.equals("orb") || myOrbID.equals("jacorb"))
             {
-                throw new ConfigurationException("Illegal orbID, <" + 
+                throw new ConfigurationException("Illegal orbID, <" +
                                                   myOrbID + "> is reserved");
             }
             orbID = myOrbID;
@@ -101,15 +101,15 @@ public class JacORBConfiguration
      * into ORB.init()
      */
 
-    private JacORBConfiguration(String name, 
-                              Properties orbProperties, 
+    private JacORBConfiguration(String name,
+                              Properties orbProperties,
                               ORB orb,
                               boolean isApplet)
         throws ConfigurationException
     {
         super(name);
         this.orb = orb;
-        
+
         if (isApplet)
         {
             initApplet(name, orbProperties);
@@ -123,7 +123,7 @@ public class JacORBConfiguration
     }
 
     /**
-     * loads properties from files. 
+     * loads properties from files.
      *
      * Properties are loaded in the following order, with later
      * properties overriding earlier ones: 1) System properties
@@ -135,7 +135,7 @@ public class JacORBConfiguration
      * through ORB.init().
      * (Note that these will thus always take effect!)
      *
-     * @param name the name for the ORB instance, may not be null. 
+     * @param name the name for the ORB instance, may not be null.
      */
 
     private void init(String name, Properties orbProperties)
@@ -153,12 +153,12 @@ public class JacORBConfiguration
        setAttributes(System.getProperties());
 
        int logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
-       
-       // 2) look for orb.properties       
+
+       // 2) look for orb.properties
        // look for common properties files in java.home/lib first
-       Properties commonProps = 
+       Properties commonProps =
            loadPropertiesFromFile( lib + separator + "lib" + separator + COMMON_PROPS);
-       
+
        if (commonProps!= null)
        {
             setAttributes(commonProps);
@@ -168,14 +168,14 @@ public class JacORBConfiguration
             loaded = true;
 
             if (logLevel > 2)
-                System.out.println("[ base configuration loaded from file " + 
+                System.out.println("[ base configuration loaded from file " +
                                    lib + separator + "lib" + separator + COMMON_PROPS + " ]");
        }
-       
+
        // look for common properties files in user.home next
-       commonProps = 
+       commonProps =
            loadPropertiesFromFile( home + separator + COMMON_PROPS );
-       
+
        if (commonProps!= null)
        {
            setAttributes(commonProps);
@@ -183,32 +183,32 @@ public class JacORBConfiguration
 
            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
-               System.out.println("[ base configuration loaded from file " + 
+               System.out.println("[ base configuration loaded from file " +
                                    home + separator + COMMON_PROPS + " ]");
        }
-       
+
        // look for common properties files on the classpath next
-       commonProps = 
+       commonProps =
            loadPropertiesFromClassPath( COMMON_PROPS );
-       
+
        if (commonProps!= null)
        {
            loaded = true;
            setAttributes(commonProps);
            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
-               System.out.println("[ base configuration loaded from classpath " + 
+               System.out.println("[ base configuration loaded from classpath " +
                                     COMMON_PROPS + " ]");
        }
-       
- 
+
+
        // 3) look for specific properties file
-       String configDir = 
+       String configDir =
            getAttribute("jacorb.config.dir", "");
-       
+
        if (configDir.length() == 0)
            configDir = getAttribute ("jacorb.home", "");
-       
+
        if (configDir.length() != 0 )
            configDir += separator + "etc";
        else
@@ -218,12 +218,12 @@ public class JacORBConfiguration
                System.err.println("[ jacorb.home unset! Will use '.' ]");
            configDir = ".";
        }
-       
+
        String propFileName = configDir + separator + name + fileSuffix;
-       
+
        // now load properties file from file system
        Properties orbConfig = loadPropertiesFromFile(propFileName );
-       
+
        if (orbConfig!= null)
        {
            setAttributes(orbConfig);
@@ -231,17 +231,17 @@ public class JacORBConfiguration
 
            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
-               System.out.println("[ configuration " + name + 
+               System.out.println("[ configuration " + name +
                                   " loaded from file " + propFileName + " ]");
        }
        else
        {
            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 0)
-               System.err.println("[ File " + propFileName + " for configuration " + name + 
+               System.err.println("[ File " + propFileName + " for configuration " + name +
                                   " not found ]");
        }
-       
+
        // 4) look for additional custom properties files
        List customPropFileNames = getAttributeList("custom.props");
 
@@ -258,13 +258,13 @@ public class JacORBConfiguration
 
                     logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
                     if (logLevel > 2)
-                        System.out.println("[ custom properties loaded from file " + 
+                        System.out.println("[ custom properties loaded from file " +
                                            fileName + " ]");
                 }
                 else
                 {
                     if (logLevel > 0)
-                        System.err.println("[ custom properties not found in "  + 
+                        System.err.println("[ custom properties not found in "  +
                                            fileName + " ]");
                 }
            }
@@ -277,7 +277,7 @@ public class JacORBConfiguration
            setAttributes(orbConfig);
            loaded = true;
 
-           logLevel = 
+           logLevel =
                getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
                System.out.println("[ configuration " + name + " loaded from classpath]");
@@ -286,7 +286,7 @@ public class JacORBConfiguration
        // 5) load system properties again, so that
        //    command line args override properties from files
        setAttributes( System.getProperties() );
-       
+
        // 6) load properties passed to ORB.init(), these will override any
        // settings in config files or system properties!
        if (orbProperties != null)
@@ -304,7 +304,7 @@ public class JacORBConfiguration
     }
 
     /**
-     * loads properties via classloader. 
+     * loads properties via classloader.
      *
      * Properties are loaded in the following order, with later properties
      * overriding earlier ones: 1) Properties from ORB.init(), to get
@@ -313,7 +313,7 @@ public class JacORBConfiguration
      * set in the client code and passed in through ORB.init().  (Note that
      * these will thus always take effect!)
      *
-     * @param name the name for the ORB instance, may not be null. 
+     * @param name the name for the ORB instance, may not be null.
      */
 
     private void initApplet(String name, Properties orbProperties)
@@ -329,12 +329,12 @@ public class JacORBConfiguration
 
        int logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
                                             DEFAULT_LOG_LEVEL);
-       
+
        // 2) look for orb.properties
        // look for common properties files on the classpath next
-       Properties commonProps = 
+       Properties commonProps =
            loadPropertiesFromClassPath( COMMON_PROPS );
-       
+
        if (commonProps!= null)
        {
            loaded = true;
@@ -342,15 +342,15 @@ public class JacORBConfiguration
            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
                                             DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
-               System.out.println("[ base configuration loaded from classpath " + 
+               System.out.println("[ base configuration loaded from classpath " +
                                     COMMON_PROPS + " ]");
        }
-       
- 
+
+
        // 3) look for specific properties file
        String propFileName = name + fileSuffix;
        Properties orbConfig = loadPropertiesFromClassPath(propFileName );
-       
+
        if (orbConfig!= null)
        {
            setAttributes(orbConfig);
@@ -359,8 +359,8 @@ public class JacORBConfiguration
            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
                                             DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
-               System.out.println("[ configuration " + name + 
-                                  " loaded from classpath " + propFileName + 
+               System.out.println("[ configuration " + name +
+                                  " loaded from classpath " + propFileName +
                                   " ]");
        }
        else
@@ -368,11 +368,11 @@ public class JacORBConfiguration
            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
                                             DEFAULT_LOG_LEVEL);
            if (logLevel > 0)
-               System.err.println("[ File " + propFileName + 
-                                  " for configuration " + name + 
+               System.err.println("[ File " + propFileName +
+                                  " for configuration " + name +
                                   " not found in classpath]");
        }
-       
+
        // 4) look for additional custom properties files
        List customPropFileNames = getAttributeList("custom.props");
 
@@ -387,24 +387,24 @@ public class JacORBConfiguration
                     setAttributes(customProps);
                     loaded = true;
 
-                    logLevel = 
+                    logLevel =
                         getAttributeAsInteger("jacorb.config.log.verbosity",
                                               DEFAULT_LOG_LEVEL);
                     if (logLevel > 2)
                         System.out.println(
-                            "[ custom properties loaded from classpath " + 
+                            "[ custom properties loaded from classpath " +
                             fileName + " ]");
                 }
                 else
                 {
                     if (logLevel > 0)
                         System.err.println(
-                            "[ custom properties " + fileName + 
+                            "[ custom properties " + fileName +
                             "not found in classpath ]");
                 }
            }
        }
-       
+
        // 5) load properties passed to ORB.init(), these will override any
        // settings in config files or system properties!
        if (orbProperties != null)
@@ -417,7 +417,7 @@ public class JacORBConfiguration
        {
            // print a warning....
            System.out.println(
-               "[ No configuration properties found for configuration " + 
+               "[ No configuration properties found for configuration " +
                name + " ]");
        }
     }
@@ -433,7 +433,7 @@ public class JacORBConfiguration
         {
             Object k = iter.next();
             // Some lunatics illegally put non String objects into System props
-            // as keys / values - we check for both and ignore them.      
+            // as keys / values - we check for both and ignore them.
             if (!(k instanceof String)) continue;
             String key = (String)k;
             Object value = properties.get(key);
@@ -489,9 +489,9 @@ public class JacORBConfiguration
         Properties result = null;
         try
         {
-            java.net.URL url = 
+            java.net.URL url =
                 Thread.currentThread().getContextClassLoader().getResource(name);
-            if (url!=null)           
+            if (url!=null)
             {
                 result = new Properties();
                 InputStream in = url.openStream();
@@ -526,10 +526,10 @@ public class JacORBConfiguration
 
     private void initLogging()
     {
-        String logFileName = 
+        String logFileName =
             getAttribute("jacorb.logfile", "");
 
-        int maxLogSize = 
+        int maxLogSize =
             getAttributeAsInteger( "jacorb.logfile.maxLogSize", 0 );
 
         if ( !logFileName.equals(""))
@@ -583,7 +583,7 @@ public class JacORBConfiguration
             {
                 loggerFactory.setDefaultLogFile(logFileName, maxLogSize);
                 //logger = loggerFactory.getNamedRootLogger("jacorb");
-                logger = 
+                logger =
                     loggerFactory.getNamedLogger("jacorb",logFileName, maxLogSize);
             }
             catch (IOException e)
@@ -622,12 +622,12 @@ public class JacORBConfiguration
     {
         return loggerFactory.getNamedLogger(name);
     }
-    
+
     public String getLoggerName(Class clz)
     {
         final String clazzName = clz.getName();
         final String packageName = clazzName.substring(0, clazzName.lastIndexOf('.'));
-        
+
         if (packageName != null && packageName.startsWith("org.jacorb"))
         {
             return packageName.substring(4);
@@ -668,7 +668,7 @@ public class JacORBConfiguration
      * Create an object from the given property. The class's default
      * constructor will be used.
      *
-     * @return an object of the class of the keys value, or null, if 
+     * @return an object of the class of the keys value, or null, if
      * no class name is found for the key
      * @throws ConfigurationException if object creation fails.
      */
@@ -691,7 +691,7 @@ public class JacORBConfiguration
                                                   key +"<: " + e );
             }
         }
-        
+
         return null;
     }
 
@@ -699,26 +699,26 @@ public class JacORBConfiguration
         throws ConfigurationException
     {
         String s = getAttribute(key);
-        
+
         if (s != null && s.length() > 0)
         {
             s = s.trim().toLowerCase();
             return ON.equals(s) || TRUE.equals(s);
         }
-        
+
         return false;
     }
 
     public boolean getAttributeAsBoolean(String key, boolean defaultValue)
     {
         String s = getAttribute(key, EMPTY_STR);
-        
+
         if (s.length() > 0)
         {
             s = s.trim().toLowerCase();
             return ON.equals(s) || TRUE.equals(s);
         }
-        
+
         return defaultValue;
     }
 }
