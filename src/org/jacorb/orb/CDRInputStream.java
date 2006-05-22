@@ -1098,6 +1098,16 @@ public class CDRInputStream
         {
             size --;
         }
+
+        if(start + size > buffer.length)
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug( "Size (" + size + ") invalid for string extraction from buffer length of " + buffer.length + " from position " + start);
+            }
+            throw new MARSHAL ("Invalid size for string extraction");
+        }
+
         try {
           result = new String (buffer, start, size, csname);
         }

@@ -1,0 +1,34 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac45
+            {
+               struct TwoStringsStruct
+               {
+                  string firstString;
+                  string secondString;
+               };
+
+               typedef sequence <TwoStringsStruct> TwoStringsStructSeq;
+               typedef sequence <TwoStringsStructSeq> TwoStringsStructSeqSeq;
+
+               // Failure occurs when this struct is placed in an any
+               // and sent.
+               struct TwoAnys
+               {
+                  // contains a TwoStringStructSeqSeq
+                  any firstAny;
+                  // also contains a TwoStringStructSeqSeq
+                  any secondAny;
+               };
+            };
+         };
+      };
+   };
+};
