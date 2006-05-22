@@ -28,7 +28,7 @@ import org.jacorb.test.common.TestUtils;
 /**
  * Launches a JacORB process by direct invocation of a JVM
  * with appropriate arguments.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
@@ -38,7 +38,7 @@ public class DirectLauncher extends JacORBLauncher
     {
         super(jacorbHome, coverage);
     }
-        
+
     public Process launch(String classpath,
                           Properties props,
                           String mainClass,
@@ -48,8 +48,9 @@ public class DirectLauncher extends JacORBLauncher
 
         List cmdList = new ArrayList();
 
-        String fullClasspath = TestUtils.pathAppend(classpath, getJacORBLibraryPath());      
-        
+        String fullClasspath = TestUtils.pathAppend(classpath, getJacORBLibraryPath());
+        fullClasspath = TestUtils.pathAppend(fullClasspath, System.getProperty("java.class.path"));
+
         String javaHome = System.getProperty("java.home");
         String javaCommand = javaHome + "/bin/java";
         cmdList.add (javaCommand);
@@ -61,22 +62,24 @@ public class DirectLauncher extends JacORBLauncher
         cmdList.add ("-Djacorb.home=" + jacorbHome);
         cmdList.add (mainClass);
         cmdList.addAll (Arrays.asList(args));
-        
+        cmdList.add ("formatter=org.apache.tools.ant.taskdefs.optional.junit.PlainJUnitResultFormatter");
+        cmdList.add ("showoutput=true");
+        cmdList.add ("printsummary=withOutAndErr");
         String[] envp;
-    
-        if (TestUtils.isWindows())      
+
+        if (TestUtils.isWindows())
         {
             envp = new String[3];
             envp[0] = "JACORB_HOME=" + jacorbHome;
-            try 
+            try
             {
                 envp[1] = "SystemRoot=" + TestUtils.systemRoot();
             }
-            catch (RuntimeException e) 
+            catch (RuntimeException e)
             {
                 System.out.println("WARNING: caught RuntimeException when reading SystemRoot: " + e.getMessage());
             }
-            catch (IOException e) 
+            catch (IOException e)
             {
                 System.out.println("WARNING: caught IOException when reading SystemRoot: " + e.getMessage());
             }
@@ -91,13 +94,6 @@ public class DirectLauncher extends JacORBLauncher
         try
         {
             String[] cmd = toStringArray(cmdList);
-            //System.out.print ("exec: ");
-            //for (int i=0; i<cmd.length; i++)
-            //{
-            //    System.out.print (cmd[i]);
-            //    if (i<cmd.length-1) System.out.print (" ");
-            //}
-            //System.out.println();
             Process proc = rt.exec (cmd, envp);
             return proc;
         }
@@ -106,7 +102,7 @@ public class DirectLauncher extends JacORBLauncher
             throw new RuntimeException(ex);
         }
     }
-    
+
     public String getJacORBLibraryPath()
     {
         String libPath = getJacORBPath();
@@ -117,7 +113,7 @@ public class DirectLauncher extends JacORBLauncher
         libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/picocontainer-1.2.jar");
         return libPath;
     }
-    
+
     public String getJacORBPath()
     {
         File result = null;
@@ -125,7 +121,7 @@ public class DirectLauncher extends JacORBLauncher
         {
             result = new File (jacorbHome, "classes-instrumented");
             if (!result.exists())
-                System.out.println ("WARNING: JacORB installation " 
+                System.out.println ("WARNING: JacORB installation "
                         + jacorbHome
                         + " is not instrumented; coverage "
                         + " will not be available");

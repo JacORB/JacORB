@@ -111,7 +111,8 @@ public class AbstractIDLTestcase extends TestCase
             {
                 fail("parsing of " + idlFile.getName() + " should fail.");
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             if (!failureExpected)
             {
@@ -121,6 +122,10 @@ public class AbstractIDLTestcase extends TestCase
                 throw error;
             }
         }
+        // Uncomment the following line to see the output of the IDL compiler for each
+        // test.
+        // System.err.println ("Test output " + writer.toString());
+
     }
 
     /**
@@ -194,7 +199,8 @@ public class AbstractIDLTestcase extends TestCase
             }
 
             return new URLClassLoader(new URL[] {dirCompilation.toURL()});
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             if (!failureExpected)
             {
@@ -287,11 +293,13 @@ public class AbstractIDLTestcase extends TestCase
         try
         {
             runMethod.invoke(this, new Class[0]);
-        } catch (InvocationTargetException e)
+        }
+        catch (InvocationTargetException e)
         {
             e.fillInStackTrace();
             throw e.getTargetException();
-        } catch (IllegalAccessException e)
+        }
+        catch (IllegalAccessException e)
         {
             e.fillInStackTrace();
             throw e;
@@ -329,7 +337,8 @@ public class AbstractIDLTestcase extends TestCase
             }
 
             return suite;
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             throw new RuntimeException(e);
         }

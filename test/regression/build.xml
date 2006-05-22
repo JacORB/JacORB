@@ -35,25 +35,8 @@
             <fileset dir="${testdir}/lib">
                 <include name="**/*.jar" />
             </fileset>
-
             <path refid="path.base" />
         </path>
-
-        <macrodef name="jacorb-run-test">
-            <attribute name="client" default="cvs" />
-            <attribute name="server" default="cvs" />
-            <attribute name="coverage" default="false" />
-            <attribute name="test" />
-
-            <sequential>
-                <java classname="org.jacorb.test.common.launch.TestLauncher" classpathref="test.classpath">
-                    <sysproperty key="jacorb.test.client.version" value="@{client}" />
-                    <sysproperty key="jacorb.test.server.version" value="@{server}" />
-                    <sysproperty key="jacorb.test.coverage" value="@{coverage}" />
-                    <arg value="@{test}" />
-                </java>
-            </sequential>
-        </macrodef>
 
         <property name="dirs.output" value="${testdir}/output" />
 
@@ -170,44 +153,42 @@
     </target>
 
 
-    <target name="run" depends="build-all, run-no-build" />
+   <target name="run" depends="test-init, build-all">
+      <property name="test.cp" refid="test.classpath"/>
 
-    <target name="run-no-build" depends="test-init">
-        <java classname="org.jacorb.test.common.launch.TestLauncher"
-          classpathref="test.classpath">
-            <arg value="${test}"/>
-        </java>
-    </target>
+      <!-- By default, we don't run coverage-->
+      <property name="jacorb.test.coverage" value="false"/>
+      <!-- This property is for old style test results names. It also switches off -->
+      <!-- placing test results in subdirectories                                  -->
+      <property name="jacorb.test.outputfile.testname" value="false"/>
+      <!-- By default, we do run naming and notification tests -->
+      <property name="jacorb.exclude-services" value="false"/>
+
+      <java fork="true" classname="org.jacorb.test.common.launch.TestLauncher">
+         <classpath path="${test.cp}"/>
+
+         <jvmarg value="-Djacorb.test.home=${testdir}" />
+         <jvmarg value="-Djacorb.home=${jacorb.home}" />
+         <jvmarg value="-Xbootclasspath/p:${test.cp}"/>
+         <jvmarg value="-Djava.class.path=${classpath}"/>
+         <jvmarg value="-Djacorb.test.outputfile.testname=${jacorb.test.outputfile.testname}"/>
+         <jvmarg value="-Djacorb.test.coverage=${jacorb.test.coverage}"/>
+         <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
+
+         <!-- Note - passing multiple arguments to this class may affect the output file -->
+         <!-- naming. See TestLauncher.getOutFilename                                    -->
+         <arg value="${jacorb.test}"/>
+      </java>
+   </target>
 
 
 
     <!-- The following old run targets are deprecated -->
-
-    <target name="run-old" depends="test-init">
-        <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
-            <jvmarg value="-Djacorb.test.home=${testdir}" />
-            <jvmarg value="-Djacorb.home=${jacorb.home}" />
-            <jvmarg value="${rmi.jvmarg}" />
-            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
-            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
-            <bootclasspath>
-                <path refid="path.base" />
-            </bootclasspath>
-
-            <classpath>
-                <path refid="test.classpath" />
-            </classpath>
-            <formatter type="plain" />
-            <test name="${test}" todir="${dirs.output}" />
-        </junit>
-    </target>
-
-
     <target name="run-old-jdk-orb-no-build" depends="test-init" if="use.jdk.orb">
         <junit fork="yes" printsummary="withOutAndErr">
             <jvmarg value="-Djacorb.test.home=${testdir}" />
             <formatter type="plain" />
-            <test name="${test}" outfile="TEST-${test}-jdkorb" todir="${dirs.output}" />
+            <test name="${jacorb.test}" outfile="TEST-${test}-jdkorb" todir="${dirs.output}" />
             <classpath>
                 <path refid="test.classpath" />
             </classpath>
@@ -243,25 +224,6 @@
 
 
     <target name="process-idl">
-        <!-- This condition doesn't work when we compile multiple IDL
-     files to the same directory.  I'm working to find a clean
-     solution, AS.
-
-      <condition property="${props.idl}">
-         <or>
-            <not>
-               <available file="${classdir}/${pkg.idl}"/>
-            </not>
-            <not>
-               <available file="${src}/generated/${pkg.idl}"/>
-            </not>
-            <uptodate targetfile="${idl}/${file.idl}">
-               <srcfiles dir="${src}/generated/${pkg.idl}"
-                         includes="**/*.java"/>
-            </uptodate>
-         </or>
-      </condition>
--->
         <property name="${props.idl}" value="true" />
         <property name="generateir" value="false" />
         <antcall target="generate-src" />
@@ -468,8 +430,8 @@
         </emma>
     </target>
 
-    <!-- this target is obsolete, use TestLauncher for the time being -->
-    <target name="run-with-coverage" depends="test-init">
+    <target name="run-all-with-coverage" depends="build-all"
+            description="Run all the JacORB tests with coverage analysis">
         <delete failonerror="false">
             <fileset dir="${testdir}/coverage"
                includes="*.ec"/>
@@ -482,32 +444,33 @@
                  pathsep="${path.separator}"
                  property="coverage.path.string"
                  refid="coverage.path"/>
-        <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
-            <jvmarg value="-Xbootclasspath/p:${coverage.path.string}"/>
-            <jvmarg value="-Djacorb.test.home=${testdir}" />
-            <jvmarg value="-Djacorb.home=${jacorb.home}" />
-            <jvmarg value="${rmi.jvmarg}" />
-            <jvmarg value="-Djacorb.test.coverage=true"/>
-            <jvmarg value="-Demma.coverage.out.file=${testdir}/coverage/client.ec"/>
-            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
-            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
-            <classpath>
-                <path refid="coverage.path"/>
-            </classpath>
-            <formatter type="plain" />
-            <test name="org.jacorb.test.AllTest" todir="${dirs.output}" />
-        </junit>
+       <antcall target="run">
+          <param name="jacorb.test.coverage" value="true"/>
+          <param name="jacorb.test" value="org.jacorb.test.AllTest"/>
+       </antcall>
     </target>
 
     <target name="show">
         <echoproperties/>
     </target>
 
-    <target name="report-coverage" depends="test-init">
+    <target name="report-coverage" depends="test-init"
+            description="Report the coverage analysis. Pass in&#13;&#10;
+                            -Djacorb.test.id=xxx to specify test&#13;&#10;
+                            results location">
+
         <path id="path.src" >
             <pathelement location="${basedir}/src" />
             <pathelement location="${basedir}/src/generated" />
         </path>
+
+       <condition property="jacorb.test.prefix"
+                  value="test/regression/output/${jacorb.test.id}/">
+          <isset property="jacorb.test.id"/>
+       </condition>
+       <property name="jacorb.test.prefix" value="test/regression/output/"/>
+
+       <echo message="Using ${jacorb.test.prefix} as test prefix..."/>
 
         <emma>
             <report sourcepathref="path.src"
@@ -515,28 +478,28 @@
               sort="+name">
                 <fileset dir="${basedir}">
                     <include name="coverage.em"/>
-                    <include name="test/regression/output/${jacorb.test.id}/coverage-client.ec"/>
-                    <include name="test/regression/output/${jacorb.test.id}/coverage-server.ec"/>
+                    <include name="${jacorb.test.prefix}coverage-client.ec"/>
+                    <include name="${jacorb.test.prefix}coverage-server.ec"/>
                 </fileset>
-                <html outfile="${testdir}/output/${jacorb.test.id}/coverage-combined/index.html"/>
+                <html outfile="${jacorb.test.prefix}coverage-combined/index.html"/>
             </report>
             <report sourcepathref="path.src"
               columns="name,line,method,class"
               sort="+name">
                 <fileset dir="${basedir}">
                     <include name="coverage.em"/>
-                    <include name="test/regression/output/${jacorb.test.id}/coverage-client.ec"/>
+                    <include name="${jacorb.test.prefix}coverage-client.ec"/>
                 </fileset>
-                <html outfile="${testdir}/output/${jacorb.test.id}/coverage-client/index.html"/>
+                <html outfile="${jacorb.test.prefix}coverage-client/index.html"/>
             </report>
             <report sourcepathref="path.src"
               columns="name,line,method,class"
               sort="+name">
                 <fileset dir="${basedir}">
                     <include name="coverage.em"/>
-                    <include name="test/regression/output/${jacorb.test.id}/coverage-server.ec"/>
+                    <include name="${jacorb.test.prefix}coverage-server.ec"/>
                 </fileset>
-                <html outfile="${testdir}/output/${jacorb.test.id}/coverage-server/index.html"/>
+                <html outfile="${jacorb.test.prefix}coverage-server/index.html"/>
             </report>
         </emma>
     </target>
@@ -546,19 +509,22 @@
     <!-- ==================================================== -->
 
 
-    <target name="run-all" description="Run all Jacorb tests">
+    <target name="run-all" description="Run and build all Jacorb tests. For any run*&#13;&#10;
+                            tests the following -D parameters are&#13;&#10;
+                            available:&#13;&#10;
+                            jacorb.test.coverage=true/false&#13;&#10;
+                            jacorb.test.outputfile.testname=true/false">
         <antcall target="run">
-            <param name="test" value="org.jacorb.test.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.AllTest" />
         </antcall>
-        <antcall target="compile-idl-test-generated" />
     </target>
 
 
-    <target name="run-all-no-build" description="Run all Jacorb tests">
-        <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.AllTest" />
+    <target name="run-all-no-build" description="Run all Jacorb tests without compiling.">
+        <antcall target="run">
+            <param name="jacorb.test" value="org.jacorb.test.AllTest"/>
+            <param name="NO_BUILD" value="true"/>
         </antcall>
-        <antcall target="compile-idl-test-generated" />
     </target>
 
 
@@ -567,20 +533,12 @@
     <!-- ==================================================== -->
 
     <target name="run-all-idl"
-          description="Run all Jacorb tests in the idl package and its subpackages">
+          description="Run all Jacorb tests in the idl package">
         <antcall target="run">
-            <param name="test" value="org.jacorb.test.idl.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.idl.AllTest" />
         </antcall>
-        <antcall target="compile-idl-test-generated" />
     </target>
 
-    <target name="compile-idl-test-generated" depends="test-init">
-        <!-- Compile the test idl -->
-        <antcall target="jacorb-javac">
-            <param name="javac-includes" value="generated/**" />
-        </antcall>
-        <echo message="Successfully compiled test idl" />
-    </target>
 
     <!-- ==================================================== -->
     <!--                  run bug tests                       -->
@@ -590,45 +548,28 @@
     <target name="run-all-bugs"
           description="Run all Jacorb tests in the bugs package">
         <antcall target="run">
-            <param name="test" value="org.jacorb.test.bugs.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.bugs.AllTest" />
         </antcall>
     </target>
-
-
-    <target name="run-all-bugs-no-build"
-          description="Run all Jacorb tests in the bugs package">
-        <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.bugs.AllTest" />
-        </antcall>
-    </target>
-
 
 
     <!-- ==================================================== -->
-    <!--                  run orb tests                       -->
+    <!--                  run orb/poa tests                   -->
     <!-- ==================================================== -->
 
 
     <target name="run-all-orb"
-          description="Run all Jacorb tests in the orb package and its subpackages">
+          description="Run all Jacorb tests in the orb package">
         <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.AllTest" />
-        </antcall>
-    </target>
-
-
-    <target name="run-all-orb-no-build"
-          description="Run all Jacorb tests in the orb package and its subpackages">
-        <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.orb.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.orb.AllTest" />
         </antcall>
     </target>
 
 
     <target name="run-all-poa"
-          description="Run all Jacorb tests in the poa package and its subpackages">
+          description="Run all Jacorb tests in the poa package">
         <antcall target="run">
-            <param name="test" value="org.jacorb.test.poa.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.poa.AllTest" />
         </antcall>
     </target>
 
@@ -639,23 +580,12 @@
 
 
     <target name="run-all-rmi"
-          description="Run all Jacorb tests in the rmi package and its subpackages">
+          description="Run all Jacorb tests in the rmi package">
         <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.rmi.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.orb.rmi.AllTest" />
         </antcall>
         <antcall target="run-old-jdk-orb-no-build">
-            <param name="test" value="org.jacorb.test.orb.rmi.AllTest" />
-        </antcall>
-    </target>
-
-
-    <target name="run-all-rmi-no-build"
-          description="Run all Jacorb tests in the rmi package and its subpackages">
-        <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.orb.rmi.AllTest" />
-        </antcall>
-        <antcall target="run-old-jdk-orb-no-build">
-            <param name="test" value="org.jacorb.test.orb.rmi.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.orb.rmi.AllTest" />
         </antcall>
     </target>
 
@@ -666,56 +596,11 @@
 
 
     <target name="run-all-dynany"
-          description="Run all Jacorb tests in the dynany package and its subpackages">
+          description="Run all Jacorb tests in the dynany package">
         <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.orb.dynany.AllTest" />
         </antcall>
     </target>
-
-
-    <target name="run-all-dynany-separate"
-          description="Run all Jacorb tests in the dynany package and its subpackages, logging results in separate files">
-        <antcall target="run-package-dynany-separate" />
-    </target>
-
-
-    <!-- Run all Jacorb tests in the dynany package only, logging results in separate files -->
-    <target name="run-package-dynany-separate">
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyArrayTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyBaseTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyBoundedSeqTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyEmptyExTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyEnumTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyFixedTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyNonEmptyExTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyStructTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyUnboundedSeqTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyUnionIntTest" />
-        </antcall>
-        <antcall target="run">
-            <param name="test" value="org.jacorb.test.orb.dynany.DynAnyUnionTest" />
-        </antcall>
-    </target>
-
 
     <!-- ==================================================== -->
     <!--                 run notification tests               -->
@@ -723,29 +608,13 @@
 
 
     <target name="run-all-notification"
-          description="Run all Jacorb tests in the notification package and its subpackages">
+          description="Run all Jacorb tests in the notification package">
 
         <antcall target="run">
-            <param name="test" value="org.jacorb.test.notification.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.AllTest" />
         </antcall>
 
         <antcall target="run-notification-regexp" />
-    </target>
-
-
-    <target name="run-all-notification-no-build"
-          description="Run all Jacorb tests in the notification package and its subpackages" depends="test-init" >
-
-        <jacorb-run-test test="org.jacorb.test.notification.AllTest" coverage="true"/>
-
-        <antcall target="run-notification-regexp" />
-    </target>
-
-
-    <target name="run-notification">
-        <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.AllTest" />
-        </antcall>
     </target>
 
 
@@ -756,25 +625,21 @@
 
     <target name="run-notification-regexp-jdk14" if="available.regexp.jdk">
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.util.regexp.JDK14PatternWrapperTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.util.regexp.JDK14PatternWrapperTest" />
         </antcall>
     </target>
 
     <target name="run-notification-regexp-gnu" if="available.regexp.gnu">
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.util.regexp.GNUPatternWrapperTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.util.regexp.GNUPatternWrapperTest" />
         </antcall>
     </target>
 
     <target name="run-notification-regexp-jakarta" if="available.regexp.jakarta-regexp">
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.util.regexp.JakartaRegexpPatternWrapperTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.util.regexp.JakartaRegexpPatternWrapperTest" />
         </antcall>
     </target>
-
-
-    <target name="run-all-notification-rebuild" depends="test-init, compile-src-notification, run-all-notification-no-build" />
-
 
     <target name="run-package-notification-seperate">
         <antcall target="build-all" />
@@ -786,27 +651,27 @@
     <target name="run-package-notification-seperate-no-build">
 
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.PackageTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.PackageTest" />
         </antcall>
 
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.node.PackageTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.node.PackageTest" />
         </antcall>
 
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.engine.PackageTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.engine.PackageTest" />
         </antcall>
 
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.evaluate.PackageTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.evaluate.PackageTest" />
         </antcall>
 
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.queue.PackageTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.queue.PackageTest" />
         </antcall>
 
         <antcall target="run-no-build">
-            <param name="test" value="org.jacorb.test.notification.util.PackageTest" />
+            <param name="jacorb.test" value="org.jacorb.test.notification.util.PackageTest" />
         </antcall>
 
         <antcall target="run-notification-regexp" />
@@ -824,5 +689,4 @@
         <delete dir="${basedir}/classes-instrumented" failonerror="false" />
         <delete file="${src}/orb/rmi/FixSunDelegateBug.java" failonerror="false" />
     </target>
-
 </project>

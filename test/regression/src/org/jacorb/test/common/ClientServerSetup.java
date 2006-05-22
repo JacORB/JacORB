@@ -88,7 +88,7 @@ public class ClientServerSetup extends TestSetup {
 
     private Properties clientOrbProperties = null;
     private Properties serverOrbProperties = null;
-    
+
     private static Comparator comparator = new JacORBVersionComparator();
 
     /**
@@ -131,27 +131,33 @@ public class ClientServerSetup extends TestSetup {
         clientRootPOA = POAHelper.narrow
                           ( clientOrb.resolve_initial_references( "RootPOA" ) );
         clientRootPOA.the_POAManager().activate();
-        
+
         String serverVersion = System.getProperty ("jacorb.test.server.version",
                                                    "cvs");
         String testID = System.getProperty("jacorb.test.id", "");
         String cs = System.getProperty ("jacorb.test.coverage", "false");
-        boolean coverage = cs.equals("true") || cs.equals("on");
+        boolean coverage = cs.equals("true") || cs.equals("on") || cs.equals("yes");
+        String outStr = System.getProperty("jacorb.test.outputfile.testname", "false");
+        boolean outputFileTestName =
+            (outStr.equals("true") || outStr.equals("on") || outStr.equals("yes"));
 
         Properties serverProperties = new Properties();
         if (serverOrbProperties != null)
             serverProperties.putAll (serverOrbProperties);
         serverProperties.put ("jacorb.implname", servantName);
-            
+
         JacORBLauncher launcher = JacORBLauncher.getLauncher (serverVersion,
                                                               coverage);
 
         if (coverage)
+        {
             serverProperties.put ("emma.coverage.out.file",
-                                  launcher.getJacorbHome()
-                                  + "/test/regression/output/" 
-                                  + testID + "/coverage-server.ec");
-        
+                                  launcher.getJacorbHome() +
+                                  "/test/regression/output/" +
+                                  (outputFileTestName == true ? "" : testID) +
+                                  "/coverage-server.ec");
+        }
+
         serverProcess = launcher.launch
         (
             TestUtils.testHome() + "/classes",
@@ -159,7 +165,7 @@ public class ClientServerSetup extends TestSetup {
             getTestServerMain(),
             new String[] { servantName }
         );
-        
+
         outListener = new StreamListener (serverProcess.getInputStream(),
                                           "OUT");
         errListener = new StreamListener (serverProcess.getErrorStream(),
@@ -170,7 +176,7 @@ public class ClientServerSetup extends TestSetup {
         if (ior == null)
         {
             String exc = errListener.getException(1000);
-            
+
             fail("could not access IOR. cause maybe: " + exc);
         }
         resolveServerObject(ior);
@@ -184,6 +190,8 @@ public class ClientServerSetup extends TestSetup {
     public void tearDown() throws Exception
     {
         serverProcess.destroy();
+        outListener.setDestroyed();
+        errListener.setDestroyed();
     }
 
     public String getTestServerMain()

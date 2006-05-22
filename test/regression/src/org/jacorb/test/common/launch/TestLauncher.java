@@ -55,6 +55,7 @@ public class TestLauncher
 {
     private static String[] args = null;
     private static PrintWriter outFile = null;
+    private static boolean outputFileTestName;
     private static Date testDate = new java.util.Date();
 
     private static DateFormat idFormatter =
@@ -65,7 +66,7 @@ public class TestLauncher
 
     private static class Listener extends Thread
     {
-        private BufferedReader in = null;
+       private BufferedReader in = null;
 
         public Listener (InputStream in)
         {
@@ -171,21 +172,43 @@ public class TestLauncher
 
     public static String getOutFilename()
     {
-        String dir = TestUtils.testHome() + "/output/" + getTestID();
-        File dirF = new File (dir);
-        //File class is platform independent, no need to convert
-        if (!dirF.exists()) dirF.mkdir();
-        return dir + "/report.txt";
+        String dir;
+
+        if ( ! outputFileTestName)
+        {
+            dir = TestUtils.testHome() + "/output/" + getTestID();
+            File dirF = new File (dir);
+            // File class is platform independent, no need to convert
+            if (!dirF.exists())
+            {
+                dirF.mkdir();
+            }
+            return dir + "/report.txt";
+        }
+        else
+        {
+            dir = TestUtils.testHome() + "/output/TEST-" + args[0] + ".txt";
+            return dir;
+        }
     }
 
     public static void main(String[] args) throws Exception
     {
         TestLauncher.args = args;
+
+        String filetestname = System.getProperty("jacorb.test.outputfile.testname", "false");
+        outputFileTestName =
+        (
+            filetestname.equals("true") ||
+            filetestname.equals("on")   ||
+            filetestname.equals("yes")
+        );
+
         outFile = new PrintWriter (new FileWriter (getOutFilename()));
         printTestHeader (outFile);
         printTestHeader (System.out);
 
-        String mainClass = "junit.textui.TestRunner";
+        String mainClass = "org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner";
         String testHome = TestUtils.osDependentPath(TestUtils.testHome());
 
         String classpath = testHome + "/classes/";
@@ -198,6 +221,7 @@ public class TestLauncher
         props.put("jacorb.test.coverage", getCoverage() ? "true" : "false");
         props.put("jacorb.test.client.version", getClientVersion());
         props.put("jacorb.test.server.version", getServerVersion());
+        props.put("EXCLUDE_SERVICES", System.getProperty("EXCLUDE_SERVICES", "false"));
         try
         {
             ObjectUtil.classForName("org.jacorb.test.orb.rmi.FixSunDelegateBug");
@@ -236,16 +260,15 @@ public class TestLauncher
 
         if (getCoverage())
         {
-            String coveragePath=new String(launcher.getJacorbHome()
-                    + "/test/regression/output/"
-                    + getTestID() + "/coverage-client.ec");
+            String coveragePath = new String
+            (
+                launcher.getJacorbHome() +
+                "/test/regression/output/" +
+                (outputFileTestName == true ? "" : getTestID()) +
+                "/coverage-client.ec"
+            );
             coveragePath = TestUtils.osDependentPath(coveragePath);
             props.put ("emma.coverage.out.file", coveragePath);
-        }
-        String printArgs = "";
-        for (int i=0; i<args.length; i++)
-        {
-            printArgs += args[i] + " ";
         }
 
         Process p = launcher.launch(classpath, props, mainClass, args);
