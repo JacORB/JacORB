@@ -1,7 +1,316 @@
+2006-05-19  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/dynany/DynValue.java: fix cvs id
+
+	* orb/dynany/DynAny.java, orb/dynany/DynAnyFactoryImpl.java,
+	orb/dynany/DynArray.java, orb/dynany/DynEnum.java,
+	orb/dynany/DynSequence.java, orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java, orb/dynany/DynValue.java: cosmetics
+
+	* orb/NVList.java, orb/dii/Request.java, orb/dsi/ServerRequest.java:
+	changed NVList.list from Vector to ArrayList
+
+	* orb/iiop/ClientIIOPConnection.java (connect): added debug information
+
+	* orb/dsi/ServerRequest.java, orb/dii/Request.java,
+	orb/diop/DIOPFactories.java, poa/Current.java: cosmetics
+
+	* idl/StringType.java, idl/TemplateTypeSpec.java, idl/parser.cup:
+	fix for scarab JAC#81: JacORB ignores the length parameter in
+	bounded string typedefs.
+
+	* idl/JacIDL.java: cosmetics
+
+	* naming/NamingContextImpl.java, naming/Name.java,
+	naming/NameServer.java: more logging enhancement.
+
+	replace ex.printStackTrace() with logger.error("", ex)
+
+	* orb/ORB.java: fix for bugzilla 689
+
+	introduced a new sublogger that is only used for printing out the
+	version number.  added a custom configuration in jacorb.properties
+	that sets the loggers level to INFO
+
+	http://www.jacorb.org/cgi-bin/bugzilla/show_bug.cgi?id=689
+
+2006-05-18  Alphonse Bendt  <bendt@prismtech.com>
+
+	* poa/RequestProcessor.java: changed RequestProcessor to use
+	exception.toString() instead of exception.getMessage as this shows
+	more information.
+
+	* orb/iiop/IIOPListener.java (createAddressProfile):
+	scarab JAC#75 Improve debug - add fixed port debug
+
+	* orb/ParsedIOR.java: better error checking for parsing invalid iors
+
+	related to scarab JAC#69
+
+	* idl/parser.cup:
+	http://www.jacorb.org/cgi-bin/bugzilla/show_bug.cgi?id=688
+
+	include "-diistub" in Programming Guide and help output of idl compiler
+	patch by thomas leineweber
+
+	* orb/Any.java, orb/CDRInputStream.java, orb/dynany/DynArray.java,
+	orb/dynany/DynEnum.java, orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java: fix for using an Object Reference inside
+	a DynAny
+
+	related to scarab JAC#62
+
+	* idl/ObjectTypeSpec.java, idl/VectorType.java: IDL compiler
+	generates code that requires objecthelper.java - that only exists
+	in rt.jar, doesn't exist in IBM J9 which therefore
+	chokes. According to http://www.omg.org/issues/issue1536.txt it
+	shouldn't be doing this.
+
+	related to scarab JAC#42
+
+	* naming/NamingContextImpl.java (init): set delegate during
+	initialization
+
+2006-05-17  Alphonse Bendt  <bendt@prismtech.com>
+
+	* naming/NameServer.java: fixed test
+
+	* poa/POA.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/iiop/IIOPFactories.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPProfile.java, orb/giop/ClientConnectionManager.java,
+	orb/giop/GIOPConnectionManager.java,
+	orb/giop/TransportManager.java,
+	orb/factory/SocketFactoryManager.java, orb/etf/FactoriesBase.java,
+	orb/dynany/DynAny.java, orb/dynany/DynArray.java,
+	orb/dynany/DynEnum.java, orb/dynany/DynFixed.java,
+	orb/dynany/DynStruct.java, orb/CDRInputStream.java,
+	orb/CDROutputStream.java, orb/ORB.java, orb/ReplyReceiver.java,
+	orb/Any.java, notification/util/GNUPatternWrapper.java,
+	notification/util/JakartaRegexpPatternWrapper.java,
+	notification/util/PatternWrapper.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java,
+	notification/impl/DefaultMessageFactory.java,
+	notification/filter/impl/DefaultETCLEvaluator.java,
+	notification/filter/etcl/DivOperator.java,
+	notification/filter/etcl/DomainNameShorthandNode.java,
+	notification/filter/etcl/ETCLFilterConstraint.java,
+	notification/filter/etcl/EventNameShorthandNode.java,
+	notification/filter/etcl/StaticTypeChecker.java,
+	notification/filter/etcl/TCLCleanUp.java,
+	notification/filter/etcl/TypeNameShorthandNode.java,
+	ir/WstringDef.java, ir/StringDef.java, ir/IdlWriter.java,
+	ir/FixedDef.java:
+
+	related to scarab JAC#35:
+
+	change
+
+	throw new <Exception> (OldException.getMessage())
+
+	to
+
+	throw new <Exception> (OldException.toString())
+
+	toString provides more than getMessage
+
+	* imr/util/ImRManager.java, imr/util/ImRModel.java:
+	related to scarab JAC#35:
+
+	improve logging: do not log to STDOUT. use logger instead error
+	handling: throw INTERNAL if exception occurs that "should not
+	happen" cosmetics: indentation, removed unused code, etc.
+
+	* idl/ReplyHandler.java: related to scarab JAC#35:
+
+	change
+
+	throw new <Exception> (OldException.getMessage())
+
+	to
+
+	throw new <Exception> (OldException.toString())
+
+	toString provides more than getMessage
+
+	* ir/RepositoryImpl.java, idl/parser.cup, idl/parser.java,
+	idl/sym.java, orb/ORB.java, orb/BasicAdapter.java, orb/Any.java,
+	ir/ConstantDef.java, ir/Contained.java, ir/FixedDef.java,
+	ir/IdlWriter.java, ir/InterfaceDef.java, ir/QueryIR.java,
+	ir/StringDef.java, ir/WstringDef.java, idl/TypeSpec.java,
+	idl/ConstExprEvaluator.java: related to scarab JAC#35:
+
+	improve logging: do not log to STDOUT. use logger instead error
+	handling: throw INTERNAL if exception occurs that "should not
+	happen" cosmetics: indentation, removed unused code, etc.
+
+	* idl/javamapping/JavaMappingGeneratingVisitor.java:
+	cosmetics: remove debug code
+
+	* orb/giop/BiDirConnectionInitializer.java,
+	orb/iiop/IIOPProfile.java,
+	orb/portableInterceptor/ServerInterceptorIterator.java,
+	orb/rmi/PortableRemoteObjectDelegateImpl.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java: related to
+	scarab JAC#35:
+
+	improve logging: do not log to STDOUT. use logger instead error
+	handling: throw INTERNAL if exception occurs that "should not
+	happen" cosmetics: indentation, removed unused code, etc.
+
+	* orb/dynany/DynSequence.java: replaced Vector with List
+
+	* orb/dynany/DynAny.java, orb/dynany/DynAnyFactoryImpl.java,
+	orb/dynany/DynArray.java, orb/dynany/DynEnum.java,
+	orb/dynany/DynFixed.java, orb/dynany/DynSequence.java,
+	orb/dynany/DynStruct.java, orb/dynany/DynUnion.java,
+	orb/dynany/DynValue.java: related to scarab JAC#35:
+
+	improve logging: do not log to STDOUT. use logger instead error
+	handling: throw INTERNAL if exception occurs that "should not
+	happen" cosmetics: indentation, removed unused code, etc.
+
+2006-05-16  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/InterfaceBody.java, idl/ScopedName.java, orb/Any.java,
+	orb/TypeCode.java: some changes related to scarab JAC#34 and
+	JAC#33: Modification of equal() operation in TypeCode Modification
+	of equal() operation on Any plus some extra checks for error
+	conditions
+
+	* orb/dynany/DynAnyFactoryImpl.java, orb/dynany/DynValue.java:
+	scarab JAC#32: Add DynamicAny DynValue idl, dummy impl class and
+	factory.
+
+	* idl/build.xml: revert last checkin as 11a isn't backward
+	compatible. instead some ant magic that check if parser really
+	needs to regenerated
+
+2006-05-16  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/build.xml: Upgrade cup to 11a from
+	http://www2.cs.tum.edu/projects/cup/
+
+2006-05-16  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/IdlSymbol.java (getFullName): added javadoc
+
+	* idl/SequenceType.java (printWriteStatement): removed unused variable
+
+	* idl/IdlSymbol.java (getFullName): this is a fix for bugzilla
+	#686. correct boolean logic
+
+	* idl/ValueDecl.java (printClass): (printFactory):
+	(printHelper):
+	(printHolder): IDL Compilation - Value Types
+
+	With a forward declared valuetype which has a factory the forceOverwrite
+	option (even if set default) will cause the Valuetype generation to be
+	incorrect e.g. in the helper the factory methods won't exist.
+
+	* orb/ORB.java: cosmetics
+
+	* orb/ORB.java (create_operation_list): bugfix. index off by one error
+
+2006-05-15  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/AliasTypeSpec.java, idl/ConstrTypeSpec.java,
+	idl/FixedPointType.java, idl/IdlSymbol.java, idl/Interface.java,
+	idl/ScopedName.java, idl/SequenceType.java, idl/ValueAbsDecl.java:
+	test and fix for JAC#307:
+
+	The CORBA valuetypes StringValue and WStringValue are defined in
+	the file orb.idl. Now when we used these value types in other IDL
+	files, the generated output is 'omg.org.java.lang.String' which
+	causes compilation errors.
+
+	* imr/ImplementationRepositoryImpl.java: fix for RT#1312: Problems
+	with locate forward request
+
+	When creating the replyoutputstream need to denote whether we got a
+	request or locaterequest. Modified ImplementationRepositoryImpl.
+
+	* ir/gui/IRBrowser.java,
+	ir/gui/typesystem/remote/RemoteTypeSystem.java: RT#1296:
+	InterfaceRepository
+
+	run out of box, error checking in browser, doc update, added irbrowser
+	script.
+
+	* orb/CDROutputStream.java: related to RT#1278: fix orb determination
+
+	* ir/RepositoryID.java: RT#1278: better error handling in RepositoryID
+
+	* orb/util/PingObject.java: changed cmd line option format for pingo
+
+	* orb/giop/ClientConnection.java: RT#1229: extra debug information
+	when codeset negotiation fails
+
+	* orb/giop/CodeSet.java, orb/util/PrintIOR.java: RT#1056: Codeset issue
+
+	the problem occurs due to the fact that System.getProperties returns a
+	different value depending on *both* the value of the native encoding
+	(e.g. LC_ALL=UTF8) and the operating system.
+
+	For instance for Linux it may return ISO-8859-1 while for HP it returns
+	8859_1. This may be shown by running CodeSet.main(). We are going
+	to modify how it retrieves the encoding name so it uses the canonical
+	name (ISO8859_1 on linux, hp and solaris).
+
+	Modified:
+	CodeSet.java to use canonical name
+	PrintIOR.java to output encoding details if in debug mode and tidied
+	output format up a bit
+
+	* orb/build.xml, orb/diop/DIOPFactories.java,
+	orb/giop/TransportManager.java: RT#1022: The JacORB dior utility
+	should be able to decode DIOP IORs. This is a TAO protocol which
+	is essentially GIOP/UDP
+
+	* orb/ParsedIOR.java: code cosmetics
+
+2006-05-14  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/build.xml: added target to generate idl parser
+
+2006-05-13  Gerald Brose  <gerald.brose@acm.org>
+
+	JacORB Version 2.2.4 released.
+	
+2006-05-12  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDRInputStream.java, orb/DataInputStream.java,
+	orb/DataOutputStream.java, orb/Delegate.java, orb/ORB.java,
+	orb/dsi/ServerRequest.java, orb/CDROutputStream.java,
+	orb/giop/MessageOutputStream.java,
+	orb/giop/ReplyOutputStream.java,
+	orb/giop/RequestOutputStream.java,
+	orb/giop/ServiceContextTransportingOutputStream.java: changes
+	related to scarab RT#992: cannot unmarshal embedded valuetypes
+
+	enhanced handling of factories and add
+	implementations for DataOutput/InputStreams.
+
+	* idl/parser.cup, idl/parser.java (init): not all static variables
+	were reset properly. this caused the test suite to fail as some
+	tests had side-effects on others.
+
+	scarab ticket: JAC#289 Add thread reset to parser.init. Allows
+	JacIDL to start from a clean (rather than having leftovers from
+	previous runs).  src/org/jacorb/idl/parser.java
+	src/org/jacorb/idl/parser.cup
+
 2006-05-11  Alphonse Bendt  <bendt@prismtech.com>
 
-	* idl/Interface.java (printInterface, printOperations, unwindTypedefs):
-	another patch related to #643 from thomas leineweber. here is his comment:
+	* idl/Interface.java (printInterface, printOperations,
+	unwindTypedefs): another patch related to #643 from thomas
+	leineweber. here is his comment:
 
 	When AMI is used, the AMI-Interface- and -Operations-Class both inherit
 	from the special org.omg.Messaging.ReplyHandler. The IDL-compiler
