@@ -113,20 +113,20 @@ public final class Delegate
 
     /**
      * 03-09-04: 1.5.2.2
-     * 
+     *
      * boolean threadlocal to ensure that
      * after servant_preinvoke has returned null the
      * next call to is_local will return false
-     * so that the stub will choose the non-optimized path 
+     * so that the stub will choose the non-optimized path
      */
-    private final ThreadLocal ignoreNextCallToIsLocal = new ThreadLocal() 
+    private final ThreadLocal ignoreNextCallToIsLocal = new ThreadLocal()
     {
         protected java.lang.Object initialValue()
         {
             return Boolean.FALSE;
         }
     };
-    
+
     /**
      * A general note on the synchronization concept
      *
@@ -196,9 +196,9 @@ public final class Delegate
         throws org.apache.avalon.framework.configuration.ConfigurationException
     {
         this.configuration = config;
-        logger = 
+        logger =
             ((Configuration)config).getNamedLogger("jacorb.orb.delegate");
-        useIMR = 
+        useIMR =
             config.getAttribute("jacorb.use_imr","off").equals("on");
         locateOnBind =
             config.getAttribute("jacorb.locate_on_bind","off").equals("on");
@@ -483,7 +483,7 @@ public final class Delegate
         try
         {
             release(null);
-        } 
+        }
         finally
         {
             super.finalize();
@@ -504,8 +504,8 @@ public final class Delegate
      * Policy is determined first by obtaining the effective override
      * for the PolicyType as returned by get_client_policy. The
      * effective override is then compared with the Policy as
-     * specified in the IOR.  
-     * <p> 
+     * specified in the IOR.
+     * <p>
      * The effective Policy is determined by reconciling the effective
      * override and the IOR-specified Policy. If the two policies
      * cannot be reconciled, the standard system exception INV_POLICY
@@ -545,7 +545,7 @@ public final class Delegate
             Integer key = new Integer(policy_type);
             result = (Policy)policy_overrides.get(key);
         }
-        
+
         if ( result == null )
         {
             // no override at the object level for this type, now
@@ -561,10 +561,10 @@ public final class Delegate
                     result = orbPolicies[0];
             }
         }
-        
+
         return result;
     }
-    
+
 
     public org.omg.CORBA.Policy get_policy( org.omg.CORBA.Object self,
                                             int policy_type,
@@ -702,7 +702,7 @@ public final class Delegate
                 servant_postinvoke (self, so);
             }
         }
-        
+
         org.omg.CORBA.portable.OutputStream os;
         org.omg.CORBA.portable.InputStream is;
 
@@ -968,7 +968,7 @@ public final class Delegate
 
             return is;
         }
-        
+
         return null;
     }
 
@@ -1158,7 +1158,9 @@ public final class Delegate
         ParsedIOR pior = getParsedIOR();
 
         if ( pior.getTypeId().equals( logical_type_id ) )
+        {
             return true;
+        }
 
         /*   The Ids in ObjectImpl will at least contain the type id
              found in the object reference itself.
@@ -1202,7 +1204,7 @@ public final class Delegate
         }
         // The check below avoids trying to load a stub for CORBA.Object.
         // (It would be faster to check that ids.length > 1, but Sun's
-        // CosNaming JNDI provider calls _is_a() on some weird ObjectImpl 
+        // CosNaming JNDI provider calls _is_a() on some weird ObjectImpl
         // instances whose _ids() method returns an array of length two,
         // containing two Strings equal to "IDL:omg.org/CORBA/Object:1.0".)
         if (!ids[0].equals("IDL:omg.org/CORBA/Object:1.0"))
@@ -1212,34 +1214,34 @@ public final class Delegate
             {
                 // Retrieve the local stub for the object in question. Then call the _ids method
                 // and see if any match the logical_type_id otherwise fall back to remote.
-                
+
                 String classname = RepositoryID.className( ids[0], "_Stub", null );
-                
+
                 int lastDot = classname.lastIndexOf( '.' );
                 StringBuffer scn = new StringBuffer( classname.substring( 0, lastDot + 1) );
                 scn.append( '_' );
                 scn.append( classname.substring( lastDot + 1 ) );
-                
+
                 // This will only work if there is a correspondence between the Java class
                 // name and the Repository ID. If prefixes have been using then this mapping
                 // may have been lost.
-                
+
                 // First, search with stub name
                 // if not found, try with the 'org.omg.stub' prefix to support package
                 // with javax prefix
                 Class stub=null;
-                try 
+                try
                 {
                     stub = ObjectUtil.classForName( scn.toString());
-                } 
-                catch (ClassNotFoundException e) 
+                }
+                catch (ClassNotFoundException e)
                 {
                     stub = ObjectUtil.classForName("org.omg.stub."+scn.toString());
                 }
-                
+
                 Method idm = stub.getMethod ( "_ids", (Class[]) null );
                 String newids[] = (String[] )idm.invoke( stub.newInstance(), (java.lang.Object[]) null );
-                
+
                 for ( int i = 0; i < newids.length ; i++ )
                 {
                     if (newids[i].equals( logical_type_id ) )
@@ -1255,10 +1257,10 @@ public final class Delegate
                     logger.debug("trying is_a remotely");
             }
         }
-        
+
         org.omg.CORBA.portable.OutputStream os;
         org.omg.CORBA.portable.InputStream is;
-        
+
         while (true)
         {
             try
@@ -1313,12 +1315,12 @@ public final class Delegate
             ignoreNextCallToIsLocal.set(Boolean.FALSE);
             return false;
         }
-        
+
         if (orb.hasRequestInterceptors())
         {
             return false;
         }
-        
+
         return is_really_local(self);
     }
 
@@ -1366,10 +1368,10 @@ public final class Delegate
                 servant_postinvoke(self, so);
             }
         }
-        
+
         org.omg.CORBA.portable.OutputStream os;
         org.omg.CORBA.portable.InputStream is;
-        
+
         while (true)
         {
             try
@@ -1422,7 +1424,7 @@ public final class Delegate
                 logger.debug("Delegate released!");
             }
         }
-      
+
     }
 
     /**
@@ -1512,7 +1514,7 @@ public final class Delegate
                                          requestEndTime,
                                          replyEndTime,
                                          p.get_object_key(), p.getEffectiveProfile().version().minor );
-            
+
             try{
             // TODO
                 ros.configure(configuration);
@@ -1520,7 +1522,7 @@ public final class Delegate
             {
                 throw new RuntimeException();
             }
-            
+
             // CodeSets are only negotiated once per connection,
             // not for each individual request
             // (CORBA 3.0, 13.10.2.6, second paragraph).
@@ -1695,9 +1697,9 @@ public final class Delegate
                     logger.warn("Expected " + expectedType +
                                 " got " + so.servant.getClass() );
                 }
-                
+
                 ignoreNextCallToIsLocal.set(Boolean.TRUE);
-                
+
                 poa.removeLocalRequest();
                 return null;
             }
