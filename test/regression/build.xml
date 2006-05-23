@@ -169,8 +169,6 @@
 
          <jvmarg value="-Djacorb.test.home=${testdir}" />
          <jvmarg value="-Djacorb.home=${jacorb.home}" />
-         <jvmarg value="-Xbootclasspath/p:${test.cp}"/>
-         <jvmarg value="-Djava.class.path=${classpath}"/>
          <jvmarg value="-Djacorb.test.outputfile.testname=${jacorb.test.outputfile.testname}"/>
          <jvmarg value="-Djacorb.test.coverage=${jacorb.test.coverage}"/>
          <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />

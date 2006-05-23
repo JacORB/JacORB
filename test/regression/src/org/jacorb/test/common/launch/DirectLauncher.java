@@ -54,6 +54,7 @@ public class DirectLauncher extends JacORBLauncher
         String javaHome = System.getProperty("java.home");
         String javaCommand = javaHome + "/bin/java";
         cmdList.add (javaCommand);
+        cmdList.add ("-Xbootclasspath/p:" + fullClasspath);
         cmdList.add ("-classpath");
         cmdList.add (fullClasspath);
         cmdList.add ("-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB");
