@@ -38,13 +38,13 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
  * Test to reveal bug reported by Matthew Leahy
  * (news://news.gmane.org:119/3FBE2F7D.6090503@ll.mit.edu) Under high load Messages were delivered
  * multiple times.
- * 
+ *
  * @author Alphonse Bendt
  */
 public class MultipleDeliveryBugTest extends NotifyServerTestCase
 {
     private EventChannel objectUnderTest_;
-    
+
     public MultipleDeliveryBugTest(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
@@ -57,7 +57,7 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
 
     public void testMultipleSendUnderHighLoad() throws Exception
     {
-        int testSize = 200;
+        int testSize = 100;
 
         StructuredEvent[] events = new StructuredEvent[testSize];
 
@@ -68,7 +68,7 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
 
         StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB(), testSize);
         StructuredPushSender _sender = new StructuredPushSender(getClientORB());
-        
+
         _receiver.setTimeOut(testSize * 100);
 
         _sender.connect(objectUnderTest_, false);
@@ -82,12 +82,12 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
             any.insert_long(x);
             events[x] = new StructuredEvent(header, new Property[0], any);
         }
-        
+
         _sender.pushEvents(events);
 
         _receiver.join();
 
-        assertTrue(_receiver.isEventHandled());
+        assertTrue(_receiver.toString(), _receiver.isEventHandled());
     }
 
     public static Test suite() throws Exception
