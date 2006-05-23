@@ -67,10 +67,10 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Abstract Baseclass for Adminobjects.
- * 
+ *
  * @jmx.mbean
- * @jboss.xmbean 
- * 
+ * @jboss.xmbean
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -90,7 +90,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
                 String supportedInterface)
         {
             super();
-            
+
             admin_ = admin;
             container_ = container;
             supportedInterface_ = supportedInterface;
@@ -187,7 +187,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
             SubscriptionManager subscriptionManager)
     {
         parentMBean_ = channel.getChannelMBean();
-        
+
         container_ = channel.getContainer();
 
         id_ = new Integer(channel.getAdminID());
@@ -208,7 +208,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         offerManager_ = offerManager;
 
         subscriptionManager_ = subscriptionManager;
-        
+
         servantLifecycle_ = new ServantLifecyleControl(this, config);
     }
 
@@ -281,7 +281,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     {
         return (EventChannel) eventChannelReference_.get();
     }
-    
+
     public final int MyID()
     {
         return getID().intValue();
@@ -291,7 +291,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     {
         return channelID_;
     }
-    
+
     public Property[] get_qos()
     {
         return qosSettings_.get_qos();
@@ -299,10 +299,13 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     public void set_qos(Property[] props) throws UnsupportedQoS
     {
+        if (logger_.isDebugEnabled())
+        {
+            logger_.debug("AbstractAdmin.set_qos: " + qosSettings_);
+        }
         qosSettings_.validate_qos(props, new NamedPropertyRangeSeqHolder());
 
         qosSettings_.set_qos(props);
-        logger_.debug("set_qos: " + qosSettings_);
     }
 
     public void validate_qos(Property[] props, NamedPropertyRangeSeqHolder propertyRangeSeqHolder)
@@ -319,9 +322,9 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
         checkDestroyStatus();
 
         container_.dispose();
-        
+
         List list = container_.getComponentInstancesOfType(IContainer.class);
-        
+
         for (Iterator i = list.iterator(); i.hasNext();)
         {
             IContainer element = (IContainer) i.next();
@@ -360,7 +363,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     {
         return servantLifecycle_.activate();
     }
-    
+
     public final void deactivate()
     {
         servantLifecycle_.deactivate();
@@ -368,7 +371,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     /**
      * @jmx.managed-attribute description="TODO"
-     *                        access = "read-only" 
+     *                        access = "read-only"
      *                        currencyTimeLimit = "2147483647"
      */
     public Integer getID()
@@ -390,7 +393,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
             while (_i.hasNext())
             {
-                final ProxyEventListener _listener = 
+                final ProxyEventListener _listener =
                     (ProxyEventListener) _i.next();
                 _listener.actionProxyCreationRequest(_event);
             }
@@ -431,14 +434,14 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
     /**
      * @jmx.managed-attribute description="TODO"
-     *                        access = "read-only" 
+     *                        access = "read-only"
      *                        currencyTimeLimit = "2147483647"
      */
     public String getInterFilterGroupOperator()
     {
         return (filterGroupOperator_.value() == InterFilterGroupOperator._AND_OP) ? "AND_OP" : "OR_OP";
     }
-    
+
     public boolean hasInterFilterGroupOperatorOR()
     {
         return (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP);
@@ -582,7 +585,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
             fireProxyCreated(proxy);
         }
 
-        
+
         // it removes proxy from map again.
         proxy.registerDisposable(new Disposable()
         {
@@ -665,7 +668,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
         return _containerForProxy;
     }
-    
+
     public final String getJMXObjectName()
     {
         return parentMBean_ + ", admin=" + getMBeanName();
@@ -674,20 +677,20 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
     public final String getMBeanName()
     {
         return getMBeanType() + "-" + getID();
-    } 
-    
+    }
+
     abstract protected String getMBeanType();
-    
+
     public String[] getJMXNotificationTypes()
     {
         return new String[0];
     }
-    
+
     public final void setJMXCallback(JMXManageable.JMXCallback callback)
     {
         jmxCallback_ = callback;
     }
-    
+
     protected final void sendNotification(String type, String message)
     {
         if (jmxCallback_ != null)

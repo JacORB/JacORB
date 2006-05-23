@@ -44,17 +44,17 @@ import org.omg.TimeBase.UtcTHelper;
 public class StopTimeIntegrationTest extends NotifyServerTestCase
 {
     EventChannel eventChannel_;
-    
+
     StructuredEvent structuredEvent_;
-    
+
     public StopTimeIntegrationTest(String name, NotifyServerTestSetup setup)
     {
         super(name, setup);
     }
-    
+
     public void setUpTest() throws Exception
     {
-        eventChannel_ = getDefaultChannel();
+       eventChannel_ = getDefaultChannel();
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -74,19 +74,19 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
     public void testEventWithStartTimeAfterStopTimeIsNotDelivered() throws Exception
     {
         // StartTime +1000ms, StopTime +500ms
-        sendEvent(1000, 500, false);   
+        sendEvent(eventChannel_, 1000, 500, false);
     }
-    
+
     public void testEventWithStopTimeAfterStartTimeIsDelivered() throws Exception
     {
         // StartTime +1000ms, StopTime +2000ms
-        sendEvent(1000, 2000, true);
+        sendEvent(eventChannel_, 1000, 2000, true);
     }
-    
+
     public void testEventWithStopTimeInThePastIsNotDelivered() throws Exception
     {
         // StartTime now, StopTime in the Past
-        sendEvent(0, -1000, false);
+        sendEvent(eventChannel_, 0, -1000, false);
     }
 
     public void testDisable_StopTimeSupported() throws Exception
@@ -94,16 +94,17 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
         Any falseAny = getClientORB().create_any();
         falseAny.insert_boolean(false);
 
-        eventChannel_ = getEventChannelFactory().create_channel(new Property[] { new Property(StopTimeSupported.value, falseAny) }, new Property[0], new IntHolder());
-        
-        sendEvent(1000, 500, true);
+        Property[] props = new Property[] { new Property(StopTimeSupported.value, falseAny) };
+        EventChannel channel = getEventChannelFactory().create_channel(props, new Property[0], new IntHolder());
+
+        sendEvent(channel, 1000, 500, true);
     }
 
-    private void sendEvent(long startOffset, long stopOffset, boolean expect) throws Exception
+    private void sendEvent(EventChannel channel, long startDelay, long stopOffset, boolean expect) throws Exception
     {
         structuredEvent_.header.variable_header = new Property[2];
 
-        Date _time = new Date(System.currentTimeMillis() + startOffset);
+        Date _time = new Date(System.currentTimeMillis() + startDelay);
 
         Any _any = getClientORB().create_any();
         UtcTHelper.insert(_any, Time.corbaTime(_time));
@@ -119,17 +120,17 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
 
         StructuredPushSender _sender = new StructuredPushSender(getClientORB());
         _sender.setStructuredEvent(new StructuredEvent[] {structuredEvent_});
-        
+
         StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
 
-        _sender.connect(eventChannel_, false);
+        _sender.connect(channel, false);
 
-        _receiver.connect(eventChannel_, false);
+        _receiver.connect(channel, false);
 
         new Thread(_receiver).start();
         new Thread(_sender).start();
 
-        Thread.sleep(startOffset + 1000);
+        Thread.sleep(startDelay + 1000);
 
         if (expect)
         {

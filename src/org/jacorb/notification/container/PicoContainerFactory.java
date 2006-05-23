@@ -44,7 +44,10 @@ import org.picocontainer.defaults.CachingComponentAdapterFactory;
 import org.picocontainer.defaults.ComponentAdapterFactory;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapterFactory;
+import org.picocontainer.defaults.DefaultLifecycleStrategy;
 import org.picocontainer.defaults.DefaultPicoContainer;
+import org.picocontainer.monitors.ConsoleComponentMonitor;
+import org.picocontainer.monitors.DefaultComponentMonitor;
 
 /**
  * @author Alphonse Bendt
@@ -107,25 +110,25 @@ public class PicoContainerFactory
         // PoolingEvaluationContextFactory depends on DefaultEvaluationContextFactory.
         // however both implement the same interface users depend on which causes an ambiguity.
         // therefore DefaultEvaluationContextFactory should be only visible to PoolingEvaluationContextFactory.
-        final ConstructorInjectionComponentAdapter _serviceCA = 
+        final ConstructorInjectionComponentAdapter _serviceCA =
             new ConstructorInjectionComponentAdapter(DefaultEvaluationContextFactory.class, DefaultEvaluationContextFactory.class);
-        
-        final ConstructorInjectionComponentAdapter _poolingServiceCA = 
+
+        final ConstructorInjectionComponentAdapter _poolingServiceCA =
             new ConstructorInjectionComponentAdapter(EvaluationContextFactory.class, PoolingEvaluationContextFactory.class, new Parameter[] {BasicComponentParameter.BASIC_DEFAULT, new BasicComponentParameter(DefaultEvaluationContextFactory.class)});
-        
-        final LocalParameterComponentAdapter _localParamCA = 
+
+        final LocalParameterComponentAdapter _localParamCA =
             new LocalParameterComponentAdapter(_poolingServiceCA, new ComponentAdapter[] {_serviceCA});
 
-        final ComponentAdapter _cachingCA = 
+        final ComponentAdapter _cachingCA =
             new CachingComponentAdapter(_localParamCA);
-        
+
         container.registerComponent(_cachingCA);
     }
 
     private static void registerORBServices(final MutablePicoContainer container)
     {
         // register services that need to be looked up via orb using custom componentadapter
-        
+
         // POA
         container.registerComponent(new CachingComponentAdapter(new BiDirGiopPOAComponentAdapter(new POAComponentAdapter())));
 
@@ -140,7 +143,7 @@ public class PicoContainerFactory
 
         // IFR
         container.registerComponent(new CachingComponentAdapter(new RepositoryComponentAdapter()));
-        
+
         // CurrentTimeUtil
         container.registerComponent(new CurrentTimeUtilComponentAdapter());
     }
@@ -149,14 +152,14 @@ public class PicoContainerFactory
     {
         final MutablePicoContainer _container;
         _container = parent.makeChildContainer();
-        
+
         logger.debug("Created Container with Parent");
         return _container;
     }
 
     private static MutablePicoContainer createContainer(final Logger logger)
     {
-        final ConstructorInjectionComponentAdapterFactory _nonCachingCAFactory = new ConstructorInjectionComponentAdapterFactory();
+        final ConstructorInjectionComponentAdapterFactory _nonCachingCAFactory = new ConstructorInjectionComponentAdapterFactory(); //false, new ConsoleComponentMonitor(System.out));
         final ComponentAdapterFactory _cachingCAFactory = new CachingComponentAdapterFactory(_nonCachingCAFactory);
         final MutablePicoContainer _container = new DefaultPicoContainer(_cachingCAFactory);
 
@@ -175,7 +178,7 @@ public class PicoContainerFactory
 
     /**
      * helper method for easier debugging of unresolved dependencies.
-     * 
+     *
      * do NOT delete even if method is not referenced.
      */
     public static void dumpDependencies(PicoContainer container, Class clazzToBeCreated)

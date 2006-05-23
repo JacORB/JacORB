@@ -21,7 +21,6 @@ package org.jacorb.notification;
  */
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.jacorb.notification.container.CORBAObjectComponentAdapter;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.servant.AbstractAdmin;
 import org.jacorb.notification.servant.AbstractSupplierAdmin;
@@ -37,9 +36,7 @@ import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdmin;
 import org.omg.CosTypedNotifyChannelAdmin.TypedConsumerAdminHelper;
-import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannel;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactory;
-import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelPOATie;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin;
@@ -67,7 +64,7 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
         private TypedEventChannelAdapter(MutablePicoContainer container, String channelMBean, int adminID)
         {
             super();
-            
+
             adminID_ = adminID;
             childContainer_ = container;
             channelMBean_ = channelMBean;
@@ -92,7 +89,7 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
         {
             return childContainer_;
         }
-        
+
         public String getChannelMBean()
         {
             return channelMBean_;
@@ -110,10 +107,6 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
             FilterFactory filterFactory, TypedEventChannelFactory factoryRef)
     {
         super(factory, orb, poa, config, filterFactory);
-
-        TypedEventChannel _thisRef = TypedEventChannelHelper.narrow(activate());
-
-        container_.registerComponent(new CORBAObjectComponentAdapter(TypedEventChannel.class, _thisRef));
 
         typedEventChannelFactory_ = factoryRef;
     }
@@ -188,24 +181,24 @@ public class TypedEventChannelImpl extends AbstractEventChannel implements
         final MutablePicoContainer _container = newContainerForAdmin(id);
 
         _container.registerComponentImplementation(AbstractAdmin.class, TypedConsumerAdminImpl.class);
-        
+
         return (AbstractAdmin) _container.getComponentInstanceOfType(AbstractAdmin.class);
     }
-    
+
     private MutablePicoContainer newContainerForAdmin(final int id)
     {
         final MutablePicoContainer _container = PicoContainerFactory.createChildContainer(container_);
-        
+
         _container.registerComponentInstance(new TypedEventChannelAdapter(_container, getJMXObjectName(), id));
-       
+
         return _container;
     }
-    
+
     public String getMBeanType()
     {
         return "TypedEventChannel";
     }
-    
+
     /**
      * @jmx.managed-attribute   access = "read-only"
      *                          currencyTimeLimit = "2147483647"

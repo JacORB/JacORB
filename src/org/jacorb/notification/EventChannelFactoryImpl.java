@@ -21,6 +21,8 @@ package org.jacorb.notification;
  *
  */
 
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.container.CORBAObjectComponentAdapter;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -46,7 +48,7 @@ import org.picocontainer.MutablePicoContainer;
  * <code>EventChannelFactory</code>, and another routine which, given the unique identifier of an
  * event channel created by a target <code>EventChannelFactory</code> instance, returns the object
  * reference of that event channel. <br>
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -95,7 +97,7 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
      * operation assigns to this new event channel a numeric identifier, which is unique among all
      * event channels created by the target object. This numeric identifier is returned as an output
      * parameter.
-     * 
+     *
      * @param qualitiyOfServiceProperties
      *            a list of name-value pairs, which specify the initial QoS property settings for
      *            the new channel
@@ -148,11 +150,20 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
         return channel;
     }
 
+    protected void channelCreated(AbstractEventChannel channel)
+    {
+        if (config_.getAttributeAsBoolean(Attributes.LAZY_DEFAULT_ADMIN_INIT, Default.DEFAULT_LAZY_DEFAULT_ADMIN_INIT))
+        {
+            ((EventChannelImpl)channel).default_consumer_admin();
+            ((EventChannelImpl)channel).default_supplier_admin();
+        }
+    }
+
     /**
      * The <code>get_all_channels</code> operation returns a sequence of all of the unique numeric
      * identifiers corresponding to Notification Service event channels, which have been created by
      * the target object.
-     * 
+     *
      * @return an <code>int[]</code> value
      */
     public int[] get_all_channels()
@@ -167,7 +178,7 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
      * identifier, the <code>ChannelNotFound</code> exception is raised. Otherwise, the operation
      * returns the object reference of the Notification Service event channel corresponding to the
      * input identifier.
-     * 
+     *
      * @param id
      *            an <code>int</code> the unique identifier of a Notification Service event
      *            channel

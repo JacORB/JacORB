@@ -21,11 +21,7 @@ package org.jacorb.notification;
  */
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.jacorb.notification.conf.Attributes;
-import org.jacorb.notification.conf.Default;
-import org.jacorb.notification.container.CORBAObjectComponentAdapter;
 import org.jacorb.notification.container.PicoContainerFactory;
-import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.servant.AbstractAdmin;
 import org.jacorb.notification.servant.AbstractSupplierAdmin;
 import org.jacorb.notification.servant.ConsumerAdminImpl;
@@ -52,9 +48,9 @@ import org.picocontainer.MutablePicoContainer;
 /**
  * @jmx.mbean name="EventChannelMBean" description="Control an EventChannel"
  * extends = "AbstractEventChannelMBean"
- * 
+ *
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -62,7 +58,7 @@ import org.picocontainer.MutablePicoContainer;
 public class EventChannelImpl extends AbstractEventChannel implements EventChannelOperations, EventChannelImplMBean
 {
     private final EventChannelFactory eventChannelFactory_;
-    
+
     private final EventChannel thisRef_;
 
     ////////////////////////////////////////
@@ -75,22 +71,6 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
         eventChannelFactory_ = factoryRef;
 
         thisRef_ = EventChannelHelper.narrow(activate());
-
-        container_.registerComponent(new CORBAObjectComponentAdapter(EventChannel.class, thisRef_));
-
-        if (config.getAttributeAsBoolean(Attributes.LAZY_DEFAULT_ADMIN_INIT, Default.DEFAULT_LAZY_DEFAULT_ADMIN_INIT))
-        {
-            default_consumer_admin();
-            default_supplier_admin();
-        }
-        
-        registerDisposable(new Disposable()
-        {
-            public void dispose()
-            {
-                container_.unregisterComponent(EventChannel.class);
-            }
-        });
     }
 
     public Servant newServant()
@@ -119,7 +99,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
     private MutablePicoContainer newContainerForAdmin(final int id)
     {
         final MutablePicoContainer _adminContainer = PicoContainerFactory.createChildContainer(container_);
-        
+
         final IEventChannel _channelAdapter = new IEventChannel()
         {
             public int getAdminID()
@@ -129,7 +109,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
 
             public EventChannel getEventChannel()
             {
-                return (EventChannel) _adminContainer.getComponentInstanceOfType(EventChannel.class);
+                return thisRef_;
             }
 
             public int getChannelID()
@@ -141,7 +121,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
             {
                 return _adminContainer;
             }
-            
+
             public String getChannelMBean()
             {
                 return getJMXObjectName();
@@ -154,11 +134,11 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
                 container_.removeChildContainer(_adminContainer);
             }
         };
-        
+
         _adminContainer.registerComponentInstance(IEventChannel.class, _channelAdapter);
         return _adminContainer;
     }
-    
+
     /**
      * The MyFactory attribute is a readonly attribute that maintains the object reference of the
      * event channel factory, which created a given Notification Service EventChannel instance.
@@ -259,7 +239,7 @@ public class EventChannelImpl extends AbstractEventChannel implements EventChann
     {
         return "EventChannel";
     }
-    
+
     /**
      * @jmx.managed-attribute   access = "read-only"
      *                          currencyTimeLimit = "2147483647"

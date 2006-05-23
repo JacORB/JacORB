@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +128,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
     private final POA eventChannelFactoryPOA_;
 
     private final byte[] oid_;
-    
+
     private final ChannelManager channelManager_ = new ChannelManager();
 
     private final AtomicInteger eventChannelIDPool_ = new AtomicInteger(0);
@@ -151,12 +152,12 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
                 }
             });
         }
-        
+
         disposableManager_.addDisposable(new Disposable() {
             public void dispose()
             {
                 final POA _poa = (POA) container_.getComponentInstanceOfType(POA.class);
-                
+
                 _poa.destroy(true, false);
             }
         });
@@ -289,11 +290,11 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         }
 
         deactivate();
-        
+
         channelManager_.dispose();
-        
+
         container_.dispose();
-        
+
         disposableManager_.dispose();
     }
 
@@ -345,12 +346,19 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         _eventChannelServant.set_qos(_qosSettings.toArray());
         _eventChannelServant.set_admin(_adminSettings.toArray());
 
+        channelCreated(_eventChannelServant);
+
         if (logger_.isDebugEnabled())
         {
             logger_.debug("created channel_servant id=" + id.value);
         }
 
         return _eventChannelServant;
+    }
+
+    protected void channelCreated(AbstractEventChannel channel)
+    {
+        // empty
     }
 
     private int createChannelIdentifier()
@@ -549,7 +557,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         {
             POA _poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             _poa.the_POAManager().activate();
-            
+
             Thread _orbThread = new Thread(new Runnable()
             {
                 public void run()
@@ -563,10 +571,10 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             _orbThread.setDaemon(false);
 
             _orbThread.start();
-            
+
             _factory.disposableManager_.addDisposable(new Disposable() {
                 public void dispose() {
-                    orb.shutdown(true);
+                    orb.shutdown(false);
                 }
             });
         }
@@ -588,7 +596,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         {
             _orb = ORB.init(new String[] {}, props);
         }
-        
+
         AbstractChannelFactory factory = newFactory(optionalContainer, _orb, (optionalORB == null), props);
 
         return factory;
@@ -637,7 +645,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
                 {
                     logger_.info("namingContext.unbind(" + format(registeredName_) + ")");
                 }
-                
+
                 namingContext_.unbind(registeredName_);
 
                 registeredName_ = null;

@@ -5,10 +5,18 @@ import java.util.Properties;
 import junit.framework.Test;
 
 import org.jacorb.notification.AbstractChannelFactory;
+import org.jacorb.notification.EventChannelFactoryImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
 import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 
 /**
  * @author Alphonse Bendt
@@ -27,7 +35,8 @@ public class EventChannelFactoryTest
 
     ////////////////////////////////////////
 
-    public void setUpTest() throws Exception {
+    public void setUpTest() throws Exception
+    {
         factory_ = AbstractChannelFactory.newFactory(new Properties());
 
         factory_.activate();
@@ -70,6 +79,29 @@ public class EventChannelFactoryTest
             EventChannelFactoryHelper.narrow(obj);
 
         assertFalse(factory._non_existent());
+    }
+
+    public void testDestroy() throws Exception
+    {
+        EventChannel channel_ = ((EventChannelFactoryImpl)factory_).create_channel(new Property[0], new Property[0], new IntHolder());
+        ConsumerAdmin _consumerAdmin = channel_.new_for_consumers(InterFilterGroupOperator.AND_OP,
+                new IntHolder());
+        SupplierAdmin _supplierAdmin = channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP,
+                new IntHolder());
+
+        assertEquals(channel_, _consumerAdmin.MyChannel());
+        assertEquals(channel_, _supplierAdmin.MyChannel());
+
+        channel_.destroy();
+
+        try
+        {
+            channel_.MyFactory();
+            fail();
+        } catch (OBJECT_NOT_EXIST e)
+        {
+            // expected
+        }
     }
 
 
