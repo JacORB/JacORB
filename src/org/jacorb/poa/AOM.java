@@ -148,7 +148,7 @@ public class AOM
 
         if (logger.isInfoEnabled())
         {
-            logger.info("oid: " + POAUtil.convert(oid) + 
+            logger.info("oid: " + POAUtil.convert(oid) +
                         "object is activated");
         }
 
@@ -235,7 +235,7 @@ public class AOM
 
         if (logger.isInfoEnabled())
         {
-            logger.info( "oid: " + POAUtil.convert(oid) + 
+            logger.info( "oid: " + POAUtil.convert(oid) +
                         "incarnate");
         }
 
@@ -276,46 +276,52 @@ public class AOM
         {
             if (logger.isInfoEnabled())
             {
-                logger.info("oid: " + POAUtil.convert(oid) + 
+                logger.info("oid: " + POAUtil.convert(oid) +
                             "servant is not incarnated (incarnate returns null)");
             }
-            return null;
         }
-
-        if (unique && servantMap.containsKey(servant))
+        else
         {
-            if (logger.isInfoEnabled())
+            if (unique && servantMap.containsKey(servant))
             {
-                logger.info("oid: " + POAUtil.convert(oid) + 
-                            "servant is not incarnated (unique_id policy is violated)");
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("oid: " + POAUtil.convert(oid) +
+                                "servant is not incarnated (unique_id policy is violated)");
+                }
+                servant = null;
             }
-            return null;
+            else
+            {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("oid: " + POAUtil.convert(oid) +
+                                 "servant is incarnated");
+                }
+
+                // notify an aom listener
+                if (aomListener != null)
+                    aomListener.servantIncarnated(oid, servant);
+
+                /* object activation */
+
+                try
+                {
+                    add(oid, servant);
+                }
+                catch (ObjectAlreadyActive e)
+                {
+                    throw new POAInternalError("error: object already active (AOM.incarnate)");
+                }
+                catch (ServantAlreadyActive e)
+                {
+                    throw new POAInternalError("error: servant already active (AOM.incarnate)");
+                }
+            }
         }
 
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("oid: " + POAUtil.convert(oid) + 
-                         "servant is incarnated");
-        }
-        
-        // notify an aom listener
-        if (aomListener != null) 
-            aomListener.servantIncarnated(oid, servant);
-        
-        /* object activation */
-        
-        try
-        {
-            add(oid, servant);
-        }
-        catch (ObjectAlreadyActive e)
-        {
-            throw new POAInternalError("error: object already active (AOM.incarnate)");
-        }
-        catch (ServantAlreadyActive e)
-        {
-            throw new POAInternalError("error: servant already active (AOM.incarnate)");
-        }
+        ((org.jacorb.poa.POA)poa).getORB().set_delegate(servant);
+
         return servant;
     }
 
@@ -418,7 +424,7 @@ public class AOM
 
             if (logger.isInfoEnabled())
             {
-                logger.info("oid: " + POAUtil.convert(oid) + 
+                logger.info("oid: " + POAUtil.convert(oid) +
                             "object is deactivated");
             }
 
@@ -466,7 +472,7 @@ public class AOM
 
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("oid: " + POAUtil.convert(oid) + 
+                    logger.info("oid: " + POAUtil.convert(oid) +
                                 "servant is etherealized");
                 }
 
@@ -480,7 +486,7 @@ public class AOM
             {
                 if (logger.isWarnEnabled())
                 {
-                    logger.info("oid: " + POAUtil.convert(oid) + 
+                    logger.info("oid: " + POAUtil.convert(oid) +
                                 "exception occurred during servant etherialisation: " + e.getMessage()
                                 );
                 }
