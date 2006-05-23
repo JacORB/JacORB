@@ -829,7 +829,7 @@ public final class ORB
     {
         if (poaCurrent == null)
         {
-            poaCurrent = org.jacorb.poa.Current._Current_init();
+            poaCurrent = new org.jacorb.poa.Current();
         }
         return poaCurrent;
     }

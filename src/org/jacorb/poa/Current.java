@@ -34,43 +34,34 @@ import java.util.*;
 
 public class Current
     extends org.omg.PortableServer._CurrentLocalBase
-  //    extends org.omg.CORBA.LocalObject
-  //    implements org.omg.PortableServer.Current
 {
-    private Hashtable threadTable = new Hashtable();
     // Thread -> vector of InvocationContext elements (Stack)
+    private final Map threadTable = new HashMap();
 
-    private Current()
+    public synchronized void _addContext(Thread thread, InvocationContext c)
     {
-    }
+        LinkedList list = (LinkedList) threadTable.get(thread);
 
-    public static Current _Current_init()
-    {
-        return new Current();
-    }
-
-    public synchronized void _addContext(Thread t, InvocationContext c)
-    {
-        Vector cv = (Vector) threadTable.get(t);
-
-        if (cv == null) {
-            cv = new Vector();
-            threadTable.put(t, cv);
+        if (list == null) 
+        {
+            list = new LinkedList();
+            threadTable.put(thread, list);
         }
 
-        cv.addElement(c);
+        list.add(c);
     }
 
-    public synchronized void _removeContext(Thread t)
+    public synchronized void _removeContext(Thread thread)
     {
-        Vector cv = (Vector) threadTable.get(t);
+        LinkedList list = (LinkedList) threadTable.get(thread);
 
-        if (cv != null) {
+        if (list != null) 
+        {
+            list.removeLast();
 
-            cv.removeElementAt(cv.size()-1);
-
-            if (cv.size() == 0) {
-                threadTable.remove(t);
+            if (list.isEmpty()) 
+            {
+                threadTable.remove(thread);
             }
         }
     }
@@ -99,20 +90,20 @@ public class Current
         return getInvocationContext().getPOA ();
     }
 
-    synchronized private InvocationContext getInvocationContext()
+    private synchronized InvocationContext getInvocationContext()
         throws NoContext
     {
-        Thread ct = Thread.currentThread();
+        Thread thread = Thread.currentThread();
 
-        Vector cv = (Vector) threadTable.get(ct);
+        LinkedList list = (LinkedList) threadTable.get(thread);
 
-        if (cv != null)
+        if (list != null)
         {
-            InvocationContext c = (InvocationContext) cv.lastElement();
+            InvocationContext context = (InvocationContext) list.getLast();
 
-            if (c != null)
+            if (context != null)
             {
-                return c;
+                return context;
             }
         }
 
