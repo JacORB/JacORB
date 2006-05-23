@@ -60,7 +60,6 @@ public class POA
     /** the POA logger instance */
     private Logger logger = null;
     private byte[] implName = null;
-    private byte[] serverId = null;
 
     /** used to hold the POA name for logging */
     private String logPrefix = "<unset>";
@@ -130,16 +129,12 @@ public class POA
 
     // synchronisation stuff
     private int                   shutdownState = POAConstants.NOT_CALLED;
-    private java.lang.Object      poaCreationLog = new java.lang.Object();
-    private java.lang.Object      poaDestructionLog = new java.lang.Object();
-    private java.lang.Object      unknownAdapterLog = new java.lang.Object();
+    private final java.lang.Object      poaCreationLog = new java.lang.Object();
+    private final java.lang.Object      poaDestructionLog = new java.lang.Object();
+    private final java.lang.Object      unknownAdapterLog = new java.lang.Object();
     private boolean               unknownAdapterCalled;
 
     private boolean configured = false;
-
-//     private POA()
-//     {
-//     }
 
     private POA(org.jacorb.orb.ORB _orb,
                 String _name,
@@ -216,24 +211,6 @@ public class POA
                 _orb.turnOnBiDirGIOP();
             }
         }
-
-//         watermark = generateWatermark();
-
-//         aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logger) : null;
-
-//         // GB: modified
-//         requestController = new RequestController(this, orb, aom);
-//         poaManager.registerPOA(this);
-//         monitor = new POAMonitorLightImpl();
-
-//         monitor.init( this, aom,
-//                       requestController.getRequestQueue(),
-//                       requestController.getPoolManager(),
-//                       "POA " + name );
-
-//         monitor.openMonitor();
-//         if (poaListener != null)
-//             poaListener.poaCreated(this);
     }
 
 
@@ -250,9 +227,6 @@ public class POA
         {
             implName = tmp.getBytes();
         }
-
-        serverId =
-            String.valueOf((long)(Math.random()*9999999999L)).getBytes();
 
         watermark = generateWatermark();
 
@@ -1181,7 +1155,7 @@ public class POA
         // in the IOR so that it is unique.
         if ( ( ! isPersistent() ) || implName == null)
         {
-            impl = serverId;
+            impl = orb.getServerId();
 
             if (logger.isInfoEnabled())
             {

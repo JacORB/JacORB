@@ -58,15 +58,22 @@ public class JacORBConfiguration
     private final String loggerFactoryClzName =
        "org.jacorb.config.LogKitLoggerFactory";
 
-
     /**
      * Factory method
      */
+    public static Configuration getConfiguration(Properties props,
+            ORB orb,
+            boolean isApplet)
+    throws ConfigurationException
+    {
+        return getConfiguration(props, orb, isApplet, true);
+    }
 
     public static Configuration getConfiguration(Properties props,
-                                                 ORB orb,
-                                                 boolean isApplet)
-        throws ConfigurationException
+            ORB orb,
+            boolean isApplet,
+            boolean initLogging)
+    throws ConfigurationException
     {
         // determine the ORBId, if set, so we can locate the corresponding
         // configuration
@@ -92,7 +99,7 @@ public class JacORBConfiguration
             orbID = myOrbID;
         }
 
-        return new JacORBConfiguration(orbID, props, orb, isApplet);
+        return new JacORBConfiguration(orbID, props, orb, isApplet, initLogging);
     }
 
 
@@ -104,7 +111,8 @@ public class JacORBConfiguration
     private JacORBConfiguration(String name,
                               Properties orbProperties,
                               ORB orb,
-                              boolean isApplet)
+                              boolean isApplet,
+                              boolean initLogging)
         throws ConfigurationException
     {
         super(name);
@@ -119,7 +127,10 @@ public class JacORBConfiguration
             init(name, orbProperties);
         }
 
-        initLogging();
+        if (initLogging)
+        {
+            initLogging();
+        }
     }
 
     /**
@@ -539,15 +550,17 @@ public class JacORBConfiguration
             {
                 logFileName = logFileName.substring (0, logFileName.length () - 9);
 
-                if ( !getAttribute("jacorb.implname","").equals(""))
+                final String serverId;
+                if (orb != null)
                 {
-                    logFileName += getAttribute("jacorb.implname","");
+                    serverId = new String(orb.getServerId());
                 }
                 else
                 {
-                    // Just in case implname has not been set
-                    logFileName += "log";
+                    serverId = "orbSingleton";
                 }
+                String implName = getAttribute("jacorb.implname", serverId);
+                logFileName += implName;
             }
         }
 
@@ -582,9 +595,7 @@ public class JacORBConfiguration
             try
             {
                 loggerFactory.setDefaultLogFile(logFileName, maxLogSize);
-                //logger = loggerFactory.getNamedRootLogger("jacorb");
-                logger =
-                    loggerFactory.getNamedLogger("jacorb",logFileName, maxLogSize);
+                logger = loggerFactory.getNamedLogger("jacorb",logFileName, maxLogSize);
             }
             catch (IOException e)
             {

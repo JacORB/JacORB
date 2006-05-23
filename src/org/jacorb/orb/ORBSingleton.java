@@ -46,17 +46,33 @@ public class ORBSingleton
     private boolean doStrictCheckOnTypecodeCreation;
     private final Logger logger;
 
-    public ORBSingleton()
+    protected ORBSingleton(boolean isSingleton)
     {
         super();
 
         try
         {
+            Properties props = new Properties();
+
+            if (isSingleton)
+            {
+                // this configuration is only used to check if need to override
+                // the property jacorb.logfile. logging won't be initiated
+                Configuration configuration = JacORBConfiguration.getConfiguration(null, null, false, false);
+
+                String filename = configuration.getAttribute("jacorb.logfile.singleton", "");
+
+                if (!filename.equals(""))
+                {
+                    props.put("jacorb.logfile", filename);
+                }
+            }
+
+            // now we can create the configuration for this ORB.
+            Configuration configuration = JacORBConfiguration.getConfiguration(props, null, false);
+
             // Don't call configure method as if this has been called from ORB::ctor
             // class construction order can cause issues.
-            Configuration configuration = JacORBConfiguration.getConfiguration
-                (null, null, false);
-
             logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger
                 ("jacorb.orb.singleton");
 
@@ -67,7 +83,11 @@ public class ORBSingleton
         {
             throw new INTERNAL(e.toString());
         }
+    }
 
+    public ORBSingleton()
+    {
+        this(true);
     }
 
 

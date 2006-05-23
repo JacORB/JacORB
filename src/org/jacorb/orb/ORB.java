@@ -161,10 +161,12 @@ public final class ORB
 
     private boolean bidir_giop = false;
 
+    private final byte[] serverId =
+        String.valueOf((long)(Math.random()*9999999999L)).getBytes();
 
     public ORB()
     {
-        super();
+        super(false);
     }
 
     /**
@@ -2406,7 +2408,7 @@ public final class ORB
 
     }
 
-        public void connect(org.omg.CORBA.Object obj)
+    public void connect(org.omg.CORBA.Object obj)
     {
         if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
             throw new BAD_PARAM("connect parameter must extend " +
@@ -2484,4 +2486,8 @@ public final class ORB
         }
     }
 
+    public byte[] getServerId()
+    {
+        return serverId;
+    }
 }
