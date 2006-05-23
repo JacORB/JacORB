@@ -479,7 +479,7 @@
                     <include name="${jacorb.test.prefix}coverage-client.ec"/>
                     <include name="${jacorb.test.prefix}coverage-server.ec"/>
                 </fileset>
-                <html outfile="${jacorb.test.prefix}coverage-combined/index.html"/>
+                <html outfile="${basedir}/${jacorb.test.prefix}coverage-combined/index.html"/>
             </report>
             <report sourcepathref="path.src"
               columns="name,line,method,class"
@@ -488,7 +488,7 @@
                     <include name="coverage.em"/>
                     <include name="${jacorb.test.prefix}coverage-client.ec"/>
                 </fileset>
-                <html outfile="${jacorb.test.prefix}coverage-client/index.html"/>
+                <html outfile="${basedir}/${jacorb.test.prefix}coverage-client/index.html"/>
             </report>
             <report sourcepathref="path.src"
               columns="name,line,method,class"
@@ -497,7 +497,7 @@
                     <include name="coverage.em"/>
                     <include name="${jacorb.test.prefix}coverage-server.ec"/>
                 </fileset>
-                <html outfile="${jacorb.test.prefix}coverage-server/index.html"/>
+                <html outfile="${basedir}/${jacorb.test.prefix}coverage-server/index.html"/>
             </report>
         </emma>
     </target>
