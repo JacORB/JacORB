@@ -30,7 +30,7 @@ import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
 
 /**
- * @author Gerald Brose, XTRADYNE Technologies
+ * @author Gerald Brose
  * @version $Id$
  */
 
@@ -66,15 +66,6 @@ public class JacORBConfiguration
             boolean isApplet)
     throws ConfigurationException
     {
-        return getConfiguration(props, orb, isApplet, true);
-    }
-
-    public static Configuration getConfiguration(Properties props,
-            ORB orb,
-            boolean isApplet,
-            boolean initLogging)
-    throws ConfigurationException
-    {
         // determine the ORBId, if set, so we can locate the corresponding
         // configuration
         String orbID = "jacorb"; // default id
@@ -99,7 +90,7 @@ public class JacORBConfiguration
             orbID = myOrbID;
         }
 
-        return new JacORBConfiguration(orbID, props, orb, isApplet, initLogging);
+        return new JacORBConfiguration(orbID, props, orb, isApplet);
     }
 
 
@@ -111,8 +102,7 @@ public class JacORBConfiguration
     private JacORBConfiguration(String name,
                               Properties orbProperties,
                               ORB orb,
-                              boolean isApplet,
-                              boolean initLogging)
+                              boolean isApplet)
         throws ConfigurationException
     {
         super(name);
@@ -127,10 +117,7 @@ public class JacORBConfiguration
             init(name, orbProperties);
         }
 
-        if (initLogging)
-        {
-            initLogging();
-        }
+        initLogging();
     }
 
     /**
@@ -557,7 +544,7 @@ public class JacORBConfiguration
                 }
                 else
                 {
-                    serverId = "orbSingleton";
+                    serverId = getAttribute("jacorb.logfile.singleton", "orbsingleton");
                 }
                 String implName = getAttribute("jacorb.implname", serverId);
                 logFileName += implName;

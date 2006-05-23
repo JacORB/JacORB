@@ -22,7 +22,6 @@ package org.jacorb.orb;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.jacorb.config.JacORBConfiguration;
 import org.omg.CORBA.INTERNAL;
@@ -44,40 +43,33 @@ public class ORBSingleton
     extends org.omg.CORBA_2_5.ORB
 {
     private boolean doStrictCheckOnTypecodeCreation;
-    private final Logger logger;
+    private Logger logger;
 
+    /**
+     * in case a singleton orb is created the c'tor will access the JacORB configuration
+     * to configure the orb. otherwise configure needs to be called to properly set up
+     * the created instance.
+     *
+     * @param isSingleton determine if a singleton orb is created.
+     */
     protected ORBSingleton(boolean isSingleton)
     {
         super();
 
         try
         {
-            Properties props = new Properties();
-
             if (isSingleton)
             {
-                // this configuration is only used to check if need to override
-                // the property jacorb.logfile. logging won't be initiated
-                Configuration configuration = JacORBConfiguration.getConfiguration(null, null, false, false);
+                Configuration configuration = JacORBConfiguration.getConfiguration(null, null, false);
 
-                String filename = configuration.getAttribute("jacorb.logfile.singleton", "");
+                // Don't call configure method as if this has been called from ORB::ctor
+                // class construction order can cause issues.
+                logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger
+                    ("jacorb.orb.singleton");
 
-                if (!filename.equals(""))
-                {
-                    props.put("jacorb.logfile", filename);
-                }
+                doStrictCheckOnTypecodeCreation = configuration.getAttribute
+                    ("jacorb.interop.strict_check_on_tc_creation", "on").equalsIgnoreCase("on");
             }
-
-            // now we can create the configuration for this ORB.
-            Configuration configuration = JacORBConfiguration.getConfiguration(props, null, false);
-
-            // Don't call configure method as if this has been called from ORB::ctor
-            // class construction order can cause issues.
-            logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger
-                ("jacorb.orb.singleton");
-
-            doStrictCheckOnTypecodeCreation = configuration.getAttribute
-                ("jacorb.interop.strict_check_on_tc_creation", "on").equalsIgnoreCase("on");
         }
         catch (ConfigurationException e)
         {
@@ -90,12 +82,14 @@ public class ORBSingleton
         this(true);
     }
 
-
     protected void configure(Configuration configuration)
         throws ConfigurationException
     {
         doStrictCheckOnTypecodeCreation = configuration.getAttribute
             ("jacorb.interop.strict_check_on_tc_creation", "on").equalsIgnoreCase("on");
+
+        logger =
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb");
     }
 
 
