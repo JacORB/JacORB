@@ -67,9 +67,9 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @jmx.mbean 
+ * @jmx.mbean
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -132,7 +132,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
     /**
      * pool of available ID's for Admin Objects. The Pool is used for Consumer and Supplier Admins.
      * NOTE: The least available ID is 1 as the ID 0 has a special meaning.
-     * 
+     *
      * @see #DEFAULT_ADMIN_KEY DEFAULT_ADMIN_KEY.
      */
     private final AtomicInteger adminIdPool_ = new AtomicInteger(1);
@@ -162,11 +162,11 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
 
     private final ProxyEventListener proxySupplierEventListener_ = new ProxyEventAdapter()
     {
-    		public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
+            public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
         {
             addSupplier();
         }
-        
+
         public void actionProxyDisposed(ProxyEvent event)
         {
             removeSupplier();
@@ -182,7 +182,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
     protected JMXManageable.JMXCallback jmxCallback_;
 
     private final ServantLifecyleControl servantLifecyle_;
-    
+
     ////////////////////////////////////////
 
     public AbstractEventChannel(IFactory factory, ORB orb, POA poa, Configuration config,
@@ -203,7 +203,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         container_.registerComponentImplementation(SubscriptionManager.class);
 
         container_.registerComponentImplementation(OfferManager.class);
-        
+
         adminSettings_ = new AdminPropertySet(configuration_);
 
         qosSettings_ = new QoSPropertySet(configuration_, QoSPropertySet.CHANNEL_QOS);
@@ -224,7 +224,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
                 }
             }
         };
-        
+
         servantLifecyle_ = new ServantLifecyleControl(this, config);
     }
 
@@ -234,15 +234,15 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
     {
         servantLifecyle_.deactivate();
     }
-    
+
     public final org.omg.CORBA.Object activate()
     {
         return servantLifecyle_.activate();
     }
-    
+
     /**
      * Callback to help keep track of the number of Consumers.
-     * 
+     *
      * @exception AdminLimitExceeded
      *                if creation of another Consumer is prohibited.
      */
@@ -250,11 +250,11 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
     {
         final int _maxNumberOfConsumers = maxNumberOfConsumers_.get();
         final int _numberOfConsumers = numberOfConsumers_.incrementAndGet();
-      
+
         if (_maxNumberOfConsumers == 0)
         {
             // no limit set
-        } 
+        }
         else if (_numberOfConsumers > _maxNumberOfConsumers)
         {
             // too many consumers
@@ -275,7 +275,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
 
     /**
      * Callback to keep track of the number of Suppliers
-     * 
+     *
      * @exception AdminLimitExceeded
      *                if creation of another Suppliers is prohibited
      */
@@ -283,7 +283,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
     {
         final int _numberOfSuppliers = numberOfSuppliers_.incrementAndGet();
         final int _maxNumberOfSuppliers = maxNumberOfSuppliers_.get();
-        
+
         if (_maxNumberOfSuppliers == 0)
         {
             // no limit set
@@ -292,7 +292,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         {
             // too many suppliers
             numberOfSuppliers_.decrementAndGet();
-            
+
             Any _any = orb_.create_any();
             _any.insert_long(_maxNumberOfSuppliers);
 
@@ -340,7 +340,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         {
             final int[] _allConsumerAdminKeys = new int[consumerAdminServants_.size()];
             final Iterator i = consumerAdminServants_.keySet().iterator();
-            
+
             for(int x = 0; i.hasNext(); ++x)
             {
                 _allConsumerAdminKeys[x] = ((Integer) i.next()).intValue();
@@ -355,7 +355,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         {
             final int[] _allSupplierAdminKeys = new int[supplierAdminServants_.size()];
             final Iterator i = supplierAdminServants_.keySet().iterator();
-            
+
             for(int x = 0; i.hasNext(); ++x)
             {
                 _allSupplierAdminKeys[x] = ((Integer) i.next()).intValue();
@@ -376,11 +376,14 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
 
     public final void set_qos(Property[] props) throws UnsupportedQoS
     {
+        if (logger_.isDebugEnabled())
+        {
+            logger_.debug("AbstractEventChannel.set_qos: " + qosSettings_);
+        }
+
         qosSettings_.validate_qos(props, new NamedPropertyRangeSeqHolder());
 
         qosSettings_.set_qos(props);
-        
-        logger_.debug("set QoS: " + qosSettings_);
     }
 
     public final void validate_qos(Property[] props,
@@ -409,8 +412,8 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
 
     /**
      * destroy this Channel, all created Admins and all Proxies.
-     * 
-     * @jmx.managed-operation   description = "Destroy this Channel" 
+     *
+     * @jmx.managed-operation   description = "Destroy this Channel"
      *                          impact = "ACTION"
      */
     public final void destroy()
@@ -418,9 +421,9 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         if (destroyed_.compareAndSet(false, true))
         {
             container_.dispose();
-            
+
             final List list = container_.getComponentInstancesOfType(IContainer.class);
-         
+
             for (Iterator i = list.iterator(); i.hasNext();)
             {
                 IContainer element = (IContainer) i.next();
@@ -439,7 +442,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         {
             logger_.info("destroy channel " + id_);
         }
-        
+
         deactivate();
 
         disposables_.dispose();
@@ -472,7 +475,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
     {
         return maxNumberOfSuppliers_.get();
     }
-    
+
     /**
      * @jmx.managed-attribute access = "read-write"
      */
@@ -482,9 +485,9 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         {
             throw new IllegalArgumentException();
         }
-        
-        maxNumberOfSuppliers_.set(max);   
-        
+
+        maxNumberOfSuppliers_.set(max);
+
         if (logger_.isInfoEnabled())
         {
             logger_.info("set MaxNumberOfSuppliers=" + maxNumberOfSuppliers_);
@@ -509,15 +512,15 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         {
             throw new IllegalArgumentException();
         }
-        
+
         maxNumberOfConsumers_.set(max);
-        
+
         if (logger_.isInfoEnabled())
         {
             logger_.info("set MaxNumberOfConsumers=" + maxNumberOfConsumers_);
         }
     }
-    
+
     private Property[] createQoSPropertiesForAdmin()
     {
         Map _copy = new HashMap(qosSettings_.toMap());
@@ -769,24 +772,24 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
     {
         disposables_.addDisposable(d);
     }
-    
+
     public final String getJMXObjectName()
     {
         return "channel=" + getMBeanName();
     }
-    
+
     public final String getMBeanName()
     {
         return getMBeanType() + "-" + getID();
     }
-    
+
     protected abstract String getMBeanType();
-    
+
     public String[] getJMXNotificationTypes()
     {
         return new String[0];
     }
-    
+
     public void setJMXCallback(JMXManageable.JMXCallback callback)
     {
         jmxCallback_ = callback;
