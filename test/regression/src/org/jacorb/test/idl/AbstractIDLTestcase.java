@@ -107,6 +107,8 @@ public class AbstractIDLTestcase extends TestCase
         {
             org.jacorb.idl.parser.compile(file, writer);
 
+            TestUtils.log("Test output" + writer.toString());
+
             if (failureExpected)
             {
                 fail("parsing of " + idlFile.getName() + " should fail.");
@@ -122,10 +124,6 @@ public class AbstractIDLTestcase extends TestCase
                 throw error;
             }
         }
-        // Uncomment the following line to see the output of the IDL compiler for each
-        // test.
-        // System.err.println ("Test output " + writer.toString());
-
     }
 
     /**

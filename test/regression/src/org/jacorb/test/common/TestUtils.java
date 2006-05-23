@@ -37,7 +37,7 @@ import java.util.Properties;
 
 /**
  * Utility class used to setup JUnit-TestSuite
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -48,16 +48,17 @@ public class TestUtils
 
     private static String testHome = null;
     private static String systemRoot = null;
+    private static final boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
 
     /**
      * this method returns a List of all public Methods which Names start with the Prefix "test" and
      * accept no Parameters e.g:
-     * 
+     *
      * <ul>
      * <li>testOperation
      * <li>testSomething
      * </ul>
-     * 
+     *
      */
     public static String[] getTestMethods(Class clazz)
     {
@@ -105,7 +106,7 @@ public class TestUtils
                     result = result.substring (5, result.length() - 9);
                 }
                 String relativePath="/classes/";
-                if (!pathExists(result, relativePath)) 
+                if (!pathExists(result, relativePath))
                 {
                     throw new RuntimeException ("cannot find test home");
                 }
@@ -139,7 +140,7 @@ public class TestUtils
     {
         addToSuite(suite, setup, clazz, getTestMethods(clazz));
     }
-    
+
     public static void addToSuite(TestSuite suite, TestSetup setup, Class clazz,
             String[] testMethods) throws Exception
     {
@@ -151,19 +152,19 @@ public class TestUtils
         }
     }
 
-    public static String osDependentPath(String path) 
+    public static String osDependentPath(String path)
     {
         path=(new File(path)).toString();
         return path.trim();
     }
 
-    private static boolean pathExists(String basePath, String suffix) 
+    private static boolean pathExists(String basePath, String suffix)
     {
         File filePath = new File(basePath + suffix);
         return filePath.exists();
     }
 
-    public static String pathAppend(String path1, String path2) 
+    public static String pathAppend(String path1, String path2)
     {
         String osDepPath1 = (new File(path1)).toString();
         String osDepPath2 = (new File(path2)).toString();
@@ -172,23 +173,23 @@ public class TestUtils
     }
     /**
      * In addition to file and path seperators being differnt,
-     * Windows requires an additional environment variable for 
+     * Windows requires an additional environment variable for
      * SystemRoot in DirectLauncer.
      */
-    public static boolean isWindows() 
+    public static boolean isWindows()
     {
         return (System.getProperty("os.name").indexOf("Windows") != -1) ;
     }
-    
+
     /**
      * Returns the SystemRoot, should be used on Windows only.  This
      * is necessary to pevent the following error:
      * "Unrecognized Windows Sockets error: 10106: create"
      */
-    public static String systemRoot() throws RuntimeException, java.io.IOException 
+    public static String systemRoot() throws RuntimeException, java.io.IOException
     {
 
-        if (isWindows()) 
+        if (isWindows())
         {
             if (systemRoot == null)
             {
@@ -196,12 +197,12 @@ public class TestUtils
                 //This means we are likely in the DirectLauncher
                 systemRoot = System.getProperty ("jacorb.SystemRoot");
 
-                if (systemRoot == null) 
+                if (systemRoot == null)
                 {
                     //We are likely in the TestLauncher, see if we can
                     //get it from the system environment.
                     Properties env = new Properties();
-                    try 
+                    try
                     {
                         String setCmd = getSetCommand();
                         Process proc = Runtime.getRuntime().exec(setCmd);
@@ -210,17 +211,17 @@ public class TestUtils
                         systemRoot = env.getProperty("SystemRoot");
                         ioStream.close();
                         proc.destroy();
-                    }   
-                    catch(java.io.IOException e) 
-                    {   
+                    }
+                    catch(java.io.IOException e)
+                    {
                         throw e;
                     }
-                    if (systemRoot == null) 
+                    if (systemRoot == null)
                     {
                         throw new RuntimeException("Could not find SystemRoot, make sure SystemRoot env var is set");
                     }
                     //The '\' character gets interpeted as an escape
-                    if (systemRoot.charAt(1) == ':' && systemRoot.charAt(2) != '\\') 
+                    if (systemRoot.charAt(1) == ':' && systemRoot.charAt(2) != '\\')
                     {
                         String prefix = systemRoot.substring(0, 2);
                         String suffix = systemRoot.substring(2, systemRoot.length());
@@ -229,38 +230,46 @@ public class TestUtils
                 }
             }
         }
-        else 
+        else
         {
             throw new RuntimeException("TestUtils.systemRoot() was called on a non-Windows OS");
         }
         return systemRoot;
     }
-    
+
     /*
      * Private method to get the set command.  This is necessary because
      * if SystemRoot has not been set, it needs to be set for DirectLauncer.
      */
-    private static String getSetCommand() 
+    private static String getSetCommand()
     {
         String setCmd;
         String osName = System.getProperty("os.name");
 
         if (osName.indexOf("indows")  != -1)
         {
-            if (osName.indexOf("indows 9") != -1) 
+            if (osName.indexOf("indows 9") != -1)
             {
                 setCmd = "command.com /c set";
             }
-            else 
+            else
             {
                 setCmd = "cmd.exe /c set";
             }
         }
-        else 
+        else
         {
             setCmd = "/usr/bin/env";
             //should double check for all unix platforms
         }
         return setCmd;
+    }
+
+    public static void log(String string)
+    {
+        if (verbose)
+        {
+            System.err.println (string);
+        }
     }
 }
