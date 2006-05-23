@@ -1,3 +1,334 @@
+2006-05-22  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* AllTest.java, common/ClientServerSetup.java,
+	common/StreamListener.java, common/launch/DirectLauncher.java,
+	common/launch/TestLauncher.java, idl/AbstractIDLTestcase.java:
+	Modifications to testharness: simplify build.xml. Pass classpath
+	through into tests so properties can be found in
+	classpath. Subdirectories in the output dir is optional. It uses
+	the Ant JunitTestRunner rather than the Junit textui to be 'more
+	verbose'.
+
+2006-05-22  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/etf/wiop/WIOPFactories.java: named threads.
+
+	this fixes http://www.jacorb.org/cgi-bin/bugzilla/show_bug.cgi?id=472 and
+	is also related to scarab JAC#91
+
+	* bugs/AllTest.java, bugs/bugjac45/BugJac45Test.java:
+	tests and extra logging for JAC#45
+
+	* idl/AbstractIDLTestcase.java: javadoc
+
+2006-05-19  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/dynany/DynAnyStructTest.java: new test
+
+	* bugs/AllTest.java, bugs/bugjac81/BoundedStringTest.java: fix for
+	scarab JAC#81: JacORB ignores the length parameter in bounded
+	string typedefs.
+
+2006-05-18  Alphonse Bendt  <bendt@prismtech.com>
+
+	* bugs/AllTest.java, bugs/bugjac69/InvalidIORTest.java:
+	better error checking for parsing invalid iors
+
+	related to scarab JAC#69
+
+	* orb/dynany/DynAnyArrayObjectTest.java,
+	orb/dynany/DynAnyObjectTest.java,
+	orb/dynany/DynAnySeqObjectTest.java, orb/dynany/PackageTest.java:
+	fix for using an Object Reference inside a DynAny
+
+	related to scarab JAC#62
+
+	* common/StreamListener.java (run): comparison would not match
+	corbaexceptions e.g. org.omg.CORBA.INITIALIZE. fixed
+
+	* naming/ContextTest.java: made order of testmethods explicit
+
+	* naming/ContextTest.java: fixed test to use a new ns db dir for
+	each run
+
+2006-05-17  Alphonse Bendt  <bendt@prismtech.com>
+
+	* naming/ContextTest.java: fixed test
+
+	* poa/AllTest.java, poa/POAActivateTest.java: The idl build has
+	'orb,sysex,dynany,portableserver...' in the dependancies.  Orb
+	copies the java mapping code accross (some of which has
+	NO_IMPLEMENT as the IDL generation will overwrite them). Dynany
+	implicitly pulls and compiles in some portableserver code.  Then,
+	when it comes to portable server even though it may have generated
+	some code and overwritten the source files they are not compiled
+	as the target is not out of date - the machine is too fast.
+
+	Solution appears to be to put portableserver first.
+
+	fix for scarab JAC#39 and JAC#41
+
+	* idl/ParseValidIDLTest.java: made jdk1.4 compatible
+
+	* orb/dynany/DynAnyBoundedSeqTest.java: replaced Vector with List
+
+2006-05-16  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/connection/ClientConnectionTimeoutTest.java: cosmetics
+
+	* poa/QueueNoWaitTest.java (test_overrun): increased delay as
+	otherwise this test failed often
+
+	* common/CallbackTestCase.java: cosmetics
+
+	* idl/AbstractIDLTestcase.java: get rid of debug output
+
+	* idl/ParseValidIDLTest.java: added javadoc
+
+	* idl/AbstractIDLTestcase.java, idl/ParseValidIDLTest.java:
+	added test for rt#1445: forward declarations in idl led
+	to incorrect generated classes.
+
+	also added improvement for the idl tests. its now possible to inspect
+	the compiled classes
+
+2006-05-15  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/ValidIDLWithExtraSetupTest.java: test and fix for JAC#307:
+
+	The CORBA valuetypes StringValue and WStringValue are defined in
+	the file orb.idl. Now when we used these value types in other IDL
+	files, the generated output is 'omg.org.java.lang.String' which
+	causes compilation errors.
+
+	* orb/value/ValueTest.java: removed unnecessary Thread.sleep
+
+	* idl/ValidIDLWithExtraSetupTest.java: RT#1180: Problem with idl
+	compiler
+
+	added testcase. no further action necessary as the problem
+	has been fixed already (Bugzilla #606)
+
+	* common/ORBSetup.java: cosmetics
+
+	* idl/ValidIDLWithExtraSetupTest.java: RT#1051: WrongTransaction
+	missing from IDL
+
+	* orb/AllTest.java: RT#1022: The JacORB dior utility should be
+	able to decode DIOP IORs. This is a TAO protocol which is
+	essentially GIOP/UDP
+
+	* poa/ImplNameTest.java: fixed tests
+
+	* orb/DIOPIORTest.java: RT#1022: The JacORB dior utility should be
+	able to decode DIOP IORs. This is a TAO protocol which is
+	essentially GIOP/UDP
+
+2006-05-14  Alphonse Bendt  <bendt@prismtech.com>
+
+	* jmx/JMXClientServerSetup.java, jmx/JmxJacorbJacorbTest.java,
+	jmx/JmxSunJacorbTest.java: removed unnecesssary param
+
+	* jmx/AbstractJMXTest.java, jmx/JmxJacorbJacorbTest.java: fixed test
+
+2006-05-12  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/value/ColumnDataImpl.java,
+	orb/value/CustomValueExampleImpl.java,
+	orb/value/CustomValueExchangeImpl.java,
+	orb/value/DataDefaultFactory.java, orb/value/DataImpl.java,
+	orb/value/NodeDataDefaultFactory.java,
+	orb/value/NodeDataImpl.java, orb/value/RowListDataImpl.java,
+	orb/value/ValueCustomTest.java, orb/value/ValueServerImpl.java,
+	orb/value/ValueTest.java: changes related to scarab RT#992: cannot
+	unmarshal embedded valuetypes
+
+	added tests.
+
+	* orb/rmi/RMITest.java:
+	changes related to scarab RT#992: cannot unmarshal embedded valuetypes
+
+	added testcase.
+	changed client/server configuration
+
+	* orb/connection/GIOPConnectionTest.java:
+	c'tor of superclass was changed
+
+	* common/launch/TestLauncher.java (main): check if
+	FixSunDelegateBug class is really available.
+
+2006-05-11  Alphonse Bendt  <bendt@prismtech.com>
+
+	* bugs/bugjac10/TypeCodeTestCase.java: *** empty log message ***
+
+	* bugs/bugjac10/TypeCodeTestCase.java: corrected version string
+
+	* idl/ValidIDLWithExtraSetupTest.java: add testcase related to #643.
+
+	* idl/AbstractIDLTestcase.java (c'tor): delete idl and classes dir
+	before use
+	(compileGeneratedSources): add JacORB/classes to compile classpath
+
+	* bugs/bug619/TestCase.java: removed unnecessary exception
+
+	* bugs/AllTest.java: testcases for JAC#10
+
+	this is to allow interoperability with orbs that send compact
+	typecodes.  scarab id: JAC#10.
+
+	* orb/rmi/RMITest.java: specified
+	jacorb.interop.chunk_custom_rmi_valuetypes for the server (jacorb
+	orb) so the client (sun orb) does not get confused.
+
+	* orb/AllTest.java, orb/CreateTypeCodesTest.java,
+	bugs/bugjac10/TypeCodeTestCase.java,
+	bugs/bugjac10/TypeCodeTestImpl.java: testcases for JAC#10
+
+	this is to allow interoperability with orbs that send compact
+	typecodes.  scarab id: JAC#10.
+
+2006-05-10  Alphonse Bendt  <bendt@prismtech.com>
+
+	* poa/AllTest.java, poa/BiDirDelegateTest.java,
+	poa/BiDirDelegateTestServerRunner.java: test for jac5 (BiDir
+	connections get BAD_INV_ORDER/Delegate not set). is fixed in
+	JacORB already so no further action necessary.
+
+2006-05-09  Alphonse Bendt  <bendt@prismtech.com>
+
+	* poa/AllTest.java, poa/ImplNameTest.java:
+	patch for bug 378 (JAC3) from prismtech
+
+	* poa/Deactivate.java: patch from prismtech for bug314 (JAC2). testcase
+
+2006-05-04  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/AbstractIDLTestcase.java (compileGeneratedSources):
+	try to locate jdk even if java.home points to a jre
+
+2006-03-19  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/TestUtils.java, common/launch/DirectLauncher.java,
+	common/launch/JacORBLauncher.java,
+	common/launch/TestLauncher.java: Changes by David Hartman to make
+	the test framework run under Windows.
+
+2006-03-08  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/node/TCLTest.java: fix for #671
+
+2006-03-06  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/servant/SequenceProxyPushSupplierImplTest.java,
+	notification/servant/StructuredProxyPushSupplierImplTest.java:
+	cosmetics
+
+2006-03-05  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/plugins/BSHFilterTest.java: cosmetics
+
+2006-03-04  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/queue/BoundedPriorityEventQueueTest.java: remove
+	superfluous class HeapEntry
+
+2006-02-25  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/queue/BoundedDeadlineEventQueueTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedLifetimeEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java,
+	notification/queue/DelegatingOverflowStrategy.java,
+	notification/queue/PackageTest.java,
+	notification/servant/AbstractProxySupplierTest.java: added a
+	receivetimestamp to all messages. the fifo event queue willsort
+	incoming messages on the basis of this timestamp.
+
+	* notification/queue/RWLockEventQueueDecoratorTest.java,
+	notification/util/AbstractWildcardMapTest.java,
+	notification/util/CachingWildcardMapTest.java,
+	notification/util/DefaultWildcardMapTest.java,
+	notification/util/WeakCacheWildcardMapTest.java,
+	notification/FilterManagerTest.java,
+	notification/OfferManagerTest.java, notification/PackageTest.java,
+	notification/TestClientOperations.java,
+	notification/TimeoutTest.java,
+	notification/bugs/DeadlockBugTest.java,
+	notification/bugs/PackageTest.java,
+	notification/container/CORBAObjectComponentAdapterTest.java,
+	notification/engine/AbstractFilterTaskTestCase.java,
+	notification/engine/DefaultPushTaskExecutorTest.java,
+	notification/engine/FilterConsumerAdminTaskTest.java,
+	notification/engine/FilterProxyConsumerTaskTest.java,
+	notification/engine/FilterProxySupplierTaskTest.java,
+	notification/engine/FilterSupplierAdminTaskTest.java,
+	notification/engine/PackageTest.java,
+	notification/engine/PushOperationTest.java,
+	notification/evaluate/PackageTest.java,
+	notification/filter/CallbackManagerTest.java,
+	notification/filter/FilterUsageDecoratorTest.java,
+	notification/filter/PackageTest.java,
+	notification/jmx/COSNotificationServiceTest.java,
+	notification/jmx/JMXNotificationTest.java,
+	notification/jmx/TestService.java,
+	notification/node/EvaluationResultTest.java,
+	notification/node/PackageTest.java,
+	notification/node/TCLTest.java,
+	notification/servant/PullMessagesOperationTest.java,
+	notification/servant/PullMessagesUtilityTest.java,
+	notification/servant/StructuredProxyPushSupplierImplTest.java,
+	notification/typed/PackageTest.java,
+	notification/util/regexp/AbstractPatternWrapperTest.java,
+	notification/util/regexp/GNUPatternWrapperTest.java,
+	notification/util/regexp/JDK14PatternWrapperTest.java,
+	notification/util/regexp/JakartaRegexpPatternWrapperTest.java:
+	cosmetics
+
+2006-02-20  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/EventChannelTest.java,
+	notification/engine/AbstractRetryStrategyTest.java,
+	notification/engine/AlwaysDisposeRetryStrategyTest.java,
+	notification/engine/TaskProcessorRetryStrategyTest.java,
+	notification/engine/WaitRetryStrategyTest.java,
+	notification/AnyPullSender.java: cosmetics
+
+2006-02-06  Alphonse Bendt  <bendt@prismtech.com>
+
+	* jmx/AbstractJMXTest.java, jmx/ExampleService.java,
+	jmx/ExampleServiceMBean.java, jmx/ExampleServiceRunner.java,
+	jmx/JMXClientServerSetup.java, jmx/JmxJacorbJacorbTest.java,
+	jmx/JmxSunJacorbTest.java, jmx/PackageTest.java: jmx over rmi over
+	iiop tests
+
+	* notification/node/EvaluationResultTest.java,
+	notification/node/TCLTest.java: cosmetics
+
+	* orb/rmi/PortableRemoteObjectDelegateImplTest.java: new test
+
+	* common/TestUtils.java (addtoSuite): new Methode
+
+	* common/ClientServerSetup.java (resolveServerObject): new method
+	so that behaviour can be overridden in subclasses
+
+2006-01-21  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/filter/GarbageCollectTest.java,
+	notification/lifecycle/ServantLifecycleControlTest.java: related
+	to #654. optionally run System.gc/System.runfinalization on
+	deactivation of servants.
+
+	thanks to David Rodenbaugh for suggesting this
+
+2006-01-12  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/AllTest.java, notification/EventChannelTest.java,
+	notification/servant/AbstractProxySupplierTest.java,
+	notification/lifecycle/PackageTest.java,
+	notification/lifecycle/ServantLifecycleControlTest.java:
+	refactored servant lifecycle. created own package that contains
+	the logic to activate and deactivate the notify servants.
+
 2005-12-08  Phil Mesnier  <phil.mesnier@ociweb.com>
 
 	* orb/AllTest.java, orb/AlternateIIOPAddress2Test.java,
