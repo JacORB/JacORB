@@ -547,7 +547,7 @@ public class JacORBConfiguration
                     serverId = getAttribute("jacorb.logfile.singleton", "orbsingleton");
                 }
                 String implName = getAttribute("jacorb.implname", serverId);
-                logFileName += implName;
+                logFileName += implName + ".log";
             }
         }
 
