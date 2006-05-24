@@ -51,55 +51,55 @@ public class POAMonitorLightImpl
 
     private String prefix;
 
-    public void changeState(String state) 
+    public void changeState(String state)
     {
     }
 
-    public void closeMonitor() 
+    public void closeMonitor()
     {
     }
 
 
     public void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm,
-                     String _prefix) 
+                     String _prefix)
     {
         poaModel = poa;
         aomModel = aom;
         queueModel = queue;
         pmModel = pm;
-        prefix = prefix;
+        prefix = _prefix;
     }
 
-    
+
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.poa.monitor");
-        doMonitor = 
+        doMonitor =
             configuration.getAttributeAsBoolean("jacorb.poa.monitoring",false);
     }
 
-    public void openMonitor() 
+    public void openMonitor()
     {
-        if ( doMonitor ) 
+        if ( doMonitor )
         {
-            try 
+            try
             {
-                POAMonitor newMonitor = 
+                POAMonitor newMonitor =
                     (POAMonitor)ObjectUtil.classForName("org.jacorb.poa.POAMonitorImpl").newInstance();
                 newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix );
                 newMonitor.configure(configuration);
                 poaModel.setMonitor(newMonitor);
                 newMonitor.openMonitor();
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled()) 
+                if (logger.isWarnEnabled())
                 {
                     logger.warn("Exception during openMonitor() of POAMonitorLightImpl" +
                                 exception.getMessage());
-            	}
+                }
             }
         }
     }
