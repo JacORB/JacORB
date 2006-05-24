@@ -50,6 +50,11 @@ public class TestUtils
     private static String systemRoot = null;
     private static final boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
 
+    static
+    {
+        log("jacorb.test.verbose is set to true");
+    }
+
     /**
      * this method returns a List of all public Methods which Names start with the Prefix "test" and
      * accept no Parameters e.g:

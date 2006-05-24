@@ -222,6 +222,7 @@ public class TestLauncher
         props.put("jacorb.test.client.version", getClientVersion());
         props.put("jacorb.test.server.version", getServerVersion());
         props.put("EXCLUDE_SERVICES", System.getProperty("EXCLUDE_SERVICES", "false"));
+        props.put("jacorb.test.verbose", System.getProperty("jacorb.test.verbose"));
         props.put("jacorb.test.outputfile.testname",
                   System.getProperty("jacorb.test.outputfile.testname" , "false"));
         try

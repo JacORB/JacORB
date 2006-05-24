@@ -163,6 +163,8 @@
       <property name="jacorb.test.outputfile.testname" value="false"/>
       <!-- By default, we do run naming and notification tests -->
       <property name="jacorb.exclude-services" value="false"/>
+      <!-- currently only affects idl tests -->
+      <property name="jacorb.test.verbose" value="false" />
 
       <java fork="true" classname="org.jacorb.test.common.launch.TestLauncher">
          <classpath path="${test.cp}"/>
@@ -171,6 +173,7 @@
          <jvmarg value="-Djacorb.home=${jacorb.home}" />
          <jvmarg value="-Djacorb.test.outputfile.testname=${jacorb.test.outputfile.testname}"/>
          <jvmarg value="-Djacorb.test.coverage=${jacorb.test.coverage}"/>
+         <jvmarg value="-Djacorb.test.verbose=${jacorb.test.verbose}" />
          <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
 
          <!-- Note - passing multiple arguments to this class may affect the output file -->
@@ -511,7 +514,8 @@
                             tests the following -D parameters are&#13;&#10;
                             available:&#13;&#10;
                             jacorb.test.coverage=true/false&#13;&#10;
-                            jacorb.test.outputfile.testname=true/false">
+                            jacorb.test.outputfile.testname=true/false&#13;&#10;
+                            jacorb.test.verbose=true/false">
         <antcall target="run">
             <param name="jacorb.test" value="org.jacorb.test.AllTest" />
         </antcall>
