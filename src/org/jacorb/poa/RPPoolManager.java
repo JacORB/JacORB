@@ -185,12 +185,12 @@ public abstract class RPPoolManager
             inUse = true;
         }
 
-        if (pool.size() == 0 && unused_size < max_pool_size)
+        if (pool.isEmpty() && unused_size < max_pool_size)
         {
             addProcessor();
         }
 
-        while (pool.size() == 0)
+        while (pool.isEmpty())
         {
             if (logger.isWarnEnabled())
             {
@@ -228,7 +228,7 @@ public abstract class RPPoolManager
     /**
      * gives a processor back into the pool if the number of
      * available processors is smaller than min_pool_size,
-     * otherwise the processor will terminated
+     * otherwise the processor will terminate
      */
 
     protected synchronized void releaseProcessor(RequestProcessor rp)
