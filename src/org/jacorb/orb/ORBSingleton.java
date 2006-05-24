@@ -69,6 +69,9 @@ public class ORBSingleton
 
                 doStrictCheckOnTypecodeCreation = configuration.getAttribute
                     ("jacorb.interop.strict_check_on_tc_creation", "on").equalsIgnoreCase("on");
+
+                logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
+                logger.info("created ORBSingleton");
             }
         }
         catch (ConfigurationException e)
