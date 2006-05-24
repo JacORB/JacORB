@@ -574,6 +574,9 @@ jacorb.poa.log.verbosity=3
 jacorb.poa.thread_pool_max=20
 jacorb.poa.thread_pool_min=5
 
+# If set then use shared thread pool amongst all the POAs
+# jacorb.poa.thread_pool_shared = off
+
 # if set, request processing threads in thePOA
 # will run at this priority. If not set or invalid,
 # MAX_PRIORITY will be used.

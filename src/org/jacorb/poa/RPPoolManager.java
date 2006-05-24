@@ -22,7 +22,6 @@ package org.jacorb.poa;
 
 import org.apache.avalon.framework.configuration.*;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.poa.except.*;
 
 import org.jacorb.poa.except.POAInternalError;
 import java.util.*;
@@ -31,17 +30,18 @@ import java.util.*;
  * This class provides and manages a pool of ready started threads for
  * request processing.
  *
- * @author Gerald Brose, Reimo Tiedemann, FU Berlin
- * @version 1.04, 10/26/99, RT
+ * @author Gerald Brose
+ * @author Reimo Tiedemann
+ * @version $Id$
  * @see org.jacorb.poa.RequestProcessor
  */
 
-public class RPPoolManager
+public abstract class RPPoolManager
 {
     private RPPoolManagerListener pmListener;
 
     // the current for (un)registering the invocation contexts
-    private Current current;
+    private final Current current;
     /**
      * <code>pool</code> is the set of currently available (inactive) request processors
      */
@@ -58,19 +58,16 @@ public class RPPoolManager
     /**
      * <code>max_pool_size</code> is the maximum size of the pool.
      */
-    private int max_pool_size;
+    private final int max_pool_size;
     /**
      * <code>min_pool_size</code> is the minimum number of request processors.
      */
-    private int min_pool_size;
+    private final int min_pool_size;
     // a flag for delay the pool initialization
     private boolean inUse = false;
 
-    private Configuration configuration;
-    private Logger logger;
-
-    private RPPoolManager() {
-    }
+    private final Configuration configuration;
+    private final Logger logger;
 
     protected RPPoolManager(Current _current, int min, int max,
                             Logger _logger, Configuration _configuration)
@@ -88,7 +85,8 @@ public class RPPoolManager
         try
         {
             rp.configure(this.configuration);
-        } catch (ConfigurationException ex)
+        }
+        catch (ConfigurationException ex)
         {
             throw new RuntimeException (ex.toString());
         }
@@ -104,23 +102,34 @@ public class RPPoolManager
         pmListener = EventMulticaster.add(pmListener, listener);
     }
 
-    protected synchronized void destroy()
+    /**
+     * invoked by clients to indicate that they won't use this poolManager anymore.
+     */
+    abstract void destroy();
+
+    /**
+     * shutdown this poolManager. clients should invoke {@link #destroy()} instead.
+     */
+    protected synchronized void destroy(boolean really)
     {
-        if (pool == null || inUse == false) return;
-        
+        if (pool == null || inUse == false)
+        {
+            return;
+        }
+
         // wait until all active processors complete
         while (!activeProcessors.isEmpty())
         {
-        	try
-			{
-        		wait();
-			}
-        	catch (InterruptedException ex)
-			{
-        		// ignore
-			}
+            try
+            {
+                wait();
+            }
+            catch (InterruptedException ex)
+            {
+                // ignore
+            }
         }
-        
+
         RequestProcessor[] rps = new RequestProcessor[pool.size()];
         pool.copyInto(rps);
         for (int i=0; i<rps.length; i++)
@@ -199,7 +208,7 @@ public class RPPoolManager
         }
         RequestProcessor rp = (RequestProcessor) pool.remove( pool.size() - 1 );
         activeProcessors.add (rp);
-        
+
         // notify a pool manager listener
         if (pmListener != null)
             pmListener.processorRemovedFromPool(rp, pool.size(), unused_size);
@@ -224,8 +233,8 @@ public class RPPoolManager
 
     protected synchronized void releaseProcessor(RequestProcessor rp)
     {
-    	activeProcessors.remove (rp);
-    	
+        activeProcessors.remove (rp);
+
         if (pool.size() < min_pool_size)
         {
             pool.addElement(rp);

@@ -233,7 +233,7 @@ public class POA
         aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logger) : null;
 
         // GB: modified
-        requestController = new RequestController(this, orb, aom);
+        requestController = new RequestController(this, orb, aom, orb.newRPPoolManager(isSingleThreadModel()));
         requestController.configure(configuration);
 
         poaManager.registerPOA(this);
@@ -1498,15 +1498,15 @@ public class POA
                     logger.debug(logPrefix + "... done");
             }
 
-            /* stop the request processor threads */
-            if (!isSingleThreadModel())
+            if (logger.isDebugEnabled())
             {
-                if (logger.isDebugEnabled())
-                    logger.debug(logPrefix + "remove all processors from the pool ...");
-                requestController.clearUpPool();
+                logger.debug(logPrefix + "remove all processors from the pool ...");
+            }
+            requestController.clearUpPool();
 
-                if (logger.isDebugEnabled())
-                    logger.debug(logPrefix + "... done");
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(logPrefix + "... done");
             }
 
             /* stop the request controller */

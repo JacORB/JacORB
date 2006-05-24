@@ -25,7 +25,6 @@ import org.jacorb.poa.except.*;
 
 import org.jacorb.orb.dsi.ServerRequest;
 
-import org.omg.PortableServer.POAManagerPackage.State;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantManager;
 
@@ -38,7 +37,7 @@ import java.util.*;
  * This class manages all request processing affairs. The main thread takes the
  * requests out from the queue and will see that the necessary steps are taken.
  *
- * @author Reimo Tiedemann, FU Berlin
+ * @author Reimo Tiedemann
  * @version $Id$
  */
 
@@ -50,12 +49,9 @@ public final class RequestController
     private org.jacorb.orb.ORB		orb;
     private RequestQueue 		requestQueue;
     private AOM 			aom;
-    private RPPoolManager		poolManager;
+    private final RPPoolManager		poolManager;
     private int                         localRequests = 0;
 
-    /*  a  singleton   for  all  POA's  in  one   virtual  machine  if
-       SINGLE_THREAD_MODEL is in use */
-    private static RPPoolManager 	singletonPoolManager;
     private static int count = 0;
 
     /** the configuration object for this controller */
@@ -63,9 +59,7 @@ public final class RequestController
 
     /** this controller's logger instance */
     private Logger                    logger;
-    private int threadPoolMin = 0;
     private int threadPoolMax = 0;
-    private boolean configured = false;
 
     // stores all active requests
     private Hashtable 			activeRequestTable;
@@ -75,27 +69,17 @@ public final class RequestController
     // oid's
 
     // other synchronisation stuff
-    private boolean			terminate;
-    private boolean 			waitForCompletionCalled;
-    private boolean 			waitForShutdownCalled;
-    private java.lang.Object 		queueLog = new java.lang.Object();
+    private boolean			            terminate;
+    private boolean 			        waitForCompletionCalled;
+    private boolean 			        waitForShutdownCalled;
+    private final java.lang.Object      queueLog = new java.lang.Object();
     private int                         threadPriority = Thread.MAX_PRIORITY;
 
-    /**
-     * private constructor
-     */
-
-    private RequestController()
-    {
-    }
-
-    /**
-     * constructor
-     */
 
     RequestController( POA _poa,
-                       org.jacorb.orb.ORB _orb,
-                       AOM _aom)
+            org.jacorb.orb.ORB _orb,
+            AOM _aom,
+            RPPoolManager _poolManager)
     {
         super("RequestController-" + (++count));
         poa = _poa;
@@ -104,50 +88,48 @@ public final class RequestController
 
         requestQueue = new RequestQueue(this);
 
-        activeRequestTable =
-            poa.isSingleThreadModel() ? 
-            new Hashtable(1) : 
-            new Hashtable(threadPoolMax);
+        poolManager = _poolManager;
     }
 
-   
+
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        this.configuration = 
+        this.configuration =
             (org.jacorb.config.Configuration)myConfiguration;
 
         logger = configuration.getNamedLogger("jacorb.poa.controller");
 
         requestQueue.configure(myConfiguration);
 
-        threadPoolMin = 
-            configuration.getAttributeAsInteger("jacorb.poa.thread_pool_min", 5);
-
-        threadPoolMax = 
+        threadPoolMax =
             configuration.getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
 
-        threadPriority = 
-            configuration.getAttributeAsInteger("jacorb.poa.thread_priority", 
+        threadPriority =
+            configuration.getAttributeAsInteger("jacorb.poa.thread_priority",
                                                 Thread.MAX_PRIORITY);
 
+        activeRequestTable = poa.isSingleThreadModel() ? new Hashtable(1) : new Hashtable(threadPoolMax);
+
         if( threadPriority < Thread.MIN_PRIORITY )
+        {
             threadPriority = Thread.MIN_PRIORITY;
+        }
         else if( threadPriority > Thread.MAX_PRIORITY )
+        {
             threadPriority = Thread.MAX_PRIORITY;
+        }
 
         setPriority(threadPriority);
         setDaemon(true);
 
-        configured = true;
-        getPoolManager();
         start();
     }
 
 
     void clearUpPool()
     {
-        getPoolManager().destroy();
+        poolManager.destroy();
     }
 
     /**
@@ -219,29 +201,6 @@ public final class RequestController
 
     RPPoolManager getPoolManager()
     {
-        if (!configured)
-            throw new Error("Internal: not configured");
-
-        if (poolManager == null)
-        {
-            if (poa.isSingleThreadModel())
-            {
-                if (singletonPoolManager == null)
-                {
-                    singletonPoolManager =
-                        new RPPoolManager(orb.getPOACurrent(), 1, 1,
-                                          logger, configuration);
-                }
-                poolManager = singletonPoolManager;
-            }
-            else
-            {
-                poolManager =
-                    new RPPoolManager(orb.getPOACurrent(),
-                                      threadPoolMin, threadPoolMax,
-                                      logger, configuration);
-            }
-        }
         return poolManager;
     }
 
@@ -379,7 +338,7 @@ public final class RequestController
                          " trying to get a RequestProcessor");
         }
 
-        RequestProcessor processor = getPoolManager().getProcessor();
+        RequestProcessor processor = poolManager.getProcessor();
         processor.init(this, request, servant, servantManager);
         processor.begin();
     }
@@ -420,7 +379,7 @@ public final class RequestController
 
     synchronized void resetPreviousCompletionCall()
     {
-    	if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled())
             logger.debug("reset a previous completion call");
 
         waitForCompletionCalled = false;
@@ -555,7 +514,7 @@ public final class RequestController
         {
             try
             {
-            	if (logger.isDebugEnabled())
+                if (logger.isDebugEnabled())
                     logger.debug("somebody waits for completion and there are active processors");
                 wait();
             }
