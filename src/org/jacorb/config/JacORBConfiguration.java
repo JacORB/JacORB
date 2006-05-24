@@ -541,20 +541,33 @@ public class JacORBConfiguration
 
         if ( !logFileName.equals(""))
         {
-            // Convert $implname postfix to implementation name
-            if (logFileName.endsWith("$implname"))
+            if (orb == null)
             {
-                logFileName = logFileName.substring (0, logFileName.length () - 9);
-
-                final String serverId;
-                if (orb != null)
+                final String singletonLogFile = getAttribute("jacorb.logfile.singleton", "");
+                if (singletonLogFile.equals(""))
                 {
-                    serverId = new String(orb.getServerId());
+                    // setting to "" effectively disables logging for the singleton orb.
+                    logFileName = "";
                 }
                 else
                 {
-                    serverId = getAttribute("jacorb.logfile.singleton", "orbsingleton");
+                    if (logFileName.indexOf('/') > 0)
+                    {
+                        logFileName = logFileName.substring(0, logFileName.lastIndexOf('/')); // TODO what if path is specified in windows notation?
+                        logFileName += singletonLogFile; // TODO add unique part
+                    }
+                    else
+                    {
+                        logFileName = singletonLogFile;
+                    }
                 }
+            }
+            else if (logFileName.endsWith("$implname"))
+            {
+                // Convert $implname postfix to implementation name
+                logFileName = logFileName.substring (0, logFileName.length () - 9);
+
+                final String serverId = new String(orb.getServerId());
                 String implName = getAttribute("jacorb.implname", serverId);
                 logFileName += implName + ".log";
             }
