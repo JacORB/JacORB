@@ -487,8 +487,17 @@ public class JacORBConfiguration
         Properties result = null;
         try
         {
-            java.net.URL url =
-                Thread.currentThread().getContextClassLoader().getResource(name);
+            final ClassLoader cl;
+
+            if (Thread.currentThread().getContextClassLoader() != null)
+            {
+                cl = Thread.currentThread().getContextClassLoader();
+            }
+            else
+            {
+                cl = JacORBConfiguration.class.getClassLoader();
+            }
+            java.net.URL url = cl.getResource(name);
             if (url!=null)
             {
                 result = new Properties();
