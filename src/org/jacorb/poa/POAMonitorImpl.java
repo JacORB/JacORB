@@ -77,10 +77,10 @@ public class POAMonitorImpl
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.poa.monitor");
 
-        threadPoolMin = 
+        threadPoolMin =
             configuration.getAttributeAsInteger("jacorb.poa.thread_pool_min", 5);
 
-        threadPoolMax = 
+        threadPoolMax =
             configuration.getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
 
     }
@@ -201,7 +201,7 @@ public class POAMonitorImpl
         aomModel = aom;
         queueModel = queue;
         pmModel = pm;
-        prefix = prefix;
+        prefix = _prefix;
     }
 
 
@@ -296,25 +296,6 @@ public class POAMonitorImpl
             }
         }
     }
-
-
-    private synchronized void printException(Throwable e)
-    {
-        if (view != null)
-        {
-            try {
-                view._printMessage("####################################################################");
-                view._printMessage("\t"+e);
-                view._printMessage("####################################################################");
-            }
-            catch (Throwable exception)
-            {
-                System.err.println("Exception occurred in _printException() of POAMonitor");
-            }
-        }
-    }
-
-
 
     private synchronized void printMessage(String str)
     {
