@@ -81,7 +81,9 @@
                 debuglevel="${debuglevel}"
                 sourcepathref="@{javac-sourcepath}"
                 includes="@{javac-includes}"
-                excludes="@{javac-excludes}" >
+                excludes="@{javac-excludes}"
+                source="1.4"
+                target="1.4" >
             <src path="@{javac-src}" />
             <src path="${src.generated}" />
          </javac>
