@@ -28,9 +28,6 @@ import org.jacorb.util.threadpool.*;
 /**
  * MessageReceptorPool.java
  *
- *
- * Created: Sat Aug 18 10:40:25 2002
- *
  * @author Nicolas Noffke
  * @version $Id$
  */
@@ -38,27 +35,37 @@ import org.jacorb.util.threadpool.*;
 public class MessageReceptorPool
 {
     private static final int MAX_DEFAULT = 1000;
+    private static final int MAX_IDLE_DEFAULT = 5;
 
-    private int maxConnectionThreads = 1000;
-    private ThreadPool pool = null;
+    private final ThreadPool pool;
 
-    public MessageReceptorPool(String threadNamePrefix, Configuration myConfiguration)
+    /**
+     * @param config must be client or server to specify which configurationsubset should be used
+     * @param threadNamePrefix prefix that's used to name all threads that are created by this pool
+     * @param myConfiguration current configuration
+     * TODO configuration of this class should be enhanced. config param does not feel nice.
+     */
+    public MessageReceptorPool(String config, String threadNamePrefix, Configuration myConfiguration)
     {
+        if (!config.equals("server") || !config.equals("client"))
+        {
+            throw new IllegalArgumentException("must be client or server");
+        }
+
         org.jacorb.config.Configuration configuration =
             (org.jacorb.config.Configuration) myConfiguration;
 
-        int maxConnectionThreads = MAX_DEFAULT;
+        final int maxConnectionThreads =
+            configuration.getAttributeAsInteger("jacorb.connection." + config + ".max_threads", MAX_DEFAULT);
 
-        final String attribute = "jacorb.connection.max_threads";
-
-        maxConnectionThreads =
-            configuration.getAttributeAsInteger(attribute, MAX_DEFAULT);
+        final int maxIdleThreads = configuration.getAttributeAsInteger("jacorb.connection." + config + ".max_idle_receptor_threads", MAX_IDLE_DEFAULT);
 
         Logger logger = configuration.getNamedLogger("jacorb.orb.giop");
 
         if (logger.isDebugEnabled())
         {
             logger.debug("Maximum connection threads: " + maxConnectionThreads);
+            logger.debug("Maximum idle threads: " + maxIdleThreads);
         }
 
         pool =
@@ -68,8 +75,9 @@ public class MessageReceptorPool
                                     {
                                         return new MessageReceptor();
                                     }
-                                }, //maximum number of connections
-                               maxConnectionThreads, 5 ); //max idle threads
+                                },
+                                maxConnectionThreads,
+                                maxIdleThreads ); //max idle threads
     }
 
     public void connectionCreated( GIOPConnection conn )

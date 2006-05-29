@@ -20,23 +20,19 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-
-import org.omg.ETF.Factories;
-
-import org.jacorb.orb.*;
-import org.jacorb.orb.factory.*;
-import org.jacorb.orb.iiop.*;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.util.ObjectUtil;
+import org.omg.ETF.Factories;
 
 /**
  * This class manages connections.<br>
@@ -85,7 +81,7 @@ public class ClientConnectionManager
         throws ConfigurationException
     {
         // Moved from the constructor to facilitate logging.
-        receptor_pool = new MessageReceptorPool("ClientMessageReceptor", myConfiguration);
+        receptor_pool = new MessageReceptorPool("client", "ClientMessageReceptor", myConfiguration);
 
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.orb.giop");

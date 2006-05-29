@@ -60,6 +60,9 @@ post 2.2.4
         - Fix for using an Object Reference inside a DynAny
         - new property: jacorb.poa.thread_pool_shared. This is to share a
           single thread pool amongst all the POAs.
+        - new properties (jacorb.connection.client.max_idle_receptor_threads,
+          jacorb.connection.client.max_receptor_threads, jacorb.connection.server.max_idle_receptor_threads,
+          jacorb.connection.server.max_receptor_threads) to control size of the MessageReceptorPool
     - IDL:
         - Added CosProperty.idl
     - Logging:

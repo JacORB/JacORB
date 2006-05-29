@@ -21,22 +21,32 @@
 package org.jacorb.orb;
 
 import java.lang.reflect.Constructor;
-import java.net.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import org.jacorb.orb.giop.*;
-import org.jacorb.orb.iiop.*;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.factory.SSLServerSocketFactory;
 import org.jacorb.orb.factory.ServerSocketFactory;
-import org.jacorb.orb.factory.SocketFactory;
-import org.jacorb.orb.factory.SocketFactoryManager;
+import org.jacorb.orb.giop.GIOPConnection;
+import org.jacorb.orb.giop.GIOPConnectionManager;
+import org.jacorb.orb.giop.MessageReceptorPool;
+import org.jacorb.orb.giop.NoBiDirServerReplyListener;
+import org.jacorb.orb.giop.ReplyListener;
+import org.jacorb.orb.giop.RequestListener;
+import org.jacorb.orb.giop.ServerRequestListener;
+import org.jacorb.orb.giop.TransportManager;
+import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.orb.iiop.IIOPListener;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.util.ObjectUtil;
-
-import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.framework.configuration.*;
-
 import org.omg.CORBA.INTERNAL;
-import org.omg.ETF.*;
+import org.omg.ETF.Connection;
+import org.omg.ETF.Factories;
+import org.omg.ETF.Listener;
 import org.omg.PortableServer.POA;
 
 /**
@@ -133,7 +143,7 @@ public class BasicAdapter
 
         }
 
-        receptor_pool = new MessageReceptorPool("ServerMessageReceptor", myConfiguration);
+        receptor_pool = new MessageReceptorPool("server", "ServerMessageReceptor", myConfiguration);
 
         request_listener = new ServerRequestListener( orb, rootPOA );
         request_listener.configure( configuration );

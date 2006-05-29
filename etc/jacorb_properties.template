@@ -185,11 +185,19 @@ jacorb.maxManagedBufSize=18
 # max time (msecs) a server keeps a connection open if nothing happens
 #jacorb.connection.server.timeout=10000
 
+# because JacORB uses blocking network IO, it assigns a thread to each
+# connection to listen and read messages. Threads are taken from a thread pool
+# that can be configured with these following properties. max_receptor_threads
+# is equal to the number of connections that can be serviced
+# simultaneously. When all threads are in use, new connections can still be
+# opened or accepted, but will not be listened on.
+#jacorb.connection.client.max_idle_receptor_threads=5
+#jacorb.connection.client.max_receptor_threads=1000
+#jacorb.connection.server.max_idle_receptor_threads=5
+#jacorb.connection.server.max_receptor_threads=1000
+
 # Max no of accepted connections on the server.
 #jacorb.connection.max_server_connections=
-
-# Max number of connection threads.
-#jacorb.connection.max_threads=
 
 # The number of msecs that are waited until the next attempt to find
 # an idle connection is made (i.e. do not continuously spin)
