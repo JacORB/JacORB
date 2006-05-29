@@ -1145,35 +1145,24 @@ public class UnionType
 
         TypeSpec label_t = switch_type_spec.typeSpec();
 
-        while(label_t instanceof ScopedName || label_t instanceof AliasTypeSpec)
+        if (label_t instanceof ScopedName)
         {
-            if (label_t instanceof ScopedName)
-                label_t = ((ScopedName)label_t).resolvedTypeSpec();
-            if (label_t instanceof AliasTypeSpec)
-                label_t = ((AliasTypeSpec)label_t).originalType();
+            label_t = ((ScopedName)label_t).resolvedTypeSpec();
         }
+
 
         label_t = label_t.typeSpec();
         e = switch_body.caseListVector.elements ();
 
-        int mi = -1;
-        for (int i=0; i<switch_body.caseListVector.size (); i++)
-        {
-            mi += ((Case)switch_body.caseListVector.get (i)).case_label_list.v.size ();
-        }
+        int mi = 0;
 
         while (e.hasMoreElements ())
         {
             cse = (Case) e.nextElement();
             TypeSpec t = cse.element_spec.t;
 
-            while(t instanceof ScopedName || t instanceof AliasTypeSpec)
-            {
-                if (t instanceof ScopedName)
-                    t = ((ScopedName)t).resolvedTypeSpec();
-                if (t instanceof AliasTypeSpec)
-                    t = ((AliasTypeSpec)t).originalType();
-            }
+            if (t instanceof ScopedName)
+                t = ((ScopedName)t).resolvedTypeSpec();
 
             t = t.typeSpec();
             Declarator d = cse.element_spec.d;
@@ -1185,30 +1174,36 @@ public class UnionType
 
                 ps.println("\t\t\tlabel_any = org.omg.CORBA.ORB.init().create_any ();");
 
+                TypeSpec tocheck = label_t;
+                if (label_t instanceof AliasTypeSpec)
+                {
+                    tocheck =  ((AliasTypeSpec)label_t).originalType();
+                }
+
                 if (o == null)
                 {
                     ps.println("\t\t\tlabel_any.insert_octet ((byte)0);");
                 }
-                else if (label_t instanceof BaseType)
+                else if (tocheck instanceof BaseType)
                 {
-                    if ((label_t instanceof CharType) ||
-                        (label_t instanceof BooleanType) ||
-                        (label_t instanceof LongType) ||
-                        (label_t instanceof LongLongType))
-                    {
-                        ps.print("\t\t\tlabel_any." + label_t.printInsertExpression() + " (");
-                    }
-                    else if (label_t instanceof ShortType)
-                    {
-                        ps.print("\t\t\tlabel_any." + label_t.printInsertExpression() + " ((short)");
-                    }
-                    else
-                    {
-                        throw new RuntimeException("Compiler error: unrecognized BaseType: "
-                                                   + label_t.typeName() + ":" + label_t + ": " + label_t.typeSpec()
-                                                   + ": " + label_t.getClass().getName());
-                    }
-                    ps.println(((ConstExpr)o).value() + ");");
+                    if ((tocheck instanceof CharType) ||
+                            (tocheck instanceof BooleanType) ||
+                            (tocheck instanceof LongType) ||
+                            (tocheck instanceof LongLongType))
+                        {
+                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " (");
+                        }
+                        else if (tocheck instanceof ShortType)
+                        {
+                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((short)");
+                        }
+                        else
+                        {
+                            throw new RuntimeException("Compiler error: unrecognized BaseType: "
+                                                       + tocheck.typeName() + ":" + tocheck + ": " + tocheck.typeSpec()
+                                                       + ": " + tocheck.getClass().getName());
+                        }
+                        ps.println(((ConstExpr)o).value() + ");");
                 }
                 else if (switch_is_enum)
                 {
@@ -1218,13 +1213,13 @@ public class UnionType
                 }
                 else
                 {
-                    throw new RuntimeException("Compiler error: unrecognized label type: " + label_t.typeName());
+                    throw new RuntimeException("Compiler error: unrecognized label type: " + tocheck.typeName());
                 }
 
                 ps.print
                     (
                      "\t\t\tmembers[" +
-                     (mi--) +
+                     (mi++) +
                      "] = new org.omg.CORBA.UnionMember (\"" +
                      d.deEscapeName() +
                      "\", label_any, "
@@ -1374,6 +1369,4 @@ public class UnionType
     {
         visitor.visitUnion(this);
     }
-
-
 }

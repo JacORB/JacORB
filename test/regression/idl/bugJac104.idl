@@ -1,0 +1,22 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module BasicConfig
+            {
+               enum MOidpairKind {RefType, DNType};
+
+               union MOidpair switch (MOidpairKind)
+               {
+                  case RefType: long value0;
+                  case DNType:  string value1;
+               };
+            };
+         };
+      };
+   };
+};
