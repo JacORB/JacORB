@@ -47,7 +47,7 @@ public class MessageReceptorPool
      */
     public MessageReceptorPool(String config, String threadNamePrefix, Configuration myConfiguration)
     {
-        if (!config.equals("server") || !config.equals("client"))
+        if (!config.equals("server") && !config.equals("client"))
         {
             throw new IllegalArgumentException("must be client or server");
         }
