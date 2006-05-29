@@ -63,6 +63,7 @@ post 2.2.4
         - new properties (jacorb.connection.client.max_idle_receptor_threads,
           jacorb.connection.client.max_receptor_threads, jacorb.connection.server.max_idle_receptor_threads,
           jacorb.connection.server.max_receptor_threads) to control size of the MessageReceptorPool
+        - name all threads created by JacORB (bugzilla #472)
     - IDL:
         - Added CosProperty.idl
     - Logging:
