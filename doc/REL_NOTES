@@ -44,6 +44,7 @@ post 2.2.4
 ==========
     - Documentation
         - Updated and merged JacIDL HTML into ProgrammingGuide.
+        - Improved SSL documentation
         - Document all available loggers
         - Improved property documentation
         - Improved command line documentation.
@@ -57,14 +58,14 @@ post 2.2.4
         - Enhance Any equals for value comparison.
         - Improve typecode error checking.
         - Fix for using an Object Reference inside a DynAny
+        - new property: jacorb.poa.thread_pool_shared. This is to share a
+          single thread pool amongst all the POAs.
     - IDL:
         - Added CosProperty.idl
     - Logging:
-        - singleton ORB also uses a logfile if the property
+        - singleton ORB uses a logfile if the property
           jacorb.logfile is set.
 
-    - new property: jacorb.poa.thread_pool_shared. This is to share a
-                    single thread pool amongst all the POAs.
 2.2.4
 =====
 

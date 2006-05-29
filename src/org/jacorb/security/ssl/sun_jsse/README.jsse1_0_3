@@ -1,12 +1,13 @@
 ***********************************************
 *                                             *
 *  Special instructions for building with a   *
-*  JDK < 1.4 and the downloadable JSSE 1.0.2  *
+*  JDK < 1.4 and the downloadable JSSE 1.0.3  *
 *                                             *
 ***********************************************
 
 To be able to compile the classes in this package with a JDK < 1.4 and
-the downloadable JSSE 1.0.2, you have to take the following steps:
+the downloadable JSSE 1.0.3 (http://java.sun.com/products/jsse/index-103.html),
+ you have to take the following steps:
 
 1.) Apply the patches (kindly provided by Stephan Feder [sf@b-i-t.de])
     by running "ant patch" (or using patch manually). You can remove

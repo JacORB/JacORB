@@ -32,8 +32,9 @@ required:
 
         \item when using Suns libraries:
               \begin{itemize}
-              \item JDK 1.4 or jsse1.0.2 available from the Developer
-                Connection (for jsse1.0.2, please see the {\tt README.jsse\_1\_0\_2} in
+              \item JDK 1.4 or JSSE 1.0.3 or above available from the
+                Sun's Java Webpages (for JSSE 1.0.3, please see the
+                {\tt README.jsse\_1\_0\_3} in 
                 {\tt src/org/jacorb/security/ssl/sun\_jsse} on how to compile).
               \item For key management, you also need additional packages like
                 OpenSSL. These are not necessary for JacORB to work.
@@ -45,15 +46,11 @@ successfull installation, build JacORB anew by typing {\tt ant} in your JacORB
 installation directory.
 
 
-\section{IAIK specific setup}
-This section covers topics that are specific to IAIKs libraries.
-
-\subsection{Setting up an IAIK key store}
+\section{Key stores}
 
 SSL  relies   on  public  key  certificates  in   the  standard  X.509
 format. These  certificates are presented in  the authentication phase
 of the  SSL handshake and used  to compute and  exchange session keys.
-This section explains how to create and store these certificates.
 
 The Java 2  security API provides interfaces that  access a persistent
 data structure  called {\em  KeyStore}. A key  store is simply  a file
@@ -62,12 +59,109 @@ keys. It also  contains other certificates that can  be used to verify
 public key  certificates.  All  cryptographic data is  protected using
 passwords and accessed using names called {\em aliases}.
 
-JacORB provides a  GUI tool to create and  manipulate key store files,
-the  KeyStoreManager. It  can generate  key pairs,  sign  public keys,
-import  or   export  certificates,  and   define  trusted  certificate
-authorities. To start the KeyStoreManager, simply type {\tt ks} on the
-command  line. The GUI  lets you  select and  open existing  key store
-files, or create new ones.
+The following section explain how to create key stores for Sun JSSE
+and for IAIK.
+
+%Note that  key  stores  are normally  used  only for  client
+%authentication in JacORB.   Servers may, but need not,  have their own
+%keys and  passwords because server authentication is  optional and not
+%mandatory like  client authentication. Technically,  this is achieved
+%by  exchanging the  client  and server  roles  at SSL  setup. This  is
+%entirely  transparent to  applications, of  course, but  might prevent
+%interoperation  with other ORBs  over SSL  if their  SSL setup  is not
+%prepared to handle this role change.
+
+\subsection{Setting up a JSSE key store}
+
+To set up key stores with JSSE you can use Java's {\tt keytool}.
+In  order to  generate  a  simple public  key  infrastructure you  can
+perform the following steps:
+
+\begin{enumerate}
+\item Create a new key store containing a new public/private key pair
+with {\tt keytool}. The public key will be wrapped into a self-signed certificate.  
+\item Export the self-signed certificate from the key store into a file.
+\item Import the self-signed certificate into a trust store
+   (or configure that trustees shall be read from key store, see below). 
+\end{enumerate}
+To create a new key store containing a new public/private key pair type: 
+\begin{verbatim}
+   keytool -genkey -alias <alias> -keystore <keystore>
+\end{verbatim}
+If you don't give a key store name {\tt keytool} will create a key store with
+the name {\tt .keystore} in the user's home directory. The command
+given above will ask for the following input: 
+\begin{verbatim}
+   Enter keystore password:  changeit
+   What is your first and last name?
+     [Unknown]:  Developer
+   What is the name of your organizational unit?
+     [Unknown]:  cs
+   What is the name of your organization?
+     [Unknown]:  PrismTech
+   What is the name of your City or Locality?
+     [Unknown]:  Berlin
+   What is the name of your State or Province?
+     [Unknown]:  Berlin
+   What is the two-letter country code for this unit?
+     [Unknown]:  Germany
+   Is CN=Developer, OU=cs, O=PrismTech, L=Berlin, ST=Berlin, 
+      C=Germany correct?
+     [no]:  yes
+
+   Enter key password for <testkey>
+        (RETURN if same as keystore password):  testkey
+\end{verbatim}
+You can view the entries of the newly created keystore by typing:
+\begin{verbatim}
+keytool -keystore <keystore> -list -storepass <password>
+\end{verbatim}
+The output will read for example like this:
+
+\begin{verbatim}
+   Keystore type: jks
+   Keystore provider: SUN
+
+   Your keystore contains 1 entry
+
+   testkey, Dec 1, 2004, keyEntry,
+   Certificate fingerprint (MD5): C4:9B:11:97:FF:CD:4C:C9:B3:02:BB:
+   9A:46:D8:C3:11
+\end{verbatim}
+
+Now you have a public key certificate that you can present for
+authentication. The public key contained in the key store is wrapped
+into a self-signed certificate. This self-signed certificate has to be
+added to the Java trust store. To do this export the certificate from
+the key store and import it into the Java trust store located in {\tt
+<java\_home>/jre/lib/security/cacerts}.  
+
+To export the self-signed certificate into a file type:
+\begin{verbatim}
+keytool -export -keystore <keystore> -alias <alias> -file <filename>
+\end{verbatim}
+To import the certificate into the trust store type:
+\begin{verbatim}
+keytool -import -keystore <truststore> -alias <alias> -file <filename> 
+\end{verbatim}
+
+More documentation on key stores  can be found in the Java tool
+documentation for the {\tt keytool}  command. Note that if you care
+for ``real'' security,  be advised  that setting  up  and managing
+(or finding)  a properly administered CA is essential for the overall
+security of your system.
+
+%\section{IAIK specific setup}
+%This section covers topics that are specific to IAIKs libraries.
+
+\subsection{Setting up an IAIK key store}
+
+JacORB provides a  GUI tool to create and  manipulate IAIK key store
+files, the  KeyStoreManager. It  can generate  key pairs,  sign
+public keys, import  or   export  certificates,  and   define  trusted
+certificate authorities. To start the KeyStoreManager, simply type
+{\tt ks} on the command  line. The GUI  lets you  select and  open
+existing  key store files, or create new ones.
 
 Starting with an  empty key store, you first need to  create a new key
 store and then  a key pair and certificate. Select  {\tt New} from the
@@ -117,21 +211,17 @@ key  chain  has  the proper  format  {\em  and}  the CA's  public  key
 certificate is also declared  as trusted using the {\tt Trustees--add}
 menu, the  verification will fail.  Only of  the verification succeeds
 will you be able to use a public key certificate in the SSL connection
-setup. More documentation on key stores  can be found in the Java tool
-documentation for the {\tt keytool}  command. If you care for ``real''
-security,  be advised  that setting  up  and managing  (or finding)  a
-properly administered CA is essential for the overall security of your
-system.
+setup. 
 
 \subsection{Step--By--Step certificate creation}
 In  order to  generate  a  simple public  key  infrastructure you  can
 perform the following steps:
 \begin{enumerate}
-\item Create new keystores (File/new) and keypairs (Keys/new) for the CA
+\item Create new key stores (File/new) and keypairs (Keys/new) for the CA
 and for the user.
-\item  Open the  user keystore (File/open),  select the  key  entry and
+\item  Open the  user keys tore (File/open),  select the  key  entry and
 export the self-signed certificate (Certificates/Export).
-\item  Open  the  CA  keystore  and  add the  user  certificate  as  a
+\item  Open  the  CA  key store  and  add the  user  certificate  as  a
 Trustee (Trustees/add\dots).
 \item Select the  trusted user certificate and create  a signed public
 key certificate (Certificates/Create). Leave the role name field empty,
@@ -139,12 +229,12 @@ enter the  CAs private  key password and  save the new  certificate by
 clicking OK.
 \item Export the  CAs self-signed certificate to a  file (as explained
 above).    Delete    the    trusted    certificate   from    the    CA
-keystore (Trustees/Delete).
-\item Open the  user keystore again. Select the  key entry, the import
+key store (Trustees/Delete).
+\item Open the  user key store again. Select the  key entry, the import
 the CA-signed  user cert (Certificates/Import), and  the self-signed CA
 cert.
 \item Add  the self-signed CA cert  as a trustee. This  is only needed
-for verifying the chain, therefor the keystore can be deployed without
+for verifying the chain, therefor the key store can be deployed without
 it.  Please  note  that  a  failed  verification  might  result  in  a
 SignatureException.
 \end{enumerate}
@@ -162,32 +252,64 @@ set the following property to ``on'':
 This will just load the SSL classes on startup. The configuration of the
 various aspects of SSL is done via additional properties.
 
+Configure which SSL socket factory and SSL server socket factory shall
+be used with the properties:
+\begin{verbatim}
+         jacorb.ssl.socket_factory=qualified classname
+         jacorb.ssl.server_socket_factory=qualified classname 
+\end{verbatim}
+
+If you want to use JSSE, then configure the following as qualified
+classname of SSL Socket Factory and SSL server socket factory: 
+\begin{verbatim}
+         org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
+         org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
+\end{verbatim}
+%jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
+     
+If you want to use IAIK, then configure the following as qualified
+classname of SSL Socket Factory and SSL server socket factory: 
+\begin{verbatim}
+         org.jacorb.security.ssl.iaik.SSLSocketFactory
+         org.jacorb.security.ssl.iaik.SSLServerSocketFactory
+\end{verbatim}
+%jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.iaik.SSLSocketFactory
+
 As explained  in the previous  section, cryptographic data  (key pairs
-and  certificates) is  stored in  a  keystore  file. To configure the
-file name of the keystore file, you need to define the following
+and  certificates) is  stored in  a  key store  file. To configure the
+file name of the key store file, you need to define the following
 property:
 
 \begin{verbatim}
         jacorb.security.keystore=AKeystoreFileName
 \end{verbatim}
 
-The keystore file name can either be an absolute path or relative to
-the home directory. Keystores are searched in this order, and the
+The key store file name can either be an absolute path or relative to
+the home directory. Key stores are searched in this order, and the
 first one found is taken. If this property is not set, the user will be
-prompted to enter a keystore location on ORB startup.
+prompted to enter a key store location on ORB startup.
 
 To avoid  typing in  lots of  aliases and passwords  (one for  the key
 store, and  one for each entry  that is used), you  can define default
-aliases and passwords like this:
+aliases and passwords like this (the default user only applies when
+using IAIK):
 
 \begin{verbatim}
-# the name of the default key alias to look up in the keystore
+# the name of the default key alias to look up in the key store
 jacorb.security.default_user=brose
 jacorb.security.default_password=jacorb
 \end{verbatim}
 
+Note that when using Sun JSSE: The {\tt javax.net.ssl.trustStore[Password]}
+properties doesn't seem to take effect, so you may want to add trusted
+certificates to "normal" key stores. In this case configure JacORB to read
+certificates from the key store rather than from a dedicated trust
+store, please set the property
+\begin{verbatim} 
+jacorb.security.jsse.trustees_from_ks=on
+\end{verbatim}
 
-These SSL settings can be further refined using security options as in
+SSL settings can be further refined using security options as in
 the following property definitions:
 
 \begin{verbatim}
@@ -225,65 +347,98 @@ the CORBA Security Service  Specification and reproduced here from the
 % sections go into some more detail about what specific property values
 % mean.
 
-\subsection{Client side configuration}
+\subsection{Client side and server side configuration}
+On both the client side and the server side supported and required
+options can be configured. The following tables explain the settings
+for supported and required options for client and server.
 
-\begin{verbatim}
-   jacorb.security.ssl.client.supported_options=20 //EstablishTrustInTarget
-\end{verbatim}
-This value indicates that the client can use SSL. Actually, this is default
-SSL behaviour and must always be supported by the client.
-
-\begin{verbatim}
-   jacorb.security.ssl.client.supported_options=40 //EstablishTrustInClient
-\end{verbatim}
-This makes the client load it's own key/certificate from it's
-keystore, because it must be prepared to authenticate to the server.
-
-\begin{verbatim}
-   jacorb.security.ssl.client.required_options=20 //EstablishTrustInTarget
-\end{verbatim}
-This enforces SSL to be used.
-
-\begin{verbatim}
-   jacorb.security.ssl.client.required_options=40 //EstablishTrustInClient
-\end{verbatim}
-This enforces SSL to be used. Actually, this is no meaningfuly value, since in
-SSL, the client can't force it's own authentication to the server.
+\begin{table}
+\caption{Client side supported options}
+\begin{tabular}{|p{7cm}|p{7cm}|}
+\hline
+\textbf{Property with value}& \textbf{Description}\\
+\hline
+\verb"jacorb.security.ssl."
+\verb"client.supported_options=20" 
+\verb"// EstablishTrustInTarget"& This value indicates that the client can use SSL. Actually, this
+is default SSL behaviour and must always be supported by the client.\\
+\hline
+\verb"jacorb.security.ssl."
+\verb"client.supported_options=40"
+\verb"// EstablishTrustInClient"& This makes
+the client load it's own key/certificate from it's key 
+store, to enable it to authenticate to the server. \\
+\hline
+\end{tabular}
+\end{table}
 
 
-\subsection{Server side configuration}
+\begin{table}
+\caption{Client side required options}
+\begin{tabular}{|p{7cm}|p{7cm}|}
+\hline
+\textbf{Property with value}& \textbf{Description}\\
+\hline
+\verb"jacorb.security.ssl."
+\verb"client.required_options=20"
+\verb"// EstablishTrustInTarget"& This enforces SSL to be used.\\ 
+\hline
+\verb"jacorb.security.ssl."
+\verb"client.required_options=40"
+\verb"// EstablishTrustInClient"& This
+enforces SSL to be used. Actually, this is no meaningfuly 
+value, since in SSL, the client can't force it's own authentication to
+the server. \\
+\hline
+\end{tabular}
+\end{table}
 
-\begin{verbatim}
-   jacorb.security.ssl.server.supported_options=1 //NoProtection
-\end{verbatim}
-This tells the clients that the server also supports unprotected
-connections. If NoProtection is set, no required options should be set as
-well, because they override this value.
+\begin{table}
+\caption{Server side supported options}
+\begin{tabular}{|p{7cm}|p{7cm}|}
+\hline
+\textbf{Property with value}& \textbf{Description}\\
+\hline
+\verb"jacorb.security.ssl."
+\verb"server.supported_options=1"
+\verb"// NoProtection"& This tells the clients that the server also
+supports unprotected connections. If NoProtection is set, no required
+options should be set as well, because they override this value. \\
+\hline
+\verb"jacorb.security.ssl."
+\verb"server.supported_options=20"
+\verb"// EstablishTrustInTarget"& This value indicates that the server
+supports SSL. Actually, this is default SSL behaviour and must always
+be supported by the server. This also makes the server load it's
+key/certificate from the key store.\\ 
+\hline
+\verb"jacorb.security.ssl."
+\verb"server.supported_options=40"
+\verb"// EstablishTrustInClient"&  This value is ignored, because
+authenticating the client is either required, or not done at all (the
+client can't force its own authentication).\\
+\hline
+\end{tabular}
+\end{table}
+\begin{table}
 
-\begin{verbatim}
-   jacorb.security.ssl.server.supported_options=20 //EstablishTrustInTarget
-\end{verbatim}
-This value indicates that the server supports SSL. Actually, this is default
-SSL behaviour and must always be supported by the server. This also makes the
-server load it's key/certificate from the keystore.
-
-\begin{verbatim}
-   jacorb.security.ssl.server.supported_options=40 //EstablishTrustInClient
-\end{verbatim}
-This value is ignored, because authenticating the client is either
-required, or not done at all (the client can't force its own
-authentication).
-
-\begin{verbatim}
-   jacorb.security.ssl.server.required_options=20 //EstablishTrustInTarget
-\end{verbatim}
-This enforces SSL to be used.
-
-\begin{verbatim}
-   jacorb.security.ssl.server.required_options=40 //EstablishTrustInClient
-\end{verbatim}
-This enforces SSL to be used, and will request the client to authenticate. It
-also will load trusted certificates for the authentication process.
+\caption{Server side required options}
+\begin{tabular}{|p{7cm}|p{7cm}|}
+\hline
+\textbf{Property with value}& \textbf{Description}\\
+\hline
+\verb"jacorb.security.ssl."
+\verb"server.required_options=20"
+\verb"// EstablishTrustInTarget"& This enforces SSL to be used.\\ 
+\hline
+\verb"jacorb.security.ssl."
+\verb"server.required_options=40"
+\verb"// EstablishTrustInClient"&  This enforces SSL to be used, and
+will request the client to authenticate. It also will load trusted
+certificates for the authentication process.\\ 
+\hline
+\end{tabular}
+\end{table}
 
 
 
