@@ -156,7 +156,7 @@ public final class ORB
     private org.jacorb.orb.policies.PolicyManager policyManager = null;
 
     /* policy factories, from portable interceptor spec */
-    private Map policy_factories = null;
+    private final Map policy_factories = Collections.synchronizedMap(new HashMap());
 
     private static final String [] services  =
         {"RootPOA","POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory"};
@@ -199,7 +199,7 @@ public final class ORB
             configuration.getAttribute("jacorb.giop.add_1_0_profiles", "off").equals("on");
 
         hashTableClassName =
-            configuration.getAttribute( "jacorb.hashtable_class", "" );
+            configuration.getAttribute( "jacorb.hashtable_class", HashMap.class.getName());
 
         useIMR =
             configuration.getAttribute("jacorb.use_imr","off").equals("on");
@@ -634,12 +634,13 @@ public final class ORB
                 return new
                     org.jacorb.orb.policies.SyncScopePolicy (value);
             default:
-                Integer key = new Integer(type);
-                if ( policy_factories == null ||
-                     (! policy_factories.containsKey(key)) )
+                final PolicyFactory factory = (PolicyFactory)policy_factories.get(new Integer(type));
+
+                if (factory == null)
+                {
                     throw new org.omg.CORBA.PolicyError();
-                PolicyFactory factory =
-                    (PolicyFactory)policy_factories.get(key);
+                }
+
                 return factory.create_policy(type, value);
         }
     }
@@ -650,8 +651,7 @@ public final class ORB
      */
     public boolean hasPolicyFactoryForType(int type)
     {
-        return (policy_factories != null &&
-                policy_factories.containsKey( new Integer(type)) );
+        return (policy_factories.containsKey( new Integer(type)) );
     }
 
     public org.omg.CORBA.ContextList create_context_list()
@@ -1526,6 +1526,22 @@ public final class ORB
 
     private void internalInit()
     {
+        final List orb_initializers = getORBInitializers();
+        final ORBInitInfoImpl info = new ORBInitInfoImpl (this);
+
+        interceptorPreInit(orb_initializers, info);
+
+        initClientConnectionManager();
+
+        initKnownReferencesMap();
+
+        interceptorPostInit(orb_initializers, info);
+
+        internalInit(info);
+    }
+
+    private void initClientConnectionManager()
+    {
         try
         {
             clientConnectionManager =
@@ -1536,111 +1552,104 @@ public final class ORB
         }
         catch( ConfigurationException ce )
         {
-            if (logger.isErrorEnabled())
-                logger.error(ce.getMessage());
+            logger.fatalError("unexpected exception", ce);
+            throw new INTERNAL(ce.toString());
         }
-
-
-        //String s = Environment.getProperty( "jacorb.hashtable_class" );
-        if( hashTableClassName == null || hashTableClassName.length() == 0 )
-        {
-            if (logger.isInfoEnabled())
-            {
-                logger.info("Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
-            }
-            knownReferences = new HashMap();
-        }
-        else
-        {
-            try
-            {
-                knownReferences =
-                    (Map)ObjectUtil.classForName( hashTableClassName ).newInstance();
-            }
-            catch( Exception e )
-            {
-                if (logger.isInfoEnabled())
-                {
-                    logger.info(e.toString());
-                }
-                knownReferences = new HashMap();
-            }
-        }
-
-        interceptorInit();
     }
-    /**
-     * This method retrieves the ORBInitializer-Names from the Environment,
-     * and runs them.
-     */
 
-    private void interceptorInit()
+    private void initKnownReferencesMap()
     {
-        Vector orb_initializers = getORBInitializers();
-
-        if (orb_initializers.size () > 0)
+        if (logger.isInfoEnabled())
         {
-            ORBInitInfoImpl info = new ORBInitInfoImpl (this);
-            ORBInitializer init;
+            logger.info("Property \"jacorb.hashtable_class\" is set to: " + hashTableClassName);
+        }
 
-            // call pre_init in ORBInitializers
-            for (int i = 0; i < orb_initializers.size(); i++)
-            {
-                try
-                {
-                    init = (ORBInitializer) orb_initializers.elementAt (i);
-                    init.pre_init (info);
-                }
-                catch (Exception e)
-                {
-                    if (logger.isWarnEnabled())
-                    {
-                        logger.warn( e.getMessage());
-                    }
-                }
-            }
+        try
+        {
+            knownReferences =
+                (Map)ObjectUtil.classForName( hashTableClassName ).newInstance();
+        }
+        catch (Exception e)
+        {
+            logger.fatalError("unable to create known references map", e);
+            throw new INTERNAL(e.toString());
+        }
+    }
 
-            //call post_init on ORBInitializers
-            for (int i = 0; i < orb_initializers.size (); i++)
-            {
-                try
-                {
-                    init = (ORBInitializer) orb_initializers.elementAt (i);
-                    init.post_init (info);
-                }
-                catch (Exception e)
-                {
-                    if (logger.isWarnEnabled())
-                    {
-                        logger.warn( e.toString());
-                    }
-                }
-            }
 
-            //allow no more access to ORBInitInfo from ORBInitializers
-            info.setInvalid ();
+    /**
+     * configure this ORB with the information collected
+     * from the different configured ORBInitializers
+     */
+    private void internalInit(ORBInitInfoImpl info)
+    {
+        //      allow no more access to ORBInitInfo from ORBInitializers
+        info.setInvalid ();
 
-            Vector client_interceptors = info.getClientInterceptors ();
-            Vector server_interceptors = info.getServerInterceptors ();
-            Vector ior_intercept = info.getIORInterceptors ();
+        List client_interceptors = info.getClientInterceptors ();
+        List server_interceptors = info.getServerInterceptors ();
+        List ior_intercept = info.getIORInterceptors ();
 
-            hasClientInterceptors = (client_interceptors.size () > 0);
-            hasServerInterceptors = (server_interceptors.size () > 0);
+        hasClientInterceptors = !client_interceptors.isEmpty();
+        hasServerInterceptors = !server_interceptors.isEmpty();
 
-            if (hasClientInterceptors || hasServerInterceptors || (ior_intercept.size () > 0))
-            {
-                interceptor_manager = new InterceptorManager
-                (
+        if (hasClientInterceptors || hasServerInterceptors || (!ior_intercept.isEmpty()))
+        {
+            interceptor_manager = new InterceptorManager
+            (
                     client_interceptors,
                     server_interceptors,
                     ior_intercept,
                     info.getSlotCount (),
                     this
-                );
-            }
+            );
+        }
 
-            // add PolicyFactories to ORB
-            policy_factories = info.getPolicyFactories();
+        // add PolicyFactories to ORB
+        policy_factories.putAll(info.getPolicyFactories());
+    }
+
+    /**
+     * call pre_init in ORBInitializers
+     */
+    private void interceptorPreInit(List orb_initializers, final ORBInitInfo info)
+    {
+        for (int i = 0; i < orb_initializers.size(); i++)
+        {
+            final ORBInitializer init = (ORBInitializer) orb_initializers.get (i);
+            try
+            {
+                init.pre_init (info);
+            }
+            catch (Exception e)
+            {
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn(init.getClass().getName() + ": error during ORBInitializer::pre_init", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * call post_init on ORBInitializers
+     */
+    private void interceptorPostInit(List orb_initializers, ORBInitInfo info)
+    {
+        for (int i = 0; i < orb_initializers.size (); i++)
+        {
+            ORBInitializer init = (ORBInitializer) orb_initializers.get (i);
+            try
+            {
+                init.post_init (info);
+            }
+            catch (Exception e)
+            {
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn(init.getClass().getName() + ": error during ORBInitializer::post_init", e);
+                }
+            }
         }
     }
 
@@ -1649,66 +1658,53 @@ public final class ORB
      * Collects all properties with prefix "org.omg.PortableInterceptor.ORBInitializerClass."
      * and try to instantiate their values as ORBInitializer-Classes.
      *
-     * @return a Vector containing ORBInitializer instances
+     * @return a List containing ORBInitializer instances
      */
-
-    private Vector getORBInitializers()
+    private List getORBInitializers()
     {
-        String[] prop_names = configuration.getAttributeNames();
-        Vector orb_initializers = new Vector();
-
-        String initializer_prefix =
+        final List orb_initializers = new ArrayList();
+        final List prop_names = configuration.getAttributeNamesWithPrefix("org.omg.PortableInterceptor.ORBInitializerClass.");
+        final String initializer_prefix =
             "org.omg.PortableInterceptor.ORBInitializerClass.";
 
-        //Test EVERY property if prefix matches.
-        for(int i = 0; i < prop_names.length; i++)
+        for(Iterator i = prop_names.iterator(); i.hasNext();)
         {
-            if ( prop_names[i].startsWith( initializer_prefix ))
+            final String prop_name = (String) i.next();
+            String name = configuration.getAttribute( prop_name, "" );
+
+            if( name.length() == 0 )
             {
-                String name = null;
-//                 try
-//                 {
-                    name = configuration.getAttribute( prop_names[i], "" );
- //                }
-//                 catch( ConfigurationException ce )
-//                 {
-//                     ce.printStackTrace(); // debug
-//                 }
-
-                if( name.length() == 0 )
+                if( prop_name.length() > initializer_prefix.length() )
                 {
-                    if( prop_names[i].length() > initializer_prefix.length() )
-                    {
-                        name =
-                            prop_names[i].substring( initializer_prefix.length() );
-                    }
+                    name = prop_name.substring( initializer_prefix.length() );
                 }
+            }
 
-                if( name == null )
-                {
-                    continue;
-                }
+            if( name == null )
+            {
+                continue;
+            }
 
-                try
+            try
+            {
+                orb_initializers.add(ObjectUtil.classForName(name).newInstance());
+                if( logger.isDebugEnabled())
                 {
-                    orb_initializers.addElement(ObjectUtil.classForName(name).newInstance());
-                    if( logger.isDebugEnabled())
-                        logger.debug("Build: " + name);
+                    logger.debug("Build: " + name);
                 }
-                catch (Exception e)
+            }
+            catch (Exception e)
+            {
+                if( logger.isErrorEnabled())
                 {
-                    if( logger.isDebugEnabled())
-                        logger.debug( "Unable to build ORBInitializer from >>" +
-                                      name + "<<" );
+                    logger.error( "Unable to build ORBInitializer from >>" +
+                            name + "<<", e);
                 }
             }
         }
 
         return orb_initializers;
     }
-
-
-
 
     public void shutdown( boolean wait_for_completion )
     {
@@ -2247,21 +2243,27 @@ public final class ORB
      * replaces functionality from the defunct Environment class to populate
      * a hash map based on the names starting with "jacorb.orb.ObjectKeyMap"
      */
-
     private void configureObjectKeyMap (Configuration config)
     {
-        String[] names = config.getAttributeNames();
-        String prefix = "jacorb.orb.objectKeyMap.";
-        for (int i = 0; i < names.length; i++)
+        final String prefix = "jacorb.orb.objectKeyMap.";
+        final org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)config;
+        final List names = configuration.getAttributeNamesWithPrefix(prefix);
+
+        try
         {
-            if (names[i].startsWith (prefix))
+            for (Iterator i = names.iterator(); i.hasNext(); )
             {
+                String name = (String) i.next();
                 objectKeyMap.put
                 (
-                    names[i].substring (prefix.length()),
-                    config.getAttribute (names[i],"")
+                        name.substring(prefix.length()),
+                        configuration.getAttribute(name)
                 );
             }
+        } catch (ConfigurationException e)
+        {
+            logger.fatalError("unexpected exception", e);
+            throw new INTERNAL(e.toString());
         }
     }
 
