@@ -20,7 +20,6 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,8 +29,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.ORB;
-import org.jacorb.orb.factory.SocketFactory;
-import org.jacorb.util.ObjectUtil;
 import org.omg.ETF.Factories;
 
 /**
@@ -39,26 +36,22 @@ import org.omg.ETF.Factories;
  *
  * @author Gerald Brose, FU Berlin
  * @version $Id$
- *
  */
 
 public class ClientConnectionManager
     implements Configurable
 {
-    private org.jacorb.orb.ORB orb = null;
+    private final org.jacorb.orb.ORB orb;
 
     /** connection mgmt. */
-    private Map connections = new HashMap();
-
-    private SocketFactory socket_factory = null;
-    private SocketFactory ssl_socket_factory = null;
+    private final Map connections = new HashMap();
 
     private RequestListener request_listener = null;
 
     private MessageReceptorPool receptor_pool = null;
 
     private TransportManager transport_manager = null;
-    private GIOPConnectionManager giop_connection_manager = null;
+    private final GIOPConnectionManager giop_connection_manager;
 
     /** the configuration object  */
     private org.jacorb.config.Configuration configuration = null;
@@ -87,33 +80,6 @@ public class ClientConnectionManager
         logger = configuration.getNamedLogger("jacorb.orb.giop");
 
         request_listener = new NoBiDirClientRequestListener(logger);
-
-        socket_factory =
-            transport_manager.getSocketFactoryManager().getSocketFactory();
-
-        if (configuration.getAttribute("jacorb.security.support_ssl","off").equals("on") )
-        {
-            String s = configuration.getAttribute("jacorb.ssl.socket_factory","");
-            if ( s.length() == 0)
-            {
-                throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
-            }
-
-            try
-            {
-                Class ssl = ObjectUtil.classForName(s);
-
-                Constructor constr =
-                    ssl.getConstructor( new Class[]{ ORB.class });
-
-                ssl_socket_factory =
-                    (SocketFactory)constr.newInstance( new Object[]{ orb });
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instantiated (" +e.toString() +")!" );
-            }
-        }
     }
 
 
@@ -122,8 +88,7 @@ public class ClientConnectionManager
         request_listener = listener;
     }
 
-    public synchronized ClientConnection getConnection
-                                              (org.omg.ETF.Profile profile)
+    public synchronized ClientConnection getConnection(org.omg.ETF.Profile profile)
     {
         /* look for an existing connection */
 
