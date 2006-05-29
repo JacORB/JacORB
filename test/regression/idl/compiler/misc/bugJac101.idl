@@ -1,0 +1,28 @@
+
+// Subset of original AlarmIRP file from Alcatel to test JacORB bug 101.
+
+#ifndef AlarmIRPSystem_idl
+#define AlarmIRPSystem_idl
+
+// This statement must appear after all include statements
+#pragma prefix "3gppsa5.org"
+
+/* ## Module: AlarmIRPSystem
+This module contains the specification of all operations of Alarm IRP Agent.
+================================================================
+*/
+module AlarmIRPSystem
+{
+   exception GetAlarmIRPVersions { string reason; };
+   exception GetAlarmIRPOperationsProfile { string reason; };
+   exception GetAlarmIRPNotificationProfile { string reason; };
+   exception AcknowledgeAlarms { string reason; };
+   exception UnacknowledgeAlarms { string reason; };
+   exception CommentAlarms { string reason; };
+   exception ClearAlarms { string reason; };
+   exception GetAlarmList { string reason; };
+   exception GetAlarmCount { string reason; };
+   exception NextAlarmInformations { string reason; };
+};
+
+#endif

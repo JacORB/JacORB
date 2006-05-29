@@ -22,6 +22,10 @@
 package org.jacorb.test.idl;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -42,23 +46,33 @@ import org.jacorb.test.common.TestUtils;
  */
 public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 {
-    private final String additionalArgument;
+    private final List arguments = new ArrayList();
 
-    public ValidIDLWithExtraSetupTest(String argument, String file)
+    public ValidIDLWithExtraSetupTest(String[] argList, String file)
     {
         super("testMiscParseGood", new File(file));
-        additionalArgument = argument;
+        arguments.addAll(Arrays.asList(argList));
+
+        arguments.add("-d");
+        arguments.add(dirGeneration.getAbsolutePath());
+        arguments.add(idlFile.getAbsolutePath());
+    }
+
+    public ValidIDLWithExtraSetupTest(String arg, String file)
+    {
+        this(new String[] {arg}, file);
     }
 
     protected String[] createJacIDLArgs()
     {
-        String file[] = new String[4];
-        file[0] = additionalArgument;
-        file[1] = "-d";
-        file[2] = dirGeneration.getAbsolutePath();
-        file[3] = idlFile.getAbsolutePath();
+        String args[] = new String[arguments.size()];
 
-        return file;
+        for(int x=0; x<arguments.size(); ++x)
+        {
+            args[x] = (String) arguments.get(x);
+        }
+
+        return args;
     }
 
     public void testMiscParseGood() throws Exception
@@ -81,6 +95,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         suite.addTest(new ValidIDLWithExtraSetupTest("-ami_callback", testHome + "/idl/compiler/misc/ami.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-ami_callback", testHome + "/idl/compiler/misc/rt1180.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-I" + testHome + "/../../idl/omg", testHome + "/idl/compiler/misc/bugJac307.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ir", "-i2jpackage", "AlarmIRPSystem:org._3gpp.AlarmIRPSystem"}, testHome + "/idl/compiler/misc/bugJac101.idl"));
 
         return suite;
     }
