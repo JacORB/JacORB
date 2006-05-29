@@ -21,10 +21,13 @@
 
 package org.jacorb.test.notification.filter;
 
+import java.util.Collections;
+
 import junit.framework.Test;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.logger.Logger;
 import org.easymock.MockControl;
+import org.jacorb.config.Configuration;
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
@@ -77,8 +80,9 @@ public class GarbageCollectTest extends NotificationTestCase
         mockConfiguration_ = (Configuration) controlConfiguration_.getMock();
 
         // configuration options that setup code depends on.
-        mockConfiguration_.getAttributeNames();
-        controlConfiguration_.setReturnValue(new String[0]);
+        mockConfiguration_.getAttributeNamesWithPrefix(null);
+        controlConfiguration_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlConfiguration_.setReturnValue(Collections.EMPTY_LIST);
 
         mockConfiguration_.getAttribute(Attributes.WILDCARDMAP_CLASS, WeakCacheWildcardMap.class
                 .getName());
@@ -87,6 +91,11 @@ public class GarbageCollectTest extends NotificationTestCase
 
     public void testGCFilter() throws Exception
     {
+        MockControl loggerControl = MockControl.createNiceControl(Logger.class);
+        mockConfiguration_.getNamedLogger(null);
+        controlConfiguration_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlConfiguration_.setReturnValue(loggerControl.getMock(), MockControl.ZERO_OR_MORE);
+
         // enable gc
         mockConfiguration_.getAttributeAsBoolean(Attributes.USE_GC, Default.DEFAULT_USE_GC);
         controlConfiguration_.setReturnValue(true);
@@ -98,10 +107,10 @@ public class GarbageCollectTest extends NotificationTestCase
 
         controlConfiguration_.expectAndReturn(mockConfiguration_.getAttribute(Attributes.RUN_SYSTEM_GC, Default.DEFAULT_RUN_SYSTEM_GC), "off");
         controlConfiguration_.expectAndReturn(mockConfiguration_.getAttribute(Attributes.RUN_SYSTEM_GC, Default.DEFAULT_RUN_SYSTEM_GC), "off");
-        
+
         // another picocontainer is necessary so that registered
         // Configuration can be overridden locally to configure
-        // garbage collection.  
+        // garbage collection.
         getPicoContainer().registerComponentInstance(Configuration.class, mockConfiguration_);
 
         controlConfiguration_.replay();
@@ -111,7 +120,7 @@ public class GarbageCollectTest extends NotificationTestCase
                 mockConfiguration_, new DefaultFilterFactoryDelegate(iContainerForTest_, mockConfiguration_));
 
         String _factoryRef = getORB().object_to_string(factoryServant_.activate());
-        
+
         FilterFactory _factory = FilterFactoryHelper.narrow(getClientORB().string_to_object(_factoryRef));
 
         Filter _filter = _factory.create_filter("EXTENDED_TCL");
