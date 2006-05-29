@@ -24,6 +24,8 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.*;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.jacorb.orb.ORB;
@@ -57,6 +59,8 @@ public class JacORBConfiguration
     /**  default class name for logger factory */
     private final String loggerFactoryClzName =
        "org.jacorb.config.LogKitLoggerFactory";
+
+    private final DateFormat dateFormatter = new SimpleDateFormat("yyyyMdHm");
 
     /**
      * Factory method
@@ -540,7 +544,7 @@ public class JacORBConfiguration
 
         if ( !logFileName.equals(""))
         {
-            if (orb == null)
+            if (orb == null) // this is the case for the singleton ORB
             {
                 final String singletonLogFile = getAttribute("jacorb.logfile.singleton", "");
                 if (singletonLogFile.equals(""))
@@ -553,14 +557,13 @@ public class JacORBConfiguration
                     final File file = new File(logFileName);
                     final String parent = file.getParent();
 
-//                  TODO add unique part to the logFileName
                     if (parent != null)
                     {
-                        logFileName += singletonLogFile;
+                        logFileName += singletonLogFile + dateFormatter.format(new Date()) + ".log";
                     }
                     else
                     {
-                        logFileName = singletonLogFile;
+                        logFileName = singletonLogFile + dateFormatter.format(new Date()) + ".log";
                     }
                 }
             }

@@ -86,8 +86,9 @@ jacorb.log.default.verbosity=3
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
 
-# logfile used by the singleton ORB
-#jacorb.logfile.singleton=orbsingleton.log
+# logfilename used by the singleton ORB
+# a timestamp and the suffix .log will be appended
+#jacorb.logfile.singleton=orbsingleton
 
 # If logging to file whether to append to existing file or overwrite
 jacorb.logfile.append=off

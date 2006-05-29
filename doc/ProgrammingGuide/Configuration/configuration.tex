@@ -349,6 +349,7 @@ Currently available logging components are
 \item imr.state
 \item naming
 \item orb
+\item orb.singleton
 \item orb.basic
 \item orb.factory
 \item orb.iiop
@@ -374,6 +375,11 @@ The properties specific to file logging are the following:
 # where does output go? Terminal is default
 jacorb.logfile=c:/tmp/jacorb.log
 
+# filename for logging from the singleton ORB
+# the file will be placed in the same directory
+# as jacorb.logfile
+jacorb.logfile.singleton=orbsingleton
+
 # Append to an existing log file or overwrite? (Applies to
 # file logging only)
 jacorb.logfile.append=on
@@ -393,7 +399,15 @@ to the. The {\tt jacorb.logfile.maxLogSize} property, finally,
 determines how large a log file may become before the logger
 automatically creates a new file. This value is in kilobytes. If it is
 set to 0, log files may become arbitrarily large, no log file rotation
-is used.
+is used. If the value of {\tt jacorb.logfile} ends with the special string \$implname,
+this postfix will be replaced with the current ImplName of the ORB that
+uses the logging. See \ref{implname} for more details about ImplName.
+
+Note that the singleton ORB is treated in a special way. To enable filelogging for it,
+you need to additionally set the property {\tt jacorb.logfile.singleton} to a filename.
+If the property {\tt jacorb.logfile} includes a directoryname, the singleton ORB logfile
+will get this directory prepended. Otherwise its plain value will be used. A timestamp will be
+appended so that logging to the same directory won't clash. Also the suffix .log will be appended.
 
 The  {\tt jacorb.poa.monitoring} property  determines whether  the POA
 should bring up a monitoring GUI  for servers that let you examine the
@@ -402,6 +416,8 @@ and whether your thread pool is  big enough.  Also, this tool lets you
 change the  state of a POA,  e.g. from {\it active}  to {\it holding}.
 Please see chapter \ref{ch:POA} on the POA for more details.
 
+The singleton ORB will use the logging component {\tt jacorb.orb.singleton} for
+logging.
 
 \section{Configuration Properties}
 
@@ -671,7 +687,7 @@ used & class & {\tiny \verb"org.jacorb.util" }\\
 error, 2 = warning, 3 = info, 4 = debug & integer & 0 \\
 \hline
 \verb"jacorb.logfile" & Output destination for diagnostic log file. If
-not set, diagnostics are sent to standard error. & filename & unset \\
+not set, diagnostics are sent to standard error.& filename & unset \\
 \hline
 \verb"jacorb.logfile.append" & Whether to append to
 existing log file or overwrite (if file logging) & boolean & off \\

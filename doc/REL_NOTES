@@ -59,6 +59,9 @@ post 2.2.4
         - Fix for using an Object Reference inside a DynAny
     - IDL:
         - Added CosProperty.idl
+    - Logging:
+        - singleton ORB also uses a logfile if the property
+          jacorb.logfile is set.
 
     - new property: jacorb.poa.thread_pool_shared. This is to share a
                     single thread pool amongst all the POAs.
