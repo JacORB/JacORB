@@ -746,4 +746,22 @@ public class JacORBConfiguration
 
         return defaultValue;
     }
+
+
+    public List getAttributeNamesWithPrefix(String prefix)
+    {
+        final List attributesWithPrefix = new ArrayList();
+
+        final String[] allAttributes = getAttributeNames();
+
+        for (int x = 0; x < allAttributes.length; ++x)
+        {
+            if (allAttributes[x].startsWith(prefix))
+            {
+                attributesWithPrefix.add(allAttributes[x]);
+            }
+        }
+
+        return Collections.unmodifiableList(attributesWithPrefix);
+    }
 }

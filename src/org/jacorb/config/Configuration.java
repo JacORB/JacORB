@@ -36,15 +36,15 @@ import org.jacorb.orb.ORB;
  *     that affect further property loading
  * <li>the file <tt>orb.properties</tt> is loaded from java.home/lib
  *     and user.home if it exists
- * <li>if the ORBid is property is set, the file <tt>ORBid.properties</tt> is 
+ * <li>if the ORBid is property is set, the file <tt>ORBid.properties</tt> is
  *     loaded from jacorb.config.dir/etc, if that exists, or jacorb.home/etc, or '.'
  *     If ORBid is not set, the default file <tt>jacorb.properties</tt>
  *     is loaded from these places.
  * <li>Custom properties are loaded from each file name listed int the system property
  *     <tt>custom.props</tt>
  * <li>To also support packaged servers in jar files, the configuration
- *     file lookup mechanism finally tries to load named properties files 
- *     (<tt>ORBid.properties</tt>, or <tt>jacorb.properties</tt>) from 
+ *     file lookup mechanism finally tries to load named properties files
+ *     (<tt>ORBid.properties</tt>, or <tt>jacorb.properties</tt>) from
  *     the classpath, if it cannot find them in the config dictionary.
  * <li> After all property files have been loaded, the System properties are
  *      loaded again, so that command-line properties take precedence
@@ -54,7 +54,7 @@ import org.jacorb.orb.ORB;
  *
  * The Configuration object is also used by JacORB components to
  * retreive their Logger objects.
- * 
+ *
  * @author Gerald Brose, XTRADYNE Technologies
  * @version $Id$
  */
@@ -76,8 +76,8 @@ public interface Configuration
      */
 
     Logger getNamedLogger(String name);
-    
-   
+
+
 
     /**
      * For a property that has a list of comma-separated values,
@@ -86,21 +86,21 @@ public interface Configuration
      */
 
     List getAttributeList(String key);
-   
+
     /**
      * Create an object from the given property. The class's default
      * constructor will be used.
      *
-     * @return an object of the class of the keys value, or null, if 
+     * @return an object of the class of the keys value, or null, if
      * no class name is found for the key
-     * @throws ConfigurationException 
+     * @throws ConfigurationException
      */
-    
+
     Object getAttributeAsObject( String key ) throws ConfigurationException;
 
     boolean getAttributeAsBoolean(String key)
         throws ConfigurationException;
-   
+
     boolean getAttributeAsBoolean(String key, boolean defaultValue);
 
 
@@ -108,4 +108,10 @@ public interface Configuration
 
 
     void setAttribute(String key, String value);
+
+    /**
+     * return all attribute names that start
+     * with the specified prefix
+     */
+    List getAttributeNamesWithPrefix(String string);
 }
