@@ -360,7 +360,7 @@ public abstract class RMITest extends ClientServerTestCase
     /**
      * this test is currently failing between
      * JacORB and Sun ORB.
-     * @see testPassSerializable0
+     * @see #testPassSerializable0
      */
     public void testPassSerializable1() throws Exception
     {
