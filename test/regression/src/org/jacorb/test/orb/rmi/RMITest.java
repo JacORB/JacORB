@@ -21,9 +21,9 @@ package org.jacorb.test.orb.rmi;
  */
 
 import java.rmi.Remote;
-import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 import javax.rmi.PortableRemoteObject;
 
@@ -357,14 +357,31 @@ public abstract class RMITest extends ClientServerTestCase
         assertEquals(0, server.sizeOfCollection(Collections.EMPTY_LIST));
     }
 
-    public void testPassSerializable() throws Exception
+    /**
+     * this test is currently failing between
+     * JacORB and Sun ORB.
+     * @see testPassSerializable0
+     */
+    public void testPassSerializable1() throws Exception
     {
+        Date date = new Date();
         ArrayList list = new ArrayList();
-        Datatype data = new Datatype();
-        UID uid = data.uid;
-        list.add(data);
+        StringParam param = new StringParam(date.toString());
+        list.add(param);
 
         ArrayList result = (ArrayList) server.transmitSerializable(list);
-        assertEquals(uid, ((Datatype)result.get(0)).uid);
+        assertEquals(param.payload, ((StringParam)result.get(0)).payload);
     }
+
+    public void testPassSerializable0() throws Exception
+    {
+        Date date = new Date();
+        ArrayList list = new ArrayList();
+        ObjectParam param = new ObjectParam(date.toString());
+        list.add(param);
+
+        ArrayList result = (ArrayList) server.transmitSerializable(list);
+        assertEquals(param.payload, ((ObjectParam)result.get(0)).payload);
+    }
+
 }

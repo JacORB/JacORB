@@ -21,14 +21,18 @@ package org.jacorb.test.orb.rmi;
  */
 
 import java.io.Serializable;
-import java.rmi.server.UID;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class Datatype implements Serializable
+public class StringParam implements Serializable
 {
-    final UID uid = new UID();
+    final String payload;
+
+    public StringParam(String data)
+    {
+        this.payload = data;
+    }
 }
