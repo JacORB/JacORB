@@ -554,16 +554,26 @@ public class JacORBConfiguration
                 }
                 else
                 {
-                    final File file = new File(logFileName);
-                    final String parent = file.getParent();
-
-                    if (parent != null)
+                    // If it ends with implname File can't handle it so do it manually.
+                    if (logFileName.endsWith ("$implname"))
                     {
-                        logFileName += singletonLogFile + dateFormatter.format(new Date()) + ".log";
+                        logFileName = logFileName.substring
+                            (0, logFileName.indexOf("$implname") - 1);
+                        logFileName += File.separatorChar + singletonLogFile + dateFormatter.format(new Date()) + ".log";
                     }
                     else
                     {
-                        logFileName = singletonLogFile + dateFormatter.format(new Date()) + ".log";
+                        final File file = new File(logFileName);
+                        final String parent = file.getParent();
+
+                        if (parent != null)
+                        {
+                            logFileName += singletonLogFile + dateFormatter.format(new Date()) + ".log";
+                        }
+                        else
+                        {
+                            logFileName = singletonLogFile + dateFormatter.format(new Date()) + ".log";
+                        }
                     }
                 }
             }
@@ -603,7 +613,6 @@ public class JacORBConfiguration
         {
             System.err.println("Configuration Error, could not create logger!");
         }
-
         if (!logFileName.equals(""))
         {
             try
