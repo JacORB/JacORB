@@ -35,7 +35,7 @@ public class JmxSunJacorbTest extends AbstractJMXTest
         super(name, setup);
     }
 
-    public static Test suite() throws Exception
+    public static Test suite()
     {
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass",
@@ -44,9 +44,9 @@ public class JmxSunJacorbTest extends AbstractJMXTest
                    "com.sun.corba.se.impl.orb.ORBSingleton");
         TestSuite suite = new TestSuite();
         JMXClientServerSetup setup = new JMXClientServerSetup(suite, props, new Properties());
-        
+
         TestUtils.addToSuite(suite, setup, JmxSunJacorbTest.class);
-        
+
         return setup;
     }
 }

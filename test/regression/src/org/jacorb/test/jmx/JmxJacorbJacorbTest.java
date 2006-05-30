@@ -35,7 +35,7 @@ public class JmxJacorbJacorbTest extends AbstractJMXTest
         super(name, setup);
     }
 
-    public static Test suite() throws Exception
+    public static Test suite()
     {
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass",
@@ -45,9 +45,9 @@ public class JmxJacorbJacorbTest extends AbstractJMXTest
         props.put("jacorb.interop.strict_check_on_tc_creation", "off");
         TestSuite suite = new TestSuite();
         JMXClientServerSetup setup = new JMXClientServerSetup(suite, props, props);
-        
+
         TestUtils.addToSuite(suite, setup, JmxJacorbJacorbTest.class);
-        
+
         return setup;
     }
 }
