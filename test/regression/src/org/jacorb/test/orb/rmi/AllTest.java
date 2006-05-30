@@ -33,9 +33,12 @@ public class AllTest extends TestCase
    {
         TestSuite suite = new TestSuite ("RMI Tests");
 
-        suite.addTest (org.jacorb.test.orb.rmi.RMITest.suite());
+        suite.addTest(SunSunRMITest.suite());
+        suite.addTest(JacORBJacORBRMITest.suite());
+        suite.addTest(SunJacORBRMITest.suite());
+        suite.addTest(JacORBSunRMITest.suite());
         suite.addTest(RepositoryIDTest.suite());
-        
+
         return suite;
    }
 }

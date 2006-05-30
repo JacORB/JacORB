@@ -20,6 +20,7 @@ package org.jacorb.test.orb.rmi;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
 
@@ -30,17 +31,17 @@ import org.jacorb.test.orb.rmi.Outer.StaticInner;
 
 import javax.rmi.PortableRemoteObject;
 
-public class RMITestImpl 
+public class RMITestImpl
         extends PortableRemoteObject
         implements RMITestInterface
 {
 
-    public RMITestImpl() 
+    public RMITestImpl()
         throws java.rmi.RemoteException
     {
         super();
     }
-    
+
     public String getString()
         throws java.rmi.RemoteException
     {
@@ -81,7 +82,7 @@ public class RMITestImpl
     public int[] testIntArray(int[] a)
         throws java.rmi.RemoteException
     {
-        for (int i = 0; i < a.length; i++) 
+        for (int i = 0; i < a.length; i++)
         {
             a[i]++;
         }
@@ -124,7 +125,7 @@ public class RMITestImpl
     {
         java.util.Vector v = new java.util.Vector();
 
-        for (int i = 0; i < a.length; i++) 
+        for (int i = 0; i < a.length; i++)
         {
             v.add(RMITestUtil.echoFoo(a[i]));
         }
@@ -136,7 +137,7 @@ public class RMITestImpl
     {
         Foo a[] = new Foo[v.size()];
 
-        for (int i = 0; i < a.length; i++) 
+        for (int i = 0; i < a.length; i++)
         {
             a[i] = RMITestUtil.echoFoo((Foo)v.elementAt(i));
         }
@@ -147,7 +148,7 @@ public class RMITestImpl
         throws java.rmi.RemoteException
     {
         Object obj = null;
-        try 
+        try
         {
             NegativeArgumentException e = new NegativeArgumentException(-7777);
             throw e;
@@ -189,7 +190,7 @@ public class RMITestImpl
         return cout;
     }
 
-    public java.util.Vector getVectorWithObjectArrayAsElement() 
+    public java.util.Vector getVectorWithObjectArrayAsElement()
             throws java.rmi.RemoteException
     {
         java.util.Vector vector = new java.util.Vector();
@@ -200,7 +201,7 @@ public class RMITestImpl
         vector.add(innerArray);
         return vector;
     }
-    
+
     public java.util.Vector getVectorWithVectorAsElement()
             throws java.rmi.RemoteException
     {
@@ -212,8 +213,8 @@ public class RMITestImpl
         vector.add(innerVector);
         return vector;
     }
-    
-    public java.util.Vector getVectorWithHashtableAsElement() 
+
+    public java.util.Vector getVectorWithHashtableAsElement()
             throws java.rmi.RemoteException
     {
         java.util.Vector vector = new java.util.Vector();
@@ -238,5 +239,10 @@ public class RMITestImpl
     public int sizeOfCollection(Collection c) throws RemoteException
     {
         return c.size();
+    }
+
+    public Serializable transmitSerializable(Serializable s) throws RemoteException
+    {
+        return s;
     }
 }

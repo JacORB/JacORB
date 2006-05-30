@@ -1,9 +1,9 @@
 package org.jacorb.test.orb.rmi;
 
 /*
- *        JacORB  - a free Java ORB
+ *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,13 +20,15 @@ package org.jacorb.test.orb.rmi;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.Serializable;
+import java.rmi.server.UID;
 
-public class RMITestServant
-        extends _RMITestImpl_Tie
+/**
+ * @author Alphonse Bendt
+ * @version $Id$
+ */
+
+public class Datatype implements Serializable
 {
-    public RMITestServant()
-        throws java.rmi.RemoteException
-    {
-        setTarget(new RMITestImpl());
-    }
+    final UID uid = new UID();
 }

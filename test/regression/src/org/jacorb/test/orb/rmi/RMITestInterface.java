@@ -1,5 +1,6 @@
 package org.jacorb.test.orb.rmi;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
 
@@ -83,20 +84,21 @@ public interface RMITestInterface
     public java.util.Collection testReferenceSharingWithinCollection(
             java.util.Collection c) throws java.rmi.RemoteException;
 
-    public java.util.Vector getVectorWithObjectArrayAsElement() 
+    public java.util.Vector getVectorWithObjectArrayAsElement()
             throws java.rmi.RemoteException;
 
-    public java.util.Vector getVectorWithVectorAsElement() 
+    public java.util.Vector getVectorWithVectorAsElement()
             throws java.rmi.RemoteException;
 
-    public java.util.Vector getVectorWithHashtableAsElement() 
+    public java.util.Vector getVectorWithHashtableAsElement()
             throws java.rmi.RemoteException;
 
     public Outer outerToOuter(Outer outer) throws java.rmi.RemoteException;
-    
-    public Outer.StaticInner staticInnerToStaticInner(Outer.StaticInner staticInner) 
+
+    public Outer.StaticInner staticInnerToStaticInner(Outer.StaticInner staticInner)
         throws java.rmi.RemoteException;
-    
+
     public int sizeOfCollection(Collection c) throws java.rmi.RemoteException;
-    
+
+    Serializable transmitSerializable(Serializable s) throws RemoteException;
 }
