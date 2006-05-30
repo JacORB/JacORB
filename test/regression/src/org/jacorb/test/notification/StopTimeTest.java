@@ -72,13 +72,11 @@ public class StopTimeTest extends NotificationTestCase
 
         structuredEvent_.remainder_of_body = getClientORB().create_any();
     }
-    
+
     public void testProcessEventWithStopTime() throws Exception
     {
-        processEventWithStopTime(-10000, 5000, false);
-        processEventWithStopTime(-2000, 5000, false);
+        processEventWithStopTime(-1000, 5000, false);
         processEventWithStopTime(1000, 5000, true);
-        processEventWithStopTime(5000, 10000, true);
     }
 
     public void processEventWithStopTime(long offset, long timeout, boolean receive)
@@ -109,15 +107,15 @@ public class StopTimeTest extends NotificationTestCase
         {
             public void processMessageInternal(Message event)
             {
-                try
+                synchronized (lock)
                 {
-                    long _recvTime = System.currentTimeMillis();
-                    assertEquals("unexpected event", event, _event);
-                    assertTrue("received too late", _recvTime <= _time.getTime());
-                    _received.add(event);
-                } finally
-                {
-                    synchronized (lock)
+                    try
+                    {
+                        long _recvTime = System.currentTimeMillis();
+                        assertEquals("unexpected event", event, _event);
+                        assertTrue("received too late", _recvTime <= _time.getTime());
+                        _received.add(event);
+                    } finally
                     {
                         lock.notifyAll();
                     }
@@ -127,9 +125,10 @@ public class StopTimeTest extends NotificationTestCase
 
         _taskProcessor.processMessage(_event);
 
-        if (!_received.contains(_event))
+        long timeoutF = System.currentTimeMillis() + timeout;
+        synchronized(lock)
         {
-            synchronized (lock)
+            while (!_received.contains(_event) && System.currentTimeMillis() < timeoutF)
             {
                 lock.wait(timeout);
             }
