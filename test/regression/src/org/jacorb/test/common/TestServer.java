@@ -20,13 +20,13 @@ package org.jacorb.test.common;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.*;
-import org.omg.PortableServer.*;
-import java.io.*;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.Servant;
 
 /**
  * A server program that can set up an arbitrary CORBA servant.
@@ -59,8 +59,15 @@ public class TestServer
             //init ORB
             ORB orb = ORB.init( args, null );
 
-            Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
-            logger = ((org.jacorb.config.Configuration)config).getNamedLogger("TestServer");
+            try
+            {
+                Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
+                logger = ((org.jacorb.config.Configuration)config).getNamedLogger("TestServer");
+            }
+            catch (ClassCastException e)
+            {
+                // ignore. not a JacORB ORB
+            }
 
             //init POA
             POA poa =
@@ -80,17 +87,23 @@ public class TestServer
             System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
             System.out.flush();
 
-            logger.debug("Entering ORB event loop" );
-
+            if (logger != null)
+            {
+                logger.debug("Entering ORB event loop" );
+            }
             // wait for requests
             orb.run();
         }
         catch( Exception e )
         {
             if (logger != null)
+            {
                 logger.fatalError ("TestServer error ", e);
+            }
             else
+            {
                 System.err.println ("TestServer error " + e);
+            }
         }
     }
 }
