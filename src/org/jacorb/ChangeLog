@@ -1,3 +1,162 @@
+2006-05-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* config/JacORBConfiguration.java: Add handling for singleton
+	logfile with implname set.
+
+2006-05-29  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/UnionType.java: fix union IDL bugs. added test and fix.
+
+	related to scarab JAC#104
+
+	* orb/ORB.java, orb/portableInterceptor/InterceptorManager.java,
+	orb/portableInterceptor/ORBInitInfoImpl.java: split
+	ORBInitializer.pre_init and post_init:
+
+	to be able to resolve a current object registered via an
+	ORBInitializer, pre_init() must be called prior to creating the
+	ClientConnectionManager, post_init should still not be called
+	until the ORB is done with all other internal initialization.
+
+	code cleanup & refactoring
+
+	related to scarab JAC#96
+
+	* notification/filter/DefaultFilterFactoryDelegate.java
+	(getAttributeNamesWithPrefix): moved method to JacORBConfiguration
+
+	* config/Configuration.java,
+	config/JacORBConfiguration.java (getAttributeNamesWithPrefix): new
+	method
+
+	* idl/Module.java: test and fix for issue when using JacIDL with
+	the -ir and the -i2jpackage option
+
+	related to JAC#101
+
+	* orb/giop/ClientConnectionManager.java: removed unused code
+
+	* orb/giop/MessageReceptorPool.java (c'tor): fixed boolean expression
+
+	* imr/ImplementationRepositoryImpl.java, orb/BasicAdapter.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/MessageReceptorPool.java: added extra properties to
+	configure the MessageReceptorPool
+
+	related to JAC#89
+
+	* security/ssl/sun_jsse/README.jsse1_0_2,
+	security/ssl/sun_jsse/README.jsse1_0_3: enhanced SSL doc
+
+	related to JAC#25
+
+	* config/JacORBConfiguration.java: logfile for the singleton ORB
+
+	related to JAC#3
+
+2006-05-24  Alphonse Bendt  <bendt@prismtech.com>
+
+	* config/JacORBConfiguration.java (initLogging):
+	improve handling for orbsingleton logger
+
+	* config/JacORBConfiguration.java (initLogging):
+	extra handling for orbsingleton logger
+
+	* config/JacORBConfiguration.java (loadPropertiesFromClasspath):
+	bugfix as the context CL might be null
+
+	* orb/ORBSingleton.java (c'tor): added debug output
+
+	* config/JacORBConfiguration.java (initLogging):
+	append .log to the serverId/orbsingleton logfilename
+
+	* poa/RPPoolManager.java: cosmetics
+
+	* poa/RPPoolManagerFactory.java: test
+
+	* orb/ORB.java, poa/POA.java, poa/RPPoolManager.java,
+	poa/RPPoolManagerFactory.java, poa/RequestController.java:
+	introducing property "jacorb.poa.thread_pool_shared" error
+	checking for props thread_pool_max and thread_pool_min refactored
+	code a bit
+
+	these changes are related to scarab JAC#88
+
+	* poa/POAMonitorLightImpl.java: fixed small bug
+
+	* poa/POAMonitorImpl.java: cosmetics
+
+2006-05-23  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/ORB.java, poa/Current.java: current now uses jdk 1.2
+	collectionclasses internally
+
+	* config/JacORBConfiguration.java, orb/ORBSingleton.java:
+	cleaned up configuration
+
+	* config/JacORBConfiguration.java, orb/ORB.java,
+	orb/ORBSingleton.java, poa/POA.java: moved serverId from POA to
+	ORB
+
+	if the property jacorb.logfile is set to the value $implname and
+	no implname is set the serverId will be used to name the logfile
+
+	special handling for the singleton orb
+
+2006-05-23  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* poa/AOM.java: Patch for ServantActivator local object invocation
+	and AOM from prismtech for bug314 (JAC2).
+
+2006-05-23  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/servant/AbstractProxySupplier.java: added debug
+
+	* notification/AbstractChannelFactory.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/TypedEventChannelImpl.java,
+	notification/container/PicoContainerFactory.java,
+	notification/filter/EvaluationContext.java,
+	notification/servant/AbstractAdmin.java: fixed test failures under
+	eclipse
+
+	* notification/AbstractEventChannel.java: cosmetics
+
+2006-05-23  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ORB.java, orb/ORBSingleton.java: Tweak previous
+	configuration change to Singleton to prevent wierd class
+	construction errors.
+
+2006-05-22  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/BasicAdapter.java, orb/BufferManager.java,
+	orb/Delegate.java, orb/ReplyReceiver.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/MessageReceptorPool.java,
+	orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
+	util/threadpool/ThreadPool.java,
+	imr/ImplementationRepositoryImpl.java,
+	imr/ServerStartupDaemonImpl.java, poa/POA.java,
+	poa/POAManager.java: named threads.
+
+	this fixes
+	http://www.jacorb.org/cgi-bin/bugzilla/show_bug.cgi?id=472 and is
+	also related to scarab JAC#91
+
+	* orb/Delegate.java (is_a): loading of stub class would not work
+	as the classname wasn't composed correctly
+
+	* orb/Delegate.java: cosmetics
+
+	* orb/CDRInputStream.java: tests and extra logging for JAC#45
+
+	* orb/ORBSingleton.java: fix: orbsingleton would not load its
+	configuration
+
+	* config/JacORBConfiguration.java: cosmetics
+
 2006-05-19  Alphonse Bendt  <bendt@prismtech.com>
 
 	* orb/dynany/DynValue.java: fix cvs id
