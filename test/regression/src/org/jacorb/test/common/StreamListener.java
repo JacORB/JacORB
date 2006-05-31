@@ -44,6 +44,7 @@ public class StreamListener extends Thread
         this.in = new BufferedReader(new InputStreamReader(stream));
         this.id = id;
         setDaemon (true);
+        setName(id + "-StreamListener");
     }
 
     /**
