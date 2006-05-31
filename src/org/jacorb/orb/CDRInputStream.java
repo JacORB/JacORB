@@ -28,7 +28,6 @@ import org.apache.avalon.framework.logger.*;
 
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.util.ValueHandler;
-import org.jacorb.ir.RepositoryID;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
@@ -52,12 +51,6 @@ import org.omg.CORBA.TypeCodePackage.Bounds;
 public class CDRInputStream
     extends org.omg.CORBA_2_3.portable.InputStream
 {
-    /**
-     * <code>uniqueValue</code> is used to fill in a value for empty
-     * member names.
-     */
-    private int uniqueValue;
-
     /**
      * <code>encaps_stack</code> is used to saving/restoring
      * encapsulation information. Do NOT access this variable directly.
@@ -95,7 +88,6 @@ public class CDRInputStream
 
     /** configurable properties */
     private Logger logger;
-    private boolean useBOM;
     private boolean cometInteropFix;
     private boolean laxBooleanEncoding;
     private boolean cacheTypecodes;
@@ -161,6 +153,14 @@ public class CDRInputStream
      */
     private org.omg.CORBA.ORB orb = null;
 
+    /**
+     * this is the lowest possible value_tag indicating the
+     * begin of a valuetype (15.3.4)
+     */
+    private static final int max_block_size = 0x7fffff00;
+
+    private boolean sunInteropFix;
+
     public CDRInputStream(final org.omg.CORBA.ORB orb, final byte[] buf)
     {
         buffer = buf;
@@ -206,14 +206,14 @@ public class CDRInputStream
         logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.cdr");
 
-        useBOM =
-            configuration.getAttribute("jacorb.use_bom","off").equals("on");
         cometInteropFix =
             configuration.getAttribute("jacorb.interop.comet","off").equals("on");
         laxBooleanEncoding =
             configuration.getAttribute("jacorb.interop.lax_boolean_encoding","off").equals("on");
         cacheTypecodes =
             configuration.getAttribute("jacorb.cacheTypecodes","off").equals("on");
+        sunInteropFix =
+            configuration.getAttribute("jacorb.interop.sun", "off").equalsIgnoreCase("on");
     }
 
 
@@ -516,7 +516,6 @@ public class CDRInputStream
     public final int openEncapsulation()
     {
         boolean old_endian = littleEndian;
-        int _pos = pos;
         int size = read_long();
 
         // Check if size looks sane. If not try changing byte order.
@@ -1020,6 +1019,10 @@ public class CDRInputStream
         pos += length;
     }
 
+    /*
+     * @deprecated
+     * @see org.omg.CORBA.portable.InputStream#read_Principal()
+     */
     public final org.omg.CORBA.Principal read_Principal()
     {
         throw new NO_IMPLEMENT ("Principal deprecated");
@@ -1136,7 +1139,6 @@ public class CDRInputStream
         int     member_count = 0;
         int     length       = 0;
         int     size         = 0;
-        boolean byteorder    = false;
         org.omg.CORBA.TypeCode result = null;
         org.omg.CORBA.TypeCode content_type = null;
         String[] member_names = null;
@@ -2516,7 +2518,7 @@ public class CDRInputStream
         if (chunkedValue || valueNestingLevel > 0)
         {
             valueNestingLevel++;
-            int chunk_size_tag = read_long();
+            int chunk_size_tag = readChunkSizeTag();
             chunk_end_pos = pos + chunk_size_tag;
         }
 
@@ -2715,6 +2717,31 @@ public class CDRInputStream
     }
 
     /**
+     * try to read in the chunk size.
+     * special handling if there's no chunk size
+     * in the stream.
+     */
+    private int readChunkSizeTag()
+    {
+        int savedPos = pos;
+        int savedIndex = index;
+        int chunk_size_tag = read_long();
+
+        if (!sunInteropFix || chunk_size_tag > 0 && chunk_size_tag < max_block_size)
+        {
+            // looks like the correct chunk size
+            return chunk_size_tag;
+        }
+        else
+        {
+            // reset buffer
+            pos = savedPos;
+            index = savedIndex;
+            return max_block_size;
+        }
+    }
+
+    /**
      * Reads a value with type information, i.e. one that is preceded
      * by a single RepositoryID.  It is assumed that the tag and the codebase
      * of the value have already been read.
@@ -2849,18 +2876,6 @@ public class CDRInputStream
         }
         return name;
     }
-
-
-    private String validateMember (String name)
-    {
-        if (name == null || name.length() == 0)
-        {
-            uniqueValue = (++uniqueValue)%Integer.MAX_VALUE;
-            return ("DUMMY_NAME_".concat (String.valueOf (uniqueValue)));
-        }
-        return name;
-    }
-
 
     private String validateID (String id)
     {
