@@ -38,6 +38,7 @@ import org.jacorb.test.orb.rmi.Outer.StaticInner;
  * @see SunJacORBRMITest
  * @see SunSunRMITest
  * @see JacORBJacORBRMITest
+ * @see JacORBSunRMITest
  *
  * @version $Id$
  */
@@ -357,22 +358,6 @@ public abstract class RMITest extends ClientServerTestCase
         assertEquals(0, server.sizeOfCollection(Collections.EMPTY_LIST));
     }
 
-    /**
-     * this test is currently failing between
-     * JacORB and Sun ORB.
-     * @see #testPassSerializable0
-     */
-    public void testPassSerializable1() throws Exception
-    {
-        Date date = new Date();
-        ArrayList list = new ArrayList();
-        StringParam param = new StringParam(date.toString());
-        list.add(param);
-
-        ArrayList result = (ArrayList) server.transmitSerializable(list);
-        assertEquals(param.payload, ((StringParam)result.get(0)).payload);
-    }
-
     public void testPassSerializable0() throws Exception
     {
         Date date = new Date();
@@ -384,4 +369,14 @@ public abstract class RMITest extends ClientServerTestCase
         assertEquals(param.payload, ((ObjectParam)result.get(0)).payload);
     }
 
+    public void testPassSerializable1() throws Exception
+    {
+        Date date = new Date();
+        ArrayList list = new ArrayList();
+        StringParam param = new StringParam(date.toString());
+        list.add(param);
+
+        ArrayList result = (ArrayList) server.transmitSerializable(list);
+        assertEquals(param.payload, ((StringParam)result.get(0)).payload);
+    }
 }
