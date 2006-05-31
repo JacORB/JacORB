@@ -43,9 +43,6 @@ public class SunSunRMITest extends RMITest
         TestSuite suite = new TestSuite( "RMI/IIOP tests Sun vs. Sun" );
 
         Properties client_props = new Properties();
-        client_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
-        client_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
-
         Properties server_props = new Properties();
 
         server_props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.impl.orb.ORBImpl");
