@@ -244,6 +244,11 @@ jacorb.cacheTypecodes=off
 # Cache poa names
 jacorb.cachePoaNames=off
 
+# Control if errors caused by an ORBInitializer (thrown exceptions or failure
+# to build class) will make ORB.init() fail or not. On failure, a
+# org.omg.CORBA.INITIALIZE exception will be thrown.
+#jacorb.orb_initializer.fail_on_error=off 
+
 ###########################################
 #                                         #
 #         Interoperability                #
