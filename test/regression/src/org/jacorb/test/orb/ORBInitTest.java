@@ -20,52 +20,31 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.test.common.ORBSetup;
-import org.jacorb.orb.ParsedIOR;
-import org.omg.IIOP.ProfileBody_1_1;
+import java.util.Properties;
+
+import org.omg.CORBA.INITIALIZE;
+
+import junit.framework.TestCase;
 
 
 /**
  * <code>ORBInitTest</code> tests ORBInit parsing
  *
  * @author <a href="mailto:rnc@prismtechnologies.com"></a>
- * @version 1.0
+ * @version $Id$
  */
 public class ORBInitTest extends TestCase
 {
-    /**
-     * <code>ORBInitTest</code> constructor - for JUnit.
-     *
-     * @param name a <code>String</code> value
-     */
-    public ORBInitTest (String name)
+    protected void setUp() throws Exception
     {
-        super (name);
+        PreInitFail.reset();
+        PostInitFail.reset();
     }
-
-
-    /**
-     * <code>suite</code> lists the tests for Junit to run.
-     *
-     * @return a <code>Test</code> value
-     */
-    public static Test suite ()
-    {
-        TestSuite suite = new TestSuite ("ORBInit Test");
-
-        suite.addTest (new ORBInitTest ("testParse1"));
-        suite.addTest (new ORBInitTest ("testParse2"));
-
-        return suite;
-    }
-
 
     /**
      * <code>testParse1</code>
      */
-    public void testParse1 ()
+    public void testParse1()
     {
         String args[] = new String[3];
         args[0] = "-ORBInitRef";
@@ -74,18 +53,13 @@ public class ORBInitTest extends TestCase
 
         try
         {
-            org.omg.CORBA.ORB orbtest = org.omg.CORBA.ORB.init( args, null );
+            org.omg.CORBA.ORB.init( args, null );
+            fail();
         }
         catch (org.omg.CORBA.BAD_PARAM e )
         {
-            // Correct exception
-            return;
+            // expected
         }
-        catch (Exception e )
-        {
-            fail( "Incorrect exception " + e);
-        }
-        fail( "No exception");
     }
 
 
@@ -98,13 +72,173 @@ public class ORBInitTest extends TestCase
         args[0] = "-ORBInitRef";
         args[1] = "NameService=foo.ior";
 
+        org.omg.CORBA.ORB.init( args, null );
+    }
+
+    public void testParse3 ()
+    {
+        String args[] = new String[1];
+        args[0] = "-ORBInitRef";
+
         try
         {
-            org.omg.CORBA.ORB orbtest = org.omg.CORBA.ORB.init( args, null );
+            org.omg.CORBA.ORB.init( args, null );
+            fail();
         }
-        catch (Exception e )
+        catch (org.omg.CORBA.BAD_PARAM e )
         {
-            fail( "Incorrect exception " + e);
+            // expected
         }
     }
+
+    public void testORBInitializerFailClassException()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.non.existent.class", "");
+        props.put("jacorb.orb_initializer.fail_on_error", "on");
+
+        try
+        {
+            org.omg.CORBA.ORB.init((String[]) null, props);
+            fail( "No exception");
+        }
+        catch(org.omg.CORBA.INITIALIZE e)
+        {
+            // Correct exception
+        }
+    }
+
+    public void testORBInitializerFailClassNoException()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.none.existen.class", "");
+        props.put("jacorb.orb_initializer.fail_on_error", "off");
+
+        org.omg.CORBA.ORB.init((String[]) null, props);
+    }
+
+    public void testORBInitializerFailConstructorException()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "org.jacorb.test.orb.ConstructorFail");
+        props.put("jacorb.orb_initializer.fail_on_error", "on");
+
+        try
+        {
+            org.omg.CORBA.ORB.init((String[]) null, props);
+            fail( "No exception");
+        }
+        catch(org.omg.CORBA.INITIALIZE e)
+        {
+            // Correct exception
+        }
+    }
+
+    public void testORBInitializerFailConstructorNoException()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "org.jacorb.test.orb.ConstructorFail");
+        props.put("jacorb.orb_initializer.fail_on_error", "off");
+
+        org.omg.CORBA.ORB.init((String[]) null, props);
+    }
+
+    public void testORBInitializerFailPreInitException()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "org.jacorb.test.orb.PreInitFail");
+        props.put("jacorb.orb_initializer.fail_on_error", "on");
+
+        try
+        {
+            org.omg.CORBA.ORB.init((String[]) null, props);
+            fail( "No exception");
+        }
+        catch(org.omg.CORBA.INITIALIZE e)
+        {
+            // Correct exception
+        }
+     }
+
+    public void testORBInitializerFailPreInitNoException()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "org.jacorb.test.orb.PreInitFail");
+        props.put("jacorb.orb_initializer.fail_on_error", "off");
+
+        org.omg.CORBA.ORB.init((String[]) null, props);
+     }
+
+    public void testORBInitializerFailPostInitException()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "org.jacorb.test.orb.PostInitFail");
+        props.put("jacorb.orb_initializer.fail_on_error", "on");
+
+        try
+        {
+            org.omg.CORBA.ORB.init((String[]) null, props);
+            fail("No exception");
+        }
+        catch(org.omg.CORBA.INITIALIZE e)
+        {
+            // Correct exception
+        }
+    }
+
+    public void testORBInitializerFailPostInitNoException()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "org.jacorb.test.orb.PostInitFail");
+        props.put("jacorb.orb_initializer.fail_on_error", "off");
+
+        org.omg.CORBA.ORB.init((String[]) null, props);
+    }
+
+    public void testDontInvokePostInitIfPreInitFailed()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "org.jacorb.test.orb.PreInitFail");
+        props.put("jacorb.orb_initializer.fail_on_error", "off");
+
+        org.omg.CORBA.ORB.init((String[]) null, props);
+
+        assertEquals(1, PreInitFail.getPreCount());
+        assertEquals(0, PreInitFail.getPstCount());
+    }
+
+    public void testORBInitializerWrongClass1()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "java.lang.String");
+        props.put("jacorb.orb_initializer.fail_on_error", "off");
+
+        org.omg.CORBA.ORB.init((String[]) null, props);
+    }
+
+    public void testORBInitializerWrongClass2()
+    {
+        Properties props = new Properties();
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.xyinit",
+                  "java.lang.String");
+        props.put("jacorb.orb_initializer.fail_on_error", "on");
+
+        try
+        {
+            org.omg.CORBA.ORB.init((String[]) null, props);
+            fail();
+        } catch (INITIALIZE e)
+        {
+            // expected
+        }
+    }
+
 }

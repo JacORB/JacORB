@@ -34,7 +34,7 @@ public class AllTest extends JacORBTestSuite
    {
         TestSuite suite = new AllTest ("All ORB Tests");
 
-        suite.addTest (org.jacorb.test.orb.ORBInitTest.suite());
+        suite.addTestSuite(org.jacorb.test.orb.ORBInitTest.class);
         suite.addTest (org.jacorb.test.orb.CDRIOTest.suite());
         suite.addTest (org.jacorb.test.orb.BasicTest.suite());
         suite.addTest (org.jacorb.test.orb.CharTest.suite());

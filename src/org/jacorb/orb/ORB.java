@@ -164,17 +164,18 @@ public final class ORB
     private boolean bidir_giop = false;
 
     /**
-     * <code>serverId</code> is the bytes form of serverIdStr.
-     */
-    private final byte[] serverId = serverIdStr.getBytes();
-    
-    /**
      * <code>serverIdStr</code> is a unique ID that will be used to identify this
      * server.
      */
     private final String serverIdStr = String.valueOf((long)(Math.random()*9999999999L));
 
+    /**
+     * <code>serverId</code> is the bytes form of serverIdStr.
+     */
+    private final byte[] serverId = serverIdStr.getBytes();
+
     private RPPoolManagerFactory poolManagerFactory;
+    private boolean failOnORBInitializerError;
 
     public ORB()
     {
@@ -229,6 +230,8 @@ public final class ORB
             configuration.getAttribute("jacorb.ior_proxy_address", null);
 
         iorProxyAddress = createAddress(host, port, address);
+
+        failOnORBInitializerError = configuration.getAttributeAsBoolean("jacorb.orb_initializer.fail_on_error", false);
 
         printVersion(configuration);
 
@@ -465,7 +468,7 @@ public final class ORB
         else
         {
             if( !(implName.equals(refImplName)) &&
-                !(serverIdStr.equals(refImplName)) )  
+                !(serverIdStr.equals(refImplName)) )
             {
                 if( logger.isDebugEnabled() )
                 {
@@ -1479,11 +1482,9 @@ public final class ORB
                     //Is there a next arg?
                     if( (args.length - 1) < (i + 1) )
                     {
-                        if (logger.isWarnEnabled())
-                        {
-                            logger.warn( "WARNING: -ORBInitRef argument without value" );
-                        }
-                        continue;
+                        logger.error("WARNING: -ORBInitRef argument without value");
+
+                        throw new BAD_PARAM("-ORBInitRef argument without value");
                     }
 
                     String prop = args[ ++i ].trim();
@@ -1621,18 +1622,26 @@ public final class ORB
      */
     private void interceptorPreInit(List orb_initializers, final ORBInitInfo info)
     {
-        for (int i = 0; i < orb_initializers.size(); i++)
+        for (Iterator i = orb_initializers.iterator(); i.hasNext();)
         {
-            final ORBInitializer init = (ORBInitializer) orb_initializers.get(i);
+            final ORBInitializer init = (ORBInitializer) i.next();
             try
             {
                 init.pre_init (info);
             }
             catch (Exception e)
             {
-                logger.fatalError(init.getClass().getName() + ": error during ORBInitializer::pre_init", e);
+                if (failOnORBInitializerError)
+                {
+                    logger.error(init.getClass().getName() + ": aborting due to error during ORBInitializer::pre_init", e);
 
-                throw new INITIALIZE(e.toString());
+                    throw new INITIALIZE(e.toString());
+                }
+                else
+                {
+                    logger.warn(init.getClass().getName() + ": ignoring error during ORBInitializer::pre_init. the ORBInitializer will be removed from the current configuration", e);
+                    i.remove();
+                }
             }
         }
     }
@@ -1642,18 +1651,25 @@ public final class ORB
      */
     private void interceptorPostInit(List orb_initializers, ORBInitInfo info)
     {
-        for (int i = 0; i < orb_initializers.size (); i++)
+        for (Iterator i = orb_initializers.iterator(); i.hasNext();)
         {
-            ORBInitializer init = (ORBInitializer) orb_initializers.get (i);
+            ORBInitializer init = (ORBInitializer) i.next();
             try
             {
                 init.post_init (info);
             }
             catch (Exception e)
             {
-                logger.fatalError(init.getClass().getName() + ": error during ORBInitializer::pre_init", e);
+                if (failOnORBInitializerError)
+                {
+                    logger.error(init.getClass().getName() + ": aborting due to error during ORBInitializer::pre_init", e);
 
-                throw new INITIALIZE(e.toString());
+                    throw new INITIALIZE(e.toString());
+                }
+                else
+                {
+                    logger.warn(init.getClass().getName() + ": ignoring error during ORBInitializer::pre_init. the ORBInitializer will be removed from the current configuration", e);
+                }
             }
         }
     }
@@ -1691,17 +1707,38 @@ public final class ORB
 
             try
             {
-                orb_initializers.add(ObjectUtil.classForName(name).newInstance());
-                if( logger.isDebugEnabled())
+                final Object newInstance = ObjectUtil.classForName(name).newInstance();
+
+                if (newInstance instanceof ORBInitializer)
                 {
-                    logger.debug("Build: " + name);
+                    orb_initializers.add(newInstance);
+                    if( logger.isDebugEnabled())
+                    {
+                        logger.debug("added ORBInitializer: " + name);
+                    }
+                }
+                else if (failOnORBInitializerError)
+                {
+                    logger.error("aborting due to wrong configuration for property " + prop_name + ": " + name + " is not an ORBInitializer");
+                    throw new BAD_PARAM("Wrong configuration for property " + prop_name + ": " + name + " is not an ORBInitializer");
+                }
+                else
+                {
+                    logger.warn("ignoring wrong configuration for property " + prop_name + ": " + name + " is not an ORBInitializer");
                 }
             }
             catch (Exception e)
             {
-                logger.fatalError("Unable to build ORBInitializer from >>" + name + "<<", e);
+                if (failOnORBInitializerError)
+                {
+                    logger.error("unable to build ORBInitializer from class" + name + ": Aborting", e);
 
-                throw new INITIALIZE(e.toString());
+                    throw new INITIALIZE(e.toString());
+                }
+                else
+                {
+                    logger.warn("unable to build ORBInitializer from class " + name + ": Ignoring");
+                }
             }
         }
 
