@@ -64,6 +64,9 @@ post 2.2.4
           jacorb.connection.client.max_receptor_threads, jacorb.connection.server.max_idle_receptor_threads,
           jacorb.connection.server.max_receptor_threads) to control size of the MessageReceptorPool
         - name all threads created by JacORB (bugzilla #472)
+        - new property: jacorb.orb_initializer.fail_on_error. Control if errors
+          caused by an ORBInitializer will make ORB.init() fail or not.
+        
     - IDL:
         - Added CosProperty.idl
     - Logging:
