@@ -46,10 +46,7 @@ public class JacORBSunRMITest extends RMITest
         client_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
         client_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
 
-        Properties server_props = new Properties();
-
-        server_props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.impl.orb.ORBImpl");
-        server_props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.impl.orb.ORBSingleton");
+        Properties server_props = TestUtils.newSunORBProperties();
 
         client_props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         client_props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");

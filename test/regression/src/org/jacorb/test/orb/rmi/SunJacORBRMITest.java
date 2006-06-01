@@ -42,7 +42,6 @@ public class SunJacORBRMITest extends RMITest
     {
         TestSuite suite = new TestSuite( "RMI/IIOP tests Sun vs. JacORB" );
 
-        Properties client_props = new Properties();
 
         Properties server_props = new Properties();
 
@@ -50,8 +49,7 @@ public class SunJacORBRMITest extends RMITest
         server_props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         server_props.setProperty("jacorb.interop.sun", "on");
 
-        client_props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.impl.orb.ORBImpl");
-        client_props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.impl.orb.ORBSingleton");
+        Properties client_props = TestUtils.newSunORBProperties();
 
         server_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
         server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");

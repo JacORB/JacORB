@@ -288,4 +288,39 @@ public class TestUtils
             System.err.println (string);
         }
     }
+
+    /**
+     * create properties that contain the correct (JDK specific)
+     * settings to create a Sun ORB.
+     */
+    public static Properties newSunORBProperties()
+    {
+        final Properties props = new Properties();
+        boolean isJDK5;
+
+        try
+        {
+            // if JDK1.5 version of ORBImpl is available we'll
+            // assume that this is JDK1.5
+            Class.forName("com.sun.corba.se.impl.orb.ORBImpl");
+            isJDK5 = true;
+        }
+        catch (ClassNotFoundException e)
+        {
+            // JDK1.4
+            isJDK5 = false;
+        }
+
+        if (isJDK5)
+        {
+            props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.impl.orb.ORBImpl");
+            props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.impl.orb.ORBSingleton");
+        }
+        else
+        {
+            props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.internal.Interceptors.PIORB");
+            props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.internal.corba.ORBSingleton");
+        }
+        return props;
+    }
 }

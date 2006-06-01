@@ -42,14 +42,8 @@ public class SunSunRMITest extends RMITest
     {
         TestSuite suite = new TestSuite( "RMI/IIOP tests Sun vs. Sun" );
 
-        Properties client_props = new Properties();
-        Properties server_props = new Properties();
-
-        server_props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.impl.orb.ORBImpl");
-        server_props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.impl.orb.ORBSingleton");
-
-        client_props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.impl.orb.ORBImpl");
-        client_props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.impl.orb.ORBSingleton");
+        Properties client_props = TestUtils.newSunORBProperties();
+        Properties server_props = TestUtils.newSunORBProperties();
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,
