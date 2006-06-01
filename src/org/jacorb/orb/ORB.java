@@ -164,15 +164,15 @@ public final class ORB
     private boolean bidir_giop = false;
 
     /**
+     * <code>serverId</code> is the bytes form of serverIdStr.
+     */
+    private final byte[] serverId = serverIdStr.getBytes();
+    
+    /**
      * <code>serverIdStr</code> is a unique ID that will be used to identify this
      * server.
      */
     private final String serverIdStr = String.valueOf((long)(Math.random()*9999999999L));
-
-    /**
-     * <code>serverId</code> is the bytes form of serverIdStr.
-     */
-    private final byte[] serverId = serverIdStr.getBytes();
 
     private RPPoolManagerFactory poolManagerFactory;
 
@@ -219,23 +219,7 @@ public final class ORB
         String address =
             configuration.getAttribute("jacorb.imr.ior_proxy_address",null);
 
-        try {
-            if (address == null) {
-                if (host != null || port != -1) {
-                    imrProxyAddress = new IIOPAddress ();
-                    imrProxyAddress.configure(configuration);
-                    if (host != null)
-                        ((IIOPAddress)iorProxyAddress).setHostname(host);
-                    if (port != -1)
-                        ((IIOPAddress)iorProxyAddress).setPort(port);
-                }
-            }
-            else
-                imrProxyAddress = createAddress(address);
-        } catch (Exception ex) {
-            if (logger.isErrorEnabled())
-                logger.error ("error initializing imrProxyAddress",ex);
-        }
+        imrProxyAddress = createAddress(host, port, address);
 
         host =
             configuration.getAttribute("jacorb.ior_proxy_host", null);
@@ -244,23 +228,7 @@ public final class ORB
         address =
             configuration.getAttribute("jacorb.ior_proxy_address", null);
 
-        try {
-            if (address == null) {
-                if (host != null || port != -1) {
-                    iorProxyAddress = new IIOPAddress ();
-                    iorProxyAddress.configure(configuration);
-                    if (host != null)
-                        ((IIOPAddress)iorProxyAddress).setHostname(host);
-                    if (port != -1)
-                        ((IIOPAddress)iorProxyAddress).setPort(port);
-                }
-            }
-            else
-                iorProxyAddress = createAddress(address);
-        } catch (Exception ex) {
-            if (logger.isErrorEnabled())
-                logger.error ("error initializing iorProxyAddress",ex);
-        }
+        iorProxyAddress = createAddress(host, port, address);
 
         printVersion(configuration);
 
@@ -278,6 +246,47 @@ public final class ORB
         configureObjectKeyMap(configuration);
 
         poolManagerFactory = new RPPoolManagerFactory(this);
+    }
+
+    /**
+     * create an address based on addressString OR (host AND port)
+     * it neither addressString NOR (host AND port) are specified this method
+     * will return null.
+     */
+    private ProtocolAddressBase createAddress(String host, int port, String addressString)
+    {
+        final ProtocolAddressBase address;
+
+        try
+        {
+            if (addressString == null) {
+                if (host != null || port != -1) {
+                    address = new IIOPAddress ();
+                    address.configure(configuration);
+                    if (host != null)
+                    {
+                        ((IIOPAddress)address).setHostname(host);
+                    }
+                    if (port != -1)
+                    {
+                        ((IIOPAddress)address).setPort(port);
+                    }
+                }
+                else
+                {
+                    address = null;
+                }
+            }
+            else
+            {
+                address = createAddress(addressString);
+            }
+        } catch (Exception ex) {
+            logger.error ("error initializing ProxyAddress",ex);
+            throw new INITIALIZE(ex.toString());
+        }
+
+        return address;
     }
 
     private void printVersion(org.jacorb.config.Configuration configuration)
@@ -389,12 +398,6 @@ public final class ORB
             }
         }
 
-        if (pior == null)
-        {
-            if (logger.isErrorEnabled())
-                logger.error("Internal error, pior is null");
-        }
-
         org.jacorb.orb.Delegate d = new Delegate(this, pior );
         try
         {
@@ -402,8 +405,7 @@ public final class ORB
         }
         catch(ConfigurationException ce)
         {
-            if (logger.isErrorEnabled())
-                logger.error("ConfigurationException", ce);
+            logger.error("ConfigurationException", ce);
         }
 
         o = d.getReference( null );
@@ -1521,10 +1523,8 @@ public final class ORB
         }
         catch( ConfigurationException ce )
         {
-            if (logger.isErrorEnabled())
-            {
-                logger.error( ce.getMessage());
-            }
+            logger.fatalError("configuration exception during configure", ce);
+
             throw new org.omg.CORBA.INITIALIZE( ce.toString() );
         }
 
@@ -1590,7 +1590,7 @@ public final class ORB
      */
     private void internalInit(ORBInitInfoImpl info)
     {
-        //      allow no more access to ORBInitInfo from ORBInitializers
+        // allow no more access to ORBInitInfo from ORBInitializers
         info.setInvalid ();
 
         List client_interceptors = info.getClientInterceptors ();
@@ -1623,17 +1623,16 @@ public final class ORB
     {
         for (int i = 0; i < orb_initializers.size(); i++)
         {
-            final ORBInitializer init = (ORBInitializer) orb_initializers.get (i);
+            final ORBInitializer init = (ORBInitializer) orb_initializers.get(i);
             try
             {
                 init.pre_init (info);
             }
             catch (Exception e)
             {
-                if (logger.isWarnEnabled())
-                {
-                    logger.warn(init.getClass().getName() + ": error during ORBInitializer::pre_init", e);
-                }
+                logger.fatalError(init.getClass().getName() + ": error during ORBInitializer::pre_init", e);
+
+                throw new INITIALIZE(e.toString());
             }
         }
     }
@@ -1652,10 +1651,9 @@ public final class ORB
             }
             catch (Exception e)
             {
-                if (logger.isWarnEnabled())
-                {
-                    logger.warn(init.getClass().getName() + ": error during ORBInitializer::post_init", e);
-                }
+                logger.fatalError(init.getClass().getName() + ": error during ORBInitializer::pre_init", e);
+
+                throw new INITIALIZE(e.toString());
             }
         }
     }
@@ -1670,9 +1668,8 @@ public final class ORB
     private List getORBInitializers()
     {
         final List orb_initializers = new ArrayList();
-        final List prop_names = configuration.getAttributeNamesWithPrefix("org.omg.PortableInterceptor.ORBInitializerClass.");
-        final String initializer_prefix =
-            "org.omg.PortableInterceptor.ORBInitializerClass.";
+        final String initializer_prefix = "org.omg.PortableInterceptor.ORBInitializerClass.";
+        final List prop_names = configuration.getAttributeNamesWithPrefix(initializer_prefix);
 
         for(Iterator i = prop_names.iterator(); i.hasNext();)
         {
@@ -1702,11 +1699,9 @@ public final class ORB
             }
             catch (Exception e)
             {
-                if( logger.isErrorEnabled())
-                {
-                    logger.error( "Unable to build ORBInitializer from >>" +
-                            name + "<<", e);
-                }
+                logger.fatalError("Unable to build ORBInitializer from >>" + name + "<<", e);
+
+                throw new INITIALIZE(e.toString());
             }
         }
 
