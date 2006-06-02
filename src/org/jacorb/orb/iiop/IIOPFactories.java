@@ -23,7 +23,6 @@ package org.jacorb.orb.iiop;
 
 import org.apache.avalon.framework.configuration.*;
 
-import org.omg.IOP.*;
 import org.omg.ETF.*;
 
 /**
