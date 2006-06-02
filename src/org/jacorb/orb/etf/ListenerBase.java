@@ -33,7 +33,7 @@ import org.jacorb.orb.*;
  * @author Andre Spiegel
  * @version $Id$
  */
-public abstract class ListenerBase 
+public abstract class ListenerBase
     extends _ListenerLocalBase
     implements Configurable
 {
@@ -41,27 +41,27 @@ public abstract class ListenerBase
     * The ORB.
     */
     protected ORB orb = null;
-    
+
     /**
     * The profile of this listener's endpoint.
     */
     protected Profile profile = null;
-    
+
     /**
     * The primary acceptor of this listener.
     */
     protected Acceptor acceptor = null;
-    
+
     /**
     * The configuration.
     */
     protected org.jacorb.config.Configuration configuration = null;
-    
+
     /**
     * The logger.
     */
     protected Logger logger = null;
-    
+
     /**
      * Reference to the ORB, for delivering
      * incoming connections via upcalls.
@@ -78,32 +78,20 @@ public abstract class ListenerBase
 
     protected boolean terminated = false;
 
-    public ListenerBase()
-    {
-    }
-    
-    /**
-    * @deprecated
-    */
-    public ListenerBase(ORB orb)
-    {
-        this.orb = orb;
-    }
-    
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)configuration;
-        
+
         if (orb == null)
         {
             // c.f. with the constructor taking an ORB param.
             this.orb = this.configuration.getORB();
         }
-        
+
         logger = this.configuration.getNamedLogger(this.configuration.getLoggerName(this.getClass()));
     }
-    
+
     /**
      * This call establishes the link between the ORB (i.e. the Handle
      * instance) and a server endpoint of the plugged-in transport.
@@ -113,7 +101,7 @@ public abstract class ListenerBase
     {
         this.up = up;
     }
-    
+
     /**
      * It is possible that connection requests arrive <i>after</i> the
      * initial creation of the Listener instance but <i>before</i> the
@@ -132,7 +120,7 @@ public abstract class ListenerBase
     }
 
     /**
-    * Method the Acceptor implementation should call to pass 
+    * Method the Acceptor implementation should call to pass
     * an opened connection to the ORB.
     */
     protected void deliverConnection(Connection connection)
@@ -189,7 +177,7 @@ public abstract class ListenerBase
             }
         }
     }
-    
+
     /**
      * The connection instance is returned to the Listener. It now shall
      * signal any incoming data to the Handle.
@@ -198,7 +186,7 @@ public abstract class ListenerBase
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
-    
+
     /**
      * The Listener is instructed to close its endpoint. It shall no
      * longer accept any connection requests and shall close all
@@ -214,7 +202,7 @@ public abstract class ListenerBase
             incoming_connections.notifyAll();
     }
 
-    
+
     /**
      * Returns a copy of the profile describing the endpoint
      * of this instance.
@@ -223,14 +211,14 @@ public abstract class ListenerBase
     {
         return profile.copy();
     }
-    
-    protected abstract class Acceptor 
+
+    protected abstract class Acceptor
         extends Thread
     {
         protected abstract void init();
-        
+
         public abstract void run();
-        
+
         public abstract void terminate();
     }
 }
