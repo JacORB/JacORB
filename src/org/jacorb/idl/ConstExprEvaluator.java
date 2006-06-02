@@ -181,8 +181,6 @@ public class ConstExprEvaluator
         operators[7]  = new Operator("*"  , 2, 10);
         operators[8]  = new Operator("/"  , 2, 10);
         operators[9]  = new Operator("%"  , 2, 10);
-
-
     }
 
     /**
@@ -325,13 +323,12 @@ public class ConstExprEvaluator
                         nRight = null;
                         return;
                     }
-                    else
-                        throw new Exception("Error during parsing... missing brackets in [" + s + "]");
+
+                    throw new Exception("Error during parsing... missing brackets in [" + s + "]");
                 }
                 // two operands
                 else if ( startOperator > 0 && nOperator.getType() == 2 )
                 {
-                    nOperator = nOperator;
                     nLeft   =
                     new Node( this, s.substring(0,  startOperator), nLevel + 1 );
                     nRight   =
