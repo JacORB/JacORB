@@ -26,9 +26,8 @@ import org.jacorb.util.ObjectUtil;
 /**
  * This an abstract base implementation of the ETF::Connection interface.
  *
- * 
- *
- * @author Nicolas Noffke / Andre Spiegel
+ * @author Nicolas Noffke
+ * @author Andre Spiegel
  * @version $Id$
  */
 
@@ -39,17 +38,17 @@ public abstract class StreamConnectionBase
     * Reads performed on this stream.
     */
     protected InputStream in_stream = null;
-    
+
     /**
     * Writes performed on this stream.
     */
     protected OutputStream out_stream = null;
-    
+
     protected StreamConnectionBase()
     {
         super();
     }
-    
+
     /**
     * Initialise this instance as a copy of another. Intended for use within subclass
     * constructors.
@@ -60,7 +59,7 @@ public abstract class StreamConnectionBase
         this.in_stream = other.in_stream;
         this.out_stream = other.out_stream;
     }
-    
+
     /**
      * read actual messages
      */
@@ -87,7 +86,7 @@ public abstract class StreamConnectionBase
             catch( InterruptedIOException e )
             {
                 int soTimeout = getTimeout();
-                
+
                 if (soTimeout != 0)
                 {
                     if (logger.isDebugEnabled())
@@ -97,7 +96,7 @@ public abstract class StreamConnectionBase
                     }
                     throw new org.omg.CORBA.TIMEOUT();
                 }
-                
+
                 throw new org.omg.CORBA.TRANSIENT ("Interrupted I/O: " + e);
             }
             catch( IOException se )
@@ -152,9 +151,9 @@ public abstract class StreamConnectionBase
         {
             if( b_out != null )
             {
-                byte[] b = b_out.toByteArray();
                 if (logger.isInfoEnabled())
                 {
+                    byte[] b = b_out.toByteArray();
                     logger.info("sendMessages(): " + ObjectUtil.bufToString(b, 0, b.length) );
                 }
                 b_out.reset();
@@ -166,7 +165,7 @@ public abstract class StreamConnectionBase
             throw to_COMM_FAILURE (ex);
         }
     }
-    
+
     /**
      * Simply return true if calling a read on this instance would
      * find data in the connection. Otherwise, the function shall
@@ -183,7 +182,5 @@ public abstract class StreamConnectionBase
             throw to_COMM_FAILURE (ex);
         }
     }
-
-
 }
 
