@@ -47,31 +47,47 @@ public class RequestQueue
     private int queueMin;
     private int queueMax;
     private boolean queueWait;
-
+    private List queueListeners;
+    
     private boolean configured = false;
 
     private List queue =
         new ArrayList (POAConstants.QUEUE_CAPACITY_INI);
                     // POAConstants.QUEUE_CAPACITY_INC);
 
-    private RequestQueue()
-    {
-    }
-
     protected RequestQueue(RequestController controller)
     {
         this.controller = controller;
     }
 
-    public void configure(Configuration myConfiguration)
+    public synchronized void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
+        if (configured) return;
+        
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.poa.queue");
         queueMax = configuration.getAttributeAsInteger("jacorb.poa.queue_max", 100);
         queueMin = configuration.getAttributeAsInteger("jacorb.poa.queue_min", 10);
         queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait",false);
+        queueListeners = configuration.getAttributeList("jacorb.poa.queue_listeners");
         configured = true;
+        
+        for (Iterator i = queueListeners.iterator(); i.hasNext();) {
+            String className = (String)i.next();
+            try
+            {
+                RequestQueueListener rql = (RequestQueueListener)
+                    org.jacorb.util.ObjectUtil.classForName(className).newInstance();
+                addRequestQueueListener(rql);
+            }
+            catch (Exception ex)
+            {
+                throw new ConfigurationException ("could not instantiate queue listener", 
+                                                  ex);
+            }
+        }
+        
     }
 
     /**
