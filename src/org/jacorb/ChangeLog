@@ -1,3 +1,63 @@
+2006-06-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/RequestQueue.java (configure): Add support for new property
+	jacorb.poa.queue_listeners, allowing users to add their own queue
+	listeners.
+	(queueListeners): New field, supporting the above.
+	(c'tor): Removed private no-arg constructor, it is unused.
+
+2006-06-02  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/ConstExprEvaluator.java, orb/iiop/IIOPFactories.java,
+	orb/iiop/IIOPConnection.java: cosmetics
+
+	* orb/etf/StreamConnectionBase.java (flush): only access byteArray
+	if it is really used
+
+	* orb/etf/ListenerBase.java (c'tor): removed deprecated, unused c'tor
+
+2006-06-01  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/ORB.java: startup: stricter error handling during
+	startup. don't swallow exceptions. instead raise
+	INITIALIZE (configurable).
+
+	related to scarab JAC#105
+
+	* orb/portableInterceptor/ORBInitInfoImpl.java (merge): don't
+	modify the target list. otherwise multiple calls to
+	getXXXInterceptors() will mess up the internal state of the
+	object.
+
+	* orb/ORB.java (_getObject): removed senseless debug output
+
+	startup: stricter error handling during startup. don't swallow
+	exceptions. instead raise INITIALIZE.
+
+	related to scarab JAC#105
+
+2006-06-01  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ORB.java: JAC#115 Check serverIdStr as well.
+
+2006-06-01  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/Interface.java (printHelper): changed generated narrow
+	method to use instanceof operator instead of relying on
+	classcastexceptions
+
+	see http://lists.spline.inf.fu-berlin.de/pipermail/jacorb-developer/2006-March/008109.html
+
+2006-05-31  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDRInputStream.java (read_untyped_value):
+	delegate calculation of chunkSize to new method readChunkSizeTag()
+
+	(readChunkSizeTag): new method that speculatively reads in the
+	chunksize but pushes back the result if it looks like a
+	valuetag. fix for better rmi/iiop-interoperability with the sun
+	orb
+
 2006-05-30  Nick Cross  <nick.cross@prismtechnologies.com>
 
 	* config/JacORBConfiguration.java: Add handling for singleton
