@@ -18,7 +18,7 @@
 
 
 <!--   <target name="all" depends="init,leveltwo,aux,ssl,sas"/> -->
-   <target name="all" depends="init,leveltwo,aux,ssl"/>
+   <target name="all" depends="init,leveltwo,aux,gui,ssl"/>
 
 
    <target name="ssl">
@@ -42,10 +42,15 @@
    <!-- principal_authenticator & util classes -->
    <target name="aux" depends="check-iaik" if="iaik.present">
       <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/security/level2/PrincipalAuthenticatorImpl.java,org/jacorb/security/util/*.java"/>
+          <param name="javac-includes" value="org/jacorb/security/level2/PrincipalAuthenticatorImpl.java"/>
       </antcall>
    </target>
 
+    <target name="gui" depends="check-iaik" if="iaik.present" unless="cdc-build">
+        <antcall target="jacorb-javac">
+            <param name="javac-includes" value="org/jacorb/security/util/*.java"/>
+        </antcall>
+    </target>
 
    <target name="clean" depends="init">
       <delete dir="${classdir}/org/jacorb/security"/>
