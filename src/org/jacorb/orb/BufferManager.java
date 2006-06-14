@@ -85,7 +85,6 @@ public final class BufferManager
      * Must be called before getInstance() !
      */
     public static void configure(Configuration configuration)
-        throws ConfigurationException
     {
         singleton.singletonConfigure(configuration);
         configured = true;
@@ -100,7 +99,6 @@ public final class BufferManager
      */
 
     private synchronized void singletonConfigure(Configuration configuration)
-        throws ConfigurationException
     {
         time =
             configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
@@ -108,11 +106,11 @@ public final class BufferManager
         MAX =
             configuration.getAttributeAsInteger("jacorb.maxManagedBufSize", 18);
 
-    bufferPool = new List[ MAX ];
+        bufferPool = new List[ MAX ];
 
-    for( int i = 0; i < MAX; i++)
+        for( int i = 0; i < MAX; i++)
         {
-        bufferPool[ i ] = new ArrayList();
+            bufferPool[ i ] = new ArrayList();
         }
 
         /* create a number of buffers for the preferred memory buffer
@@ -281,7 +279,7 @@ public final class BufferManager
                 {
                     // Only cache if CDROutputStream is called, cache is enabled &
                     // the new value is > than the cached value.
-                    if (cdrStr==true &&
+                    if (cdrStr &&
                         (time >= 0 &&
                          (bufferMax == null || bufferMax.length < current.length)))
                     {
@@ -302,22 +300,22 @@ public final class BufferManager
     public synchronized void release()
     {
         // printStatistics();
-    for( int i= MAX; i > 0; )
-    {
-        i--;
-        bufferPool[i].clear();
-    }
+        for( int i= MAX; i > 0; )
+        {
+            i--;
+            bufferPool[i].clear();
+        }
         if (reaper != null)
         {
             reaper.done = true;
-            reaper.wake();
+            reaper.dispose();
         }
     }
 
 
     private class Reaper extends Thread
     {
-        public boolean done = false;
+        private boolean done = false;
         private int sleepInterval = 0;
 
         public Reaper (int sleepInterval)
@@ -338,36 +336,38 @@ public final class BufferManager
                 try
                 {
                     time = sleepInterval + System.currentTimeMillis();
-                    do
+                    synchronized(this)
                     {
-                        sleep (sleepInterval);
+                        while(!done && System.currentTimeMillis() <= time)
+                        {
+                            wait(sleepInterval);
+                        }
                     }
-                    while (System.currentTimeMillis() <= time);
                 }
-                catch (InterruptedException ex) {}
+                catch (InterruptedException ex) {
+                    // ignored
+                }
 
                 // Check not shutting down
 
-                if (done)
+                synchronized(this)
                 {
-                    break;
+                    if(done)
+                    {
+                        break;
+                    }
                 }
 
- //                if ( Debug.isDebugEnabled() )
-//                 {
-//                     org.jacorb.util.Debug.output
-//                     (
-//                         4,
-//                         "Reaper thread purging maxBufferCache. It had size: " +
-//                         (bufferMax == null ? 0 : bufferMax.length)
-//                     );
-//                 }
                 bufferMax = null;
             }
         }
 
-        public synchronized void wake()
+        public synchronized void dispose()
         {
+            done = true;
+
+            interrupt();
+
             // Only one thread waiting so safe to use notify rather than notifyAll.
             notify();
         }
