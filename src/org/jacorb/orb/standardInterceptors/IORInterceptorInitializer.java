@@ -41,7 +41,7 @@ public class IORInterceptorInitializer
     implements ORBInitializer
 {
     /**
-     * Adds the SSLComponentInterceptor and the CodeSetInfoInterceptor
+     * Adds the CodeSetInfoInterceptor
      * to the set of IORInterceptors.
      *
      * @param info the info object.
@@ -55,7 +55,7 @@ public class IORInterceptorInitializer
         try
         {
             int giop_minor =
-                config.getAttributeAsInteger("jacorb.giop_minor_version",2);
+                config.getAttributeAsInteger("jacorb.giop_minor_version", 2);
 
             if( giop_minor > 0 )
             {
