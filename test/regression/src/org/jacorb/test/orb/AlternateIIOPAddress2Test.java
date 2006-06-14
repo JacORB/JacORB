@@ -84,7 +84,7 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
         server_props.setProperty ("OAAddress", LISTEN_EP);
 
         ClientServerSetup setup =
-        	new ClientServerSetup (suite,
+            new ClientServerSetup (suite,
                                    "org.jacorb.test.orb.IIOPAddressServerImpl",
                                    client_props,
                                    server_props);
@@ -121,7 +121,7 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
         Sample s = server.getObject();
         try
         {
-            int result = s.ping (123);
+            s.ping (123);
             fail ("TRANSIENT or TIMEOUT  exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
@@ -140,7 +140,7 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
         Sample s = server.getObject();
         try
         {
-            int result = s.ping (4);
+            s.ping (4);
             fail ("TRANSIENT or TIMEOUT  exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
@@ -181,7 +181,7 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
         Sample s = server.getObject();
         try
         {
-            int result = s.ping (33);
+            s.ping (33);
             fail ("TRANSIENT or TIMEOUT  exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
