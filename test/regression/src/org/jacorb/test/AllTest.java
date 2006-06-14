@@ -39,13 +39,14 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(org.jacorb.test.idl.AllTest.suite());
       suite.addTest(org.jacorb.test.orb.AllTest.suite());
       suite.addTest(org.jacorb.test.poa.AllTest.suite());
-      if ( ! "true".equals(services))
+      if ( ! "true".equalsIgnoreCase(services))
       {
           suite.addTest(org.jacorb.test.naming.AllTest.suite());
           suite.addTest(org.jacorb.test.notification.AllTest.suite());
       }
       suite.addTest(org.jacorb.test.bugs.AllTest.suite());
       suite.addTest (org.jacorb.test.util.AllTest.suite());
+      suite.addTest(org.jacorb.test.dii.AllTest.suite());
 
       return suite;
    }
