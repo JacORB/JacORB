@@ -171,7 +171,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
 
         _receiver.connect(channel_, false);
 
-        _sender.pushConsumer_.obtain_subscription_types(ObtainInfoMode.NONE_NOW_UPDATES_ON);
+        assertEquals(0, _sender.pushConsumer_.obtain_subscription_types(ObtainInfoMode.NONE_NOW_UPDATES_ON).length);
 
         EventType[] offers = new EventType[] { new EventType("domain1", "type1") };
 
@@ -195,7 +195,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
 
-        _sender.pushConsumer_.obtain_subscription_types(ObtainInfoMode.NONE_NOW_UPDATES_ON);
+        assertEquals(0, _sender.pushConsumer_.obtain_subscription_types(ObtainInfoMode.NONE_NOW_UPDATES_ON).length);
 
         EventType[] offers = new EventType[] { new EventType("domain1", "type1") };
 
@@ -238,7 +238,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
 
-        _receiver.pushSupplier_.obtain_offered_types(ObtainInfoMode.NONE_NOW_UPDATES_ON);
+        assertEquals(0, _receiver.pushSupplier_.obtain_offered_types(ObtainInfoMode.NONE_NOW_UPDATES_ON).length);
 
         EventType[] offers = new EventType[] { new EventType("domain1", "type1") };
 
