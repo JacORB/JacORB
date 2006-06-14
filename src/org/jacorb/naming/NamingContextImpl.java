@@ -730,7 +730,6 @@ public class NamingContextImpl
     void init(org.omg.PortableServer.POA poa)
     {
         this.poa = poa;
-        ((org.jacorb.orb.ORB)orb).set_delegate(this);
 
         /**
          * Recreate tables. For serialization, object references
