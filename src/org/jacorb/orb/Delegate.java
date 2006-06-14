@@ -256,14 +256,20 @@ public final class Delegate
      */
     private void bind()
     {
-        // ? why was that int synchronized block?
-        if (bound)
-            return ;
-
         synchronized (bind_sync)
         {
             if ( bound )
-                return ;
+            {
+                return;
+            }
+
+            // Check if ClientProtocolPolicy set, if so, set profile
+            // selector for IOR that selects effective profile for protocol
+            org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
+            if (protocols != null)
+            {
+                _pior.setProfileSelector(new SpecificProfileSelector(protocols));
+            }
 
             org.omg.ETF.Profile p = _pior.getEffectiveProfile();
             if (p == null)
@@ -432,6 +438,8 @@ public final class Delegate
             org.omg.CORBA.NVList args,
             org.omg.CORBA.NamedValue result )
     {
+        checkORB();
+
         bind();
 
         return new org.jacorb.orb.dii.Request( self,
@@ -665,10 +673,19 @@ public final class Delegate
         return ((org.omg.Messaging.SYNC_WITH_TRANSPORT.value));
     }
 
+    public org.omg.RTCORBA.Protocol[] getClientProtocols ()
+    {
+        Policy policy = get_client_policy(org.omg.RTCORBA.CLIENT_PROTOCOL_POLICY_TYPE.value);
+        if (policy != null)
+        {
+            return ((org.omg.RTCORBA.ClientProtocolPolicy)policy).protocols ();
+        }
+        return null;
+    }
+
     /**
      * @deprecated Deprecated by CORBA 2.3
      */
-
     public org.omg.CORBA.InterfaceDef get_interface( org.omg.CORBA.Object self )
     {
         return org.omg.CORBA.InterfaceDefHelper.narrow( get_interface_def( self ) ) ;
@@ -676,6 +693,8 @@ public final class Delegate
 
     public org.omg.CORBA.Object get_interface_def (org.omg.CORBA.Object self)
     {
+        checkORB();
+
         // If local object call _interface directly
 
         if (is_really_local (self))
@@ -827,6 +846,8 @@ public final class Delegate
 
     public int hash( org.omg.CORBA.Object self, int x )
     {
+        checkORB();
+
         return hashCode();
     }
 
@@ -1284,6 +1305,8 @@ public final class Delegate
     public boolean is_equivalent(org.omg.CORBA.Object self,
                                  org.omg.CORBA.Object obj)
     {
+        checkORB();
+
         boolean result = true;
 
         if (self != obj)
@@ -1404,10 +1427,14 @@ public final class Delegate
      */
     public synchronized void release( org.omg.CORBA.Object self )
     {
-        if (!bound) return;
-
         synchronized ( bind_sync )
         {
+            if (!bound)
+            {
+                return;
+            }
+
+
             if ( connection != null )
             {
                 conn_mg.releaseConnection( connection );
@@ -1450,6 +1477,8 @@ public final class Delegate
     public synchronized org.omg.CORBA.Request request( org.omg.CORBA.Object self,
                                                        String operation )
     {
+        orb.checkIsRunning();
+
         synchronized ( bind_sync )
         {
             bind();
@@ -1470,6 +1499,8 @@ public final class Delegate
                                                    String operation,
                                                    boolean responseExpected )
     {
+        orb.checkIsRunning();
+
         // Compute the deadlines for this request based on any absolute or
         // relative timing policies that have been specified.  Compute this
         // now, because it is the earliest possible time, and therefore any
@@ -1515,13 +1546,7 @@ public final class Delegate
                                          replyEndTime,
                                          p.get_object_key(), p.getEffectiveProfile().version().minor );
 
-            try{
-            // TODO
-                ros.configure(configuration);
-            } catch (ConfigurationException e)
-            {
-                throw new RuntimeException();
-            }
+            ros.configure(configuration);
 
             // CodeSets are only negotiated once per connection,
             // not for each individual request
@@ -1796,6 +1821,11 @@ public final class Delegate
     public void openBarrier()
     {
         pending_replies_sync.openBarrier();
+    }
+
+    private void checkORB()
+    {
+        orb.checkIsRunning();
     }
 
     private static class Barrier

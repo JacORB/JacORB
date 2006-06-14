@@ -59,6 +59,7 @@ public class ParsedIOR
      *  tagged components may be part of the profile bodies
      */
     private TaggedComponentList components = new TaggedComponentList();
+    private ProfileSelector profileSelector;
 
     protected boolean endianness = false;
     private String ior_str = null;
@@ -249,18 +250,9 @@ public class ParsedIOR
             }
         }
 
-        effectiveProfile =
-            orb.getTransportManager().getProfileSelector().selectProfile (profiles,
-                                                                          orb.getClientConnectionManager());
         ior = _ior;
-        ior_str = getIORString();
 
-        if( effectiveProfile != null )
-        {
-            cs_info = (CodeSetComponentInfo)getComponent(TAG_CODE_SETS.value,
-                                                         CodeSetComponentInfoHelper.class);
-            orbTypeId = getLongComponent (TAG_ORB_TYPE.value);
-        }
+        setEffectiveProfile ();
     }
 
     public CodeSetComponentInfo getCodeSetComponentInfo()
@@ -325,6 +317,20 @@ public class ParsedIOR
     public Profile getEffectiveProfile()
     {
         return effectiveProfile;
+    }
+
+    private void setEffectiveProfile ()
+    {
+        effectiveProfile = getProfileSelector().selectProfile
+           (profiles, orb.getClientConnectionManager());
+        ior_str = getIORString();
+
+        if (effectiveProfile != null)
+        {
+            cs_info = (CodeSetComponentInfo) getComponent
+               (TAG_CODE_SETS.value, CodeSetComponentInfoHelper.class);
+            orbTypeId = getLongComponent (TAG_ORB_TYPE.value);
+        }
     }
 
     public String getTypeId()
@@ -663,14 +669,17 @@ public class ParsedIOR
     {
         Object result = null;
         if (effectiveProfile instanceof org.jacorb.orb.etf.ProfileBase)
+        {
             // TODO Should there be a component access mechanism for all
             //      ETF profiles?  Clarify with OMG.
             result = ((org.jacorb.orb.etf.ProfileBase)effectiveProfile).getComponent (tag, helper);
+        }
 
         if (result != null)
+        {
             return result;
-        else
-            return components.getComponent (tag, helper);
+        }
+        return components.getComponent (tag, helper);
     }
 
     private static class LongHelper
@@ -726,9 +735,21 @@ public class ParsedIOR
         {
             return true;
         }
-        else
-        {
-            return false;
-        }
+        return false;
+    }
+
+    public void setProfileSelector (ProfileSelector sel)
+    {
+        profileSelector = sel;
+        setEffectiveProfile ();
+    }
+
+    private ProfileSelector getProfileSelector ()
+    {
+       if (profileSelector == null)
+       {
+           return orb.getTransportManager().getProfileSelector ();
+       }
+       return profileSelector;
     }
 }

@@ -30,7 +30,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.factory.SSLServerSocketFactory;
-import org.jacorb.orb.factory.ServerSocketFactory;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.GIOPConnectionManager;
 import org.jacorb.orb.giop.MessageReceptorPool;
@@ -50,10 +49,9 @@ import org.omg.ETF.Listener;
 import org.omg.PortableServer.POA;
 
 /**
- *
  * Class BasicAdapter, used by the POA.
  *
- * @author Gerald Brose, FU Berlin
+ * @author Gerald Brose
  * @version $Id$
  */
 
@@ -62,19 +60,18 @@ public class BasicAdapter
     implements Configurable
 {
     public  SSLServerSocketFactory ssl_socket_factory = null;
-    private ServerSocketFactory socket_factory = null;
 
-    private org.jacorb.orb.ORB orb;
-    private POA rootPOA;
+    private final org.jacorb.orb.ORB orb;
+    private final POA rootPOA;
 
-    private List listeners = new ArrayList();
+    private final List listeners = new ArrayList();
 
     private MessageReceptorPool receptor_pool = null;
     private ServerRequestListener request_listener = null;
     private ReplyListener reply_listener = null;
 
-    private TransportManager transport_manager = null;
-    private GIOPConnectionManager giop_connection_manager = null;
+    private final TransportManager transport_manager;
+    private final GIOPConnectionManager giop_connection_manager;
 
     /** the configuration object  */
     private org.jacorb.config.Configuration configuration = null;
@@ -107,40 +104,36 @@ public class BasicAdapter
         logger =
             configuration.getNamedLogger("jacorb.orb.basic");
 
-        socket_factory =
-            transport_manager.getSocketFactoryManager().getServerSocketFactory();
-
         if( configuration.getAttribute("jacorb.security.support_ssl","off").equals("on"))
         {
-            if( ssl_socket_factory == null )
+            String s =
+                configuration.getAttribute( "jacorb.ssl.server_socket_factory","" );
+            if(  s.length() == 0 )
             {
-                String s =
-                    configuration.getAttribute( "jacorb.ssl.server_socket_factory","" );
-                if(  s.length() == 0 )
-                {
-                    throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.server_socket_factory\" is not set!" );
-                }
-
-                try
-                {
-                    Class ssl = ObjectUtil.classForName( s );
-
-                    Constructor constr =
-                        ssl.getConstructor( new Class[]{org.jacorb.orb.ORB.class });
-
-                    ssl_socket_factory =
-                        (SSLServerSocketFactory)constr.newInstance( new Object[]{ orb });
-
-                    ((Configurable)ssl_socket_factory).configure(configuration);
-                }
-                catch (Exception e)
-                {
-                    logger.warn("Exception",e);
-
-                    throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl server socket factory can't be instanciated (see trace)!" );
-                }
+                throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.server_socket_factory\" is not set!" );
             }
 
+            try
+            {
+                Class ssl = ObjectUtil.classForName( s );
+
+                Constructor constr =
+                    ssl.getConstructor( new Class[]{org.jacorb.orb.ORB.class });
+
+                ssl_socket_factory =
+                    (SSLServerSocketFactory)constr.newInstance( new Object[]{ orb });
+
+                if (ssl_socket_factory instanceof Configurable)
+                {
+                    ((Configurable)ssl_socket_factory).configure(configuration);
+                }
+            }
+            catch (Exception e)
+            {
+                logger.warn("unable to create SSLServerSocketFactory",e);
+
+                throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl server socket factory can't be instanciated (see trace)!" );
+            }
         }
 
         receptor_pool = new MessageReceptorPool("server", "ServerMessageReceptor", myConfiguration);
@@ -412,6 +405,23 @@ public class BasicAdapter
         }
     }
 
+    /**
+     * Tell all IIOPListeners to renew their SSL server sockets.
+     *
+     * @see IIOPListener#renewSSLServerSocket
+     */
+    public void renewSSLServerSockets()
+    {
+        for (Iterator i = listeners.iterator(); i.hasNext();)
+        {
+            Object o = i.next();
+            if (o instanceof IIOPListener)
+            {
+                ((IIOPListener) o).renewSSLServerSocket();
+            }
+        }
+    }
+
     // Handle methods below this line
 
     /**
@@ -472,5 +482,4 @@ public class BasicAdapter
         // passed up initially.
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
-
 }

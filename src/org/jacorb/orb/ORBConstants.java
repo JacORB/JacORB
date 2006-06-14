@@ -41,4 +41,11 @@ public final class ORBConstants
     public static final int JACORB_ORB_ID           = 0x4A414300;
     public static final int SERVICE_PADDING_CONTEXT = 0x4A414301;
     public static final int SERVICE_PROXY_CONTEXT   = 0x4A414302;
+
+    /**
+     * <code>JAC_SSL_PROFILE_ID/JAC_NOSSL_PROFILE_ID</code> are used to
+     * distinguish between IIOP profiles that do and do not support SSL.
+     */
+    public static final int JAC_SSL_PROFILE_ID      = VMCID;
+    public static final int JAC_NOSSL_PROFILE_ID    = VMCID | 0x01;
 }

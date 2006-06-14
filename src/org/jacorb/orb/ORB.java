@@ -41,6 +41,7 @@ import org.apache.avalon.framework.configuration.*;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_INV_ORDER;
+import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
@@ -152,6 +153,8 @@ public final class ORB
     /* most recently completed dii request found during poll */
     private Request request = null;
 
+    private RTORB rtORB;
+
     /* PolicyManagement */
     private org.jacorb.orb.policies.PolicyManager policyManager = null;
 
@@ -159,7 +162,7 @@ public final class ORB
     private final Map policy_factories = Collections.synchronizedMap(new HashMap());
 
     private static final String [] services  =
-        {"RootPOA","POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory"};
+        {"RootPOA","POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory", "RTORB",};
 
     private boolean bidir_giop = false;
 
@@ -185,8 +188,7 @@ public final class ORB
     /**
      * configure the ORB
      */
-    public void configure(Configuration myConfiguration)
-        throws ConfigurationException
+    public void configure(Configuration myConfiguration) throws ConfigurationException
     {
         super.configure(myConfiguration);
 
@@ -645,6 +647,9 @@ public final class ORB
             case SYNC_SCOPE_POLICY_TYPE.value:
                 return new
                     org.jacorb.orb.policies.SyncScopePolicy (value);
+            case org.omg.RTCORBA.CLIENT_PROTOCOL_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.ClientProtocolPolicy (value);
             default:
                 final PolicyFactory factory = (PolicyFactory)policy_factories.get(new Integer(type));
 
@@ -1140,125 +1145,98 @@ public final class ORB
      */
 
     public org.omg.CORBA.Object resolve_initial_references(String identifier)
-        throws org.omg.CORBA.ORBPackage.InvalidName
+    throws org.omg.CORBA.ORBPackage.InvalidName
     {
         if ( initial_references.containsKey(identifier) )
         {
             return (org.omg.CORBA.Object)initial_references.get(identifier);
         }
-        else
-        {
-            org.omg.CORBA.Object obj = null;
-            String url = null;
 
+        org.omg.CORBA.Object obj = null;
+        String url = null;
+
+        try
+        {
+            url = configuration.getAttribute("ORBInitRef." + identifier);
+        }
+        catch( Exception e )
+        {
+            // ignore
+        }
+
+        if( url != null )
+        {
             try
             {
-                url =
-                    configuration.getAttribute("ORBInitRef." + identifier);
+                obj = this.string_to_object( url );
             }
             catch( Exception e )
             {
-                // ignore
-            }
-
-            if( url != null )
-            {
-                try
+                if (logger.isErrorEnabled())
                 {
-                    obj = this.string_to_object( url );
+                    logger.error( "Could not create initial reference for \"" +
+                            identifier + "\"\n" +
+                            "Please check property \"ORBInitRef." +
+                            identifier + '\"' );
                 }
-                catch( Exception e )
+                if (logger.isDebugEnabled())
                 {
-                    if (logger.isErrorEnabled())
-                    {
-                        logger.error( "Could not create initial reference for \"" +
-                                      identifier + "\"\n" +
-                                      "Please check property \"ORBInitRef." +
-                                      identifier + '\"' );
-                    }
-                    if (logger.isDebugEnabled())
-                    {
-                        logger.debug( e.getMessage() );
-                    }
-
-                    throw new org.omg.CORBA.ORBPackage.InvalidName();
-                }
-            }
-            else if( identifier.equals("RootPOA") )
-            {
-                return (org.omg.CORBA.Object)getRootPOA();
-            }
-            else if( identifier.equals("POACurrent") )
-            {
-                return (org.omg.CORBA.Object)getPOACurrent();
-            }
-            else if( identifier.equals("SecurityCurrent") )
-            {
-                if( securityCurrent == null )
-                {
-                    try
-                    {
-                        Class currentClass =
-                            ObjectUtil.classForName( "org.jacorb.security.level2.CurrentImpl" );
-
-                        Constructor constr =
-                            currentClass.getConstructor( new Class[]{ org.omg.CORBA.ORB.class });
-
-                        securityCurrent =
-                            (org.omg.SecurityLevel2.Current)constr.newInstance( new Object[]{ this });
-
-                        Method configureMethod =
-                            currentClass.getDeclaredMethod( "configure",
-                                                            new Class[]{ Configuration.class } );
-
-                        configureMethod.invoke( securityCurrent, new Object[]{ configuration });
-
-                        Method init =
-                            currentClass.getDeclaredMethod( "init", new Class[0] );
-
-                        init.invoke( securityCurrent, new Object[0] );
-                    }
-                    catch (Exception e)
-                    {
-                        if (logger.isWarnEnabled())
-                        {
-                            logger.warn("Exception",e);
-                        }
-                    }
+                    logger.debug( e.getMessage() );
                 }
 
-                obj = securityCurrent;
-            }
-            else if( identifier.equals("DynAnyFactory") )
-            {
-                obj = new org.jacorb.orb.dynany.DynAnyFactoryImpl( this );
-            }
-            else if( identifier.equals("PICurrent") )
-            {
-                return piCurrent;
-            }
-            else if( identifier.equals("ORBPolicyManager") )
-            {
-                if (policyManager == null)
-                    policyManager = new PolicyManager(this);
-                return policyManager;
-            }
-            else if( identifier.equals("CodecFactory") )
-            {
-                obj = new CodecFactoryImpl(this);
-            }
-            else
-            {
                 throw new org.omg.CORBA.ORBPackage.InvalidName();
             }
-
-            if (obj != null)
-            {
-                initial_references.put (identifier, obj);
-            }
-
-            return obj;
         }
+        else if( identifier.equals("RootPOA") )
+        {
+            return getRootPOA();
+        }
+        else if( identifier.equals("POACurrent") )
+        {
+            return getPOACurrent();
+        }
+        else if( identifier.equals("SecurityCurrent") )
+        {
+            if( securityCurrent == null )
+            {
+                securityCurrent = new org.jacorb.security.level2.CurrentImpl (this);
+                ((org.jacorb.security.level2.CurrentImpl)securityCurrent).init();
+            }
+            obj = securityCurrent;
+        }
+        else if( identifier.equals("DynAnyFactory") )
+        {
+            obj = new org.jacorb.orb.dynany.DynAnyFactoryImpl( this );
+        }
+        else if( identifier.equals("PICurrent") )
+        {
+            return piCurrent;
+        }
+        else if( identifier.equals("ORBPolicyManager") )
+        {
+            if (policyManager == null)
+                policyManager = new PolicyManager(this);
+            return policyManager;
+        }
+        else if( identifier.equals("CodecFactory") )
+        {
+            obj = new CodecFactoryImpl(this);
+        }
+        else if (identifier.equals("RTORB"))
+        {
+            obj = getRTORB();
+        }
+        else
+        {
+            throw new org.omg.CORBA.ORBPackage.InvalidName();
+        }
+
+        if (obj != null)
+        {
+            initial_references.put (identifier, obj);
+        }
+
+        return obj;
     }
 
     /**
@@ -1271,6 +1249,16 @@ public final class ORB
     {
         return policyManager;
     }
+
+    private synchronized org.jacorb.orb.RTORB getRTORB()
+    {
+       if (rtORB == null)
+       {
+          rtORB = new org.jacorb.orb.RTORB (this);
+       }
+       return rtORB;
+    }
+
 
     /**
      * Register a reference, that will be returned on subsequent calls
@@ -1855,6 +1843,8 @@ public final class ORB
 
     public org.omg.CORBA.Object string_to_object (String str)
     {
+        checkIsRunning();
+
         if (str == null)
         {
             return null;
@@ -1867,10 +1857,8 @@ public final class ORB
             {
                 return null;
             }
-            else
-            {
-                return _getObject(pior);
-            }
+
+            return _getObject(pior);
         }
         catch (IllegalArgumentException iae)
         {
@@ -1895,30 +1883,30 @@ public final class ORB
     /**
      * called by org.jacorb.poa.RequestProcessor
      */
-
     public void set_delegate( java.lang.Object wrapper )
     {
         if( ! (wrapper instanceof org.omg.PortableServer.Servant) )
-            throw new org.omg.CORBA.BAD_PARAM("Argument must be of type org.omg.PortableServer.Servant");
-        else
         {
-            try
-            {
-                ((org.omg.PortableServer.Servant)wrapper)._get_delegate();
-            }
-            catch( org.omg.CORBA.BAD_INV_ORDER bio )
-            {
-                // only set the delegate if it has not been set already
-                org.jacorb.orb.ServantDelegate delegate =
-                    new org.jacorb.orb.ServantDelegate( this );
-                ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
-            }
+            throw new org.omg.CORBA.BAD_PARAM("Argument must be of type org.omg.PortableServer.Servant");
+        }
+
+        try
+        {
+            ((org.omg.PortableServer.Servant)wrapper)._get_delegate();
+        }
+        catch( org.omg.CORBA.BAD_INV_ORDER bio )
+        {
+            // only set the delegate if it has not been set already
+            org.jacorb.orb.ServantDelegate delegate =
+                new org.jacorb.orb.ServantDelegate( this );
+            ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
         }
     }
 
-
     public String object_to_string( org.omg.CORBA.Object obj)
     {
+        checkIsRunning();
+
         if (obj == null)
         {
             return nullIORString;
@@ -1932,11 +1920,13 @@ public final class ORB
         Object delegate =
             ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate();
         if (delegate instanceof org.jacorb.orb.Delegate)
+        {
             return delegate.toString();
-        else
-            throw new BAD_PARAM("Argument has a delegate whose class is "
-                                + delegate.getClass().getName()
-                                + ", a org.jacorb.orb.Delegate was expected");
+        }
+
+        throw new BAD_PARAM("Argument has a delegate whose class is "
+                + delegate.getClass().getName()
+                + ", a org.jacorb.orb.Delegate was expected");
     }
 
     public void perform_work ()
@@ -2372,6 +2362,25 @@ public final class ORB
         // else:
         return originalKey;
     }
+
+    /**
+     * check if this orb is still running.
+     * @throws BAD_INV_ORDER in case this orb was shutdown
+     * already.
+     */
+    void checkIsRunning()
+    {
+        if (!isRunning())
+        {
+            throw new BAD_INV_ORDER(4, CompletionStatus.COMPLETED_NO);
+        }
+    }
+
+    boolean isRunning()
+    {
+        return run;
+    }
+
 
     /**
      * Inner class that implements org.omg.PortableInterceptor.Current
