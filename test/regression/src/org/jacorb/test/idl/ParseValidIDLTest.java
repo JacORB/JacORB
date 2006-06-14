@@ -29,10 +29,10 @@ import junit.framework.Test;
 import org.jacorb.test.common.TestUtils;
 
 /**
- * this test will try to process all idl files included
+ * this test will try to process and compile all idl files included
  * in the directory <TEST_HOME>/idl/compiler/succeed.
  * this test assumes the idl files to be correct and
- * will fail if JacIDL causes an error during processing.
+ * will fail if JacIDL or javac causes an error during processing.
  *
  * additionally if you'd like to verify the compiled classes
  * you can optionally define a method that must adhere to the following
@@ -50,6 +50,10 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         super("testCanParseValidIDL", file);
     }
 
+    /**
+     * this is the main test method. it will be invoked
+     * for every .idl file that is found in the source directory
+     */
     public void testCanParseValidIDL() throws Exception
     {
         runJacIDL(false);
