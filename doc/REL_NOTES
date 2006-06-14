@@ -53,22 +53,30 @@ post 2.2.4
         - Improve error checking in compiler.
         - Fix to remove ObjectHelper class generation.
         - Fix typedef bounded string generation bug.
+        - Optimized generated code when using octet sequences
     - ORB:
         - DynValue idl added
         - Enhance Any equals for value comparison.
         - Improve typecode error checking.
         - Fix for using an Object Reference inside a DynAny
-        - new property: jacorb.poa.thread_pool_shared. This is to share a
-          single thread pool amongst all the POAs.
         - new properties (jacorb.connection.client.max_idle_receptor_threads,
           jacorb.connection.client.max_receptor_threads, jacorb.connection.server.max_idle_receptor_threads,
           jacorb.connection.server.max_receptor_threads) to control size of the MessageReceptorPool
         - name all threads created by JacORB (bugzilla #472)
         - new property: jacorb.orb_initializer.fail_on_error. Control if errors
           caused by an ORBInitializer will make ORB.init() fail or not.
-        
+        - new property: jacorb.listener.server_socket_timeout. This is a
+          workaround for Java bug #4344135 and is is only useful in conjunction
+          with the SI&C SSL socket factories.
+        - Fix recursive typecode bug.
+    - POA:
+        - new property: jacorb.poa.thread_pool_shared. This is to share a
+          single thread pool amongst all the POAs.
     - IDL:
         - Added CosProperty.idl
+    - Security:
+        - new property: jacorb.security.randomClassPlugin. Used by developers to plugin their
+          own SecureRandom initialisation.
     - Logging:
         - singleton ORB uses a logfile if the property
           jacorb.logfile is set.
