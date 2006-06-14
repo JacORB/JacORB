@@ -444,12 +444,13 @@ public class IIOPProfile
         {
             return getTLSPortFromCSIComponent();
         }
-        else
+
+        int port = ssl.port;
+        if (port < 0)
         {
-            int port = ssl.port;
-            if (port < 0) port += 65536;
-            return port;
+            port += 65536;
         }
+        return port;
     }
 
     /**
