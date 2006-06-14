@@ -1,0 +1,79 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+             typedef any any_T;
+             typedef sequence<any_T> anySeq1_T;
+             typedef sequence<any> anySeq2_T;
+
+             typedef boolean boolean_T;
+             typedef sequence<boolean_T> booleanSeq1_T;
+             typedef sequence<boolean> booleanSeq2_T;
+
+             typedef char char_T;
+             typedef sequence<char_T> charSeq1_T;
+             typedef sequence<char> charSeq2_T;
+
+             typedef double double_T;
+             typedef sequence<double_T> doubleSeq1_T;
+             typedef sequence<double> doubleSeq2_T;
+
+             typedef long double ldouble_T;
+             typedef sequence<ldouble_T> ldoubleSeq1_T;
+             typedef sequence<long double> ldoubleSeq2_T;
+
+             typedef float float_T;
+             typedef sequence<float_T> floatSeq1_T;
+             typedef sequence<float> floatSeq2_T;
+
+             typedef long long_T;
+             typedef sequence<long_T> longSeq1_T;
+             typedef sequence<long> longSeq2_T;
+
+             typedef unsigned long ulong_T;
+             typedef sequence<long_T> ulongSeq1_T;
+             typedef sequence<unsigned long> ulongSeq2_T;
+
+             typedef long long llong_T;
+             typedef sequence<long_T> llongSeq1_T;
+             typedef sequence<long long> llongSeq2_T;
+
+             typedef unsigned long long ullong_T;
+             typedef sequence<long_T> ullongSeq1_T;
+             typedef sequence<unsigned long long> ullongSeq2_T;
+
+             typedef Object Object_T;
+             typedef sequence<Object_T> ObjectSeq1_T;
+             typedef sequence<Object> ObjectSeq2_T;
+
+             typedef octet octet_T;
+             typedef sequence<octet_T> octetSeq1_T;
+             typedef sequence<octet> octetSeq2_T;
+
+             typedef short short_T;
+             typedef sequence<short_T> shortSeq1_T;
+             typedef sequence<short> shortSeq2_T;
+
+             typedef unsigned short ushort_T;
+             typedef sequence<ushort_T> ushortSeq1_T;
+             typedef sequence<unsigned short> ushortSeq2_T;
+
+             typedef string string_T;
+             typedef sequence<string_T> stringSeq1_T;
+             typedef sequence<string> stringSeq2_T;
+
+             typedef wchar wchar_T;
+             typedef sequence<wchar_T> wcharSeq1_T;
+             typedef sequence<wchar> wcharSeq2_T;
+
+             typedef wstring wstring_T;
+             typedef sequence<wstring_T> wstringSeq1_T;
+             typedef sequence<wstring> wstringSeq2_T;
+         };
+      };
+   };
+};
