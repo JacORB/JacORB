@@ -211,6 +211,12 @@ jacorb.maxManagedBufSize=18
 
 #jacorb.reference_caching=off
 
+# Sets a timeout on the (SSL) server socket. This is a workaround for JDK 1.3
+# on linux where a thread blocked on accept() isn't notified when closing that
+# socket. See Java bug #4344135. NOTE: This is only useful in conjunction with
+# the SI&C SSL socket factories.
+#jacorb.listener.server_socket_timeout=0
+
 #
 # The following property specifies the class which is used for
 # reference caching. WeakHashtable uses WeakReferences, so entries
@@ -247,7 +253,7 @@ jacorb.cachePoaNames=off
 # Control if errors caused by an ORBInitializer (thrown exceptions or failure
 # to build class) will make ORB.init() fail or not. On failure, a
 # org.omg.CORBA.INITIALIZE exception will be thrown.
-#jacorb.orb_initializer.fail_on_error=off 
+#jacorb.orb_initializer.fail_on_error=off
 
 ###########################################
 #                                         #
@@ -566,6 +572,10 @@ jacorb.security.ssl.client.cipher_suites=
 # Must be capable of instantiation via a no arg constructor.
 #jacorb.security.ssl.client.trust_manager=my.trust.Manager
 #jacorb.security.ssl.server.trust_manager=my.trust.Manager
+
+# Class name for a class that implements JacORB JSRandom interface. This
+# will be used to get a SecureRandom.
+jacorb.security.randomClassPlugin=
 
 #########################
 #                       #
