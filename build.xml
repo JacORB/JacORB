@@ -238,20 +238,28 @@
    <!-- ==================================================== -->
 
    <target name="doc" depends="init" description="Create the Javadoc">
-      <mkdir dir="${basedir}/doc/api"/>
+        <property name="PKGNAMES" value="org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.level2.*,org.jacorb.security.sas.*,org.omg.*,org.jacorb.notification.*" />
+        <property name="PKGNAMES_EXCLUDED" value="org.jacorb.notification.filter.bsh" />
+        <property name="SRCDIR2" value="" />
 
-      <javadoc destdir="${basedir}/doc/api"
-               additionalparam="-breakiterator"
-               classpathref="path.base"
-               Splitindex="Yes"
-               Use="Yes"
-               maxmemory="256m"
-               packagenames="org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.level2.*,org.jacorb.security.sas.*,org.omg.*,org.jacorb.notification.*"
-               excludepackagenames="org.jacorb.notification.filter.bsh">
-         <sourcepath>
-            <path refid="sourcepath.base" />
-         </sourcepath>
-      </javadoc>
+        <!-- ignore xdoclet tags -->
+        <property name="IGNORED_TAGS" value="-tag jmx.mbean:X -tag jboss.xmbean:X -tag jmx.managed-attribute:X -tag jmx.managed-operation:X" />
+
+        <mkdir dir="${basedir}/doc/api"/>
+
+        <javadoc destdir="${basedir}/doc/api"
+                 additionalparam="${IGNORED_TAGS}"
+                 classpathref="path.base"
+                 Splitindex="Yes"
+                 Use="Yes"
+                 maxmemory="256m"
+                 packagenames="${PKGNAMES}"
+                 excludepackagenames="${PKGNAMES_EXCLUDED}">
+            <sourcepath>
+                <path refid="sourcepath.base" />
+                <path path="${SRCDIR2}" />
+             </sourcepath>
+        </javadoc>
    </target>
 
    <target name="convert.jdk5" description="convert sources to use java.util.concurrent (JDK 1.5+)">
