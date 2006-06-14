@@ -23,17 +23,17 @@ package org.jacorb.imr;
 import org.omg.CORBA.ORB;
 
 /**
- * This class represents a host. It contains information about 
+ * This class represents a host. It contains information about
  * a server startup daemon residing on this host and provides
  * a method for starting a server on that host.
  *
  * @author Nicolas Noffke
- * 
+ *
  * @version $Id$
  */
 
-public class ImRHostInfo 
-    implements java.io.Serializable 
+public class ImRHostInfo
+    implements java.io.Serializable
 {
     protected String host;
 
@@ -41,21 +41,20 @@ public class ImRHostInfo
     private String object_string;
 
     private boolean reconnect = false;
-    
+
     /**
      * The constructor of this class.
      *
      * @param host the HostInfo object to take the information from.
-     * @param orb needed for calling object_to_string().
      */
 
-    public ImRHostInfo(HostInfo host) 
+    public ImRHostInfo(HostInfo host)
     {
         this.host = host.name;
         ssd_ref = host.ssd_ref;
         object_string = host.ior_string;
     }
-    
+
     /**
      * "Convert" this object to a HostInfo object
      *
@@ -78,9 +77,9 @@ public class ImRHostInfo
      * if the daemon is down.
      */
 
-    public void startServer(String command, ORB orb) 
+    public void startServer(String command, ORB orb)
         throws ServerStartupFailed
-    {      
+    {
         if (reconnect)
             ssd_ref = ServerStartupDaemonHelper.narrow(orb.string_to_object(object_string));
 
@@ -88,7 +87,7 @@ public class ImRHostInfo
     }
 
     /**
-     * Things to be done before serialization. Implemented from Serializable. 
+     * Things to be done before serialization. Implemented from Serializable.
      */
 
     private void writeObject(java.io.ObjectOutputStream out)

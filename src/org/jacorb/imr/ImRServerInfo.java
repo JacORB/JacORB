@@ -22,7 +22,6 @@ package org.jacorb.imr;
 
 import java.util.*;
 
-import org.jacorb.imr.RegistrationPackage.*;
 import org.jacorb.imr.AdminPackage.*;
 
 /**
@@ -37,7 +36,7 @@ import org.jacorb.imr.AdminPackage.*;
  *
  */
 
-public class ImRServerInfo  
+public class ImRServerInfo
     implements java.io.Serializable
 {
     protected String command;
@@ -56,26 +55,26 @@ public class ImRServerInfo
      * @param name the logical server name
      * @param host the name of the host on which the server should be restarted
      * (ignored when no startup command is specified).
-     * @param command the startup command for this server, passed to the 
+     * @param command the startup command for this server, passed to the
      * server startup daemon on <code>host</code> (in case there is one active).
-     * @exception IllegalServerName thrown when <code>name</code> is 
+     * @exception IllegalServerName thrown when <code>name</code> is
      * <code>null</code> or of length zero.
      */
 
-    public ImRServerInfo(String name, String host, String command) 
+    public ImRServerInfo(String name, String host, String command)
         throws IllegalServerName
     {
         if (name == null || name.length() == 0)
             throw new IllegalServerName(name);
-	
+
         this.name = name;
         this.host = host;
         this.command = command;
         active = false;
-        poas = new Vector(); 
+        poas = new Vector();
         poas_lock = new ResourceLock();
     }
-    
+
     /**
      * "Converts" this Object to a <code>ServerInfo</code> instance containing
      * the same info as this object.
@@ -138,7 +137,7 @@ public class ImRServerInfo
         int _i = 0;
         while(_poa_enum.hasMoreElements())
             _poa_names[_i++] = ((ImRPOAInfo) _poa_enum.nextElement()).name;
-	
+
         return _poa_names;
     }
 
@@ -161,7 +160,7 @@ public class ImRServerInfo
 
     /**
      * This method blocks until the server is released, i.e. set
-     * to not holding. <br> This will not time out since holding a 
+     * to not holding. <br> This will not time out since holding a
      * server is only done by administrators.
      */
 
@@ -170,13 +169,13 @@ public class ImRServerInfo
         while(holding)
         {
             try
-            {		
+            {
                 wait();
             }
             catch (java.lang.Exception _e)
             {
             }
-        }	
+        }
     }
 
     /**
@@ -188,13 +187,13 @@ public class ImRServerInfo
         holding = false;
         notifyAll();
     }
-    
+
     /**
      * Tests if this server should be restarted. That is the
      * case if the server is not active and nobody else is currently
      * trying to restart it. <br>
      * If true is returned the server is set to restarting. That means
-     * the thread calling this method has to restart the server, 
+     * the thread calling this method has to restart the server,
      * otherwise it will stay down indefinetly.
      *
      * @return true, if the server should be restarted by the calling thread.
@@ -205,7 +204,7 @@ public class ImRServerInfo
         boolean _restart = !(active || restarting);
         if (_restart)
             restarting = true;
-	    
+
         return _restart;
     }
 

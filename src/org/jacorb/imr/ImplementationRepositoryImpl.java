@@ -70,6 +70,10 @@ public class ImplementationRepositoryImpl
 
     private String iorFile = null;
 
+    /**
+     * the file containing the serialized server table. Also
+     * used for writing the table to on shutdown.
+     */
     private File table_file;
     private ServerTable server_table;
     private File table_file_backup;
@@ -92,12 +96,6 @@ public class ImplementationRepositoryImpl
     /**
      * The constructor.
      * It builds up the server table and starts up the SocketListener thread.
-     *
-     * @param table_file the file containing the serialized server table. Also
-     * used for writing the table to on shutdown. If null, an empty table is
-     * created.
-     * @param table_backup the file where backups are written to.
-     * @param new_table set to true, if an empty server table should be created
      */
     public ImplementationRepositoryImpl(org.omg.CORBA.ORB orb)
     {
@@ -419,10 +417,7 @@ public class ImplementationRepositoryImpl
                         "for server " + _poa.server.name
                     );
                 }
-                else
-                {
-                    this.logger.debug("ImR: Remapping server/port");
-                }
+                this.logger.debug("ImR: Remapping server/port");
             }
 
             _poa.reactivate(host, port);
@@ -670,7 +665,7 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @param command the new startup command for this server.
      * @param host the new host.
-     * @exception org.jacorb.imr.AdminPackage.UnknownServerName a server with <code>name</code>
+     * @exception UnknownServerName a server with <code>name</code>
      * has not been registered.
      */
     public void edit_server(String name, String command, String host)
@@ -805,7 +800,7 @@ public class ImplementationRepositoryImpl
      * automatically on server startup, if they can't be accessed.
      *
      * @param name the hosts name.
-     * @exception no host with that name known.
+     * @exception UnknownHostName no host with that name known.
      */
     public void unregister_host(String name)
         throws UnknownHostName{
@@ -817,7 +812,6 @@ public class ImplementationRepositoryImpl
      * Convenience method which does the actual serialization.
      *
      * @param save_to the file where to write to.
-     * @exception sth went wrong.
      */
     private void save_server_table(File save_to) throws FileOpFailed {
         try{
@@ -1575,7 +1569,7 @@ public class ImplementationRepositoryImpl
          * Convenience method for sending a CORBA System Exception back to
          * the client.
          *
-         * @param the exception to send back.
+         * @param sys_ex the exception to send back.
          */
         private void sendSysException( org.omg.CORBA.SystemException sys_ex,
                                        GIOPConnection connection,
