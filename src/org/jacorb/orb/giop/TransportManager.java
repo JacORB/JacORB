@@ -20,20 +20,19 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-import java.net.*;
 import java.util.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
+import org.omg.CORBA.INITIALIZE;
 import org.omg.ETF.*;
 
 import org.jacorb.orb.*;
 import org.jacorb.orb.diop.DIOPFactories;
 import org.jacorb.orb.factory.*;
-import org.jacorb.orb.iiop.*;
 import org.jacorb.util.ObjectUtil;
 
 /**
@@ -108,7 +107,7 @@ public class TransportManager
             String s = configuration.getAttribute("jacorb.ssl.socket_factory", "");
             if (s.length() == 0)
             {
-                throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
+                throw new INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
             }
 
             try
@@ -120,12 +119,30 @@ public class TransportManager
 
                 ssl_socket_factory =
                     (SocketFactory)constr.newInstance( new Object[]{ orb });
+
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("Created SSLSocketFactory instance from class " + s);
+                }
+            }
+            catch (InvocationTargetException e)
+            {
+                if (logger.isFatalErrorEnabled())
+                {
+                    logger.fatalError("SSL socket factory invocation failure", e.getCause());
+                }
+
+                throw new org.omg.CORBA.INITIALIZE(
+                    "SSL support is on, but there was an invocation failure with the " +
+                    "ssl socket factory: " + e.getCause().toString());
             }
             catch (Exception e)
             {
-                logger.error("SSL support is on, but the ssl socket factory can't be instantiated", e);
+                logger.fatalError("SSL socket factory instantiation failure", e);
 
-                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instantiated ("+ e.toString()+")!" );
+                throw new org.omg.CORBA.INITIALIZE(
+                    "SSL support is on, but the ssl socket factory " +
+                    "can't be instantiated: " + e.toString());
             }
         }
 
@@ -152,7 +169,6 @@ public class TransportManager
         return ssl_socket_factory;
     }
 
-
     /**
      * Returns an ETF Factories object for the given tag, or null
      * if no Factories class has been defined for this tag.
@@ -168,14 +184,12 @@ public class TransportManager
         {
             return DIOPFactories.getDIOPFactory();
         }
-        else
+
+        if (factoriesMap == null)
         {
-            if (factoriesMap == null)
-            {
-                loadFactories();
-            }
-            return (Factories)factoriesMap.get (new Integer (tag));
+            loadFactories();
         }
+        return (Factories)factoriesMap.get (new Integer (tag));
     }
 
     /**
