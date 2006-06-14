@@ -20,16 +20,15 @@ package org.jacorb.security.ssl.sun_jsse;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-import org.omg.PortableInterceptor.*;
-import org.omg.PortableInterceptor.ORBInitInfoPackage.*;
-import org.omg.SecurityReplaceable.*;
-import org.omg.Security.*;
+import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.ORBInitializer;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.InvalidName;
 
 public class SecurityServiceInitializer
-    extends org.omg.CORBA.LocalObject 
+    extends org.omg.CORBA.LocalObject
     implements ORBInitializer
-{    
+{
     /**
     * This method registers the interceptors.
     */
@@ -40,7 +39,7 @@ public class SecurityServiceInitializer
             org.omg.SecurityLevel2.Current current = null;
             try
             {
-                org.omg.CORBA.Object sc = 
+                org.omg.CORBA.Object sc =
                     info.resolve_initial_references("SecurityCurrent");
 
                 current = org.omg.SecurityLevel2.CurrentHelper.narrow(sc);
@@ -51,7 +50,7 @@ public class SecurityServiceInitializer
 
             info.add_server_request_interceptor(
                 new ServerInvocationInterceptor(
-                         current, 
+                         current,
                          ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB()
                          )
                 );
@@ -65,7 +64,7 @@ public class SecurityServiceInitializer
             throw new org.omg.CORBA.INITIALIZE(ce.getMessage());
         }
     }
-    
+
     public void pre_init(ORBInitInfo info)
     {
         // we don't to define initial references

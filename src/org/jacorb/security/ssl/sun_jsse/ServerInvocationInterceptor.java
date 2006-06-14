@@ -20,39 +20,40 @@ package org.jacorb.security.ssl.sun_jsse;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-import java.util.*;
-import java.security.cert.*;
-
-import org.apache.avalon.framework.configuration.*;
-import org.apache.avalon.framework.logger.Logger;
-
-import org.omg.SecurityReplaceable.*;
-import org.omg.Security.*;
-import org.omg.SecurityLevel2.ReceivedCredentials;
-
-import org.omg.PortableInterceptor.*;
-import org.omg.CORBA.ORBPackage.*;
-import org.omg.CORBA.Any;
-
-import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-import org.jacorb.security.level2.*;
-import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.orb.iiop.*;
-import org.jacorb.orb.giop.*;
-
+import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateFactory;
+import java.util.HashMap;
 
 import javax.net.ssl.SSLSocket;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.orb.giop.GIOPConnection;
+import org.jacorb.orb.iiop.ServerIIOPConnection;
+import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
+import org.jacorb.security.level2.CurrentImpl;
+import org.jacorb.security.level2.KeyAndCert;
+import org.jacorb.security.level2.ReceivedCredentialsImpl;
+import org.jacorb.security.level2.SecAttributeManager;
+import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.omg.Security.AccessId;
+import org.omg.Security.AttributeType;
+import org.omg.Security.ExtensibleFamily;
+import org.omg.Security.SecAttribute;
+import org.omg.SecurityLevel2.ReceivedCredentials;
+
 /**
- *
- * 
  * @author Nicolas Noffke
  * $Id$
  */
 
 public class ServerInvocationInterceptor
-    extends org.omg.CORBA.LocalObject 
+    extends org.omg.CORBA.LocalObject
     implements ServerRequestInterceptor, Configurable
 {
     public static final String DEFAULT_NAME = "ServerInvocationInterceptor";
@@ -61,7 +62,7 @@ public class ServerInvocationInterceptor
 
     private org.jacorb.security.level2.CurrentImpl current = null;
     private SecAttributeManager attrib_mgr = null;
-    private AttributeType type = null; 
+    private AttributeType type = null;
 
     private HashMap sessionCredentials = new HashMap();
 
@@ -69,7 +70,7 @@ public class ServerInvocationInterceptor
     private short serverSupportedOptions = 0;
     private short serverRequiredOptions = 0;
 
-    public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current, 
+    public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current,
                                        org.jacorb.orb.ORB orb)
         throws ConfigurationException
     {
@@ -77,7 +78,7 @@ public class ServerInvocationInterceptor
         this.name = DEFAULT_NAME;
         attrib_mgr = SecAttributeManager.getInstance();
 
-        type = 
+        type =
             new AttributeType( new ExtensibleFamily( (short)0, (short)1 ), AccessId.value );
         configure(orb.getConfiguration());
     }
@@ -86,15 +87,15 @@ public class ServerInvocationInterceptor
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        logger = 
+        logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.ssl.interceptor");
 
-        serverSupportedOptions = 
+        serverSupportedOptions =
             Short.parseShort(
                 configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
                 16); // 16 is the base as we take the string value as hex!
 
-        serverRequiredOptions = 
+        serverRequiredOptions =
             Short.parseShort(
                 configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
                 16);
@@ -108,7 +109,7 @@ public class ServerInvocationInterceptor
 
     public void destroy()
     {
-    } 
+    }
 
     public void receive_request( ServerRequestInfo ri )
         throws ForwardRequest
@@ -119,9 +120,9 @@ public class ServerInvocationInterceptor
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        ServerRequest request = ((ServerRequestInfoImpl) ri).request;       
+        ServerRequest request = ((ServerRequestInfoImpl) ri).request;
         GIOPConnection connection = request.getConnection();
-        
+
         // lookup for context
         if (connection == null)
         {
@@ -129,22 +130,22 @@ public class ServerInvocationInterceptor
                 logger.error("target has no connection!");
             return;
         }
-        
+
         if( !connection.isSSL() )
         {
             return;
         }
-            
+
         ServerIIOPConnection transport =
             (ServerIIOPConnection)connection.getTransport();
-        
+
         SSLSocket sslSocket = (SSLSocket)transport.getSocket();
 
         javax.net.ssl.SSLSession session = sslSocket.getSession();
 
         if (sessionCredentials.containsKey(session))
         {
-            ReceivedCredentialsImpl sessionRcvCredentials = 
+            ReceivedCredentialsImpl sessionRcvCredentials =
                 (ReceivedCredentialsImpl)sessionCredentials.get(session);
             current.set_received_credentials(sessionRcvCredentials);
             if (logger.isDebugEnabled())
@@ -153,44 +154,44 @@ public class ServerInvocationInterceptor
         }
 
         CertificateFactory certificateFactory = null;
-        
-        try 
+
+        try
         {
             certificateFactory = CertificateFactory.getInstance("X.509");
         }
-        catch( Exception e ) 
+        catch( Exception e )
         {
             if (logger.isWarnEnabled())
-            { 
+            {
                 logger.warn(e.getMessage());
             }
-        }  
-        
+        }
+
         KeyAndCert kac = null;
-        
+
         try
         {
             javax.security.cert.X509Certificate[] certs =
-                sslSocket.getSession().getPeerCertificateChain(); 
-            
+                sslSocket.getSession().getPeerCertificateChain();
+
             int size = certs.length;
             java.security.cert.X509Certificate[] newCerts =
-                new java.security.cert.X509Certificate[size];  
-            
-            for( int i = size - 1; 0 <= i; i-- ) 
+                new java.security.cert.X509Certificate[size];
+
+            for( int i = size - 1; 0 <= i; i-- )
             {
-                newCerts[i] = (java.security.cert.X509Certificate) 
+                newCerts[i] = (java.security.cert.X509Certificate)
                     certificateFactory.generateCertificate( new ByteArrayInputStream( certs[i].getEncoded()));
             }
-            
+
             kac = new KeyAndCert( null, newCerts );
         }
         catch( Exception e )
         {
             if (logger.isWarnEnabled())
-                logger.warn("Exception " + e.getMessage() + 
+                logger.warn("Exception " + e.getMessage() +
                             " in ServerInvocationInterceptor");
-            
+
             if ( (serverRequiredOptions & 0x40) != 0)
             {
                 throw new org.omg.CORBA.NO_PERMISSION("Establish trust in client required, but failed");
@@ -202,13 +203,13 @@ public class ServerInvocationInterceptor
         {
             if (logger.isInfoEnabled())
                 logger.info("Client sent no certificate chain!" );
-            
+
             return;
         }
-                
-        SecAttribute [] atts = 
+
+        SecAttribute [] atts =
             new SecAttribute[]{attrib_mgr.createAttribute(kac, type)} ;
-        
+
         current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
     }
 

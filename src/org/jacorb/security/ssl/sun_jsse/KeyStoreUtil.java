@@ -20,10 +20,10 @@ package org.jacorb.security.ssl.sun_jsse;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 import java.security.*;
-import java.security.cert.*;
 import java.io.*;
+
+import org.jacorb.util.ObjectUtil;
 
 /**
  * A class with utility methods that help managing a key store.
@@ -31,7 +31,6 @@ import java.io.*;
  * @author Gerald Brose
  * @version $Id$
  */
-
 public class KeyStoreUtil
 {
     /**
@@ -39,33 +38,31 @@ public class KeyStoreUtil
      * @param file_name - a keystore file name to be loaded
      * @param storepass - the password for managing the keystore
      */
-
-    public static KeyStore getKeyStore( String file_name, 
+    public static KeyStore getKeyStore( String file_name,
                                         char[] storepass )
         throws IOException, java.security.GeneralSecurityException
     {
         InputStream in = null;
 
-        java.net.URL url = 
-            Thread.currentThread().getContextClassLoader().getResource(file_name);
-        if (url != null)           
+        java.net.URL url =  ObjectUtil.getResource(file_name);
+        if (url != null)
         {
             in = url.openStream();
         }
         else
-        {        
+        {
             //try unchanged name first
-            File f = new File( file_name );        
+            File f = new File( file_name );
             if( ! f.exists() )
             {
                 //try to prepend home dir
-                String name = 
+                String name =
                     System.getProperty( "user.home" ) +
                     System.getProperty( "file.separator" ) +
                     file_name;
-                
+
                 f = new File( name );
-                
+
                 if(f.exists())
                 {
                     in = new FileInputStream( f );
@@ -79,11 +76,11 @@ public class KeyStoreUtil
 
         if (in == null)
         {
-                throw new IOException("Unable to find keystore file " + 
+                throw new IOException("Unable to find keystore file " +
                                       file_name);
         }
 
-        KeyStore ks = KeyStore.getInstance( "JKS" );	
+        KeyStore ks = KeyStore.getInstance( "JKS" );
         ks.load( in, storepass );
         in.close();
         return ks;

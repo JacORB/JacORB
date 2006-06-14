@@ -440,6 +440,55 @@ certificates for the authentication process.\\
 \end{tabular}
 \end{table}
 
+\section{SecureRandom Plugin System}
+Under certain platforms (e.g. J2ME CDC platforms) when the JSSE
+initializes its random number generator it may spawn a large number
+of threads and/or have a significant start-up time. This overhead may
+be unacceptable.
+
+In order to allow developers to provide their own initialization
+routines for SecureRandom a plugin class may be provided. A developer
+should implement the following interface.
+
+\begin{small}
+\begin{verbatim}
+package org.jacorb.security.ssl.sun_jsse;
+
+public interface JSRandom
+{
+    SecureRandom getSecureRandom ();
+}
+\end{verbatim}
+\end{small}
+
+The classname should then be specified by the property
+
+\begin{verbatim}
+jacorb.security.randomClassPlugin
+\end{verbatim}
+ which will be instantiated at runtime. If this property has been
+specified the SSLSocket factories will call {\tt getSecureRandom}
+to pass through to the SSLContext. Otherwise, the JSSE will use its
+default values.
+
+Two example implementations; {\tt JSRandomImpl} and {\tt JSRandomImplThread}
+are provided. {\tt JSRandomImpl} explicitly initializes a SecureRandom with
+a fixed seed value. Note that the seed is a hardcoded value (4711). As using
+such a seed is a security risk it is not recommended that this code be used
+in a production system. The second, using initSecureRandom (see below)
+
+\begin{small}
+\begin{verbatim}
+public class JSRandomImplThread implements JSRandom {
+
+    public static void initSecureRandom() { ... }
+}
+\end{verbatim}
+\end{small}
+
+allows the developer to initialize a single static SecureRandom
+in a separate thread at the start of their main before any ORB
+calls are done.
 
 
 %%% Local Variables: 

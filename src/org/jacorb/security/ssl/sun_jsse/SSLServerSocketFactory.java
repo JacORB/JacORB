@@ -20,7 +20,6 @@
  */
 package org.jacorb.security.ssl.sun_jsse;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
 import java.net.*;
@@ -28,6 +27,12 @@ import java.io.*;
 import java.security.*;
 import java.util.*;
 
+// for use with JSSE 1.0.x
+//import com.sun.net.ssl.TrustManager;
+//import com.sun.net.ssl.KeyManagerFactory;
+//import com.sun.net.ssl.TrustManagerFactory;
+//import com.sun.net.ssl.SSLContext;
+//import com.sun.net.ssl.*;
 import javax.net.ssl.*;
 import javax.net.*;
 
@@ -36,7 +41,8 @@ import javax.net.*;
  * $Id$
  */
 
-public class SSLServerSocketFactory 
+public class SSLServerSocketFactory
+    extends SSLRandom
     implements org.jacorb.orb.factory.SSLServerSocketFactory, Configurable
 {
     private ServerSocketFactory factory = null;
@@ -50,29 +56,23 @@ public class SSLServerSocketFactory
     private short serverRequiredOptions = 0;
     private String keystore_location = null;
     private String keystore_passphrase = null;
-    private Logger logger;
-
-    public SSLServerSocketFactory( org.jacorb.orb.ORB orb )
-    {
-    }
 
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        logger = 
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.jsse");
+        super.configure(configuration);
 
- 
-        trusteesFromKS = 
+
+        trusteesFromKS =
             configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks", false);
 
 
-        serverSupportedOptions = 
+        serverSupportedOptions =
             Short.parseShort(
                 configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
                 16); // 16 is the base as we take the string value as hex!
 
-        serverRequiredOptions = 
+        serverRequiredOptions =
             Short.parseShort(
                 configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
                 16);
@@ -97,12 +97,12 @@ public class SSLServerSocketFactory
                 logger.info("Will create SSL sockets that require client authentication" );
         }
 
-        keystore_location = 
+        keystore_location =
             configuration.getAttribute("jacorb.security.keystore","UNSET");
 
-        keystore_passphrase = 
+        keystore_passphrase =
             configuration.getAttribute("jacorb.security.keystore_password","UNSET" );
-            
+
         try
         {
             trustManager = (TrustManager) ((org.jacorb.config.Configuration)configuration).getAttributeAsObject
@@ -113,37 +113,33 @@ public class SSLServerSocketFactory
             if (logger.isErrorEnabled())
             {
                 logger.error("TrustManager object creation failed. Please check value of property "
-                             + "'jacorb.security.ssl.server.trust_manager'. Current value: " 
-                             + configuration.getAttribute("jacorb.security.ssl.server.trust_manager", ""), ce); 
+                             + "'jacorb.security.ssl.server.trust_manager'. Current value: "
+                             + configuration.getAttribute("jacorb.security.ssl.server.trust_manager", ""), ce);
             }
         }
-        
-        if (configuration.getAttribute("jacorb.security.ssl.server.protocols", null) != null)
+
+        if (JSSEUtil.isJDK14() && configuration.getAttribute("jacorb.security.ssl.server.protocols", null) != null)
         {
             enabledProtocols = (String[]) ((org.jacorb.config.Configuration)configuration).getAttributeList
                                             ("jacorb.security.ssl.server.protocols").toArray();
             if (logger.isDebugEnabled())
             {
-                logger.debug("Setting user specified server enabled protocols : " + 
+                logger.debug("Setting user specified server enabled protocols : " +
                              configuration.getAttribute("jacorb.security.ssl.server.protocols", ""));
             }
         }
- 
+
+        JSSEUtil.registerSecurityProvider();
+
         try
         {
             factory = createServerSocketFactory();
         }
         catch( Exception e )
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Exception", e );
-        }
+            logger.warn("Unable to create ServerSocketFactory", e);
 
-        if( factory == null )
-        {
-            if (logger.isErrorEnabled())
-                logger.error("Unable to create ServerSocketFactory!" );
-            throw new ConfigurationException("Unable to create ServerSocketFactory!");
+            throw new ConfigurationException("Unable to create ServerSocketFactory!", e);
         }
 
 
@@ -152,20 +148,20 @@ public class SSLServerSocketFactory
         // properties file.
         String cipher_suite_list =
             configuration.getAttribute("jacorb.security.ssl.server.cipher_suites",null );
-	
+
         if ( cipher_suite_list != null )
         {
-            StringTokenizer tokenizer = 
+            StringTokenizer tokenizer =
                 new StringTokenizer( cipher_suite_list, "," );
-            
+
             // Get the number of ciphers in the list
             int tokens = tokenizer.countTokens();
-            
+
             if ( tokens > 0 )
             {
                 // Create an array of strings to store the ciphers
                 cipher_suites = new String [tokens];
-                
+
                 // This will fill the array in reverse order but that
                 // doesn't matter
                 while( tokenizer.hasMoreElements() )
@@ -175,65 +171,65 @@ public class SSLServerSocketFactory
             }
         }
     }
-           
+
     public ServerSocket createServerSocket( int port )
         throws IOException
     {
-        SSLServerSocket s = (SSLServerSocket) 
+        SSLServerSocket s = (SSLServerSocket)
             factory.createServerSocket( port );
 
-        if (request_mutual_auth) 
+        if (JSSEUtil.wantClientAuth(request_mutual_auth, require_mutual_auth))
         {
-            s.setWantClientAuth( request_mutual_auth );
-        } 
-        else if (require_mutual_auth) 
+            JSSEUtil.setWantClientAuth(s, request_mutual_auth);
+        }
+        else if (require_mutual_auth)
         {
             s.setNeedClientAuth( require_mutual_auth );
         }
 
-        // Andrew T. Finnell / Change made for e-Security Inc. 2002 
+        // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
         if( cipher_suites != null )
         {
-            s.setEnabledCipherSuites ( cipher_suites );	
+            s.setEnabledCipherSuites ( cipher_suites );
         }
-        
+
         if (enabledProtocols != null)
         {
-            s.setEnabledProtocols(enabledProtocols);
+            JSSEUtil.setEnabledProtocols(s, enabledProtocols);
         }
 
         return s;
     }
 
 
-    public ServerSocket createServerSocket( int port, int backlog ) 
+    public ServerSocket createServerSocket( int port, int backlog )
         throws IOException
     {
-        SSLServerSocket s = (SSLServerSocket) 
+        SSLServerSocket s = (SSLServerSocket)
             factory.createServerSocket( port, backlog );
 
-        if (request_mutual_auth) 
+        if (JSSEUtil.wantClientAuth(request_mutual_auth, require_mutual_auth))
         {
-            s.setWantClientAuth( request_mutual_auth );
+            JSSEUtil.setWantClientAuth(s, request_mutual_auth);
         }
-        else if (require_mutual_auth) 
+        else if (require_mutual_auth)
         {
             s.setNeedClientAuth( require_mutual_auth );
         }
 
-        // Andrew T. Finnell / Change made for e-Security Inc. 2002 
+        // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
         if( cipher_suites != null )
         {
-            s.setEnabledCipherSuites ( cipher_suites );	
+            s.setEnabledCipherSuites ( cipher_suites );
         }
-        
+
         if (enabledProtocols != null)
         {
-            s.setEnabledProtocols(enabledProtocols);
+            JSSEUtil.setEnabledProtocols(s, enabledProtocols);
         }
 
         return s;
@@ -242,59 +238,59 @@ public class SSLServerSocketFactory
     public ServerSocket createServerSocket (int port,
                                             int backlog,
                                             InetAddress ifAddress)
-        throws IOException    
+        throws IOException
     {
-        SSLServerSocket s = (SSLServerSocket) 
+        SSLServerSocket s = (SSLServerSocket)
             factory.createServerSocket( port, backlog, ifAddress );
 
-        if (request_mutual_auth) 
+        if (JSSEUtil.wantClientAuth(request_mutual_auth, require_mutual_auth))
         {
-            s.setWantClientAuth( request_mutual_auth );
+            JSSEUtil.setWantClientAuth(s, request_mutual_auth);
         }
-        else if (require_mutual_auth) 
+        else if (require_mutual_auth)
         {
             s.setNeedClientAuth( require_mutual_auth );
         }
 
-        // Andrew T. Finnell / Change made for e-Security Inc. 2002 
+        // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
         if( cipher_suites != null )
         {
-            s.setEnabledCipherSuites ( cipher_suites );	
+            s.setEnabledCipherSuites ( cipher_suites );
         }
-        
+
         if (enabledProtocols != null)
         {
-            s.setEnabledProtocols(enabledProtocols);
+            JSSEUtil.setEnabledProtocols(s, enabledProtocols);
         }
 
         return s;
     }
 
     public boolean isSSL( java.net.ServerSocket s )
-    { 
-        return (s instanceof SSLServerSocket); 
+    {
+        return (s instanceof SSLServerSocket);
     }
 
-    private ServerSocketFactory createServerSocketFactory() 
+    private ServerSocketFactory createServerSocketFactory()
         throws IOException, java.security.GeneralSecurityException
     {
-        KeyStore key_store = 
+        KeyStore key_store =
             KeyStoreUtil.getKeyStore( keystore_location,
                                       keystore_passphrase.toCharArray() );
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
         kmf.init( key_store, keystore_passphrase.toCharArray() );
         TrustManagerFactory tmf = null;
-	    
+
         //only add trusted certs, if establish trust in client
         //is required
         if(( serverRequiredOptions & 0x40) != 0 ||
-           ( serverSupportedOptions & 0x40) != 0) 
-        {     
+           ( serverSupportedOptions & 0x40) != 0)
+        {
             tmf = TrustManagerFactory.getInstance( "SunX509" );
-	    
+
             if( trusteesFromKS )
             {
                 tmf.init( key_store );
@@ -304,9 +300,9 @@ public class SSLServerSocketFactory
                 tmf.init( (KeyStore) null );
             }
         }
-        
+
         TrustManager[] trustManagers;
-        
+
         if (trustManager == null)
         {
             trustManagers = (tmf == null)? null : tmf.getTrustManagers();
@@ -319,12 +315,12 @@ public class SSLServerSocketFactory
                 logger.debug("Setting user specified server TrustManger : " + trustManager.getClass().toString());
             }
         }
-		
+
         SSLContext ctx = SSLContext.getInstance( "TLS" );
-        ctx.init( kmf.getKeyManagers(), 
-                  trustManagers, 
-                  null );
-        
+        ctx.init( kmf.getKeyManagers(),
+                  trustManagers,
+                  getSecureRandom());
+
         return ctx.getServerSocketFactory();
     }
 }
