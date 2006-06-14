@@ -20,8 +20,7 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 
 import org.jacorb.config.JacORBConfiguration;
 import org.omg.CORBA.INTERNAL;
@@ -85,8 +84,7 @@ public class ORBSingleton
         this(true);
     }
 
-    protected void configure(Configuration configuration)
-        throws ConfigurationException
+    protected void configure(Configuration configuration) throws ConfigurationException
     {
         doStrictCheckOnTypecodeCreation = configuration.getAttribute
             ("jacorb.interop.strict_check_on_tc_creation", "on").equalsIgnoreCase("on");
@@ -139,7 +137,7 @@ public class ORBSingleton
      */
     private void checkTCName (String name) throws BAD_PARAM
     {
-        checkTCName (name, false);
+        checkTCName(name, false);
     }
 
 
@@ -250,6 +248,13 @@ public class ORBSingleton
                                             element_type);
     }
 
+    public TypeCode create_enum_tc( String id,
+                                    String name,
+                                    String[] members)
+    {
+        return create_enum_tc (id, name, members, true);
+    }
+
     /**
      * Allows the possibility of not checking the name when creating this
      * typecode.  This is to cater for compact typecodes where the name
@@ -261,13 +266,6 @@ public class ORBSingleton
      * @param checkName
      * @returns TypeCode
      */
-    public TypeCode create_enum_tc( String id,
-                                    String name,
-                                    String[] members)
-    {
-        return create_enum_tc (id, name, members, true);
-    }
-
     TypeCode create_enum_tc( String id,
                              String name,
                              String [] members,
@@ -279,7 +277,7 @@ public class ORBSingleton
         if (checkName)
         {
             // check that member names are legal and unique
-            Map names = new HashMap() ;
+            HashSet names = new HashSet() ;
             for( int i = 0; i < members.length; i++ )
             {
                 boolean fault = false;
@@ -292,16 +290,23 @@ public class ORBSingleton
                     fault = true;
                     logger.debug("Typecode name check failed", bp);
                 }
-                if( names.containsKey( members[i] ) || fault )
+                if((members[i] != null && names.contains(members[i])) || fault )
                 {
                     throw new BAD_PARAM("Illegal enum member name: " + members[i],
                             17, CompletionStatus.COMPLETED_NO );
                 }
-                names.put( members[i], "" );
+                names.add(members[i]);
             }
         }
 
         return new org.jacorb.orb.TypeCode( id, name, members);
+    }
+
+    public TypeCode create_exception_tc( String id,
+                                         String name,
+                                         org.omg.CORBA.StructMember[] members)
+    {
+        return create_exception_tc(id, name, members, true);
     }
 
     /**
@@ -315,13 +320,6 @@ public class ORBSingleton
      * @param checkName
      * @returns TypeCode
      */
-    public TypeCode create_exception_tc( String id,
-                                         String name,
-                                         org.omg.CORBA.StructMember[] members)
-    {
-        return create_exception_tc(id, name, members, true);
-    }
-
     TypeCode create_exception_tc( String id,
                                   String name,
                                   org.omg.CORBA.StructMember[] members,
@@ -331,7 +329,7 @@ public class ORBSingleton
         checkTCName (name, true);
 
         // check that member names are legal and unique
-        Map names = new HashMap() ;
+        HashSet names = new HashSet() ;
         for( int i = 0; i < members.length; i++ )
         {
             checkTCMemberType( members[i].type );
@@ -348,13 +346,13 @@ public class ORBSingleton
                     fault = true;
                     logger.debug("Typecode name check failed", bp);
                 }
-                if( names.containsKey( members[i].name ) || fault )
+                if((members[i].name != null && names.contains( members[i].name )) || fault )
                 {
                     throw new BAD_PARAM("Illegal exception member name: " +
                             members[i].name,
                             17, CompletionStatus.COMPLETED_NO );
                 }
-                names.put( members[i].name, "" );
+                names.add(members[i].name);
             }
         }
 
@@ -410,6 +408,14 @@ public class ORBSingleton
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_wstring, bound);
     }
 
+
+    public TypeCode create_struct_tc(String id,
+                                     String name,
+                                     org.omg.CORBA.StructMember[] members)
+    {
+        return create_struct_tc (id, name, members, true);
+    }
+
     /**
      * Allows the possibility of not checking the name when creating this
      * typecode.  This is to cater for compact typecodes where the name
@@ -421,13 +427,6 @@ public class ORBSingleton
      * @param checkName
      * @returns TypeCode
      */
-    public TypeCode create_struct_tc(String id,
-                                     String name,
-                                     org.omg.CORBA.StructMember[] members)
-    {
-        return create_struct_tc (id, name, members, true);
-    }
-
     TypeCode create_struct_tc(String id,
                               String name,
                               org.omg.CORBA.StructMember [] members,
@@ -437,7 +436,7 @@ public class ORBSingleton
         checkTCName (name, true);
 
         // check that member names are legal and unique
-        Map names = new HashMap() ;
+        HashSet names = new HashSet();
         for( int i = 0; i < members.length; i++ )
         {
             if (checkName)
@@ -453,13 +452,13 @@ public class ORBSingleton
                     fault = true;
                     logger.debug("Typecode name check failed", bp);
                 }
-                if( names.containsKey( members[i].name ) || fault )
+                if((members[i].name != null && names.contains(members[i].name)) || fault )
                 {
                     throw new BAD_PARAM("Illegal struct member name: " + members[i].name + (fault? " (Bad PARAM) ": "" ),
                             17,
                             CompletionStatus.COMPLETED_NO );
                 }
-                names.put( members[i].name, "" );
+                names.add(members[i].name);
             }
         }
 
@@ -475,6 +474,14 @@ public class ORBSingleton
         return tc;
     }
 
+    public TypeCode create_union_tc( String id,
+                                     String name,
+                                     TypeCode discriminator_type,
+                                     org.omg.CORBA.UnionMember[] members)
+    {
+        return create_union_tc(id, name, discriminator_type, members, true);
+    }
+
     /**
      * Allows the possibility of not checking the name when creating this
      * typecode.  This is to cater for compact typecodes where the name
@@ -486,14 +493,6 @@ public class ORBSingleton
      * @param checkName
      * @returns TypeCode
      */
-    public TypeCode create_union_tc( String id,
-                                     String name,
-                                     TypeCode discriminator_type,
-                                     org.omg.CORBA.UnionMember[] members)
-    {
-        return create_union_tc(id, name, discriminator_type, members, true);
-    }
-
     TypeCode create_union_tc( String id,
                               String name,
                               TypeCode discriminator_type,
