@@ -220,6 +220,7 @@
         <antcall target="idl-value-test" />
         <antcall target="idl-exception" />
         <antcall target="idl-shutdown" />
+        <antcall target="idl-dii" />
         <antcall target="idl-bugs" />
     </target>
 
@@ -392,6 +393,14 @@
         <property name="pkg.idl" value="org/jacorb/test" />
         <property name="callback.idl" value="false" />
         <property name="file.idl" value="ShutdownServer.idl" />
+        <antcall target="process-idl" />
+    </target>
+
+    <target name="idl-dii">
+        <property name="props.idl" value="DiiServer" />
+        <property name="pkg.idl" value="org/jacorb/test" />
+        <property name="callback.idl" value="false" />
+        <property name="file.idl" value="diiserver.idl" />
         <antcall target="process-idl" />
     </target>
 
