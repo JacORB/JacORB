@@ -507,6 +507,13 @@ connection open if nothing happens & millisec. & unset \\
   interval to wait until the next try is made to find an idle connection to
   close & millisec & 500\\
 \hline
+\verb"jacorb.listener.server"
+\verb"_socket_timeout" & Sets a timeout on the (SSL) server socket. This is a
+workaround for JDK 1.3 on linux where a thread blocked on \verb"accept()"
+isn't notified when closing that socket. Default is 0, i.e.~off. See Java bug
+\#4344135. NOTE: This is only useful in conjunction with the SI\&C SSL socket
+factories. & millisec & 0\\
+\hline
 \verb"jacorb.connection.sele"
 \verb"ction_strategy_class" & This property sets
   the {\tt Selection\-Strategy} & class & \\
