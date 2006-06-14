@@ -44,7 +44,7 @@ public class WIOPConnection extends _ConnectionLocalBase
                        int length,
                        long time_out)
     {
-        WIOPFactories.transportInUse = true;
+        WIOPFactories.setTransportInUse(true);
         delegate.write (is_first, is_last, data, offset, length, time_out);
     }
 
@@ -54,7 +54,7 @@ public class WIOPConnection extends _ConnectionLocalBase
                       int max_length,
                       long time_out)
     {
-        WIOPFactories.transportInUse = true;
+        WIOPFactories.setTransportInUse(true);
         delegate.read (data, offset, min_length, max_length, time_out);
     }
 
