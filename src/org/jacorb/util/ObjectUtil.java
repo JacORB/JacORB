@@ -20,6 +20,7 @@ package org.jacorb.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -184,7 +185,7 @@ public class ObjectUtil
             if ((i % 16 ) == 0)
             {
                 result.append( chars.toString() );
-                result.append( "\n" ); 
+                result.append( "\n" );
                 chars.setLength(0);
             }
 
@@ -215,7 +216,7 @@ public class ObjectUtil
             {
                 pad += 1;
             }
-            
+
             for ( int i = 0; i < pad; i++ )
             {
                 chars.insert( 0, ' ' );
@@ -256,7 +257,7 @@ public class ObjectUtil
         {
             return (char) b;
         }
-        
+
         return '.';
     }
 
@@ -284,5 +285,14 @@ public class ObjectUtil
             }
         }
         return props;
+    }
+
+    public static URL getResource(String name)
+    {
+        if (Thread.currentThread().getContextClassLoader() != null)
+        {
+            return Thread.currentThread().getContextClassLoader().getResource(name);
+        }
+        return ObjectUtil.class.getResource(name);
     }
 }
