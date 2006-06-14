@@ -182,12 +182,24 @@ public class SequenceType
         sb.append("\t\t" + var_name + " = new " + type.substring(0, type.indexOf("[")) +
                   "[" + lgt + "]" + type.substring(type.indexOf("]") + 1) + ";\n");
 
-        if (elementTypeSpec() instanceof BaseType &&
-            !(elementTypeSpec() instanceof AnyType))
+        TypeSpec elemType = elementTypeSpec();
+        while (elemType instanceof AliasTypeSpec)
         {
-            String _tmp = elementTypeSpec().printReadExpression(streamname);
-            sb.append("\t" + _tmp.substring(0, _tmp.indexOf("(")) +
-                      "_array(" + var_name + ",0," + lgt + ");");
+            //get real type
+            elemType = ((AliasTypeSpec) elemType).originalType();
+        }
+
+        if (elemType instanceof BaseType &&
+            !(elemType instanceof AnyType))
+        {
+            String _tmp = elemType.printReadExpression(streamname);
+            sb.append("\t\t");
+            sb.append(_tmp.substring(0, _tmp.indexOf("(")));
+            sb.append("_array(");
+            sb.append(var_name);
+            sb.append(",0,");
+            sb.append(lgt);
+            sb.append(");");
         }
         else
         {
@@ -224,12 +236,25 @@ public class SequenceType
         }
         sb.append("\n\t\t" + streamname + ".write_long(" + var_name + ".length);\n");
 
-        if (elementTypeSpec() instanceof BaseType &&
-            !(elementTypeSpec() instanceof AnyType))
+
+        TypeSpec elemType = elementTypeSpec();
+        while (elemType instanceof AliasTypeSpec)
         {
-            String _tmp = elementTypeSpec().printWriteStatement(var_name, streamname);
-            sb.append("\t\t" + _tmp.substring(0, _tmp.indexOf("(")) + "_array(" +
-                      var_name + ",0," + var_name + ".length);");
+            //get real type
+            elemType = ((AliasTypeSpec) elemType).originalType();
+        }
+
+        if (elemType instanceof BaseType &&
+            !(elemType instanceof AnyType))
+        {
+            String _tmp = elemType.printWriteStatement(var_name, streamname);
+            sb.append("\t\t");
+            sb.append(_tmp.substring(0, _tmp.indexOf("(")));
+            sb.append("_array(");
+            sb.append(var_name);
+            sb.append(",0,");
+            sb.append(var_name);
+            sb.append(".length);");
         }
         else
         {
@@ -311,7 +336,6 @@ public class SequenceType
         {
             max.parse();
             length = max.pos_int_const();
-
         }
 
         if (type_spec.typeSpec() instanceof ScopedName)
@@ -346,19 +370,16 @@ public class SequenceType
             return "<" + pack_name + ".anon>";
         }
         if (pack_name.length() > 0)
+        {
             return ScopedName.unPseudoName(pack_name + "." + name);
-        else
-            return ScopedName.unPseudoName(name);
+        }
+        return ScopedName.unPseudoName(name);
     }
 
 
     private void printClassComment(String className, PrintWriter ps)
     {
-        ps.println("/**");
-        ps.println(" *\tGenerated from IDL definition of sequence" +
-                   "\"" + className + "\"");
-        ps.println(" *\t@author JacORB IDL compiler ");
-        ps.println(" */\n");
+        printClassComment("sequence", className, ps);
     }
 
     private void printHolderClass(String className, PrintWriter ps)
