@@ -44,13 +44,13 @@ public class C_IIOP_WIOP_S_IIOP_WIOP extends ClientServerTestCase
     
     public void setUp() throws Exception
     {
-        WIOPFactories.transportInUse = false;
+        WIOPFactories.setTransportInUse(false);
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
     public void tearDown() throws Exception
     {
-        WIOPFactories.transportInUse = false;
+        WIOPFactories.setTransportInUse(false);
     }
 
     public static Test suite()
@@ -80,7 +80,7 @@ public class C_IIOP_WIOP_S_IIOP_WIOP extends ClientServerTestCase
     public void testConnection()
     {
         server.ping();
-        assertFalse (WIOPFactories.transportInUse);
+        assertFalse (WIOPFactories.isTransportInUse());
     }
 
 

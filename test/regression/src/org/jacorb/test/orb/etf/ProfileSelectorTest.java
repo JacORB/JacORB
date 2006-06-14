@@ -36,55 +36,52 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 public class ProfileSelectorTest extends ClientServerTestCase
 {
     private BasicServer server = null;
-    
+
     public ProfileSelectorTest (String name, ClientServerSetup setup)
     {
         super (name, setup);
     }
-    
+
     public void setUp() throws Exception
     {
-        WIOPFactories.transportInUse = false;
+        WIOPFactories.setTransportInUse(false);
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
     public void tearDown() throws Exception
     {
-        WIOPFactories.transportInUse = false;
+        WIOPFactories.setTransportInUse(false);
     }
 
     public static Test suite()
     {
         TestSuite suite = new TestSuite ("Profile Selector");
-        
+
         Properties clientProps = new Properties();
         clientProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.orb.iiop.IIOPFactories," +
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories");
         clientProps.setProperty("jacorb.transport.client.selector",
                                 "org.jacorb.test.orb.etf.WIOPSelector");
-        
+
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.orb.iiop.IIOPFactories," +
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories");
-        
-        ClientServerSetup setup = 
+
+        ClientServerSetup setup =
           new ClientServerSetup (suite,
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
-        
+
         suite.addTest (new ProfileSelectorTest ("testConnection", setup));
-        
+
         return setup;
     }
 
     public void testConnection()
     {
         server.ping();
-        assertTrue (WIOPFactories.transportInUse);
+        assertTrue (WIOPFactories.isTransportInUse());
     }
-
-
-
 }

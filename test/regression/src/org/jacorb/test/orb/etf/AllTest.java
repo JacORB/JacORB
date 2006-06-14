@@ -24,7 +24,7 @@ import junit.framework.*;
 import org.jacorb.test.common.*;
 
 /**
- * @jacorb-since 2.2 
+ * @jacorb-since 2.2
  * @version $Id$
  */
 public class AllTest extends JacORBTestSuite
@@ -46,6 +46,7 @@ public class AllTest extends JacORBTestSuite
         suite.addTest(C_IIOP_S_WIOP.suite());
         suite.addTest(ProfileSelectorTest.suite());
         suite.addTest(ServerListenerTest.suite());
+        suite.addTest(SpecificProfileSelectorTest.suite());
 
         return suite;
     }
