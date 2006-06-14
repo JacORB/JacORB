@@ -24,80 +24,74 @@ import java.util.*;
 import javax.swing.tree.*;
 
 /**
- * 
+ *
  */
 
-public abstract class ModelParticipant 
+public abstract class ModelParticipant
 {
     private Hashtable modelRepresentants = new Hashtable();
     private static ModelBuilder modelBuilder = ModelBuilder.getSingleton();
 
-    /**
-     * @param treeModel javax.swing.tree.DefaultTreeModel
-     * @param parent javax.swing.tree.DefaultMutableTreeNode
-     */
-
-    public void addToParent( DefaultTreeModel treeModel, DefaultMutableTreeNode parentTreeNode) 
+    public void addToParent( DefaultTreeModel treeModel, DefaultMutableTreeNode parentTreeNode)
     {
         DefaultMutableTreeNode treeNode;
 
-        if (parentTreeNode!=null) 
+        if (parentTreeNode!=null)
         {  // bei root ist es null
             treeNode =  new DefaultMutableTreeNode(this);
             int i = 0;
-            while ((i<parentTreeNode.getChildCount()) && 
-                   ((ModelParticipant)((DefaultMutableTreeNode)treeModel.getChild(parentTreeNode,i)).getUserObject()).compareTo(this) < 0) 
+            while ((i<parentTreeNode.getChildCount()) &&
+                   ((ModelParticipant)((DefaultMutableTreeNode)treeModel.getChild(parentTreeNode,i)).getUserObject()).compareTo(this) < 0)
             {
                 i++;
             }
 
             treeModel.insertNodeInto(treeNode,parentTreeNode,i);
-        }       
-        else 
+        }
+        else
         {
-            // wir sind root; unsere TreeNode wurde (bzw. mußte!) dem Konstruktor 
-            // von DefaultTreeModel mitgegeben werden, wir müssen uns also nicht mehr inserten
+            // wir sind root; unsere TreeNode wurde (bzw. mÃ¼ÃŸte!) dem Konstruktor
+            // von DefaultTreeModel mitgegeben werden, wir mÃ¼ssen uns also nicht mehr inserten
             treeNode = (DefaultMutableTreeNode)treeModel.getRoot();
         }
-       
+
         setModelRepresentant(treeModel, treeNode);
-        if (this instanceof AbstractContainer) 
+        if (this instanceof AbstractContainer)
         {
             treeNode.setAllowsChildren(true);
         }
-        else 
+        else
         {
             treeNode.setAllowsChildren(false);
-        }               
+        }
     }
 
     /**
-     * Baut Tree für diese Node auf.
-     * Kann leider nicht protected sein, weil Methode sonst selbst für Unterklassen in einem Unter-Package
+     * Baut Tree fÃ¼r diese Node auf.
+     * Kann leider nicht protected sein, weil Methode sonst selbst fÃ¼r Unterklassen in einem Unter-Package
      * nicht sichtbar ist.
-     * @return DefaultMutableTreeNode
      * @param treeModel TreeModel
      */
 
-    public void buildTree ( DefaultTreeModel treeModel, DefaultMutableTreeNode parentTreeNode ) 
+    public void buildTree ( DefaultTreeModel treeModel, DefaultMutableTreeNode parentTreeNode )
     {
         addToParent(treeModel,parentTreeNode);
-        DefaultMutableTreeNode treeNode = 
-            (DefaultMutableTreeNode)modelRepresentants.get(treeModel);    
-        if (this instanceof AbstractContainer) 
+        DefaultMutableTreeNode treeNode =
+            (DefaultMutableTreeNode)modelRepresentants.get(treeModel);
+        if (this instanceof AbstractContainer)
         {
-            ModelParticipant[] contents = 
+            ModelParticipant[] contents =
                 ((AbstractContainer)this).contents();
 
-            treeNode.setAllowsChildren(true);   
+            treeNode.setAllowsChildren(true);
 
-            for (int i=0; i<contents.length; i++) 
+            for (int i=0; i<contents.length; i++)
             {
-                if (contents[i]!=null) 
-                {        // solange nicht alles implementiert ist gibt's null-Einträge
-                    contents[i].buildTree(treeModel,treeNode); 
-                }       
-            }           
+                if (contents[i]!=null)
+                {        // solange nicht alles implementiert ist gibt's null-EintrÃ¤ge
+                    contents[i].buildTree(treeModel,treeNode);
+                }
+            }
         }
 
     }
@@ -105,40 +99,34 @@ public abstract class ModelParticipant
      * @return int
      * @param other org.jacorb.ir.gui.typesystem.ModelParticipant
      */
-
     public abstract int compareTo(ModelParticipant other);
 
-    /**
-     * @param treeModel javax.swing.tree.DefaultTreeModel
-     * @param parent javax.swing.tree.DefaultMutableTreeNode
-     */
-
-    public synchronized void expand(DefaultTreeModel treeModel) 
+    public synchronized void expand(DefaultTreeModel treeModel)
     {
-        boolean jTreeExpanded = false;  
+        boolean jTreeExpanded = false;
         // Hack, damit man gleich sieht, wie die Nodes eintrudeln
-        if (this instanceof AbstractContainer) 
+        if (this instanceof AbstractContainer)
         {
-            DefaultMutableTreeNode treeNode = 
+            DefaultMutableTreeNode treeNode =
                 (DefaultMutableTreeNode)modelRepresentants.get(treeModel);
             ModelParticipant[] contents = ((AbstractContainer)this).contents();
-            for (int i=0; i<contents.length; i++) 
+            for (int i=0; i<contents.length; i++)
             {
-                if (contents[i]!=null) 
+                if (contents[i]!=null)
                 {
-                    // solange nicht alles implementiert ist gibt's null-Einträge
-                    contents[i].addToParent(treeModel,treeNode); 
-                }       
-                if (!jTreeExpanded) 
+                    // solange nicht alles implementiert ist gibt's null-EintrÃ¤ge
+                    contents[i].addToParent(treeModel,treeNode);
+                }
+                if (!jTreeExpanded)
                 {
-                    javax.swing.JTree jTree = 
+                    javax.swing.JTree jTree =
                         (javax.swing.JTree)modelBuilder.treeViewsToUpdate.get(treeNode);
-                    if (jTree!=null) 
+                    if (jTree!=null)
                     {
                         jTree.expandPath(new TreePath(treeNode.getPath()));
-                    }   
-                }       
-            }           
+                    }
+                }
+            }
             modelBuilder.expandedModParts.put(treeNode,treeNode);
         }
     }
@@ -147,7 +135,7 @@ public abstract class ModelParticipant
      * @param model java.lang.Object
      */
 
-    public Object getModelRepresentant(Object model) 
+    public Object getModelRepresentant(Object model)
     {
         return modelRepresentants.get(model);
     }
@@ -157,7 +145,7 @@ public abstract class ModelParticipant
      * @param representant java.lang.Object
      */
 
-    protected void setModelRepresentant(Object model, Object representant) 
+    protected void setModelRepresentant(Object model, Object representant)
     {
         modelRepresentants.put(model,representant);
     }

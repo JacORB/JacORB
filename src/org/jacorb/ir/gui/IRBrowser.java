@@ -247,7 +247,7 @@ class IRBrowser
         //	splitPane.setRightComponent(new JScrollPane(contentTable));
     splitPane.setDividerLocation(300);
 
-    // Hinzuf�gen der Komponenten
+    // Hinzufügen der Komponenten
     Container contentPane = getContentPane();
         //	contentPane.setBackground(java.awt.Color.lightGray);
         /*	getContentPane().setLayout(new java.awt.BorderLayout());
@@ -367,7 +367,7 @@ class IRBrowser
              contentTable.getSelectedRow() != -1)
         {
             System.out.println("contentTable doubleClick");
-            // im TableModel steckt in jeder Zelle ein NodeMapper, von dem die dazugeh�rige treeNode zu erfahren ist
+            // im TableModel steckt in jeder Zelle ein NodeMapper, von dem die dazugehörige treeNode zu erfahren ist
 
             NodeMapper nodeMapper =
                 (NodeMapper)contentTable.getModel().getValueAt(contentTable.getSelectedRow(),0);
@@ -413,7 +413,7 @@ class IRBrowser
     public void mouseReleased(MouseEvent event){}
 
     /**
-     *  Setze  Titel  des  Frames  und enable/disable  Men�s  je  nach
+     *  Setze  Titel  des  Frames  und enable/disable  Menüs  je  nach
      *  selektierter Node  (Node kann  in TableView  oder  in TreeView
      * selektiert worden sein)
      * @param node typesystem.TypeSystemNode
@@ -440,7 +440,7 @@ class IRBrowser
 
     public void valueChanged (ListSelectionEvent e )
     {
-    // contentTable nur bei einfacher Selection �ndern
+    // contentTable nur bei einfacher Selection ändern
         //	System.out.println("valueChanged (Table...)");
     TypeSystemNode node;
     if (contentTable.getSelectedRow() != -1)
@@ -460,7 +460,7 @@ class IRBrowser
 
     public void valueChanged (TreeSelectionEvent e )
     {
-        // contentTable nur bei einfacher Selection �ndern
+        // contentTable nur bei einfacher Selection ändern
         DefaultMutableTreeNode treeNode =
             (DefaultMutableTreeNode)e.getPath().getLastPathComponent();
 

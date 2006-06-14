@@ -3,7 +3,7 @@ package org.jacorb.orb.factory;
 /*
  *        Written for JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2004 Gerald Brose, André Benvenuti.
+ *   Copyright (C) 1999-2004 Gerald Brose, Andre Benvenuti.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,50 +20,50 @@ package org.jacorb.orb.factory;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/* 
- * We follow the design of socket factories in package javax.net and 
- * javax.net.ssl. Because this package isn't in the JDK yet we don't 
+/**
+ * We follow the design of socket factories in package javax.net and
+ * javax.net.ssl. Because this package isn't in the JDK yet we don't
  * extend its classes, but we are fully compatible.
  *
- * The basic idea is to setup policies related to the sockets being 
- * constructed, in the factory: no special configuration is done in 
+ * The basic idea is to setup policies related to the sockets being
+ * constructed, in the factory: no special configuration is done in
  * the code which asks for the sockets.
- * 
- * @author André Benvenuti
+ *
+ * @author Andre Benvenuti
  * $Id$
  */
 
 import java.net.*;
 import java.io.IOException;
 
-public interface ServerSocketFactory 
+public interface ServerSocketFactory
 {
 
     public ServerSocket createServerSocket ( int port )
         throws IOException;
 
     /**
-     * Returns a server socket which uses all network interfaces on 
+     * Returns a server socket which uses all network interfaces on
      * the host, and is bound to the specified port.
-     * 
-     * @param int port - the port to listen to
-     * 
+     *
+     * @param port - the port to listen to
+     * @param backlog - how many connections are queued
      * @exception IOException - for networking errors
      */
     public ServerSocket createServerSocket( int port,
                                             int backlog )
         throws IOException;
 
-    /** 
-     * Returns a server socket which uses all network interfaces on 
-     * the host, is bound to a the specified port, and uses the 
-     * specified connection backlog. The socket is configured with the 
+    /**
+     * Returns a server socket which uses all network interfaces on
+     * the host, is bound to a the specified port, and uses the
+     * specified connection backlog. The socket is configured with the
      * socket options (such as accept timeout) given to this factory.
-     * 
-     * 	@param int port - the port to listen to
-     * 	@param in backlog - how many connections are queued
-     * 
-     * 	@exception IOException - for networking errors
+     *
+     * @param port - the port to listen to
+     * @param backlog - how many connections are queued
+     *
+     * @exception IOException - for networking errors
      */
     public ServerSocket createServerSocket( int port,
                                             int backlog,

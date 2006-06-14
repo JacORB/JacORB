@@ -47,7 +47,7 @@ public abstract class ProfileBase
     public ProfileBase()
     {
     }
-    
+
     /**
     * ETF defined operation to set the object key on this profile.
     */
@@ -63,7 +63,7 @@ public abstract class ProfileBase
     {
         return objectKey;
     }
-    
+
     /**
     * ETF defined read-only accessor for the GIOP version.
     */
@@ -71,12 +71,12 @@ public abstract class ProfileBase
     {
         return version;
     }
-    
+
     /**
     * ETF defined read-only accessor for the GIOP tag.
     */
     public abstract int tag();
-    
+
 
     /**
      * Profiles use this method for taking alternative address values
@@ -90,15 +90,15 @@ public abstract class ProfileBase
 
     /**
     * ETF defined function to marshal the appropriate information for this
-    * transport into the tagged profile.  ORBs will typically need 
+    * transport into the tagged profile.  ORBs will typically need
     * to call the IOR interception points before calling marshal().
     * <p>
     * This particular implementation *should* work for any IOP
     * type protocol that encodes its profile_data as a CDR encapsulated
-    * octet array as long as you have correctly implemented 
-    * the {@link #encapsulation()}, {@link #writeAddressProfile()}, and
-    * {@link #readAddressProfile()} methods. But, feel free to override 
-    * it for the purpose of optimisation or whatever. It should however, 
+    * octet array as long as you have correctly implemented
+    * the {@link #encapsulation()}, {@link #writeAddressProfile(CDROutputStream)}, and
+    * {@link #readAddressProfile(CDRInputStream)} methods. But, feel free to override
+    * it for the purpose of optimisation or whatever. It should however,
     * remain consistent with your implementation
     * of the above mentioned methods.
     */
@@ -107,23 +107,23 @@ public abstract class ProfileBase
     {
         if (encapsulation() != 0)
         {
-            // You're going to have to define your own marshal operation 
+            // You're going to have to define your own marshal operation
             // for littleEndian profiles.
             // The CDROutputStream only does big endian currently.
             throw new Error("We can only marshal big endian stylee profiles !!");
         }
-        
+
         // Start a CDR encapsulation for the profile_data
         CDROutputStream profileDataStream = new CDROutputStream();
         profileDataStream.beginEncapsulatedArray();
-        
+
         // Write the opaque AddressProfile bytes for this profile...
         writeAddressProfile(profileDataStream);
-        
+
         // ... then the object key
         profileDataStream.write_long(objectKey.length);
         profileDataStream.write_octet_array(objectKey,0,objectKey.length);
-        
+
         switch( version.minor )
         {
             case 0 :
@@ -137,7 +137,7 @@ public abstract class ProfileBase
                 }
                 // Write the length of the TaggedProfile sequence.
                 profileDataStream.write_long(this.components.size() + components.value.length);
-                
+
                 // Write the TaggedProfiles (ours first, then the ORB's)
                 for (int i = 0; i < this.components.asArray().length; i++)
                 {
@@ -146,9 +146,9 @@ public abstract class ProfileBase
                 for (int i = 0; i < components.value.length; i++)
                 {
                     TaggedComponentHelper.write(profileDataStream, components.value[i]);
-                }        
+                }
         }
-        
+
         // Populate the TaggedProfile for return.
         tagged_profile.value = new TaggedProfile
         (
@@ -156,7 +156,7 @@ public abstract class ProfileBase
             profileDataStream.getBufferCopy()
         );
     }
-    
+
     /**
     * Method to mirror the marshal method.
     */
@@ -165,37 +165,37 @@ public abstract class ProfileBase
     {
         if (tagged_profile.value.tag != this.tag())
         {
-            throw new org.omg.CORBA.BAD_PARAM 
-                ("Wrong tag for Transport, tag: " 
+            throw new org.omg.CORBA.BAD_PARAM
+                ("Wrong tag for Transport, tag: "
                  + tagged_profile.value.tag);
         }
         initFromProfileData(tagged_profile.value.profile_data);
         components.value = getComponents().asArray();
     }
-    
+
     /**
     * Indicates the encapsulation that will be used by this profile
     * when encoding it's AddressProfile bytes, and which should subsequently
     * be used when marshalling all the rest of the TaggedProfile.profile_data.
-    * Using the default CDROutputStream for a transport profile encapsulation 
+    * Using the default CDROutputStream for a transport profile encapsulation
     * this should always be 0.
     */
     public short encapsulation()
     {
         return 0; // i.e. Big endian TAG_INTERNET_IOP style
     }
-    
+
     /**
     * Write the AddressProfile to the supplied stream.
     * Implementors can assume an encapsulation is already open.
     */
     public abstract void writeAddressProfile(CDROutputStream stream);
-    
+
     /**
     * Read the ETF::AddressProfile from the supplied stream.
     */
     public abstract void readAddressProfile(CDRInputStream stream);
-    
+
     /**
     * Accessor for the TaggedComponents of the Profile.
     */
@@ -241,11 +241,11 @@ public abstract class ProfileBase
             throw new RuntimeException("error cloning profile: " + e);
         }
     }
-    
+
     /**
     * Used from the byte[] constructor and the demarshal method. Relies
-    * on subclasses having satisfactorily implemented the 
-    * {@link #readAddressProfile()} method.
+    * on subclasses having satisfactorily implemented the
+    * {@link #readAddressProfile(CDRInputStream)} method.
     */
     protected void initFromProfileData(byte[] data)
     {
@@ -253,12 +253,12 @@ public abstract class ProfileBase
         in.openEncapsulatedArray();
 
         readAddressProfile(in);
-        
+
         int length = in.read_ulong();
-        
+
         objectKey = new byte[length];
         in.read_octet_array(objectKey, 0, length);
-        
+
         components = (version != null && version.minor > 0) ? new TaggedComponentList(in)
                                                             : new TaggedComponentList();
     }

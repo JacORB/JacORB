@@ -41,9 +41,9 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must at least implement the method
  * newInstance. To use a Object call lendObject. After use the Object must be returned with
  * returnObject(Object). An Object must not be used after it has been returned to its pool!
- * 
+ *
  * This class needs a two phase initialization: configure MUST be invoked before an instance can be used.
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -285,7 +285,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     public void configure(Configuration conf)
     {
         config_ = conf;
-        
+
         init();
     }
 
@@ -349,8 +349,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
 
     /**
      * check the number of instances that are allowed to be created.
-     * 
-     * @pre lock pool_ must be held.
+     *
+     * <b>preCondition:</b> lock pool_ must be held.
      */
     private int getNumberOfCreationsAllowed()
     {
@@ -383,7 +383,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     private void init()
     {
         registerPool(this);
-        
+
         synchronized (pool_)
         {
             if (isInitialized_)
@@ -490,7 +490,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     }
 
     /**
-     * 
+     *
      */
     private void checkIsInitialized()
     {
@@ -505,8 +505,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
 
     /**
      * check if it is allowed to create more instances.
-     * 
-     * @pre lock pool_ must be held.
+     *
+     * <b>preCondition:</b> lock pool_ must be held.
      */
     protected boolean isCreationAllowed()
     {
@@ -514,7 +514,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     }
 
     /**
-     * 
+     *
      */
     protected void poolIsEmpty()
     {
@@ -548,7 +548,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
         else
         {
             throw new IllegalArgumentException("Object " + o + " was not created by this pool");
-        }        
+        }
     }
 
     public String toString()

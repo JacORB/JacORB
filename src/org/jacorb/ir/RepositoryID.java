@@ -66,35 +66,33 @@ public class RepositoryID
             {
                 return "java.lang.String";
             }
+
+            int    firstSlash = id.indexOf ("/");
+            final String prefix;
+            if (firstSlash == -1)
+            {
+                prefix = "";
+            }
             else
             {
-                int    firstSlash = id.indexOf ("/");
-                final String prefix;
-                if (firstSlash == -1)
-                {
-                    prefix = "";
-                }
-                else
-                {
-                    prefix = id.substring (0, firstSlash);
-                }
+                prefix = id.substring (0, firstSlash);
+            }
 
-                if (prefix.equals ("omg.org"))
-                {
-                    return ir2scopes ("org.omg",
-                                      id.substring (firstSlash + 1),
-                                      loader);
-                }
-                else if (prefix.indexOf ('.') != -1)
-                {
-                    return ir2scopes (reversePrefix (prefix),
-                                      id.substring (firstSlash + 1),
-                                      loader);
-                }
-                else
-                {
-                    return ir2scopes ("", id, loader);
-                }
+            if (prefix.equals ("omg.org"))
+            {
+                return ir2scopes ("org.omg",
+                        id.substring (firstSlash + 1),
+                        loader);
+            }
+            else if (prefix.indexOf ('.') != -1)
+            {
+                return ir2scopes (reversePrefix (prefix),
+                        id.substring (firstSlash + 1),
+                        loader);
+            }
+            else
+            {
+                return ir2scopes ("", id, loader);
             }
         }
         else
@@ -185,7 +183,6 @@ public class RepositoryID
         if (org.omg.CORBA.portable.IDLEntity.class.isAssignableFrom (c))
         {
             String className = c.getName();
-            String head = "";
             String body = "";
 
             // add "IDL:" and ":1.0"
@@ -198,11 +195,9 @@ public class RepositoryID
                     body = className.substring(7);
                 return "IDL:omg.org/" + scopesToIR(body) + ":1.0";
             }
-            else
-                return "IDL:" + scopesToIR(className) + ":1.0" ;
+            return "IDL:" + scopesToIR(className) + ":1.0" ;
         }
-    else
-            return org.jacorb.util.ValueHandler.getRMIRepositoryID (c);
+        return org.jacorb.util.ValueHandler.getRMIRepositoryID (c);
     }
 
 
@@ -237,7 +232,7 @@ public class RepositoryID
 
     /**
      * Converts a class name to a Repository ID.
-     * @param classname the class name to convert
+     * @param className the class name to convert
      * @param resolveClass indicates whether the method should try to
      * resolve and load the class. If true and the class could
      * not be loaded, an IllegalArgumentException will be thrown
@@ -249,20 +244,21 @@ public class RepositoryID
         if( className.equals("") ||
             className.startsWith("IDL:") ||
             className.startsWith ("RMI:"))
-            return className;
-        else
         {
-            if( resolveClass )
-            {
-
-                Class c = loadClass(className, loader);
-                if (c == null)
-                    throw new  IllegalArgumentException("cannot find class: " + className);
-                else
-                    return repId (c);
-            }
-            return "IDL:" + className + ":1.0";
+            return className;
         }
+
+        if( resolveClass )
+        {
+
+            Class c = loadClass(className, loader);
+            if (c == null)
+            {
+                throw new  IllegalArgumentException("cannot find class: " + className);
+            }
+            return repId (c);
+        }
+        return "IDL:" + className + ":1.0";
     }
 
     public static String toRepositoryID( String className, ClassLoader loader )
@@ -280,9 +276,10 @@ public class RepositoryID
         try
         {
             if (loader != null)
+            {
                 return loader.loadClass (name);
-            else
-                return org.jacorb.util.ObjectUtil.classForName(name);
+            }
+            return org.jacorb.util.ObjectUtil.classForName(name);
         }
         catch (ClassNotFoundException e)
         {
@@ -303,6 +300,7 @@ public class RepositoryID
         String className = className(repId, "Helper", loader);
         Class c = loadClass(className, loader);
         if (c != null)
+        {
             try
             {
                 return (BoxedValueHelper)c.newInstance();
@@ -311,7 +309,7 @@ public class RepositoryID
             {
                 throw new RuntimeException(e.toString());
             }
-        else
-            return null;
+        }
+        return null;
     }
 }

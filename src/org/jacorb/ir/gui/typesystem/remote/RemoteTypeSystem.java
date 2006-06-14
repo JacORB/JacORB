@@ -58,12 +58,11 @@ public class RemoteTypeSystem
     }
 
     /**
-     *  Creates a TreeModel that contains only root enth�lt. To expand
+     *  Creates a TreeModel that contains only root enthält. To expand
      *  nodes,     the    TreeExpansionListener    returned    from
      *  getTreeExpansionListener(treeModel)  needs  to be  registered
      *  with JTree.
      * @return javax.swing.tree.DefaultTreeModel
-     * @param root org.jacorb.ir.gui.typesystem.ModelParticipant
      */
 
     public DefaultTreeModel createTreeModelRoot()
@@ -72,18 +71,16 @@ public class RemoteTypeSystem
         {
             return treeModel;
         }
-        else
-        {
-            IRRepository startNode  = new IRRepository(rep);
-            treeModel =
-                ModelBuilder.getSingleton().createTreeModelRoot(startNode);
-            return treeModel;
-        }
+
+        IRRepository startNode  = new IRRepository(rep);
+        treeModel =
+            ModelBuilder.getSingleton().createTreeModelRoot(startNode);
+        return treeModel;
     }
 
     /**
      * @return org.jacorb.ir.gui.typesystem.TypeSystemNode
-     * @param irNode org.omg.CORBA.IRObject
+     * @param obj org.omg.CORBA.IRObject
      */
 
     public static TypeSystemNode createTypeSystemNode(java.lang.Object obj)
@@ -98,11 +95,11 @@ public class RemoteTypeSystem
 
         System.out.flush();
 
-        // Typ-Unterscheidung f�r obj vornehmen und korrespondierendes
+        // Typ-Unterscheidung für obj vornehmen und korrespondierendes
         // org.jacorb.ir.gui.typesystem-Objekt erzeugen.
         // knownIRObjects: zu jedem Objekt des IR wird das
         // korrespondierende org.jacorb.ir.gui.typesystem-Objekt
-        // festgehalten, damit letzteres nicht mehrfach f�r
+        // festgehalten, damit letzteres nicht mehrfach für
         /// das selbe IR-Objekt erzeugt wird
         // (die Abbildung von IR-Objekten auf
         // org.jacorb.ir.gui.typesystem-Objekte wird sozusagen injektiv gehalten)
@@ -111,9 +108,9 @@ public class RemoteTypeSystem
         // um das obj in knownIRObjects abzulegen:
         // die von Object geerbte hashcode() Methode reicht
         // hier nicht, weil sie equals() verwendet und
-        // diese Methode nicht f�r alle m�glichen Typen von
+        // diese Methode nicht für alle möglichen Typen von
         ///  obj korrekt redefiniert wurde (testet nur auf
-        // Objekt-Identit�t)
+        // Objekt-Identität)
 
         if ( obj instanceof IRObject )
         {
@@ -127,9 +124,9 @@ public class RemoteTypeSystem
         }
         if( irObject != null )
         {
-            // insbesondere "echte" IRObjects k�nnen beim Aufbau
+            // insbesondere "echte" IRObjects können beim Aufbau
             // des Trees mehrmals referenziert
-            // und dieser Methode als Argument �bergeben werden
+            // und dieser Methode als Argument übergeben werden
             // if (knownIRObjects.get(ORB.init().object_to_string((org.omg.CORBA.Object)irObject))!=null) {
             //			return (TypeSystemNode)knownIRObjects.get(ORB.init().object_to_string((org.omg.CORBA.Object)irObject));
             //		}
@@ -182,7 +179,7 @@ public class RemoteTypeSystem
                         result = new IROperation(irObject);
                         break;
                         /*   Typedef   ist   eine  abstrakte   Oberklasse,
-                             theoretisch   d�rfte   es   kein  Objekt   mit
+                             theoretisch   dürfte   es   kein  Objekt   mit
                              DefinitionKind._dk_Typedef      geben     case
                              DefinitionKind._dk_Typedef:   result   =   new
                              IRTypedef(irObject); break; */
@@ -268,10 +265,10 @@ public class RemoteTypeSystem
         else
         {
             // kein IRObject sondern lokales Objekt
-            // members von Structs, Unions und Enums k�nnen nicht
+            // members von Structs, Unions und Enums können nicht
             // von anderen IRObjects referenziert werden,
-            // wir wollen trotzdem f�r m�gliche mehrfache Aufrufe
-            // das selbe org.jacorb.ir.gui.typesystem-Objekt zur�ckgeben
+            // wir wollen trotzdem für mögliche mehrfache Aufrufe
+            // das selbe org.jacorb.ir.gui.typesystem-Objekt zurückgeben
             if (knownIRObjects.get(obj)!=null) {
                 return (TypeSystemNode)knownIRObjects.get(obj);
             }
@@ -323,9 +320,9 @@ public class RemoteTypeSystem
                 }
                 else if (obj instanceof String)
                 {
-                    if (knownIRObjects.get((String)obj)!=null)
+                    if (knownIRObjects.get(obj)!=null)
                     {
-                        return (IREnumMember)knownIRObjects.get((String)obj);
+                        return (IREnumMember)knownIRObjects.get(obj);
                     }
                     result = new IREnumMember((String)obj);
                     knownIRObjects.put(obj,result);
@@ -344,7 +341,7 @@ public class RemoteTypeSystem
 
     /**
      * @return TableModel
-     * @param node org.jacorb.ir.gui.typesystem.TypeSystemNode
+     * @param treeNode org.jacorb.ir.gui.typesystem.TypeSystemNode
      */
 
     public DefaultTableModel getTableModel(DefaultMutableTreeNode treeNode)
@@ -387,7 +384,6 @@ public class RemoteTypeSystem
 
     /**
      * @return javax.swing.tree.TreeModel
-     * @param rootModPart org.jacorb.ir.gui.typesystem.ModelParticipant
      */
 
     public TreeModel getTreeModel()
@@ -396,18 +392,16 @@ public class RemoteTypeSystem
         {
             return treeModel;
         }
-        else
+
+        try
         {
-            try
-            {
-                IRRepository startNode 	= new IRRepository(rep);
-                treeModel = ModelBuilder.getSingleton().buildTreeModelAsync(startNode);
-                return treeModel;
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            IRRepository startNode 	= new IRRepository(rep);
+            treeModel = ModelBuilder.getSingleton().buildTreeModelAsync(startNode);
+            return treeModel;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
         return null;
     }

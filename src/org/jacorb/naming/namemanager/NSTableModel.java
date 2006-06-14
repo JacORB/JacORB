@@ -22,25 +22,25 @@ package org.jacorb.naming.namemanager;
 
 import java.util.*;
 
-public class NSTableModel 
-	extends javax.swing.table.DefaultTableModel 
+public class NSTableModel
+    extends javax.swing.table.DefaultTableModel
 {
     /**
      * NSTableModel constructor.
      */
-    public NSTableModel() 
+    public NSTableModel()
     {
-	super();
-	String [] colNames = {"Name", "Kind", "Type", "Host", "Port"};
-	super.setColumnIdentifiers(convertToVector(colNames));
+    super();
+    String [] colNames = {"Name", "Kind", "Type", "Host", "Port"};
+    super.setColumnIdentifiers(convertToVector(colNames));
     }
 
     /**
      * getColumnCount method comment.
      */
-    public int getColumnCount() 
+    public int getColumnCount()
     {
-	return 5;
+    return 5;
     }
 
     /**
@@ -49,26 +49,22 @@ public class NSTableModel
      * @param r int
      * @param c int
      */
-    public boolean isCellEditable(int r, int c) 
+    public boolean isCellEditable(int r, int c)
     {
-	return false;
+    return false;
     }
 
-    /**
-     * 
-     * @param data Vector
-     */
-    public void setDataVector(Vector newData) 
+    public void setDataVector(Vector newData)
     {
         if (newData == null)
             throw new IllegalArgumentException("setDataVector() - Null parameter");
-                
+
         // Add the new rows.
         dataVector = newData;
-        
+
         // Make all the new rows the right length and generate a notification.
         newRowsAdded(new javax.swing.event.TableModelEvent(this, 0, getRowCount()-1,
-                                                           javax.swing.event.TableModelEvent.ALL_COLUMNS, 
+                                                           javax.swing.event.TableModelEvent.ALL_COLUMNS,
                                                            javax.swing.event.TableModelEvent.INSERT));
     }
 }

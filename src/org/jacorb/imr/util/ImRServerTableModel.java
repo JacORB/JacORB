@@ -29,7 +29,7 @@ import javax.swing.event.*;
  * via the IMRModel class.
  *
  * @author Nicolas Noffke
- * 
+ *
  * $Id$
  */
 
@@ -45,19 +45,19 @@ public class ImRServerTableModel extends AbstractTableModel {
      * @param model the ImRModel to write changes via.
      */
     public ImRServerTableModel(ImRModel model){
-	m_model = model;
+    m_model = model;
     }
 
     /**
      * Pass in the servers the table should display.
      * Notify the JTable of that.
      *
-     * @param servers an array containing the ServerInfo structs of the 
+     * @param servers an array containing the ServerInfo structs of the
      * servers to display.
      */
     public void setServers(ServerInfo[] servers){
-	m_servers = servers;
-	fireTableChanged(new TableModelEvent(this));
+    m_servers = servers;
+    fireTableChanged(new TableModelEvent(this));
     }
 
     /**
@@ -66,7 +66,7 @@ public class ImRServerTableModel extends AbstractTableModel {
      * @param index the servers index in the table.
      */
     public void serverRefreshed(int index){
-	fireTableRowsUpdated(index, index);
+    fireTableRowsUpdated(index, index);
     }
 
     /**
@@ -75,7 +75,7 @@ public class ImRServerTableModel extends AbstractTableModel {
      * @return the number of rows.
      */
     public int getRowCount(){
-	return m_servers.length;
+    return m_servers.length;
     }
 
     /**
@@ -84,17 +84,17 @@ public class ImRServerTableModel extends AbstractTableModel {
      * @return the number of columns.
      */
     public int getColumnCount(){
-	return m_columns.length;
+    return m_columns.length;
     }
 
     /**
      * Get the name of a specific column.
      *
-     * @param index the columns index.
+     * @param column the columns index.
      * @return String the columns name.
      */
     public String getColumnName(int column){
-	return m_columns[column];
+    return m_columns[column];
     }
 
     /**
@@ -104,14 +104,14 @@ public class ImRServerTableModel extends AbstractTableModel {
      * @return the columns Class object.
      */
     public Class getColumnClass(int index){
-	if (index == 0 || index == 1 || index == 2)
-	    return String.class;
+    if (index == 0 || index == 1 || index == 2)
+        return String.class;
 
-	else if (index == 3 || index == 4)
-	    return Boolean.class;
+    else if (index == 3 || index == 4)
+        return Boolean.class;
 
-	else    
-	    return  Object.class;
+    else
+        return  Object.class;
     }
 
     /**
@@ -122,37 +122,38 @@ public class ImRServerTableModel extends AbstractTableModel {
      * @return the cells value.
      */
     public Object getValueAt(int row, int column){
-	if (column == 0)
-	    return m_servers[row].name;
+    if (column == 0)
+        return m_servers[row].name;
 
-	else if (column == 1)
-	    return m_servers[row].host;
+    else if (column == 1)
+        return m_servers[row].host;
 
-	else if (column == 2)
-	    return m_servers[row].command;
+    else if (column == 2)
+        return m_servers[row].command;
 
-	else if (column == 3)
-	    return new Boolean(m_servers[row].active);
-	
-	else if (column == 4)
-	    return new Boolean(m_servers[row].holding);
-	
-	return new Object();
+    else if (column == 3)
+        return new Boolean(m_servers[row].active);
+
+    else if (column == 4)
+        return new Boolean(m_servers[row].holding);
+
+    return new Object();
     }
 
     /**
      * Test, wheter a cell is editable.
-     * 
+     *
      * @param row the cells row.
      * @param column the cells column.
      *
      * @return true, if the cell is editable.
      */
     public boolean isCellEditable(int row, int column){
-	if (column >= 1)
-	    return true;
-	else
-	    return false;
+        if (column >= 1)
+        {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -163,7 +164,7 @@ public class ImRServerTableModel extends AbstractTableModel {
      * @param column the cells column.
      */
     public void setValueAt(Object value, int row, int column){
-	m_model.updateServer(row, m_columns[column], value); 
+    m_model.updateServer(row, m_columns[column], value);
     }
 } // ImRServerTableModel
 

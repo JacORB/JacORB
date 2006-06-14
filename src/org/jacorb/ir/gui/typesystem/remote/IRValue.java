@@ -25,17 +25,17 @@ package org.jacorb.ir.gui.typesystem.remote;
 // You cannot see them, even if defined in the IR.
 
 /**
- * 
+ *
  */
 
 import org.jacorb.ir.gui.typesystem.*;
 import java.util.*;
 import org.omg.CORBA.*;
 import javax.swing.tree.*;
- 
-public class IRValue 
-    extends IRContainer 
-    implements org.jacorb.ir.gui.typesystem.Value 
+
+public class IRValue
+    extends IRContainer
+    implements org.jacorb.ir.gui.typesystem.Value
 {
     private Value baseValue = null;
     private boolean lookedUpBaseValue = false;
@@ -49,14 +49,14 @@ public class IRValue
      * Default-Konstruktor: wird von TypeSystem.createNode(...) benutzt
      */
     public IRValue ( ) {
-	super();
+    super();
     }
 
     /**
      * @param irObject org.omg.CORBA.IRObject
      */
     public IRValue ( IRObject irObject) {
-	super(irObject);
+    super(irObject);
     }
 
     /**
@@ -64,39 +64,39 @@ public class IRValue
      *         that can be added here.
      */
     public String[] allowedToAdd() {
-	String[] result = {	IRAttribute.nodeTypeName(),
+    String[] result = {	IRAttribute.nodeTypeName(),
                                 IROperation.nodeTypeName(),
                                 IRConstant.nodeTypeName(),
                                 IRTypedef.nodeTypeName(),
                                 IRException.nodeTypeName(),
                                 IRValueMember.nodeTypeName()
                           };
-	return result;
+    return result;
     }
 
     /**
      * @return A textual description of this value type.
      */
-    public String description() 
+    public String description()
     {
-	String result = super.description();
+    String result = super.description();
 
         Value base = getBaseValue();
         if (base != null)
             result = result + "\nBase-Value:\t "
                             + ((IRValue)base).getAbsoluteName();
-	else
+    else
             result = result + "\nBase-Value:\t:none";
 
-	Interface[] implemented = getInterfaces();
-	if (implemented.length > 0) {
+    Interface[] implemented = getInterfaces();
+    if (implemented.length > 0) {
             result = result + "\nImplemented-Interfaces:\t ";
             for (int i = 0; i<implemented.length; i++) {
                 result = result + ((TypeSystemNode)implemented[i]).getAbsoluteName();
-                if (i != implemented.length-1) 
+                if (i != implemented.length-1)
                     result = result + ", ";
-            }	
-	} else
+            }
+    } else
             result = result + "\nImplemented-Interfaces:\t:none";
 
         Value[] abstractBases = getAbstractBaseValues();
@@ -104,20 +104,20 @@ public class IRValue
             result = result + "\nAbstract-Base-Values:\t ";
             for (int i = 0; i < abstractBases.length; i++) {
                 result = result + ((TypeSystemNode)abstractBases[i]).getAbsoluteName();
-                if (i != abstractBases.length-1) 
+                if (i != abstractBases.length-1)
                     result = result + ", ";
-            }	
-	} else
+            }
+    } else
             result = result + "\nAbstract-Base-Values:\t:none";
 
-	return result;	
+    return result;
     }
 
     /**
      * Returns all fields defined here, including fields from
      * the base value and interfaces.
      */
-    public TypeSystemNode[] getAllFields() 
+    public TypeSystemNode[] getAllFields()
     {
         if (allFields==null) {
             Vector fields = new Vector();
@@ -136,7 +136,7 @@ public class IRValue
                 for (int n=0; n<nextFields.length; n++)
                     if (nextFields[n] instanceof IRAttribute)
                         fields.addElement(nextFields[n]);
-            }	
+            }
 
             // dann unsere eigenen Fields (also die Attributes des Interfaces)
             ModelParticipant[] contained = contents();
@@ -147,53 +147,53 @@ public class IRValue
             // convert into an array
             allFields = new IRAttribute[fields.size()];
             int i = 0;
-            for (Enumeration e = fields.elements(); e.hasMoreElements(); ++i) 
+            for (Enumeration e = fields.elements(); e.hasMoreElements(); ++i)
                 allFields[i] = (IRAttribute)e.nextElement();
-	}
-	return allFields;
-    }		
+    }
+    return allFields;
+    }
 
     /**
      * Returns all operations defined here, including operations from
      * the base value and interfaces, but excluding initializers.
      */
-    public TypeSystemNode[] getAllOperations() 
+    public TypeSystemNode[] getAllOperations()
     {
-	if (this.allOperations==null) 
+    if (this.allOperations==null)
         {
             Vector operations = new Vector();
             // erstmal die Operationen der interfaces sammeln
             Interface[] interfaces = this.getInterfaces();
-            for (int i=0; i<interfaces.length; i++) 
+            for (int i=0; i<interfaces.length; i++)
             {
                 TypeSystemNode[] nextOperations = interfaces[i].getAllOperations();
-                for (int n=0; n<nextOperations.length; n++) 
+                for (int n=0; n<nextOperations.length; n++)
                 {
                     operations.addElement(nextOperations[n]);
                 }
-            }	
+            }
 
             // dann unsere eigenen Operationen
 
             ModelParticipant[] contents = this.contents();
-            for (int i=0; i<contents.length; i++) 
+            for (int i=0; i<contents.length; i++)
             {
-                if (contents[i] instanceof IROperation) 
+                if (contents[i] instanceof IROperation)
                 {
                     operations.addElement(contents[i]);
                 }
-            }	
-	
+            }
+
             this.allOperations = new IROperation[operations.size()];
             int i = 0;
-            for (Enumeration e = operations.elements(); e.hasMoreElements(); ) 
+            for (Enumeration e = operations.elements(); e.hasMoreElements(); )
             {
                 allOperations[i] = (IROperation)e.nextElement();
                 i++;
             }
-	}	// if (allOperations==null)	
-	return allOperations;
-    }		
+    }	// if (allOperations==null)
+    return allOperations;
+    }
 
     /**
      *  Return the concrete base value of this value, or null
@@ -201,14 +201,14 @@ public class IRValue
      */
     public Value getBaseValue()
     {
-	if (!lookedUpBaseValue) {
+    if (!lookedUpBaseValue) {
             ValueDef valueDef = ValueDefHelper.narrow((org.omg.CORBA.Object)irObject);
             ValueDef base = valueDef.base_value();
             if (base != null)
                 baseValue = (Value)RemoteTypeSystem.createTypeSystemNode(base);
             lookedUpBaseValue = true;
-	}	
-	return baseValue;
+    }
+    return baseValue;
     }
 
     /**
@@ -216,23 +216,23 @@ public class IRValue
      */
     public Value[] getAbstractBaseValues()
     {
-	if (abstractBaseValues == null) {
+    if (abstractBaseValues == null) {
             ValueDef valueDef = ValueDefHelper.narrow((org.omg.CORBA.Object)irObject);
             ValueDef[] abstractBases = valueDef.abstract_base_values();
             abstractBaseValues = new Value[abstractBases.length];
             for (int i = 0; i < abstractBases.length; ++i)
                 abstractBaseValues[i] = (Value)RemoteTypeSystem.createTypeSystemNode(abstractBases[i]);
-	}	
-	return abstractBaseValues;
+    }
+    return abstractBaseValues;
     }
 
     /**
      * Returns all value members defined here, including value members from
      * the base value.
      */
-    public TypeSystemNode[] getAllMembers() 
+    public TypeSystemNode[] getAllMembers()
     {
-	if (allMembers == null) {
+    if (allMembers == null) {
             Vector members = new Vector();
 
             // first collect value members of our base value
@@ -240,7 +240,7 @@ public class IRValue
             if (base != null) {
                 TypeSystemNode[] baseMembers = base.getAllMembers();
 
-                for (int i = 0; i < baseMembers.length; i++) 
+                for (int i = 0; i < baseMembers.length; i++)
                     members.addElement(baseMembers[i]);
             }
 
@@ -250,25 +250,25 @@ public class IRValue
                 TypeSystemNode[] nextMembers = abstractBases[i].getAllMembers();
                 for (int n=0; n<nextMembers.length; n++)
                     members.addElement(nextMembers[n]);
-            }	
+            }
 
 
             // then our own value members
             ModelParticipant[] contents = this.contents();
             for (int i = 0; i < contents.length; i++) {
-                if (contents[i] instanceof IRValueMember) 
+                if (contents[i] instanceof IRValueMember)
                     members.addElement(contents[i]);
-            }	
-	
+            }
+
             allMembers = new IRValueMember[members.size()];
             int i = 0;
             for (Enumeration e = members.elements(); e.hasMoreElements(); ) {
                 allMembers[i] = (IRValueMember)e.nextElement();
                 i++;
             }
-	}
-	return allMembers;
-    }		
+    }
+    return allMembers;
+    }
 
 
     /**
@@ -279,38 +279,38 @@ public class IRValue
      *
      * @return A reference to the <code>interfaces</code> field.
      */
-    public Interface[] getInterfaces() 
+    public Interface[] getInterfaces()
     {
-	if (interfaces==null) {
-            // interfaces in unserem dazugehörigen Field speichern
+    if (interfaces==null) {
+            // interfaces in unserem dazugehÃ¶rigen Field speichern
             ValueDef valueDef = ValueDefHelper.narrow((org.omg.CORBA.Object)irObject);
             InterfaceDef[] supportedInterfaces = valueDef.supported_interfaces();
             interfaces = new IRInterface[supportedInterfaces.length];
             for (int i=0; i<supportedInterfaces.length; i++) {
-                // für alle base interfaces die zugehörige TypeSystemNode holen
+                // fÃ¼r alle base interfaces die zugehÃ¶rige TypeSystemNode holen
                 IRInterface intf = (IRInterface)RemoteTypeSystem.createTypeSystemNode(supportedInterfaces[i]);
                 interfaces[i] = intf;
-            }		
-	}	
-	return interfaces;
+            }
+    }
+    return interfaces;
     }
 
     /**
      * @return A string denoting the node type implemented here.
      */
-    public static String nodeTypeName() 
+    public static String nodeTypeName()
     {
-	return "value";
+    return "value";
     }
 
     /**
      * Set the CORBA reference of the IR object we represent.
-     * 
+     *
      * @param irObject The CORBA reference to be set.
      */
-    protected void setIRObject(org.omg.CORBA.IRObject irObject) 
+    protected void setIRObject(org.omg.CORBA.IRObject irObject)
     {
-	super.setIRObject(irObject);
+    super.setIRObject(irObject);
     }
 }
 

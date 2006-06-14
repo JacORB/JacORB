@@ -21,7 +21,6 @@
 package org.jacorb.imr.util;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.imr.*;
 import org.jacorb.imr.AdminPackage.*;
@@ -158,8 +157,6 @@ public class ImRModel
 
     /**
      * Get the table model for the POA table.
-     *
-     * @param the model for the POA table.
      */
     public TableModel getPOATableModel(){
     return m_poa_model;
@@ -167,8 +164,6 @@ public class ImRModel
 
     /**
      * Get the table model for the server table.
-     *
-     * @param the model for the server table.
      */
     public TableModel getServerTableModel(){
     return m_server_model;
@@ -178,7 +173,7 @@ public class ImRModel
      * Set the POA table model to the specific server, i.e.
      * the POA table displays this servers poas.
      *
-     * @param name the servers name to build the table for.
+     * @param server the servers name to build the table for.
      */
     public void poaTableForServer(ServerInfo server){
     m_poa_model.setPOAs(server.poas);
@@ -288,7 +283,7 @@ public class ImRModel
     /**
      * Refresh a server.
      *
-     * @param server_row the servers row in the table.
+     * @param index the servers row in the table.
      */
     public void refreshServer(int index){
     try{
@@ -412,7 +407,7 @@ public class ImRModel
     /**
      * Set the interval by which the internal data is refreshed.
      *
-     * @param intervel refresh interval in ms.
+     * @param interval refresh interval in ms.
      */
     public void setRefreshInterval(int interval){
     m_current_refresh_interval = interval;
@@ -559,7 +554,7 @@ public class ImRModel
      * Build a tree node for a server, with all its
      * dependend POAs.
      *
-     * @param server the servers ServerInfo struct.
+     * @param index the servers ServerInfo struct.
      */
     private void buildServerNode(int index){
     DefaultMutableTreeNode _server_node;
@@ -662,7 +657,6 @@ public class ImRModel
 
     private class RefreshThread extends Thread{
     private long m_interval;
-    private boolean m_run = true;
 
     public RefreshThread(long interval){
         m_interval = interval;

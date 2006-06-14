@@ -37,10 +37,10 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
     protected AbstractBoundedEventHeap(int capacity, EventQueueOverflowStrategy overflowStrategy, Object lock, Comparator comparator)
     {
         super(capacity, overflowStrategy, lock);
-        
+
         heap_ = new PriorityQueue(capacity, comparator);
     }
-    
+
     private final List copyAllEntries()
     {
         final List _events = new ArrayList(heap_.size());
@@ -48,37 +48,37 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
         _events.addAll(heap_);
 
         return _events;
-    }    
-    
+    }
+
     private final List removeAllEntries()
     {
         final List _entries = copyAllEntries();
-        
+
         heap_.clear();
-        
+
         return _entries;
     }
-    
+
     protected final Message removeFirstElement(Comparator comp)
     {
         final List _entries = copyAllEntries();
         Collections.sort(_entries, comp);
-        
+
         final Message _mesg = (Message) _entries.remove(0);
 
         heap_.clear();
         heap_.addAll(_entries);
-        
+
         return _mesg;
     }
-    
+
     protected final Message[] getAllElements()
     {
         final List _entries = removeAllEntries();
 
         return (Message[]) _entries.toArray(new Message[_entries.size()]);
     }
-    
+
     public final boolean isEmpty()
     {
         return getSize() == 0;
@@ -88,12 +88,12 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
     {
         return heap_.size();
     }
-    
+
     protected final void addElement( Message event )
     {
         heap_.add(event);
     }
-    
+
     protected final Message[] getElements(int max)
     {
         final List _result = new ArrayList();
@@ -105,10 +105,7 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
 
         return (Message[]) _result.toArray(QueueUtil.MESSAGE_ARRAY_TEMPLATE);
     }
-    
-    /**
-     * @pre !isEmpty()
-     */
+
     protected final Message getNextHeapElement()
     {
         return ( Message ) heap_.remove();
@@ -118,7 +115,7 @@ public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
     {
         return getNextHeapElement();
     }
-    
+
     public final String toString()
     {
         return heap_.toString();

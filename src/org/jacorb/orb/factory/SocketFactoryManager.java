@@ -20,7 +20,6 @@ package org.jacorb.orb.factory;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.net.*;
 import java.lang.reflect.Constructor;
 
 import org.apache.avalon.framework.logger.*;

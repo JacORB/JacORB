@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1997-2006 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -24,33 +24,30 @@ package org.jacorb.orb.dii;
  *
  * This class is used to hold exception information for
  * DII requests.
- * 
+ *
  * @author Gerald Brose, FU Berlin
  * @version $Id$
  */
 
 public class Environment
-	extends org.omg.CORBA.Environment
+    extends org.omg.CORBA.Environment
 {
-	private java.lang.Exception ex;
+    private java.lang.Exception ex;
 
-	public Environment(){}
+    public void exception( java.lang.Exception e)
+    {
+        ex = e;
+    }
 
+    public java.lang.Exception exception()
+    {
+        return ex;
+    }
 
-	public void exception( java.lang.Exception e)
-	{
-		ex = e;
-	}
-
-	public java.lang.Exception exception()
-	{
-		return ex;
-	}
-
-	public void clear()
-	{
-		ex = null;
-	}
+    public void clear()
+    {
+        ex = null;
+    }
 }
 
 

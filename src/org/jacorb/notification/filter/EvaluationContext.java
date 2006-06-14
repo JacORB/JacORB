@@ -23,7 +23,6 @@ package org.jacorb.notification.filter;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.jacorb.notification.AbstractMessage;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
@@ -42,11 +41,10 @@ import org.omg.CORBA.Any;
 import org.omg.TimeBase.UtcT;
 
 /**
- * @todo remove the static dependeny to package filter.etcl.
+ * TODO: remove the static dependeny to package filter.etcl.
  * @author Alphonse Bendt
  * @version $Id$
  */
-
 public class EvaluationContext extends AbstractPoolable
 {
     private Message message_;

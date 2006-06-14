@@ -20,7 +20,6 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambrigde, MA 02139, USA.
  */
 
-import org.omg.CORBA.ORB;
 import org.omg.PortableServer.*;
 
 import java.util.*;
@@ -50,11 +49,11 @@ public class RepositoryImpl
 {
     private String		classpath;
     private Hashtable		contained = new Hashtable();
+    private ClassLoader loader;
     private Container[]         containers ;
     private Container           delegate ;
 
     private POA poa;
-    private ClassLoader loader;
 
     public static char 	        fileSeparator =
         System.getProperty("file.separator").charAt(0);
@@ -100,8 +99,6 @@ public class RepositoryImpl
 
         containers =
             new Container[ paths.length ];
-
-        org.omg.CORBA.Object obj;
 
         org.omg.CORBA.ORB orb =
             org.omg.CORBA.ORB.init( new String[0], null );
@@ -198,11 +195,10 @@ public class RepositoryImpl
 
     /**
      * lookup a repository ID
-     * @param id a string in Repository ID format,
+     * @param search_id a string in Repository ID format,
      *         e.g. "IDL:myModule/MyInterface:1.0"
      * @return a reference to the object or null, if not found
      */
-
     public org.omg.CORBA.Contained lookup_id( String search_id )
     {
         if (this.logger.isDebugEnabled())
@@ -212,9 +208,10 @@ public class RepositoryImpl
 
         String name = idToScopedName( search_id );
         if( name == null )
+        {
             return null;
-        else
-            return lookup( name );
+        }
+        return lookup( name );
     }
 
     public org.omg.CORBA.PrimitiveDef get_primitive(org.omg.CORBA.PrimitiveKind kind)
