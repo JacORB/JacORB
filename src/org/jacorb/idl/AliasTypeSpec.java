@@ -321,10 +321,7 @@ public class AliasTypeSpec
         {
             return originalType.printReadExpression(streamname);
         }
-        else
-        {
-            return full_name() + "Helper.read(" + streamname + ")";
-        }
+        return full_name() + "Helper.read(" + streamname + ")";
     }
 
     public String printWriteStatement(String var_name, String streamname)
@@ -333,19 +330,12 @@ public class AliasTypeSpec
         {
             return originalType.printWriteStatement(var_name, streamname);
         }
-        else
-        {
-            return full_name() + "Helper.write(" + streamname + "," + var_name + ");";
-        }
+        return full_name() + "Helper.write(" + streamname + "," + var_name + ");";
     }
 
     private void printClassComment(String className, PrintWriter ps)
     {
-        ps.println("/**");
-        ps.println(" *\tGenerated from IDL definition of alias " +
-                "\"" + className + "\"");
-        ps.println(" *\t@author JacORB IDL compiler ");
-        ps.println(" */\n");
+        printClassComment("alias", className, ps);
     }
 
     /**

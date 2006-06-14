@@ -203,19 +203,12 @@ public class EnumType
         {
             return this.getRecursiveTypeCodeExpression();
         }
-        else
-        {
-            return this.getTypeCodeExpression();
-        }
+        return this.getTypeCodeExpression();
     }
 
     private void printClassComment(String className, PrintWriter ps)
     {
-        ps.println("/**");
-        ps.println(" *\tGenerated from IDL definition of enum " +
-                    "\"" + className + "\"");
-        ps.println(" *\t@author JacORB IDL compiler ");
-        ps.println(" */\n");
+        printClassComment("enum", className, ps);
     }
 
     private void printHolderClass(String className, PrintWriter ps)
@@ -370,7 +363,7 @@ public class EnumType
         pw.println("\t\t\tdefault: throw new org.omg.CORBA.BAD_PARAM();");
         pw.println("\t\t}");
         pw.println("\t}");
-        
+
         pw.println("\tprotected " + name + "(int i)");
         pw.println("\t{");
         pw.println("\t\tvalue = i;");

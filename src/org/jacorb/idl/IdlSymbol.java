@@ -233,8 +233,7 @@ public class IdlSymbol
         {
             return pack_name + "." + name;
         }
-        else
-            return name;
+        return name;
     }
 
     /**
@@ -252,11 +251,9 @@ public class IdlSymbol
             {
                 return omg_package_prefix + pack_name + "." + name;
             }
-            else
-                return pack_name + "." + name;
+            return pack_name + "." + name;
         }
-        else
-            return name;
+        return name;
     }
 
     /**
@@ -616,8 +613,7 @@ public class IdlSymbol
                                 " already declared!", enc.get_token() );
                         break;
                     }
-                    else
-                        enc = enc.getEnclosingSymbol();
+                    enc = enc.getEnclosingSymbol();
                 }
                 else
                 {
@@ -651,19 +647,24 @@ public class IdlSymbol
         {
             return omgPrefix() + name;
         }
-        else
-        {
-            return name;
-        }
+        return name;
     }
-
 
     /**
      * let the visitor pattern do its work...
      */
-
     public void accept( IDLTreeVisitor visitor )
     {
         // nothing here, all work done in subclasses.
+    }
+
+    protected final void printClassComment(String type, String name, PrintWriter ps)
+    {
+        ps.println("/**");
+        ps.println(" *\tGenerated from IDL definition of " + type.trim() + " \"" + name + "\".");
+        ps.println(" *");
+        ps.println(" *\t@author JacORB IDL compiler V " + parser.compiler_version);
+        ps.println(" *\t@version generated at " + parser.currentDate);
+        ps.println(" */\n");
     }
 }
