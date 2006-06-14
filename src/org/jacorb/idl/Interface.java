@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
+import org.jacorb.idl.util.PrettyPrinter;
+
 public class Interface
     extends TypeDeclaration
     implements Scope
@@ -179,17 +181,14 @@ public class Interface
                  "\")"
                  );
         }
-        else
-        {
-            return
-                (
-                 "org.omg.CORBA.ORB.init().create_interface_tc(\"" +
-                 id() +
-                 "\", \"" +
-                 name +
-                 "\")"
-                 );
-        }
+        return
+        (
+                "org.omg.CORBA.ORB.init().create_interface_tc(\"" +
+                id() +
+                "\", \"" +
+                name +
+                "\")"
+        );
     }
 
     public String getTypeCodeExpression(Set knownTypes)
@@ -198,10 +197,8 @@ public class Interface
         {
             return this.getRecursiveTypeCodeExpression();
         }
-        else
-        {
-            return this.getTypeCodeExpression();
-        }
+
+        return this.getTypeCodeExpression();
     }
 
 
@@ -423,19 +420,24 @@ public class Interface
 
         try
         {
-            File f = new File(dir, typeName + ".java");
+            final File f = new File(dir, typeName + ".java");
             if (GlobalInputStream.isMoreRecentThan(f))
             {
-                PrintWriter ps = new PrintWriter(new java.io.FileWriter(f));
+                PrintWriter ps = new PrintWriter(new java.io.FileWriter(f))
+                {
+                    public void close()
+                    {
+                        super.close();
+                        PrettyPrinter.prettify(f);
+                    }
+                };
                 return ps;
             }
-            else
-            {
-                // no need to open file for printing, existing file is more
-                // recent than IDL file.
 
-                return null;
-            }
+            // no need to open file for printing, existing file is more
+            // recent than IDL file.
+
+            return null;
         }
         catch (IOException e)
         {
@@ -456,11 +458,7 @@ public class Interface
 
     protected void printClassComment(String className, PrintWriter ps)
     {
-        ps.println("/**");
-        ps.println(" *\tGenerated from IDL interface " +
-                   "\"" + className + "\"");
-        ps.println(" *\t@author JacORB IDL compiler V " + parser.compiler_version);
-        ps.println(" */\n");
+        printClassComment("interface", className, ps);
     }
 
     /**
@@ -1242,10 +1240,7 @@ public class Interface
         ps.println("\t\t{");
         ps.println("\t\t\treturn _poa;");
         ps.println("\t\t}");
-        ps.println("\t\telse");
-        ps.println("\t\t{");
-        ps.println("\t\t\treturn super._default_POA();");
-        ps.println("\t\t}");
+        ps.println("\t\treturn super._default_POA();");
         ps.println("\t}");
 
         body.printDelegatedMethods(ps);
@@ -1447,10 +1442,8 @@ public class Interface
             ps.println("\t\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Failed to insert in helper\");");
             ps.println("\t\t}"); */
         }
-        else
-        {
-            ps.println( "\t\t" + anyname + ".insert_Object(" + varname + ");");
-        }
+
+        ps.println( "\t\t" + anyname + ".insert_Object(" + varname + ");");
     }
 
     public void printExtractResult(PrintWriter ps,

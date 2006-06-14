@@ -424,9 +424,7 @@ public class lexer
      *  current line number and the position in the line.  Error messages
      *  are printed on standard error (System.err).
      * @param message the message to print.
-     * @param p_info an optional PositionInfo object
      */
-
     public static void emit_error( String message )
     {
         if (parser.getLogger().isErrorEnabled())

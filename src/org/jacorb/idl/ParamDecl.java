@@ -129,9 +129,10 @@ public class ParamDecl
     public String printWriteStatement( String name, String ps )
     {
         if( paramAttribute != ParamDecl.MODE_IN )
+        {
             return paramTypeSpec.typeSpec().printWriteStatement( name + ".value", ps );
-        else
-            return paramTypeSpec.typeSpec().printWriteStatement( name, ps );
+        }
+        return paramTypeSpec.typeSpec().printWriteStatement( name, ps );
     }
 
     public String printReadExpression( String ps )
@@ -164,7 +165,6 @@ public class ParamDecl
 
     /**
      * @param ps
-     * @param string
      */
     public void printExtractArgumentStatement(PrintWriter ps)
     {
@@ -174,11 +174,8 @@ public class ParamDecl
         paramTypeSpec.typeSpec().printExtractResult(ps, varname + ".value", anyname, paramTypeSpec.toString());
     }
 
-
     public void accept( IDLTreeVisitor visitor )
     {
         visitor.visitParamDecl( this );
     }
-
-
 }
