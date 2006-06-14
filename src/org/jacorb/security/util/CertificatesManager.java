@@ -27,29 +27,22 @@ import java.net.*;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
 
-import iaik.security.rsa.*;
 import iaik.x509.*;
 import iaik.asn1.structures.*;
 import iaik.asn1.*;
-import iaik.x509.extensions.*;
 import iaik.security.provider.IAIK;
 import iaik.pkcs.pkcs8.*;
 import iaik.utils.KeyAndCertificate;
 
 /**
- * @author André Benvenuti ( bnv ), UGFU, Generalstab, Bern
+ * Genarates rsa key pair and a certificate for rsa public key.
+ * It also has utility methods called by the trust deciders.
+ *
+ * @author Andre Benvenuti
  */
 
-public class CertificatesManager {
-
-  /* -----------------05.12.98 19:16------------------------------*
-   * Genarates rsa key pair and a certificate for rsa public key. *
-   *                                                              *
-   * It also has utility methods called by the trust deciders.    *
-   *                                                              *
-   * Author: André Benvenuti                                      *
-   * -------------------------------------------------------------*/
-
+public class CertificatesManager
+{
   public static int saveFormat     = ASN1.PEM;
   private static final String pass_phrase = "bnv_8.12.99_passpass_find_out_ORB_JacORB1_0/beta14_SSL";
   private static Hashtable signers = new Hashtable (); // the trusted signers
@@ -122,14 +115,18 @@ public class CertificatesManager {
         Vector certs = ( Vector )signers.get(
                             certificateChain[ i ].getSubjectDN ()
                                             );
-        if ( certs == null ) {
+        if ( certs == null )
+        {
           continue;
-        } else 
-            for( int j = 0; j < certs.size (); j++ ) {
-              X509Certificate currentCert = ( X509Certificate )certs.elementAt ( j );
-              if ( currentCert.equals ( certificateChain[ i ] )) return true;
-          
+        }
+        for( int j = 0; j < certs.size (); j++ )
+        {
+            X509Certificate currentCert = ( X509Certificate )certs.elementAt ( j );
+            if ( currentCert.equals ( certificateChain[ i ] ))
+            {
+                return true;
             }
+        }
       }
     } catch ( Exception ex ) { return false; }
     return false;
@@ -150,7 +147,7 @@ public class CertificatesManager {
   {
 
     EncryptedPrivateKeyInfo epki = new
-      EncryptedPrivateKeyInfo(( PrivateKeyInfo )keyPair.getPrivate ());
+      EncryptedPrivateKeyInfo(keyPair.getPrivate ());
     try {
       epki.encrypt ( pass_phrase,
                      AlgorithmID.pbeWithMD5AndDES_CBC,  // PKCS#5 standard
@@ -179,7 +176,7 @@ public class CertificatesManager {
                                          int bits
                                        )
   {
-		try {
+        try {
       KeyPairGenerator generator =
          KeyPairGenerator.getInstance( algorithm, "IAIK" );
       generator.initialize( bits );
@@ -192,7 +189,7 @@ public class CertificatesManager {
       System.out.println ( "Algorithm " + algorithm + " not found!" );
       return null;
     }
-	}
+    }
 
   /*
    * Verifies a certificate chain.
@@ -262,7 +259,7 @@ public class CertificatesManager {
   /**
    * Creates the server and client certificates.
    */
-  public static void main( String arg[] ) throws IOException
+  public static void main( String arg[] )
   {
     boolean           caFound    = false;
     boolean           selfSigned = false;
@@ -271,7 +268,6 @@ public class CertificatesManager {
     KeyAndCertificate caKAC;
     PrivateKey        caRSA      = null;
     X509Certificate   caCert     = null;
-    X509Certificate   cert;
     KeyPair           clientRSA;
     KeyPair           serverRSA;
     iaik.pkcs.pkcs8.EncryptedPrivateKeyInfo epki;
@@ -447,7 +443,7 @@ public class CertificatesManager {
       System.out.println( "Other Exception: " + ex);
     }
 
-	}
+    }
 }
 
 

@@ -11,14 +11,14 @@ import java.io.*;
  * @version $Id$
  */
 
-public class Client 
+public class Client
 {
 
     public static void main( String[] args )
         throws Exception
     {
-        if( args.length != 1 ) 
-	{
+        if( args.length != 1 )
+    {
             System.out.println( "Usage: jaco Client <ior_file>" );
             System.exit( 1 );
         }
@@ -29,18 +29,18 @@ public class Client
         //check if file exists
         if( ! f.exists() )
         {
-            System.out.println("File " + args[0] + 
+            System.out.println("File " + args[0] +
                                " does not exist.");
-                
+
             System.exit( -1 );
         }
-            
+
         //check if args[0] points to a directory
         if( f.isDirectory() )
         {
-            System.out.println("File " + args[0] + 
+            System.out.println("File " + args[0] +
                                " is a directory.");
-                
+
             System.exit( -1 );
         }
 
@@ -51,7 +51,7 @@ public class Client
             new BufferedReader( new FileReader( f ));
 
         // get object reference from command-line argument file
-        org.omg.CORBA.Object obj = 
+        org.omg.CORBA.Object obj =
             orb.string_to_object( br.readLine() );
 
         br.close();
@@ -59,8 +59,8 @@ public class Client
         GoodDay gd = GoodDayHelper.narrow( obj );
 
         System.out.println( "hello_simple(): " + gd.hello_simple());
-        System.out.println( "hello_wide(): " + 
-                            gd.hello_wide( "daß düdelt und dödelt"));
+        System.out.println( "hello_wide(): " +
+                            gd.hello_wide( "daÃŸ dÃ¶delt und dÃ¶delt"));
 
         try
         {
@@ -70,6 +70,6 @@ public class Client
         {
             System.out.println("Exception: " + wse.why );
         }
-    }        
+    }
 }// Client
 

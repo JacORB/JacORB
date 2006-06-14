@@ -21,17 +21,12 @@ package org.jacorb.security.level2;
  *
  */
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
 import java.security.*;
 import java.security.cert.*;
 
 import org.omg.SecurityLevel2.*;
 import org.omg.Security.*;
 
-import org.jacorb.util.*;
 import org.jacorb.security.util.*;
 
 import org.apache.avalon.framework.logger.Logger;
@@ -40,7 +35,7 @@ import org.apache.avalon.framework.configuration.*;
 
 /**
  * PrincipalAuthenticatorImpl
- * 
+ *
  * This simple authenticator just retrieves X.509v3 certificates
  * from a Java key store
  *
@@ -51,7 +46,7 @@ import org.apache.avalon.framework.configuration.*;
 public class PrincipalAuthenticatorImpl
     extends org.omg.CORBA.LocalObject
     implements org.omg.SecurityLevel2.PrincipalAuthenticator, Configurable
-{  
+{
     private Logger logger;
 
     private String keyStoreLocation;
@@ -60,37 +55,36 @@ public class PrincipalAuthenticatorImpl
     public void configure(Configuration config)
         throws ConfigurationException
     {
-        logger = 
+        logger =
             ((org.jacorb.config.Configuration)config).getNamedLogger("jacorb.security");
-        keyStoreLocation = 
+        keyStoreLocation =
             config.getAttribute("jacorb.security.keystore", null );
-        
-        storePassphrase = 
+
+        storePassphrase =
             config.getAttribute("jacorb.security.keystore_password", null);
 
-    }  
+    }
 
     public int[] get_supported_authen_methods(java.lang.String mechanism)
     {
-	return new int[]{0};
+    return new int[]{0};
     }
 
-    public AuthenticationStatus authenticate(int method, 
-                                             String mechanism, 
-                                             String security_name, //user name
-                                             byte[] auth_data, //  passwd
-                                             SecAttribute[] privileges, 
-                                             CredentialsHolder creds, 
-                                             OpaqueHolder continuation_data, 
-                                             OpaqueHolder auth_specific_data
-                                             )
+    public AuthenticationStatus authenticate(int method,
+            String mechanism,
+            String security_name, //user name
+            byte[] auth_data, //  passwd
+            SecAttribute[] privileges,
+            CredentialsHolder creds,
+            OpaqueHolder continuation_data,
+            OpaqueHolder auth_specific_data
+    )
     {
-        if (logger.isInfoEnabled())
-            logger.info( "starting authentication" );
+        logger.info( "starting authentication" );
 
-	try 
-	{	
-	    registerProvider();
+        try
+        {
+            registerProvider();
 
             String alias = security_name;
             String password = null;
@@ -99,19 +93,19 @@ public class PrincipalAuthenticatorImpl
                 password = new String( auth_data );
             }
 
-            if (( keyStoreLocation == null ) || 
-                ( storePassphrase == null ) ||
-                ( alias == null ) || 
-                ( password == null ))
+            if (( keyStoreLocation == null ) ||
+                    ( storePassphrase == null ) ||
+                    ( alias == null ) ||
+                    ( password == null ))
             {
                 return AuthenticationStatus.SecAuthFailure;
             }
 
-            KeyStore keyStore = 
-                KeyStoreUtil.getKeyStore( keyStoreLocation, 
-                                          storePassphrase.toCharArray() );
+            KeyStore keyStore =
+                KeyStoreUtil.getKeyStore( keyStoreLocation,
+                        storePassphrase.toCharArray() );
 
-            X509Certificate[] cert_chain = 
+            X509Certificate[] cert_chain =
                 (X509Certificate[])keyStore.getCertificateChain( alias );
 
             if( cert_chain == null )
@@ -119,69 +113,67 @@ public class PrincipalAuthenticatorImpl
                 if (logger.isErrorEnabled())
                 {
                     logger.error( "No keys found in keystore for alias \""+
-                              alias + "\"!" );
-                }            
+                            alias + "\"!" );
+                }
                 return org.omg.Security.AuthenticationStatus.SecAuthFailure;
             }
-            
-            PrivateKey priv_key = 
+
+            PrivateKey priv_key =
                 (PrivateKey)keyStore.getKey(alias, password.toCharArray() );
 
 
             KeyAndCert k_a_c = new KeyAndCert( priv_key, cert_chain );
 
-            AttributeType type = 
+            AttributeType type =
                 new AttributeType( new ExtensibleFamily((short)0,(short)1 ),
-                                   AccessId.value );
-
-
+                        AccessId.value );
 
             SecAttributeManager attrib_mgr = SecAttributeManager.getInstance();
-            SecAttribute attrib = attrib_mgr.createAttribute( k_a_c,
-                                                              type );
-                
-            CredentialsImpl credsImpl = 
+            SecAttribute attrib = attrib_mgr.createAttribute( k_a_c, type );
+
+            CredentialsImpl credsImpl =
                 new CredentialsImpl( new SecAttribute[]{ attrib },
-                AuthenticationStatus.SecAuthSuccess,
-                InvocationCredentialsType.SecOwnCredentials);
+                        AuthenticationStatus.SecAuthSuccess,
+                        InvocationCredentialsType.SecOwnCredentials);
 
             /*
-            credsImpl.accepting_options_supported( (short) Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ));
+             credsImpl.accepting_options_supported( (short) Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ));
 
-            credsImpl.accepting_options_required( (short) Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ));
+             credsImpl.accepting_options_required( (short) Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ));
 
-            credsImpl.invocation_options_supported( (short) Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ));
+             credsImpl.invocation_options_supported( (short) Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 ));
 
-            credsImpl.invocation_options_required( (short) Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ));
-            */
-            
+             credsImpl.invocation_options_required( (short) Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ));
+             */
+
             creds.value = credsImpl;
 
-            if (logger.isInfoEnabled())
-                logger.info( "authentication succesfull" );
+            logger.info( "authentication succesfull" );
 
             return AuthenticationStatus.SecAuthSuccess;
-	}
-	catch (Exception e) 
-	{
+        }
+        catch (Exception e)
+        {
             if (logger.isDebugEnabled())
-                logger.debug( "Exception: " + e.getMessage());
-            
-            if (logger.isInfoEnabled())
-                logger.info( "authentication failed" );
+            {
+                logger.debug("authentication failed: ", e);
+            }
+            else if (logger.isInfoEnabled())
+            {
+                logger.info("authentication failed.");
+            }
 
-	    return org.omg.Security.AuthenticationStatus.SecAuthFailure;
-	}
+            return org.omg.Security.AuthenticationStatus.SecAuthFailure;
+        }
     }
 
-    /** 
+    /**
      * not implemented
      */
-  
-    public AuthenticationStatus continue_authentication(byte[] response_data, 
-							Credentials creds, 
-							OpaqueHolder continuation_data, 
-							OpaqueHolder auth_specific_data)
+    public AuthenticationStatus continue_authentication(byte[] response_data,
+                            Credentials creds,
+                            OpaqueHolder continuation_data,
+                            OpaqueHolder auth_specific_data)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
@@ -190,8 +182,7 @@ public class PrincipalAuthenticatorImpl
     private void registerProvider()
     {
         iaik.security.provider.IAIK.addAsProvider();
-        if (logger.isDebugEnabled())
-            logger.debug( "Provider IAIK added" );
+        logger.debug( "Provider IAIK added" );
     }
 }
 

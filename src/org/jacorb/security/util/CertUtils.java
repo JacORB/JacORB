@@ -20,22 +20,13 @@ package org.jacorb.security.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.security.*;
-import java.security.cert.*;
 import java.io.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.tree.*;
-import java.awt.*;
-import java.awt.event.*;
 
 import java.math.BigInteger;
 import java.util.*;
 
 import iaik.asn1.*;
 import iaik.asn1.structures.*;
-import iaik.x509.*;
 import iaik.x509.extensions.*;
 
 /**
@@ -48,7 +39,7 @@ import iaik.x509.extensions.*;
 public class CertUtils
 {
     /**
-     * @return - a self signed X509v3 public key certificate 
+     * @return - a self signed X509v3 public key certificate
      *
      * @param subjectKey - the public key to be signed
      * @param privKey - the signature key
@@ -56,143 +47,141 @@ public class CertUtils
      * the type of the private key, i.e. dsaWithSHA1 for DSA keys
      * and md5WithRSAEncryption for RSA keys
      */
-    
-    public static iaik.x509.X509Certificate createPublicKeyCert(iaik.asn1.structures.Name subject,
-								iaik.asn1.structures.Name issuer,
-								java.security.PublicKey subjectKey, 
-								java.security.PrivateKey privKey)
-	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
-	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
-    {
-	iaik.x509.X509Certificate cert = new iaik.x509.X509Certificate();
-	
-	if( subject == null )
-	    subject = emptyName();
-	if( issuer == null )
-	    issuer = emptyName();
-	
-	cert.setIssuerDN( issuer );
-	cert.setSubjectDN( subject );
-	cert.setPublicKey( subjectKey );
-	
-	java.util.Date now = new java.util.Date();
-	
-	cert.setSerialNumber( new BigInteger( Long.toString( now.getTime() )));
-	cert.setValidNotBefore( now );
-	
-	java.util.Calendar cal = java.util.Calendar.getInstance();
-	cal.add(java.util.Calendar.MONTH, 12);
-	cert.setValidNotAfter(cal.getTime());
 
-	if( privKey  instanceof java.security.interfaces.DSAPrivateKey )	
-	    cert.sign(iaik.asn1.structures.AlgorithmID.dsaWithSHA1, 
-		      privKey);
-	else if ( privKey instanceof java.security.interfaces.RSAPrivateKey )
-	    cert.sign(iaik.asn1.structures.AlgorithmID.md5WithRSAEncryption, 
-		      privKey);
-	else
-	    throw new java.security.InvalidKeyException("Unknown private key: " + 
+    public static iaik.x509.X509Certificate createPublicKeyCert(iaik.asn1.structures.Name subject,
+                                iaik.asn1.structures.Name issuer,
+                                java.security.PublicKey subjectKey,
+                                java.security.PrivateKey privKey)
+    throws java.security.cert.CertificateException,
+    java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
+    {
+    iaik.x509.X509Certificate cert = new iaik.x509.X509Certificate();
+
+    if( subject == null )
+        subject = emptyName();
+    if( issuer == null )
+        issuer = emptyName();
+
+    cert.setIssuerDN( issuer );
+    cert.setSubjectDN( subject );
+    cert.setPublicKey( subjectKey );
+
+    java.util.Date now = new java.util.Date();
+
+    cert.setSerialNumber( new BigInteger( Long.toString( now.getTime() )));
+    cert.setValidNotBefore( now );
+
+    java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.add(java.util.Calendar.MONTH, 12);
+    cert.setValidNotAfter(cal.getTime());
+
+    if( privKey  instanceof java.security.interfaces.DSAPrivateKey )
+        cert.sign(iaik.asn1.structures.AlgorithmID.dsaWithSHA1,
+              privKey);
+    else if ( privKey instanceof java.security.interfaces.RSAPrivateKey )
+        cert.sign(iaik.asn1.structures.AlgorithmID.md5WithRSAEncryption,
+              privKey);
+    else
+        throw new java.security.InvalidKeyException("Unknown private key: " +
                                                         privKey.getClass().getName());
 
-	return cert;
+    return cert;
     }
 
 
     /**
-     * @return - an X509v3 certificate with an SubjectAltName extension that 
+     * @return - an X509v3 certificate with an SubjectAltName extension that
      * represents a role name. The format of the extension is an ASN.1 string
      * "role:<rolename>".
      */
 
     public static iaik.x509.X509Certificate certifyRoleMembership(
-					      String rolename,
-					      iaik.asn1.structures.Name subject,
-					      iaik.asn1.structures.Name issuer,
-					      java.security.PublicKey subjectKey, 
-					      java.security.PrivateKey privKey)
-	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
-	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
+                          String rolename,
+                          iaik.asn1.structures.Name subject,
+                          iaik.asn1.structures.Name issuer,
+                          java.security.PublicKey subjectKey,
+                          java.security.PrivateKey privKey)
+    throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException,
+    java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
     {
 
-	    iaik.x509.X509Certificate cert = new iaik.x509.X509Certificate();
-	
-	    if( subject == null )
-		subject = emptyName();
-	    if( issuer == null )
-		issuer = emptyName();
+        iaik.x509.X509Certificate cert = new iaik.x509.X509Certificate();
 
-	    cert.setIssuerDN( issuer );
-	    cert.setSubjectDN( subject );
-	    cert.setPublicKey( subjectKey );
+        if( subject == null )
+        subject = emptyName();
+        if( issuer == null )
+        issuer = emptyName();
 
-	    java.util.Date now = new java.util.Date();
+        cert.setIssuerDN( issuer );
+        cert.setSubjectDN( subject );
+        cert.setPublicKey( subjectKey );
 
-	    cert.setSerialNumber( new BigInteger( Long.toString( now.getTime() )));
-	    cert.setValidNotBefore( now );
+        java.util.Date now = new java.util.Date();
 
-	    java.util.Calendar cal = java.util.Calendar.getInstance();
-	    cal.add(java.util.Calendar.MONTH, 12);
-	    cert.setValidNotAfter(cal.getTime());
+        cert.setSerialNumber( new BigInteger( Long.toString( now.getTime() )));
+        cert.setValidNotBefore( now );
 
-	    /* add an extension */
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.MONTH, 12);
+        cert.setValidNotAfter(cal.getTime());
 
-	    GeneralName gn = new GeneralName( GeneralName.rfc822Name,"role:" + rolename );
-	    GeneralNames generalNames = new GeneralNames(gn );
+        /* add an extension */
 
-	    iaik.x509.extensions.SubjectAltName ext = new SubjectAltName( generalNames );
-	    cert.addExtension(ext);
+        GeneralName gn = new GeneralName( GeneralName.rfc822Name,"role:" + rolename );
+        GeneralNames generalNames = new GeneralNames(gn );
 
-	    if( privKey instanceof java.security.interfaces.DSAPrivateKey )	
-		cert.sign(iaik.asn1.structures.AlgorithmID.dsaWithSHA1, 
-			  (java.security.PrivateKey)privKey);
-	    else if ( privKey instanceof java.security.interfaces.RSAPrivateKey )
-		cert.sign(iaik.asn1.structures.AlgorithmID.md5WithRSAEncryption, 
-			  (java.security.PrivateKey)privKey);
+        iaik.x509.extensions.SubjectAltName ext = new SubjectAltName( generalNames );
+        cert.addExtension(ext);
 
-	    System.out.println("Cert signed");
-	    return cert;
+        if( privKey instanceof java.security.interfaces.DSAPrivateKey )
+        cert.sign(iaik.asn1.structures.AlgorithmID.dsaWithSHA1,
+              privKey);
+        else if ( privKey instanceof java.security.interfaces.RSAPrivateKey )
+        cert.sign(iaik.asn1.structures.AlgorithmID.md5WithRSAEncryption,
+              privKey);
+
+        System.out.println("Cert signed");
+        return cert;
     }
 
     public static iaik.asn1.structures.Name emptyName()
     {
-	iaik.asn1.structures.Name subject = new iaik.asn1.structures.Name();
-	subject.addRDN(ObjectID.commonName, "");
-	subject.addRDN(ObjectID.organizationalUnit, "");
-	subject.addRDN(ObjectID.organization, "");
-	subject.addRDN(ObjectID.locality, "");
-	subject.addRDN(ObjectID.country, "");
-	return subject;
+    iaik.asn1.structures.Name subject = new iaik.asn1.structures.Name();
+    subject.addRDN(ObjectID.commonName, "");
+    subject.addRDN(ObjectID.organizationalUnit, "");
+    subject.addRDN(ObjectID.organization, "");
+    subject.addRDN(ObjectID.locality, "");
+    subject.addRDN(ObjectID.country, "");
+    return subject;
     }
 
     public static iaik.asn1.structures.Name createName(String alias)
     {
-	iaik.asn1.structures.Name subject = new iaik.asn1.structures.Name();
-	subject.addRDN(ObjectID.commonName, alias);
-	subject.addRDN(ObjectID.organizationalUnit, "AGSS");
-	subject.addRDN(ObjectID.organization, "FU Berlin");
-	subject.addRDN(ObjectID.locality, "Berlin");
-	subject.addRDN(ObjectID.country, "DE");
-	return subject;
+    iaik.asn1.structures.Name subject = new iaik.asn1.structures.Name();
+    subject.addRDN(ObjectID.commonName, alias);
+    subject.addRDN(ObjectID.organizationalUnit, "AGSS");
+    subject.addRDN(ObjectID.organization, "FU Berlin");
+    subject.addRDN(ObjectID.locality, "Berlin");
+    subject.addRDN(ObjectID.country, "DE");
+    return subject;
     }
 
     public static String getCertLabel(java.security.cert.X509Certificate cert)
-	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
-	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
+    throws java.security.cert.CertificateException
     {
-	String label = getRoleName(cert);
-	if( label == null )
-	{
-	    label = cert.getSubjectDN() + ", signer: " + cert.getIssuerDN();
-	}
-	return label;
+    String label = getRoleName(cert);
+    if( label == null )
+    {
+        label = cert.getSubjectDN() + ", signer: " + cert.getIssuerDN();
+    }
+    return label;
     }
 
     public static String getRoleName(java.security.cert.X509Certificate cert)
-	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
-	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
+    throws java.security.cert.CertificateException
     {
         iaik.x509.X509Certificate c;
-        
+
         try
         {
             c = (iaik.x509.X509Certificate)cert;
@@ -201,12 +190,12 @@ public class CertUtils
         {
             c = new iaik.x509.X509Certificate( cert.getEncoded());
         }
-        
+
         if( !c.hasExtensions())
             return null;
-        
+
         c.checkValidity();
-        
+
         for( Enumeration extensions = c.listExtensions(); extensions.hasMoreElements();)
         {
             iaik.x509.V3Extension e = (iaik.x509.V3Extension)extensions.nextElement();
@@ -237,53 +226,51 @@ public class CertUtils
     }
 
     public static boolean isRoleCert(java.security.cert.X509Certificate cert)
-	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
-	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException
-    {	
-	try
-	{
-	    iaik.x509.X509Certificate c;
+    {
+    try
+    {
+        iaik.x509.X509Certificate c;
 
-	    try
-	    {
-		c = (iaik.x509.X509Certificate)cert;
-	    }
-	    catch( ClassCastException ccce )
-	    {
-		c = new iaik.x509.X509Certificate( cert.getEncoded());
-	    }
+        try
+        {
+        c = (iaik.x509.X509Certificate)cert;
+        }
+        catch( ClassCastException ccce )
+        {
+        c = new iaik.x509.X509Certificate( cert.getEncoded());
+        }
 
-	    if( !c.hasExtensions())
-		return false;
+        if( !c.hasExtensions())
+        return false;
 
-	    for( Enumeration extensions = c.listExtensions(); extensions.hasMoreElements();)
-	    {
-		iaik.x509.V3Extension e = (iaik.x509.V3Extension)extensions.nextElement();
-		if( e instanceof SubjectAltName )
-		{
-		    SubjectAltName san = (SubjectAltName)e;
-		    GeneralNames gn = san.getGeneralNames();
-		    for( Enumeration g = gn.getNames(); g.hasMoreElements(); )
-		    {
-			GeneralName generalName = (GeneralName)g.nextElement();
-			if( generalName.getType() == GeneralName.rfc822Name )
-			{
-			    String value = (String)generalName.getName();
-			    if( value.startsWith("role:"))
-				return true;
-			}
-		    }
-		}
-	    }
-	    // nothing found
-	    return false;
+        for( Enumeration extensions = c.listExtensions(); extensions.hasMoreElements();)
+        {
+        iaik.x509.V3Extension e = (iaik.x509.V3Extension)extensions.nextElement();
+        if( e instanceof SubjectAltName )
+        {
+            SubjectAltName san = (SubjectAltName)e;
+            GeneralNames gn = san.getGeneralNames();
+            for( Enumeration g = gn.getNames(); g.hasMoreElements(); )
+            {
+            GeneralName generalName = (GeneralName)g.nextElement();
+            if( generalName.getType() == GeneralName.rfc822Name )
+            {
+                String value = (String)generalName.getName();
+                if( value.startsWith("role:"))
+                return true;
+            }
+            }
+        }
+        }
+        // nothing found
+        return false;
 
-	}
-	catch( Exception e)
-	{
-	    e.printStackTrace();
-	    return false;
-	}
+    }
+    catch( Exception e)
+    {
+        e.printStackTrace();
+        return false;
+    }
     }
 
     /*
@@ -305,37 +292,36 @@ public class CertUtils
      */
 
     public static boolean verifyCertificateChain ( java.security.cert.X509Certificate[] chain,
-						   java.security.KeyStore keyStore
-						 )
-	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
-	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException, 
-        java.security.NoSuchProviderException, java.security.KeyStoreException, 
+                           java.security.KeyStore keyStore
+                         )
+    throws java.security.cert.CertificateException,
+    java.security.NoSuchAlgorithmException, java.security.InvalidKeyException,
+        java.security.NoSuchProviderException, java.security.KeyStoreException,
         java.security.SignatureException
     {
-	int len = chain.length;
+    int len = chain.length;
         chain[ len - 1 ].verify( chain [ len - 1 ].getPublicKey ());
 
-        for ( int i = len - 1; i > 0; i-- ) 
+        for ( int i = len - 1; i > 0; i-- )
         {
             chain[ i - 1 ].verify( chain[ i ].getPublicKey ());
         }
-        
+
         // this won't work: the name is not an alias.
         String alias = chain[ len - 1 ].getIssuerDN ().getName();
         int index = alias.indexOf ( "CN=" ) + 3;
         int l = alias.length ();
-        alias = alias.substring ( index, l  ); 
+        alias = alias.substring ( index, l  );
         return keyStore.isCertificateEntry( alias );
     }
-    
+
     public static java.security.cert.X509Certificate readCertificate(String fileName)
-	throws iaik.x509.X509ExtensionException, java.security.cert.CertificateException, 
-	java.security.NoSuchAlgorithmException, java.security.InvalidKeyException,
+    throws java.security.cert.CertificateException,
         java.security.NoSuchProviderException, java.io.IOException
     {
-        java.security.cert.CertificateFactory factory = 
+        java.security.cert.CertificateFactory factory =
             java.security.cert.CertificateFactory.getInstance("X.509", "IAIK") ;
-        return (java.security.cert.X509Certificate)factory.generateCertificate( 
+        return (java.security.cert.X509Certificate)factory.generateCertificate(
             new FileInputStream( fileName ));
     }
 

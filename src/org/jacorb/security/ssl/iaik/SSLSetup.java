@@ -25,7 +25,7 @@ package org.jacorb.security.ssl.iaik;
 /**
  * SSL configuration for JacORB.
  *
- * Written 09.12.99 by André Benvenuti to support SSL
+ * @authro Andre Benvenuti
  *
  */
 

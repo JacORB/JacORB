@@ -30,14 +30,14 @@ import org.omg.Security.*;
  * The SecurityServiceInitializer class is responsible for setting up
  * the secure access interceptors and reserving slots in PICurrent.
  *
- * @author Andrý Benvenuti
+ * @author Andre Benvenuti
  *
  */
 
 public class SecurityServiceInitializer
-    extends org.omg.CORBA.LocalObject 
+    extends org.omg.CORBA.LocalObject
     implements ORBInitializer
-{    
+{
     /**
     * This method registers the interceptors.
     */
@@ -48,7 +48,7 @@ public class SecurityServiceInitializer
             org.omg.SecurityLevel2.Current current = null;
             try
             {
-                org.omg.CORBA.Object sc = 
+                org.omg.CORBA.Object sc =
                     info.resolve_initial_references("SecurityCurrent");
 
                 current = org.omg.SecurityLevel2.CurrentHelper.narrow(sc);
@@ -64,7 +64,7 @@ public class SecurityServiceInitializer
             duplicateName.printStackTrace();
         }
     }
-    
+
     public void pre_init(ORBInitInfo info)
     {
         // we don't to define initial references

@@ -28,20 +28,20 @@ import java.util.*;
 
 /**
  * Implementation of the ORB-level policy management interface as per
- * CORBA 2.6, p. 4-43 to 4-45: 
+ * CORBA 2.6, p. 4-43 to 4-45:
  *
  * This PolicyManager has operations through which a set of Policies
  * can be applied and the current overriding Policy settings can be
  * obtained.  Policies applied at the ORB level override any system
- * defaults. The ORB’s PolicyManager is obtained through an invocation
+ * defaults. The ORB's PolicyManager is obtained through an invocation
  * of ORB::resolve_initial_references, specifying an identifier of
  * "ORBPolicyManager."
  *
- * @author Gerald Brose, mailto:gerald.brose@acm.org
+ * @author Gerald Brose
  * @version $Id$
  */
 
-public class PolicyManager 
+public class PolicyManager
     extends _PolicyManagerLocalBase
 {
     private org.jacorb.orb.ORB orb;
@@ -88,20 +88,20 @@ public class PolicyManager
 
         for (int i = 0; i < ts.length; i++ )
         {
-            org.omg.CORBA.Policy p = 
+            org.omg.CORBA.Policy p =
                 (org.omg.CORBA.Policy)policy_overrides.get( new Integer( ts[i] ));
             if (p != null)
                 policyList.add(p);
         }
 
-        org.omg.CORBA.Policy[] result = 
+        org.omg.CORBA.Policy[] result =
             (org.omg.CORBA.Policy[])policyList.toArray( new org.omg.CORBA.Policy[]{});
 
         if (logger.isDebugEnabled() && result.length > 0)
             logger.debug("get_policy_overrides returns " + result.length + " policies");
 
         return result;
-            
+
     }
 
     /**
@@ -128,7 +128,7 @@ public class PolicyManager
      * compatibility with policies set within other PolicyManagers.
      *
      * @param policies a sequence of Policy objects that are to be
-     * associated with the PolicyManager object. 
+     * associated with the PolicyManager object.
      *
      * @param set_add whether the association is in addition to
      * (ADD_OVERRIDE) or as a replacement of (SET_OVERRIDE) any
@@ -144,7 +144,7 @@ public class PolicyManager
      *
      * @throws InvalidPolicies a list of indices identifying the
      * position in the input policies list that are occupied by
-     * invalid policies 
+     * invalid policies
      *
      * @throws BAD_PARAM if the sequence contains two or more Policy
      * objects with the same PolicyType value, the operation raises
@@ -152,8 +152,8 @@ public class PolicyManager
      * 30.
      */
 
-    public synchronized void set_policy_overrides(org.omg.CORBA.Policy[] policies, 
-                                                  org.omg.CORBA.SetOverrideType set_add) 
+    public synchronized void set_policy_overrides(org.omg.CORBA.Policy[] policies,
+                                                  org.omg.CORBA.SetOverrideType set_add)
         throws org.omg.CORBA.InvalidPolicies
     {
         if (policies == null)
@@ -170,21 +170,21 @@ public class PolicyManager
 
             if (!PolicyUtil.isInvocationPolicy( policies[i].policy_type() ))
             {
-                throw new org.omg.CORBA.NO_PERMISSION("Not an invocation policy, type " + 
+                throw new org.omg.CORBA.NO_PERMISSION("Not an invocation policy, type " +
                                                       policies[i].policy_type() );
             }
             // else:
-            Integer key = new Integer( policies[i].policy_type());                
+            Integer key = new Integer( policies[i].policy_type());
             if ( newPolicies.put( key, policies[i] ) != null )
-            {                
-                throw new org.omg.CORBA.BAD_PARAM( "Multiple policies of type " + 
-                                                   policies[i].policy_type(), 
+            {
+                throw new org.omg.CORBA.BAD_PARAM( "Multiple policies of type " +
+                                                   policies[i].policy_type(),
                                                    30,
                                                    org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             }
             sb.append(" " + policies[i].policy_type() );
         }
-        
+
 
         if (set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
         {

@@ -46,7 +46,7 @@ public final class POAUtil
      * 49 6d 52              ImR
      * ....
      *
-     * @param data[] a <code>byte</code> value
+     * @param data a <code>byte</code> value
      * @return a <code>String</code> value
      */
     public static String convert( byte[] data )
@@ -203,7 +203,6 @@ public final class POAUtil
     /**
      * extracts the poa name from a specified object key
      */
-
     public static String extractPOAName(byte[] object_key)
     {
         int begin = object_key.length;
@@ -234,11 +233,9 @@ public final class POAUtil
         {
             return "";
         }
-        else
-        {
-            begin++;
-            return new String(IdUtil.extract(object_key, begin, end-begin));
-        }
+
+        begin++;
+        return new String(IdUtil.extract(object_key, begin, end-begin));
     }
 
 

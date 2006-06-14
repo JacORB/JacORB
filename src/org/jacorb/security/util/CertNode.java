@@ -27,24 +27,16 @@ package org.jacorb.security.util;
  *	@version $Id$
  */
 
-import java.security.*;
-import java.security.cert.*;
 import java.util.*;
 import javax.swing.tree.*;
-import iaik.asn1.*;
-import iaik.asn1.structures.*;
-import iaik.x509.*;
-import iaik.x509.extensions.*;
 
-public class CertNode 
+public class CertNode
     implements KSNode
 {
-    /** if this entry represents a key entry or a trusted cert entry, 
-	this is its alias */
+    /** if this entry represents a key entry or a trusted cert entry,
+    this is its alias */
 
-    private String label;   
     private KeyNode parent;
-    private int chainIndex;
     private iaik.x509.X509Certificate cert;
 
     /**
@@ -53,50 +45,49 @@ public class CertNode
 
     public CertNode(iaik.x509.X509Certificate cert, int index)
     {
-	this.cert = cert;
-	chainIndex = index;
+        this.cert = cert;
     }
 
     public iaik.x509.X509Certificate getCert()
     {
-	return cert;
+        return cert;
     }
 
     /* TreeNode interface: */
 
     public Enumeration children()
     {
-	return null;
+    return null;
     }
 
     public boolean getAllowsChildren()
     {
-	return false;
+    return false;
     }
 
     public TreeNode getChildAt(int index)
     {
-	return null;
+    return null;
     }
 
     public int getChildCount()
     {
-	return 0;
+    return 0;
     }
 
     public int getIndex(TreeNode node)
     {
-	return -1;
+    return -1;
     }
 
     public TreeNode getParent()
     {
-	return parent;
+    return parent;
     }
 
     public boolean isLeaf()
     {
-	return true;
+    return true;
     }
 
      /* MutableTreeNode interface: */
@@ -110,12 +101,12 @@ public class CertNode
     }
 
     public void remove(MutableTreeNode child)
-    {	
+    {
     }
 
     public void setParent(MutableTreeNode parent)
     {
-	this.parent = (KeyNode)parent;
+    this.parent = (KeyNode)parent;
     }
 
     public void setUserObject(Object o)
@@ -124,21 +115,23 @@ public class CertNode
 
     public void removeFromParent()
     {
-	parent.remove(this);
-	parent = null;
-    }   
+    parent.remove(this);
+    parent = null;
+    }
 
     public String toString()
-    {	
-	return "subject: " + cert.getSubjectDN().getName() + " issuer: " + cert.getIssuerDN().getName();
+    {
+    return "subject: " + cert.getSubjectDN().getName() + " issuer: " + cert.getIssuerDN().getName();
     }
 
     public TreeNode[] getPath()
     {
-	if( parent == null )
-	    return null;
-	else
-	    return new TreeNode[] { getParent().getParent(),  getParent() };
+    if( parent == null )
+    {
+        return null;
+    }
+
+    return new TreeNode[] { getParent().getParent(),  getParent() };
     }
 
 }

@@ -28,19 +28,14 @@ package org.jacorb.security.util;
  */
 
 import java.security.*;
-import java.security.cert.*;
 import java.util.*;
 import javax.swing.tree.*;
-import iaik.asn1.*;
-import iaik.asn1.structures.*;
-import iaik.x509.*;
-import iaik.x509.extensions.*;
 
-public class TrustNode 
+public class TrustNode
     implements KSNode
 {
     private String alias;
-    private String label;   
+    private String label;
     private TreeNode root;
     private KeyStore ks;
     private iaik.x509.X509Certificate cert;
@@ -51,47 +46,47 @@ public class TrustNode
 
     public TrustNode(String alias, iaik.x509.X509Certificate cert, KeyStore ks)
     {
-	this.alias = alias;
-	this.cert = cert;
-	this.ks = ks;
-	label = "trusted: " + alias;
+    this.alias = alias;
+    this.cert = cert;
+    this.ks = ks;
+    label = "trusted: " + alias;
     }
 
     /* TreeNode interface: */
 
     public Enumeration children()
     {
-	return null;
+    return null;
     }
 
     public boolean getAllowsChildren()
     {
-	return false;
+    return false;
     }
 
     public TreeNode getChildAt(int index)
     {
-	return null;
+    return null;
     }
 
     public int getChildCount()
     {
-	return 0;
+    return 0;
     }
 
     public int getIndex(TreeNode node)
     {
-	return -1;
+    return -1;
     }
 
     public TreeNode getParent()
     {
-	return root;
+    return root;
     }
 
     public boolean isLeaf()
     {
-	return true;
+    return true;
     }
 
     /* MutableTreeNode interface: */
@@ -105,55 +100,55 @@ public class TrustNode
     }
 
     public void remove(MutableTreeNode child)
-    {	
+    {
     }
 
     public void setParent(MutableTreeNode root)
     {
-	this.root = root;
+    this.root = root;
     }
 
     public void setUserObject(Object o)
     {}
 
     public void removeFromParent()
-    {	
-	try
-	{
-	    ks.deleteEntry( alias );
-	}
-	catch( java.security.KeyStoreException kse )
-	{
-	    kse.printStackTrace();
-	}
-    }   
+    {
+    try
+    {
+        ks.deleteEntry( alias );
+    }
+    catch( java.security.KeyStoreException kse )
+    {
+        kse.printStackTrace();
+    }
+    }
 
     public iaik.x509.X509Certificate getCert()
     {
-	return cert;
+    return cert;
     }
 
     public String getAlias()
     {
-	return alias;
+    return alias;
     }
 
     public String toString()
-    {	
-	return label;
+    {
+    return label;
     }
 
 
     public void store()
     {
-	try
-	{
-	    ks.setCertificateEntry ( alias, cert );
-	}
-	catch( java.security.KeyStoreException kse )
-	{
-	    kse.printStackTrace();
-	}   
+    try
+    {
+        ks.setCertificateEntry ( alias, cert );
+    }
+    catch( java.security.KeyStoreException kse )
+    {
+        kse.printStackTrace();
+    }
     }
 
 }

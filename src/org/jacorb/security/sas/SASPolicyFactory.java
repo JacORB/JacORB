@@ -29,19 +29,13 @@ import org.omg.PortableInterceptor.PolicyFactory;
 
 public class SASPolicyFactory extends org.omg.CORBA.LocalObject implements PolicyFactory
 {
- 
-    public SASPolicyFactory()
-    {
-    }
-
-    public Policy create_policy( int type, Any value )
+     public Policy create_policy( int type, Any value )
         throws PolicyError
     {
         if( type != SAS_POLICY_TYPE.value )
             throw new PolicyError();
 
         return new SASPolicyImpl( SASPolicyValuesHelper.extract( value ));
-
     }
 }
 

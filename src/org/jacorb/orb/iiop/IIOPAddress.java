@@ -50,7 +50,7 @@ public class IIOPAddress
 
     /**
      * Creates a new IIOPAddress for <code>host</code> and <code>port</code>.
-     * @param host either a DNS name, or a textual representation of a
+     * @param hoststr either a DNS name, or a textual representation of a
      *     numeric IP address (dotted decimal)
      * @param port the port number represented as an integer, in the range
      *     0..65535.  As a special convenience, a negative number is
@@ -87,37 +87,37 @@ public class IIOPAddress
     }
 
     /*
-     * The InetAddress class can handle both IPv4 and IPv6 addresses.  If the 
-     * address is not in a valid format, an exception is thrown.  For this 
+     * The InetAddress class can handle both IPv4 and IPv6 addresses.  If the
+     * address is not in a valid format, an exception is thrown.  For this
      * reason, isIP() is no longer needed.
-     * 
-     * The problem with Java versions prior to 1.5 is handling a zone ID.  
-     * In order to maintain compatiblity with Java 1.4.2, a zone ID 
-     * will prompt us to bind to all interfaces and use the host name 
-     * in the IOR.  In the future, this can be changed to properly handle 
+     *
+     * The problem with Java versions prior to 1.5 is handling a zone ID.
+     * In order to maintain compatiblity with Java 1.4.2, a zone ID
+     * will prompt us to bind to all interfaces and use the host name
+     * in the IOR.  In the future, this can be changed to properly handle
      * the zone ID using the new methods available in Java 1.5.
-     */ 
+     */
 
     private void init_host()
     {
         InetAddress localhost = null;
         boolean hasZoneId = false;
-        try 
+        try
         {
             localhost = InetAddress.getLocalHost();
         }
-        catch (UnknownHostException ex) 
+        catch (UnknownHostException ex)
         {
             try {
                 //get loopback
                 localhost = InetAddress.getByName(null);
-            } 
-            catch (UnknownHostException ex2) 
+            }
+            catch (UnknownHostException ex2)
             {
             }
         }
 
-        if (source_name == null || source_name.length() == 0 ) 
+        if (source_name == null || source_name.length() == 0 )
         {
             host = localhost;
         }
@@ -141,20 +141,20 @@ public class IIOPAddress
 
             if (!hasZoneId)
             {
-                try 
+                try
                 {
                     host = InetAddress.getByName(source_name);
                 }
-                catch (UnknownHostException ex) 
+                catch (UnknownHostException ex)
                 {
                     if (logger != null && logger.isWarnEnabled())
                         logger.warn ("init_host, " + source_name + " unresolvable" );
                     unresolvable = true;
-                    try 
+                    try
                     {
                         host = InetAddress.getByName(null); //localhost
                     }
-                    catch (UnknownHostException ex2) 
+                    catch (UnknownHostException ex2)
                     {
                     }
                 }
@@ -162,16 +162,16 @@ public class IIOPAddress
             else
             {
                 if (logger != null && logger.isWarnEnabled())
-                    logger.warn ("init_host, " + source_name + 
+                    logger.warn ("init_host, " + source_name +
                             " is local-link address");
                 unresolvable = true;
-                host = null; //will allow binds on all interfaces    
+                host = null; //will allow binds on all interfaces
             }
-            
+
         }
     }
 
- 
+
     public static IIOPAddress read(org.omg.CORBA.portable.InputStream in)
     {
         String host = in.read_string();
@@ -232,11 +232,11 @@ public class IIOPAddress
         {
             return null;
         }
-        else {
-            if (host == null)
-                init_host();
-            return host;
+        if (host == null)
+        {
+            init_host();
         }
+        return host;
     }
 
     /**
@@ -259,12 +259,12 @@ public class IIOPAddress
         {
             IIOPAddress x = (IIOPAddress)other;
             if (this.port == x.port)
+            {
                 return this.source_name.equals(x.source_name);
-            else
-                return false;
-        }
-        else
+            }
             return false;
+        }
+        return false;
     }
 
     public int hashCode()
@@ -312,10 +312,10 @@ public class IIOPAddress
         //If host name contains a zone ID, we need to remove it.
         //This would be used to write the address on an IOR or other
         //things that could be used off-host.  Writing a link-local zone
-        //ID would break the client.  Site-local zone IDs are still used, 
+        //ID would break the client.  Site-local zone IDs are still used,
         //but deprecated.  For now, we will ignore site-local zone IDs.
         String hostname = getHostname();
-        if (hideZoneID) 
+        if (hideZoneID)
         {
             int zoneIndex;
             if ((zoneIndex=hostname.indexOf('%')) != -1)
@@ -347,12 +347,14 @@ public class IIOPAddress
     public String getOriginalHost()
     {
         if (source_name == null)
+        {
             if (!dnsEnabled)
+            {
                 return getIP();
-            else
-                return getHostname() + " / " + getIP();
-        else
-            return source_name;
+            }
+            return getHostname() + " / " + getIP();
+        }
+        return source_name;
     }
 
     /**

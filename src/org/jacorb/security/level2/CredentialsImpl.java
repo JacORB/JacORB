@@ -179,7 +179,7 @@ public class CredentialsImpl
     /**
      * can be used in access control decisions or auditing
      *
-     * @param attributes - the set of attributes whose values are desired.
+     * @param types - the set of attributes whose values are desired.
      *                     If this list is empty, all attributes are returned
      *
      * @return The requested set of attributes reflecting the state

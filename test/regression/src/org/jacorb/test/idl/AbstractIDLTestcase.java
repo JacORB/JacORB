@@ -206,10 +206,7 @@ public class AbstractIDLTestcase extends TestCase
                 error.initCause(e);
                 throw error;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 

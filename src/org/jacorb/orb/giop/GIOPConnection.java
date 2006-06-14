@@ -825,7 +825,7 @@ public abstract class GIOPConnection
                 tcs_negotiated = false;
 
                 if (logger.isDebugEnabled())
-                    logger.debug(this.toString() 
+                    logger.debug(this.toString()
                                  + ": sendMessage() -- opening transport");
 
                 synchronized (connect_sync)
@@ -865,9 +865,10 @@ public abstract class GIOPConnection
     public final boolean isSSL()
     {
         if (transport instanceof IIOPConnection)
+        {
             return ((IIOPConnection)transport).isSSL();
-        else
-            return false;
+        }
+        return false;
     }
 
     public void close()
@@ -977,5 +978,5 @@ public abstract class GIOPConnection
         }
         cubbyholes[id] = obj;
     }
-    
+
 }// GIOPConnection

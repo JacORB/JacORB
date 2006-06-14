@@ -27,16 +27,15 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
 import java.util.*;
-import java.io.*;
 import java.lang.reflect.*;
 
 import org.jacorb.util.ObjectUtil;
 
 /**
- *
- * @author Nicolas Noffke, Gerald Brose, Andrý Benvenuti
+ * @author Nicolas Noffke
+ * @author Gerald Brose
+ * @author Andre Benvenuti
  * @version $Id$
- *
  */
 
 public class CurrentImpl
@@ -50,22 +49,22 @@ public class CurrentImpl
     private Hashtable policies = null;
 
     private SecAttributeManager attrib_mgr = null;
-    
+
     //thread specific credentials
     private Hashtable ts_credentials = null;
     private Hashtable ts_received_credentials = null;
-    
+
     private String defaultSecurityName = null;
     private String defaultPassword = null;
     private List authenticators = new Vector();
 
-    private org.omg.CORBA.ORB orb = null;  
+    private org.omg.CORBA.ORB orb = null;
     private Logger logger;
     private org.jacorb.config.Configuration configuration;
 
     public CurrentImpl(org.omg.CORBA.ORB orb)
     {
-        this.orb = orb;        
+        this.orb = orb;
         attrib_mgr = SecAttributeManager.getInstance();
 
         ts_credentials = new Hashtable();
@@ -76,17 +75,17 @@ public class CurrentImpl
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        configuration = 
+        configuration =
             (org.jacorb.config.Configuration)myConfiguration;
 
         logger = configuration.getNamedLogger("jacorb.security.current");
 
-        defaultSecurityName = 
+        defaultSecurityName =
             configuration.getAttribute("jacorb.security.default_user","" );
-        defaultPassword = 
+        defaultPassword =
             configuration.getAttribute( "jacorb.security.default_password","" );
 
-        String accDecClassName = 
+        String accDecClassName =
             configuration.getAttribute("jacorb.security.access_decision", null);
 
         if ( accDecClassName != null )
@@ -103,25 +102,25 @@ public class CurrentImpl
                 {
                     logger.warn("Class " + accDecClassName +
                                 " not found! Please check property \"jacorb.security.access_decision\"" );
-                }            
+                }
                 access_decision = new AccessDecisionImpl();
             }
         }
         else
             access_decision = new AccessDecisionImpl();
 
-        String s = 
+        String s =
             configuration.getAttribute("jacorb.security.principal_authenticator",null);
- 
+
         if( s != null )
         {
             StringTokenizer st = new StringTokenizer( s, "," );
-            
+
             while( st.hasMoreTokens() )
             {
-                PrincipalAuthenticator pa = 
+                PrincipalAuthenticator pa =
                     createAuthenticator( st.nextToken() );
-                
+
                 if( pa != null )
                 {
                     authenticators.add( pa );
@@ -132,7 +131,7 @@ public class CurrentImpl
 
     public void init()
     {
-	authenticate();
+        authenticate();
     }
 
     /**
@@ -157,15 +156,15 @@ public class CurrentImpl
     {
         try
         {
-            Class pa_class = ObjectUtil.classForName( class_name );            
+            Class pa_class = ObjectUtil.classForName( class_name );
             Constructor[] constructors = pa_class.getConstructors();
-            
+
             if( constructors.length != 1 )
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error("PrincAuth " + class_name + 
-                                " must have exactly one constructor that takes either no args or org.omg.CORBA.ORB" );                    
+                    logger.error("PrincAuth " + class_name +
+                                " must have exactly one constructor that takes either no args or org.omg.CORBA.ORB" );
                 }
                 return null;
             }
@@ -173,7 +172,7 @@ public class CurrentImpl
             Class[] params = constructors[0].getParameterTypes();
             if( params.length == 0 )
             {
-                PrincipalAuthenticator pa = 
+                PrincipalAuthenticator pa =
                     (PrincipalAuthenticator)pa_class.newInstance();
                 ((Configurable)pa).configure(configuration);
                 return pa;
@@ -182,25 +181,23 @@ public class CurrentImpl
             {
                 if( params[0].equals( org.omg.CORBA.ORB.class ))
                 {
-                    return (PrincipalAuthenticator) 
+                    return (PrincipalAuthenticator)
                         constructors[0].newInstance( new Object[]{ orb } );
                 }
-                else
+
+                if (logger.isErrorEnabled())
                 {
-                    if (logger.isErrorEnabled())
-                    {
-                        logger.error("PrincAuth " + class_name + 
-                                     "\'s constructor has an arg of type " + 
-                                     params[0].getName() + 
-                                     " but it must have an arg of type org.omg.CORBA.ORB" );
-                    }
+                    logger.error("PrincAuth " + class_name +
+                            "\'s constructor has an arg of type " +
+                            params[0].getName() +
+                    " but it must have an arg of type org.omg.CORBA.ORB" );
                 }
-            }  
+            }
             else
             {
                     if (logger.isErrorEnabled())
                     {
-                        logger.error("PrincAuth " + class_name + 
+                        logger.error("PrincAuth " + class_name +
                                      " must have exactly one constructor that takes either no arg or one arg of type org.omg.CORBA.ORB" );
                     }
             }
@@ -216,14 +213,14 @@ public class CurrentImpl
         return null;
     }
 
-    /** 
+    /**
      * This method does the following things:
      * 1.) take the property "jacorb.security.principal_authenticator", which
      * contains a comma separated list of PA class names.
      * 2.) create a PA Instance for each class name.
-     * 3.) call authenticate() on each PA with the value of the property 
+     * 3.) call authenticate() on each PA with the value of the property
      * "jacorb.security.default_user" as the arg "security_name", the value
-     * of the property "jacorb.security.default_password" as the arg 
+     * of the property "jacorb.security.default_password" as the arg
      * "auth_data" and a CredentialsHolder. All other args are null.
      */
 
@@ -241,41 +238,41 @@ public class CurrentImpl
 
         principalAuthenticator = (PrincipalAuthenticator)authenticators.get(0);
         byte[] pwd = (defaultPassword == null)? null : defaultPassword.getBytes();
-        Vector own_creds = new Vector();
+        List own_creds = new ArrayList(authenticators.size());
 
         for( int i = 0; i < authenticators.size(); i++ )
         {
-            PrincipalAuthenticator pa = 
+            PrincipalAuthenticator pa =
                 (PrincipalAuthenticator)authenticators.get( i );
 
             CredentialsHolder coh = new CredentialsHolder();
-        
-            if( pa.authenticate( 0, 
-                                 null, 
-                                 defaultSecurityName, 
+
+            if( pa.authenticate( 0,
+                                 null,
+                                 defaultSecurityName,
                                  pwd,
                                  null,
-                                 coh, 
-                                 null, 
+                                 coh,
+                                 null,
                                  null )
-                == AuthenticationStatus.SecAuthSuccess) 
+                == AuthenticationStatus.SecAuthSuccess)
             {
-                own_creds.add( (CredentialsImpl) coh.value );
+                own_creds.add(coh.value);
 
-                own_credentials = new CredentialsImpl[ own_creds.size() ];
-                own_creds.copyInto( own_credentials );
+                own_credentials = (CredentialsImpl[]) own_creds.toArray(new CredentialsImpl[ own_creds.size() ]);
 
                 if (logger.isInfoEnabled())
                 {
                     logger.info("PrincAuth " + i + ": AuthenticationStatus.SecAuthSuccess");
-                }               
+                }
             }
             else
             {
                 if (logger.isInfoEnabled())
                 {
                     logger.info("PrincAuth " + i + ": AuthenticationStatus.SecAuthFailure");
-                }  
+                }
+                throw new org.omg.CORBA.INITIALIZE ("PrincAuth " + i + ": AuthenticationStatus.SecAuthFailure");
             }
         }
     }
@@ -284,9 +281,9 @@ public class CurrentImpl
      * thread specific, from SecurityLevel1
      */
     public SecAttribute[] get_attributes(AttributeType[] types)
-    {        
+    {
         CredentialsImpl[] tsc = getTSCredentials();
-        
+
         if( tsc != null && tsc.length > 0)
         {
             return tsc[0].get_attributes( types );
@@ -308,10 +305,10 @@ public class CurrentImpl
     {
         return (ReceivedCredentials)ts_received_credentials.get( Thread.currentThread() );
     }
-    
+
     /* thread specific*/
-    public void set_credentials( CredentialType cred_type, 
-                                 Credentials[] creds, 
+    public void set_credentials( CredentialType cred_type,
+                                 Credentials[] creds,
                                  org.omg.SecurityLevel2.DelegationMode del )
     {
         //ignoring DelegationMode
@@ -321,19 +318,19 @@ public class CurrentImpl
 
     /* thread specific*/
 
-    public void set_received_credentials( ReceivedCredentials creds ) 
+    public void set_received_credentials( ReceivedCredentials creds )
     {
         //ignoring DelegationMode
         ts_received_credentials.put( Thread.currentThread(),
                             creds );
     }
 
-    public void remove_received_credentials() 
+    public void remove_received_credentials()
     {
         //ignoring DelegationMode
         ts_received_credentials.remove( Thread.currentThread() );
     }
-   
+
 
     /* thread specific*/
     public Credentials[] get_credentials(CredentialType cred_type)
@@ -345,45 +342,45 @@ public class CurrentImpl
             tsc = own_credentials;
         }
 
-        Vector found_creds = new Vector();
+        List found_creds = new ArrayList(tsc.length);
 
         for( int i = 0; i < tsc.length; i++ )
-        {             
+        {
             if ( cred_type.value() == tsc[i].credentials_type().value() )
             {
-                found_creds.addElement( tsc[i] );
+                found_creds.add( tsc[i] );
             }
         }
 
         Credentials[] creds = new Credentials[found_creds.size()];
 
         for( int i = 0; i < creds.length; i++ )
-        {             
-            creds[i] = (Credentials) 
-                found_creds.elementAt( i );
+        {
+            creds[i] = (Credentials)
+                found_creds.get( i );
         }
 
         return creds;
     }
-  
+
     /* application specific */
     public Credentials[] own_credentials()
     {
-        return own_credentials;       
+        return own_credentials;
     }
-  
+
     /* application specific */
     /**
-     * This will remove the passed Credentials from the list 
+     * This will remove the passed Credentials from the list
      * of own_credentials.
-     * The passed object has to be the same instance as the one 
+     * The passed object has to be the same instance as the one
      * to be removed.
      */
     public void remove_own_credentials(Credentials credentials)
     {
         boolean found_credentials = false;
-        Vector kept_credentials = new Vector();
-        
+        List kept_credentials = new ArrayList(own_credentials.length);
+
         for (int i = 0; i < own_credentials.length; i++)
         {
             if ( credentials == own_credentials[i] )
@@ -392,18 +389,18 @@ public class CurrentImpl
             }
             else
             {
-                kept_credentials.addElement( own_credentials[i] );
+                kept_credentials.add( own_credentials[i] );
             }
         }
-        
+
         if ( found_credentials )
         {
             own_credentials = new CredentialsImpl[kept_credentials.size()];
 
             for (int i = 0; i < kept_credentials.size(); i++)
             {
-                own_credentials[i] = (CredentialsImpl) 
-                    kept_credentials.elementAt( i );
+                own_credentials[i] = (CredentialsImpl)
+                    kept_credentials.get( i );
             }
         }
         else
@@ -417,13 +414,13 @@ public class CurrentImpl
     {
         return null;
     }
-  
+
     /* application specific */
     public org.omg.CORBA.Policy get_policy(int policy_type)
     {
         return (org.omg.CORBA.Policy) policies.get(new Integer(policy_type));
     }
-  
+
     /* application specific */
     public org.omg.Security.MechandOptions[] supported_mechanisms()
     {
@@ -441,37 +438,37 @@ public class CurrentImpl
     {
         return null;
     }
-  
+
     /* application specific */
     public  PrincipalAuthenticator principal_authenticator()
     {
         return principalAuthenticator;
     }
-  
+
     /* application specific */
     public AccessDecision access_decision()
     {
         return access_decision;
     }
-  
+
     /* application specific */
     public AuditDecision audit_decision()
     {
         return null;
     }
-  
+
     /* application specific */
     public QOPPolicy create_qop_policy(QOP qop)
     {
         return new QOPPolicyImpl(qop);
     }
-  
+
     /* application specific */
     public MechanismPolicy create_mechanism_policy(String[] mechanisms)
     {
         return new MechanismPolicyImpl(mechanisms);
     }
-  
+
     /* application specific */
     public InvocationCredentialsPolicy create_invoc_creds_policy(Credentials[] creds)
     {
@@ -488,7 +485,7 @@ public class CurrentImpl
     {
         if( own_credentials == null ||
             own_credentials.length == 0 )
-        {   
+        {
             return new KeyAndCert[0];
         }
 
@@ -502,11 +499,11 @@ public class CurrentImpl
                                     (short) 1 ),
               Role.value );
 
-        SecAttribute[] attribs = 
+        SecAttribute[] attribs =
             own_credentials[0].get_attributes( new AttributeType[]{ access_id,
                                                                     role } );
-            
-        KeyAndCert[] certs = new KeyAndCert[attribs.length];	
+
+        KeyAndCert[] certs = new KeyAndCert[attribs.length];
 
         for( int i = 0; i < certs.length; i++ )
         {
@@ -514,15 +511,14 @@ public class CurrentImpl
         }
 
         return certs;
-    }          
+    }
 
 
     public void close()
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Closing Current");
-        
-	principalAuthenticator = null; // rt: use the gc for finalize
+        logger.debug("Closing Current");
+
+        principalAuthenticator = null; // rt: use the gc for finalize
         policies.clear();
         ts_credentials.clear();
         ts_received_credentials.clear();

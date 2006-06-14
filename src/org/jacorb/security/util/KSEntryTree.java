@@ -21,17 +21,15 @@
 package org.jacorb.security.util;
 
 /**
- * This class manages the tree view and model for key store 
- * entries. These are represented as KeyNodes, CertNodes and 
+ * This class manages the tree view and model for key store
+ * entries. These are represented as KeyNodes, CertNodes and
  * TrustNodes
  *
  * @author Gerald Brose, FU Berlin
  * @version $Id$
  */
 
-import java.awt.*;
 import javax.swing.tree.*;
-import javax.swing.event.*;
 import javax.swing.*;
 
 import java.util.*;
@@ -54,7 +52,7 @@ public class KSEntryTree
     private KeyStore ks;
 
     public KSEntryTree()
-    {     
+    {
     root = new DefaultMutableTreeNode("<empty>");
     model = new DefaultTreeModel( root );
 
@@ -85,7 +83,7 @@ public class KSEntryTree
         }
         return out;
     }
-    
+
     public KSNode getNode(String alias)
     {
         for( Enumeration e = root.children(); e.hasMoreElements(); )
@@ -98,14 +96,14 @@ public class KSEntryTree
         }
         return null;
     }
-    
+
     /**
      * @param alias - the key alias
      * @return the KeyNode representing the key entry for the alias, null if not found
      */
 
     public KeyNode getKeyNode(String alias)
-    {    
+    {
     for( Enumeration e = root.children(); e.hasMoreElements(); )
     {
         KSNode node = (KSNode)e.nextElement();
@@ -115,8 +113,8 @@ public class KSEntryTree
     return null;
     }
 
-    /** 
-     * load new keystore entries into the tree 
+    /**
+     * load new keystore entries into the tree
      *
      * @param ks - the key store.
      */
@@ -134,7 +132,7 @@ public class KSEntryTree
         {
 
 System.out.println("bnv: iserted key entry for " + alias);
-            java.security.cert.Certificate[] certChain = 
+            java.security.cert.Certificate[] certChain =
             ks.getCertificateChain( alias );
 
             KeyNode keyNode = new KeyNode( alias, null, null, ks);
@@ -142,12 +140,12 @@ System.out.println("bnv: iserted key entry for " + alias);
 
             for( int i = 0; i < certChain.length; i++ )
             {
-            CertNode child = 
-                new CertNode((iaik.x509.X509Certificate)certChain[i],i);            
+            CertNode child =
+                new CertNode((iaik.x509.X509Certificate)certChain[i],i);
             model.insertNodeInto( child, keyNode, keyNode.getChildCount());
             }
             tree.scrollPathToVisible(new TreePath( new TreeNode[]{ root, keyNode }));
-        } 
+        }
         else if( ks.isCertificateEntry( alias ))
         {
             iaik.x509.X509Certificate cert =
@@ -163,8 +161,8 @@ System.out.println("bnv: iserted key entry for " + alias);
     }
     }
 
-    /** 
-     * Add a new keystore entry to the tree, in this case a new 
+    /**
+     * Add a new keystore entry to the tree, in this case a new
      * key alias
      * @param alias - the alias for the entry
      */
@@ -174,14 +172,14 @@ System.out.println("bnv: iserted key entry for " + alias);
     if( containsAlias( alias ))
         return;
 
-    KeyNode child = 
+    KeyNode child =
         new KeyNode(new String(alias), key, password, ks);
     model.insertNodeInto(child, root, root.getChildCount());
     tree.scrollPathToVisible(new TreePath( new TreeNode[]{ root, child }));
     }
 
-    /** 
-     * Add a new keystore entry, in this case add a trusted certificate 
+    /**
+     * Add a new keystore entry, in this case add a trusted certificate
      * @param alias - the alias for the entry
      * @param cert - the trusted certificate
      */
@@ -191,13 +189,13 @@ System.out.println("bnv: iserted key entry for " + alias);
     if( containsAlias( alias ))
         return;
 
-    TrustNode child = 
+    TrustNode child =
         new TrustNode(new String(alias), (iaik.x509.X509Certificate)cert, ks);
     model.insertNodeInto(child, root, root.getChildCount());
     tree.scrollPathToVisible(new TreePath(new TreeNode[]{ root, child }));
     }
 
-    /** 
+    /**
      * Add a new certificate in the entry ofr alias
      * @param alias - the alias for the entry
      * @param idx - index of the certificate in the chain of certificates of alias,
@@ -223,7 +221,7 @@ System.out.println("bnv: iserted key entry for " + alias);
     throw new RuntimeException("Alias " + alias + " not found!");
     }
 
-    /** 
+    /**
      * Add a new certificate in the entry ofr alias
      * @param alias - the alias for the entry
      * @param certs - a new certificate chain for alias
@@ -248,9 +246,9 @@ System.out.println("bnv: iserted key entry for " + alias);
     }
     throw new RuntimeException("Alias " + alias + " not found!");
     }
-    
-    /** 
-     * Remove all nodes from the tree. 
+
+    /**
+     * Remove all nodes from the tree.
      */
 
     public void clean()
@@ -259,8 +257,8 @@ System.out.println("bnv: iserted key entry for " + alias);
     root.setUserObject("<empty>");
     model.reload();
     }
-     
-    /** 
+
+    /**
      * @return the key store alias for the selected node.
      */
 
@@ -268,7 +266,7 @@ System.out.println("bnv: iserted key entry for " + alias);
     {
     TreePath path = tree.getSelectionPath();
     if( path != null)
-    { 
+    {
         if( path.getLastPathComponent() instanceof KeyNode )
         return ((KeyNode)path.getLastPathComponent()).getAlias();
         else if( path.getLastPathComponent() instanceof TrustNode )
@@ -277,24 +275,21 @@ System.out.println("bnv: iserted key entry for " + alias);
     return null;
     }
 
-    /** 
+    /**
      * @return the key store alias for the selected node.
      */
 
     public KSNode getSelectedNode()
     {
-    TreePath path = tree.getSelectionPath();
-    if( path != null )
-    {
-        return (KSNode)path.getLastPathComponent();    
-    }
-    else
-    {
+        TreePath path = tree.getSelectionPath();
+        if( path != null )
+        {
+            return (KSNode)path.getLastPathComponent();
+        }
         return null;
     }
-    }
 
-    /** 
+    /**
      * Remove the selected node.
      *
      * @return the key store alias for the selected node.
@@ -309,7 +304,7 @@ System.out.println("bnv: iserted key entry for " + alias);
         MutableTreeNode parent = (MutableTreeNode)currentNode.getParent();
         if( parent != null )
         {
-        String date = (String)currentNode.toString();
+        String date = currentNode.toString();
         model.removeNodeFromParent(currentNode);
         return date;
         }
@@ -317,7 +312,7 @@ System.out.println("bnv: iserted key entry for " + alias);
     return null;
     }
 
-    /** 
+    /**
      * Remove the childs from KeyNode.
      * @param alias - the alias for the entry
      */
@@ -358,8 +353,8 @@ System.out.println("bnv: iserted key entry for " + alias);
     for( Enumeration e = getNodes(); e.hasMoreElements(); )
     {
         KSNode node = (KSNode)e.nextElement();
-        if( node instanceof TrustNode && ((KSNode)node).getCert().equals(check))
-        return true;        
+        if( node instanceof TrustNode && node.getCert().equals(check))
+        return true;
     }
     return false;
     }
@@ -371,7 +366,7 @@ System.out.println("bnv: iserted key entry for " + alias);
         MutableTreeNode node = (MutableTreeNode)e.nextElement();
         if( node instanceof KeyNode && ((KeyNode)node).getAlias().equals( alias ) ||
         node instanceof TrustNode && ((TrustNode)node).getAlias().equals( alias )
-        ) 
+        )
         return true;
     }
     return false;
