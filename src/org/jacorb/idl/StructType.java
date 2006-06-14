@@ -294,21 +294,14 @@ public class StructType
         {
             return this.getRecursiveTypeCodeExpression();
         }
-        else
-        {
-            return this.getTypeCodeExpression();
-        }
+
+        return this.getTypeCodeExpression();
     }
 
 
     private void printClassComment(String className, PrintWriter ps)
     {
-        ps.println("/**");
-        ps.println(" *\tGenerated from IDL definition of " +
-                (exc ? "exception " : "struct ") + "\"" +
-                className + "\"");
-        ps.println(" *\t@author JacORB IDL compiler ");
-        ps.println(" */\n");
+        printClassComment((exc ? "exception" : "struct"), className, ps);
     }
 
     private void printHolderClass(String className, PrintWriter ps)

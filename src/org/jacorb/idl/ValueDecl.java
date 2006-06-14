@@ -460,11 +460,7 @@ public class ValueDecl
 
     private void printClassComment(PrintWriter out)
     {
-        out.println("/**");
-        out.println(" *\tGenerated from IDL definition of valuetype " +
-                    "\"" + name + "\"");
-        out.println(" *\t@author JacORB IDL compiler ");
-        out.println(" */\n");
+        printClassComment("valuetype", name, out);
     }
 
     /**

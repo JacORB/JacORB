@@ -280,13 +280,9 @@ public class ValueAbsDecl
     }
 
 
-    private void printClassComment(String className, PrintWriter ps)
+    protected final void printClassComment(String className, PrintWriter ps)
     {
-        ps.println("/**");
-        ps.println(" *\tGenerated from IDL definition of abstract value type " +
-                   "\"" + className + "\"");
-        ps.println(" *\t@author JacORB IDL compiler ");
-        ps.println(" */\n");
+        printClassComment("abstract value type", className, ps);
     }
 
     /**
