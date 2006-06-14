@@ -349,7 +349,6 @@ public class ServerRequest
                 {
                     if( status == ReplyStatusType_1_2._USER_EXCEPTION )
                     {
-                        out.write_string( ex.type().id() );
                         ex.write_value( out );
                     }
                     else if( status == ReplyStatusType_1_2._NO_EXCEPTION )
@@ -431,13 +430,8 @@ public class ServerRequest
                                   in.isLocateRequest(),
                                   logger );
 
-        try
-        {
-            out.configure(orb.getConfiguration());
-        } catch (ConfigurationException e)
-        {
-            throw new RuntimeException();
-        }
+        out.configure(orb.getConfiguration());
+
         return out;
     }
 
