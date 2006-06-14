@@ -88,6 +88,8 @@ parser code
     /*  a la CORBA 2.4, allow forward declarations that remain undefined */
     public static boolean sloppy = false;
 
+    public static String currentDate;
+
     /**
      *  allows reinitialization if compiler is not
      *  run from a command-line
@@ -95,6 +97,7 @@ parser code
 
     protected static void init()
     {
+        currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
         command_line = null;
         pending_interfaces = new Hashtable();
         pack_replace = new Hashtable();
@@ -749,7 +752,7 @@ parser code
      * IDL compiler
      */
 
-    static final Logger getLogger()
+    public static final Logger getLogger()
     {
         return logger;
     }
