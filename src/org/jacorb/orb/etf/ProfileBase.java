@@ -26,6 +26,7 @@ import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.TaggedComponentList;
 
+import org.omg.CORBA.MARSHAL;
 import org.omg.ETF.*;
 import org.omg.IOP.*;
 
@@ -255,6 +256,11 @@ public abstract class ProfileBase
         readAddressProfile(in);
 
         int length = in.read_ulong();
+
+        if (in.available() < length)
+        {
+            throw new MARSHAL("Unable to extract object key. Only " + in.available() + " available and trying to assign " + length);
+        }
 
         objectKey = new byte[length];
         in.read_octet_array(objectKey, 0, length);
