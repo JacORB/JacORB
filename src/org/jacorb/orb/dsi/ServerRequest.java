@@ -417,10 +417,12 @@ public class ServerRequest
         stream_based = true;
 
         if( out != null )
+        {
             // The reply was already created.  This happens in oneway
             // operations using SyncScope SYNC_WITH_SERVER, and does
             // not do any harm.
             return out;
+        }
 
         out =
             new ReplyOutputStream(orb,
