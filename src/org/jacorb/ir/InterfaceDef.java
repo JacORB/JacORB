@@ -20,22 +20,21 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
-
-import org.omg.CORBA.IDLType;
-import org.omg.CORBA.INTF_REPOS;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.TypeCode;
-import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
-import org.omg.CORBA.ContainerPackage.*;
-import org.omg.CORBA.OperationDescription;
-import org.omg.CORBA.AttributeDescription;
-import org.omg.CORBA.ConstantDescription;
-import org.omg.PortableServer.POA;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.AttributeDescription;
+import org.omg.CORBA.IDLType;
+import org.omg.CORBA.INTF_REPOS;
+import org.omg.CORBA.OperationDescription;
+import org.omg.CORBA.ContainerPackage.Description;
+import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
+import org.omg.PortableServer.POA;
 
 /**
  * JacORB implementation of org.omg.CORBA.InterfaceDef
@@ -48,11 +47,7 @@ public class InterfaceDef
     extends org.jacorb.ir.Contained
     implements org.omg.CORBA.InterfaceDefOperations, ContainerType
 {
-    protected static char 	    fileSeparator =
-        System.getProperty("file.separator").charAt(0);
-
     Class 				         theClass;
-    private Class                                helperClass;
     private Class                                signatureClass;
 
     private org.omg.CORBA.TypeCode               typeCode;
@@ -82,18 +77,11 @@ public class InterfaceDef
     private org.omg.CORBA.InterfaceDef           myReference;
 
     private File 		                 my_dir;
-    private Hashtable                            op = new Hashtable();
-    private Hashtable                            att = new Hashtable();
-    private Hashtable                            my_const = new Hashtable();
-    private org.omg.CORBA.Contained []           classes;
     private String                               path;
-    private String []                            class_names;
-    private int                                  size = 0;
     private boolean                              defined = false;
     private boolean                              loaded = false;
 
     private Class                                containedClass = null;
-    private Class                                containerClass = null;
 
     private ClassLoader loader;
     private POA poa;
@@ -139,7 +127,6 @@ public class InterfaceDef
 
         theClass = c;
         String classId = c.getName();
-        this.helperClass = helperClass;
 
         Hashtable irInfo= null;
         Class irHelperClass = null;
@@ -173,7 +160,7 @@ public class InterfaceDef
             version( id().substring( id().lastIndexOf(':')));
             typeCode = TypeCodeUtil.getTypeCode( c, null, this.logger );
 
-            full_name = classId.replace('.', '/');
+            full_name = classId;
             if( classId.indexOf('.') > 0 )
             {
                 name = classId.substring( classId.lastIndexOf('.')+1);
@@ -210,9 +197,9 @@ public class InterfaceDef
                           classId.replace('.', fileSeparator) + "Package" );
 
             if( f.exists() && f.isDirectory() )
+            {
                 my_dir = f;
-
-
+            }
         }
         catch ( Exception e )
         {
@@ -264,8 +251,8 @@ public class InterfaceDef
                         {
                             this.logger.debug(
                                 "Interface " +name+ " tries " +
-                                full_name.replace('.', fileSeparator) +
-                                "Package" + fileSeparator +
+                                full_name +
+                                "Package." +
                                 classes[j].substring( 0, classes[j].indexOf(".class")) );
                         }
 
@@ -277,10 +264,10 @@ public class InterfaceDef
 
                         Class cl =
                             loader.loadClass(
-                                   ( full_name.replace('.', fileSeparator) +
-                                     "Package" + fileSeparator +
+                                   ( full_name +
+                                     "Package." +
                                      classes[j].substring( 0, classes[j].indexOf(".class"))
-                                     ).replace( fileSeparator, '/') );
+                                     ));
 
                         Contained containedObject =
                             Contained.createContained( cl,
@@ -830,22 +817,18 @@ public class InterfaceDef
             {
                 return top;
             }
-            else
+
+            if(  top instanceof org.omg.CORBA.Container)
             {
-                if(  top instanceof org.omg.CORBA.Container)
-                {
-                    return ((org.omg.CORBA.Container)top).lookup( rest_of_name );
-                }
-                else
-                {
-                    if (this.logger.isDebugEnabled())
-                    {
-                        this.logger.debug("Interface " + this.name +
-                                          " " + scopedname + " not found ");
-                    }
-                    return null;
-                }
+                return ((org.omg.CORBA.Container)top).lookup( rest_of_name );
             }
+
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("Interface " + this.name +
+                        " " + scopedname + " not found ");
+            }
+            return null;
         }
         catch( Exception e )
         {

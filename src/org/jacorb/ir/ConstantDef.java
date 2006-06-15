@@ -39,9 +39,6 @@ public class ConstantDef
     extends Contained
     implements org.omg.CORBA.ConstantDefOperations
 {
-    protected static char 	    fileSeparator =
-        System.getProperty("file.separator").charAt(0);
-
     private Field                       field;
     private org.omg.CORBA.TypeCode      typeCode;
     private org.omg.CORBA.IDLType       type_def;

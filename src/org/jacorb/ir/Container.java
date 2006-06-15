@@ -32,9 +32,6 @@ public class Container
     extends IRObject
     implements org.omg.CORBA.ContainerOperations
 {
-    protected static char 	    fileSeparator =
-        System.getProperty("file.separator").charAt(0);
-
     protected IRObject                delegator;
 
     /** CORBA references to contained objects */
@@ -78,7 +75,7 @@ public class Container
         this.full_name = full_name;
 
         my_dir = new File( path + fileSeparator +
-                           ( full_name != null ? full_name : "" ) );
+                           ( full_name != null ? full_name : "" ).replace('.', fileSeparator) );
 
         if ( ! my_dir.isDirectory())
         {
@@ -90,7 +87,7 @@ public class Container
         if (this.logger.isDebugEnabled())
         {
             this.logger.debug("New Container full_name " +
-                              full_name + " name : " + name + 
+                              full_name + " name : " + name +
                               " path: " +  path);
         }
         // else: get reference from delegator, but must be postponed until later
@@ -138,7 +135,7 @@ public class Container
         if( classes != null)
         {
             String prefix =
-                ( full_name != null ? full_name + fileSeparator : "");
+                ( full_name != null ? full_name + '.' : "");
 
             for( int j = 0; j< classes.length; j++ )
             {
@@ -155,14 +152,14 @@ public class Container
                         this.loader.loadClass(
                                          ( prefix +
                                            classes[j].substring( 0, classes[j].indexOf(".class"))
-                                           ).replace( fileSeparator, '.') );
+                                           ));
 
                     Contained containedObject =
                         Contained.createContained( cl,
                                                    path,
                                                    this_container,
-                                                   containing_repository, 
-                                                   this.logger, 
+                                                   containing_repository,
+                                                   this.logger,
                                                    this.loader,
                                                    this.poa );
                     if( containedObject == null )
@@ -176,8 +173,8 @@ public class Container
                     }
 
                     org.omg.CORBA.Contained containedRef =
-                        Contained.createContainedReference(containedObject, 
-                                                           this.logger, 
+                        Contained.createContainedReference(containedObject,
+                                                           this.logger,
                                                            this.poa);
 
                     containedRef.move( this_container,
@@ -217,18 +214,6 @@ public class Container
                         String [] classList = f.list();
                         if( classList != null && classList.length > 0)
                         {
-//                              org.jacorb.util.Debug.output(2, "Container " +
-//                                                       full_name +  " inspecting "  +
-//                                                       dirs[k] + " trying: " +
-//  (( full_name != null ? full_name + "." + dirs[k]: dirs[k] ) +
-//                                      "." + "_" + dirs[k] + "Module" ).replace( fileSeparator, '.') );
-
-                            Class moduleClass =
-                                this.loader.loadClass(
-                                  (
-                                   ( full_name != null ? full_name + "." + dirs[k]: dirs[k] ) +
-                                   "." + "_" + dirs[k] + "Module" ).replace( fileSeparator, '.'));
-
                             ModuleDef m =
                                 new ModuleDef( path,
                                                ( full_name != null ?
@@ -260,11 +245,6 @@ public class Container
                             contained.put( m.name() , moduleRef );
                             containedLocals.put( m.name(), m );
                         }
-                    }
-                    catch( ClassNotFoundException c )
-                    {
-                        this.logger.error("No module meta data: " +
-                                          c.getMessage(), c );
                     }
                     catch ( Exception e )
                     {
@@ -378,25 +358,21 @@ public class Container
         {
             return top;
         }
-        else
+
+        org.omg.CORBA.Container topContainer =
+            org.omg.CORBA.ContainerHelper.narrow( top );
+        if( topContainer != null )
         {
-            org.omg.CORBA.Container topContainer =
-                org.omg.CORBA.ContainerHelper.narrow( top );
-            if( topContainer != null )
-            {
-                return topContainer.lookup( rest_of_name );
-            }
-            else
-            {
-                if (this.logger.isDebugEnabled())
-                {
-                    this.logger.debug("Container " + this.name +" " +
-                                      scopedname + " not found, top " +
-                                      top.getClass().getName());
-                }
-                return null;
-            }
+            return topContainer.lookup( rest_of_name );
         }
+
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Container " + this.name +" " +
+                    scopedname + " not found, top " +
+                    top.getClass().getName());
+        }
+        return null;
     }
 
     public org.omg.CORBA.Contained[] lookup_name( String search_name,

@@ -20,16 +20,20 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 import org.omg.CORBA.INTF_REPOS;
 
 /**
  * Base class for Interface Repository Objects
+ *
+ * @author Gerald Brose
+ * @version $Id$
  */
-
 public abstract class IRObject
     implements org.omg.CORBA.IRObjectOperations
 {
+    protected final static char fileSeparator =
+        (System.getProperty("file.separator").charAt(0));
+
     protected org.omg.CORBA.Object myRef;
     protected org.omg.CORBA.ORB orb;
     protected org.omg.CORBA.DefinitionKind def_kind;
@@ -66,5 +70,4 @@ public abstract class IRObject
         myRef = ref;
         orb = ((org.omg.CORBA.portable.ObjectImpl)myRef)._orb();
     }
-
 }

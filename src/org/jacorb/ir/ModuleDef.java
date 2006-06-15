@@ -20,19 +20,18 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-
+import org.apache.avalon.framework.logger.Logger;
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.PortableServer.POA;
-import org.apache.avalon.framework.logger.Logger;
 
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 public class ModuleDef
     extends Contained
     implements org.omg.CORBA.ModuleDefOperations, ContainerType
 {
-    private static char 	fileSeparator =
-        System.getProperty("file.separator").charAt(0);
-
     private Container           delegate;
     private String 		path = null;
     private Logger logger;
@@ -48,7 +47,7 @@ public class ModuleDef
     {
         this.logger = logger;
         this.path = path;
-        this.full_name = full_name.replace(fileSeparator,'/');
+        this.full_name = full_name;
 
         if (this.logger.isDebugEnabled())
         {
@@ -67,9 +66,9 @@ public class ModuleDef
         try
         {
             id( RepositoryID.toRepositoryID( full_name, false, loader ));
-            if( full_name.indexOf( fileSeparator ) > 0 )
+            if( full_name.indexOf( "." ) > 0 )
             {
-                name( full_name.substring( full_name.lastIndexOf( fileSeparator ) + 1 ));
+                name( full_name.substring( full_name.lastIndexOf( "." ) + 1 ));
 
                 if( defined_in instanceof org.omg.CORBA.Contained)
                 {
@@ -80,7 +79,7 @@ public class ModuleDef
                     if (this.logger.isDebugEnabled())
                     {
                         this.logger.debug("New ModuleDef 1a) name " +
-                                          name() + " absolute: " + 
+                                          name() + " absolute: " +
                                           absolute_name);
                     }
                 }
@@ -329,6 +328,4 @@ public class ModuleDef
     {
         delegate.destroy();
     }
-
-
 }

@@ -35,9 +35,6 @@ public class UnionDef
     extends TypedefDef
     implements org.omg.CORBA.UnionDefOperations, ContainerType
 {
-    protected static char 	    fileSeparator =
-        System.getProperty("file.separator").charAt(0);
-
     private org.omg.CORBA.UnionMember [] members;
     private org.omg.CORBA.TypeCode discriminator_type;
     private org.omg.CORBA.IDLType discriminator_type_def;
@@ -47,7 +44,7 @@ public class UnionDef
 
     /* reference to my container as a contained object */
     private org.omg.CORBA.Contained       myContainer;
-	/** local references to contained objects */
+    /** local references to contained objects */
     private Hashtable  containedLocals = new Hashtable();
     /** CORBA references to contained objects */
     private Hashtable  contained = new Hashtable();
@@ -59,7 +56,7 @@ public class UnionDef
     private POA poa;
 
     public UnionDef( Class c,
- 					 String path,
+                      String path,
                      org.omg.CORBA.Container _defined_in,
                      org.omg.CORBA.Repository ir,
                      ClassLoader loader,
@@ -103,13 +100,13 @@ public class UnionDef
                                                             type.member_type(i),
                                                             null );
             }
-			discriminator_type =  type.discriminator_type();
+            discriminator_type =  type.discriminator_type();
         }
         catch( Exception e )
         {
             this.logger.error("Caught Exception", e);
         }
-	}
+    }
 
     public void loadContents()
     {
@@ -130,7 +127,7 @@ public class UnionDef
         /* load nested definitions from interfacePackage directory */
 
         String[] classes = null;
-		if( my_dir != null )
+        if( my_dir != null )
         {
             classes = my_dir.list( new IRFilenameFilter(".class") );
 
@@ -144,8 +141,8 @@ public class UnionDef
                         if (this.logger.isDebugEnabled())
                         {
                             this.logger.debug("Union " +name+ " tries " +
-                                              full_name.replace('.', fileSeparator) +
-                                              "Package" + fileSeparator +
+                                              full_name +
+                                              "Package." +
                                               classes[j].substring( 0, classes[j].indexOf(".class")));
                         }
 
@@ -157,12 +154,12 @@ public class UnionDef
 
                         Class cl =
                             loader.loadClass(
-                                   ( full_name.replace('.', fileSeparator) + "Package" + fileSeparator +
+                                   ( full_name + "Package." +
                                      classes[j].substring( 0, classes[j].indexOf(".class"))
-                                     ).replace( fileSeparator, '/') );
+                                     ));
 
 
-                        Contained containedObject = 
+                        Contained containedObject =
                             Contained.createContained( cl,
                                                        path,
                                                        myReference,
@@ -199,7 +196,7 @@ public class UnionDef
                 }
             }
         }
-	}
+    }
 
 
     public void define()
@@ -218,19 +215,19 @@ public class UnionDef
              ((IRObject)e.nextElement()).define())
             ;
 
-		try
+        try
         {
-			for( int i = 0; i < members.length; i++ )
-			{
-				members[i].type_def =
-					IDLType.create( members[i].type, containing_repository,
+            for( int i = 0; i < members.length; i++ )
+            {
+                members[i].type_def =
+                    IDLType.create( members[i].type, containing_repository,
                                     this.logger, this.poa );
-			}
-		}
-		catch ( Exception e )
-		{
-			this.logger.error("Caught Exception", e);
-		}
+            }
+        }
+        catch ( Exception e )
+        {
+            this.logger.error("Caught Exception", e);
+        }
 
         if (this.logger.isDebugEnabled())
         {
@@ -354,7 +351,7 @@ public class UnionDef
         {
             if (this.logger.isDebugEnabled())
             {
-                this.logger.debug("Container " + this.name + " top " + 
+                this.logger.debug("Container " + this.name + " top " +
                                   top_level_name + " not found ");
             }
 
@@ -376,8 +373,8 @@ public class UnionDef
             {
                 if (this.logger.isDebugEnabled())
                 {
-                    this.logger.debug("Container " + this.name +" " + 
-                                      scopedname + " not found, top " + 
+                    this.logger.debug("Container " + this.name +" " +
+                                      scopedname + " not found, top " +
                                       top.getClass().getName());
                 }
                 return null;

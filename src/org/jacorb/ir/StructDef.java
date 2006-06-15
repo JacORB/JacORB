@@ -20,22 +20,18 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.INTF_REPOS;
-import org.omg.PortableServer.POA;
-
-import java.lang.reflect.*;
-import java.util.*;
-import java.io.*;
+import java.io.File;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
 
 public class StructDef
     extends TypedefDef
     implements org.omg.CORBA.StructDefOperations, ContainerType
 {
-    protected static char 	    fileSeparator =
-        System.getProperty("file.separator").charAt(0);
-
     private org.omg.CORBA.TypeCode       type;
     private Class                        myClass;
     private Class                        helperClass;
@@ -62,7 +58,7 @@ public class StructDef
                      Logger logger,
                      ClassLoader loader,
                      POA poa)
-    {   
+    {
         this.logger = logger;
         this.loader = loader;
         this.poa = poa;
@@ -84,7 +80,7 @@ public class StructDef
             String classId = c.getName();
             myClass = c;
             version( "1.0" );
-            full_name = classId.replace('.', '/');
+            full_name = classId;
 
             if( classId.indexOf('.') > 0 )
             {
@@ -102,11 +98,8 @@ public class StructDef
             helperClass = this.loader.loadClass( classId + "Helper") ;
             id( (String)helperClass.getDeclaredMethod( "id", (Class[]) null ).invoke( null, (Object[]) null ));
 
-//              type =
-//                  TypeCodeUtil.getTypeCode( myClass, this.loader, null, classId );
-
-            type = (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod( 
-                                                   "type", 
+            type = (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod(
+                                                   "type",
                                                    (Class[]) null ).invoke( null, (Object[]) null );
 
             members = new org.omg.CORBA.StructMember[ type.member_count() ];
@@ -117,7 +110,7 @@ public class StructDef
 
                 if (this.logger.isDebugEnabled())
                 {
-                    this.logger.debug("StructDef " + absolute_name  + 
+                    this.logger.debug("StructDef " + absolute_name  +
                                       " member " + member_name);
                 }
 
@@ -179,8 +172,8 @@ public class StructDef
                         if (this.logger.isDebugEnabled())
                         {
                             this.logger.debug("Struct " +name+ " tries " +
-                                              full_name.replace('.', fileSeparator) +
-                                              "Package" + fileSeparator +
+                                              full_name +
+                                              "Package." +
                                               classes[j].substring( 0, classes[j].indexOf(".class")));
                         }
 
@@ -192,12 +185,13 @@ public class StructDef
 
                         Class cl =
                             loader.loadClass(
-                                             ( full_name.replace('.', fileSeparator) + "Package" + fileSeparator +
+                                             ( full_name +
+                                               "Package." +
                                                classes[j].substring( 0, classes[j].indexOf(".class"))
-                                               ).replace( fileSeparator, '/') );
+                                               ));
 
 
-                        Contained containedObject = 
+                        Contained containedObject =
                             Contained.createContained( cl,
                                                        path,
                                                        myReference,
@@ -338,7 +332,7 @@ public class StructDef
                 if (this.logger.isDebugEnabled())
                 {
                     this.logger.debug("Interface " + this.name +
-                                      " top " + top_level_name + 
+                                      " top " + top_level_name +
                                       " not found ");
                 }
                 return null;

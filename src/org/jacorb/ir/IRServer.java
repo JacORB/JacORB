@@ -20,38 +20,33 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.lang.reflect.*;
 
 /**
  * The main server that starts the Interface Repository
  *
- * @author (c) Gerald Brose, FU Berlin 2000
+ * @author Gerald Brose
  * @version $Id$
  */
 
 public class IRServer
 {
-    protected static char fileSeparator = 
-        System.getProperty("file.separator").charAt(0);
-
     /**
      * @param  args a vector  of commandline arguments,  where args[1]
-     * needs to be a filename string and args[0] a classpath string 
+     * needs to be a filename string and args[0] a classpath string
      */
-
-    public static void main( String args[] )  
+    public static void main( String args[] )
     {
-        boolean load = false;
+        System.setProperty ("jacorb.implname", "InterfaceRepository");
 
         if( args.length != 2)
         {
             System.err.println("Usage: java org.jacorb.ir.IRServer <classpath> <IOR filename>");
             System.exit(1);
-        }  
- 
+        }
+
         try
         {
-            java.util.StringTokenizer strtok = 
+            java.util.StringTokenizer strtok =
                 new java.util.StringTokenizer( args[0], java.io.File.pathSeparator );
 
             //#ifjdk 1.2
@@ -60,37 +55,37 @@ public class IRServer
                 {
                     urls[i] = new java.io.File( strtok.nextToken() ).toURL();
                 }
-                
-                java.net.URLClassLoader classLoader = 
+
+                java.net.URLClassLoader classLoader =
                     new java.net.URLClassLoader( urls );
-                
-                Class repositoryClass = 
+
+                Class repositoryClass =
                     classLoader.loadClass("org.jacorb.ir.RepositoryImpl");
             //#else
             //# ClassLoader classLoader = null;
             //# Class repositoryClass = Class.forName ("org.jacorb.ir.RepositoryImpl");
             //#endif
 
-            Object repository = 
+            Object repository =
                 repositoryClass.getConstructors()[0].newInstance(
-                                     new Object[]{ args[0] , 
-                                                   args[1], 
+                                     new Object[]{ args[0] ,
+                                                   args[1],
                                                    classLoader });
 
             repositoryClass.getDeclaredMethod("loadContents", (Class[]) null ).invoke( repository, (Object[]) null );
-            
+
             Object lock = new Object();
-            synchronized( lock ) 
-            { 
-                lock.wait(); 
+            synchronized( lock )
+            {
+                lock.wait();
             }
 
-        } 
+        }
         catch( Exception e )
         {
             e.printStackTrace();
             System.exit(1);
-        } 
+        }
     }
 
 }

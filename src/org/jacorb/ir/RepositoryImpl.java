@@ -37,9 +37,9 @@ import org.apache.avalon.framework.configuration.*;
  * Methods from the "write" interface to the IR
  * are not supported.
  * <p>
- * @author (c) Gerald Brose, FU Berlin 1997
- * @version 1.0
  *
+ * @author Gerald Brose
+ * @version $Id$
  */
 
 public class RepositoryImpl
@@ -47,19 +47,9 @@ public class RepositoryImpl
     implements org.omg.CORBA.RepositoryOperations, Configurable
 
 {
-    private String		classpath;
-    private Hashtable		contained = new Hashtable();
-    private ClassLoader loader;
     private Container[]         containers ;
     private Container           delegate ;
-
     private POA poa;
-
-    public static char 	        fileSeparator =
-        System.getProperty("file.separator").charAt(0);
-
-    public static String 	pathSeparator =
-        System.getProperty("path.separator");
 
     /** the configuration object for this IR instance */
     private org.jacorb.config.Configuration configuration = null;
@@ -82,8 +72,6 @@ public class RepositoryImpl
                            //#endif
         throws Exception
     {
-        this.classpath = classpath;
-        this.loader = loader;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Repository;
         name = "Repository";
 
