@@ -511,6 +511,12 @@ public class StructType
                 ps.println();
             }
 
+            if (parser.generateEnhanced)
+            {
+                printToString(fullClassName, ps);
+                printEquals(fullClassName, ps);
+            }
+
             // print a constructor for class member initialization
 
             if (exc)
@@ -684,4 +690,133 @@ public class StructType
     {
         visitor.visitStruct(this);
     }
+
+    private void printEquals(String s, PrintWriter printwriter)
+    {
+        printwriter.println("\tpublic boolean equals(java.lang.Object o) ");
+        printwriter.println("\t{ ");
+
+        StringBuffer buffer = new StringBuffer("\t\tif (this == o) return true;");
+        buffer.append("\n");
+        buffer.append("\t\tif (o == null) return false;");
+        buffer.append("\n");
+        buffer.append("\n");
+        buffer.append("\t\tif (o instanceof " + s + " )\n\t\t{");
+        buffer.append("\n");
+        buffer.append("\t\t\tfinal " + s + " obj = ( " + s + " )o;");
+        buffer.append("\n");
+        buffer.append("\t\t\tboolean res = true; ");
+        buffer.append("\n");
+        buffer.append("\t\t\tdo { ");
+        buffer.append("\n");
+        for(Enumeration enumeration = memberlist.v.elements(); enumeration.hasMoreElements();)
+        {
+            Member member = (Member)enumeration.nextElement();
+            if(BaseType.isBasicName(member.type_spec.toString()) && !member.type_spec.toString().equals("String") && !member.type_spec.toString().equals("java.lang.String") && member.type_spec.toString().indexOf("[") < 0)
+            {
+                buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." + member.declarator.toString() + ");");
+                buffer.append("\n\t\t\t\tif (!res) break;\n\n");
+            }
+            else
+            {
+                if(member.type_spec.toString().indexOf("[") >= 0)
+                {
+                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." + member.declarator.toString() + ") || (this." + member.declarator.toString() + " != null && obj." + member.declarator.toString() + " != null && this." + member.declarator.toString() + ".length == obj." + member.declarator.toString() + ".length);\n");
+
+                    buffer.append("\t\t\t\tif (res)\n\n\t\t\t\t{\n");
+                    buffer.append("\t\t\t\t\tres = java.util.Arrays.equals(this." + member.declarator.toString() + ", obj." + member.declarator.toString() + ");");
+                    buffer.append("\n\t\t\t\t}\n");
+                    buffer.append("\t\t\t\tif(!res) break;\n\n");
+                }
+                else
+                {
+                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." + member.declarator.toString() + ") || (this." + member.declarator.toString() + " != null && obj." + member.declarator.toString() + " != null && this." + member.declarator.toString() + ".equals (obj." + member.declarator.toString() + "));");
+                    buffer.append("\n\t\t\t\tif (!res) break;\n\n");
+                }
+            }
+        }
+
+        buffer.append("\t\t\t}");
+        buffer.append("\n");
+        buffer.append("\t\t\twhile(false);");
+        buffer.append("\n");
+        buffer.append("\t\t\treturn res;");
+        buffer.append("\n");
+        buffer.append("\t\t}");
+        buffer.append("\n");
+        buffer.append("\t\telse\n\t\t{\n");
+        buffer.append("\t\t\treturn false;");
+        buffer.append("\n");
+        buffer.append("\t\t}");
+        buffer.append("\n");
+        buffer.append("\t}");
+        buffer.append("\n");
+
+        printwriter.println(buffer.toString());
+        printwriter.println();
+    }
+
+    private void printToString(String s, PrintWriter printwriter)
+    {
+        printwriter.println("\tpublic String toString() ");
+        printwriter.println("\t{ ");
+
+        StringBuffer buffer = new StringBuffer("\t\tfinal java.lang.StringBuffer _ret  =  new java.lang.StringBuffer(\"struct " + s + " {\"); ");
+        buffer.append("\n");
+        buffer.append("\t\t_ret.append(\"\\n\"); ");
+        for(Enumeration enumeration = memberlist.v.elements(); enumeration.hasMoreElements();)
+        {
+            Member member = (Member)enumeration.nextElement();
+            buffer.append("\n");
+            buffer.append("\t\t_ret.append(\"" + member.type_spec.toString() + " " + member.declarator.toString() + "=\");");
+            buffer.append("\n");
+            if(member.type_spec.toString().indexOf("[") < 0)
+            {
+                buffer.append("\t\t_ret.append(" + member.declarator.toString() + ");");
+            } else
+            {
+                buffer.append("\t\t_ret.append(\"{\");");
+                buffer.append("\n");
+                buffer.append("\t\tif(" + member.declarator.toString() + "== null){");
+                buffer.append("\n");
+                buffer.append("\t\t\t_ret.append(" + member.declarator.toString() + ");");
+                buffer.append("\n");
+                buffer.append("\t\t}else { ");
+                buffer.append("\n");
+                buffer.append("\t\t\tfor(int $counter =0; $counter < " + member.declarator.toString() + ".length; $counter++){ ");
+                buffer.append("\n");
+                buffer.append("\t\t\t\t_ret.append(" + member.declarator + "[$counter]);");
+                buffer.append("\n");
+                buffer.append("\t\t\t\tif($counter < " + member.declarator.toString() + ".length-1) { ");
+                buffer.append("\n");
+                buffer.append("\t\t\t\t\t_ret.append(\",\");");
+                buffer.append("\n");
+                buffer.append("\t\t\t\t} ");
+                buffer.append("\n");
+                buffer.append("\t\t\t}");
+                buffer.append("\n");
+                buffer.append("\t\t} ");
+                buffer.append("\n");
+                buffer.append("\t\t_ret.append(\"}\");");
+                buffer.append("\n");
+            }
+            buffer.append("\n");
+            if(enumeration.hasMoreElements())
+            {
+                buffer.append("\t\t_ret.append(\",\\n\");");
+            } else
+            {
+                buffer.append("\t\t_ret.append(\"\\n\");");
+            }
+        }
+
+        buffer.append("\n");
+        buffer.append("\t\t_ret.append(\"}\");");
+        buffer.append("\n\t\treturn _ret.toString();");
+
+        printwriter.println(buffer);
+        printwriter.println("\t} ");
+        printwriter.println();
+    }
+
 }
