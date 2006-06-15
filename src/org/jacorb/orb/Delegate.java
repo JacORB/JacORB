@@ -104,6 +104,8 @@ public final class Delegate
 
     private String invokedOperation = null;
 
+    private ClientInterceptorHandler interceptors;
+
     /** the configuration object for this delegate */
     private org.apache.avalon.framework.configuration.Configuration configuration = null;
 
@@ -284,7 +286,9 @@ public final class Delegate
 
             org.omg.ETF.Profile p = _pior.getEffectiveProfile();
             if (p == null)
+            {
                 throw new org.omg.CORBA.COMM_FAILURE ("no effective profile");
+            }
 
             connection = conn_mg.getConnection(p);
             bound = true;
@@ -341,7 +345,7 @@ public final class Delegate
                         {
                             //_OBJECT_FORWARD_PERM is actually more or
                             //less deprecated
-                            rebind( orb.object_to_string( lris.read_Object() ) );
+                            rebind(lris.read_Object());
                             break;
                         }
 
@@ -385,61 +389,61 @@ public final class Delegate
         }
     }
 
-    public void rebind(String object_reference)
+    public void rebind(org.omg.CORBA.Object obj)
     {
- //        synchronized (bind_sync)
-//         {
-            if (object_reference.indexOf( "IOR:" ) == 0)
-            {
-                rebind( new ParsedIOR( object_reference, orb, logger ) );
-            }
-            else
-            {
-                throw new org.omg.CORBA.INV_OBJREF( "Not an IOR: " +
-                                                    object_reference );
-            }
-            //        }
+        String object_reference = orb.object_to_string(obj);
+
+        if (object_reference.indexOf( "IOR:" ) == 0)
+        {
+            rebind(new ParsedIOR( object_reference, orb, logger));
+        }
+        else
+        {
+            throw new INV_OBJREF ("Not an IOR: " + object_reference);
+        }
     }
 
-    public void rebind( org.omg.CORBA.Object o )
-    {
-        rebind(orb.object_to_string(o));
-    }
-
-    public void rebind( ParsedIOR p )
+    public void rebind(ParsedIOR ior)
     {
         synchronized ( bind_sync )
         {
+            // Do the ParsedIORs currently match.
+            final ParsedIOR originalIOR = getParsedIOR();
+            boolean originalMatch = originalIOR.equals(ior);
+
             // Check if ClientProtocolPolicy set, if so, set profile
             // selector for IOR that selects effective profile for protocol
             org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
 
             if (protocols != null)
             {
-                getParsedIOR().setProfileSelector(new SpecificProfileSelector(protocols));
+                ior.setProfileSelector(new SpecificProfileSelector(protocols));
             }
 
-            if ( p.equals( _pior ) )
+            // While the target override may have altered the effective profile so that
+            // the IORs are now equal if the original ones do not match we still have to
+            // disconnect so that the connection is made with the correct effective profile.
+            if (originalMatch && ior.equals(originalIOR))
             {
                 //already bound to target so just return
                 return ;
             }
 
-            if ( piorLastFailed != null && piorLastFailed.equals( p ) )
+            if (piorLastFailed != null && piorLastFailed.equals(ior))
             {
                 //we've already failed to bind to the ior
                 throw new org.omg.CORBA.TRANSIENT();
             }
 
-            if ( piorOriginal == null )
+            if (piorOriginal == null)
             {
                 //keep original pior for fallback
                 piorOriginal = _pior;
             }
 
-            _pior = p;
+            _pior = ior;
 
-            if ( connection != null )
+            if (connection != null)
             {
                 conn_mg.releaseConnection( connection );
                 connection = null;
@@ -925,9 +929,11 @@ public final class Delegate
         RequestOutputStream ros      = (RequestOutputStream)os;
         ReplyReceiver       receiver = null;
 
-        ClientInterceptorHandler interceptors =
-            new ClientInterceptorHandler( orb, ros, self, this,
-                                          piorOriginal, connection );
+        if (interceptors == null)
+        {
+            interceptors = new ClientInterceptorHandler
+                (orb, ros, self, this, piorOriginal, connection);
+        }
 
         interceptors.handle_send_request();
 
@@ -999,6 +1005,10 @@ public final class Delegate
             }
 
             throw cfe;
+        }
+        finally
+        {
+            interceptors = null;
         }
 
         if ( !async && receiver != null )
@@ -1171,7 +1181,7 @@ public final class Delegate
         }
         catch ( org.omg.PortableInterceptor.ForwardRequest fwd )
         {
-            rebind( orb.object_to_string( fwd.forward ) );
+            rebind(fwd.forward);
             throw new RemarshalException();
         }
         catch ( org.omg.CORBA.UserException ue )
@@ -1359,7 +1369,7 @@ public final class Delegate
             return false;
         }
 
-        if (orb.hasRequestInterceptors())
+        if (interceptors == null && orb.hasRequestInterceptors())
         {
             return false;
         }
