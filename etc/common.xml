@@ -45,6 +45,7 @@
       <fileset dir="${basedir}/lib" >
          <include name="*.jar" />
          <exclude name="jacorb.jar" />
+         <exclude name="idl.jar" />
       </fileset>
       <pathelement path="${java.class.path}"/>
       <pathelement path="${sun.boot.class.path}"/>
