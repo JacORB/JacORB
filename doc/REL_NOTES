@@ -48,6 +48,7 @@
           workaround for Java bug #4344135 and is is only useful in conjunction
           with the SI&C SSL socket factories.
         - Fix recursive typecode bug.
+        - Fixed CDROutputStream to correctly handle RMI object replacement
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
            in StructType so far.

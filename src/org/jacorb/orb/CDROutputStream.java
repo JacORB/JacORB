@@ -2503,39 +2503,50 @@ public class CDROutputStream
                     writeValueNestingLevel++;
                     if (chunkCustomRmiValuetypes
                         && ValueHandler.isCustomMarshaled(cls))
+                    {
                         chunkingFlag = 0x00000008;
-                    write_value_header( repository_ids, codebase );
-                    start_chunk();
+                    }
+
+                    Serializable newValue = value;
                     if (!writeReplaceCalled)
                     {
                         // writeReplace must be called only once for this value
-                        java.io.Serializable newValue =
-                            ValueHandler.writeReplace(value);
+                        newValue = ValueHandler.writeReplace(value);
                         writeReplaceCalled = true; // won't call it again
+                    }
 
-                        if (newValue != value)
+                    if (newValue != value)
+                    {
+                        // recompute codebase and/or repositoryID as might have changed
+                        String new_rep_id =
+                            ValueHandler.getRMIRepositoryID(newValue.getClass());
+                        repository_ids =
+                            (new_rep_id == null) ? null : new String []{new_rep_id};
+                        cls = value.getClass();
+                        codebase = ValueHandler.getCodebase(cls);
+                    }
+
+                    write_value_header( repository_ids, codebase );
+                    start_chunk();
+
+                    if (newValue != value)
+                    {
+
+                        // look at the new value
+                        Integer index = (Integer)getValueMap().get(newValue);
+                        if (index != null)
                         {
-                            // look at the new value
-                            Integer index = (Integer)getValueMap().get(newValue);
-                            if (index != null)
-                            {
-                                // previously marshaled value -- make an indirection
-                                write_long (0xffffffff);
-                                write_long (index.intValue() - size());
-                            }
-                            else if (newValue instanceof org.omg.CORBA.Object)
-                            {
-                                write_Object((org.omg.CORBA.Object)newValue);
-                            }
-                            else
-                            {
-                                ValueHandler.writeValue(this, newValue);
-                            }
+                            // previously marshaled value -- make an indirection
+                            write_long (0xffffffff);
+                            write_long (index.intValue() - size());
+                        }
+                        else if (newValue instanceof org.omg.CORBA.Object)
+                        {
+                            write_Object((org.omg.CORBA.Object)newValue);
                         }
                         else
                         {
-                            // writeReplace did't make a difference
-                            ValueHandler.writeValue(this, value);
+                            ValueHandler.writeValue(this, newValue);
                         }
                     }
                     else
@@ -2549,7 +2560,9 @@ public class CDROutputStream
                 finally
                 {
                     if (--writeValueNestingLevel == 0)
+                    {
                         writeReplaceCalled = false;
+                    }
                 }
             }
         }
