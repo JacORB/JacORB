@@ -37,7 +37,7 @@ import org.omg.PortableInterceptor.*;
 /**
  * An instance of this class handles all interactions between one particular
  * client request and any interceptors registered for it.
- * 
+ *
  * @author Andre Spiegel
  * @version $Id$
  */
@@ -45,14 +45,14 @@ public class ClientInterceptorHandler
 {
     private ClientRequestInfoImpl info = null;
     private Logger logger;
-    
+
     /**
      * Constructs an interceptor handler for the given parameters.
      * If no interceptors are registered on the client side,
      * the resulting object will be a dummy object that does nothing when
      * invoked.
      */
-    public ClientInterceptorHandler 
+    public ClientInterceptorHandler
                       ( org.jacorb.orb.ORB orb,
                         org.jacorb.orb.giop.RequestOutputStream ros,
                         org.omg.CORBA.Object self,
@@ -65,26 +65,26 @@ public class ClientInterceptorHandler
             info = new ClientRequestInfoImpl ( orb, ros, self, delegate,
                                                piorOriginal, connection );
         }
-        logger = 
+        logger =
             orb.getConfiguration().getNamedLogger("jacorb.orb.client_interceptors");
     }
-    
+
     public void handle_send_request() throws RemarshalException
     {
         if ( info != null )
         {
             invokeInterceptors ( info, ClientInterceptorIterator.SEND_REQUEST );
-            
+
             // Add any new service contexts to the message
             Enumeration ctx = info.getRequestServiceContexts();
-            
+
             while ( ctx.hasMoreElements() )
             {
-                info.request_os.addServiceContext 
+                info.request_os.addServiceContext
                                        ( ( ServiceContext ) ctx.nextElement() );
-            }           
+            }
         }
-    }   
+    }
 
     public void handle_location_forward ( ReplyInputStream     reply,
                                           org.omg.CORBA.Object forward_reference )
@@ -109,7 +109,7 @@ public class ClientInterceptorHandler
         throws RemarshalException
     {
         if ( info != null )
-        {                                          
+        {
             ReplyHeader_1_2 header = reply.rep_hdr;
 
             if ( header.reply_status.value() == ReplyStatusType_1_2._NO_EXCEPTION )
@@ -138,7 +138,7 @@ public class ClientInterceptorHandler
             }
         }
     }
-            
+
     public void handle_receive_other ( short reply_status )
         throws RemarshalException
     {
@@ -146,14 +146,14 @@ public class ClientInterceptorHandler
         {
             info.setReplyStatus (reply_status);
             invokeInterceptors ( info, ClientInterceptorIterator.RECEIVE_OTHER );
-        }   
+        }
     }
 
     public void handle_receive_exception ( org.omg.CORBA.SystemException ex )
         throws RemarshalException
     {
         handle_receive_exception ( ex, null );
-    }        
+    }
 
     public void handle_receive_exception ( org.omg.CORBA.SystemException ex,
                                            ReplyInputStream reply )
@@ -179,7 +179,7 @@ public class ClientInterceptorHandler
                 info.setReplyServiceContexts ( reply.rep_hdr.service_context );
                 info.reply_is = reply;
             }
-            
+
             invokeInterceptors ( info,
                                  ClientInterceptorIterator.RECEIVE_EXCEPTION );
         }
@@ -194,7 +194,7 @@ public class ClientInterceptorHandler
             info.received_exception_id = ex.getId();
             try
             {
-                ApplicationExceptionHelper.insert( info.received_exception, 
+                ApplicationExceptionHelper.insert( info.received_exception,
                                                    ex );
             }
             catch ( Exception e )
@@ -215,17 +215,17 @@ public class ClientInterceptorHandler
             {
                 // shouldn't happen anyway
                 if (logger.isWarnEnabled())
-                    logger.warn(e.getMessage()); 
-            }                        
+                    logger.warn(e.getMessage());
+            }
 
             info.setReplyServiceContexts ( reply.rep_hdr.service_context );
             info.reply_is = reply;
-            
+
             invokeInterceptors ( info,
                                  ClientInterceptorIterator.RECEIVE_EXCEPTION );
         }
     }
-        
+
     private void invokeInterceptors( ClientRequestInfoImpl info, short op )
       throws RemarshalException
     {
@@ -238,15 +238,25 @@ public class ClientInterceptorHandler
         }
         catch ( org.omg.PortableInterceptor.ForwardRequest fwd )
         {
-            info.delegate.rebind( info.orb.object_to_string( fwd.forward ) );
+            // This allows SendRequest to access the forwarded object.
+            //
+            // Note that the current version of the specification does not
+            // permit forward_reference to be accessed by SendRequest; this
+            // modification is a PrismTech enhancement complying one of the
+            // suggested portable solutions within
+            // http://www.omg.org/issues/issue5266.txt.
+            info.setForwardReference(fwd.forward);
+
+            info.delegate.rebind(fwd.forward );
+
             throw new RemarshalException();
         }
         catch ( org.omg.CORBA.UserException ue )
         {
             if (logger.isWarnEnabled())
-                logger.warn("UserException: " + ue.getMessage()); 
+                logger.warn("UserException: " + ue.getMessage());
         }
     }
 
-    
+
 }
