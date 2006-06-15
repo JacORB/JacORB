@@ -377,4 +377,25 @@ public class AbstractIDLTestcase extends TestCase
             name.delete();
         }
     }
+
+    /**
+     * search for a method with the signature
+     * public void verify_<FILENAME>(ClassLoader cl) {...}
+     * (dots in filename will be converted to _) and invoke
+     * it with the specified classloader.
+     */
+    protected void invokeVerifyMethod(ClassLoader cl) throws IllegalAccessException, InvocationTargetException
+    {
+        try
+        {
+            // test if a verify_ method is available and invoke it
+            String file = idlFile.getName().replaceAll("\\.", "_");
+            Method method = getClass().getMethod("verify_" + file, new Class[] {ClassLoader.class});
+            method.invoke(this, new Object[] {cl});
+        }
+        catch (NoSuchMethodException e)
+        {
+            // ignored
+        }
+    }
 }

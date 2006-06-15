@@ -1,0 +1,31 @@
+
+
+module org
+{
+  module jacorb
+  {
+     module test
+     {
+        module bugs
+        {
+           module bugjac149
+           {
+              struct NameAndStringValue_T
+              {
+                 string      name;
+                 string      value;
+              };
+
+              struct VarLengthStruct
+              {
+                 string               m1;
+                 boolean              alarmMonitoringIndicator;
+                 any                  value;
+                 NameAndStringValue_T nsvt;
+                 sequence<string>     m1Seq;
+              };
+           };
+        };
+     };
+  };
+};
