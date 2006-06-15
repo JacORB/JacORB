@@ -515,6 +515,7 @@ public class StructType
             {
                 printToString(fullClassName, ps);
                 printEquals(fullClassName, ps);
+                printHashCode(fullClassName, ps);
             }
 
             // print a constructor for class member initialization
@@ -580,6 +581,15 @@ public class StructType
         }
         ps.println("}");
     }
+
+    /**
+     * TODO need to implement this method
+     * as equals is overridden.
+     */
+    private void printHashCode(String fullClassName, PrintWriter ps)
+    {
+    }
+
 
     /**
      * Generates code from this AST class
