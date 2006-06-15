@@ -9,6 +9,8 @@
    <!-- $Id$ -->
    <!-- ==================================================== -->
 
+	<property file="${basedir}/build.properties" />
+	
    &common;
 
    <!-- top-level target -->
@@ -280,7 +282,14 @@
    <!-- ==================================================== -->
 
    <target name="load-pmd-taskdef" depends="init">
-      <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpath="${classpath}"/>
+   	<property environment="Env"/>
+   		<property name="pmd.home" value="${Env.PMD_HOME}" />
+   	   	<path id="path.pmd" >
+   	   		<fileset dir="${pmd.home}/lib" >
+   	   			<include name="*.jar" />
+   	   		</fileset>
+   	   	</path>
+      <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpathref="path.pmd"/>
    </target>
 
 
@@ -307,12 +316,18 @@
    <!-- ==================================================== -->
 
    <target name="load-findbugs-taskdef" depends="init">
-      <taskdef name="findBugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+   	<property environment="Env"/>
+	<property name="findbugs.home" value="${Env.FINDBUGS_HOME}" />
+   	<path id="path.findbugs" >
+   		<fileset dir="${findbugs.home}/lib" >
+   			<include name="*.jar" />
+   		</fileset>
+   	</path>
+    <taskdef name="findBugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="path.findbugs"/>
    </target>
 
    <target name="findbugs" depends="load-findbugs-taskdef">
-      <property environment="Env"/>
-      <findBugs home="${Env.FINDBUGS_HOME}"
+      <findBugs home="${findbugs.home}"
                 output="html"
                 outputFile="${basedir}/findbugs_report.html"
                 excludeFilter="${basedir}/etc/findbugs-ruleset.xml"
@@ -321,12 +336,12 @@
                 jvmargs="-Xmx500M"
                 timeout="12000000">
          <sourcePath path="${src}"/>
-         <auxClasspath path="${classpath}"/>
+         <auxClasspath path="${classdir}"/>
+         <auxClasspath path="${basedir}/lib/avalon-framework-4.1.5.jar"/>
          <systemProperty name="findbugs.de.comment" value="true"/>
          <class location="${basedir}/classes/org/jacorb/imr"/>
          <class location="${basedir}/classes/org/jacorb/orb"/>
          <class location="${basedir}/classes/org/jacorb/poa"/>
-         <class location="${basedir}/classes/org/jacorb/security"/>
          <class location="${basedir}/classes/org/jacorb/util"/>
       </findBugs>
    </target>
