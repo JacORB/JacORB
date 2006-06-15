@@ -511,14 +511,17 @@ public class ClientIIOPConnection
             ( ((tls.target_requires & minimum_options) != 0) || //server ...
               ((client_required & minimum_options) != 0))) //...or client require it
         {
+            use_ssl  = true;
+            ssl_port = tls.addresses[0].port;
+            if (ssl_port < 0)
+            {
+                ssl_port += 65536;
+            }
+
             if (logger.isDebugEnabled())
             {
                 logger.debug("Selecting TLS for connection");
             }
-
-            use_ssl  = true;
-            ssl_port = tls.addresses[0].port;
-            if (ssl_port < 0) ssl_port += 65536;
         }
         else if( ssl != null && // server knows about ssl...
             ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
@@ -527,15 +530,17 @@ public class ClientIIOPConnection
             ( ((ssl.target_requires & minimum_options) != 0) || //server ...
               ((client_required & minimum_options) != 0))) //...or client require it
         {
+            use_ssl  = true;
+            ssl_port = ssl.port;
+            if (ssl_port < 0)
+            {
+                ssl_port += 65536;
+            }
+
             if (logger.isDebugEnabled())
             {
                 logger.debug("Selecting SSL for connection");
             }
-
-            use_ssl  = true;
-            ssl_port = ssl.port;
-            if (ssl_port < 0)
-                ssl_port += 65536;
         }
         //prevent client policy violation, i.e. opening plain TCP
         //connections when SSL is required
