@@ -156,16 +156,40 @@ public class TestUtils
     {
         try
         {
-            Constructor _ctor = clazz.getConstructor(new Class[] { String.class, setup.getClass() });
+            Constructor ctor = getConstructor(clazz, setup);
 
             for (int x = 0; x < testMethods.length; ++x)
             {
-                suite.addTest((Test) _ctor.newInstance(new Object[] { testMethods[x], setup }));
+                suite.addTest((Test) ctor.newInstance(new Object[] { testMethods[x], setup }));
             }
         } catch (Exception e)
         {
             throw new RuntimeException(e.toString());
         }
+    }
+
+    /**
+     * try to locate a constructor that accepts (String, TestSetup (or subclasses));
+     */
+    private static Constructor getConstructor(Class clazz, TestSetup setup)
+    {
+        Class setupClazz = setup.getClass();
+
+        while(setupClazz != null)
+        {
+            try
+            {
+                return clazz.getConstructor(new Class[] { String.class, setupClazz});
+            }
+            catch(NoSuchMethodException e)
+            {
+                // ignored
+            }
+
+            setupClazz = setupClazz.getSuperclass();
+        }
+
+        throw new RuntimeException("Could not locate constructor for (" + String.class.getName() + ", " + setup.getClass().getName() + ") in class " + clazz.getName());
     }
 
     public static String osDependentPath(String path)
