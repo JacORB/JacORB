@@ -143,6 +143,53 @@ The default {\tt ProfileSelector} does not use the {\tt
 jacorb.transport.client.selector=my.pkg.MyProfileSelector
 \end{verbatim}
 
+\section{Selecting Specific Profiles Using RT Policies}
+JacORB has a implementation of the standard Real Time CORBA ClientProtocolPolicy
+policy which it uses to allow a developer to select between IIOP profiles that
+either support or do not support an SSL component. When applied to a bind
+(implicit or explicit), the ClientProtocolPolicy indicates the protocols that
+ may be used to make a connection to the specified object.
+
+The only non-standard proprietary component of this is the definition of two profile
+IDs that are used to distinguish between IIOP/SSL, IIOP/NOSSL and IIOP profiles. The
+three {\tt org.omg.RTCORBA.Protocol} types are:
+
+\begin{itemize}
+\item {\tt JAC\_SSL\_PROFILE\_ID}
+\item {\tt NOSSL\_PROFILE\_ID}
+\item {\tt org.omg.IOP.TAG\_INTERNET\_IOP}
+\end {itemize}
+
+The former two are defined within {\tt org.jacorb.orb.ORBConstants}. To apply
+this the developer may use, for example, a ClientRequestInterceptor that applies
+the policy to the object and throws a ForwardRequest, or may simply apply the
+policy to the object as shown below.
+
+\begin{samepage}
+\begin{small}
+\begin{verbatim}
+
+   org.omg.RTCORBA.Protocol protocol = new org.omg.RTCORBA.Protocol();
+   org.omg.RTCORBA.Protocol protocols[] = new org.omg.RTCORBA.Protocol[1];
+   org.omg.CORBA.Policy policies[] = new org.omg.CORBA.Policy[1];
+
+   protocol.protocol_type = ORBConstants.JAC_SSL_PROFILE_ID;
+   protocols[0] = protocol;
+
+   rtorb = org.omg.RTCORBA.RTORBHelper.narrow
+                (orb.resolve_initial_references ("RTORB"));
+
+   org.omg.RTCORBA.ClientProtocolPolicy cpp =
+                rtorb.create_client_protocol_policy (protocols);
+
+   policies[0] = cpp;
+
+   <mycorbaobject>._set_policy_override
+                (policies, SetOverrideType.SET_OVERRIDE);
+\end{verbatim}
+\end{small}
+\end{samepage}
+
 
 %%% Local Variables: 
 %%% mode: latex

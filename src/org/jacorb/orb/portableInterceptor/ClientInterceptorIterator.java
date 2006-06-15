@@ -23,6 +23,7 @@ package org.jacorb.orb.portableInterceptor;
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.UserException;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.SystemExceptionHelper;
 
 /**
@@ -33,7 +34,7 @@ import org.jacorb.orb.SystemExceptionHelper;
  * @version  $Id$
  */
 
-public class ClientInterceptorIterator 
+public class ClientInterceptorIterator
     extends RequestInterceptorIterator
 {
     public static final short SEND_REQUEST = 0;
@@ -43,30 +44,36 @@ public class ClientInterceptorIterator
     public static final short RECEIVE_OTHER = 4;
 
     private ClientRequestInfoImpl info = null;
+    private final Logger logger;
 
-    public ClientInterceptorIterator(Interceptor[] interceptors)
+    public ClientInterceptorIterator(Logger logger, Interceptor[] interceptors)
     {
-	super(interceptors);
+        super(interceptors);
+
+        this.logger = logger;
     }
 
     public void iterate(ClientRequestInfoImpl info, short op)
-	throws UserException
+    throws UserException
     {
-	this.info = info;
-	this.op = op;
-	
-	// ok, op <= SEND_POLL is more efficient but 
-	// less understandable
-	setDirection((op == SEND_REQUEST) || (op == SEND_POLL));
+        this.info = info;
+        this.op = op;
 
-	iterate();
+        // ok, op <= SEND_POLL is more efficient but
+        // less understandable
+        setDirection((op == SEND_REQUEST) || (op == SEND_POLL));
 
-	//propagate last exception upwards
-	if (interceptor_ex != null)
-	    if (interceptor_ex instanceof ForwardRequest)
-		throw (ForwardRequest) interceptor_ex;
-	    else
-		throw (org.omg.CORBA.SystemException) interceptor_ex;
+        iterate();
+
+        //propagate last exception upwards
+        if (interceptor_ex != null)
+        {
+            if (interceptor_ex instanceof ForwardRequest)
+            {
+                throw (ForwardRequest) interceptor_ex;
+            }
+            throw (org.omg.CORBA.SystemException) interceptor_ex;
+        }
     }
 
     /**
@@ -74,61 +81,62 @@ public class ClientInterceptorIterator
      * nextElement() until !hasMoreElements().
      */
     protected void invoke(Interceptor interceptor)
-	throws UserException
+    throws UserException
     {
-	info.caller_op = op;
+        info.caller_op = op;
 
-	try
-        {	    
-            switch (op) 
+        try
+        {
+            switch (op)
             {
-	    case SEND_REQUEST :
-		((ClientRequestInterceptor) interceptor).send_request(info);
-		break;
-	    case SEND_POLL :
-		((ClientRequestInterceptor) interceptor).send_poll(info);
-		break;
-	    case RECEIVE_REPLY :
-		((ClientRequestInterceptor) interceptor).receive_reply(info);
-		break;
-	    case RECEIVE_EXCEPTION :
-		((ClientRequestInterceptor) interceptor).receive_exception(info);
-		break;
-	    case RECEIVE_OTHER :
-		((ClientRequestInterceptor) interceptor).receive_other(info);
-	    }
-	}
+                case SEND_REQUEST :
+                    ((ClientRequestInterceptor) interceptor).send_request(info);
+                    break;
+                case SEND_POLL :
+                    ((ClientRequestInterceptor) interceptor).send_poll(info);
+                    break;
+                case RECEIVE_REPLY :
+                    ((ClientRequestInterceptor) interceptor).receive_reply(info);
+                    break;
+                case RECEIVE_EXCEPTION :
+                    ((ClientRequestInterceptor) interceptor).receive_exception(info);
+                    break;
+                case RECEIVE_OTHER :
+                    ((ClientRequestInterceptor) interceptor).receive_other(info);
+            }
+        }
         catch (ForwardRequest _fwd)
         {
-	    reverseDirection();
-	    op = RECEIVE_OTHER;
-	
+            reverseDirection();
+            op = RECEIVE_OTHER;
+
             info.reply_status = LOCATION_FORWARD.value;
 
-	    info.forward_reference = _fwd.forward;
-	    interceptor_ex = _fwd;
-	}
+            info.forward_reference = _fwd.forward;
+            interceptor_ex = _fwd;
+        }
         catch (org.omg.CORBA.SystemException _sysex)
         {
-	    reverseDirection();
-	    op = RECEIVE_EXCEPTION;
-	    interceptor_ex = _sysex;
+            reverseDirection();
+            op = RECEIVE_EXCEPTION;
+            interceptor_ex = _sysex;
 
-	    SystemExceptionHelper.insert(info.received_exception, _sysex);
-	
-	    try
+            SystemExceptionHelper.insert(info.received_exception, _sysex);
+
+            try
             {
-		info.received_exception_id = SystemExceptionHelper.type(_sysex).id();
-	    }
+                info.received_exception_id = SystemExceptionHelper.type(_sysex).id();
+            }
             catch(org.omg.CORBA.TypeCodePackage.BadKind _bk)
             {
-	    }
-	}
-        catch (Throwable th)
+            }
+        }
+        catch (Exception e)
         {
-	}
-      
-	info.caller_op = op;
+            logger.error("unexpected exception during invoke", e);
+        }
+
+        info.caller_op = op;
     }
 } // ClientInterceptorIterator
 

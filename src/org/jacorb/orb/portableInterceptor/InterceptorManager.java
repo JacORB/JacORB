@@ -20,6 +20,7 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
+import org.jacorb.orb.ORB;
 import org.omg.PortableInterceptor.*;
 import org.apache.avalon.framework.logger.Logger;
 
@@ -66,10 +67,10 @@ public class InterceptorManager
                               List server_interceptors,
                               List ior_intercept,
                               int slot_count,
-                              org.omg.CORBA.ORB orb)
+                              ORB orb)
     {
         logger =
-            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.orb.interceptors");
+            orb.getConfiguration().getNamedLogger("jacorb.orb.interceptors");
 
         if (logger.isInfoEnabled())
         {
@@ -139,7 +140,7 @@ public class InterceptorManager
      */
     public ClientInterceptorIterator getClientIterator()
     {
-        return new ClientInterceptorIterator(client_req_interceptors);
+        return new ClientInterceptorIterator(logger, client_req_interceptors);
     }
 
     /**

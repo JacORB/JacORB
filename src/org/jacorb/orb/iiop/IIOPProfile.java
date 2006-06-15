@@ -343,15 +343,18 @@ public class IIOPProfile
      */
     public boolean is_match(Profile prof)
     {
-        if (prof instanceof IIOPProfile)
+        if (prof != null && prof instanceof IIOPProfile)
         {
             IIOPProfile other = (IIOPProfile)prof;
-            return this.primaryAddress.equals(other.primaryAddress)
-               &&  this.getAlternateAddresses().equals(other.getAlternateAddresses())
-               &&  this.getSSLPort() == other.getSSLPort();
+            return
+            (
+                this.getSSLPort() == other.getSSLPort()           &&
+                this.primaryAddress.equals (other.primaryAddress) &&
+                this.getAlternateAddresses().equals(other.getAlternateAddresses())
+            );
         }
-        else
-            return false;
+
+        return false;
     }
 
     public int tag()

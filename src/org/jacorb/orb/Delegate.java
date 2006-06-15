@@ -241,6 +241,13 @@ public final class Delegate
         return org.omg.CORBA.TCKind._tk_objref;
     }
 
+    /**
+     * @see #bind(boolean)
+     */
+    private void bind()
+    {
+        bind(false);
+    }
 
     /**
      * This bind is a combination of the old _init() and bind()
@@ -253,8 +260,12 @@ public final class Delegate
      * sent. This has the advantage, that COMM_FAILURES can only occur
      * inside of _invoke, where they get handled properly (falling
      * back, etc.)
+     *
+     * @param rebind a <code>boolean</code> value which denotes if rebind
+     *               was the caller. If so, we will avoid checking client
+     *               protocols as that will have already been done.
      */
-    private void bind()
+    private void bind(boolean rebind)
     {
         synchronized (bind_sync)
         {
@@ -399,6 +410,15 @@ public final class Delegate
     {
         synchronized ( bind_sync )
         {
+            // Check if ClientProtocolPolicy set, if so, set profile
+            // selector for IOR that selects effective profile for protocol
+            org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
+
+            if (protocols != null)
+            {
+                getParsedIOR().setProfileSelector(new SpecificProfileSelector(protocols));
+            }
+
             if ( p.equals( _pior ) )
             {
                 //already bound to target so just return
