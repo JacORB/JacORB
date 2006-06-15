@@ -116,57 +116,59 @@ public class StringType
                 ')'
             );
         }
-        else
-        {
-            return
-            (
+        return
+        (
                 "org.omg.CORBA.ORB.init().create_string_tc(" +
                 (max == null ? 0 : max.pos_int_const()) +
                 ')'
-            );
-        }
+        );
     }
 
 
     public String printReadExpression( String strname )
     {
         if( wide )
+        {
             return strname + ".read_wstring()";
-        else
-            return strname + ".read_string()";
+        }
+        return strname + ".read_string()";
     }
 
     public String printReadStatement( String var_name, String strname )
     {
         if( wide )
+        {
             return var_name + "=" + strname + ".read_wstring();";
-        else
-            return var_name + "=" + strname + ".read_string();";
+        }
+        return var_name + "=" + strname + ".read_string();";
     }
 
     public String printWriteStatement( String var_name, String strname )
     {
         if( wide )
+        {
             return strname + ".write_wstring(" + var_name + ");";
-        else
-            return strname + ".write_string(" + var_name + ");";
+        }
+        return strname + ".write_string(" + var_name + ");";
     }
 
 
     public String printInsertExpression()
     {
         if( wide )
+        {
             return "insert_wstring";
-        else
-            return "insert_string";
+        }
+        return "insert_string";
     }
 
     public String printExtractExpression()
     {
         if( wide )
+        {
             return "extract_wstring";
-        else
-            return "extract_string";
+        }
+        return "extract_string";
     }
 
 
@@ -191,8 +193,3 @@ public class StringType
        max = max_;
    }
 }
-
-
-
-
-
