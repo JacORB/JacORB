@@ -42,7 +42,7 @@ import org.omg.ETF.*;
 /**
  * Class to convert IOR strings into IOR structures
  *
- * @author Gerald Brose, FU Berlin
+ * @author Gerald Brose
  * @version $Id$
  */
 
@@ -419,7 +419,9 @@ public class ParsedIOR
         else
         {
             if (logger.isDebugEnabled())
+            {
                 logger.debug("Trying to resolve URL/IOR from: " + object_reference);
+            }
 
             String content = null;
             try
@@ -552,7 +554,9 @@ public class ParsedIOR
         int pound = object_reference.indexOf('#');
 
         if (pound == -1)
+        {
             corbaloc += object_reference.substring(colon + 1);
+        }
         else
         {
             corbaloc += object_reference.substring(colon + 1, pound);
@@ -561,10 +565,11 @@ public class ParsedIOR
 
         /* empty key string in corbaname becomes NameService */
         if (corbaloc.indexOf('/') == -1)
+        {
             corbaloc += "/NameService";
+        }
 
-        if (logger.isDebugEnabled())
-            logger.debug(corbaloc);
+        logger.debug(corbaloc);
 
         try
         {
@@ -592,8 +597,8 @@ public class ParsedIOR
         }
         catch (Exception e)
         {
-            if (logger.isErrorEnabled())
-                logger.error(e.getMessage());
+            logger.error("Invalid object reference", e);
+
             throw new IllegalArgumentException("Invalid object reference: " +
                                                object_reference);
         }
@@ -602,15 +607,12 @@ public class ParsedIOR
     private void parse_resource(String resourceName)
     {
         if (logger.isDebugEnabled())
-            logger.debug("Trying to resolve URL/IOR from resource: " + resourceName);
-
-        ClassLoader cl = getClass().getClassLoader();
-        if (cl == null)
         {
-            cl = ClassLoader.getSystemClassLoader();
+            logger.debug("Trying to resolve URL/IOR from resource: " + resourceName);
         }
 
-        URL url = cl.getResource(resourceName);
+        URL url = ObjectUtil.getResource(resourceName);
+
         if (url == null)
         {
             throw new IllegalArgumentException(
@@ -638,7 +640,9 @@ public class ParsedIOR
     private void parse_jndi(String jndiName)
     {
         if (logger.isDebugEnabled())
+        {
             logger.debug("Trying to resolve JNDI/IOR from name: " + jndiName);
+        }
 
         java.lang.Object obj = null;
         try
@@ -756,13 +760,13 @@ public class ParsedIOR
         return false;
     }
 
-    public void setProfileSelector (ProfileSelector sel)
+    public void setProfileSelector(ProfileSelector sel)
     {
         profileSelector = sel;
-        setEffectiveProfile ();
+        setEffectiveProfile();
     }
 
-    private ProfileSelector getProfileSelector ()
+    private ProfileSelector getProfileSelector()
     {
        if (profileSelector == null)
        {
