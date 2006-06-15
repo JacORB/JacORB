@@ -5,6 +5,7 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.jacorb.orb.ORBConstants;
 import org.jacorb.orb.iiop.IIOPFactories;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
@@ -94,7 +95,7 @@ public class SpecificProfileSelectorTest extends ClientServerTestCase
     {
         RTORB rtORB = RTORBHelper.narrow(clientOrb.resolve_initial_references("RTORB"));
 
-        ClientProtocolPolicy policy = rtORB.create_client_protocol_policy(new Protocol[] {new Protocol(new IIOPFactories().profile_tag(), null, null)});
+        ClientProtocolPolicy policy = rtORB.create_client_protocol_policy(new Protocol[] {new Protocol(ORBConstants.JAC_NOSSL_PROFILE_ID, null, null)});
 
         server._set_policy_override(new Policy[] {policy}, SetOverrideType.SET_OVERRIDE);
 
