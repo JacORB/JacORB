@@ -214,13 +214,23 @@ public class ClientRequestInfoImpl
         return reply_status;
     }
 
+    /**
+     * <code>forward_reference</code> returns the forward reference for the client request. Note
+     * that the current version of the specification does not permit this to be accessed by
+     * SendRequest; this modification is a PrismTech enhancement complying one of the suggested
+     * portable solutions within http://www.omg.org/issues/issue5266.txt.
+     *
+     * @return an <code>org.omg.CORBA.Object</code> value
+     */
     public org.omg.CORBA.Object forward_reference()
     {
-        if( (caller_op != ClientInterceptorIterator.RECEIVE_OTHER) ||
-            (reply_status != LOCATION_FORWARD.value) )
+        if (  caller_op != ClientInterceptorIterator.SEND_REQUEST &&
+                (caller_op != ClientInterceptorIterator.RECEIVE_OTHER &&
+                 (reply_status != LOCATION_FORWARD.value)) )
+        {
             throw new BAD_INV_ORDER("The attribute \"forward_reference\" is currently " +
                                     "invalid!", 10, CompletionStatus.COMPLETED_MAYBE);
-
+        }
         return forward_reference;
     }
 
