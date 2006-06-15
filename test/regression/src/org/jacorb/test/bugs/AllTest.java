@@ -23,6 +23,7 @@ package org.jacorb.test.bugs;
 import junit.framework.*;
 
 import org.jacorb.test.bugs.bugjac10.TypeCodeTestCase;
+import org.jacorb.test.bugs.bugjac149.ObjectReplacementTest;
 import org.jacorb.test.bugs.bugjac303.BugJac303Test;
 import org.jacorb.test.bugs.bugjac45.BugJac45Test;
 import org.jacorb.test.bugs.bugjac69.InvalidIORTest;
@@ -61,6 +62,7 @@ public class AllTest extends JacORBTestSuite
       suite.addTestSuite(BoundedStringTest.class);
       suite.addTestSuite(BugJac45Test.class);
       suite.addTestSuite(BugJac303Test.class);
+      suite.addTest(ObjectReplacementTest.suite());
 
       return suite;
    }
