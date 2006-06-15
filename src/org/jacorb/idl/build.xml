@@ -6,15 +6,14 @@
 
    &common;
 
-   <target name="all" depends="init, check, parser" unless="parser.notRequired" >
+   <target name="all" depends="init, check, parser" >
       <!-- This replace is safety addition so if parser.cup has been -->
       <!-- regenerated then it will still build. Normally this will  -->
       <!-- have no affect and not alter parser.java                  -->
       <replace file="${src.generated}/org/jacorb/idl/parser.java" token="java_cup.runtime"
          value="org.jacorb.idl.runtime" />
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/idl/**/*.java"/>
-      </antcall>
+	
+   	<jacorb-javac javac-includes="org/jacorb/idl/**/*.java"/>
    </target>
 
     <target name="check" >
