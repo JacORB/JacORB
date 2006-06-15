@@ -6,11 +6,11 @@
 
    &common;
 
-   <target name="all" depends="init, check, parser">
+   <target name="all" depends="init, check, parser" unless="parser.notRequired" >
       <!-- This replace is safety addition so if parser.cup has been -->
       <!-- regenerated then it will still build. Normally this will  -->
       <!-- have no affect and not alter parser.java                  -->
-      <replace file="${src}/org/jacorb/idl/parser.java" token="java_cup.runtime"
+      <replace file="${src.generated}/org/jacorb/idl/parser.java" token="java_cup.runtime"
          value="org.jacorb.idl.runtime" />
       <antcall target="jacorb-javac">
          <param name="javac-includes" value="org/jacorb/idl/**/*.java"/>
@@ -20,14 +20,15 @@
     <target name="check" >
         <uptodate property="parser.notRequired" srcfile="${src}/org/jacorb/idl/parser.cup">
             <compositemapper>
-                <mergemapper to="${src}/org/jacorb/idl/parser.java" />
-                <mergemapper to="${src}/org/jacorb/idl/sym.java" />
+                <mergemapper to="${src.generated}/org/jacorb/idl/parser.java" />
+                <mergemapper to="${src.generated}/org/jacorb/idl/sym.java" />
             </compositemapper>
         </uptodate>
     </target>
 
     <target name="parser" unless="parser.notRequired" >
-        <java classname="java_cup.Main" fork="true" dir="${src}/org/jacorb/idl" input="${src}/org/jacorb/idl/parser.cup" >
+        <mkdir dir="${src.generated}/org/jacorb/idl" />
+        <java classname="java_cup.Main" fork="true" dir="${src.generated}/org/jacorb/idl" input="${src}/org/jacorb/idl/parser.cup" >
             <classpath>
                 <pathelement path="${basedir}/lib/build/java_cup.jar" />
             </classpath>
