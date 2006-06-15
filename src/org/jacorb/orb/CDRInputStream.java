@@ -353,7 +353,6 @@ public class CDRInputStream
     }
 
     public void close()
-        throws IOException
     {
         // Don't need to call super.close as super is noop.
         if( closed )
