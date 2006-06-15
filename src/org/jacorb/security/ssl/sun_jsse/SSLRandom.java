@@ -72,6 +72,11 @@ public class SSLRandom implements Configurable
         {
             // Retrieve the class name from the configuration.
             randomImpl = (JSRandom) config.getAttributeAsObject("jacorb.security.randomClassPlugin");
+
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Using JSRandom " + config.getAttribute("jacorb.security.randomClassPlugin") + " implemented by " + randomImpl);
+            }
         }
         catch (ConfigurationException e)
         {
