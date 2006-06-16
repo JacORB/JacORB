@@ -66,11 +66,8 @@ public class ReplyReceiver
     private org.omg.Messaging.ReplyHandler replyHandler = null;
 
     private String operation;
-    private UtcT   replyEndTime;
     private Timer  timer;
 
-    /** the configuration object for this delegate */
-    private org.apache.avalon.framework.configuration.Configuration configuration = null;
     private Logger logger;
 
     /** configuration properties */
@@ -87,7 +84,6 @@ public class ReplyReceiver
 
         this.delegate         = delegate;
         this.operation        = operation;
-        this.replyEndTime     = replyEndTime;
         this.interceptors     = interceptors;
         this.replyHandler     = replyHandler;
 
@@ -107,7 +103,6 @@ public class ReplyReceiver
     public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
         throws org.apache.avalon.framework.configuration.ConfigurationException
     {
-        this.configuration = configuration;
         logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.rep_recv");
         retry_on_failure =

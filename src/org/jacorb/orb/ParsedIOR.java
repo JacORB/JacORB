@@ -724,7 +724,7 @@ public class ParsedIOR
     {
         public static String read (org.omg.CORBA.portable.InputStream in)
         {
-            return new String (in.read_string());
+            return in.read_string();
         }
     }
 

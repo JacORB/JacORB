@@ -25,7 +25,7 @@ import java.util.*;
 public class PolicyUtil
 {
     /** map with Integers of policy types that may not be overridden */
-    private static Map invocationPolicies = new HashMap();
+    // private static Map invocationPolicies = new HashMap();
 
     /**
      * determine if a policy applies to operation invocations or not,
@@ -46,7 +46,7 @@ public class PolicyUtil
      * arguments are okay.
      * @throws InvalidPolicies a list of indices identifying the
      * position in the input policies list that are occupied by
-     * invalid policies 
+     * invalid policies
      */
 
     public static void checkValidity(HashMap policies)

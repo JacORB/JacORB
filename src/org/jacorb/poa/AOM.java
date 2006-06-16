@@ -50,7 +50,6 @@ public class AOM
     private AOMListener         aomListener;
 
     private boolean             unique;
-    private boolean             singleThreaded;
     private Logger            logger;
 
     // an ObjectID can appear only once, but an servant can have multiple ObjectId's
@@ -70,17 +69,11 @@ public class AOM
         in remove() */
     private Object              deactivationListLock = new Object();
 
-    private AOM()
-    {
-    }
-
     protected AOM( boolean _unique,
-                   boolean single_threaded,
                    Logger _logger
                  )
     {
         unique = _unique;
-        singleThreaded = single_threaded;
         logger = _logger;
 
         if (unique)
@@ -119,7 +112,7 @@ public class AOM
                (
                    servantMap != null &&
                    servantMap.get( servant ) != null &&
-                   deactivationList.contains((ByteArrayKey)servantMap.get( servant ))
+                   deactivationList.contains(servantMap.get( servant ))
                ))
         {
             try

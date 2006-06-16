@@ -230,7 +230,7 @@ public class POA
 
         watermark = generateWatermark();
 
-        aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logger) : null;
+        aom = isRetain() ? new AOM( isUniqueId(), logger) : null;
 
         // GB: modified
         requestController = new RequestController(this, orb, aom, orb.newRPPoolManager(isSingleThreadModel()));
