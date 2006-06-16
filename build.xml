@@ -317,25 +317,26 @@
 
     <target name="pmd-taskdef" depends="init, pmd-check">
         <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpathref="pmd.path"/>
-   </target>
+    </target>
 
 
-   <target name="pmd" depends="init, pmd-taskdef">
-      <pmd rulesetfiles="${basedir}/etc/pmd-ruleset.xml" shortFilenames="true">
-         <formatter type="summaryhtml" toFile="pmd_report.html"/>
-         <fileset dir="${src}/org/jacorb">
-<!-- So much is generated code is there much point? -->
-<!--             <include name="idl/**/*.java"/>    -->
-            <include name="imr/**/*.java"/>
-            <include name="orb/**/*.java"/>
-            <include name="poa/**/*.java"/>
-            <include name="security/**/*.java"/>
-            <include name="util/**/*.java"/>
-<!-- Exclude tracing as very old unsupported code -->
-            <exclude name="util/tracing/*.java"/>
-         </fileset>
-      </pmd>
-   </target>
+    <target name="pmd" depends="init, pmd-taskdef">
+        <echo message="this might take some time..." />
+        <pmd rulesetfiles="${basedir}/etc/pmd-ruleset.xml" shortFilenames="true">
+            <formatter type="summaryhtml" toFile="pmd_report.html"/>
+            <fileset dir="${src}/org/jacorb">
+                <!-- So much is generated code is there much point? -->
+                <!--             <include name="idl/**/*.java"/>    -->
+                <include name="imr/**/*.java"/>
+                <include name="orb/**/*.java"/>
+                <include name="poa/**/*.java"/>
+                <include name="security/**/*.java"/>
+                <include name="util/**/*.java"/>
+                <!-- Exclude tracing as very old unsupported code -->
+                <exclude name="util/tracing/*.java"/>
+             </fileset>
+        </pmd>
+    </target>
 
 
    <!-- ==================================================== -->
@@ -376,15 +377,16 @@
         <echo level="verbose">findbugs is using classpath: ${_findbugs.cp}</echo>
     </target>
 
-    <target name="findbugs-taskdef" depends="init, findbugs-path2">
+    <target name="findbugs-taskdef" depends="init, findbugs-check">
         <pathconvert property="_findbugs.cp" refid="findbugs.path" />
         <echo level="verbose">findbugs is using classpath: ${_findbugs.cp}</echo>
 
         <taskdef name="findBugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="findbugs.path"/>
     </target>
 
-   <target name="findbugs" depends="findbugs-check">
-      <findBugs home="${findbugs.home}"
+    <target name="findbugs" depends="findbugs-taskdef">
+        <echo message="this might take some time..." />
+        <findBugs home="${findbugs.home}"
                 output="html"
                 outputFile="${basedir}/findbugs_report.html"
                 excludeFilter="${basedir}/etc/findbugs-ruleset.xml"
@@ -392,14 +394,14 @@
                 effort="default"
                 jvmargs="-Xmx500M"
                 timeout="12000000">
-         <sourcePath path="${src}"/>
-         <auxClasspath path="${classdir}"/>
-         <auxClasspath path="${basedir}/lib/avalon-framework-4.1.5.jar"/>
-         <systemProperty name="findbugs.de.comment" value="true"/>
-         <class location="${basedir}/classes/org/jacorb/imr"/>
-         <class location="${basedir}/classes/org/jacorb/orb"/>
-         <class location="${basedir}/classes/org/jacorb/poa"/>
-         <class location="${basedir}/classes/org/jacorb/util"/>
-      </findBugs>
-   </target>
+            <sourcePath path="${src}"/>
+            <auxClasspath path="${classdir}"/>
+            <auxClasspath path="${basedir}/lib/avalon-framework-4.1.5.jar"/>
+            <systemProperty name="findbugs.de.comment" value="true"/>
+            <class location="${basedir}/classes/org/jacorb/imr"/>
+            <class location="${basedir}/classes/org/jacorb/orb"/>
+            <class location="${basedir}/classes/org/jacorb/poa"/>
+            <class location="${basedir}/classes/org/jacorb/util"/>
+        </findBugs>
+    </target>
 </project>
