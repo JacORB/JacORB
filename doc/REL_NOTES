@@ -49,6 +49,7 @@
         - Fix recursive typecode bug.
         - Fixed CDROutputStream to correctly handle RMI object replacement.
         - Improve protocol/IOR rebind handling.
+        - fixes for shutdown/applet reload (bugzilla #459).
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
            in StructType so far.
@@ -81,7 +82,6 @@
         - name all threads created by JacORB (bugzilla #472)
         - new property: jacorb.orb_initializer.fail_on_error. Control if errors
           caused by an ORBInitializer will make ORB.init() fail or not.
-        - fixes for shutdown/applet reload
 
     - POA:
         - new property: jacorb.poa.thread_pool_shared. This is to share a
