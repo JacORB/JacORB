@@ -9,8 +9,9 @@
    <!-- $Id$ -->
    <!-- ==================================================== -->
 
-	<property file="${basedir}/build.properties" />
-	
+    <property file="${basedir}/build.properties" />
+    <property environment="env" />
+
    &common;
 
    <!-- top-level target -->
@@ -281,19 +282,45 @@
    <!--                  PMD                                 -->
    <!-- ==================================================== -->
 
-   <target name="load-pmd-taskdef" depends="init">
-   	<property environment="Env"/>
-   		<property name="pmd.home" value="${Env.PMD_HOME}" />
-   	   	<path id="path.pmd" >
-   	   		<fileset dir="${pmd.home}/lib" >
-   	   			<include name="*.jar" />
-   	   		</fileset>
-   	   	</path>
-      <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpathref="path.pmd"/>
+    <target name="pmd-locate" if="env.PMD_HOME" >
+        <property name="pmd.home" value="${env.PMD_HOME}" />
+    </target>
+
+    <target name="pmd-path1" depends="pmd-locate" if="pmd.home">
+        <path id="pmd.path" >
+            <fileset dir="${pmd.home}/lib" >
+                <include name="*.jar" />
+            </fileset>
+        </path>
+    </target>
+
+    <target name="pmd-path2" depends="pmd-path1" unless="pmd.home">
+        <path id="pmd.path" >
+            <pathelement path="${java.class.path}"/>
+        </path>
+    </target>
+
+    <target name="pmd-check" depends="pmd-path2" >
+        <available classname="net.sourceforge.pmd.ant.PMDTask" property="pmd.isavailable" classpathref="pmd.path"/>
+
+        <fail unless="pmd.isavailable" >
+            error
+            unable to locate PMD (http://pmd.sourceforge.net).
+            either set the environment variable PMD_HOME,
+            set the ant property pmd.home or add the PMD
+            classes to your CLASSPATH.
+        </fail>
+
+        <pathconvert property="_pmd.cp" refid="pmd.path" />
+        <echo level="verbose">pmd is using classpath: ${_pmd.cp}</echo>
+    </target>
+
+    <target name="pmd-taskdef" depends="init, pmd-check">
+        <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpathref="pmd.path"/>
    </target>
 
 
-   <target name="pmd" depends="init,load-pmd-taskdef">
+   <target name="pmd" depends="init, pmd-taskdef">
       <pmd rulesetfiles="${basedir}/etc/pmd-ruleset.xml" shortFilenames="true">
          <formatter type="summaryhtml" toFile="pmd_report.html"/>
          <fileset dir="${src}/org/jacorb">
@@ -315,18 +342,48 @@
    <!--                FINDBUGS                              -->
    <!-- ==================================================== -->
 
-   <target name="load-findbugs-taskdef" depends="init">
-   	<property environment="Env"/>
-	<property name="findbugs.home" value="${Env.FINDBUGS_HOME}" />
-   	<path id="path.findbugs" >
-   		<fileset dir="${findbugs.home}/lib" >
-   			<include name="*.jar" />
-   		</fileset>
-   	</path>
-    <taskdef name="findBugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="path.findbugs"/>
-   </target>
+    <target name="findbugs-locate" if="env.FINDBUGS_HOME">
+        <property name="findbugs.home" value="${env.FINDBUGS_HOME}" />
+    </target>
 
-   <target name="findbugs" depends="load-findbugs-taskdef">
+    <target name="findbugs-path1" depends="findbugs-locate" if="findbugs.home" >
+        <path id="findbugs.path">
+            <fileset dir="${findbugs.home}/lib" >
+                <include name="*.jar" />
+            </fileset>
+        </path>
+    </target>
+
+    <target name="findbugs-path2" depends="findbugs-path1" unless="findbugs.home">
+        <echo message="findbugs-path2" />
+        <path id="findbugs.path" >
+            <pathelement path="${java.class.path}"/>
+        </path>
+    </target>
+
+    <target name="findbugs-check" depends="findbugs-path2">
+        <available classname="edu.umd.cs.findbugs.anttask.FindBugsTask" property="findbugs.isavailable" classpathref="findbugs.path"/>
+
+        <fail unless="findbugs.isavailable" >
+            error
+            unable to locate FindBugs (http://findbugs.sourceforge.net/).
+            either set the environment variable FINDBUGS_HOME,
+            set the ant property findbugs.home or add the FindBugs
+            classes to your CLASSPATH.
+        </fail>
+
+        <pathconvert property="_findbugs.cp" refid="findbugs.path" />
+        <echo level="verbose">findbugs is using classpath: ${_findbugs.cp}</echo>
+    </target>
+
+    <target name="findbugs-taskdef" depends="init, findbugs-path2">
+        <pathconvert property="_findbugs.cp" refid="findbugs.path" />
+        <echo level="verbose">findbugs is using classpath: ${_findbugs.cp}</echo>
+
+        <taskdef name="findBugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="findbugs.path"/>
+    </target>
+
+   <target name="findbugs" depends="findbugs-check">
       <findBugs home="${findbugs.home}"
                 output="html"
                 outputFile="${basedir}/findbugs_report.html"
