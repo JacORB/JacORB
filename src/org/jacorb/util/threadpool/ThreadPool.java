@@ -22,6 +22,8 @@ package org.jacorb.util.threadpool;
  */
 
 import java.util.*;
+import org.jacorb.config.Configuration;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * ThreadPool.java
@@ -46,7 +48,18 @@ public class ThreadPool
     private final String namePrefix;
     private int threadCount = 0;
 
-    public ThreadPool( String threadNamePrefix,
+    /**
+     * <code>logger</code> is the logger for threadpool.
+     */
+    private Logger logger;
+
+    /**
+     * <code>shutdown</code> denotes whether to shutdown the pool.
+     */
+    private boolean shutdown;
+
+    public ThreadPool( Configuration configuration,
+                       String threadNamePrefix,
                        ConsumerFactory factory,
                        int max_threads,
                        int max_idle_threads)
@@ -56,6 +69,8 @@ public class ThreadPool
         this.factory = factory;
         this.max_threads = max_threads;
         this.max_idle_threads = max_idle_threads;
+
+        logger = configuration.getNamedLogger("jacorb.util.tpool");
     }
 
     protected synchronized Object getJob()
@@ -78,7 +93,7 @@ public class ThreadPool
          * threads get cleaned up more quickly, otherwise idle threads can only
          * be cleaned up after completing a job.
          */
-        while( job_queue.isEmpty() )
+        while( (! shutdown) && job_queue.isEmpty() )
         {
             /*
              * This tells the newly idle thread to exit, because
@@ -86,6 +101,11 @@ public class ThreadPool
              */
             if (idle_threads > max_idle_threads)
             {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("[" + idle_threads + "/" + total_threads +
+                                 "] Telling thread to exit (too many idle)");
+                }
                 total_threads--;
                 idle_threads--;
                 return null;
@@ -93,15 +113,30 @@ public class ThreadPool
 
             try
             {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("[" + idle_threads + "/" + total_threads +
+                                 "] job queue empty");
+                }
                 wait();
             }
             catch( InterruptedException e )
             {
             }
         }
+        //pool is to be shut down completely
+        if (shutdown)
+        {
+            return null;
+        }
 
         idle_threads--;
 
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("[" + idle_threads + "/" + total_threads +
+                         "] removed idle thread (job scheduled)");
+        }
         return job_queue.removeFirst();
     }
 
@@ -123,15 +158,57 @@ public class ThreadPool
         {
             createNewThread();
         }
+        else if (logger.isDebugEnabled())
+        {
+            logger.debug
+            (
+                "(Pool)[" + idle_threads + "/" + total_threads +
+                "] no idle threads but maximum number of threads reached (" +
+                max_threads + ")"
+            );
+        }
     }
 
     private void createNewThread()
     {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("[" + idle_threads + "/" + total_threads +
+                         "] creating new thread" );
+        }
+
         Thread thread = new Thread( new ConsumerTie( this, factory.create() ));
         thread.setName(namePrefix + (threadCount++));
         thread.setDaemon( true );
         thread.start();
 
         total_threads++;
+    }
+
+
+    /**
+     * <code>getLogger</code> returns the threadpools logger.
+     *
+     * @return a <code>Logger</code> value
+     */
+    Logger getLogger ()
+    {
+        return logger;
+    }
+
+
+    /**
+     * <code>shutdown</code> will shutdown the pool.
+     */
+    public synchronized void shutdown()
+    {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("[" + idle_threads + "/" + total_threads +
+                         "] shutting down pool" );
+        }
+
+        shutdown = true;
+        notifyAll();
     }
 } // ThreadPool

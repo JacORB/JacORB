@@ -79,7 +79,7 @@ public class ServerStartupDaemonImpl
             POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             poa.the_POAManager().activate();
 
-            ServerStartupDaemon ssd = 
+            ServerStartupDaemon ssd =
                 ServerStartupDaemonHelper.narrow(poa.servant_to_reference(this));
 
             HostInfo _me = new HostInfo(InetAddress.getLocalHost().getHostName(),
@@ -93,7 +93,7 @@ public class ServerStartupDaemonImpl
             throw new ConfigurationException("Caught Exception", e);
         }
 
-        stdout_pool = new ThreadPool( null,
+        stdout_pool = new ThreadPool( (org.jacorb.config.Configuration)myConfiguration, null,
                                       new OutputForwarderFactory( new InputStreamSelector(){
                                             public InputStream getInputStream( Process p )
                                             {
@@ -102,7 +102,7 @@ public class ServerStartupDaemonImpl
                                         }), //max threads
                                       100, 10 );//max idle threads
 
-        stderr_pool = new ThreadPool( null,
+        stderr_pool = new ThreadPool( (org.jacorb.config.Configuration)myConfiguration, null,
                                       new OutputForwarderFactory( new InputStreamSelector(){
                                             public InputStream getInputStream( Process p )
                                             {

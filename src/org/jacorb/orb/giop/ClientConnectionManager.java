@@ -205,5 +205,6 @@ public class ClientConnectionManager
         }
 
         connections.clear();
+        receptor_pool.shutdown();
     }
 }

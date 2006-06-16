@@ -403,6 +403,7 @@ public class BasicAdapter
         {
             ((Listener)i.next()).destroy();
         }
+        receptor_pool.shutdown();
     }
 
     /**

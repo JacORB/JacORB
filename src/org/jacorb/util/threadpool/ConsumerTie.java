@@ -43,35 +43,33 @@ public  class ConsumerTie
         this.pool = pool;
         this.delegate = delegate;
     }
-	
+
     public void run()
     {
-        try
+        while( run )
         {
-            while( run )
+            try
             {
                 Object job = pool.getJob();
-      
+
                 if( job == null )
                 {
                     /*
                      * job == null is sent by the pool, if there are
                      * too much idle threads. Therefore we exit.
                      */
-                    return;
+                    break;
                 }
                 else
                 {
                     delegate.doWork( job );
                 }
             }
+            catch( Exception e )
+            {
+                pool.getLogger().debug("ConsumerTie caught", e);
+            }
         }
-        catch( Exception e )
-        {
-            return;
-        }
+        pool.getLogger().info ("ConsumerTie exited");
     }
 } // ConsumerTie
-
-
-

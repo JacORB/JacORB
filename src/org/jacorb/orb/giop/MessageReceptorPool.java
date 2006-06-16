@@ -69,7 +69,7 @@ public class MessageReceptorPool
         }
 
         pool =
-            new ThreadPool( threadNamePrefix,
+            new ThreadPool( configuration, threadNamePrefix,
                                new ConsumerFactory(){
                                     public Consumer create()
                                     {
@@ -83,5 +83,15 @@ public class MessageReceptorPool
     public void connectionCreated( GIOPConnection conn )
     {
         pool.putJob( conn );
+    }
+
+
+    /**
+     * <code>shutdown</code> allows the ReceptorPool to be shutdown
+     * so that new ORB.init's will use fresh pools
+     */
+    public void shutdown()
+    {
+        pool.shutdown();
     }
 }// MessageReceptorPool

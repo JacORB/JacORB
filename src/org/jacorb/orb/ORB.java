@@ -1784,7 +1784,10 @@ public final class ORB
         }
 
         if( rootpoa != null )
+        {
             rootpoa.destroy(true, wait_for_completion);
+            rootpoa = null;
+        }
 
         if( basicAdapter != null )
         {

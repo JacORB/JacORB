@@ -81,6 +81,8 @@
         - name all threads created by JacORB (bugzilla #472)
         - new property: jacorb.orb_initializer.fail_on_error. Control if errors
           caused by an ORBInitializer will make ORB.init() fail or not.
+        - fixes for shutdown/applet reload
+
     - POA:
         - new property: jacorb.poa.thread_pool_shared. This is to share a
           single thread pool amongst all the POAs.
