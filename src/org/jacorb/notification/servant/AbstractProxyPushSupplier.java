@@ -55,10 +55,10 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicReference;
 /**
  * @jmx.mbean extends = "AbstractProxySupplierMBean"
  * @jboss.xmbean
- * 
+ *
  * @--jmx.notification name = "notification.proxy.push_failed" description = "push to
  *                     ProxyPushConsumer failed" notificationType = "java.lang.String"
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -85,7 +85,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
      * number of concurrent push operations allowed.
      */
     protected final Semaphore pushSync_ = new Semaphore(1);
-    
+
     private final PushTaskExecutor.PushTask pushTask_ = new PushTaskExecutor.PushTask()
     {
         public void doPush()
@@ -101,7 +101,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
             // ignore, only depends on settings of ProxyPushSupplier
         }
     };
-    
+
     private final PushTaskExecutor.PushTask flushTask_ = new PushTaskExecutor.PushTask()
     {
         public void doPush()
@@ -111,7 +111,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
                 flushPendingEvents();
             }
         }
-        
+
         public void cancel()
         {
             // ignore, only depends on settings of ProxyPushSupplier
@@ -138,7 +138,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
         try
         {
             boolean _acquired = pushSync_.tryAcquire(1000, TimeUnit.MILLISECONDS);
-            
+
             if (_acquired)
             {
                 try
@@ -150,7 +150,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
                     pushSync_.release();
                 }
             }
-            
+
             // the scheduled push was not processed.
             // therfor we need to schedule a push again.
             schedulePush();
@@ -159,16 +159,16 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
         {
             // ignored
         }
-        
+
         return true;
     }
-    
+
     protected abstract boolean pushEvent();
 
     protected void handleFailedPushOperation(PushOperation operation, Exception error)
     {
         logger_.warn("handle failed pushoperation", error);
-        
+
         if (isDestroyed())
         {
             operation.dispose();
@@ -199,6 +199,8 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
         }
         else if (!isRetryAllowed())
         {
+            logger_.warn("no more retries allowed. disconnect consumer");
+
             operation.dispose();
 
             destroy();
@@ -294,7 +296,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
             scheduleTask(pushTask_);
         }
     }
-    
+
     public void scheduleFlush()
     {
         if (isEnabled())
@@ -318,7 +320,7 @@ public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier im
             // nothing
         }
     }
-    
+
     public final void messageQueued()
     {
         if (isEnabled())
