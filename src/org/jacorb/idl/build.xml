@@ -10,7 +10,7 @@
       <!-- This replace is safety addition so if parser.cup has been -->
       <!-- regenerated then it will still build. Normally this will  -->
       <!-- have no affect and not alter parser.java                  -->
-      <replace file="${src.generated}/org/jacorb/idl/parser.java" token="java_cup.runtime"
+      <replace file="${src}/org/jacorb/idl/parser.java" token="java_cup.runtime"
                value="org.jacorb.idl.runtime" />
       <jacorb-javac javac-includes="org/jacorb/idl/**/*.java"/>
    </target>
@@ -18,15 +18,15 @@
     <target name="check" >
         <uptodate property="parser.notRequired" srcfile="${src}/org/jacorb/idl/parser.cup">
             <compositemapper>
-                <mergemapper to="${src.generated}/org/jacorb/idl/parser.java" />
-                <mergemapper to="${src.generated}/org/jacorb/idl/sym.java" />
+                <mergemapper to="${src}/org/jacorb/idl/parser.java" />
+                <mergemapper to="${src}/org/jacorb/idl/sym.java" />
             </compositemapper>
         </uptodate>
     </target>
 
     <target name="parser" unless="parser.notRequired" >
-        <mkdir dir="${src.generated}/org/jacorb/idl" />
-        <java classname="java_cup.Main" fork="true" dir="${src.generated}/org/jacorb/idl" input="${src}/org/jacorb/idl/parser.cup" >
+<!--        <mkdir dir="${src.generated}/org/jacorb/idl" /> -->
+        <java classname="java_cup.Main" fork="true" dir="${src}/org/jacorb/idl" input="${src}/org/jacorb/idl/parser.cup" >
            <arg value="-progress"/>
            <arg value="-nosummary"/>
             <classpath>
