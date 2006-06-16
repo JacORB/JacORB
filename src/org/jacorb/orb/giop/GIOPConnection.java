@@ -76,7 +76,7 @@ public abstract class GIOPConnection
     private boolean tcs_negotiated = false;
 
     //map request id (Integer) to ByteArrayInputStream
-    private Hashtable fragments = null;
+    private final Map fragments = new HashMap();
     private BufferManager buf_mg = null;
 
     private boolean dump_incoming = false;
@@ -128,7 +128,6 @@ public abstract class GIOPConnection
         this.reply_listener = reply_listener;
         this.statistics_provider = statistics_provider;
 
-        fragments = new Hashtable();
         buf_mg = BufferManager.getInstance();
         //sasContexts = new Hashtable();
 
@@ -144,7 +143,6 @@ public abstract class GIOPConnection
             configuration.getAttribute("jacorb.debug.dump_incoming_messages","off").equals("on");
         timeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 0);
-
     }
 
 
