@@ -132,10 +132,10 @@ public class ImRServerTableModel extends AbstractTableModel {
         return m_servers[row].command;
 
     else if (column == 3)
-        return new Boolean(m_servers[row].active);
+        return Boolean.valueOf(m_servers[row].active);
 
     else if (column == 4)
-        return new Boolean(m_servers[row].holding);
+        return Boolean.valueOf(m_servers[row].holding);
 
     return new Object();
     }
