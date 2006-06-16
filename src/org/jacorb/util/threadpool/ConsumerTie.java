@@ -60,10 +60,8 @@ public  class ConsumerTie
                      */
                     break;
                 }
-                else
-                {
-                    delegate.doWork( job );
-                }
+                
+                delegate.doWork( job );
             }
             catch( Exception e )
             {

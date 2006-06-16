@@ -35,10 +35,6 @@ import org.jacorb.util.threadpool.Consumer;
 public class MessageReceptor 
     implements Consumer  
 {
-    public MessageReceptor()
-    {        
-    }
-    
     // implementation of org.jacorb.util.threadpool.Consumer interface
     
     /**
