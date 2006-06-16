@@ -11,9 +11,8 @@
       <!-- regenerated then it will still build. Normally this will  -->
       <!-- have no affect and not alter parser.java                  -->
       <replace file="${src.generated}/org/jacorb/idl/parser.java" token="java_cup.runtime"
-         value="org.jacorb.idl.runtime" />
-	
-   	<jacorb-javac javac-includes="org/jacorb/idl/**/*.java"/>
+               value="org.jacorb.idl.runtime" />
+      <jacorb-javac javac-includes="org/jacorb/idl/**/*.java"/>
    </target>
 
     <target name="check" >
@@ -28,6 +27,8 @@
     <target name="parser" unless="parser.notRequired" >
         <mkdir dir="${src.generated}/org/jacorb/idl" />
         <java classname="java_cup.Main" fork="true" dir="${src.generated}/org/jacorb/idl" input="${src}/org/jacorb/idl/parser.cup" >
+           <arg value="-progress"/>
+           <arg value="-nosummary"/>
             <classpath>
                 <pathelement path="${basedir}/lib/build/java_cup.jar" />
             </classpath>
