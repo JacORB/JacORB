@@ -1,0 +1,26 @@
+
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac178
+            {
+               interface JAC178
+               {
+                  Object getObject(in string sessionID);
+
+                  void longOp ();
+                  void shortOp(in string name);
+
+                  string getResult ();
+               };
+            };
+         };
+      };
+   };
+};
