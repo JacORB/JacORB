@@ -21,6 +21,8 @@ package org.jacorb.orb;
  */
 
 import org.omg.CORBA.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -39,6 +41,8 @@ public final class Any
 
     Any (org.omg.CORBA.ORB orb)
     {
+        super();
+
         this.orb = orb;
         typeCode = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_null);
     }
@@ -58,9 +62,9 @@ public final class Any
       return TypeCode.originalType(typeCode);
     }
 
-    public void type (org.omg.CORBA.TypeCode t)
+    public void type(org.omg.CORBA.TypeCode type)
     {
-        typeCode = t;
+        typeCode = type;
         value = null;
     }
 
@@ -74,27 +78,27 @@ public final class Any
         return org.omg.CORBA.TCKind._tk_any;
     }
 
-    private void tc_error (String s)
+    private void tc_error(String cause)
     {
-        throw new BAD_OPERATION (s);
+        throw new BAD_OPERATION (cause);
     }
 
-    private void checkExtract (int value, String s)
+    private void checkExtract(int value, String cause)
     {
        if (originalType().kind().value() != value)
        {
-           throw new BAD_OPERATION (s);
+           throw new BAD_OPERATION(cause);
        }
     }
 
-    public boolean equal (org.omg.CORBA.Any a)
+    public boolean equal(org.omg.CORBA.Any any)
     {
-        if (a == null)
+        if (any == null)
         {
            throw new BAD_PARAM ("Null passed to Any equal operation");
         }
 
-        if (!typeCode.equal (a.type()))
+        if (!typeCode.equal (any.type()))
         {
             return false;
         }
@@ -106,43 +110,43 @@ public final class Any
             case TCKind._tk_void:
                 return true;
             case TCKind._tk_short:
-                return extract_short() == a.extract_short();
+                return extract_short() == any.extract_short();
             case TCKind._tk_long:
-                return extract_long() == a.extract_long();
+                return extract_long() == any.extract_long();
             case TCKind._tk_longlong:
-                return extract_longlong() == a.extract_longlong();
+                return extract_longlong() == any.extract_longlong();
             case TCKind._tk_ushort:
-                return extract_ushort() == a.extract_ushort();
+                return extract_ushort() == any.extract_ushort();
             case TCKind._tk_ulong:
-                return extract_ulong() == a.extract_ulong();
+                return extract_ulong() == any.extract_ulong();
             case TCKind._tk_ulonglong:
-                return extract_ulonglong() == a.extract_ulonglong();
+                return extract_ulonglong() == any.extract_ulonglong();
             case TCKind._tk_float:
-                return extract_float() == a.extract_float();
+                return extract_float() == any.extract_float();
             case TCKind._tk_double:
-                return extract_double() == a.extract_double();
+                return extract_double() == any.extract_double();
             case TCKind._tk_fixed:
-                return extract_fixed().equals( a.extract_fixed() );
+                return extract_fixed().equals( any.extract_fixed() );
             case TCKind._tk_boolean:
-                return extract_boolean() == a.extract_boolean();
+                return extract_boolean() == any.extract_boolean();
             case TCKind._tk_char:
-                return extract_char() == a.extract_char();
+                return extract_char() == any.extract_char();
             case TCKind._tk_wchar:
-                return extract_wchar() == a.extract_wchar();
+                return extract_wchar() == any.extract_wchar();
             case TCKind._tk_octet:
-                return extract_octet() == a.extract_octet();
+                return extract_octet() == any.extract_octet();
             case TCKind._tk_any:
-                return extract_any().equals( a.extract_any() );
+                return extract_any().equals( any.extract_any() );
             case TCKind._tk_TypeCode:
-                return extract_TypeCode().equal( a.extract_TypeCode() );
+                return extract_TypeCode().equal( any.extract_TypeCode() );
             case TCKind._tk_Principal:
                 throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
             case TCKind._tk_objref:
-                return extract_Object().equals( a.extract_Object() );
+                return extract_Object().equals( any.extract_Object() );
             case TCKind._tk_string:
-                return extract_string().equals( a.extract_string() );
+                return extract_string().equals( any.extract_string() );
             case TCKind._tk_wstring:
-                return extract_wstring().equals( a.extract_wstring() );
+                return extract_wstring().equals( any.extract_wstring() );
             case TCKind._tk_array:
             case TCKind._tk_sequence:
             case TCKind._tk_struct:
@@ -164,13 +168,15 @@ public final class Any
                     out2 = new CDROutputStream(orb);
                 }
                 write_value( out1 );
-                a.write_value( out2 );
+                any.write_value( out2 );
 
                 if( out1.size() != out2.size() )
+                {
                     return false;
+                }
 
                 return Arrays.equals( out1.getBufferCopy(),
-                                       out2.getBufferCopy());
+                                      out2.getBufferCopy());
 
             }
             default:
@@ -181,9 +187,10 @@ public final class Any
     public boolean equals (java.lang.Object obj)
     {
         if( obj instanceof org.omg.CORBA.Any)
+        {
             return equal((org.omg.CORBA.Any)obj);
-        else
-            return false;
+        }
+        return false;
     }
 
     public int hashCode()
@@ -194,9 +201,10 @@ public final class Any
     public String toString()
     {
         if( value != null )
+        {
             return value.toString();
-        else
-            return "null";
+        }
+        return "null";
     }
 
     // short
@@ -240,7 +248,7 @@ public final class Any
 
     public void insert_long (int i)
     {
-        value = new Integer (i);
+        value = Integer.valueOf(i);
         typeCode = orb.get_primitive_tc (TCKind.tk_long);
     }
 
@@ -258,7 +266,7 @@ public final class Any
 
     public void insert_ulong (int i)
     {
-        value = new Integer (i);
+        value = Integer.valueOf(i);
         typeCode = orb.get_primitive_tc( TCKind.tk_ulong );
     }
 
@@ -484,19 +492,19 @@ public final class Any
 
     // fixed
 
-    public void insert_fixed (java.math.BigDecimal _value)
+    public void insert_fixed (java.math.BigDecimal fixed)
     {
-        value = _value;
-        typeCode = (new org.omg.CORBA.FixedHolder(_value))._type();
+        value = fixed;
+        typeCode = (new org.omg.CORBA.FixedHolder(fixed))._type();
     }
 
-   public void insert_fixed(java.math.BigDecimal _value,
+   public void insert_fixed(BigDecimal fixed,
                             org.omg.CORBA.TypeCode type)
    {
        try
        {
-          String val = _value.toString();
-          int extra = _value.scale() - type.fixed_scale();
+          String val = fixed.toString();
+          int extra = fixed.scale() - type.fixed_scale();
           if ( extra > 0 )
           {
              // truncate the value to fit the scale of the typecode
@@ -509,33 +517,34 @@ public final class Any
              // add the decimal point if necessary
              if ( val.indexOf('.') == -1 )
              {
-                sb.append(".");
+                sb.append('.');
              }
 
              // pad the value with zeros to fit the scale of the typecode
              for ( int i = extra; i < 0; i++ )
              {
-                sb.append("0");
+                sb.append('0');
              }
              val = sb.toString();
           }
-          _value = new java.math.BigDecimal( val );
+          BigDecimal tmp = new BigDecimal( val );
 
           org.omg.CORBA.FixedHolder holder =
-             new org.omg.CORBA.FixedHolder( _value );
+             new org.omg.CORBA.FixedHolder( tmp );
           org.omg.CORBA.TypeCode tc = holder._type();
 
           if ( tc.fixed_digits() > type.fixed_digits() )
           {
              throw new org.omg.CORBA.BAD_TYPECODE();
           }
+
+          value = tmp;
+          typeCode = type;
        }
        catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
        {
           throw new org.omg.CORBA.BAD_TYPECODE();
        }
-       value = _value;
-       typeCode = type;
    }
 
     public java.math.BigDecimal extract_fixed()
@@ -589,13 +598,15 @@ public final class Any
         typeCode = orb.create_interface_tc( typeId , name );
     }
 
-    public void insert_Object (org.omg.CORBA.Object o,
+    public void insert_Object (org.omg.CORBA.Object obj,
                                org.omg.CORBA.TypeCode type)
     {
         if( type.kind().value() != TCKind._tk_objref )
+        {
             tc_error("Illegal, non-object TypeCode!");
+        }
 
-        value = o;
+        value = obj;
         typeCode = type;
     }
 
@@ -702,20 +713,19 @@ public final class Any
         {
             return new org.jacorb.orb.CDRInputStream( orb, ((CDROutputStream)value).getBufferCopy());
         }
+
+        org.jacorb.orb.CDROutputStream out;
+        if( !( orb instanceof org.jacorb.orb.ORB ))
+        {
+            out = new org.jacorb.orb.CDROutputStream();
+        }
         else
         {
-            org.jacorb.orb.CDROutputStream out;
-            if( !( orb instanceof org.jacorb.orb.ORB ))
-            {
-                out = new org.jacorb.orb.CDROutputStream();
-            }
-            else
-            {
-                out = new org.jacorb.orb.CDROutputStream(orb);
-            }
-            write_value(out);
-            return new org.jacorb.orb.CDRInputStream(orb, out.getBufferCopy());
+            out = new org.jacorb.orb.CDROutputStream(orb);
         }
+
+        write_value(out);
+        return new org.jacorb.orb.CDRInputStream(orb, out.getBufferCopy());
     }
 
     public void read_value (org.omg.CORBA.portable.InputStream input,
@@ -764,10 +774,13 @@ public final class Any
             {
                // move the decimal based on the scale
                java.math.BigDecimal fixed = input.read_fixed();
-               int scale = (int)type.fixed_scale();
+               int scale = type.fixed_scale();
                insert_fixed( fixed.movePointLeft( scale ), type );
             }
-            catch( org.omg.CORBA.TypeCodePackage.BadKind bk ){}
+            catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+            {
+                throw new INTERNAL("should never happen");
+            }
             break;
         case TCKind._tk_boolean:
             insert_boolean( input.read_boolean());
@@ -806,9 +819,13 @@ public final class Any
         case TCKind._tk_union:
         case TCKind._tk_alias:
             if(! (orb instanceof org.jacorb.orb.ORB) )
+            {
                 value = new CDROutputStream();
+            }
             else
+            {
                 value = new CDROutputStream(orb);
+            }
             ((CDROutputStream)value).write_value(type, input);
             break;
         case TCKind._tk_value:
@@ -821,9 +838,13 @@ public final class Any
            java.lang.Object obj =
               ((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
            if (obj instanceof org.omg.CORBA.Object)
+           {
               insert_Object((org.omg.CORBA.Object)obj);
+           }
            else
+           {
               insert_Value((java.io.Serializable)obj);
+           }
            break;
         default:
             throw new BAD_TYPECODE("Cannot handle TypeCode with kind " + kind);
@@ -972,7 +993,9 @@ public final class Any
     {
         this.typeCode = typeCode;
         if( orb != null )
+        {
             this.orb = orb;
+        }
         this.value = value;
     }
 }

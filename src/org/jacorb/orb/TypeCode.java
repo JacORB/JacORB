@@ -784,7 +784,9 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind
     {
         if( kind != TCKind._tk_fixed )
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
         return digits;
     }
 
@@ -792,7 +794,9 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind
     {
         if( kind != TCKind._tk_fixed )
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
         return scale;
     }
 
