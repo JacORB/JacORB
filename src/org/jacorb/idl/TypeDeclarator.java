@@ -29,10 +29,8 @@ import java.util.Enumeration;
  * @version $Id$
  */
 
-class TypeDeclarator
-        extends IdlSymbol
+public class TypeDeclarator extends IdlSymbol
 {
-
     public TypeSpec type_spec;
     public SymbolList declarators;
 
@@ -92,31 +90,9 @@ class TypeDeclarator
         StringBuffer sb = new StringBuffer();
         sb.append( type_spec.toString() );
         for( Enumeration e = declarators.v.elements(); e.hasMoreElements(); )
-            sb.append( (Declarator)e.nextElement() );
+        {
+            sb.append( e.nextElement() );
+        }
         return sb.toString();
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

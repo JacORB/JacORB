@@ -25,8 +25,7 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-
-class FloatPtType
+public class FloatPtType
     extends BaseType
 {
     public FloatPtType( int num )
@@ -39,8 +38,3 @@ class FloatPtType
         return type_spec.holderName();
     }
 }
-
-
-
-
-

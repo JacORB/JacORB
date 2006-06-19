@@ -30,7 +30,7 @@ import java.math.BigInteger;
  * @version $Id$
  */
 
-class Literal
+public class Literal
     extends IdlSymbol
 {
     private static BigInteger maximum;

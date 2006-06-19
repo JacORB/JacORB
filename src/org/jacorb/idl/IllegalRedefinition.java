@@ -25,17 +25,11 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-
-class IllegalRedefinition
+public class IllegalRedefinition
         extends NameAlreadyDefined
 {
-
     public String oldDef;
     public String newDef;
-
-    public IllegalRedefinition()
-    {
-    }
 
     public IllegalRedefinition( String s )
     {
@@ -49,11 +43,4 @@ class IllegalRedefinition
         this.oldDef = oldDef;
         this.newDef = newDef;
     }
-
-
 }
-
-
-
-
-

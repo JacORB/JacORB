@@ -25,21 +25,20 @@ package org.jacorb.idl;
  *
  * @author Gerald Brose
  * @version $Id$
- *
  */
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.StringTokenizer;
 
-class NameTable
+public class NameTable
 {
+    private static final Hashtable names = new Hashtable( 10000 );
 
-    private static Hashtable h = new Hashtable( 10000 );
+    private static final Map shadows = new Hashtable();
 
-    private static Hashtable shadows = new Hashtable();
-
-    private static Hashtable ancestors = new Hashtable();
+    private static final Map ancestors = new Hashtable();
 
     /**
      key: operation name,
@@ -47,15 +46,15 @@ class NameTable
      necessary to track legal diamond inheritance of operations
      */
 
-    private static Hashtable operationSources = new Hashtable();
+    private static final Map operationSources = new Hashtable();
 
-    public static Hashtable parsed_interfaces = new Hashtable();
+    public static final Map parsed_interfaces = new Hashtable();
 
     static org.apache.log.Logger logger;
 
     public static void init()
     {
-        h.clear();
+        names.clear();
         operationSources.clear();
         shadows.clear();
         ancestors.clear();
@@ -63,18 +62,18 @@ class NameTable
         operationSources.clear();
         parsed_interfaces.clear();
 
-        h.put( "char", "type" );
-        h.put( "boolean", "type" );
-        h.put( "long", "type" );
-        h.put( "long", "type" );
-        h.put( "short", "type" );
-        h.put( "int", "type" );
-        h.put( "float", "type" );
-        h.put( "double", "type" );
-        h.put( "byte", "type" );
-        h.put( "void", "type" );
-        h.put( "org.omg.CORBA.Any", "type" );
-        h.put( "org.omg.CORBA.Object", "interface" );
+        names.put( "char", "type" );
+        names.put( "boolean", "type" );
+        names.put( "long", "type" );
+        names.put( "long", "type" );
+        names.put( "short", "type" );
+        names.put( "int", "type" );
+        names.put( "float", "type" );
+        names.put( "double", "type" );
+        names.put( "byte", "type" );
+        names.put( "void", "type" );
+        names.put( "org.omg.CORBA.Any", "type" );
+        names.put( "org.omg.CORBA.Object", "interface" );
 
         logger = parser.getLogger();
     }
@@ -109,9 +108,11 @@ class NameTable
         }
 
         if( logger.isDebugEnabled() )
+        {
             logger.debug(
                          "NameTable.checkScopingRules2:  " +
                          name + " kind: " + kind );
+        }
 
         if( scopes.length > 1 &&
             scopes[ scopes.length - 2 ].equals( scopes[ scopes.length - 1 ] ) )
@@ -125,8 +126,8 @@ class NameTable
      *  define a name. If it has already been defined in this scope,
      *  an exception is thrown
      *
-     *  @param String name The name to be defined
-     *  @param String kind the type of name, e.g. "type"
+     *  @param name The name to be defined
+     *  @param kind the type of name, e.g. "type"
      *  @throws NameAlreadyDefined if the name is already defined
      */
 
@@ -134,16 +135,18 @@ class NameTable
         throws NameAlreadyDefined
     {
         if( logger.isInfoEnabled() )
+        {
             logger.info( "NameTable.define2: putting " +
                         name + " kind " + kind + " hash: " +
                         name.hashCode() );
+        }
 
         /* check also for the all uppercase version of this name,
            (which is also reserved to block identifiers that
            only differ in case) */
 
-        if( h.containsKey( name ) ||
-            h.containsKey( name.toUpperCase() ) )
+        if( names.containsKey( name ) ||
+            names.containsKey( name.toUpperCase() ) )
         {
             // if this name has been inherited, it is "shadowed"
             // in this case, it is redefined if it is not an operation
@@ -165,10 +168,12 @@ class NameTable
             {
                 // redefine
                 if( logger.isInfoEnabled() )
+                {
                     logger.info( "NameTable.define2: redefining  " + name  );
+                }
 
                 shadows.remove( name );
-                h.remove( name );
+                names.remove( name );
 
                 if( kind.startsWith( "type" ) )
                 {
@@ -181,16 +186,22 @@ class NameTable
         }
 
         if( org.jacorb.idl.parser.strict_names )
+        {
             checkScopingRules( name, kind );
+        }
 
-        h.put( name, kind );
+        names.put( name, kind );
 
         /* block identifiers that only differ in case */
         if( org.jacorb.idl.parser.strict_names )
-            h.put( name.toUpperCase(), "dummy" );
+        {
+            names.put( name.toUpperCase(), "dummy" );
+        }
 
         if( kind.equals( "operation" ) )
+        {
             operationSources.put( name, name.substring( 0, name.lastIndexOf( "." ) ) );
+        }
     }
 
     private static void defineInheritedOperation( String name,
@@ -198,7 +209,7 @@ class NameTable
             throws NameAlreadyDefined
     {
 
-        if( h.containsKey( name ) )
+        if( names.containsKey( name ) )
         {
             String source = null;
             String opName =
@@ -244,17 +255,11 @@ class NameTable
                 // interface
                 return;
             }
-            else
-            {
-                // illegal multiple inheritance of a the same op name
-                throw new NameAlreadyDefined( name );
-            }
+            // illegal multiple inheritance of a the same op name
+            throw new NameAlreadyDefined( name );
         }
-        else
-        {
-            h.put( name, "operation" );
-            operationSources.put( name, inheritedFrom );
-        }
+        names.put( name, "operation" );
+        operationSources.put( name, inheritedFrom );
     }
 
     /**
@@ -270,18 +275,22 @@ class NameTable
         {
             String name = (String)e.nextElement();
             String kind = (String)shadowEntries.get( name );
-            if( h.containsKey( name ) )
+            if( names.containsKey( name ) )
             {
                 firstViolation = name;
             }
             else
             {
-                h.put( name, kind );
+                names.put( name, kind );
                 if( logger.isDebugEnabled() )
+                {
                     logger.debug( "Put shadow " + name );
+                }
                 shadows.put( name, "" );
                 if( kind.equals( "operation" ) )
+                {
                     operationSources.put( name, name.substring( 0, name.lastIndexOf( "." ) ) );
+                }
             }
         }
         if( firstViolation != null )
@@ -300,21 +309,25 @@ class NameTable
         throws NameAlreadyDefined
     {
         Hashtable shadowNames = new Hashtable();
-        for( Enumeration e = h.keys(); e.hasMoreElements(); )
+        for( Enumeration e = names.keys(); e.hasMoreElements(); )
         {
             String key = (String)e.nextElement();
             String s = null;
             if( key.indexOf( '.' ) > 0 )
+            {
                 s = key.substring( 0, key.lastIndexOf( '.' ) );
+            }
             else
+            {
                 continue;
+            }
 
             for( Enumeration i = ancestors.v.elements(); i.hasMoreElements(); )
             {
                 String anc = ( (ScopedName)( i.nextElement() ) ).resolvedName();
                 if( s.equals( anc ) )
                 {
-                    String kind = (String)h.get( key );
+                    String kind = (String)names.get( key );
                     if( logger.isDebugEnabled() )
                     {
                         logger.debug( "NameTable.inheritFrom ancestor " + anc +
@@ -365,7 +378,9 @@ class NameTable
 
 
                     if( !isDefined( key ) )
+                    {
                         throw new RuntimeException( "CompilerError!" );
+                    }
                 }
             }
         }
@@ -389,16 +404,16 @@ class NameTable
 
     public static boolean isDefined( String name )
     {
-        return ( h.containsKey( name ) );
+        return ( names.containsKey( name ) );
     }
 
     public static boolean isDefined( String name, String kind )
     {
-        if( !h.containsKey( name ) )
+        if( !names.containsKey( name ) )
         {
             return false;
         }
-        String k = (String)h.get( name );
+        String k = (String)names.get( name );
         return ( k.compareTo( kind ) == 0 );
     }
 

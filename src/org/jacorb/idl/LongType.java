@@ -27,10 +27,9 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class LongType
+public class LongType
     extends IntType
 {
-
     public LongType( int num )
     {
         super( num );
@@ -68,9 +67,10 @@ class LongType
     public String getIDLTypeName()
     {
         if( unsigned )
+        {
             return "ulong";
-        else
-            return "long";
+        }
+        return "long";
     }
 
 
@@ -99,34 +99,38 @@ class LongType
     public String printReadExpression( String ps )
     {
         if( unsigned )
+        {
             return ps + ".read_ulong()";
-        else
-            return ps + ".read_long()";
+        }
+        return ps + ".read_long()";
     }
 
 
     public String printWriteStatement( String var_name, String ps )
     {
         if( unsigned )
+        {
             return ps + ".write_ulong(" + var_name + ");";
-        else
-            return ps + ".write_long(" + var_name + ");";
+        }
+        return ps + ".write_long(" + var_name + ");";
     }
 
     public String printInsertExpression()
     {
         if( unsigned )
+        {
             return "insert_ulong";
-        else
-            return "insert_long";
+        }
+        return "insert_long";
     }
 
     public String printExtractExpression()
     {
         if( unsigned )
+        {
             return "extract_ulong";
-        else
-            return "extract_long";
+        }
+        return "extract_long";
     }
 
     public void printInsertIntoAny(PrintWriter ps,
@@ -147,6 +151,3 @@ class LongType
     }
 
 }
-
-
-

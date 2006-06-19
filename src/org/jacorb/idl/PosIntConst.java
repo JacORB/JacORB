@@ -28,7 +28,7 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class PosIntConst
+public class PosIntConst
     extends IdlSymbol
 {
     private int value = -1;
@@ -50,23 +50,21 @@ class PosIntConst
     }
 
     public int value()
-    {        
+    {
         if( value == -1 )
         {
             value = const_expr.pos_int_const();
             if( value <= 0 )
-                throw new ParseException("Integer constant value must be greater 0.", 
+                throw new ParseException("Integer constant value must be greater 0.",
                                          this.myPosition );
         }
         return value;
     }
 
-
     public String toString()
     {
         return const_expr.toString();
     }
-
 
     public void setPackage( String s )
     {
@@ -78,13 +76,3 @@ class PosIntConst
         const_expr.setPackage( s );
     }
 }
-
-
-
-
-
-
-
-
-
-

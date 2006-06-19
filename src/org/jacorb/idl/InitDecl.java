@@ -28,7 +28,7 @@ import java.util.*;
  * @version $Id$
  */
 
-class InitDecl
+public class InitDecl
     extends Declaration
 {
     public Vector paramDecls;
@@ -140,7 +140,7 @@ class InitDecl
             ( (ParamDecl)e.nextElement() ).print( ps );
         }
         ps.println (" )");
-        
+
         ps.println ("\t{");
         ps.println ("\t\t" + type_name + "ValueFactory f = "
                     + "( " + type_name + "ValueFactory )"
@@ -149,7 +149,7 @@ class InitDecl
         ps.println ("\t\t\tthrow new org.omg.CORBA.MARSHAL( "
                     + "1, org.omg.CORBA.CompletionStatus.COMPLETED_NO );");
         ps.print   ("\t\treturn f." + name + "( ");
-        
+
         for ( Enumeration e = paramDecls.elements();
               e.hasMoreElements(); )
         {
@@ -159,7 +159,7 @@ class InitDecl
 
         ps.println (" );");
 
-        ps.println ("\t}");        
+        ps.println ("\t}");
     }
 
     public String name()
@@ -167,18 +167,8 @@ class InitDecl
         return name;
     }
 
-
     public String opName()
     {
         return name();
     }
-
-
 }
-
-
-
-
-
-
-

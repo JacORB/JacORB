@@ -29,7 +29,7 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class Truncatable
+public class Truncatable
     extends IdlSymbol
 {
     ScopedName scopedName;
@@ -54,6 +54,4 @@ class Truncatable
         return "truncatable " + scopedName.toString();
     }
 }
-
-
 

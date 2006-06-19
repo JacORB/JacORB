@@ -27,17 +27,15 @@ import java.util.Enumeration;
  * @version $Id$
  */
 
-class ValueBody
+public class ValueBody
         extends InterfaceBody
 {
-
     public ValueAbsDecl myAbsValue;
 
     ValueBody( int num )
     {
         super( num );
     }
-
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
@@ -48,16 +46,4 @@ class ValueBody
         for( Enumeration e = v.elements(); e.hasMoreElements(); )
             ( (IdlSymbol)e.nextElement() ).setEnclosingSymbol( myAbsValue );
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-

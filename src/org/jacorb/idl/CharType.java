@@ -26,8 +26,7 @@ import java.io.PrintWriter;
  * @author Gerald Brose
  * @version $Id$
  */
-
-class CharType
+public class CharType
     extends BaseType
     implements SwitchTypeSpec
 {
@@ -42,7 +41,9 @@ class CharType
     {
         CharType s = new CharType( new_num() );
         if( wide )
+        {
             s.setWide();
+        }
         return s;
     }
 
@@ -84,9 +85,10 @@ class CharType
     public int getTCKind()
     {
         if( wide )
+        {
             return 26;
-        else
-            return 9;
+        }
+        return 9;
     }
 
     public String holderName()
@@ -97,34 +99,38 @@ class CharType
     public String printReadExpression( String strname )
     {
         if( wide )
+        {
             return strname + ".read_wchar()";
-        else
-            return strname + ".read_char()";
+        }
+        return strname + ".read_char()";
     }
 
     public String printWriteStatement( String var_name, String strname )
     {
         if( wide )
+        {
             return strname + ".write_wchar(" + var_name + ");";
-        else
-            return strname + ".write_char(" + var_name + ");";
+        }
+        return strname + ".write_char(" + var_name + ");";
     }
 
     public String printInsertExpression()
     {
         if( wide )
+        {
             return "insert_wchar";
-        else
-            return "insert_char";
+        }
+        return "insert_char";
 
     }
 
     public String printExtractExpression()
     {
         if( wide )
+        {
             return "extract_wchar";
-        else
-            return "extract_char";
+        }
+        return "extract_char";
     }
 
     public boolean isSwitchable()
@@ -138,13 +144,9 @@ class CharType
                                    String anyname,
                                    String varname)
     {
-
         ps.println( "\t\t" + anyname + "."
                 + printInsertExpression() + "(" + varname + ");");
-
     }
-
-
 
     public void printExtractResult(PrintWriter ps,
                                    String resultname,
@@ -153,9 +155,4 @@ class CharType
     {
         ps.println("\t\t" + resultname + " = " + anyname + "." + printExtractExpression() + "();");
     }
-
-
 }
-
-
-

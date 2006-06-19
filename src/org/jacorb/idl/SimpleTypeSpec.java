@@ -21,23 +21,13 @@
 package org.jacorb.idl;
 
 /**
- * 
- *
  * @author Gerald Brose
  * @version $Id$
  */
-
-class SimpleTypeSpec
-    extends TypeSpec
+public class SimpleTypeSpec extends TypeSpec
 {
     public SimpleTypeSpec( int num )
     {
         super( num );
     }
-
 }
-
-
-
-
-

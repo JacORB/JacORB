@@ -27,10 +27,9 @@ import java.util.Enumeration;
  * @version $Id$
  */
 
-class Case
+public class Case
     extends IdlSymbol
 {
-
     /** the labels for this case */
     public SymbolList case_label_list = null;
 
@@ -189,7 +188,7 @@ class Case
                     {
                         try
                         {
-                            int testme = Integer.parseInt( literal.string );
+                            Integer.parseInt( literal.string );
                         }
                         catch( NumberFormatException ne )
                         {
@@ -254,6 +253,4 @@ class Case
     {
         element_spec.print( ps );
     }
-
-
 }

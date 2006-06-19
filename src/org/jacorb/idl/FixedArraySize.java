@@ -26,7 +26,7 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class FixedArraySize
+public class FixedArraySize
     extends IdlSymbol
 {
     public PosIntConst pos_int_const;

@@ -27,8 +27,7 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class AddExpr
-    extends IdlSymbol
+public class AddExpr extends IdlSymbol
 {
     public AddExpr add_expr = null;
     public String operator;
@@ -85,11 +84,12 @@ class AddExpr
         {
             int z = add_expr.pos_int_const();
             if( operator.equals( "-" ) )
+            {
                 z *= -1;
+            }
             return z + y;
         }
-        else
-            return y;
+        return y;
     }
 
     public String value()
@@ -101,7 +101,6 @@ class AddExpr
         }
         return x + mult_expr.value();
     }
-
 
     public String toString()
     {
@@ -118,4 +117,3 @@ class AddExpr
         return mult_expr.get_token();
     }
 }
-

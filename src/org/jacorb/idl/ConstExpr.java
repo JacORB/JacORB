@@ -27,10 +27,9 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class ConstExpr
+public class ConstExpr
     extends IdlSymbol
 {
-
     public OrExpr or_expr;
 
     public ConstExpr( int num )
@@ -68,7 +67,6 @@ class ConstExpr
         return or_expr.get_token();
     }
 
-
     public String value()
     {
         return or_expr.value();
@@ -84,4 +82,3 @@ class ConstExpr
         or_expr.setPackage( s );
     }
 }
-

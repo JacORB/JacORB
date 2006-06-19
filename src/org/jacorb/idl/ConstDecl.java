@@ -21,7 +21,6 @@
 package org.jacorb.idl;
 
 /**
- *
  * @author Gerald Brose
  * @version $Id$
  */
@@ -30,7 +29,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.*;
 
-class ConstDecl extends Declaration
+public class ConstDecl extends Declaration
 {
     private static Hashtable values = new Hashtable();
     private static Hashtable declarations = new Hashtable();
@@ -60,10 +59,7 @@ class ConstDecl extends Declaration
         {
             return (String)values.get(resolvedName);
         }
-        else
-        {
-            return resolvedName;
-        }
+        return resolvedName;
     }
 
     public void setPackage(String s)
@@ -230,14 +226,14 @@ class ConstDecl extends Declaration
     private String getValue()
     {
         TypeSpec ts = const_type.symbol.typeSpec();
-        if (ts instanceof AliasTypeSpec)
+        while (ts instanceof AliasTypeSpec)
         {
             ts = ((AliasTypeSpec)ts).originalType();
         }
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("ConstDecl(" + name + ": " + 
+            logger.debug("ConstDecl(" + name + ": " +
                          ts.getClass() + ") = " + const_type.toString());
         }
 

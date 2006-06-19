@@ -28,10 +28,9 @@ import java.util.*;
  * @version $Id$
  */
 
-class RaisesExpr
+public class RaisesExpr
         extends IdlSymbol
 {
-
     public Vector nameList;
 
     public RaisesExpr( int num )
@@ -116,7 +115,7 @@ class RaisesExpr
         nameList = new Vector();
         for( Enumeration e = h.keys(); e.hasMoreElements(); )
         {
-            nameList.addElement( h.get( (String)e.nextElement() ) );
+            nameList.addElement( h.get( e.nextElement() ) );
         }
         h.clear();
         String[] classes = getExceptionClassNames();
@@ -129,17 +128,16 @@ class RaisesExpr
         }
     }
 
-
     public void print( PrintWriter ps )
     {
         Enumeration e = nameList.elements();
         if( e.hasMoreElements() )
         {
-            ps.print( " throws " + ( (ScopedName)e.nextElement() ) );
+            ps.print( " throws " + e.nextElement() );
         }
         for( ; e.hasMoreElements(); )
         {
-            ps.print( "," + ( (ScopedName)e.nextElement() ) );
+            ps.print( "," + e.nextElement() );
         }
     }
 }

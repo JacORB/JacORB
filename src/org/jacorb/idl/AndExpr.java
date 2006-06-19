@@ -28,7 +28,7 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class AndExpr
+public class AndExpr
     extends IdlSymbol
 {
     public AndExpr and_expr = null;
@@ -55,23 +55,23 @@ class AndExpr
         shift_expr.setDeclaration(declared_in);
     }
 
-    public void setPackage(String s)
+    public void setPackage(String packageName)
     {
-        s = parser.pack_replace(s);
+        packageName = parser.pack_replace(packageName);
         if (pack_name.length() > 0)
         {
-            pack_name = s + "." + pack_name;
+            pack_name = packageName + "." + pack_name;
         }
         else
         {
-            pack_name = s;
+            pack_name = packageName;
         }
 
         if (and_expr != null)
         {
-            and_expr.setPackage(s);
+            and_expr.setPackage(packageName);
         }
-        shift_expr.setPackage(s);
+        shift_expr.setPackage(packageName);
     }
 
     public void parse()
@@ -112,5 +112,4 @@ class AndExpr
     {
         return shift_expr.get_token();
     }
-
 }

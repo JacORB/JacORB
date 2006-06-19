@@ -25,11 +25,9 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-
-class FixedPointConstType
+public class FixedPointConstType
         extends BaseType
 {
-
     public FixedPointConstType( int num )
     {
         super( num );
@@ -74,7 +72,6 @@ class FixedPointConstType
         return "org.omg.CORBA.FixedHolder";
     }
 
-
     public String printReadExpression( String strname )
     {
         return strname + ".read_fixed()";
@@ -85,10 +82,3 @@ class FixedPointConstType
         return strname + ".write_fixed(" + var_name + ");";
     }
 }
-
-
-
-
-
-
-

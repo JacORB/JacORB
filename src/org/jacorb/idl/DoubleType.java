@@ -27,12 +27,9 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-
-class DoubleType
+public class DoubleType
     extends FloatPtType
 {
-    private boolean isLongDouble = false;
-
     public DoubleType( int num )
     {
         super( num );
@@ -45,7 +42,8 @@ class DoubleType
 
     public void setLongDouble()
     {
-        isLongDouble = true;
+        // no effect as IDL type long double is
+        // not supported by standard IDL/Java mappings.
     }
 
     public TypeSpec typeSpec()

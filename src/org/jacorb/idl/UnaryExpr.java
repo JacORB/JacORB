@@ -27,10 +27,9 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class UnaryExpr
+public class UnaryExpr
         extends IdlSymbol
 {
-
     public String unary_op = "";
     public PrimaryExpr primary_expr;
 
@@ -71,12 +70,12 @@ class UnaryExpr
         if( !unary_op.equals( "" ) )
         {
             if( unary_op.equals( "-" ) )
+            {
                 return y * -1;
-            else
-                return y;
-        }
-        else
+            }
             return y;
+        }
+        return y;
     }
 
     public String value()
@@ -93,13 +92,7 @@ class UnaryExpr
     {
         return primary_expr.get_token();
     }
-
-
 }
-
-
-
-
 
 
 

@@ -27,11 +27,9 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-
 class OctetType
         extends BaseType
 {
-
     public OctetType( int num )
     {
         super( num );
@@ -91,12 +89,10 @@ class OctetType
     {
     }
 
-
     public String holderName()
     {
         return "org.omg.CORBA.ByteHolder";
     }
-
 
     public String printReadExpression( String strname )
     {
@@ -134,12 +130,4 @@ class OctetType
     {
         ps.println("\t\t" + resultname + " = " + anyname + "." + printExtractExpression() + "();");
     }
-
 }
-
-
-
-
-
-
-

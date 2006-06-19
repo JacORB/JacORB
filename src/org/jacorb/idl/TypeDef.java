@@ -71,7 +71,7 @@ public class TypeDef
         {
             if( logger.isErrorEnabled())
             {
-                logger.error( "Typedef.setEnclosingSymbol: was " + 
+                logger.error( "Typedef.setEnclosingSymbol: was " +
                               enclosing_symbol.getClass().getName() +
                               " now: " + s.getClass().getName() );
             }
@@ -94,7 +94,7 @@ public class TypeDef
             try
             {
                 AliasTypeSpec alias =
-                    new AliasTypeSpec( (TypeSpec)type_declarator.type_spec() );
+                    new AliasTypeSpec( type_declarator.type_spec() );
 
                 /* arrays need special treatment */
 
@@ -105,8 +105,8 @@ public class TypeDef
                     // we define the declarator's name as a type name indirectly
                     // through the cloned type specs.
 
-                    alias = 
-                        new AliasTypeSpec( 
+                    alias =
+                        new AliasTypeSpec(
                                new ArrayTypeSpec( new_num(), alias.originalType(),
                                                   (ArrayDeclarator)d.d, pack_name )
                         );
@@ -149,7 +149,7 @@ public class TypeDef
     }
 
     /**
-     */ 
+     */
 
     public void accept( IDLTreeVisitor visitor )
     {
@@ -160,9 +160,4 @@ public class TypeDef
         }
         visitor.visitTypeDef( this );
     }
-
-
-
 }
-
-

@@ -27,10 +27,9 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class ShortType
+public class ShortType
     extends IntType
 {
-
     public ShortType( int num )
     {
         super( num );
@@ -50,7 +49,6 @@ class ShortType
         return "short";
     }
 
-
     /**
      * get this symbol's IDL type name
      */
@@ -58,9 +56,10 @@ class ShortType
     public String getIDLTypeName()
     {
         if( unsigned )
+        {
             return "ushort";
-        else
-            return "short";
+        }
+        return "short";
     }
 
     public TypeSpec typeSpec()
@@ -76,9 +75,10 @@ class ShortType
     public int getTCKind()
     {
         if( unsigned )
+        {
             return 4; //_tk_ushort
-        else
-            return 2; // _tk_short
+        }
+        return 2; // _tk_short
     }
 
     public String toString()
@@ -91,45 +91,49 @@ class ShortType
         return "org.omg.CORBA.ShortHolder";
     }
 
-
     public String printReadExpression( String ps )
     {
         if( unsigned )
+        {
             return ps + ".read_ushort()";
-        else
-            return ps + ".read_short()";
+        }
+        return ps + ".read_short()";
     }
 
     public String printReadStatement( String var_name, String ps )
     {
         if( unsigned )
+        {
             return var_name + "=" + ps + ".read_ushort();";
-        else
-            return var_name + "=" + ps + ".read_short();";
+        }
+        return var_name + "=" + ps + ".read_short();";
     }
 
     public String printWriteStatement( String var_name, String ps )
     {
         if( unsigned )
+        {
             return ps + ".write_ushort(" + var_name + ");";
-        else
-            return ps + ".write_short(" + var_name + ");";
+        }
+        return ps + ".write_short(" + var_name + ");";
     }
 
     public String printInsertExpression()
     {
         if( unsigned )
+        {
             return "insert_ushort";
-        else
-            return "insert_short";
+        }
+        return "insert_short";
     }
 
     public String printExtractExpression()
     {
         if( unsigned )
+        {
             return "extract_ushort";
-        else
-            return "extract_short";
+        }
+        return "extract_short";
     }
 
     public void printInsertIntoAny(PrintWriter ps,
@@ -141,8 +145,6 @@ class ShortType
 
     }
 
-
-
     public void printExtractResult(PrintWriter ps,
                                    String resultname,
                                    String anyname,
@@ -150,11 +152,4 @@ class ShortType
     {
         ps.println("\t\t" + resultname + " = " + anyname + "." + printExtractExpression() + "();");
     }
-
-
 }
-
-
-
-
-

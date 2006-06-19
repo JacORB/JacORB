@@ -29,10 +29,9 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class LongLongType
+public class LongLongType
     extends IntType
 {
-
     public LongLongType( int num )
     {
         super( num );
@@ -56,23 +55,21 @@ class LongLongType
     /**
      * get this types's mapped Java name
      */
-
     public String getJavaTypeName()
     {
         return typeName();
     }
 
-
     /**
      * get this symbol's IDL type name
      */
-
     public String getIDLTypeName()
     {
         if( unsigned )
+        {
             return "ulonglong";
-        else
-            return "longlong";
+        }
+        return "longlong";
     }
 
     public boolean basic()
@@ -83,9 +80,10 @@ class LongLongType
     public int getTCKind()
     {
         if( unsigned )
+        {
             return 24; // tk_ulonglong
-        else
-            return 23; // tk_longlong
+        }
+        return 23; // tk_longlong
     }
 
     public String toString()
@@ -98,45 +96,49 @@ class LongLongType
         return "org.omg.CORBA.LongHolder";
     }
 
-
     public String printReadExpression( String strname )
     {
         if( unsigned )
+        {
             return strname + ".read_ulonglong()";
-        else
-            return strname + ".read_longlong()";
+        }
+        return strname + ".read_longlong()";
     }
 
     public String printReadStatement( String var_name, String strname )
     {
         if( unsigned )
+        {
             return var_name + "=" + strname + ".read_ulonglong();";
-        else
-            return var_name + "=" + strname + ".read_longlong();";
+        }
+        return var_name + "=" + strname + ".read_longlong();";
     }
 
     public String printWriteStatement( String var_name, String strname )
     {
         if( unsigned )
+        {
             return strname + ".write_ulonglong(" + var_name + ");";
-        else
-            return strname + ".write_longlong(" + var_name + ");";
+        }
+        return strname + ".write_longlong(" + var_name + ");";
     }
 
     public String printInsertExpression()
     {
         if( unsigned )
+        {
             return "insert_ulonglong";
-        else
-            return "insert_longlong";
+        }
+        return "insert_longlong";
     }
 
     public String printExtractExpression()
     {
         if( unsigned )
+        {
             return "extract_ulonglong";
-        else
-            return "extract_longlong";
+        }
+        return "extract_longlong";
     }
 
     public void printInsertIntoAny(PrintWriter ps,
@@ -145,10 +147,7 @@ class LongLongType
     {
         ps.println( "\t\t" + anyname + "."
                 + printInsertExpression() + "(" + varname + ");");
-
     }
-
-
 
     public void printExtractResult(PrintWriter ps,
                                    String resultname,
@@ -157,8 +156,4 @@ class LongLongType
     {
         ps.println("\t\t" + resultname + " = " + anyname + "." + printExtractExpression() + "();");
     }
-
 }
-
-
-

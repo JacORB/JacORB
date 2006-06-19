@@ -27,10 +27,9 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class ShiftExpr
+public class ShiftExpr
         extends IdlSymbol
 {
-
     public ShiftExpr shift_expr = null;
     public AddExpr add_expr;
     public String operator;
@@ -109,11 +108,3 @@ class ShiftExpr
         return add_expr.get_token();
     }
 }
-
-
-
-
-
-
-
-

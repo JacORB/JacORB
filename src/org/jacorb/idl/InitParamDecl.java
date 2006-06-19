@@ -27,10 +27,9 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class InitParamDecl
+public class InitParamDecl
         extends ParamDecl
 {
-
     public InitParamDecl( int num )
     {
         super( num );
@@ -45,7 +44,6 @@ class InitParamDecl
             pack_name = s;
         paramTypeSpec.setPackage( s );
     }
-
 
     public void parse()
     {
@@ -77,12 +75,4 @@ class InitParamDecl
     {
         return paramTypeSpec.typeSpec().printReadExpression( ps );
     }
-
 }
-
-
-
-
-
-
-

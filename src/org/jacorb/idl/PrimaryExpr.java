@@ -27,13 +27,10 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class PrimaryExpr
+public class PrimaryExpr
     extends IdlSymbol
 {
     public IdlSymbol symbol;
-
-    private boolean contained = false;
-    private ConstDecl declared_in;
 
     public PrimaryExpr( int num )
     {
@@ -52,8 +49,11 @@ class PrimaryExpr
         {
             ps.print( ( (ScopedName)symbol ).resolvedName() );
         }
-        else // Literal
+        else
+        {
+            // Literal
             symbol.print( ps );
+        }
     }
 
     public void parse()
@@ -63,18 +63,23 @@ class PrimaryExpr
 
     public void setDeclaration( ConstDecl declared_in )
     {
-        this.declared_in = declared_in;
         if( symbol instanceof Literal )
+        {
             ( (Literal)symbol ).setDeclaration( declared_in );
+        }
     }
 
     public void setPackage( String s )
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
+        {
             pack_name = s + "." + pack_name;
+        }
         else
+        {
             pack_name = s;
+        }
 
         symbol.setPackage( s );
     }
@@ -90,12 +95,13 @@ class PrimaryExpr
             ConstExprEvaluator eval =
                 new ConstExprEvaluator( ConstDecl.namedValue( (ScopedName)symbol ));
             if( logger.isDebugEnabled() )
+            {
                 logger.debug( "PrimaryExpr: returning value " + eval.getValue().intValue());
+            }
 
             return eval.getValue().intValue();
         }
-        else
-            return Integer.parseInt( ( (Literal)symbol ).toString() );
+        return Integer.parseInt( ( (Literal)symbol ).toString() );
     }
 
     public String value()
@@ -108,8 +114,7 @@ class PrimaryExpr
         {
             return ConstDecl.namedValue( (ScopedName)symbol );
         }
-        else
-            return ( (Literal)symbol ).toString();
+        return ( (Literal)symbol ).toString();
     }
 
     public String toString()

@@ -874,7 +874,6 @@ public class OpDecl
     public void getIRInfo( Hashtable irInfoTable )
     {
         StringBuffer sb = new StringBuffer();
-        boolean enter = false;
 
         TypeSpec ts = opTypeSpec.typeSpec();
 
@@ -883,7 +882,6 @@ public class OpDecl
             //             if( ((AliasTypeSpec)ts).originalType.typeSpec() instanceof FixedPointType )
 //              {
             sb.append( ts.full_name() );
-            enter = true;
             //             }
         }
         sb.append( "(" );
@@ -894,12 +892,10 @@ public class OpDecl
             if( param.paramAttribute == ParamDecl.MODE_INOUT )
             {
                 sb.append( "inout:" + param.simple_declarator.name + " " );
-                enter = true;
             }
             else if( param.paramAttribute == ParamDecl.MODE_OUT )
             {
                 sb.append( "out:" + param.simple_declarator.name + " " );
-                enter = true;
             }
             else // MODE_IN
                 sb.append( "in:" + param.simple_declarator.name + " " );
@@ -909,7 +905,6 @@ public class OpDecl
             if( ts instanceof AliasTypeSpec )
             {
                 sb.append( ts.full_name() );
-                enter = true;
             }
 
             sb.append( "," );

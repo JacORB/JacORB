@@ -26,14 +26,9 @@
 
 package org.jacorb.idl;
 
-class NameAlreadyDefined
+public class NameAlreadyDefined
         extends java.lang.Exception
 {
-
-    public NameAlreadyDefined()
-    {
-    }
-
     public NameAlreadyDefined( String s )
     {
         super( s );

@@ -20,7 +20,6 @@
 
 package org.jacorb.idl;
 
-
 /**
  * constant type
  *
@@ -28,7 +27,7 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class ConstType
+public class ConstType
         extends IdlSymbol
 {
     TypeSpec symbol;
@@ -65,6 +64,3 @@ class ConstType
         return symbol.toString();
     }
 }
-
-
-

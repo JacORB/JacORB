@@ -27,10 +27,9 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-
 import java.io.PrintWriter;
 
-class BaseType
+public class BaseType
     extends SimpleTypeSpec
 {
     public BaseType( int num )
@@ -38,8 +37,8 @@ class BaseType
         super( num );
     }
 
-    /** 
-     * ignore, these types don't need to know their package 
+    /**
+     * ignore, these types don't need to know their package
      */
 
     public void setPackage( String s )
@@ -132,8 +131,6 @@ class BaseType
         return type_spec.typeName();
     }
 
-
-
     public String id()
     {
         return "IDL:*primitive*:1.0";
@@ -146,7 +143,4 @@ class BaseType
     public void print( PrintWriter ps )
     {
     }
-
-
 }
-

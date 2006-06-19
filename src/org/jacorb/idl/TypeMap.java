@@ -27,9 +27,9 @@ package org.jacorb.idl;
 
 import java.util.*;
 
-class TypeMap
+public class TypeMap
 {
-    static Hashtable typemap = new Hashtable( 5000 );
+    static final Hashtable typemap = new Hashtable( 5000 );
 
     public static void init()
     {
@@ -52,7 +52,6 @@ class TypeMap
      */
 
     public static void typedef( String name, TypeSpec type )
-        throws NameAlreadyDefined
     {
         if( parser.getLogger().isInfoEnabled() )
             parser.getLogger().info( "Typedef'ing " + name +
@@ -104,7 +103,9 @@ class TypeMap
            typemap.remove( name );
        }
        else
+       {
            throw new RuntimeException( "Could not find definition of : " + name );
+       }
     }
 
 
@@ -114,19 +115,12 @@ class TypeMap
         if( typemap.containsKey( name ) )
         {
             typemap.remove( name );
-            try
-            {
-                typedef( name, type );
-            }
-            catch( NameAlreadyDefined nad )
-            {
-                // serious error, should never happen
-                parser.getLogger().debug("TypeMap.replaceForwardDeclaration, serious error!", nad);
-                parser.fatal_error( "TypeMap.replaceForwardDeclaration, serious error!", null );
-            }
+            typedef( name, type );
         }
         else
+        {
             throw new RuntimeException( "Could not find forward declaration!" );
+        }
     }
 
 

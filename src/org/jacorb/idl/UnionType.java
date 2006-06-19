@@ -259,7 +259,7 @@ public class UnionType
             for (Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements();)
             {
                 Case c = (Case)e.nextElement();
-                c.element_spec.t = getElementType(c.element_spec);
+                c.element_spec.typeSpec = getElementType(c.element_spec);
             }
 
             NameTable.parsed_interfaces.put(full_name(), "");
@@ -541,8 +541,8 @@ public class UnionType
                 }
             }
 
-            pw.println("\tprivate " + c.element_spec.t.typeName()
-                       + " " + c.element_spec.d.name() + ";");
+            pw.println("\tprivate " + c.element_spec.typeSpec.typeName()
+                       + " " + c.element_spec.declarator.name() + ";");
         }
 
         /*
@@ -594,8 +594,8 @@ public class UnionType
 
             // accessors
 
-            pw.println("\tpublic " + c.element_spec.t.typeName()
-                       + " " + c.element_spec.d.name() + " ()");
+            pw.println("\tpublic " + c.element_spec.typeSpec.typeName()
+                       + " " + c.element_spec.declarator.name() + " ()");
             pw.println("\t{");
             pw.print("\t\tif (discriminator != ");
 
@@ -633,13 +633,13 @@ public class UnionType
             }
 
             pw.println(")\n\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();");
-            pw.println("\t\treturn " + c.element_spec.d.name() + ";");
+            pw.println("\t\treturn " + c.element_spec.declarator.name() + ";");
             pw.println("\t}\n");
 
             // modifiers
 
-            pw.println("\tpublic void " + c.element_spec.d.name() +
-                       " (" + c.element_spec.t.typeName() + " _x)");
+            pw.println("\tpublic void " + c.element_spec.declarator.name() +
+                       " (" + c.element_spec.typeSpec.typeName() + " _x)");
             pw.println("\t{");
 
             pw.print("\t\tdiscriminator = ");
@@ -648,14 +648,14 @@ public class UnionType
                 pw.println(defaultStr + ";");
             else
                 pw.println(label[ 0 ] + ";");
-            pw.println("\t\t" + c.element_spec.d.name() + " = _x;");
+            pw.println("\t\t" + c.element_spec.declarator.name() + " = _x;");
             pw.println("\t}\n");
 
             if (caseLabelNum > 1 || thisCaseIsDefault)
             {
-                pw.println("\tpublic void " + c.element_spec.d.name() + " (" +
+                pw.println("\tpublic void " + c.element_spec.declarator.name() + " (" +
                            ts.typeName() + " _discriminator, " +
-                           c.element_spec.t.typeName() + " _x)");
+                           c.element_spec.typeSpec.typeName() + " _x)");
                 pw.println("\t{");
                 pw.print("\t\tif (_discriminator != ");
 
@@ -694,7 +694,7 @@ public class UnionType
 
                 pw.println(")\n\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();");
                 pw.println("\t\tdiscriminator = _discriminator;");
-                pw.println("\t\t" + c.element_spec.d.name() + " = _x;");
+                pw.println("\t\t" + c.element_spec.declarator.name() + " = _x;");
                 pw.println("\t}\n");
             }
         }
@@ -862,8 +862,8 @@ public class UnionType
             was_default = false;
             cse = (Case) e.nextElement();
             caseLabelNum = cse.case_label_list.v.size();
-            TypeSpec t = cse.element_spec.t;
-            Declarator d = cse.element_spec.d;
+            TypeSpec t = cse.element_spec.typeSpec;
+            Declarator d = cse.element_spec.declarator;
 
             for (int i = 0; i < caseLabelNum; i++)
             {
@@ -1026,8 +1026,8 @@ public class UnionType
             bos = new ByteArrayOutputStream ();
             caseWriter = new PrintWriter (bos);
             cse = (Case) e.nextElement ();
-            TypeSpec t = cse.element_spec.t;
-            Declarator d = cse.element_spec.d;
+            TypeSpec t = cse.element_spec.typeSpec;
+            Declarator d = cse.element_spec.declarator;
             caseLabelNum = cse.case_label_list.v.size ();
             Object o;
 
@@ -1152,13 +1152,13 @@ public class UnionType
         while (e.hasMoreElements ())
         {
             cse = (Case) e.nextElement();
-            TypeSpec t = cse.element_spec.t;
+            TypeSpec t = cse.element_spec.typeSpec;
 
             if (t instanceof ScopedName)
                 t = ((ScopedName)t).resolvedTypeSpec();
 
             t = t.typeSpec();
-            Declarator d = cse.element_spec.d;
+            Declarator d = cse.element_spec.declarator;
 
             caseLabelNum = cse.case_label_list.v.size();
             for (int i = 0; i < caseLabelNum; i++)
@@ -1322,16 +1322,16 @@ public class UnionType
 
     private TypeSpec getElementType(ElementSpec element)
     {
-        TypeSpec tspec = element.t;
+        TypeSpec tspec = element.typeSpec;
 
         // Arrays are handled as a special case. Parser generates
         // an ArrayDeclarator for an array, need to spot this and
         // create appropriate type information with an ArrayTypeSpec.
 
-        if (element.d.d instanceof ArrayDeclarator)
+        if (element.declarator.d instanceof ArrayDeclarator)
         {
             tspec = new ArrayTypeSpec(new_num(), tspec,
-                                      (ArrayDeclarator)element.d.d, pack_name);
+                                      (ArrayDeclarator)element.declarator.d, pack_name);
             tspec.parse();
         }
         return tspec;

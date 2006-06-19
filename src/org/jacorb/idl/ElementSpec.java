@@ -21,15 +21,15 @@ package org.jacorb.idl;
  */
 
 /**
- *
+ * @author Gerald Brose
  * @version $Id$
  */
 
-class ElementSpec
+public class ElementSpec
     extends IdlSymbol
 {
-    public TypeSpec t = new TypeSpec( new_num() );
-    public Declarator d = null;
+    public TypeSpec typeSpec = new TypeSpec( new_num() );
+    public Declarator declarator = null;
     private UnionType containingUnion;
 
     public ElementSpec( int num )
@@ -44,8 +44,8 @@ class ElementSpec
             pack_name = s + "." + pack_name;
         else
             pack_name = s;
-        t.setPackage( s );
-        d.setPackage( s );
+        typeSpec.setPackage( s );
+        declarator.setPackage( s );
     }
 
     public void setUnion( UnionType ut )
@@ -53,9 +53,9 @@ class ElementSpec
         containingUnion = ut;
 
         // If its a constrType and is a pseudoscope add union name
-        if (t.typeSpec () instanceof ConstrTypeSpec)
+        if (typeSpec.typeSpec () instanceof ConstrTypeSpec)
         {
-           String tmpRef = ((ConstrTypeSpec)t.typeSpec ()).c_type_spec.pack_name;
+           String tmpRef = ((ConstrTypeSpec)typeSpec.typeSpec ()).c_type_spec.pack_name;
 
            if (tmpRef.endsWith ("PackagePackage") || ! tmpRef.startsWith ("_") && tmpRef.endsWith ("Package"))
            {
@@ -63,34 +63,33 @@ class ElementSpec
            }
            if (ScopedName.isPseudoScope (tmpRef))
            {
-              ((ConstrTypeSpec)t.typeSpec ()).c_type_spec.pack_name =
-                 ((ConstrTypeSpec)t.typeSpec ()).c_type_spec.pack_name + "." + ut.name + "Package";
+              ((ConstrTypeSpec)typeSpec.typeSpec ()).c_type_spec.pack_name =
+                 ((ConstrTypeSpec)typeSpec.typeSpec ()).c_type_spec.pack_name + "." + ut.name + "Package";
            }
         }
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-        t.setEnclosingSymbol( s );
-        d.setEnclosingSymbol( s );
+        typeSpec.setEnclosingSymbol( s );
+        declarator.setEnclosingSymbol( s );
     }
 
     public void parse()
     {
-
         if( logger.isDebugEnabled() )
         {
-            logger.debug("EelementSpec.parse(): element_spec is " +  t.typeSpec().getClass().getName());
+            logger.debug("EelementSpec.parse(): element_spec is " +  typeSpec.typeSpec().getClass().getName());
         }
 
-        if( t.typeSpec() instanceof TemplateTypeSpec ||
-            t.typeSpec() instanceof ConstrTypeSpec )
+        if( typeSpec.typeSpec() instanceof TemplateTypeSpec ||
+            typeSpec.typeSpec() instanceof ConstrTypeSpec )
         {
-            t.parse();
-            if( t.typeSpec() instanceof SequenceType )
+            typeSpec.parse();
+            if( typeSpec.typeSpec() instanceof SequenceType )
             {
-                TypeSpec ts = ( (SequenceType)t.typeSpec() ).elementTypeSpec().typeSpec();
-                SequenceType seqTs = (SequenceType)t.typeSpec();
+                TypeSpec ts = ( (SequenceType)typeSpec.typeSpec() ).elementTypeSpec().typeSpec();
+                SequenceType seqTs = (SequenceType)typeSpec.typeSpec();
                 while( ts instanceof SequenceType )
                 {
                     seqTs = (SequenceType)ts;
@@ -104,9 +103,9 @@ class ElementSpec
                 }
             }
         }
-        else if( t.typeSpec() instanceof ScopedName )
+        else if( typeSpec.typeSpec() instanceof ScopedName )
         {
-            TypeSpec ts = ( (ScopedName)t.typeSpec() ).resolvedTypeSpec();
+            TypeSpec ts = ( (ScopedName)typeSpec.typeSpec() ).resolvedTypeSpec();
             if( ts.typeName().equals( containingUnion.typeName() ) )
             {
                 parser.error( "Illegal recursion in union " + containingUnion.full_name(), token );
@@ -121,34 +120,32 @@ class ElementSpec
             if( ! ( ts instanceof ConstrTypeSpec &&
                     ((ConstrTypeSpec)ts).declaration() instanceof Interface) )
             {
-                t = ts;
+                typeSpec = ts;
             }
         }
 
         try
         {
-            NameTable.define( containingUnion.full_name() + "." + d.name(), "declarator" );
+            NameTable.define( containingUnion.full_name() + "." + declarator.name(), "declarator" );
         }
         catch( NameAlreadyDefined nad )
         {
-            parser.error( "Declarator " + d.name() +
+            parser.error( "Declarator " + declarator.name() +
                     " already defined in union " + containingUnion.full_name(), token );
         }
 
         if( logger.isDebugEnabled() )
         {
-            logger.debug("ElementSpec.parse-end(): element_spec is " +  t.typeSpec().getClass().getName());
+            logger.debug("ElementSpec.parse-end(): element_spec is " +  typeSpec.typeSpec().getClass().getName());
         }
     }
 
     public void print( java.io.PrintWriter ps )
     {
-        if( t.typeSpec() instanceof TemplateTypeSpec ||
-                t.typeSpec() instanceof ConstrTypeSpec )
+        if( typeSpec.typeSpec() instanceof TemplateTypeSpec ||
+                typeSpec.typeSpec() instanceof ConstrTypeSpec )
         {
-            t.print( ps );
+            typeSpec.print( ps );
         }
     }
-
-
 }

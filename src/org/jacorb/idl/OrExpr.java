@@ -27,10 +27,8 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class OrExpr
-        extends IdlSymbol
+public class OrExpr extends IdlSymbol
 {
-
     public OrExpr or_expr = null;
     public XorExpr xor_expr;
 
@@ -59,9 +57,14 @@ class OrExpr
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
+        {
             pack_name = s + "." + pack_name;
+        }
         else
+        {
             pack_name = s;
+        }
+
         if( or_expr != null )
         {
             or_expr.setPackage( s );
@@ -107,13 +110,4 @@ class OrExpr
     {
         return xor_expr.get_token();
     }
-
 }
-
-
-
-
-
-
-
-

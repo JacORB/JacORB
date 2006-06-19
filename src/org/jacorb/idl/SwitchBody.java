@@ -22,10 +22,9 @@ package org.jacorb.idl;
 
 import java.util.*;
 
-class SwitchBody
+public class SwitchBody
         extends IdlSymbol
 {
-
     /** holds case list */
     Vector caseListVector = new Vector();
 
@@ -90,7 +89,7 @@ class SwitchBody
 
     public void parse()
     {
-        Hashtable usedLabelNames = new Hashtable();
+        Map usedLabelNames = new HashMap();
 
         for( Enumeration e = caseListVector.elements(); e.hasMoreElements(); )
         {
@@ -133,11 +132,4 @@ class SwitchBody
             c.print( ps );
         }
     }
-
 }
-
-
-
-
-
-

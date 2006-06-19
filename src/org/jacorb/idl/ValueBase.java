@@ -25,7 +25,7 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class ValueBase
+public class ValueBase
     extends BaseType
 {
     public ValueBase( int num )
@@ -76,7 +76,7 @@ class ValueBase
      */
     public String getTypeCodeExpression()
     {
-        return "org.omg.CORBA.ORB.init().create_value_tc(\"" + id() + 
+        return "org.omg.CORBA.ORB.init().create_value_tc(\"" + id() +
             "\",\"ValueBase\", org.omg.CORBA.VM_NONE.value, org.omg.CORBA.ORB.init().get_primitive_tc(org.omg.CORBA.TCKind.tk_null), new org.omg.CORBA.ValueMember[]{} )";
     }
 
@@ -101,12 +101,7 @@ class ValueBase
 
     public String printWriteStatement( String var_name, String streamname )
     {
-        return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname + 
+        return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname +
             ").write_value(" + var_name + ");";
     }
-
-
 }
-
-
-

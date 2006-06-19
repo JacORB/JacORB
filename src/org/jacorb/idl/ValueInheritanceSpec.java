@@ -28,7 +28,7 @@ import java.util.*;
  * @version $Id$
  */
 
-class ValueInheritanceSpec
+public class ValueInheritanceSpec
     extends SymbolList
 {
     /** the value types (both abstract and stateful) inherited by this
@@ -55,10 +55,7 @@ class ValueInheritanceSpec
         {
             return null;
         }
-        else
-        {
-            return truncatable.getId();
-        }
+        return truncatable.getId();
     }
 
     public boolean isEmpty()
@@ -129,11 +126,11 @@ class ValueInheritanceSpec
         Enumeration e = v.elements();
 
         if( e.hasMoreElements() )
-            sb.append( (IdlSymbol)e.nextElement() + " " );
+            sb.append( e.nextElement() + " " );
 
         for( ; e.hasMoreElements(); )
         {
-            sb.append( "," + (IdlSymbol)e.nextElement() + " " );
+            sb.append( "," + e.nextElement() + " " );
         }
 
         Enumeration s = supports.elements();
@@ -145,7 +142,7 @@ class ValueInheritanceSpec
 
         for( ; s.hasMoreElements(); )
         {
-            sb.append( "," );
+            sb.append(',');
             ( (IdlSymbol)s.nextElement() ).toString();
         }
 

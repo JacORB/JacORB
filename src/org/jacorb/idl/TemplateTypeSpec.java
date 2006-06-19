@@ -25,8 +25,7 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-
-class TemplateTypeSpec
+public class TemplateTypeSpec
     extends SimpleTypeSpec
 {
     protected boolean typedefd = false;
@@ -53,7 +52,6 @@ class TemplateTypeSpec
     {
         typedefd = true;
     }
-
 
     public boolean basic()
     {

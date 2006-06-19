@@ -27,10 +27,9 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class XorExpr
+public class XorExpr
         extends IdlSymbol
 {
-
     public XorExpr xor_expr = null;
     public AndExpr and_expr;
 
@@ -107,13 +106,3 @@ class XorExpr
         return and_expr.get_token();
     }
 }
-
-
-
-
-
-
-
-
-
-
