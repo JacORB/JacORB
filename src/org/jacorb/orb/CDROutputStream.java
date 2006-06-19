@@ -2522,7 +2522,7 @@ public class CDROutputStream
                             ValueHandler.getRMIRepositoryID(newValue.getClass());
                         repository_ids =
                             (new_rep_id == null) ? null : new String []{new_rep_id};
-                        cls = value.getClass();
+                        cls = newValue.getClass();
                         codebase = ValueHandler.getCodebase(cls);
                     }
 
@@ -2531,7 +2531,6 @@ public class CDROutputStream
 
                     if (newValue != value)
                     {
-
                         // look at the new value
                         Integer index = (Integer)getValueMap().get(newValue);
                         if (index != null)
