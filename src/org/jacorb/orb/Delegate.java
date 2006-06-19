@@ -104,7 +104,12 @@ public final class Delegate
 
     private String invokedOperation = null;
 
-    private ClientInterceptorHandler interceptors;
+    /**
+     * <code>localInterceptors</code> stores the ClientInterceptorHandler that is
+     * currently in use during an interceptor invocation. It is held within a
+     * thread local to prevent thread interaction issues.
+     */
+    private final ThreadLocal localInterceptors  = new ThreadLocal();
 
     /** the configuration object for this delegate */
     private org.apache.avalon.framework.configuration.Configuration configuration = null;
@@ -276,12 +281,15 @@ public final class Delegate
                 return;
             }
 
-            // Check if ClientProtocolPolicy set, if so, set profile
-            // selector for IOR that selects effective profile for protocol
-            org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
-            if (protocols != null)
+            if (!rebind)
             {
-                _pior.setProfileSelector(new SpecificProfileSelector(protocols));
+                // Check if ClientProtocolPolicy set, if so, set profile
+                // selector for IOR that selects effective profile for protocol
+                org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
+                if (protocols != null)
+                {
+                    _pior.setProfileSelector(new SpecificProfileSelector(protocols));
+                }
             }
 
             org.omg.ETF.Profile p = _pior.getEffectiveProfile();
@@ -928,12 +936,19 @@ public final class Delegate
     {
         RequestOutputStream ros      = (RequestOutputStream)os;
         ReplyReceiver       receiver = null;
+        final ClientInterceptorHandler interceptors
+            = new ClientInterceptorHandler
+        (
+            (ClientInterceptorHandler)localInterceptors.get(),
+            orb,
+            ros,
+            self,
+            this,
+            piorOriginal,
+            connection
+        );
 
-        if (interceptors == null)
-        {
-            interceptors = new ClientInterceptorHandler
-                (orb, ros, self, this, piorOriginal, connection);
-        }
+        localInterceptors.set(interceptors);
 
         interceptors.handle_send_request();
 
@@ -1008,7 +1023,7 @@ public final class Delegate
         }
         finally
         {
-            interceptors = null;
+            localInterceptors.set(null);
         }
 
         if ( !async && receiver != null )
@@ -1369,7 +1384,7 @@ public final class Delegate
             return false;
         }
 
-        if (interceptors == null && orb.hasRequestInterceptors())
+        if (localInterceptors.get() == null && orb.hasRequestInterceptors())
         {
             return false;
         }

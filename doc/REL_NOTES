@@ -50,6 +50,8 @@
         - Fixed CDROutputStream to correctly handle RMI object replacement.
         - Improve protocol/IOR rebind handling.
         - fixes for shutdown/applet reload (bugzilla #459).
+        - Fix for interceptors service context propagation.
+        - Fix for interceptor multithreading and exception handling.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
            in StructType so far.

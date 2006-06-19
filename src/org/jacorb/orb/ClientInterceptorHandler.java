@@ -53,7 +53,8 @@ public class ClientInterceptorHandler
      * invoked.
      */
     public ClientInterceptorHandler
-                      ( org.jacorb.orb.ORB orb,
+                      ( ClientInterceptorHandler original,
+                        org.jacorb.orb.ORB orb,
                         org.jacorb.orb.giop.RequestOutputStream ros,
                         org.omg.CORBA.Object self,
                         org.jacorb.orb.Delegate delegate,
@@ -64,6 +65,17 @@ public class ClientInterceptorHandler
         {
             info = new ClientRequestInfoImpl ( orb, ros, self, delegate,
                                                piorOriginal, connection );
+
+            // The original ClientRequestInfo forward_reference might return
+            // null so this operation woud be a noop then.
+            if (original != null && original.info != null)
+            {
+                info.setForwardReference (original.info.forward_reference());
+            }
+        }
+        else
+        {
+            info = null;
         }
         logger =
             orb.getConfiguration().getNamedLogger("jacorb.orb.client_interceptors");
@@ -242,7 +254,7 @@ public class ClientInterceptorHandler
             //
             // Note that the current version of the specification does not
             // permit forward_reference to be accessed by SendRequest; this
-            // modification is a PrismTech enhancement complying one of the
+            // modification is a PrismTech enhancement complying to one of the
             // suggested portable solutions within
             // http://www.omg.org/issues/issue5266.txt.
             info.setForwardReference(fwd.forward);
