@@ -42,6 +42,7 @@ public class UnionType
     private boolean switch_is_bool = false;
     private boolean switch_is_longlong = false;
     private boolean explicit_default_case = false;
+    private boolean isParsed = false;
     private int labels;
 
     public UnionType(int num)
@@ -106,10 +107,7 @@ public class UnionType
         {
             return fullName.substring(fullName.lastIndexOf('.') + 1);
         }
-        else
-        {
-            return fullName;
-        }
+        return fullName;
     }
 
     public String printReadExpression(String Streamname)
@@ -170,6 +168,18 @@ public class UnionType
 
     public void parse()
     {
+        if (isParsed)
+        {
+            // there are occasions where the compiler may try to parse
+            // a union type spec for a second time, viz if the union is
+            // referred to through a scoped name in another struct member.
+            // that's not a problem, but we have to skip parsing again!
+
+            return;
+        }
+
+        isParsed = true;
+
         boolean justAnotherOne = false;
 
         escapeName();
@@ -472,10 +482,7 @@ public class UnionType
                             matched = true;
                             break;
                         }
-                        else
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
                     // Current value does not match a case value so set as default
