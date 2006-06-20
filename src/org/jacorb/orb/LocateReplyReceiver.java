@@ -20,12 +20,8 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.orb.*;
-import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.LocateReplyInputStream;
-import org.jacorb.util.*;
 
-import org.omg.GIOP.*;
 import org.omg.CORBA.portable.RemarshalException;
 
 /**
@@ -46,8 +42,8 @@ public class LocateReplyReceiver
      * This method blocks until a reply becomes available.
      */
     public synchronized LocateReplyInputStream getReply()
-	throws RemarshalException
+    throws RemarshalException
     {
-        return (LocateReplyInputStream)getInputStream();
+        return (LocateReplyInputStream)getInputStream(false);
     }
 }

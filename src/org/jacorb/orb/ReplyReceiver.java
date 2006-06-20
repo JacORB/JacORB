@@ -268,7 +268,7 @@ public class ReplyReceiver
            // Map to RemarshalException to force rebind attempt.
            try
            {
-               getInputStream();  // block until reply is available
+               getInputStream(timer != null);  // block until reply is available
            }
            catch (org.omg.CORBA.COMM_FAILURE ex)
            {
@@ -276,11 +276,8 @@ public class ReplyReceiver
                {
                    throw new RemarshalException();
                }
-               else
-               {
-                   //rethrow
-                   throw ex;
-               }
+               //rethrow
+               throw ex;
            }
         }
         catch ( SystemException se )
