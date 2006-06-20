@@ -1,0 +1,15 @@
+module org {
+  module jacorb {
+    module test {
+      module bugs {
+        module bugjac74 {
+
+          interface Jac074Server
+          {
+             string ping ();
+          };
+        };
+      };
+    };
+  };
+};
