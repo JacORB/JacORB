@@ -177,5 +177,8 @@ public class Module
         visitor.visitModule(this);
     }
 
-
+    public String toString()
+    {
+        return "module " + name;
+    }
 }
