@@ -1,0 +1,10 @@
+module broken_union {
+    union UnionBasedOnLong switch(long){
+        case 0:  float  aFloatForCaseZero;
+        case 1:  double aDoubleForCaseOne;
+        default: char   aCharForDefaultCase;
+    };
+    struct StructWithUnionArray {
+        UnionBasedOnLong aUnionBasedOnLongArray[2];
+    };
+};
