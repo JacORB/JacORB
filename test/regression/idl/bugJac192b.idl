@@ -1,0 +1,21 @@
+
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac192b
+            {
+               interface JAC192b
+               {
+                  boolean test192bOp ();
+               };
+            };
+         };
+      };
+   };
+};

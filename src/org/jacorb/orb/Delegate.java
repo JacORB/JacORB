@@ -950,7 +950,18 @@ public final class Delegate
 
         localInterceptors.set(interceptors);
 
-        interceptors.handle_send_request();
+        try
+        {
+            interceptors.handle_send_request();
+        }
+        // If we are throwing a system exception then this will disrupt the call path.
+        // Therefore nullify localInterceptors so it doesn't appear we are still in an
+        // interceptor call.
+        catch (RuntimeException e)
+        {
+            localInterceptors.set (null);
+            throw e;
+        }
 
         try
         {

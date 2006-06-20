@@ -29,6 +29,8 @@ import org.omg.ETF.*;
 import org.apache.avalon.framework.logger.*;
 
 import java.util.*;
+
+import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.iiop.IIOPProfile;
 
 /**
@@ -63,6 +65,7 @@ public class ClientRequestInfoImpl
 
     public ClientRequestInfoImpl
                       ( org.jacorb.orb.ORB orb,
+                        ClientRequestInfoImpl original,
                         org.jacorb.orb.giop.RequestOutputStream ros,
                         org.omg.CORBA.Object self,
                         org.jacorb.orb.Delegate delegate,
@@ -77,22 +80,37 @@ public class ClientRequestInfoImpl
          this.received_exception = orb.create_any();
 
          if ( ros.getRequest() != null )
+         {
              this.setRequest( ros.getRequest() );
+         }
 
          this.effective_target = self;
 
          org.jacorb.orb.ParsedIOR pior = delegate.getParsedIOR();
 
          if ( piorOriginal != null )
+         {
              this.target = orb._getObject( pior );
+         }
          else
+         {
              this.target = self;
+         }
 
          Profile profile = pior.getEffectiveProfile();
-         if (profile instanceof org.jacorb.orb.etf.ProfileBase)
+
+         // If this ParsedIOR is using a profile that extends ProfileBase e.g. IIOPProfile
+         // and WIOP (within the regression suite) then grab the effective profile and the
+         // possibly null effective_components.
+         if (profile instanceof ProfileBase)
          {
-             this.effective_profile    = ((org.jacorb.orb.etf.ProfileBase)profile).asTaggedProfile();
-             this.effective_components = ((org.jacorb.orb.etf.ProfileBase)profile).getComponents().asArray();
+             this.effective_profile    = ((ProfileBase)profile).asTaggedProfile();
+             this.effective_components =
+             (
+                 ((ProfileBase)profile).getComponents() == null ?
+                 new org.omg.IOP.TaggedComponent[0]             :
+                 ((ProfileBase)profile).getComponents().asArray()
+             );
          }
 
          if ( this.effective_components == null )
@@ -112,6 +130,14 @@ public class ClientRequestInfoImpl
 
          //allow (BiDir) interceptor to inspect the connection
          this.connection = connection;
+
+
+         // If the original ClientRequestInfo is not null and the forward_reference
+         // is not null then copy it over.
+         if (original != null && original.forward_reference != null)
+         {
+             forward_reference = original.forward_reference;
+         }
     }
 
     public void setRequest(org.jacorb.orb.dii.Request request)

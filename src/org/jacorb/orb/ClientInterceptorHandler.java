@@ -43,8 +43,8 @@ import org.omg.PortableInterceptor.*;
  */
 public class ClientInterceptorHandler
 {
-    private ClientRequestInfoImpl info = null;
-    private Logger logger;
+    private final ClientRequestInfoImpl info;
+    private final Logger logger;
 
     /**
      * Constructs an interceptor handler for the given parameters.
@@ -63,11 +63,17 @@ public class ClientInterceptorHandler
     {
         if ( orb.hasClientRequestInterceptors() )
         {
-            info = new ClientRequestInfoImpl ( orb, ros, self, delegate,
-                                               piorOriginal, connection );
+            info = new ClientRequestInfoImpl ( orb,
+                    // The original ClientInterceptorHandler might be null
+                    (original != null ? original.info : null),
+                    ros,
+                    self,
+                    delegate,
+                    piorOriginal,
+                    connection );
 
             // The original ClientRequestInfo forward_reference might return
-            // null so this operation woud be a noop then.
+            // null so this operation would be a noop then.
             if (original != null && original.info != null)
             {
                 info.setForwardReference (original.info.forward_reference());

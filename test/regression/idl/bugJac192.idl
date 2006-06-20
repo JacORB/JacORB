@@ -1,0 +1,23 @@
+
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac192
+            {
+               interface JAC192
+               {
+                  // We give this a unique name to allow the client
+                  // interceptor to act on this operation only.
+                  boolean test192Op ();
+               };
+            };
+         };
+      };
+   };
+};
