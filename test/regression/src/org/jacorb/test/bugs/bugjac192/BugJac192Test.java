@@ -108,19 +108,6 @@ public class BugJac192Test extends ClientServerTestCase
      */
     public void test_contexts()
     {
-        try
-        {
-            boolean result = server.test192Op();
-
-            if ( ! result)
-            {
-                fail ("Failure when propagating service context.");
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            fail ("Exception was thrown " + e);
-        }
+        assertTrue("Failure when propagating service context.", server.test192Op());
     }
 }
