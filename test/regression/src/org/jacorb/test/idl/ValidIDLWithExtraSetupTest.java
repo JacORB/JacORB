@@ -168,6 +168,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         suite.addTest(new ValidIDLWithExtraSetupTest("-I" + TEST_HOME + "/../../idl/omg", "bugJac307.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ir", "-i2jpackage", "AlarmIRPSystem:org._3gpp.AlarmIRPSystem"}, "bugJac101.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-genEnhanced", "bugJac149.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ami_callback", "-diistub"}, "ami.idl"));
 
         return suite;
     }

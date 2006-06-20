@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 public class ExceptionHolderTypeSpec
     extends TypeSpec
 {
-
     public ExceptionHolderTypeSpec( int num )
     {
         super( num );
@@ -129,7 +128,8 @@ public class ExceptionHolderTypeSpec
                                    String anyname,
                                    String varname)
     {
-        throw new RuntimeException( "Should not be called" );
+        String helpername = typeName() + "Helper";
+        ps.println("\t\t" + helpername + ".insert(" + anyname + ", " + varname + " );");
     }
 
 
@@ -138,7 +138,6 @@ public class ExceptionHolderTypeSpec
                                    String anyname,
                                    String resulttype)
     {
-        throw new RuntimeException( "Should not be called" );
+        throw new RuntimeException( "ExceptionHolderTypeSpec.printExtractResult: Should not be called" );
     }
-
 }
