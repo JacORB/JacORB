@@ -83,9 +83,9 @@
    <target name="events" depends="init">
       <ant antfile="${src}/org/jacorb/events/build.xml" dir="${basedir}"/>
    </target>
-	
+
    <target name="dds" depends="init">
-	      <ant antfile="${src}/org/jacorb/dds/build.xml" dir="${basedir}"/>
+          <ant antfile="${src}/org/jacorb/dds/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="trading" depends="init">
@@ -103,6 +103,7 @@
    <target name="clean" depends="init">
       <ant antfile="${src}/org/jacorb/util/build.xml" target="clean" dir="${basedir}"/>
       <ant antfile="${src}/org/jacorb/orb/build.xml" target="clean" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/idl/build.xml" target="clean" dir="${basedir}" />
    </target>
 
 </project>

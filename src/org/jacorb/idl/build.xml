@@ -15,7 +15,7 @@
       <jacorb-javac javac-includes="org/jacorb/idl/**/*.java"/>
    </target>
 
-    <target name="check" >
+    <target name="check" depends="init" >
         <uptodate property="parser.notRequired" srcfile="${src}/org/jacorb/idl/parser.cup">
             <compositemapper>
                 <mergemapper to="${src}/org/jacorb/idl/parser.java" />
@@ -24,7 +24,7 @@
         </uptodate>
     </target>
 
-    <target name="parser" unless="parser.notRequired" >
+    <target name="parser" unless="parser.notRequired" depends="init" >
 <!--        <mkdir dir="${src.generated}/org/jacorb/idl" /> -->
         <java classname="java_cup.Main" fork="true" dir="${src}/org/jacorb/idl" input="${src}/org/jacorb/idl/parser.cup" >
            <arg value="-progress"/>
@@ -33,5 +33,14 @@
                 <pathelement path="${basedir}/lib/build/java_cup.jar" />
             </classpath>
         </java>
+    </target>
+
+    <target name="clean" depends="init">
+        <delete >
+            <fileset dir="${src}/org/jacorb/idl" >
+                <include name="**/parser.java"/>
+                <include name="**/sym.java"/>
+            </fileset>
+        </delete>
     </target>
 </project>
