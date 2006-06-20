@@ -80,7 +80,7 @@ public final class Delegate
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
 
-    private org.jacorb.orb.ORB orb = null;
+    private final org.jacorb.orb.ORB orb;
     private Logger logger = null;
 
     /** set after the first attempt to determine whether
@@ -109,7 +109,7 @@ public final class Delegate
      * currently in use during an interceptor invocation. It is held within a
      * thread local to prevent thread interaction issues.
      */
-    private final ThreadLocal localInterceptors  = new ThreadLocal();
+    private static final ThreadLocal localInterceptors = new ThreadLocal();
 
     /** the configuration object for this delegate */
     private org.apache.avalon.framework.configuration.Configuration configuration = null;
@@ -126,7 +126,7 @@ public final class Delegate
      * next call to is_local will return false
      * so that the stub will choose the non-optimized path
      */
-    private final ThreadLocal ignoreNextCallToIsLocal = new ThreadLocal()
+    private static final ThreadLocal ignoreNextCallToIsLocal = new ThreadLocal()
     {
         protected java.lang.Object initialValue()
         {
@@ -153,14 +153,16 @@ public final class Delegate
 
     /* constructors: */
 
-    private Delegate()
+    private Delegate(ORB orb)
     {
         super();
+
+        this.orb = orb;
     }
 
     public Delegate ( org.jacorb.orb.ORB orb, ParsedIOR pior )
     {
-        this.orb = orb;
+        this(orb);
         _pior = pior;
 
         checkIfImR( _pior.getTypeId() );
@@ -169,20 +171,21 @@ public final class Delegate
 
     public Delegate( org.jacorb.orb.ORB orb, String object_reference )
     {
+        this(orb);
+
         if ( object_reference.indexOf( "IOR:" ) != 0 )
         {
             throw new org.omg.CORBA.INV_OBJREF( "Not an IOR: " +
                                                 object_reference );
         }
 
-        this.orb = orb;
         this.objectReference = object_reference;
         conn_mg = orb.getClientConnectionManager();
     }
 
     public Delegate(org.jacorb.orb.ORB orb, org.omg.IOP.IOR ior)
     {
-        this.orb = orb;
+        this(orb);
         this.ior = ior;
         conn_mg = orb.getClientConnectionManager();
     }
@@ -936,8 +939,7 @@ public final class Delegate
     {
         RequestOutputStream ros      = (RequestOutputStream)os;
         ReplyReceiver       receiver = null;
-        final ClientInterceptorHandler interceptors
-            = new ClientInterceptorHandler
+        final ClientInterceptorHandler interceptors = new ClientInterceptorHandler
         (
             (ClientInterceptorHandler)localInterceptors.get(),
             orb,
