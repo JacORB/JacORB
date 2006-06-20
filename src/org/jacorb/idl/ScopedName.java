@@ -559,7 +559,6 @@ public class ScopedName
         if( logger.isDebugEnabled() )
             logger.debug( "ScopedName.unmap: " + _name );
 
-        String tmp = null;
         TypeSpec y = TypeMap.map( _name );
 
         if( logger.isDebugEnabled() )
@@ -583,8 +582,7 @@ public class ScopedName
                 resolvedSpec = x;
                 return x.typeName();
             }
-            else
-                resolvedSpec = y;
+            resolvedSpec = y;
             return unEnum( _name );
         }
 
@@ -595,18 +593,26 @@ public class ScopedName
         }
 
         if( y instanceof ScopedName && y != null && x != y )
+        {
             return unMap( y.typeName() );
+        }
+
+        // If this is an alias of a sequence return the actual type.
+        if (y instanceof AliasTypeSpec &&
+            ((AliasTypeSpec)y).originalType().typeSpec() instanceof SequenceType)
+        {
+            resolvedSpec = y;
+            return y.typeName();
+        }
 
         if( y == null )
         {
             resolvedSpec = x;
             return x.typeName();
         }
-        else
-        {
-            resolvedSpec = y;
-            return _name;
-        }
+
+        resolvedSpec = y;
+        return _name;
     }
 
 

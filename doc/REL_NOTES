@@ -57,6 +57,7 @@
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
            in StructType so far.
         - Optimized generated code when using octet sequences.
+        - fix for boxed valuetype with sequences generation (bugzilla #429).
     - Security:
         - new property: jacorb.security.randomClassPlugin. Used by developers to plugin their
           own SecureRandom initialisation.
