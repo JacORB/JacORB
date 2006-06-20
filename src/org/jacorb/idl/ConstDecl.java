@@ -200,10 +200,7 @@ public class ConstDecl extends Declaration
                 if (!pack_name.equals(""))
                     pw.println("package " + pack_name + ";");
 
-                pw.println("/**");
-                pw.println(" * Automatically generated from IDL const definition ");
-                pw.println(" * @author JacORB IDL compiler ");
-                pw.println(" */\n");
+                printClassComment("const", className, pw);
 
                 pw.println("public interface " + className);
                 pw.println("{");
