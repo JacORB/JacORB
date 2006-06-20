@@ -28,9 +28,6 @@ import org.omg.CORBA.FloatHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
 import org.omg.CORBA.ShortHolder;
-import org.omg.CORBA.portable.InputStream;
-import org.omg.CORBA.portable.OutputStream;
-import org.omg.CORBA.portable.ResponseHandler;
 
 public class BasicServerImpl extends BasicServerPOA
 {
@@ -38,7 +35,6 @@ public class BasicServerImpl extends BasicServerPOA
     {
         return;
     }
-
 
     public long bounce_long_long(long x)
     {
@@ -290,5 +286,4 @@ public class BasicServerImpl extends BasicServerPOA
     {
         return 1.5E-1F;
     }
-
 }

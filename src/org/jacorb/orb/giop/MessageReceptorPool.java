@@ -69,15 +69,16 @@ public class MessageReceptorPool
         }
 
         pool =
-            new ThreadPool( configuration, threadNamePrefix,
-                               new ConsumerFactory(){
-                                    public Consumer create()
-                                    {
-                                        return new MessageReceptor();
-                                    }
-                                },
-                                maxConnectionThreads,
-                                maxIdleThreads ); //max idle threads
+            new ThreadPool( configuration,
+                            threadNamePrefix,
+                            new ConsumerFactory(){
+                                public Consumer create()
+                                {
+                                    return new MessageReceptor();
+                                }
+                            },
+                            maxConnectionThreads,
+                            maxIdleThreads ); //max idle threads
     }
 
     public void connectionCreated( GIOPConnection conn )
