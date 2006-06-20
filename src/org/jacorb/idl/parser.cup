@@ -1995,8 +1995,8 @@ case_label_list ::=
 element_spec ::=
         type_spec:ts declarator:dc
                 {:
-                        RESULT.t.type_spec = ts;
-                        RESULT.d = dc;
+                        RESULT.typeSpec.type_spec = ts;
+                        RESULT.declarator = dc;
                 :}
         ;
 
