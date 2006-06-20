@@ -52,6 +52,7 @@
         - fixes for shutdown/applet reload (bugzilla #459).
         - Fix for interceptors service context propagation.
         - Fix for interceptor multithreading and exception handling.
+        - Fix for timeout overrides (bugzilla #611).
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
            in StructType so far.
