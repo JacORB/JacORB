@@ -163,8 +163,9 @@ public class CurrentImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error("PrincAuth " + class_name +
-                                " must have exactly one constructor that takes either no args or org.omg.CORBA.ORB" );
+                    logger.error("PrincAuth "
+                                + class_name
+                                + " must have exactly one constructor that takes either no args or org.omg.CORBA.ORB" );
                 }
                 return null;
             }
@@ -187,26 +188,26 @@ public class CurrentImpl
 
                 if (logger.isErrorEnabled())
                 {
-                    logger.error("PrincAuth " + class_name +
-                            "\'s constructor has an arg of type " +
-                            params[0].getName() +
-                    " but it must have an arg of type org.omg.CORBA.ORB" );
+                    logger.error("PrincAuth "
+                                + class_name
+                                + "\'s constructor has an arg of type "
+                                + params[0].getName()
+                                + " but it must have an arg of type org.omg.CORBA.ORB" );
                 }
             }
             else
             {
-                    if (logger.isErrorEnabled())
-                    {
-                        logger.error("PrincAuth " + class_name +
-                                     " must have exactly one constructor that takes either no arg or one arg of type org.omg.CORBA.ORB" );
-                    }
+                if (logger.isErrorEnabled())
+                {
+                    logger.error("PrincAuth " + class_name + " must have exactly one constructor that takes either no arg or one arg of type org.omg.CORBA.ORB" );
+                }
             }
         }
         catch( Exception e )
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn("Exception " + e.getMessage() + " in CurrentImpl");
+                logger.warn("Exception in CurrentImpl", e);
             }
         }
 
