@@ -91,13 +91,13 @@ public class LogKitLoggerFactory
     {
         this.configuration = (Configuration)configuration;
 
-        defaultPriority = 
+        defaultPriority =
             configuration.getAttributeAsInteger("jacorb.log.default.verbosity", 0);
 
-        append = 
+        append =
             configuration.getAttribute("jacorb.logfile.append","off").equals("on");
 
-        logFormatter = 
+        logFormatter =
             new PatternFormatter(configuration.getAttribute("jacorb.log.default.log_pattern",
                                                             DEFAULT_LOG_PATTERN));
         switch (defaultPriority)
@@ -114,16 +114,6 @@ public class LogKitLoggerFactory
         }
         consoleWriter = new OutputStreamWriter(System.err);
         consoleTarget = new WriterTarget(consoleWriter, logFormatter);
-    }
-
-    /**
-     * set the default log priority applied to all loggers on creation,
-     * if no specific log verbosity property exists for the logger.
-     */
-
-    public void setDefaultPriority(int priority)
-    {
-        defaultPriority = priority;
     }
 
     /**
@@ -202,11 +192,11 @@ public class LogKitLoggerFactory
     /**
      * @param name the name of the logger, which also functions
      *        as a log category
-     * @param the log target for the new logger. If null, the new logger
+     * @param target the log target for the new logger. If null, the new logger
      *        will log to System.err
      * @return the logger
      */
-    public Logger getNamedLogger(String name, LogTarget target)
+    private Logger getNamedLogger(String name, LogTarget target)
     {
         Object o = namedLoggers.get(name);
 
@@ -257,17 +247,15 @@ public class LogKitLoggerFactory
      * @param name the name of a logger
      * @return the priority for that logger
      */
-    public int getPriorityForNamedLogger(String name)
+    private int getPriorityForNamedLogger(String name)
     {
         String prefix = name;
 
         while (!prefix.equals(""))
         {
-            String priorityString = null;
-
             try
             {
-                int priorityForLogger = 
+                int priorityForLogger =
                     configuration.getAttributeAsInteger( prefix + ".log.verbosity");
                 if (priorityForLogger > 4)
                     priorityForLogger = 4;
@@ -300,7 +288,7 @@ public class LogKitLoggerFactory
      * @param priority an <code>int</code> value
      * @return an <code>org.apache.log.Priority</code> value
      */
-    public static org.apache.log.Priority intToPriority(int priority)
+    private static org.apache.log.Priority intToPriority(int priority)
     {
         switch (priority)
         {
