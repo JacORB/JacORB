@@ -67,9 +67,9 @@ public class LongLongType
     {
         if( unsigned )
         {
-            return "ulonglong";
+            return "unsigned long long";
         }
-        return "longlong";
+        return "long long";
     }
 
     public boolean basic()

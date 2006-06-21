@@ -57,7 +57,7 @@ public class ShortType
     {
         if( unsigned )
         {
-            return "ushort";
+            return "unsigned short";
         }
         return "short";
     }

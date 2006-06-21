@@ -68,7 +68,7 @@ public class LongType
     {
         if( unsigned )
         {
-            return "ulong";
+            return "unsigned long";
         }
         return "long";
     }
