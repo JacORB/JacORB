@@ -1,0 +1,190 @@
+%
+% $Id$
+%
+Threads that are created and used by JacORB are described below.
+
+\section*{Long--lived threads}
+
+\subsection*{RequestProcessor}
+The RequestProcessor thread invokes servant code when the thread is assigned
+a request from the RequestController. This thread invokes firstly the server
+request interceptors, then the servant manager, and then the servant code.
+Finally, the RequestProcessor invokes interceptors and servant managers and
+writes results to the socket when the servant returns the control flow.
+
+The number of RequestProcessor threads which can run is between
+{\tt jacorb.poa.thread\_pool\_min} and {\tt jacorb.poa.thread\_pool\_max} times
+the number of POAs, or just between those two bounds when
+{\tt jacorb.poa.thread\_pool\_shared} is set to ``on''. RequestProcessor threads
+will terminate when the POA is destroyed (in other words when the property is
+set to ``off'' and when every POA has it's own pool of RequestProcessors) or
+when {\tt ORB.shutdown()} is called, subject to the value of the
+{\tt jacorb.poa.thread\_pool\_shared} property.
+
+The RequestProcessor thread is implemented in
+{\tt org/jacorb/poa/RequestProcessor.java}. Thread instances are pooled
+in {\tt org/jacorb/poa/RPPoolManager.java}.
+
+\subsection*{RequestController}
+The RequestController assigns requests to RequestProcessors and keeps track of
+active requests, object and POA state. The POA state is checked when the
+ServerMessageReceptor reads a request from the socket. Request
+processing can continue if the POA state is active. However, if the POA is
+inactive or if it is being shut down, then the request is rejected.
+If the target object is present and not being deactivated, then a
+RequestProcessor thread is allocated from the pool and the request is handed over to
+the that thread. One RequestController thread is always provided for
+each POA: the thread is terminated when the POA is destroyed.
+
+The RequestController thread is implemented in
+{\tt org/jacorb/poa/RequestController.java}. A reference to the thread
+is retained by {\tt org/jacorb/poa/POA.java}.
+
+\subsection*{ServerSocketListener, SSLServerSocketListener}
+These two threads listen on their respective server sockets and accept new
+connections. Accepted connections are handed to a thread pool. The
+ServerMessageReceptor uses the thread pool to listen on connections for
+individual messages.
+
+There can be a maximum of one ServerSocketListener and one
+SSLServerSocketListener per ORB, depending on the configuration. These threads
+will terminate when {\tt ORB.shutdown()} is called.
+
+The ServerSocketListener and SSLServerSocketListener threads are implemented
+in the inner classes {\tt Acceptor} and {\tt SSLAcceptor} in
+{\tt org/jacorb/ orb/iiop/IIOPListener.java}: a reference is retained by the
+class.
+
+\subsection*{ServerMessageReceptor}
+ServerMessageReceptor threads listen on established connections and read new
+requests from them. The request's message header is decoded and the POA
+name is retrieved from the object key after basic checks are made. The request
+is then handed to the POA for scheduling by the RequestController.
+
+The number of ServerMessageReceptor threads is between 0 and the value of
+{\tt jacorb.connection.server .max\_receptor\_threads}. This upper bound
+also indicates the maximum number of connections that can be serviced
+simultaneously. The maximum number of idle threads can be configured using
+{\tt jacorb.connection.server.max\_idle\_receptor\_threads}.
+
+ServerMessageReceptor threads terminate when either {\tt ORB.shutdown()} is
+called or when the number of idle threads exceeds the maximum specified by
+{\tt jacorb.connection.server.max\_idle\_receptor\_threads}.
+
+The ServerMessageReceptor thread is implemented in
+{\tt org/jacorb/orb/giop/MessageReceptor.java}: instances are pooled in
+{\tt org/jacorb/orb/giop/MessageReceptorPool.java}. Both these classes rely on
+and implement interfaces from JacORB's generic thread pool in
+{\tt org/jacorb/util/threadpool}.
+
+\subsection*{ClientMessageReceptor}
+ClientMessageReceptor threads listen on established connections and read new
+replies recieved from them. The request's message header is decoded and the
+reply is handed back to the thread that sent the original request after basic
+checks are performed. The number of threads which are allowed is between 0 and
+the value of {\tt jacorb.connection.client .max\_receptor\_threads}. This upper
+bound also indicates the maximum number of connections that can be serviced
+simultaneously. The maximum number of idle threads allowed can be set using
+{\tt jacorb.connection.client.max\_idle\_receptor\_threads}.
+
+ClientMessageReceptor threads terminate when either {\tt ORB.shutdown()}
+is called or when the number of idle threads exceeds the maximum specified by
+{\tt jacorb.connection.client.max\_idle\_receptor\_threads}.
+
+This thread is implemented in {\tt org/jacorb/orb/giop/MessageReceptor.java}
+and its instances are pooled in
+{\tt org/jacorb/orb/giop/MessageReceptorPool.java}. Both these classes rely on
+and implement interfaces from JacORB's generic thread pool in
+{\tt org/jacorb/util/threadpool}.
+
+\subsection*{BufferManagerReaper}
+The BufferManagerReaper thread ensures that the extra-large buffer cache entry
+will not live longer than the time specified by
+{\tt jacorb.bufferManagerMaxFlush}. The BufferManagerReaper thread exits when
+{\tt ORB.shutdown()} is called.
+
+This thread is implemented as inner class {\tt Reaper} in {\tt
+org/jacorb/orb/BufferManager.java} and a reference is kept by the class.
+
+\section*{Short--lived threads}
+
+\subsection*{POAChangeToActive}
+The POAChangeToActive thread asynchronously sets the state of those POAs
+controlled by a POAManager to active. A new thread will be created whenever
+{\tt POAManager.activate()} is called. The thread terminates when all POAs
+have been activated.
+
+The POAChangeToActive thread is implemented as an anonymous inner class in
+{\tt org/jacorb/poa/POAManager.java}.
+
+\subsection*{POAChangeToInactive}
+The POAChangeToInactive thread asynchronously sets the state of the POAs
+controlled by a POAManager to inactive. A new thread will be created whenever
+{\tt POAManager.deactivate()} is called. The thread terminates when all
+POAs have been deactivated.
+
+The POAChangeToInactive thread is implemented as an anonymous inner class in
+{\tt org/jacorb/poa/POAManager.java}.
+
+\subsection*{POAChangeToDiscarding}
+The POAChangeToDiscarding thread asynchronously sets the state of those POAs
+controlled by a POAManager to discarding. A new thread is created whenever
+{\tt POAManager.discard\_requests()} is called. This thread terminates when
+all POAs have been set to discarding.
+
+The POAChangeToDiscarding thread is implemented as an anonymous inner class in
+{\tt org/jacorb/poa/POAManager.java}.
+
+\subsection*{POAChangeToHolding}
+The POAChangeToHolding thread asynchronously sets the state of those POAs
+controlled by a POAManager to holding. A new thread is created whenever
+{\tt POAManager.hold\_requests()} is called. This thread when all POAs have
+been set to holding.
+
+The POAChangeToHolding thread is implemented as an anonymous inner class in
+{\tt org/jacorb/poa/POAManager.java}.
+
+\subsection*{POADestructor}
+The POADestructor thread allows asynchronous destruction of a POA. This thread
+initially synchronizes with the RequestController which waits until all active
+requests have been finished. Then, all unprocessed requests are discarded
+by the RequestController thread and destruction of the POA is completed. The
+thread will then exit.
+
+One POADestructor thread is created whenever {\tt POA.destroy()} is called.
+Note that destroying a POA will destroy all child POAs. Accordingly, there will
+be many threads as there are POAs, including child POAs, which are to be
+destroyed.
+
+The POADestructor thread is implemented as an anonymous inner class in
+{\tt org/jacorb/poa/POA.java}.
+
+\subsection*{PassToTransport}
+The PassToTransport thread is created and performs the network send task
+whenever a request is sent with the sync scope set to {\tt SYNC\_NONE}. The
+thread exits when it is finished sending and allows the client thread to return
+immediately.
+
+The PassToTransport thread is implemented as an anonymous inner class in
+{\tt org/jacorb/orb/Delegate.java}.
+
+\subsection*{ReplyReceiverTimer}
+The ReplyReceiverTimer thread manages the termination point for reply timeouts.
+The thread is created for each anticipated reply when the ReplyEndTime
+policy is set. The thread exits when the timeout expires or the
+anticipated reply is received before timeout expires.
+
+The ReplyReceiverTimer thread is implemented as inner class {\tt Timer} in
+{\tt org/jacorb/orb/ReplyReceiver.java} and a reference is kept by the class.
+
+\subsection*{SocketConnectorThread}
+The SocketConnectorThread thread connects to the socket for every new
+connection to the server when {\tt jacorb.connection.client.connect\_timeout}
+is set to a value greater than zero (0). The SocketConnectorThread thread
+provides timeout control which is not available in older JDK versions
+
+The thread exits when either the connection is successfully established or
+when the timeout expires.
+
+The ReplyReceiverTimer thread is implemented as an anonymous inner class in
+{\tt org/jacorb/orb/ClientIIOP\-Connection.java}.
