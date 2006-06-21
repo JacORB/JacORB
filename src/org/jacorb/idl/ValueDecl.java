@@ -359,6 +359,16 @@ public class ValueDecl
         }
 
         knownTypes.add(this);
+
+        String baseType = "null";
+
+        // Only add e.g. FooHelper.type() for those inherited non-abstract ValueTypes.
+        if (hasStatefulBases &&
+            inheritanceSpec != null && inheritanceSpec.v.size() > 0)
+        {
+            baseType = ((ScopedName)inheritanceSpec.v.get(0)).resolvedName() + "Helper.type()";
+        }
+
         StringBuffer result = new StringBuffer
         ("org.omg.CORBA.ORB.init().create_value_tc (" +
                 // id, name
@@ -371,7 +381,7 @@ public class ValueDecl
                                 : 0 // org.omg.CORBA.VM_NONE.value
                 ) + ", " +
                 // concrete base type
-                "null, " +
+                baseType + ", " +
                 // value members
         "new org.omg.CORBA.ValueMember[] {");
         for(Iterator i = stateMembers.v.iterator(); i.hasNext();)
@@ -479,9 +489,11 @@ public class ValueDecl
             PrintWriter out = new PrintWriter(new FileWriter(outfile));
 
             if (pack_name.length() > 0)
+            {
                 out.println("package " + pack_name + ";\n");
+            }
 
-            printClassComment(out);
+            printClassComment("valuetype", name, out);
             out.println("public abstract class " + name);
 
             // set up extends and implements clauses
@@ -691,7 +703,7 @@ public class ValueDecl
                 out.println("package " + pack_name + ";\n");
             }
 
-            printClassComment(out);
+            printClassComment("valuetype", name, out);
 
             out.println("public interface  " + name + "ValueFactory");
             out.println("\textends org.omg.CORBA.portable.ValueFactory");
@@ -769,7 +781,7 @@ public class ValueDecl
                 out.println("package " + pack_name + ";\n");
             }
 
-            printClassComment(out);
+            printClassComment("valuetype", name, out);
 
             out.println("public abstract class " + name + "Helper");
             out.println("{");
@@ -846,7 +858,7 @@ public class ValueDecl
                 out.println("package " + pack_name + ";\n");
             }
 
-            printClassComment(out);
+            printClassComment("valuetype", name, out);
 
             out.println("public" + parser.getFinalString() + " class " + name + "Holder");
             out.println("\timplements org.omg.CORBA.portable.Streamable");

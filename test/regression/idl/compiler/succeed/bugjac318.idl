@@ -1,0 +1,28 @@
+#ifndef _ABSTRACT_VT_INHERITANCE_
+#define _ABSTRACT_VT_INHERITANCE_
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugpt318
+            {
+               abstract valuetype MyAbstractValueType_T {
+
+                  void doSomething(in string myData);
+               };
+
+               valuetype MyConcreteValueType_T : MyAbstractValueType_T {
+
+                  public string moreData;
+               };
+            };
+         };
+      };
+   };
+};
+#endif
