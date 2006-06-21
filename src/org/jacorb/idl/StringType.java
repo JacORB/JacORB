@@ -192,4 +192,9 @@ public class StringType
    {
        max = max_;
    }
+
+   public ConstExpr getSize()
+   {
+       return max;
+   }
 }
