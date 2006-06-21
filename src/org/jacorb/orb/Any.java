@@ -248,7 +248,7 @@ public final class Any
 
     public void insert_long (int i)
     {
-        value = Integer.valueOf(i);
+        value = new Integer(i);
         typeCode = orb.get_primitive_tc (TCKind.tk_long);
     }
 
@@ -266,7 +266,7 @@ public final class Any
 
     public void insert_ulong (int i)
     {
-        value = Integer.valueOf(i);
+        value = new Integer(i);
         typeCode = orb.get_primitive_tc( TCKind.tk_ulong );
     }
 
