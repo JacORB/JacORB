@@ -103,9 +103,7 @@ public class ThreadPool
                     logger.debug("[" + idle_threads + "/" + total_threads +
                                  "] Telling thread to exit (too many idle)");
                 }
-                total_threads--;
-                idle_threads--;
-                return null;
+                return getShutdownJob();
             }
 
             try
@@ -125,7 +123,7 @@ public class ThreadPool
         //pool is to be shut down completely
         if (shutdown)
         {
-            return null;
+            return getShutdownJob();
         }
 
         idle_threads--;
@@ -137,7 +135,18 @@ public class ThreadPool
         }
         return job_queue.removeFirst();
     }
-    
+
+    /**
+     * the returned null will cause the ConsumerTie to exit.
+     * also decrement thread counters.
+     */
+    private Object getShutdownJob()
+    {
+        total_threads--;
+        idle_threads--;
+        return null;
+    }
+
     public synchronized void putJob( Object job )
     {
         job_queue.add(job);
