@@ -52,7 +52,7 @@ public class ConstExpr
         or_expr.print( ps );
     }
 
-    int pos_int_const()
+    public int pos_int_const()
     {
         return or_expr.pos_int_const();
     }
@@ -76,9 +76,13 @@ public class ConstExpr
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
+        {
             pack_name = s + "." + pack_name;
+        }
         else
+        {
             pack_name = s;
+        }
         or_expr.setPackage( s );
     }
 }
