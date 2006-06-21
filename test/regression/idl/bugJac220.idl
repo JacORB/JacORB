@@ -1,0 +1,20 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac220
+            {
+
+               interface TestEnum
+               {
+                  any push (in any enumAny);
+               };
+            };
+         };
+      };
+   };
+};
