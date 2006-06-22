@@ -4,6 +4,9 @@
 
 <project name="idl" default="all" basedir="../../../..">
 
+    <!-- TODO generate parser to src/generated -->
+    <!-- add a target to patch the version number -->
+
    &common;
 
    <target name="all" depends="init, check, parser" >
@@ -36,11 +39,12 @@
     </target>
 
     <target name="clean" depends="init">
-        <delete >
+        <!-- don't delete yet as this currently breaks the PT build -->
+      <!--  <delete >
             <fileset dir="${src}/org/jacorb/idl" >
                 <include name="**/parser.java"/>
                 <include name="**/sym.java"/>
             </fileset>
-        </delete>
+        </delete> -->
     </target>
 </project>
