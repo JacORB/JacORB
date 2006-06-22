@@ -20,9 +20,6 @@
 
 package org.jacorb.orb.giop;
 
-import java.io.*;
-
-import org.jacorb.orb.iiop.*;
 import org.apache.avalon.framework.configuration.*;
 
 /**
@@ -68,7 +65,7 @@ public class ClientGIOPConnection
     {
         if (logger.isDebugEnabled())
             logger.debug (this.toString() + ": readTimedOut()");
-        
+
         synchronized( pendingUndecidedSync )
         {
             if (ignore_pending_messages_on_timeout)
@@ -82,9 +79,9 @@ public class ClientGIOPConnection
             else
             {
                 if (logger.isDebugEnabled())
-                    logger.debug 
+                    logger.debug
                     (
-                        this.toString() 
+                        this.toString()
                         + ": cannot close because there are pending messages"
                     );
             }
@@ -100,7 +97,7 @@ public class ClientGIOPConnection
     {
         if (logger.isDebugEnabled())
             logger.debug (this.toString() + ": streamClosed()");
-        
+
         closeAllowReopen();
 
         if( connection_listener != null )
@@ -118,7 +115,7 @@ public class ClientGIOPConnection
     {
         if (logger.isDebugEnabled())
             logger.debug (this.toString() + ": closeAllowReopen()");
-        
+
         try
         {
             synchronized (connect_sync)
@@ -135,12 +132,12 @@ public class ClientGIOPConnection
             releaseWriteLock();
         }
     }
-    
+
     public String toString()
     {
         return "ClientGIOPConnection to "
              + profile.toString()
-             + " (" + Integer.toHexString(this.hashCode()) + ")"; 
+             + " (" + Integer.toHexString(this.hashCode()) + ")";
     }
 
 }// ClientGIOPConnection
