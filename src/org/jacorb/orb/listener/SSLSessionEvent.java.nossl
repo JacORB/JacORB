@@ -1,0 +1,18 @@
+package org.jacorb.orb.listener;
+
+import java.util.EventObject;
+
+/**
+ * <code>SSLSessionEvent</code> is a dummy implementation for when JacORB
+ * has been built without SSL.
+ *
+ * @author Nick Cross
+ * @version $Id$
+ */
+public class SSLSessionEvent extends EventObject
+{
+    public SSLSessionEvent (java.lang.Object o)
+    {
+        super (o);
+    }
+}

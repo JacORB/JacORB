@@ -1,0 +1,58 @@
+package org.jacorb.orb.listener;
+
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1999-2006 Gerald Brose
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+import java.io.IOException;
+import java.net.Socket;
+import org.jacorb.orb.iiop.IIOPConnection;
+
+
+/**
+ * <code>SSLListenerUtil</code> is a dummy implementation for when JacORB
+ * has been built without SSL.
+ *
+ * @author Nick Cross
+ * @version $Id$
+ */
+public class SSLListenerUtil
+{
+    /**
+     * <code>addListener</code> would normally add a Handshake listener to
+     * a SSLSocket but as SSL has not been included it does nothing.
+     *
+     * @param s a <code>Socket</code> value
+     */
+    public static void addListener (ORB orb, Socket s)
+    {
+    }
+
+    /**
+     * <code>processException</code> would normally check the exception for an
+     * SSLException to notify listeners but as SSL has not been included it does
+     * nothing.
+     *
+     * @param e an <code>IOException</code> value
+     */
+    public static void processException (ORB orb, IIOPConnection i, Socket socket, IOException e)
+    {
+    }
+}
