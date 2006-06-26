@@ -24,6 +24,8 @@ package org.jacorb.test.common.launch;
 import java.util.*;
 import java.io.*;
 
+import org.jacorb.test.common.TestUtils;
+
 /**
  * A launcher that uses the jaco script of a given JacORB installation. 
  * 
@@ -49,7 +51,7 @@ public class JacoLauncher extends JacORBLauncher
         List cmdList = new ArrayList();
         
         cmdList.add (jacorbHome + "/bin/jaco");
-        cmdList.addAll (propsToArgList (props));
+        cmdList.addAll (TestUtils.propsToArgList (props));
         cmdList.add (mainClass);
         cmdList.addAll (Arrays.asList(args));
         

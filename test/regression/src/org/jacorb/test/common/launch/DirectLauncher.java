@@ -59,7 +59,7 @@ public class DirectLauncher extends JacORBLauncher
         cmdList.add (fullClasspath);
         cmdList.add ("-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB");
         cmdList.add ("-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton");
-        cmdList.addAll (propsToArgList(props));
+        cmdList.addAll (TestUtils.propsToArgList(props));
         cmdList.add ("-Djacorb.home=" + jacorbHome);
         cmdList.add (mainClass);
         cmdList.addAll (Arrays.asList(args));

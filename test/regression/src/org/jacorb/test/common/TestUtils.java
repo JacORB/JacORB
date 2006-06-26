@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import junit.extensions.TestSetup;
@@ -346,5 +347,21 @@ public class TestUtils
             props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.internal.corba.ORBSingleton");
         }
         return props;
+    }
+
+    public static List propsToArgList (Properties props)
+    {
+        List result = new ArrayList();
+    
+        if (props == null) return result;
+    
+        for (Iterator i = props.keySet().iterator(); i.hasNext();)
+        {
+            String key = (String)i.next();
+            String value = props.getProperty(key);
+            result.add ("-D" + key + "=" + value);
+        }
+    
+        return result;
     }
 }

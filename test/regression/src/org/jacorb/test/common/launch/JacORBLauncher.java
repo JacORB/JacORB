@@ -34,7 +34,7 @@ import org.jacorb.test.common.*;
  * superclass for specific launchers that work with a given JacORB
  * installation.  To use, call JacORBLauncher.getLauncher(), then
  * invoke the launch() method on the resulting object.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
@@ -43,47 +43,31 @@ public abstract class JacORBLauncher
     private static Map        launchers;
     private static Properties testProperties;
     private static List       versions;
-    
+
     protected String jacorbHome;
     protected boolean coverage;
-    
+
     protected JacORBLauncher (String jacorbHome, boolean coverage)
     {
         this.jacorbHome = jacorbHome;
         this.coverage = coverage;
     }
-    
+
     public abstract Process launch (String classpath,
                                     Properties props,
                                     String mainClass,
                                     String[] args);
-    
-    public String getJacorbHome() 
+
+    public String getJacorbHome()
     {
         return jacorbHome;
     }
-    
-    public List propsToArgList (Properties props)
-    {
-        List result = new ArrayList();
-        
-        if (props == null) return result;
 
-        for (Iterator i = props.keySet().iterator(); i.hasNext();)
-        {
-            String key = (String)i.next();
-            String value = props.getProperty(key);
-            result.add ("-D" + key + "=" + value);
-        }
-        
-        return result;
-    }
-    
     public String[] toStringArray (List l)
     {
         return ((String[])l.toArray (new String[0]));
     }
-    
+
     /**
      * Loads and returns the properties defined in the file test.properties
      * in the regression suite.
@@ -109,7 +93,7 @@ public abstract class JacORBLauncher
         }
         return testProperties;
     }
-    
+
     /**
      * Returns a list of all the available JacORB versions.
      */
@@ -128,7 +112,7 @@ public abstract class JacORBLauncher
         }
         return versions;
     }
-    
+
     /**
      * Returns a launcher for the specified JacORB version.
      * If coverage is true, sets up the launcher to that
@@ -139,7 +123,7 @@ public abstract class JacORBLauncher
     {
         if (version.startsWith("tao"))
             return new TAOLauncher (null, false);
-        
+
         int index = getVersions().indexOf (version);
         if (index == -1) throw new RuntimeException
         (
@@ -181,33 +165,33 @@ public abstract class JacORBLauncher
             throw new RuntimeException (ex);
         }
     }
-    
+
     private static String getCVSHome()
     {
         String testHome = TestUtils.testHome();
         String patternString;
         String separator = System.getProperty("file.separator");
-        
+
         // "\" must be escaped
-        if (separator.equals("\\")) 
+        if (separator.equals("\\"))
         {
             patternString = "\\test\\regression";
         }
-        else 
+        else
         {
             patternString = "/test/regression";
         }
-        
+
         int index;
         if ((testHome != null) && ((index=testHome.indexOf(patternString)) != -1))
         {
             return testHome.substring(0,index);
         }
-        else 
+        else
         {
             throw new RuntimeException ("couldn't find CVS home: "
                                             + testHome);
         }
     }
-   
+
 }
