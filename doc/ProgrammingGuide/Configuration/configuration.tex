@@ -497,6 +497,12 @@ of all pending messages. & boolean & \\
 \verb"er.timeout" & Maximum time in milliseconds that a server keeps a
 connection open if nothing happens & millisec. & unset \\
 \hline
+\verb"jacorb.connection.serv"
+\verb"er.keepalive" & Enable SO\_KEEPALIVE on server sockets. & boolean & false \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt.keepalive" & Enable SO\_KEEPALIVE on client sockets. & boolean & false \\
+\hline
 \verb"jacorb.connection.max"
 \verb"_server_connections" & This property sets the
   maximum number of TCP/IP connections that will be listened on by the

@@ -209,6 +209,12 @@ jacorb.maxManagedBufSize=18
 # The class name of the StatisticsProvider class
 #jacorb.connection.statistics_provider_class=
 
+# Sets keep-alive on server sockets
+#jacorb.connection.server.keepalive=off
+
+# Sets keep-alive on client sockets
+#jacorb.connection.client.keepalive=off
+
 #jacorb.reference_caching=off
 
 # Sets a timeout on the (SSL) server socket. This is a workaround for JDK 1.3

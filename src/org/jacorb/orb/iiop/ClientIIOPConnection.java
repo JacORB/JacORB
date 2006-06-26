@@ -72,6 +72,7 @@ public class ClientIIOPConnection
     private boolean doSupportSSL = false;
     private TransportManager transportManager;
     private TCPConnectionListener connectionListener;
+    private boolean keepAlive;
 
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
@@ -101,6 +102,8 @@ public class ClientIIOPConnection
             configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
         transportManager =
             this.configuration.getORB().getTransportManager();
+
+        keepAlive = configuration.getAttributeAsBoolean("jacorb.connection.client.keepalive", false);
 
         connectionListener = transportManager.getSocketFactoryManager().getTCPListener();
     }
@@ -169,6 +172,8 @@ public class ClientIIOPConnection
                         /* re-set the socket timeout */
                         socket.setSoTimeout( timeout /*note: this is another timeout!*/ );
                     }
+
+                    socket.setKeepAlive(keepAlive);
 
                     in_stream =
                         socket.getInputStream();

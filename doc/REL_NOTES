@@ -55,6 +55,8 @@
         - Fix for timeout overrides (bugzilla #611).
         - new properties: jacorb.net.tcp_listener and jacorb.security.ssl.ssl_listener for
           specifying the respective listener interfaces to receive event notifications.
+        - new properties: jacorb.connection.server.keepalive and
+          jacorb.connection.client.keepalive to configure TCP KeepAlive on sockets.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
