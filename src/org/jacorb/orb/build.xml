@@ -12,36 +12,62 @@
 
    &common;
 
-   <target name="all" depends="init,template,compile,dns,stdInterceptors" description="Compile the ORB files"/>
+   <target name="all" depends="init, reference, listener, compile, dns, stdInterceptors" description="Compile the ORB files"/>
 
-   <target name="template" depends="javatest,reference-without-rmi,reference-with-rmi"/>
+    <target name="template" depends="reference, listener" />
 
-   <target name="javatest" unless="no-rmi">
-        <available classname="javax.rmi.CORBA.Stub"
-                   property="rmi.iiop.present"/>
+   <target name="reference" depends="init, reference.javatest, reference.without-rmi, reference.with-rmi"/>
+
+   <target name="reference.javatest" unless="no-rmi">
+        <available classname="javax.rmi.CORBA.Stub" property="rmi.iiop.present"/>
    </target>
 
-   <target name="reference-without-rmi" unless="rmi.iiop.present">
+   <target name="reference.without-rmi" unless="rmi.iiop.present">
         <echo message="RMI/IIOP not present, using old Reference inheritance."/>
-        <copy overwrite="yes" file="src/org/jacorb/orb/Reference.template"
-              tofile="src/org/jacorb/orb/Reference.java"/>
-        <replace file="src/org/jacorb/orb/Reference.java"
+        <copy overwrite="yes" file="${src}/org/jacorb/orb/Reference.template"
+              tofile="${src.generated}/org/jacorb/orb/Reference.java"/>
+        <replace file="${src.generated}/org/jacorb/orb/Reference.java"
                  token="@EXTENDS"
                  value="org.omg.CORBA.portable.ObjectImpl"/>
    </target>
 
-   <target name="reference-with-rmi" if="rmi.iiop.present">
+   <target name="reference.with-rmi" if="rmi.iiop.present">
         <echo message="RMI/IIOP is present, using updated Reference inheritance."/>
-        <copy overwrite="yes" file="src/org/jacorb/orb/Reference.template"
-              tofile="src/org/jacorb/orb/Reference.java"/>
-        <replace file="src/org/jacorb/orb/Reference.java"
+        <copy overwrite="yes" file="${src}/org/jacorb/orb/Reference.template"
+              tofile="${src.generated}/org/jacorb/orb/Reference.java"/>
+        <replace file="${src.generated}/org/jacorb/orb/Reference.java"
                  token="@EXTENDS"
                  value="javax.rmi.CORBA.Stub implements java.rmi.Remote"/>
    </target>
 
+    <target name="listener.init" depends="init">
+        <mkdir dir="${src.generated}/org/jacorb/orb/listener/" />
+
+        <available ignoresystemclasses="true"
+            classpathref="path.base"
+            classname="com.sun.net.ssl.SSLContext"
+            property="sun_jsse.present"/>
+    </target>
+
+    <target name="listener.with-ssl" if="sun_jsse.present" >
+        <echo message="Copying SSLListenerUtil for SSL."/>
+        <copy file="${src}/org/jacorb/orb/listener/SSLListenerUtil.java.ssl"
+            tofile="${src.generated}/org/jacorb/orb/listener/SSLListenerUtil.java"
+            overwrite="yes"/>
+    </target>
+
+    <target name="listener.without-ssl" unless="sun_jsse.present">
+        <echo message="Copying SSLListenerUtil for no SSL."/>
+        <copy file="${src}/org/jacorb/orb/listener/SSLListenerUtil.java.nossl"
+            tofile="${src.generated}/org/jacorb/orb/listener/SSLListenerUtil.java"
+            overwrite="yes"/>
+    </target>
+
+    <target name="listener" depends="listener.init, listener.with-ssl, listener.without-ssl"/>
+
    <target name="compile">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/orb/*.java,
+      <jacorb-javac
+        javac-includes="org/jacorb/orb/*.java,
              org/jacorb/orb/iiop/*.java,
              org/jacorb/orb/dii/*.java,
              org/jacorb/orb/dsi/*.java,
@@ -53,8 +79,8 @@
              org/jacorb/orb/giop/*.java,
              org/jacorb/orb/rmi/*.java,
              org/jacorb/orb/util/*.java,
+             org/jacorb/orb/listener/*.java
              org/jacorb/orb/util/diop/*.java"/>
-      </antcall>
    </target>
 
 
@@ -68,7 +94,12 @@
    </target>
 
 
-   <target name="clean">
-      <delete file="${src}/org/jacorb/orb/Reference.java"/>
-   </target>
+    <target name="clean" depends="init">
+        <delete>
+            <fileset dir="${src.generated}">
+                <include name="org/jacorb/orb/listener/SSLListenerUtil.java" />
+                <include name="org/jacorb/orb/Reference.java" />
+            </fileset>
+        </delete>
+    </target>
 </project>
