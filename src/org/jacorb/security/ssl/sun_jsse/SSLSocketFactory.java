@@ -26,13 +26,15 @@ import java.security.*;
 import java.util.*;
 
 import org.apache.avalon.framework.configuration.*;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.listener.SSLHandshakeListener;
+import org.jacorb.orb.listener.SSLSessionListener;
 
 // for use with jsse 1.0.2
 //import com.sun.net.ssl.TrustManager;
 //import com.sun.net.ssl.TrustManagerFactory;
 //import com.sun.net.ssl.KeyManagerFactory;
 //import com.sun.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.*;
 import javax.net.*;
 
@@ -40,7 +42,6 @@ import javax.net.*;
  * @author Nicolas Noffke
  * $Id$
  */
-
 public class SSLSocketFactory
     extends SSLRandom
     implements org.jacorb.orb.factory.SocketFactory, Configurable
@@ -54,11 +55,14 @@ public class SSLSocketFactory
     private short clientSupportedOptions = 0;
     private String keystore_location = null;
     private String keystore_passphrase = null;
+    private final SSLSessionListener sslListener;
 
-    public SSLSocketFactory( org.jacorb.orb.ORB orb )
+    public SSLSocketFactory(ORB orb)
         throws ConfigurationException
     {
         configure( orb.getConfiguration());
+
+        sslListener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
     }
 
     public void configure(Configuration configuration)
@@ -163,6 +167,8 @@ public class SSLSocketFactory
             JSSEUtil.setEnabledProtocols(socket, enabledProtocols);
         }
 
+        socket.addHandshakeCompletedListener(new SSLHandshakeListener(logger, sslListener));
+
         return socket;
     }
 
@@ -200,7 +206,9 @@ public class SSLSocketFactory
         {
             //take trusted certificates from keystore
             if (logger.isInfoEnabled())
+            {
                 logger.info("Loading certs from keystore " + key_store );
+            }
             tmf.init( key_store );
         }
         else
@@ -232,5 +240,3 @@ public class SSLSocketFactory
         return ctx.getSocketFactory();
     }
 }
-
-

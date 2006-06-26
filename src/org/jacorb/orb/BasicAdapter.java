@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) The JacORB project, 1997-2006.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,7 +20,6 @@
 
 package org.jacorb.orb;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +28,6 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.orb.factory.SSLServerSocketFactory;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.GIOPConnectionManager;
 import org.jacorb.orb.giop.MessageReceptorPool;
@@ -41,7 +39,6 @@ import org.jacorb.orb.giop.TransportManager;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.INTERNAL;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Factories;
@@ -59,8 +56,6 @@ public class BasicAdapter
     extends org.omg.ETF._HandleLocalBase
     implements Configurable
 {
-    public  SSLServerSocketFactory ssl_socket_factory = null;
-
     private final org.jacorb.orb.ORB orb;
     private final POA rootPOA;
 
@@ -99,42 +94,10 @@ public class BasicAdapter
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        this.configuration =
+        configuration =
             (org.jacorb.config.Configuration)myConfiguration;
         logger =
             configuration.getNamedLogger("jacorb.orb.basic");
-
-        if( configuration.getAttribute("jacorb.security.support_ssl","off").equals("on"))
-        {
-            String s =
-                configuration.getAttribute( "jacorb.ssl.server_socket_factory","" );
-            if(  s.length() == 0 )
-            {
-                throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.server_socket_factory\" is not set!" );
-            }
-
-            try
-            {
-                Class ssl = ObjectUtil.classForName( s );
-
-                Constructor constr =
-                    ssl.getConstructor( new Class[]{org.jacorb.orb.ORB.class });
-
-                ssl_socket_factory =
-                    (SSLServerSocketFactory)constr.newInstance( new Object[]{ orb });
-
-                if (ssl_socket_factory instanceof Configurable)
-                {
-                    ((Configurable)ssl_socket_factory).configure(configuration);
-                }
-            }
-            catch (Exception e)
-            {
-                logger.warn("unable to create SSLServerSocketFactory",e);
-
-                throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl server socket factory can't be instanciated (see trace)!" );
-            }
-        }
 
         receptor_pool = new MessageReceptorPool("server", "ServerMessageReceptor", myConfiguration);
 
@@ -146,10 +109,10 @@ public class BasicAdapter
         for (Iterator i = getListenerFactories().iterator();
              i.hasNext();)
         {
-             Factories f = (Factories)i.next();
-             Listener l = f.create_listener (null, (short)0, (short)0);
-             l.set_handle(this);
-             listeners.add (l);
+             Factories factories = (Factories)i.next();
+             Listener listener = factories.create_listener (null, (short)0, (short)0);
+             listener.set_handle(this);
+             listeners.add (listener);
         }
 
         // activate them
@@ -159,18 +122,12 @@ public class BasicAdapter
         }
     }
 
-    public SSLServerSocketFactory getSSLSocketFactory()
-    {
-        return ssl_socket_factory;
-    }
-
 
     /**
      * Returns a List of Factories for all transport plugins that
      * should listen for incoming connections.
      */
     private List getListenerFactories()
-        throws ConfigurationException
     {
         List result = new ArrayList();
         List tags =
@@ -196,12 +153,14 @@ public class BasicAdapter
                         ("could not parse profile tag for listener: " + s
                          + " (should have been a number)");
                 }
-                Factories f = transport_manager.getFactories (tag);
-                if (f == null)
+                Factories factories = transport_manager.getFactories (tag);
+                if (factories == null)
+                {
                     throw new RuntimeException
                         ("could not find Factories for profile tag: " + tag);
-                else
-                    result.add(f);
+                }
+
+                result.add(factories);
             }
         }
         return result;
@@ -223,8 +182,8 @@ public class BasicAdapter
         List result = new ArrayList();
         for (Iterator i = listeners.iterator(); i.hasNext();)
         {
-            Listener l = (Listener)i.next();
-            result.add (l.endpoint());
+            Listener listener = (Listener)i.next();
+            result.add(listener.endpoint());
         }
         return result;
     }
@@ -238,14 +197,15 @@ public class BasicAdapter
     {
         if (listeners.size() == 1)
         {
-            Listener l = (Listener)listeners.get(0);
-            if (l instanceof IIOPListener)
-                return (IIOPListener)l;
-            else
-                return null;
-        }
-        else
+            Listener listener = (Listener)listeners.get(0);
+            if (listener instanceof IIOPListener)
+            {
+                return (IIOPListener)listener;
+            }
             return null;
+        }
+
+        return null;
     }
 
     /**
@@ -260,11 +220,8 @@ public class BasicAdapter
             IIOPProfile profile = (IIOPProfile)l.endpoint();
             return ((IIOPAddress)profile.getAddress()).getPort();
         }
-        else
-        {
-            throw new RuntimeException
-                ("Cannot find server port for non-IIOP transport");
-        }
+
+        throw new RuntimeException("Cannot find server port for non-IIOP transport");
     }
 
     /**
@@ -279,11 +236,8 @@ public class BasicAdapter
             IIOPProfile profile = (IIOPProfile)l.endpoint();
             return profile.getSSLPort();
         }
-        else
-        {
-            throw new RuntimeException
-                ("Non-IIOP transport does not have an SSL port");
-        }
+
+        throw new RuntimeException("Non-IIOP transport does not have an SSL port");
     }
 
     /**
@@ -307,11 +261,8 @@ public class BasicAdapter
             IIOPProfile profile = (IIOPProfile)l.endpoint();
             return ((IIOPAddress)profile.getAddress()).getHostname();
         }
-        else
-        {
-            throw new RuntimeException
-                ("Cannot find server address for non-IIOP transport");
-        }
+
+        throw new RuntimeException("Cannot find server address for non-IIOP transport");
     }
 
     /**
@@ -361,11 +312,9 @@ public class BasicAdapter
             {
                 throw new INTERNAL("Request POA null!");
             }
-            else
-            {
-                /* hand over to the POA */
-                ((org.jacorb.poa.POA)tmp_poa)._invoke( request );
-            }
+
+            /* hand over to the POA */
+            tmp_poa._invoke( request );
 
         }
         catch( org.omg.PortableServer.POAPackage.WrongAdapter wa )

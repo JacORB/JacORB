@@ -47,6 +47,10 @@ public abstract class FactoriesBase
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
+        if (configuration == null)
+        {
+            throw new IllegalArgumentException();
+        }
         this.configuration = (org.jacorb.config.Configuration)configuration;
     }
 
@@ -55,27 +59,7 @@ public abstract class FactoriesBase
     */
     public Connection create_connection(ProtocolProperties props)
     {
-        Connection connection = null;
-        try
-        {
-            connection = (Connection)connectionClz.newInstance();
-        }
-        catch (Exception e)
-        {
-            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Connection class: " + e.toString());
-        }
-        try
-        {
-            if (connection instanceof Configurable)
-            {
-                ((Configurable)connection).configure(configuration);
-            }
-        }
-        catch( ConfigurationException e )
-        {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
-        }
-        return connection;
+        return (Connection) newInstance(connectionClz, "ETF::Connection");
     }
 
     /**
@@ -85,80 +69,30 @@ public abstract class FactoriesBase
                                     int stacksize,
                                     short base_priority)
     {
-        Listener listener = null;
-        try
-        {
-            listener = (Listener)listenerClz.newInstance();
-        }
-        catch (Exception e)
-        {
-            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Listener class: " + e.toString());
-        }
-        try
-        {
-            if (listener instanceof Configurable)
-            {
-                ((Configurable)listener).configure(configuration);
-            }
-        }
-        catch( ConfigurationException e )
-        {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
-        }
-        return listener;
+        return (Listener) newInstance(listenerClz, "ETF::Listener");
     }
 
     public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
-                                      TaggedComponentSeqHolder components)
+                                     TaggedComponentSeqHolder components)
     {
-        ProfileBase profile = null;
-        try
-        {
-            profile = (ProfileBase)profileClz.newInstance();
-        }
-        catch (Exception ie)
-        {
-            throw new org.omg.CORBA.INTERNAL("Cannot instantiate ETF::Profile class: " + ie.toString());
-        }
-
+        final ProfileBase profile = (ProfileBase)newInstance(profileClz, "ETF::Profile");
         profile.demarshal(tagged_profile, components);
-
-        try
-        {
-            if (profile instanceof Configurable)
-            {
-                ((Configurable)profile).configure(configuration);
-            }
-        }
-        catch( ConfigurationException ce )
-        {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.toString());
-        }
-
         return profile;
     }
 
-
     // Although not part of the ETF IDL for a Factory object, this is the best
     // place to add a new method for creating protocol address instances
-    public ProtocolAddressBase create_protocol_address (String addr)
+    public ProtocolAddressBase create_protocol_address(String addr)
     {
-        ProtocolAddressBase address = null;
-        int address_start = this.match_tag(addr);
-        if (address_start >= 0) {
-            try {
-                address = (ProtocolAddressBase)addressClz.newInstance();
-                address.configure (configuration);
-            }
-            catch (Exception ie) {
-                throw new org.omg.CORBA.INTERNAL
-                    ("Cannot instantiate etf.ProtocolAddressBase class: " +
-                     ie.toString());
-            }
+        final ProtocolAddressBase address = (ProtocolAddressBase)newInstance(addressClz, "ETF::ProtocolAddressBase");
+        final int address_start = this.match_tag(addr);
+        if (address_start >= 0)
+        {
             // general form is "prot://address"
             if (!address.fromString(addr.substring(address_start + 2)))
-                throw new org.omg.CORBA.INTERNAL
-                    ("Invalid protocol address string: " + address);
+            {
+                throw new org.omg.CORBA.INTERNAL("Invalid protocol address string: " + address);
+            }
         }
         return address;
     }
@@ -169,4 +103,30 @@ public abstract class FactoriesBase
     }
 
     public abstract Profile decode_corbaloc (String corbaloc);
+
+    private Object newInstance(final Class clazz, final String description)
+    {
+        Object connection = null;
+        try
+        {
+            connection = clazz.newInstance();
+        }
+        catch (Exception e)
+        {
+            throw new org.omg.CORBA.INTERNAL("Cannot instantiate " + description + " class: " + e.toString());
+        }
+
+        if (connection instanceof Configurable)
+        {
+            try
+            {
+                ((Configurable)connection).configure(configuration);
+            }
+            catch( ConfigurationException e )
+            {
+                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
+            }
+        }
+        return connection;
+    }
 }

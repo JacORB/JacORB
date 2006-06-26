@@ -19,17 +19,22 @@
  */
 package org.jacorb.orb.etf;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
+import org.jacorb.orb.ORB;
 
 /**
  * This an abstract base implementation of the ETF::Connection interface.
  *
- * 
- *
- * @author Nicolas Noffke / Andre Spiegel 
+ * @author Nicolas Noffke
+ * @author Andre Spiegel
  * @version $Id$
  */
 
@@ -38,21 +43,21 @@ public abstract class ConnectionBase
     implements Configurable
 {
     protected boolean connected = false;
-    
+
     /**
     * Optionally initialised to be used in the dumping of messages.
     * See property <code>jacorb.debug.dump_outgoing_messages</code>.
     * Default is off.
     */
     protected ByteArrayOutputStream b_out = null;
-    
+
     /**
     * Time out after a close connection has been received.
     * See property <code>jacorb.connection.timeout_after_closeconnection</code>.
     * Default 20000 milliseconds.
-    */ 
+    */
     protected int finalTimeout = 20000;
-    
+
     /**
     * The Profile of the target / server side of the connection.
     */
@@ -62,12 +67,13 @@ public abstract class ConnectionBase
     protected Logger logger;
     protected org.jacorb.config.Configuration configuration;
     protected String connection_info;
-    
+    protected ORB orb;
+
     protected ConnectionBase()
     {
         super();
     }
-    
+
     /**
     * Initialise this instance as a copy of another. Intended for use within subclass
     * constructors.
@@ -79,11 +85,13 @@ public abstract class ConnectionBase
         this.finalTimeout = other.finalTimeout;
         this.profile = other.profile;
     }
-    
+
     public void configure(Configuration config)
         throws ConfigurationException
     {
         configuration = (org.jacorb.config.Configuration)config;
+        orb = configuration.getORB();
+
         logger = configuration.getNamedLogger(configuration.getLoggerName(getClass()));
 
         if( configuration.getAttribute("jacorb.debug.dump_outgoing_messages","off").equals("on"))
@@ -95,16 +103,16 @@ public abstract class ConnectionBase
             configuration.getAttributeAsInteger("jacorb.connection.timeout_after_closeconnection",
                                                 20000 );
     }
-    
+
     protected abstract void setTimeout(int timeout);
-    
+
     protected abstract int getTimeout();
-    
+
     public org.omg.ETF.Profile get_server_profile()
     {
         return profile;
     }
-    
+
     public synchronized boolean is_connected()
     {
         return connected;
@@ -120,15 +128,22 @@ public abstract class ConnectionBase
      * the next time.
      */
     public void turnOnFinalTimeout()
-    {                
+    {
         setTimeout( finalTimeout );
     }
 
-    protected org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE (IOException ex)
+
+    protected org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE(IOException ex)
     {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Caught exception", ex);
+        }
+
         return new org.omg.CORBA.COMM_FAILURE("IOException: "
                                                + ex.toString());
     }
+
 
     /**
      * Wait for the given time_out period for incoming data on this
@@ -167,6 +182,26 @@ public abstract class ConnectionBase
         // We have neither mechanism in JacORB.
         // I wonder if we should.  AS.
         return false;
+    }
+
+    protected final String getLocalhost()
+    {
+        String localhost;
+
+        try
+        {
+            localhost = InetAddress.getLocalHost().getHostAddress();
+        }
+        catch (UnknownHostException uhe)
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Unable to resolve local host - using default 127.0.0.1");
+            }
+
+            localhost = "127.0.0.1";
+        }
+        return localhost;
     }
 }
 

@@ -20,20 +20,24 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
-
-import org.omg.CORBA.INITIALIZE;
-import org.omg.ETF.*;
-
-import org.jacorb.orb.*;
+import org.jacorb.orb.DefaultProfileSelector;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.ProfileSelector;
 import org.jacorb.orb.diop.DIOPFactories;
-import org.jacorb.orb.factory.*;
+import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.util.ObjectUtil;
+import org.omg.ETF.Factories;
 
 /**
  * This class manages Transports. On the one hand it creates them, and
@@ -46,11 +50,6 @@ import org.jacorb.util.ObjectUtil;
 public class TransportManager
     implements Configurable
 {
-    private SocketFactory socket_factory = null;
-    private SocketFactory ssl_socket_factory = null;
-
-    private ORB orb = null;
-
     /** the configuration object  */
     private org.jacorb.config.Configuration configuration = null;
 
@@ -74,7 +73,6 @@ public class TransportManager
 
     public TransportManager( ORB orb )
     {
-        this.orb = orb;
         socketFactoryManager = new SocketFactoryManager(orb);
     }
 
@@ -101,52 +99,6 @@ public class TransportManager
         {
             profileSelector = new DefaultProfileSelector();
         }
-
-        if( configuration.getAttribute("jacorb.security.support_ssl","off").equals("on"))
-        {
-            String s = configuration.getAttribute("jacorb.ssl.socket_factory", "");
-            if (s.length() == 0)
-            {
-                throw new INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
-            }
-
-            try
-            {
-                Class ssl = ObjectUtil.classForName(s);
-
-                Constructor constr =
-                    ssl.getConstructor( new Class[]{ ORB.class });
-
-                ssl_socket_factory =
-                    (SocketFactory)constr.newInstance( new Object[]{ orb });
-
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug("Created SSLSocketFactory instance from class " + s);
-                }
-            }
-            catch (InvocationTargetException e)
-            {
-                if (logger.isFatalErrorEnabled())
-                {
-                    logger.fatalError("SSL socket factory invocation failure", e.getCause());
-                }
-
-                throw new org.omg.CORBA.INITIALIZE(
-                    "SSL support is on, but there was an invocation failure with the " +
-                    "ssl socket factory: " + e.getCause().toString());
-            }
-            catch (Exception e)
-            {
-                logger.fatalError("SSL socket factory instantiation failure", e);
-
-                throw new org.omg.CORBA.INITIALIZE(
-                    "SSL support is on, but the ssl socket factory " +
-                    "can't be instantiated: " + e.toString());
-            }
-        }
-
-        socket_factory = socketFactoryManager.getSocketFactory();
     }
 
     public ProfileSelector getProfileSelector()
@@ -157,16 +109,6 @@ public class TransportManager
     public SocketFactoryManager getSocketFactoryManager()
     {
         return socketFactoryManager;
-    }
-
-    public SocketFactory getSocketFactory()
-    {
-        return socket_factory;
-    }
-
-    public SocketFactory getSSLSocketFactory()
-    {
-        return ssl_socket_factory;
     }
 
     /**
@@ -212,10 +154,14 @@ public class TransportManager
     private void loadFactories()
     {
         if (configuration == null )
+        {
             throw new org.omg.CORBA.BAD_INV_ORDER("TransportManager not configured!");
+        }
 
         if (factoryClassNames == null )
-            throw new org.omg.CORBA.INTERNAL("factoryClassNames should not be null");
+        {
+            throw new org.omg.CORBA.INTERNAL("factoryClassNames may not be null");
+        }
 
         factoriesMap  = new HashMap();
         factoriesList = new ArrayList();
@@ -240,10 +186,18 @@ public class TransportManager
             // This is important here because JacORB might be on the
             // bootclasspath, and the external transport on the normal
             // classpath.
-            Class c = ObjectUtil.classForName(className);
-            Configurable configurable = (Configurable)c.newInstance();
-            configurable.configure(configuration);
-            return (Factories)configurable;
+            Class clazz = ObjectUtil.classForName(className);
+            Object instance = clazz.newInstance();
+
+            if (instance instanceof Configurable)
+            {
+                Configurable configurable = (Configurable)instance;
+                configurable.configure(configuration);
+            }
+
+            logger.debug("created org.omg.ETF.Factories: " + className);
+
+            return (Factories)instance;
         }
         catch (Exception e)
         {
@@ -252,5 +206,4 @@ public class TransportManager
                  + ", exception: " + e);
         }
     }
-
 }

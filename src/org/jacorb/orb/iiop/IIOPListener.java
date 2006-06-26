@@ -25,6 +25,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 
 import org.omg.ETF.*;
 import org.omg.CSIIOP.*;
@@ -33,6 +34,8 @@ import org.omg.SSLIOP.*;
 import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.orb.factory.*;
+import org.jacorb.orb.listener.SSLListenerUtil;
+import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.etf.ProtocolAddressBase;
 
 /**
@@ -59,8 +62,6 @@ public class IIOPListener
 
 
     private SocketFactoryManager socketFactoryManager = null;
-    private ServerSocketFactory    serverSocketFactory    = null;
-    private SSLServerSocketFactory sslServerSocketFactory = null;
 
     private SSLAcceptor sslAcceptor = null;
     private LoopbackAcceptor loopbackAcceptor ;
@@ -73,27 +74,26 @@ public class IIOPListener
     private int target_requires = 0;
     private boolean generateSSLComponents = true;
 
+    public IIOPListener()
+    {
+        super();
+    }
+
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
+        super.configure(configuration);
 
-        if (orb == null)
-        {
-            // c.f. with the constructor taking an ORB param.
-            this.orb = this.configuration.getORB();
-            socketFactoryManager = new SocketFactoryManager(this.orb);
-        }
-
-        logger = this.configuration.getNamedLogger("jacorb.iiop.listener");
-
-        socketFactoryManager.configure(configuration);
+        socketFactoryManager = orb.getTransportManager().getSocketFactoryManager();
 
         String address_str = configuration.getAttribute("OAAddress",null);
-        if (address_str != null) {
+        if (address_str != null)
+        {
             ProtocolAddressBase ep = orb.createAddress(address_str);
             if (ep instanceof IIOPAddress)
+            {
                 address = (IIOPAddress)ep;
+            }
         }
         else
         {
@@ -168,7 +168,6 @@ public class IIOPListener
         loopbackAcceptor = new LoopbackAcceptor() ;
 
         profile = createAddressProfile();
-
     }
 
 
@@ -233,33 +232,6 @@ public class IIOPListener
             return ((target_requires & MAX_SSL_OPTIONS ) != 0);
         }
         return false;
-    }
-
-    private ServerSocketFactory getServerSocketFactory()
-    {
-        if (serverSocketFactory == null)
-        {
-            serverSocketFactory =
-                socketFactoryManager.getServerSocketFactory();
-        }
-        return serverSocketFactory;
-    }
-
-    /**
-     * Returns the SSLServerSocketFactory that has been configured.
-     * If no such factory is available, org.omg.CORBA.INITIALIZE() is thrown.
-     */
-    private SSLServerSocketFactory getSSLServerSocketFactory()
-    {
-        if (sslServerSocketFactory == null)
-        {
-            sslServerSocketFactory =
-                orb.getBasicAdapter().getSSLSocketFactory();
-
-            if (sslServerSocketFactory == null)
-                throw new org.omg.CORBA.INITIALIZE("No SSL server socket factory found");
-        }
-        return sslServerSocketFactory;
     }
 
     /**
@@ -342,7 +314,7 @@ public class IIOPListener
                                                  boolean is_ssl)
         throws IOException
     {
-        ServerIIOPConnection result = new ServerIIOPConnection(socket, is_ssl);
+        ServerIIOPConnection result = new ServerIIOPConnection(socket, is_ssl, socketFactoryManager.getTCPListener());
         try
         {
             result.configure(configuration);
@@ -356,13 +328,41 @@ public class IIOPListener
 
     // Acceptor classes below this line
 
-    protected class Acceptor
+    private String getLocalhost()
+    {
+        String localhost;
+
+         try
+         {
+             localhost =
+             InetAddress.getLocalHost().getHostAddress();
+         }
+         catch (UnknownHostException uhe)
+         {
+             if (logger.isDebugEnabled())
+             {
+                 logger.debug
+                     ("Unable to resolve local host - using default 127.0.0.1");
+             }
+
+             localhost = "127.0.0.1";
+         }
+        return localhost;
+    }
+
+    public class Acceptor
         extends org.jacorb.orb.etf.ListenerBase.Acceptor
     {
         private final Object runSync = new Object();
         protected ServerSocket serverSocket;
 
         protected boolean terminated = false;
+
+        /**
+         * <code>firstPass</code> stores whether we have already done
+         * one pass in the run method i.e. have accepted one socket.
+         */
+        private boolean firstPass;
 
         protected Acceptor(String name)
         {
@@ -393,7 +393,7 @@ public class IIOPListener
         }
 
         /**
-         * templated method that is invoked during the accept loop
+         * template method that is invoked during the accept loop
          * after an incoming connection was processed.
          */
         protected void endAccept()
@@ -425,7 +425,7 @@ public class IIOPListener
                     try
                     {
                         Socket socket = serverSocket.accept();
-                        setup (socket);
+                        setup(socket);
                         deliverConnection (socket);
                     }
                     finally
@@ -437,7 +437,7 @@ public class IIOPListener
                 {
                     synchronized(runSync)
                     {
-                        exceptionInRunLoop(e, terminated);
+                        handleExceptionInRunLoop(e, terminated);
                     }
                 }
             }
@@ -447,7 +447,7 @@ public class IIOPListener
          * template method that is invoked when
          * an exception occurs during the run loop.
          */
-        protected void exceptionInRunLoop(Exception e, boolean isTerminated)
+        protected void handleExceptionInRunLoop(Exception e, boolean isTerminated)
         {
             if (!isTerminated)
             {
@@ -474,7 +474,7 @@ public class IIOPListener
             {
                 if (logger.isWarnEnabled())
                 {
-                    logger.warn(e.toString());
+                    logger.warn("failed to close ServerSocket", e);
                 }
             }
 
@@ -513,7 +513,7 @@ public class IIOPListener
         {
             try
             {
-                return getServerSocketFactory()
+                return socketFactoryManager.getServerSocketFactory()
                            .createServerSocket (address.getPort(),
                                                 20,
                                                 address.getConfiguredHost());
@@ -534,11 +534,42 @@ public class IIOPListener
             throws IOException
         {
              socket.setSoTimeout(serverTimeout);
+
+             SSLListenerUtil.addListener(orb, socket);
+
+             String localhost = getLocalhost();
+
+             socketFactoryManager.getTCPListener().connectionOpened
+             (
+                     new TCPConnectionEvent
+                     (
+                             this,
+                             socket.getInetAddress().getHostAddress(),
+                             socket.getPort(),
+                             socket.getLocalPort(),
+                             localhost
+                     )
+             );
         }
 
         protected void deliverConnection(Socket socket)
         {
             IIOPListener.this.deliverConnection (socket, false);
+        }
+
+        /**
+         * <code>getAcceptorSocketLoop</code> returns whether we have done
+         * a socket accept. This is useful for the AcceptorExceptionListener
+         * so it can determine for instance if the SSLException has been
+         * thrown before any connections have been made or after x amount of
+         * connections - this allows differentiation between initial
+         * configuration failure and failure to connect to a single client.
+         *
+         * @return a <code>boolean</code> value
+         */
+        public boolean getAcceptorSocketLoop()
+        {
+            return firstPass;
         }
     }
 
@@ -576,7 +607,7 @@ public class IIOPListener
 
         private ServerSocket newServerSocket(int port, InetAddress configuredHost) throws IOException
         {
-            ServerSocket socket = getSSLServerSocketFactory()
+            ServerSocket socket = socketFactoryManager.getSSLServerSocketFactory()
                         .createServerSocket (port,
                                              20,
                                              configuredHost);
@@ -619,13 +650,13 @@ public class IIOPListener
             }
         }
 
-        protected void exceptionInRunLoop(Exception exception, boolean isTerminated)
+        protected void handleExceptionInRunLoop(Exception exception, boolean isTerminated)
         {
             // we are only interested in InterruptedExceptions here
             // others should be handled the standard way.
             if (!(exception instanceof InterruptedException))
             {
-                super.exceptionInRunLoop(exception, isTerminated);
+                super.handleExceptionInRunLoop(exception, isTerminated);
                 return;
             }
 

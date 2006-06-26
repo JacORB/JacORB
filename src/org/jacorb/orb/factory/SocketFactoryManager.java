@@ -22,71 +22,135 @@ package org.jacorb.orb.factory;
 
 import java.lang.reflect.Constructor;
 
-import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.framework.configuration.*;
-
-import org.jacorb.orb.*;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.listener.NullSSLSessionListener;
+import org.jacorb.orb.listener.NullTCPConnectionListener;
+import org.jacorb.orb.listener.SSLSessionListener;
+import org.jacorb.orb.listener.TCPConnectionListener;
 import org.jacorb.util.ObjectUtil;
 
+/**
+ * @author Steve Osselton
+ * @version $Id$
+ */
 public class SocketFactoryManager
     implements Configurable
 {
     // Properties used to define custom socket and server socket factories
-    private static final String FACTORY_PROP = "jacorb.net.socket_factory";
-    private static final String SERVER_FACTORY_PROP = "jacorb.net.server_socket_factory";
+    public static final String SSL_SERVER_SOCKET_FACTORY = "jacorb.ssl.server_socket_factory";
+    public static final String SSL_SOCKET_FACTORY = "jacorb.ssl.socket_factory";
+    public static final String SOCKET_FACTORY = "jacorb.net.socket_factory";
+    public static final String SERVER_SOCKET_FACTORY = "jacorb.net.server_socket_factory";
+
+    /**
+     * <code>TCP_LISTENER</code> should be a classname for the implementation of the
+     * TCP listener interface.
+     */
+    public static final String TCP_LISTENER = "jacorb.net.tcp_listener";
+
+
+    /**
+     * <code>SSL_LISTENER</code> should be a classname for the implementation of the
+     * SSL listener interface.
+     */
+    public static final String SSL_LISTENER = "jacorb.security.ssl.ssl_listener";
+
+
+    /**
+     * <code>listener</code> is a instantiated TCPConnectionListener.
+     */
+    private TCPConnectionListener tcpListener;
+
+
+    /**
+     * <code>sslListener</code> is a instantiated SSLSessionListener.
+     */
+    private SSLSessionListener sslListener;
+
 
     private SocketFactory socketFactory = null;
     private ServerSocketFactory serverFactory = null;
+    private SSLServerSocketFactory sslServerSocketFactory;
     private ORB orb;
 
     /** the configuration object  */
-    private Configuration configuration = null;
+    private org.jacorb.config.Configuration configuration = null;
     private Logger logger = null;
-    private String serverFactoryClassName = null;
-    private String factoryClassName = null;
-    private String portNo = null;
+    private String serverSocketFactoryClassName = null;
+    private String socketFactoryClassName = null;
+    private String portMin = null;
+    boolean configured = false;
+    private String sslServerSocketFactoryClazz;
+    private SocketFactory sslSocketFactory;
+    private String sslSocketFactoryClazz;
 
     public SocketFactoryManager(ORB orb)
     {
         this.orb = orb;
     }
 
-
-    public void configure(Configuration configuration)
+    public void configure(Configuration config)
         throws ConfigurationException
     {
-        this.configuration = configuration;
-        logger =
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.factory");
-        serverFactoryClassName = configuration.getAttribute(SERVER_FACTORY_PROP, "");
-        factoryClassName = configuration.getAttribute(FACTORY_PROP, "");
-        portNo = configuration.getAttribute(PortRangeSocketFactory.MIN_PROP, "");
+        configuration = (org.jacorb.config.Configuration)config;
+        logger = configuration.getNamedLogger("jacorb.orb.factory");
+        serverSocketFactoryClassName = configuration.getAttribute(SERVER_SOCKET_FACTORY, DefaultServerSocketFactory.class.getName());
+
+        socketFactoryClassName = configuration.getAttribute(SOCKET_FACTORY, "");
+        portMin = configuration.getAttribute(PortRangeSocketFactory.MIN_PROP, "");
+
+        if ( socketFactoryClassName.length() == 0)
+        {
+            if ( portMin.length() > 0)
+            {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("no SocketFactory class specified (" + SOCKET_FACTORY + "). assuming PortRangeSocketFactory as property " + PortRangeSocketFactory.MIN_PROP + " is specified.");
+                }
+                // If mimimum port number configured construct PortRangeSocketFactory
+                socketFactoryClassName = PortRangeSocketFactory.class.getName();
+            }
+            else
+            {
+                logger.debug("defaulting to DefaultSocketFactory");
+                // use default socket factory
+                socketFactoryClassName = DefaultSocketFactory.class.getName();
+            }
+        }
+
+        tcpListener = (TCPConnectionListener) configuration.getAttributeAsObject(TCP_LISTENER, NullTCPConnectionListener.class.getName());
+        sslListener = (SSLSessionListener) configuration.getAttributeAsObject(SSL_LISTENER, NullSSLSessionListener.class.getName());
+
+        if( configuration.getAttributeAsBoolean("jacorb.security.support_ssl", false))
+        {
+            sslServerSocketFactoryClazz = configuration.getAttribute(SSL_SERVER_SOCKET_FACTORY, "");
+
+            if(  sslServerSocketFactoryClazz.length() == 0 )
+            {
+                throw new ConfigurationException( "SSL support is on, but the property \"" + SSL_SERVER_SOCKET_FACTORY + "\" is not set!" );
+            }
+
+            sslSocketFactoryClazz = configuration.getAttribute(SSL_SOCKET_FACTORY, "");
+
+            if (sslSocketFactoryClazz.length() == 0)
+            {
+                throw new ConfigurationException("SSL support is on, but the property \"" + SSL_SOCKET_FACTORY + "\" is not set");
+            }
+        }
+
+        configured = true;
     }
 
 
     public synchronized SocketFactory getSocketFactory()
     {
-        if (socketFactory != null)
+        if (socketFactory == null)
         {
-           return socketFactory;
-        }
-
-        if ( factoryClassName.length() == 0)
-        {
-            if ( portNo.length() > 0)
-            {
-                // If mimimum port number configured construct PortRangeSocketFactory
-                socketFactory = new PortRangeSocketFactory();
-            }
-            else
-            {
-                // Construct default socket factory
-                socketFactory = new DefaultSocketFactory();
-            }
-        }
-        else
-        {
-            socketFactory = getFactory(factoryClassName);
+            socketFactory = newSocketFactory(socketFactoryClassName);
         }
 
         return socketFactory;
@@ -94,97 +158,113 @@ public class SocketFactoryManager
 
     public synchronized ServerSocketFactory getServerSocketFactory()
     {
-        if (serverFactory != null)
+        if (serverFactory == null)
         {
-           return serverFactory;
-        }
-
-        if ((serverFactoryClassName == null) || (serverFactoryClassName.length() == 0))
-        {
-            // Construct default server socket factory
-            serverFactory = new DefaultServerSocketFactory();
-        }
-        else
-        {
-            serverFactory = getServerFactory(serverFactoryClassName);
+            serverFactory = newServerSocketFactory(serverSocketFactoryClassName);
         }
 
         return serverFactory;
     }
 
-    private SocketFactory getFactory(String className)
+    public synchronized SSLServerSocketFactory getSSLServerSocketFactory()
     {
-       java.lang.Object factory = getFactoryObject(orb, className);
-
-       if (factory instanceof SocketFactory)
-       {
-          if (factory instanceof Configurable)
-          {
-             try
-             {
-                ((Configurable)factory).configure(configuration);
-             }
-             catch (ConfigurationException ce)
-             {
-               throw new RuntimeException("Configurable custom socket factory " +
-                                          className +
-                                          " could not be configured!: "+ ce);
-             }
-          }
-          return ((SocketFactory) factory);
-       }
-       else
-       {
-           throw new RuntimeException
-               ("Custom factory " + className + " does not implement SocketFactory");
-       }
+        if( sslServerSocketFactory == null )
+        {
+            sslServerSocketFactory = newSSLServerSocketFactory(sslServerSocketFactoryClazz);
+        }
+        return sslServerSocketFactory;
     }
 
-    private ServerSocketFactory getServerFactory(String className)
+    /**
+     * <code>getSSLSocketFactory</code> returns a SSL socket factory.
+     *
+     * @return a <code>SocketFactory</code> value
+     */
+    public synchronized SocketFactory getSSLSocketFactory()
     {
-       java.lang.Object factory = getFactoryObject (orb, className);
-
-       if (factory instanceof ServerSocketFactory)
-       {
-          if (factory instanceof Configurable)
-          {
-             try
-             {
-                ((Configurable)factory).configure(configuration);
-             }
-             catch (ConfigurationException ce)
-             {
-               throw new RuntimeException("Configurable custom server socket factory " +
-                                          className +
-                                          " could not be configured!: " + ce);
-             }
-          }
-          return ((ServerSocketFactory) factory);
-       }
-       else
-       {
-           throw new RuntimeException("Custom factory " +
-                                      className +
-                                      " does not implement ServerSocketFactory");
-       }
+        if (sslSocketFactory == null)
+        {
+            sslSocketFactory = newSSLSocketFactory(sslSocketFactoryClazz);
+        }
+        return sslSocketFactory;
     }
 
-    private java.lang.Object getFactoryObject(ORB orb, String className)
-    {
-        Constructor ctor = null;
-        Class sfClass;
-        java.lang.Object factory;
 
+
+    /**
+     * <code>getTCPListener</code> provides an accessor for the instantiated
+     * TCPConnectionListener.
+     */
+    public TCPConnectionListener getTCPListener ()
+    {
+        return tcpListener;
+    }
+
+    /**
+     * <code>getSSLListener</code> provides an accessor for the instantiated
+     * SSLConnectionListener.
+     */
+    public SSLSessionListener getSSLListener ()
+    {
+        return sslListener;
+    }
+
+    private SocketFactory newSSLSocketFactory(String className)
+    {
+        SocketFactory result = (SocketFactory)newFactory(orb, className, SocketFactory.class);
+
+        logger.debug("created SSLSocketFactory: " + className);
+
+        return result;
+    }
+
+
+    private SSLServerSocketFactory newSSLServerSocketFactory(String className)
+    {
+        SSLServerSocketFactory result = (SSLServerSocketFactory)newFactory(orb, className, SSLServerSocketFactory.class);
+
+        logger.debug("created SSLServerSocketFactory: " + result);
+
+        return result;
+    }
+
+    private SocketFactory newSocketFactory(String className)
+    {
+        SocketFactory result = (SocketFactory)newFactory(orb, className, SocketFactory.class);
+
+        logger.debug("created SocketFactory: " + className);
+
+        return result;
+    }
+
+    private ServerSocketFactory newServerSocketFactory(String className)
+    {
+       ServerSocketFactory factory = (ServerSocketFactory) newFactory (orb, className, ServerSocketFactory.class);
+
+       logger.debug("created ServerSocketFactory: " + className);
+
+       return factory;
+    }
+
+    private Object newFactory(ORB orb, String className, Class expectedClazz)
+    {
         try
         {
-            sfClass = ObjectUtil.classForName(className);
+            Class factoryClazz = ObjectUtil.classForName(className);
+
+            if (!expectedClazz.isAssignableFrom(factoryClazz))
+            {
+                throw new RuntimeException("Custom factory " + className + " does not implement " + expectedClazz.getName());
+            }
+
+            Constructor ctor = null;
 
             if (orb != null)
             {
                 try
                 {
                     // First try getting constructor with ORB parameter
-                    ctor = sfClass.getConstructor (new Class[] { ORB.class });
+                    ctor = factoryClazz.getConstructor (new Class[] { ORB.class });
                 }
                 catch (Exception ex)
                 {
@@ -192,16 +272,25 @@ public class SocketFactoryManager
                 }
             }
 
+            final Object result;
+
             if (ctor != null)
             {
                 // Construct passing ORB as parameter
-                factory = ctor.newInstance (new Object[] { orb });
+                result = ctor.newInstance (new Object[] { orb });
             }
             else
             {
                 // Default construction
-                factory = sfClass.newInstance();
+                result = factoryClazz.newInstance();
             }
+
+            if (result instanceof Configurable)
+            {
+                ((Configurable)result).configure(configuration);
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -209,13 +298,5 @@ public class SocketFactoryManager
             throw new RuntimeException("Failed to create custom socket factory: " +
                                        className);
         }
-
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("SocketFactoryManager: created " +
-                         factory.getClass().getName());
-        }
-
-        return factory;
     }
 }

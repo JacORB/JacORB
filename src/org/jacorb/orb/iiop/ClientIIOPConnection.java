@@ -26,15 +26,30 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.*;
-
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
-
-import org.omg.CSIIOP.*;
-import org.omg.SSLIOP.*;
-import org.omg.CORBA.*;
+import org.jacorb.orb.listener.TCPConnectionEvent;
+import org.jacorb.orb.listener.TCPConnectionListener;
+import org.omg.CORBA.TIMEOUT;
+import org.omg.CSIIOP.CompoundSecMechList;
+import org.omg.CSIIOP.CompoundSecMechListHelper;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.DetectMisordering;
+import org.omg.CSIIOP.DetectReplay;
+import org.omg.CSIIOP.EstablishTrustInClient;
+import org.omg.CSIIOP.EstablishTrustInTarget;
+import org.omg.CSIIOP.Integrity;
+import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
+import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+import org.omg.SSLIOP.SSL;
+import org.omg.SSLIOP.SSLHelper;
+import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 
 /**
@@ -56,6 +71,7 @@ public class ClientIIOPConnection
     private int retryInterval = 0;
     private boolean doSupportSSL = false;
     private TransportManager transportManager;
+    private TCPConnectionListener connectionListener;
 
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
@@ -86,6 +102,7 @@ public class ClientIIOPConnection
         transportManager =
             this.configuration.getORB().getTransportManager();
 
+        connectionListener = transportManager.getSocketFactoryManager().getTCPListener();
     }
 
     public ClientIIOPConnection (ClientIIOPConnection other)
@@ -267,8 +284,8 @@ public class ClientIIOPConnection
                 IIOPAddress address = (IIOPAddress)addressIterator.next();
 
                 final SocketFactory factory =
-                    (use_ssl) ? transportManager.getSSLSocketFactory() :
-                    transportManager.getSocketFactory();
+                    (use_ssl) ? getSSLSocketFactory() :
+                    getSocketFactory();
 
                 final String ipAddress = address.getIP();
                 final int port = (use_ssl) ? ssl_port : address.getPort();
@@ -279,7 +296,7 @@ public class ClientIIOPConnection
 
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("Trying to connect to " + connection_info + " with timeout=" + time_out);
+                    logger.debug("Trying to connect to " + connection_info + " with timeout=" + time_out + ( use_ssl ? " using SSL." : "."));
                 }
                 exception = null;
                 socket = null;
@@ -326,7 +343,9 @@ public class ClientIIOPConnection
                        }
                    }
                    catch (InterruptedException _ex)
-                   { }
+                   {
+                       // ignored
+                   }
 
                    if (socket == null)
                    {
@@ -361,6 +380,23 @@ public class ClientIIOPConnection
             {
                 exception = e;
             }
+            finally
+            {
+                if (socket != null)
+                {
+                    connectionListener.connectionOpened
+                    (
+                        new TCPConnectionEvent
+                        (
+                            this,
+                            socket.getInetAddress().toString(),
+                            socket.getPort(),
+                            socket.getLocalPort(),
+                            getLocalhost()
+                        )
+                    );
+                }
+            }
         }
 
         if (exception != null)
@@ -390,7 +426,9 @@ public class ClientIIOPConnection
             if (connected)
             {
                 if (socket != null)
+                {
                     socket.close();
+                }
 
                 //this will cause exceptions when trying to read from
                 //the streams. Better than "nulling" them.
@@ -411,7 +449,31 @@ public class ClientIIOPConnection
         }
         catch (IOException ex)
         {
-            throw to_COMM_FAILURE (ex);
+            if (logger.isDebugEnabled())
+            {
+                logger.debug ("Exception when closing the socket", ex);
+            }
+
+            throw to_COMM_FAILURE (ex, socket);
+        }
+        finally
+        {
+            if (socket != null)
+            {
+                String localhost = getLocalhost();
+
+                connectionListener.connectionClosed
+                (
+                    new TCPConnectionEvent
+                    (
+                        this,
+                        socket.getInetAddress().toString(),
+                        socket.getPort(),
+                        socket.getLocalPort(),
+                        localhost
+                    )
+                );
+            }
         }
 
         if (logger.isInfoEnabled())
@@ -420,9 +482,6 @@ public class ClientIIOPConnection
                         connection_info + " closed.");
         }
     }
-
-
-
 
     /**
      * Check if this client should use SSL when connecting to
@@ -555,5 +614,15 @@ public class ClientIIOPConnection
             use_ssl = false;
             ssl_port = -1;
         }
+    }
+
+    private SocketFactory getSocketFactory()
+    {
+        return transportManager.getSocketFactoryManager().getSocketFactory();
+    }
+
+    private SocketFactory getSSLSocketFactory()
+    {
+        return transportManager.getSocketFactoryManager().getSSLSocketFactory();
     }
 }

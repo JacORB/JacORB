@@ -40,6 +40,11 @@ public class IIOPFactories
         addressClz = IIOPAddress.class;
     }
 
+    public IIOPFactories()
+    {
+        super();
+    }
+
 /*    public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
                                       TaggedComponentSeqHolder components)
     {
@@ -92,18 +97,21 @@ public class IIOPFactories
 
             return result;
         }
-        else
-            return null;
+        return null;
     }
 
     public int match_tag(String address)
     {
-        if (address == null) return -1;
+        if (address == null)
+        {
+            return -1;
+        }
         int colon = address.indexOf (':');
         String token = address.substring (0,colon).toLowerCase();
         if (token.equals ("iiop") || token.equals ("ssliop"))
+        {
             return colon+1;
-        else
-            return -1;
+        }
+        return -1;
     }
 }

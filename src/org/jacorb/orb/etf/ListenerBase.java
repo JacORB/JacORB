@@ -74,22 +74,18 @@ public abstract class ListenerBase
      * Connections will only be put into this list
      * if no Handle has been set.
      */
-    protected List incoming_connections = new ArrayList();
+    private final List incoming_connections = new ArrayList();
 
-    protected boolean terminated = false;
+    private boolean terminated = false;
 
-    public void configure(Configuration configuration)
+    public void configure(Configuration config)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
+        configuration = (org.jacorb.config.Configuration)config;
 
-        if (orb == null)
-        {
-            // c.f. with the constructor taking an ORB param.
-            this.orb = this.configuration.getORB();
-        }
+        orb = configuration.getORB();
 
-        logger = this.configuration.getNamedLogger(this.configuration.getLoggerName(this.getClass()));
+        logger = configuration.getNamedLogger(configuration.getLoggerName(this.getClass()));
     }
 
     /**
@@ -116,7 +112,9 @@ public abstract class ListenerBase
     public void listen()
     {
         if (acceptor != null)
+        {
             acceptor.start();
+        }
     }
 
     /**
@@ -152,29 +150,31 @@ public abstract class ListenerBase
     public Connection accept()
     {
         if (up != null)
+        {
             throw new org.omg.CORBA.BAD_INV_ORDER
                 ("Must not call accept() when a Handle has been set");
-        else
+        }
+
+        synchronized (incoming_connections)
         {
-            synchronized (incoming_connections)
+            while (!terminated &&
+                    incoming_connections.isEmpty())
             {
-                while (!terminated &&
-                       incoming_connections.isEmpty())
+                try
                 {
-                    try
-                    {
-                        incoming_connections.wait();
-                    }
-                    catch (InterruptedException ex)
-                    {
-                        // ignore
-                    }
+                    incoming_connections.wait();
                 }
-                if (!terminated)
-                    return (Connection)incoming_connections.remove (0);
-                else
-                    return null;
+                catch (InterruptedException ex)
+                {
+                    // ignore
+                }
             }
+            if (!terminated)
+            {
+                return (Connection)incoming_connections.remove (0);
+            }
+
+            return null;
         }
     }
 
@@ -195,11 +195,19 @@ public abstract class ListenerBase
     public void destroy()
     {
         if (acceptor != null)
+        {
             acceptor.terminate();
+        }
 
-        this.terminated = true;
-        if (up == null)
-            incoming_connections.notifyAll();
+        synchronized (incoming_connections)
+        {
+            terminated = true;
+
+            if (up == null)
+            {
+                incoming_connections.notifyAll();
+            }
+        }
     }
 
 

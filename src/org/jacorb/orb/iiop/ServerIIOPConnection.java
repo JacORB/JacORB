@@ -20,27 +20,31 @@
 
 package org.jacorb.orb.iiop;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
-import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.orb.listener.TCPConnectionEvent;
+import org.jacorb.orb.listener.TCPConnectionListener;
 
 /**
  * ServerIIOPConnection.java
  *
- *
- * Created: Sun Aug 12 20:56:32 2002
- *
- * @author Nicolas Noffke / Andre Spiegel
+ * @author Nicolas Noffke
+ * @author Andre Spiegel
  * @version $Id$
  */
 
 public class ServerIIOPConnection
     extends IIOPConnection
 {
+    private final TCPConnectionListener tcpListener;
 
     public ServerIIOPConnection( Socket socket,
-                                 boolean is_ssl )
+                                 boolean is_ssl,
+                                 TCPConnectionListener tcpListener )
         throws IOException
     {
         super();
@@ -51,7 +55,7 @@ public class ServerIIOPConnection
 
         in_stream = socket.getInputStream();
         out_stream = new BufferedOutputStream(socket.getOutputStream());
-
+        this.tcpListener = tcpListener;
     }
 
 
@@ -65,16 +69,18 @@ public class ServerIIOPConnection
             socket.getInetAddress().getHostAddress(),
             socket.getPort()
         );
-        
+
         profile = new IIOPProfile(address, null);
         profile.configure(configuration);
 
-        connection_info = address.toString(); 
+        connection_info = address.toString();
         connected = true;
 
         if (logger.isInfoEnabled())
+        {
             logger.info("Opened new server-side TCP/IP transport to " +
                         connection_info );
+        }
     }
 
 
@@ -105,20 +111,35 @@ public class ServerIIOPConnection
             }
             catch (IOException ex)
             {
-                throw to_COMM_FAILURE (ex);
+                throw to_COMM_FAILURE (ex, socket);
             }
-            
-            socket = null;
-            connected = false;
+            finally
+            {
+                tcpListener.connectionClosed(
+                        new TCPConnectionEvent
+                        (
+                                this,
+                                socket.getInetAddress().toString(),
+                                socket.getPort(),
+                                socket.getLocalPort(),
+                                getLocalhost()
+                        )
+                );
+            }
+        }
 
-            if (logger.isInfoEnabled())
-                logger.info("Closed server-side transport to " +
-                            connection_info );
+        socket = null;
+        connected = false;
+
+        if (logger.isInfoEnabled())
+        {
+            logger.info("Closed server-side transport to " +
+                    connection_info );
         }
     }
 
     public void connect (org.omg.ETF.Profile server_profile, long time_out)
     {
         //can't reconnect
-    }   
+    }
 }

@@ -50,17 +50,23 @@
     </target>
 
     <target name="listener.with-ssl" if="sun_jsse.present" >
-        <echo message="Copying SSLListenerUtil for SSL."/>
+        <echo message="Copying SSL utility classes."/>
         <copy file="${src}/org/jacorb/orb/listener/SSLListenerUtil.java.ssl"
             tofile="${src.generated}/org/jacorb/orb/listener/SSLListenerUtil.java"
-            overwrite="yes"/>
+            overwrite="yes" />
+        <copy file="${src}/org/jacorb/orb/listener/SSLSessionEvent.java.ssl"
+            tofile="${src.generated}/org/jacorb/orb/listener/SSLSessionEvent.java"
+            overwrite="yes" />
     </target>
 
     <target name="listener.without-ssl" unless="sun_jsse.present">
-        <echo message="Copying SSLListenerUtil for no SSL."/>
+        <echo message="Copying non-SSL utility classes."/>
         <copy file="${src}/org/jacorb/orb/listener/SSLListenerUtil.java.nossl"
             tofile="${src.generated}/org/jacorb/orb/listener/SSLListenerUtil.java"
             overwrite="yes"/>
+        <copy file="${src}/org/jacorb/orb/listener/SSLSessionEvent.java.nossl"
+            tofile="${src.generated}/org/jacorb/orb/listener/SSLSessionEvent.java"
+            overwrite="yes" />
     </target>
 
     <target name="listener" depends="listener.init, listener.with-ssl, listener.without-ssl"/>
