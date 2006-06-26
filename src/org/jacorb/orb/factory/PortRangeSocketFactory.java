@@ -26,11 +26,12 @@ import java.io.IOException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
-import org.jacorb.util.*;
-import org.jacorb.orb.*;
-
-public class PortRangeSocketFactory 
-    extends PortRangeFactory 
+/**
+ * @author Steve Osselton
+ * @version $Id$
+ */
+public class PortRangeSocketFactory
+    extends PortRangeFactory
     implements SocketFactory
 {
     public static final String MIN_PROP = "jacorb.net.socket_factory.port.min";

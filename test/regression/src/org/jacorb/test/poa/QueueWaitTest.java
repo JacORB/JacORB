@@ -3,19 +3,17 @@ package org.jacorb.test.poa;
 import java.util.Properties;
 
 import junit.framework.*;
-import junit.extensions.*;
 
 import org.jacorb.test.*;
 
 import org.jacorb.test.common.*;
-import org.omg.CORBA.*;
 import org.omg.Messaging.*;
 
 
 /**
  * Try to overrun the request queue with queue_wait=on.
  * Despite a heavy request storm all requests should come through.
- * 
+ *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
@@ -35,7 +33,7 @@ public class QueueWaitTest extends CallbackTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite( "Request Queue Overrun - waiting" );   
+        TestSuite suite = new TestSuite( "Request Queue Overrun - waiting (" + QueueWaitTest.class.getName() + ")");
 
         Properties props = new Properties();
         props.setProperty ("jacorb.poa.queue_max", "10");
@@ -48,11 +46,11 @@ public class QueueWaitTest extends CallbackTestCase
 
         suite.addTest( new QueueWaitTest( "test_warm_up", setup ) );
         suite.addTest( new QueueWaitTest( "test_overrun", setup ) );
-            
+
         return setup;
     }
 
-    private class ReplyHandler 
+    private class ReplyHandler
         extends CallbackTestCase.ReplyHandler
         implements AMI_CallbackServerHandlerOperations
     {
@@ -143,11 +141,11 @@ public class QueueWaitTest extends CallbackTestCase
         AMI_CallbackServerHandlerPOATie tie =
             new AMI_CallbackServerHandlerPOATie( handler )
             {
-                public org.omg.CORBA.portable.OutputStream 
-                    _invoke( String method, 
-                             org.omg.CORBA.portable.InputStream _input, 
+                public org.omg.CORBA.portable.OutputStream
+                    _invoke( String method,
+                             org.omg.CORBA.portable.InputStream _input,
                              org.omg.CORBA.portable.ResponseHandler handler )
-                    throws org.omg.CORBA.SystemException   
+                    throws org.omg.CORBA.SystemException
                 {
                     try
                     {
@@ -177,14 +175,14 @@ public class QueueWaitTest extends CallbackTestCase
             public boolean exceptionReceived = false;
         }
         final Holder h = new Holder();
-        
+
         ReplyHandler handler = new ReplyHandler()
         {
             public void delayed_ping_excep (ExceptionHolder excep)
             {
                 h.exceptionReceived = true;
-            }   
-            
+            }
+
             public void delayed_ping()
             {
                 // ignore
@@ -198,16 +196,16 @@ public class QueueWaitTest extends CallbackTestCase
             if (h.exceptionReceived)
                 fail ("should not have raised an exception");
         }
-        try 
-        { 
-            Thread.sleep (1000); 
-        } 
-        catch (InterruptedException ex) 
+        try
+        {
+            Thread.sleep (1000);
+        }
+        catch (InterruptedException ex)
         {}
 
         if (h.exceptionReceived)
             fail ("should not have raised an exception");
     }
-    
+
 
 }

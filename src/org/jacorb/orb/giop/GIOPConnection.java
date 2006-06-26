@@ -265,10 +265,8 @@ public abstract class GIOPConnection
      * thread.
      *
      * @return a GIOP message or null.
-     * @exception IOException passed through from the underlying IO layer.
      */
     private byte[] getMessage()
-        throws IOException
     {
         //Wait until the actual socket connection is established. This
         //is necessary for the client side, so opening up a new
@@ -293,14 +291,18 @@ public abstract class GIOPConnection
         catch (org.omg.CORBA.COMM_FAILURE ex)
         {
             if (logger.isDebugEnabled())
+            {
                 logger.debug(this.toString() + ": getMessage() -- COMM_FAILURE");
+            }
             this.streamClosed();
             return null;
         }
         catch (org.omg.CORBA.TIMEOUT ex)
         {
             if (logger.isDebugEnabled())
+            {
                 logger.debug(this.toString() + ": getMessage() -- TIMEOUT");
+            }
             this.readTimedOut();
             return null;
         }
@@ -348,7 +350,7 @@ public abstract class GIOPConnection
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Failed to read GIOP message" );
+                    logger.error( "Failed to read GIOP message", ex);
                 }
                 return null;
             }
@@ -373,20 +375,18 @@ public abstract class GIOPConnection
             //this is the "good" exit point.
             return inbuf.value;
         }
-        else
+
+        if (logger.isErrorEnabled())
         {
-            if (logger.isErrorEnabled())
-            {
-                logger.error( "Failed to read GIOP message, incorrect magic number" );
-            }
-
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("GIOPConnection.getMessage()" + msg_header.value );
-            }
-
-            return null;
+            logger.error( "Failed to read GIOP message, incorrect magic number" );
         }
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("GIOPConnection.getMessage()" + msg_header.value );
+        }
+
+        return null;
     }
 
     public final void receiveMessages()
@@ -402,10 +402,8 @@ public abstract class GIOPConnection
                     {
                         return;
                     }
-                    else
-                    {
-                        continue;
-                    }
+
+                    continue;
             }
 
             synchronized( pendingUndecidedSync )
@@ -503,16 +501,14 @@ public abstract class GIOPConnection
                         buf_mg.returnBuffer( message );
                         continue;
                     }
-                    else
-                    {
-                        buf_mg.returnBuffer( message );
 
-                        //silently replace the original message buffer and type
-                        message = b_out.toByteArray();
-                        msg_type = Messages.getMsgType( message );
+                    buf_mg.returnBuffer( message );
 
-                        fragments.remove( request_id );
-                    }
+                    //silently replace the original message buffer and type
+                    message = b_out.toByteArray();
+                    msg_type = Messages.getMsgType( message );
+
+                    fragments.remove( request_id );
                 }
                 else if( Messages.moreFragmentsFollow( message ) )
                 {
@@ -557,30 +553,29 @@ public abstract class GIOPConnection
 
                             continue;
                         }
-                        else //GIOP 1.1 Fragmented messages currently not supported
+
+                        //GIOP 1.1 Fragmented messages currently not supported
+                        if (logger.isWarnEnabled())
                         {
-                            if (logger.isWarnEnabled())
-                            {
-                                logger.warn( "Received a fragmented GIOP 1.1 message" );
-                            }
-
-                            int giop_minor = Messages.getGIOPMinor( message );
-
-                            ReplyOutputStream out =
-                                new ReplyOutputStream( Messages.getRequestId( message ),
-                                                       ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                                       giop_minor,
-                                                       false,
-                                                       logger);//no locate reply
-
-                            SystemExceptionHelper.write( out,
-                                                         new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
-
-                            sendMessage( out );
-                            buf_mg.returnBuffer( message );
-
-                            continue;
+                            logger.warn( "Received a fragmented GIOP 1.1 message" );
                         }
+
+                        int giop_minor = Messages.getGIOPMinor( message );
+
+                        ReplyOutputStream out =
+                            new ReplyOutputStream( Messages.getRequestId( message ),
+                                    ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                    giop_minor,
+                                    false,
+                                    logger);//no locate reply
+
+                        SystemExceptionHelper.write( out,
+                                new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
+
+                        sendMessage( out );
+                        buf_mg.returnBuffer( message );
+
+                        continue;
                     }
 
                     //check, that only the correct message types are fragmented

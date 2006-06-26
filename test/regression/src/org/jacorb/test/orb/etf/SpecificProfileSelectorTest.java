@@ -6,7 +6,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.jacorb.orb.ORBConstants;
-import org.jacorb.orb.iiop.IIOPFactories;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
