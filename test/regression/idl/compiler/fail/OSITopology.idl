@@ -1,0 +1,17 @@
+
+#include "BasicServer.idl"
+
+module OSITopology
+{
+   typedef sequence<string> StringSeq;
+
+   interface AlterLineNumberViaInclude
+   {
+      org::jacorb::test::BasicServer ping ();
+   };
+
+   interface osiTopology
+   {
+      void op ();
+   };
+};

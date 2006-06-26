@@ -74,9 +74,13 @@ public class ParamDecl
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
+        {
             pack_name = s + "." + pack_name;
+        }
         else
+        {
             pack_name = s;
+        }
         paramTypeSpec.setPackage( s );
     }
 
@@ -97,12 +101,15 @@ public class ParamDecl
         {
             TypeSpec ts = ( (ScopedName)paramTypeSpec.typeSpec() ).resolvedTypeSpec();
             if( ts != null )
+            {
                 paramTypeSpec = ts;
+            }
         }
 
         if( paramTypeSpec == null )
         {
-            throw new ParseException("parameter TypeSpec is null " + name, this.myPosition );
+            lexer.restorePosition(myPosition);
+            parser.fatal_error("parameter TypeSpec is null " + name, token);
         }
     }
 
@@ -118,7 +125,8 @@ public class ParamDecl
                 ps.print( paramTypeSpec.holderName() );
                 break;
         }
-        ps.print( " " + simple_declarator );
+        ps.print(" ");
+        ps.print(simple_declarator);
     }
 
     public String printWriteStatement( String ps )

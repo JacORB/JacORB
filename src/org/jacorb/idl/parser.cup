@@ -182,6 +182,7 @@ parser code
         }
         catch( org.jacorb.idl.ParseException e )
         {
+            logger.debug ( "Exception caught", e);
             lexer.emit_error( e.getMessage() );
             return false;
         }

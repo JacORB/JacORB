@@ -20,15 +20,13 @@
 
 package org.jacorb.idl;
 
-/**
- * @author Gerald Brose
- * @version $Id$
- *
- */
-
 import java.io.PrintWriter;
 import java.util.*;
 
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 public class Member
     extends Declaration
 {
@@ -106,7 +104,10 @@ public class Member
         boolean clone_and_parse = true;
 
         if( extendVector == null )
-            throw new ParseException("Internal Compiler Error: extendVector not set!", this.myPosition );
+        {
+            lexer.restorePosition(myPosition);
+            parser.fatal_error ("Internal Compiler Error: extendVector not set.", token);
+        }
 
         if( type_spec.typeSpec() instanceof ScopedName )
         {
@@ -124,7 +125,9 @@ public class Member
                 {
                     SequenceType sequenceTS = (SequenceType)originalType;
                     if( sequenceTS.elementTypeSpec().typeName().equals( containingType.typeName()) )
+                    {
                         sequenceTS.setRecursive ();
+                    }
                 }
             }
 
@@ -175,27 +178,26 @@ public class Member
 
         for( Enumeration e = declarators.v.elements(); e.hasMoreElements(); )
         {
-            Declarator d = (Declarator)e.nextElement();
-            String dName = d.name();
+            Declarator declarator = (Declarator)e.nextElement();
+            String declaratorName = declarator.name();
 
             if( tokName != null )
             {
-
                 if (org.jacorb.idl.parser.strict_names)
                 {
                     // check for name clashes strictly (i.e. case insensitive)
-                    if( dName.equalsIgnoreCase( tokName ) )
+                    if( declaratorName.equalsIgnoreCase( tokName ) )
                     {
-                        parser.fatal_error( "Declarator " + dName +
+                        parser.fatal_error( "Declarator " + declaratorName +
                                             " already defined in scope.", token );
                     }
                 }
                 else
                 {
                     // check for name clashes only loosely (i.e. case sensitive)
-                    if( dName.equals( tokName ) )
+                    if( declaratorName.equals( tokName ) )
                     {
-                        parser.fatal_error( "Declarator " + dName +
+                        parser.fatal_error( "Declarator " + declaratorName +
                                             " already defined in scope.", token );
                     }
                 }
@@ -206,7 +208,7 @@ public class Member
             // we define the declarator's name as a type name indirectly
             // through the cloned type specs.
 
-            Member m = extractMember( d );
+            Member m = extractMember( declarator );
 
             TypeSpec ts = type_spec.typeSpec();
 
@@ -216,39 +218,43 @@ public class Member
                an array declarator
             */
 
-            if( clone_and_parse || d.d instanceof ArrayDeclarator )
+            if( clone_and_parse || declarator.d instanceof ArrayDeclarator )
             {
                 /* arrays need special treatment */
 
-                if( d.d instanceof ArrayDeclarator )
+                if( declarator.d instanceof ArrayDeclarator )
                 {
-                    ts = new ArrayTypeSpec( new_num(), ts, (ArrayDeclarator)d.d, pack_name );
+                    ts = new ArrayTypeSpec( new_num(), ts, (ArrayDeclarator)declarator.d, pack_name );
                     ts.parse();
                 }
                 else if( !( ts instanceof BaseType ) )
                 {
                     ts = (TypeSpec)ts.clone();
                     if( !( ts instanceof ConstrTypeSpec ) )
-                        ts.set_name( d.name() );
+                    {
+                        ts.set_name( declarator.name() );
+                    }
 
                     /* important: only parse type specs once (we do it for the last
                        declarator only) */
                     if( !e.hasMoreElements() )
+                    {
                         ts.parse();
+                    }
                 }
             }
 
             //            else
-            if( !( d.d instanceof ArrayDeclarator ) )
+            if( !( declarator.d instanceof ArrayDeclarator ) )
             {
                 try
                 {
-                    NameTable.define( containingType + "." + d.name(),
+                    NameTable.define( containingType + "." + declarator.name(),
                             "declarator" );
                 }
                 catch( NameAlreadyDefined nad )
                 {
-                    parser.fatal_error( "Declarator " + d.name() +
+                    parser.fatal_error( "Declarator " + declarator.name() +
                             " already defined in scope.", token );
                 }
             }
@@ -294,9 +300,13 @@ public class Member
 
 
         if( type_spec.typeSpec() instanceof StringType )
+        {
             ps.print( prefix + type_spec.toString() + " " + declarator.toString() + " = \"\";" );
+        }
         else
+        {
             ps.print( prefix + type_spec.toString() + " " + declarator.toString() + ";" );
+        }
     }
 
     public TypeSpec typeSpec()

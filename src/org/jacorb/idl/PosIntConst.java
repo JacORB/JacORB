@@ -55,8 +55,10 @@ public class PosIntConst
         {
             value = const_expr.pos_int_const();
             if( value <= 0 )
-                throw new ParseException("Integer constant value must be greater 0.",
-                                         this.myPosition );
+            {
+                lexer.restorePosition(myPosition);
+                parser.fatal_error("Integer constant value must be greater 0.", token );
+            }
         }
         return value;
     }
@@ -70,9 +72,13 @@ public class PosIntConst
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
+        {
             pack_name = s + "." + pack_name;
+        }
         else
+        {
             pack_name = s;
+        }
         const_expr.setPackage( s );
     }
 }

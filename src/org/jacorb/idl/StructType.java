@@ -605,7 +605,8 @@ public class StructType
 
         if (!parsed)
         {
-            throw new ParseException ("Unparsed Struct!");
+            lexer.restorePosition(myPosition);
+            parser.fatal_error ("Unparsed Struct!", token);
         }
 
         // no code generation for included definitions

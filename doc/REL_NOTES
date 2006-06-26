@@ -65,6 +65,7 @@
         - fix for boxed valuetype with sequences generation (bugzilla #429).
         - fix to use options -diistub and -ami_callback in conjunction (bugzilla #687).
           thanks to Thomas Leineweber for providing the patch.
+        - fixes for line number output and error messages from compiler.
     - Security:
         - new property: jacorb.security.randomClassPlugin. Used by developers to plugin their
           own SecureRandom initialisation.

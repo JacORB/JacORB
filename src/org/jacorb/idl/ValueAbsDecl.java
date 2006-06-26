@@ -144,8 +144,8 @@ public class ValueAbsDecl
         }
         catch (IllegalRedefinition ill)
         {
-            parser.fatal_error("Illegal Redefinition of  " +
-                               ill.oldDef + " in nested scope as " + ill.newDef, token);
+            parser.fatal_error("Cannot redefine " + token.str_val +
+                    " in nested scope as " + ill.newDef, token);
         }
         catch (NameAlreadyDefined nad)
         {

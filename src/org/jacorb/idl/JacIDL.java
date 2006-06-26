@@ -428,20 +428,29 @@ public class JacIDL
             }
 
         }
-        catch (IOException e)
+        catch (IOException ex)
         {
-            e.printStackTrace();
-            throw new BuildException(e.toString());
+            if (_debuglevel >= 3)
+            {
+                ex.printStackTrace();
+            }
+            throw new BuildException();
         }
-        catch (ParseException e)
+        catch (ParseException ex)
         {
-            e.printStackTrace();
-            throw new BuildException(e.toString());
+            if (_debuglevel >= 3)
+            {
+                ex.printStackTrace();
+            }
+            throw new BuildException();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            e.printStackTrace();
-            throw new BuildException(e.toString());
+            if (_debuglevel >= 3)
+            {
+                ex.printStackTrace();
+            }
+            throw new BuildException();
         }
     }
 
