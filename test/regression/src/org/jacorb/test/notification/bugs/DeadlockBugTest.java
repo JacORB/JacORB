@@ -32,10 +32,12 @@ import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 
+import edu.emory.mathcs.backport.java.util.concurrent.BrokenBarrierException;
 import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
 import edu.emory.mathcs.backport.java.util.concurrent.CyclicBarrier;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Alphonse Bendt
@@ -43,9 +45,9 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  */
 public class DeadlockBugTest extends TestCase
 {
-    RWLockEventQueueDecorator objectUnderTest_;
+    private RWLockEventQueueDecorator objectUnderTest_;
 
-    Object lock_;
+    private Object lock_;
 
     protected void setUp() throws Exception
     {
@@ -63,13 +65,15 @@ public class DeadlockBugTest extends TestCase
      * wrong synchronization led to a deadlock.
      */
     public void testDeadlock() throws Exception
-    { 
+    {
         final AnyMessage mesg = new AnyMessage();
 
         final AtomicBoolean received = new AtomicBoolean(false);
         final AtomicBoolean delivered = new AtomicBoolean(false);
         final CountDownLatch threadsDone = new CountDownLatch(1);
         final CountDownLatch getPutOrder = new CountDownLatch(1);
+        final AtomicReference getException = new AtomicReference(null);
+        final AtomicReference putException = new AtomicReference(null);
 
         final CyclicBarrier barrier = new CyclicBarrier(2, new Runnable()
         {
@@ -92,11 +96,23 @@ public class DeadlockBugTest extends TestCase
                     }
 
                     received.set(true);
-
-                    barrier.await();
                 } catch (Exception e)
                 {
-                    fail();
+                    getException.set(e);
+                }
+                finally
+                {
+                    try
+                    {
+                        barrier.await();
+                    } catch (InterruptedException e)
+                    {
+                        // ignored
+                    } catch (BrokenBarrierException e)
+                    {
+                        // should not happen
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -112,11 +128,23 @@ public class DeadlockBugTest extends TestCase
                     objectUnderTest_.enqeue(mesg.getHandle());
 
                     delivered.set(true);
-
-                    barrier.await();
                 } catch (Exception e)
                 {
-                    fail();
+                    putException.set(e);
+                }
+                finally
+                {
+                    try
+                    {
+                        barrier.await();
+                    } catch (InterruptedException e)
+                    {
+                        // ignored
+                    } catch (BrokenBarrierException e)
+                    {
+                        // should not happen
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -135,6 +163,9 @@ public class DeadlockBugTest extends TestCase
 
         assertTrue(delivered.get());
         assertTrue(received.get());
+
+        assertNull(putException.get());
+        assertNull(getException.get());
 
         getter.interrupt();
         putter.interrupt();
