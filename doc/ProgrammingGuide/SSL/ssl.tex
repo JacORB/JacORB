@@ -34,7 +34,7 @@ required:
               \begin{itemize}
               \item JDK 1.4 or JSSE 1.0.3 or above available from the
                 Sun's Java Webpages (for JSSE 1.0.3, please see the
-                {\tt README.jsse\_1\_0\_3} in 
+                {\tt README.jsse\_1\_0\_3} in
                 {\tt src/org/jacorb/security/ssl/sun\_jsse} on how to compile).
               \item For key management, you also need additional packages like
                 OpenSSL. These are not necessary for JacORB to work.
@@ -79,18 +79,18 @@ perform the following steps:
 
 \begin{enumerate}
 \item Create a new key store containing a new public/private key pair
-with {\tt keytool}. The public key will be wrapped into a self-signed certificate.  
+with {\tt keytool}. The public key will be wrapped into a self-signed certificate.
 \item Export the self-signed certificate from the key store into a file.
 \item Import the self-signed certificate into a trust store
-   (or configure that trustees shall be read from key store, see below). 
+   (or configure that trustees shall be read from key store, see below).
 \end{enumerate}
-To create a new key store containing a new public/private key pair type: 
+To create a new key store containing a new public/private key pair type:
 \begin{verbatim}
    keytool -genkey -alias <alias> -keystore <keystore>
 \end{verbatim}
 If you don't give a key store name {\tt keytool} will create a key store with
 the name {\tt .keystore} in the user's home directory. The command
-given above will ask for the following input: 
+given above will ask for the following input:
 \begin{verbatim}
    Enter keystore password:  changeit
    What is your first and last name?
@@ -105,7 +105,7 @@ given above will ask for the following input:
      [Unknown]:  Berlin
    What is the two-letter country code for this unit?
      [Unknown]:  Germany
-   Is CN=Developer, OU=cs, O=PrismTech, L=Berlin, ST=Berlin, 
+   Is CN=Developer, OU=cs, O=PrismTech, L=Berlin, ST=Berlin,
       C=Germany correct?
      [no]:  yes
 
@@ -134,7 +134,7 @@ authentication. The public key contained in the key store is wrapped
 into a self-signed certificate. This self-signed certificate has to be
 added to the Java trust store. To do this export the certificate from
 the key store and import it into the Java trust store located in {\tt
-<java\_home>/jre/lib/security/cacerts}.  
+<java\_home>/jre/lib/security/cacerts}.
 
 To export the self-signed certificate into a file type:
 \begin{verbatim}
@@ -142,7 +142,7 @@ keytool -export -keystore <keystore> -alias <alias> -file <filename>
 \end{verbatim}
 To import the certificate into the trust store type:
 \begin{verbatim}
-keytool -import -keystore <truststore> -alias <alias> -file <filename> 
+keytool -import -keystore <truststore> -alias <alias> -file <filename>
 \end{verbatim}
 
 More documentation on key stores  can be found in the Java tool
@@ -211,7 +211,7 @@ key  chain  has  the proper  format  {\em  and}  the CA's  public  key
 certificate is also declared  as trusted using the {\tt Trustees--add}
 menu, the  verification will fail.  Only of  the verification succeeds
 will you be able to use a public key certificate in the SSL connection
-setup. 
+setup.
 
 \subsection{Step--By--Step certificate creation}
 In  order to  generate  a  simple public  key  infrastructure you  can
@@ -256,19 +256,19 @@ Configure which SSL socket factory and SSL server socket factory shall
 be used with the properties:
 \begin{verbatim}
          jacorb.ssl.socket_factory=qualified classname
-         jacorb.ssl.server_socket_factory=qualified classname 
+         jacorb.ssl.server_socket_factory=qualified classname
 \end{verbatim}
 
 If you want to use JSSE, then configure the following as qualified
-classname of SSL Socket Factory and SSL server socket factory: 
+classname of SSL Socket Factory and SSL server socket factory:
 \begin{verbatim}
          org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
          org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
 \end{verbatim}
 %jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
-     
+
 If you want to use IAIK, then configure the following as qualified
-classname of SSL Socket Factory and SSL server socket factory: 
+classname of SSL Socket Factory and SSL server socket factory:
 \begin{verbatim}
          org.jacorb.security.ssl.iaik.SSLSocketFactory
          org.jacorb.security.ssl.iaik.SSLServerSocketFactory
@@ -305,7 +305,7 @@ properties doesn't seem to take effect, so you may want to add trusted
 certificates to "normal" key stores. In this case configure JacORB to read
 certificates from the key store rather than from a dedicated trust
 store, please set the property
-\begin{verbatim} 
+\begin{verbatim}
 jacorb.security.jsse.trustees_from_ks=on
 \end{verbatim}
 
@@ -359,14 +359,14 @@ for supported and required options for client and server.
 \textbf{Property with value}& \textbf{Description}\\
 \hline
 \verb"jacorb.security.ssl."
-\verb"client.supported_options=20" 
+\verb"client.supported_options=20"
 \verb"// EstablishTrustInTarget"& This value indicates that the client can use SSL. Actually, this
 is default SSL behaviour and must always be supported by the client.\\
 \hline
 \verb"jacorb.security.ssl."
 \verb"client.supported_options=40"
 \verb"// EstablishTrustInClient"& This makes
-the client load it's own key/certificate from it's key 
+the client load it's own key/certificate from it's key
 store, to enable it to authenticate to the server. \\
 \hline
 \end{tabular}
@@ -381,12 +381,12 @@ store, to enable it to authenticate to the server. \\
 \hline
 \verb"jacorb.security.ssl."
 \verb"client.required_options=20"
-\verb"// EstablishTrustInTarget"& This enforces SSL to be used.\\ 
+\verb"// EstablishTrustInTarget"& This enforces SSL to be used.\\
 \hline
 \verb"jacorb.security.ssl."
 \verb"client.required_options=40"
 \verb"// EstablishTrustInClient"& This
-enforces SSL to be used. Actually, this is no meaningfuly 
+enforces SSL to be used. Actually, this is no meaningfuly
 value, since in SSL, the client can't force it's own authentication to
 the server. \\
 \hline
@@ -410,7 +410,7 @@ options should be set as well, because they override this value. \\
 \verb"// EstablishTrustInTarget"& This value indicates that the server
 supports SSL. Actually, this is default SSL behaviour and must always
 be supported by the server. This also makes the server load it's
-key/certificate from the key store.\\ 
+key/certificate from the key store.\\
 \hline
 \verb"jacorb.security.ssl."
 \verb"server.supported_options=40"
@@ -429,18 +429,19 @@ client can't force its own authentication).\\
 \hline
 \verb"jacorb.security.ssl."
 \verb"server.required_options=20"
-\verb"// EstablishTrustInTarget"& This enforces SSL to be used.\\ 
+\verb"// EstablishTrustInTarget"& This enforces SSL to be used.\\
 \hline
 \verb"jacorb.security.ssl."
 \verb"server.required_options=40"
 \verb"// EstablishTrustInClient"&  This enforces SSL to be used, and
 will request the client to authenticate. It also will load trusted
-certificates for the authentication process.\\ 
+certificates for the authentication process.\\
 \hline
 \end{tabular}
 \end{table}
 
 \section{SecureRandom Plugin System}
+\label{secureRandomPlugin}
 Under certain platforms (e.g. J2ME CDC platforms) when the JSSE
 initializes its random number generator it may spawn a large number
 of threads and/or have a significant start-up time. This overhead may
@@ -491,7 +492,7 @@ in a separate thread at the start of their main before any ORB
 calls are done.
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

@@ -53,6 +53,8 @@
         - Fix for interceptors service context propagation.
         - Fix for interceptor multithreading and exception handling.
         - Fix for timeout overrides (bugzilla #611).
+        - new properties: jacorb.net.tcp_listener and jacorb.security.ssl.ssl_listener for
+          specifying the respective listener interfaces to receive event notifications.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
@@ -63,7 +65,9 @@
     - Security:
         - new property: jacorb.security.randomClassPlugin. Used by developers to plugin their
           own SecureRandom initialisation.
-
+    - Documentation:
+        - Added chapter on threads to Programming Guide.
+        - Enhanced logging documentation.
 2.2.5
 =====
     - Documentation

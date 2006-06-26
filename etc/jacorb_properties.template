@@ -319,6 +319,11 @@ jacorb.interop.chunk_custom_rmi_valuetypes=on
 #jacorb.net.server_socket_factory.port.min
 #jacorb.net.server_socket_factory.port.max
 
+# Listeners
+# The TCP listener listens for TCP socket connections and should be implemented
+# as defined by org.jacorb.orb.listener.TCPConnectionListener
+jacorb.net.tcp_listener=
+
 ###########################################
 #                                         #
 #         BiDirectional GIOP              #
@@ -576,6 +581,11 @@ jacorb.security.ssl.client.cipher_suites=
 # Class name for a class that implements JacORB JSRandom interface. This
 # will be used to get a SecureRandom.
 jacorb.security.randomClassPlugin=
+
+# Listeners
+# The SSL listener listens for SSL sessions and should be implemented as defined
+# by org.jacorb.orb.listener.SSLSessionListener
+jacorb.security.ssl.ssl_listener=
 
 #########################
 #                       #

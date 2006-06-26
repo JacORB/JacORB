@@ -672,6 +672,11 @@ through a fixed port range  & integer & unset (disabled) \\
 for the additional supported socket factory. Refer to
 jacorb.net.socket\_factory.port.min above & integer & disabled\\
 \hline
+\verb"jacorb.net.tcp_listene"
+\verb"r" & Defines a listener for TCP connection events. See \ref{eventLogging}.
+& string & disabled\\
+\hline
+
 
 \end{longtable}
 \end{small}
@@ -901,8 +906,16 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"jacorb.security.ssl.cl"
 \verb"ient.cipher_suites" & See jacorb.security.ssl.server.cipher\_suites above. & string \\
 \hline
+\verb"jacorb.security.random"
+\verb"classPlugin" & Classname for secure random plugin. See \ref{secureRandomPlugin} & string \\
+\hline
+\verb"jacorb.security.ssl.ss"
+\verb"l_listener" & Defines a listener for SSL connection events. See \ref{eventLogging}.
+& string \\
+\hline
 \end{longtable}
 \end{small}
+
 
 \subsection{JacORB Implname and CORBA Objects}
 \label{implname}
@@ -939,6 +952,68 @@ Example usage
 
 {\tt jacorb.orb.objectKeyMap.NameService=file:///home/rnc/NameSingleton.ior}
 
+\subsection{JacORB Network Event Logging}
+\label{eventLogging}
+
+An enhancement has been added to JacORB that allows a developer to monitor TCP and SSL connections. Note that for both of these implementations full information may only retrieved with a successful connection; e.g. if the connection could not be established there will be no remote port.
+
+\subsubsection{TCP Monitoring}
+
+To monitor TCP connections a developer should implement the following interface
+\begin{small}
+\begin{verbatim}
+package org.jacorb.orb.listener;
+public interface TCPConnectionListener extends EventListener
+    void connectionOpened(TCPConnectionEvent e);
+    void connectionClosed(TCPConnectionEvent e);
+\end{verbatim}
+\end{small}
+The classname should then be specified in the property
+\begin{verbatim}
+jacorb.net.tcp_listener
+\end{verbatim}
+
+The standard java event interface is followed; the developer's code will receive the
+TCPConnectionEvent which allows the following information to be retrieved:
+\begin{small}
+\begin{verbatim}
+    public String getRemoteIP()
+    public int getRemotePort()
+    public int getLocalPort()
+\end{verbatim}
+\end{small}
+
+\subsubsection{SSL Monitoring}
+
+To monitor SSL sessions a developer should implement the following interface
+\begin{small}
+\begin{verbatim}
+package org.jacorb.orb.listener;
+public interface SSLSessionListener extends EventListener
+    void sessionCreated(SSLSessionEvent e);
+    void handshakeException(SSLSessionEvent e);
+    void keyException(SSLSessionEvent e);
+    void peerUnverifiedException(SSLSessionEvent e);
+    void protocolException(SSLSessionEvent e);
+\end{verbatim}
+\end{small}
+The classname should then be specified in the property
+\begin{verbatim}
+jacorb.security.ssl.ssl_listener
+\end{verbatim}
+
+The standard java event interface is followed; the developer's code will receive the
+SSLSessionEvent which allows the following information to be retrieved:
+\begin{small}
+\begin{verbatim}
+    public String getRemoteIP()
+    public int getRemotePort()
+    public String getRemoteDN()
+    public int getLocalPort()
+\end{verbatim}
+\end{small}
+
+In order to detect a succesful handshake the implementation delegates to the JSSE {\tt javax.net.ssl.HandShakeCompletedListener}.
 
 
 %%% Local Variables:
