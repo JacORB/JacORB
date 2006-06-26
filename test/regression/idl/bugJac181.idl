@@ -1,0 +1,21 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac181
+            {
+               interface JAC181
+               {
+                  void ping1 ();
+                  void ping2 ();
+               };
+            };
+         };
+      };
+   };
+};
