@@ -247,14 +247,14 @@ public class ParsedIOR
                 }
                 default:
                 {
-                    org.omg.ETF.Factories f =
+                    org.omg.ETF.Factories factories =
                         orb.getTransportManager().getFactories (tag);
-                    if (f != null)
+                    if (factories != null)
                     {
                         TaggedProfileHolder tp =
                             new TaggedProfileHolder (_ior.profiles[i]);
                         profiles.add
-                            (f.demarshal_profile
+                            (factories.demarshal_profile
                                 (tp,
                                  new TaggedComponentSeqHolder()));
                     }
