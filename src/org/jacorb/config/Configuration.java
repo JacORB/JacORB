@@ -98,6 +98,8 @@ public interface Configuration
 
     Object getAttributeAsObject( String key ) throws ConfigurationException;
 
+    Object getAttributeAsObject( String key, String defaultValue) throws ConfigurationException;
+
     boolean getAttributeAsBoolean(String key)
         throws ConfigurationException;
 

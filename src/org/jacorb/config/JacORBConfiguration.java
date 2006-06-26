@@ -714,19 +714,37 @@ public class JacORBConfiguration
 
         if(  className != null && className.length() > 0 )
         {
-            try
-            {
-                Class c = ObjectUtil.classForName(className);
-                return c.newInstance();
-            }
-            catch( Exception e )
-            {
-                throw new ConfigurationException( "Unable to build class from key >" +
-                                                  key +"<: " + e );
-            }
+            return newInstance(key, className);
         }
 
         return null;
+    }
+
+
+    private Object newInstance(String key, String className) throws ConfigurationException
+    {
+        try
+        {
+            Class c = ObjectUtil.classForName(className);
+            return c.newInstance();
+        }
+        catch( Exception e )
+        {
+            throw new ConfigurationException( "Unable to build class from key >" +
+                                              key +"<: " + e );
+        }
+    }
+
+    public Object getAttributeAsObject(String key, String defaultValue) throws ConfigurationException
+    {
+        Object result = getAttributeAsObject(key);
+
+        if (result == null)
+        {
+            return newInstance("default", defaultValue);
+        }
+
+        return result;
     }
 
     public boolean getAttributeAsBoolean(String key)
