@@ -1297,7 +1297,14 @@ public class POA
         return shutdownState >= POAConstants.DESTRUCTION_APPARENT;
     }
 
-    protected boolean isDestructionComplete()
+    /**
+     * <code>isDestructionComplete</code> returns whether the POA has been
+     * completely destroyed (including finishing outstanding requests). This
+     * is public not protected as it is called from orb/Delegate.
+     *
+     * @return a <code>boolean</code> value.
+     */
+    public boolean isDestructionComplete()
     {
         return shutdownState >= POAConstants.DESTRUCTION_COMPLETE;
     }

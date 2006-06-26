@@ -28,6 +28,7 @@ import org.jacorb.poa.util.ByteArrayKey;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.poa.util.StringPair;
 
+import org.omg.CORBA.OBJ_ADAPTER;
 import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
@@ -253,6 +254,11 @@ public class AOM
         }
 
         /* servant incarnation */
+        if (servant_activator == null)
+        {
+            // This might be thrown if they failed to set implname
+            throw new OBJ_ADAPTER("Servant Activator for " + POAUtil.convert(oid) + " was null.");
+        }
 
         incarnationList.addElement(oidbak);
         try

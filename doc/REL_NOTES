@@ -57,6 +57,7 @@
           specifying the respective listener interfaces to receive event notifications.
         - new properties: jacorb.connection.server.keepalive and
           jacorb.connection.client.keepalive to configure TCP KeepAlive on sockets.
+        - Logging additions for debugging.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
