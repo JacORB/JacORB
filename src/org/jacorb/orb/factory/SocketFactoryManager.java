@@ -264,9 +264,13 @@ public class SocketFactoryManager
                 try
                 {
                     // First try getting constructor with ORB parameter
-                    ctor = factoryClazz.getConstructor (new Class[] { ORB.class });
+                    ctor = factoryClazz.getConstructor(new Class[] { ORB.class });
                 }
-                catch (Exception ex)
+                catch (NoSuchMethodException e)
+                {
+                    // ignore
+                }
+                catch (SecurityException e)
                 {
                     // Ignore
                 }

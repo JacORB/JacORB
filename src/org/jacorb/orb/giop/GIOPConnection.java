@@ -328,7 +328,7 @@ public abstract class GIOPConnection
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("TCP_IP_GIOPTransport.getMessage() with header: \n" +
-                                 header + "\nsize : " + Messages.MSG_HEADER_SIZE );
+                                 new String(header) + "\nsize : " + Messages.MSG_HEADER_SIZE );
                 }
 
                 return null;

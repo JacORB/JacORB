@@ -37,7 +37,7 @@ public class ConnectWindow extends JFrame implements ActionListener  {
     private JTextField m_imr_url_tf;
     private JButton m_imr_connect_btn;
     private JButton m_cancel_btn;
-    private ImRModel m_model;
+    private transient ImRModel m_model;
 
     public ConnectWindow(ImRModel model) {
     super("Connect to remote repository");

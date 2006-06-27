@@ -83,7 +83,7 @@ public abstract class IIOPConnection
         return to_COMM_FAILURE(ex);
     }
 
-    protected int getTimeout()
+    protected synchronized int getTimeout()
     {
         try
         {

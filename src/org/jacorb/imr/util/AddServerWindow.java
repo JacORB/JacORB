@@ -37,7 +37,7 @@ public class AddServerWindow
     extends JFrame
     implements ActionListener, KeyListener
 {
-    private ImRModel m_model;
+    private transient ImRModel m_model;
 
     private JTextField m_name_tf;
     private JComboBox m_host_box;
@@ -47,7 +47,7 @@ public class AddServerWindow
     private JButton m_add_btn;
     private JButton m_cancel_btn;
 
-    private Clipboard clip_board = null;
+    private transient Clipboard clip_board = null;
 
     public AddServerWindow(ImRModel model) {
     super("Add Server");
