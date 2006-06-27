@@ -81,7 +81,7 @@ public class SpecificProfileSelector implements ProfileSelector
                             ((iiopProfile.getSSL () == null) ||
                                     // SSL port contains a valid value but further check is required
                                     // see if protection is enabled.
-                                    (((iiopProfile.getSSL ()).target_requires |
+                                    (((iiopProfile.getSSL()).target_requires &
                                             org.omg.Security.NoProtection.value) != 0))
                     )
                     {
