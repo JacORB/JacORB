@@ -1523,17 +1523,17 @@ public final class ORB
     private void internalInit()
     {
         final List orb_initializers = getORBInitializers();
-        final ORBInitInfoImpl info = new ORBInitInfoImpl (this);
+        final ORBInitInfoImpl initInfo = new ORBInitInfoImpl(this);
 
-        interceptorPreInit(orb_initializers, info);
+        interceptorPreInit(orb_initializers, initInfo);
 
         initClientConnectionManager();
 
         initKnownReferencesMap();
 
-        interceptorPostInit(orb_initializers, info);
+        interceptorPostInit(orb_initializers, initInfo);
 
-        internalInit(info);
+        internalInit(initInfo);
     }
 
     private void initClientConnectionManager()
@@ -1582,9 +1582,9 @@ public final class ORB
         // allow no more access to ORBInitInfo from ORBInitializers
         info.setInvalid ();
 
-        List client_interceptors = info.getClientInterceptors ();
-        List server_interceptors = info.getServerInterceptors ();
-        List ior_intercept = info.getIORInterceptors ();
+        List client_interceptors = info.getClientInterceptors();
+        List server_interceptors = info.getServerInterceptors();
+        List ior_intercept = info.getIORInterceptors();
 
         hasClientInterceptors = !client_interceptors.isEmpty();
         hasServerInterceptors = !server_interceptors.isEmpty();
@@ -1596,7 +1596,7 @@ public final class ORB
                     client_interceptors,
                     server_interceptors,
                     ior_intercept,
-                    info.getSlotCount (),
+                    info.getSlotCount(),
                     this
             );
         }
@@ -1606,30 +1606,28 @@ public final class ORB
     }
 
     /**
-     * call pre_init in ORBInitializers
+     * call pre_init on ORBInitializers
      */
     private void interceptorPreInit(List orb_initializers, final ORBInitInfo info)
     {
         for (Iterator i = orb_initializers.iterator(); i.hasNext();)
         {
-            final ORBInitializer init = (ORBInitializer) i.next();
+            final ORBInitializer initializer = (ORBInitializer) i.next();
             try
             {
-                init.pre_init (info);
+                initializer.pre_init (info);
             }
             catch (Exception e)
             {
                 if (failOnORBInitializerError)
                 {
-                    logger.error(init.getClass().getName() + ": aborting due to error during ORBInitializer::pre_init", e);
+                    logger.error(initializer.getClass().getName() + ": aborting due to error during ORBInitializer::pre_init", e);
 
                     throw new INITIALIZE(e.toString());
                 }
-                else
-                {
-                    logger.warn(init.getClass().getName() + ": ignoring error during ORBInitializer::pre_init. the ORBInitializer will be removed from the current configuration", e);
-                    i.remove();
-                }
+
+                logger.warn(initializer.getClass().getName() + ": ignoring error during ORBInitializer::pre_init. the ORBInitializer will be removed from the current configuration", e);
+                i.remove();
             }
         }
     }
@@ -1641,23 +1639,21 @@ public final class ORB
     {
         for (Iterator i = orb_initializers.iterator(); i.hasNext();)
         {
-            ORBInitializer init = (ORBInitializer) i.next();
+            ORBInitializer initializer = (ORBInitializer) i.next();
             try
             {
-                init.post_init (info);
+                initializer.post_init (info);
             }
             catch (Exception e)
             {
                 if (failOnORBInitializerError)
                 {
-                    logger.error(init.getClass().getName() + ": aborting due to error during ORBInitializer::pre_init", e);
+                    logger.error(initializer.getClass().getName() + ": aborting due to error during ORBInitializer::pre_init", e);
 
                     throw new INITIALIZE(e.toString());
                 }
-                else
-                {
-                    logger.warn(init.getClass().getName() + ": ignoring error during ORBInitializer::pre_init. the ORBInitializer will be removed from the current configuration", e);
-                }
+
+                logger.warn(initializer.getClass().getName() + ": ignoring error during ORBInitializer::pre_init. the ORBInitializer will be removed from the current configuration", e);
             }
         }
     }
@@ -1723,10 +1719,8 @@ public final class ORB
 
                     throw new INITIALIZE(e.toString());
                 }
-                else
-                {
-                    logger.warn("unable to build ORBInitializer from class " + name + ": Ignoring");
-                }
+
+                logger.warn("unable to build ORBInitializer from class " + name + ": Ignoring");
             }
         }
 
@@ -1735,12 +1729,12 @@ public final class ORB
 
     public void shutdown( boolean wait_for_completion )
     {
-        if (logger.isInfoEnabled())
+        if(logger.isInfoEnabled())
         {
             logger.info("prepare ORB for shutdown...");
         }
 
-        if( ! run )
+        if(!run)
         {
             return; // ORB already shut down...
         }
@@ -1985,34 +1979,28 @@ public final class ORB
 
     private ValueFactory findValueFactory(String valueName)
     {
-        Class result = null;
-        result = findClass (valueName + "DefaultFactory", true);
+        Class result = findClass (valueName + "DefaultFactory", true);
         if (result != null)
         {
             return (ValueFactory)instantiate (result);
         }
-        else
-        {
-            // Extension of the standard: Handle the common case
-            // when the Impl class is its own factory...
-            Class c = findClass (valueName, false);
-            result  = findClass (valueName + "Impl", false);
 
-            if (result != null && c.isAssignableFrom (result))
+        // Extension of the standard: Handle the common case
+        // when the Impl class is its own factory...
+        Class clazz = findClass (valueName, false);
+        result = findClass (valueName + "Impl", false);
+
+        if (result != null && clazz.isAssignableFrom (result))
+        {
+            if (ValueFactory.class.isAssignableFrom (result))
             {
-                if (ValueFactory.class.isAssignableFrom (result))
-                {
-                    return (ValueFactory)instantiate (result);
-                }
-                else
-                {
-                    // ... or create a factory on the fly
-                    return new JacORBValueFactory (result);
-                }
+                return (ValueFactory)instantiate (result);
             }
-            else
-                return null;
+
+            // ... or create a factory on the fly
+            return new JacORBValueFactory(result);
         }
+        return null;
     }
 
     /**
@@ -2024,9 +2012,9 @@ public final class ORB
     {
         private Class implementationClass;
 
-        public JacORBValueFactory (Class c)
+        public JacORBValueFactory (Class clazz)
         {
-            implementationClass = c;
+            implementationClass = clazz;
         }
 
         public java.io.Serializable read_value
@@ -2053,7 +2041,6 @@ public final class ORB
                 throw new MARSHAL ("Unknown Value type " + implObj);
             }
         }
-
     }
 
     /**
@@ -2061,7 +2048,7 @@ public final class ORB
      * returns null.  If `orgomg' is true, and `name' starts with "org.omg",
      * do a double-take using "omg.org" as the prefix.
      */
-    private Class findClass (String name, boolean orgomg)
+    private Class findClass(String name, boolean orgomg)
     {
         Class result = null;
         try
@@ -2087,22 +2074,22 @@ public final class ORB
      * Instantiates class `c' using its no-arg constructor.  Throws a
      * run-time exception if that fails.
      */
-    private Object instantiate (Class c)
+    private Object instantiate(Class clazz)
     {
         try
         {
-            return c.newInstance();
+            return clazz.newInstance();
         }
         catch (IllegalAccessException e1)
         {
             throw new RuntimeException ("cannot instantiate class "
-                                        + c.getName()
+                                        + clazz.getName()
                                         + " (IllegalAccessException)");
         }
         catch (InstantiationException e2)
         {
             throw new RuntimeException ("cannot instantiate class "
-                                        + c.getName()
+                                        + clazz.getName()
                                         + " (InstantiationException)");
         }
     }
@@ -2126,12 +2113,12 @@ public final class ORB
         if (result == null)
         {
             if (boxedValueHelpers.containsKey(repId))
-                return null;
-            else
             {
-                result = org.jacorb.ir.RepositoryID.createBoxedValueHelper(repId, null);
-                boxedValueHelpers.put(repId, result);
+                return null;
             }
+
+            result = org.jacorb.ir.RepositoryID.createBoxedValueHelper(repId, null);
+            boxedValueHelpers.put(repId, result);
         }
         return result;
     }
@@ -2356,10 +2343,8 @@ public final class ORB
                         return originalKey;
                     }
                 }
-                else
-                {
-                    return org.jacorb.orb.util.CorbaLoc.parseKey(found);
-                }
+
+                return org.jacorb.orb.util.CorbaLoc.parseKey(found);
             }
         }
         // else:
@@ -2384,7 +2369,6 @@ public final class ORB
         return run;
     }
 
-
     /**
      * Inner class that implements org.omg.PortableInterceptor.Current
      * by forwarding each invocation to a thread-dependent target.
@@ -2398,9 +2382,11 @@ public final class ORB
         private Current getTarget()
         {
             if (interceptor_manager == null)
+            {
                 return InterceptorManager.EMPTY_CURRENT;
-            else
-                return interceptor_manager.getCurrent();
+            }
+
+            return interceptor_manager.getCurrent();
         }
 
         // org.omg.PortableInterceptor.Current implementation ---
@@ -2416,7 +2402,6 @@ public final class ORB
         {
             getTarget().set_slot(id, data);
         }
-
     }
 
     // Even though the methods connect(obj) and disconnect(obj) are
