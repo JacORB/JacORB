@@ -414,7 +414,9 @@ public class POA
         throws WrongAdapter
     {
         if (!configured)
+        {
             throw new Error("POA: not configured!");
+        }
 
         synchronized(poaDestructionLog)
         {
