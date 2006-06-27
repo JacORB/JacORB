@@ -74,10 +74,16 @@ public class FixIOR
 
         iorFile = args[2];
         br = new BufferedReader (new FileReader (iorFile));
-        iorString = br.readLine ();
+        iorString = br.readLine();
         br.close ();
 
-        if (! iorString.startsWith ("IOR:"))
+        if (iorString == null)
+        {
+            System.err.println("cannot read IOR from " + iorFile);
+            System.exit(1);
+        }
+
+        if (!iorString.startsWith("IOR:"))
         {
             System.err.println ("IOR must be in the standard IOR URL format");
             System.exit (1);
@@ -92,7 +98,7 @@ public class FixIOR
 
         orb = org.omg.CORBA.ORB.init (args, null);
 
-        Logger logger = 
+        Logger logger =
             ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.fixior");
 
         // Parse IOR
