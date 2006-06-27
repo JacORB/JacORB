@@ -21,7 +21,6 @@ package org.jacorb.orb;
  */
 
 import java.util.*;
-import java.lang.reflect.*;
 
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.util.*;
@@ -86,8 +85,10 @@ public final class ORB
 
 
 
-    /** "initial" references */
-    private Map initial_references = new HashMap();
+    /**
+     *  "initial" references
+     */
+    private final Map initial_references = new HashMap();
 
     private org.jacorb.poa.POA rootpoa;
     private org.jacorb.poa.Current poaCurrent;
@@ -136,8 +137,9 @@ public final class ORB
     public String[] _args;
 
     /* for run() and shutdown()  */
-    private Object orb_synch = new java.lang.Object();
+    private Object runSync = new java.lang.Object();
     private boolean run = true;
+
     private boolean shutdown_in_progress = false;
     private boolean destroyed = false;
     private Object shutdown_synch = new Object();
@@ -923,25 +925,22 @@ public final class ORB
 
     public String[] list_initial_services()
     {
-        List l = new ArrayList();
+        final List list = new ArrayList(initial_references.size() + services.length);
 
-        for( Iterator e = initial_references.keySet().iterator();
-             e.hasNext(); l.add( e.next() ) );
+        list.addAll(Arrays.asList(services));
 
-        String [] initial_services =
-            new String[ services.length + l.size()];
+        for( Iterator i = initial_references.keySet().iterator(); i.hasNext();)
+        {
+            list.add( i.next() );
+        }
 
-        l.toArray( initial_services );
-
-        System.arraycopy( services, 0, initial_services, l.size(), services.length );
-        return initial_services;
+        return (String[]) list.toArray( new String[list.size()] );
     }
 
     /**
      * An operation from the POAListener interface. Whenever a new POA is
      * created, the ORB is notified.
      */
-
     public void poaCreated( org.jacorb.poa.POA poa )
     {
         /*
@@ -966,7 +965,8 @@ public final class ORB
                 /* Register the POA */
                 String server_name = implName;
                 ProtocolAddressBase sep = getServerAddress();
-                if (sep != null && sep instanceof IIOPAddress) {
+                if (sep != null && sep instanceof IIOPAddress)
+                {
                     String sep_host = ((IIOPAddress)sep).getHostname();
                     int sep_port = ((IIOPAddress)sep).getPort();
 
@@ -987,7 +987,7 @@ public final class ORB
         {
             try
             {
-                imr = ImRAccessImpl.connect (this);
+                imr = ImRAccessImpl.connect(this);
             }
             catch( Exception e )
             {
@@ -1287,14 +1287,13 @@ public final class ORB
         {
             throw new InvalidName();
         }
-        else
+
+        if (logger.isDebugEnabled())
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug( "Registering initial ref " + id );
-            }
-            initial_references.put(id, obj);
+            logger.debug( "Registering initial ref " + id );
         }
+
+        initial_references.put(id, obj);
     }
 
     public void run()
@@ -1304,19 +1303,20 @@ public final class ORB
             logger.info("ORB run");
         }
 
-        try
+        synchronized( runSync )
         {
-            synchronized( orb_synch )
+            try
             {
                 while( run )
                 {
-                    orb_synch.wait();
+                    runSync.wait();
                 }
             }
+            catch (InterruptedException ex)
+            {
+            }
         }
-        catch (InterruptedException ex)
-        {
-        }
+
         if (logger.isInfoEnabled())
         {
             logger.info("ORB run, exit");
@@ -1740,49 +1740,41 @@ public final class ORB
             logger.info("prepare ORB for shutdown...");
         }
 
-        if(!run)
-        {
-            return; // ORB already shut down...
-        }
-
         synchronized( shutdown_synch )
         {
-            if (logger.isInfoEnabled())
-            {
-                logger.info("ORB going down...");
-            }
-
-            if( shutdown_in_progress && wait_for_completion )
-            {
-                while(shutdown_in_progress)
-                {
-                    try
-                    {
-                        shutdown_synch.wait();
-                    }
-                    catch( InterruptedException ie )
-                    {
-                        // ignore
-                    }
-                }
-
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug("ORB going shutdown complete (1)");
-                }
-                return;
-            }
-            else if( shutdown_in_progress && !wait_for_completion )
+            if (shutdown_in_progress && !wait_for_completion)
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("ORB going shutdown complete (2)");
+                    logger.debug("ORB is already shutting down.");
                 }
                 return;
+            }
+
+            while(shutdown_in_progress)
+            {
+                try
+                {
+                    shutdown_synch.wait();
+                }
+                catch( InterruptedException ie )
+                {
+                    // ignore
+                }
             }
 
             shutdown_in_progress = true;
         }
+
+        synchronized (runSync)
+        {
+            if(!run)
+            {
+                return; // ORB already shut down...
+            }
+        }
+
+        logger.info("ORB going down...");
 
         if( rootpoa != null )
         {
@@ -1795,8 +1787,6 @@ public final class ORB
             basicAdapter.stopListeners();
         }
 
-        logger.debug("ORB going shutdown (cleaning up ORB...)");
-
         if (giop_connection_manager != null)
         {
             giop_connection_manager.shutdown();
@@ -1807,19 +1797,20 @@ public final class ORB
 
         poolManagerFactory.destroy();
 
-        /* notify all threads waiting for shutdown to complete */
+        // notify all threads waiting in orb.run()
+        synchronized( runSync )
+        {
+            run = false;
+            runSync.notifyAll();
+        }
 
+        // notify all threads waiting for shutdown to complete
         synchronized( shutdown_synch )
         {
+            shutdown_in_progress = false;
             shutdown_synch.notifyAll();
         }
 
-        /* notify all threads waiting in orb.run() */
-        synchronized( orb_synch )
-        {
-            run = false;
-            orb_synch.notifyAll();
-        }
         if (logger.isInfoEnabled())
         {
             logger.info("ORB shutdown complete");
