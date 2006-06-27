@@ -2177,7 +2177,9 @@ public class CDROutputStream
             write_previous_chunk_size();
             if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
                 (value instanceof java.lang.String))
+            {
                 write_long (0x7fffff00 | chunkingFlag);
+            }
             else
             {
                 // repository id is required for RMI: types
