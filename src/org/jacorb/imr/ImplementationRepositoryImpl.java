@@ -424,16 +424,10 @@ public class ImplementationRepositoryImpl
             _poa.reactivate(host, port);
             this.logger.debug("ImR: register_poa, reactivated");
         }
-        try
+
+        synchronized (wt)
         {
-            synchronized (wt)
-            {
-                wt.notify ();
-            }
-        }
-        catch (IllegalMonitorStateException e)
-        {
-            this.logger.debug("Caught Exception", e);
+            wt.notify ();
         }
     }
 
@@ -467,16 +461,9 @@ public class ImplementationRepositoryImpl
 
         server_table.putHost(host.name, new ImRHostInfo(host));
 
-        try
+        synchronized (wt)
         {
-            synchronized (wt)
-            {
-                wt.notify ();
-            }
-        }
-        catch (IllegalMonitorStateException e)
-        {
-            this.logger.debug("Caught Exception", e);
+            wt.notify ();
         }
     }
 
@@ -608,16 +595,9 @@ public class ImplementationRepositoryImpl
                               host + " registered");
         }
 
-        try
+        synchronized (wt)
         {
-            synchronized (wt)
-            {
-                wt.notify ();
-            }
-        }
-        catch (IllegalMonitorStateException e)
-        {
-            this.logger.debug("Caught Exception", e);
+            wt.notify ();
         }
     }
 
@@ -647,16 +627,9 @@ public class ImplementationRepositoryImpl
             this.logger.debug("ImR: server " + name + " unregistered");
         }
 
-        try
+        synchronized (wt)
         {
-            synchronized (wt)
-            {
-                wt.notify ();
-            }
-        }
-        catch (IllegalMonitorStateException e)
-        {
-            this.logger.debug("Caught Exception", e);
+            wt.notify ();
         }
     }
 
@@ -684,16 +657,9 @@ public class ImplementationRepositoryImpl
             this.logger.debug("ImR: server " + name + " edited");
         }
 
-        try
+        synchronized (wt)
         {
-            synchronized (wt)
-            {
-                wt.notify ();
-            }
-        }
-        catch (IllegalMonitorStateException e)
-        {
-            this.logger.debug("Caught Exception", e);
+            wt.notify ();
         }
     }
 
@@ -1353,14 +1319,21 @@ public class ImplementationRepositoryImpl
             logger.debug("requestReceived");
             connection.incPendingMessages();
 
-            RequestInputStream in = new RequestInputStream( orb, request );
+            final RequestInputStream in = new RequestInputStream( orb, request );
 
+            try
+            {
             replyNewLocation( ((org.jacorb.orb.ORB)orb).mapObjectKey(
                                     ParsedIOR.extractObjectKey(in.req_hdr.target, (org.jacorb.orb.ORB)orb)),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
                               connection,
                               false);
+            }
+            finally
+            {
+                in.close();
+            }
         }
 
         public void locateRequestReceived( byte[] request,
@@ -1368,14 +1341,20 @@ public class ImplementationRepositoryImpl
         {
             connection.incPendingMessages();
 
-            LocateRequestInputStream in =
-            new LocateRequestInputStream( orb, request );
+            final LocateRequestInputStream in = new LocateRequestInputStream( orb, request );
 
-            replyNewLocation( ParsedIOR.extractObjectKey(in.req_hdr.target, (org.jacorb.orb.ORB) orb),
-                              in.req_hdr.request_id,
-                              in.getGIOPMinor(),
-                              connection,
-                              true);
+            try
+            {
+                replyNewLocation(ParsedIOR.extractObjectKey(in.req_hdr.target, (org.jacorb.orb.ORB) orb),
+                        in.req_hdr.request_id,
+                        in.getGIOPMinor(),
+                        connection,
+                        true);
+            }
+            finally
+            {
+                in.close();
+            }
         }
 
         public void cancelRequestReceived( byte[] request,
