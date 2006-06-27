@@ -40,10 +40,11 @@ import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Factories;
 import org.omg.ETF.Listener;
-import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
 /**
  * Class BasicAdapter, used by the POA.
@@ -56,9 +57,6 @@ public class BasicAdapter
     extends org.omg.ETF._HandleLocalBase
     implements Configurable
 {
-    private final org.jacorb.orb.ORB orb;
-    private final POA rootPOA;
-
     private final List listeners = new ArrayList();
 
     private MessageReceptorPool receptor_pool = null;
@@ -76,13 +74,9 @@ public class BasicAdapter
      * called from ORB.java
      */
 
-    BasicAdapter( org.jacorb.orb.ORB orb,
-                  POA rootPOA,
-                  TransportManager transport_manager,
+    BasicAdapter( TransportManager transport_manager,
                   GIOPConnectionManager giop_connection_manager )
     {
-        this.orb = orb;
-        this.rootPOA = rootPOA;
         this.transport_manager = transport_manager;
         this.giop_connection_manager = giop_connection_manager;
     }
@@ -101,13 +95,20 @@ public class BasicAdapter
 
         receptor_pool = new MessageReceptorPool("server", "ServerMessageReceptor", myConfiguration);
 
-        request_listener = new ServerRequestListener( orb, rootPOA );
+        try
+        {
+            request_listener = new ServerRequestListener( configuration.getORB(), POAHelper.narrow(configuration.getORB().resolve_initial_references("RootPOA")) );
+        }
+        catch (InvalidName e)
+        {
+            throw new RuntimeException("should never happen");
+        }
+
         request_listener.configure( configuration );
         reply_listener = new NoBiDirServerReplyListener();
 
         // create all Listeners
-        for (Iterator i = getListenerFactories().iterator();
-             i.hasNext();)
+        for (Iterator i = getListenerFactories().iterator(); i.hasNext();)
         {
              Factories factories = (Factories)i.next();
              Listener listener = factories.create_listener (null, (short)0, (short)0);
@@ -270,8 +271,8 @@ public class BasicAdapter
      * reasons to avoid synchronization in the private version of this
      * method.
      */
-    public synchronized void deliverRequest( org.jacorb.orb.dsi.ServerRequest request,
-                                             org.omg.PortableServer.POA poa )
+    public void deliverRequest( org.jacorb.orb.dsi.ServerRequest request,
+                                org.omg.PortableServer.POA poa )
     {
         org.jacorb.poa.POA tmp_poa = (org.jacorb.poa.POA)poa;
         String scopes[] = request.remainingPOAName();
@@ -302,7 +303,9 @@ public class BasicAdapter
                      */
                     String[] rest_of_name = new String[scopes.length - i];
                     for( int j = 0; j < i; j++ )
+                    {
                         rest_of_name[j] = scopes[j+i];
+                    }
                     request.setRemainingPOAName(rest_of_name);
                     break;
                 }
