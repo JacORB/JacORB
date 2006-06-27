@@ -637,7 +637,7 @@ public class CDROutputStream
     public byte[] getBufferCopy()
     {
         ByteArrayOutputStream bos =
-            new ByteArrayOutputStream();
+            new ByteArrayOutputStream(size());
 
         try
         {
