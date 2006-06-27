@@ -564,51 +564,71 @@ public class PrintIOR
 
             first = false;
         }
-
     }
 
 
     private static void printJavaCodebaseComponent( TaggedComponent taggedComponent )
     {
-        CDRInputStream is =
-        new CDRInputStream( (org.omg.CORBA.ORB)null,
+        final CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null,
                             taggedComponent.component_data );
 
-        is.openEncapsulatedArray();
-        String codebase = is.read_string();
+        try
+        {
+            in.openEncapsulatedArray();
+            String codebase = in.read_string();
 
-        System.out.println( "\t\tCodebase: " + codebase );
+            System.out.println( "\t\tCodebase: " + codebase );
+        }
+        finally
+        {
+            in.close();
+        }
     }
 
     private static void printOrbTypeComponent (TaggedComponent tc)
     {
-        CDRInputStream is =
-        new CDRInputStream ((org.omg.CORBA.ORB)null, tc.component_data );
-        is.openEncapsulatedArray ();
-        int type = is.read_long ();
+        final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, tc.component_data );
 
-        System.out.print ( "\t\tType: " + type);
-        if (type == ORBConstants.JACORB_ORB_ID)
+        try
         {
-            System.out.println (" (JacORB)");
+            is.openEncapsulatedArray ();
+            int type = is.read_long ();
+
+            System.out.print ( "\t\tType: " + type);
+            if (type == ORBConstants.JACORB_ORB_ID)
+            {
+                System.out.println (" (JacORB)");
+            }
+            else
+            {
+                System.out.println (" (Foreign)");
+            }
         }
-        else
+        finally
         {
-            System.out.println (" (Foreign)");
+            is.close();
         }
     }
 
     private static void printAlternateAddress(TaggedComponent tc)
     {
-        CDRInputStream is =
-        new CDRInputStream((org.omg.CORBA.ORB)null, tc.component_data);
-        is.openEncapsulatedArray();
-        System.out.println("\t\tAddress: " + IIOPAddress.read(is));
+        final CDRInputStream is = new CDRInputStream((org.omg.CORBA.ORB)null, tc.component_data);
+
+        try
+        {
+            is.openEncapsulatedArray();
+            System.out.println("\t\tAddress: " + IIOPAddress.read(is));
+        }
+        finally
+        {
+            is.close();
+        }
     }
 
     public static void dumpHex(byte bs[])
     {
-        for (int i=0; i<bs.length; i++)    {
+        for (int i=0; i<bs.length; i++)
+        {
             int n1 = (bs[i] & 0xff) / 16;
             int n2 = (bs[i] & 0xff) % 16;
             char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
@@ -622,14 +642,16 @@ public class PrintIOR
     };
 
     public static void dump ( byte bs[] ) {
-        for ( int i = 0; i < bs.length; i++ ) {
+        for ( int i = 0; i < bs.length; i++ )
+        {
             dump ( bs[ i ] );
             System.out.print( " " );
         }
     }
 
     public static void dump ( int is[] ) {
-        for ( int i = 0; i < is.length; i++ ) {
+        for ( int i = 0; i < is.length; i++ )
+        {
             dump ( is[ i ] );
             System.out.print( " " );
         }
@@ -664,7 +686,8 @@ public class PrintIOR
                                   );
     }
 
-    public static void dump ( byte bs[], boolean withChar ) {
+    public static void dump ( byte bs[], boolean withChar )
+    {
         char c;
         int len = bs.length;
         for ( int i = 0; i < len; i++ ) {

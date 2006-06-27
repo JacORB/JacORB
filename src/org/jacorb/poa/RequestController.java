@@ -570,19 +570,21 @@ public final class RequestController
     {
         synchronized (queueLog)
         {
-            if ((requestQueue.isEmpty() || poa.isHolding() || waitForShutdownCalled) &&
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("waiting for queue");
+            }
+
+            while ((requestQueue.isEmpty() || poa.isHolding() || waitForShutdownCalled) &&
                 !terminate)
             {
                 try
                 {
-                    if (logger.isDebugEnabled())
-                    {
-                        logger.debug("waiting for queue");
-                    }
                     queueLog.wait();
                 }
                 catch (java.lang.InterruptedException e)
                 {
+                    // ignored
                 }
             }
         }

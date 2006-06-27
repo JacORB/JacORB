@@ -21,6 +21,7 @@ package org.jacorb.orb;
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -631,22 +632,16 @@ public class ParsedIOR
                 "Failed to get resource: " + resourceName);
         }
 
-        String content = null;
         try
         {
-            ObjectUtil.readURL(url.toString());
+            String content = ObjectUtil.readURL(url.toString());
+            parse(content);
         }
-        catch( java.io.IOException ioe )
-        {
-            // ignore
-        }
-
-        if (content == null)
+        catch (IOException e)
         {
             throw new IllegalArgumentException("Failed to read resource: " +
-                                               resourceName);
+                    resourceName);
         }
-        parse(content);
     }
 
     private void parse_jndi(String jndiName)

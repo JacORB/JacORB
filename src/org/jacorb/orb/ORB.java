@@ -902,15 +902,13 @@ public final class ORB
         {
             rootpoa = org.jacorb.poa.POA._POA_init(this);
 
-            basicAdapter = new BasicAdapter( this,
-                                             rootpoa,
-                                             getTransportManager(),
+            basicAdapter = new BasicAdapter( getTransportManager(),
                                              getGIOPConnectionManager() );
 
             try
             {
-                basicAdapter.configure(configuration);
                 rootpoa.configure(configuration);
+                basicAdapter.configure(configuration);
             }
             catch( ConfigurationException ce )
             {
@@ -1756,22 +1754,23 @@ public final class ORB
 
             if( shutdown_in_progress && wait_for_completion )
             {
-                synchronized( shutdown_synch )
+                while(shutdown_in_progress)
                 {
                     try
                     {
                         shutdown_synch.wait();
                     }
                     catch( InterruptedException ie )
-                    {}
-
-                    if (logger.isDebugEnabled())
                     {
-                        logger.debug("ORB going shutdown complete (1)");
+                        // ignore
                     }
-
-                    return;
                 }
+
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("ORB going shutdown complete (1)");
+                }
+                return;
             }
             else if( shutdown_in_progress && !wait_for_completion )
             {

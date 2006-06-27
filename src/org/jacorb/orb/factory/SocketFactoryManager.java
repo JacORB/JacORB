@@ -83,7 +83,6 @@ public class SocketFactoryManager
     private String serverSocketFactoryClassName = null;
     private String socketFactoryClassName = null;
     private String portMin = null;
-    boolean configured = false;
     private String sslServerSocketFactoryClazz;
     private SocketFactory sslSocketFactory;
     private String sslSocketFactoryClazz;
@@ -141,8 +140,6 @@ public class SocketFactoryManager
                 throw new ConfigurationException("SSL support is on, but the property \"" + SSL_SOCKET_FACTORY + "\" is not set");
             }
         }
-
-        configured = true;
     }
 
 
