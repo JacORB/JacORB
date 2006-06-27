@@ -39,14 +39,14 @@ import org.jacorb.orb.giop.*;
 import org.jacorb.util.ObjectUtil;
 
 /**
- * JacORB-specific implementation of 
+ * JacORB-specific implementation of
  * <code>org.omg.Messaging.ExceptionHolder</code>.  An instance of this
  * type is used to pass an exception to a reply handler.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
-public class ExceptionHolderImpl 
+public class ExceptionHolderImpl
     extends org.omg.Messaging.ExceptionHolder
     implements Configurable
 {
@@ -72,7 +72,7 @@ public class ExceptionHolderImpl
         else
         {
             throw new RuntimeException( "attempt to create ExceptionHolder " +
-                                        "for non-exception reply" );           
+                                        "for non-exception reply" );
         }
         byte_order          = is.littleEndian;
         marshaled_exception = is.getBody();
@@ -82,7 +82,7 @@ public class ExceptionHolderImpl
     {
         is_system_exception = true;
         byte_order          = false;
-        
+
         CDROutputStream output = new CDROutputStream();
         SystemExceptionHelper.write(output, ex);
         marshaled_exception = output.getBufferCopy();
@@ -99,15 +99,15 @@ public class ExceptionHolderImpl
     public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
         throws org.apache.avalon.framework.configuration.ConfigurationException
     {
-        logger = 
+        logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.exc_holder");
     }
 
 
-    public void raise_exception() 
+    public void raise_exception()
         throws UserException
     {
-        CDRInputStream input = 
+        CDRInputStream input =
             new CDRInputStream (null, marshaled_exception, byte_order);
         if ( is_system_exception )
         {
@@ -155,19 +155,19 @@ public class ExceptionHolderImpl
         StringBuffer result = new StringBuffer();
         for (int i=0; i<marshaled_exception.length; i++)
         {
-            result.append (marshaled_exception[i] + 
+            result.append (marshaled_exception[i] +
                            "(" + (char)marshaled_exception[i] + ")  ");
         }
         return result.toString();
     }
-    
+
     /**
      * Given a repository id, tries to find a helper for the corresponding
      * class and uses it to unmarshal an instance of this class from
      * the given InputStream.
      */
-    public org.omg.CORBA.UserException exceptionFromHelper 
-                                ( String id, 
+    public org.omg.CORBA.UserException exceptionFromHelper
+                                ( String id,
                                   org.omg.CORBA.portable.InputStream input )
         throws ClassNotFoundException,
                NoSuchMethodException,
@@ -180,31 +180,35 @@ public class ExceptionHolderImpl
         Class  helper = ObjectUtil.classForName (name);
 
         // helper must not be null from here on
-        
+
         // get read method from helper and invoke it,
         // i.e. read the object from the stream
-        Method readMethod = 
-            helper.getMethod( "read", 
-                               new Class[]{ 
+        Method readMethod =
+            helper.getMethod( "read",
+                               new Class[]{
                                    ObjectUtil.classForName("org.omg.CORBA.portable.InputStream")
-                               } );    
-        java.lang.Object result = 
-            readMethod.invoke( null, 
+                               } );
+        java.lang.Object result =
+            readMethod.invoke( null,
                                new java.lang.Object[]{ input }
                              );
-        return ( org.omg.CORBA.UserException ) result;           
+        return ( org.omg.CORBA.UserException ) result;
     }
 
     /**
      * Marshals this object into a new buffer and returns that buffer.
-     */    
+     */
     public byte[] marshal()
     {
-         byte[] buffer = 
-             BufferManager.getInstance()
-                          .getBuffer( marshaled_exception.length + 128 );
-         CDROutputStream output = new CDROutputStream( buffer );
-         output.write_value( this, "IDL:omg.org/Messaging/ExceptionHolder:1.0" );
-         return buffer;
-    }  
+         final CDROutputStream output = new CDROutputStream();
+         try
+         {
+             output.write_value( this, "IDL:omg.org/Messaging/ExceptionHolder:1.0" );
+             return output.getBufferCopy();
+         }
+         finally
+         {
+             output.close();
+         }
+    }
 }

@@ -20,7 +20,10 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.IOException;
+
 import org.omg.CORBA.*;
+import org.omg.CORBA.portable.InputStream;
 import org.omg.DynamicAny.DynAnyPackage.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.TypeCode;
@@ -129,10 +132,24 @@ public class DynAny
    public org.omg.CORBA.Any to_any()
    {
       checkDestroyed ();
-      final org.jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
+      final org.omg.CORBA.Any out_any = orb.create_any();
       out_any.type( type());
-      out_any.read_value( getRepresentation().create_input_stream(), type());
-      return out_any;
+      final InputStream in = getRepresentation().create_input_stream();
+      try
+      {
+          out_any.read_value( in, type());
+          return out_any;
+      }
+      finally
+      {
+          try
+          {
+              in.close();
+          } catch (IOException e)
+          {
+              logger.error("unable to close stream", e);
+          }
+      }
    }
 
    public void destroy()

@@ -36,7 +36,7 @@ public class ReplyOutputStream
     extends ServiceContextTransportingOutputStream
 {
     private boolean is_locate_reply = false;
-    private Logger logger;
+    private final Logger logger;
 
     public ReplyOutputStream (
             int request_id,
@@ -57,6 +57,7 @@ public class ReplyOutputStream
     {
         super(orb);
 
+        this.logger = logger;
         this.is_locate_reply = is_locate_reply;
 
         setGIOPMinor( giop_minor );
@@ -128,156 +129,181 @@ public class ReplyOutputStream
     {
         if( is_locate_reply )
         {
-            ReplyInputStream r_in =
-            new ReplyInputStream( null, getBufferCopy() );
-
-            LocateReplyOutputStream lr_out = null;
-
-            if( r_in.getGIOPMinor() < 2 )
+            final ReplyInputStream in = new ReplyInputStream( null, getBufferCopy() );
+            try
             {
-                //GIOP 1.0 or 1.1
-                switch( r_in.rep_hdr.reply_status.value() )
+                final LocateReplyOutputStream out = getLocateReplyOutputStream(in);
+                try
                 {
-                    case ReplyStatusType_1_2._NO_EXCEPTION :
-                    {
-                        int status;
-
-                        //_non_existent?
-                        if (r_in.read_boolean())
-                        {
-                            //_non_existent == true
-                            status = LocateStatusType_1_2._UNKNOWN_OBJECT;
-                        }
-                        else
-                        {
-                            //_non_existent == false
-                            status = LocateStatusType_1_2._OBJECT_HERE;
-                        }
-
-                        lr_out = new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                              status,
-                                                              r_in.getGIOPMinor() );
-
-                        break;
-                    }
-                    case ReplyStatusType_1_2._USER_EXCEPTION :
-                    {
-                        //fall through
-                    }
-                    case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
-                    {
-                        //uh oh, can't reply with exception
-                        if (logger.isErrorEnabled())
-                            logger.error("Received an exception when processing a LocateRequest" );
-
-                        // GIOP prior to 1.2 doesn't have the status
-                        // LOC_SYSTEM_EXCEPTION, so we have to return
-                        // OBJECT_UNKNOWN (even if it may not be unknown)
-                        lr_out =
-                            new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                         LocateStatusType_1_2._UNKNOWN_OBJECT,
-                                                         r_in.getGIOPMinor() );
-                        break;
-                    }
-                    case ReplyStatusType_1_2._LOCATION_FORWARD :
-                    {
-
-                        lr_out =
-                            new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                         LocateStatusType_1_2._OBJECT_FORWARD,
-                                                         r_in.getGIOPMinor() );
-
-
-                        //FIXME: it would be more efficient to copy
-                        //the body part of this buffer to the new
-                        //buffer
-                        lr_out.write_IOR( org.omg.IOP.IORHelper.read( r_in ));
-
-                        break;
-                    }
+                    out.write_to( conn );
+                }
+                finally
+                {
+                    out.close();
                 }
             }
-            else
+            finally
             {
-                //GIOP 1.2
-                switch( r_in.rep_hdr.reply_status.value() )
-                {
-                    case ReplyStatusType_1_2._NO_EXCEPTION :
-                    {
-                        int status;
-
-                        //_non_existent?
-                        if( r_in.read_boolean() )
-                        {
-                            //_non_existent == true
-                            status = LocateStatusType_1_2._UNKNOWN_OBJECT;
-                        }
-                        else
-                        {
-                            //_non_existent == false
-                            status = LocateStatusType_1_2._OBJECT_HERE;
-                        }
-
-                        lr_out = new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                              status,
-                                                              r_in.getGIOPMinor() );
-
-                        break;
-                    }
-                    case ReplyStatusType_1_2._USER_EXCEPTION :
-                    {
-                        //uh oh, can't reply with user exception
-                        if (logger.isErrorEnabled())
-                            logger.error("Received an exception when processing a LocateRequest - mapping to UNKNOWN system exception" );
-
-                        lr_out =
-                        new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                     LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION,
-                                                     r_in.getGIOPMinor() );
-
-                        SystemExceptionHelper.write( lr_out,
-                                                     new org.omg.CORBA.UNKNOWN() );
-
-                    }
-                    case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
-                    {
-
-
-                        lr_out =
-                        new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                     LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION,
-                                                     r_in.getGIOPMinor() );
-
-                        //FIXME: inefficient, use copying
-                        SystemExceptionHelper.write( lr_out,
-                                                     SystemExceptionHelper.read( r_in ));
-
-                        break;
-                    }
-                    case ReplyStatusType_1_2._LOCATION_FORWARD :
-                    {
-
-                        lr_out =
-                        new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                     LocateStatusType_1_2._OBJECT_FORWARD,
-                                                     r_in.getGIOPMinor() );
-
-
-                        //FIXME: it would be more efficient to copy
-                        //the body part of this buffer to the new
-                        //buffer
-                        lr_out.write_IOR( org.omg.IOP.IORHelper.read( r_in ));
-
-                        break;
-                    }
-                }
+                in.close();
             }
-
-            lr_out.write_to( conn );
         }
         else
         {
             super.write_to( conn );
         }
+    }
+
+    private LocateReplyOutputStream getLocateReplyOutputStream(ReplyInputStream replyInputStream)
+    {
+        final LocateReplyOutputStream result;
+
+        if( replyInputStream.getGIOPMinor() < 2 )
+        {
+            //GIOP 1.0 or 1.1
+            switch( replyInputStream.rep_hdr.reply_status.value() )
+            {
+                case ReplyStatusType_1_2._NO_EXCEPTION :
+                {
+                    int status;
+
+                    //_non_existent?
+                    if (replyInputStream.read_boolean())
+                    {
+                        //_non_existent == true
+                        status = LocateStatusType_1_2._UNKNOWN_OBJECT;
+                    }
+                    else
+                    {
+                        //_non_existent == false
+                        status = LocateStatusType_1_2._OBJECT_HERE;
+                    }
+
+                    result = new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                                                          status,
+                                                          replyInputStream.getGIOPMinor() );
+
+                    break;
+                }
+                case ReplyStatusType_1_2._USER_EXCEPTION :
+                {
+                    //fall through
+                }
+                case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
+                {
+                    //uh oh, can't reply with exception
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error("Received an exception when processing a LocateRequest" );
+                    }
+
+                    // GIOP prior to 1.2 doesn't have the status
+                    // LOC_SYSTEM_EXCEPTION, so we have to return
+                    // OBJECT_UNKNOWN (even if it may not be unknown)
+                    result =
+                        new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                                                     LocateStatusType_1_2._UNKNOWN_OBJECT,
+                                                     replyInputStream.getGIOPMinor() );
+                    break;
+                }
+                case ReplyStatusType_1_2._LOCATION_FORWARD :
+                {
+
+                    result =
+                        new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                                                     LocateStatusType_1_2._OBJECT_FORWARD,
+                                                     replyInputStream.getGIOPMinor() );
+
+
+                    //FIXME: it would be more efficient to copy
+                    //the body part of this buffer to the new
+                    //buffer
+                    result.write_IOR( org.omg.IOP.IORHelper.read( replyInputStream ));
+
+                    break;
+                }
+                default:
+                    throw new IllegalArgumentException("ReplyStatus is invalid");
+            }
+        }
+        else
+        {
+            //GIOP 1.2
+            switch( replyInputStream.rep_hdr.reply_status.value() )
+            {
+                case ReplyStatusType_1_2._NO_EXCEPTION :
+                {
+                    int status;
+
+                    //_non_existent?
+                    if( replyInputStream.read_boolean() )
+                    {
+                        //_non_existent == true
+                        status = LocateStatusType_1_2._UNKNOWN_OBJECT;
+                    }
+                    else
+                    {
+                        //_non_existent == false
+                        status = LocateStatusType_1_2._OBJECT_HERE;
+                    }
+
+                    result = new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                                                          status,
+                                                          replyInputStream.getGIOPMinor() );
+
+                    break;
+                }
+                case ReplyStatusType_1_2._USER_EXCEPTION :
+                {
+                    //uh oh, can't reply with user exception
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error("Received an exception when processing a LocateRequest - mapping to UNKNOWN system exception" );
+                    }
+
+                    result =
+                    new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                                                 LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION,
+                                                 replyInputStream.getGIOPMinor() );
+
+                    SystemExceptionHelper.write( result,
+                                                 new org.omg.CORBA.UNKNOWN() );
+                    break;
+                }
+                case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
+                {
+
+
+                    result =
+                    new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                                                 LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION,
+                                                 replyInputStream.getGIOPMinor() );
+
+                    //FIXME: inefficient, use copying
+                    SystemExceptionHelper.write( result,
+                                                 SystemExceptionHelper.read( replyInputStream ));
+
+                    break;
+                }
+                case ReplyStatusType_1_2._LOCATION_FORWARD :
+                {
+
+                    result =
+                    new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                                                 LocateStatusType_1_2._OBJECT_FORWARD,
+                                                 replyInputStream.getGIOPMinor() );
+
+
+                    //FIXME: it would be more efficient to copy
+                    //the body part of this buffer to the new
+                    //buffer
+                    result.write_IOR( org.omg.IOP.IORHelper.read( replyInputStream ));
+
+                    break;
+                }
+                default:
+                    throw new IllegalArgumentException("ReplyStatus is invalid");
+            }
+        }
+        return result;
     }
 }

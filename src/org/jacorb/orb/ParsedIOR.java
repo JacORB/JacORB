@@ -82,17 +82,24 @@ public class ParsedIOR
         String repId = "IDL:omg.org/CORBA/Object:1.0";
         TaggedComponentList components = new TaggedComponentList();
 
-        CDROutputStream orbIDComponentDataStream = new CDROutputStream();
-        orbIDComponentDataStream.beginEncapsulatedArray();
-        orbIDComponentDataStream.write_long(ORBConstants.JACORB_ORB_ID);
-        components.addComponent
-        (
-            new TaggedComponent
+        final CDROutputStream out = new CDROutputStream();
+        try
+        {
+            out.beginEncapsulatedArray();
+            out.write_long(ORBConstants.JACORB_ORB_ID);
+            components.addComponent
             (
-                TAG_ORB_TYPE.value,
-                orbIDComponentDataStream.getBufferCopy()
-            )
-        );
+                    new TaggedComponent
+                    (
+                            TAG_ORB_TYPE.value,
+                            out.getBufferCopy()
+                    )
+            );
+        }
+        finally
+        {
+            out.close();
+        }
 
         List taggedProfileList = new ArrayList();
         TaggedProfileHolder tp = new TaggedProfileHolder();
@@ -224,6 +231,11 @@ public class ParsedIOR
             effectiveProfile != null                                &&
             effectiveProfile.is_match (((ParsedIOR)o).effectiveProfile)
         );
+    }
+
+    public int hashCode()
+    {
+        return getIORString().hashCode();
     }
 
     /**

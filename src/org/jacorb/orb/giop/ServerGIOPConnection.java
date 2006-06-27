@@ -45,7 +45,6 @@ public class ServerGIOPConnection
     };
 
     private GIOPConnectionManager manager = null;
-    private Logger logger = null;
     private boolean closeOnReadTimeout = false;
     private boolean delayClose = false;
 
@@ -66,7 +65,7 @@ public class ServerGIOPConnection
         throws ConfigurationException
     {
         super.configure(configuration);
-        logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.giop.conn");
+
         delayClose =
             configuration.getAttribute("jacorb.connection.delay_close","off").equals("on");
     }

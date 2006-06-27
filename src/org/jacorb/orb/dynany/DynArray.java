@@ -119,22 +119,35 @@ public final class DynArray
 
    public org.omg.CORBA.Any to_any()
    {
-      checkDestroyed ();
-      org.jacorb.orb.Any out_any =
-         (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
-      out_any.type( type());
+       checkDestroyed ();
+       final org.omg.CORBA.Any out_any = orb.create_any();
+       out_any.type( type());
 
-      CDROutputStream out = new CDROutputStream();
+       final CDROutputStream out = new CDROutputStream();
 
-      for( int i = 0; i < limit; i++)
-      {
-         out.write_value( elementType,
-                          members[i].create_input_stream());
-      }
+       try
+       {
+           for( int i = 0; i < limit; i++)
+           {
+               out.write_value( elementType,
+                       members[i].create_input_stream());
+           }
 
-      CDRInputStream in = new CDRInputStream(orb, out.getBufferCopy());
-      out_any.read_value( in, type());
-      return out_any;
+           final CDRInputStream in = new CDRInputStream(orb, out.getBufferCopy());
+           try
+           {
+               out_any.read_value( in, type());
+               return out_any;
+           }
+           finally
+           {
+               in.close();
+           }
+       }
+       finally
+       {
+           out.close();
+       }
    }
 
    /**

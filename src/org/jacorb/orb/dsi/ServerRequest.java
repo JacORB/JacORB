@@ -483,11 +483,19 @@ public class ServerRequest
      */
     private ServiceContext createExceptionDetailMessage (String message)
     {
-        CDROutputStream out = new CDROutputStream();
-        out.beginEncapsulatedArray();
-        out.write_wstring(message);
-        return new ServiceContext (org.omg.IOP.ExceptionDetailMessage.value,
-                                   out.getBufferCopy());
+        final CDROutputStream out = new CDROutputStream();
+
+        try
+        {
+            out.beginEncapsulatedArray();
+            out.write_wstring(message);
+            return new ServiceContext(org.omg.IOP.ExceptionDetailMessage.value,
+                    out.getBufferCopy());
+        }
+        finally
+        {
+            out.close();
+        }
     }
 
     public void setLocationForward(org.omg.PortableServer.ForwardRequest r)

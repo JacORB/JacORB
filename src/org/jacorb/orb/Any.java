@@ -943,9 +943,16 @@ public final class Any
                         toUse = ((CDROutputStream)output).orb();
                     }
                     CDROutputStream os = (CDROutputStream)value;
-                    CDRInputStream in = new CDRInputStream(toUse, os.getBufferCopy());
+                    final CDRInputStream in = new CDRInputStream(toUse, os.getBufferCopy());
 
-                    in.read_value (typeCode, output);
+                    try
+                    {
+                        in.read_value (typeCode, output);
+                    }
+                    finally
+                    {
+                        in.close();
+                    }
                 }
                 break;
             }

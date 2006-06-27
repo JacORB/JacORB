@@ -156,26 +156,39 @@ public final class DynStruct
     public org.omg.CORBA.Any to_any()
     {
         checkDestroyed ();
-        org.jacorb.orb.Any out_any =
-            (org.jacorb.orb.Any)orb.create_any();
+        org.omg.CORBA.Any out_any = orb.create_any();
         out_any.type( type());
 
-        CDROutputStream out = new CDROutputStream();
+        final CDROutputStream out = new CDROutputStream();
 
-        if( type().kind().value() == org.omg.CORBA.TCKind._tk_except )
+        try
         {
-            out.write_string( exceptionMsg );
-        }
+            if( type().kind().value() == org.omg.CORBA.TCKind._tk_except )
+            {
+                out.write_string( exceptionMsg );
+            }
 
-        for( int i = 0; i < members.length; i++)
+            for( int i = 0; i < members.length; i++)
+            {
+                out.write_value( members[i].value.type(),
+                        members[i].value.create_input_stream());
+            }
+
+            final CDRInputStream in = new CDRInputStream(orb, out.getBufferCopy());
+            try
+            {
+                out_any.read_value( in, type());
+                return out_any;
+            }
+            finally
+            {
+                in.close();
+            }
+        }
+        finally
         {
-            out.write_value( members[i].value.type(),
-                             members[i].value.create_input_stream());
+            out.close();
         }
-
-        CDRInputStream is = new CDRInputStream(orb, out.getBufferCopy());
-        out_any.read_value( is, type());
-        return out_any;
     }
 
     /**

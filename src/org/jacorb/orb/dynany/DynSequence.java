@@ -132,22 +132,36 @@ public final class DynSequence
 
    public org.omg.CORBA.Any to_any()
    {
-      checkDestroyed ();
-      org.jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
-      out_any.type( type());
+      checkDestroyed();
+      org.omg.CORBA.Any out_any = orb.create_any();
+      out_any.type(type());
 
-      CDROutputStream out = new CDROutputStream();
-      out.write_long( length );
-
-      for( int i = 0; i < length; i++)
+      final CDROutputStream out = new CDROutputStream();
+      try
       {
-         out.write_value( elementType,
-                          ((Any)members.get(i)).create_input_stream());
-      }
+          out.write_long( length );
 
-      CDRInputStream is = new CDRInputStream( orb, out.getBufferCopy());
-      out_any.read_value( is, type());
-      return out_any;
+          for( int i = 0; i < length; i++)
+          {
+              out.write_value( elementType,
+                      ((Any)members.get(i)).create_input_stream());
+          }
+
+          final CDRInputStream in = new CDRInputStream( orb, out.getBufferCopy());
+          try
+          {
+              out_any.read_value(in, type());
+              return out_any;
+          }
+          finally
+          {
+              in.close();
+          }
+      }
+      finally
+      {
+          out.close();
+      }
    }
 
    /**
