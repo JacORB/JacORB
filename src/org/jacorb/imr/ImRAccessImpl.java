@@ -18,6 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.imr;
 
 import org.jacorb.imr.RegistrationPackage.DuplicatePOAName;
@@ -26,15 +27,9 @@ import org.omg.CORBA.INTERNAL;
 import org.jacorb.orb.iiop.IIOPAddress;
 
 /**
- * ImRAccessImpl.java
- *
- *
- * Created: Thu Jan 31 21:05:55 2002
- *
  * @author Nicolas Noffke
  * @version $Id$
  */
-
 public class ImRAccessImpl
     implements org.jacorb.orb.ImRAccess
 {
@@ -44,8 +39,9 @@ public class ImRAccessImpl
     /**
      * <code>ImRAccessImpl</code> private; use the static connect method.
      */
-    private ImRAccessImpl () {}
-
+    private ImRAccessImpl () {
+        // use the static connect method
+    }
 
    /**
     * <code>connect</code> resolves the IMR and returns a new ImRAccessImpl.
@@ -53,15 +49,17 @@ public class ImRAccessImpl
     * @param orb an <code>org.omg.CORBA.ORB</code> value
     * @return an <code>ImRAccessImpl</code> value
     */
-    public static ImRAccessImpl connect (org.omg.CORBA.ORB orb)
+    public static ImRAccessImpl connect(org.omg.CORBA.ORB orb)
     {
-        ImRAccessImpl result = new ImRAccessImpl ();
+        final ImRAccessImpl result = new ImRAccessImpl();
+
         try
         {
             result.reg = RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
         }
-        catch( org.omg.CORBA.ORBPackage.InvalidName in )
+        catch( org.omg.CORBA.ORBPackage.InvalidName e)
         {
+            throw new INTERNAL("unable to resolve ImplementationRepository: " + e.toString());
         }
 
         boolean non_exist = true;
@@ -79,7 +77,7 @@ public class ImRAccessImpl
 
         if (non_exist)
         {
-            throw new INTERNAL ("Unable to resolve reference to ImR");
+            throw new INTERNAL("Unable to resolve reference to ImR");
         }
         return result;
     }
@@ -92,7 +90,6 @@ public class ImRAccessImpl
         }
         return new IIOPAddress (info.host, info.port);
     }
-
 
     public String getImRHost()
     {
@@ -120,11 +117,15 @@ public class ImRAccessImpl
         throws INTERNAL
     {
         if (address instanceof IIOPAddress)
+        {
             registerPOA (name, server,
                          ((IIOPAddress)address).getHostname(),
                          ((IIOPAddress)address).getPort());
+        }
         else
+        {
             throw new INTERNAL("IMR only supports IIOP based POAs");
+        }
     }
 
     public void registerPOA( String name,
@@ -141,17 +142,17 @@ public class ImRAccessImpl
         {
             throw new INTERNAL( "A server with the same combination of ImplName/POA-Name (" +
                                 name  +
-                                ") is already registered and listed as active at the imr!" );
+                                ") is already registered and listed as active at the imr: " + e.toString() );
         }
         catch( IllegalPOAName e )
         {
             throw new INTERNAL( "The ImR replied that the POA name >>" +
-                                e.name + "<< is illegal!" );
+                                e.name + "<< is illegal: " + e.toString() );
         }
         catch( UnknownServerName e )
         {
             throw new INTERNAL( "The ImR replied that the server name >>" +
-                                e.name + "<< is unknown!" );
+                                e.name + "<< is unknown: " + e.toString());
         }
     }
 
@@ -165,7 +166,7 @@ public class ImRAccessImpl
         catch(UnknownServerName e)
         {
             throw new INTERNAL( "The ImR replied that a server with name " +
-                                name + " is unknown" );
+                                name + " is unknown: " + e.toString() );
         }
     }
-}// ImRAccessImpl
+}

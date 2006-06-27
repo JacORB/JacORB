@@ -30,10 +30,39 @@ import java.util.*;
 
 public class ObjectUtil
 {
-    private static Class identityHashMapClass = null;
+    private final static Class identityMapClass;
     //for byte -> hexchar
     private static final char[] lookup =
         new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+    static
+    {
+        identityMapClass = getIdentityMapClass();
+    }
+
+    private static Class getIdentityMapClass()
+    {
+        Class result;
+        try
+        {
+            result =
+                ObjectUtil.classForName("java.util.IdentityHashMap");
+        }
+        catch (ClassNotFoundException ex)
+        {
+            try
+            {
+                result =
+                    ObjectUtil.classForName("org.jacorb.util.IdentityHashMap");
+            }
+            catch (ClassNotFoundException e)
+            {
+                throw new RuntimeException(e.toString());
+            }
+        }
+        return result;
+    }
+
     /**
      * @return the contents of the resource as a string, or null
      * if the contents of the resource could not be located using url
@@ -116,7 +145,10 @@ public class ObjectUtil
         throws ClassNotFoundException, IllegalArgumentException
     {
         if (name == null)
+        {
             throw new IllegalArgumentException("Class name must not be null!");
+        }
+
         try
         {
             // Here we prefer classLoader.loadClass() over the three-argument
@@ -143,29 +175,9 @@ public class ObjectUtil
      */
     public static Map createIdentityHashMap()
     {
-        if (identityHashMapClass == null)
-        {
-            try
-            {
-                identityHashMapClass =
-                    ObjectUtil.classForName("java.util.IdentityHashMap");
-            }
-            catch (ClassNotFoundException ex)
-            {
-                try
-                {
-                    identityHashMapClass =
-                        ObjectUtil.classForName("org.jacorb.util.IdentityHashMap");
-                }
-                catch (ClassNotFoundException e)
-                {
-                    throw new RuntimeException(e.toString());
-                }
-            }
-        }
         try
         {
-            return (Map)identityHashMapClass.newInstance();
+            return (Map)identityMapClass.newInstance();
         }
         catch (Exception exc)
         {

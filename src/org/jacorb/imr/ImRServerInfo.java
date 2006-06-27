@@ -18,6 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.imr;
 
 import java.util.*;
@@ -31,14 +32,13 @@ import org.jacorb.imr.AdminPackage.*;
  * that blocks until the server is released.
  *
  * @author Nicolas Noffke
- *
  * @version $Id$
- *
  */
-
 public class ImRServerInfo
     implements java.io.Serializable
 {
+    public static final long serialVersionUID = 1l;
+
     protected String command;
     protected boolean holding = false;
     protected String host;
@@ -46,7 +46,7 @@ public class ImRServerInfo
     protected boolean active;
     protected boolean restarting = false;
 
-    private Vector poas = null;
+    private final List poas = new ArrayList();
     private ResourceLock poas_lock = null;
 
     /**
@@ -65,13 +65,14 @@ public class ImRServerInfo
         throws IllegalServerName
     {
         if (name == null || name.length() == 0)
+        {
             throw new IllegalServerName(name);
+        }
 
         this.name = name;
         this.host = host;
         this.command = command;
         active = false;
-        poas = new Vector();
         poas_lock = new ResourceLock();
     }
 
@@ -91,17 +92,21 @@ public class ImRServerInfo
         // issues we decided not to use toArray() from the jdk1.2
 
         // build array
-        POAInfo[] _poas = new POAInfo[poas.size()];
-        Enumeration _poa_enum = poas.elements();
+        final POAInfo[] _info;
+        synchronized(poas)
+        {
+            ImRPOAInfo[] _poas = (ImRPOAInfo[]) poas.toArray(new POAInfo[poas.size()]);
 
-        // copy vector into array
-        int _i = 0;
-        while(_poa_enum.hasMoreElements())
-            _poas[_i++] = ((ImRPOAInfo) _poa_enum.nextElement()).toPOAInfo();
+             _info = new POAInfo[_poas.length];
+            for (int i = 0; i < _info.length; i++)
+            {
+                _info[i] = _poas[i].toPOAInfo();
+            }
+        }
 
         poas_lock.releaseExclusiveLock();
 
-        return new ServerInfo(name, command, _poas, host, active, holding);
+        return new ServerInfo(name, command, _info, host, active, holding);
     }
 
     /**
@@ -113,10 +118,15 @@ public class ImRServerInfo
     public void addPOA(ImRPOAInfo poa)
     {
         if (! active)
+        {
             active = true;
+        }
 
         poas_lock.gainSharedLock();
-        poas.addElement(poa);
+        synchronized (poas)
+        {
+            poas.add(poa);
+        }
         poas_lock.releaseSharedLock();
     }
 
@@ -129,16 +139,20 @@ public class ImRServerInfo
 
     protected String[] getPOANames()
     {
-        // not synchronizing here since this method is only called
-        // prior to destructing this object.
-        String[] _poa_names = new String[poas.size()];
-        Enumeration _poa_enum = poas.elements();
+        // build array
+        final String[] names;
+        synchronized(poas)
+        {
+            ImRPOAInfo[] _poas = (ImRPOAInfo[]) poas.toArray(new POAInfo[poas.size()]);
 
-        int _i = 0;
-        while(_poa_enum.hasMoreElements())
-            _poa_names[_i++] = ((ImRPOAInfo) _poa_enum.nextElement()).name;
+             names = new String[_poas.length];
+            for (int i = 0; i < names.length; i++)
+            {
+                names[i] = _poas[i].name;
+            }
+        }
 
-        return _poa_names;
+        return names;
     }
 
     /**
@@ -150,9 +164,14 @@ public class ImRServerInfo
 
     public void setDown()
     {
-        // sets all associated to not active.
-        for (int _i = 0; _i < poas.size(); _i++)
-            ((ImRPOAInfo) poas.elementAt(_i)).active = false;
+        synchronized (poas)
+        {
+            // sets all associated to not active.
+            for (int _i = 0; _i < poas.size(); _i++)
+            {
+                ((ImRPOAInfo) poas.get(_i)).active = false;
+            }
+        }
 
         active = false;
         restarting = false;
@@ -172,8 +191,9 @@ public class ImRServerInfo
             {
                 wait();
             }
-            catch (java.lang.Exception _e)
+            catch (InterruptedException e)
             {
+                // ignored
             }
         }
     }
@@ -203,7 +223,9 @@ public class ImRServerInfo
     {
         boolean _restart = !(active || restarting);
         if (_restart)
+        {
             restarting = true;
+        }
 
         return _restart;
     }
@@ -212,6 +234,4 @@ public class ImRServerInfo
     {
         restarting = false;
     }
-
-} // ImRServerInfo
-
+}

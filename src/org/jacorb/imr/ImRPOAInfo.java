@@ -18,25 +18,25 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.imr;
 
 import org.jacorb.imr.RegistrationPackage.*;
-import org.jacorb.imr.AdminPackage.*;
-
-import org.jacorb.util.*;
 
 /**
- * This class stores information about a POA. It also provides methods 
+ * This class stores information about a POA. It also provides methods
  * for reactivation, conversion, and for waiting for reactivation.
  *
  * @author Nicolas Noffke
- * 
+ *
  * @version $Id$
  */
 
-public class ImRPOAInfo 
+public class ImRPOAInfo
     implements java.io.Serializable
 {
+    public static final long serialVersionUID = 1l;
+
     protected int port;
     protected ImRServerInfo server;
     protected String host;
@@ -51,19 +51,21 @@ public class ImRPOAInfo
      * @param host the POAs host.
      * @param port the port the POA listens on.
      * @param server the server the POA is associated with.
-     * @exception IllegalPOAName thrown when <code>name</code> is 
+     * @exception IllegalPOAName thrown when <code>name</code> is
      * <code>null</code> or of length zero.
      */
 
-    public ImRPOAInfo(String name, 
-                      String host, 
-                      int port, 
+    public ImRPOAInfo(String name,
+                      String host,
+                      int port,
                       ImRServerInfo server,
-                      long timeout) 
-        throws IllegalPOAName 
+                      long timeout)
+        throws IllegalPOAName
     {
         if (name == null || name.length() == 0)
+        {
             throw new IllegalPOAName(name);
+        }
 
         this.name = name;
         this.host = host;
@@ -75,17 +77,17 @@ public class ImRPOAInfo
 
     /**
      * "Converts" this Object to an instance of the POAInfo class.
-     * 
+     *
      * @return a POAInfo object.
-     */  
+     */
 
     public POAInfo toPOAInfo()
     {
-        return new POAInfo(name, host, port,server.name, active); 
+        return new POAInfo(name, host, port,server.name, active);
     }
 
     /**
-     * Reactivates this POA, i.e. sets it to active and unblocks any 
+     * Reactivates this POA, i.e. sets it to active and unblocks any
      * waiting threads.
      *
      * @param host the POAs new host.
@@ -96,7 +98,7 @@ public class ImRPOAInfo
     {
         this.host = host;
         this.port = port;
-        active = true;	
+        active = true;
         server.active = true;
         server.restarting = false;
         notifyAll();
@@ -105,7 +107,7 @@ public class ImRPOAInfo
     /**
      * This method blocks until the POA is reactivated, or the
      * timeout is exceeded.
-     * 
+     *
      * @return false, if the timeout has been exceeded, true otherwise.
      */
 
@@ -117,7 +119,7 @@ public class ImRPOAInfo
             {
                 long _sleep_begin = System.currentTimeMillis();
                 wait(timeout);
-                if (!active && 
+                if (!active &&
                     (System.currentTimeMillis() - _sleep_begin) > timeout)
                 {
                     return false;
@@ -129,9 +131,8 @@ public class ImRPOAInfo
                 //can't keep a Logger member
                 e.printStackTrace();
             }
-        }        
-        
+        }
+
         return true;
     }
 } // ImRPOAInfo
-
