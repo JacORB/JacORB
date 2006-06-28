@@ -24,6 +24,8 @@ package org.jacorb.test.common;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.*;
+import java.rmi.NoSuchObjectException;
+import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +37,9 @@ import junit.framework.TestSuite;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Properties;
+
+import javax.rmi.PortableRemoteObject;
+import javax.rmi.CORBA.Stub;
 
 /**
  * Utility class used to setup JUnit-TestSuite
@@ -50,6 +55,13 @@ public class TestUtils
     private static String testHome = null;
     private static String systemRoot = null;
     private static final boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
+
+    private static final boolean JDK_13 =
+        (
+            System.getProperty ("java.version").indexOf("1.3") != -1 ||
+            "CVM".equals((String)System.getProperty ("java.vm.name"))
+        );
+
 
     static
     {
@@ -352,16 +364,26 @@ public class TestUtils
     public static List propsToArgList (Properties props)
     {
         List result = new ArrayList();
-    
+
         if (props == null) return result;
-    
+
         for (Iterator i = props.keySet().iterator(); i.hasNext();)
         {
             String key = (String)i.next();
             String value = props.getProperty(key);
             result.add ("-D" + key + "=" + value);
         }
-    
+
         return result;
+    }
+
+    public static Stub toStub(Remote remote, org.omg.CORBA.Object reference, Class clazz) throws NoSuchObjectException
+    {
+         if (JDK_13)
+         {
+             return (Stub) PortableRemoteObject.narrow(reference, clazz);
+         }
+
+         return (Stub) PortableRemoteObject.toStub(remote);
     }
 }
