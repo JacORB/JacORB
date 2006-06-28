@@ -20,28 +20,29 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Repository;
+import org.omg.CORBA.RepositoryHelper;
 import org.omg.CORBA.ORBPackage.InvalidName;
-import org.omg.CORBA.*;
-
-import org.omg.PortableServer.*;
-import org.omg.PortableServer.POAPackage.*;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.CurrentPackage.NoContext;
-
+import org.omg.PortableServer.POAPackage.ServantNotActive;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 /**
  * JacORB-specific implementation of PortableServer.Servant
  *
  * $Id$
  */
-
 public class ServantDelegate
     implements org.omg.PortableServer.portable.Delegate
 {
-    private transient ORB orb = null;
-    private transient Repository ir = null;
-    private transient org.omg.PortableServer.Current _current = null;
-    private transient POA poa = null;
+    private final ORB orb;
+    private Repository ir = null;
+    private org.omg.PortableServer.Current _current = null;
+    private POA poa = null;
 
     ServantDelegate( org.jacorb.orb.ORB orb )
     {
@@ -104,15 +105,14 @@ public class ServantDelegate
     final public POA poa(org.omg.PortableServer.Servant self)
     {
         check();
-        if (_current == null)
-        {
-            _getPOACurrent();
-        }
+
+        _getPOACurrent();
+
         try
         {
             // CORBA 2.4 added the get_servant() operation to the
             // PortableServer::Current interface. As of JDK 1.4.2,
-            // however, the class org.omg.PortableServant.Current 
+            // however, the class org.omg.PortableServant.Current
             // in Sun's JDK does not have the method get_servant().
             // Instead of simply saying _current.get_servant(), below
             // we say ((org.jacorb.poa.Current)_current).get_servant().
@@ -133,10 +133,9 @@ public class ServantDelegate
     final public byte[] object_id(org.omg.PortableServer.Servant self)
     {
         check();
-        if (_current == null)
-        {
-            _getPOACurrent();
-        }
+
+        _getPOACurrent();
+
         try
         {
             return _current.get_object_id();
@@ -225,7 +224,6 @@ public class ServantDelegate
     public org.omg.CORBA.Policy _get_policy(org.omg.CORBA.Object self,
                                             int policy_type)
     {
-
         return poa != null ? ((org.jacorb.poa.POA)poa).getPolicy(policy_type) : null;
     }
 
@@ -274,10 +272,10 @@ public class ServantDelegate
             _out.write_boolean(self._non_existent() );
         }
         else
+        {
             throw new BAD_PARAM("Unknown operation: " + method );
+        }
 
         return _out;
     }
-
-
 }

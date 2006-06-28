@@ -36,16 +36,15 @@ import java.util.Iterator;
  * @author Gerald Brose, FU Berlin
  * @version $Id$
  */
-
 public class Request
     extends org.omg.CORBA.Request
 {
-    private org.jacorb.orb.NamedValue result_value;
+    private final org.jacorb.orb.NamedValue result_value;
     private final org.omg.CORBA.ExceptionList exceptions;
     private org.omg.CORBA.ContextList contexts;
     private org.omg.CORBA.Context ctx;
     private Thread deferred_caller;
-    private org.jacorb.orb.ORB orb;
+    private final org.jacorb.orb.ORB orb;
     private org.omg.CORBA.portable.InputStream reply;
 
     /* state of request object */
@@ -53,34 +52,34 @@ public class Request
     private boolean deferred = false;
     private boolean finished = false;
 
-    public org.omg.CORBA.Object target;
-    public ClientConnection connection;
-    public byte[] object_key;
-    public NVList arguments;
-    public String operation;
-    public org.omg.CORBA.Environment env = new Environment();
+    public final org.omg.CORBA.Object target;
+    public final ClientConnection connection;
+    public final byte[] object_key;
+    public final NVList arguments;
+    public final String operation;
+    public final org.omg.CORBA.Environment env = new Environment();
 
     private ClientRequestInfoImpl info = null;
 
-    public Request( org.omg.CORBA.Object t,
+    public Request( org.omg.CORBA.Object target,
                     org.omg.CORBA.ORB _orb,
-                    ClientConnection e,
+                    ClientConnection conn,
                     byte[] obj_key,
                     String op)
     {
-        target = t;
+        this.target = target;
         orb = (org.jacorb.orb.ORB)_orb;
-        connection = e;
+        connection = conn;
         object_key = obj_key;
         operation = op;
         exceptions = new ExceptionList();
         arguments = orb.create_list(10);
-        Any a = orb.create_any();
+        Any any = orb.create_any();
 
         /* default return type is void */
-        a.type( orb.get_primitive_tc( org.omg.CORBA.TCKind.tk_void ) );
+        any.type( orb.get_primitive_tc( org.omg.CORBA.TCKind.tk_void ) );
         result_value = new org.jacorb.orb.NamedValue(1);
-        result_value.set_value(a);
+        result_value.set_value(any);
     }
 
     public Request( org.omg.CORBA.Object t,
@@ -207,7 +206,9 @@ public class Request
     private void _read_result()
     {
         if( result_value.value().type().kind() != org.omg.CORBA.TCKind.tk_void )
+        {
             result_value.value().read_value( reply, result_value.value().type() );
+        }
 
         /** get out/inout parameters if any */
         for( Iterator e = ((org.jacorb.orb.NVList)arguments).iterator(); e.hasNext();)
@@ -215,7 +216,9 @@ public class Request
             org.jacorb.orb.NamedValue nv =
                 (org.jacorb.orb.NamedValue)e.next();
             if( nv.flags() != org.omg.CORBA.ARG_IN.value )
+            {
                 nv.receive(reply);
+            }
         }
     }
 
@@ -257,8 +260,11 @@ public class Request
                         try{
                             deleg.invokeInterceptors(info,
                                                      ClientInterceptorIterator.RECEIVE_REPLY);
-                        }catch(RemarshalException rem){
+                        }
+                        catch(RemarshalException rem)
+                        {
                             //not allowed to happen here anyway
+                            throw new RuntimeException("should not happen");
                         }
                         info = null;
                     }
@@ -330,24 +336,22 @@ public class Request
         finish();
     }
 
-
     // Made static as does not depend upon Request instance information.
-    static class Caller extends Thread
+    private static class Caller extends Thread
     {
-        private Request r;
+        private final Request request;
 
         public Caller( Request client )
         {
-            r = client;
+            request = client;
         }
 
         public void run()
         {
-            r._invoke(true);
-            r.finish();
+            request._invoke(true);
+            request.finish();
         }
     }
-
 
     public synchronized void send_deferred()
     {
@@ -390,7 +394,6 @@ public class Request
 
     public boolean poll_response()
     {
-        Thread.yield();
         if( ! immediate && ! deferred )
         {
             throw new org.omg.CORBA.BAD_INV_ORDER

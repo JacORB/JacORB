@@ -25,6 +25,10 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.*;
 
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 public class UnionType
     extends TypeDeclaration
     implements Scope
@@ -75,12 +79,10 @@ public class UnionType
         return scopeData;
     }
 
-
     public TypeDeclaration declaration()
     {
         return this;
     }
-
 
     public void setEnclosingSymbol(IdlSymbol s)
     {
@@ -283,12 +285,10 @@ public class UnionType
         }
     }
 
-
     /**
      * @return a string for an expression of type TypeCode that
      * describes this type
      */
-
     public String getTypeCodeExpression()
     {
         return typeName() + "Helper.type()";
@@ -312,10 +312,14 @@ public class UnionType
     {
         Enumeration e;
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals(""))
+        {
             pw.println("package " + pack_name + ";");
+        }
 
         printImport(pw);
 
@@ -330,9 +334,13 @@ public class UnionType
         while(ts instanceof ScopedName || ts instanceof AliasTypeSpec)
         {
             if (ts instanceof ScopedName)
+            {
                 ts = ((ScopedName)ts).resolvedTypeSpec();
+            }
             if (ts instanceof AliasTypeSpec)
+            {
                 ts = ((AliasTypeSpec)ts).originalType();
+            }
         }
 
         pw.println("\tprivate " + ts.typeName() + " discriminator;");
@@ -433,9 +441,13 @@ public class UnionType
                 else if (allCaseLabels.size() == 1)
                 {
                     if (((String)allCaseLabels.elementAt(0)).equals("true"))
+                    {
                         defaultStr = "false";
+                    }
                     else
+                    {
                         defaultStr = "true";
+                    }
                 }
                 else
                 {
@@ -498,7 +510,10 @@ public class UnionType
             {
                 int maxint = 65536; // 2^16, max short
                 if (ts instanceof LongType)
+                {
                     maxint = 2147483647; // -2^31,  max long
+                }
+
                 for (int i = 0; i < maxint; i++)
                 {
                     if (!(allCaseLabels.contains(String.valueOf(i))))
@@ -518,9 +533,7 @@ public class UnionType
                              + "could not identify switch type "
                              + switch_type_spec.type_spec);
             }
-
         }
-
 
         /* print members */
 
@@ -594,9 +607,13 @@ public class UnionType
                     thisCaseIsDefault = true;
                 }
                 else if (o instanceof ConstExpr)
+                {
                     label[ i ] = ((ConstExpr)o).value();
+                }
                 else if (o instanceof ScopedName)
+                {
                     label[ i ] = ((ScopedName)o).typeName();
+                }
             }
 
             // accessors
@@ -652,9 +669,13 @@ public class UnionType
             pw.print("\t\tdiscriminator = ");
 
             if (label[ 0 ] == null)
+            {
                 pw.println(defaultStr + ";");
+            }
             else
+            {
                 pw.println(label[ 0 ] + ";");
+            }
             pw.println("\t\t" + c.element_spec.declarator.name() + " = _x;");
             pw.println("\t}\n");
 
@@ -730,10 +751,14 @@ public class UnionType
     public void printHolderClass(String className, PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals(""))
+        {
             ps.println("package " + pack_name + ";");
+        }
 
         printClassComment(className, ps);
 
@@ -773,8 +798,10 @@ public class UnionType
     private void printHelperClass (String className, PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals (""))
         {
             ps.println ("package " + pack_name + ";");
@@ -787,8 +814,6 @@ public class UnionType
         ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
         ps.println("{");
         ps.println("\tprivate static org.omg.CORBA.TypeCode _type;");
-
-        String _type = typeName();
 
         TypeSpec.printInsertExtractMethods(ps, typeName());
 
@@ -1351,8 +1376,6 @@ public class UnionType
         ps.println("\t\t" + pack_name + "." + className() + "Helper.insert(" + anyname + ", " + varname + ");");
     }
 
-
-
     public void printExtractResult(PrintWriter ps,
                                    String resultname,
                                    String anyname,
@@ -1360,10 +1383,6 @@ public class UnionType
     {
         ps.println("\t\t" + resultname + " = " + className() + "Helper.extract(" + anyname + ");");
     }
-
-
-    /**
-     */
 
     public void accept(IDLTreeVisitor visitor)
     {

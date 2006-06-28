@@ -54,17 +54,25 @@ public class DIOPFactories extends org.omg.ETF._FactoriesLocalBase
      */
     private static DIOPFactories factory;
 
+    private DIOPFactories()
+    {
+        super();
+        // use factory method instead
+    }
 
     /**
      * <code>getDIOPFactory</code> returns the cached instance.
      */
     public static DIOPFactories getDIOPFactory()
     {
-        if (factory == null)
+        synchronized(DIOPFactories.class)
         {
-            factory = new DIOPFactories();
+            if (factory == null)
+            {
+                factory = new DIOPFactories();
+            }
+            return factory;
         }
-        return factory;
     }
 
 
@@ -103,14 +111,20 @@ public class DIOPFactories extends org.omg.ETF._FactoriesLocalBase
 
     public Profile decode_corbaloc (String corbaloc)
     {
-        int colon = corbaloc.indexOf (':');
-        String token = corbaloc.substring (0,colon).toLowerCase();
+        final int colon = corbaloc.indexOf (':');
+        final String token = corbaloc.substring (0,colon).toLowerCase();
+        final Profile result;
+
         if (token.length() == 0 ||
-            token.equals ("diop"))
+            "diop".equals(token))
         {
-            return new IIOPProfile(corbaloc);
+            result = new IIOPProfile(corbaloc);
+        }
+        else
+        {
+            result = null;
         }
 
-        return null;
+        return result;
     }
 }

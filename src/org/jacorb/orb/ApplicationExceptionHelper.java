@@ -18,15 +18,15 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.orb;
 
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.*;
-
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.portable.ApplicationException;
 
 /**
  * This class provides a method for inserting an arbirtary
@@ -35,16 +35,23 @@ import org.jacorb.util.ObjectUtil;
  * @author Nicolas Noffke
  * @version $Id$
  */
-
 public class ApplicationExceptionHelper
 {
+    /**
+     * Private constructor to prevent instantiation
+     */
+    private ApplicationExceptionHelper()
+    {
+        // utility class
+    }
+
     /**
      * This method tries to insert the given ApplicationException into the
      * given any by deriving the helper name from object id. <br>
      * All exceptions are propagated upward to be handled there.
      */
 
-    public static void insert(org.omg.CORBA.Any any, ApplicationException  s)
+    public static void insert(org.omg.CORBA.Any any, ApplicationException  exception)
         throws
             ClassNotFoundException,
             NoSuchMethodException,
@@ -55,7 +62,7 @@ public class ApplicationExceptionHelper
 
         // Get exception and helper names
 
-        String name = RepositoryID.className(s.getId(), null);
+        String name = RepositoryID.className(exception.getId(), null);
         String helperName = name + "Helper";
 
         // Get various required classes
@@ -69,7 +76,7 @@ public class ApplicationExceptionHelper
 
         Method readMeth  =
             helperClass.getMethod("read", new Class[] { isClass });
-        Method insertMeth = 
+        Method insertMeth =
             helperClass.getMethod("insert", new Class[] { anyClass, exClass });
 
         // Do equivalent of:
@@ -78,8 +85,8 @@ public class ApplicationExceptionHelper
         // UserExHelper.insert (any, userEx);
         //
 
-        userEx = 
-            readMeth.invoke(null, new java.lang.Object[] { s.getInputStream () });
+        userEx =
+            readMeth.invoke(null, new java.lang.Object[] { exception.getInputStream () });
         insertMeth.invoke(null, new java.lang.Object[] {any, userEx});
     }
 }

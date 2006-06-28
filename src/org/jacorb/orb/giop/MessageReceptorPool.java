@@ -26,12 +26,9 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.util.threadpool.*;
 
 /**
- * MessageReceptorPool.java
- *
  * @author Nicolas Noffke
  * @version $Id$
  */
-
 public class MessageReceptorPool
 {
     private static final int MAX_DEFAULT = 1000;
@@ -43,7 +40,7 @@ public class MessageReceptorPool
      * @param config must be client or server to specify which configurationsubset should be used
      * @param threadNamePrefix prefix that's used to name all threads that are created by this pool
      * @param myConfiguration current configuration
-     * TODO configuration of this class should be enhanced. config param does not feel nice.
+     * TODO configuration of this class should be enhanced. config param does not feel right.
      */
     public MessageReceptorPool(String config, String threadNamePrefix, Configuration myConfiguration)
     {
@@ -86,7 +83,6 @@ public class MessageReceptorPool
         pool.putJob( conn );
     }
 
-
     /**
      * <code>shutdown</code> allows the ReceptorPool to be shutdown
      * so that new ORB.init's will use fresh pools
@@ -95,4 +91,4 @@ public class MessageReceptorPool
     {
         pool.shutdown();
     }
-}// MessageReceptorPool
+}

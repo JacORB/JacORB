@@ -47,8 +47,8 @@ public class BiDirConnectionInitializer
                                              (byte) 1, (byte) 0);
             Codec codec = info.codec_factory().create_codec(encoding);
 
-            info.add_client_request_interceptor( new BiDirConnectionClientInterceptor( orb, codec ));
-            info.add_server_request_interceptor( new BiDirConnectionServerInterceptor( orb, codec ));
+            info.add_client_request_interceptor( new BiDirConnectionClientInterceptor( orb ));
+            info.add_server_request_interceptor( new BiDirConnectionServerInterceptor( orb ));
 
             info.register_policy_factory( BIDIRECTIONAL_POLICY_TYPE.value,
                                           new BiDirPolicyFactory() );

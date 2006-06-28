@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.*;
 import org.apache.avalon.framework.logger.*;
 
 import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.ValueHandler;
 
 import org.omg.CORBA.BAD_PARAM;
@@ -53,8 +54,8 @@ public class CDRInputStream
 {
     /**
      * <code>encaps_stack</code> is used to saving/restoring
-     * encapsulation information. Do NOT access this variable directly.
-     * It is initialized on demand. Use the method {@link #getEncapsStack()}
+     * encapsulation information.
+     * TODO replace with unsynchronized version
      */
     private Stack encaps_stack;
 
@@ -157,12 +158,14 @@ public class CDRInputStream
      * this is the lowest possible value_tag indicating the
      * begin of a valuetype (15.3.4)
      */
-    private static final int max_block_size = 0x7fffff00;
+    private static final int MAX_BLOCK_SIZE = 0x7fffff00;
 
     private boolean sunInteropFix;
 
     public CDRInputStream(final org.omg.CORBA.ORB orb, final byte[] buf)
     {
+        super();
+
         buffer = buf;
         // orb may be null!
         if (orb != null)
@@ -183,7 +186,9 @@ public class CDRInputStream
             }
         }
         else
+        {
             this.orb = org.omg.CORBA.ORB.init();
+        }
     }
 
     public CDRInputStream(final org.omg.CORBA.ORB orb,
@@ -214,24 +219,6 @@ public class CDRInputStream
             configuration.getAttribute("jacorb.cacheTypecodes","off").equals("on");
         sunInteropFix =
             configuration.getAttribute("jacorb.interop.sun", "off").equalsIgnoreCase("on");
-    }
-
-
-
-
-    /**
-     * <code>getEncapsStack</code> is used to initialize encaps_stack
-     * on demand.
-     *
-     * @return a <code>Stack</code> value
-     */
-    private Stack getEncapsStack()
-    {
-        if (encaps_stack == null)
-        {
-            encaps_stack = new Stack();
-        }
-        return encaps_stack;
     }
 
 
@@ -362,6 +349,7 @@ public class CDRInputStream
 
         BufferManager.getInstance().returnBuffer(buffer);
 
+        buffer = null;
         encaps_stack = null;
         recursiveTCMap = null;
         closed = true;
@@ -369,7 +357,10 @@ public class CDRInputStream
 
     public org.omg.CORBA.ORB orb()
     {
-        if (orb == null) orb = org.omg.CORBA.ORB.init(new String[]{}, null);
+        if (orb == null)
+        {
+            orb = org.omg.CORBA.ORB.init(new String[]{}, null);
+        }
         return orb;
     }
 
@@ -383,26 +374,28 @@ public class CDRInputStream
        (final boolean _littleEndian, final byte[] _buffer, final int _pos)
     {
         if (_littleEndian)
+        {
             return (((_buffer[_pos+3] & 0xff) << 24) +
                     ((_buffer[_pos+2] & 0xff) << 16) +
                     ((_buffer[_pos+1] & 0xff) <<  8) +
                     ((_buffer[_pos]   & 0xff) <<  0));
-        else
-            return (((_buffer[_pos]   & 0xff) << 24) +
-                    ((_buffer[_pos+1] & 0xff) << 16) +
-                    ((_buffer[_pos+2] & 0xff) <<  8) +
-                    ((_buffer[_pos+3] & 0xff) <<  0));
+        }
+        return (((_buffer[_pos]   & 0xff) << 24) +
+                ((_buffer[_pos+1] & 0xff) << 16) +
+                ((_buffer[_pos+2] & 0xff) <<  8) +
+                ((_buffer[_pos+3] & 0xff) <<  0));
     }
 
     private static final short _read2int
        (final boolean _littleEndian, final byte[] _buffer, final int _pos)
     {
         if (_littleEndian)
+        {
             return  (short)(((_buffer[_pos+1] & 0xff) << 8) +
                             ((_buffer[_pos]   & 0xff) << 0));
-        else
-            return (short)(((_buffer[_pos ]    & 0xff) << 8) +
-                           ((_buffer[_pos + 1] & 0xff) << 0));
+        }
+        return (short)(((_buffer[_pos ]    & 0xff) << 8) +
+                ((_buffer[_pos + 1] & 0xff) << 0));
     }
 
     private final int _read_long()
@@ -420,12 +413,10 @@ public class CDRInputStream
     {
         if (littleEndian)
         {
-            return ((long) _read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
+            return (_read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
         }
-        else
-        {
-            return ((long) _read_long() << 32) + ((long) _read_long() & 0xFFFFFFFFL);
-        }
+
+        return ((long) _read_long() << 32) + (_read_long() & 0xFFFFFFFFL);
     }
 
     private final void handle_chunking()
@@ -502,7 +493,9 @@ public class CDRInputStream
         int start = ei.start;
 
         if( pos < start + size )
+        {
             pos = start + size;
+        }
 
         index = ei.index + size;
     }
@@ -595,10 +588,14 @@ public class CDRInputStream
         throws java.io.IOException
     {
         if( closed )
+        {
             throw new java.io.IOException("Stream already closed!");
+        }
 
         if( available() < 1 )
+        {
             return -1;
+        }
 
         ++index;
         return buffer[pos++]; // read_index++];
@@ -615,7 +612,7 @@ public class CDRInputStream
 
     /**
      * Has the effect of read(b, 0, b.length);
-     * @see #read
+     * @see #read(byte[], int, int)
      */
     public int read(final byte[] b)
         throws java.io.IOException
@@ -677,33 +674,27 @@ public class CDRInputStream
     {
         handle_chunking();
         index++;
-        byte bb = buffer[pos++];
+        byte value = buffer[pos++];
 
-        if (bb == 0)
+        if (value == 0)
         {
             return false;
         }
-        else
+
+        if (value == 1)
         {
-            if (bb == 1)
-            {
-                return true;
-            }
-            else
-            {
-                if (laxBooleanEncoding)
-                {
-                    // Technically only valid values are 0 (false) and 1 (true)
-                    // however some ORBs send values other than 1 for true.
-                    return true;
-                }
-                else
-                {
-                    throw new MARSHAL("Unexpected boolean value: " + bb
-                                      + " pos: " + pos + " index: " + index);
-                }
-            }
+            return true;
         }
+
+        if (laxBooleanEncoding)
+        {
+            // Technically only valid values are 0 (false) and 1 (true)
+            // however some ORBs send values other than 1 for true.
+            return true;
+        }
+
+        throw new MARSHAL("Unexpected boolean value: " + value
+                + " pos: " + pos + " index: " + index);
     }
 
     /** arrays */
@@ -760,7 +751,9 @@ public class CDRInputStream
        (final double[] value, final int offset, final int length)
     {
         if (length == 0)
+        {
             return;
+        }
 
         handle_chunking();
 
@@ -793,7 +786,9 @@ public class CDRInputStream
             sb.append(c );
             c = b & 0x0F;
             if( c == 0xC || c == 0xD )
+            {
                 break;
+            }
             sb.append(c );
             b = buffer[pos++];
             index++;
@@ -803,10 +798,11 @@ public class CDRInputStream
         new java.math.BigDecimal( new java.math.BigInteger( sb.toString()));
 
         if( c == 0xD )
+        {
             return result.negate();
-        else
-            return result;
+        }
 
+        return result;
     }
 
     public final float read_float()
@@ -818,7 +814,9 @@ public class CDRInputStream
        (final float[] value, final int offset, final int length)
     {
         if (length == 0)
+        {
             return;
+        }
 
         handle_chunking();
 
@@ -859,7 +857,9 @@ public class CDRInputStream
        (final int[] value, final int offset, final int length)
     {
         if (length == 0)
+        {
             return;
+        }
 
         handle_chunking();
 
@@ -893,19 +893,19 @@ public class CDRInputStream
 
         if (littleEndian)
         {
-            return ((long) _read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
+            return (_read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
         }
-        else
-        {
-            return ((long) _read_long() << 32) + ((long) _read_long() & 0xFFFFFFFFL);
-        }
+
+        return ((long) _read_long() << 32) + (_read_long() & 0xFFFFFFFFL);
     }
 
     public final void read_longlong_array
         (final long[] value, final int offset, final int length)
     {
         if (length == 0)
+        {
             return;
+        }
 
         handle_chunking();
 
@@ -920,7 +920,7 @@ public class CDRInputStream
         {
             for(int j=offset; j < offset+length; j++)
             {
-                value[j] = ( (long) _read_long() & 0xFFFFFFFFL) +
+                value[j] = ( _read_long() & 0xFFFFFFFFL) +
                     ((long) _read_long() << 32);
             }
         }
@@ -929,7 +929,7 @@ public class CDRInputStream
             for(int j=offset; j < offset+length; j++)
             {
                 value[j] = ((long) _read_long() << 32) +
-                    ((long) _read_long() & 0xFFFFFFFFL);
+                    (_read_long() & 0xFFFFFFFFL);
             }
         }
 
@@ -954,10 +954,8 @@ public class CDRInputStream
         {
             return null;
         }
-        else
-        {
-            return ((org.jacorb.orb.ORB)orb)._getObject( pior );
-        }
+
+        return ((org.jacorb.orb.ORB)orb)._getObject( pior );
     }
 
     public org.omg.CORBA.Object read_Object(final java.lang.Class clz)
@@ -984,10 +982,7 @@ public class CDRInputStream
                      ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());
                 return stub;
             }
-            else
-            {
-                return obj;
-            }
+            return obj;
         }
         else if (clz.isInterface() &&
                  java.rmi.Remote.class.isAssignableFrom(clz))
@@ -1053,7 +1048,9 @@ public class CDRInputStream
         (final short[] value, final int offset, final int length)
     {
         if (length == 0)
+        {
             return;
+        }
 
         handle_chunking();
 
@@ -1204,14 +1201,14 @@ public class CDRInputStream
                 {
                     // Skip buffer - see cachedTypecodes for calculation.
                     skip (size - ((pos - start_pos) - 4 - 4));
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put( ObjectUtil.newInteger( start_pos ), id );
                 }
                 else
                 {
                     name = validateName (read_string());
                     member_count = read_long();
 
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put( ObjectUtil.newInteger( start_pos ), id );
 
                     StructMember[] struct_members = new StructMember[member_count];
                     for( int i = 0; i < member_count; i++)
@@ -1240,14 +1237,14 @@ public class CDRInputStream
                 {
                     // Skip buffer - see cachedTypecodes for calculation.
                     skip (size - ((pos - start_pos) - 4 - 4));
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put( ObjectUtil.newInteger( start_pos ), id );
                 }
                 else
                 {
                     name = validateName (read_string());
                     member_count = read_long();
 
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put( ObjectUtil.newInteger( start_pos ), id );
 
                     StructMember[] members = new StructMember[member_count];
                     for( int i = 0; i < member_count; i++)
@@ -1275,14 +1272,14 @@ public class CDRInputStream
                 if (result != null)
                 {
                     skip (size - ((pos - start_pos) - 4 - 4));
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put( ObjectUtil.newInteger( start_pos ), id );
                 }
                 else
                 {
                     name = validateName (read_string());
                     member_count = read_long();
 
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put( ObjectUtil.newInteger( start_pos ), id );
 
                     member_names = new String[member_count];
                     for( int i = 0; i < member_count; i++)
@@ -1306,13 +1303,13 @@ public class CDRInputStream
                 {
                     // Skip buffer - see cachedTypecodes for calculation.
                     skip (size - ((pos - start_pos) - 4 - 4));
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put(ObjectUtil.newInteger(start_pos), id );
                 }
                 else
                 {
                     name = validateName (read_string());
 
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put(ObjectUtil.newInteger(start_pos), id );
 
                     org.omg.CORBA.TypeCode discriminator_type = read_TypeCode(tcMap);
                     // Use the dealiased discriminator type for the label types.
@@ -1405,13 +1402,13 @@ public class CDRInputStream
                 {
                     // Skip buffer - see cachedTypecodes for calculation.
                     skip (size - ((pos - start_pos) - 4 - 4));
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put(ObjectUtil.newInteger(start_pos), id );
                 }
                 else
                 {
                     name = validateName (read_string());
 
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put(ObjectUtil.newInteger(start_pos), id );
 
                     content_type = read_TypeCode( tcMap );
                     result = orb.create_alias_tc (id, name, content_type );
@@ -1430,13 +1427,13 @@ public class CDRInputStream
                 if (result != null)
                 {
                     skip (size - ((pos - start_pos) - 4 - 4));
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put(ObjectUtil.newInteger( start_pos ), id );
                 }
                 else
                 {
                     name = validateName (read_string());
 
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put(ObjectUtil.newInteger( start_pos ), id);
 
                     short type_modifier = read_short();
                     org.omg.CORBA.TypeCode concrete_base_type = read_TypeCode( tcMap );
@@ -1474,13 +1471,13 @@ public class CDRInputStream
                 {
                     // Skip buffer - see cachedTypecodes for calculation.
                     skip (size - ((pos - start_pos) - 4 - 4));
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put( ObjectUtil.newInteger( start_pos ), id );
                 }
                 else
                 {
                     name = validateName (read_string());
 
-                    tcMap.put( new Integer( start_pos ), id );
+                    tcMap.put(ObjectUtil.newInteger( start_pos ), id);
 
                     content_type = read_TypeCode( tcMap );
                     result = orb.create_value_box_tc (id, name, content_type);
@@ -1515,7 +1512,7 @@ public class CDRInputStream
                 /* recursive TC */
                 int negative_offset = read_long();
                 String recursiveId =
-                    (String)tcMap.get( new Integer( pos - 4 + negative_offset ) );
+                    (String)tcMap.get(ObjectUtil.newInteger( pos - 4 + negative_offset ) );
 
                 if (recursiveId == null)
                 {
@@ -1573,7 +1570,9 @@ public class CDRInputStream
         (final int[] value, final int offset, final int length)
     {
         if (length == 0)
+        {
             return;
+        }
 
         handle_chunking();
 
@@ -1606,19 +1605,19 @@ public class CDRInputStream
 
         if (littleEndian)
         {
-            return ((long) _read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
+            return (_read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
         }
-        else
-        {
-            return ((long) _read_long() << 32) + ((long) _read_long() & 0xFFFFFFFFL);
-        }
+
+        return ((long) _read_long() << 32) + (_read_long() & 0xFFFFFFFFL);
     }
 
     public final void read_ulonglong_array
         (final long[] value, final int offset, final int length)
     {
         if (length == 0)
+        {
             return;
+        }
 
         handle_chunking();
 
@@ -1633,7 +1632,7 @@ public class CDRInputStream
         {
             for (int j = offset; j < offset+length; j++)
             {
-                value[j] = ( (long) _read_long() & 0xFFFFFFFFL) +
+                value[j] = ( _read_long() & 0xFFFFFFFFL) +
                     ((long) _read_long() << 32);
             }
         }
@@ -1642,7 +1641,7 @@ public class CDRInputStream
             for (int j = offset; j < offset+length; j++)
             {
                 value[j] = ((long) _read_long() << 32) +
-                    ((long) _read_long() & 0xFFFFFFFFL);
+                    (_read_long() & 0xFFFFFFFFL);
             }
         }
 
@@ -1670,7 +1669,9 @@ public class CDRInputStream
         (final short[] value, final int offset, final int length)
     {
         if (length == 0)
+        {
             return;
+        }
 
         handle_chunking();
 
@@ -1704,10 +1705,8 @@ public class CDRInputStream
 
             return read_wchar (wchar_little_endian);
         }
-        else
-        {
-            return read_wchar (littleEndian);
-        }
+
+        return read_wchar (littleEndian);
     }
 
     /**
@@ -1746,7 +1745,7 @@ public class CDRInputStream
                 {
                     index++;
                     return (char)(((b & 0x1F) << 6) |
-                                  ((short)buffer[pos++] & 0x3F));
+                                  (buffer[pos++] & 0x3F));
                 }
                 else
                 {
@@ -1754,7 +1753,7 @@ public class CDRInputStream
                     short b2 = (short)(0xff & buffer[pos++]);
                     return (char)(( ( b & 0x0F) << 12) |
                                   ( (b2 & 0x3F) << 6) |
-                                  ( (short)buffer[pos++] & 0x3F));
+                                  ( buffer[pos++] & 0x3F));
                 }
             }
             case CodeSet.UTF16 :
@@ -1828,7 +1827,9 @@ public class CDRInputStream
     {
         handle_chunking();
         for(int j=offset; j < offset+length; j++)
+        {
             value[j] = read_wchar(); // inlining later...
+        }
     }
 
     public final String read_wstring()
@@ -1929,7 +1930,9 @@ public class CDRInputStream
         throws IOException
     {
         if( pos < 0 )
+        {
             throw new MARSHAL("Mark has not been set!");
+        }
         pos = marked_pos;
         index = marked_index;
     }
@@ -2028,7 +2031,9 @@ public class CDRInputStream
                 {
                     int length = tc.length();
                     for( int i = 0; i < length; i++ )
+                    {
                         read_value( tc.content_type(), out );
+                    }
                     break;
                 }
                 case TCKind._tk_sequence:
@@ -2036,7 +2041,9 @@ public class CDRInputStream
                     int len = read_long();
                     out.write_long(len);
                     for( int i = 0; i < len; i++ )
+                    {
                         read_value( tc.content_type(), out );
+                    }
                     break;
                 }
                 case TCKind._tk_except:
@@ -2045,7 +2052,9 @@ public class CDRInputStream
                 case TCKind._tk_struct:
                 {
                     for( int i = 0; i < tc.member_count(); i++)
+                    {
                         read_value( tc.member_type(i), out );
+                    }
                     break;
                 }
                 case TCKind._tk_enum:
@@ -2303,7 +2312,9 @@ public class CDRInputStream
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
+        {
             throw new MARSHAL ("missing value type information");
+        }
         else if (tag == 0x7fffff02)
         {
             return read_typed_value(start_offset, codebase);
@@ -2313,9 +2324,11 @@ public class CDRInputStream
             return read_multi_typed_value( start_offset, codebase );
         }
         else
+        {
             throw new MARSHAL("unknown value tag: 0x" +
                               Integer.toHexString(theTag) + " (offset=0x" +
                               Integer.toHexString(start_offset) + ")");
+        }
     }
 
     /**
@@ -2483,7 +2496,7 @@ public class CDRInputStream
 
             if( result != null )
             {
-                getValueMap().put (new Integer(start_offset), result);
+                getValueMap().put(ObjectUtil.newInteger(start_offset), result);
             }
 
             return result;
@@ -2497,9 +2510,11 @@ public class CDRInputStream
             return read_typed_value(start_offset, codebase);
         }
         else
+        {
             throw new MARSHAL("unknown value tag: 0x" +
                               Integer.toHexString(theTag) + " (offset=0x" +
                               Integer.toHexString(start_offset) + ")");
+        }
     }
 
     /**
@@ -2564,9 +2579,11 @@ public class CDRInputStream
                 catch (ClassNotFoundException e)
                 {
                     if( r < repository_ids.length-1 )
+                    {
                         continue;
-                    else
-                        throw new MARSHAL("class not found: " + className);
+                    }
+
+                    throw new MARSHAL("class not found: " + className);
                 }
                 break;
             }
@@ -2581,13 +2598,13 @@ public class CDRInputStream
                     result = factory.read_value (this);
                     break;
                 }
-                else
+
+                if( r < repository_ids.length-1 )
                 {
-                    if( r < repository_ids.length-1 )
-                        continue;
-                    else
-                        throw new MARSHAL ("No factory found for: " + repository_ids[0] );
+                    continue;
                 }
+
+                throw new MARSHAL ("No factory found for: " + repository_ids[0] );
             }
             else // RMI
             {
@@ -2691,25 +2708,28 @@ public class CDRInputStream
                         }
                     }
                     else
+                    {
                         result = ValueHandler.readValue(this, index, c,
                                                         repository_ids[r],
                                                         null);
+                    }
                 }
                 catch (ClassNotFoundException e)
                 {
                     if( r < repository_ids.length-1 )
+                    {
                         continue;
-                    else
-                        throw new MARSHAL ("class not found: " + className);
-                }
+                    }
 
+                    throw new MARSHAL ("class not found: " + className);
+                }
             }
         }
 
         // value type instances may be null...
         if( result != null )
         {
-            getValueMap().put (new Integer (index), result);
+            getValueMap().put(ObjectUtil.newInteger(index), result);
         }
 
         return result;
@@ -2726,18 +2746,16 @@ public class CDRInputStream
         int savedIndex = index;
         int chunk_size_tag = read_long();
 
-        if (!sunInteropFix || chunk_size_tag > 0 && chunk_size_tag < max_block_size)
+        if (!sunInteropFix || chunk_size_tag > 0 && chunk_size_tag < MAX_BLOCK_SIZE)
         {
             // looks like the correct chunk size
             return chunk_size_tag;
         }
-        else
-        {
-            // reset buffer
-            pos = savedPos;
-            index = savedIndex;
-            return max_block_size;
-        }
+
+        // reset buffer
+        pos = savedPos;
+        index = savedIndex;
+        return MAX_BLOCK_SIZE;
     }
 
     /**
@@ -2765,7 +2783,9 @@ public class CDRInputStream
         String[] ids = new String[ id_count ];
 
         for( int i = 0; i < id_count; i++ )
+        {
             ids[i] = read_repository_id();
+        }
 
         return read_untyped_value (ids, index, codebase);
     }
@@ -2784,23 +2804,22 @@ public class CDRInputStream
             int index = read_long();
             index = index + pos - 4;
 
-            String repId = (String)getRepIdMap().get (new Integer(index));
+            String repId = (String)getRepIdMap().get(ObjectUtil.newInteger(index));
             if (repId == null)
+            {
                 throw new MARSHAL("stale RepositoryID indirection");
-            else
-                return repId;
-        }
-        else
-        {
-            // a new id
-            pos -= 4;
-            index -= 4;
-            int start_offset = pos;
-            String repId = read_string();
-
-            getRepIdMap().put (new Integer(start_offset), repId);
+            }
             return repId;
         }
+
+        // a new id
+        pos -= 4;
+        index -= 4;
+        int start_offset = pos;
+        String repId = read_string();
+
+        getRepIdMap().put(ObjectUtil.newInteger(start_offset), repId);
+        return repId;
     }
 
     /**
@@ -2816,23 +2835,22 @@ public class CDRInputStream
             // indirection
             int index = read_long();
             index = index + pos - 4;
-            String codebase = (String)getCodebaseMap().get (new Integer(index));
+            String codebase = (String)getCodebaseMap().get(ObjectUtil.newInteger(index));
             if (codebase == null)
+            {
                 throw
                 new MARSHAL("stale codebase indirection");
-            else
-                return codebase;
-        }
-        else
-        {
-            // a new codebase string
-            pos -= 4;
-            index -= 4;
-            int start_offset = pos;
-            String codebase = read_string();
-            getCodebaseMap().put (new Integer(start_offset), codebase);
+            }
+
             return codebase;
         }
+        // a new codebase string
+        pos -= 4;
+        index -= 4;
+        int start_offset = pos;
+        String codebase = read_string();
+        getCodebaseMap().put (ObjectUtil.newInteger(start_offset), codebase);
+        return codebase;
     }
 
     /**
@@ -2844,7 +2862,7 @@ public class CDRInputStream
         // indirection
         int index = read_long();
         index = index + pos - 4;
-        java.lang.Object value = getValueMap().get (new Integer(index));
+        java.lang.Object value = getValueMap().get (ObjectUtil.newInteger(index));
         if (value == null) {
 
             // Java to IDL Language Mapping, v1.1, page 1-44:
@@ -2863,8 +2881,8 @@ public class CDRInputStream
 
             throw new org.omg.CORBA.portable.IndirectionException (index);
         }
-        else
-            return (java.io.Serializable)value;
+
+        return (java.io.Serializable)value;
     }
 
     private String validateName (String name)
@@ -2876,11 +2894,11 @@ public class CDRInputStream
         return name;
     }
 
-    private String validateID (String id)
+    private String validateID(String id)
     {
         if (id == null || id.length() == 0)
         {
-            id = "IDL:";
+            return "IDL:";
         }
         return id;
     }
@@ -2928,6 +2946,6 @@ public class CDRInputStream
 
     public void register_value(final java.io.Serializable value)
     {
-        getValueMap().put(new Integer(currentValueIndex), value);
+        getValueMap().put(ObjectUtil.newInteger(currentValueIndex), value);
     }
 }

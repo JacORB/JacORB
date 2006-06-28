@@ -20,21 +20,22 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
 import org.omg.CORBA.MARSHAL;
-import org.omg.GIOP.*;
-import org.jacorb.orb.*;
+import org.omg.GIOP.LocateRequestHeader_1_0;
+import org.omg.GIOP.LocateRequestHeader_1_0Helper;
+import org.omg.GIOP.LocateRequestHeader_1_2;
+import org.omg.GIOP.LocateRequestHeader_1_2Helper;
+import org.omg.GIOP.MsgType_1_1;
+import org.omg.GIOP.TargetAddress;
 
 /**
- * @author Gerald Brose, FU Berlin 1999
+ * @author Gerald Brose
  * @version $Id$
- *
  */
-
 public class LocateRequestOutputStream
     extends MessageOutputStream
 {
-    private int request_id = -1;
+    private final int request_id;
 
     public LocateRequestOutputStream( byte[] object_key,
                                       int request_id,

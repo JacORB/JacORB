@@ -40,7 +40,7 @@ import org.omg.CSIIOP.*;
  * @version $Id$
  */
 public class IIOPProfile
-    extends org.jacorb.orb.etf.ProfileBase
+    extends org.jacorb.orb.etf.ProfileBase implements Cloneable
 {
     private IIOPAddress          primaryAddress = null;
     private Logger logger;
@@ -52,32 +52,34 @@ public class IIOPProfile
 
     public IIOPProfile(byte[] data)
     {
-        initFromProfileData(data);
-    }
+        this();
 
-    public IIOPProfile(IIOPAddress address, byte[] objectKey)
-    {
-        this.version        = new org.omg.GIOP.Version((byte)1,(byte)2);
-        this.primaryAddress = address;
-        this.objectKey      = objectKey;
-        this.components     = new TaggedComponentList();
+        initFromProfileData(data);
     }
 
     public IIOPProfile(IIOPAddress address, byte[] objectKey, int minor)
     {
+        this();
+
         this.version        = new org.omg.GIOP.Version((byte)1,(byte)minor);
         this.primaryAddress = address;
         this.objectKey      = objectKey;
         this.components     = new TaggedComponentList();
     }
 
+    public IIOPProfile(IIOPAddress address, byte[] objectKey)
+    {
+        this(address, objectKey, 2);
+    }
+
     /**
      * Constructs an IIOPProfile from a corbaloc URL.  Only to be used
      * from the corbaloc parser.
      */
-
     public IIOPProfile(String corbaloc)
     {
+        this();
+
         this.version = null;
         this.primaryAddress = null;
         this.objectKey = null;
@@ -117,8 +119,9 @@ public class IIOPProfile
      * This preserves compatilibility with TAO, and falls in
      * line with RFC 2732 and discussion on OMG news groups.
      */
-    private void decode_corbaloc(String addr)
+    private void decode_corbaloc(final String address)
     {
+        String addr = address;
         String host = "127.0.0.1"; //default to localhost
         short port = 2809; // default IIOP port
 
@@ -132,9 +135,13 @@ public class IIOPProfile
 
         String protocol_identifier = "";
         if( sep != 0)
-            protocol_identifier = addr.substring( 0,sep);
+        {
+            protocol_identifier = addr.substring(0, sep);
+        }
         if( sep + 1 == addr.length())
+        {
             throw new IllegalArgumentException(errorstr);
+        }
         addr = addr.substring(sep + 1);
         // decode optional version number
         sep = addr.indexOf( '@' );
@@ -165,7 +172,9 @@ public class IIOPProfile
         {
             ipv6SeperatorEnd = addr.indexOf(']');
             if (ipv6SeperatorEnd == -1)
+            {
                 throw new IllegalArgumentException(errorstr);
+            }
         }
 
         sep = addr.indexOf(':');
@@ -185,18 +194,19 @@ public class IIOPProfile
             }
             else //IPv4 or hostname
             {
-            try
-            {
-                port =(short)Integer.parseInt(addr.substring(sep+1));
-                host = addr.substring(0, sep);
+                try
+                {
+                    port =(short)Integer.parseInt(addr.substring(sep+1));
+                    host = addr.substring(0, sep);
+                }
+                catch( NumberFormatException ill )
+                {
+                    throw new IllegalArgumentException(errorstr);
+                }
             }
-            catch( NumberFormatException ill )
-            {
-                throw new IllegalArgumentException(errorstr);
-            }
-        }
         }
         primaryAddress = new IIOPAddress(host,port);
+
         try
         {
             primaryAddress.configure(configuration);
@@ -343,7 +353,12 @@ public class IIOPProfile
      */
     public boolean is_match(Profile prof)
     {
-        if (prof != null && prof instanceof IIOPProfile)
+        if (prof == null)
+        {
+            return false;
+        }
+
+        if (prof instanceof IIOPProfile)
         {
             IIOPProfile other = (IIOPProfile)prof;
             return
@@ -374,7 +389,9 @@ public class IIOPProfile
     public void patchPrimaryAddress(ProtocolAddressBase replacement)
     {
         if (replacement instanceof IIOPAddress)
+        {
             primaryAddress.replaceFrom((IIOPAddress)replacement);
+        }
     }
 
     public List getAlternateAddresses()
@@ -421,7 +438,9 @@ public class IIOPProfile
                     if (ssl_port != 0)
                     {
                         if (ssl_port < 0)
+                        {
                             ssl_port += 65536;
+                        }
                         return ssl_port;
                     }
                 }
@@ -470,9 +489,11 @@ public class IIOPProfile
     public boolean equals(Object other)
     {
         if (other instanceof org.omg.ETF.Profile)
+        {
             return this.is_match((org.omg.ETF.Profile)other);
-        else
-            return false;
+        }
+
+        return false;
     }
 
     public int hashCode()

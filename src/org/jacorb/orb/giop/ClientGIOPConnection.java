@@ -26,7 +26,6 @@ import org.apache.avalon.framework.configuration.*;
  * @author Nicolas Noffke
  * @version $Id$
  */
-
 public class ClientGIOPConnection
     extends GIOPConnection
     implements Configurable
@@ -64,7 +63,9 @@ public class ClientGIOPConnection
     protected void readTimedOut()
     {
         if (logger.isDebugEnabled())
+        {
             logger.debug (this.toString() + ": readTimedOut()");
+        }
 
         synchronized( pendingUndecidedSync )
         {
@@ -79,11 +80,13 @@ public class ClientGIOPConnection
             else
             {
                 if (logger.isDebugEnabled())
+                {
                     logger.debug
                     (
                         this.toString()
                         + ": cannot close because there are pending messages"
                     );
+                }
             }
         }
     }
@@ -96,7 +99,9 @@ public class ClientGIOPConnection
     protected void streamClosed()
     {
         if (logger.isDebugEnabled())
+        {
             logger.debug (this.toString() + ": streamClosed()");
+        }
 
         closeAllowReopen();
 
@@ -114,7 +119,9 @@ public class ClientGIOPConnection
     public void closeAllowReopen()
     {
         if (logger.isDebugEnabled())
+        {
             logger.debug (this.toString() + ": closeAllowReopen()");
+        }
 
         try
         {

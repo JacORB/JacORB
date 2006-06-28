@@ -40,11 +40,6 @@ public class IIOPFactories
         addressClz = IIOPAddress.class;
     }
 
-    public IIOPFactories()
-    {
-        super();
-    }
-
 /*    public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
                                       TaggedComponentSeqHolder components)
     {

@@ -21,6 +21,7 @@ package org.jacorb.orb.giop;
  */
 
 import org.jacorb.orb.SystemExceptionHelper;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.GIOP.MsgType_1_1;
@@ -41,8 +42,8 @@ import org.omg.PortableServer.ForwardRequest;
 public class ReplyInputStream
     extends ServiceContextTransportingInputStream
 {
-    public ReplyHeader_1_2 rep_hdr = null;
-    private int body_start;
+    public final ReplyHeader_1_2 rep_hdr;
+    private final int body_start;
 
     public ReplyInputStream( org.omg.CORBA.ORB orb, byte[] buffer )
     {
@@ -118,10 +119,9 @@ public class ReplyInputStream
                 {
                     reset();
                 }
-                catch( java.io.IOException ioe )
+                catch( java.io.IOException e )
                 {
-                    //should not happen anyway
-                    // Debug.output( 1, ioe );
+                    throw new INTERNAL("should never happen: " + e.toString());
                 }
                 return new ApplicationException( id, this );
             }
@@ -152,7 +152,9 @@ public class ReplyInputStream
             for (int i=0; i<rep_hdr.service_context.length; i++)
             {
                 if (rep_hdr.service_context[i].context_id == id)
+                {
                     return rep_hdr.service_context[i];
+                }
             }
         }
         return null;

@@ -22,6 +22,7 @@ package org.jacorb.orb.iiop;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -73,6 +74,7 @@ public class ClientIIOPConnection
     private TransportManager transportManager;
     private TCPConnectionListener connectionListener;
     private boolean keepAlive;
+    private final Object socketSync = new Object();
 
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
@@ -83,6 +85,8 @@ public class ClientIIOPConnection
 
     public ClientIIOPConnection()
     {
+        super();
+
         use_ssl = false;
     }
 
@@ -187,7 +191,7 @@ public class ClientIIOPConnection
                                     " from local port " +
                                     socket.getLocalPort() +
                                     ( this.isSSL() ? " via SSL" : "" ) +
-                                    ( (timeout != 0) ? " Timeout: " + timeout : ""));
+                                    ( (timeout == 0) ? "" : " Timeout: " + timeout));
                     }
 
                     connected = true;
@@ -199,8 +203,7 @@ public class ClientIIOPConnection
                 }
                 catch ( IOException c )
                 {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Exception", c );
+                    logger.debug("Exception", c );
 
                     //only sleep and print message if we're actually
                     //going to retry
@@ -208,8 +211,11 @@ public class ClientIIOPConnection
                     if( retries >= 0 )
                     {
                         if (logger.isInfoEnabled())
+                        {
                             logger.info("Retrying to connect to " +
                                         connection_info );
+                        }
+
                         try
                         {
                             Thread.sleep( retryInterval );
@@ -295,9 +301,13 @@ public class ClientIIOPConnection
                 final String ipAddress = address.getIP();
                 final int port = (use_ssl) ? ssl_port : address.getPort();
                 if (ipAddress.indexOf(':') == -1)
+                {
                     connection_info = ipAddress + ":" + port;
+                }
                 else
+                {
                     connection_info = "[" + ipAddress + "]:" + port;
+                }
 
                 if (logger.isDebugEnabled())
                 {
@@ -313,24 +323,26 @@ public class ClientIIOPConnection
                     //if not this thread will cancel the connect-thread
                     //this is necessary since earlier JDKs didnt support connect()
                     //with time_out
-                    final ClientIIOPConnection self = this;
                     Thread thread = new Thread ( new Runnable()
                     {
                         public void run()
                         {
                             try
                             {
-                                socket = factory.createSocket(ipAddress, port);
+                                final Socket createSocket = factory.createSocket(ipAddress, port);
+
+                                synchronized(socketSync)
+                                {
+                                    socket = createSocket;
+                                    socketSync.notify();
+                                }
                             }
                             catch (Exception e)
                             {
-                                exception = e;
-                            }
-                            finally
-                            {
-                                synchronized (self)
+                                synchronized(socketSync)
                                 {
-                                    self.notify();
+                                    exception = e;
+                                    socketSync.notify();
                                 }
                             }
                         }
@@ -341,10 +353,10 @@ public class ClientIIOPConnection
                    thread.setDaemon(true);
                    try
                    {
-                       synchronized (self)
+                       synchronized (socketSync)
                        {
                            thread.start();
-                           self.wait(time_out);
+                           socketSync.wait(time_out);
                        }
                    }
                    catch (InterruptedException _ex)
@@ -422,7 +434,6 @@ public class ClientIIOPConnection
             }
         }
     }
-
 
     public synchronized void close()
     {
@@ -508,7 +519,7 @@ public class ClientIIOPConnection
                                            (TAG_CSI_SEC_MECH_LIST.value,
                                             CompoundSecMechListHelper.class);
         }
-        catch (Throwable ex)
+        catch (Exception ex)
         {
             logger.info("Not able to process security mech. component");
             return;

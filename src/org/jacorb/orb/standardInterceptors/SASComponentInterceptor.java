@@ -18,7 +18,8 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.orb.standardInterceptors;
+
+package org.jacorb.orb.standardInterceptors; // NOPMD
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -70,64 +71,56 @@ public class SASComponentInterceptor
     implements IORInterceptor
 {
     /** the configuration object  */
-    private org.jacorb.config.Configuration config = null;
+    private final org.jacorb.config.Configuration config;
 
     /** the logger used by this implementation */
-    private Logger logger = null;
+    private final Logger logger;
 
-    private ORB orb = null;
-    private Codec codec = null;
-    private TaggedComponent tc = null;
-    private ISASContext sasContext = null;
+    private final ORB orb;
+    private Codec codec;
+    private TaggedComponent taggedComponent;
+    private final ISASContext sasContext;
 
     public SASComponentInterceptor(ORBInitInfo info)
     {
+        super();
+
         orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB();
         config = orb.getConfiguration();
         logger = config.getNamedLogger("jacorb.SAS.IOR");
 
         try
         {
-            Encoding encoding = 
+            Encoding encoding =
                 new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
 
-            CodecFactory codec_factory = 
+            CodecFactory codec_factory =
                 (CodecFactory)orb.resolve_initial_references("CodecFactory");
 
             codec = codec_factory.create_codec(encoding);
         }
         catch (Exception e)
         {
-            if (logger.isErrorEnabled())
-                logger.error("Error initing SASComponentInterceptor: ",e);
+            logger.error("Error initing SASComponentInterceptor: ",e);
         }
 
-        String contextClass = null;
+        sasContext = newSasContext();
 
+        if (sasContext == null && logger.isErrorEnabled())
+        {
+            logger.error("Could not load SAS context class: "+ config.getAttribute("jacorb.security.sas.contextClass", ""));
+        }
+    }
+
+    private ISASContext newSasContext()
+    {
         try
         {
-            contextClass = config.getAttribute("jacorb.security.sas.contextClass");
-            try 
-            {
-                Class c = org.jacorb.util.ObjectUtil.classForName(contextClass);
-                sasContext = (ISASContext)c.newInstance();
-            }
-            catch (Exception e) 
-            {
-                if (logger.isErrorEnabled())
-                    logger.error("Could not instantiate SAS Context class " + 
-                                 contextClass + ": " + e);
-            }
+            return (ISASContext)config.getAttributeAsObject("jacorb.security.sas.contextClass");
         }
-        catch( ConfigurationException ce )
+        catch (ConfigurationException e)
         {
-            // ignore;
-        }
-
-        if (sasContext == null) 
-        {
-            if (logger.isErrorEnabled())
-                logger.error("Could not load SAS context class: "+ contextClass);
+            return null;
         }
     }
 
@@ -140,6 +133,7 @@ public class SASComponentInterceptor
 
     public void destroy()
     {
+        // nothing to do
     }
 
     /**
@@ -150,60 +144,66 @@ public class SASComponentInterceptor
     public void establish_components(IORInfo info)
     {
         // see if SAS policy is set
-        if (sasContext == null) 
+        if (sasContext == null)
+        {
             return;
-
-        SASPolicyValues sasValues = null;
-        try 
-        {
-            SASPolicy policy = 
-                (SASPolicy)((IORInfoImpl)info).get_effective_policy(SAS_POLICY_TYPE.value);
-            if (policy != null) 
-                sasValues = policy.value();
-        } 
-        catch (BAD_PARAM e) 
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("No SAS Policy");
-        } 
-        catch (Exception e) 
-        {
-            if (logger.isWarnEnabled())
-                logger.warn("Error fetching SAS policy: "+e);
         }
 
-        if (sasValues == null) 
-            return;
+        SASPolicyValues sasValues = null;
+        try
+        {
+            SASPolicy policy =
+                (SASPolicy)((IORInfoImpl)info).get_effective_policy(SAS_POLICY_TYPE.value);
+            if (policy != null)
+            {
+                sasValues = policy.value();
+            }
+        }
+        catch (BAD_PARAM e)
+        {
+            logger.debug("No SAS Policy");
+        }
+        catch (Exception e)
+        {
+            logger.warn("Error fetching SAS policy", e);
+        }
 
-        if (sasValues.targetRequires == 0 && sasValues.targetSupports == 0) 
+        if (sasValues == null)
+        {
             return;
+        }
+
+        if (sasValues.targetRequires == 0 && sasValues.targetSupports == 0)
+        {
+            return;
+        }
 
         ATLASPolicyValues atlasValues = null;
-        try 
+        try
         {
-            ATLASPolicy policy = 
+            ATLASPolicy policy =
                 (ATLASPolicy)info.get_effective_policy(ATLAS_POLICY_TYPE.value);
-            if (policy != null) 
+            if (policy != null)
+            {
                 atlasValues = policy.value();
-        } 
-        catch (BAD_PARAM e) 
+            }
+        }
+        catch (BAD_PARAM e)
         {
-            if (logger.isDebugEnabled())
-                logger.debug("No ATLAS Policy");
-        } 
-        catch (Exception e) 
+            logger.debug("No ATLAS Policy");
+        }
+        catch (Exception e)
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Error fetching ATLAS policy: "+e);
+            logger.warn("Error fetching ATLAS policy", e);
         }
 
         // generate SAS tag
         try
         {
-            if( tc == null )
+            if( taggedComponent == null )
             {
                 // for now, no transport mechanizms
-                TaggedComponent transportMech = 
+                TaggedComponent transportMech =
                     new TaggedComponent(TAG_NULL_TAG.value, new byte[0]);
 
                 // the AS_ContextSec
@@ -215,8 +215,10 @@ public class SASComponentInterceptor
                 }
                 else
                 {
-                    if (atlasValues.atlasCache == null) 
+                    if (atlasValues.atlasCache == null)
+                    {
                         atlasValues.atlasCache = "";
+                    }
                     ATLASLocator atlasLoc = new ATLASLocator();
                     atlasLoc.the_url(atlasValues.atlasURL);
                     ATLASProfile profile = new ATLASProfile();
@@ -227,55 +229,59 @@ public class SASComponentInterceptor
                     ATLASProfileHelper.insert( any, profile );
                     cdrProfile = codec.encode(any);
                     serviceConfiguration = new ServiceConfiguration[1];
-                    serviceConfiguration[0] = 
+                    serviceConfiguration[0] =
                         new ServiceConfiguration(SCS_ATLAS.value, cdrProfile);
                 }
-                SAS_ContextSec sasContextSec = 
-                    new SAS_ContextSec((short)0, 
-                                       (short)0, 
-                                       serviceConfiguration, 
-                                       new byte[0][0], 
+                SAS_ContextSec sasContextSec =
+                    new SAS_ContextSec((short)0,
+                                       (short)0,
+                                       serviceConfiguration,
+                                       new byte[0][0],
                                        0);
 
                 // create the security mech list
-                boolean useStateful = 
+                boolean useStateful =
                     config.getAttributeAsBoolean("jacorb.security.sas.stateful", true);
 
                 CompoundSecMech[] compoundSecMech = new CompoundSecMech[1];
                 Oid oid = new Oid(sasContext.getMechOID());
                 byte[] clientAuthenticationMech = oid.getDER();
 
-                AS_ContextSec asContextSec = 
-                    new AS_ContextSec(sasValues.targetSupports, 
-                                      sasValues.targetRequires, 
-                                      clientAuthenticationMech, 
+                AS_ContextSec asContextSec =
+                    new AS_ContextSec(sasValues.targetSupports,
+                                      sasValues.targetRequires,
+                                      clientAuthenticationMech,
                                       targetName);
-                compoundSecMech[0] = 
-                    new CompoundSecMech(sasValues.targetRequires, 
-                                        transportMech, 
-                                        asContextSec, 
+                compoundSecMech[0] =
+                    new CompoundSecMech(sasValues.targetRequires,
+                                        transportMech,
+                                        asContextSec,
                                         sasContextSec);
 
-                CompoundSecMechList compoundSecMechList = 
+                CompoundSecMechList compoundSecMechList =
                     new CompoundSecMechList(useStateful, compoundSecMech);
 
                 // export to tagged component
-                CDROutputStream sasDataStream = new CDROutputStream( orb );
-                sasDataStream.beginEncapsulatedArray();
-                CompoundSecMechListHelper.write( sasDataStream , compoundSecMechList );
-                tc = new TaggedComponent( TAG_CSI_SEC_MECH_LIST.value, 
-                                          sasDataStream.getBufferCopy() );
+                final CDROutputStream sasDataStream = new CDROutputStream( orb );
 
-                sasDataStream.close ();
-                sasDataStream = null;
+                try
+                {
+                    sasDataStream.beginEncapsulatedArray();
+                    CompoundSecMechListHelper.write( sasDataStream , compoundSecMechList );
+                    taggedComponent = new TaggedComponent( TAG_CSI_SEC_MECH_LIST.value,
+                            sasDataStream.getBufferCopy() );
+                }
+                finally
+                {
+                    sasDataStream.close();
+                }
             }
 
-            info.add_ior_component_to_profile (tc, TAG_INTERNET_IOP.value);
+            info.add_ior_component_to_profile (taggedComponent, TAG_INTERNET_IOP.value);
         }
         catch (Exception e)
         {
-            if (logger.isErrorEnabled())
-                logger.error("establish_components error: ", e);
+            logger.error("establish_components error: ", e);
         }
     }
-} // SASComponentInterceptor
+}

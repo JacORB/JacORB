@@ -21,7 +21,6 @@
 package org.jacorb.orb.giop;
 
 import org.omg.PortableInterceptor.*;
-import org.omg.IOP.Codec;
 import org.omg.IIOP.*;
 import org.omg.IOP.*;
 
@@ -31,93 +30,91 @@ import org.jacorb.orb.portableInterceptor.*;
 
 import org.apache.avalon.framework.logger.*;
 
-
 /**
- * BiDirConnectionServerInterceptor.java
- *
- *
- * Created: Sun Sep  2 18:16:27 2002
- *
  * @author Nicolas Noffke
  * @version $Id$
  */
-
-public class BiDirConnectionServerInterceptor 
-    extends DefaultServerInterceptor 
+public class BiDirConnectionServerInterceptor
+    extends DefaultServerInterceptor
 {
-    private String name = "BiDirConnectionServerInterceptor";
+    private static final String NAME = "BiDirConnectionServerInterceptor";
 
-    private ORB orb = null;
-    private Codec codec = null;
-    private Logger logger;
+    private final ORB orb;
+    private final Logger logger;
+    private final ClientConnectionManager conn_mg;
 
-    private ClientConnectionManager conn_mg = null;
-
-    public BiDirConnectionServerInterceptor( ORB orb,
-                                             Codec codec )
+    protected BiDirConnectionServerInterceptor( ORB orb )
     {
+        super();
+
         this.orb = orb;
-        this.codec = codec;
         this.logger = orb.getConfiguration().getNamedLogger("jacorb.giop.bidir.interceptor");
-
-
         conn_mg = orb.getClientConnectionManager();
     }
 
     public String name()
     {
-        return name;
+        return NAME;
     }
 
     public void destroy()
     {
-    }    
+        // nothing to do
+    }
 
-    public void receive_request_service_contexts( ServerRequestInfo ri ) 
+    public void receive_request_service_contexts( ServerRequestInfo requestInfo )
         throws ForwardRequest
     {
         if( orb.useBiDirGIOP() )
         {
-            ServiceContext ctx = null;
-            
             try
             {
-                ctx = ri.get_request_service_context( BI_DIR_IIOP.value );
+                final ServiceContext context = requestInfo.get_request_service_context( BI_DIR_IIOP.value );
+                addConnections(requestInfo, context);
             }
-            catch( org.omg.CORBA.BAD_PARAM bp )
+            catch( org.omg.CORBA.BAD_PARAM e )
             {
-                //ignore
+                logger.debug("no BiDir context present");
             }
-
-            if( ctx == null )
-            {
-                return;//no bidir context present
-            }
-
-            BiDirIIOPServiceContext bidir_ctx = null;
-
-            CDRInputStream cdr_in = 
-                new CDRInputStream( orb, ctx.context_data );
-
-            cdr_in.openEncapsulatedArray();
-            
-            bidir_ctx = 
-                BiDirIIOPServiceContextHelper.read( cdr_in );            
-
-            GIOPConnection connection = 
-                ((ServerRequestInfoImpl) ri).request.getConnection();
-            
-            for( int i = 0; i < bidir_ctx.listen_points.length; i++ )
-            {
-                ListenPoint p = bidir_ctx.listen_points[i];
-
-                IIOPAddress addr = new IIOPAddress (p.host, p.port);                
-
-                if (logger.isDebugEnabled())
-                    logger.debug("Client conn. added to target " + addr );
-                
-                conn_mg.addConnection( connection, new IIOPProfile (addr, null) );
-            }            
         }
-    }    
-}// BiDirConnectionServerInterceptor
+    }
+
+    private void addConnections(ServerRequestInfo requestInfo, ServiceContext ctx)
+    {
+        final BiDirIIOPServiceContext bidir_ctx = readBiDirContext(ctx);
+
+        GIOPConnection connection =
+            ((ServerRequestInfoImpl) requestInfo).request.getConnection();
+
+        for( int i = 0; i < bidir_ctx.listen_points.length; i++ )
+        {
+            ListenPoint listenPoint = bidir_ctx.listen_points[i];
+
+            IIOPAddress addr = new IIOPAddress (listenPoint.host, listenPoint.port);
+
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Client conn. added to target " + addr );
+            }
+
+            conn_mg.addConnection( connection, new IIOPProfile (addr, null) );
+        }
+    }
+
+    private BiDirIIOPServiceContext readBiDirContext(ServiceContext ctx)
+    {
+        final CDRInputStream cdr_in =
+            new CDRInputStream( orb, ctx.context_data );
+
+        try
+        {
+            cdr_in.openEncapsulatedArray();
+
+            return BiDirIIOPServiceContextHelper.read(cdr_in);
+        }
+        finally
+        {
+            cdr_in.close();
+        }
+    }
+}

@@ -468,11 +468,6 @@ public class ValueDecl
         return var_name + " = " + printReadExpression(streamname);
     }
 
-    private void printClassComment(PrintWriter out)
-    {
-        printClassComment("valuetype", name, out);
-    }
-
     /**
      * Prints the abstract Java class to which this valuetype is mapped.
      */

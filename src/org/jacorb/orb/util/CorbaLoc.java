@@ -20,21 +20,21 @@
 
 package org.jacorb.orb.util;
 
-/**
- * @author Gerald Brose
- * @version $Id$
- */
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 
-
-import java.io.*;
-import java.util.*;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.omg.ETF.Profile;
 
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 public class CorbaLoc
 {
-    private ORB orb;
+    private final ORB orb;
     private String keyString;
     private byte[] key;
     private String bodyString;
@@ -42,9 +42,9 @@ public class CorbaLoc
 
     public Profile[] profileList;
 
-    public CorbaLoc(ORB o, String addr)
+    public CorbaLoc(ORB orb, String addr)
     {
-        orb = o;
+        this.orb = orb;
         is_rir = false;
         parse(addr);
     }
@@ -61,14 +61,17 @@ public class CorbaLoc
 
     public String body()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
 
-        sb.append(bodyString);
+        buffer.append(bodyString);
 
         if (keyString != null)
-            sb.append("/" + keyString);
+        {
+            buffer.append('/');
+            buffer.append(keyString);
+        }
 
-        return sb.toString();
+        return buffer.toString();
     }
 
     public String getKeyString()
@@ -81,18 +84,24 @@ public class CorbaLoc
         return key;
     }
 
-    public void defaultKeyString(String s)
+    public void defaultKeyString(String defaultKey)
     {
         if( keyString == null )
-            keyString = s;
+        {
+            keyString = defaultKey;
+        }
         else
-            throw new RuntimeException("KeyString not empty, cannot default to " + s );
+        {
+            throw new IllegalStateException("KeyString not empty, cannot default to " + defaultKey );
+        }
     }
 
     public String toCorbaName(String str_name)
     {
         if (getKeyString() == null)
+        {
             defaultKeyString("NameService");
+        }
 
         if (str_name != null && str_name.length() > 0)
         {
@@ -105,8 +114,8 @@ public class CorbaLoc
                 return null;
             }
         }
-        else
-            return "corbaname:" + body();
+
+        return "corbaname:" + body();
     }
 
     /**
@@ -115,7 +124,9 @@ public class CorbaLoc
     private void parse(String addr)
     {
         if( addr == null || !addr.startsWith("corbaloc:"))
+        {
             throw new IllegalArgumentException("URL must start with \'corbaloc:\'");
+        }
 
         String sb;
         if( addr.indexOf('/') == -1 )
@@ -149,7 +160,9 @@ public class CorbaLoc
             {
                 Profile p = parseAddress(tokenizer.nextToken());
                 if (p == null)
+                {
                     continue;
+                }
                 profileList[pIndex] = p;
                 pIndex++;
             }
@@ -161,7 +174,9 @@ public class CorbaLoc
 
         }
         else
+        {
             profileList = new Profile[]{ parseAddress(sb) };
+        }
 
         bodyString = sb;
     }
@@ -170,8 +185,11 @@ public class CorbaLoc
     {
         int colon = addr.indexOf(':');
         if (colon == -1)
+        {
             throw new IllegalArgumentException(
                 "Illegal object address format: " + addr);
+        }
+
         if (addr.equals("rir:"))
         {
             is_rir = true;
@@ -184,10 +202,11 @@ public class CorbaLoc
             && (colon == 0
                 || addr.startsWith("iiop:")
                 || addr.startsWith("ssliop:")))
+        {
             result = new IIOPProfile(addr);
+        }
         else if (orb != null)
         {
-            String token = addr.substring(0, colon);
             List factories = orb.getTransportManager().getFactoriesList();
             for (Iterator i = factories.iterator();
                  result == null && i.hasNext();)
@@ -197,8 +216,10 @@ public class CorbaLoc
             }
         }
         if (result == null)
+        {
             throw new IllegalArgumentException(
                 "Unknown protocol in object address format: " + addr);
+        }
         return result;
     }
 
@@ -207,13 +228,14 @@ public class CorbaLoc
         if(( c >= '0' && c <= '9') ||
            ( c >= 'a' && c <= 'z') ||
            ( c >= 'A' && c <= 'Z' ))
+        {
             return true;
-        else
-            return ( c == ';' || c == '/' ||c == ':' || c == '?' ||
-                     c == '@' || c == '&' ||c == '=' || c == '+' ||
-                     c == '$' || c == ',' ||c == '_' || c == '.' ||
-                     c == '!' || c == '~' ||c == '*' || c == '\'' ||
-                     c == '-' || c == '(' || c == ')' );
+        }
+        return (c == ';' || c == '/' ||c == ':' || c == '?' ||
+                c == '@' || c == '&' ||c == '=' || c == '+' ||
+                c == '$' || c == ',' ||c == '_' || c == '.' ||
+                c == '!' || c == '~' ||c == '*' || c == '\'' ||
+                c == '-' || c == '(' || c == ')' );
     }
 
     private static byte hexValue(char c)
@@ -226,7 +248,9 @@ public class CorbaLoc
     private static char hexDigit(byte b)
     {
         if( (b & 0xf0) != 0 )
+        {
             throw new IllegalArgumentException("Hex digit out of range " + b);
+        }
 
         return (char)( b < 10 ? '0' + (char)b :  'A' + (char)b - 10 ) ;
     }
@@ -255,10 +279,14 @@ public class CorbaLoc
                         i+=2;
                     }
                     else
+                    {
                         throw new IllegalArgumentException("Illegal escape in URL character");
+                    }
                 }
                 else
+                {
                     throw new IllegalArgumentException("URL character out of range: " + tmp[i]);
+                }
             }
         }
 
@@ -268,7 +296,9 @@ public class CorbaLoc
         for( int i = 0; i < count; i++ )
         {
             if( legalChar( tmp[idx]))
+            {
                 result[i] = (byte)tmp[idx++];
+            }
             else
             {
                 result[i] = (byte)( (hexValue(tmp[idx+1]))<<4 | hexValue(tmp[idx+2]) );
@@ -280,24 +310,24 @@ public class CorbaLoc
 
     public static String parseKey(byte[] key)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
 
         for( int i = 0; i < key.length; i++ )
         {
             if( !legalChar((char)key[i]) )
             {
-                sb.append( '%' );
+                buffer.append( '%' );
                 // Mask the bytes before shift to ensure 10001001 doesn't get
                 // shifted to 11111000 but 00001000 (linden java faq).
-                sb.append( hexDigit( (byte)((key[i] & 0xff) >> 4 )));
-                sb.append( hexDigit( (byte)( key[i] & 0x0f )));
+                buffer.append( hexDigit( (byte)((key[i] & 0xff) >> 4 )));
+                buffer.append( hexDigit( (byte)( key[i] & 0x0f )));
             }
             else
             {
-                sb.append( (char)key[i]);
+                buffer.append( (char)key[i]);
             }
         }
-        return sb.toString();
+        return buffer.toString();
     }
 
     public static void main(String[] args)

@@ -719,9 +719,8 @@ public final class ORB
                 if (poa.isSSLRequired())
                 {
                     ((ProfileBase)profile).patchPrimaryAddress(null);
+                }
             }
-        }
-
         }
 
         TaggedComponentList multipleComponents = new TaggedComponentList();
@@ -1028,7 +1027,8 @@ public final class ORB
         {
             profile.patchPrimaryAddress(imrProxyAddress);
         }
-        else if (!_transient && useIMR ) {
+        else if (!_transient && useIMR )
+        {
             getImR();
 
             // The double call to patchPrimaryAddress ensures that either the

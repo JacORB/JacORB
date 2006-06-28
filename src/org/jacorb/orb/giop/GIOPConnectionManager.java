@@ -19,12 +19,15 @@
  */
 package org.jacorb.orb.giop;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
-
-import java.io.InterruptedIOException;
-import java.util.*;
-
 import org.jacorb.util.ObjectUtil;
 
 /**
@@ -42,13 +45,11 @@ public class GIOPConnectionManager
     private Logger logger = null;
 
     //private List client_giop_connections = null;
-    private List server_giop_connections = null;
+    private final List server_giop_connections;
     private int max_server_giop_connections = 0;
     private Class statistics_provider_class = null;
     private SelectionStrategy selection_strategy = null;
     private int wait_for_idle_interval = 0;
-
-
 
     public GIOPConnectionManager()
     {
@@ -78,14 +79,14 @@ public class GIOPConnectionManager
             configuration.getAttributeAsInteger(
                 "jacorb.connection.wait_for_idle_interval", 500 );
 
-        String s =
+        String statisticsProviderClassName =
             configuration.getAttribute( "jacorb.connection.statistics_provider_class","" );
 
-        if( s.length() > 0 )
+        if( statisticsProviderClassName.length() > 0 )
         {
             try
             {
-                statistics_provider_class = ObjectUtil.classForName( s );
+                statistics_provider_class = ObjectUtil.classForName( statisticsProviderClassName );
             }
             catch( Exception e )
             {
@@ -107,7 +108,14 @@ public class GIOPConnectionManager
         //if too many open connections, shut one down
         if( server_giop_connections.size() >= max_server_giop_connections )
         {
-            if( selection_strategy != null )
+            if (selection_strategy == null)
+            {
+                if (logger.isErrorEnabled())
+                {
+                    logger.error( "No. of max server giop connections set, but no SelectionStrategy present" );
+                }
+            }
+            else
             {
                 while( server_giop_connections.size() >= max_server_giop_connections )
                 {
@@ -124,24 +132,15 @@ public class GIOPConnectionManager
                     {
                         break;
                     }
-                    else
+
+                    try
                     {
-                        try
-                        {
-                            Thread.sleep( wait_for_idle_interval );
-                        }
-                        catch( InterruptedException e )
-                        {
-                            // ignored
-                        }
+                        Thread.sleep( wait_for_idle_interval );
                     }
-                }
-            }
-            else
-            {
-                if (logger.isErrorEnabled())
-                {
-                    logger.error( "No. of max server giop connections set, but no SelectionStrategy present" );
+                    catch( InterruptedException e )
+                    {
+                        // ignored
+                    }
                 }
             }
         }
@@ -169,7 +168,9 @@ public class GIOPConnectionManager
         }
 
         if (logger.isDebugEnabled())
+        {
             logger.debug ("GIOPConnectionManager: created new " + connection.toString());
+        }
 
         return connection;
     }
@@ -219,13 +220,15 @@ public class GIOPConnectionManager
         }
 
         if (logger.isDebugEnabled())
+        {
             logger.debug ("GIOPConnectionManager.shutdown(), " +
                           connections.size() + " connections");
+        }
 
         for (Iterator i=connections.iterator(); i.hasNext();)
         {
-            ServerGIOPConnection c = (ServerGIOPConnection)i.next();
-            c.tryClose();
+            ServerGIOPConnection connection = (ServerGIOPConnection)i.next();
+            connection.tryClose();
         }
 
     }
@@ -243,8 +246,10 @@ public class GIOPConnectionManager
             catch( Exception e )
             {
                 if (logger.isErrorEnabled())
+                {
                     logger.error( "Unable to create instance from Class >" +
                                   statistics_provider_class + '<');
+                }
             }
         }
         return result;

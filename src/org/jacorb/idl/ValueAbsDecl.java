@@ -20,20 +20,19 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.*;
 
 /**
- * @author Andre Spiegel, Gerald Brose
+ * @author Andre Spiegel
+ * @author Gerald Brose
  * @version $Id$
  *
  * This class is basically the same as Interface.java, but we can't extend
  * that one because we have to extend Value, and delegating some parts and
  * not others is a nuisance...
  */
-
 public class ValueAbsDecl
     extends Value
 {
@@ -50,15 +49,23 @@ public class ValueAbsDecl
     {
         s = parser.pack_replace(s);
         if (pack_name.length() > 0)
+        {
             pack_name = s + "." + pack_name;
+        }
         else
+        {
             pack_name = s;
+        }
 
         if (body != null) // could've been a forward declaration)
+        {
             body.setPackage(s); // a new scope!
+        }
 
         if (inheritanceSpec != null)
+        {
             inheritanceSpec.setPackage(s);
+        }
     }
 
     public void setInheritanceSpec(ValueInheritanceSpec spec)
@@ -81,12 +88,10 @@ public class ValueAbsDecl
         return full_name();
     }
 
-
     public Object clone()
     {
         throw new RuntimeException("Don't clone me, i am an interface!");
     }
-
 
     public void setEnclosingSymbol(IdlSymbol s)
     {
@@ -99,12 +104,10 @@ public class ValueAbsDecl
         enclosing_symbol = s;
     }
 
-
     public boolean basic()
     {
         return true;
     }
-
 
     public String holderName()
     {
@@ -120,12 +123,10 @@ public class ValueAbsDecl
         return getFullName(typeName());
     }
 
-
     public void set_included(boolean i)
     {
         included = i;
     }
-
 
     public void parse()
     {
@@ -231,9 +232,13 @@ public class ValueAbsDecl
         else if (body == null)
         {
             if (((ValueAbsDecl)((ConstrTypeSpec)TypeMap.map(full_name())).c_type_spec) != this)
+            {
                 body = ((ValueAbsDecl)((ConstrTypeSpec)TypeMap.map(full_name())).c_type_spec).getBody();
+            }
             if (body == null)
+            {
                 parser.fatal_error(full_name() + " still has an empty body!", token);
+            }
         }
         return body;
     }
@@ -249,15 +254,13 @@ public class ValueAbsDecl
         {
             return this.getRecursiveTypeCodeExpression();
         }
-        else
-        {
-            knownTypes.add(this);
 
-            return "org.omg.CORBA.ORB.init().create_value_tc(\"" + id() +
-                "\", \"" + name +
-                "\", org.omg.CORBA.VM_ABSTRACT.value " +
-                ", null, null)";
-        }
+        knownTypes.add(this);
+
+        return "org.omg.CORBA.ORB.init().create_value_tc(\"" + id() +
+            "\", \"" + name +
+            "\", org.omg.CORBA.VM_ABSTRACT.value " +
+            ", null, null)";
     }
 
 
@@ -293,7 +296,9 @@ public class ValueAbsDecl
     public void print(PrintWriter unused)
     {
         if (included && !generateIncluded())
+        {
             return;
+        }
 
         // divert output into class files
         if (body != null) // forward declaration
@@ -351,7 +356,7 @@ public class ValueAbsDecl
                     {
                         for (Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements();)
                         {
-                            ps.print(", " + (ScopedName)e.nextElement());
+                            ps.print(", " + e.nextElement());
                         }
                     }
 

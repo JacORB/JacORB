@@ -701,9 +701,13 @@ public final class Any
     public org.omg.CORBA.portable.OutputStream create_output_stream()
     {
         if(!( orb instanceof org.jacorb.orb.ORB ))
+        {
             value = new CDROutputStream();
+        }
         else
+        {
             value = new CDROutputStream(orb);
+        }
         return (CDROutputStream)value;
     }
 

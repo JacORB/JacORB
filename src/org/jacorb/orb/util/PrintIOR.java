@@ -72,7 +72,7 @@ public class PrintIOR
 
         if( args.length != 2)
         {
-            System.err.println("Usage: java PrintIOR [ -i ior_str | -f filename ]");
+            System.err.println("Usage: java PrintIOR [ -i ior_str | -f filename ]"); // NOPMD
             System.exit( 1 );
         }
 
@@ -107,7 +107,7 @@ public class PrintIOR
         }
         else
         {
-            System.err.println("Usage: java PrintIOR [ -i ior_str | -f filename ]");
+            System.err.println("Usage: java PrintIOR [ -i ior_str | -f filename ]"); // NOPMD
             System.exit( 1 );
         }
 
@@ -131,12 +131,26 @@ public class PrintIOR
         }
         else
         {
-            System.out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
+            println("Sorry, we only unparse IORs in the standard IOR URL scheme");
         }
 
         orb.shutdown(true);
     }
 
+    private static void print(String mesg)
+    {
+        System.out.print(mesg); // NOPMD
+    }
+
+    private static void println(String mesg)
+    {
+        System.out.println(mesg); // NOPMD
+    }
+
+    private static void println()
+    {
+        System.out.println(); // NOPMD
+    }
 
     /**
      * top-level
@@ -146,58 +160,62 @@ public class PrintIOR
     {
         org.omg.IOP.IOR ior = pior.getIOR();
 
-        System.out.println("------IOR components-----");
-        System.out.println("TypeId\t:\t" + ior.type_id );
+        println("------IOR components-----");
+        println("TypeId\t:\t" + ior.type_id );
 
         List profiles = pior.getProfiles();
 
-        System.out.println("TAG_INTERNET_IOP Profiles:");
+        println("TAG_INTERNET_IOP Profiles:");
         for( int i = 0; i < profiles.size(); i++ )
         {
-            System.out.print("\tProfile Id:  ");
+            print("\tProfile Id:  ");
 
-            IIOPProfile p = (IIOPProfile)profiles.get(i);
-            System.out.println("\tIIOP Version :  " +
-                               (int)p.version().major + "." +
-                               (int)p.version().minor);
+            IIOPProfile profile = (IIOPProfile)profiles.get(i);
+            println("\tIIOP Version :  " +
+                               (int)profile.version().major + "." +
+                               (int)profile.version().minor);
 
-            System.out.println("\tHost\t:\t" +
-                               ((IIOPAddress)p.getAddress()).getOriginalHost());
-            int port = ((IIOPAddress)p.getAddress()).getPort();
+            println("\tHost\t:\t" +
+                               ((IIOPAddress)profile.getAddress()).getOriginalHost());
+            int port = ((IIOPAddress)profile.getAddress()).getPort();
             if( port < 0 )
+            {
                 port += 65536;
+            }
 
-            System.out.println("\tPort\t:\t" + port );
+            println("\tPort\t:\t" + port );
             try
             {
-                System.out.println("\tObject key (URL):      " +
+                println("\tObject key (URL):      " +
                                    CorbaLoc.parseKey( pior.get_object_key()));
             }
             catch( Exception e )
             {
                 // ignore, object key not in url format
             }
-            System.out.print("\tObject key (hex):    0x" );
+            print("\tObject key (hex):    0x" );
             dumpHex( pior.get_object_key() );
-            System.out.println();
+            println();
 
-            if ( p.version().minor >= ( char ) 1 )
+            if ( profile.version().minor >= ( char ) 1 )
             {
-                if( p.getComponents().size() > 0 )
-                    System.out.println("\t-- Found " +
-                                       p.getComponents().size() +
+                if( profile.getComponents().size() > 0 )
+                {
+                    println("\t-- Found " +
+                                       profile.getComponents().size() +
                                        " Tagged Components--" );
+                }
 
-                printTaggedComponents( p.getComponents().asArray() );
+                printTaggedComponents( profile.getComponents().asArray() );
             }
-            System.out.print("\n");
+            print("\n");
         }
 
         TaggedComponentList multiple_components = pior.getMultipleComponents();
 
         if( multiple_components.size() > 0 )
         {
-            System.out.println("Components in MULTIPLE_COMPONENTS profile: " +
+            println("Components in MULTIPLE_COMPONENTS profile: " +
                                multiple_components.size() );
 
             printTaggedComponents( multiple_components.asArray() );
@@ -217,37 +235,37 @@ public class PrintIOR
             switch( taggedComponents[i].tag )
             {
                 case TAG_SSL_SEC_TRANS.value:
-                System.out.println("\t#"+ i + ": TAG_SSL_SEC_TRANS");
+                println("\t#"+ i + ": TAG_SSL_SEC_TRANS");
                 printSSLTaggedComponent( taggedComponents[i] );
                 break;
                 case TAG_CSI_SEC_MECH_LIST.value:
-                System.out.println("\t#"+ i + ": TAG_CSI_SEC_MECH_LIST");
+                println("\t#"+ i + ": TAG_CSI_SEC_MECH_LIST");
                 printCSIMechComponent( taggedComponents[i] );
                 break;
                 case TAG_SECIOP_SEC_TRANS.value:
-                System.out.println("\t#"+ i + ": TAG_SECIOP_SEC_TRANS");
+                println("\t#"+ i + ": TAG_SECIOP_SEC_TRANS");
                 break;
                 case TAG_ALTERNATE_IIOP_ADDRESS.value:
-                System.out.println("\t#"+ i + ": TAG_ALTERNATE_IIOP_ADDRESS");
+                println("\t#"+ i + ": TAG_ALTERNATE_IIOP_ADDRESS");
                 printAlternateAddress(taggedComponents[i]);
                 break;
                 case TAG_CODE_SETS.value:
-                System.out.println("\t#"+ i + ": TAG_CODE_SETS");
+                println("\t#"+ i + ": TAG_CODE_SETS");
                 printCodeSetComponent( taggedComponents[i] );
                 break;
                 case TAG_JAVA_CODEBASE.value:
-                System.out.println("\t#"+ i + ": TAG_JAVA_CODEBASE");
+                println("\t#"+ i + ": TAG_JAVA_CODEBASE");
                 printJavaCodebaseComponent( taggedComponents[i] );
                 break;
                 case TAG_ORB_TYPE.value:
-                System.out.println("\t#"+ i + ": TAG_ORB_TYPE");
+                println("\t#"+ i + ": TAG_ORB_TYPE");
                 printOrbTypeComponent( taggedComponents[i] );
                 break;
                 case TAG_NULL_TAG.value:
-                System.out.println("\t#"+ i + ": TAG_NULL_TAG");
+                println("\t#"+ i + ": TAG_NULL_TAG");
                 break;
                 default:
-                System.out.println("\tUnknown tag : " +
+                println("\tUnknown tag : " +
                                    taggedComponents[i].tag);
             }
         }
@@ -264,44 +282,44 @@ public class PrintIOR
 
         if( csmList!= null )
         {
-            System.out.println("\t\tis stateful: " + csmList.stateful );
+            println("\t\tis stateful: " + csmList.stateful );
             for( int i = 0; i < csmList.mechanism_list.length; i++ )
             {
-                System.out.println("\t\tCompoundSecMech #" + i);
-                System.out.println("\t\t\ttarget_requires: " +
+                println("\t\tCompoundSecMech #" + i);
+                println("\t\t\ttarget_requires: " +
                                    csmList.mechanism_list[i].target_requires );
-                System.out.print("\t\t\ttransport mechanism tag: ");
+                print("\t\t\ttransport mechanism tag: ");
                 switch( csmList.mechanism_list[i].transport_mech.tag )
                 {
                     case TAG_TLS_SEC_TRANS.value:
-                    System.out.println("TAG_TLS_SEC_TRANS");
+                    println("TAG_TLS_SEC_TRANS");
                     printTlsSecTrans(csmList.mechanism_list[i].transport_mech.component_data);
                     break;
                     case TAG_NULL_TAG.value:
-                    System.out.println("TAG_NULL_TAG");
+                    println("TAG_NULL_TAG");
                     break;
                     default:
-                    System.out.println("Unknown tag : " +
+                    println("Unknown tag : " +
                                        csmList.mechanism_list[i].transport_mech.tag );
                 }
-                System.out.println("\t\t\tAS_ContextSec target_supports: " + csmList.mechanism_list[i].as_context_mech.target_supports );
-                System.out.println("\t\t\tAS_ContextSec target_requires: " + csmList.mechanism_list[i].as_context_mech.target_requires );
-                System.out.print("\t\t\tAS_ContextSec mech: " );
+                println("\t\t\tAS_ContextSec target_supports: " + csmList.mechanism_list[i].as_context_mech.target_supports );
+                println("\t\t\tAS_ContextSec target_requires: " + csmList.mechanism_list[i].as_context_mech.target_requires );
+                print("\t\t\tAS_ContextSec mech: " );
                 dumpHex(csmList.mechanism_list[i].as_context_mech.client_authentication_mech);
-                System.out.println();
-                System.out.print("\t\t\tAS_ContextSec target_name: " );
+                println();
+                print("\t\t\tAS_ContextSec target_name: " );
                 printNTExportedName(csmList.mechanism_list[i].as_context_mech.target_name);
                 //}
-                System.out.println("\t\t\tSAS_ContextSec target_supports: " + csmList.mechanism_list[i].sas_context_mech.target_supports );
-                System.out.println("\t\t\tSAS_ContextSec target_requires: " + csmList.mechanism_list[i].sas_context_mech.target_requires );
+                println("\t\t\tSAS_ContextSec target_supports: " + csmList.mechanism_list[i].sas_context_mech.target_supports );
+                println("\t\t\tSAS_ContextSec target_requires: " + csmList.mechanism_list[i].sas_context_mech.target_requires );
 
                 for (int j = 0; j < csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms.length; j++) {
-                    System.out.print("\t\t\tSAS_ContextSec Naming mech: " );
+                    print("\t\t\tSAS_ContextSec Naming mech: " );
                     dumpHex(csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms[j]);
-                    System.out.println();
+                    println();
                 }
-                System.out.println("\t\t\tSAS_ContextSec Naming types: " + csmList.mechanism_list[i].sas_context_mech.supported_identity_types);
-                System.out.println();
+                println("\t\t\tSAS_ContextSec Naming types: " + csmList.mechanism_list[i].sas_context_mech.supported_identity_types);
+                println();
             }
         }
     }
@@ -310,7 +328,7 @@ public class PrintIOR
         // check for token identifier
         if (nameData.length < 2 || nameData[0] != 0x04 || nameData[1] != 0x01) {
             dumpHex(nameData);
-            System.out.println();
+            println();
             return;
         }
 
@@ -318,7 +336,7 @@ public class PrintIOR
         int mechLen = (nameData[2] << 8) + nameData[3];
         if (mechLen > (nameData.length - 8)) {
             dumpHex(nameData);
-            System.out.println();
+            println();
             return;
         }
 
@@ -329,12 +347,12 @@ public class PrintIOR
                       (nameData[mechLen + 7]);
         if ((mechLen + nameLen) > (nameData.length - 8)) {
             dumpHex(nameData);
-            System.out.println();
+            println();
             return;
         }
         byte[] name = new byte[nameLen];
         System.arraycopy(nameData, mechLen + 8, name, 0, nameLen);
-        System.out.println(new String(name));
+        println(new String(name));
     }
 
     private static void printTlsSecTrans(byte[] tagData) {
@@ -343,19 +361,22 @@ public class PrintIOR
         {
             in.openEncapsulatedArray();
             TLS_SEC_TRANS tls = TLS_SEC_TRANSHelper.read( in );
-            System.out.println("\t\t\tTLS SEC TRANS target requires: " + tls.target_requires);
-            System.out.println("\t\t\tTLS SEC TRANS target supports: " + tls.target_supports);
+            println("\t\t\tTLS SEC TRANS target requires: " + tls.target_requires);
+            println("\t\t\tTLS SEC TRANS target supports: " + tls.target_supports);
             for (int i = 0; i < tls.addresses.length; i++) {
                 int ssl_port = tls.addresses[i].port;
-                if( ssl_port < 0 ) ssl_port += 65536;
-                System.out.println("\t\t\tTLS SEC TRANS address: " + tls.addresses[i].host_name+":"+ssl_port);
+                if( ssl_port < 0 )
+                {
+                    ssl_port += 65536;
+                }
+                println("\t\t\tTLS SEC TRANS address: " + tls.addresses[i].host_name+":"+ssl_port);
             }
         }
         catch ( Exception ex )
         {
-            System.out.print("\t\t\tTLS SEC TRANS: " );
+            print("\t\t\tTLS SEC TRANS: " );
             dumpHex(tagData);
-            System.out.println();
+            println();
         }
     }
 
@@ -372,38 +393,38 @@ public class PrintIOR
 
         if( codeSet != null )
         {
-            System.out.println("\t\tForChar native code set Id: " +
+            println("\t\tForChar native code set Id: " +
                                CodeSet.csName(codeSet.ForCharData.native_code_set ));
-            System.out.print("\t\tChar Conversion Code Sets: ");
+            print("\t\tChar Conversion Code Sets: ");
             for( int ji = 0; ji < codeSet.ForCharData.conversion_code_sets.length; ji++ )
             {
-                System.out.println( CodeSet.csName( codeSet.ForCharData.conversion_code_sets[ji] ) );
+                println( CodeSet.csName( codeSet.ForCharData.conversion_code_sets[ji] ) );
 
                 if( ji < (codeSet.ForCharData.conversion_code_sets.length - 1) )
                 {
-                    System.out.print( ", " );
+                    print( ", " );
                 }
             }
             if (codeSet.ForCharData.conversion_code_sets.length == 0 )
             {
-                System.out.print("\n");
+                print("\n");
             }
 
-            System.out.println("\t\tForWChar native code set Id: " +
+            println("\t\tForWChar native code set Id: " +
                                CodeSet.csName(codeSet.ForWcharData.native_code_set ));
-            System.out.print("\t\tWChar Conversion Code Sets: ");
+            print("\t\tWChar Conversion Code Sets: ");
             for( int ji = 0; ji < codeSet.ForWcharData.conversion_code_sets.length; ji++ )
             {
-                System.out.println( CodeSet.csName( codeSet.ForWcharData.conversion_code_sets[ji] ));
+                println( CodeSet.csName( codeSet.ForWcharData.conversion_code_sets[ji] ));
 
                 if( ji < (codeSet.ForWcharData.conversion_code_sets.length - 1) )
                 {
-                    System.out.print( ", " );
+                    print( ", " );
                 }
             }
             if (codeSet.ForCharData.conversion_code_sets.length == 0 )
             {
-                System.out.print("\n");
+                print("\n");
             }
         }
     }
@@ -427,17 +448,19 @@ public class PrintIOR
             }
             int ssl_port = ssl.port;
             if( ssl_port < 0 )
+            {
                 ssl_port += 65536;
+            }
 
-            System.out.print   ( "\t\ttarget_supports\t:\t" );
+            print( "\t\ttarget_supports\t:\t" );
             //dump               ( ssl.target_supports );
             decodeAssociationOption( ssl.target_supports );
-            java.lang.System.out.println();
-            System.out.print   ( "\t\ttarget_requires\t:\t" );
+            println();
+            print( "\t\ttarget_requires\t:\t" );
             //dump               ( ssl.target_requires );
             decodeAssociationOption( ssl.target_requires );
-            java.lang.System.out.println();
-            System.out.println ( "\t\tSSL Port\t:\t" + ssl_port );
+            println();
+            println( "\t\tSSL Port\t:\t" + ssl_port );
 
         }
     }
@@ -449,10 +472,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "NoProtection" );
+            print( "NoProtection" );
 
             first = false;
         }
@@ -461,10 +484,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "Integrity" );
+            print( "Integrity" );
 
             first = false;
         }
@@ -473,10 +496,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "Confidentiality" );
+            print( "Confidentiality" );
 
             first = false;
         }
@@ -485,10 +508,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "DetectReplay" );
+            print( "DetectReplay" );
 
             first = false;
         }
@@ -497,10 +520,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "DetectMisordering" );
+            print( "DetectMisordering" );
 
             first = false;
         }
@@ -509,10 +532,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "EstablishTrustInTarget" );
+            print( "EstablishTrustInTarget" );
 
             first = false;
         }
@@ -521,10 +544,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "EstablishTrustInClient" );
+            print( "EstablishTrustInClient" );
 
             first = false;
         }
@@ -533,10 +556,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "NoDelegation" );
+            print( "NoDelegation" );
 
             first = false;
         }
@@ -545,10 +568,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "SimpleDelegation" );
+            print( "SimpleDelegation" );
 
             first = false;
         }
@@ -557,10 +580,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                System.out.print( ", " );
+                print( ", " );
             }
 
-            System.out.print( "CompositeDelegation" );
+            print( "CompositeDelegation" );
 
             first = false;
         }
@@ -577,7 +600,7 @@ public class PrintIOR
             in.openEncapsulatedArray();
             String codebase = in.read_string();
 
-            System.out.println( "\t\tCodebase: " + codebase );
+            println( "\t\tCodebase: " + codebase );
         }
         finally
         {
@@ -585,23 +608,23 @@ public class PrintIOR
         }
     }
 
-    private static void printOrbTypeComponent (TaggedComponent tc)
+    private static void printOrbTypeComponent (TaggedComponent taggedComponent)
     {
-        final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, tc.component_data );
+        final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, taggedComponent.component_data );
 
         try
         {
             is.openEncapsulatedArray ();
             int type = is.read_long ();
 
-            System.out.print ( "\t\tType: " + type);
+            print ( "\t\tType: " + type);
             if (type == ORBConstants.JACORB_ORB_ID)
             {
-                System.out.println (" (JacORB)");
+                println (" (JacORB)");
             }
             else
             {
-                System.out.println (" (Foreign)");
+                println (" (Foreign)");
             }
         }
         finally
@@ -610,14 +633,14 @@ public class PrintIOR
         }
     }
 
-    private static void printAlternateAddress(TaggedComponent tc)
+    private static void printAlternateAddress(TaggedComponent taggedComponent)
     {
-        final CDRInputStream is = new CDRInputStream((org.omg.CORBA.ORB)null, tc.component_data);
+        final CDRInputStream is = new CDRInputStream((org.omg.CORBA.ORB)null, taggedComponent.component_data);
 
         try
         {
             is.openEncapsulatedArray();
-            System.out.println("\t\tAddress: " + IIOPAddress.read(is));
+            println("\t\tAddress: " + IIOPAddress.read(is));
         }
         finally
         {
@@ -625,78 +648,86 @@ public class PrintIOR
         }
     }
 
-    public static void dumpHex(byte bs[])
+    public static void dumpHex(byte values[])
     {
-        for (int i=0; i<bs.length; i++)
+        for (int i=0; i<values.length; i++)
         {
-            int n1 = (bs[i] & 0xff) / 16;
-            int n2 = (bs[i] & 0xff) % 16;
+            int n1 = (values[i] & 0xff) / 16;
+            int n2 = (values[i] & 0xff) % 16;
             char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
             char c2 = (char)(n2>9 ? ('A'+(n2-10)) : ('0'+n2));
-            System.out.print( c1 + (c2 + " "));
+            print( c1 + (c2 + " "));
         }
     }
 
-    static char hexDigit[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    private static final char hexDigit[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                'A', 'B', 'C', 'D', 'E', 'F'
     };
 
-    public static void dump ( byte bs[] ) {
-        for ( int i = 0; i < bs.length; i++ )
+    public static void dump ( byte values[] ) {
+        for ( int i = 0; i < values.length; i++ )
         {
-            dump ( bs[ i ] );
-            System.out.print( " " );
+            dump ( values[ i ] );
+            print( " " );
         }
     }
 
-    public static void dump ( int is[] ) {
-        for ( int i = 0; i < is.length; i++ )
+    public static void dump ( int values[] ) {
+        for ( int i = 0; i < values.length; i++ )
         {
-            dump ( is[ i ] );
-            System.out.print( " " );
+            dump ( values[ i ] );
+            print( " " );
         }
     }
 
-    public static void dump ( byte b ) {
-        java.lang.System.out.print( ""
-                                    + hexDigit[ ( b >>  4 ) & 0x0f ]
-                                    + hexDigit[ ( b       ) & 0x0f ]
+    public static void dump ( byte value ) {
+        print( ""
+                                    + hexDigit[ ( value >>  4 ) & 0x0f ]
+                                    + hexDigit[ ( value       ) & 0x0f ]
                                   );
     }
 
-    public static void dump ( short i ) {
-        java.lang.System.out.print( ""
-                                    + hexDigit[ ( i >> 12 ) & 0x0f ]
-                                    + hexDigit[ ( i >>  9 ) & 0x0f ]
-                                    + hexDigit[ ( i >>  4 ) & 0x0f ]
-                                    + hexDigit[ ( i       ) & 0x0f ]
+    public static void dump ( short value ) {
+        print( ""
+                                    + hexDigit[ ( value >> 12 ) & 0x0f ]
+                                    + hexDigit[ ( value >>  9 ) & 0x0f ]
+                                    + hexDigit[ ( value >>  4 ) & 0x0f ]
+                                    + hexDigit[ ( value       ) & 0x0f ]
                                   );
     }
 
-    public static void dump ( int i ) {
-        java.lang.System.out.print( ""
-                                    + hexDigit[ ( i >> 28 ) & 0x0f ]
-                                    + hexDigit[ ( i >> 24 ) & 0x0f ]
-                                    + hexDigit[ ( i >> 20 ) & 0x0f ]
-                                    + hexDigit[ ( i >> 16 ) & 0x0f ]
-                                    + hexDigit[ ( i >> 12 ) & 0x0f ]
-                                    + hexDigit[ ( i >>  8 ) & 0x0f ]
-                                    + hexDigit[ ( i >>  4 ) & 0x0f ]
-                                    + hexDigit[ ( i       ) & 0x0f ]
+    public static void dump ( int value ) {
+        print( ""
+                                    + hexDigit[ ( value >> 28 ) & 0x0f ]
+                                    + hexDigit[ ( value >> 24 ) & 0x0f ]
+                                    + hexDigit[ ( value >> 20 ) & 0x0f ]
+                                    + hexDigit[ ( value >> 16 ) & 0x0f ]
+                                    + hexDigit[ ( value >> 12 ) & 0x0f ]
+                                    + hexDigit[ ( value >>  8 ) & 0x0f ]
+                                    + hexDigit[ ( value >>  4 ) & 0x0f ]
+                                    + hexDigit[ ( value       ) & 0x0f ]
                                   );
     }
 
-    public static void dump ( byte bs[], boolean withChar )
+    public static void dump ( byte values[], boolean withChar )
     {
         char c;
-        int len = bs.length;
+        int len = values.length;
         for ( int i = 0; i < len; i++ ) {
-            if ( 0 == i % 16 ) java.lang.System.out.println();
-            if ( bs[ i ] > ( byte ) 31 && bs[ i ] < ( byte ) 127 ) c = ( char ) bs[ i ];
-            else c = ' ';
-            java.lang.System.out.print( ":"
-                                        + hexDigit[ ( bs [ i ] >> 4 ) & 0x0f ]
-                                        + hexDigit[ bs [ i ] & 0x0f ]
+            if ( 0 == i % 16 )
+            {
+                println();
+            }
+            if ( values[ i ] > ( byte ) 31 && values[ i ] < ( byte ) 127 )
+            {
+                c = ( char ) values[ i ];
+            }
+            else {
+                c = ' ';
+            }
+            print( ":"
+                                        + hexDigit[ ( values [ i ] >> 4 ) & 0x0f ]
+                                        + hexDigit[ values [ i ] & 0x0f ]
                                         + " " + c
                                       );
         }

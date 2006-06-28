@@ -26,12 +26,10 @@ import java.net.*;
 import org.jacorb.orb.listener.SSLListenerUtil;
 
 /**
- * IIOPConnection.java
- *
- * @author Nicolas Noffke / Andre Spiegel
+ * @author Nicolas Noffke
+ * @author Andre Spiegel
  * @version $Id$
  */
-
 public abstract class IIOPConnection
     extends org.jacorb.orb.etf.StreamConnectionBase
 {
@@ -47,6 +45,7 @@ public abstract class IIOPConnection
 
     public IIOPConnection()
     {
+        super();
     }
 
     public boolean isSSL()
@@ -76,11 +75,11 @@ public abstract class IIOPConnection
         }
     }
 
-    protected final org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE(IOException ex, Socket socket)
+    protected final org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE(IOException exception, Socket socket)
     {
-        SSLListenerUtil.processException(orb, this, socket, ex);
+        SSLListenerUtil.processException(orb, this, socket, exception);
 
-        return to_COMM_FAILURE(ex);
+        return to_COMM_FAILURE(exception);
     }
 
     protected synchronized int getTimeout()

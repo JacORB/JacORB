@@ -20,13 +20,15 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.util.Time;
-import org.omg.CONV_FRAME.*;
+import org.omg.CONV_FRAME.CodeSetContext;
+import org.omg.CONV_FRAME.CodeSetContextHelper;
 import org.omg.CORBA.MARSHAL;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.PrincipalHelper;
 import org.omg.GIOP.MsgType_1_1;
 import org.omg.GIOP.TargetAddress;
@@ -48,40 +50,39 @@ import org.omg.TimeBase.UtcT;
 /**
  * @author Gerald Brose, FU Berlin 1999
  * @version $Id$
- *
  */
 public class RequestOutputStream
     extends ServiceContextTransportingOutputStream
 {
-    private static byte[] principal = new byte[ 0 ];
-    private static byte[] reserved = new byte[ 3 ];
+    private final static byte[] principal = new byte[ 0 ];
+    private final static byte[] reserved = new byte[ 3 ];
 
-    private int request_id = -1;
-    private boolean response_expected = true;
-    private short syncScope = SYNC_WITH_SERVER.value;
-    private String operation = null;
+    private final int request_id;
+    private final boolean response_expected;
+    private final short syncScope;
+    private final String operation;
 
     /**
      * Absolute time after which this request may be delivered to its target.
      * (CORBA 3.0, 22.2.4.1)
      */
-    private UtcT requestStartTime = null;
+    private final UtcT requestStartTime;
 
     /**
      * Absolute time after which this request may no longer be delivered
      * to its target. (CORBA 3.0, 22.2.4.2/5)
      */
-    private UtcT requestEndTime   = null;
+    private final UtcT requestEndTime;
 
     /**
      * Absolute time after which a reply may no longer be obtained
      * or returned to the client. (CORBA 3.0, 22.2.4.4/6)
      */
-    private UtcT replyEndTime     = null;
+    private final UtcT replyEndTime;
 
     private org.jacorb.orb.dii.Request request = null;
 
-    private ClientConnection connection = null;
+    private final ClientConnection connection;
 
     public RequestOutputStream( org.jacorb.orb.ORB orb,
                                 ClientConnection connection,
@@ -243,19 +244,27 @@ public class RequestOutputStream
         if (!conn.isTCSNegotiated())
         {
             // encapsulate context
-            CDROutputStream os = new CDROutputStream();
-            os.beginEncapsulatedArray();
-            CodeSetContextHelper.write
-            (
-                os,
-                new CodeSetContext(conn.getTCS(), conn.getTCSW())
-            );
-            addServiceContext(new ServiceContext
-            (
-                org.omg.IOP.CodeSets.value,
-                os.getBufferCopy()
-            ));
-            conn.markTCSNegotiated();
+            final CDROutputStream out = new CDROutputStream();
+
+            try
+            {
+                out.beginEncapsulatedArray();
+                CodeSetContextHelper.write
+                (
+                        out,
+                        new CodeSetContext(conn.getTCS(), conn.getTCSW())
+                );
+                addServiceContext(new ServiceContext
+                        (
+                                org.omg.IOP.CodeSets.value,
+                                out.getBufferCopy()
+                        ));
+                conn.markTCSNegotiated();
+            }
+            finally
+            {
+                out.close();
+            }
         }
         super.write_to(conn);
     }
@@ -266,25 +275,39 @@ public class RequestOutputStream
      */
     private PolicyValue[] getTimingPolicyValues()
     {
-        List l = new ArrayList();
+        List list = new ArrayList();
         if (requestStartTime != null)
-            l.add (new PolicyValue (REQUEST_START_TIME_POLICY_TYPE.value,
+        {
+            list.add (new PolicyValue (REQUEST_START_TIME_POLICY_TYPE.value,
                                     Time.toCDR (requestStartTime)));
+        }
         if (requestEndTime != null)
-            l.add (new PolicyValue (REQUEST_END_TIME_POLICY_TYPE.value,
+        {
+            list.add (new PolicyValue (REQUEST_END_TIME_POLICY_TYPE.value,
                                     Time.toCDR (requestEndTime)));
+        }
         if (replyEndTime != null)
-            l.add (new PolicyValue (REPLY_END_TIME_POLICY_TYPE.value,
+        {
+            list.add (new PolicyValue (REPLY_END_TIME_POLICY_TYPE.value,
                                     Time.toCDR (replyEndTime)));
-        return (PolicyValue[])l.toArray (new PolicyValue[0]);
+        }
+        return (PolicyValue[])list.toArray (new PolicyValue[list.size()]);
     }
 
     private ServiceContext createInvocationPolicies()
     {
-        CDROutputStream out = new CDROutputStream();
-        out.beginEncapsulatedArray();
-        PolicyValueSeqHelper.write(out, getTimingPolicyValues());
-        return new ServiceContext (INVOCATION_POLICIES.value,
-                                   out.getBufferCopy());
+        final CDROutputStream out = new CDROutputStream();
+
+        try
+        {
+            out.beginEncapsulatedArray();
+            PolicyValueSeqHelper.write(out, getTimingPolicyValues());
+            return new ServiceContext (INVOCATION_POLICIES.value,
+                    out.getBufferCopy());
+        }
+        finally
+        {
+            out.close();
+        }
     }
 }

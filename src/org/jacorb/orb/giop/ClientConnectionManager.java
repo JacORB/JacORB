@@ -29,6 +29,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.ORB;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Factories;
 
 /**
@@ -50,11 +51,10 @@ public class ClientConnectionManager
 
     private MessageReceptorPool receptor_pool = null;
 
-    private TransportManager transport_manager = null;
+    private final TransportManager transport_manager;
     private final GIOPConnectionManager giop_connection_manager;
 
     /** the configuration object  */
-    private org.jacorb.config.Configuration configuration = null;
     private Logger logger = null;
 
     public ClientConnectionManager( ORB orb,
@@ -76,7 +76,7 @@ public class ClientConnectionManager
         // Moved from the constructor to facilitate logging.
         receptor_pool = new MessageReceptorPool("client", "ClientMessageReceptor", myConfiguration);
 
-        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.orb.giop");
 
         request_listener = new NoBiDirClientRequestListener(logger);
@@ -92,17 +92,16 @@ public class ClientConnectionManager
     {
         /* look for an existing connection */
 
-        ClientConnection c =
+        ClientConnection clientConnection =
             (ClientConnection)connections.get( profile );
 
-        if (c == null)
+        if (clientConnection == null)
         {
             int tag = profile.tag();
             Factories factories = transport_manager.getFactories (tag);
             if (factories == null)
             {
-                throw new RuntimeException
-                    ("No transport plugin for profile tag " + tag);
+                throw new BAD_PARAM("No transport plugin for profile tag " + tag);
             }
             GIOPConnection connection =
                 giop_connection_manager.createClientGIOPConnection(
@@ -111,49 +110,56 @@ public class ClientConnectionManager
                     request_listener,
                     null );
 
-            c = new ClientConnection( connection, orb, this,
+            clientConnection = new ClientConnection( connection, orb, this,
                                       profile, true );
 
             if( logger.isInfoEnabled())
+            {
                 logger.info("ClientConnectionManager: created new "
-                            + c.getGIOPConnection().toString() );
+                            + clientConnection.getGIOPConnection().toString() );
+            }
 
-            connections.put( profile, c );
+            connections.put( profile, clientConnection );
             receptor_pool.connectionCreated( connection );
         }
         else
         {
             if( logger.isInfoEnabled())
+            {
                 logger.info("ClientConnectionManager: found "
-                            + c.getGIOPConnection().toString());
-
+                            + clientConnection.getGIOPConnection().toString());
+            }
         }
 
-        c.incClients();
+        clientConnection.incClients();
 
-        return c;
+        return clientConnection;
     }
 
     /**
      * Only used by Delegate for client-initiated connections.
      */
-    public synchronized void releaseConnection( ClientConnection c )
+    public synchronized void releaseConnection( ClientConnection connection )
     {
-        if ( c.decClients() )
+        if ( connection.decClients() )
         {
             if (logger.isDebugEnabled())
+            {
                 logger.debug ("ClientConnectionManager: releasing "
-                              + c.getGIOPConnection().toString());
-            c.close();
-            connections.remove(c.getRegisteredProfile());
+                              + connection.getGIOPConnection().toString());
+            }
+            connection.close();
+            connections.remove(connection.getRegisteredProfile());
         }
         else
         {
             // not sure if this should be a warning or even an error
             if (logger.isDebugEnabled())
+            {
                 logger.debug ("ClientConnectionManager: cannot release "
-                              + c.getGIOPConnection().toString()
-                              + " (still has " + c.numClients() + " client(s))");
+                              + connection.getGIOPConnection().toString()
+                              + " (still has " + connection.numClients() + " client(s))");
+            }
         }
     }
 
@@ -161,9 +167,9 @@ public class ClientConnectionManager
      * Only used by ClientConnection to unregister server-side of
      * BiDir connection.
      */
-    public synchronized void removeConnection(ClientConnection c)
+    public synchronized void removeConnection(ClientConnection connection)
     {
-        connections.remove( c.getRegisteredProfile() );
+        connections.remove( connection.getRegisteredProfile() );
     }
 
     public synchronized void addConnection( GIOPConnection connection,
@@ -171,9 +177,11 @@ public class ClientConnectionManager
     {
         if( !connections.containsKey( profile ))
         {
-            ClientConnection c = new ClientConnection
+            ClientConnection clientConnection = new ClientConnection
             (
-                connection, orb, this,
+                connection,
+                orb,
+                this,
                 profile,
                 false
             );
@@ -184,9 +192,9 @@ public class ClientConnectionManager
             //client count to 1, so the connection will be kept even
             //if there are currently no associated Delegates.
 
-            c.incClients();
+            clientConnection.incClients();
 
-            connections.put( profile, c );
+            connections.put( profile, clientConnection );
         }
     }
 

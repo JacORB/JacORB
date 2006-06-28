@@ -44,6 +44,7 @@ import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Factories;
 import org.omg.ETF.Listener;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
 /**
@@ -52,7 +53,6 @@ import org.omg.PortableServer.POAHelper;
  * @author Gerald Brose
  * @version $Id$
  */
-
 public class BasicAdapter
     extends org.omg.ETF._HandleLocalBase
     implements Configurable
@@ -77,6 +77,8 @@ public class BasicAdapter
     BasicAdapter( TransportManager transport_manager,
                   GIOPConnectionManager giop_connection_manager )
     {
+        super();
+
         this.transport_manager = transport_manager;
         this.giop_connection_manager = giop_connection_manager;
     }
@@ -97,11 +99,12 @@ public class BasicAdapter
 
         try
         {
-            request_listener = new ServerRequestListener( configuration.getORB(), POAHelper.narrow(configuration.getORB().resolve_initial_references("RootPOA")) );
+            final POA poa = POAHelper.narrow(configuration.getORB().resolve_initial_references("RootPOA"));
+            request_listener = new ServerRequestListener( configuration.getORB(), (org.jacorb.poa.POA)poa);
         }
         catch (InvalidName e)
         {
-            throw new RuntimeException("should never happen");
+            throw new INTERNAL("should never happen");
         }
 
         request_listener.configure( configuration );
@@ -150,14 +153,14 @@ public class BasicAdapter
                 }
                 catch (NumberFormatException ex)
                 {
-                    throw new RuntimeException
+                    throw new IllegalArgumentException
                         ("could not parse profile tag for listener: " + s
                          + " (should have been a number)");
                 }
                 Factories factories = transport_manager.getFactories (tag);
                 if (factories == null)
                 {
-                    throw new RuntimeException
+                    throw new IllegalArgumentException
                         ("could not find Factories for profile tag: " + tag);
                 }
 
@@ -231,10 +234,10 @@ public class BasicAdapter
      */
     public int getSSLPort()
     {
-        IIOPListener l = getIIOPListener();
-        if (l != null)
+        IIOPListener listener = getIIOPListener();
+        if (listener != null)
         {
-            IIOPProfile profile = (IIOPProfile)l.endpoint();
+            IIOPProfile profile = (IIOPProfile)listener.endpoint();
             return profile.getSSLPort();
         }
 
@@ -320,23 +323,32 @@ public class BasicAdapter
             tmp_poa._invoke( request );
 
         }
-        catch( org.omg.PortableServer.POAPackage.WrongAdapter wa )
+        catch( org.omg.PortableServer.POAPackage.WrongAdapter e )
         {
             // unknown oid (not previously generated)
             request.setSystemException( new org.omg.CORBA.OBJECT_NOT_EXIST("unknown oid") );
             request.reply();
         }
-        catch( org.omg.CORBA.SystemException one )
+        catch( org.omg.CORBA.SystemException e )
         {
-            request.setSystemException( one );
+            request.setSystemException( e );
             request.reply();
         }
-        catch( Throwable th )
+        catch (RuntimeException e)
         {
-            request.setSystemException( new org.omg.CORBA.UNKNOWN( th.toString()) );
+            request.setSystemException( new org.omg.CORBA.UNKNOWN( e.toString()) );
             request.reply();
-            logger.warn("unexpected exception", th);
+            logger.warn("unexpected exception", e);
+        }
+        catch( Throwable e )
+        {
+            // TODO in general its not advisable
+            // to catch Throwable as this also includes
+            // Errors (e.g. OutOfMemoryError)
             // TODO throw exception?
+            request.setSystemException( new org.omg.CORBA.UNKNOWN( e.toString()) );
+            request.reply();
+            logger.error("unexpected exception", e);
         }
     }
 

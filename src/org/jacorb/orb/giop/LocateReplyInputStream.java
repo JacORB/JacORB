@@ -20,21 +20,18 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-import org.jacorb.orb.*;
-import org.jacorb.orb.giop.*;
-
-import org.omg.GIOP.*;
 import org.omg.CORBA.MARSHAL;
-import org.omg.CORBA.portable.ApplicationException;
-import org.omg.CORBA.portable.RemarshalException;
+import org.omg.GIOP.LocateReplyHeader_1_0;
+import org.omg.GIOP.LocateReplyHeader_1_0Helper;
+import org.omg.GIOP.LocateReplyHeader_1_2;
+import org.omg.GIOP.LocateReplyHeader_1_2Helper;
+import org.omg.GIOP.LocateStatusType_1_2;
+import org.omg.GIOP.MsgType_1_1;
 
 /**
- * @author Gerald Brose, FU Berlin 1999
+ * @author Gerald Brose
  * @version $Id$
- *
  */
-
 public class LocateReplyInputStream
     extends MessageInputStream
 {
@@ -42,12 +39,12 @@ public class LocateReplyInputStream
 
     public LocateReplyInputStream( org.omg.CORBA.ORB orb,  byte[] buf )
     {
-	super( orb, buf );
+        super( orb, buf );
 
         //check message type
-	if( buffer[7] != (byte) MsgType_1_1._LocateReply )
+        if( buffer[7] != (byte) MsgType_1_1._LocateReply )
         {
-	    throw new MARSHAL("Not a reply!");
+            throw new MARSHAL("Not a reply!");
         }
 
         switch( giop_minor )

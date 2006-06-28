@@ -165,10 +165,8 @@ public class EnumType
         {
             return fullName.substring(fullName.lastIndexOf('.') + 1);
         }
-        else
-        {
-            return fullName;
-        }
+
+        return fullName;
     }
 
     public String printReadExpression(String streamname)

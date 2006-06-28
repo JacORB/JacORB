@@ -18,6 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.orb.etf;
 
 import org.apache.avalon.framework.configuration.*;
@@ -26,6 +27,7 @@ import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.TaggedComponentList;
 
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.MARSHAL;
 import org.omg.ETF.*;
 import org.omg.IOP.*;
@@ -44,10 +46,6 @@ public abstract class ProfileBase
 
     protected org.jacorb.config.Configuration configuration;
     protected String corbalocStr = null;
-
-    public ProfileBase()
-    {
-    }
 
     /**
     * ETF defined operation to set the object key on this profile.
@@ -78,7 +76,6 @@ public abstract class ProfileBase
     */
     public abstract int tag();
 
-
     /**
      * Profiles use this method for taking alternative address values
      * for replacement, such as when an IOR proxy or IMR is in use.
@@ -87,6 +84,7 @@ public abstract class ProfileBase
      */
     public void patchPrimaryAddress(ProtocolAddressBase replacement)
     {
+        // nothing to do
     }
 
     /**
@@ -103,59 +101,68 @@ public abstract class ProfileBase
     * remain consistent with your implementation
     * of the above mentioned methods.
     */
-    public void marshal (TaggedProfileHolder tagged_profile,
-                         TaggedComponentSeqHolder components)
+    public void marshal (final TaggedProfileHolder tagged_profile,
+            final TaggedComponentSeqHolder componentSequence)
     {
+        TaggedComponentSeqHolder compSeq = componentSequence;
+
         if (encapsulation() != 0)
         {
             // You're going to have to define your own marshal operation
             // for littleEndian profiles.
             // The CDROutputStream only does big endian currently.
-            throw new Error("We can only marshal big endian stylee profiles !!");
+            throw new BAD_PARAM("We can only marshal big endian stylee profiles !!");
         }
 
         // Start a CDR encapsulation for the profile_data
         CDROutputStream profileDataStream = new CDROutputStream();
-        profileDataStream.beginEncapsulatedArray();
-
-        // Write the opaque AddressProfile bytes for this profile...
-        writeAddressProfile(profileDataStream);
-
-        // ... then the object key
-        profileDataStream.write_long(objectKey.length);
-        profileDataStream.write_octet_array(objectKey,0,objectKey.length);
-
-        switch( version.minor )
+        try
         {
-            case 0 :
-                // For GIOP 1.0 there were no tagged components
-                break;
-            default :
-                // Assume minor != 0 means 1.1 onwards and encode the TaggedComponents
-                if (components == null)
-                {
-                    components = new TaggedComponentSeqHolder (new TaggedComponent[0]);
-                }
+            profileDataStream.beginEncapsulatedArray();
+
+            // Write the opaque AddressProfile bytes for this profile...
+            writeAddressProfile(profileDataStream);
+
+            // ... then the object key
+            profileDataStream.write_long(objectKey.length);
+            profileDataStream.write_octet_array(objectKey,0,objectKey.length);
+
+            switch( version.minor )
+            {
+                case 0 :
+                    // For GIOP 1.0 there were no tagged components
+                    break;
+                default :
+                    // Assume minor != 0 means 1.1 onwards and encode the TaggedComponents
+                    if (compSeq == null)
+                    {
+                        compSeq = new TaggedComponentSeqHolder (new TaggedComponent[0]);
+                    }
                 // Write the length of the TaggedProfile sequence.
-                profileDataStream.write_long(this.components.size() + components.value.length);
+                profileDataStream.write_long(this.components.size() + compSeq.value.length);
 
                 // Write the TaggedProfiles (ours first, then the ORB's)
                 for (int i = 0; i < this.components.asArray().length; i++)
                 {
                     TaggedComponentHelper.write(profileDataStream, this.components.asArray()[i]);
                 }
-                for (int i = 0; i < components.value.length; i++)
+                for (int i = 0; i < compSeq.value.length; i++)
                 {
-                    TaggedComponentHelper.write(profileDataStream, components.value[i]);
+                    TaggedComponentHelper.write(profileDataStream, compSeq.value[i]);
                 }
-        }
+            }
 
-        // Populate the TaggedProfile for return.
-        tagged_profile.value = new TaggedProfile
-        (
-            this.tag(),
-            profileDataStream.getBufferCopy()
-        );
+            // Populate the TaggedProfile for return.
+            tagged_profile.value = new TaggedProfile
+            (
+                    this.tag(),
+                    profileDataStream.getBufferCopy()
+            );
+        }
+        finally
+        {
+            profileDataStream.close();
+        }
     }
 
     /**
@@ -239,7 +246,7 @@ public abstract class ProfileBase
         }
         catch (CloneNotSupportedException e)
         {
-            throw new RuntimeException("error cloning profile: " + e);
+            throw new RuntimeException("error cloning profile: " + e); // NOPMD
         }
     }
 
@@ -250,22 +257,30 @@ public abstract class ProfileBase
     */
     protected void initFromProfileData(byte[] data)
     {
-        CDRInputStream in = new CDRInputStream(null, data);
-        in.openEncapsulatedArray();
+        final CDRInputStream in = new CDRInputStream(null, data);
 
-        readAddressProfile(in);
-
-        int length = in.read_ulong();
-
-        if (in.available() < length)
+        try
         {
-            throw new MARSHAL("Unable to extract object key. Only " + in.available() + " available and trying to assign " + length);
+            in.openEncapsulatedArray();
+
+            readAddressProfile(in);
+
+            int length = in.read_ulong();
+
+            if (in.available() < length)
+            {
+                throw new MARSHAL("Unable to extract object key. Only " + in.available() + " available and trying to assign " + length);
+            }
+
+            objectKey = new byte[length];
+            in.read_octet_array(objectKey, 0, length);
+
+            components = (version != null && version.minor > 0) ? new TaggedComponentList(in)
+                    : new TaggedComponentList();
         }
-
-        objectKey = new byte[length];
-        in.read_octet_array(objectKey, 0, length);
-
-        components = (version != null && version.minor > 0) ? new TaggedComponentList(in)
-                                                            : new TaggedComponentList();
+        finally
+        {
+            in.close();
+        }
     }
 }

@@ -37,6 +37,7 @@ import org.jacorb.orb.ProfileSelector;
 import org.jacorb.orb.diop.DIOPFactories;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Factories;
 
 /**
@@ -57,7 +58,7 @@ public class TransportManager
     private Logger logger = null;
     private List factoryClassNames = null;
     private ProfileSelector profileSelector = null;
-    private SocketFactoryManager socketFactoryManager = null;
+    private final SocketFactoryManager socketFactoryManager;
 
     /**
      * Maps ETF Profile tags (Integer) to ETF Factories objects.
@@ -89,7 +90,9 @@ public class TransportManager
             this.configuration.getAttributeList("jacorb.transport.factories");
 
         if (factoryClassNames.isEmpty())
+        {
             factoryClassNames.add("org.jacorb.orb.iiop.IIOPFactories");
+        }
 
         // get profile selector info
         profileSelector =
@@ -131,7 +134,7 @@ public class TransportManager
         {
             loadFactories();
         }
-        return (Factories)factoriesMap.get (new Integer (tag));
+        return (Factories)factoriesMap.get (ObjectUtil.newInteger(tag));
     }
 
     /**
@@ -169,9 +172,9 @@ public class TransportManager
         for (Iterator i = factoryClassNames.iterator(); i.hasNext();)
         {
             String className = (String)i.next();
-            Factories f = instantiateFactories(className);
-            factoriesMap.put(new Integer(f.profile_tag()), f);
-            factoriesList.add (f);
+            Factories factories = instantiateFactories(className);
+            factoriesMap.put(new Integer(factories.profile_tag()), factories); // NOPMD
+            factoriesList.add (factories);
         }
     }
 
@@ -201,7 +204,7 @@ public class TransportManager
         }
         catch (Exception e)
         {
-            throw new RuntimeException
+            throw new BAD_PARAM
                 ("could not instantiate Factories class " + className
                  + ", exception: " + e);
         }

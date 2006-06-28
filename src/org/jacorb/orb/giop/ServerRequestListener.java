@@ -21,18 +21,16 @@ package org.jacorb.orb.giop;
  */
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
-import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.framework.configuration.*;
-
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.POA;
-import org.jacorb.poa.POAConstants;
-import org.jacorb.poa.util.POAUtil;
-
 import org.omg.CONV_FRAME.CodeSetContext;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_PERMISSION;
@@ -40,43 +38,35 @@ import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.GIOP.LocateStatusType_1_2;
 import org.omg.GIOP.ReplyStatusType_1_2;
 
-
 /**
- * ServerRequestListener.java
- *
- *
- * Created: Sun Aug 12 22:26:25 2002
- *
  * @author Nicolas Noffke
  * @version $Id$
  */
-
 public class ServerRequestListener
     implements RequestListener, Configurable
 {
-    private ORB orb = null;
-    private POA rootPOA = null;
+    private final ORB orb;
+    private final POA rootPOA;
 
     /** the configuration object  */
-    private org.jacorb.config.Configuration configuration = null;
     private Logger logger = null;
     private boolean require_ssl = false;
 
-    public ServerRequestListener( org.omg.CORBA.ORB orb,
-                                  org.omg.PortableServer.POA rootPOA )
+    public ServerRequestListener( ORB orb,
+                                  POA rootPOA )
     {
-        this.orb = (ORB)orb;
-        this.rootPOA = (POA)rootPOA;
+        this.orb = orb;
+        this.rootPOA = rootPOA;
     }
 
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = 
+        org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger =
             configuration.getNamedLogger("jacorb.giop.server.listener");
 
-        boolean supportSSL = 
+        boolean supportSSL =
             configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
 
         if( supportSSL )
@@ -93,20 +83,18 @@ public class ServerRequestListener
     public void requestReceived( byte[] request,
                                  GIOPConnection connection )
     {
-        RequestInputStream in =
-        new RequestInputStream( orb, request );
+        RequestInputStream inputStream = new RequestInputStream( orb, request );
 
         if( require_ssl && ! connection.isSSL() )
         {
             ReplyOutputStream out =
-                new ReplyOutputStream( in.req_hdr.request_id,
+                new ReplyOutputStream( inputStream.req_hdr.request_id,
                                        ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                       in.getGIOPMinor(),
-                                       false, 
+                                       inputStream.getGIOPMinor(),
+                                       false,
                                        logger); //no locate reply
 
-            if (logger.isDebugEnabled())
-                logger.debug("About to reject request because connection is not SSL.");
+            logger.debug("About to reject request because connection is not SSL.");
 
             SystemExceptionHelper.write( out,
                                          new NO_PERMISSION( 3, CompletionStatus.COMPLETED_NO ));
@@ -117,15 +105,14 @@ public class ServerRequestListener
             }
             catch( IOException e )
             {
-                if (logger.isWarnEnabled())
-                    logger.warn("IOException",e);
+                logger.warn("IOException",e);
             }
 
             return;
         }
 
         //only block timeouts, if a reply needs to be sent
-        if( Messages.responseExpected( in.req_hdr.response_flags ))
+        if( Messages.responseExpected( inputStream.req_hdr.response_flags ))
         {
             connection.incPendingMessages();
         }
@@ -133,49 +120,50 @@ public class ServerRequestListener
         if( ! connection.isTCSNegotiated() )
         {
             //If GIOP 1.0 is used don't check for a codeset context
-            if( in.getGIOPMinor() == 0 )
+            if( inputStream.getGIOPMinor() == 0 )
             {
                 connection.markTCSNegotiated();
             }
             else
             {
                 CodeSetContext ctx =
-                CodeSet.getCodeSetContext( in.req_hdr.service_context );
+                CodeSet.getCodeSetContext( inputStream.req_hdr.service_context );
 
                 if( ctx != null )
                 {
                     connection.setCodeSets( ctx.char_data, ctx.wchar_data );
                     connection.markTCSNegotiated();
                     if (logger.isDebugEnabled())
+                    {
                         logger.debug("Received CodeSetContext. Using " +
                                      CodeSet.csName( ctx.char_data ) +
                                      " as TCS and " +
                                      CodeSet.csName( ctx.wchar_data ) +
                                      " as TCSW" );
+                    }
                 }
             }
         }
 
-        in.setCodeSet( connection.getTCS(), connection.getTCSW() );
+        inputStream.setCodeSet( connection.getTCS(), connection.getTCSW() );
 
         ServerRequest server_request = null;
 
         try
         {
             server_request =
-            new ServerRequest( orb, in, connection );
+            new ServerRequest( orb, inputStream, connection );
         }
         catch( org.jacorb.poa.except.POAInternalError pie )
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Received a request with a non-jacorb object key" );
+            logger.warn("Received a request with a non-jacorb object key" );
 
-            if( in.isLocateRequest() )
+            if( inputStream.isLocateRequest() )
             {
                 LocateReplyOutputStream lr_out =
-                new LocateReplyOutputStream(in.req_hdr.request_id,
+                new LocateReplyOutputStream(inputStream.req_hdr.request_id,
                                             LocateStatusType_1_2._UNKNOWN_OBJECT,
-                                            in.getGIOPMinor() );
+                                            inputStream.getGIOPMinor() );
 
                 try
                 {
@@ -183,20 +171,19 @@ public class ServerRequestListener
                 }
                 catch( IOException e )
                 {
-                    if (logger.isWarnEnabled())
-                        logger.warn("IOException",e);
+                    logger.warn("IOException",e);
                 }
             }
             else
             {
                 ReplyOutputStream out =
-                    new ReplyOutputStream( in.req_hdr.request_id,
+                    new ReplyOutputStream( inputStream.req_hdr.request_id,
                                            ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                           in.getGIOPMinor(),
+                                           inputStream.getGIOPMinor(),
                                            false,
                                            logger );//no locate reply
 
-                SystemExceptionHelper.write( out, 
+                SystemExceptionHelper.write( out,
                                              new OBJECT_NOT_EXIST( 0, CompletionStatus.COMPLETED_NO ));
 
                 try
@@ -205,8 +192,7 @@ public class ServerRequestListener
                 }
                 catch( IOException e )
                 {
-                    if (logger.isWarnEnabled())
-                        logger.warn("IOException",e);
+                    logger.warn("IOException",e);
                 }
             }
 
@@ -227,6 +213,7 @@ public class ServerRequestListener
     public void cancelRequestReceived( byte[] request,
                                        GIOPConnection connection )
     {
+        // nothing to do
     }
 
     private void deliverRequest( ServerRequest request )
@@ -245,7 +232,9 @@ public class ServerRequestListener
                 res = ((String)scopes.get (i));
 
                 if( res.equals(""))
+                {
                     break;
+                }
 
                 /* the following is a call to a method in the private
                    interface between the ORB and the POA. It does the
@@ -293,30 +282,25 @@ public class ServerRequestListener
             {
                 throw new org.omg.CORBA.INTERNAL("Request POA null!");
             }
-            else
-            {
-                /* hand over to the POA */
-                tmp_poa._invoke( request );
-            }
+            /* hand over to the POA */
+            tmp_poa._invoke( request );
         }
-        catch( org.omg.PortableServer.POAPackage.WrongAdapter wa )
+        catch( org.omg.PortableServer.POAPackage.WrongAdapter e )
         {
             // unknown oid (not previously generated)
             request.setSystemException( new org.omg.CORBA.OBJECT_NOT_EXIST("unknown oid") );
             request.reply();
         }
-        catch( org.omg.CORBA.SystemException one )
+        catch( org.omg.CORBA.SystemException e )
         {
-            request.setSystemException( one );
+            request.setSystemException( e );
             request.reply();
         }
-        catch( Throwable th )
+        catch( RuntimeException e )
         {
-            request.setSystemException( new org.omg.CORBA.UNKNOWN( th.toString()) );
+            request.setSystemException( new org.omg.CORBA.UNKNOWN( e.toString()) );
             request.reply();
-            if (logger.isWarnEnabled())
-                logger.warn("IOException",th);
-            //            th.printStackTrace(); // TODO
+            logger.warn("unexpected exception",e);
         }
     }
-}// ServerRequestListener
+}

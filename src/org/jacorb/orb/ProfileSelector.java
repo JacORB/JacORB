@@ -29,12 +29,12 @@ import org.jacorb.orb.giop.ClientConnectionManager;
 /**
  * A ProfileSelector decides, on the client side, which Profile from
  * an object's IOR should be used to communicate with the object.
- * 
+ *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
 public interface ProfileSelector
 {
-    public Profile selectProfile (List profiles,
-                                  ClientConnectionManager ccm);
+    Profile selectProfile(List profiles,
+                          ClientConnectionManager ccm);
 }

@@ -20,22 +20,17 @@
 
 package org.jacorb.orb.giop;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.avalon.framework.logger.Logger;
-
-import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ParsedIOR;
-
-import org.omg.IOP.*;
-import org.omg.CONV_FRAME.*;
+import org.jacorb.util.ObjectUtil;
+import org.omg.CONV_FRAME.CodeSetComponent;
+import org.omg.CONV_FRAME.CodeSetComponentInfo;
 
 /**
- * ClientConnection.java
- *
- *
- * Created: Sat Aug 18 18:37:56 2002
- *
  * @author Nicolas Noffke
  * @version $Id$
  */
@@ -43,13 +38,13 @@ import org.omg.CONV_FRAME.*;
 public class ClientConnection
     implements ReplyListener, ConnectionListener
 {
-    private GIOPConnection connection = null;
-    private org.omg.CORBA.ORB orb = null;
+    private final GIOPConnection connection;
+    private final org.omg.CORBA.ORB orb;
 
-    private HashMap replies;
+    private final Map replies;
 
     // support for SAS Stateful contexts
-    private HashMap sasContexts;
+    private final Map sasContexts;
     private static long last_client_context_id = 0;
 
     /* how many clients use this connection? */
@@ -58,23 +53,23 @@ public class ClientConnection
     //to generate request ids
     private int id_count = 0;
 
-    private ClientConnectionManager conn_mg = null;
+    private final ClientConnectionManager conn_mg;
 
-    private boolean client_initiated = true;
+    private final boolean client_initiated;
 
-    private String info = null;
+    private final String info;
 
     // indicates if the stream has been closed gracefully, i.e. by a
     // CloseConnection message. This will trigger a remarshaling of
     // all pending messages.
-    private boolean gracefulStreamClose = false;
+    private boolean gracefulStreamClose;
 
     //The profile that was used for registering with the
     //ClientConnectionManager. In case of BiDirIIOP it is NOT equal to
     //the transports profile.
-    private org.omg.ETF.Profile registeredProfile = null;
+    private final org.omg.ETF.Profile registeredProfile ;
 
-    private Logger logger = null;
+    private final Logger logger;
 
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
@@ -151,8 +146,7 @@ public class ClientConnection
         }
         else
         {
-            if (logger.isDebugEnabled())
-                logger.debug("No CodeSetComponentInfo in IOR. Will use default CodeSets" );
+            logger.debug("No CodeSetComponentInfo in IOR. Will use default CodeSets" );
 
             //If we can't find matching codesets, we still mark the
             //GIOPConnection as negotiated, so the following requests
@@ -222,13 +216,13 @@ public class ClientConnection
 
     public synchronized int getId()
     {
-        int id = id_count;
+        int result = id_count;
 
         //if odd or even is determined by the starting value of
         //id_count
         id_count += 2;
 
-        return id;
+        return result;
     }
 
     /**
@@ -272,12 +266,12 @@ public class ClientConnection
     /**
      * The request_id parameter is only used, if response_expected.
      */
-    public void sendRequest( MessageOutputStream os,
+    public void sendRequest( MessageOutputStream outputStream,
                              ReplyPlaceholder placeholder,
                              int request_id,
                              boolean response_expected )
     {
-        Integer key = new Integer( request_id );
+        Integer key = ObjectUtil.newInteger( request_id );
 
         synchronized( replies )
         {
@@ -286,7 +280,7 @@ public class ClientConnection
 
         try
         {
-            sendRequest( os, response_expected );
+            sendRequest( outputStream, response_expected );
         }
         catch( org.omg.CORBA.SystemException e )
         {
@@ -298,20 +292,21 @@ public class ClientConnection
            }
            throw e;
         }
-
     }
 
-    public void sendRequest( MessageOutputStream os,
+    public void sendRequest( MessageOutputStream outputStream,
                              boolean response_expected )
     {
         try
         {
-            connection.sendRequest( os, response_expected );
+            connection.sendRequest( outputStream, response_expected );
         }
         catch (java.io.IOException e)
         {
             if (logger.isDebugEnabled())
+            {
                 logger.debug("IOException", e);
+            }
 
             throw new org.omg.CORBA.COMM_FAILURE
                 (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
@@ -336,7 +331,7 @@ public class ClientConnection
     {
         connection.decPendingMessages();
 
-        Integer key = new Integer( Messages.getRequestId( reply ));
+        Integer key = ObjectUtil.newInteger( Messages.getRequestId( reply ));
 
         ReplyPlaceholder placeholder = null;
 
@@ -369,7 +364,7 @@ public class ClientConnection
     {
         connection.decPendingMessages();
 
-        Integer key = new Integer( Messages.getRequestId( reply ));
+        Integer key = ObjectUtil.newInteger( Messages.getRequestId( reply ));
 
         ReplyPlaceholder placeholder = null;
 

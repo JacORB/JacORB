@@ -252,10 +252,8 @@ public class StructType
         {
             return fullName.substring(fullName.lastIndexOf('.') + 1);
         }
-        else
-        {
-            return fullName;
-        }
+
+        return fullName;
     }
 
     public String printReadExpression(String Streamname)
@@ -298,7 +296,6 @@ public class StructType
         return this.getTypeCodeExpression();
     }
 
-
     private void printClassComment(String className, PrintWriter ps)
     {
         printClassComment((exc ? "exception" : "struct"), className, ps);
@@ -307,10 +304,14 @@ public class StructType
     private void printHolderClass(String className, PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals(""))
+        {
             ps.println("package " + pack_name + ";");
+        }
 
         printImport(ps);
 
@@ -353,10 +354,14 @@ public class StructType
     private void printHelperClass(String className, PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals(""))
+        {
             ps.println("package " + pack_name + ";\n");
+        }
 
         printImport(ps);
 
@@ -455,8 +460,10 @@ public class StructType
     private void printStructClass(String className, PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         String fullClassName = className;
 
         if (!pack_name.equals(""))
@@ -472,9 +479,13 @@ public class StructType
 
         ps.println("public" + parser.getFinalString() + " class " + className);
         if (exc)
+        {
             ps.println("\textends org.omg.CORBA.UserException");
+        }
         else
+        {
             ps.println("\timplements org.omg.CORBA.portable.IDLEntity");
+        }
 
         ps.println("{");
 
@@ -558,14 +569,18 @@ public class StructType
                 Declarator d = m.declarator;
                 ps.print(m.type_spec.toString() + " " + d.name());
                 if (e.hasMoreElements())
+                {
                     ps.print(", ");
+                }
             }
             ps.println(")");
 
             ps.println("\t{");
 
             if (exc) // fixes #462
+            {
                 ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
+            }
 
             for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
             {
@@ -784,7 +799,8 @@ public class StructType
             if(member.type_spec.toString().indexOf("[") < 0)
             {
                 buffer.append("\t\t_ret.append(" + member.declarator.toString() + ");");
-            } else
+            }
+            else
             {
                 buffer.append("\t\t_ret.append(\"{\");");
                 buffer.append("\n");
@@ -829,5 +845,4 @@ public class StructType
         printwriter.println("\t} ");
         printwriter.println();
     }
-
 }

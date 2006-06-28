@@ -392,12 +392,16 @@ public class IdlSymbol
             pack_name = typeName.substring( 0, typeName.lastIndexOf( "." ) );
         }
         else
+        {
             typeName = ScopedName.unPseudoName( name );
+        }
 
         if( logger.isDebugEnabled() )
+        {
             logger.debug( "setPrintPhaseNames: pack_name " +
                           pack_name + ", name " + name +
                           " typename " + typeName );
+        }
     }
 
     public void printIdMethod( PrintWriter ps )
@@ -451,51 +455,49 @@ public class IdlSymbol
                         break;
                     }
                     // Not had a #pragma prefix, attempt to determine using prefix
+
+                    // Slightly horrible...this says 'if the current token prefix
+                    // is blank' then use the enclosing tokens prefix OR
+                    // if the current token has a matching prefix to the parent
+                    // then also do this (this prevents:
+                    // prefix Foo
+                    // module F {
+                    //     prefix X
+                    //     interface Y {}
+                    // }
+                    if (token != null &&
+                            (
+                                    "".equals (token.pragma_prefix) ||
+                                    enctoken.pragma_prefix.equals (token.pragma_prefix)
+                            ))
+                    {
+                        String enclosingName = enc.name;
+                        // if the enclosing symbol is a module, its name
+                        // is a package name and might have been modified
+                        // by the -i2jpackage switch. We want its unchanged
+                        // name as part of the RepositoryId, however.
+                        if( enc instanceof Module )
+                        {
+                            String enclosingModuleName =
+                                ((Module)enc).originalModuleName ();
+
+                            if ( !enclosingModuleName.startsWith ("org"))
+                            {
+                                enclosingName = ((Module)enc).originalModuleName ();
+                            }
+
+                            // remove leading "_" in repository Ids
+                            if( enc.isEscaped ())
+                            {
+                                enclosingName = enclosingName.substring (1);
+                            }
+                        }
+                        sb.insert (0, enclosingName + "/");
+                        enc = enc.getEnclosingSymbol ();
+                    }
                     else
                     {
-                        // Slightly horrible...this says 'if the current token prefix
-                        // is blank' then use the enclosing tokens prefix OR
-                        // if the current token has a matching prefix to the parent
-                        // then also do this (this prevents:
-                        // prefix Foo
-                        // module F {
-                        //     prefix X
-                        //     interface Y {}
-                        // }
-                        if (token != null &&
-                            (
-                               "".equals (token.pragma_prefix) ||
-                               enctoken.pragma_prefix.equals (token.pragma_prefix)
-                            ))
-                        {
-                            String enclosingName = enc.name;
-                            // if the enclosing symbol is a module, its name
-                            // is a package name and might have been modified
-                            // by the -i2jpackage switch. We want its unchanged
-                            // name as part of the RepositoryId, however.
-                            if( enc instanceof Module )
-                            {
-                                String enclosingModuleName =
-                                    ((Module)enc).originalModuleName ();
-
-                                if ( !enclosingModuleName.startsWith ("org"))
-                                {
-                                    enclosingName = ((Module)enc).originalModuleName ();
-                                }
-
-                                // remove leading "_" in repository Ids
-                                if( enc.isEscaped ())
-                                {
-                                    enclosingName = enclosingName.substring (1);
-                                }
-                            }
-                            sb.insert (0, enclosingName + "/");
-                            enc = enc.getEnclosingSymbol ();
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
                 // Global Scope
@@ -540,7 +542,9 @@ public class IdlSymbol
             }
         }
         if( logger.isDebugEnabled() )
+        {
             logger.debug( "Id for name " + name + " is " + _id );
+        }
         return _id;
     }
 

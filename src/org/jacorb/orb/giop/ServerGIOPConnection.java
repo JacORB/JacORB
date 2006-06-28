@@ -20,10 +20,9 @@
 
 package org.jacorb.orb.giop;
 
-import org.apache.avalon.framework.configuration.*;
-import org.apache.avalon.framework.logger.Logger;
-
-import org.jacorb.orb.iiop.*;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.orb.iiop.IIOPConnection;
 
 /**
  * @author Nicolas Noffke
@@ -34,17 +33,17 @@ public class ServerGIOPConnection
     extends GIOPConnection
 {
     private static final byte[] CLOSE_CONNECTION_MESSAGE =
-    new byte[] {
-        // Byte casts are for JDK1.2 compatibility.
-        (byte )'G', (byte )'I', (byte )'O', (byte )'P', //magic start
-        1, //GIOP major
-        0, //GIOP minor
-        0, //endianess, big-endian
-        5, //message type, CloseConnection message
-        0, 0, 0, 0 // message size, 0 because CloseConnection has no body
-    };
+        new byte[] {
+            // Byte casts are for JDK1.2 compatibility.
+            (byte )'G', (byte )'I', (byte )'O', (byte )'P', //magic start
+            1, //GIOP major
+            0, //GIOP minor
+            0, //endianess, big-endian
+            5, //message type, CloseConnection message
+            0, 0, 0, 0 // message size, 0 because CloseConnection has no body
+        };
 
-    private GIOPConnectionManager manager = null;
+    private final GIOPConnectionManager manager;
     private boolean closeOnReadTimeout = false;
     private boolean delayClose = false;
 
@@ -89,8 +88,10 @@ public class ServerGIOPConnection
         if( tryDiscard() )
         {
             if (logger.isDebugEnabled())
+            {
                 logger.debug(this.toString()
                              + ": tryClose() -- will send close connection");
+            }
 
             sendCloseConnection();
 
@@ -170,8 +171,7 @@ public class ServerGIOPConnection
         }
         catch( org.omg.CORBA.COMM_FAILURE e )
         {
-            if (logger.isErrorEnabled())
-                logger.error("COMM_FAILURE" , e );
+            logger.error("COMM_FAILURE" , e );
         }
         finally
         {
@@ -193,7 +193,9 @@ public class ServerGIOPConnection
     protected void readTimedOut()
     {
         if (logger.isDebugEnabled())
+        {
             logger.debug (this.toString() + ": readTimedOut()");
+        }
 
         if( closeOnReadTimeout )
         {
@@ -217,7 +219,9 @@ public class ServerGIOPConnection
     protected void streamClosed()
     {
         if (logger.isDebugEnabled())
+        {
             logger.debug (this.toString() + ": streamClosed()");
+        }
         close();
     }
 

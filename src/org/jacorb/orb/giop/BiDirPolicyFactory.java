@@ -20,59 +20,43 @@
 
 package org.jacorb.orb.giop;
 
-import org.omg.CORBA.Policy;
+import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
+import org.omg.BiDirPolicy.BOTH;
+import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;
+import org.omg.BiDirPolicy.NORMAL;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.PolicyError;
 import org.omg.CORBA.BAD_POLICY;
 import org.omg.CORBA.BAD_POLICY_VALUE;
-import org.omg.CORBA.LocalObject;
-
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.PolicyError;
 import org.omg.PortableInterceptor.PolicyFactory;
-import org.omg.BiDirPolicy.*;
-
 
 /**
- * BiDirPolicyFactory.java
- *
- *
- * Created: Mon Sep  3 18:32:16 2002
- *
  * @author Nicolas Noffke
  * @version $Id$
  */
-
-public class BiDirPolicyFactory 
-    extends org.omg.CORBA.LocalObject 
+public class BiDirPolicyFactory
+    extends org.omg.CORBA.LocalObject
     implements PolicyFactory
 {
-    public BiDirPolicyFactory ()
-    {
-    }
-
-    public Policy create_policy( int type, Any any ) 
+    public Policy create_policy( int type, Any any )
         throws PolicyError
     {
         if( type != BIDIRECTIONAL_POLICY_TYPE.value )
         {
-            throw new PolicyError("Invalid policy type of " + type, 
+            throw new PolicyError("Invalid policy type of " + type,
                                   BAD_POLICY.value );
         }
-        
+
         short value = BidirectionalPolicyValueHelper.extract( any );
-        
+
         if( value != NORMAL.value &&
             value != BOTH.value )
         {
-            throw new PolicyError("Invalid value for BiDir policy of " + value, 
+            throw new PolicyError("Invalid value for BiDir policy of " + value,
                                   BAD_POLICY_VALUE.value);
         }
-        
+
         return new BiDirPolicy( value );
     }
 }
-
-
-
-
-
-

@@ -20,16 +20,14 @@
 
 package org.jacorb.orb.giop;
 
-
 /**
  * @author Nicolas Noffke
  * @version $Id$
  */
-
 public class LFUStatisticsProviderImpl
     implements StatisticsProvider
 {
-    private long lifetime_begin = 0;
+    private final long lifetime_begin;
     private long invocations = 0;
 
     public LFUStatisticsProviderImpl()
@@ -39,37 +37,34 @@ public class LFUStatisticsProviderImpl
 
     /**
      * A message chunk with the given size has been sent over the associated
-     * Transport.  
+     * Transport.
      */
     public void messageChunkSent( int size )
     {
+        // no operation
     }
 
     /**
      * The transport has been flushed. This means that sending of a
-     * message is complete.  
+     * message is complete.
      */
     public void flushed()
     {
         ++invocations;
     }
 
-
     /**
      * A message with the given size has been received by the
-     * associated Transport.  
+     * associated Transport.
      */
     public void messageReceived( int size )
     {
         ++invocations;
     }
-    
+
     public double getFrequency()
     {
         double lifetime = System.currentTimeMillis() - lifetime_begin;
         return invocations / lifetime;
     }
 }
-
-
-

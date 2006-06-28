@@ -18,15 +18,17 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.orb.standardInterceptors;
 
-import org.omg.PortableInterceptor.*;
+package org.jacorb.orb.standardInterceptors; // NOPMD
 
-import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.framework.configuration.*;
-
-import org.jacorb.orb.*;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.giop.CodeSet;
+import org.omg.PortableInterceptor.IORInfo;
+import org.omg.PortableInterceptor.IORInterceptor;
 
 /**
  * This interceptor creates a codeset TaggedComponent.
@@ -39,14 +41,18 @@ public class CodeSetInfoInterceptor
     extends org.omg.CORBA.LocalObject
     implements IORInterceptor, Configurable
 {
-    private org.omg.IOP.TaggedComponent tagc = null;
+    private final org.omg.IOP.TaggedComponent tagc;
     private org.apache.avalon.framework.logger.Logger logger = null;
 
     public CodeSetInfoInterceptor(ORB orb)
     {
+        super();
+
         try {
-            configure (orb.getConfiguration());
-        } catch (ConfigurationException ex){
+            configure(orb.getConfiguration());
+        }
+        catch (ConfigurationException ex)
+        {
             // will have to do with defaults
         }
 
@@ -66,17 +72,19 @@ public class CodeSetInfoInterceptor
                                   new int[] { CodeSet.UTF8 } );
 
         // encapsulate it into TaggedComponent
-        CDROutputStream os = new CDROutputStream( orb );
-        os.beginEncapsulatedArray();
-        org.omg.CONV_FRAME.CodeSetComponentInfoHelper.write( os, cs_info );
+        final CDROutputStream out = new CDROutputStream( orb );
+        try
+        {
+            out.beginEncapsulatedArray();
+            org.omg.CONV_FRAME.CodeSetComponentInfoHelper.write( out, cs_info );
 
-        tagc =
-            new org.omg.IOP.TaggedComponent( org.omg.IOP.TAG_CODE_SETS.value,
-                                             os.getBufferCopy());
-
-        os.close ();
-        os = null;
-        cs_info = null;
+            tagc = new org.omg.IOP.TaggedComponent( org.omg.IOP.TAG_CODE_SETS.value,
+                    out.getBufferCopy());
+        }
+        finally
+        {
+            out.close();
+        }
     }
 
 
@@ -96,12 +104,15 @@ public class CodeSetInfoInterceptor
 
         if (CodeSet.setNCSC (ncsc) == -1 &&
             logger.isErrorEnabled())
+        {
             logger.error("Cannot set default NCSC to " + ncsc);
+        }
 
         if (CodeSet.setNCSW (ncsw) == -1 &&
             logger.isErrorEnabled())
+        {
             logger.error("Cannot set default NCSW to " + ncsw);
-
+        }
     }
 
     public String name()
@@ -111,6 +122,7 @@ public class CodeSetInfoInterceptor
 
     public void destroy()
     {
+        // nothing to do
     }
 
     /**
@@ -120,15 +132,19 @@ public class CodeSetInfoInterceptor
     public void establish_components( IORInfo info, int [] tags )
     {
         if (tags == null)
-            {
-                info.add_ior_component_to_profile( tagc,
-                                                   org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value );
-                info.add_ior_component_to_profile( tagc,
-                                                   org.omg.IOP.TAG_INTERNET_IOP.value );
-            }
+        {
+            info.add_ior_component_to_profile( tagc,
+                    org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value );
+            info.add_ior_component_to_profile( tagc,
+                    org.omg.IOP.TAG_INTERNET_IOP.value );
+        }
         else
+        {
             for (int i = 0; i < tags.length; i++)
+            {
                 info.add_ior_component_to_profile(tagc, tags[i]);
+            }
+        }
     }
 
     public void establish_components( IORInfo info )

@@ -496,8 +496,8 @@ public class Interface
         }
 
         printPackage(ps);
-        printClassComment(name, ps);
         printSuperclassImports(ps);
+        printClassComment(name, ps);
 
         if (is_pseudo)
         {
@@ -614,9 +614,9 @@ public class Interface
         }
 
         printPackage(ps);
-        printClassComment(name, ps);
         printSuperclassImports(ps);
         printImport(ps);
+        printClassComment(name, ps);
 
         ps.println("public interface " + name + "Operations");
 
@@ -1115,9 +1115,8 @@ public class Interface
         }
 
         printPackage(ps);
-        printClassComment(name, ps);
-
         printImport(ps);
+        printClassComment(name, ps);
 
         ps.print("public abstract class " + name + "POA");
         ps.println("\n\textends org.omg.PortableServer.Servant");

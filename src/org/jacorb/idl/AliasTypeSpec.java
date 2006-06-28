@@ -367,10 +367,8 @@ public class AliasTypeSpec
         {
             return originalType.holderName();
         }
-        else
-        {
-            return full_name() + "Holder";
-        }
+
+        return full_name() + "Holder";
     }
 
     /**

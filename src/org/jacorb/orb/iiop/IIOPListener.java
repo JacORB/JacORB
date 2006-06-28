@@ -74,11 +74,6 @@ public class IIOPListener
     private int target_requires = 0;
     private boolean generateSSLComponents = true;
 
-    public IIOPListener()
-    {
-        super();
-    }
-
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
@@ -89,10 +84,10 @@ public class IIOPListener
         String address_str = configuration.getAttribute("OAAddress",null);
         if (address_str != null)
         {
-            ProtocolAddressBase ep = orb.createAddress(address_str);
-            if (ep instanceof IIOPAddress)
+            ProtocolAddressBase addr = orb.createAddress(address_str);
+            if (addr instanceof IIOPAddress)
             {
-                address = (IIOPAddress)ep;
+                address = (IIOPAddress)addr;
             }
         }
         else
@@ -110,10 +105,10 @@ public class IIOPListener
         address_str = configuration.getAttribute("OASSLAddress",null);
         if (address_str != null)
         {
-            ProtocolAddressBase ep = orb.createAddress(address_str);
-            if (ep instanceof IIOPAddress)
+            ProtocolAddressBase addr = orb.createAddress(address_str);
+            if (addr instanceof IIOPAddress)
             {
-                sslAddress = (IIOPAddress)ep;
+                sslAddress = (IIOPAddress)addr;
             }
         }
         else
@@ -450,11 +445,11 @@ public class IIOPListener
          * template method that is invoked when
          * an exception occurs during the run loop.
          */
-        protected void handleExceptionInRunLoop(Exception e, boolean isTerminated)
+        protected void handleExceptionInRunLoop(Exception exception, boolean isTerminated)
         {
             if (!isTerminated)
             {
-                logger.warn("unexpected exception in runloop", e);
+                logger.warn("unexpected exception in runloop", exception);
             }
         }
 
@@ -486,7 +481,7 @@ public class IIOPListener
 
         public IIOPAddress getLocalAddress()
         {
-            IIOPAddress ep = new IIOPAddress
+            IIOPAddress addr = new IIOPAddress
             (
                 serverSocket.getInetAddress().toString(),
                 serverSocket.getLocalPort()
@@ -496,7 +491,7 @@ public class IIOPListener
             {
                 try
                 {
-                    ep.configure(configuration);
+                    addr.configure(configuration);
                 }
                 catch( ConfigurationException ce)
                 {
@@ -506,7 +501,7 @@ public class IIOPListener
                     }
                 }
             }
-            return ep;
+            return addr;
         }
 
         /**
@@ -583,7 +578,7 @@ public class IIOPListener
         private final Object renewSocketSync = new Object();
         private boolean renewingSocket;
         private boolean blockedOnAccept;
-        private int soTimeout = 0;
+        private final int soTimeout;
 
         private SSLAcceptor()
         {

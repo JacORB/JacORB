@@ -20,20 +20,23 @@
 
 package org.jacorb.orb.util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.OutputStreamWriter;
+
 import org.apache.avalon.framework.logger.Logger;
-
-import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ParsedIOR;
-import org.jacorb.orb.*;
-
-import org.omg.IOP.*;
-import org.omg.GIOP.*;
-import org.omg.IIOP.*;
-import org.omg.SSLIOP.*;
-import org.omg.CSIIOP.*;
-import org.omg.CONV_FRAME.*;
-
-import java.io.*;
+import org.omg.IIOP.ProfileBody_1_0;
+import org.omg.IIOP.ProfileBody_1_0Helper;
+import org.omg.IIOP.ProfileBody_1_1;
+import org.omg.IIOP.ProfileBody_1_1Helper;
+import org.omg.IOP.IOR;
+import org.omg.IOP.TAG_INTERNET_IOP;
+import org.omg.IOP.TaggedProfile;
 
 /**
  * Utility class to patch host and port information into an IOR.

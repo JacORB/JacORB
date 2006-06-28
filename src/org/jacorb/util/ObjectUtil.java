@@ -20,8 +20,11 @@ package org.jacorb.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.Map;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -38,6 +41,11 @@ public class ObjectUtil
     static
     {
         identityMapClass = getIdentityMapClass();
+    }
+
+    private ObjectUtil()
+    {
+        // utility class
     }
 
     private static Class getIdentityMapClass()
@@ -57,7 +65,7 @@ public class ObjectUtil
             }
             catch (ClassNotFoundException e)
             {
-                throw new RuntimeException(e.toString());
+                throw new IllegalArgumentException(e.toString());
             }
         }
         return result;
@@ -70,31 +78,42 @@ public class ObjectUtil
     public static final String readURL( String url )
         throws java.io.IOException
     {
+        final BufferedReader reader = new BufferedReader(newInputStreamReader(url));
+
+        try
+        {
+            return reader.readLine();
+        }
+        finally
+        {
+            reader.close();
+        }
+    }
+
+    private static java.io.InputStreamReader newInputStreamReader(String url) throws MalformedURLException, IOException
+    {
         String token = "file://";
-        String line = "";
         java.io.InputStreamReader isr = null;
-        if (url.startsWith (token))
+        if (url.startsWith(token))
+        {
             try
             {
-                isr = new java.io.FileReader (url.substring(token.length()));
+                isr = new java.io.FileReader(url.substring(token.length()));
             }
             catch (Exception e)
             {
-                System.out.println ("Tried and failed to open file: " +
+                System.out.println ("Tried and failed to open file: " + // NOPMD
                                     url.substring(token.length()));
                 // no worries, let the URL handle it
             }
-        if (isr == null)
-        {
-            java.net.URL u = new java.net.URL(url);
-            isr = new java.io.InputStreamReader(u.openStream());
         }
 
-        java.io.BufferedReader in = new java.io.BufferedReader(isr);
-        line = in.readLine();
-
-        in.close();
-        return line;
+        if (isr == null)
+        {
+            java.net.URL urlCopy = new java.net.URL(url);
+            isr = new java.io.InputStreamReader(urlCopy.openStream());
+        }
+        return isr;
     }
 
     /**
@@ -181,11 +200,11 @@ public class ObjectUtil
         }
         catch (Exception exc)
         {
-            throw new RuntimeException(exc.toString());
+            throw new IllegalArgumentException(exc.toString());
         }
     }
 
-    public static String bufToString( byte bs[],
+    public static String bufToString( byte values[],
             int start,
             int len)
     {
@@ -197,12 +216,12 @@ public class ObjectUtil
             if ((i % 16 ) == 0)
             {
                 result.append( chars.toString() );
-                result.append( "\n" );
+                result.append( '\n' );
                 chars.setLength(0);
             }
 
-            chars.append( toAscii( bs[i] ));
-            result.append(  toHex( bs[i] ));
+            chars.append( toAscii( values[i] ));
+            result.append(  toHex( values[i] ));
 
             if ( (i % 4) == 3 )
             {
@@ -243,31 +262,31 @@ public class ObjectUtil
     /**
      * <code>toHex</code> converts a byte into a readable string.
      *
-     * @param b a <code>byte</code> value
+     * @param value a <code>byte</code> value
      * @return a <code>String</code> value
      */
 
-    public static final String toHex(byte b)
+    public static final String toHex(byte value)
     {
-        StringBuffer sb = new StringBuffer();
+        final StringBuffer buffer = new StringBuffer();
 
-        int upper = (b >> 4) & 0x0F;
-        sb.append( lookup[upper] );
+        int upper = (value >> 4) & 0x0F;
+        buffer.append( lookup[upper] );
 
-        int lower = b & 0x0F;
-        sb.append( lookup[lower] );
+        int lower = value & 0x0F;
+        buffer.append( lookup[lower] );
 
-        sb.append( ' ' );
+        buffer.append( ' ' );
 
-        return sb.toString();
+        return buffer.toString();
     }
 
 
-    public static final char toAscii(byte b)
+    public static final char toAscii(byte value)
     {
-        if ( b > (byte) 31 &&  b < (byte) 127)
+        if ( value > (byte) 31 &&  value < (byte) 127)
         {
-            return (char) b;
+            return (char) value;
         }
 
         return '.';
@@ -289,10 +308,12 @@ public class ObjectUtil
             {
                 int idx = args[i].indexOf('=');
                 if (idx < 3 )
+                {
                     continue;
+                }
                 String key = args[i].substring(2,idx);
 
-                System.out.println("putting: " + key + "," + args[i].substring(idx+1));
+                System.out.println("putting: " + key + "," + args[i].substring(idx+1)); // NOPMD
                 props.put(key, args[i].substring(idx+1));
             }
         }
@@ -306,5 +327,15 @@ public class ObjectUtil
             return Thread.currentThread().getContextClassLoader().getResource(name);
         }
         return ObjectUtil.class.getResource(name);
+    }
+
+    /**
+     * factory method to create Integers from ints.
+     * should be used throughout the code to prepare
+     * transition to JDK 1.5 (Integer.valueOf(int))
+     */
+    public static Integer newInteger(int value)
+    {
+        return new Integer(value); // NOPMD
     }
 }
