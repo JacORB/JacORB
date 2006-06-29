@@ -55,7 +55,7 @@ public class ThreadPoolTest extends TestCase
 
         objectUnderTest_.execute(mockTask);
 
-        Thread.sleep(100);
+        Thread.sleep(500);
 
         controlTask.verify();
     }
