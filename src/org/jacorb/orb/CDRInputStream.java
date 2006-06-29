@@ -28,6 +28,7 @@ import org.apache.avalon.framework.logger.*;
 
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.util.ObjectUtil;
+import org.jacorb.util.Stack;
 import org.jacorb.util.ValueHandler;
 
 import org.omg.CORBA.BAD_PARAM;
@@ -55,7 +56,6 @@ public class CDRInputStream
     /**
      * <code>encaps_stack</code> is used to saving/restoring
      * encapsulation information.
-     * TODO replace with unsynchronized version
      */
     private Stack encaps_stack;
 

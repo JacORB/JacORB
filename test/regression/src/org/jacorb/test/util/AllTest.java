@@ -32,10 +32,11 @@ public class AllTest extends JacORBTestSuite
 
    public static Test suite ()
    {
-        TestSuite suite = new AllTest ("All Util Tests");
+       TestSuite suite = new AllTest ("All Util Tests");
 
-        suite.addTestSuite (LogKitLoggerFactoryTest.class);
+       suite.addTestSuite (LogKitLoggerFactoryTest.class);
+       suite.addTestSuite(StackTest.class);
 
-        return suite;
+       return suite;
    }
 }
