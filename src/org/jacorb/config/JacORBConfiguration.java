@@ -20,6 +20,7 @@ package org.jacorb.config;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.*;
 
@@ -726,7 +727,14 @@ public class JacORBConfiguration
         try
         {
             Class c = ObjectUtil.classForName(className);
-            return c.newInstance();
+
+            final Object instance = c.newInstance();
+
+            if (instance instanceof Configurable)
+            {
+                ((Configurable)instance).configure(this);
+            }
+            return instance;
         }
         catch( Exception e )
         {
