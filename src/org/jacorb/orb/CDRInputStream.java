@@ -342,12 +342,16 @@ public class CDRInputStream
     public void close()
     {
         // Don't need to call super.close as super is noop.
+
         if( closed )
         {
             return;
         }
 
-        BufferManager.getInstance().returnBuffer(buffer);
+        // commented out as this caused test failures.
+        // as the buffer has been passed into this CDRInputStream
+        // we cannot assume ownership of the buffer here (alphonse).
+        // BufferManager.getInstance().returnBuffer(buffer);
 
         buffer = null;
         encaps_stack = null;
