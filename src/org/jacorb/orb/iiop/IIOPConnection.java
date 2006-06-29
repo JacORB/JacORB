@@ -37,12 +37,6 @@ public abstract class IIOPConnection
 
     protected boolean use_ssl;
 
-    public IIOPConnection (IIOPConnection other)
-    {
-        super(other);
-        this.use_ssl = other.use_ssl;
-    }
-
     public IIOPConnection()
     {
         super();
