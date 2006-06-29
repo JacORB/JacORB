@@ -102,7 +102,7 @@ public class SSLHandshakeListener implements HandshakeCompletedListener
                 certs,
                 event.getSocket().getLocalPort(),
                 localhost,
-                null // TODO
+                null
             )
         );
     }
