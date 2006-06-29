@@ -28,6 +28,7 @@ import org.jacorb.test.bugs.bugjac174.InvalidIORTest_bug174;
 import org.jacorb.test.bugs.bugjac178.POAThreadingTest;
 import org.jacorb.test.bugs.bugjac181.BugJac181Test;
 import org.jacorb.test.bugs.bugjac182.BugJac182Test;
+import org.jacorb.test.bugs.bugjac189.BugJac189Test;
 import org.jacorb.test.bugs.bugjac192.BugJac192Test;
 import org.jacorb.test.bugs.bugjac220.BugJac220Test;
 import org.jacorb.test.bugs.bugjac235.BugJac235Test;
@@ -80,6 +81,7 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(BugJac220Test.suite());
       suite.addTestSuite(BugJac305Test.class);
       suite.addTest(BugJac181Test.suite());
+      suite.addTest(BugJac189Test.suite());
 
       return suite;
    }

@@ -1,0 +1,66 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac189
+            {
+               exception AlreadyActive
+               {
+               };
+
+
+               exception Unexpected
+               {
+                  string exc;
+               };
+
+
+               valuetype valString wstring;
+
+
+               typedef sequence<boolean> BooleanList;
+               typedef sequence<valString> ValStringList;
+               typedef sequence<long long> LongLongList;
+               typedef sequence<long> LongList;
+               typedef sequence<double> DoubleList;
+
+
+               valuetype ColumnData
+               {
+                  public any values;
+                  public BooleanList nulls;
+               };
+
+
+               typedef sequence<ColumnData> ColumnDataList;
+
+
+               valuetype RowListData
+               {
+                  public ColumnDataList columns;
+                  public long size;
+               };
+
+
+               interface Session
+               {
+                  void test189Op();
+                  void logout();
+               };
+
+
+               interface JAC189
+               {
+//                  RowListData getData();
+//                  void activateActive() raises (AlreadyActive, Unexpected);
+                  Session login();
+               };
+            };
+         };
+      };
+   };
+};
