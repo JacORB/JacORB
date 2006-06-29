@@ -573,8 +573,6 @@ public class IIOPListener
 
              SSLListenerUtil.addListener(orb, socket);
 
-             String localhost = getLocalhost();
-
              socketFactoryManager.getTCPListener().connectionOpened
              (
                      new TCPConnectionEvent
@@ -583,7 +581,7 @@ public class IIOPListener
                              socket.getInetAddress().getHostAddress(),
                              socket.getPort(),
                              socket.getLocalPort(),
-                             localhost
+                             getLocalhost()
                      )
              );
         }
