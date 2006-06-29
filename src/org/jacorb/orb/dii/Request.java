@@ -229,91 +229,97 @@ public class Request
             org.jacorb.orb.Delegate deleg =
                 (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate();
 
-            RequestOutputStream ros = (RequestOutputStream)
-                deleg.request(target, operation, response_expected);
-
-            ros.setRequest(this);
-
-            for( Iterator it = ((org.jacorb.orb.NVList)arguments).iterator(); it.hasNext();)
-            {
-                org.jacorb.orb.NamedValue nv = (org.jacorb.orb.NamedValue)it.next();
-                if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
-                {
-                    nv.send(ros);
-                }
-            }
+            final RequestOutputStream out = (RequestOutputStream)deleg.request(target, operation, response_expected);
 
             try
             {
-                reply = deleg.invoke(target, ros);
+                out.setRequest(this);
 
-                if( response_expected )
+                for( Iterator it = ((org.jacorb.orb.NVList)arguments).iterator(); it.hasNext();)
                 {
-                    _read_result();
-
-                    if (info != null)
+                    org.jacorb.orb.NamedValue nv = (org.jacorb.orb.NamedValue)it.next();
+                    if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
                     {
-                        info.setResult (result_value.value());
-                        InterceptorManager manager = orb.getInterceptorManager();
-                        info.setCurrent (manager.getCurrent());
-
-                        try{
-                            deleg.invokeInterceptors(info,
-                                                     ClientInterceptorIterator.RECEIVE_REPLY);
-                        }
-                        catch(RemarshalException rem)
-                        {
-                            //not allowed to happen here anyway
-                            throw new RuntimeException("should not happen");
-                        }
-                        info = null;
+                        nv.send(out);
                     }
                 }
-            }
-            catch (RemarshalException rem)
-            {
-                // Try again
-                continue;
-            }
-            catch (ApplicationException ae)
-            {
-                org.omg.CORBA.Any any;
-                org.omg.CORBA.TypeCode tc;
-                String id = ae.getId ();
-                int count = exceptions.count ();
 
-                for (int i = 0; i < count; i++)
+                try
                 {
-                    try
+                    reply = deleg.invoke(target, out);
+
+                    if( response_expected )
                     {
-                        tc = exceptions.item (i);
-                        if (id.equals (tc.id ()))
+                        _read_result();
+
+                        if (info != null)
                         {
-                            any = orb.create_any ();
-                            any.read_value (ae.getInputStream (), tc);
-                            env.exception (new org.omg.CORBA.UnknownUserException (any));
+                            info.setResult (result_value.value());
+                            InterceptorManager manager = orb.getInterceptorManager();
+                            info.setCurrent (manager.getCurrent());
+
+                            try{
+                                deleg.invokeInterceptors(info,
+                                        ClientInterceptorIterator.RECEIVE_REPLY);
+                            }
+                            catch(RemarshalException rem)
+                            {
+                                //not allowed to happen here anyway
+                                throw new RuntimeException("should not happen");
+                            }
+                            info = null;
+                        }
+                    }
+                }
+                catch (RemarshalException rem)
+                {
+                    // Try again
+                    continue;
+                }
+                catch (ApplicationException ae)
+                {
+                    org.omg.CORBA.Any any;
+                    org.omg.CORBA.TypeCode tc;
+                    String id = ae.getId ();
+                    int count = exceptions.count ();
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        try
+                        {
+                            tc = exceptions.item (i);
+                            if (id.equals (tc.id ()))
+                            {
+                                any = orb.create_any ();
+                                any.read_value (ae.getInputStream (), tc);
+                                env.exception (new org.omg.CORBA.UnknownUserException (any));
+                                break;
+                            }
+                        }
+                        catch (org.omg.CORBA.TypeCodePackage.BadKind ex)
+                        {
+                            // ignored
+                        }
+                        catch (org.omg.CORBA.Bounds ex)
+                        {
                             break;
                         }
                     }
-                    catch (org.omg.CORBA.TypeCodePackage.BadKind ex)
-                    {
-                        // ignored
-                    }
-                    catch (org.omg.CORBA.Bounds ex)
-                    {
-                       break;
-                    }
+
+                    break;
+                }
+                catch (Exception e)
+                {
+                    env.exception (e);
+                    break;
                 }
 
                 break;
             }
-            catch (Exception e)
+            finally
             {
-                env.exception (e);
-                break;
+                out.close();
             }
-
-            break;
         }
     }
 
