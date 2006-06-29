@@ -915,7 +915,9 @@ public final class ORB
         {
             rootpoa = org.jacorb.poa.POA._POA_init(this);
 
-            basicAdapter = new BasicAdapter( getTransportManager(),
+            basicAdapter = new BasicAdapter( this,
+                                             rootpoa,
+                                             getTransportManager(),
                                              getGIOPConnectionManager() );
 
             try

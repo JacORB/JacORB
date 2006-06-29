@@ -20,9 +20,11 @@
 
 package org.jacorb.orb.listener;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.config.Configuration;
+import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.util.ObjectUtil;
 
 /**
@@ -34,7 +36,7 @@ import org.jacorb.util.ObjectUtil;
  * @version $Id$
  */
 public class DefaultAcceptorExceptionListener
-    implements AcceptorExceptionListener
+    implements AcceptorExceptionListener, Configurable
 {
     /**
      * <code>sslException</code> is a cached class name for ssl exceptions.
@@ -44,20 +46,23 @@ public class DefaultAcceptorExceptionListener
     /**
      * <code>logger</code> is the logger.
      */
-    private final Logger logger;
+    private Logger logger;
 
     /**
      * Creates a new <code>DefaultAcceptorExceptionListener</code> instance.
      *
      */
-    public DefaultAcceptorExceptionListener(Configuration configuration)
+    public void configure(Configuration configuration)
     {
         try
         {
             String exceptionClass = configuration.getAttribute("javax.net.ssl.SSLException");
             sslException = ObjectUtil.classForName(exceptionClass);
         }
-        catch(ClassNotFoundException cnf) {} catch (ConfigurationException e)
+        catch(ClassNotFoundException e)
+        {
+        }
+        catch (ConfigurationException e)
         {
             sslException = null;
         }
@@ -65,32 +70,31 @@ public class DefaultAcceptorExceptionListener
             sslException = null;
         }
 
-        logger = configuration.getNamedLogger("jacorb.orb.iiop");
+        logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.iiop");
     }
 
     /**
      * Throwable <code>th</code> has been caught by the acceptor thread.
      *
-     * @param ae an <code>AcceptorExceptionEvent</code> value
+     * @param e an <code>AcceptorExceptionEvent</code> value
      */
-    public void exceptionCaught(AcceptorExceptionEvent ae)
+    public void exceptionCaught(AcceptorExceptionEvent e)
     {
-        logger.fatalError
-            ("DefaultAcceptorExceptionListener#exceptionCaught", ae.getException());
-
         if (logger.isDebugEnabled())
         {
-            logger.debug("Caught acceptor event: " + ae);
+            logger.debug("Caught acceptor event: " + e);
         }
 
-        if ((ae.getException() instanceof Error) ||
+        if ((e.getException() instanceof Error) ||
             (
-                ! ((org.jacorb.orb.iiop.IIOPListener.Acceptor)ae.getSource()).getAcceptorSocketLoop()
-                && (sslException != null && sslException.isInstance(ae.getException()))
+                ! ((IIOPListener.Acceptor)e.getSource()).getAcceptorSocketLoop()
+                && (sslException != null && sslException.isInstance(e.getException()))
             )
            )
         {
-            ae.getORB().shutdown(true);
+            logger.fatalError("fatal exception. will shutdown orb", e.getException());
+
+            e.getORB().shutdown(true);
         }
     }
 }

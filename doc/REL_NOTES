@@ -60,6 +60,10 @@
         - new properties: jacorb.connection.server.keepalive and
           jacorb.connection.client.keepalive to configure TCP KeepAlive on sockets.
         - Logging additions for debugging.
+        - Added AcceptorExceptionListener for notifications by the
+          serversocket acceptor thread. NOTE: The default behaviour now is
+          to shutdown the ORB whenever an Error or SSLException is thrown
+          by accept().
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.

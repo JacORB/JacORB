@@ -591,6 +591,16 @@ names & boolean & off \\
 \verb".fail_on_error" & Control, if failing ORBInitializers should make the
 complete {\tt ORB.init()} fail. & boolean & off \\
 \hline
+\verb"jacorb.acceptor_"
+\verb"exception_listener"
+\verb"_class" & A class implementing interface {\tt
+  org.jacorb .orb.listener.AcceptorException\-Listener}. The implementation
+will be notified of any exception caught by the thread doing the {\tt
+  ServerSocket.accept()} and has the chance of taking appropriate action,
+e.g. shutting down the ORB. The default implementation will shutdown the ORB
+on all Errors and SSLExceptions. & String (classname) & org.jacorb
+.orb.listener .DefaultAcceptorExceptionListener \\
+\hline
 \verb"jacorb.interop.indirec"
 \verb"tion_encoding_disable" & Turn off indirection encoding for
 repeated typecodes. This fixes interoperability with certain broken
@@ -922,6 +932,40 @@ no more than queue\_min requests. Default is 10. & integer \\
 \end{longtable}
 \end{small}
 
+\subsubsection{Acceptor Exception Event Plugin}
+\label{acceptorevent}
+This plugin is implemented by {\tt
+org.jacorb.orb.listener.AcceptorExceptionListener}.
+\begin{small}
+\begin{verbatim}
+package org.jacorb.orb.listener;
+public interface AcceptorExceptionListener extends EventListener
+    void exceptionCaught(AcceptorExceptionEvent ae);
+\end{verbatim}
+\end{small}
+The configuration property is
+\begin{verbatim}
+jacorb.acceptor_exception_listener
+\end{verbatim}
+If the server listener thread receives an exception while doing the {\tt
+ServerSocket.accept()} it will construct a {\tt
+org.jacorb.orb.listener.AcceptorExceptionEvent} and notify the configured
+implementation. The Event allows the following to be retrieved:
+\begin{small}
+\begin{verbatim}
+    public ORB getORB()
+    public Throwable getException()
+\end{verbatim}
+\end{small}
+The default implementation, {\tt
+org.jacorb.orb.listener.DefaultAcceptor\-ExceptionListener}, will simply shutdown
+the ORB on all Errors and SSLExceptions. If the developer wishes they may plugin
+their own for more fine grained control.
+
+Note that if the default implementation is used it is possible that due to e.g.
+an SSLException the listener will fail to accept on the server socket after the
+root POA is resolved which means that the ORB will be shutdown. Therefore future
+calls on that POA will fail with a 'POA destroyed' message.
 
 \subsection{JacORB Implname and CORBA Objects}
 \label{implname}

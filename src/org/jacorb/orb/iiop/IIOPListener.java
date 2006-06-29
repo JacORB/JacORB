@@ -33,7 +33,12 @@ import org.omg.SSLIOP.*;
 
 import org.apache.avalon.framework.configuration.*;
 
+import org.jacorb.orb.BasicAdapter;
 import org.jacorb.orb.factory.*;
+import org.jacorb.orb.listener.AcceptorExceptionEvent;
+import org.jacorb.orb.listener.AcceptorExceptionListener;
+import org.jacorb.orb.listener.DefaultAcceptorExceptionListener;
+import org.jacorb.orb.listener.NullAcceptorExceptionListener;
 import org.jacorb.orb.listener.SSLListenerUtil;
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.etf.ProtocolAddressBase;
@@ -355,6 +360,12 @@ public class IIOPListener
         protected boolean terminated = false;
 
         /**
+         * <code>acceptorExceptionListener</code> is listener to be notified
+         * of terminal failures by the acceptor.
+         */
+        private final AcceptorExceptionListener acceptorExceptionListener;
+
+        /**
          * <code>firstPass</code> stores whether we have already done
          * one pass in the run method i.e. have accepted one socket.
          */
@@ -368,6 +379,16 @@ public class IIOPListener
             setName(name);
 
             keepAlive = configuration.getAttributeAsBoolean("jacorb.connection.server.keepalive", false);
+
+            try
+            {
+                acceptorExceptionListener = (AcceptorExceptionListener)configuration.getAttributeAsObject("jacorb.acceptor_exception_listener", DefaultAcceptorExceptionListener.class.getName());
+            }
+            catch (ConfigurationException e)
+            {
+                logger.error("couldn't create a AcceptorExceptionListener", e);
+                throw new IllegalArgumentException("wrong configuration: " + e);
+            }
         }
 
         public void init()
@@ -425,6 +446,7 @@ public class IIOPListener
                         Socket socket = serverSocket.accept();
                         setup(socket);
                         deliverConnection (socket);
+                        firstPass = true;
                     }
                     finally
                     {
@@ -445,12 +467,27 @@ public class IIOPListener
          * template method that is invoked when
          * an exception occurs during the run loop.
          */
-        protected void handleExceptionInRunLoop(Exception exception, boolean isTerminated)
+        private void handleExceptionInRunLoop(Exception exception, boolean isTerminated)
         {
             if (!isTerminated)
             {
                 logger.warn("unexpected exception in runloop", exception);
             }
+
+            acceptorExceptionListener.exceptionCaught
+            (
+                new AcceptorExceptionEvent
+                (
+                    this,
+                    ((BasicAdapter) up).getORB(),
+                    exception
+                )
+            );
+        }
+
+        protected void doHandleExceptionInRunLoop(Exception exception, boolean isTerminated)
+        {
+            // empty to be overridden
         }
 
         /**
@@ -649,13 +686,11 @@ public class IIOPListener
             }
         }
 
-        protected void handleExceptionInRunLoop(Exception exception, boolean isTerminated)
+        protected void doHandleExceptionInRunLoop(Exception exception, boolean isTerminated)
         {
             // we are only interested in InterruptedExceptions here
-            // others should be handled the standard way.
             if (!(exception instanceof InterruptedException))
             {
-                super.handleExceptionInRunLoop(exception, isTerminated);
                 return;
             }
 

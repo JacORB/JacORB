@@ -39,13 +39,9 @@ import org.jacorb.orb.giop.TransportManager;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.omg.CORBA.INTERNAL;
-import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Factories;
 import org.omg.ETF.Listener;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
 /**
  * Class BasicAdapter, used by the POA.
@@ -60,7 +56,7 @@ public class BasicAdapter
     private final List listeners = new ArrayList();
 
     private MessageReceptorPool receptor_pool = null;
-    private ServerRequestListener request_listener = null;
+    private final ServerRequestListener request_listener;
     private ReplyListener reply_listener = null;
 
     private final TransportManager transport_manager;
@@ -70,17 +66,17 @@ public class BasicAdapter
     private org.jacorb.config.Configuration configuration = null;
     private Logger logger = null;
 
-    /**
-     * called from ORB.java
-     */
+    private final ORB orb;
 
-    BasicAdapter( TransportManager transport_manager,
-                  GIOPConnectionManager giop_connection_manager )
+    BasicAdapter( org.jacorb.orb.ORB orb,
+                  org.jacorb.poa.POA poa, TransportManager transport_manager, GIOPConnectionManager giop_connection_manager )
     {
         super();
 
+        this.orb = orb;
         this.transport_manager = transport_manager;
         this.giop_connection_manager = giop_connection_manager;
+        request_listener = new ServerRequestListener(orb, poa);
     }
 
     /**
@@ -96,16 +92,6 @@ public class BasicAdapter
             configuration.getNamedLogger("jacorb.orb.basic");
 
         receptor_pool = new MessageReceptorPool("server", "ServerMessageReceptor", myConfiguration);
-
-        try
-        {
-            final POA poa = POAHelper.narrow(configuration.getORB().resolve_initial_references("RootPOA"));
-            request_listener = new ServerRequestListener( configuration.getORB(), (org.jacorb.poa.POA)poa);
-        }
-        catch (InvalidName e)
-        {
-            throw new INTERNAL("should never happen");
-        }
 
         request_listener.configure( configuration );
         reply_listener = new NoBiDirServerReplyListener();
@@ -446,5 +432,10 @@ public class BasicAdapter
         // given back to the Listener after they have been
         // passed up initially.
         throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
+    public ORB getORB()
+    {
+        return orb;
     }
 }

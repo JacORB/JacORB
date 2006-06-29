@@ -261,6 +261,11 @@ jacorb.cachePoaNames=off
 # org.omg.CORBA.INITIALIZE exception will be thrown.
 #jacorb.orb_initializer.fail_on_error=off
 
+# A listener to receive a callback when the acceptor thread caught an
+# exception. The default JacORB implementation will shutdown the ORB on all
+# Errors and SSLExceptions (e.g. but not on IOExceptions)
+jacorb.acceptor_exception_listener=org.jacorb.orb.listener.DefaultAcceptorExceptionListener
+
 ###########################################
 #                                         #
 #         Interoperability                #
