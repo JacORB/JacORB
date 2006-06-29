@@ -1015,6 +1015,8 @@ SSLSessionEvent which allows the following information to be retrieved:
     public String getRemoteIP()
     public int getRemotePort()
     public String getRemoteDN()
+            Deprecated - getPeerCertificateChain should be used instead
+    public Certificate [] getPeerCertificateChain()
     public int getLocalPort()
 \end{verbatim}
 \end{small}
