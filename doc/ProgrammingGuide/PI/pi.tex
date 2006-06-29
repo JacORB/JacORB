@@ -41,8 +41,40 @@ When working with service contexts please make sure that you don't use {\tt
 internally.  Otherwise you will end up with either your data not transfered or
 unexpected internal exceptions.
 
+\section{Interceptor ForwardRequest Exceptions}
+Several of the interceptor types may throw a ForwardException such as
+{\tt ClientRequestInterceptor send\_request}. A developer may wish to do
+this if, for instance, a new policy is being applied to the object to switch
+to a SSL connection type as suggested within section \ref{rtProfileSwitching}.
 
-%%% Local Variables: 
+A current limitation of the specification (CORBA 3; 02-06-33) is that it is
+impossible to detect whether the call has previously been thrown for the same
+client request. Thus it is possible to enter an infinite loop throwing
+ForwardRequest at this point. This issue was first submitted to the OMG in
+May 2002 under number 5266.
+
+In order to allow developers more flexibility when writing their interceptors
+PrismTech have enhanced the exception handling as follows. We have chosen one of
+the solutions proposed within issue 5266; namely to allow forward\_reference()
+to be accessed in send\_request() as well as in receive\_other(). i.e. returning
+the object from the previous ForwardRequest if that has been thrown and null
+otherwise.
+
+A typical use of this might be
+\begin{verbatim}
+   public void send_request( ClientRequestInfo ri )
+   {
+      if (ri.effective_profile().tag == TAG_INTERNET_IOP.value &&
+          ri.forward_reference() == null)
+      {
+         // Do some processing, throw a forward request.
+      }
+   }
+\end{verbatim}
+This allows the developer to conditionally throw a forward request while using
+forward\_reference() to prevent infinite loops.
+
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

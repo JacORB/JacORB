@@ -52,6 +52,8 @@
         - fixes for shutdown/applet reload (bugzilla #459).
         - Fix for interceptors service context propagation.
         - Fix for interceptor multithreading and exception handling.
+        - Fix for client interceptor send_request forward exception detection
+          and propagation.
         - Fix for timeout overrides (bugzilla #611).
         - new properties: jacorb.net.tcp_listener and jacorb.security.ssl.ssl_listener for
           specifying the respective listener interfaces to receive event notifications.

@@ -18,6 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.orb;
 
 import java.util.Enumeration;
@@ -51,6 +52,15 @@ public class ClientInterceptorHandler
      * If no interceptors are registered on the client side,
      * the resulting object will be a dummy object that does nothing when
      * invoked.
+     *
+     * @param original a <code>ClientInterceptorHandler</code> value which contains
+     *        the original info and hence the original forward_request. May be null.
+     * @param orb an <code>org.jacorb.orb.ORB</code> value
+     * @param ros an <code>org.jacorb.orb.giop.RequestOutputStream</code> value
+     * @param self an <code>org.omg.CORBA.Object</code> value
+     * @param delegate an <code>org.jacorb.orb.Delegate</code> value
+     * @param piorOriginal an <code>org.jacorb.orb.ParsedIOR</code> value
+     * @param connection an <code>org.jacorb.orb.giop.ClientConnection</code> value
      */
     public ClientInterceptorHandler
                       ( ClientInterceptorHandler original,
@@ -63,21 +73,14 @@ public class ClientInterceptorHandler
     {
         if ( orb.hasClientRequestInterceptors() )
         {
-            info = new ClientRequestInfoImpl ( orb,
-                    // The original ClientInterceptorHandler might be null
-                    (original != null ? original.info : null),
+            info = new ClientRequestInfoImpl (
+                    orb,
+                    (original != null ? original.info : null), // The original ClientInterceptorHandler might be null
                     ros,
                     self,
                     delegate,
                     piorOriginal,
-                    connection );
-
-            // The original ClientRequestInfo forward_reference might return
-            // null so this operation would be a noop then.
-            if (original != null && original.info != null)
-            {
-                info.setForwardReference (original.info.forward_reference());
-            }
+                    connection);
         }
         else
         {
@@ -152,7 +155,9 @@ public class ClientInterceptorHandler
                                         ClientInterceptorIterator.RECEIVE_REPLY );
                 }
                 else
+                {
                     info.request_os.getRequest().setInfo( info );
+                }
             }
         }
     }
@@ -167,28 +172,30 @@ public class ClientInterceptorHandler
         }
     }
 
-    public void handle_receive_exception ( org.omg.CORBA.SystemException ex )
+    public void handle_receive_exception ( org.omg.CORBA.SystemException exception )
         throws RemarshalException
     {
-        handle_receive_exception ( ex, null );
+        handle_receive_exception ( exception, null );
     }
 
-    public void handle_receive_exception ( org.omg.CORBA.SystemException ex,
+    public void handle_receive_exception ( org.omg.CORBA.SystemException exception,
                                            ReplyInputStream reply )
         throws RemarshalException
     {
         if ( info != null )
         {
-            SystemExceptionHelper.insert ( info.received_exception, ex );
+            SystemExceptionHelper.insert ( info.received_exception, exception );
             try
             {
                 info.received_exception_id =
-                    SystemExceptionHelper.type ( ex ).id();
+                    SystemExceptionHelper.type ( exception ).id();
             }
             catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
             {
                 if (logger.isDebugEnabled())
+                {
                     logger.debug("BadKind: " + bk.getMessage());
+                }
             }
             info.setReplyStatus (SYSTEM_EXCEPTION.value);
 
@@ -203,22 +210,24 @@ public class ClientInterceptorHandler
         }
     }
 
-    public void handle_receive_exception ( ApplicationException ex,
+    public void handle_receive_exception ( ApplicationException exception,
                                            ReplyInputStream reply )
         throws RemarshalException
     {
         if ( info != null )
         {
-            info.received_exception_id = ex.getId();
+            info.received_exception_id = exception.getId();
             try
             {
                 ApplicationExceptionHelper.insert( info.received_exception,
-                                                   ex );
+                                                   exception );
             }
             catch ( Exception e )
             {
                 if (logger.isDebugEnabled())
+                {
                     logger.debug(e.getMessage());
+                }
                 SystemExceptionHelper.insert ( info.received_exception,
                                                new org.omg.CORBA.UNKNOWN
                                                   ( e.getMessage() ) );
@@ -232,8 +241,7 @@ public class ClientInterceptorHandler
             catch ( Exception e )
             {
                 // shouldn't happen anyway
-                if (logger.isWarnEnabled())
-                    logger.warn(e.getMessage());
+                logger.warn("unexpected exception", e);
             }
 
             info.setReplyServiceContexts ( reply.rep_hdr.service_context );
@@ -272,9 +280,9 @@ public class ClientInterceptorHandler
         catch ( org.omg.CORBA.UserException ue )
         {
             if (logger.isWarnEnabled())
-                logger.warn("UserException: " + ue.getMessage());
+            {
+                logger.warn("UserException: " + ue.toString());
+            }
         }
     }
-
-
 }
