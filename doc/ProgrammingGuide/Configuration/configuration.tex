@@ -1005,7 +1005,9 @@ Example usage
 \subsection{JacORB Network Event Logging}
 \label{eventLogging}
 
-An enhancement has been added to JacORB that allows a developer to monitor TCP and SSL connections. Note that for both of these implementations full information may only retrieved with a successful connection; e.g. if the connection could not be established there will be no remote port.
+An enhancement has been added to JacORB that allows a developer to monitor TCP and SSL connections.
+Note that for both of these implementations full information may only retrieved with a successful connection;
+e.g. if the connection could not be established there will be no certificates.
 
 \subsubsection{TCP Monitoring}
 
@@ -1027,9 +1029,10 @@ The standard java event interface is followed; the developer's code will receive
 TCPConnectionEvent which allows the following information to be retrieved:
 \begin{small}
 \begin{verbatim}
+    public String getLocalIP()
+    public int getLocalPort()
     public String getRemoteIP()
     public int getRemotePort()
-    public int getLocalPort()
 \end{verbatim}
 \end{small}
 
@@ -1056,17 +1059,17 @@ The standard java event interface is followed; the developer's code will receive
 SSLSessionEvent which allows the following information to be retrieved:
 \begin{small}
 \begin{verbatim}
+    public String getLocalIP()
+    public int getLocalPort()
     public String getRemoteIP()
     public int getRemotePort()
     public String getRemoteDN()
-            Deprecated - getPeerCertificateChain should be used instead
-    public Certificate [] getPeerCertificateChain()
-    public int getLocalPort()
+    public X509Certificate[] getPeerCertificateChain()
 \end{verbatim}
 \end{small}
 
+Note that getRemoteDN will simply return a concatenated string of the certificates. For that reason it is deprecated; getPeerCertificateChain should be used instead as that allows a developer to extract specific information from the certificate.
 In order to detect a succesful handshake the implementation delegates to the JSSE {\tt javax.net.ssl.HandShakeCompletedListener}.
-
 
 %%% Local Variables:
 %%% mode: latex
