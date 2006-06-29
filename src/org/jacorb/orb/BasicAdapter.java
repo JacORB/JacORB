@@ -39,6 +39,7 @@ import org.jacorb.orb.giop.TransportManager;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.orb.iiop.IIOPProfile;
+import org.omg.CORBA.INTERNAL;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Factories;
 import org.omg.ETF.Listener;
