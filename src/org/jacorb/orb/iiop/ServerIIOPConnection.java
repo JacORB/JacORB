@@ -111,20 +111,23 @@ public class ServerIIOPConnection
             }
             catch (IOException ex)
             {
-                throw to_COMM_FAILURE (ex, socket);
+                throw to_COMM_FAILURE(ex, socket);
             }
             finally
             {
-                tcpListener.connectionClosed(
-                        new TCPConnectionEvent
-                        (
-                                this,
-                                socket.getInetAddress().toString(),
-                                socket.getPort(),
-                                socket.getLocalPort(),
-                                getLocalhost()
-                        )
-                );
+                if (tcpListener.isListenerEnabled())
+                {
+                    tcpListener.connectionClosed(
+                            new TCPConnectionEvent
+                            (
+                                    this,
+                                    socket.getInetAddress().toString(),
+                                    socket.getPort(),
+                                    socket.getLocalPort(),
+                                    getLocalhost()
+                            )
+                    );
+                }
             }
         }
 

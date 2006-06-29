@@ -32,6 +32,8 @@ import java.util.EventListener;
  */
 public interface TCPConnectionListener extends EventListener
 {
+    boolean isListenerEnabled();
+
     /**
      * <code>connectionOpened</code> will be called whenever a socket
      * is opened.

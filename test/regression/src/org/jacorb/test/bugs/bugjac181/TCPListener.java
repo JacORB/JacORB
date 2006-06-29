@@ -62,4 +62,9 @@ public class TCPListener implements TCPConnectionListener
         listenerClose = false;
         listenerOpen = false;
     }
+
+    public boolean isListenerEnabled()
+    {
+        return true;
+    }
 }

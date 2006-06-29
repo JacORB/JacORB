@@ -37,4 +37,9 @@ public class NullTCPConnectionListener implements TCPConnectionListener
     {
         // empty implementation
     }
+
+    public boolean isListenerEnabled()
+    {
+        return false;
+    }
 }

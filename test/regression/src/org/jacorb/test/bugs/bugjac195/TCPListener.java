@@ -17,4 +17,9 @@ public class TCPListener implements TCPConnectionListener
     {
         JAC195ServerImpl.connectionsClosed++;
     }
+
+    public boolean isListenerEnabled()
+    {
+        return true;
+    }
 }

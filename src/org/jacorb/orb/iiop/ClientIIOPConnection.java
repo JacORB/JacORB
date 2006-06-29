@@ -388,7 +388,7 @@ public class ClientIIOPConnection
             }
             finally
             {
-                if (socket != null)
+                if (socket != null && connectionListener.isListenerEnabled())
                 {
                     connectionListener.connectionOpened
                     (
@@ -463,7 +463,7 @@ public class ClientIIOPConnection
         }
         finally
         {
-            if (socket != null)
+            if (socket != null && connectionListener.isListenerEnabled())
             {
                 connectionListener.connectionClosed
                 (
