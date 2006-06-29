@@ -88,10 +88,10 @@ public final class Delegate
         this reference is to a local object */
     private boolean resolved_locality = false;
 
-    private Set     pending_replies      = new HashSet();
-    private Barrier pending_replies_sync = new Barrier();
+    private final Set     pending_replies      = new HashSet();
+    private final Barrier pending_replies_sync = new Barrier();
 
-    private java.lang.Object bind_sync = new java.lang.Object();
+    private final java.lang.Object bind_sync = new java.lang.Object();
 
     private boolean locate_on_bind_performed = false;
 
@@ -148,7 +148,7 @@ public final class Delegate
      * consistent state.
      *
      * Synchronization is done via the bind_sync object. Please also
-     * have a look at the comment for opration bind().
+     * have a look at the comment for operation bind().
      */
 
 
@@ -215,11 +215,17 @@ public final class Delegate
             config.getAttribute("jacorb.locate_on_bind","off").equals("on");
 
         if (objectReference != null)
+        {
             _pior = new ParsedIOR( objectReference, orb, logger);
+        }
         else if (ior!=null)
+        {
             _pior = new ParsedIOR( ior, orb, logger);
+        }
         else if (_pior == null )
+        {
             throw new ConfigurationException("Neither objectReference nor IOR set!");
+        }
         checkIfImR( _pior.getTypeId() );
    }
 
@@ -296,13 +302,13 @@ public final class Delegate
                 }
             }
 
-            org.omg.ETF.Profile p = _pior.getEffectiveProfile();
-            if (p == null)
+            org.omg.ETF.Profile profile = _pior.getEffectiveProfile();
+            if (profile == null)
             {
                 throw new org.omg.CORBA.COMM_FAILURE ("no effective profile");
             }
 
-            connection = conn_mg.getConnection(p);
+            connection = conn_mg.getConnection(profile);
             bound = true;
 
             /* The delegate could query the server for the object
@@ -377,7 +383,7 @@ public final class Delegate
 
                     default :
                         {
-                            throw new RuntimeException( "Unknown reply status for LOCATE_REQUEST: " + lris.rep_hdr.locate_status.value() );
+                            throw new IllegalArgumentException( "Unknown reply status for LOCATE_REQUEST: " + lris.rep_hdr.locate_status.value() );
                         }
 
                     }
@@ -391,7 +397,9 @@ public final class Delegate
                 catch ( Exception e )
                 {
                     if (logger.isWarnEnabled())
+                    {
                         logger.warn( e.getMessage() );
+                    }
                 }
 
             }
@@ -586,7 +594,7 @@ public final class Delegate
 
         if (policy_overrides != null)
         {
-            Integer key = new Integer(policy_type);
+            Integer key = ObjectUtil.newInteger(policy_type);
             result = (Policy)policy_overrides.get(key);
         }
 
@@ -597,12 +605,14 @@ public final class Delegate
             // TODO: currently not implemented
 
             // check at the ORB-level
-            org.omg.CORBA.PolicyManager pm = orb.getPolicyManager();
-            if (pm != null)
+            org.omg.CORBA.PolicyManager policyManager = orb.getPolicyManager();
+            if (policyManager != null)
             {
-                Policy[] orbPolicies = pm.get_policy_overrides (new int[] {policy_type});
+                Policy[] orbPolicies = policyManager.get_policy_overrides (new int[] {policy_type});
                 if (orbPolicies!= null && orbPolicies.length == 1)
+                {
                     result = orbPolicies[0];
+                }
             }
         }
 
@@ -639,50 +649,50 @@ public final class Delegate
 
     public UtcT getRequestEndTime()
     {
-        Policy p = get_client_policy (REQUEST_END_TIME_POLICY_TYPE.value);
-        if (p != null)
+        Policy policy = get_client_policy(REQUEST_END_TIME_POLICY_TYPE.value);
+        if (policy != null)
         {
-            return ((org.omg.Messaging.RequestEndTimePolicy)p).end_time();
+            return ((org.omg.Messaging.RequestEndTimePolicy)policy).end_time();
         }
         return null;
     }
 
     public UtcT getReplyEndTime()
     {
-        Policy p = get_client_policy (REPLY_END_TIME_POLICY_TYPE.value);
-        if (p != null)
+        Policy policy = get_client_policy (REPLY_END_TIME_POLICY_TYPE.value);
+        if (policy != null)
         {
-            return ((org.omg.Messaging.ReplyEndTimePolicy)p).end_time();
+            return ((org.omg.Messaging.ReplyEndTimePolicy)policy).end_time();
         }
         return null;
     }
 
     public UtcT getRequestStartTime()
     {
-        Policy p = get_client_policy (REQUEST_START_TIME_POLICY_TYPE.value);
-        if (p != null)
+        Policy policy = get_client_policy (REQUEST_START_TIME_POLICY_TYPE.value);
+        if (policy != null)
         {
-            return ((org.omg.Messaging.RequestStartTimePolicy)p).start_time();
+            return ((org.omg.Messaging.RequestStartTimePolicy)policy).start_time();
         }
         return null;
     }
 
     public UtcT getReplyStartTime()
     {
-        Policy p = get_client_policy (REPLY_START_TIME_POLICY_TYPE.value);
-        if (p != null)
+        Policy policy = get_client_policy (REPLY_START_TIME_POLICY_TYPE.value);
+        if (policy != null)
         {
-            return ((org.omg.Messaging.ReplyStartTimePolicy)p).start_time();
+            return ((org.omg.Messaging.ReplyStartTimePolicy)policy).start_time();
         }
         return null;
     }
 
     public long getRelativeRoundtripTimeout()
     {
-        Policy p = get_client_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value);
-        if (p != null)
+        Policy policy = get_client_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value);
+        if (policy != null)
         {
-            return ((org.omg.Messaging.RelativeRoundtripTimeoutPolicy)p)
+            return ((org.omg.Messaging.RelativeRoundtripTimeoutPolicy)policy)
                                                             .relative_expiry();
         }
         return -1;
@@ -690,10 +700,10 @@ public final class Delegate
 
     public long getRelativeRequestTimeout()
     {
-        Policy p = get_client_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value);
-        if (p != null)
+        Policy policy = get_client_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value);
+        if (policy != null)
         {
-            return ((org.omg.Messaging.RelativeRequestTimeoutPolicy)p)
+            return ((org.omg.Messaging.RelativeRequestTimeoutPolicy)policy)
                                                             .relative_expiry();
         }
         return -1;
@@ -701,12 +711,12 @@ public final class Delegate
 
     public short getSyncScope()
     {
-        Policy p = get_client_policy (SYNC_SCOPE_POLICY_TYPE.value);
-        if (p != null)
+        Policy policy = get_client_policy (SYNC_SCOPE_POLICY_TYPE.value);
+        if (policy != null)
         {
-            return ((org.omg.Messaging.SyncScopePolicy)p).synchronization();
+            return ((org.omg.Messaging.SyncScopePolicy)policy).synchronization();
         }
-        return ((org.omg.Messaging.SYNC_WITH_TRANSPORT.value));
+        return org.omg.Messaging.SYNC_WITH_TRANSPORT.value;
     }
 
     public org.omg.RTCORBA.Protocol[] getClientProtocols ()
@@ -750,7 +760,7 @@ public final class Delegate
             {
                 servant = (org.omg.PortableServer.Servant) so.servant;
                 orb.set_delegate (servant);
-                return (servant._get_interface_def());
+                return servant._get_interface_def();
             }
             finally
             {
@@ -870,14 +880,16 @@ public final class Delegate
         }
 
         if ( _poa != null )   // && _poa._localStubsSupported())
+        {
             poa = _poa;
+        }
 
-        org.omg.CORBA.portable.ObjectImpl o =
+        org.omg.CORBA.portable.ObjectImpl reference =
             new org.jacorb.orb.Reference( typeId() );
 
-        o._set_delegate( this );
+        reference._set_delegate( this );
 
-        return o;
+        return reference;
     }
 
     public int hash( org.omg.CORBA.Object self, int x )
@@ -999,8 +1011,7 @@ public final class Delegate
                 }
                 else
                 {
-                    if (logger.isDebugEnabled())
-                        logger.debug("invoke: RemarshalException");
+                    logger.debug("invoke: RemarshalException");
 
                     // RequestOutputStream has been created for
                     // another connection, so try again
@@ -1010,8 +1021,7 @@ public final class Delegate
         }
         catch ( org.omg.CORBA.SystemException cfe )
         {
-            if (logger.isDebugEnabled())
-                logger.debug("invoke: SystemException");
+            logger.debug("invoke: SystemException");
 
             if( !async )
             {
@@ -1179,9 +1189,9 @@ public final class Delegate
                 StringBuffer corbaloc = new StringBuffer( "corbaloc:iiop:" );
 
                 corbaloc.append( imr.getImRHost() );
-                corbaloc.append( ":" );
+                corbaloc.append( ':' );
                 corbaloc.append( imr.getImRPort() );
-                corbaloc.append( "/" );
+                corbaloc.append( '/' );
                 corbaloc.append( CorbaLoc.parseKey( object_key ) );
 
                 //rebind to the new IOR
@@ -1218,7 +1228,9 @@ public final class Delegate
         catch ( org.omg.CORBA.UserException ue )
         {
             if (logger.isErrorEnabled())
+            {
                 logger.error( ue.getMessage() );
+            }
         }
     }
 
@@ -1254,7 +1266,9 @@ public final class Delegate
         for ( int i = 0; i < ids.length - 1; i++ )
         {
             if ( ids[ i ].equals( logical_type_id ) )
+            {
                 return true;
+            }
         }
 
         /* ok, we could not affirm by simply looking at the locally available
@@ -1512,7 +1526,7 @@ public final class Delegate
      * GIOPConnection.  If there are no other Delegates using that
      * connection, it will be closed and disposed of altogether.
      */
-    public synchronized void release( org.omg.CORBA.Object self )
+    public void release( org.omg.CORBA.Object self )
     {
         synchronized ( bind_sync )
         {
@@ -1538,7 +1552,6 @@ public final class Delegate
                 logger.debug("Delegate released!");
             }
         }
-
     }
 
     /**
@@ -1561,10 +1574,10 @@ public final class Delegate
         Time.waitFor (getReplyStartTime());
     }
 
-    public synchronized org.omg.CORBA.Request request( org.omg.CORBA.Object self,
+    public org.omg.CORBA.Request request( org.omg.CORBA.Object self,
                                                        String operation )
     {
-        orb.checkIsRunning();
+        orb.perform_work();
 
         synchronized ( bind_sync )
         {
@@ -1575,7 +1588,6 @@ public final class Delegate
                                                    getParsedIOR().get_object_key(),
                                                    operation );
         }
-
     }
 
     /**
@@ -1586,7 +1598,7 @@ public final class Delegate
                                                    String operation,
                                                    boolean responseExpected )
     {
-        orb.checkIsRunning();
+        orb.perform_work();
 
         // Compute the deadlines for this request based on any absolute or
         // relative timing policies that have been specified.  Compute this
@@ -1596,32 +1608,38 @@ public final class Delegate
         UtcT requestEndTime = getRequestEndTime();
         long requestTimeout = getRelativeRequestTimeout();
 
-        if ((requestTimeout != 0) || (requestEndTime != null)) {
+        if ((requestTimeout != 0) || (requestEndTime != null))
+        {
             requestEndTime = Time.earliest(Time.corbaFuture (requestTimeout),
                                            requestEndTime);
             if (Time.hasPassed(requestEndTime))
+            {
                 throw new TIMEOUT("Request End Time exceeded prior to invocation",
                                   0, CompletionStatus.COMPLETED_NO);
+            }
         }
 
         UtcT replyEndTime     = getReplyEndTime();
         long roundtripTimeout = getRelativeRoundtripTimeout();
 
-        if ((roundtripTimeout != 0) || (replyEndTime != null)) {
+        if ((roundtripTimeout != 0) || (replyEndTime != null))
+        {
             replyEndTime = Time.earliest(Time.corbaFuture (roundtripTimeout),
                                          replyEndTime);
             if (Time.hasPassed(replyEndTime))
+            {
                 throw new TIMEOUT("Reply End Time exceeded prior to invocation",
                                   0, CompletionStatus.COMPLETED_NO);
+            }
         }
 
         synchronized ( bind_sync )
         {
             bind();
 
-            ParsedIOR p = getParsedIOR();
+            ParsedIOR ior = getParsedIOR();
 
-            RequestOutputStream ros =
+            RequestOutputStream out =
                 new RequestOutputStream( orb,
                                          connection,
                                          connection.getId(),
@@ -1631,27 +1649,26 @@ public final class Delegate
                                          getRequestStartTime(),
                                          requestEndTime,
                                          replyEndTime,
-                                         p.get_object_key(), p.getEffectiveProfile().version().minor );
+                                         ior.get_object_key(), ior.getEffectiveProfile().version().minor );
 
-            ros.configure(configuration);
+            out.configure(configuration);
 
             // CodeSets are only negotiated once per connection,
             // not for each individual request
             // (CORBA 3.0, 13.10.2.6, second paragraph).
             if (!connection.isTCSNegotiated())
             {
-                connection.setCodeSet(p);
+                connection.setCodeSet(ior);
             }
 
             //Setting the codesets not until here results in the
             //header being writtend using the default codesets. On the
             //other hand, the server side must have already read the
             //header to discover the codeset service context.
-            ros.setCodeSet( connection.getTCS(), connection.getTCSW() );
+            out.setCodeSet( connection.getTCS(), connection.getTCSW() );
 
-            return ros;
+            return out;
         }
-
     }
 
     /**
@@ -1688,7 +1705,9 @@ public final class Delegate
                   catch ( Throwable e )
                   {
                       if (logger.isWarnEnabled())
+                      {
                           logger.warn( e.getMessage() );
+                      }
                   }
                }
             }
@@ -1843,7 +1862,6 @@ public final class Delegate
             }
             return getParsedIOR().getIORString();
         }
-
     }
 
     public String toString( org.omg.CORBA.Object self )
@@ -1871,7 +1889,7 @@ public final class Delegate
 
         for ( int i = 0; i < policies.length; i++ )
         {
-            policy_overrides.put( new Integer( policies[ i ].policy_type() ), policies[ i ] );
+            policy_overrides.put(ObjectUtil.newInteger( policies[ i ].policy_type() ), policies[ i ] );
         }
 
         return self;
@@ -1912,7 +1930,7 @@ public final class Delegate
 
     private void checkORB()
     {
-        orb.checkIsRunning();
+        orb.perform_work();
     }
 
     private static class Barrier

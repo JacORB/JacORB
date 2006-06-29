@@ -120,15 +120,15 @@ public final class ORB
      * org.omg.CORBA.portable.ValueFactory.  This map is used by
      * register/unregister_value_factory() and lookup_value_factory().
      */
-    protected Map valueFactories = new HashMap();
+    private final Map valueFactories = new HashMap();
 
     /**
      * Maps repository ids (strings) of boxed value types to
      * BoxedValueHelper instances for those types.
      */
-    protected Map boxedValueHelpers = new HashMap();
+    private final Map boxedValueHelpers = new HashMap();
 
-    private Map objectKeyMap = new HashMap();
+    private final Map objectKeyMap = new HashMap();
 
     /** the ORB object's logger */
     private Logger logger;
@@ -137,7 +137,7 @@ public final class ORB
     public String[] _args;
 
     /* for run() and shutdown()  */
-    private Object runSync = new java.lang.Object();
+    private final Object runSync = new java.lang.Object();
     private boolean run = true;
 
     private boolean shutdown_in_progress = false;
@@ -500,7 +500,9 @@ public final class ORB
                 res = ((String)scopes.get( i ));
 
                 if( res.equals (""))
+                {
                     break;
+                }
 
                 /* the following is a  call to a method in the private
                    interface between the ORB  and the POA. It does the
@@ -653,7 +655,7 @@ public final class ORB
                 return new
                     org.jacorb.orb.policies.ClientProtocolPolicy (value);
             default:
-                final PolicyFactory factory = (PolicyFactory)policy_factories.get(new Integer(type));
+                final PolicyFactory factory = (PolicyFactory)policy_factories.get(ObjectUtil.newInteger(type));
 
                 if (factory == null)
                 {
@@ -670,7 +672,7 @@ public final class ORB
      */
     public boolean hasPolicyFactoryForType(int type)
     {
-        return (policy_factories.containsKey( new Integer(type)) );
+        return (policy_factories.containsKey(ObjectUtil.newInteger(type)) );
     }
 
     public org.omg.CORBA.ContextList create_context_list()
@@ -708,7 +710,7 @@ public final class ORB
 
             TaggedComponentList profileComponents = new TaggedComponentList();
             profileComponents.addComponent(create_ORB_TYPE_ID());
-            componentMap.put(new Integer(profile.tag()), profileComponents);
+            componentMap.put(ObjectUtil.newInteger(profile.tag()), profileComponents);
 
             if (profile instanceof ProfileBase)
             {
@@ -724,8 +726,8 @@ public final class ORB
         }
 
         TaggedComponentList multipleComponents = new TaggedComponentList();
-        componentMap.put (new Integer (TAG_MULTIPLE_COMPONENTS.value),
-                          multipleComponents);
+        componentMap.put(ObjectUtil.newInteger(TAG_MULTIPLE_COMPONENTS.value),
+                         multipleComponents);
 
         // invoke IOR interceptors
         if ((interceptor_manager != null) &&
@@ -743,7 +745,9 @@ public final class ORB
             catch (Exception e)
             {
                 if (logger.isErrorEnabled())
+                {
                     logger.error(e.getMessage());
+                }
             }
         }
 
@@ -758,7 +762,7 @@ public final class ORB
 
             // shuffle all components over into the multiple components profile
             TaggedComponentList iiopComponents =
-                (TaggedComponentList)componentMap.get(new Integer(TAG_INTERNET_IOP.value));
+                (TaggedComponentList)componentMap.get(ObjectUtil.newInteger(TAG_INTERNET_IOP.value));
 
             multipleComponents.addAll(iiopProfile.getComponents());
             multipleComponents.addAll(iiopComponents);
@@ -789,7 +793,7 @@ public final class ORB
         {
             Profile p = (Profile)profiles.get(i);
             TaggedComponentList c =
-                (TaggedComponentList)componentMap.get (new Integer (p.tag()));
+                (TaggedComponentList)componentMap.get(ObjectUtil.newInteger (p.tag()));
             tc.value = c.asArray();
             p.marshal (tp, tc);
             tps[i] = tp.value;
@@ -822,7 +826,9 @@ public final class ORB
         {
             Profile p = (Profile)i.next();
             if (p instanceof IIOPProfile)
+            {
                 return (IIOPProfile)p;
+            }
         }
         return null;
     }
@@ -840,7 +846,9 @@ public final class ORB
     public org.jacorb.orb.BasicAdapter getBasicAdapter()
     {
         if( basicAdapter == null )
+        {
             throw new INITIALIZE("Adapters not initialized; resolve RootPOA.");
+        }
         return basicAdapter;
     }
 
@@ -873,7 +881,9 @@ public final class ORB
                                               boolean _transient )
     {
         if( rep_id == null )
+        {
             rep_id = "IDL:omg.org/CORBA/Object:1.0";
+        }
 
         org.omg.IOP.IOR ior =
             createIOR( rep_id, object_key, _transient, poa, null );
@@ -881,7 +891,9 @@ public final class ORB
         if (ior == null)
         {
             if (logger.isErrorEnabled())
+            {
                 logger.error("Interal error: createIOR returns null");
+            }
         }
 
         Delegate d = new Delegate( this, ior );
@@ -1221,7 +1233,9 @@ public final class ORB
         else if( identifier.equals("ORBPolicyManager") )
         {
             if (policyManager == null)
+            {
                 policyManager = new PolicyManager(this);
+            }
             return policyManager;
         }
         else if( identifier.equals("CodecFactory") )
@@ -1264,7 +1278,6 @@ public final class ORB
        }
        return rtORB;
     }
-
 
     /**
      * Register a reference, that will be returned on subsequent calls
@@ -1322,7 +1335,6 @@ public final class ORB
             logger.info("ORB run, exit");
         }
     }
-
 
     public void send_multiple_requests_oneway( org.omg.CORBA.Request[] req )
     {
@@ -1766,12 +1778,9 @@ public final class ORB
             shutdown_in_progress = true;
         }
 
-        synchronized (runSync)
+        if(!isRunning())
         {
-            if(!run)
-            {
-                return; // ORB already shut down...
-            }
+            return; // ORB already shut down...
         }
 
         logger.info("ORB going down...");
@@ -1820,11 +1829,16 @@ public final class ORB
     public void destroy()
     {
         if( destroyed )
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST();
-
-        if( run )
         {
-            shutdown( true );
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST();
+        }
+
+        synchronized (runSync)
+        {
+            if( run )
+            {
+                shutdown( true );
+            }
         }
 
         if( interceptor_manager != null )
@@ -1838,7 +1852,7 @@ public final class ORB
 
     public org.omg.CORBA.Object string_to_object (String str)
     {
-        checkIsRunning();
+        perform_work();
 
         if (str == null)
         {
@@ -1900,7 +1914,7 @@ public final class ORB
 
     public String object_to_string( org.omg.CORBA.Object obj)
     {
-        checkIsRunning();
+        perform_work();
 
         if (obj == null)
         {
@@ -1926,7 +1940,7 @@ public final class ORB
 
     public void perform_work ()
     {
-        if (! run)
+        if (!isRunning())
         {
             throw new org.omg.CORBA.BAD_INV_ORDER
                 (4, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
@@ -1935,7 +1949,7 @@ public final class ORB
 
     public boolean work_pending ()
     {
-        if (! run)
+        if (!isRunning())
         {
             throw new org.omg.CORBA.BAD_INV_ORDER
                 (4, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
@@ -2008,10 +2022,12 @@ public final class ORB
     private class JacORBValueFactory
         implements org.omg.CORBA.portable.ValueFactory
     {
-        private Class implementationClass;
+        private final Class implementationClass;
 
         public JacORBValueFactory (Class clazz)
         {
+            super();
+
             implementationClass = clazz;
         }
 
@@ -2056,6 +2072,7 @@ public final class ORB
         catch (ClassNotFoundException e)
         {
             if (orgomg && name.startsWith ("org.omg"))
+            {
                 try
                 {
                     result = ObjectUtil.classForName("omg.org" + name.substring(7));
@@ -2064,12 +2081,13 @@ public final class ORB
                 {
                     // nothing, result is null
                 }
+            }
         }
         return result;
     }
 
     /**
-     * Instantiates class `c' using its no-arg constructor.  Throws a
+     * Instantiates class `clazz' using its no-arg constructor.  Throws a
      * run-time exception if that fails.
      */
     private Object instantiate(Class clazz)
@@ -2080,13 +2098,13 @@ public final class ORB
         }
         catch (IllegalAccessException e1)
         {
-            throw new RuntimeException ("cannot instantiate class "
+            throw new IllegalArgumentException("cannot instantiate class "
                                         + clazz.getName()
                                         + " (IllegalAccessException)");
         }
         catch (InstantiationException e2)
         {
-            throw new RuntimeException ("cannot instantiate class "
+            throw new IllegalArgumentException("cannot instantiate class "
                                         + clazz.getName()
                                         + " (InstantiationException)");
         }
@@ -2349,22 +2367,12 @@ public final class ORB
         return originalKey;
     }
 
-    /**
-     * check if this orb is still running.
-     * @throws BAD_INV_ORDER in case this orb was shutdown
-     * already.
-     */
-    void checkIsRunning()
-    {
-        if (!isRunning())
-        {
-            throw new BAD_INV_ORDER(4, CompletionStatus.COMPLETED_NO);
-        }
-    }
-
     boolean isRunning()
     {
-        return run;
+        synchronized (runSync)
+        {
+            return run;
+        }
     }
 
     /**
@@ -2452,12 +2460,16 @@ public final class ORB
     public void connect(org.omg.CORBA.Object obj)
     {
         if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
+        {
             throw new BAD_PARAM("connect parameter must extend " +
                                 "org.omg.CORBA.portable.ObjectImpl");
+        }
 
         if (!(obj instanceof org.omg.CORBA.portable.InvokeHandler))
+        {
             throw new BAD_PARAM("connect parameter must implement " +
                                 "org.omg.CORBA.portable.InvokeHandler");
+        }
 
         synchronized (connectedObjects)
         {
@@ -2497,12 +2509,16 @@ public final class ORB
     public void disconnect(org.omg.CORBA.Object obj)
     {
         if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
+        {
             throw new BAD_PARAM("disconnect parameter must extend " +
                                 "org.omg.CORBA.portable.ObjectImpl");
+        }
 
         if (!(obj instanceof org.omg.CORBA.portable.InvokeHandler))
+        {
             throw new BAD_PARAM("disconnect parameter must implement " +
                                 "org.omg.CORBA.portable.InvokeHandler");
+        }
 
         synchronized (connectedObjects)
         {
