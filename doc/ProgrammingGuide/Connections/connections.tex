@@ -98,33 +98,34 @@ nature of this data may vary, there is no standard access to the data via the
 interface. Therefore, {\tt StatisticsProvider} and {\tt SelectionStrategy}
 usually need to be implemented together. Whenever a new connection is
 created\footnote{Currently, connection management is only implemented for the
-  server side. Therefore, only accepted {\tt ServerGIOPConnections}s will get
-  a {\tt StatisticsProvider}}, a new {\tt StatisticsProvider} object is
-instanciated and stored with the {\tt Transport}\footnote{This is actually
-  only done when a {\tt StatisticsProvider} is configured}. The {\tt
-  StatisticsProvider} interface is oriented along the mode of use of the {\tt
-  Transport}. For efficiency reasons, messages are not sent as one big byte
+server side. Therefore, only accepted {\tt ServerGIOPConnections}s will get a
+{\tt StatisticsProvider}}, a new {\tt StatisticsProvider} object is
+instanciated and stored with the {\tt GIOPConnection}\footnote{This is
+actually only done when a {\tt StatisticsProvider} is configured}.
+The {\tt StatisticsProvider} interface is oriented along the mode of use of the {\tt
+GIOPConnection}. For efficiency reasons, messages are not sent as one big byte
 array. Instead, they are sent piecewise over the wire. When such a chunk is
 sent, the method {\tt messageChunkSent(int size)} will be called. After the
 message has been completely sent, method {\tt flush()} is called. This whole
 process is synchronized, so all consecutive {\tt messageChunkSent}s until a
 {\tt flush()} form a single message. Therefore, no synchronization on this
 level is necessary. However, access to gathered statistical data by the {\tt
-  SelectionStrategy} is concurrent, so care has to be taken. Receiving
-messages is done only on the whole, so there exists only one method, {\tt
-  messageReceived(int size)}, to notify the {\tt StatisticsProvider} of such
-an event.
+SelectionStrategy} is concurrent, so care has to be taken. Receiving messages
+is done only on the whole, so there exists only one method, {\tt
+messageReceived(int size)}, to notify the {\tt StatisticsProvider} of such an
+event.
+
 
 JacORB comes with two pre-implemented strategies: least frequently used and
 least recently used. LFU and LRU are implemented by the classes {\tt
-  org.jacorb.orb.giop.L[F|R]USelectionStrategyImpl} and {\tt
+  org.jacorb.orb.giop.L[F|R]USelection\-StrategyImpl} and {\tt
   org.jacorb.orb.giop. L[F|R]U\-Statistics\-ProviderImpl}.
 
 \subsection{Configuration}
 \label{connection_management_config}
 To configure connection management, the following properties are provided:
 \begin{description}
-\item {\tt jacorb.connection.max\_server\_transports} This property sets the
+\item {\tt jacorb.connection.max\_server\_connections} This property sets the
   maximum number of TCP/IP connections that will be listened on by the
   server--side ORB.
 \item {\tt jacorb.connection.wait\_for\_idle\_interval} This property sets the
@@ -141,11 +142,10 @@ To configure connection management, the following properties are provided:
 
 \subsection{Limitations}
 \label{connection_management_limitations}
-No sunshine without rain. When trying to close a connection, it is first
-checked that the connection is idle, i.e.~has no pending messages.
-If this is the case, a GIOP CloseConnection message is sent, and the
-TCP/IP connection is closed. Under high load, this can lead to the following
-situation:
+When trying to close a connection, it is first checked that the connection is
+idle, i.e.~has no pending messages.  If this is the case, a GIOP
+CloseConnection message is sent, and the TCP/IP connection is closed. Under
+high load, this can lead to the following situation:
 
 \begin{enumerate}
 \item Server sends the CloseConnection message.
@@ -167,7 +167,7 @@ these ORBs do actively close the connection upon receiving a
 CloseConnection message.
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

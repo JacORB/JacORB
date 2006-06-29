@@ -480,38 +480,56 @@ thrown. Not set by default & millisec. & 0  \\
 \hline
 \verb"jacorb.connection.clie"
 \verb"nt.idle_timeout" & Client-side timeout. This is set to non-zero in order
-to stop blocking after specified number of milliseconds & millisec. &
-unset \\
+to close the connection after specified number of milliseconds idle time. Only
+connections that don't have pending messages are closed, unless
+jacorb.connection.client.timeout\_ignores\_pending\_messages is turned on. &
+millisec. & unset \\
 \hline
 \verb"jacorb.connection.clie"
 \verb"nt.timeout_ignores_pen"
 \verb"ding_messages" & Controls if client-side idle timeouts take care of
-pending messages or not. & boolean & \\
+pending messages or not. If "on", the connection is closed regardless of any
+pending messages, and all pending messages are cancelled (resulting in a {\tt
+COMM\_FAILURE}, unless jacorb.connection.client.retry\_on\_failure is turned
+on).& boolean & off \\
 \hline
 \verb"jacorb.connection.clie"
 \verb"nt.retry_on_failure" & Controls if network failures on existing connections
 should yield a COMM\_FAILURE or should trigger a remarshaling
-of all pending messages. & boolean & \\
+of all pending messages. Note that this should only be used with idempotent
+operations because the client side ORB has no way of knowing the processing
+state of the lost request on the server. & boolean & \\
 \hline
 \verb"jacorb.connection.serv"
 \verb"er.timeout" & Maximum time in milliseconds that a server keeps a
 connection open if nothing happens & millisec. & unset \\
 \hline
 \verb"jacorb.connection.serv"
-\verb"er.keepalive" & Enable SO\_KEEPALIVE on server sockets. & boolean & false \\
+\verb"er.keepalive" & Enable SO\_KEEPALIVE on server sockets. If the OS
+keepalive detects a TCP/IP connection to be broken, the effect is the same as
+if the TCP/IP connection has been closed gracefully. & boolean & false \\
+
 \hline
 \verb"jacorb.connection.clie"
-\verb"nt.keepalive" & Enable SO\_KEEPALIVE on client sockets. & boolean & false \\
+\verb"nt.keepalive" & Enable SO\_KEEPALIVE on client sockets. If the OS
+keepalive detects a TCP/IP connection to be broken, the effect is the same as
+if the TCP/IP connection has been closed gracefully.All pending replies will
+receive a {\tt COMM\_FAILURE}. & boolean & false \\
 \hline
 \verb"jacorb.connection.max"
 \verb"_server_connections" & This property sets the
   maximum number of TCP/IP connections that will be listened on by the
-  server--side ORB & integer & unlimited \\
+  server--side ORB. Only effective in conjunction with the other connection
+  management properties. Please see \ref{connection_management}.& integer &
+  unlimited \\
+
 \hline
 \verb"jacorb.connection.wait"
 \verb"_for_idle_interval" & This property sets the
   interval to wait until the next try is made to find an idle connection to
-  close & millisec & 500\\
+  close. Only effective in conjunction with the other connection management
+  properties. Please see \ref{connection_management}. & millisec & 500\\
+
 \hline
 \verb"jacorb.listener.server"
 \verb"_socket_timeout" & Sets a timeout on the (SSL) server socket. This is a
@@ -522,19 +540,32 @@ factories. & millisec & 0\\
 \hline
 \verb"jacorb.connection.sele"
 \verb"ction_strategy_class" & This property sets
-  the {\tt Selection\-Strategy} & class & \\
+  the {\tt Selection\-Strategy}. Only effective in conjunction with the other
+  connection management  properties. Please see \ref{connection_management}. &
+  class & \\
 \hline
 \verb"jacorb.connection.stat"
 \verb"istics_provider_class" & This property sets
-  the {\tt Statistics\-Provider} & class & \\
+  the {\tt Statistics\-Provider}. Only effective in conjunction with the other
+  connection management properties. Please see \ref{connection_management}. &
+  class & \\
+
 \hline
 \verb"jacorb.connection.del"
 \verb"ay_close" & This property controls the behaviour after sending a GIOP
 CloseConnection messsage. If set to ``on'', the TCP/IP connection won't be
 closed directly. Instead, it is waited for the client to do so
-first & boolean & off \\
+first. Please see \ref{connection_management}. & boolean & off \\
 \hline
+
+\verb"jacorb.listener.server"
+\verb"_socket_timeout" & Sets a timeout on the (SSL) server socket. This is a
+workaround for JDK 1.3 on linux where a thread blocked on \verb"accept()"
+isn't notified when closing that socket. Default is 0, i.e.~off. See Java bug
+\#4344135. NOTE: This is only useful in conjunction with the SI\&C SSL socket
+factories. & millisec & 0\\
 \hline
+
 \verb"jacorb.transport.facto"
 \verb"ries" & This property controls which transport plug-ins are
 available to the ORB.  The value is a list of classes that implement the ETF

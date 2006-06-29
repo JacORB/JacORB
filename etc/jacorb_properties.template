@@ -167,19 +167,25 @@ jacorb.maxManagedBufSize=18
 # exceeded, a org.omg.CORBA.TIMEOUT exception will be thrown
 #jacorb.connection.client.pending_reply_timeout=0
 
-# client-side connection idle timeout, set no non-zero to stop
-# close the connection after so many msecs.
+# client-side connection idle timeout, set to a non-zero value to close the
+# connection after so many msecs. Only connections that don't have pending
+# messages are closed, unless
+# jacorb.connection.client.timeout_ignores_pending_messages is turned on.
 #jacorb.connection.client.idle_timeout=0
 
-# shall the orb ignore pending messages when a connection idle timeout
-# is detected? If "on", the connection is closed and all pending
-# messages are cancelled. Default is "off"
+# shall the orb ignore pending messages when a connection idle timeout is
+# detected? If "on", the connection is closed regardless of any pending
+# messages, and all pending messages are cancelled (resulting in a
+# COMM_FAILURE, unless jacorb.connection.client.retry_on_failure is turned
+# on). Default is "off"
 #jacorb.connection.client.timeout_ignores_pending_messages=off
 
 # whenever a network failure is detected, the orb can either
 # (infinitely) retry all pending requests, or propagate a COMM_FAILURE
 # back into the client code. Default is "off", i.e. throw a
-# COMM_FAILURE
+# COMM_FAILURE. Note that this should only be used with idempotent operations
+# because the client side orb has no way of knowing the processing state of
+# the lost request on the server.
 #jacorb.connection.client.retry_on_failure=off
 
 # max time (msecs) a server keeps a connection open if nothing happens
@@ -196,12 +202,10 @@ jacorb.maxManagedBufSize=18
 #jacorb.connection.server.max_idle_receptor_threads=5
 #jacorb.connection.server.max_receptor_threads=1000
 
-# Max no of accepted connections on the server.
+# Max no of accepted connections on the server. Only effective in conjunction
+# with the next four properties. Please see section 15.2 "Connection
+# Management" in the ProgrammingGuide
 #jacorb.connection.max_server_connections=
-
-# The number of msecs that are waited until the next attempt to find
-# an idle connection is made (i.e. do not continuously spin)
-#jacorb.connection.wait_for_idle_interval=500
 
 # The class name of the SelectionStrategy class
 #jacorb.connection.selection_strategy_class=
@@ -209,10 +213,19 @@ jacorb.maxManagedBufSize=18
 # The class name of the StatisticsProvider class
 #jacorb.connection.statistics_provider_class=
 
-# Sets keep-alive on server sockets
+# The number of msecs that are waited until the next attempt to find
+# an idle connection is made (i.e. do not continuously spin)
+#jacorb.connection.wait_for_idle_interval=500
+
+# Sets keep-alive on server sockets. If the OS keepalive detects a TCP/IP
+# connection to be broken, the effect is the same as if the TCP/IP connection
+# has been closed gracefully.
 #jacorb.connection.server.keepalive=off
 
-# Sets keep-alive on client sockets
+# Sets keep-alive on client sockets. If the OS keepalive detects a TCP/IP
+# connection to be broken, the effect is the same as if the TCP/IP connection
+# has been closed gracefully. All pending replies will receive a
+# COMM_FAILURE.
 #jacorb.connection.client.keepalive=off
 
 #jacorb.reference_caching=off
