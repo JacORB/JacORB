@@ -97,6 +97,11 @@ jacorb.logfile.append=off
 # A value of 0 implies no rolling log
 jacorb.logfile.maxLogSize=0
 
+# LogPattern
+# This configure the logging pattern. For the format see
+# http://excalibur.apache.org/apidocs/org/apache/log/format/PatternFormatter.html
+jacorb.log.default.log_pattern=[%.20{category}] %.7{priority} : %{message}\\n%{throwable}
+
 # hexdump outgoing messages
 jacorb.debug.dump_outgoing_messages=off
 
