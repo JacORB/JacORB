@@ -23,6 +23,10 @@ package org.jacorb.orb.factory;
 import java.net.*;
 import java.io.IOException;
 
+/**
+ * @author Steve Osselton
+ * @version $Id$
+ */
 public class DefaultServerSocketFactory implements ServerSocketFactory
 {
     public ServerSocket createServerSocket (int port)

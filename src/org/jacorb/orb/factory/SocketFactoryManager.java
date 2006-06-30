@@ -71,20 +71,18 @@ public class SocketFactoryManager
      */
     private SSLSessionListener sslListener;
 
+    private final ORB orb;
 
-    private SocketFactory socketFactory = null;
-    private ServerSocketFactory serverFactory = null;
+    private SocketFactory socketFactory;
+    private ServerSocketFactory serverFactory;
     private SSLServerSocketFactory sslServerSocketFactory;
-    private ORB orb;
-
-    /** the configuration object  */
-    private org.jacorb.config.Configuration configuration = null;
-    private Logger logger = null;
-    private String serverSocketFactoryClassName = null;
-    private String socketFactoryClassName = null;
-    private String portMin = null;
-    private String sslServerSocketFactoryClazz;
     private SocketFactory sslSocketFactory;
+
+    private org.jacorb.config.Configuration configuration;
+    private Logger logger;
+    private String serverSocketFactoryClassName;
+    private String socketFactoryClassName;
+    private String sslServerSocketFactoryClazz;
     private String sslSocketFactoryClazz;
 
     public SocketFactoryManager(ORB orb)
@@ -100,7 +98,7 @@ public class SocketFactoryManager
         serverSocketFactoryClassName = configuration.getAttribute(SERVER_SOCKET_FACTORY, DefaultServerSocketFactory.class.getName());
 
         socketFactoryClassName = configuration.getAttribute(SOCKET_FACTORY, "");
-        portMin = configuration.getAttribute(PortRangeSocketFactory.MIN_PROP, "");
+        String portMin = configuration.getAttribute(PortRangeSocketFactory.MIN_PROP, "");
 
         if ( socketFactoryClassName.length() == 0)
         {
@@ -186,8 +184,6 @@ public class SocketFactoryManager
         return sslSocketFactory;
     }
 
-
-
     /**
      * <code>getTCPListener</code> provides an accessor for the instantiated
      * TCPConnectionListener.
@@ -214,7 +210,6 @@ public class SocketFactoryManager
 
         return result;
     }
-
 
     private SSLServerSocketFactory newSSLServerSocketFactory(String className)
     {
@@ -247,11 +242,11 @@ public class SocketFactoryManager
     {
         try
         {
-            Class factoryClazz = ObjectUtil.classForName(className);
+            final Class factoryClazz = ObjectUtil.classForName(className);
 
             if (!expectedClazz.isAssignableFrom(factoryClazz))
             {
-                throw new RuntimeException("Custom factory " + className + " does not implement " + expectedClazz.getName());
+                throw new IllegalArgumentException("Custom factory " + className + " does not implement " + expectedClazz.getName());
             }
 
             Constructor ctor = null;
@@ -263,11 +258,11 @@ public class SocketFactoryManager
                     // First try getting constructor with ORB parameter
                     ctor = factoryClazz.getConstructor(new Class[] { ORB.class });
                 }
-                catch (NoSuchMethodException e)
+                catch (NoSuchMethodException e) // NOPMD
                 {
                     // ignore
                 }
-                catch (SecurityException e)
+                catch (SecurityException e) // NOPMD
                 {
                     // Ignore
                 }
@@ -275,15 +270,15 @@ public class SocketFactoryManager
 
             final Object result;
 
-            if (ctor != null)
-            {
-                // Construct passing ORB as parameter
-                result = ctor.newInstance (new Object[] { orb });
-            }
-            else
+            if (ctor == null)
             {
                 // Default construction
                 result = factoryClazz.newInstance();
+            }
+            else
+            {
+                // Construct passing ORB as parameter
+                result = ctor.newInstance (new Object[] { orb });
             }
 
             if (result instanceof Configurable)
@@ -296,8 +291,8 @@ public class SocketFactoryManager
         catch (Exception ex)
         {
             logger.debug("Failed to create custom socket factory", ex);
-            throw new RuntimeException("Failed to create custom socket factory: " +
-                                       className);
+            throw new IllegalArgumentException("Failed to create custom socket factory " +
+                    className + ": " + ex.toString());
         }
     }
 }

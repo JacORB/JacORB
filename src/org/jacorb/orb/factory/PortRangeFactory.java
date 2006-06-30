@@ -23,6 +23,10 @@ package org.jacorb.orb.factory;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
+/**
+ * @author Steve Osselton
+ * @version $Id$
+ */
 public abstract class PortRangeFactory
     implements Configurable
 {
@@ -42,7 +46,7 @@ public abstract class PortRangeFactory
         }
         if ((port <= 0) || (port > 65535))
         {
-	    throw new RuntimeException ("PortRangeFactory: " + name + " invalid port number");
+            throw new ConfigurationException("PortRangeFactory: " + name + " invalid port number");
         }
 
         return port;

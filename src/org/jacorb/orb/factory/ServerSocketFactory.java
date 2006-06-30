@@ -36,10 +36,13 @@ package org.jacorb.orb.factory;
 import java.net.*;
 import java.io.IOException;
 
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 public interface ServerSocketFactory
 {
-
-    public ServerSocket createServerSocket ( int port )
+    ServerSocket createServerSocket (int port)
         throws IOException;
 
     /**
@@ -50,8 +53,8 @@ public interface ServerSocketFactory
      * @param backlog - how many connections are queued
      * @exception IOException - for networking errors
      */
-    public ServerSocket createServerSocket( int port,
-                                            int backlog )
+    ServerSocket createServerSocket(int port,
+                                    int backlog )
         throws IOException;
 
     /**
@@ -65,8 +68,8 @@ public interface ServerSocketFactory
      *
      * @exception IOException - for networking errors
      */
-    public ServerSocket createServerSocket( int port,
-                                            int backlog,
-                                            InetAddress ifAddress )
+    ServerSocket createServerSocket(int port,
+                                    int backlog,
+                                    InetAddress ifAddress)
         throws IOException;
 }

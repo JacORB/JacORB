@@ -26,8 +26,12 @@ import java.io.IOException;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
-public class PortRangeServerSocketFactory 
-    extends PortRangeFactory 
+/**
+ * @author Steve Osselton
+ * @version $Id$
+ */
+public class PortRangeServerSocketFactory
+    extends PortRangeFactory
     implements ServerSocketFactory
 {
     public static final String MIN_PROP = "jacorb.net.server_socket_factory.port.min";
@@ -35,17 +39,19 @@ public class PortRangeServerSocketFactory
 
     private Logger logger;
     private final ServerSocketFactory delegate;
-    
+
+    public PortRangeServerSocketFactory(ServerSocketFactory delegate)
+    {
+        super();
+
+        this.delegate = delegate;
+    }
+
     public PortRangeServerSocketFactory()
     {
         this(new DefaultServerSocketFactory());
     }
-    
-    public PortRangeServerSocketFactory(ServerSocketFactory delegate)
-    {
-        this.delegate = delegate;
-    }
-    
+
     public void configure(org.apache.avalon.framework.configuration.Configuration config)
         throws ConfigurationException
     {
@@ -72,19 +78,19 @@ public class PortRangeServerSocketFactory
             {
                 return doCreateServerSocket(port, backlog);
             }
-            catch (IOException e)
+            catch (IOException e) // NOPMD
             {
-                // ignored 
+                // ignored. will retry
             }
         }
-        
+
         for (int localPort = portMin; localPort <= portMax; localPort++)
         {
             try
             {
                 return doCreateServerSocket(localPort, backlog);
             }
-            catch (IOException ex)
+            catch (IOException ex) // NOPMD
             {
                 // Ignore and continue
             }
@@ -93,7 +99,7 @@ public class PortRangeServerSocketFactory
         return handleCreationFailed();
     }
 
-    private ServerSocket doCreateServerSocket(int port, int backlog) 
+    private ServerSocket doCreateServerSocket(int port, int backlog)
         throws IOException
     {
         final ServerSocket socket = delegate.createServerSocket(port, backlog);
@@ -114,19 +120,19 @@ public class PortRangeServerSocketFactory
             {
                 return doCreateServerSocket(port, backlog, ifAddress);
             }
-            catch (IOException e)
+            catch (IOException e) // NOPMD
             {
-                // ignore 
+                // ignore will retry
             }
         }
-        
+
         for (int localPort = portMin; localPort <= portMax; localPort++)
         {
             try
             {
                 return doCreateServerSocket(localPort, backlog, ifAddress);
             }
-            catch (IOException ex)
+            catch (IOException ex) // NOPMD
             {
                 // Ignore and continue
             }
@@ -135,7 +141,7 @@ public class PortRangeServerSocketFactory
         return handleCreationFailed();
     }
 
-    private ServerSocket doCreateServerSocket(int localPort, int backlog, InetAddress ifAddress) 
+    private ServerSocket doCreateServerSocket(int localPort, int backlog, InetAddress ifAddress)
         throws IOException
     {
         final ServerSocket socket = delegate.createServerSocket(localPort, backlog, ifAddress);
@@ -156,12 +162,12 @@ public class PortRangeServerSocketFactory
             {
                 return doCreateServerSocket(port);
             }
-            catch (IOException e)
+            catch (IOException e) // NOPMD
             {
-                // ignored
+                // ignored will retry
             }
         }
-        
+
         for (int localPort = portMin; localPort <= portMax; localPort++)
         {
             try
@@ -187,12 +193,12 @@ public class PortRangeServerSocketFactory
         }
         return socket;
     }
-    
+
     private ServerSocket handleCreationFailed() throws BindException
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("Cannot create server socket between ports " + 
+            logger.debug("Cannot create server socket between ports " +
                          portMin + " and " + portMax);
         }
 

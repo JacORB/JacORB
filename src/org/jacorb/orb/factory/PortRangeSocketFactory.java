@@ -67,25 +67,35 @@ public class PortRangeSocketFactory
         {
             try
             {
-                socket = new Socket (host, port, localHost, localPort);
-                if (logger.isDebugEnabled())
-                    logger.debug("PortRangeSocketFactory: Created server socket at "
-                                 + ":" + localPort);
+                socket = newSocket(host, port, localPort, localHost);
 
                 return socket;
             }
-            catch (IOException ex)
+            catch (IOException ex) // NOPMD
             {
                 // Ignore and continue
             }
         }
 
         if (logger.isDebugEnabled())
+        {
             logger.debug("Cannot bind socket between ports " + portMin + " and "
                          + portMax + " to target " + host + ":" + port);
+        }
 
         throw new BindException ("PortRangeSocketFactory: no free port between "
                                  + portMin + " and " + portMax);
+    }
+
+    private Socket newSocket(String host, int port, int localPort, InetAddress localHost) throws IOException
+    {
+        final Socket socket = new Socket (host, port, localHost, localPort);
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("PortRangeSocketFactory: Created server socket at "
+                         + ":" + localPort);
+        }
+        return socket;
     }
 
     public boolean isSSL (Socket socket)
