@@ -686,9 +686,17 @@ protocol(s) used by the server. For example: {\tt
 & string & unset \\
 \hline
 \verb"OAIAddr" & The Object Adapter Internet Address: IP address on
-multi-homed host (this gets encoded in object references). NOTE:
-Addresses like 127.0.0.X will only be accessible from the same
-machine! (This property is ignored if OAAddress is set.) & node & unset \\
+multi-homed host (this gets encoded in object references).
+\begin{itemize}
+\item Addresses like 127.0.0.X will only be accessible from the same
+machine!
+\item If OAIAddr is not set on a multi-homed host it is operating system/JVM
+dependant which IP address is selected.
+\item If the developer is trying to use callbacks (\textit{not\textit{ bidirectional
+GIOP)}} on a multihomed host the client
+will also require OAIAddr set as it is acting as a server.
+\end{itemize}
+  & node & unset \\
 \hline
 \verb"OAPort" & See OAIAddr above (ignored if OAAddress is set) & port & unset \\
 \hline
@@ -1079,6 +1087,7 @@ public interface SSLSessionListener extends EventListener
     void keyException(SSLSessionEvent e);
     void peerUnverifiedException(SSLSessionEvent e);
     void protocolException(SSLSessionEvent e);
+    void sslException(SSLSessionEvent e);
 \end{verbatim}
 \end{small}
 The classname should then be specified in the property
