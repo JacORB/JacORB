@@ -731,6 +731,11 @@ jacorb.net.socket\_factory.port.min above & integer & disabled\\
 \verb"r" & Defines a listener for TCP connection events. See \ref{eventLogging}.
 & string & disabled\\
 \hline
+\verb"jacorb.enhanced_thread"
+\verb"_name" & Temporarily adds connection endpoints and time (in milliseconds)
+that the thread started to the Thread name. To be used to correlate running
+threads with entries in debug logs. & string & off\\
+\hline
 
 
 \end{longtable}

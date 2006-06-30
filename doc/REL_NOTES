@@ -64,6 +64,8 @@
           serversocket acceptor thread. NOTE: The default behaviour now is
           to shutdown the ORB whenever an Error or SSLException is thrown
           by accept().
+        - new property: jacorb.enhanced_thread_name to allow additional information to be
+          added temporarily to the Thread name
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
@@ -102,7 +104,6 @@
         - name all threads created by JacORB (bugzilla #472)
         - new property: jacorb.orb_initializer.fail_on_error. Control if errors
           caused by an ORBInitializer will make ORB.init() fail or not.
-
     - POA:
         - new property: jacorb.poa.thread_pool_shared. This is to share a
           single thread pool amongst all the POAs.

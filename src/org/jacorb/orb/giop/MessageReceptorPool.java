@@ -49,7 +49,7 @@ public class MessageReceptorPool
             throw new IllegalArgumentException("must be client or server");
         }
 
-        org.jacorb.config.Configuration configuration =
+        final org.jacorb.config.Configuration configuration =
             (org.jacorb.config.Configuration) myConfiguration;
 
         final int maxConnectionThreads =
@@ -71,7 +71,7 @@ public class MessageReceptorPool
                             new ConsumerFactory(){
                                 public Consumer create()
                                 {
-                                    return new MessageReceptor();
+                                    return new MessageReceptor(configuration);
                                 }
                             },
                             maxConnectionThreads,

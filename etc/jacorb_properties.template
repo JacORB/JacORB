@@ -279,6 +279,11 @@ jacorb.cachePoaNames=off
 # Errors and SSLExceptions (e.g. but not on IOExceptions)
 jacorb.acceptor_exception_listener=org.jacorb.orb.listener.DefaultAcceptorExceptionListener
 
+# If set to on this results in extra information being added to the
+# thread name i.e. connection endpoints and date/time thread started
+# processing - Server_TCP_IP_Transport only.
+jacorb.enhanced_thread_name=off
+
 ###########################################
 #                                         #
 #         Interoperability                #
