@@ -1942,17 +1942,18 @@ public final class ORB
 
     public void perform_work ()
     {
-        if (!isRunning())
-        {
-            throw new org.omg.CORBA.BAD_INV_ORDER
-                (4, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
-        }
+        work_pending();
     }
 
     public boolean work_pending ()
     {
         if (!isRunning())
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("ORB has been shutdown");
+            }
+
             throw new org.omg.CORBA.BAD_INV_ORDER
                 (4, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
