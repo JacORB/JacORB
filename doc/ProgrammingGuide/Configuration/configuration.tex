@@ -629,12 +629,12 @@ complete {\tt ORB.init()} fail. & boolean & off \\
 \verb"jacorb.acceptor_"
 \verb"exception_listener"
 \verb"_class" & A class implementing interface {\tt
-  org.jacorb .orb.listener.AcceptorException\-Listener}. The implementation
+  org.jacorb.orb.listener.AcceptorException\-Listener}. The implementation
 will be notified of any exception caught by the thread doing the {\tt
   ServerSocket.accept()} and has the chance of taking appropriate action,
 e.g. shutting down the ORB. The default implementation will shutdown the ORB
 on all Errors and SSLExceptions. & String (classname) & org.jacorb
-.orb.listener .DefaultAcceptorExceptionListener \\
+.orb.listener.DefaultAcceptorExceptionListener \\
 \hline
 \verb"jacorb.interop.indirec"
 \verb"tion_encoding_disable" & Turn off indirection encoding for
@@ -1007,8 +1007,24 @@ implementation. The Event allows the following to be retrieved:
 \end{small}
 The default implementation, {\tt
 org.jacorb.orb.listener.DefaultAcceptor\-ExceptionListener}, will simply shutdown
-the ORB on all Errors and SSLExceptions. If the developer wishes they may plugin
+the ORB on all Errors and for SSLExceptions that are thrown before any socket
+connections have been made. If the developer wishes they may plugin
 their own for more fine grained control.
+
+In order to detect whether the exception has been thrown on the first attempt
+or any attempt after that the developer may use the following function within
+their listener implementation.
+\begin{small}
+\begin{verbatim}
+    public void exceptionCaught(AcceptorExceptionEvent ae) {
+    ...
+       if (((org.jacorb.orb.iiop.IIOPListener.Acceptor)
+                   ae.getSource()).getAcceptorSocketLoop()) {
+      ...
+\end{verbatim}
+\end{small}
+{\tt getAcceptorSocketLoop} returns false if the event has been thrown on the
+initial loop, or true on any loop after that.
 
 Note that if the default implementation is used it is possible that due to e.g.
 an SSLException the listener will fail to accept on the server socket after the
