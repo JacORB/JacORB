@@ -234,8 +234,9 @@ public class ClientConnection
     }
 
     /**
-     * Decrements the number of clients and returns true if the number
-     * reaches zero.
+     * This method decrements the number of clients.
+     *
+     * @return a <code>boolean</code> value, true if client_count is zero.
      */
     public synchronized boolean decClients()
     {
