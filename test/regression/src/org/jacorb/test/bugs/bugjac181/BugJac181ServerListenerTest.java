@@ -32,13 +32,6 @@ public class BugJac181ServerListenerTest extends TestCase
         org.omg.CORBA.Object obj = rootPOA.servant_to_reference(new JAC181Impl());
         String objString = serverORB.object_to_string(obj);
         server = JAC181Helper.narrow(clientORB.string_to_object(objString));
-
-        new Thread()
-        {
-            public void run() {
-                serverORB.run();
-            };
-        }.start();
     }
 
     protected void tearDown() throws Exception
