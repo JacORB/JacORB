@@ -1,0 +1,19 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac257
+            {
+               interface JAC257
+               {
+                     void hello (in string msg);
+               };
+            };
+         };
+      };
+   };
+};

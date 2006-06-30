@@ -1,0 +1,61 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac251
+            {
+               interface BasicConfiguration
+               {
+                  void create_session(in string id);
+               };
+
+               struct NameComponent
+               {
+                  string id;
+                  BasicConfiguration cid;
+               };
+               typedef sequence <NameComponent> Name;
+               typedef Name DName;
+               typedef NameComponent NameArray[2];
+               typedef unsigned long long OIDTYPE;
+
+               struct MORef
+               {
+                  OIDTYPE oid;
+                  BasicConfiguration cid;
+                  string type;
+               };
+
+
+               enum MOidpairKind {RefType, DNType};
+               union MOidpair switch (MOidpairKind) {
+                  case RefType : MORef ref;
+                  case DNType :  DName name;
+               };
+
+               struct InternalStruct
+               {
+                  MOidpair first;
+                  MOidpair second;
+               };
+
+               struct Struct3
+               {
+                  long element1;
+                  InternalStruct element2;
+                  boolean element3;
+               };
+
+               interface JAC251
+               {
+                  void pass_any (in string type, in any s);
+               };
+            };
+         };
+      };
+   };
+};
