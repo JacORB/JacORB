@@ -393,10 +393,14 @@ jacorb.logfile.maxLogSize=0
 \small\normalsize
 
 Unless the {\tt jacorb.logfile} property is set to a file name, output
-will be sent to the terminal. The {\tt jacorb.logfile.append} value
-tells the logger whether to overwrite existing log files or to append
-to the. The {\tt jacorb.logfile.maxLogSize} property, finally,
-determines how large a log file may become before the logger
+will be sent to the terminal. If the {\tt jacorb.logfile} property ends in
+\$implname e.g. jacorb.logfile=c:/tmp/\$implname
+ and the {\tt jacorb.implname} property has been set, output will be logged
+to a file with the same name as the {\tt jacorb.implname} property value. See
+section 3.3.1 for more information on the {\tt jacorb.implname} property.
+The {\tt jacorb.logfile.append} value tells the logger whether to overwrite
+existing log files or to append to the existing log file.
+The {\tt jacorb.logfile.maxLogSize} property, finally,determines how large a log file may become before the logger
 automatically creates a new file. This value is in kilobytes. If it is
 set to 0, log files may become arbitrarily large, no log file rotation
 is used. If the value of {\tt jacorb.logfile} ends with the special string \$implname,
