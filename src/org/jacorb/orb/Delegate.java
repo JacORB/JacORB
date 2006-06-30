@@ -950,6 +950,8 @@ public final class Delegate
                                  boolean async )
         throws ApplicationException, RemarshalException
     {
+        checkORB();
+
         RequestOutputStream ros      = (RequestOutputStream)os;
         ReplyReceiver       receiver = null;
         final ClientInterceptorHandler interceptors = new ClientInterceptorHandler
@@ -1939,9 +1941,13 @@ public final class Delegate
         pending_replies_sync.openBarrier();
     }
 
+    /**
+     * Call work_pending as that does a simple boolean check to establish
+     * if the ORB has been shutdown - otherwise it throws BAD_INV_ORDER.
+     */
     private void checkORB()
     {
-        orb.perform_work();
+        orb.work_pending();
     }
 
     private static class Barrier
