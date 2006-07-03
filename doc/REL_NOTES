@@ -66,6 +66,12 @@
           by accept().
         - new property: jacorb.enhanced_thread_name to allow additional information to be
           added temporarily to the Thread name
+        - Fix for invoking an operation when the ORB has been destroyed.
+        - Any: added better support for Streamable values.
+        - Any: use TypeCode.equivalent() instead of TypeCode.equal()
+          in equal() as per specification.
+        - Any: fix extract_string(), extract_wstring(), didn't
+          account for value being insterted as a stream.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
@@ -74,6 +80,10 @@
         - fix to use options -diistub and -ami_callback in conjunction (bugzilla #687).
           thanks to Thomas Leineweber for providing the patch.
         - fixes for line number output and error messages from compiler.
+        - Use any speed accessors like insert_long/extract_long in Helper
+          classes for aliased basetypes.
+    - Tools:
+        - Updated 'dior' utility to decode realtime policies.
     - Security:
         - new property: jacorb.security.randomClassPlugin. Used by developers to plugin their
           own SecureRandom initialisation.
