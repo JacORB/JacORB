@@ -1,0 +1,85 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+          module orb
+          {
+              //boxed valuetype
+              valuetype MyBoxedString string;
+              valuetype MyBoxedLong long;
+
+              valuetype MyValueType
+              {
+                  public long member;
+              };
+              
+              typedef string MyStringAlias;
+
+              struct Recursive{
+                  sequence<Recursive> member;
+              };
+
+              struct Repeated
+              {
+                  Recursive member1;
+                  Recursive member2;
+                  Recursive member3;
+              };
+
+              exception RecursiveException
+              {
+                  sequence<RecursiveException> member;
+              };
+              
+              union RecursiveUnion switch (boolean) {
+                  case TRUE : sequence <RecursiveUnion> b;
+                  case FALSE: string s;
+              };
+
+              struct RecursiveUnionStruct {
+                  union RecursiveUnionStructUnion switch (boolean) {
+                      case TRUE : sequence <RecursiveUnionStruct> b;
+                      case FALSE: string s;
+                  } member;
+              };
+
+              union ShortDiscUnion switch (short){
+                  case 1 : string s;
+              };
+              
+              union LongDiscUnion switch (long){
+                  case 1 : string s;
+              };
+
+              union UShortDiscUnion switch (unsigned short){
+                  case 1 : string s;
+              };
+              
+              union ULongDiscUnion switch (unsigned long){
+                  case 1 : string s;
+              };
+                            
+              union BooleanDiscUnion switch (boolean){
+                  case TRUE : string s;
+              };
+
+              union CharDiscUnion switch (char){
+                  case 'c' : string s;
+              };
+
+              enum TestEnum { foo };
+              union EnumDiscUnion switch (TestEnum){
+                  case foo : string s;
+              };
+              
+              interface AnyServer
+              {
+                  any bounce_any(in any inAny);
+              };
+          };
+      };
+   };
+};

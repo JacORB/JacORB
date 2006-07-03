@@ -215,6 +215,7 @@
 
     <target name="compile-idl" depends="test-init">
         <antcall target="idl-tests" />
+        <antcall target="idl-anyserver"/>
         <antcall target="idl-basicserver" />
         <antcall target="idl-codesetserver"/>
         <antcall target="idl-charserver" />
@@ -267,6 +268,14 @@
     <!-- ==================================================== -->
     <!--                compile Tests.idl                     -->
     <!-- ==================================================== -->
+
+      <target name="idl-anyserver">
+          <property name="props.idl" value="AnyServer"/>
+          <property name="pkg.idl" value="org/jacorb/test"/>
+          <property name="callback.idl" value="false"/>
+          <property name="file.idl" value="AnyServer.idl"/>
+          <antcall target="process-idl"/>
+      </target>
 
 
     <target name="idl-tests">
