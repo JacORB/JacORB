@@ -561,7 +561,7 @@ public class CDRInputStream
 
 
     /*
-     * Return a copy of the current buffer. Currently only used by ProxyImpl.
+     * Return a copy of the current buffer.
      *
      * @return a <code>byte[]</code> value.
      */
@@ -962,9 +962,9 @@ public class CDRInputStream
         return ((org.jacorb.orb.ORB)orb)._getObject( pior );
     }
 
-    public org.omg.CORBA.Object read_Object(final java.lang.Class clz)
+    public org.omg.CORBA.Object read_Object(final java.lang.Class clazz)
     {
-        if (org.omg.CORBA.portable.ObjectImpl.class.isAssignableFrom(clz))
+        if (org.omg.CORBA.portable.ObjectImpl.class.isAssignableFrom(clazz))
         {
             org.omg.CORBA.Object obj = read_Object();
             if (obj instanceof org.omg.CORBA.portable.ObjectImpl)
@@ -972,7 +972,7 @@ public class CDRInputStream
                 org.omg.CORBA.portable.ObjectImpl stub = null;
                 try
                 {
-                    stub = (org.omg.CORBA.portable.ObjectImpl)clz.newInstance();
+                    stub = (org.omg.CORBA.portable.ObjectImpl)clazz.newInstance();
                 }
                 catch (InstantiationException e)
                 {
@@ -988,12 +988,12 @@ public class CDRInputStream
             }
             return obj;
         }
-        else if (clz.isInterface() &&
-                 java.rmi.Remote.class.isAssignableFrom(clz))
+        else if (clazz.isInterface() &&
+                 java.rmi.Remote.class.isAssignableFrom(clazz))
         {
             return (org.omg.CORBA.Object)
                 org.jacorb.util.ValueHandler.portableRemoteObject_narrow(
-                                                           read_Object(), clz);
+                                                           read_Object(), clazz);
         }
         else
         {
@@ -1725,7 +1725,6 @@ public class CDRInputStream
         return buffer[ pos++ ];
     }
 
-
     private final char read_wchar(final boolean wchar_little_endian)
     {
         switch( codeSetW )
@@ -2267,7 +2266,6 @@ public class CDRInputStream
                     org.omg.CORBA.TypeCode _tc =
                         (org.omg.CORBA.TypeCode)(getRecursiveTCMap().get ( tc.id() ));
 
-
                     if( _tc == null )
                     {
                         throw new MARSHAL("No recursive TC found for " + tc.id());
@@ -2291,7 +2289,6 @@ public class CDRInputStream
                 ("When processing TypeCode with kind: " + kind + " caught " + ex);
         }
     }
-
 
     public java.io.Serializable read_value()
     {
@@ -2339,7 +2336,6 @@ public class CDRInputStream
      * Overrides read_value(java.io.Serializable value) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
-
     public java.io.Serializable read_value(final String rep_id)
     {
         int tag = read_long();
@@ -2396,7 +2392,6 @@ public class CDRInputStream
      * Overrides read_value(value) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
-
     public java.io.Serializable read_value(java.io.Serializable value)
     {
         if (value instanceof org.omg.CORBA.portable.Streamable)
@@ -2469,8 +2464,6 @@ public class CDRInputStream
      * Overrides read_value(factory) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
-
-
     public java.io.Serializable read_value
         (final org.omg.CORBA.portable.BoxedValueHelper factory)
     {
@@ -2528,8 +2521,8 @@ public class CDRInputStream
      * `index'.
      */
     private java.io.Serializable read_untyped_value(final String[] repository_ids,
-                                                     final int index,
-                                                     final String codebase)
+                                                    final int index,
+                                                    final String codebase)
     {
         java.io.Serializable result = null;
 
@@ -2540,15 +2533,15 @@ public class CDRInputStream
             chunk_end_pos = pos + chunk_size_tag;
         }
 
-        for (int r = 0; r < repository_ids.length; r++)
+        for (int i = 0; i < repository_ids.length; i++)
         {
-            if (repository_ids[r].equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+            if (repository_ids[i].equals("IDL:omg.org/CORBA/WStringValue:1.0"))
             {
                 // special handling of strings, according to spec
                 result = read_wstring();
                 break;
             }
-            else if (repository_ids[r].startsWith("RMI:javax.rmi.CORBA.ClassDesc:"))
+            else if (repository_ids[i].startsWith("RMI:javax.rmi.CORBA.ClassDesc:"))
             {
                 // special handling of java.lang.Class instances
                 String classCodebase = (String)read_value(String.class);
@@ -2582,7 +2575,7 @@ public class CDRInputStream
                 }
                 catch (ClassNotFoundException e)
                 {
-                    if( r < repository_ids.length-1 )
+                    if( i < repository_ids.length-1 )
                     {
                         continue;
                     }
@@ -2591,10 +2584,10 @@ public class CDRInputStream
                 }
                 break;
             }
-            else if (repository_ids[r].startsWith ("IDL:"))
+            else if (repository_ids[i].startsWith ("IDL:"))
             {
                 org.omg.CORBA.portable.ValueFactory factory =
-                    ((org.omg.CORBA_2_3.ORB)orb()).lookup_value_factory (repository_ids[r]);
+                    ((org.omg.CORBA_2_3.ORB)orb()).lookup_value_factory (repository_ids[i]);
 
                 if (factory != null)
                 {
@@ -2603,7 +2596,7 @@ public class CDRInputStream
                     break;
                 }
 
-                if( r < repository_ids.length-1 )
+                if( i < repository_ids.length-1 )
                 {
                     continue;
                 }
@@ -2631,9 +2624,9 @@ public class CDRInputStream
                 // first place solves the problem."
 
                 String className =
-                org.jacorb.ir.RepositoryID.className(repository_ids[r], null);
+                org.jacorb.ir.RepositoryID.className(repository_ids[i], null);
 
-                Class c = null;
+                Class clazz = null;
                 //#ifjdk 1.2
                 ClassLoader ctxcl = Thread.currentThread().getContextClassLoader();
                 //#else
@@ -2645,35 +2638,44 @@ public class CDRInputStream
                     {
                         try
                         {
-                            c = ctxcl.loadClass(className);
+                            clazz = ctxcl.loadClass(className);
                         }
                         catch (ClassNotFoundException cnfe)
                         {
-                            c = ValueHandler.loadClass(className, codebase, null);
+                            clazz = ValueHandler.loadClass(className, codebase, null);
                         }
                     }
                     else
                     {
-                        c = ValueHandler.loadClass(className, codebase, null);
+                        clazz = ValueHandler.loadClass(className, codebase, null);
                     }
 
-                    if (IDLEntity.class.isAssignableFrom(c))
+                    if (IDLEntity.class.isAssignableFrom(clazz))
                     {
                         java.lang.reflect.Method readMethod = null;
-                        if (c != org.omg.CORBA.Any.class)
+                        if (clazz != org.omg.CORBA.Any.class)
                         {
-                            String helperClassName = c.getName() + "Helper";
+                            String helperClassName = clazz.getName() + "Helper";
 
                             try
                             {
-                                Class helperClass =
-                                c.getClassLoader().loadClass(
-                                    helperClassName);
+                                final ClassLoader classLoader = clazz.getClassLoader();
+                                final Class helperClass;
+                                if (classLoader == null)
+                                {
+                                    helperClass = Class.forName(helperClassName);
+                                }
+                                else
+                                {
+                                    helperClass =
+                                        classLoader.loadClass(helperClassName);
+                                }
+
                                 Class[] paramTypes = {
                                     org.omg.CORBA.portable.InputStream.class
                                 };
                                 readMethod =
-                                helperClass.getMethod("read", paramTypes);
+                                    helperClass.getMethod("read", paramTypes);
                             }
                             catch (ClassNotFoundException e)
                             {
@@ -2713,14 +2715,14 @@ public class CDRInputStream
                     }
                     else
                     {
-                        result = ValueHandler.readValue(this, index, c,
-                                                        repository_ids[r],
+                        result = ValueHandler.readValue(this, index, clazz,
+                                                        repository_ids[i],
                                                         null);
                     }
                 }
                 catch (ClassNotFoundException e)
                 {
-                    if( r < repository_ids.length-1 )
+                    if( i < repository_ids.length-1 )
                     {
                         continue;
                     }
@@ -2867,8 +2869,9 @@ public class CDRInputStream
         int index = read_long();
         index = index + pos - 4;
         java.lang.Object value = getValueMap().get (ObjectUtil.newInteger(index));
-        if (value == null) {
 
+        if (value == null)
+        {
             // Java to IDL Language Mapping, v1.1, page 1-44:
             //
             // "The ValueHandler object may receive an IndirectionException
@@ -2889,7 +2892,7 @@ public class CDRInputStream
         return (java.io.Serializable)value;
     }
 
-    private String validateName (String name)
+    private String validateName(String name)
     {
         if (name != null && name.length() == 0)
         {
@@ -2907,7 +2910,6 @@ public class CDRInputStream
         return id;
     }
 
-
     /**
      * Reads an abstract interface from this stream. The abstract interface
      * Reads an abstract interface from this stream. The abstract interface
@@ -2915,7 +2917,6 @@ public class CDRInputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value.
      */
-
     public java.lang.Object read_abstract_interface()
     {
         return read_boolean() ? (java.lang.Object)read_Object()
@@ -2928,13 +2929,11 @@ public class CDRInputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value.
      */
-
     public java.lang.Object read_abstract_interface(final java.lang.Class clz)
     {
         return read_boolean() ? (java.lang.Object)read_Object(clz)
         : (java.lang.Object)read_value(clz);
     }
-
 
     public int get_pos()
     {
@@ -2947,7 +2946,6 @@ public class CDRInputStream
      * store an object into the map before actually reading its state.
      * This is essential for unmarshalling recursive values.
      */
-
     public void register_value(final java.io.Serializable value)
     {
         getValueMap().put(ObjectUtil.newInteger(currentValueIndex), value);

@@ -1221,7 +1221,9 @@ public class TypeCode
         {
             while (tc.kind() == org.omg.CORBA.TCKind.tk_alias
                 || tc.kind() == org.omg.CORBA.TCKind.tk_value_box)
+            {
                 tc = tc.content_type();
+            }
         }
         catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
         {
