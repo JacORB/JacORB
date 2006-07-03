@@ -94,15 +94,15 @@ public class BugJac251Test extends ClientServerTestCase
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();
 
-        BasicConfiguration bc = BasicConfigurationHelper.narrow
-        (orb.string_to_object (basicConfig));
+//        BasicConfiguration bc = BasicConfigurationHelper.narrow
+//        (orb.string_to_object (basicConfig));
 
-        NameComponent n1 = new NameComponent ("id", bc);
+        NameComponent n1 = new NameComponent ("id", null);
 
         MOidpair ref1 = new MOidpair ();
         ref1.name (new NameComponent[]{n1});
 
-        NameComponent n2 = new NameComponent ("id2", bc);
+        NameComponent n2 = new NameComponent ("id2", null);
         MOidpair ref2 = new MOidpair ();
         ref2.name (new NameComponent[]{n2});
 
@@ -124,11 +124,11 @@ public class BugJac251Test extends ClientServerTestCase
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();
 
-        BasicConfiguration bc = BasicConfigurationHelper.narrow
-        (orb.string_to_object (basicConfig));
+//        BasicConfiguration bc = BasicConfigurationHelper.narrow
+//        (orb.string_to_object (basicConfig));
 
-        NameComponent n1 = new NameComponent ("id", bc);
-        NameComponent n2 = new NameComponent ("id2", bc);
+        NameComponent n1 = new NameComponent ("id", null);
+        NameComponent n2 = new NameComponent ("id2", null);
 
         NameComponent []tosend = new NameComponent[2];
         tosend[0] = n1;
@@ -149,10 +149,10 @@ public class BugJac251Test extends ClientServerTestCase
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();
 
-        BasicConfiguration bc = BasicConfigurationHelper.narrow
-        (orb.string_to_object (basicConfig));
+//        BasicConfiguration bc = BasicConfigurationHelper.narrow
+//        (orb.string_to_object (basicConfig));
 
-        MORef mo = new MORef (1000, bc, "MORef");
+        MORef mo = new MORef (1000, null, "MORef");
         MOidpair tosend = new MOidpair();
         tosend.ref(mo);
 
