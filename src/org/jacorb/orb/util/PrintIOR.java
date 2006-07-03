@@ -49,7 +49,11 @@ import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.omg.IOP.TAG_CODE_SETS;
 import org.omg.IOP.TAG_JAVA_CODEBASE;
 import org.omg.IOP.TAG_ORB_TYPE;
+import org.omg.IOP.TAG_POLICIES;
 import org.omg.IOP.TaggedComponent;
+import org.omg.RTCORBA.PRIORITY_BANDED_CONNECTION_POLICY_TYPE;
+import org.omg.RTCORBA.PRIORITY_MODEL_POLICY_TYPE;
+import org.omg.RTCORBA.PriorityModel;
 import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
@@ -261,6 +265,12 @@ public class PrintIOR
                 println("\t#"+ i + ": TAG_ORB_TYPE");
                 printOrbTypeComponent( taggedComponents[i] );
                 break;
+                case TAG_POLICIES.value:
+                {
+                    println("\t#"+ i + ": TAG_POLICIES");
+                    printPolicyComponent (taggedComponents[i]);
+                    break;
+                }
                 case TAG_NULL_TAG.value:
                 println("\t#"+ i + ": TAG_NULL_TAG");
                 break;
@@ -731,5 +741,75 @@ public class PrintIOR
                                         + " " + c
                                       );
         }
+    }
+
+    private static void printPolicyComponent (TaggedComponent tc)
+    {
+        final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, tc.component_data);
+        int val;
+        int count = 0;
+
+        is.openEncapsulatedArray ();
+        int len = is.read_long ();
+
+        while (len-- != 0)
+        {
+           val = is.read_long ();
+           print ( "\t\t#" + count++ + ": ");
+           is.openEncapsulation ();
+           switch (val)
+           {
+              case PRIORITY_BANDED_CONNECTION_POLICY_TYPE.value:
+              {
+                 long i;
+                 short low;
+                 short high;
+
+                 println ("RTCORBA::PRIORITY_BANDED_CONNECTION");
+                 val = is.read_long ();
+                 for (i = 0; i < val; i++)
+                 {
+                    low = is.read_short ();
+                    high = is.read_short ();
+                    println ("\t\t\tBand " + i + ": " + low + "-" + high);
+                 }
+                 break;
+              }
+              case PRIORITY_MODEL_POLICY_TYPE.value:
+              {
+                 print ("RTCORBA::PRIORITY_MODEL");
+                 val = is.read_long ();
+                 switch (val)
+                 {
+                    case PriorityModel._CLIENT_PROPAGATED:
+                    {
+                       print (" (CLIENT_PROPAGATED, ");
+                       break;
+                    }
+                    case PriorityModel._SERVER_DECLARED:
+                    {
+                       print (" (SERVER_DECLARED, ");
+                       break;
+                    }
+                    default:
+                    {
+                       print (" (Unknown, ");
+                       break;
+                    }
+                 }
+                 short prio = is.read_short ();
+                 println (prio + ")");
+                 break;
+              }
+              default:
+              {
+                 println ("Unknown (" + val + ")");
+                 break;
+              }
+           }
+           is.closeEncapsulation ();
+        }
+
+        is.close();
     }
 }

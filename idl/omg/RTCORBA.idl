@@ -33,13 +33,13 @@ module RTCORBA
 //     unsigned long dynamic_threads;
 //   };
 //   typedef sequence <ThreadpoolLane> ThreadpoolLanes;
-//   // Priority Model Policy
-//   const CORBA::PolicyType
-//   PRIORITY_MODEL_POLICY_TYPE = 40;
-//   enum PriorityModel {
-//     CLIENT_PROPAGATED,
-//     SERVER_DECLARED
-//   };
+   // Priority Model Policy
+   const CORBA::PolicyType PRIORITY_MODEL_POLICY_TYPE = 40;
+   enum PriorityModel
+   {
+     CLIENT_PROPAGATED,
+     SERVER_DECLARED
+   };
 //   local interface PriorityModelPolicy : CORBA::Policy {
 //     readonly attribute PriorityModel priority_model;
 //     readonly attribute Priority server_priority;
@@ -87,9 +87,8 @@ module RTCORBA
 //     Priority high;
 //   };
 //   typedef sequence <PriorityBand> PriorityBands;
-//   // PriorityBandedConnectionPolicy
-//   const CORBA::PolicyType
-//   PRIORITY_BANDED_CONNECTION_POLICY_TYPE = 45;
+   // PriorityBandedConnectionPolicy
+   const CORBA::PolicyType PRIORITY_BANDED_CONNECTION_POLICY_TYPE = 45;
 //   local interface PriorityBandedConnectionPolicy : CORBA::Policy {
 //     readonly attribute PriorityBands priority_bands;
 //   };
