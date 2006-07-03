@@ -23,17 +23,6 @@ package org.jacorb.test.bugs.bugjac251;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.jacorb.test.bugs.bugpt251.BasicConfiguration;
-import org.jacorb.test.bugs.bugpt251.BasicConfigurationHelper;
-import org.jacorb.test.bugs.bugpt251.InternalStruct;
-import org.jacorb.test.bugs.bugpt251.MORef;
-import org.jacorb.test.bugs.bugpt251.MOidpair;
-import org.jacorb.test.bugs.bugpt251.MOidpairHelper;
-import org.jacorb.test.bugs.bugpt251.NameArrayHelper;
-import org.jacorb.test.bugs.bugpt251.NameComponent;
-import org.jacorb.test.bugs.bugpt251.PT251Helper;
-import org.jacorb.test.bugs.bugpt251.Struct3;
-import org.jacorb.test.bugs.bugpt251.Struct3Helper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
