@@ -20,8 +20,13 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.*;
+import org.omg.CORBA.portable.Streamable;
+import org.omg.CORBA_2_3.portable.OutputStream;
 
+import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -37,9 +42,9 @@ public final class Any
 {
     private org.omg.CORBA.TypeCode typeCode;
     private java.lang.Object value;
-    private org.omg.CORBA.ORB orb;
+    private final org.omg.CORBA.ORB orb;
 
-    Any (org.omg.CORBA.ORB orb)
+    Any(org.omg.CORBA.ORB orb)
     {
         super();
 
@@ -91,94 +96,154 @@ public final class Any
        }
     }
 
-    public boolean equal(org.omg.CORBA.Any any)
+    public boolean equal(org.omg.CORBA.Any other)
     {
-        if (any == null)
+        if (other == null)
         {
            throw new BAD_PARAM ("Null passed to Any equal operation");
         }
 
-        if (!typeCode.equal (any.type()))
+        if (!typeCode.equivalent(other.type()))
         {
             return false;
         }
 
-        int kind = originalType().kind().value();
+        int kind = kind().value();
+
         switch (kind)
         {
-            case TCKind._tk_null:
-            case TCKind._tk_void:
-                return true;
-            case TCKind._tk_short:
-                return extract_short() == any.extract_short();
-            case TCKind._tk_long:
-                return extract_long() == any.extract_long();
-            case TCKind._tk_longlong:
-                return extract_longlong() == any.extract_longlong();
-            case TCKind._tk_ushort:
-                return extract_ushort() == any.extract_ushort();
-            case TCKind._tk_ulong:
-                return extract_ulong() == any.extract_ulong();
-            case TCKind._tk_ulonglong:
-                return extract_ulonglong() == any.extract_ulonglong();
-            case TCKind._tk_float:
-                return extract_float() == any.extract_float();
-            case TCKind._tk_double:
-                return extract_double() == any.extract_double();
-            case TCKind._tk_fixed:
-                return extract_fixed().equals( any.extract_fixed() );
-            case TCKind._tk_boolean:
-                return extract_boolean() == any.extract_boolean();
-            case TCKind._tk_char:
-                return extract_char() == any.extract_char();
-            case TCKind._tk_wchar:
-                return extract_wchar() == any.extract_wchar();
-            case TCKind._tk_octet:
-                return extract_octet() == any.extract_octet();
-            case TCKind._tk_any:
-                return extract_any().equals( any.extract_any() );
-            case TCKind._tk_TypeCode:
-                return extract_TypeCode().equal( any.extract_TypeCode() );
-            case TCKind._tk_Principal:
-                throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-            case TCKind._tk_objref:
-                return extract_Object().equals( any.extract_Object() );
-            case TCKind._tk_string:
-                return extract_string().equals( any.extract_string() );
-            case TCKind._tk_wstring:
-                return extract_wstring().equals( any.extract_wstring() );
-            case TCKind._tk_array:
-            case TCKind._tk_sequence:
-            case TCKind._tk_struct:
-            case TCKind._tk_except:
-            case TCKind._tk_enum:
-            case TCKind._tk_union:
-            case TCKind._tk_value:
-            case TCKind._tk_value_box:
+            case TCKind._tk_null:       // 0
+                // fallthrough
+            case TCKind._tk_void:       // 1
             {
-                CDROutputStream out1, out2;
-                if( !( orb instanceof org.jacorb.orb.ORB ))
-                {
-                    out1 = new CDROutputStream();
-                    out2 = new CDROutputStream();
-                }
-                else
-                {
-                    out1 = new CDROutputStream(orb);
-                    out2 = new CDROutputStream(orb);
-                }
-                write_value( out1 );
-                any.write_value( out2 );
-
-                if( out1.size() != out2.size() )
-                {
-                    return false;
-                }
-
-                return Arrays.equals( out1.getBufferCopy(),
-                                      out2.getBufferCopy());
-
+                return true;
             }
+            case TCKind._tk_short:      // 2
+            {
+                return extract_short() == other.extract_short();
+            }
+            case TCKind._tk_long:       // 3
+            {
+                return extract_long() == other.extract_long();
+            }
+            case TCKind._tk_ushort:     // 4
+            {
+                return extract_ushort() == other.extract_ushort();
+            }
+            case TCKind._tk_ulong:      // 5
+            {
+                return extract_ulong() == other.extract_ulong();
+            }
+            case TCKind._tk_float:      // 6
+            {
+                return extract_float() == other.extract_float();
+            }
+            case TCKind._tk_double:     // 7
+            {
+                return extract_double() == other.extract_double();
+            }
+            case TCKind._tk_boolean:    // 8
+            {
+                return extract_boolean() == other.extract_boolean();
+            }
+            case TCKind._tk_char:       // 9
+            {
+                return extract_char() == other.extract_char();
+            }
+            case TCKind._tk_octet:      // 10
+            {
+                return extract_octet() == other.extract_octet();
+            }
+            case TCKind._tk_any:        // 11
+            {
+                return extract_any().equal( other.extract_any() );
+            }
+            case TCKind._tk_TypeCode:   // 12
+            {
+                return extract_TypeCode().equal( other.extract_TypeCode() );
+            }
+            case TCKind._tk_Principal:  // 13
+            {
+                throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
+            }
+            case TCKind._tk_objref:     // 14
+            {
+                java.lang.Object myValue = extract_Object();
+                java.lang.Object otherValue = other.extract_Object();
+                if (myValue == null && otherValue == null)
+                {
+                    return true;
+                }
+                else if (myValue != null)
+                {
+                    return myValue.equals(otherValue);
+                }
+                else //if (otherValue != null)
+                {
+                    // For this case otherValue must be null. Can there
+                    // be a case where an actual object instance represents
+                    // a null object reference? Ignore the FindBugs complaint
+                    // here.
+                    return otherValue.equals(myValue);
+                }
+            }
+            case TCKind._tk_struct:     // 15
+                // fallthrough
+            case TCKind._tk_union:      // 16
+                // falltrough
+            case TCKind._tk_enum:       // 17
+            {
+                return this.compareComplexValue(other);
+            }
+            case TCKind._tk_string:     // 18
+            {
+                return extract_string().equals( other.extract_string() );
+            }
+            case TCKind._tk_sequence:   // 19
+                // fallthrough
+            case TCKind._tk_array:      // 20
+                // fallthrough
+            case TCKind._tk_alias:      // 21
+                // fallthrough
+            case TCKind._tk_except:     // 22
+            {
+                return this.compareComplexValue(other);
+            }
+            case TCKind._tk_longlong:   // 23
+            {
+                return extract_longlong() == other.extract_longlong();
+            }
+            case TCKind._tk_ulonglong:  // 24
+            {
+                return extract_ulonglong() == other.extract_ulonglong();
+            }
+            case TCKind._tk_longdouble: // 25
+            {
+                throw new org.omg.CORBA.BAD_TYPECODE(
+                    "type longdouble not supported in java");
+            }
+            case TCKind._tk_wchar:      // 26
+            {
+                return extract_wchar() == other.extract_wchar();
+            }
+            case TCKind._tk_wstring:    // 27
+            {
+                return extract_wstring().equals( other.extract_wstring() );
+            }
+            case TCKind._tk_fixed:      // 28
+            {
+                return extract_fixed().equals( other.extract_fixed() );
+            }
+            case TCKind._tk_value:      // 29
+                // fallthrough
+            case TCKind._tk_value_box:  // 30
+            {
+                return compareComplexValue(other);
+            }
+            // These typecodes are not currently supported.
+            //case TCKind._tk_native:               // 31
+            //case TCKind._tk_abstract_interface:   // 32
+            //case TCKind._tk_local_interface:      // 33
             default:
                 throw new BAD_TYPECODE("Cannot compare anys with TypeCode kind " + kind);
         }
@@ -191,11 +256,6 @@ public final class Any
             return equal((org.omg.CORBA.Any)obj);
         }
         return false;
-    }
-
-    public int hashCode()
-    {
-        return value.hashCode();
     }
 
     public String toString()
@@ -219,11 +279,28 @@ public final class Any
         throws org.omg.CORBA.BAD_OPERATION
     {
         checkExtract (TCKind._tk_short, "Cannot extract short");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Short)
+        {
+            return ((Short) value).shortValue();
+        }
+        else if (value instanceof ShortHolder)
+        {
+            return ((ShortHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_short();
         }
-        return ((Short)value).shortValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // ushort
@@ -237,47 +314,90 @@ public final class Any
     public short extract_ushort()
     {
         checkExtract (TCKind._tk_ushort, "Cannot extract ushort");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Short)
+        {
+            return ((Short) value).shortValue();
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_ushort();
         }
-        return ((Short)value).shortValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // long
 
     public void insert_long (int i)
     {
-        value = new Integer(i);
+        value = ObjectUtil.newInteger(i);
         typeCode = orb.get_primitive_tc (TCKind.tk_long);
     }
 
     public int extract_long()
     {
         checkExtract (TCKind._tk_long, "Cannot extract long");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Integer)
+        {
+            return ((Integer) value).intValue();
+        }
+        else if (value instanceof IntHolder)
+        {
+            return ((IntHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_long();
         }
-        return ((Integer)value).intValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // ulong
 
     public void insert_ulong (int i)
     {
-        value = new Integer(i);
+        value = ObjectUtil.newInteger(i);
         typeCode = orb.get_primitive_tc( TCKind.tk_ulong );
     }
 
     public int extract_ulong()
     {
         checkExtract (TCKind._tk_ulong, "Cannot extract ulong");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Integer)
+        {
+            return ((Integer) value).intValue();
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_ulong();
         }
-        return ((Integer)value).intValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // longlong
@@ -291,11 +411,28 @@ public final class Any
     public long extract_longlong()
     {
         checkExtract (TCKind._tk_longlong, "Cannot extract longlong");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Long)
+        {
+            return ((Long) value).longValue();
+        }
+        else if (value instanceof LongHolder)
+        {
+            return ((LongHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_longlong();
         }
-        return ((Long)value).longValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // ulonglong
@@ -309,11 +446,24 @@ public final class Any
     public long extract_ulonglong()
     {
         checkExtract (TCKind._tk_ulonglong, "Cannot extract ulonglong");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Long)
+        {
+            return ((Long) value).longValue();
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_ulonglong();
         }
-        return ((Long)value).longValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // float
@@ -327,11 +477,28 @@ public final class Any
     public float extract_float()
     {
         checkExtract (TCKind._tk_float, "Cannot extract float");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Float)
+        {
+            return ((Float) value).floatValue();
+        }
+        else if (value instanceof FloatHolder)
+        {
+            return ((FloatHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_float();
         }
-        return ((Float)value).floatValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // double
@@ -345,11 +512,28 @@ public final class Any
     public double extract_double()
     {
         checkExtract (TCKind._tk_double, "Cannot extract double");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Double)
+        {
+            return ((Double) value).doubleValue();
+        }
+        else if (value instanceof DoubleHolder)
+        {
+            return ((DoubleHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_double();
         }
-        return ((Double)value).doubleValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
 
@@ -369,11 +553,28 @@ public final class Any
     public boolean extract_boolean()
     {
         checkExtract (TCKind._tk_boolean, "Cannot extract boolean");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Boolean)
+        {
+            return ((Boolean) value).booleanValue();
+        }
+        else if (value instanceof BooleanHolder)
+        {
+            return ((BooleanHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_boolean();
         }
-        return ((Boolean)value).booleanValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // char
@@ -387,11 +588,28 @@ public final class Any
     public char extract_char()
     {
         checkExtract (TCKind._tk_char, "Cannot extract char");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Character)
+        {
+            return ((Character) value).charValue();
+        }
+        else if (value instanceof CharHolder)
+        {
+            return ((CharHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_char();
         }
-        return ((Character)value).charValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     public void insert_wchar (char c)
@@ -403,11 +621,24 @@ public final class Any
     public char extract_wchar()
     {
         checkExtract (TCKind._tk_wchar, "Cannot extract wchar");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Character)
+        {
+            return ((Character) value).charValue();
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_wchar();
         }
-        return ((Character)value).charValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // octet
@@ -421,11 +652,28 @@ public final class Any
     public byte extract_octet()
     {
         checkExtract (TCKind._tk_octet, "Cannot extract octet");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof Byte)
+        {
+            return ((Byte) value).byteValue();
+        }
+        else if (value instanceof ByteHolder)
+        {
+            return ((ByteHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_octet();
         }
-        return ((Byte)value).byteValue();
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // any
@@ -438,12 +686,29 @@ public final class Any
 
     public org.omg.CORBA.Any extract_any()
     {
-        checkExtract (TCKind._tk_any, "Cannot extract any");
-        if (value instanceof CDROutputStream)
+        checkExtract(TCKind._tk_any, "Cannot extract any");
+
+        if (value instanceof Any)
+        {
+            return (Any) value;
+        }
+        else if (value instanceof AnyHolder)
+        {
+            return ((AnyHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_any();
         }
-        return (org.omg.CORBA.Any)value;
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // TypeCode
@@ -457,11 +722,28 @@ public final class Any
     public org.omg.CORBA.TypeCode extract_TypeCode()
     {
         checkExtract (TCKind._tk_TypeCode, "Cannot extract TypeCode");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof TypeCode)
+        {
+            return (TypeCode) value;
+        }
+        else if (value instanceof TypeCodeHolder)
+        {
+            return ((TypeCodeHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_TypeCode();
         }
-        return (org.omg.CORBA.TypeCode)value;
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // string
@@ -475,7 +757,28 @@ public final class Any
     public String extract_string()
     {
         checkExtract (TCKind._tk_string, "Cannot extract string");
-        return value.toString();
+
+        if (value instanceof String)
+        {
+            return (String) value;
+        }
+        else if (value instanceof StringHolder)
+        {
+            return ((StringHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_string();
+        }
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     public void insert_wstring (String s)
@@ -487,12 +790,33 @@ public final class Any
     public String extract_wstring()
     {
         checkExtract (TCKind._tk_wstring, "Cannot extract wstring");
-        return value.toString();
+
+        if (value instanceof String)
+        {
+            return (String) value;
+        }
+        else if (value instanceof StringHolder)
+        {
+            return ((StringHolder) value).value;
+        }
+        else if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_wstring();
+        }
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // fixed
 
-    public void insert_fixed (java.math.BigDecimal fixed)
+    public void insert_fixed (BigDecimal fixed)
     {
         value = fixed;
         typeCode = (new org.omg.CORBA.FixedHolder(fixed))._type();
@@ -550,11 +874,28 @@ public final class Any
     public java.math.BigDecimal extract_fixed()
     {
         checkExtract (TCKind._tk_fixed, "Cannot extract fixed");
-        if (value instanceof CDROutputStream)
+
+        if (value instanceof BigDecimal)
+        {
+            return (BigDecimal) value;
+        }
+        else if (value instanceof FixedHolder)
+        {
+            return ((FixedHolder) value).value;
+        }
+        else if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_fixed();
         }
-        return (java.math.BigDecimal)value;
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // obj refs
@@ -613,11 +954,40 @@ public final class Any
     public org.omg.CORBA.Object extract_Object()
     {
         checkExtract (TCKind._tk_objref, "Cannot extract object");
-        if (value instanceof CDROutputStream)
+
+        if (value == null)
+        {
+            //return null directly, saves cast
+            return null;
+        }
+        if (value instanceof org.omg.CORBA.Object)
+        {
+            return (org.omg.CORBA.Object) value;
+        }
+        else if (value instanceof Streamable)
+        {
+            Class valueClass = value.getClass();
+            try
+            {
+                Field field = valueClass.getDeclaredField("value");
+                return (org.omg.CORBA.Object) field.get(value);
+            }
+            catch(Exception e)
+            {
+                throw new INTERNAL(
+                    "Failed to retrieve value from Holder via reflection: " +
+                    e);
+            }
+        }
+        else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_Object();
         }
-        return (org.omg.CORBA.Object)value;
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
     // workaround: as long as local objects don't have stubs, we need to
@@ -643,6 +1013,16 @@ public final class Any
 
     public void insert_Streamable (org.omg.CORBA.portable.Streamable s)
     {
+        int kind = s._type().kind().value();
+        if (kind == TCKind._tk_value ||
+            kind == TCKind._tk_value_box ||
+            kind == TCKind._tk_abstract_interface ||
+            kind == TCKind._tk_null)
+        {
+            throw new NO_IMPLEMENT(
+                "No support for valuetypes through streamable interface");
+        }
+
         value = s;
         typeCode = s._type();
     }
@@ -650,13 +1030,18 @@ public final class Any
     public org.omg.CORBA.portable.Streamable extract_Streamable()
         throws org.omg.CORBA.BAD_INV_ORDER
     {
-        try
+        if (value instanceof org.omg.CORBA.portable.Streamable)
         {
-            return (org.omg.CORBA.portable.Streamable)value;
+            return (org.omg.CORBA.portable.Streamable) value;
         }
-        catch ( ClassCastException cce )
+        else if (value == null)
         {
-            throw new org.omg.CORBA.BAD_INV_ORDER();
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+        else
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER(
+                "Any value is not a Streamable, but a " + value.getClass());
         }
     }
 
@@ -671,11 +1056,40 @@ public final class Any
         {
             tc_error ("Cannot extract value!");
         }
-        return (java.io.Serializable)value;
+
+        if (value == null)
+        {
+            //return null directly, saves cast
+            return null;
+        }
+        else if (value instanceof Serializable)
+        {
+            return (Serializable) value;
+        }
+        else if (value instanceof Streamable)
+        {
+            Class valueClass = value.getClass();
+            try
+            {
+                Field field = valueClass.getDeclaredField("value");
+                return (Serializable) field.get(value);
+            }
+            catch(Exception e)
+            {
+                throw new INTERNAL(
+                    "Failed to retrieve value from Holder via reflection: " +
+                    e);
+            }
+        }
+        else
+        {
+            throw new INTERNAL("Encountered unexpected type of value: " +
+                value.getClass());
+        }
     }
 
 
-    public void insert_Value(java.io.Serializable value)
+    public void insert_Value(Serializable value)
     {
         if (value != null)
         {
@@ -689,7 +1103,7 @@ public final class Any
         }
     }
 
-    public void insert_Value(java.io.Serializable value, org.omg.CORBA.TypeCode type)
+    public void insert_Value(Serializable value, org.omg.CORBA.TypeCode type)
         throws org.omg.CORBA.MARSHAL
     {
         this.value    = value;
@@ -700,32 +1114,34 @@ public final class Any
 
     public org.omg.CORBA.portable.OutputStream create_output_stream()
     {
-        if(!( orb instanceof org.jacorb.orb.ORB ))
-        {
-            value = new CDROutputStream();
-        }
-        else
+        if(orb instanceof org.jacorb.orb.ORB)
         {
             value = new CDROutputStream(orb);
         }
+        else
+        {
+            value = new CDROutputStream();
+        }
+
         return (CDROutputStream)value;
     }
 
     public org.omg.CORBA.portable.InputStream create_input_stream()
     {
-        if( value instanceof org.jacorb.orb.CDROutputStream )
+        if(value instanceof org.jacorb.orb.CDROutputStream)
         {
             return new org.jacorb.orb.CDRInputStream( orb, ((CDROutputStream)value).getBufferCopy());
         }
 
-        org.jacorb.orb.CDROutputStream out;
-        if( !( orb instanceof org.jacorb.orb.ORB ))
+        final org.jacorb.orb.CDROutputStream out;
+
+        if(orb instanceof org.jacorb.orb.ORB)
         {
-            out = new org.jacorb.orb.CDROutputStream();
+            out = new org.jacorb.orb.CDROutputStream(orb);
         }
         else
         {
-            out = new org.jacorb.orb.CDROutputStream(orb);
+            out = new org.jacorb.orb.CDROutputStream();
         }
 
         write_value(out);
@@ -745,236 +1161,342 @@ public final class Any
         int kind = type.kind().value();
         switch (kind)
         {
-        case TCKind._tk_null:
-            break;
-        case TCKind._tk_void:
-            break;
-        case TCKind._tk_short:
-            insert_short( input.read_short());
-            break;
-        case TCKind._tk_long:
-            insert_long( input.read_long());
-            break;
-        case TCKind._tk_longlong:
-            insert_longlong( input.read_longlong());
-            break;
-        case TCKind._tk_ushort:
-            insert_ushort(input.read_ushort());
-            break;
-        case TCKind._tk_ulong:
-            insert_ulong( input.read_ulong());
-            break;
-        case TCKind._tk_ulonglong:
-            insert_ulonglong( input.read_ulonglong());
-            break;
-        case TCKind._tk_float:
-            insert_float( input.read_float());
-            break;
-        case TCKind._tk_double:
-            insert_double( input.read_double());
-            break;
-        case TCKind._tk_fixed:
-            try
+            case TCKind._tk_null:       // 0
             {
-               // move the decimal based on the scale
-               java.math.BigDecimal fixed = input.read_fixed();
-               int scale = type.fixed_scale();
-               insert_fixed( fixed.movePointLeft( scale ), type );
+                break;
             }
-            catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+            case TCKind._tk_void:       // 1
             {
-                throw new INTERNAL("should never happen");
+                break;
             }
-            break;
-        case TCKind._tk_boolean:
-            insert_boolean( input.read_boolean());
-            break;
-        case TCKind._tk_char:
-            insert_char( input.read_char());
-            break;
-        case TCKind._tk_wchar:
-            insert_wchar( input.read_wchar());
-            break;
-        case TCKind._tk_octet:
-            insert_octet( input.read_octet());
-            break;
-        case TCKind._tk_any:
-            insert_any( input.read_any());
-            break;
-        case TCKind._tk_TypeCode:
-            insert_TypeCode( input.read_TypeCode());
-            break;
-        case TCKind._tk_Principal:
-            throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-        case TCKind._tk_objref:
-            insert_Object( input.read_Object());
-            break;
-        case TCKind._tk_string:
-            insert_string( input.read_string());
-            break;
-        case TCKind._tk_wstring:
-            insert_wstring( input.read_wstring());
-            break;
-        case TCKind._tk_array:
-        case TCKind._tk_sequence:
-        case TCKind._tk_struct:
-        case TCKind._tk_except:
-        case TCKind._tk_enum:
-        case TCKind._tk_union:
-        case TCKind._tk_alias:
-            if(! (orb instanceof org.jacorb.orb.ORB) )
+            case TCKind._tk_short:      // 2
             {
-                value = new CDROutputStream();
+                insert_short( input.read_short());
+                break;
             }
-            else
+            case TCKind._tk_long:       // 3
             {
-                value = new CDROutputStream(orb);
+                insert_long( input.read_long());
+                break;
             }
-            ((CDROutputStream)value).write_value(type, input);
-            break;
-        case TCKind._tk_value:
-        case TCKind._tk_value_box:
-            insert_Value
+            case TCKind._tk_ushort:     // 4
+            {
+                insert_ushort(input.read_ushort());
+                break;
+            }
+            case TCKind._tk_ulong:      // 5
+            {
+                insert_ulong( input.read_ulong());
+                break;
+            }
+            case TCKind._tk_float:      // 6
+            {
+                insert_float( input.read_float());
+                break;
+            }
+            case TCKind._tk_double:     // 7
+            {
+                insert_double( input.read_double());
+                break;
+            }
+            case TCKind._tk_boolean:    // 8
+            {
+                insert_boolean( input.read_boolean());
+                break;
+            }
+            case TCKind._tk_char:       // 9
+            {
+                insert_char( input.read_char());
+                break;
+            }
+            case TCKind._tk_octet:      // 10
+            {
+                insert_octet( input.read_octet());
+                break;
+            }
+            case TCKind._tk_any:        // 11
+            {
+                insert_any( input.read_any());
+                break;
+            }
+            case TCKind._tk_TypeCode:   // 12
+            {
+                insert_TypeCode( input.read_TypeCode());
+                break;
+            }
+            case TCKind._tk_Principal:  // 13
+            {
+                throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
+            }
+            case TCKind._tk_objref:     // 14
+            {
+                insert_Object( input.read_Object());
+                break;
+            }
+            case TCKind._tk_struct:     // 15
+                // fallthrough
+            case TCKind._tk_union:      // 16
+                // fallthrough
+            case TCKind._tk_enum:       // 17
+            {
+                CDROutputStream out = new CDROutputStream(orb);
+                out.write_value(type, input);
+                value = out;
+                break;
+            }
+            case TCKind._tk_string:     // 18
+            {
+                insert_string( input.read_string());
+                break;
+            }
+            case TCKind._tk_sequence:   // 19
+                // fallthrough
+            case TCKind._tk_array:      // 20
+                // fallthrough
+            case TCKind._tk_alias:      // 21
+                // fallthrough
+            case TCKind._tk_except:     // 22
+            {
+                CDROutputStream out = new CDROutputStream(orb);
+                out.write_value(type, input);
+                value = out;
+                break;
+            }
+            case TCKind._tk_longlong:   // 23
+            {
+                insert_longlong( input.read_longlong());
+                break;
+            }
+            case TCKind._tk_ulonglong:  // 24
+            {
+                insert_ulonglong( input.read_ulonglong());
+                break;
+            }
+            case TCKind._tk_longdouble: // 25
+            {
+                throw new org.omg.CORBA.BAD_TYPECODE(
+                "type longdouble not supported in java");
+            }
+            case TCKind._tk_wchar:      // 26
+            {
+                insert_wchar( input.read_wchar());
+                break;
+            }
+            case TCKind._tk_wstring:    // 27
+            {
+                insert_wstring( input.read_wstring());
+                break;
+            }
+            case TCKind._tk_fixed:      // 28
+            {
+                try
+                {
+                    // move the decimal based on the scale
+                    java.math.BigDecimal fixed = input.read_fixed();
+                    int scale = type.fixed_scale();
+                    insert_fixed( fixed.movePointLeft( scale ), type );
+                }
+                catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+                {
+                    throw new INTERNAL("should never happen");
+                }
+                break;
+            }
+            case TCKind._tk_value:      // 29
+            case TCKind._tk_value_box:  // 30
+            {
+                insert_Value
                 (((org.omg.CORBA_2_3.portable.InputStream)input).read_value(),
-                 type);
-            break;
-        case TCKind._tk_abstract_interface:
-           java.lang.Object obj =
-              ((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
-           if (obj instanceof org.omg.CORBA.Object)
-           {
-              insert_Object((org.omg.CORBA.Object)obj);
-           }
-           else
-           {
-              insert_Value((java.io.Serializable)obj);
-           }
-           break;
-        default:
-            throw new BAD_TYPECODE("Cannot handle TypeCode with kind " + kind);
+                        type);
+                break;
+            }
+            case TCKind._tk_native:     //31
+            {
+                throw new BAD_TYPECODE(
+                        "Cannot handle TypeCode with kind " + kind);
+            }
+            case TCKind._tk_abstract_interface: // 32
+            {
+                java.lang.Object obj =
+                    ((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
+                if (obj instanceof org.omg.CORBA.Object)
+                {
+                    insert_Object((org.omg.CORBA.Object)obj);
+                }
+                else
+                {
+                    insert_Value((java.io.Serializable)obj);
+                }
+                break;
+            }
+            default:
+            {
+                throw new BAD_TYPECODE("Cannot handle TypeCode with kind " + kind);
+            }
         }
     }
 
     public void write_value (org.omg.CORBA.portable.OutputStream output)
     {
-        int kind = typeCode.kind().value();
+        final int kind = typeCode.kind().value();
 
-        switch (kind)
+        if (value instanceof Streamable &&
+                kind != TCKind._tk_value &&
+                kind != TCKind._tk_value_box &&
+                kind != TCKind._tk_abstract_interface &&
+                kind != TCKind._tk_null)
         {
-        case TCKind._tk_null:
-            break;
-        case TCKind._tk_void:
-            break;
-        case TCKind._tk_short:
-            output.write_short(extract_short());
-            break;
-        case TCKind._tk_long:
-            output.write_long(extract_long());
-            break;
-        case TCKind._tk_longlong:
-            output.write_longlong(extract_longlong());
-            break;
-        case TCKind._tk_ushort:
-            output.write_ushort(extract_ushort());
-            break;
-        case TCKind._tk_ulong:
-            output.write_ulong(extract_ulong());
-            break;
-        case TCKind._tk_ulonglong:
-            output.write_ulonglong(extract_ulonglong());
-            break;
-        case TCKind._tk_float:
-            output.write_float(extract_float());
-            break;
-        case TCKind._tk_double:
-            output.write_double(extract_double());
-            break;
-        case TCKind._tk_fixed:
-            output.write_fixed(extract_fixed());
-            break;
-        case TCKind._tk_boolean:
-            output.write_boolean(extract_boolean());
-            break;
-        case TCKind._tk_char:
-            output.write_char(extract_char());
-            break;
-        case TCKind._tk_wchar:
-            output.write_wchar(extract_wchar());
-            break;
-        case TCKind._tk_octet:
-            output.write_octet(extract_octet());
-            break;
-        case TCKind._tk_any:
-            output.write_any(extract_any());
-            break;
-        case TCKind._tk_TypeCode:
-            output.write_TypeCode(extract_TypeCode());
-            break;
-        case TCKind._tk_Principal:
-            throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-        case TCKind._tk_objref:
-            output.write_Object(extract_Object());
-            break;
-        case TCKind._tk_string:
-            output.write_string(extract_string());
-            break;
-        case TCKind._tk_wstring:
-            output.write_wstring(extract_wstring());
-            break;
-        case TCKind._tk_struct:
-        case TCKind._tk_except:
-        case TCKind._tk_enum:
-        case TCKind._tk_union:
-        case TCKind._tk_array:
-        case TCKind._tk_sequence:
-        case TCKind._tk_alias:
-            try
+            ((Streamable) value)._write(output);
+        }
+        else
+        {
+            switch (kind)
             {
-                if (value instanceof org.omg.CORBA.portable.Streamable)
+                case TCKind._tk_null:       // 0
+                case TCKind._tk_void:       // 1
                 {
-                    org.omg.CORBA.portable.Streamable s =
-                        (org.omg.CORBA.portable.Streamable)value;
-                    s._write(output);
+                    break;
                 }
-                else if (value instanceof org.omg.CORBA.portable.OutputStream)
+                case TCKind._tk_short:      // 2
                 {
-                    // Use ORB from CDROutputStream if Any has been created
-                    // from ORBSingleton.
-
-                    org.omg.CORBA.ORB toUse = orb;
-                    if (! (toUse instanceof org.jacorb.orb.ORB))
-                    {
-                        toUse = ((CDROutputStream)output).orb();
-                    }
-                    CDROutputStream os = (CDROutputStream)value;
-                    final CDRInputStream in = new CDRInputStream(toUse, os.getBufferCopy());
-
-                    try
-                    {
-                        in.read_value (typeCode, output);
-                    }
-                    finally
-                    {
-                        in.close();
-                    }
+                    output.write_short(extract_short());
+                    break;
                 }
-                break;
+                case TCKind._tk_long:       // 3
+                {
+                    output.write_long(extract_long());
+                    break;
+                }
+                case TCKind._tk_ushort:     // 4
+                {
+                    output.write_ushort(extract_ushort());
+                    break;
+                }
+                case TCKind._tk_ulong:      // 5
+                {
+                    output.write_ulong(extract_ulong());
+                    break;
+                }
+                case TCKind._tk_float:      // 6
+                {
+                    output.write_float(extract_float());
+                    break;
+                }
+                case TCKind._tk_double:     // 7
+                {
+                    output.write_double(extract_double());
+                    break;
+                }
+                case TCKind._tk_boolean:    // 8
+                {
+                    output.write_boolean(extract_boolean());
+                    break;
+                }
+                case TCKind._tk_char:       // 9
+                {
+                    output.write_char(extract_char());
+                    break;
+                }
+                case TCKind._tk_octet:      // 10
+                {
+                    output.write_octet(extract_octet());
+                    break;
+                }
+                case TCKind._tk_any:        // 11
+                {
+                    output.write_any(extract_any());
+                    break;
+                }
+                case TCKind._tk_TypeCode:   // 12
+                {
+                    output.write_TypeCode(extract_TypeCode());
+                    break;
+                }
+                case TCKind._tk_Principal:  // 13
+                {
+                    throw new org.omg.CORBA.NO_IMPLEMENT(
+                    "Principal deprecated");
+                }
+                case TCKind._tk_objref:     // 14
+                {
+                    output.write_Object(extract_Object());
+                    break;
+                }
+                case TCKind._tk_struct:     // 15
+                case TCKind._tk_union:      // 16
+                case TCKind._tk_enum:       // 17
+                {
+                    this.writeComplexValue(output);
+                    break;
+                }
+                case TCKind._tk_string:     // 18
+                {
+                    output.write_string(extract_string());
+                    break;
+                }
+                case TCKind._tk_sequence:   // 19
+                case TCKind._tk_array:      // 20
+                case TCKind._tk_alias:      // 21
+                case TCKind._tk_except:     // 22
+                {
+                    this.writeComplexValue(output);
+                    break;
+                }
+                case TCKind._tk_longlong:   // 23
+                {
+                    output.write_longlong(extract_longlong());
+                    break;
+                }
+                case TCKind._tk_ulonglong:  // 24
+                {
+                    output.write_ulonglong(extract_ulonglong());
+                    break;
+                }
+                case TCKind._tk_longdouble: // 25
+                {
+                    throw new org.omg.CORBA.BAD_TYPECODE(
+                    "type longdouble not supported in java");
+                }
+                case TCKind._tk_wchar:      // 26
+                {
+                    output.write_wchar(extract_wchar());
+                    break;
+                }
+                case TCKind._tk_wstring:    // 27
+                {
+                    output.write_wstring(extract_wstring());
+                    break;
+                }
+                case TCKind._tk_fixed:     // 28
+                {
+                    output.write_fixed(extract_fixed());
+                    break;
+                }
+                case TCKind._tk_value:      // 29
+                case TCKind._tk_value_box:  // 30
+                {
+                    final OutputStream outputStream = ((org.omg.CORBA_2_3.portable.OutputStream)output);
+                    final Serializable serializable = (Serializable)value;
+                    outputStream.write_value (serializable);
+                    break;
+                }
+                case TCKind._tk_native:     //31
+                {
+                    throw new BAD_TYPECODE(
+                            "Cannot handle TypeCode with kind " + kind);
+                }
+                case TCKind._tk_abstract_interface:  //32
+                {
+                    ((org.omg.CORBA_2_3.portable.OutputStream)output)
+                    .write_abstract_interface(value);
+                    break;
+                }
+                default:
+                {
+                    throw new BAD_TYPECODE("Cannot handle TypeCode with kind "
+                            + kind);
+                }
             }
-            catch( Exception e )
-            {
-                throw new INTERNAL( e.toString());
-            }
-        case TCKind._tk_value:
-        case TCKind._tk_value_box:
-            ((org.omg.CORBA_2_3.portable.OutputStream)output)
-                .write_value((java.io.Serializable)value);
-            break;
-        case TCKind._tk_abstract_interface:
-            ((org.omg.CORBA_2_3.portable.OutputStream)output)
-                .write_abstract_interface(value);
-            break;
-        default:
-            throw new BAD_TYPECODE("Cannot handle TypeCode with kind " + kind);
         }
     }
 
@@ -1008,5 +1530,94 @@ public final class Any
             this.orb = orb;
         }
         this.value = value;
+    }
+
+    private void writeComplexValue (org.omg.CORBA.portable.OutputStream output)
+    {
+        if (value instanceof org.omg.CORBA.portable.Streamable)
+        {
+            org.omg.CORBA.portable.Streamable streamable =
+                (org.omg.CORBA.portable.Streamable)value;
+            streamable._write (output);
+        }
+        else if (value instanceof org.omg.CORBA.portable.OutputStream)
+        {
+            // Use ORB from CDROutputStream if Any has been created from
+            // ORBSingleton.
+            org.omg.CORBA.ORB toUse = orb;
+
+            if ( ! (toUse instanceof org.jacorb.orb.ORB))
+            {
+                checkStreamClass (output);
+                toUse = ((CDROutputStream) output).orb();
+            }
+            checkStreamClass ((org.omg.CORBA.portable.OutputStream)value);
+            CDROutputStream out = (CDROutputStream) value;
+            CDRInputStream in = new CDRInputStream(toUse, out.getBufferCopy ());
+
+            in.read_value (typeCode, output);
+        }
+        else
+        {
+            throw new org.omg.CORBA.INTERNAL(
+                "Encountered unexpected type for any value: " +
+                value.getClass());
+        }
+    }
+
+    /**
+     * <code>checkStreamClass</code> is used to provide a sanity check and some
+     * debugging on the type of stream class.
+     *
+     * @param stream an <code>org.omg.CORBA.portable.OutputStream</code> value
+     */
+    private void checkStreamClass (org.omg.CORBA.portable.OutputStream stream)
+    {
+        if ( ! (stream instanceof CDROutputStream))
+        {
+//            if (Debug.isDebugEnabled())
+//            {
+//                Debug.output
+//                (
+//                    "Output class not CDROutputStream " +
+//                    stream.getClass().getName()
+//                );
+//            }
+            throw new INTERNAL
+            (
+                "Output class not CDROutputStream " +
+                stream.getClass().getName()
+            );
+        }
+    }
+
+
+    private boolean compareComplexValue(org.omg.CORBA.Any other)
+    {
+        final CDROutputStream out1;
+        if (value instanceof CDROutputStream)
+        {
+            out1 = (CDROutputStream)value;
+        }
+        else
+        {
+            out1 = new CDROutputStream(orb);
+            write_value(out1);
+        }
+
+        final CDROutputStream out2;
+        if (other instanceof Any &&
+            ((Any) other).value instanceof CDROutputStream)
+        {
+            out2 = (CDROutputStream) ((Any) other).value;
+        }
+        else
+        {
+            out2 = new CDROutputStream(orb);
+            other.write_value( out2 );
+        }
+
+        return Arrays.equals( out1.getBufferCopy(),
+                              out2.getBufferCopy());
     }
 }

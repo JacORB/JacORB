@@ -121,5 +121,13 @@ public class ObjectTypeSpec
        ps.println("\t\t" + resultname + " = " + anyname + ".extract_Object();");
     }
 
+    public String printInsertExpression()
+    {
+        return "insert_Object";
+    }
 
+    public String printExtractExpression()
+    {
+        return "extract_Object";
+    }
 }

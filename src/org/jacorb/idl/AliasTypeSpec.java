@@ -309,10 +309,8 @@ public class AliasTypeSpec
         {
             return originalType.printReadStatement(varname, streamname);
         }
-        else
-        {
-            return varname + " = " + full_name() + "Helper.read(" + streamname + ");";
-        }
+
+        return varname + " = " + full_name() + "Helper.read(" + streamname + ");";
     }
 
     public String printReadExpression(String streamname)
@@ -427,10 +425,15 @@ public class AliasTypeSpec
     private void printHelperClass(String className, PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
+
         if (!pack_name.equals(""))
+        {
             ps.println("package " + pack_name + ";");
+        }
 
         printImport(ps);
 
@@ -446,13 +449,40 @@ public class AliasTypeSpec
         ps.println("\tpublic static void insert (org.omg.CORBA.Any any, " +
                     type + " s)");
         ps.println("\t{");
-        ps.println("\t\tany.type (type ());");
-        ps.println("\t\twrite (any.create_output_stream (), s);");
+
+        TypeSpec origType = this.originalType();
+        boolean useAnySpeedAccessor =
+            !(origType instanceof TemplateTypeSpec) &&
+            !(origType instanceof ConstrTypeSpec) &&
+            BaseType.isBasicName(origType.typeName());
+
+        if (useAnySpeedAccessor)
+        {
+            ps.print("\t\tany.");
+            ps.print(this.originalType().printInsertExpression());
+            ps.println("(s);");
+        }
+        else
+        {
+            ps.println("\t\tany.type (type ());");
+            ps.println("\t\twrite (any.create_output_stream (), s);");
+        }
         ps.println("\t}\n");
 
         ps.println("\tpublic static " + type + " extract (final org.omg.CORBA.Any any)");
         ps.println("\t{");
-        ps.println("\t\treturn read (any.create_input_stream ());");
+
+        if (useAnySpeedAccessor)
+        {
+            ps.print("\t\treturn any.");
+            ps.print(this.originalType().printExtractExpression());
+            ps.println("();");
+        }
+        else
+        {
+            ps.println("\t\treturn read (any.create_input_stream ());");
+        }
+
         ps.println("\t}\n");
 
         ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
