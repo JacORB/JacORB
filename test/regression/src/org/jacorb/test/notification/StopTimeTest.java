@@ -92,7 +92,7 @@ public class StopTimeTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
 
-        StructuredEventMessage mesg = new StructuredEventMessage();
+        StructuredEventMessage mesg = new StructuredEventMessage(getORB());
         mesg.setStructuredEvent(structuredEvent_, true, true);
         final Message _event = mesg.getHandle();
 

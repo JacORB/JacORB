@@ -288,7 +288,7 @@ public abstract class AbstractMessage extends AbstractPoolable
         {
             isInvalid_ = true;
         }
-        
+
         public long getReceiveTimestamp()
         {
             return AbstractMessage.this.getReceiveTimestamp();
@@ -310,8 +310,6 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     ////////////////////////////////////////
 
-    static final ORB sOrb = ORB.init();
-
     protected boolean proxyConsumerFiltered_;
 
     protected boolean supplierAdminFiltered_;
@@ -323,14 +321,14 @@ public abstract class AbstractMessage extends AbstractPoolable
     private FilterStage currentFilterStage_;
 
     private long receiveTimestamp_;
-    
+
     ////////////////////////////////////////
 
     /**
      * get the Constraint Key for this Event. The Constraint Key is used to fetch the Filter
      * Constraints that must be evaluated for this Event. The Constraint Key consists of domain_name
      * and type_name of the Event.
-     * 
+     *
      * @return a <code>String</code> value
      */
     public abstract String getConstraintKey();
@@ -342,14 +340,14 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     /**
      * Access this NotificationEvent as Any.
-     * 
+     *
      * @return an <code>Any</code> value
      */
     public abstract Any toAny();
 
     /**
      * convert this message to a TypedEvent.
-     * 
+     *
      * @return a sequence of name-value pairs.
      * @throws NoTranslationException
      *             if the contents of the message cannot be translated into a TypedEvent.
@@ -358,7 +356,7 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     /**
      * Access this NotificationEvent as StructuredEvent.
-     * 
+     *
      * @return a <code>StructuredEvent</code> value
      */
     public abstract StructuredEvent toStructuredEvent();
@@ -368,7 +366,7 @@ public abstract class AbstractMessage extends AbstractPoolable
      * {@link org.jacorb.notification.interfaces.Message#TYPE_ANY},{@link
      * org.jacorb.notification.interfaces.Message#TYPE_STRUCTURED}, or {@link
      * org.jacorb.notification.interfaces.Message#TYPE_TYPED}.
-     * 
+     *
      * @return the Type of this NotificationEvent.
      */
     public abstract int getType();
@@ -382,7 +380,7 @@ public abstract class AbstractMessage extends AbstractPoolable
     {
         referenced_ = 0;
         currentFilterStage_ = null;
-        
+
         doReset();
     }
 
@@ -390,7 +388,7 @@ public abstract class AbstractMessage extends AbstractPoolable
     {
         // no operation
     }
-    
+
     /**
      * Add a reference on this NotificationEvent. After Usage removeReference must be called.
      */
@@ -455,7 +453,7 @@ public abstract class AbstractMessage extends AbstractPoolable
         {
             throw new EvaluationException("Could not resolve " + _completePath);
         }
-        
+
         return _ret;
     }
 
@@ -515,7 +513,7 @@ public abstract class AbstractMessage extends AbstractPoolable
     {
         return new MessageHandle();
     }
-    
+
     public void initReceiveTimestamp()
     {
         receiveTimestamp_ = System.currentTimeMillis();
@@ -580,7 +578,7 @@ public abstract class AbstractMessage extends AbstractPoolable
      * Provide a Uniform Mapping from domain_name and type_name to a Key that can be used to put
      * EventTypes into a Map. if (d1 == d2) AND (t1 == t2) => calcConstraintKey(d1, t1) ==
      * calcConstraintKey(d2, t2).
-     * 
+     *
      * @param domain_name
      *            a <code>String</code> value
      * @param type_name

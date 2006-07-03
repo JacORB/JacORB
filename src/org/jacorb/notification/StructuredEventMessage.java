@@ -31,6 +31,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CosNotification.Priority;
 import org.omg.CosNotification.Property;
@@ -48,7 +49,7 @@ import org.omg.TimeBase.UtcTHelper;
 
 /**
  * Adapts a StructuredEvent to the Message Interface.
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -75,7 +76,14 @@ public class StructuredEventMessage extends AbstractMessage
 
     private NoTranslationException translationException_ = null;
 
+    private final ORB orb;
+
     // //////////////////////////////////////
+
+    public StructuredEventMessage(ORB orb)
+    {
+        this.orb = orb;
+    }
 
     public synchronized void setStructuredEvent(StructuredEvent structuredEvent,
             boolean startTimeSupported, boolean stopTimeSupported)
@@ -110,7 +118,7 @@ public class StructuredEventMessage extends AbstractMessage
     {
         if (anyValue_ == null)
         {
-            anyValue_ = sOrb.create_any();
+            anyValue_ = orb.create_any();
             StructuredEventHelper.insert(anyValue_, structuredEventValue_);
         }
 

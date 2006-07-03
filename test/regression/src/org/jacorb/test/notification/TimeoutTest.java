@@ -54,7 +54,7 @@ public class TimeoutTest extends NotificationTestCase
 
     public void setUpTest() throws Exception
     {
-        messageFactory_ = new DefaultMessageFactory(getConfiguration());
+        messageFactory_ = new DefaultMessageFactory(getORB(), getConfiguration());
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();

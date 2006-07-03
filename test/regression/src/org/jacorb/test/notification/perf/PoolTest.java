@@ -23,6 +23,7 @@ package org.jacorb.test.notification.perf;
 
 import junit.framework.TestCase;
 
+import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.util.AbstractPoolablePool;
 
@@ -38,7 +39,7 @@ public class PoolTest extends TestCase
 
             for (int i = 0; i < 1000; ++i)
             {
-                StructuredEventMessage m = createStructuredEventMessage();
+                AnyMessage m = createMessage();
                 try
                 {
                     Thread.sleep(10);
@@ -56,9 +57,9 @@ public class PoolTest extends TestCase
             }
         }
 
-        public StructuredEventMessage createStructuredEventMessage()
+        public AnyMessage createMessage()
         {
-            return new StructuredEventMessage();
+            return new AnyMessage();
         }
 
         public long getResult()
@@ -88,21 +89,21 @@ public class PoolTest extends TestCase
             {
                 public Object newInstance()
                 {
-                    return new StructuredEventMessage();
+                    return new AnyMessage();
                 }
             };
-            
+
             pool.configure(null);
-            
+
         Work[] worker = new Work[4];
 
         for (int i = 0; i < worker.length; ++i)
         {
             worker[i] = new Work()
             {
-                public StructuredEventMessage createStructuredEventMessage()
+                public AnyMessage createMessage()
                 {
-                    return (StructuredEventMessage) pool.lendObject();
+                    return (AnyMessage) pool.lendObject();
                 }
             };
             new Thread(worker[i]).start();
@@ -113,7 +114,7 @@ public class PoolTest extends TestCase
         {
             sum += worker[i].getResult();
         }
-        
+
         System.out.println("pool: " + sum);
     }
 
@@ -132,7 +133,7 @@ public class PoolTest extends TestCase
         {
             sum += worker[i].getResult();
         }
-        
+
         System.out.println("raw: " + sum);
     }
 }

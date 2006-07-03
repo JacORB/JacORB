@@ -35,8 +35,8 @@ import org.omg.CosNotification.PropertySeqHelper;
  * @author Alphonse Bendt
  */
 
-public class DynamicEvaluatorTest extends NotificationTestCase {
-
+public class DynamicEvaluatorTest extends NotificationTestCase
+{
     private DefaultETCLEvaluator objectUnderTest_;
 
     public DynamicEvaluatorTest (String name, NotificationTestCaseSetup setup){
@@ -49,7 +49,7 @@ public class DynamicEvaluatorTest extends NotificationTestCase {
 
 
     public void setUpTest() throws Exception {
-        objectUnderTest_ = new DefaultETCLEvaluator(getConfiguration(), getDynAnyFactory());
+        objectUnderTest_ = new DefaultETCLEvaluator(getORB(), getConfiguration(), getDynAnyFactory());
     }
 
 

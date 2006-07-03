@@ -38,7 +38,7 @@ import org.omg.TimeBase.UtcTHelper;
 
 /**
  * JUnit TestCase. Test Parsing and Evaluation of various ETCL Expressions.
- * 
+ *
  * @author Alphonse Bendt
  */
 
@@ -190,7 +190,7 @@ public class TCLTest extends NotificationTestCase
     /**
      * parse both strings, evaluate the resulting tree and compare the results. the results are
      * expected to be equal.
-     * 
+     *
      * @param expect
      *            an ETCL expression
      * @param expression
@@ -805,7 +805,7 @@ public class TCLTest extends NotificationTestCase
         _any.insert_longlong(139192928000000000l);
         runEvaluation(_any, "$ >= 139192928000000000");
     }
-    
+
     public void testAccessNonExistingStructMember() throws Exception
     {
         try
@@ -976,7 +976,7 @@ public class TCLTest extends NotificationTestCase
 
     private void runEvaluation(Any any, String expr, String expect) throws Exception
     {
-        MessageFactory _notificationEventFactory = new DefaultMessageFactory(getConfiguration());
+        MessageFactory _notificationEventFactory = new DefaultMessageFactory(getORB(), getConfiguration());
 
         Message _event = _notificationEventFactory.newMessage(any);
         try
@@ -996,7 +996,7 @@ public class TCLTest extends NotificationTestCase
     private void runEvaluation(StructuredEvent event, String expr, String expect) throws Exception
     {
         // TODO factor out MessageFactory to NotificationTestCase (all tests)
-        MessageFactory _notificationEventFactory = new DefaultMessageFactory(getConfiguration());
+        MessageFactory _notificationEventFactory = new DefaultMessageFactory(getORB(), getConfiguration());
 
         Message _event = _notificationEventFactory.newMessage(event);
         runEvaluation(_event, expr, expect);

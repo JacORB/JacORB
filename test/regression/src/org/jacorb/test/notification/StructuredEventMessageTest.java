@@ -52,7 +52,7 @@ public class StructuredEventMessageTest extends NotificationTestCase
 
     public void setUpTest() throws Exception
     {
-        objectUnderTest_ = new StructuredEventMessage();
+        objectUnderTest_ = new StructuredEventMessage(getORB());
         structuredEvent_ = getTestUtils().getEmptyStructuredEvent();
     }
 
@@ -89,7 +89,7 @@ public class StructuredEventMessageTest extends NotificationTestCase
             // expected
         }
     }
-    
+
     public void testTimeoutIsIgnoredIfConsumerDoesNotSupportTimeout()
     {
         Date _time = new Date(System.currentTimeMillis());
@@ -101,7 +101,7 @@ public class StructuredEventMessageTest extends NotificationTestCase
         structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
 
         objectUnderTest_.setStructuredEvent(structuredEvent_, true, false);
-        
+
         assertFalse(objectUnderTest_.hasStopTime());
     }
 

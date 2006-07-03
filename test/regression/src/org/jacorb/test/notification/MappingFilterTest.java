@@ -60,7 +60,7 @@ public class MappingFilterTest extends NotificationTestCase
     public void setUpTest() throws Exception
     {
         filter_ = new ETCLFilter(getConfiguration(), new DefaultEvaluationContextFactory(
-                getEvaluator()), new DefaultMessageFactory(getConfiguration()), getORB(), getPOA());
+                getEvaluator()), new DefaultMessageFactory(getORB(), getConfiguration()), getORB(), getPOA());
 
         testPerson_ = getTestUtils().getTestPersonAny();
     }

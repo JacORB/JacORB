@@ -65,26 +65,29 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
 
     private final DynAnyFactory dynAnyFactory_;
 
-    private static final ORB orb_ = ORB.init();
+    private final ORB orb_;
 
-    private static final Any TRUE_ANY = orb_.create_any();
+    private final Any TRUE_ANY;
 
-    private static final Any FALSE_ANY = orb_.create_any();
-
-    static
-    {
-        TRUE_ANY.insert_boolean(true);
-
-        FALSE_ANY.insert_boolean(false);
-    }
+    private final Any FALSE_ANY;
 
     ////////////////////////////////////////
 
-    public DefaultETCLEvaluator(Configuration config, DynAnyFactory dynAnyFactory)
+    public DefaultETCLEvaluator(ORB orb, Configuration config, DynAnyFactory dynAnyFactory)
     {
+        orb_ = orb;
+
         logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
 
         dynAnyFactory_ = dynAnyFactory;
+
+        TRUE_ANY = orb_.create_any();
+
+        FALSE_ANY = orb_.create_any();
+
+        TRUE_ANY.insert_boolean(true);
+
+        FALSE_ANY.insert_boolean(false);
     }
 
     ////////////////////////////////////////

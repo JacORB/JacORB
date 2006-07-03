@@ -23,7 +23,7 @@ import org.omg.CosNotifyFilter.ConstraintInfo;
 public class FilterImplTest extends NotificationTestCase {
 
     private AbstractFilter objectUnderTest_;
-    
+
     ////////////////////////////////////////
 
     public FilterImplTest(String test, NotificationTestCaseSetup setup) {
@@ -33,7 +33,7 @@ public class FilterImplTest extends NotificationTestCase {
     ////////////////////////////////////////
 
     public void setUpTest() throws Exception {
-        objectUnderTest_ = new ETCLFilter(getConfiguration(), new DefaultEvaluationContextFactory(getEvaluator()), new DefaultMessageFactory(getConfiguration()), getORB(), getPOA());
+        objectUnderTest_ = new ETCLFilter(getConfiguration(), new DefaultEvaluationContextFactory(getEvaluator()), new DefaultMessageFactory(getORB(), getConfiguration()), getORB(), getPOA());
     }
 
 

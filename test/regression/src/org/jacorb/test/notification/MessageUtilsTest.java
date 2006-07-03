@@ -31,12 +31,12 @@ public class MessageUtilsTest extends NotificationTestCase
     }
 
     public void setUpTest() throws Exception
-    {      
+    {
         testUtils_ = new NotificationTestUtils(getORB());
 
         context_ = new EvaluationContext(getEvaluator());
-        
-        messageFactory_ = new DefaultMessageFactory(getConfiguration());
+
+        messageFactory_ = new DefaultMessageFactory(getORB(), getConfiguration());
     }
 
 

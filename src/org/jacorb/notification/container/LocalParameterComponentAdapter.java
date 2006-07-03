@@ -30,15 +30,19 @@ import org.picocontainer.defaults.AssignabilityRegistrationException;
 import org.picocontainer.defaults.DecoratingComponentAdapter;
 import org.picocontainer.defaults.DefaultPicoContainer;
 
+/**
+ * @author Alphonse Bendt
+ * @version $Id$
+ */
 public class LocalParameterComponentAdapter extends DecoratingComponentAdapter
 {
     private static final long serialVersionUID = 1L;
     private final ComponentAdapter[] helperCAs_;
-    
+
     public LocalParameterComponentAdapter(ComponentAdapter delegate, ComponentAdapter[] helpers) throws AssignabilityRegistrationException
     {
         super(delegate);
-        
+
         helperCAs_ = helpers;
     }
 
@@ -49,7 +53,7 @@ public class LocalParameterComponentAdapter extends DecoratingComponentAdapter
         {
             _helperContainer.registerComponent(helperCAs_[i]);
         }
-        
+
         return super.getComponentInstance(_helperContainer);
     }
 

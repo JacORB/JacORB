@@ -35,6 +35,7 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.Bounds;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.NamedValue;
+import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
@@ -46,6 +47,8 @@ import org.omg.CosNotification.StructuredEventHelper;
 
 public class DefaultMessageFactory implements Disposable, MessageFactory
 {
+    private final ORB orb;
+
     private final AbstractObjectPool typedEventMessagePool_ =
         new AbstractPoolablePool("TypedEventMessagePool")
     {
@@ -69,12 +72,14 @@ public class DefaultMessageFactory implements Disposable, MessageFactory
     {
         public Object newInstance()
         {
-            return new StructuredEventMessage();
+            return new StructuredEventMessage(orb);
         }
     };
 
-    public DefaultMessageFactory(Configuration conf)
+    public DefaultMessageFactory(ORB orb, Configuration conf)
     {
+        this.orb = orb;
+
         anyMessagePool_.configure(conf);
 
         structuredEventMessagePool_.configure(conf);

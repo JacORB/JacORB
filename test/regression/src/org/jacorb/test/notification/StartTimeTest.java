@@ -85,9 +85,9 @@ public class StartTimeTest extends NotificationTestCase
 
     public void setUpTest() throws Exception
     {
-        messageFactory_ = new DefaultMessageFactory(getConfiguration());
+        messageFactory_ = new DefaultMessageFactory(getORB(), getConfiguration());
         addDisposable(messageFactory_);
-        
+
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
         FixedEventHeader _fixed = new FixedEventHeader();
@@ -147,7 +147,7 @@ public class StartTimeTest extends NotificationTestCase
     public void processEventWithStartTime(long offset) throws Exception
     {
         final AtomicBoolean failed = new AtomicBoolean(true);
-        
+
         structuredEvent_.header.variable_header = new Property[1];
 
         final Date _startTime = new Date(System.currentTimeMillis() + offset);
@@ -173,7 +173,7 @@ public class StartTimeTest extends NotificationTestCase
                     long _recvTime = System.currentTimeMillis();
                     assertEquals(event, _event);
                     assertTrue(_recvTime >= _startTime.getTime());
-                    
+
                     failed.set(false);
                 } finally
                 {
@@ -187,7 +187,7 @@ public class StartTimeTest extends NotificationTestCase
         _latch.await();
 
         assertFalse(failed.get());
-        
+
         _taskProcessor.dispose();
     }
 

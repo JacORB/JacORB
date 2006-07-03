@@ -29,13 +29,13 @@ public class NotificationEventTest extends NotificationTestCase {
     EvaluationContext evaluationContext_;
     NotificationTestUtils testUtils_;
 
-    public void setUpTest() throws Exception {    
+    public void setUpTest() throws Exception {
         testUtils_ = new NotificationTestUtils(getORB());
-        
+
         evaluationContext_ = new EvaluationContext(getEvaluator());
 
-        factory_ = new DefaultMessageFactory(getConfiguration());
-       
+        factory_ = new DefaultMessageFactory(getORB(), getConfiguration());
+
         testPerson_ = testUtils_.getTestPersonAny();
 
         TestUnion _t1 = new TestUnion();

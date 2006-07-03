@@ -54,19 +54,19 @@ public class MessageFactoryTest extends NotificationTestCase
 
         MockControl proxyConsumerControl = MockControl.createNiceControl(IProxyConsumer.class);
         IProxyConsumer proxyConsumerMock = (IProxyConsumer) proxyConsumerControl.getMock();
-        
+
         proxyConsumerControl.expectAndReturn(proxyConsumerMock.getStopTimeSupported(), true);
-        
+
         proxyConsumerControl.replay();
-        
+
         Message _event = messageFactory_.newMessage(testStructured_, proxyConsumerMock);
         assertTrue(_event.hasStopTime());
         assertEquals(_now.getTime(), _event.getStopTime());
-        
+
         proxyConsumerControl.verify();
     }
 
-    
+
     public void testStructuredEventWithoutStopTimeProperty() throws Exception
     {
         Message _event = messageFactory_.newMessage(testStructured_);
@@ -78,7 +78,7 @@ public class MessageFactoryTest extends NotificationTestCase
         Message _event = messageFactory_.newMessage(getORB().create_any());
         assertTrue(!_event.hasStopTime());
     }
-    
+
     public void testNewEventStructured() throws Exception
     {
         assertNotNull(messageFactory_.newMessage(testStructured_));
@@ -215,7 +215,7 @@ public class MessageFactoryTest extends NotificationTestCase
     {
         testUtils_ = new NotificationTestUtils(getORB());
 
-        messageFactory_ = new DefaultMessageFactory(getConfiguration());
+        messageFactory_ = new DefaultMessageFactory(getORB(), getConfiguration());
 
         testPerson_ = testUtils_.getTestPersonAny();
 
