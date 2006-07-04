@@ -72,6 +72,7 @@
           in equal() as per specification.
         - Any: fix extract_string(), extract_wstring(), didn't
           account for value being insterted as a stream.
+        - Fix for PolicyManager. ADD_OVERRIDE didn't work.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
@@ -83,6 +84,7 @@
         - Use any speed accessors like insert_long/extract_long in Helper
           classes for aliased basetypes.
         - fixed invalid handling of forward decl of CORBA::TypeCode
+        - Improve generation for IDL exceptions.
     - Tools:
         - Updated 'dior' utility to decode realtime policies.
     - Security:

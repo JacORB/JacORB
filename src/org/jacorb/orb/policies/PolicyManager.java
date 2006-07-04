@@ -20,6 +20,7 @@ package org.jacorb.orb.policies;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA._PolicyManagerLocalBase;
 
 import org.apache.avalon.framework.logger.*;
@@ -44,9 +45,9 @@ import java.util.*;
 public class PolicyManager
     extends _PolicyManagerLocalBase
 {
-    private org.jacorb.orb.ORB orb;
-    private Map policy_overrides = null;
-    private Logger logger ;
+    private final org.jacorb.orb.ORB orb;
+    private final Map policy_overrides;
+    private final Logger logger ;
 
     /**
      * public c'tor
@@ -77,31 +78,36 @@ public class PolicyManager
     public synchronized org.omg.CORBA.Policy[] get_policy_overrides(int[] ts)
     {
         if (ts == null)
+        {
             throw new IllegalArgumentException("Argument may not be null");
+        }
 
         if (ts.length == 0)
         {
             return (org.omg.CORBA.Policy[])policy_overrides.values().toArray( new org.omg.CORBA.Policy[]{});
         }
 
-        Vector policyList = new Vector();
+        List policyList = new ArrayList();
 
         for (int i = 0; i < ts.length; i++ )
         {
-            org.omg.CORBA.Policy p =
-                (org.omg.CORBA.Policy)policy_overrides.get( new Integer( ts[i] ));
-            if (p != null)
-                policyList.add(p);
+            org.omg.CORBA.Policy policy =
+                (org.omg.CORBA.Policy)policy_overrides.get( ObjectUtil.newInteger( ts[i] ));
+            if (policy != null)
+            {
+                policyList.add(policy);
+            }
         }
 
         org.omg.CORBA.Policy[] result =
             (org.omg.CORBA.Policy[])policyList.toArray( new org.omg.CORBA.Policy[]{});
 
         if (logger.isDebugEnabled() && result.length > 0)
+        {
             logger.debug("get_policy_overrides returns " + result.length + " policies");
+        }
 
         return result;
-
     }
 
     /**
@@ -142,11 +148,11 @@ public class PolicyManager
      * PolicyType value as an existing override, the supplied Policy
      * object replaces the existing override.
      *
-     * @throws InvalidPolicies a list of indices identifying the
+     * @throws org.omg.CORBA.InvalidPolicies a list of indices identifying the
      * position in the input policies list that are occupied by
      * invalid policies
      *
-     * @throws BAD_PARAM if the sequence contains two or more Policy
+     * @throws org.omg.CORBA.BAD_PARAM if the sequence contains two or more Policy
      * objects with the same PolicyType value, the operation raises
      * the standard sytem exception BAD_PARAM with standard minor code
      * 30.
@@ -157,24 +163,25 @@ public class PolicyManager
         throws org.omg.CORBA.InvalidPolicies
     {
         if (policies == null)
+        {
             throw new IllegalArgumentException("Argument may not be null");
+        }
 
         HashMap newPolicies = new HashMap();
         StringBuffer sb = new StringBuffer();
 
         // check that the policies argument does not contain multiple
         // policies of the same type while (copying the list of policies)
-        // and does not override policies that ccannot be overriden
+        // and does not override policies that cannot be overriden
         for (int i = 0; i < policies.length; i++ )
         {
-
             if (!PolicyUtil.isInvocationPolicy( policies[i].policy_type() ))
             {
                 throw new org.omg.CORBA.NO_PERMISSION("Not an invocation policy, type " +
                                                       policies[i].policy_type() );
             }
             // else:
-            Integer key = new Integer( policies[i].policy_type());
+            Integer key = ObjectUtil.newInteger( policies[i].policy_type());
             if ( newPolicies.put( key, policies[i] ) != null )
             {
                 throw new org.omg.CORBA.BAD_PARAM( "Multiple policies of type " +
@@ -190,21 +197,26 @@ public class PolicyManager
         {
             PolicyUtil.checkValidity(newPolicies);
             if (logger.isDebugEnabled())
+            {
                 logger.debug("SET_OVERRIDE, types: " + sb.toString());
-            policy_overrides = newPolicies;
+            }
+            policy_overrides.clear();
+            policy_overrides.putAll(newPolicies);
         }
         else if (set_add == org.omg.CORBA.SetOverrideType.ADD_OVERRIDE )
         {
             // adds policies (and replaces any existing policies)
-            HashMap test = new HashMap();
+            HashMap test = new HashMap(policy_overrides);
+            test.putAll(policy_overrides);
             test.putAll( newPolicies );
             PolicyUtil.checkValidity(test);
 
             if (logger.isDebugEnabled())
+            {
                 logger.debug("ADD_OVERRIDE, types: " + sb.toString());
-            policy_overrides = test;
+            }
+            policy_overrides.clear();
+            policy_overrides.putAll(test);
         }
-
     }
-
 }
