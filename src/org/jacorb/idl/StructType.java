@@ -39,6 +39,52 @@ public class StructType
     public MemberList memberlist = null;
     private boolean parsed = false;
     private ScopeData scopeData;
+    private static final HashSet systemExceptionNames;
+
+    static
+    {
+        systemExceptionNames = new HashSet();
+
+        systemExceptionNames.add( "UNKNOWN" ) ;
+        systemExceptionNames.add( "BAD_PARAM" ) ;
+        systemExceptionNames.add( "NO_MEMORY" ) ;
+        systemExceptionNames.add( "IMP_LIMIT" ) ;
+        systemExceptionNames.add( "COMM_FAILURE" ) ;
+        systemExceptionNames.add( "INV_OBJREF" ) ;
+        systemExceptionNames.add( "NO_PERMISSION" ) ;
+        systemExceptionNames.add( "INTERNAL" ) ;
+        systemExceptionNames.add( "MARSHAL" ) ;
+        systemExceptionNames.add( "INITIALIZE" ) ;
+        systemExceptionNames.add( "NO_IMPLEMENT" ) ;
+        systemExceptionNames.add( "BAD_TYPECODE" ) ;
+        systemExceptionNames.add( "BAD_OPERATION" ) ;
+        systemExceptionNames.add( "NO_RESOURCES" ) ;
+        systemExceptionNames.add( "NO_RESPONSE" ) ;
+        systemExceptionNames.add( "PERSIST_STORE" ) ;
+        systemExceptionNames.add( "BAD_INV_ORDER" ) ;
+        systemExceptionNames.add( "TRANSIENT" ) ;
+        systemExceptionNames.add( "FREE_MEM" ) ;
+        systemExceptionNames.add( "INV_IDENT" ) ;
+        systemExceptionNames.add( "INV_FLAG" ) ;
+        systemExceptionNames.add( "INTF_REPOS" ) ;
+        systemExceptionNames.add( "BAD_CONTEXT" ) ;
+        systemExceptionNames.add( "OBJ_ADAPTER" ) ;
+        systemExceptionNames.add( "DATA_CONVERSION" ) ;
+        systemExceptionNames.add( "OBJECT_NOT_EXIST" ) ;
+        systemExceptionNames.add( "TRANSACTION_REQUIRED" ) ;
+        systemExceptionNames.add( "TRANSACTION_ROLLEDBACK" ) ;
+        systemExceptionNames.add( "INVALID_TRANSACTION" ) ;
+        systemExceptionNames.add( "INV_POLICY" ) ;
+        systemExceptionNames.add( "CODESET_INCOMPATIBLE" ) ;
+        systemExceptionNames.add( "REBIND" ) ;
+        systemExceptionNames.add( "TIMEOUT" ) ;
+        systemExceptionNames.add( "TRANSACTION_UNAVAILABLE" ) ;
+        systemExceptionNames.add( "TRANSACTION_MODE" ) ;
+        systemExceptionNames.add( "BAD_QOS" ) ;
+        systemExceptionNames.add( "INVALID_ACTIVITY" ) ;
+        systemExceptionNames.add( "ACTIVITY_COMPLETED" ) ;
+        systemExceptionNames.add( "ACTIVITY_REQUIRED" ) ;
+    }
 
     public StructType(int num)
     {
@@ -480,7 +526,18 @@ public class StructType
         ps.println("public" + parser.getFinalString() + " class " + className);
         if (exc)
         {
-            ps.println("\textends org.omg.CORBA.UserException");
+            if( isSystemException( className ) )
+            {
+               // It's a system exception, so inherit from SystemException.
+               //
+               ps.println("\textends org.omg.CORBA.SystemException");
+            }
+            else
+            {
+               // Not a system exception, so inherit from UserException.
+               //
+               ps.println("\textends org.omg.CORBA.UserException");
+            }
         }
         else
         {
@@ -493,18 +550,74 @@ public class StructType
 
         if (exc)
         {
-            ps.println("\tpublic " + className + "()");
-            ps.println("\t{");
-            ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
-            ps.println("\t}");
-            ps.println();
-
-            if (memberlist == null)
+            if( isSystemException( className ) )
             {
-                ps.println("\tpublic " + className + "(String value)");
-                ps.println("\t{");
-                ps.println("\t\tsuper(value);");
-                ps.println("\t}");
+               // Generate system exception constructors.
+               //
+               ps.println("\tpublic " + className + "()");
+               ps.println("\t{");
+               ps.print("\t\tsuper(" ) ;
+               ps.print( " \"\"" ) ;
+               ps.print( ", 0" ) ;
+               ps.print( " ,org.omg.CORBA.CompletionStatus.COMPLETED_NO" ) ;
+               ps.println( " ) ;" ) ;
+               ps.println("\t}");
+               ps.println();
+
+               ps.println("\tpublic " + className + "( String reason )");
+               ps.println("\t{");
+               ps.print("\t\tsuper(" ) ;
+               ps.print( " reason" ) ;
+               ps.print( ", 0" ) ;
+               ps.print( " ,org.omg.CORBA.CompletionStatus.COMPLETED_NO" ) ;
+               ps.println( " ) ;" );
+               ps.println("\t}") ;
+               ps.println();
+
+               ps.print("\tpublic " + className + "(" ) ;
+               ps.print( "int minor" ) ;
+               ps.print( ", org.omg.CORBA.CompletionStatus completed" ) ;
+               ps.println( " )" ) ;
+               ps.println("\t{");
+               ps.print("\t\tsuper(" ) ;
+               ps.print( " \"\"" ) ;
+               ps.print( ", minor" ) ;
+               ps.print( ", completed" ) ;
+               ps.println( " ) ;" ) ;
+               ps.println("\t}");
+               ps.println();
+
+               ps.print("\tpublic " + className + "(" ) ;
+               ps.print( "String reason" ) ;
+               ps.print( ", int minor" ) ;
+               ps.print( ", org.omg.CORBA.CompletionStatus completed" ) ;
+               ps.println( " )" ) ;
+               ps.println("\t{");
+               ps.print("\t\tsuper(" ) ;
+               ps.print( " reason" ) ;
+               ps.print( ", minor" ) ;
+               ps.print( ", completed" ) ;
+               ps.println( " ) ;" ) ;
+               ps.println("\t}");
+               ps.println();
+            }
+            else
+            {
+               // Generate empty user exception constructors.
+               //
+               ps.println("\tpublic " + className + "()");
+               ps.println("\t{");
+               ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
+               ps.println("\t}");
+               ps.println();
+
+               if (memberlist == null)
+               {
+                  ps.println("\tpublic " + className + "(String value)");
+                  ps.println("\t{");
+                  ps.println("\t\tsuper(value);");
+                  ps.println("\t}");
+               }
             }
         }
         else
@@ -529,9 +642,9 @@ public class StructType
                 printHashCode(fullClassName, ps);
             }
 
-            // print a constructor for class member initialization
-
-            if (exc)
+            // print a constructor for class member initialization, unless
+            // this is a system exception
+            if (exc && ( ! isSystemException( className ) ))
             {
                 // print a constructor for class member initialization
                 // with additional first string parameter
@@ -562,36 +675,43 @@ public class StructType
                 ps.println("\t}");
             }
 
-            ps.print("\tpublic " + className + "(");
-            for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+
+            // If this is a system exception, then we don't need this
+            // member initialisation constructor.
+            //
+            if( ! isSystemException( className ) )
             {
-                Member m = (Member)e.nextElement();
-                Declarator d = m.declarator;
-                ps.print(m.type_spec.toString() + " " + d.name());
-                if (e.hasMoreElements())
+                ps.print("\tpublic " + className + "(");
+                for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
                 {
-                    ps.print(", ");
+                    Member m = (Member)e.nextElement();
+                    Declarator d = m.declarator;
+                    ps.print(m.type_spec.toString() + " " + d.name());
+                    if (e.hasMoreElements())
+                    {
+                        ps.print(", ");
+                    }
                 }
-            }
-            ps.println(")");
+                ps.println(")");
 
-            ps.println("\t{");
+                ps.println("\t{");
 
-            if (exc) // fixes #462
-            {
-                ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
-            }
+                if (exc) // fixes #462
+                {
+                    ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
+                }
 
-            for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
-            {
-                Member m = (Member)e.nextElement();
-                Declarator d = m.declarator;
-                ps.print("\t\tthis.");
-                ps.print(d.name());
-                ps.print(" = ");
-                ps.println(d.name() + ";");
+                for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+                {
+                    Member m = (Member)e.nextElement();
+                    Declarator d = m.declarator;
+                    ps.print("\t\tthis.");
+                    ps.print(d.name());
+                    ps.print(" = ");
+                    ps.println(d.name() + ";");
+                }
+                ps.println("\t}");
             }
-            ps.println("\t}");
 
         }
         ps.println("}");
@@ -671,10 +791,15 @@ public class StructType
 
                 if (GlobalInputStream.isMoreRecentThan(f))
                 {
-                    // print the mapped holder class
-                    PrintWriter printWriter = new PrintWriter(new java.io.FileWriter(f));
-                    printHolderClass(className, printWriter);
-                    printWriter.close();
+                    // print the mapped holder class unless it is for
+                    // a system exception
+                    if(  ( ! exc ) && ( ! isSystemException( className ) ) )
+                    {
+                        // print the mapped holder class
+                        PrintWriter printWriter = new PrintWriter(new java.io.FileWriter(f));
+                        printHolderClass(className, printWriter);
+                        printWriter.close();
+                    }
                 }
 
                 fname = className + "Helper.java";
@@ -844,5 +969,20 @@ public class StructType
         printwriter.println(buffer);
         printwriter.println("\t} ");
         printwriter.println();
+    }
+
+    /**
+     * Decides if a class name is a CORBA System Exception name,
+     * ignoring case.
+     *
+     * @param className a string containing the name to test
+     *
+     * @return true if the name is a system exception, false if not.
+     */
+    private boolean isSystemException( String className )
+    {
+        String ucClassName = className.toUpperCase();
+
+        return systemExceptionNames.contains(ucClassName);
     }
 }
