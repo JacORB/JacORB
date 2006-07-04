@@ -43,10 +43,10 @@ public class EncapsInfo
 
     public EncapsInfo(boolean le, int index, int start, int size)
     {
-	littleEndian = le;
-	this.index = index;
-	this.start = start;
-	this.size = size;
+        littleEndian = le;
+        this.index = index;
+        this.start = start;
+        this.size = size;
     }
 
     /**
@@ -62,8 +62,8 @@ public class EncapsInfo
     public EncapsInfo(int index, int start,
                       Map valueMap, Map repIdMap, Map codebaseMap)
     {
-	this.index = index;
-	this.start = start;
+        this.index = index;
+        this.start = start;
         this.valueMap = valueMap;
         this.repIdMap = repIdMap;
         this.codebaseMap = codebaseMap;
