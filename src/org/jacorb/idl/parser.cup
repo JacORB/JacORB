@@ -64,7 +64,6 @@ parser code
     public static boolean generateIR = false;
     public static boolean generate_skeletons = true;
     public static boolean generate_stubs = true;
-
     public static boolean generate_ami_callback = false;
     public static boolean generate_ami_polling  = false;
 
@@ -98,35 +97,28 @@ parser code
 
     protected static void init()
     {
-        currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
         command_line = null;
-        pending_interfaces = new Hashtable();
         pack_replace = new Hashtable();
         scopes = new Stack();
         tmpDefines = new Hashtable();
         tmpUnDefines = new Hashtable();
+
         generator = null;
-
-        activeParseThreads = 0;
-        InterfaceBody.parseThreads = new Vector();
-        pending_interfaces = new Hashtable();
-
         out_dir = ".";
         package_prefix = null;
-
         parse_only = false;
         done_parsing = false;
 
         include_state = false;
+        strict_names = true;
+        strict_inheritance = true;
+        strict_attributes = true;
+
         generateIR = false;
         generate_skeletons = true;
         generate_stubs = true;
         generate_ami_callback = false;
         generate_ami_polling = false;
-
-        strict_names = true;
-        strict_inheritance = true;
-        strict_attributes = true;
 
         generateIncluded = false;
         inhibitionState = false;
@@ -134,11 +126,25 @@ parser code
         useUncheckedNarrow = false;
         cldc10 = false;
         generateEnhanced = false;
+
         forceOverwrite = false;
-
         generateDiiStubs = false;
-
         finalString = FINAL;
+
+        if (InterfaceBody.parseThreads != null)
+        {
+            for(Iterator i = InterfaceBody.parseThreads.iterator(); i.hasNext();)
+            {
+                Thread thread = (Thread) i.next();
+                thread.interrupt();
+            }
+        }
+        activeParseThreads = 0;
+        InterfaceBody.parseThreads = new Vector();
+        pending_interfaces = new Hashtable();
+
+        currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
+        pending_interfaces = new Hashtable();
 
         sloppy = false;
 
@@ -168,9 +174,13 @@ parser code
     public static void main( String argv[] )
     {
         if( compileAndHandle( argv ) == true )
+        {
             System.exit( 0 );
+        }
         else
+        {
             System.exit( 1 );
+        }
     }
 
 
@@ -210,7 +220,9 @@ parser code
         BufferedReader in = null;
 
         if (logWriter!= null)
+        {
               logStreamWriter = logWriter;
+        }
 
         init();
 
@@ -282,7 +294,9 @@ parser code
                 if( argv[i].equals("-backend"))
                 {
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
+                    {
                         usage(argv, "-backend");
+                    }
 
                     // custom code generators
                     Class codeGeneratorClass = null;
@@ -297,22 +311,28 @@ parser code
                     }
 
                     if( ! org.jacorb.idl.IDLTreeVisitor.class.isAssignableFrom( codeGeneratorClass ))
+                    {
                         throw new ParseException( "Not a valid code generator: " +
                             codeGeneratorClass.getName() );
+                    }
                     setGenerator( (org.jacorb.idl.IDLTreeVisitor) codeGeneratorClass.newInstance());
                     continue;
                 }
                 if( argv[i].equals("-d"))
                 {
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
+                    {
                         usage(argv, "-d");
+                    }
                     out_dir = argv[++i];
                     continue;
                 }
                 if( argv[i].equals("-W"))
                 {
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
+                    {
                         usage(argv, "-W");
+                    }
 
                     int level = Integer.parseInt( argv[++i] );
 
@@ -331,7 +351,9 @@ parser code
                         def = def.substring( 0, def.indexOf('='));
                     }
                     else
+                    {
                         val = "1";
+                    }
                     tmpDefines.put( def, val );
                     continue;
                 }
@@ -359,16 +381,19 @@ parser code
                 if( argv[i].equals("-i2jpackage"))
                 {
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
+                    {
                         usage(argv, "-i2jpackage");
-                     addI2JPackage (argv[i+1]);
+                    }
+                    addI2JPackage (argv[i+1]);
                     i++;
                     continue;
                 }
                 if (argv[i].equals ("-i2jpackagefile"))
                 {
-                   if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
+                       if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
+                       {
                         usage(argv, "-i2jpackagefile");
-
+                    }
                        try
                        {
                           in = new BufferedReader (new FileReader (argv[i+1]));
@@ -483,9 +508,6 @@ parser code
             throw new ParseException( "Errors in lexer" );
         }
     }
-
-
-
 
     public static void usage(String [] argv, String msg)
     {
