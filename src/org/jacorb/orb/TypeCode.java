@@ -21,6 +21,7 @@ package org.jacorb.orb;
  */
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -66,7 +67,6 @@ public class TypeCode
     private TypeCode    actualTypecode = null;
     private boolean     secondIteration = false;
 
-    private static boolean     class_init = false;
     private static org.omg.CORBA.TypeCode[]  primitive_tcs = new TypeCode[34];
 
     /**
@@ -126,15 +126,6 @@ public class TypeCode
         primitive_tcs_map.put (clz, primitive_tcs[kind]);
     }
 
-    /**
-     * Constructor for primitive types, called only from
-     * static initializer and org.jacorb.ir.TypeCodeUtil
-     */
-
-    public TypeCode( int _kind )
-    {
-        kind = _kind;
-    }
 
     /**
      * @param _kind kind identifying a primitive TypeCode
@@ -162,23 +153,30 @@ public class TypeCode
     }
 
 
-    /*
-     * TypeCode constructors for every conceivable type follow.
-     * These are called exclusively by the ORBSingleton, which is
-     * the only legal TypeCode factory
+    /**
+     * Constructor for primitive types, called only from
+     * static initializer and org.jacorb.ir.TypeCodeUtil
      */
 
+    public TypeCode( int _kind )
+    {
+        super();
+
+        kind = _kind;
+    }
+
+     // TypeCode constructors for every conceivable type follow.
+     // These are called exclusively by the ORBSingleton, which is
+     // the only legal TypeCode factory
 
     /**
      * Constructor for recursive types
      */
-
     public TypeCode( String id )
     {
+        this(-1);
         this.id = id;
         recursive = true;
-        kind = -1;
-        actualTypecode = null;
     }
 
     /**
@@ -190,7 +188,8 @@ public class TypeCode
                       String _name,
                       org.omg.CORBA.StructMember[] _members)
     {
-        kind = _kind;
+        this(_kind);
+
         id =  _id;
         if( _name != null )
         {
@@ -219,7 +218,8 @@ public class TypeCode
                       org.omg.CORBA.TypeCode _discriminator_type,
                       org.omg.CORBA.UnionMember[] _members )
     {
-        kind = TCKind._tk_union;
+        this(TCKind._tk_union);
+
         id   =  _id ;
         if (_name != null)
         {
@@ -257,7 +257,8 @@ public class TypeCode
                      java.lang.String _name,
                      java.lang.String[] _members)
     {
-        kind = TCKind._tk_enum;
+        this(TCKind._tk_enum);
+
         id = _id;
         if (_name != null)
         {
@@ -270,10 +271,7 @@ public class TypeCode
         member_count = _members.length;
         member_name = new String[member_count];
 
-        for( int i = 0; i < member_count; i++ )
-        {
-            member_name[i] = _members[i];
-        }
+        System.arraycopy(_members, 0, member_name, 0, member_count);
     }
 
     /**
@@ -285,8 +283,9 @@ public class TypeCode
                      String _name,
                      org.omg.CORBA.TypeCode _original_type)
     {
+        this(_kind);
+
         id = _id;
-        kind = _kind;
         if (_name != null)
         {
             name = _name.replace('.','_'); // for orbixWeb Interop
@@ -307,7 +306,8 @@ public class TypeCode
                      java.lang.String _id,
                      java.lang.String _name)
     {
-        kind = _kind;
+        this(_kind);
+
         id   = _id;
         if (_name != null)
         {
@@ -325,7 +325,8 @@ public class TypeCode
 
     public TypeCode ( int _kind, int _bound )
     {
-        kind = _kind;
+        this(_kind);
+
         length = _bound;
     }
 
@@ -337,7 +338,8 @@ public class TypeCode
                      int _bound,
                      org.omg.CORBA.TypeCode _element_type)
     {
-        kind = _kind;
+        this(_kind);
+
         length = _bound;
         content_type = _element_type;
         if (content_type == null)
@@ -352,7 +354,8 @@ public class TypeCode
 
     public TypeCode (short _digits, short _scale)
     {
-        kind = TCKind._tk_fixed;
+        this(TCKind._tk_fixed);
+
         digits = _digits;
         scale = _scale;
     }
@@ -367,7 +370,8 @@ public class TypeCode
                      org.omg.CORBA.TypeCode concrete_base,
                      org.omg.CORBA.ValueMember[] members)
     {
-        kind = TCKind._tk_value;
+        this(TCKind._tk_value);
+
         this.id = id;
         if (_name != null)
         {
@@ -422,13 +426,11 @@ public class TypeCode
                     {
                         return true;
                     }
-                    else
-                    {
-                        secondIteration = true;
-                        boolean result = actualTypecode.equal( jtc.actualTypecode );
-                        secondIteration = false;
-                        return result;
-                    }
+
+                    secondIteration = true;
+                    boolean result = actualTypecode.equal( jtc.actualTypecode );
+                    secondIteration = false;
+                    return result;
                 }
                 return tc.equal( actualTypecode );
             }
@@ -594,9 +596,9 @@ public class TypeCode
         {
             return id;
         }
-        else
-            switch( kind )
-            {
+
+        switch( kind )
+        {
             case   TCKind._tk_objref:
             case   TCKind._tk_struct:
             case   TCKind._tk_union:
@@ -607,9 +609,11 @@ public class TypeCode
             case   TCKind._tk_native:
             case   TCKind._tk_abstract_interface:
             case   TCKind._tk_local_interface:
-            case   TCKind._tk_except: return id;
-            default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
-            }
+            case   TCKind._tk_except:
+                return id;
+            default:
+                throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
     }
 
     public java.lang.String name()
@@ -623,18 +627,20 @@ public class TypeCode
 
         switch( kind )
         {
-        case   TCKind._tk_objref:
-        case   TCKind._tk_struct:
-        case   TCKind._tk_union:
-        case   TCKind._tk_enum:
-        case   TCKind._tk_alias:
-        case   TCKind._tk_value:
-        case   TCKind._tk_value_box:
-        case   TCKind._tk_native:
-        case   TCKind._tk_abstract_interface:
-        case   TCKind._tk_local_interface:
-        case   TCKind._tk_except: return name;
-        default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            case   TCKind._tk_objref:
+            case   TCKind._tk_struct:
+            case   TCKind._tk_union:
+            case   TCKind._tk_enum:
+            case   TCKind._tk_alias:
+            case   TCKind._tk_value:
+            case   TCKind._tk_value_box:
+            case   TCKind._tk_native:
+            case   TCKind._tk_abstract_interface:
+            case   TCKind._tk_local_interface:
+            case   TCKind._tk_except:
+                return name;
+            default:
+                throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
 
@@ -649,12 +655,14 @@ public class TypeCode
 
         switch( kind )
         {
-        case   TCKind._tk_struct:
-        case   TCKind._tk_except:
-        case   TCKind._tk_union:
-        case   TCKind._tk_value:
-        case   TCKind._tk_enum: return member_count;
-        default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            case   TCKind._tk_struct:
+            case   TCKind._tk_except:
+            case   TCKind._tk_union:
+            case   TCKind._tk_value:
+            case   TCKind._tk_enum:
+                return member_count;
+            default:
+                throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
 
@@ -675,11 +683,15 @@ public class TypeCode
         case TCKind._tk_union:
         case TCKind._tk_value:
         case TCKind._tk_enum:
+        {
             if( index >= 0 && index < member_count )
+            {
                 return member_name[index];
-            else
-                throw new  org.omg.CORBA.TypeCodePackage.Bounds();
-        default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            }
+            throw new  org.omg.CORBA.TypeCodePackage.Bounds();
+        }
+        default:
+            throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
 
@@ -695,15 +707,19 @@ public class TypeCode
 
         switch( kind )
         {
-        case TCKind._tk_struct:
-        case TCKind._tk_except:
-        case TCKind._tk_union:
-        case TCKind._tk_value:
-            if( index >= 0 && index < member_count )
-                return member_type[index];
-            else
+            case TCKind._tk_struct:
+            case TCKind._tk_except:
+            case TCKind._tk_union:
+            case TCKind._tk_value:
+            {
+                if( index >= 0 && index < member_count )
+                {
+                    return member_type[index];
+                }
+
                 throw new  org.omg.CORBA.TypeCodePackage.Bounds();
-        default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            }
+            default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
 
@@ -718,9 +734,13 @@ public class TypeCode
         }
 
         if( kind != TCKind._tk_union )
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
         if( index < 0 || index >= member_count )
+        {
             throw new  org.omg.CORBA.TypeCodePackage.Bounds();
+        }
         return member_label[index];
     }
 
@@ -734,7 +754,9 @@ public class TypeCode
         }
 
         if( kind != TCKind._tk_union )
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
         return discriminator_type;
     }
 
@@ -749,7 +771,10 @@ public class TypeCode
         }
 
         if( kind != TCKind._tk_union )
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
+
         return default_index;
     }
 
@@ -759,11 +784,13 @@ public class TypeCode
     {
         switch( kind )
         {
-        case   TCKind._tk_string:
-        case   TCKind._tk_wstring:
-        case   TCKind._tk_sequence:
-        case   TCKind._tk_array: return length;
-        default: throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            case   TCKind._tk_string:
+            case   TCKind._tk_wstring:
+            case   TCKind._tk_sequence:
+            case   TCKind._tk_array:
+                return length;
+            default:
+                throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
 
@@ -772,11 +799,13 @@ public class TypeCode
     {
         switch( kind )
         {
-        case   TCKind._tk_array:
-        case   TCKind._tk_sequence:
-        case   TCKind._tk_alias:
-        case   TCKind._tk_value_box: return content_type;
-        default: throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            case   TCKind._tk_array:
+            case   TCKind._tk_sequence:
+            case   TCKind._tk_alias:
+            case   TCKind._tk_value_box:
+                return content_type;
+            default:
+                throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
     }
 
@@ -868,9 +897,13 @@ public class TypeCode
                org.omg.CORBA.TypeCodePackage.Bounds
     {
         if (kind != TCKind._tk_value)
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
         if (index < 0 || index >= member_count)
+        {
             throw new org.omg.CORBA.TypeCodePackage.Bounds();
+        }
 
         return member_visibility[index];
     }
@@ -879,7 +912,9 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind
     {
         if (kind != TCKind._tk_value)
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
 
         return value_modifier;
     }
@@ -888,7 +923,9 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind
     {
         if (kind != TCKind._tk_value)
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
 
         return content_type;
     }
@@ -913,13 +950,11 @@ public class TypeCode
                     {
                         return true;
                     }
-                    else
-                    {
-                        secondIteration = true;
-                        boolean result = actualTypecode.equivalent( jtc.actualTypecode );
-                        secondIteration = false;
-                        return result;
-                    }
+
+                    secondIteration = true;
+                    boolean result = actualTypecode.equivalent( jtc.actualTypecode );
+                    secondIteration = false;
+                    return result;
                 }
                 return tc.equivalent( actualTypecode );
             }
@@ -1081,24 +1116,15 @@ public class TypeCode
     /**
      * @return TRUE if the argument is a JacORB typecode and is recursive.
      */
-    public static boolean isRecursive(org.omg.CORBA.TypeCode tc)
+    public static boolean isRecursive(org.omg.CORBA.TypeCode typeCode)
     {
-        return (tc instanceof TypeCode) ? ((TypeCode)tc).is_recursive()
+        return (typeCode instanceof TypeCode) ? ((TypeCode)typeCode).is_recursive()
                                         : false;
     }
 
     /**
-     * called after replacing the placeholder
-     * to be able to break off recursion
+     * convenience method
      */
-
-    private void set_recursive()
-    {
-        recursive = true;
-    }
-
-    /** convenience method */
-
     public static String idlTypeName( org.omg.CORBA.TypeCode tc )
     {
         return (tc instanceof org.jacorb.orb.TypeCode)
@@ -1118,57 +1144,74 @@ public class TypeCode
 
        switch( kind().value() )
        {
-       case   TCKind._tk_objref:
-       case   TCKind._tk_struct:
-       case   TCKind._tk_union:
-       case   TCKind._tk_enum:
-       case   TCKind._tk_alias:
-       case   TCKind._tk_except:
-       case   TCKind._tk_native:
-       case   TCKind._tk_abstract_interface:
-       case   TCKind._tk_local_interface:
-          try
-          {
-             return  idToIDL(id());
-          }
-          catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-          {}
-       case   TCKind._tk_void: return "void";
-       case   TCKind._tk_string: return "string";
-       case   TCKind._tk_wstring: return "wstring";
-       case   TCKind._tk_array:
-          try
-          {
-             return idlTypeName(content_type()) + "[]";
-          } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-          {}
-       case   TCKind._tk_long: return "long";
-       case   TCKind._tk_ulong: return "ulong";
-       case   TCKind._tk_longlong: return "long long";
-       case   TCKind._tk_ulonglong: return "ulong long";
-       case   TCKind._tk_ushort: return "ushort";
-       case   TCKind._tk_short: return "short";
-       case   TCKind._tk_float: return "float";
-       case   TCKind._tk_double: return "double";
-       case   TCKind._tk_fixed:
-          try
-          {
-             return "fixed <" + fixed_digits() + "," + fixed_scale()  + ">";
-          }
-          catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-          {}
-       case   TCKind._tk_boolean: return "boolean";
-       case   TCKind._tk_octet: return "octet";
-       case   TCKind._tk_char: return "char";
-       case   TCKind._tk_wchar: return "wchar";
-       case   TCKind._tk_any: return "any";
-       case   TCKind._tk_sequence:
-          try
-          {
-             return "sequence <" + idlTypeName(content_type()) + ">";
-          } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-          {}
-       default: return "* no typeName for TK " + kind().value() + " *";
+           case   TCKind._tk_objref:
+           case   TCKind._tk_struct:
+           case   TCKind._tk_union:
+           case   TCKind._tk_enum:
+           case   TCKind._tk_alias:
+           case   TCKind._tk_except:
+           case   TCKind._tk_native:
+           case   TCKind._tk_abstract_interface:
+           case   TCKind._tk_local_interface:
+               try
+               {
+                   return  idToIDL(id());
+               }
+               catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+               {
+               }
+           case   TCKind._tk_void: return "void";
+           case   TCKind._tk_string: return "string";
+           case   TCKind._tk_wstring: return "wstring";
+           case   TCKind._tk_array:
+               try
+               {
+                   return idlTypeName(content_type()) + "[]";
+               }
+               catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+               {
+               }
+           case   TCKind._tk_long: return "long";
+           case   TCKind._tk_ulong: return "ulong";
+           case   TCKind._tk_longlong: return "long long";
+           case   TCKind._tk_ulonglong: return "ulong long";
+           case   TCKind._tk_ushort: return "ushort";
+           case   TCKind._tk_short: return "short";
+           case   TCKind._tk_float: return "float";
+           case   TCKind._tk_double: return "double";
+           case   TCKind._tk_fixed:
+           {
+               try
+               {
+                   return "fixed <" + fixed_digits() + "," + fixed_scale()  + ">";
+               }
+               catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+               {
+               }
+           }
+           case   TCKind._tk_boolean: return "boolean";
+           case   TCKind._tk_octet: return "octet";
+           case   TCKind._tk_char: return "char";
+           case   TCKind._tk_wchar:
+           {
+               return "wchar";
+           }
+           case   TCKind._tk_any:
+           {
+               return "any";
+           }
+           case   TCKind._tk_sequence:
+           {
+               try
+               {
+                   return "sequence <" + idlTypeName(content_type()) + ">";
+               }
+               catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+               {
+               }
+           }
+           default:
+               return "* no typeName for TK " + kind().value() + " *";
        }
     }
 
@@ -1204,9 +1247,9 @@ public class TypeCode
      * @return the content type if the argument is an alias, or the argument
      *         itself otherwise
      */
-    public static org.omg.CORBA.TypeCode originalType(org.omg.CORBA.TypeCode tc)
+    public static final org.omg.CORBA.TypeCode originalType(org.omg.CORBA.TypeCode typeCode)
     {
-        if (isRecursive(tc))
+        if (isRecursive(typeCode))
         {
             // Recursive typecodes must be structs or unions so there is no
             // unwinding of aliases to be done. By returning here we avoid
@@ -1214,22 +1257,22 @@ public class TypeCode
             // resolved yet. (If you remove the return statement below, you
             // will get org.omg.CORBA.BAD_INV_ORDER exceptions within kind()
             // calls on non-resolved recursive typecodes!)
-            return tc;
+            return typeCode;
         }
 
         try
         {
-            while (tc.kind() == org.omg.CORBA.TCKind.tk_alias
-                || tc.kind() == org.omg.CORBA.TCKind.tk_value_box)
+            while (typeCode.kind() == org.omg.CORBA.TCKind.tk_alias
+                || typeCode.kind() == org.omg.CORBA.TCKind.tk_value_box)
             {
-                tc = tc.content_type();
+                typeCode = typeCode.content_type();
             }
         }
         catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
         {
             // does not happen
         }
-        return tc;
+        return typeCode;
     }
 
     /**
@@ -1238,7 +1281,7 @@ public class TypeCode
      */
     public static TypeCode create_tc (Class clz)
     {
-        return create_tc (clz, new HashMap());
+        return create_tc(clz, new HashMap());
     }
 
     /**
@@ -1250,107 +1293,122 @@ public class TypeCode
      * created for it, then an entry for `clz' is also inserted into
      * `knownTypes'.
      */
-    private static TypeCode create_tc(Class clz, Map knownTypes)
+    private static TypeCode create_tc(Class clazz, Map knownTypes)
     {
-        if (clz.isPrimitive())
-            return (TypeCode)primitive_tcs_map.get(clz);
-        else if (knownTypes.containsKey(clz))
+        if (clazz.isPrimitive())
+        {
+            return (TypeCode)primitive_tcs_map.get(clazz);
+        }
+        else if (knownTypes.containsKey(clazz))
         {
             // recursive type code
-            TypeCode newTypeCode = new TypeCode(RepositoryID.repId(clz));
-            newTypeCode.setActualTC((TypeCode)knownTypes.get(clz));
+            TypeCode newTypeCode = new TypeCode(RepositoryID.repId(clazz));
+            newTypeCode.setActualTC((TypeCode)knownTypes.get(clazz));
             return newTypeCode;
         }
-        else if (clz.isArray())
+        else if (clazz.isArray())
         {
             // a Java array is mapped to a valuebox containing an IDL sequence
             TypeCode newTypeCode =
                 new TypeCode(TCKind._tk_value_box,
-                             RepositoryID.repId(clz),
+                             RepositoryID.repId(clazz),
                              "Java_array",
                              new TypeCode(TCKind._tk_sequence,
                                           0,
-                                          create_tc(clz.getComponentType(),
+                                          create_tc(clazz.getComponentType(),
                                                     knownTypes)));
-            knownTypes.put(clz, newTypeCode);
+            knownTypes.put(clazz, newTypeCode);
             return newTypeCode;
         }
-        else if (java.rmi.Remote.class.isAssignableFrom(clz))
-            return new TypeCode(TCKind._tk_objref, RepositoryID.repId(clz),
-                                clz.getName());
-        else if (org.omg.CORBA.portable.IDLEntity.class.isAssignableFrom(clz))
+        else if (java.rmi.Remote.class.isAssignableFrom(clazz))
+        {
+            return new TypeCode(TCKind._tk_objref, RepositoryID.repId(clazz),
+                                clazz.getName());
+        }
+        else if (org.omg.CORBA.portable.IDLEntity.class.isAssignableFrom(clazz))
         {
             // an IDL entity has a helper class with a static method type()
-            String helperClassName = clz.getName() + "Helper";
+            String helperClassName = clazz.getName() + "Helper";
             try
             {
-                Class helperClass =
-                    clz.getClassLoader().loadClass(helperClassName);
-                java.lang.reflect.Method typeMethod =
-                    helperClass.getMethod("type", (Class[]) null);
+                final ClassLoader classLoader = clazz.getClassLoader();
+                final Class helperClass;
+
+                if (classLoader == null)
+                {
+                    helperClass = Class.forName(helperClassName);
+                }
+                else
+                {
+                    helperClass = classLoader.loadClass(helperClassName);
+                }
+
+                Method typeMethod = helperClass.getMethod("type", (Class[]) null);
                 TypeCode newTypeCode =
                     (TypeCode)typeMethod.invoke(null, (Object[]) null);
-                knownTypes.put(clz, newTypeCode);
+                knownTypes.put(clazz, newTypeCode);
                 return newTypeCode;
             }
             catch (ClassNotFoundException e)
             {
-                throw new RuntimeException(
-                                    "Cannot create TypeCode for class " + clz
+                throw new IllegalArgumentException(
+                                    "Cannot create TypeCode for class " + clazz
                                     + "\nReason: Error loading helper class "
                                     + helperClassName
                                     + "\n" + e);
             }
             catch (NoSuchMethodException e)
             {
-                throw new RuntimeException(
-                            "Cannot create TypeCode for class: " + clz
+                throw new IllegalArgumentException(
+                            "Cannot create TypeCode for class: " + clazz
                             + "\nReason: no type() method in helper class "
                             + helperClassName + "\n" + e);
             }
             catch (IllegalAccessException e)
             {
-                throw new RuntimeException(
-                                    "Cannot create TypeCode for class: " + clz
+                throw new IllegalArgumentException(
+                                    "Cannot create TypeCode for class: " + clazz
                                     + "\n" + e);
             }
             catch (java.lang.reflect.InvocationTargetException e)
             {
-                throw new RuntimeException(
-                                    "Cannot create TypeCode for class: " + clz
+                throw new IllegalArgumentException(
+                                    "Cannot create TypeCode for class: " + clazz
                                     + "\nReason: exception in type() method\n "
                                     + e.getTargetException());
             }
         }
-        else if (clz == java.io.Serializable.class ||
-                 clz == java.io.Externalizable.class ||
-                 clz == java.lang.Object.class)
+        else if (clazz == java.io.Serializable.class ||
+                 clazz == java.io.Externalizable.class ||
+                 clazz == java.lang.Object.class)
         {
             // Each such Java type is mapped to an IDL typedef for an IDL any
             return (TypeCode)get_primitive_tc(TCKind._tk_any);
         }
-        else if (isMappedToAnAbstractInterface(clz))
+        else if (isMappedToAnAbstractInterface(clazz))
         {
             TypeCode newTypeCode = new TypeCode(TCKind._tk_abstract_interface,
-                                                RepositoryID.repId(clz),
-                                                clz.getName());
-            knownTypes.put(clz, newTypeCode);
+                                                RepositoryID.repId(clazz),
+                                                clazz.getName());
+            knownTypes.put(clazz, newTypeCode);
             return newTypeCode;
         }
         else // clz is mapped to a valuetype
         {
-            Class    superClass    = clz.getSuperclass();
+            Class    superClass    = clazz.getSuperclass();
             TypeCode superTypeCode = null;
             if (superClass != null && superClass != java.lang.Object.class)
+            {
                 superTypeCode = create_tc(superClass, knownTypes);
+            }
             TypeCode newTypeCode =
-                new TypeCode(RepositoryID.repId(clz),
-                             clz.getName(),
+                new TypeCode(RepositoryID.repId(clazz),
+                             clazz.getName(),
                              org.omg.CORBA.VM_NONE.value,
                              superTypeCode,
                              new ValueMember[0]);
-            knownTypes.put(clz, newTypeCode);
-            newTypeCode.setValueMembers(getValueMembers(clz, knownTypes));
+            knownTypes.put(clazz, newTypeCode);
+            newTypeCode.setValueMembers(getValueMembers(clazz, knownTypes));
             return newTypeCode;
         }
     }
@@ -1463,7 +1521,7 @@ public class TypeCode
       TypeCode tc;
       for (int i = 0; i < member_type.length; i++)
       {
-         typeCode = originalType (member_type[i]);
+         typeCode = TypeCode.originalType (member_type[i]);
          if (typeCode instanceof TypeCode)
          {
             tc = (TypeCode)typeCode;
