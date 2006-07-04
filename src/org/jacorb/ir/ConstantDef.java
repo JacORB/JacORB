@@ -176,7 +176,6 @@ public class ConstantDef
         try
         {
             value.insert_object(typeCode,
-                                orb,
                                 field.get(null) );
         }
         catch ( Exception e )
