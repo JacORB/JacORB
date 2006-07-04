@@ -88,6 +88,14 @@ public final class Any
         throw new BAD_OPERATION (cause);
     }
 
+    private void checkNull()
+    {
+        if (value == null)
+        {
+            throw new BAD_OPERATION("No value has previously been inserted");
+        }
+    }
+
     private void checkExtract(int value, String cause)
     {
        if (originalType().kind().value() != value)
@@ -108,6 +116,10 @@ public final class Any
             return false;
         }
 
+        // TODO
+        // as this was changed from orgininalType().kind().value()
+        // this is possibly an alias for a primitive
+        // type. could prohably be optimized?
         int kind = kind().value();
 
         switch (kind)
@@ -164,7 +176,7 @@ public final class Any
             }
             case TCKind._tk_Principal:  // 13
             {
-                throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
+                throw new org.omg.CORBA.NO_IMPLEMENT("Principal deprecated");
             }
             case TCKind._tk_objref:     // 14
             {
@@ -245,7 +257,9 @@ public final class Any
             //case TCKind._tk_abstract_interface:   // 32
             //case TCKind._tk_local_interface:      // 33
             default:
+            {
                 throw new BAD_TYPECODE("Cannot compare anys with TypeCode kind " + kind);
+            }
         }
     }
 
@@ -280,6 +294,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_short, "Cannot extract short");
 
+        checkNull();
+
         if (value instanceof Short)
         {
             return ((Short) value).shortValue();
@@ -291,10 +307,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_short();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -315,6 +327,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_ushort, "Cannot extract ushort");
 
+        checkNull();
+
         if (value instanceof Short)
         {
             return ((Short) value).shortValue();
@@ -322,10 +336,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_ushort();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -346,6 +356,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_long, "Cannot extract long");
 
+        checkNull();
+
         if (value instanceof Integer)
         {
             return ((Integer) value).intValue();
@@ -357,10 +369,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_long();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -381,6 +389,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_ulong, "Cannot extract ulong");
 
+        checkNull();
+
         if (value instanceof Integer)
         {
             return ((Integer) value).intValue();
@@ -388,10 +398,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_ulong();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -412,6 +418,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_longlong, "Cannot extract longlong");
 
+        checkNull();
+
         if (value instanceof Long)
         {
             return ((Long) value).longValue();
@@ -423,10 +431,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_longlong();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -447,6 +451,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_ulonglong, "Cannot extract ulonglong");
 
+        checkNull();
+
         if (value instanceof Long)
         {
             return ((Long) value).longValue();
@@ -454,10 +460,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_ulonglong();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -478,6 +480,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_float, "Cannot extract float");
 
+        checkNull();
+
         if (value instanceof Float)
         {
             return ((Float) value).floatValue();
@@ -489,10 +493,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_float();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -513,6 +513,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_double, "Cannot extract double");
 
+        checkNull();
+
         if (value instanceof Double)
         {
             return ((Double) value).doubleValue();
@@ -524,10 +526,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_double();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -554,6 +552,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_boolean, "Cannot extract boolean");
 
+        checkNull();
+
         if (value instanceof Boolean)
         {
             return ((Boolean) value).booleanValue();
@@ -565,10 +565,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_boolean();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -589,6 +585,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_char, "Cannot extract char");
 
+        checkNull();
+
         if (value instanceof Character)
         {
             return ((Character) value).charValue();
@@ -600,10 +598,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_char();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -622,6 +616,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_wchar, "Cannot extract wchar");
 
+        checkNull();
+
         if (value instanceof Character)
         {
             return ((Character) value).charValue();
@@ -629,10 +625,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_wchar();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -653,6 +645,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_octet, "Cannot extract octet");
 
+        checkNull();
+
         if (value instanceof Byte)
         {
             return ((Byte) value).byteValue();
@@ -664,10 +658,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_octet();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -688,6 +678,8 @@ public final class Any
     {
         checkExtract(TCKind._tk_any, "Cannot extract any");
 
+        checkNull();
+
         if (value instanceof Any)
         {
             return (Any) value;
@@ -699,10 +691,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_any();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -723,6 +711,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_TypeCode, "Cannot extract TypeCode");
 
+        checkNull();
+
         if (value instanceof TypeCode)
         {
             return (TypeCode) value;
@@ -734,10 +724,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_TypeCode();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -758,6 +744,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_string, "Cannot extract string");
 
+        checkNull();
+
         if (value instanceof String)
         {
             return (String) value;
@@ -769,10 +757,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_string();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -791,6 +775,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_wstring, "Cannot extract wstring");
 
+        checkNull();
+
         if (value instanceof String)
         {
             return (String) value;
@@ -802,10 +788,6 @@ public final class Any
         else if (value instanceof CDROutputStream)
         {
            return create_input_stream().read_wstring();
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else
         {
@@ -875,6 +857,8 @@ public final class Any
     {
         checkExtract (TCKind._tk_fixed, "Cannot extract fixed");
 
+        checkNull();
+
         if (value instanceof BigDecimal)
         {
             return (BigDecimal) value;
@@ -882,10 +866,6 @@ public final class Any
         else if (value instanceof FixedHolder)
         {
             return ((FixedHolder) value).value;
-        }
-        else if (value == null)
-        {
-            throw new BAD_OPERATION("No value has previously been inserted");
         }
         else if (value instanceof CDROutputStream)
         {
@@ -1514,21 +1494,7 @@ public final class Any
     public void insert_object(org.omg.CORBA.TypeCode typeCode,
                               java.lang.Object value)
     {
-        insert_object( typeCode, null, value );
-    }
-
-    /**
-     * Convenience method for making a shallow copy of an Any.
-     */
-    public void insert_object(org.omg.CORBA.TypeCode typeCode,
-                              org.omg.CORBA.ORB orb,
-                              java.lang.Object value)
-    {
         this.typeCode = typeCode;
-        if( orb != null )
-        {
-            this.orb = orb;
-        }
         this.value = value;
     }
 
