@@ -158,7 +158,7 @@ public final class ORB
     private RTORB rtORB;
 
     /* PolicyManagement */
-    private org.jacorb.orb.policies.PolicyManager policyManager = null;
+    private org.jacorb.orb.policies.PolicyManager policyManager;
 
     /* policy factories, from portable interceptor spec */
     private final Map policy_factories = Collections.synchronizedMap(new HashMap());
@@ -1236,7 +1236,7 @@ public final class ORB
         {
             if (policyManager == null)
             {
-                policyManager = new PolicyManager(this);
+                policyManager = new PolicyManager(this.getConfiguration());
             }
             return policyManager;
         }

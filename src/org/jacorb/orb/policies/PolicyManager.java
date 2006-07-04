@@ -20,6 +20,7 @@ package org.jacorb.orb.policies;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.config.Configuration;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA._PolicyManagerLocalBase;
 
@@ -45,7 +46,6 @@ import java.util.*;
 public class PolicyManager
     extends _PolicyManagerLocalBase
 {
-    private final org.jacorb.orb.ORB orb;
     private final Map policy_overrides;
     private final Logger logger ;
 
@@ -53,11 +53,12 @@ public class PolicyManager
      * public c'tor
      */
 
-    public PolicyManager(org.jacorb.orb.ORB orb)
+    public PolicyManager(Configuration config)
     {
-        this.orb = orb;
+        super();
+
         policy_overrides = new HashMap();
-        logger = orb.getConfiguration().getNamedLogger("jacorb.orb.policies");
+        this.logger = config.getNamedLogger("jacorb.orb.policies");
     }
 
     /**
