@@ -35,6 +35,7 @@ public class AllTest extends TestCase
 
         suite.addTest (org.jacorb.test.orb.policies.SyncScopeTest.suite());
         suite.addTest (org.jacorb.test.orb.policies.TimingTest.suite());
+        suite.addTestSuite(PolicyManagerTest.class);
 
         return suite;
    }
