@@ -102,39 +102,7 @@ public class TimingTest extends CallbackTestCase
         // to make them succeed on a fast machine where the Java
         // clock has only millisecond resolution
 
-        suite.addTest (new TimingTest ("test_sync_no_timing", setup));
-        suite.addTest (new TimingTest ("test_async_no_timing", setup));
-
-        suite.addTest (new TimingTest ("test_all_policies_sync_ok", setup));
-
-        suite.addTest (new TimingTest ("test_request_start_time_sync_expired", setup));
-        suite.addTest (new TimingTest ("test_request_start_time_sync_wait", setup));
-
-        suite.addTest (new TimingTest ("test_request_end_time_sync_ok", setup));
-        suite.addTest (new TimingTest ("test_request_end_time_sync_pre_expired", setup));
-        suite.addTest (new TimingTest ("test_request_end_time_async_pre_expired", setup));
-        //suite.addTest (new TimingTest ("test_request_end_time_sync_expired", setup));
-
-        suite.addTest (new TimingTest ("test_request_timeout_sync_ok", setup));
-        //suite.addTest (new TimingTest ("test_request_timeout_sync_expired", setup));
-        //suite.addTest (new TimingTest ("test_request_timeout_async_expired", setup));
-
-        suite.addTest (new TimingTest ("test_reply_start_time_sync_expired", setup));
-        suite.addTest (new TimingTest ("test_reply_start_time_sync_wait", setup));
-        suite.addTest (new TimingTest ("test_reply_start_time_async_expired", setup));
-        suite.addTest (new TimingTest ("test_reply_start_time_async_wait", setup));
-
-        suite.addTest (new TimingTest ("test_reply_end_time_sync_ok", setup));
-        suite.addTest (new TimingTest ("test_reply_end_time_sync_pre_expired", setup));
-        suite.addTest (new TimingTest ("test_reply_end_time_sync_expired", setup));
-        suite.addTest (new TimingTest ("test_reply_end_time_async_ok", setup));
-        //suite.addTest (new TimingTest ("test_reply_end_time_async_pre_expired", setup));
-        suite.addTest (new TimingTest ("test_reply_end_time_async_expired", setup));
-
-        suite.addTest (new TimingTest ("test_relative_roundtrip_sync_ok", setup));
-        suite.addTest (new TimingTest ("test_relative_roundtrip_sync_expired", setup));
-        suite.addTest (new TimingTest ("test_relative_roundtrip_async_ok", setup));
-        suite.addTest (new TimingTest ("test_relative_roundtrip_async_expired", setup));
+        TestUtils.addToSuite(suite, setup, TimingTest.class);
 
         return setup;
     }
@@ -143,7 +111,7 @@ public class TimingTest extends CallbackTestCase
      * Do a few synchronous invocations as a sanity check
      * and to get all the necessary classes loaded.
      */
-    public void test_sync_no_timing()
+    public void test_sync_no_timing() throws Exception
     {
         int result = server.operation (1, 0);
         assertEquals (1, result);
@@ -156,7 +124,7 @@ public class TimingTest extends CallbackTestCase
 
         try
         {
-            char ch = server.ex_op('e', 50);
+            server.ex_op('e', 50);
             fail ("should have raised EmptyException");
         }
         catch (EmptyException ex)
@@ -166,18 +134,13 @@ public class TimingTest extends CallbackTestCase
 
         try
         {
-            char ch = server.ex_op('$', 50);
+            server.ex_op('$', 50);
             fail ("should have raised DATA_CONVERSION");
-        }
-        catch (EmptyException ex)
-        {
-            fail ("unexpected exception: " + ex);
         }
         catch (org.omg.CORBA.DATA_CONVERSION ex)
         {
             // ok
         }
-
     }
 
     /**
@@ -248,11 +211,13 @@ public class TimingTest extends CallbackTestCase
         clearPolicies (server);
         long start = System.currentTimeMillis();
         setRequestStartTime (server, start);
-        long result = server.server_time (10);
+        server.server_time (10);
 
         long delta = System.currentTimeMillis() - start;
         if (delta > 200)
+        {
             fail ("reply too late (" + delta + "ms)");
+        }
     }
 
     /**
@@ -268,27 +233,24 @@ public class TimingTest extends CallbackTestCase
 
         long delta = time - start;
         if (delta < 200)
+        {
             fail ("request started too early (" + delta + "ms)");
+        }
         else if (delta > 250)
+        {
             fail ("request started too late (" + delta + "ms)");
+        }
     }
 
     /**
      * Sets a RequestEndTime which will
      * be met by the invocation.
      */
-    public void test_request_end_time_sync_ok()
+    public void test_request_end_time_sync_ok() throws Exception
     {
         clearPolicies (server);
         setRequestEndTime (server, System.currentTimeMillis() + 400);
-        try
-        {
-            int result = server.operation (434, 500);
-        }
-        catch (org.omg.CORBA.TIMEOUT t)
-        {
-            fail ("should not have been a TIMEOUT");
-        }
+        server.operation (434, 500);
     }
 
     /**
@@ -301,7 +263,7 @@ public class TimingTest extends CallbackTestCase
         setRequestEndTime (server, System.currentTimeMillis() - 200);
         try
         {
-            int result = server.operation (121, 50);
+            server.operation (121, 50);
             fail ("should have been a TIMEOUT");
         }
         catch (org.omg.CORBA.TIMEOUT t)
@@ -333,13 +295,13 @@ public class TimingTest extends CallbackTestCase
     /**
      * Sets a RequestEndTime which will expire during the invocation.
      */
-    public void test_request_end_time_sync_expired()
+    public void _test_request_end_time_sync_expired()
     {
         clearPolicies (server);
         setRequestEndTime (server, System.currentTimeMillis() + 2);
         try
         {
-            int result = server.operation (121, 50);
+            server.operation (121, 50);
             fail ("should have been a TIMEOUT");
         }
         catch (org.omg.CORBA.TIMEOUT t)
@@ -359,7 +321,7 @@ public class TimingTest extends CallbackTestCase
         setRelativeRequestTimeout (server, 200);
         try
         {
-            int result = server.operation (434, 300);
+            server.operation (434, 300);
         }
         catch (org.omg.CORBA.TIMEOUT t)
         {
@@ -370,13 +332,13 @@ public class TimingTest extends CallbackTestCase
     /**
      * Sets a RelativeRequestTimeout which will expire during the invocation.
      */
-    public void test_request_timeout_sync_expired()
+    public void _test_request_timeout_sync_expired()
     {
         clearPolicies (server);
         setRelativeRequestTimeout (server, 1);
         try
         {
-            int result = server.operation (121, 50);
+            server.operation (121, 50);
             fail ("should have been a TIMEOUT");
         }
         catch (org.omg.CORBA.TIMEOUT t)
@@ -389,7 +351,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RelativeRequestTimeout which will
      * expire during the invocation.
      */
-    public void test_request_timeout_async_expired()
+    public void _test_request_timeout_async_expired()
     {
         ReplyHandler handler = new ReplyHandler()
         {
@@ -421,11 +383,13 @@ public class TimingTest extends CallbackTestCase
         clearPolicies (server);
         long start = System.currentTimeMillis();
         setReplyStartTime (server, start);
-        int result = server.operation (18, 10);
+        server.operation (18, 10);
 
         long delta = System.currentTimeMillis() - start;
         if (delta > 200)
+        {
             fail ("reply too late (" + delta + "ms)");
+        }
     }
 
     /**
@@ -442,9 +406,13 @@ public class TimingTest extends CallbackTestCase
 
         long delta = System.currentTimeMillis() - start;
         if (delta < 200)
+        {
             fail ("reply too early (" + delta + "ms)");
+        }
         else if (delta > 250)
+        {
             fail ("reply too late (" + delta + "ms)");
+        }
     }
 
     /**
@@ -470,7 +438,9 @@ public class TimingTest extends CallbackTestCase
 
         long delta = System.currentTimeMillis() - start;
         if (delta > 150)
+        {
             fail ("reply too late (" + delta + "ms)");
+        }
     }
 
     /**
@@ -496,7 +466,9 @@ public class TimingTest extends CallbackTestCase
 
         long delta = System.currentTimeMillis() - start;
         if (delta < 200)
+        {
             fail ("reply too early (" + delta + "ms)");
+        }
     }
 
     /**
@@ -518,7 +490,6 @@ public class TimingTest extends CallbackTestCase
         setReplyEndTime (server, System.currentTimeMillis() + 200);
         ((_TimingServerStub)server).sendc_operation (ref (handler), 765, 50);
         handler.wait_for_reply (150);
-
     }
 
 
@@ -557,14 +528,7 @@ public class TimingTest extends CallbackTestCase
     {
         clearPolicies (server);
         setReplyEndTime (server, System.currentTimeMillis() + 200);
-        try
-        {
-            int result = server.operation (434, 50);
-        }
-        catch (org.omg.CORBA.TIMEOUT t)
-        {
-            fail ("should not have been a TIMEOUT");
-        }
+        server.operation (434, 50);
     }
 
     /**
@@ -576,7 +540,7 @@ public class TimingTest extends CallbackTestCase
         setReplyEndTime (server, System.currentTimeMillis() - 100);
         try
         {
-            int result = server.operation (44, 100);
+            server.operation (44, 100);
             fail ("should have raised TIMEOUT");
         }
         catch (org.omg.CORBA.TIMEOUT t)
@@ -595,7 +559,7 @@ public class TimingTest extends CallbackTestCase
         setReplyEndTime (server, System.currentTimeMillis() + 200);
         try
         {
-            int result = server.operation (343, 300);
+            server.operation (343, 300);
             fail ("should have raised TIMEOUT");
         }
         catch (org.omg.CORBA.TIMEOUT t)
@@ -613,14 +577,7 @@ public class TimingTest extends CallbackTestCase
     {
         clearPolicies (server);
         setRelativeRoundtripTimeout (server, 200);
-        try
-        {
-            int result = server.operation (434, 50);
-        }
-        catch (org.omg.CORBA.TIMEOUT t)
-        {
-            fail ("should not have been a TIMEOUT");
-        }
+        server.operation (434, 50);
     }
 
     /**
@@ -633,7 +590,7 @@ public class TimingTest extends CallbackTestCase
         setRelativeRoundtripTimeout (server, 200);
         try
         {
-            int result = server.operation (343, 300);
+            server.operation (343, 300);
             fail ("should have raised TIMEOUT");
         }
         catch (org.omg.CORBA.TIMEOUT t)
@@ -661,7 +618,6 @@ public class TimingTest extends CallbackTestCase
         setRelativeRoundtripTimeout (server, 200);
         ((_TimingServerStub)server).sendc_operation (ref (handler), 765, 50);
         handler.wait_for_reply (150);
-
     }
 
     /**
@@ -690,6 +646,33 @@ public class TimingTest extends CallbackTestCase
         ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 100);
         handler.wait_for_reply (200);
     }
+
+    /**
+     * Test multiple combined policies.
+     * Sets a Request- and ReplyStartTime which will not have been
+     * reached. Server needs to wait for both policies.
+     */
+    public void test_request_reply_start_time_sync_wait()
+    {
+        clearPolicies (server);
+        long start = System.currentTimeMillis();
+        setRequestStartTime(server, start + 200);
+        setReplyStartTime(server, start + 600);
+        long serverStart = server.server_time(200);
+        long rtTime = System.currentTimeMillis() - start;
+
+        //System.err.println("Server started after: " + (serverStart-start));
+        //System.err.println("Relpy returned after: " + (rtTime));
+
+        // check server starts immedeatelly
+        assertTrue(serverStart >= start + 200);
+        assertTrue(serverStart <= start  + 200 + 50); // 50 ms latency
+
+        // check roundtrip time takes 100 ms
+        assertTrue(rtTime >= 600);
+        assertTrue(rtTime <= 600 + 50); // 50 ms latency
+    }
+
 
     // convenience methods for policy manipulation
 
@@ -820,5 +803,4 @@ public class TimingTest extends CallbackTestCase
             throw new RuntimeException ("policy error: " + e);
         }
     }
-
 }
