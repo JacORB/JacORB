@@ -1,0 +1,7 @@
+#pragma prefix "omg.org"
+
+module CORBA{
+    //forward decl breaks handling of type TypeCode
+    pseudo interface TypeCode;
+    pseudo interface TypeCode{};
+};

@@ -82,6 +82,7 @@
         - fixes for line number output and error messages from compiler.
         - Use any speed accessors like insert_long/extract_long in Helper
           classes for aliased basetypes.
+        - fixed invalid handling of forward decl of CORBA::TypeCode
     - Tools:
         - Updated 'dior' utility to decode realtime policies.
     - Security:
@@ -90,6 +91,7 @@
     - Documentation:
         - Added chapter on threads to Programming Guide.
         - Enhanced logging documentation.
+        - enhanced description of configuration properties.
 2.2.5
 =====
     - Documentation

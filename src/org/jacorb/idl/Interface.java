@@ -305,7 +305,9 @@ public class Interface
 
                 // else actual definition
 
-                if (!full_name().equals("org.omg.CORBA.TypeCode") && body != null)
+                if ((!(full_name().equals("CORBA.TypeCode") ||
+                        full_name().equals("org.omg.CORBA.TypeCode")))&&
+                     body != null)
                 {
                     TypeMap.replaceForwardDeclaration(full_name(), ctspec);
                 }
@@ -323,7 +325,7 @@ public class Interface
                 if (logger.isDebugEnabled())
                     logger.debug("Checking inheritanceSpec of " + full_name());
 
-                Hashtable h = new Hashtable();
+                HashSet h = new HashSet();
 
                 for (Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements();)
                 {
@@ -333,7 +335,7 @@ public class Interface
 
                     if (ts.declaration() instanceof Interface)
                     {
-                        if (h.containsKey(ts.full_name()))
+                        if (h.contains(ts.full_name()))
                         {
                             parser.fatal_error("Illegal inheritance spec: " +
                                                inheritanceSpec +
@@ -342,7 +344,7 @@ public class Interface
                         }
 
                         // else:
-                        h.put(ts.full_name(), "");
+                        h.add(ts.full_name());
 
                         continue;
                     }

@@ -1,0 +1,13 @@
+#include "bugJac285-1.idl"
+
+module org{
+    module jacorb{
+        module test{
+            module idl{
+                union AUnion switch(long){
+                    case 1:  CORBA::TypeCode  e_TypeCode;
+                };
+            };
+        };
+    };
+};
