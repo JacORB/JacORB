@@ -32,6 +32,7 @@ import org.jacorb.util.ObjectUtil;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.TCKind;
@@ -191,6 +192,8 @@ public class CDROutputStream
         public DeferredWriteFrame( int write_pos, int start,
                                    int length, byte[] buf )
         {
+            super();
+
             this.write_pos = write_pos;
             this.start = start;
             this.length = length;
@@ -208,6 +211,7 @@ public class CDROutputStream
 
     public CDROutputStream()
     {
+        super();
         bufMgr = BufferManager.getInstance(); // the BufferManager will be configured by now!
         buffer = bufMgr.getPreferredMemoryBuffer();
     }
@@ -236,6 +240,8 @@ public class CDROutputStream
 
     public CDROutputStream(final byte[] buf)
     {
+        super();
+
         bufMgr = BufferManager.getInstance();
         buffer = buf;
     }
@@ -484,11 +490,9 @@ public class CDROutputStream
 
     private final void check(final int i)
     {
-        byte [] new_buf;
-
         if (buffer == null || (pos + i + 2) > buffer.length)
         {
-            new_buf = bufMgr.getBuffer( pos+i+2, true);
+            final byte[] new_buf = bufMgr.getBuffer( pos+i+2, true);
 
             if (buffer != null)
             {
@@ -498,7 +502,6 @@ public class CDROutputStream
             bufMgr.returnBuffer (buffer, true);
 
             buffer = new_buf;
-            new_buf = null;
         }
     }
 
@@ -617,16 +620,16 @@ public class CDROutputStream
 
     public byte[] getBufferCopy()
     {
-        ByteArrayOutputStream bos =
+        final ByteArrayOutputStream bos =
             new ByteArrayOutputStream(size());
 
         try
         {
             write( bos, 0, size());
         }
-        catch( IOException io )
+        catch( IOException e )
         {
-            //            Debug.output(1, io );
+            throw new INTERNAL("should not happen: " + e.toString());
         }
 
         return bos.toByteArray();
@@ -1240,7 +1243,6 @@ public class CDROutputStream
 
     public void write_Object(final org.omg.CORBA.Object value)
     {
-
         if( value == null )
         {
             IORHelper.write(this, null_ior );
@@ -1248,7 +1250,9 @@ public class CDROutputStream
         else
         {
             if( value instanceof org.omg.CORBA.LocalObject )
+            {
                 throw new MARSHAL("Attempt to serialize a locality-constrained object.");
+            }
             org.omg.CORBA.portable.ObjectImpl obj =
                 (org.omg.CORBA.portable.ObjectImpl)value;
             IORHelper.write(this, ((Delegate)obj._get_delegate()).getIOR()  );
@@ -1345,44 +1349,102 @@ public class CDROutputStream
         }
     }
 
-    public final void write_TypeCode (org.omg.CORBA.TypeCode value)
+    public final void write_TypeCode (org.omg.CORBA.TypeCode typeCode)
     {
-        String   id                   = null;
-        org.omg.CORBA.TypeCode cached = null;
-
-        try
+        if (compactTypeCodes > 0)
         {
-            // Get the id for this typecode.
-            id = value.id();
-        }
-        catch (BadKind e)
-        {
-            // Masking on purpose as only determining whether to cache here.
-        }
+            final String id;
+            try
+            {
+                switch (typeCode.kind().value())
+                {
+                    case TCKind._tk_objref:   //14
+                    case TCKind._tk_struct:   //15
+                    case TCKind._tk_union:    //16
+                    case TCKind._tk_enum:     //17
+                    {
+                        id = typeCode.id();
+                        break;
+                    }
+                    case TCKind._tk_string:   //18
+                    case TCKind._tk_sequence: //19
+                    case TCKind._tk_array:    //20
+                    {
+                        id = null;
+                        break; //dummy cases for optimized switch
+                    }
+                    case TCKind._tk_alias:    //21
+                    case TCKind._tk_except:   //22
+                    {
+                        id = typeCode.id();
+                        break;
+                    }
+                    case TCKind._tk_longlong:  // 23
+                    case TCKind._tk_ulonglong: // 24
+                    case TCKind._tk_longdouble:// 25
+                    case TCKind._tk_wchar:     // 26
+                    case TCKind._tk_wstring:   // 27
+                    case TCKind._tk_fixed:     // 28
+                    {
+                        id = null;
+                        break; //dummy cases for optimized switch
+                    }
+                    case TCKind._tk_value:     // 29
+                    case TCKind._tk_value_box: // 30
+                    {
+                        id = typeCode.id();
+                        break;
+                    }
+                    case TCKind._tk_native:    // 31
+                    {
+                        id = null;
+                        break; //dummy cases for optimized switch
+                    }
+                    case TCKind._tk_abstract_interface: //32
+                    case TCKind._tk_local_interface:    //33
+                    {
+                        id = typeCode.id();
+                        break;
+                    }
+                    default:
+                    {
+                        id = null;
+                        break; //TC has no id
+                    }
+                }
+            }
+            catch(org.omg.CORBA.TypeCodePackage.BadKind e)
+            {
+                throw new INTERNAL("should never happen");
+            }
 
-        if (compactTypeCodes > 0 && id != null)
-        {
-            if (cachedTypecodes == null)
+            if (id != null)
             {
-                cachedTypecodes = new HashMap();
-            }
-            else
-            {
-                // We may previously have already compacted and cached this
-                // typecode.
-                cached = (org.omg.CORBA.TypeCode)cachedTypecodes.get(id);
-            }
+                final org.omg.CORBA.TypeCode cached;
 
-            // If we don't have a cached value get the compact form and
-            // cache it.
-            if (cached == null)
-            {
-                value = value.get_compact_typecode();
-                cachedTypecodes.put (id, value);
-            }
-            else
-            {
-                value = cached;
+                if (cachedTypecodes == null)
+                {
+                    cachedTypecodes = new HashMap();
+                    cached = null;
+                }
+                else
+                {
+                    // We may previously have already compacted and cached this
+                    // typecode.
+                    cached = (org.omg.CORBA.TypeCode)cachedTypecodes.get(id);
+                }
+
+                // If we don't have a cached value get the compact form and
+                // cache it.
+                if (cached == null)
+                {
+                    typeCode = typeCode.get_compact_typecode();
+                    cachedTypecodes.put(id, typeCode);
+                }
+                else
+                {
+                    typeCode = cached;
+                }
             }
         }
 
@@ -1398,7 +1460,7 @@ public class CDROutputStream
 
         try
         {
-            write_TypeCode(value, recursiveTCMap, repeatedTCMap);
+            write_TypeCode(typeCode, recursiveTCMap, repeatedTCMap);
         }
         finally
         {
@@ -1890,139 +1952,116 @@ public class CDROutputStream
      * InputStream <code>in</code> and remarshals it to this CDROutputStream.
      * Called from Any.
      */
-    public final void write_value ( final org.omg.CORBA.TypeCode tc,
-                                    final org.omg.CORBA.portable.InputStream in )
+    public final void write_value ( final org.omg.CORBA.TypeCode typeCode,
+                                    final org.omg.CORBA.portable.InputStream input )
     {
-        if (tc == null)
+        if (typeCode == null)
         {
             throw new BAD_PARAM("TypeCode is null");
         }
 
-        int kind = tc.kind().value();
+        int kind = typeCode.kind().value();
 
         try
         {
             switch (kind)
             {
-                case TCKind._tk_null:
-                case TCKind._tk_void:
-                break;
-                case TCKind._tk_boolean:
-                write_boolean( in.read_boolean());
-                break;
-                case TCKind._tk_char:
-                write_char( in.read_char());
-                break;
-                case TCKind._tk_wchar:
-                write_wchar( in.read_wchar());
-                break;
-                case TCKind._tk_octet:
-                write_octet( in.read_octet());
-                break;
-                case TCKind._tk_short:
-                write_short( in.read_short());
-                break;
-                case TCKind._tk_ushort:
-                write_ushort(in.read_ushort());
-                break;
-                case TCKind._tk_long:
-                write_long( in.read_long());
-                break;
-                case TCKind._tk_ulong:
-                write_ulong( in.read_ulong());
-                break;
-                case TCKind._tk_float:
-                write_float( in.read_float());
-                break;
-                case TCKind._tk_double:
-                write_double(in.read_double());
-                break;
-                case TCKind._tk_longlong:
-                write_longlong(in.read_longlong());
-                break;
-                case TCKind._tk_ulonglong:
-                write_ulonglong( in.read_ulonglong());
-                break;
-                case TCKind._tk_any:
-                write_any( in.read_any());
-                break;
-                case TCKind._tk_TypeCode:
-                write_TypeCode(in.read_TypeCode());
-                break;
-                case TCKind._tk_Principal:
-                throw new NO_IMPLEMENT ("Principal deprecated");
-                case TCKind._tk_objref:
-                write_Object( in.read_Object());
-                break;
-                case TCKind._tk_string:
-                write_string( in.read_string());
-                break;
-                case TCKind._tk_wstring:
-                write_wstring( in.read_wstring());
-                break;
-                case TCKind._tk_fixed:
-                write_fixed (in.read_fixed());
-                break;
-                case TCKind._tk_array:
+                case TCKind._tk_null:   // 0
+                    // fallthrough
+                case TCKind._tk_void:       // 1
                 {
-                    int length = tc.length();
-                    if( tc.content_type().kind().value() == TCKind._tk_octet )
+                    break;
+                }
+                case TCKind._tk_short:      // 2
+                {
+                    write_short( input.read_short());
+                    break;
+                }
+                case TCKind._tk_long:       // 3
+                {
+                    write_long( input.read_long());
+                    break;
+                }
+                case TCKind._tk_ushort:     // 4
+                {
+                    write_ushort(input.read_ushort());
+                    break;
+                }
+                case TCKind._tk_ulong:      // 5
+                {
+                    write_ulong( input.read_ulong());
+                    break;
+                }
+                case TCKind._tk_float:      // 6
+                {
+                    write_float( input.read_float());
+                    break;
+                }
+                case TCKind._tk_double:     // 7
+                {
+                    write_double(input.read_double());
+                    break;
+                }
+                case TCKind._tk_boolean:    // 8
+                {
+                    write_boolean( input.read_boolean());
+                    break;
+                }
+                case TCKind._tk_char:       // 9
+                {
+                    write_char( input.read_char());
+                    break;
+                }
+                case TCKind._tk_octet:      // 10
+                {
+                    write_octet( input.read_octet());
+                    break;
+                }
+                case TCKind._tk_any:        // 11
+                {
+                    write_any( input.read_any());
+                    break;
+                }
+                case TCKind._tk_TypeCode:   // 12
+                {
+                    write_TypeCode(input.read_TypeCode());
+                    break;
+                }
+                case TCKind._tk_Principal:  // 13
+                {
+                    throw new NO_IMPLEMENT ("Principal deprecated");
+                }
+                case TCKind._tk_objref:     // 14
+                {
+                    write_Object( input.read_Object());
+                    break;
+                }
+                case TCKind._tk_struct:     // 15
+                {
+                    for( int i = 0; i < typeCode.member_count(); i++)
                     {
-                        check( length );
-                        in.read_octet_array( buffer, pos, length);
-                        index+= length;
-                        pos += length;
-                    }
-                    else
-                    {
-                        for( int i = 0; i < length; i++ )
-                            write_value( tc.content_type(), in );
+                        write_value( typeCode.member_type(i), input );
                     }
                     break;
                 }
-                case TCKind._tk_sequence:
+                case TCKind._tk_union:      // 16
                 {
-                    int len = in.read_long();
-                    write_long(len);
-
-                    org.omg.CORBA.TypeCode content_tc = tc.content_type();
-                    for( int i = 0; i < len; i++ )
-                        write_value(  content_tc, in );
-
-                    break;
-                }
-                case TCKind._tk_except:
-                write_string( in.read_string());
-                // don't break, fall through to ...
-                case TCKind._tk_struct:
-                {
-                    for( int i = 0; i < tc.member_count(); i++)
-                        write_value( tc.member_type(i), in );
-                    break;
-                }
-                case TCKind._tk_enum:
-                {
-                    write_long( in.read_long() );
-                    break;
-                }
-                case TCKind._tk_union:
-                {
-                    org.omg.CORBA.TypeCode disc = tc.discriminator_type();
+                    org.omg.CORBA.TypeCode disc = typeCode.discriminator_type();
                     disc = TypeCode.originalType(disc);
-                    int def_idx = tc.default_index();
+                    int def_idx = typeCode.default_index();
                     int member_idx = -1;
 
                     switch( disc.kind().value() )
                     {
-                        case TCKind._tk_short:
+                        case TCKind._tk_short:      // 2
                         {
-                            short s = in.read_short();
+                            short s = input.read_short();
                             write_short(s);
-                            for(int i = 0 ; i < tc.member_count() ; i++)
+                            for(int i = 0 ; i < typeCode.member_count() ; i++)
                             {
                                 if(i != def_idx)
                                 {
-                                    if(s == tc.member_label(i).extract_short())
+                                    if(s == typeCode.member_label(i).extract_short())
                                     {
                                         member_idx = i;
                                         break;
@@ -2031,15 +2070,32 @@ public class CDROutputStream
                             }
                             break;
                         }
-                        case TCKind._tk_ushort:
+                        case TCKind._tk_long:       // 3
                         {
-                            short s = in.read_ushort();
+                            int s = input.read_long();
+                            write_long(s);
+                            for(int i = 0 ; i < typeCode.member_count() ; i++)
+                            {
+                                if(i != def_idx)
+                                {
+                                    if(s == typeCode.member_label(i).extract_long())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        case TCKind._tk_ushort:     // 4
+                        {
+                            short s = input.read_ushort();
                             write_ushort(s);
-                            for(int i = 0 ; i < tc.member_count() ; i++)
+                            for(int i = 0 ; i < typeCode.member_count() ; i++)
                             {
                                 if(i != def_idx)
                                 {
-                                    if(s == tc.member_label(i).extract_ushort())
+                                    if(s == typeCode.member_label(i).extract_ushort())
                                     {
                                         member_idx = i;
                                         break;
@@ -2048,32 +2104,15 @@ public class CDROutputStream
                             }
                             break;
                         }
-                        case TCKind._tk_long:
+                        case TCKind._tk_ulong:      // 5
                         {
-                            int s = in.read_long();
-                            write_long(s);
-                            for(int i = 0 ; i < tc.member_count() ; i++)
-                            {
-                                if(i != def_idx)
-                                {
-                                    if(s == tc.member_label(i).extract_long())
-                                    {
-                                        member_idx = i;
-                                        break;
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                        case TCKind._tk_ulong:
-                        {
-                            int s = in.read_ulong();
+                            int s = input.read_ulong();
                             write_ulong(s);
-                            for(int i = 0 ; i < tc.member_count() ; i++)
+                            for(int i = 0 ; i < typeCode.member_count() ; i++)
                             {
                                 if(i != def_idx)
                                 {
-                                    if(s == tc.member_label(i).extract_ulong())
+                                    if(s == typeCode.member_label(i).extract_ulong())
                                     {
                                         member_idx = i;
                                         break;
@@ -2082,49 +2121,22 @@ public class CDROutputStream
                             }
                             break;
                         }
-                        case TCKind._tk_longlong:
+                        case TCKind._tk_float:      // 6
+                            // fallthrough
+                        case TCKind._tk_double:     // 7
                         {
-                            long s = in.read_longlong();
-                            write_longlong(s);
-                            for(int i = 0 ; i < tc.member_count() ; i++)
-                            {
-                                if(i != def_idx)
-                                {
-                                    if(s == tc.member_label(i).extract_longlong())
-                                    {
-                                        member_idx = i;
-                                        break;
-                                    }
-                                }
-                            }
-                            break;
+                            throw new MARSHAL(
+                                "Invalid union discriminator type: " + disc);
                         }
-                        case TCKind._tk_ulonglong:
+                        case TCKind._tk_boolean:    // 8
                         {
-                            long s = in.read_ulonglong();
-                            write_ulonglong(s);
-                            for(int i = 0 ; i < tc.member_count() ; i++)
-                            {
-                                if(i != def_idx)
-                                {
-                                    if(s == tc.member_label(i).extract_ulonglong())
-                                    {
-                                        member_idx = i;
-                                        break;
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                        case TCKind._tk_boolean:
-                        {
-                            boolean s = in.read_boolean();
+                            boolean s = input.read_boolean();
                             write_boolean(s);
-                            for(int i = 0 ; i < tc.member_count() ; i++)
+                            for(int i = 0 ; i < typeCode.member_count() ; i++)
                             {
                                 if(i != def_idx)
                                 {
-                                    if(s == tc.member_label(i).extract_boolean())
+                                    if(s == typeCode.member_label(i).extract_boolean())
                                     {
                                         member_idx = i;
                                         break;
@@ -2133,16 +2145,44 @@ public class CDROutputStream
                             }
                             break;
                         }
-                        case TCKind._tk_enum:
+                        case TCKind._tk_char:       // 9
                         {
-                            int s = in.read_long();
+                            char s = input.read_char();
+                            write_char(s);
+                            for(int i = 0 ; i < typeCode.member_count() ; i++)
+                            {
+                                if(i != def_idx)
+                                {
+                                    if(s == typeCode.member_label(i).extract_char())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        case TCKind._tk_octet:      // 10
+                        case TCKind._tk_any:        // 11
+                        case TCKind._tk_TypeCode:   // 12
+                        case TCKind._tk_Principal:  // 13
+                        case TCKind._tk_objref:     // 14
+                        case TCKind._tk_struct:     // 15
+                        case TCKind._tk_union:      // 16
+                        {
+                            throw new MARSHAL(
+                                "Invalid union discriminator type: " + disc);
+                        }
+                        case TCKind._tk_enum:       // 17
+                        {
+                            int s = input.read_long();
                             write_long(s);
-                            for( int i = 0 ; i < tc.member_count(); i++ )
+                            for( int i = 0 ; i < typeCode.member_count(); i++ )
                             {
                                 if( i != def_idx)
                                 {
                                     int label =
-                                    tc.member_label(i).create_input_stream().read_long();
+                                    typeCode.member_label(i).create_input_stream().read_long();
                                     /*  we  have to  use  the any's  input
                                         stream   because   enums  are   not
                                         inserted as longs */
@@ -2156,15 +2196,41 @@ public class CDROutputStream
                             }
                             break;
                         }
-                        case TCKind._tk_char:
+                        case TCKind._tk_string:     // 18
+                        case TCKind._tk_sequence:   // 19
+                        case TCKind._tk_array:      // 20
+                        case TCKind._tk_alias:      // 21
+                        case TCKind._tk_except:     // 22
                         {
-                            char s = in.read_char();
-                            write_char(s);
-                            for(int i = 0 ; i < tc.member_count() ; i++)
+                            throw new MARSHAL(
+                                "Invalid union discriminator type: " + disc);
+                        }
+                        case TCKind._tk_longlong:   // 23
+                        {
+                            long s = input.read_longlong();
+                            write_longlong(s);
+                            for(int i = 0 ; i < typeCode.member_count() ; i++)
                             {
                                 if(i != def_idx)
                                 {
-                                    if(s == tc.member_label(i).extract_char())
+                                    if(s == typeCode.member_label(i).extract_longlong())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        case TCKind._tk_ulonglong:  // 24
+                        {
+                            long s = input.read_ulonglong();
+                            write_ulonglong(s);
+                            for(int i = 0 ; i < typeCode.member_count() ; i++)
+                            {
+                                if(i != def_idx)
+                                {
+                                    if(s == typeCode.member_label(i).extract_ulonglong())
                                     {
                                         member_idx = i;
                                         break;
@@ -2174,7 +2240,9 @@ public class CDROutputStream
                             break;
                         }
                         default:
-                        throw new MARSHAL("Invalid union discriminator type: " + disc);
+                        {
+                            throw new MARSHAL("Invalid union discriminator type: " + disc);
+                        }
                     }
 
                     // write the member or default value, if any
@@ -2186,36 +2254,120 @@ public class CDROutputStream
 
                     if( member_idx != -1 )
                     {
-                        write_value( tc.member_type( member_idx ), in );
+                        write_value( typeCode.member_type( member_idx ), input );
                     }
                     else if( def_idx != -1 )
                     {
-                        write_value( tc.member_type( def_idx ), in );
+                        write_value( typeCode.member_type( def_idx ), input );
                     }
                     break;
                 }
-                case TCKind._tk_alias:
+                case TCKind._tk_enum:       // 17
                 {
-                    write_value( tc.content_type(), in );
+                    write_long( input.read_long() );
                     break;
                 }
+                case TCKind._tk_string:     // 18
+                {
+                    write_string( input.read_string());
+                    break;
+                }
+                case TCKind._tk_sequence:   // 19
+                {
+                    int len = input.read_long();
+                    write_long(len);
+
+                    org.omg.CORBA.TypeCode content_tc = typeCode.content_type();
+                    for( int i = 0; i < len; i++ )
+                    {
+                        write_value(content_tc, input);
+                    }
+
+                    break;
+                }
+                case TCKind._tk_array:      // 20
+                {
+                    int length = typeCode.length();
+                    if( typeCode.content_type().kind().value() == TCKind._tk_octet )
+                    {
+                        check( length );
+                        input.read_octet_array( buffer, pos, length);
+                        index+= length;
+                        pos += length;
+                    }
+                    else
+                    {
+                        for( int i = 0; i < length; i++ )
+                        {
+                            write_value( typeCode.content_type(), input );
+                        }
+                    }
+                    break;
+                }
+                case TCKind._tk_alias:      // 21
+                {
+                    write_value( typeCode.content_type(), input );
+                    break;
+                }
+                case TCKind._tk_except:     // 22
+                {
+                    write_string( input.read_string());
+                    for (int i = 0; i < typeCode.member_count(); i++)
+                    {
+                        write_value(typeCode.member_type(i), input);
+                    }
+                    break;
+                }
+                case TCKind._tk_longlong:   // 23
+                {
+                    write_longlong(input.read_longlong());
+                    break;
+                }
+                case TCKind._tk_ulonglong:  // 24
+                {
+                    write_ulonglong( input.read_ulonglong());
+                    break;
+                }
+                case TCKind._tk_longdouble: // 25
+                {
+                    throw new org.omg.CORBA.BAD_TYPECODE(
+                        "type longdouble not supported in java");
+                }
+                case TCKind._tk_wchar:      // 26
+                {
+                    write_wchar( input.read_wchar());
+                    break;
+                }
+                case TCKind._tk_wstring:    // 27
+                {
+                    write_wstring( input.read_wstring());
+                    break;
+                }
+                case TCKind._tk_fixed:      // 28
+                {
+                    write_fixed (input.read_fixed());
+                    break;
+                }
+                case TCKind._tk_value:      // 29
+                    // fallthrough
                 case TCKind._tk_value_box:
                 {
-                    String id = tc.id();
+                    String id = typeCode.id();
                     org.omg.CORBA.portable.BoxedValueHelper helper =
                         ((org.jacorb.orb.ORB)orb()).getBoxedValueHelper(id);
                     if (helper == null)
                     {
-                        throw new RuntimeException
-                            ("No BoxedValueHelper for id " + id);
+                        throw new MARSHAL("No BoxedValueHelper for id " + id);
                     }
                     java.io.Serializable value =
-                        ((org.omg.CORBA_2_3.portable.InputStream)in).read_value(helper);
+                        ((org.omg.CORBA_2_3.portable.InputStream)input).read_value(helper);
                     write_value (value, helper);
                     break;
                 }
                 default:
-                throw new MARSHAL("Cannot handle TypeCode with kind " + kind);
+                {
+                    throw new MARSHAL("Cannot handle TypeCode with kind " + kind);
+                }
             }
         }
         catch (BadKind ex)
@@ -2237,8 +2389,10 @@ public class CDROutputStream
     public void write_value(final java.io.Serializable value)
     {
         if (!write_special_value (value))
+        {
             write_value_internal (value,
                                   ValueHandler.getRMIRepositoryID (value.getClass()));
+        }
     }
 
     public void write_value(final java.io.Serializable value,
@@ -2463,7 +2617,9 @@ public class CDROutputStream
             }
         }
         else
+        {
             write_value_header (repository_ids);
+        }
     }
 
     /**

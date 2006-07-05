@@ -73,6 +73,7 @@
         - Any: fix extract_string(), extract_wstring(), didn't
           account for value being insterted as a stream.
         - Fix for PolicyManager. ADD_OVERRIDE didn't work.
+        - CDRStream typecode marshaling cleaned up.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
@@ -93,7 +94,7 @@
     - Documentation:
         - Added chapter on threads to Programming Guide.
         - Enhanced logging documentation.
-        - enhanced description of configuration properties.
+        - Enhanced description of configuration properties.
 2.2.5
 =====
     - Documentation

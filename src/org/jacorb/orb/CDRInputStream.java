@@ -70,8 +70,8 @@ public class CDRInputStream
      * <code>cachedTypecodes</code> stores a mapping of ID/Typecode to
      * speed reading from the stream. Do NOT access this variable directly. It
      * is initialized on demand. Use the methods
-     * {@link #getCachedTypecode(String id)} and
-     * {@link #putCachedTypecode(String id, org.omg.CORBA.TypeCode result)}
+     * {@link #getCachedTypecode(Object id)} and
+     * {@link #putCachedTypecode(Object id, Pair result)}
      * Skip amount is
      * skip (size - ((pos - start_pos) - 4 - 4));
      * EncapsulationSize -
@@ -284,20 +284,25 @@ public class CDRInputStream
      * for sequence/array tcs
      * @return a <code>org.omg.CORBA.TypeCode</code> value, possibly null.
      */
-    private org.omg.CORBA.TypeCode getCachedTypecode( Object id )
+    private Pair getCachedTypecode( Object id )
     {
-        org.omg.CORBA.TypeCode result = null;
+        final Pair result;
 
         if ( cacheTypecodes )
         {
             if ( cachedTypecodes == null )
             {
                 cachedTypecodes = new HashMap();
+                result = null;
             }
             else
             {
-                result = ( org.omg.CORBA.TypeCode )cachedTypecodes.get( id );
+                result = ( Pair )cachedTypecodes.get( id );
             }
+        }
+        else
+        {
+            result = null;
         }
         return result;
     }
@@ -1144,11 +1149,12 @@ public class CDRInputStream
         }
     }
 
-    private final org.omg.CORBA.TypeCode read_TypeCode(final Map recursiveTCMap, final Map repeatedTCMap )
+    private final org.omg.CORBA.TypeCode read_TypeCode(final Map recursiveTCMap,
+                                                       final Map repeatedTCMap )
     {
-        final String  id;
-        final String  name;
-        final Object cachedObject;
+        final String id;
+        final String name;
+        final Pair cachedObject;
         final int member_count;
         final int length;
         final int size;
@@ -1169,43 +1175,33 @@ public class CDRInputStream
         {
             case -1:                     //0xffffffff:
             {
-                // recursive TC
+                // recursive or repeated TC
                 int negative_offset = read_long();
 
-                final Object recursiveId =
-                    recursiveTCMap.get(ObjectUtil.newInteger(pos - 4 + negative_offset));
+                final Integer origTCStartPos = ObjectUtil.newInteger(pos - 4 + negative_offset);
 
-                if (recursiveId == null)
+                // need to check for repeated typecode first since a recursive
+                // typecode may also be repeated (i.e. both maps have an entry
+                // for the given origTCStartPos), but if we find an entry in
+                // the repeatedTCMap, we know the typecode must have
+                // completely been read already, so the marker can't indicate
+                // a recursive typecode
+                final org.omg.CORBA.TypeCode repeatedTC =
+                    (org.omg.CORBA.TypeCode)repeatedTCMap.get(origTCStartPos);
+
+                if (repeatedTC != null)
                 {
-                    throw new INTERNAL
-                    (
-                        "No recursive TypeCode! (pos: " +
-                        (pos - 4 + negative_offset) +
-                        ")"
-                    );
+                    result = repeatedTC;
+                    break;
                 }
 
-                org.omg.CORBA.TypeCode rec_tc =
-                    (org.omg.CORBA.TypeCode)
-                        repeatedTCMap.get(recursiveId);
-
-
-                if (rec_tc == null)
+                final String recursiveId = (String) recursiveTCMap.get(origTCStartPos);
+                if (recursiveId != null)
                 {
                     try
                     {
-                        // Can only create_recursive_tc if we have an ID
-                        if (recursiveId instanceof String)
-                        {
-                            // TypeCode is not in map so it is recursive
-                            rec_tc = orb.create_recursive_tc( (String) recursiveId );
-                        }
-                        else
-                        {
-                            // We should have found a TypeCode
-                            throw new MARSHAL
-                                ("Failed to obtain repeated typecode or create recursive typecode");
-                        }
+                        result = orb.create_recursive_tc(recursiveId);
+                        break;
                     }
                     catch(Throwable e)
                     {
@@ -1215,8 +1211,11 @@ public class CDRInputStream
                     }
                 }
 
-                result = rec_tc;
-                break;
+                //if we end up here, we didn't find an entry in either
+                //repeatedTCMap and recursiveTCMap
+                throw new MARSHAL(
+                    "Found indirection marker, but no corresponding "+
+                    "original typecode (pos: " + origTCStartPos + ")" );
             }
             case TCKind._tk_null:           // 0
             case TCKind._tk_void:           // 1
@@ -1245,25 +1244,15 @@ public class CDRInputStream
                 if (cachedObject == null)
                 {
                     name = validateName (read_string ());
-
-                    recursiveTCMap.put(startPosition, id);
                     result = orb.create_interface_tc (id, name);
-
-                    // Store in cache
                     putCachedTypecode (id, new Pair( result, startPosition ));
                 }
                 else
                 {
-                    // Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount = (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap(recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second);
+                    final int skipAmount = calcSkipAmount(size, start_pos);
                     skip(skipAmount);
-                    recursiveTCMap.put(startPosition, id);
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-
-                repeatedTCMap.put(id, result);
 
                 closeEncapsulation();
                 break;
@@ -1278,10 +1267,9 @@ public class CDRInputStream
                 {
                     name = validateName (read_string());
                     member_count = read_long();
-
                     recursiveTCMap.put( startPosition, id );
-
                     StructMember[] struct_members = new StructMember[member_count];
+
                     for( int i = 0; i < member_count; i++)
                     {
                         struct_members[i] = new StructMember
@@ -1291,23 +1279,18 @@ public class CDRInputStream
                             null
                         );
                     }
-                    result = ((ORBSingleton) orb).create_struct_tc(id, name, struct_members, false);
 
-                    // Store in cache
+                    result = ((ORBSingleton) orb).create_struct_tc(id, name, struct_members, false);
                     putCachedTypecode (id, new Pair( result, startPosition ));
                 }
                 else
                 {
-                    // Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount =  (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap( recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
+                    final int skipAmount =  calcSkipAmount(size, start_pos);
+                    updateTcMap( recursiveTCMap, start_pos, skipAmount, cachedObject.position );
                     skip (skipAmount);
                     recursiveTCMap.put( startPosition, id );
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-
-                repeatedTCMap.put (id, result);
 
                 closeEncapsulation();
                 break;
@@ -1365,16 +1348,12 @@ public class CDRInputStream
                 }
                 else
                 {
-                    // Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount =  (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap(recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
+                    final int skipAmount = calcSkipAmount(size, start_pos);
+                    updateTcMap(recursiveTCMap, start_pos, skipAmount, cachedObject.position );
                     skip (skipAmount);
                     recursiveTCMap.put( startPosition, id );
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-
-                repeatedTCMap.put(id, result);
 
                 closeEncapsulation();
                 break;
@@ -1389,29 +1368,22 @@ public class CDRInputStream
                 {
                     name = validateName (read_string());
                     member_count = read_long();
-
-                    recursiveTCMap.put( startPosition, id );
-
                     member_names = new String[member_count];
+
                     for( int i = 0; i < member_count; i++)
                     {
                         member_names[i] = read_string();
                     }
-                    result = ((ORBSingleton)orb).create_enum_tc (id, name, member_names, false);
 
+                    result = ((ORBSingleton)orb).create_enum_tc (id, name, member_names, false);
                     putCachedTypecode (id, new Pair( result, startPosition ));
                 }
                 else
                 {
-                    // Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount =  (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap( recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
+                    final int skipAmount = calcSkipAmount(size, start_pos);
                     skip (skipAmount);
-                    recursiveTCMap.put( startPosition, id );
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-                repeatedTCMap.put (id, result);
                 closeEncapsulation();
                 break;
             }
@@ -1429,24 +1401,15 @@ public class CDRInputStream
                 if (cachedObject == null)
                 {
                     length = read_long();
-
                     result = orb.create_sequence_tc(length, content_type);
-                    recursiveTCMap.put(startPosition, result);
-
-                    // Store in cache
                     putCachedTypecode(result, new Pair(result, startPosition));
                 }
                 else
                 {
-                    int skipAmount =  (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap(recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
+                    final int skipAmount = calcSkipAmount(size, start_pos);
                     skip (skipAmount);
-                    recursiveTCMap.put(startPosition, content_type);
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-
-                repeatedTCMap.put(result, result);
 
                 closeEncapsulation();
 
@@ -1462,23 +1425,16 @@ public class CDRInputStream
                 {
                     result = orb.create_array_tc(read_long(), content_type );
 
-                    recursiveTCMap.put(startPosition, result);
-
                     // Store in cache
                     putCachedTypecode (result, new Pair( result, startPosition ));
                 }
                 else
                 {
-                    // Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount = (size - ((pos - start_pos) - 4 - 4));
+                    int skipAmount = calcSkipAmount(size, start_pos);
 
-                    updateTcMap(recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
                     skip (skipAmount);
-                    recursiveTCMap.put(startPosition, content_type);
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-
-                repeatedTCMap.put(result, result);
 
                 closeEncapsulation();
 
@@ -1502,15 +1458,12 @@ public class CDRInputStream
                 }
                 else
                 {
-                    // Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount =  (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap(recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
+                    final int skipAmount = calcSkipAmount(size, start_pos);
+                    updateTcMap(recursiveTCMap, start_pos, skipAmount, cachedObject.position );
                     skip (skipAmount);
                     recursiveTCMap.put( startPosition, id );
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-                repeatedTCMap.put (id, result);
                 closeEncapsulation();
                 break;
             }
@@ -1544,16 +1497,12 @@ public class CDRInputStream
                 }
                 else
                 {
-                    // Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount =  (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap(recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
+                    final int skipAmount = calcSkipAmount(size, start_pos);
+                    updateTcMap(recursiveTCMap, start_pos, skipAmount, cachedObject.position );
                     skip (skipAmount);
                     recursiveTCMap.put( startPosition, id );
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-
-                repeatedTCMap.put (id, result);
 
                 closeEncapsulation();
                 break;
@@ -1621,15 +1570,12 @@ public class CDRInputStream
                 }
                 else
                 {
-                    // Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount =  (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap(recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
+                    final int skipAmount = calcSkipAmount(size, start_pos);
+                    updateTcMap(recursiveTCMap, start_pos, skipAmount, cachedObject.position );
                     skip (skipAmount);
                     recursiveTCMap.put( startPosition, id );
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-                repeatedTCMap.put (id, result);
                 closeEncapsulation();
                 break;
             }
@@ -1651,15 +1597,12 @@ public class CDRInputStream
                 }
                 else
                 {
-//                  Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount =  (size - ((pos - start_pos) - 4 - 4));
-
-                    updateTcMap(recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second );
+                    final int skipAmount = calcSkipAmount(size, start_pos);
+                    updateTcMap(recursiveTCMap, start_pos, skipAmount, cachedObject.position );
                     skip (skipAmount);
                     recursiveTCMap.put( startPosition, id );
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
-                repeatedTCMap.put (id, result);
                 closeEncapsulation();
                 break;
             }
@@ -1676,17 +1619,17 @@ public class CDRInputStream
                 if (cachedObject == null)
                 {
                     name = validateName (read_string());
+                    recursiveTCMap.put(startPosition, id);
                     result = orb.create_abstract_interface_tc (id, name);
                     putCachedTypecode (id, new Pair( result, startPosition ));
                 }
                 else
                 {
-//                  Skip buffer - see cachedTypecodes for calculation.
-                    int skipAmount = (size - ((pos - start_pos) - 4 - 4));
-                    updateTcMap (recursiveTCMap, start_pos, skipAmount, ((Pair)cachedObject).second);
+                    final int skipAmount = calcSkipAmount(size, start_pos);
+                    updateTcMap (recursiveTCMap, start_pos, skipAmount, cachedObject.position);
                     skip (skipAmount);
                     recursiveTCMap.put (startPosition, id);
-                    result = ((Pair)cachedObject).first;
+                    result = cachedObject.typeCode;
                 }
                 closeEncapsulation();
                 break;
@@ -1697,7 +1640,20 @@ public class CDRInputStream
                 throw new MARSHAL("Cannot handle TypeCode with kind " + kind);
             }
         }
+
+        repeatedTCMap.put(startPosition, result);
         return result;
+    }
+
+    /**
+     * see cachedTypecodes for calculation.
+     * @param size
+     * @param start_pos
+     */
+    private int calcSkipAmount(final int size, final int start_pos)
+    {
+        int skipAmount = (size - ((pos - start_pos) - 4 - 4));
+        return skipAmount;
     }
 
     /**
@@ -1712,38 +1668,36 @@ public class CDRInputStream
      * @param size an <code>int</code> value
      * @param old_start an <code>Integer</code> value
      */
-    private void updateTcMap( Map tcMap, int new_start, int size, Integer old_start )
+    private void updateTcMap(final Map tcMap,
+                             final int new_start,
+                             final int size,
+                             final Integer old_start )
     {
-        TreeMap toMerge;
-        Iterator iterator;
-        Map.Entry me;
-
-        SortedMap sm = ((TreeMap)tcMap).subMap
+        final SortedMap sortedMap = ((TreeMap)tcMap).subMap
             ( old_start, ObjectUtil.newInteger( size + old_start.intValue() ) );
 
         // If we have found anything between the original start position and the size.
-        if( sm.size() > 0 )
+        if( sortedMap.size() > 0 )
         {
-            toMerge = new TreeMap();
-            iterator = sm.entrySet().iterator();
+            final TreeMap toMerge = new TreeMap();
+            final Iterator iterator = sortedMap.entrySet().iterator();
 
             while( iterator.hasNext() )
             {
-                me = (Map.Entry)iterator.next();
+                final Map.Entry entry = (Map.Entry)iterator.next();
 
-                int value = ((Integer)me.getKey()).intValue();
+                int value = ((Integer)entry.getKey()).intValue();
                 // This calculation is the offset; the distance between the missing
                 // tc and the original start added onto the new start.
                 toMerge.put
                 (
                     ObjectUtil.newInteger( new_start + (value - old_start.intValue() ) ),
-                    me.getValue()
+                    entry.getValue()
                 );
             }
             tcMap.putAll( toMerge );
         }
     }
-
 
     public final int read_ulong()
     {
@@ -1988,11 +1942,6 @@ public class CDRInputStream
      */
     private final boolean readBOM()
     {
-        /*
-          if( !use_BOM )
-          return false;
-        */
-
         if( (buffer[ pos     ] == (byte) 0xFE) &&
             (buffer[ pos + 1 ] == (byte) 0xFF) )
         {
@@ -2325,6 +2274,7 @@ public class CDRInputStream
                             break;
                         }
                         case TCKind._tk_float:      // 6
+                            // fallthrough
                         case TCKind._tk_double:     // 7
                         {
                             throw new MARSHAL(
@@ -2365,11 +2315,17 @@ public class CDRInputStream
                             break;
                         }
                         case TCKind._tk_octet:      // 10
+                            // fallthrough
                         case TCKind._tk_any:        // 11
+                            // fallthrough
                         case TCKind._tk_TypeCode:   // 12
+                            // fallthrough
                         case TCKind._tk_Principal:  // 13
+                            // fallthrough
                         case TCKind._tk_objref:     // 14
+                            // fallthrough
                         case TCKind._tk_struct:     // 15
+                            // fallthrough
                         case TCKind._tk_union:      // 16
                         {
                             throw new MARSHAL(
@@ -2395,9 +2351,13 @@ public class CDRInputStream
                             break;
                         }
                         case TCKind._tk_string:     // 18
+                            // fallthrough
                         case TCKind._tk_sequence:   // 19
+                            // fallthrough
                         case TCKind._tk_array:      // 20
+                            // fallthrough
                         case TCKind._tk_alias:      // 21
+                            // fallthrough
                         case TCKind._tk_except:     // 22
                         {
                             throw new MARSHAL(
@@ -2712,8 +2672,8 @@ public class CDRInputStream
 
         if (tag == 0x7fffff00)
         {
-            return read_untyped_value ( new String[]{ ValueHandler.getRMIRepositoryID(clz) },
-                                        start_offset, codebase);
+            return read_untyped_value (new String[]{ValueHandler.getRMIRepositoryID(clz)},
+                                                    start_offset, codebase);
         }
         else if (tag == 0x7fffff02)
         {
@@ -2726,8 +2686,10 @@ public class CDRInputStream
         else
         {
             throw new MARSHAL("unknown value tag: 0x" +
-                              Integer.toHexString(theTag) + " (offset=0x" +
-                              Integer.toHexString(start_offset) + ")");
+                              Integer.toHexString(theTag) +
+                              " (offset=0x" +
+                              Integer.toHexString(start_offset) +
+                              ")");
         }
     }
 
@@ -2895,30 +2857,31 @@ public class CDRInputStream
                 // first place solves the problem."
 
                 String className =
-                org.jacorb.ir.RepositoryID.className(repository_ids[i], null);
+                    org.jacorb.ir.RepositoryID.className(repository_ids[i], null);
 
-                Class clazz = null;
+                Class clazz;
                 //#ifjdk 1.2
-                ClassLoader ctxcl = Thread.currentThread().getContextClassLoader();
+                ClassLoader clazzLoader = Thread.currentThread().getContextClassLoader();
                 //#else
                 //# ClassLoader ctxcl = null;
                 //#endif
+
                 try
                 {
-                    if (ctxcl != null)
+                    if (clazzLoader == null)
                     {
-                        try
-                        {
-                            clazz = ctxcl.loadClass(className);
-                        }
-                        catch (ClassNotFoundException cnfe)
-                        {
-                            clazz = ValueHandler.loadClass(className, codebase, null);
-                        }
+                        clazz = ValueHandler.loadClass(className, codebase, null);
                     }
                     else
                     {
-                        clazz = ValueHandler.loadClass(className, codebase, null);
+                        try
+                        {
+                            clazz = clazzLoader.loadClass(className);
+                        }
+                        catch (ClassNotFoundException e)
+                        {
+                            clazz = ValueHandler.loadClass(className, codebase, null);
+                        }
                     }
 
                     if (IDLEntity.class.isAssignableFrom(clazz))
@@ -3040,7 +3003,6 @@ public class CDRInputStream
      * by a single RepositoryID.  It is assumed that the tag and the codebase
      * of the value have already been read.
      */
-
     private java.io.Serializable read_typed_value( final int index,
                                                    final String codebase)
     {
@@ -3052,7 +3014,6 @@ public class CDRInputStream
      * by an array of RepositoryIDs.  It is assumed that the tag and the codebase
      * of the value have already been read.
      */
-
     private java.io.Serializable read_multi_typed_value( final int index,
                                                          final String codebase)
     {
@@ -3200,10 +3161,10 @@ public class CDRInputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value.
      */
-    public java.lang.Object read_abstract_interface(final java.lang.Class clz)
+    public java.lang.Object read_abstract_interface(final java.lang.Class clazz)
     {
-        return read_boolean() ? (java.lang.Object)read_Object(clz)
-        : (java.lang.Object)read_value(clz);
+        return read_boolean() ? (java.lang.Object)read_Object(clazz)
+        : (java.lang.Object)read_value(clazz);
     }
 
     public int get_pos()
@@ -3231,23 +3192,22 @@ public class CDRInputStream
         /**
          * <code>first</code> is the typecode we are caching.
          */
-        public org.omg.CORBA.TypeCode first;
+        public final org.omg.CORBA.TypeCode typeCode;
         /**
          * <code>second</code> is the location the original typecode was found.
          */
-        public Integer second;
-
+        public final Integer position;
 
         /**
          * Create a new <code>Pair</code>.
          *
-         * @param f an <code>org.omg.CORBA.TypeCode</code> value
-         * @param s an <code>Integer</code> value
+         * @param typeCode an <code>org.omg.CORBA.TypeCode</code> value
+         * @param position an <code>Integer</code> value
          */
-        public Pair( org.omg.CORBA.TypeCode f, Integer s )
+        public Pair( org.omg.CORBA.TypeCode typeCode, Integer position )
         {
-            first = f;
-            second = s;
+            this.typeCode = typeCode;
+            this.position = position;
         }
 
         /**
@@ -3257,8 +3217,7 @@ public class CDRInputStream
          */
         public String toString()
         {
-            return (first + " and " + second );
+            return (typeCode + " and " + position );
         }
     }
-
 }
