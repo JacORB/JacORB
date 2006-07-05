@@ -1124,8 +1124,15 @@ public final class Any
             out = new org.jacorb.orb.CDROutputStream();
         }
 
-        write_value(out);
-        return new org.jacorb.orb.CDRInputStream(orb, out.getBufferCopy());
+        try
+        {
+            write_value(out);
+            return new org.jacorb.orb.CDRInputStream(orb, out.getBufferCopy());
+        }
+        finally
+        {
+            out.close();
+        }
     }
 
     public void read_value (org.omg.CORBA.portable.InputStream input,
