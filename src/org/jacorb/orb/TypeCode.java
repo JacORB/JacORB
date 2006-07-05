@@ -1285,7 +1285,7 @@ public class TypeCode
     }
 
     /**
-     * Creates a TypeCode for class `clz'.  `knownTypes' is a map
+     * Creates a TypeCode for class `clazz'.  `knownTypes' is a map
      * containing classes as keys and their corresponding type codes
      * as values.  If there is an entry for `clz' in `knownTypes',
      * then a recursive type code is returned for it.  If there is no
