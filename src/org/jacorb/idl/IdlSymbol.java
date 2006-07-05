@@ -665,7 +665,7 @@ public class IdlSymbol
     protected final void printClassComment(String type, String name, PrintWriter ps)
     {
         ps.println("/**");
-        ps.println(" *\tGenerated from IDL definition of " + type.trim() + " \"" + name + "\".");
+        ps.println(" *\tGenerated from IDL " + type.trim() + " \"" + name + "\".");
         ps.println(" *");
         ps.println(" *\t@author JacORB IDL compiler V " + parser.compiler_version);
         ps.println(" *\t@version generated at " + parser.currentDate);
