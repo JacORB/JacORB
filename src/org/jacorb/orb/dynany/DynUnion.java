@@ -183,7 +183,7 @@ public final class DynUnion
    public org.omg.CORBA.Any to_any()
    {
        checkDestroyed ();
-       final CDROutputStream out = new CDROutputStream();
+       final CDROutputStream out = new CDROutputStream(orb);
 
        try
        {

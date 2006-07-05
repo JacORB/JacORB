@@ -136,7 +136,7 @@ public final class DynSequence
       org.omg.CORBA.Any out_any = orb.create_any();
       out_any.type(type());
 
-      final CDROutputStream out = new CDROutputStream();
+      final CDROutputStream out = new CDROutputStream(orb);
       try
       {
           out.write_long( length );
