@@ -36,6 +36,7 @@ import org.jacorb.test.bugs.bugjac220.BugJac220Test;
 import org.jacorb.test.bugs.bugjac235.BugJac235Test;
 import org.jacorb.test.bugs.bugjac251.BugJac251Test;
 import org.jacorb.test.bugs.bugjac257.BugJac257Test;
+import org.jacorb.test.bugs.bugjac262.BugJac262Test;
 import org.jacorb.test.bugs.bugjac303.BugJac303Test;
 import org.jacorb.test.bugs.bugjac305.BugJac305Test;
 import org.jacorb.test.bugs.bugjac45.BugJac45Test;
@@ -90,6 +91,7 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(AcceptorExceptionListenerTest.suite());
       suite.addTest(BugJac251Test.suite());
       suite.addTest(BugJac257Test.suite());
+      suite.addTest(BugJac262Test.suite());
 
       return suite;
    }

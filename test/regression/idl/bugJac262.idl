@@ -1,0 +1,69 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac262
+            {
+               abstract interface AbstractInterface
+               {
+               };
+
+               interface ComplexTypeCodesServer
+               {
+                  boolean passAny( in any a );
+               };
+
+               struct RepeatedStruct
+               {
+                  AbstractInterface iface_one;
+                  AbstractInterface iface_two;
+                  AbstractInterface iface_three;
+                  AbstractInterface iface_four;
+               };
+
+               typedef sequence <RepeatedStruct> RepeatedStructSeq;
+
+               struct RepeatedSeqStruct
+               {
+                  RepeatedStructSeq chain1;
+                  RepeatedStructSeq chain2;
+                  RepeatedStructSeq chain3;
+                  RepeatedStructSeq chain4;
+               };
+
+               struct MixedStructs
+               {
+                  RepeatedSeqStruct rstruct1;
+                  RepeatedSeqStruct rstruct2;
+                  RepeatedStruct recstruct1;
+                  RepeatedStruct recstruct2;
+               };
+
+               const long ArrayBound = 10;
+               typedef long lArray[ArrayBound];
+
+               struct RepeatedArrayStruct
+               {
+                  lArray test_array1;
+                  lArray test_array2;
+                  lArray test_array3;
+                  lArray test_array4;
+
+               };
+
+               struct RepeatedObjectStruct
+               {
+                   Object obj1;
+                   Object obj2;
+                   Object obj3;
+                   Object obj4;
+               };
+            };
+         };
+      };
+   };
+};

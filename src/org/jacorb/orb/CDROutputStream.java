@@ -82,13 +82,6 @@ public class CDROutputStream
      */
     private Stack encaps_stack;
 
-    /**
-     * <code>knownTCMap</code> is used to remember the original TCs for a
-     * given ID that is used in a recursive/repeated TC. Do NOT access this
-     * variable directly. It is initialised on demand. Use the method
-     * {@link #getKnownTCMap() getKnownTCMap()}
-     */
-    private Map knownTCMap;
 
     /**
      * <code>valueMap</code> is used to maps all value objects that have
@@ -270,21 +263,6 @@ public class CDROutputStream
             encaps_stack = new Stack();
         }
         return encaps_stack;
-    }
-
-
-    /**
-     * Gets the Map that is used to store TypeCodes for ids
-     *
-     * @return a <code>Map</code> value
-     */
-    private Map getKnownTCMap()
-    {
-        if (knownTCMap == null)
-        {
-            knownTCMap = new HashMap();
-        }
-        return knownTCMap;
     }
 
 
@@ -607,7 +585,10 @@ public class CDROutputStream
     public final void endEncapsulation()
     {
         if( encaps_start == -1 )
+        {
             throw new MARSHAL("Too many end-of-encapsulations");
+        }
+
         if( encaps_stack == null )
         {
             throw new MARSHAL("Internal Error - closeEncapsulation failed");
@@ -757,9 +738,13 @@ public class CDROutputStream
         check(1);
 
         if( value )
+        {
             buffer[pos++] = 1;
+        }
         else
+        {
             buffer[pos++] = 0;
+        }
         index++;
     }
 
@@ -774,9 +759,13 @@ public class CDROutputStream
             for( int i = offset; i < offset+length; i++ )
             {
                 if( value[i] )
+                {
                     buffer[pos++] = 1;
+                }
                 else
+                {
                     buffer[pos++] = 0;
+                }
             }
             index += length;
         }
@@ -1366,9 +1355,9 @@ public class CDROutputStream
             // Get the id for this typecode.
             id = value.id();
         }
-        // Masking on purpose as only determining whether to cache here.
         catch (BadKind e)
         {
+            // Masking on purpose as only determining whether to cache here.
         }
 
         if (compactTypeCodes > 0 && id != null)
@@ -1381,7 +1370,7 @@ public class CDROutputStream
             {
                 // We may previously have already compacted and cached this
                 // typecode.
-                cached = (org.omg.CORBA.TypeCode)cachedTypecodes.get (id);
+                cached = (org.omg.CORBA.TypeCode)cachedTypecodes.get(id);
             }
 
             // If we don't have a cached value get the compact form and
@@ -1409,7 +1398,7 @@ public class CDROutputStream
 
         try
         {
-            write_TypeCode (value, recursiveTCMap, repeatedTCMap);
+            write_TypeCode(value, recursiveTCMap, repeatedTCMap);
         }
         finally
         {
@@ -1418,35 +1407,59 @@ public class CDROutputStream
         }
     }
 
-    private final void writeRecursiveTypeCode
-       (final org.omg.CORBA.TypeCode value, final Map tcMap) throws BadKind
+    private final void writeIndirectionMarker(final Object key,
+                                              final Map indirectionTCMap)
     {
         write_long( -1 ); // recursion marker
         int negative_offset =
-            ((Integer) tcMap.get( value.id())).intValue() - size() - 4;
+            ((Integer) indirectionTCMap.get(key)).intValue() - pos - 4;
 
         write_long( negative_offset );
     }
 
-    private final void write_TypeCode(final org.omg.CORBA.TypeCode value,
-            final Map recursiveTCMap,
-            final Map repeatedTCMap)
+
+    private final void writeIndirectionMarker(final org.omg.CORBA.TypeCode value,
+                                              final Map recursiveTCMap,
+                                              boolean typeCodeKey)
+        throws BadKind
     {
-        if (value == null)
+        final java.lang.Object key;
+
+        /* Sequence and array tcs will be stored under the actual TypeCode as they
+         * do not have IDs.
+         */
+        if (typeCodeKey)
+        {
+            key = value;
+        }
+        else
+        {
+            key = value.id();
+        }
+
+        write_long( -1 ); // recursion marker
+        int negative_offset = ((Integer) recursiveTCMap.get(key)).intValue() - pos - 4;
+
+        write_long( negative_offset );
+    }
+
+    private final void write_TypeCode(final org.omg.CORBA.TypeCode typeCode,
+                                      final Map recursiveTCMap,
+                                      final Map repeatedTCMap)
+    {
+        if (typeCode == null)
         {
             throw new BAD_PARAM("TypeCode is null");
         }
 
-        int _kind = value.kind().value();
-        int _mc; // member count
+        final int _kind = typeCode.kind().value();
+        final int _memberCount;
 
         try
         {
-            if( TypeCode.isRecursive(value) &&
-                    recursiveTCMap != null &&
-                    recursiveTCMap.containsKey( value.id()) )
+            if(TypeCode.isRecursive(typeCode) && recursiveTCMap.containsKey( typeCode.id()) )
             {
-                writeRecursiveTypeCode( value, recursiveTCMap );
+                writeIndirectionMarker( typeCode.id(), recursiveTCMap );
             }
             else
             {
@@ -1473,177 +1486,230 @@ public class CDROutputStream
                     }
                     case TCKind._tk_objref: // 14
                     {
-                        write_long( _kind  );
-                        beginEncapsulation();
-                        write_string( value.id() );
-                        write_string( value.name() );
-                        endEncapsulation();
-                        break;
-                    }
-                    case TCKind._tk_struct: // 15
-                    {
-                        if (useIndirection && repeatedTCMap.containsKey (value.id()))
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
                         {
-                            writeRecursiveTypeCode( value, repeatedTCMap );
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
                         }
                         else
                         {
                             write_long( _kind  );
-                            final Integer tcStartPos = new Integer( pos );
-                            recursiveTCMap.put( value.id(), tcStartPos );
-                            getKnownTCMap().put( value.id(), value );
+
+                            // remember tc start pos before we start writing it
+                            // out
+                            Integer tcStartPos = ObjectUtil.newInteger(pos);
+                            recursiveTCMap.put(typeCode.id(), tcStartPos);
 
                             beginEncapsulation();
-                            write_string(value.id());
-                            write_string(value.name());
-                            _mc = value.member_count();
-                            write_long(_mc);
-                            for( int i = 0; i < _mc; i++)
+                            write_string( typeCode.id() );
+                            write_string( typeCode.name() );
+                            endEncapsulation();
+
+                            //add typecode to cache not until here to account for
+                            //recursive TCs
+                            repeatedTCMap.put(typeCode, tcStartPos);
+                        }
+                        break;
+                    }
+                    case TCKind._tk_struct: // 15
+                    {
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
+                        {
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
+                        }
+                        else
+                        {
+                            write_long( _kind  );
+
+                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            recursiveTCMap.put( typeCode.id(), tcStartPos );
+
+                            beginEncapsulation();
+                            write_string(typeCode.id());
+                            write_string(typeCode.name());
+                            _memberCount = typeCode.member_count();
+                            write_long(_memberCount);
+                            for( int i = 0; i < _memberCount; i++)
                             {
-                                write_string( value.member_name(i) );
-                                write_TypeCode( value.member_type(i), recursiveTCMap, repeatedTCMap );
+                                write_string( typeCode.member_name(i) );
+                                write_TypeCode( typeCode.member_type(i), recursiveTCMap, repeatedTCMap );
                             }
                             endEncapsulation();
 
                             // add typecode to cache not until here to account for
                             // recursive TCs
-                            getKnownTCMap().put(value.id(), value);
-                            repeatedTCMap.put(value.id(), tcStartPos);
+                            repeatedTCMap.put(typeCode, tcStartPos);
                         }
                         break;
                     }
                     case TCKind._tk_union: // 16
-                        if (useIndirection && repeatedTCMap != null &&
-                                repeatedTCMap.containsKey (value.id()))
-                            {
-                                writeRecursiveTypeCode( value, repeatedTCMap );
-                            }
-                            else
-                            {
-                                write_long( _kind  );
-                                // remember tc start pos before we start writing it
-                                // out
-                                final Integer tcStartPos = new Integer( pos );
-                                recursiveTCMap.put( value.id(), tcStartPos );
-                                getKnownTCMap().put( value.id() , value );
-
-                                beginEncapsulation();
-                                write_string( value.id() );
-                                write_string( value.name() );
-
-                                write_TypeCode(value.discriminator_type(),
-                                        recursiveTCMap,
-                                        repeatedTCMap);
-                                write_long( value.default_index());
-                                _mc = value.member_count();
-                                write_long(_mc);
-                                for( int i = 0; i < _mc; i++)
-                                {
-                                    if( i == value.default_index() )
-                                    {
-                                        write_octet((byte)0);
-                                    }
-                                    else
-                                    {
-                                        value.member_label(i).write_value( this );
-                                    }
-                                    write_string( value.member_name(i));
-                                    write_TypeCode( value.member_type(i), recursiveTCMap, repeatedTCMap );
-                                }
-                                endEncapsulation();
-
-                                // add typecode to cache not until here to account
-                                // for recursive TCs
-                                repeatedTCMap.put(value, tcStartPos);
-                            }
-                        break;
-                    case TCKind._tk_enum: // 17
                     {
-                        if (useIndirection && repeatedTCMap.containsKey (value.id()))
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
                         {
-                            writeRecursiveTypeCode( value, repeatedTCMap );
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
                         }
                         else
                         {
                             write_long( _kind  );
-                            recursiveTCMap.put( value.id(), new Integer( pos ) );
-                            getKnownTCMap().put( value.id(), value );
+                            // remember tc start pos before we start writing it
+                            // out
+                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            recursiveTCMap.put( typeCode.id(), tcStartPos );
 
                             beginEncapsulation();
-                            write_string( value.id());
-                            write_string( value.name());
-                            _mc = value.member_count();
-                            write_long(_mc);
-                            for( int i = 0; i < _mc; i++)
+                            write_string( typeCode.id() );
+                            write_string( typeCode.name() );
+
+                            write_TypeCode(typeCode.discriminator_type(),
+                                    recursiveTCMap,
+                                    repeatedTCMap);
+                            write_long( typeCode.default_index());
+                            _memberCount = typeCode.member_count();
+                            write_long(_memberCount);
+                            for( int i = 0; i < _memberCount; i++)
                             {
-                                write_string( value.member_name(i) );
+                                if( i == typeCode.default_index() )
+                                {
+                                    write_octet((byte)0);
+                                }
+                                else
+                                {
+                                    typeCode.member_label(i).write_value( this );
+                                }
+                                write_string( typeCode.member_name(i));
+                                write_TypeCode( typeCode.member_type(i), recursiveTCMap, repeatedTCMap );
                             }
                             endEncapsulation();
+
+                            // add typecode to cache not until here to account
+                            // for recursive TCs
+                            repeatedTCMap.put(typeCode, tcStartPos);
+                        }
+                        break;
+                    }
+                    case TCKind._tk_enum: // 17
+                    {
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
+                        {
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
+                        }
+                        else
+                        {
+                            write_long( _kind  );
+
+                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            recursiveTCMap.put( typeCode.id(), tcStartPos );
+
+                            beginEncapsulation();
+                            write_string( typeCode.id());
+                            write_string( typeCode.name());
+                            _memberCount = typeCode.member_count();
+                            write_long(_memberCount);
+                            for( int i = 0; i < _memberCount; i++)
+                            {
+                                write_string( typeCode.member_name(i) );
+                            }
+                            endEncapsulation();
+
+                            repeatedTCMap.put(typeCode, tcStartPos);
                         }
                         break;
                     }
                     case TCKind._tk_string: // 18
                     {
                         write_long( _kind  );
-                        write_long(value.length());
+                        write_long(typeCode.length());
                         break;
                     }
                     case TCKind._tk_sequence: // 19
                         // fallthrough
                     case TCKind._tk_array: // 20
                     {
-                        write_long( _kind  );
-                        beginEncapsulation();
-                        write_TypeCode( value.content_type(), recursiveTCMap, repeatedTCMap);
-                        write_long(value.length());
-                        endEncapsulation();
+                        // Sequence and array TypeCodes don't have an id
+                        // so we need to store using the actual TypeCode
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
+                        {
+                            writeIndirectionMarker(typeCode, repeatedTCMap, true);
+                        }
+                        else
+                        {
+                            write_long( _kind  );
+
+                            // remember tc start pos before we start writing it
+                            // out
+                            Integer tcStartPos = ObjectUtil.newInteger(pos);
+                            recursiveTCMap.put(typeCode, tcStartPos);
+
+                            beginEncapsulation();
+                            write_TypeCode( typeCode.content_type(), recursiveTCMap, repeatedTCMap);
+                            write_long(typeCode.length());
+                            endEncapsulation();
+
+                            //add typecode to cache not until here to account
+                            //for recursive TCs
+                            repeatedTCMap.put(typeCode, tcStartPos);
+                        }
                         break;
                     }
                     case TCKind._tk_alias: // 21
                     {
-                        if (useIndirection && repeatedTCMap.containsKey (value.id()))
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
                         {
-                            writeRecursiveTypeCode( value, repeatedTCMap );
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
                         }
                         else
                         {
                             write_long( _kind  );
-                            recursiveTCMap.put( value.id(), new Integer( pos ) );
-                            getKnownTCMap().put( value.id(), value );
+
+                            // remember tc start pos before we start writing it
+                            // out
+                            Integer tcStartPos = ObjectUtil.newInteger(pos);
+                            recursiveTCMap.put(typeCode, tcStartPos);
 
                             beginEncapsulation();
-                            write_string(value.id());
-                            write_string(value.name());
-                            write_TypeCode( value.content_type(), recursiveTCMap, repeatedTCMap);
+                            write_string(typeCode.id());
+                            write_string(typeCode.name());
+                            write_TypeCode( typeCode.content_type(), recursiveTCMap, repeatedTCMap);
                             endEncapsulation();
+
+                            //add typecode to cache not until here to account
+                            //for recursive TCs
+                            repeatedTCMap.put(typeCode, tcStartPos);
                         }
                         break;
                     }
                     case TCKind._tk_except: // 22
-                        if (useIndirection && repeatedTCMap.containsKey (value.id()))
+                    {
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
                         {
-                            writeRecursiveTypeCode( value, repeatedTCMap );
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
                         }
                         else
                         {
                             write_long( _kind  );
-                            recursiveTCMap.put( value.id(), new Integer( pos ) );
-                            getKnownTCMap().put( value.id(), value );
+
+                            // remember tc start pos before we start writing it
+                            // out
+                            Integer tcStartPos = ObjectUtil.newInteger(pos);
+                            recursiveTCMap.put(typeCode, tcStartPos);
 
                             beginEncapsulation();
-                            write_string(value.id());
-                            write_string(value.name());
-                            _mc = value.member_count();
-                            write_long(_mc);
-                            for( int i = 0; i < _mc; i++)
+                            write_string(typeCode.id());
+                            write_string(typeCode.name());
+                            _memberCount = typeCode.member_count();
+                            write_long(_memberCount);
+                            for( int i = 0; i < _memberCount; i++)
                             {
-                                write_string( value.member_name(i) );
-                                write_TypeCode( value.member_type(i), recursiveTCMap, repeatedTCMap );
+                                write_string( typeCode.member_name(i) );
+                                write_TypeCode( typeCode.member_type(i), recursiveTCMap, repeatedTCMap );
                             }
                             endEncapsulation();
+
+                            //add typecode to cache not until here to account
+                            //for recursive TCs
+                            repeatedTCMap.put(typeCode, tcStartPos);
                         }
                         break;
-
+                    }
                     case TCKind._tk_longlong: // 23
                         // fallthrough
                     case TCKind._tk_ulonglong: // 24
@@ -1663,108 +1729,114 @@ public class CDROutputStream
                     case TCKind._tk_wstring: // 27
                     {
                         write_long( _kind  );
-                        write_long(value.length());
+                        write_long(typeCode.length());
                         break;
                     }
                     case TCKind._tk_fixed: //28
                     {
                         write_long( _kind  );
-                        write_ushort( value.fixed_digits() );
-                        write_short( value.fixed_scale() );
+                        write_ushort( typeCode.fixed_digits() );
+                        write_short( typeCode.fixed_scale() );
                         break;
                     }
                     case TCKind._tk_value: // 29
-                    if (useIndirection && repeatedTCMap != null &&
-                        repeatedTCMap.containsKey (value.id()))
                     {
-                        writeRecursiveTypeCode( value, repeatedTCMap );
-                    }
-                    else
-                    {
-                        write_long( _kind  );
-                        final Integer tcStartPos = new Integer( pos );
-                        recursiveTCMap.put( value.id(), tcStartPos );
-                        getKnownTCMap().put( value.id(), value );
-
-                        beginEncapsulation();
-                        write_string(value.id());
-                        write_string(value.name());
-                        write_short( value.type_modifier() );
-                        org.omg.CORBA.TypeCode base = value.concrete_base_type();
-                        if (base != null)
+                        if (useIndirection &&
+                                repeatedTCMap.containsKey(typeCode))
                         {
-                            write_TypeCode(base, recursiveTCMap, repeatedTCMap);
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
                         }
                         else
                         {
-                            write_long (TCKind._tk_null);
-                        }
-                        _mc = value.member_count();
-                        write_long(_mc);
-                        for( int i = 0; i < _mc; i++)
-                        {
-                            write_string( value.member_name(i) );
-                            write_TypeCode( value.member_type(i), recursiveTCMap, repeatedTCMap );
-                            write_short( value.member_visibility(i) );
-                        }
-                        endEncapsulation();
+                            write_long( _kind  );
 
-                        // add typecode to cache not until here to account
-                        // for recursive TCs
-                        getKnownTCMap().put(value.id(), value);
-                        repeatedTCMap.put(value.id(), tcStartPos);
+                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            recursiveTCMap.put( typeCode.id(), tcStartPos );
+
+                            beginEncapsulation();
+                            write_string(typeCode.id());
+                            write_string(typeCode.name());
+                            write_short( typeCode.type_modifier() );
+                            final org.omg.CORBA.TypeCode baseType = typeCode.concrete_base_type();
+                            if (baseType == null)
+                            {
+                                write_long (TCKind._tk_null);
+                            }
+                            else
+                            {
+                                write_TypeCode(baseType, recursiveTCMap, repeatedTCMap);
+                            }
+                            _memberCount = typeCode.member_count();
+                            write_long(_memberCount);
+                            for( int i = 0; i < _memberCount; i++)
+                            {
+                                write_string( typeCode.member_name(i) );
+                                write_TypeCode( typeCode.member_type(i), recursiveTCMap, repeatedTCMap );
+                                write_short( typeCode.member_visibility(i) );
+                            }
+                            endEncapsulation();
+
+                            // add typecode to cache not until here to account
+                            // for recursive TCs
+                            repeatedTCMap.put(typeCode, tcStartPos);
+                        }
+                        break;
                     }
-                    break;
                     case TCKind._tk_value_box: // 30
-                    if (useIndirection && repeatedTCMap != null &&
-                        repeatedTCMap.containsKey (value.id()))
                     {
-                        writeRecursiveTypeCode( value, repeatedTCMap );
-                    }
-                    else
-                    {
-                        write_long( _kind  );
-                        final Integer tcStartPos = new Integer( pos );
-                        recursiveTCMap.put( value.id(), tcStartPos );
-                        getKnownTCMap().put( value.id(), value );
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
+                        {
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
+                        }
+                        else
+                        {
+                            write_long( _kind  );
+                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            recursiveTCMap.put( typeCode.id(), tcStartPos );
 
-                        beginEncapsulation();
-                        write_string(value.id());
-                        write_string(value.name());
-                        write_TypeCode( value.content_type(), recursiveTCMap, repeatedTCMap);
-                        endEncapsulation();
+                            beginEncapsulation();
+                            write_string(typeCode.id());
+                            write_string(typeCode.name());
+                            write_TypeCode( typeCode.content_type(), recursiveTCMap, repeatedTCMap);
+                            endEncapsulation();
 
-                        // add typecode to cache not until here to account
-                        // for recursive TCs
-                        getKnownTCMap().put(value.id(), value);
-                        repeatedTCMap.put(value.id(), tcStartPos);
+                            // add typecode to cache not until here to account
+                            // for recursive TCs
+                            repeatedTCMap.put(typeCode, tcStartPos);
+                        }
+                        break;
                     }
-                    break;
                     case TCKind._tk_native:
                     {
                         throw new MARSHAL("Cannot handle TypeCode with kind: " + _kind);
                     }
                     case TCKind._tk_abstract_interface:
-                        if (useIndirection && repeatedTCMap != null &&
-                                repeatedTCMap.containsKey (value.id()))
+                    {
+                        if (useIndirection && repeatedTCMap.containsKey(typeCode))
                         {
-                            writeRecursiveTypeCode( value, repeatedTCMap );
+                            writeIndirectionMarker(typeCode, repeatedTCMap);
                         }
                         else
                         {
                             write_long( _kind  );
-                            final Integer tcStartPos = new Integer( pos );
-                            recursiveTCMap.put( value.id(), tcStartPos );
-                            getKnownTCMap().put( value.id(), value );
+                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            recursiveTCMap.put( typeCode.id(), tcStartPos );
 
                             beginEncapsulation();
-                            write_string(value.id());
-                            write_string(value.name());
+                            write_string(typeCode.id());
+                            write_string(typeCode.name());
                             endEncapsulation();
+
+                            // add typecode to cache not until here to account
+                            // for recursive TCs
+                            repeatedTCMap.put(typeCode, tcStartPos);
                         }
                         break;
+                    }
                     default:
-                    throw new MARSHAL ("Cannot handle TypeCode with kind: " + _kind);
+                    {
+                        throw new MARSHAL ("Cannot handle TypeCode with kind: " + _kind);
+                    }
                 }
             }
         }
@@ -2133,8 +2205,10 @@ public class CDROutputStream
                     org.omg.CORBA.portable.BoxedValueHelper helper =
                         ((org.jacorb.orb.ORB)orb()).getBoxedValueHelper(id);
                     if (helper == null)
+                    {
                         throw new RuntimeException
                             ("No BoxedValueHelper for id " + id);
+                    }
                     java.io.Serializable value =
                         ((org.omg.CORBA_2_3.portable.InputStream)in).read_value(helper);
                     write_value (value, helper);
@@ -2173,7 +2247,7 @@ public class CDROutputStream
         if (!write_special_value (value))
         {
             check(7,4);
-            getValueMap().put (value, new Integer(pos));
+            getValueMap().put (value, ObjectUtil.newInteger(pos));
             write_previous_chunk_size();
             if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
                 (value instanceof java.lang.String))
@@ -2193,19 +2267,25 @@ public class CDROutputStream
     }
 
     public void write_value(final java.io.Serializable value,
-                             final java.lang.Class clz)
+                            final java.lang.Class clazz)
     {
         if (!write_special_value (value))
         {
-            Class c = value.getClass();
-            String repId = ValueHandler.getRMIRepositoryID(c);
-            if (c == clz && !repId.startsWith("RMI:"))
+            final Class _clazz = value.getClass();
+            final String repId = ValueHandler.getRMIRepositoryID(_clazz);
+            if (_clazz == clazz && !repId.startsWith("RMI:"))
+            {
                 // the repository id is required for "RMI:" valuetypes
                 write_value_internal (value, null);
-            else if (clz.isInstance (value))
+            }
+            else if (clazz.isInstance (value))
+            {
                 write_value_internal (value, repId);
+            }
             else
+            {
                 throw new BAD_PARAM();
+            }
         }
     }
 
@@ -2213,7 +2293,9 @@ public class CDROutputStream
                              final String repository_id)
     {
         if (!write_special_value (value))
+        {
             write_value_internal (value, repository_id);
+        }
     }
 
     /**
@@ -2260,7 +2342,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            getRepIdMap().put (repository_id, new Integer(pos));
+            getRepIdMap().put (repository_id, ObjectUtil.newInteger(pos));
             write_string (repository_id);
         }
         else
@@ -2298,7 +2380,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            getCodebaseMap().put (codebase, new Integer(pos));
+            getCodebaseMap().put (codebase, ObjectUtil.newInteger(pos));
             write_string (codebase);
         }
         else
@@ -2337,16 +2419,16 @@ public class CDROutputStream
             }
         }
         else
+        {
             write_long (0x7fffff00 | chunkingFlag);
+        }
     }
 
     /**
      * Writes to this stream a value header with the specified `repository_id'.
      * and `codebase' string.
      */
-
-    private void write_value_header
-       (final String[] repository_ids, final String codebase)
+    private void write_value_header(final String[] repository_ids, final String codebase)
     {
         if (codebase != null)
         {
@@ -2397,7 +2479,7 @@ public class CDROutputStream
                                        final String repository_id)
     {
         check(7,4);
-        getValueMap().put(value, new Integer(pos));
+        getValueMap().put(value, ObjectUtil.newInteger(pos));
 
         if (value.getClass() == String.class)
         {
@@ -2442,24 +2524,24 @@ public class CDROutputStream
         {
             String[] repository_ids =
                 (repository_id == null) ? null : new String[]{ repository_id };
-            Class cls = value.getClass();
-            String codebase = ValueHandler.getCodebase(cls);
+            Class clazz = value.getClass();
+            String codebase = ValueHandler.getCodebase(clazz);
             if (value instanceof org.omg.CORBA.portable.IDLEntity)
             {
                 java.lang.reflect.Method writeMethod = null;
-                if (cls != org.omg.CORBA.Any.class)
+                if (clazz != org.omg.CORBA.Any.class)
                 {
-                    String helperClassName = cls.getName() + "Helper";
+                    String helperClassName = clazz.getName() + "Helper";
 
                     try
                     {
                         Class helperClass =
-                            (cls.getClassLoader() != null)
-                                ? cls.getClassLoader().loadClass(helperClassName)
+                            (clazz.getClassLoader() != null)
+                                ? clazz.getClassLoader().loadClass(helperClassName)
                                 : ObjectUtil.classForName(helperClassName);
 
                         Class[] paramTypes =
-                            { org.omg.CORBA.portable.OutputStream.class, cls };
+                            { org.omg.CORBA.portable.OutputStream.class, clazz };
                         writeMethod = helperClass.getMethod("write", paramTypes);
                     }
                     catch (ClassNotFoundException e)
@@ -2504,7 +2586,7 @@ public class CDROutputStream
                 {
                     writeValueNestingLevel++;
                     if (chunkCustomRmiValuetypes
-                        && ValueHandler.isCustomMarshaled(cls))
+                        && ValueHandler.isCustomMarshaled(clazz))
                     {
                         chunkingFlag = 0x00000008;
                     }
@@ -2524,8 +2606,8 @@ public class CDROutputStream
                             ValueHandler.getRMIRepositoryID(newValue.getClass());
                         repository_ids =
                             (new_rep_id == null) ? null : new String []{new_rep_id};
-                        cls = newValue.getClass();
-                        codebase = ValueHandler.getCodebase(cls);
+                        clazz = newValue.getClass();
+                        codebase = ValueHandler.getCodebase(clazz);
                     }
 
                     write_value_header( repository_ids, codebase );
