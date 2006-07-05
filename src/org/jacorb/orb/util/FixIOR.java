@@ -144,6 +144,7 @@ public class FixIOR
                     ProfileBody_1_0Helper.write (os, body10);
                 }
                 profiles[i].profile_data = os.getBufferCopy ();
+                os.close();
             }
         }
 
