@@ -67,21 +67,34 @@ public class JacORBConfiguration
      * Factory method
      */
     public static Configuration getConfiguration(Properties props,
-            ORB orb,
-            boolean isApplet)
+                                                 ORB orb,
+                                                 boolean isApplet)
     throws ConfigurationException
     {
         // determine the ORBId, if set, so we can locate the corresponding
         // configuration
         String orbID = "jacorb"; // default id
-        String myOrbID = isApplet ? null : System.getProperty("ORBid");
+        String myOrbID = null;
+        if ( !isApplet ) {
+            try
+            {
+                myOrbID = System.getProperty("ORBid");
+            }
+            catch ( SecurityException e )
+            {
+                isApplet = true;
+                System.out.println("Could not access system property 'ORBid' - will use default...");
+            }
+        }
 
         if( props != null )
         {
             // props override system properties
             String tmp = (String)props.get("ORBid");
             if( tmp != null )
+            {
                 myOrbID = tmp;
+            }
         }
 
         if (myOrbID != null )
@@ -105,9 +118,9 @@ public class JacORBConfiguration
      */
 
     private JacORBConfiguration(String name,
-                              Properties orbProperties,
-                              ORB orb,
-                              boolean isApplet)
+                                Properties orbProperties,
+                                ORB orb,
+                                boolean isApplet)
         throws ConfigurationException
     {
         super(name);
@@ -328,7 +341,9 @@ public class JacORBConfiguration
 
        // 1) load system properties to grab any command line properties
        //    that will influence further property loading
-       setAttributes(orbProperties);
+       if ( orbProperties != null ) {
+           setAttributes(orbProperties);
+       }
 
        int logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",
                                             DEFAULT_LOG_LEVEL);
