@@ -75,6 +75,9 @@
         - Fix for PolicyManager. ADD_OVERRIDE didn't work.
         - CDRStream typecode marshaling cleaned up.
         - Fix for POA dispatching with transient objects.
+        - Added org.jacorb.orb.factory.FixedAddressSocketFactory that
+          binds client sockets to the address specified by the property
+          "OAIAddr".
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
