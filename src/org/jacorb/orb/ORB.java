@@ -2546,6 +2546,11 @@ public final class ORB
         }
     }
 
+    public String getServerIdString()
+    {
+        return serverIdStr;
+    }
+
     public byte[] getServerId()
     {
         return serverId;
@@ -2554,5 +2559,10 @@ public final class ORB
     public RPPoolManager newRPPoolManager(boolean isSingleThreaded)
     {
         return poolManagerFactory.newRPPoolManager(isSingleThreaded);
+    }
+
+    public String getImplName()
+    {
+        return implName;
     }
 }

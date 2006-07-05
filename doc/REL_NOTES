@@ -74,6 +74,7 @@
           account for value being insterted as a stream.
         - Fix for PolicyManager. ADD_OVERRIDE didn't work.
         - CDRStream typecode marshaling cleaned up.
+        - Fix for POA dispatching with transient objects.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
