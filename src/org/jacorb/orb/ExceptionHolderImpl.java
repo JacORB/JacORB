@@ -83,9 +83,17 @@ public class ExceptionHolderImpl
         is_system_exception = true;
         byte_order          = false;
 
-        CDROutputStream output = new CDROutputStream();
-        SystemExceptionHelper.write(output, ex);
-        marshaled_exception = output.getBufferCopy();
+        final CDROutputStream output = new CDROutputStream();
+
+        try
+        {
+            SystemExceptionHelper.write(output, ex);
+            marshaled_exception = output.getBufferCopy();
+        }
+        finally
+        {
+            output.close();
+        }
     }
 
     /**
