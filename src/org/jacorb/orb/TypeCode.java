@@ -23,10 +23,13 @@ package org.jacorb.orb;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.jacorb.ir.RepositoryID;
-
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.ValueMember;
 
@@ -597,22 +600,56 @@ public class TypeCode
             return id;
         }
 
-        switch( kind )
+        switch (kind)
         {
-            case   TCKind._tk_objref:
-            case   TCKind._tk_struct:
-            case   TCKind._tk_union:
-            case   TCKind._tk_enum:
-            case   TCKind._tk_alias:
-            case   TCKind._tk_value:
-            case   TCKind._tk_value_box:
-            case   TCKind._tk_native:
-            case   TCKind._tk_abstract_interface:
-            case   TCKind._tk_local_interface:
-            case   TCKind._tk_except:
+            case TCKind._tk_objref:   //14
+            case TCKind._tk_struct:   //15
+            case TCKind._tk_union:    //16
+            case TCKind._tk_enum:     //17
+            {
                 return id;
-            default:
+            }
+            case TCKind._tk_string:   //18
+            case TCKind._tk_sequence: //19
+            case TCKind._tk_array:    //20
+            {
+                //dummy cases for optimized switch
                 throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            }
+            case TCKind._tk_alias:    //21
+            case TCKind._tk_except:   //22
+            {
+                return id;
+            }
+            case TCKind._tk_longlong:  // 23
+            case TCKind._tk_ulonglong: // 24
+            case TCKind._tk_longdouble:// 25
+            case TCKind._tk_wchar:     // 26
+            case TCKind._tk_wstring:   // 27
+            case TCKind._tk_fixed:     // 28
+            {
+                //dummy cases for optimized switch
+                throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            }
+            case TCKind._tk_value:     // 29
+            case TCKind._tk_value_box: // 30
+            {
+                return id;
+            }
+            case TCKind._tk_native:    // 31
+            {
+                //dummy cases for optimized switch
+                throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            }
+            case TCKind._tk_abstract_interface: //32
+            case TCKind._tk_local_interface:    //33
+            {
+                return id;
+            }
+            default:
+            {
+                throw new org.omg.CORBA.TypeCodePackage.BadKind();
+            }
         }
     }
 
@@ -1125,10 +1162,10 @@ public class TypeCode
     /**
      * convenience method
      */
-    public static String idlTypeName( org.omg.CORBA.TypeCode tc )
+    public static String idlTypeName(org.omg.CORBA.TypeCode typeCode)
     {
-        return (tc instanceof org.jacorb.orb.TypeCode)
-                                  ? ((org.jacorb.orb.TypeCode)tc).idlTypeName()
+        return (typeCode instanceof org.jacorb.orb.TypeCode)
+                                  ? ((org.jacorb.orb.TypeCode)typeCode).idlTypeName()
                                   : "(foreign typecode)";
     }
 
@@ -1159,6 +1196,7 @@ public class TypeCode
                }
                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
                {
+                   throw new INTERNAL("should never happen");
                }
            case   TCKind._tk_void: return "void";
            case   TCKind._tk_string: return "string";
@@ -1170,6 +1208,7 @@ public class TypeCode
                }
                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
                {
+                   throw new INTERNAL("should never happen");
                }
            case   TCKind._tk_long: return "long";
            case   TCKind._tk_ulong: return "ulong";
@@ -1187,6 +1226,7 @@ public class TypeCode
                }
                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
                {
+                   throw new INTERNAL("should never happen");
                }
            }
            case   TCKind._tk_boolean: return "boolean";
@@ -1208,28 +1248,31 @@ public class TypeCode
                }
                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
                {
+                   throw new INTERNAL("should never happen");
                }
            }
            default:
+           {
                return "* no typeName for TK " + kind().value() + " *";
+           }
        }
     }
 
-    private static String idToIDL( String s )
+    private static String idToIDL( String id )
     {
-        if (s.length () > 4)
+        if (id.length () > 4)
         {
-            if (s.startsWith ("IDL:"))
+            if (id.startsWith ("IDL:"))
             {
-                s = s.substring (4, s.lastIndexOf (":"));
+                id = id.substring (4, id.lastIndexOf (":"));
             }
             else
             {
-                s = s.replace ('.','/') + ":1.0";
+                id = id.replace ('.','/') + ":1.0";
             }
         }
 
-        StringBuffer sb = new StringBuffer( s );
+        StringBuffer sb = new StringBuffer( id );
         int i = 0;
         while( i < sb.length() )
         {
@@ -1270,7 +1313,7 @@ public class TypeCode
         }
         catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
         {
-            // does not happen
+            throw new INTERNAL("should never happen");
         }
         return typeCode;
     }
@@ -1279,9 +1322,9 @@ public class TypeCode
      * Creates a TypeCode for an arbitrary Java class.
      * Right now, this only covers RMI classes, not those derived from IDL.
      */
-    public static TypeCode create_tc (Class clz)
+    public static TypeCode create_tc (Class clazz)
     {
-        return create_tc(clz, new HashMap());
+        return create_tc(clazz, new HashMap());
     }
 
     /**
@@ -1418,38 +1461,36 @@ public class TypeCode
      * definitions) all throw java.rmi.RemoteException or a superclass of
      * java.rmi.RemoteException are mapped to IDL abstract interfaces.
      */
-    private static boolean isMappedToAnAbstractInterface(Class clz)
+    private static boolean isMappedToAnAbstractInterface(Class clazz)
     {
-        if (!clz.isInterface())
+        if (!clazz.isInterface())
         {
             return false;
         }
-        else
+        Method[] methods = clazz.getMethods();
+        for (int i = 0; i < methods.length; i++)
         {
-            java.lang.reflect.Method[] methods = clz.getMethods();
-            for (int i = 0; i < methods.length; i++)
+            Class[] exceps = methods[i].getExceptionTypes();
+            int j = 0;
+            while (j < exceps.length)
             {
-                Class[] exceps = methods[i].getExceptionTypes();
-                int j = 0;
-                while (j < exceps.length)
+                if (exceps[j].isAssignableFrom(
+                        java.rmi.RemoteException.class))
                 {
-                    if (exceps[j].isAssignableFrom(
-                                               java.rmi.RemoteException.class))
-                        break;
-                    else
-                        j++;
+                    break;
                 }
-                if (j == exceps.length)
-                {
-                    // method[i] does not throw java.rmi.RemoteException
-                    // or a superclass of java.rmi.RemoteException
-                    return false;
-                }
+                j++;
             }
-            // every method throws java.rmi.RemoteException
-            // or a superclass of java.rmi.RemoteException
-            return true;
+            if (j == exceps.length)
+            {
+                // method[i] does not throw java.rmi.RemoteException
+                // or a superclass of java.rmi.RemoteException
+                return false;
+            }
         }
+        // every method throws java.rmi.RemoteException
+        // or a superclass of java.rmi.RemoteException
+        return true;
     }
 
     /**
@@ -1458,18 +1499,19 @@ public class TypeCode
      * recursive type codes must be created; this is passed through
      * from `create_tc (Class, Map)' above.
      */
-    private static ValueMember[] getValueMembers (Class clz, Map knownTypes)
+    private static ValueMember[] getValueMembers (Class clazz, Map knownTypes)
     {
-        List    result = new ArrayList();
-        Field[] fields = clz.getDeclaredFields();
+        final List    result = new ArrayList();
+        final Field[] fields = clazz.getDeclaredFields();
         for (int i=0; i < fields.length; i++)
         {
             if ((fields[i].getModifiers()
-                 & (Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT))
-                == 0)
+                 & (Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT)) == 0)
+            {
                 result.add (createValueMember (fields[i], knownTypes));
+            }
         }
-        return (ValueMember[])result.toArray (new ValueMember[0]);
+        return (ValueMember[])result.toArray(new ValueMember[result.size()]);
     }
 
     /**
@@ -1478,15 +1520,15 @@ public class TypeCode
      * type codes must be created; this is passed through from
      * `create_tc (Class, Map)' above.
      */
-    private static ValueMember createValueMember (Field f, Map knownTypes)
+    private static ValueMember createValueMember (Field field, Map knownTypes)
     {
-        Class    type   = f.getType();
-        String   id     = RepositoryID.repId (type);
-        TypeCode tc     = create_tc (type, knownTypes);
-        short    access = ((f.getModifiers() & Modifier.PUBLIC) != 0)
+        final Class    type   = field.getType();
+        final String   id     = RepositoryID.repId (type);
+        final TypeCode tc     = create_tc (type, knownTypes);
+        final short    access = ((field.getModifiers() & Modifier.PUBLIC) != 0)
                               ? org.omg.CORBA.PUBLIC_MEMBER.value
                               : org.omg.CORBA.PRIVATE_MEMBER.value;
-        return new ValueMember (f.getName(), id, "", "1.0", tc, null, access);
+        return new ValueMember (field.getName(), id, "", "1.0", tc, null, access);
     }
 
    /*
@@ -1524,38 +1566,44 @@ public class TypeCode
          typeCode = TypeCode.originalType (member_type[i]);
          if (typeCode instanceof TypeCode)
          {
-            tc = (TypeCode)typeCode;
+             tc = (TypeCode)typeCode;
 
-            switch (tc.kind)
-            {
-            case   TCKind._tk_struct:
-            case   TCKind._tk_union:
-            case   TCKind._tk_value:
-               tc.resolveRecursion (actual);
-               break;
-            case   TCKind._tk_sequence:
-               typeCode = originalType (tc.content_type);
-               if (typeCode instanceof TypeCode)
-               {
-                  tc = (TypeCode)typeCode;
-
-                  if (tc.is_recursive () && tc.id.equals (actual.id))
-                  {
-                     tc.setActualTC (actual);
-                  }
-                  else
-                  {
+             switch (tc.kind)
+             {
+                 case TCKind._tk_struct:
+                 case TCKind._tk_union:
+                 case TCKind._tk_value:
+                 {
                      tc.resolveRecursion (actual);
-                  }
-               }
-               break;
-            case  -1: // create_recursive_tc sets kind to -1
-               if (tc.id.equals (actual.id))
-               {
-                   tc.setActualTC (actual);
-               }
-               break;
-            }
+                     break;
+                 }
+                 case TCKind._tk_sequence:
+                 {
+                     typeCode = originalType (tc.content_type);
+                     if (typeCode instanceof TypeCode)
+                     {
+                         tc = (TypeCode)typeCode;
+
+                         if (tc.is_recursive () && tc.id.equals (actual.id))
+                         {
+                             tc.setActualTC (actual);
+                         }
+                         else
+                         {
+                             tc.resolveRecursion (actual);
+                         }
+                     }
+                     break;
+                 }
+                 case -1: // create_recursive_tc sets kind to -1
+                 {
+                     if (tc.id.equals (actual.id))
+                     {
+                         tc.setActualTC (actual);
+                     }
+                     break;
+                 }
+             }
          }
       }
    }
@@ -1563,11 +1611,11 @@ public class TypeCode
     * Set the actual TypeCode if this TypeCode is recursive.
     * @param tc The actual TypeCode
     */
-   private void setActualTC (TypeCode tc)
+   private void setActualTC(TypeCode typeCode)
    {
       if (is_recursive ())
       {
-         actualTypecode = tc;
+         actualTypecode = typeCode;
       }
    }
 
@@ -1578,7 +1626,7 @@ public class TypeCode
     * @exception BAD_INV_ORDER if this TypeCode is recursive and an operation
     * is called on it before the enclosing TypeCode has been fully resolved
     */
-   private void checkActualTC ()
+   private void checkActualTC()
    {
       if (is_recursive () && actualTypecode == null)
       {
