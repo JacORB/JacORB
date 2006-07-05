@@ -90,13 +90,20 @@ public class BiDirConnectionClientInterceptor
                 org.omg.CORBA.Any any = orb.create_any();
                 BiDirIIOPServiceContextHelper.insert( any, b );
 
-                CDROutputStream cdr_out = new CDROutputStream();
+                final CDROutputStream cdr_out = new CDROutputStream();
 
-                cdr_out.beginEncapsulatedArray();
-                BiDirIIOPServiceContextHelper.write( cdr_out, b );
+                try
+                {
+                    cdr_out.beginEncapsulatedArray();
+                    BiDirIIOPServiceContextHelper.write( cdr_out, b );
 
-                bidir_ctx = new ServiceContext( BI_DIR_IIOP.value,
-                                                cdr_out.getBufferCopy() );
+                    bidir_ctx = new ServiceContext( BI_DIR_IIOP.value,
+                            cdr_out.getBufferCopy() );
+                }
+                finally
+                {
+                    cdr_out.close();
+                }
             }
 
             ri.add_request_service_context( bidir_ctx, true );
