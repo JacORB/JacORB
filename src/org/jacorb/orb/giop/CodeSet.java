@@ -235,12 +235,19 @@ public class CodeSet
     public static ServiceContext createCodesetContext( int tcs, int tcsw )
     {
         // encapsulate context
-        CDROutputStream os = new CDROutputStream();
-        os.beginEncapsulatedArray();
-        CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
+        final CDROutputStream os = new CDROutputStream();
+        try
+        {
+            os.beginEncapsulatedArray();
+            CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
 
-        return new ServiceContext( TAG_CODE_SETS.value,
-                                   os.getBufferCopy() );
+            return new ServiceContext( TAG_CODE_SETS.value,
+                    os.getBufferCopy() );
+        }
+        finally
+        {
+            os.close();
+        }
     }
 
     public static CodeSetContext getCodeSetContext( ServiceContext[] contexts )

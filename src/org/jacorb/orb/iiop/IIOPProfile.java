@@ -233,16 +233,23 @@ public class IIOPProfile
             ssl.target_requires = get_ssl_options(propname);
 
             //create the tagged component containing the ssl struct
-            CDROutputStream out = new CDROutputStream();
-            out.beginEncapsulatedArray();
-            SSLHelper.write( out, ssl );
+            final CDROutputStream out = new CDROutputStream();
+            try
+            {
+                out.beginEncapsulatedArray();
+                SSLHelper.write( out, ssl );
 
-            // TAG_SSL_SEC_TRANS must be disambiguated in case OpenORB-generated
-            // OMG classes are in the classpath.
-            components.addComponent
+                // TAG_SSL_SEC_TRANS must be disambiguated in case OpenORB-generated
+                // OMG classes are in the classpath.
+                components.addComponent
                 (new TaggedComponent( org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value,
-                                      out.getBufferCopy() )
-                 );
+                        out.getBufferCopy() )
+                );
+            }
+            finally
+            {
+                out.close();
+            }
         }
     }
 
