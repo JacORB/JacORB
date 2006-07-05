@@ -1871,13 +1871,13 @@ public final class ORB
 
             return _getObject(pior);
         }
-        catch (IllegalArgumentException iae)
+        catch (Exception e)
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug(iae.getMessage());
+                logger.debug(e.getMessage());
             }
-            return null;
+            throw new BAD_PARAM(10, CompletionStatus.COMPLETED_NO);
         }
     }
 
