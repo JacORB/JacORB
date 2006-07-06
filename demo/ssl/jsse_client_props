@@ -8,6 +8,7 @@ jacorb.security.ssl.client.supported_options=60
 jacorb.security.ssl.client.required_options=60
 
 jacorb.ssl.socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
+jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
 
 jacorb.security.keystore_password=jsse_client_ks_pass
 jacorb.security.keystore=jsse_client_ks
