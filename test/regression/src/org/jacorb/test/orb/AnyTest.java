@@ -69,6 +69,14 @@ public class AnyTest extends ClientServerTestCase
 
         TestUtils.addToSuite(suite, setup, AnyTest.class);
 
+        // in the PrismTech version of this test there are
+        // some environments where we don't want
+        // to run all tests.
+        // for now all tests are run. please
+        // leave in the commented out section so that
+        // the information is not lost which tests
+        // should be excluded eventually.
+
 //        suite.addTest(new AnyTest("test_empty", setup));
 //        suite.addTest(new AnyTest("test_short", setup));
 //        suite.addTest(new AnyTest("test_short_streamable", setup));
