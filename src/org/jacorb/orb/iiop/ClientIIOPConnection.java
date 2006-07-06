@@ -518,9 +518,16 @@ public class ClientIIOPConnection
             try
             {
                 byte[] tagData = sas.mechanism_list[0].transport_mech.component_data;
-                CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null, tagData );
-                in.openEncapsulatedArray();
-                tls = TLS_SEC_TRANSHelper.read( in );
+                final CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null, tagData );
+                try
+                {
+                    in.openEncapsulatedArray();
+                    tls = TLS_SEC_TRANSHelper.read( in );
+                }
+                finally
+                {
+                    in.close();
+                }
             }
             catch ( Exception ex )
             {
