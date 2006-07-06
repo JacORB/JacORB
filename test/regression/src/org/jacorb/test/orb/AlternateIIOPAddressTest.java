@@ -43,8 +43,8 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
     private static final String WRONG_HOST   = "10.0.1.222";
     private static final String WRONG_HOST_2 = "10.0.1.223";
 
-    private static final int CORRECT_PORT = 45000;
-    private static final int WRONG_PORT   = 45001;
+    private static final int CORRECT_PORT = 46000;
+    private static final int WRONG_PORT   = 46001;
 
     public AlternateIIOPAddressTest(String name, ClientServerSetup setup)
     {
@@ -84,7 +84,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         client_props.setProperty("jacorb.regression.disable_security",
                                  "true");
 
-        
+
         ClientServerSetup setup =
             new ClientServerSetup (suite,
                                    "org.jacorb.test.orb.IIOPAddressServerImpl",
@@ -123,7 +123,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         Sample s = server.getObject();
         try
         {
-            int result = s.ping (123);
+            s.ping (123);
             fail ("TRANSIENT or TIMEOUT exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
@@ -142,7 +142,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         Sample s = server.getObject();
         try
         {
-            int result = s.ping (4);
+            s.ping (4);
             fail ("TRANSIENT or TIMEOUT exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
@@ -194,7 +194,5 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         {
             // ok - client connection timeout configured.
         }
-
     }
-
 }
