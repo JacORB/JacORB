@@ -60,6 +60,11 @@
    <mkdir dir="${src}/generated"/>
    <filter token="path" value="basedir"/>
 
+    <condition property="java-source-version" value="1.5">
+        <available classname="java.util.concurrent.Semaphore"/>
+    </condition>
+    <property name="java-source-version" value="1.4"/>
+
    <!-- = = = = = = = = = = = = = = = = =
       macrodef: jacorb-javac
       = = = = = = = = = = = = = = = = = -->
@@ -72,7 +77,7 @@
       <attribute name="javac-classpathref" default="path.base" />
 
       <sequential>
-         <echo message="Compiling for ${ant.project.name}"/>
+         <echo message="Compiling for ${ant.project.name} (JDK v${java-source-version})"/>
 
          <javac srcdir="@{javac-src}"
                 encoding="@{javac-encoding}"
@@ -83,8 +88,8 @@
                 sourcepathref="@{javac-sourcepath}"
                 includes="@{javac-includes}"
                 excludes="@{javac-excludes}"
-                source="1.4"
-                target="1.4" >
+                source="${java-source-version}"
+                target="${java-source-version}" >
             <src path="@{javac-src}" />
             <src path="${src.generated}" />
          </javac>
