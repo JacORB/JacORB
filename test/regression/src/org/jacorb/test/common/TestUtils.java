@@ -386,4 +386,9 @@ public class TestUtils
 
          return (Stub) PortableRemoteObject.toStub(remote);
     }
+
+    public static boolean isJDK13()
+    {
+        return JDK_13;
+    }
 }
