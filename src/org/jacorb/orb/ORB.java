@@ -2193,7 +2193,7 @@ public final class ORB
             }
             catch( ConfigurationException ce )
             {
-                throw new INTERNAL(ce.toString());
+                throw new INITIALIZE(ce.toString());
             }
         }
         return transport_manager;
