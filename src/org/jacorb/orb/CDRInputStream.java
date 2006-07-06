@@ -1663,7 +1663,7 @@ public class CDRInputStream
      * know the length it is possible find and calculate and extra positions
      * that should be added.
      *
-     * @param tcMap a <code>TreeMap</code> value which may be updated.
+     * @param tcMap a <code>Map</code> value which may be updated.
      * @param new_start an <code>int</code> value
      * @param size an <code>int</code> value
      * @param old_start an <code>Integer</code> value
@@ -2777,34 +2777,14 @@ public class CDRInputStream
             else if (repository_ids[i].startsWith("RMI:javax.rmi.CORBA.ClassDesc:"))
             {
                 // special handling of java.lang.Class instances
-                String classCodebase = (String)read_value(String.class);
-                String reposId = (String)read_value(String.class);
-                String className =
+                final String classCodebase = (String)read_value(String.class);
+                final String reposId = (String)read_value(String.class);
+                final String className =
                     org.jacorb.ir.RepositoryID.className(reposId, null);
-                ClassLoader ctxcl =
-                    Thread.currentThread().getContextClassLoader();
 
                 try
                 {
-                    if (ctxcl != null)
-                    {
-                        try
-                        {
-                            result = ctxcl.loadClass(className);
-                        }
-                        catch (ClassNotFoundException cnfe)
-                        {
-                            result = ValueHandler.loadClass(className,
-                                                            classCodebase,
-                                                            null);
-                        }
-                    }
-                    else
-                    {
-                        result = ValueHandler.loadClass(className,
-                                                        classCodebase,
-                                                        null);
-                    }
+                    result = loadClass(className, classCodebase);
                 }
                 catch (ClassNotFoundException e)
                 {
@@ -2838,51 +2818,12 @@ public class CDRInputStream
             }
             else // RMI
             {
-                // Load the value's class, using the context class loader
-                // of the current thread if possible.  Here's Francisco
-                // Reverbel's <reverbel@ime.usp.br> explanation of why
-                // this is needed in JBoss:
-
-                // "It seems that ValueHandler.loadClass() uses the thread
-                // context classloader only after it looks for other
-                // classloaders in the call stack (weird). In some
-                // situations (when EJBs are undeployed and then
-                // redeployed) it finds in the call stack a classloader
-                // used for an undeployed EJB. A value of class Foo is
-                // then unmarshalled with type
-                // classloaderOfEJB1:Foo, when the expected type is
-                // classloaderOfEJB2:Foo. I am getting ClassCastExceptions is this
-                // situation.
-                // Explicitly using the thread context class loader in the
-                // first place solves the problem."
-
-                String className =
+                final String className =
                     org.jacorb.ir.RepositoryID.className(repository_ids[i], null);
-
-                Class clazz;
-                //#ifjdk 1.2
-                ClassLoader clazzLoader = Thread.currentThread().getContextClassLoader();
-                //#else
-                //# ClassLoader ctxcl = null;
-                //#endif
 
                 try
                 {
-                    if (clazzLoader == null)
-                    {
-                        clazz = ValueHandler.loadClass(className, codebase, null);
-                    }
-                    else
-                    {
-                        try
-                        {
-                            clazz = clazzLoader.loadClass(className);
-                        }
-                        catch (ClassNotFoundException e)
-                        {
-                            clazz = ValueHandler.loadClass(className, codebase, null);
-                        }
-                    }
+                    final Class clazz = loadClass(className, codebase);
 
                     if (IDLEntity.class.isAssignableFrom(clazz))
                     {
@@ -2897,7 +2838,7 @@ public class CDRInputStream
                                 final Class helperClass;
                                 if (classLoader == null)
                                 {
-                                    helperClass = Class.forName(helperClassName);
+                                    helperClass = ObjectUtil.classForName(helperClassName);
                                 }
                                 else
                                 {
@@ -2973,6 +2914,51 @@ public class CDRInputStream
         }
 
         return result;
+    }
+
+    /** Load the value's class, using the context class loader
+     *  of the current thread if possible.  Here's Francisco
+     *  Reverbel's <reverbel@ime.usp.br> explanation of why
+     *  this is needed in JBoss:
+     *
+     *  "It seems that ValueHandler.loadClass() uses the thread
+     *  context classloader only after it looks for other
+     *  classloaders in the call stack (weird). In some
+     *  situations (when EJBs are undeployed and then
+     *  redeployed) it finds in the call stack a classloader
+     *  used for an undeployed EJB. A value of class Foo is
+     *  then unmarshalled with type
+     *  classloaderOfEJB1:Foo, when the expected type is
+     *  classloaderOfEJB2:Foo. I am getting ClassCastExceptions is this
+     *  situation.
+     *  Explicitly using the thread context class loader in the
+     *  first place solves the problem."
+     */
+    private Class loadClass(String className, final String codebase) throws ClassNotFoundException
+    {
+        Class clazz;
+        //#ifjdk 1.2
+        ClassLoader clazzLoader = Thread.currentThread().getContextClassLoader();
+        //#else
+        //# ClassLoader ctxcl = null;
+        //#endif
+
+        if (clazzLoader == null)
+        {
+            clazz = ValueHandler.loadClass(className, codebase, null);
+        }
+        else
+        {
+            try
+            {
+                clazz = clazzLoader.loadClass(className);
+            }
+            catch (ClassNotFoundException e)
+            {
+                clazz = ValueHandler.loadClass(className, codebase, null);
+            }
+        }
+        return clazz;
     }
 
     /**
