@@ -21,6 +21,10 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 
 import org.omg.CORBA.*;
@@ -79,17 +83,17 @@ import org.jacorb.test.common.launch.*;
  */
 public class ClientServerSetup extends TestSetup {
 
-    protected String                     servantName;
+    protected final String               servantName;
     protected Process                    serverProcess;
     protected StreamListener             outListener, errListener;
     protected org.omg.CORBA.Object       serverObject;
     protected org.omg.CORBA.ORB          clientOrb;
     protected org.omg.PortableServer.POA clientRootPOA;
 
-    private Properties clientOrbProperties = null;
-    private Properties serverOrbProperties = null;
+    private final Properties clientOrbProperties = new Properties();
+    private final Properties serverOrbProperties = new Properties();
 
-    private static Comparator comparator = new JacORBVersionComparator();
+    private static final Comparator comparator = new JacORBVersionComparator();
 
     /**
      * Constructs a new ClientServerSetup that is wrapped
@@ -107,7 +111,6 @@ public class ClientServerSetup extends TestSetup {
     {
         super ( test );
         this.servantName = servantName;
-        clientOrbProperties = new Properties();
         clientOrbProperties.put ("org.omg.CORBA.ORBClass",
                                  "org.jacorb.orb.ORB");
         clientOrbProperties.put ("org.omg.CORBA.ORBSingletonClass",
@@ -121,12 +124,19 @@ public class ClientServerSetup extends TestSetup {
     {
         this( test, servantName );
         if (clientOrbProperties != null)
+        {
             this.clientOrbProperties.putAll (clientOrbProperties);
-        this.serverOrbProperties = serverOrbProperties;
+        }
+        if (serverOrbProperties != null)
+        {
+            this.serverOrbProperties.putAll(serverOrbProperties);
+        }
     }
 
     public void setUp() throws Exception
     {
+        initSecurity();
+
         clientOrb = ORB.init (new String[0], clientOrbProperties );
         clientRootPOA = POAHelper.narrow
                           ( clientOrb.resolve_initial_references( "RootPOA" ) );
@@ -136,14 +146,15 @@ public class ClientServerSetup extends TestSetup {
                                                    "cvs");
         String testID = System.getProperty("jacorb.test.id", "");
         String cs = System.getProperty ("jacorb.test.coverage", "false");
-        boolean coverage = cs.equals("true") || cs.equals("on") || cs.equals("yes");
+        boolean coverage = isPropertyTrue(cs);
         String outStr = System.getProperty("jacorb.test.outputfile.testname", "false");
-        boolean outputFileTestName =
-            (outStr.equals("true") || outStr.equals("on") || outStr.equals("yes"));
+        boolean outputFileTestName = isPropertyTrue(outStr);
 
         Properties serverProperties = new Properties();
         if (serverOrbProperties != null)
+        {
             serverProperties.putAll (serverOrbProperties);
+        }
         serverProperties.put ("jacorb.implname", servantName);
 
         JacORBLauncher launcher = JacORBLauncher.getLauncher (serverVersion,
@@ -242,5 +253,114 @@ public class ClientServerSetup extends TestSetup {
     public POA getClientRootPOA()
     {
         return clientRootPOA;
+    }
+
+    /**
+     * <code>checkProperties</code> examines clientOrbProperties and serverOrbProperties
+     * for the key jacorb.regression.disable_security. If it is found in one of the properties
+     * and is set to true this
+     * will return false therebye disabling security. This is useful if the test has not
+     * extended ClientServerSetup but does want to disable the security e.g. WIOP tests.
+     *
+     * @return a <code>boolean</code> value
+     */
+    private boolean checkProperties()
+    {
+        boolean result = true;
+
+        if (clientOrbProperties != null)
+        {
+            if (isPropertyTrue(clientOrbProperties.getProperty
+                            ("jacorb.regression.disable_security", "false")))
+            {
+                result = false;
+            }
+        }
+        if (serverOrbProperties != null)
+        {
+            if (isPropertyTrue(serverOrbProperties.getProperty
+                            ("jacorb.regression.disable_security", "false")))
+            {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * <code>initSecurity</code> adds security properties if so configured
+     * by the environment. It is possible to turn this off for selected tests
+     * either by overriding this method or by setting properties for checkProperties
+     * to handle.
+     *
+     * @exception IOException if an error occurs
+     */
+    protected void initSecurity() throws IOException
+    {
+        final String sslProperty = System.getProperty("TEST_SSL");
+        final boolean useSSL = isPropertyTrue(sslProperty);
+
+        if (useSSL && checkProperties())
+        {
+            // In this case we have been configured to run all the tests
+            // in SSL mode. For simplicity, we will use the demo/ssl keystore
+            // and properties (partly to ensure that they always work)
+            Properties clientProps = loadSSLProps("jsse_client_props", "jsse_client_ks");
+
+            clientOrbProperties.putAll(clientProps);
+
+            Properties serverProps = loadSSLProps("jsse_server_props", "jsse_server_ks");
+
+            serverOrbProperties.putAll(serverProps);
+        }
+    }
+
+    /**
+     * its assumed that the property file and the keystore file
+     * are located in the demo/ssl dir.
+     */
+    private Properties loadSSLProps(String propertyFilename, String keystoreFilename) throws IOException
+    {
+        final Properties props = new Properties();
+
+        final File file = new File
+        (
+            TestUtils.testHome()
+            + File.separatorChar
+            + ".."
+            + File.separatorChar
+            + ".."
+            + File.separatorChar
+            + "demo"
+            + File.separatorChar
+            + "ssl"
+            + File.separatorChar
+            + propertyFilename
+        );
+
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
+        try
+        {
+            props.load(input);
+        }
+        finally
+        {
+            input.close();
+        }
+
+        props.put
+        (
+            "jacorb.security.keystore",
+            file.getParent() + File.separatorChar + keystoreFilename
+        );
+
+        props.put("jacorb.security.ssl.ssl_listener", SSLListener.class.getName());
+
+        return props;
+    }
+
+    private static boolean isPropertyTrue(String value)
+    {
+        return "true".equalsIgnoreCase(value) || "on".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
     }
 }
