@@ -41,6 +41,9 @@ public class BugJac181ClientListenerTest extends ClientServerTestCase
         Properties client_props = new Properties();
         Properties server_props = new Properties();
 
+        client_props.put("jacorb.regression.disable_security", "true");
+        server_props.put("jacorb.regression.disable_security", "true");
+
         client_props.setProperty (SocketFactoryManager.TCP_LISTENER, TCPListener.class.getName());
 
         ClientServerSetup setup = new ClientServerSetup
