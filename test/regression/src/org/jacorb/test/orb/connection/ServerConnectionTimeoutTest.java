@@ -20,16 +20,22 @@ package org.jacorb.test.orb.connection;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.*;
+import java.util.Properties;
 
-import org.jacorb.test.common.*;
-import org.omg.CORBA.*;
-import org.jacorb.test.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.jacorb.orb.iiop.ClientIIOPConnection;
+import org.jacorb.test.TestIf;
+import org.jacorb.test.TestIfHelper;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 
-import java.util.*;
-
+/**
+ * @author Nicolas Noffke
+ * @version $Id$
+ */
 public class ServerConnectionTimeoutTest extends ClientServerTestCase
 {
     private TestIf server;
@@ -52,29 +58,29 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
             new Properties();
         server_props.setProperty( "jacorb.connection.server.timeout", "1000" );
 
+        if (TestUtils.isJDK13())
+        {
+            server_props.setProperty(ClientServerSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        }
+
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.connection.ConnectionTimeoutServerImpl",
                                    null,
                                    server_props );
 
-        suite.addTest( new ServerConnectionTimeoutTest( "testTimeout", setup ));
+        TestUtils.addToSuite(suite, setup, ServerConnectionTimeoutTest.class);
 
         return setup;
     }
 
-    public void testTimeout()
+    public void testTimeout() throws Exception
     {
-
         //call remote op with reply
         server.op();
 
-        try
-        {
-            //wait 2 secs
-            Thread.sleep( 2000 );
-        }
-        catch( Exception e ){ e.printStackTrace(); }
+        //wait 2 secs
+        Thread.sleep( 2000 );
 
         //all transports must be down by now
         //NOTE: if this doesn't compile, please check if
@@ -84,12 +90,7 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
         //call oneway remote op
         server.onewayOp();
 
-        try
-        {
-            //wait 2 secs
-            Thread.sleep( 2000 );
-        }
-        catch( Exception e ){ e.printStackTrace(); }
+        Thread.sleep( 2000 );
 
         //all transports must be down by now
         //NOTE: if this doesn't compile, please check if
