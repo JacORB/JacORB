@@ -186,6 +186,7 @@
          <jvmarg value="-Djacorb.test.coverage=${jacorb.test.coverage}"/>
          <jvmarg value="-Djacorb.test.verbose=${jacorb.test.verbose}" />
          <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
+	     <jvmarg value="-DTEST_SSL=${test.ssl}" />
 
          <!-- Note - passing multiple arguments to this class may affect the output file -->
          <!-- naming. See TestLauncher.getOutFilename                                    -->
