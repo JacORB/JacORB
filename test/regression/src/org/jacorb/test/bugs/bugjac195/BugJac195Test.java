@@ -62,6 +62,8 @@ public class BugJac195Test extends ClientServerTestCase
         Properties client_props = new Properties();
         Properties server_props = new Properties();
 
+        server_props.setProperty("jacorb.regression.disable_security", "true");
+
         server_props.setProperty ("OAPort",
                                   port);
 

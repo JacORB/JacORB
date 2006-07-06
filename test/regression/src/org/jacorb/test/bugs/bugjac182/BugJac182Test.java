@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bugjac182;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import junit.framework.Test;
@@ -81,6 +82,11 @@ public class BugJac182Test extends ClientServerTestCase
                 public String getTestServerMain()
                 {
                     return BugJac182TestServerRunner.class.getName();
+                }
+
+                // override to do nothing!
+                protected void initSecurity() throws IOException
+                {
                 }
             };
 

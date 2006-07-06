@@ -95,6 +95,12 @@ public class AlternateProfileTest extends ClientServerTestCase
              "org.jacorb.test.orb.IIOPProfileORBInitializer");
         server_props.setProperty ("OAPort", Integer.toString(CORRECT_PORT));
 
+        // If security is not disabled it will not use the above host/port
+        // combinations.
+        client_props.setProperty("jacorb.regression.disable_security",
+                                 "true");
+
+        
         ClientServerSetup setup =
          new ClientServerSetup (suite,
                                    "org.jacorb.test.orb.IIOPAddressServerImpl",

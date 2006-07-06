@@ -44,6 +44,8 @@ public class SunSunRMITest extends RMITest
 
         Properties client_props = TestUtils.newSunORBProperties();
         Properties server_props = TestUtils.newSunORBProperties();
+        client_props.setProperty("jacorb.regression.disable_security", "true");
+        server_props.setProperty("jacorb.regression.disable_security", "true");
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,

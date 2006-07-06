@@ -61,8 +61,13 @@ public class SpecificProfileSelectorTest extends ClientServerTestCase
         TestSuite suite = new TestSuite ("Profile Selector");
 
         // client ORB from setup is not used.
-        Properties clientProps = null;
+        Properties clientProps = new Properties();
 
+        // WIOP does not support SSL.
+        clientProps.setProperty("jacorb.regression.disable_security",
+                                "true");
+
+        
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.orb.iiop.IIOPFactories," +

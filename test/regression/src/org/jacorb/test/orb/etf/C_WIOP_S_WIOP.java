@@ -61,6 +61,11 @@ public class C_WIOP_S_WIOP extends ClientServerTestCase
         props.setProperty("jacorb.transport.factories",
                           "org.jacorb.test.orb.etf.wiop.WIOPFactories");
         
+        // WIOP does not support SSL.
+        props.setProperty("jacorb.regression.disable_security",
+                          "true");
+
+        
         ClientServerSetup setup = 
           new ClientServerSetup (suite,
                                  "org.jacorb.test.orb.BasicServerImpl",
