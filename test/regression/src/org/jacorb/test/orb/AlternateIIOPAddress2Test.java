@@ -76,6 +76,10 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
         client_props.setProperty ("jacorb.retries", "0");
         client_props.setProperty ("jacorb.retry_interval", "50");
         client_props.setProperty ("jacorb.connection.client.connect_timeout","5000");
+        // If security is not disabled it will not use the above host/port
+        // combinations.
+        client_props.setProperty("jacorb.regression.disable_security",
+                                 "true");
 
         Properties server_props = new Properties();
         server_props.setProperty
@@ -89,13 +93,7 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
                                    client_props,
                                    server_props);
 
-        suite.addTest (new AlternateIIOPAddress2Test("test_ping", setup));
-        suite.addTest (new AlternateIIOPAddress2Test("test_primary_ok", setup));
-        suite.addTest (new AlternateIIOPAddress2Test("test_primary_wrong_host", setup));
-        suite.addTest (new AlternateIIOPAddress2Test("test_primary_wrong_port", setup));
-        suite.addTest (new AlternateIIOPAddress2Test("test_alternate_ok", setup));
-        suite.addTest (new AlternateIIOPAddress2Test("test_alternate_ok_2", setup));
-        suite.addTest (new AlternateIIOPAddress2Test("test_alternate_wrong", setup));
+        TestUtils.addToSuite(suite, setup, AlternateIIOPAddress2Test.class);
 
         return setup;
     }
