@@ -377,16 +377,20 @@ public abstract class GIOPConnection
         }
         else
         {
-            if (logger.isErrorEnabled())
-            {
-                logger.error( "Failed to read GIOP message, incorrect magic number" );
-            }
-
             if (logger.isDebugEnabled())
             {
-                logger.debug("GIOPConnection.getMessage()" + msg_header.value );
+                logger.debug("GIOPConnection.getMessage(): invalid header read: " + msg_header.value );
             }
 
+            if (logger.isErrorEnabled())
+            {
+                logger.error( "Failed to read GIOP message, incorrect magic number --> connection closed" );
+            }
+            //close transport connection, there is nearly no chance to sync with
+            //peer on this connection again
+            close();
+            //signal GIOPConnectionManager to throw this connection away
+            this.streamClosed();
             return null;
         }
     }
