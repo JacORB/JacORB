@@ -165,7 +165,7 @@ public class Time
         CDROutputStream out = new CDROutputStream(buffer);
         out.beginEncapsulatedArray();
         UtcTHelper.write(out, time);
-        return buffer;
+        return out.getBufferCopy();
     }
 
     /**
