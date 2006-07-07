@@ -28,9 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.jacorb.notification.util.WeakHashSet;
 
@@ -50,12 +48,6 @@ public class WeakHashSetTest extends TestCase
         super.setUp();
 
         objectUnderTest_ = new WeakHashSet();
-    }
-
-    
-    public WeakHashSetTest(String name)
-    {
-        super(name);
     }
 
     public void testSize()
@@ -99,7 +91,7 @@ public class WeakHashSetTest extends TestCase
         assertFalse(i.hasNext());
     }
 
-    
+
     public void testToArray()
     {
         Object[] array = objectUnderTest_.toArray();
@@ -115,7 +107,7 @@ public class WeakHashSetTest extends TestCase
         assertEquals(o1, array[0]);
     }
 
-    
+
     public void testToArrayObjectArray()
     {
         String s1 = "text";
@@ -238,8 +230,8 @@ public class WeakHashSetTest extends TestCase
 
     public void testIsReallyWeak()
     {
-        long now = System.currentTimeMillis();
-        
+        long timeout = System.currentTimeMillis() + 10000;
+
         Object o1 = new Object();
         ReferenceQueue queue = new ReferenceQueue();
 
@@ -249,17 +241,11 @@ public class WeakHashSetTest extends TestCase
 
         o1 = null;
 
-        while (queue.poll() == null && System.currentTimeMillis() < now + 5000)
+        while (queue.poll() == null && System.currentTimeMillis() < timeout)
         {
             System.gc();
         }
-        
-        assertTrue(objectUnderTest_.isEmpty());
-    }
 
-    
-    public static Test suite()
-    {
-        return new TestSuite(WeakHashSetTest.class);
+        assertTrue(objectUnderTest_.isEmpty());
     }
 }
