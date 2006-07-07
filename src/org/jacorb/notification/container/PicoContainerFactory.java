@@ -44,10 +44,7 @@ import org.picocontainer.defaults.CachingComponentAdapterFactory;
 import org.picocontainer.defaults.ComponentAdapterFactory;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapterFactory;
-import org.picocontainer.defaults.DefaultLifecycleStrategy;
 import org.picocontainer.defaults.DefaultPicoContainer;
-import org.picocontainer.monitors.ConsoleComponentMonitor;
-import org.picocontainer.monitors.DefaultComponentMonitor;
 
 /**
  * @author Alphonse Bendt
