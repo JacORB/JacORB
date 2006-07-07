@@ -58,7 +58,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @jmx.mbean extends = "AbstractProxyMBean"
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -86,7 +86,7 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
     protected final SupplierAdmin supplierAdmin_;
 
     private int messageCounter_ = 0;
-    
+
     // //////////////////////////////////////
 
     protected AbstractProxyConsumer(IAdmin admin, ORB orb, POA poa, Configuration conf,
@@ -167,13 +167,7 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
 
     protected void schedulePullTask(MessageSupplier target)
     {
-        try
-        {
-            getTaskProcessor().scheduleTimedPullTask(target);
-        } catch (InterruptedException e)
-        {
-            logger_.info("interrupt during schedule pull for MessageSupplier", e);
-        }
+        getTaskProcessor().scheduleTimedPullTask(target);
     }
 
     /**
@@ -325,7 +319,7 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
     {
         subscriptionListener_ = null;
     }
-    
+
     protected void connectClient(org.omg.CORBA.Object client)
     {
         super.connectClient(client);
@@ -345,14 +339,14 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
     {
         return subscriptionListener_;
     }
-    
+
     protected void processMessage(Message mesg)
     {
         getTaskProcessor().processMessage(mesg);
-        
+
         messageCounter_++;
     }
-    
+
     /**
      * @jmx.managed-attribute description = "Total number of Messages received by this ProxyConsumer"
      *                        access = "read-only"
@@ -366,14 +360,14 @@ public abstract class AbstractProxyConsumer extends AbstractProxy implements IPr
     {
         final List _result = new ArrayList(events.length);
         final MessageFactory _messageFactory = getMessageFactory();
-        
+
         for (int i = 0; i < events.length; ++i)
         {
             final Message _newMessage = _messageFactory.newMessage(events[i], this);
             checkMessageProperties(_newMessage);
             _result.add(_newMessage);
         }
-        
+
         return (Message[]) _result.toArray(new Message[_result.size()]);
     }
 }

@@ -42,9 +42,9 @@ import edu.emory.mathcs.backport.java.util.concurrent.ThreadFactory;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
- * @jmx.mbean 
+ * @jmx.mbean
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -157,7 +157,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
     private int pullWorkerPoolSize_;
 
     private int filterWorkerPoolSize_;
-    
+
     // //////////////////////////////////////
 
     /**
@@ -182,12 +182,12 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
 
         pullWorkerPoolSize_ = config.getAttributeAsInteger(Attributes.PULL_POOL_WORKERS,
                         Default.DEFAULT_PULL_POOL_SIZE);
-        
+
         pullTaskExecutor_ = new DefaultTaskExecutor("PullThread", pullWorkerPoolSize_, true);
 
         filterWorkerPoolSize_ = config.getAttributeAsInteger(Attributes.FILTER_POOL_WORKERS,
                         Default.DEFAULT_FILTER_POOL_SIZE);
-        
+
         taskFactory_ = taskFactory;
     }
 
@@ -210,7 +210,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
         pullTaskExecutor_.dispose();
 
         disposables_.dispose();
-        
+
         logger_.debug("shutdown complete");
     }
 
@@ -266,7 +266,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
      * the ProxyPullConsumer needs to regularely poll the Supplier. This method queues a Task to run
      * runPullEvent on the specified TimerEventSupplier
      */
-    public void scheduleTimedPullTask(MessageSupplier messageSupplier) throws InterruptedException
+    public void scheduleTimedPullTask(MessageSupplier messageSupplier)
     {
         PullFromSupplierTask _task = new PullFromSupplierTask(pullTaskExecutor_);
 
@@ -306,14 +306,14 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
     {
         long now = System.currentTimeMillis();
         long then = startTime.getTime();
-        
+
         long delay = then - now;
-        
+
         if (delay < 1000)
         {
             delay = 1000;
         }
-        
+
         return clockDaemon_.schedule(task, delay, TimeUnit.MILLISECONDS);
     }
 
@@ -360,12 +360,12 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
     {
         disposables_.addDisposable(disposable);
     }
-    
+
     public String[] getJMXNotificationTypes()
     {
         return null;
     }
-    
+
     public void setJMXCallback(JMXCallback callback)
     {
         // no notifications yet

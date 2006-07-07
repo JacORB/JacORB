@@ -43,13 +43,7 @@ public class PullMessagesUtility
         {
             public void run()
             {
-                try
-                {
-                    taskProcessor.scheduleTimedPullTask(messageSupplier);
-                } catch (InterruptedException e)
-                {
-                    // ignored
-                }
+                taskProcessor.scheduleTimedPullTask(messageSupplier);
             }
         };
     }
@@ -60,7 +54,7 @@ public class PullMessagesUtility
         {
             throw new IllegalArgumentException("Interval " + interval + " must be > 0");
         }
-        
+
         if (taskId_ == null)
         {
             taskId_ = taskProcessor_.executeTaskPeriodically(interval, timerJob_, true);
@@ -83,7 +77,7 @@ public class PullMessagesUtility
         {
             throw new IllegalStateException("Not started");
         }
-        
+
         if (interval_ != interval)
         {
             stopTask();

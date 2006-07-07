@@ -48,16 +48,15 @@ public interface TaskProcessor
      * This method queues a Task to run runPullEvent on the specified
      * TimerEventSupplier
      */
-     void scheduleTimedPullTask( MessageSupplier dest )
-        throws InterruptedException;
+     void scheduleTimedPullTask( MessageSupplier dest );
 
     ////////////////////////////////////////
     // Timer Operations
     ////////////////////////////////////////
 
      ScheduledFuture executeTaskPeriodically( long intervall,
-				     Runnable task,
-				     boolean startImmediately );
+                     Runnable task,
+                     boolean startImmediately );
 
     ScheduledFuture executeTaskAfterDelay( long delay, Runnable task );
 }
