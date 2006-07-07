@@ -45,17 +45,11 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
-        ProxyPullSupplierOperations
+public class ProxyPullSupplierImpl
+    extends AbstractProxySupplier
+    implements ProxyPullSupplierOperations
 {
-    private static final Any sUndefinedAny;
-
-    static
-    {
-        ORB _orb = ORB.init();
-
-        sUndefinedAny = _orb.create_any();
-    }
+    private final Any sUndefinedAny;
 
     ////////////////////////////////////////
 
@@ -67,6 +61,8 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
             throws ConfigurationException
     {
         super(admin, orb, poa, config, taskProcessor, offerManager, subscriptionManager, consumerAdmin);
+
+        sUndefinedAny = orb.create_any();
     }
 
     public ProxyType MyType()
@@ -100,11 +96,13 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
             try
             {
                 return _event.toAny();
-            } finally
+            }
+            finally
             {
                 _event.dispose();
             }
-        } catch (InterruptedException e)
+        }
+        catch (InterruptedException e)
         {
             logger_.fatalError("interrupted", e);
 
@@ -127,7 +125,8 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
                 hasEvent.value = true;
 
                 return _message.toAny();
-            } finally
+            }
+            finally
             {
                 _message.dispose();
             }
