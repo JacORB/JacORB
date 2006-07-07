@@ -178,7 +178,6 @@ public class TestLauncher
     public static String getOutFilename()
     {
         final String result;
-        final String fileExt = "-" + (isSSL ? "" : "no") + "ssl.txt";
         if ( ! outputFileTestName)
         {
             String dir = TestUtils.testHome() + "/output/" + testId;
@@ -188,11 +187,11 @@ public class TestLauncher
             {
                 dirF.mkdir();
             }
-            result = dir + "/report" + fileExt;
+            result = dir + "/report" + ".txt";
         }
         else
         {
-            result = TestUtils.testHome() + "/output/TEST-" + args[0] + fileExt;
+            result = TestUtils.testHome() + "/output/TEST-" + args[0] + ".txt";
         }
         return result;
     }
