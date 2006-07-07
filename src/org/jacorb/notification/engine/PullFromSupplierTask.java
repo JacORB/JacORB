@@ -50,8 +50,6 @@ public class PullFromSupplierTask extends AbstractTask
     public void doWork() throws Disconnected
     {
         target_.runPullMessage();
-
-        dispose();
     }
 
     public void reset()
