@@ -76,7 +76,7 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
         mockAdmin.getAdminMBean();
         controlAdmin.setReturnValue("");
-        
+
         controlAdmin.replay();
 
         MockControl controlConsumerAdmin = MockControl.createControl(ConsumerAdmin.class);
@@ -86,13 +86,13 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
-       
+
         objectUnderTest_ = new ProxyPushSupplierImpl(mockAdmin, getORB(), getPOA(),
                 getConfiguration(), mockTaskProcessor_, new DirectExecutorPushTaskExecutorFactory(), new OfferManager(),
                 new SubscriptionManager(), mockConsumerAdmin);
 
         assertEquals(new Integer(10), objectUnderTest_.getID());
-        
+
         controlScheduledFuture_ = MockControl.createControl(ScheduledFuture.class);
         mockScheduledFuture_ = (ScheduledFuture) controlScheduledFuture_.getMock();
     }
@@ -118,7 +118,7 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         PushConsumer mockPushConsumer = (PushConsumer) controlPushConsumer.getMock();
 
         mockPushConsumer.push(any);
-        controlPushConsumer.setThrowable(new RuntimeException());
+        controlPushConsumer.setThrowable(new RuntimeException("only for test"));
 
         controlPushConsumer.replay();
 
@@ -130,7 +130,7 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
         objectUnderTest_.connect_any_push_consumer(mockPushConsumer);
         objectUnderTest_.queueMessage(mockMessage);
-        
+
         verifyAll();
     }
 
@@ -139,13 +139,13 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         controlScheduledFuture_.replay();
         controlTaskProcessor_.replay();
     }
-    
+
     private void verifyAll()
     {
         controlScheduledFuture_.verify();
         controlTaskProcessor_.verify();
     }
-    
+
     public static Test suite() throws Exception
     {
         return NotificationTestCase.suite(ProxyPushSupplierImplTest.class);
