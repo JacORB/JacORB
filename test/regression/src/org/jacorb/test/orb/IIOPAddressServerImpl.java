@@ -27,7 +27,10 @@ public class IIOPAddressServerImpl extends IIOPAddressServerPOA
     {
         config.setAttribute ("OAIAddr",host);
         if (port != -1)
+        {
             config.setAttribute ("OAPort", Integer.toString(port));
+        }
+        
         try
         {
             config.getORB().configure(config);
@@ -70,8 +73,12 @@ public class IIOPAddressServerImpl extends IIOPAddressServerPOA
     public void setIORAddress(String host, int port)
     {
         config.setAttribute ("jacorb.ior_proxy_host", host);
+
         if (port != -1)
+        {
             config.setAttribute ("jacorb.ior_proxy_port",Integer.toString(port));
+        }
+
         try
         {
             config.getORB().configure(config);
@@ -85,6 +92,7 @@ public class IIOPAddressServerImpl extends IIOPAddressServerPOA
     public void setIORProtAddr(String protaddr)
     {
         config.setAttribute ("jacorb.ior_proxy_address", protaddr);
+
         try
         {
             config.getORB().configure(config);
@@ -126,7 +134,7 @@ public class IIOPAddressServerImpl extends IIOPAddressServerPOA
      */
     public Sample getObject()
     {
-    	try
+        try
         {
             SampleImpl result = new SampleImpl();
             POA poa = _default_POA().create_POA("poa-" + System.currentTimeMillis(),
@@ -135,11 +143,11 @@ public class IIOPAddressServerImpl extends IIOPAddressServerPOA
             poa.activate_object(result);
             org.omg.CORBA.Object obj = poa.servant_to_reference (result);
             return SampleHelper.narrow (obj);
-    	}
-    	catch (Exception ex)
-    	{
+        }
+        catch (Exception ex)
+        {
             throw new RuntimeException ("Exception creating result object: "
                                         + ex);
-    	}
+        }
     }
 }
