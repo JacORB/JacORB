@@ -148,7 +148,9 @@ public final class BufferManager
         throws  BAD_INV_ORDER
     {
         if (!configured)
+        {
             throw new BAD_INV_ORDER("Buffer Manager not configured");
+        }
         return singleton;
     }
 
@@ -158,12 +160,14 @@ public final class BufferManager
 
     private static final int log2up(int n)
     {
-    int l =0;
-    int nn = n-1;
-    while( (nn >>l) != 0 )
-        l++;
+        int l =0;
+        int nn = n-1;
+        while( (nn >>l) != 0 )
+        {
+            l++;
+        }
 
-    return l;
+        return l;
     }
 
 
@@ -173,12 +177,14 @@ public final class BufferManager
 
     private static final int log2down(int n)
     {
-    int l =0;
-    int nn = n;
-    while( (nn >>l) != 0 )
-        l++;
+        int l =0;
+        int nn = n;
+        while( (nn >>l) != 0 )
+        {
+            l++;
+        }
 
-    return l-1;
+        return l-1;
     }
 
 
@@ -214,7 +220,7 @@ public final class BufferManager
         {
             try
             {
-                if (cdrStr==false || time < 0)
+                if (!cdrStr || time < 0)
                 {
                     // Defaults to returning asked for size
                     result = new byte[initial];

@@ -15,13 +15,14 @@ import org.jacorb.test.common.*;
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
-public class SyncScopeTest extends ClientServerTestCase 
+public class SyncScopeTest extends ClientServerTestCase
 {
     private SyncScopeServer server;
-    
+    private final int TIME = 300;
+
     public SyncScopeTest (String name, ClientServerSetup setup)
     {
-        super (name, setup); 
+        super (name, setup);
     }
 
     protected void setUp() throws Exception
@@ -32,20 +33,16 @@ public class SyncScopeTest extends ClientServerTestCase
     public static Test suite()
     {
         TestSuite suite = new TestSuite ("Sync Scope");
-        ClientServerSetup setup = 
-            new ClientServerSetup 
+        ClientServerSetup setup =
+            new ClientServerSetup
                 (suite,
                  "org.jacorb.test.orb.policies.SyncScopeServerImpl");
-                  
-        suite.addTest (new SyncScopeTest ("test_warm_up", setup));
-        suite.addTest (new SyncScopeTest ("test_sync_none", setup));
-        suite.addTest (new SyncScopeTest ("test_sync_with_transport", setup));
-        suite.addTest (new SyncScopeTest ("test_sync_with_server", setup));
-        suite.addTest (new SyncScopeTest ("test_sync_with_target", setup));
-        
-        return setup;  
+
+        TestUtils.addToSuite(suite, setup, SyncScopeTest.class);
+
+        return setup;
     }
-    
+
     public void test_warm_up()
     {
         server.operation (50);
@@ -56,36 +53,37 @@ public class SyncScopeTest extends ClientServerTestCase
     {
         setSyncScope (server, SYNC_NONE.value);
         long start = System.currentTimeMillis();
-        server.oneway_op (100);
+
+        server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
-        assertTrue ("return too late", time < 100);    
+        assertTrue ("return too late", time < TIME);
     }
 
     public void test_sync_with_transport()
     {
         setSyncScope (server, SYNC_WITH_TRANSPORT.value);
         long start = System.currentTimeMillis();
-        server.oneway_op (100);
+        server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
-        assertTrue ("return too late", time < 100);    
+        assertTrue ("return too late", time < TIME);
     }
 
     public void test_sync_with_server()
     {
         setSyncScope (server, SYNC_WITH_SERVER.value);
         long start = System.currentTimeMillis();
-        server.oneway_op (100);
+        server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
-        assertTrue ("return too late", time < 100);    
+        assertTrue ("return too late", time < TIME);
     }
 
     public void test_sync_with_target()
     {
         setSyncScope (server, SYNC_WITH_TARGET.value);
         long start = System.currentTimeMillis();
-        server.oneway_op (100);
+        server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
-        assertTrue ("return too early", time > 100);    
+        assertTrue ("return too early", time > TIME);
     }
 
     private void setSyncScope (SyncScopeServer server, short syncScope)
@@ -95,16 +93,14 @@ public class SyncScopeTest extends ClientServerTestCase
         a.insert_short (syncScope);
         try
         {
-            Policy p =
+            Policy policy =
                 orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
-            server._set_policy_override (new Policy[]{ p }, 
-                                         SetOverrideType.ADD_OVERRIDE);   
+            server._set_policy_override (new Policy[]{ policy },
+                                         SetOverrideType.ADD_OVERRIDE);
         }
         catch (PolicyError e)
         {
             throw new RuntimeException ("policy error: " + e);
-        }        
-        
+        }
     }
-
 }

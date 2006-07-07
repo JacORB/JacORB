@@ -215,22 +215,22 @@ public class ParsedIOR
      * same effective profile. i.e. if one profile is SSL enabled then this will
      * return false.
      *
-     * @param o an <code>Object</code> value
+     * @param other an <code>Object</code> value
      * @return a <code>boolean</code> value
      */
-    public boolean equals( Object o )
+    public boolean equals( Object other )
     {
-        if (o == null)
+        if (other == null)
         {
             return false;
         }
 
         return
         (
-            (o instanceof ParsedIOR)                                &&
-            ((ParsedIOR)o).getIORString().equals(getIORString())    &&
+            (other instanceof ParsedIOR)                                &&
+            ((ParsedIOR)other).getIORString().equals(getIORString())    &&
             effectiveProfile != null                                &&
-            effectiveProfile.is_match (((ParsedIOR)o).effectiveProfile)
+            effectiveProfile.is_match (((ParsedIOR)other).effectiveProfile)
         );
     }
 

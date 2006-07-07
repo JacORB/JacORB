@@ -136,8 +136,10 @@ public class DirectLauncher extends JacORBLauncher
         }
         result = new File (jacorbHome, "classes/org");
         if (result.exists())
+        {
             return new File (jacorbHome, "classes").toString();
-        else
-            return new File (jacorbHome, "lib/jacorb.jar").toString();
+        }
+
+        return new File (jacorbHome, "lib/jacorb.jar").toString();
     }
 }

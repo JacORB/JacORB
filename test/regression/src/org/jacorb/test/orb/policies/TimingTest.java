@@ -98,7 +98,8 @@ public class TimingTest extends CallbackTestCase
                 (suite,
                  "org.jacorb.test.orb.policies.TimingServerImpl");
 
-        // some tests are disabled below because it is impossible
+        // some tests are disabled below (no test prefix)
+        // because it is impossible
         // to make them succeed on a fast machine where the Java
         // clock has only millisecond resolution
 
@@ -158,7 +159,7 @@ public class TimingTest extends CallbackTestCase
             }
         };
         ((_TimingServerStub)server).sendc_operation (ref (handler), 7, 50);
-        handler.wait_for_reply (300);
+        handler.wait_for_reply(400);
 
         handler = new ReplyHandler()
         {
@@ -170,7 +171,7 @@ public class TimingTest extends CallbackTestCase
             }
         };
         ((_TimingServerStub)server).sendc_ex_op (ref (handler), 'e', 50);
-        handler.wait_for_reply (300);
+        handler.wait_for_reply(400);
 
         handler = new ReplyHandler()
         {
@@ -182,7 +183,7 @@ public class TimingTest extends CallbackTestCase
             }
         };
         ((_TimingServerStub)server).sendc_ex_op (ref (handler), '$', 50);
-        handler.wait_for_reply (300);
+        handler.wait_for_reply(400);
     }
 
     /**
@@ -691,13 +692,13 @@ public class TimingTest extends CallbackTestCase
         UtcT corbaTime = Time.corbaTime (unixTime);
 
         org.omg.CORBA.ORB orb = setup.getClientOrb();
-        org.omg.CORBA.Any a   = orb.create_any();
-        UtcTHelper.insert (a, corbaTime);
+        org.omg.CORBA.Any any = orb.create_any();
+        UtcTHelper.insert (any, corbaTime);
         try
         {
-            Policy p =
-                orb.create_policy (REQUEST_START_TIME_POLICY_TYPE.value, a);
-            server._set_policy_override (new Policy[]{ p },
+            Policy policy =
+                orb.create_policy (REQUEST_START_TIME_POLICY_TYPE.value, any);
+            server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
         }
         catch (PolicyError e)
@@ -711,13 +712,13 @@ public class TimingTest extends CallbackTestCase
         UtcT corbaTime = Time.corbaTime (unixTime);
 
         org.omg.CORBA.ORB orb = setup.getClientOrb();
-        org.omg.CORBA.Any a   = orb.create_any();
-        UtcTHelper.insert (a, corbaTime);
+        org.omg.CORBA.Any any = orb.create_any();
+        UtcTHelper.insert (any, corbaTime);
         try
         {
-            Policy p =
-                orb.create_policy (REQUEST_END_TIME_POLICY_TYPE.value, a);
-            server._set_policy_override (new Policy[]{ p },
+            Policy policy =
+                orb.create_policy (REQUEST_END_TIME_POLICY_TYPE.value, any);
+            server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
         }
         catch (PolicyError e)
@@ -730,13 +731,13 @@ public class TimingTest extends CallbackTestCase
                                               long millis)
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();
-        org.omg.CORBA.Any a   = orb.create_any();
-        a.insert_ulonglong (millis * 10000);
+        org.omg.CORBA.Any any = orb.create_any();
+        any.insert_ulonglong (millis * 10000);
         try
         {
-            Policy p =
-                orb.create_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value, a);
-            server._set_policy_override (new Policy[]{ p },
+            Policy policy =
+                orb.create_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value, any);
+            server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
         }
         catch (PolicyError e)
@@ -750,13 +751,13 @@ public class TimingTest extends CallbackTestCase
         UtcT corbaTime = Time.corbaTime (unixTime);
 
         org.omg.CORBA.ORB orb = setup.getClientOrb();
-        org.omg.CORBA.Any a   = orb.create_any();
-        UtcTHelper.insert (a, corbaTime);
+        org.omg.CORBA.Any any = orb.create_any();
+        UtcTHelper.insert (any, corbaTime);
         try
         {
-            Policy p =
-                orb.create_policy (REPLY_START_TIME_POLICY_TYPE.value, a);
-            server._set_policy_override (new Policy[]{ p },
+            Policy policy =
+                orb.create_policy (REPLY_START_TIME_POLICY_TYPE.value, any);
+            server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
         }
         catch (PolicyError e)
@@ -770,13 +771,13 @@ public class TimingTest extends CallbackTestCase
         UtcT corbaTime = Time.corbaTime (unixTime);
 
         org.omg.CORBA.ORB orb = setup.getClientOrb();
-        org.omg.CORBA.Any a   = orb.create_any();
-        UtcTHelper.insert (a, corbaTime);
+        org.omg.CORBA.Any any = orb.create_any();
+        UtcTHelper.insert (any, corbaTime);
         try
         {
-            Policy p =
-                orb.create_policy (REPLY_END_TIME_POLICY_TYPE.value, a);
-            server._set_policy_override (new Policy[]{ p },
+            Policy policy =
+                orb.create_policy (REPLY_END_TIME_POLICY_TYPE.value, any);
+            server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
         }
         catch (PolicyError e)
@@ -789,13 +790,13 @@ public class TimingTest extends CallbackTestCase
                                               long millis)
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();
-        org.omg.CORBA.Any a   = orb.create_any();
-        a.insert_ulonglong (millis * 10000);
+        org.omg.CORBA.Any any = orb.create_any();
+        any.insert_ulonglong (millis * 10000);
         try
         {
-            Policy p =
-                orb.create_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value, a);
-            server._set_policy_override (new Policy[]{ p },
+            Policy policy =
+                orb.create_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value, any);
+            server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
         }
         catch (PolicyError e)

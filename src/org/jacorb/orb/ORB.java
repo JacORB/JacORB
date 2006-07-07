@@ -1527,14 +1527,14 @@ public final class ORB
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
-                                                                        this,
-                                                                        true)); //applet support
+                                                                             this,
+                                                                             true)); //applet support
         }
-        catch( ConfigurationException ce )
+        catch( ConfigurationException e )
         {
-            logger.fatalError("configuration exception during configure", ce);
+            logger.fatalError("configuration exception during configure", e);
 
-            throw new org.omg.CORBA.INITIALIZE( ce.toString() );
+            throw new org.omg.CORBA.INITIALIZE( e.toString() );
         }
 
         internalInit();
