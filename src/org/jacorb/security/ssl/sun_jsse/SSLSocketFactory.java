@@ -207,7 +207,7 @@ public class SSLSocketFactory
             //take trusted certificates from keystore
             if (logger.isInfoEnabled())
             {
-                logger.info("Loading certs from keystore " + key_store );
+                logger.info("Loading certs from keystore " + key_store.getType() );
             }
             tmf.init( key_store );
         }
