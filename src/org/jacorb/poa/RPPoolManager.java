@@ -137,15 +137,12 @@ public abstract class RPPoolManager
             if (rps[i].isActive())
             {
                 throw new POAInternalError("error: request processor is active (RequestProcessorPM.destroy)");
+            }
 
-            }
-            else
-            {
-                pool.removeElement(rps[i]);
-                unused_size--;
-                current._removeContext(rps[i]);
-                rps[i].end();
-            }
+            pool.removeElement(rps[i]);
+            unused_size--;
+            current._removeContext(rps[i]);
+            rps[i].end();
         }
         inUse = false;
     }
@@ -192,12 +189,8 @@ public abstract class RPPoolManager
 
         while (pool.isEmpty())
         {
-            if (logger.isWarnEnabled())
-            {
-                logger.warn("Thread pool exhausted, consider increasing "
-                          + "jacorb.poa.thread_pool_max (currently: "
-                          + max_pool_size + ")");
-            }
+            warnPoolIsEmpty();
+
             try
             {
                 wait();
@@ -206,13 +199,26 @@ public abstract class RPPoolManager
             {
             }
         }
-        RequestProcessor rp = (RequestProcessor) pool.remove( pool.size() - 1 );
-        activeProcessors.add (rp);
+        RequestProcessor requestProcessor = (RequestProcessor) pool.remove( pool.size() - 1 );
+        activeProcessors.add (requestProcessor);
 
         // notify a pool manager listener
         if (pmListener != null)
-            pmListener.processorRemovedFromPool(rp, pool.size(), unused_size);
-        return rp;
+        {
+            pmListener.processorRemovedFromPool(requestProcessor, pool.size(), unused_size);
+        }
+
+        return requestProcessor;
+    }
+
+    protected void warnPoolIsEmpty()
+    {
+        if (logger.isWarnEnabled())
+        {
+            logger.warn("Thread pool exhausted, consider increasing "
+                      + "jacorb.poa.thread_pool_max (currently: "
+                      + max_pool_size + ")");
+        }
     }
 
     private void init()

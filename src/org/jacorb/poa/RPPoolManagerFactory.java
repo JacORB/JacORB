@@ -83,6 +83,15 @@ public class RPPoolManagerFactory
                     // allow destruction by clients
                     destroy(true);
                 }
+
+                protected void warnPoolIsEmpty()
+                {
+                    // disable the warning
+                    // as this Pool is single threaded
+                    // by definition there's no point
+                    // in issueing a warning that you should increase
+                    // the pool size
+                }
             };
         }
 
