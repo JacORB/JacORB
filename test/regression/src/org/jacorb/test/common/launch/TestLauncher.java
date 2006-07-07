@@ -63,6 +63,8 @@ public class TestLauncher
 
     private static DateFormat dateStringFormatter =
         new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss Z");
+    private static String testId;
+    private static boolean isSSL;
 
     private static class Listener extends Thread
     {
@@ -80,7 +82,10 @@ public class TestLauncher
                 while (true)
                 {
                     String line = in.readLine();
-                    if (line == null) break;
+                    if (line == null)
+                    {
+                        break;
+                    }
                     System.out.println (line);
                     outFile.println (line);
                 }
@@ -91,7 +96,6 @@ public class TestLauncher
                                     + ex.toString());
             }
         }
-
     }
 
     public static void printTestHeader (PrintWriter out)
@@ -100,7 +104,7 @@ public class TestLauncher
         out.println();
         out.println ("  JacORB Regression Test Report");
         out.println();
-        out.println ("  Suite:    " + getSuiteName());
+        out.println ("  Suite:    " + getSuiteName() + " [" + (isSSL ? "" : "NO") + "SSL]");
         out.println ("");
         out.println ("  Date:     " + getTestDateString());
         out.println ("  User:     " + getTestUser());
@@ -109,6 +113,7 @@ public class TestLauncher
         out.println ("  Client Version:   " + getClientVersion());
         out.println ("  Server Version:   " + getServerVersion());
         out.println ("  Coverage:         " + (getCoverage() ? "yes" : "no"));
+        out.println ("  SSL:              " + (isSSL ? "yes" : "no"));
         out.println();
         out.println ("-------------------------------------------------------------------------------");
     }
@@ -130,7 +135,7 @@ public class TestLauncher
         return testDate;
     }
 
-    public static String getTestID()
+    private static String newTestID()
     {
         return idFormatter.format (getTestDate());
     }
@@ -143,7 +148,7 @@ public class TestLauncher
     public static boolean getCoverage()
     {
         String cs = System.getProperty("jacorb.test.coverage", "false");
-        return cs.equals("true") || cs.equals("on") || cs.equals("yes");
+        return TestUtils.isPropertyTrue(cs);
     }
 
     public static String getClientVersion()
@@ -172,36 +177,37 @@ public class TestLauncher
 
     public static String getOutFilename()
     {
-        String dir;
-
+        final String result;
+        final String fileExt = "-" + (isSSL ? "" : "no") + "ssl.txt";
         if ( ! outputFileTestName)
         {
-            dir = TestUtils.testHome() + "/output/" + getTestID();
+            String dir = TestUtils.testHome() + "/output/" + testId;
             File dirF = new File (dir);
             // File class is platform independent, no need to convert
             if (!dirF.exists())
             {
                 dirF.mkdir();
             }
-            return dir + "/report.txt";
+            result = dir + "/report" + fileExt;
         }
         else
         {
-            dir = TestUtils.testHome() + "/output/TEST-" + args[0] + ".txt";
-            return dir;
+            result = TestUtils.testHome() + "/output/TEST-" + args[0] + fileExt;
         }
+        return result;
     }
 
     public static void main(String[] args) throws Exception
     {
         TestLauncher.args = args;
 
+        isSSL = TestUtils.isPropertyTrue(System.getProperty("jacorb.test.ssl"));
+        testId = System.getProperty("jacorb.test.id", newTestID());
+
         String filetestname = System.getProperty("jacorb.test.outputfile.testname", "false");
         outputFileTestName =
         (
-            filetestname.equals("true") ||
-            filetestname.equals("on")   ||
-            filetestname.equals("yes")
+            TestUtils.isPropertyTrue(filetestname)
         );
 
         outFile = new PrintWriter (new FileWriter (getOutFilename()));
@@ -217,7 +223,7 @@ public class TestLauncher
         //Convert to platform dependent path
         classpath = TestUtils.osDependentPath(classpath);
         Properties props = new Properties();
-        props.put("jacorb.test.id", getTestID());
+        props.put("jacorb.test.id", testId);
         props.put("jacorb.test.coverage", getCoverage() ? "true" : "false");
         props.put("jacorb.test.client.version", getClientVersion());
         props.put("jacorb.test.server.version", getServerVersion());
@@ -225,11 +231,13 @@ public class TestLauncher
         props.put("jacorb.test.verbose", System.getProperty("jacorb.test.verbose"));
         props.put("jacorb.test.outputfile.testname",
                   System.getProperty("jacorb.test.outputfile.testname" , "false"));
+        props.put("jacorb.test.ssl", System.getProperty("jacorb.test.ssl"));
+
         try
         {
             ObjectUtil.classForName("org.jacorb.test.orb.rmi.FixSunDelegateBug");
             props.put("javax.rmi.CORBA.UtilClass",
-                "org.jacorb.test.orb.rmi.FixSunDelegateBug");
+                      "org.jacorb.test.orb.rmi.FixSunDelegateBug");
             System.err.println("Using org.jacorb.test.orb.rmi.FixSunDelegateBug");
         }
         catch(Exception e)
@@ -255,7 +263,6 @@ public class TestLauncher
             }
         }
 
-
         JacORBLauncher launcher = JacORBLauncher.getLauncher
         (
             getClientVersion(), getCoverage()
@@ -267,20 +274,20 @@ public class TestLauncher
             (
                 launcher.getJacorbHome() +
                 "/test/regression/output/" +
-                (outputFileTestName == true ? "" : getTestID()) +
+                (outputFileTestName == true ? "" : testId) +
                 "/coverage-client.ec"
             );
             coveragePath = TestUtils.osDependentPath(coveragePath);
             props.put ("emma.coverage.out.file", coveragePath);
         }
 
-        Process p = launcher.launch(classpath, props, mainClass, args);
-        Listener outL = new Listener(p.getInputStream());
+        Process process = launcher.launch(classpath, props, mainClass, args);
+        Listener outL = new Listener(process.getInputStream());
         outL.start();
-        Listener errL = new Listener(p.getErrorStream());
+        Listener errL = new Listener(process.getErrorStream());
         errL.start();
 
-        p.waitFor();
+        process.waitFor();
 
         outFile.close();
     }
