@@ -164,35 +164,43 @@
     </target>
 
 
-   <target name="run" depends="test-init, build-all">
-      <property name="test.cp" refid="test.classpath"/>
+    <target name="check-ssl">
+        <condition property="jacorb.test.ssl" value="true">
+            <isset property="TEST_SSL"/>
+        </condition>
 
-      <!-- By default, we don't run coverage-->
-      <property name="jacorb.test.coverage" value="false"/>
-      <!-- This property is for old style test results names. It also switches off -->
-      <!-- placing test results in subdirectories                                  -->
-      <property name="jacorb.test.outputfile.testname" value="false"/>
-      <!-- By default, we do run naming and notification tests -->
-      <property name="jacorb.exclude-services" value="false"/>
-      <!-- currently only affects idl tests -->
-      <property name="jacorb.test.verbose" value="false" />
+        <property name="jacorb.test.ssl" value="false"/>
+    </target>
 
-      <java fork="true" classname="org.jacorb.test.common.launch.TestLauncher">
-         <classpath path="${test.cp}"/>
+    <target name="run" depends="test-init, build-all, check-ssl">
+        <property name="test.cp" refid="test.classpath"/>
 
-         <jvmarg value="-Djacorb.test.home=${testdir}" />
-         <jvmarg value="-Djacorb.home=${jacorb.home}" />
-         <jvmarg value="-Djacorb.test.outputfile.testname=${jacorb.test.outputfile.testname}"/>
-         <jvmarg value="-Djacorb.test.coverage=${jacorb.test.coverage}"/>
-         <jvmarg value="-Djacorb.test.verbose=${jacorb.test.verbose}" />
-         <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
-	     <jvmarg value="-DTEST_SSL=${test.ssl}" />
+        <!-- By default, we don't run coverage-->
+        <property name="jacorb.test.coverage" value="false"/>
+        <!-- This property is for old style test results names. It also switches off -->
+        <!-- placing test results in subdirectories                                  -->
+        <property name="jacorb.test.outputfile.testname" value="false"/>
+        <!-- By default, we do run naming and notification tests -->
+        <property name="jacorb.exclude-services" value="false"/>
+        <!-- currently only affects idl tests -->
+        <property name="jacorb.test.verbose" value="false" />
 
-         <!-- Note - passing multiple arguments to this class may affect the output file -->
-         <!-- naming. See TestLauncher.getOutFilename                                    -->
-         <arg value="${jacorb.test}"/>
-      </java>
-   </target>
+        <java fork="true" classname="org.jacorb.test.common.launch.TestLauncher">
+            <classpath path="${test.cp}"/>
+
+            <jvmarg value="-Djacorb.test.home=${testdir}" />
+            <jvmarg value="-Djacorb.home=${jacorb.home}" />
+            <jvmarg value="-Djacorb.test.outputfile.testname=${jacorb.test.outputfile.testname}"/>
+            <jvmarg value="-Djacorb.test.coverage=${jacorb.test.coverage}"/>
+            <jvmarg value="-Djacorb.test.verbose=${jacorb.test.verbose}" />
+            <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
+            <jvmarg value="-Djacorb.test.ssl=${jacorb.test.ssl}" />
+
+             <!-- Note - passing multiple arguments to this class may affect the output file -->
+             <!-- naming. See TestLauncher.getOutFilename                                    -->
+             <arg value="${jacorb.test}"/>
+          </java>
+    </target>
 
 
 
