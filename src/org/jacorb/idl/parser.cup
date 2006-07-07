@@ -144,7 +144,6 @@ parser code
         pending_interfaces = new Hashtable();
 
         currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
-        pending_interfaces = new Hashtable();
 
         sloppy = false;
 
@@ -997,6 +996,8 @@ specification ::=
                 if( parser.pending_interfaces.size() > 0 &&
                     !parser.sloppy )
                 {
+                    parser.getLogger().debug("Pending Interfaces: " + parser.pending_interfaces);
+                    parser.getLogger().debug("sloppy" + parser.sloppy);
                     parser.fatal_error("Undefined interface: " +
                         (String)(parser.pending_interfaces.keys().nextElement()), null );
                 }
