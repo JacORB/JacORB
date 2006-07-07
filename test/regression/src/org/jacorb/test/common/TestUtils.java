@@ -391,4 +391,9 @@ public class TestUtils
     {
         return JDK_13;
     }
+
+    public static boolean isPropertyTrue(String value)
+    {
+        return "true".equalsIgnoreCase(value) || "on".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
+    }
 }
