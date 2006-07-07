@@ -147,9 +147,9 @@ public class ClientServerSetup extends TestSetup {
                                                    "cvs");
         String testID = System.getProperty("jacorb.test.id", "");
         String cs = System.getProperty ("jacorb.test.coverage", "false");
-        boolean coverage = isPropertyTrue(cs);
+        boolean coverage = TestUtils.isPropertyTrue(cs);
         String outStr = System.getProperty("jacorb.test.outputfile.testname", "false");
-        boolean outputFileTestName = isPropertyTrue(outStr);
+        boolean outputFileTestName = TestUtils.isPropertyTrue(outStr);
 
         Properties serverProperties = new Properties();
         if (serverOrbProperties != null)
@@ -271,7 +271,7 @@ public class ClientServerSetup extends TestSetup {
 
         if (clientOrbProperties != null)
         {
-            if (isPropertyTrue(clientOrbProperties.getProperty
+            if (TestUtils.isPropertyTrue(clientOrbProperties.getProperty
                             (JACORB_REGRESSION_DISABLE_SECURITY, "false")))
             {
                 result = false;
@@ -279,7 +279,7 @@ public class ClientServerSetup extends TestSetup {
         }
         if (serverOrbProperties != null)
         {
-            if (isPropertyTrue(serverOrbProperties.getProperty
+            if (TestUtils.isPropertyTrue(serverOrbProperties.getProperty
                             (JACORB_REGRESSION_DISABLE_SECURITY, "false")))
             {
                 result = false;
@@ -298,8 +298,8 @@ public class ClientServerSetup extends TestSetup {
      */
     protected void initSecurity() throws IOException
     {
-        final String sslProperty = System.getProperty("TEST_SSL");
-        final boolean useSSL = isPropertyTrue(sslProperty);
+        final String sslProperty = System.getProperty("jacorb.test.ssl");
+        final boolean useSSL = TestUtils.isPropertyTrue(sslProperty);
 
         if (useSSL && checkProperties())
         {
@@ -358,10 +358,5 @@ public class ClientServerSetup extends TestSetup {
         props.put("jacorb.security.ssl.ssl_listener", SSLListener.class.getName());
 
         return props;
-    }
-
-    private static boolean isPropertyTrue(String value)
-    {
-        return "true".equalsIgnoreCase(value) || "on".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
     }
 }
