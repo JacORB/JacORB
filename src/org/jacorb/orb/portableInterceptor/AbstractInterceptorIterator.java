@@ -18,62 +18,56 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.orb.portableInterceptor;
 
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.UserException;
 
 /**
- * AbstractInterceptorIterator.java
- *
- *
+ * @author Gerald Brose
  * @version $Id$
  */
 
-public abstract class AbstractInterceptorIterator  
+public abstract class AbstractInterceptorIterator
 {
-    protected Interceptor[] interceptors = null;
+    protected final Interceptor[] interceptors;
     protected int index = 0;
     protected int increment = 1;
 
-    public AbstractInterceptorIterator(Interceptor[] interceptors) 
+    public AbstractInterceptorIterator(Interceptor[] interceptors)
     {
         this.interceptors = interceptors;
     }
-    
+
     /**
      * Tests, if there are more elements available.
      */
-    protected boolean hasMoreElements() 
+    protected boolean hasMoreElements()
     {
         return ( index >= 0 ) && ( index < interceptors.length );
     }
-  
+
     /**
      * Returns the next element in the enumeration
      */
 
-    protected Interceptor nextElement() 
+    protected Interceptor nextElement()
     {
-        Interceptor _tmp = interceptors[index];
+        Interceptor result = interceptors[index];
         index += increment;
-        return _tmp;
+        return result;
     }
 
     protected void iterate()
         throws UserException
     {
         while( hasMoreElements() )
+        {
             invoke( nextElement() );
+        }
     }
 
     abstract protected void invoke(Interceptor interceptor)
         throws UserException;
-
-} // AbstractInterceptorIterator
-
-
-
-
-
-
+}

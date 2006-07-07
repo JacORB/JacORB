@@ -18,6 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.orb.portableInterceptor;
 
 import org.omg.IOP.CodecPackage.*;
@@ -26,6 +27,7 @@ import org.omg.CORBA.*;
 
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
+
 /**
  * This class represents a codec for encoding ENCODING_CDR_ENCAPS 1.0.
  *
@@ -58,8 +60,7 @@ public class Codec_CDR_1_0_Impl
             in.openEncapsulatedArray();
             Any result = in.read_any();
 
-            //not necessary, since stream is never used again
-            //in.closeEncapsulation();
+            // not necessary to end encapsulation, since stream is never used again
 
             return result;
         }
@@ -81,8 +82,7 @@ public class Codec_CDR_1_0_Impl
             Any result = orb.create_any();
             result.read_value(in, tc);
 
-            //not necessary, since stream is never used again
-            //in.closeEncasupaltion();
+            // not necessary to end encapsulation, since stream is never used again
 
             return result;
         }
@@ -95,63 +95,43 @@ public class Codec_CDR_1_0_Impl
     public byte[] encode(Any data)
         throws InvalidTypeForEncoding
     {
-        CDROutputStream out = new CDROutputStream(orb);
+        final CDROutputStream out = new CDROutputStream(orb);
 
-        out.beginEncapsulatedArray();
-        out.write_any(data);
-
-        /*
-          closing must not be done, since it will patch the
-          array with a size!
         try
         {
-            out.endEncapsulation();
+            out.beginEncapsulatedArray();
+            out.write_any(data);
+
+            // do not end encapsulation since it will patch the
+            // array with a size!
+
+            return out.getBufferCopy();
         }
-        catch (java.io.IOException e)
+        finally
         {
+            out.close();
         }
-        */
-
-        /*
-         * We have to copy anyway since we need an exact-sized array.
-         * Closing afterwards, to return buffer to BufferManager.
-         */
-        byte[] result = out.getBufferCopy();
-        out.close();
-
-        return result;
     }
 
     public byte[] encode_value(Any data)
         throws InvalidTypeForEncoding
     {
-
-        CDROutputStream out = new CDROutputStream(orb);
-
-        out.beginEncapsulatedArray();
-        data.write_value(out);
-
-        /*
-          closing must not be done, since it will patch the
-          array with a size!
+        final CDROutputStream out = new CDROutputStream(orb);
 
         try
         {
-            out.endEncapsulation();
+
+            out.beginEncapsulatedArray();
+            data.write_value(out);
+
+            // do not end encapsulation since it will patch the
+            // array with a size!
+
+            return  out.getBufferCopy();
         }
-        catch (java.io.IOException e)
+        finally
         {
+            out.close();
         }
-        */
-
-        /*
-         * We have to copy anyway since we need an exact-sized array.
-         * Closing afterwards, to return buffer to BufferManager.
-         */
-        byte[] result = out.getBufferCopy();
-        out.close();
-
-        return result;
     }
-
-} // Codec_CDR_1_0_Impl
+}

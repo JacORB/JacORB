@@ -41,7 +41,7 @@ public interface IORInfoExt extends IORInfo
     * already existing in profile list.
     * @param profile       the profile to add
     */
-   public void add_profile(org.omg.ETF.Profile profile);
+   void add_profile(org.omg.ETF.Profile profile);
 
    /**
     * This method returns the number of profiles of the given type.
@@ -50,7 +50,7 @@ public interface IORInfoExt extends IORInfo
     * @param tag     profile tag, e.g. TAG_INTERNET_IOP.value
     * @return        number of profiles of given tag
     */
-   public int get_number_of_profiles(int tag);
+   int get_number_of_profiles(int tag);
 
    /**
     * Returns the profile with the given tag at the given position.
@@ -62,7 +62,7 @@ public interface IORInfoExt extends IORInfo
     * @exception       ArrayIndexOutOfBoundsException if position is
     *                   out of range
     */
-   public org.omg.ETF.Profile get_profile(int tag, int position);
+   org.omg.ETF.Profile get_profile(int tag, int position);
 
    /**
     * Returns the first profile with the given tag (position == 0).
@@ -71,5 +71,5 @@ public interface IORInfoExt extends IORInfo
     * @return           first profile or null if no profile with given
     *                   tag exists
     */
-   public org.omg.ETF.Profile get_profile(int tag);
+   org.omg.ETF.Profile get_profile(int tag);
 }

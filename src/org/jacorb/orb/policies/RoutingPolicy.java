@@ -25,16 +25,18 @@ import org.omg.Messaging.*;
 
 public class RoutingPolicy extends _RoutingPolicyLocalBase
 {
-    private RoutingTypeRange routing_range;
-    
-    public RoutingPolicy (RoutingTypeRange routing_range)
+    private final RoutingTypeRange routing_range;
+
+    private RoutingPolicy (RoutingTypeRange routing_range)
     {
+        super();
+
         this.routing_range = routing_range;
     }
-    
+
     public RoutingPolicy (org.omg.CORBA.Any value)
     {
-        this.routing_range = RoutingTypeRangeHelper.extract (value);
+        this(RoutingTypeRangeHelper.extract (value));
     }
 
     public RoutingTypeRange routing_range()
@@ -49,7 +51,7 @@ public class RoutingPolicy extends _RoutingPolicyLocalBase
 
     public Policy copy()
     {
-        RoutingTypeRange copy_range = 
+        RoutingTypeRange copy_range =
                                 new RoutingTypeRange (routing_range.min,
                                                       routing_range.max);
         return new RoutingPolicy (copy_range);
@@ -58,5 +60,4 @@ public class RoutingPolicy extends _RoutingPolicyLocalBase
     public void destroy()
     {
     }
-
 }

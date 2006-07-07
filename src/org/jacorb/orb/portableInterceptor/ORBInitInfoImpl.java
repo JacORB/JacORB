@@ -302,10 +302,4 @@ public class ORBInitInfoImpl
             throw new InvalidName();
         }
     }
-} // ORBInitInfoImpl
-
-
-
-
-
-
+}

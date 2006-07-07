@@ -44,14 +44,14 @@ public class PolicyUtil
      * determine if a given set of policies is consistent
      * called e.g., from PolicyManager operations to check if
      * arguments are okay.
-     * @throws InvalidPolicies a list of indices identifying the
+     * @throws org.omg.CORBA.InvalidPolicies a list of indices identifying the
      * position in the input policies list that are occupied by
      * invalid policies
      */
 
-    public static void checkValidity(HashMap policies)
+    public static void checkValidity(Map policies)
         throws org.omg.CORBA.InvalidPolicies
     {
-        ; //TODO
+        // TODO
     }
 }

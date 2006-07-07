@@ -54,9 +54,8 @@ public class ServerInterceptorIterator
      * nextElement() until !hasMoreElements().
      */
     public void iterate( ServerRequestInfoImpl info, short op )
-    throws UserException
+        throws UserException
     {
-
         this.info = info;
         this.op = op;
 
@@ -78,36 +77,43 @@ public class ServerInterceptorIterator
             {
                 throw (ForwardRequest) interceptor_ex;
             }
-            else
-            {
-                throw (org.omg.CORBA.SystemException) interceptor_ex;
-            }
+            throw (org.omg.CORBA.SystemException) interceptor_ex;
         }
     }
 
     protected void invoke(Interceptor interceptor)
-    throws UserException
+        throws UserException
     {
         try
         {
             switch (op)
             {
-            case RECEIVE_REQUEST_SERVICE_CONTEXTS :
-                ((ServerRequestInterceptor) interceptor).
-                receive_request_service_contexts(info);
-                break;
-            case RECEIVE_REQUEST :
-                ((ServerRequestInterceptor) interceptor).receive_request(info);
-                break;
-            case SEND_REPLY :
-                ((ServerRequestInterceptor) interceptor).send_reply(info);
-                break;
-            case SEND_EXCEPTION :
-                ((ServerRequestInterceptor) interceptor).send_exception(info);
-                break;
-            case SEND_OTHER :
-                ((ServerRequestInterceptor) interceptor).send_other(info);
-                break;
+                case RECEIVE_REQUEST_SERVICE_CONTEXTS :
+                {
+                    ((ServerRequestInterceptor) interceptor).
+                    receive_request_service_contexts(info);
+                    break;
+                }
+                case RECEIVE_REQUEST :
+                {
+                    ((ServerRequestInterceptor) interceptor).receive_request(info);
+                    break;
+                }
+                case SEND_REPLY :
+                {
+                    ((ServerRequestInterceptor) interceptor).send_reply(info);
+                    break;
+                }
+                case SEND_EXCEPTION :
+                {
+                    ((ServerRequestInterceptor) interceptor).send_exception(info);
+                    break;
+                }
+                case SEND_OTHER :
+                {
+                    ((ServerRequestInterceptor) interceptor).send_other(info);
+                    break;
+                }
             }
         }
         catch (ForwardRequest _fwd)
@@ -132,7 +138,4 @@ public class ServerInterceptorIterator
 
         info.caller_op = op;
     }
-} // ServerInterceptorIterator
-
-
-
+}

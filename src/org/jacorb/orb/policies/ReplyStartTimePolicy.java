@@ -26,16 +26,18 @@ import org.omg.TimeBase.*;
 
 public class ReplyStartTimePolicy extends _ReplyStartTimePolicyLocalBase
 {
-    private UtcT start_time;
-    
+    private final UtcT start_time;
+
     public ReplyStartTimePolicy (UtcT start_time)
     {
+        super();
+
         this.start_time = start_time;
     }
-    
+
     public ReplyStartTimePolicy (org.omg.CORBA.Any value)
     {
-        this.start_time = UtcTHelper.extract (value);
+        this(UtcTHelper.extract (value));
     }
 
     public UtcT start_time()
@@ -50,8 +52,8 @@ public class ReplyStartTimePolicy extends _ReplyStartTimePolicyLocalBase
 
     public Policy copy()
     {
-        UtcT copy_time = new UtcT (start_time.time, 
-                                   start_time.inacclo, 
+        UtcT copy_time = new UtcT (start_time.time,
+                                   start_time.inacclo,
                                    start_time.inacchi,
                                    start_time.tdf);
 
@@ -61,5 +63,4 @@ public class ReplyStartTimePolicy extends _ReplyStartTimePolicyLocalBase
     public void destroy()
     {
     }
-
 }

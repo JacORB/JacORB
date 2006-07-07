@@ -57,15 +57,20 @@ public class IIOPAddress
      *     converted by adding 65536 to it; this helps using values that were
      *     previously stored in a Java <code>short</code>.
      */
-
     public IIOPAddress(String hoststr, int port)
     {
+        this();
+
         source_name = hoststr;
 
         if (port < 0)
+        {
             this.port = port + 65536;
+        }
         else
+        {
             this.port = port;
+        }
     }
 
     /**
@@ -73,6 +78,7 @@ public class IIOPAddress
      */
     public IIOPAddress()
     {
+        super();
     }
 
     public void configure(Configuration configuration)
@@ -126,13 +132,14 @@ public class IIOPAddress
            //String ip = null;
 
             int slash = source_name.indexOf('/');
-                if (slash > 0)
+            if (slash > 0)
             {
                 //fixes two problems, 1) if the user specifed
                 //the network bits, 2) if the user used the
                 //name/ip format
                 source_name = source_name.substring(0,slash);
             }
+
             int zone = source_name.indexOf('%');
             if (zone != -1)
             {
@@ -148,7 +155,9 @@ public class IIOPAddress
                 catch (UnknownHostException ex)
                 {
                     if (logger != null && logger.isWarnEnabled())
+                    {
                         logger.warn ("init_host, " + source_name + " unresolvable" );
+                    }
                     unresolvable = true;
                     try
                     {
@@ -162,12 +171,13 @@ public class IIOPAddress
             else
             {
                 if (logger != null && logger.isWarnEnabled())
+                {
                     logger.warn ("init_host, " + source_name +
                             " is local-link address");
+                }
                 unresolvable = true;
                 host = null; //will allow binds on all interfaces
             }
-
         }
     }
 
@@ -189,9 +199,15 @@ public class IIOPAddress
     public String getIP()
     {
         if (host == null)
+        {
             init_host();
+        }
+
         if (unresolvable)
+        {
             return source_name;
+        }
+
         return host.getHostAddress();
     }
 
@@ -204,9 +220,14 @@ public class IIOPAddress
     public String getHostname()
     {
         if (host == null)
+        {
             init_host();
+        }
         if (unresolvable)
+        {
             return source_name;
+        }
+
         return dnsEnabled ? host.getCanonicalHostName() :
             host.getHostAddress();
     }
@@ -270,10 +291,17 @@ public class IIOPAddress
     public int hashCode()
     {
         if (this.source_name != null)
-        return this.source_name.hashCode() + port;
+        {
+            return this.source_name.hashCode() + port;
+        }
         else if (this.host != null)
+        {
             return this.host.hashCode() + port;
-        else return port;
+        }
+        else
+        {
+            return port;
+        }
     }
 
     public String toString()
@@ -285,29 +313,40 @@ public class IIOPAddress
     {
         int colon = s.indexOf (':');
         if (colon == -1)
+        {
             return false;
+        }
 
         source_name = null;
         int p = 0;
-        if (colon > 0) {
+        if (colon > 0)
+        {
             source_name = s.substring(0,colon);
         }
         else
+        {
             source_name = "";
+        }
         if (colon < s.length()-1)
+        {
             p = Integer.parseInt(s.substring(colon+1));
+        }
 
         init_host ();
 
         if (p < 0)
+        {
             port = p + 65536;
+        }
         else
+        {
             port = p;
+        }
 
         return true;
     }
 
-    public void write (CDROutputStream cdr)
+    public void write(CDROutputStream cdr)
     {
         //If host name contains a zone ID, we need to remove it.
         //This would be used to write the address on an IOR or other
@@ -364,9 +403,12 @@ public class IIOPAddress
     void replaceFrom (IIOPAddress other)
     {
         if (other.source_name != null)
+        {
             setHostname (other.source_name);
+        }
         if (other.port != -1)
+        {
             setPort(other.port);
+        }
     }
-
 }

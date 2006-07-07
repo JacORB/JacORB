@@ -26,16 +26,18 @@ import org.omg.TimeBase.*;
 
 public class RequestStartTimePolicy extends _RequestStartTimePolicyLocalBase
 {
-    private UtcT start_time;
-    
-    public RequestStartTimePolicy (UtcT start_time)
+    private final UtcT start_time;
+
+    private RequestStartTimePolicy (UtcT start_time)
     {
+        super();
+
         this.start_time = start_time;
     }
-    
+
     public RequestStartTimePolicy (org.omg.CORBA.Any value)
     {
-        this.start_time = UtcTHelper.extract (value);
+        this(UtcTHelper.extract (value));
     }
 
     public UtcT start_time()
@@ -50,8 +52,8 @@ public class RequestStartTimePolicy extends _RequestStartTimePolicyLocalBase
 
     public Policy copy()
     {
-        UtcT copy_time = new UtcT (start_time.time, 
-                                   start_time.inacclo, 
+        UtcT copy_time = new UtcT (start_time.time,
+                                   start_time.inacclo,
                                    start_time.inacchi,
                                    start_time.tdf);
 
@@ -61,5 +63,4 @@ public class RequestStartTimePolicy extends _RequestStartTimePolicyLocalBase
     public void destroy()
     {
     }
-
 }

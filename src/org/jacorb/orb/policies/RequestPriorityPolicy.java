@@ -25,16 +25,18 @@ import org.omg.Messaging.*;
 
 public class RequestPriorityPolicy extends _RequestPriorityPolicyLocalBase
 {
-    private PriorityRange priority_range;
-    
+    private final PriorityRange priority_range;
+
     public RequestPriorityPolicy (PriorityRange priority_range)
     {
+        super();
+
         this.priority_range = priority_range;
     }
-    
+
     public RequestPriorityPolicy (org.omg.CORBA.Any value)
     {
-        this.priority_range = PriorityRangeHelper.extract (value);
+        this(PriorityRangeHelper.extract (value));
     }
 
     public PriorityRange priority_range()
@@ -51,12 +53,11 @@ public class RequestPriorityPolicy extends _RequestPriorityPolicyLocalBase
     {
         PriorityRange copy_range = new PriorityRange (priority_range.min,
                                                       priority_range.max);
-                                                      
+
         return new RequestPriorityPolicy (copy_range);
     }
 
     public void destroy()
     {
     }
-
 }

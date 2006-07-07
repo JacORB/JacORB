@@ -26,15 +26,12 @@ import org.omg.Messaging.*;
 public class RelativeRoundtripTimeoutPolicy
     extends _RelativeRoundtripTimeoutPolicyLocalBase
 {
-    private long relative_expiry;
-    
-    public RelativeRoundtripTimeoutPolicy (long relative_expiry)
-    {
-        this.relative_expiry = relative_expiry;
-    }
+    private final long relative_expiry;
 
     public RelativeRoundtripTimeoutPolicy (org.omg.CORBA.Any value)
     {
+        super();
+
         this.relative_expiry = value.extract_ulonglong();
     }
 
@@ -50,11 +47,10 @@ public class RelativeRoundtripTimeoutPolicy
 
     public Policy copy()
     {
-        return new RelativeRoundtripTimeoutPolicy (relative_expiry);
+        return this;
     }
 
     public void destroy()
     {
     }
-
 }

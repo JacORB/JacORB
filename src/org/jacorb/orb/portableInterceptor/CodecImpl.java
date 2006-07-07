@@ -50,8 +50,12 @@ public class CodecImpl
     public CodecImpl(ORB orb, Encoding enc)
         throws UnknownEncoding
     {
+        super();
+
         if (enc.format != ENCODING_CDR_ENCAPS.value)
+        {
             throw new UnknownEncoding();
+        }
 
         if (enc.major_version != 1 || enc.minor_version > 2 )
         {
@@ -140,7 +144,6 @@ public class CodecImpl
              * Closing afterwards, to return buffer to BufferManager.
              */
             byte[] result = out.getBufferCopy();
-            out.close();
 
             return result;
         }
@@ -180,7 +183,6 @@ public class CodecImpl
              * Closing afterwards, to return buffer to BufferManager.
              */
             byte[] result = out.getBufferCopy();
-            out.close();
 
             return result;
         }

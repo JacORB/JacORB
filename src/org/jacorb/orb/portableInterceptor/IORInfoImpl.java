@@ -20,17 +20,18 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.PortableInterceptor.*;
-import org.omg.IOP.*;
-import org.omg.CORBA.*;
-import org.omg.ETF.Profile;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import org.jacorb.orb.ORB;
 import org.jacorb.orb.MinorCodes;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.TaggedComponentList;
 import org.jacorb.poa.POA;
-
-import java.util.*;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.Policy;
+import org.omg.ETF.Profile;
+import org.omg.IOP.TaggedComponent;
 
 /**
  * This class represents the type of info object
@@ -41,23 +42,23 @@ import java.util.*;
  * @version $Id$
  */
 
-public class IORInfoImpl extends org.omg.CORBA.LocalObject 
+public class IORInfoImpl extends org.omg.CORBA.LocalObject
                          implements IORInfoExt
 {
     /**
      * Maps profile tags to component lists (Integer -> TaggedComponentList).
      */
-    private Map components = null;
-    
-    private Map policy_overrides = null;
-  
-    private ORB orb = null;
-    private POA poa = null;
-    private List _profiles = null;
-  
-    public IORInfoImpl (ORB orb, POA poa, 
-                        Map components, Map policy_overrides,
-                        List profiles)
+    private final Map components;
+    private final Map policy_overrides;
+    private final ORB orb;
+    private final POA poa;
+    private final List _profiles;
+
+    public IORInfoImpl(ORB orb,
+                       POA poa,
+                       Map components,
+                       Map policy_overrides,
+                       List profiles)
     {
         this.orb = orb;
         this.poa = poa;
@@ -69,12 +70,12 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
     /**
      * Adds component to all profiles.
      */
-    public void add_ior_component (TaggedComponent component) 
+    public void add_ior_component (TaggedComponent component)
     {
         for (Iterator i = components.values().iterator(); i.hasNext();)
         {
-            TaggedComponentList l = (TaggedComponentList)i.next();
-            l.addComponent (component);
+            TaggedComponentList list = (TaggedComponentList)i.next();
+            list.addComponent (component);
         }
     }
 
@@ -83,9 +84,9 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
      */
     public void add_ior_component_to_profile(TaggedComponent component, int id)
     {
-        TaggedComponentList l = 
+        TaggedComponentList list =
             (TaggedComponentList)components.get (new Integer (id));
-        if (l == null)
+        if (list == null)
         {
             throw new org.omg.CORBA.BAD_PARAM
             (
@@ -94,10 +95,8 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
                 CompletionStatus.COMPLETED_MAYBE
             );
         }
-        else
-        {
-            l.addComponent (component);
-        }
+
+        list.addComponent (component);
     }
 
     /**
@@ -108,23 +107,21 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
     {
         if (!orb.hasPolicyFactoryForType(type))
         {
-            throw new org.omg.CORBA.INV_POLICY 
+            throw new org.omg.CORBA.INV_POLICY
             (
-                "No PolicyFactory for type " + type + 
-			    " has been registered!", 
-                MinorCodes.NO_SUCH_POLICY, 
+                "No PolicyFactory for type " + type +
+                " has been registered!",
+                MinorCodes.NO_SUCH_POLICY,
                 CompletionStatus.COMPLETED_MAYBE
             );
         }
-        else
+
+        Policy policy = null;
+        if (policy_overrides != null)
         {
-            Policy policy = null;
-            if (policy_overrides != null)
-            {
-	           policy = (Policy)policy_overrides.get (new Integer(type));
-            }
-            return (policy != null) ? policy : poa.getPolicy(type);
+            policy = (Policy)policy_overrides.get (new Integer(type));
         }
+        return (policy != null) ? policy : poa.getPolicy(type);
     }
 
     /**
@@ -140,7 +137,6 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
        {
           _profiles.add(profile);
        }
-
     }
 
     /**
@@ -157,7 +153,9 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
        {
            Profile p = (Profile) _profiles.get(i);
            if ( p.tag() == tag )
+           {
               retVal++;
+           }
        }
        return retVal;
     }
@@ -175,24 +173,24 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
     public org.omg.ETF.Profile get_profile(int tag, int position)
     {
        int cnt = position;
-       Profile retVal = null;
+       Profile result = null;
        for (int i=0; i < _profiles.size(); i++)
        {
-           Profile p = (Profile) _profiles.get(i);
-           if ( p.tag() == tag && cnt == 0)
+           Profile profile = (Profile) _profiles.get(i);
+           if ( profile.tag() == tag && cnt == 0)
            {
-              retVal = p;
+              result = profile;
               break;
            }
-           else
-           {
-              cnt--;
-           }
+           cnt--;
        }
-       if( retVal == null )
-         throw new ArrayIndexOutOfBoundsException("no profile with tag=" + tag + " at position" + position);
 
-       return retVal;
+       if( result == null )
+       {
+           throw new ArrayIndexOutOfBoundsException("no profile with tag=" + tag + " at position" + position);
+       }
+
+       return result;
     }
 
     /**
@@ -204,24 +202,16 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
      */
     public org.omg.ETF.Profile get_profile(int tag)
     {
-       Profile retVal = null;
+       Profile result = null;
        for (int i=0; i < _profiles.size(); i++)
        {
-           Profile p = (Profile) _profiles.get(i);
-           if ( p.tag() == tag )
+           Profile profile = (Profile) _profiles.get(i);
+           if ( profile.tag() == tag )
            {
-              retVal = p;
+              result = profile;
               break;
            }
        }
-       return retVal;
-
+       return result;
     }
-
 }
-
-
-
-
-
-

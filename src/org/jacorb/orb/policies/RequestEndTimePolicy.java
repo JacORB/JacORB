@@ -26,16 +26,18 @@ import org.omg.TimeBase.*;
 
 public class RequestEndTimePolicy extends _RequestEndTimePolicyLocalBase
 {
-    private UtcT end_time;
-    
+    private final UtcT end_time;
+
     public RequestEndTimePolicy (UtcT end_time)
     {
+        super();
+
         this.end_time = end_time;
     }
-    
+
     public RequestEndTimePolicy (org.omg.CORBA.Any value)
     {
-        this.end_time = UtcTHelper.extract (value);
+        this(UtcTHelper.extract (value));
     }
 
     public UtcT end_time()
@@ -50,8 +52,8 @@ public class RequestEndTimePolicy extends _RequestEndTimePolicyLocalBase
 
     public Policy copy()
     {
-        UtcT copy_time = new UtcT (end_time.time, 
-                                   end_time.inacclo, 
+        UtcT copy_time = new UtcT (end_time.time,
+                                   end_time.inacclo,
                                    end_time.inacchi,
                                    end_time.tdf);
 

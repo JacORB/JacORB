@@ -26,12 +26,7 @@ import org.omg.Messaging._RebindPolicyLocalBase;
 
 public class RebindPolicy extends _RebindPolicyLocalBase
 {
-    private short rebind_mode;
-    
-    public RebindPolicy (short rebind_mode)
-    {
-        this.rebind_mode = rebind_mode;
-    }
+    private final short rebind_mode;
 
     public RebindPolicy (org.omg.CORBA.Any value)
     {
@@ -50,11 +45,10 @@ public class RebindPolicy extends _RebindPolicyLocalBase
 
     public Policy copy()
     {
-        return new RebindPolicy (rebind_mode);
+        return this;
     }
 
     public void destroy()
     {
     }
-
 }

@@ -26,15 +26,12 @@ import org.omg.Messaging.*;
 public class RelativeRequestTimeoutPolicy
     extends _RelativeRequestTimeoutPolicyLocalBase
 {
-    private long relative_expiry;
-    
-    public RelativeRequestTimeoutPolicy (long relative_expiry)
-    {
-        this.relative_expiry = relative_expiry;
-    }
+    private final long relative_expiry;
 
     public RelativeRequestTimeoutPolicy (org.omg.CORBA.Any value)
     {
+        super();
+
         this.relative_expiry = value.extract_ulonglong();
     }
 
@@ -50,11 +47,10 @@ public class RelativeRequestTimeoutPolicy
 
     public Policy copy()
     {
-        return new RelativeRequestTimeoutPolicy (relative_expiry);
+        return this;
     }
 
     public void destroy()
     {
     }
-
 }

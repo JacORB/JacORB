@@ -36,8 +36,7 @@ import org.omg.CORBA.*;
 
 public class PICurrentImpl extends org.omg.CORBA.LocalObject
     implements org.omg.PortableInterceptor.Current
-    {
-
+{
     private final Any[] m_slots;
     private final ORB m_orb;
 

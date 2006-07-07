@@ -25,15 +25,12 @@ import org.omg.Messaging.*;
 
 public class QueueOrderPolicy extends _QueueOrderPolicyLocalBase
 {
-    private short allowed_orders;
-    
-    public QueueOrderPolicy (short allowed_orders)
-    {
-        this.allowed_orders = allowed_orders;
-    }
+    private final short allowed_orders;
 
     public QueueOrderPolicy (org.omg.CORBA.Any value)
     {
+        super();
+
         this.allowed_orders = value.extract_short();
     }
 
@@ -49,11 +46,10 @@ public class QueueOrderPolicy extends _QueueOrderPolicyLocalBase
 
     public Policy copy()
     {
-        return new QueueOrderPolicy (allowed_orders);
+        return this;
     }
 
     public void destroy()
     {
     }
-
 }

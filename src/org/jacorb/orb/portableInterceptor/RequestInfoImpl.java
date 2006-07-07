@@ -58,7 +58,8 @@ public abstract class RequestInfoImpl
 
     protected short caller_op = -1;
 
-    public RequestInfoImpl() {
+    public RequestInfoImpl()
+    {
         super();
 
         request_ctx = new Hashtable();
@@ -91,36 +92,44 @@ public abstract class RequestInfoImpl
         }
     }
 
-    public void setArguments (Parameter[] args) {
+    public void setArguments (Parameter[] args)
+    {
         this.arguments = args;
     }
 
-    public void setResult (Any result) {
+    public void setResult (Any result)
+    {
         this.result = result;
     }
 
-    public org.omg.PortableInterceptor.Current current() {
+    public org.omg.PortableInterceptor.Current current()
+    {
         return current;
     }
 
-    public void setCurrent (org.omg.PortableInterceptor.Current current) {
+    public void setCurrent (org.omg.PortableInterceptor.Current current)
+    {
         this.current = current;
     }
 
-    public void setReplyStatus (short reply_status) {
+    public void setReplyStatus (short reply_status)
+    {
         this.reply_status = reply_status;
     }
 
-    public void setForwardReference (org.omg.CORBA.Object forward_reference) {
+    public void setForwardReference (org.omg.CORBA.Object forward_reference)
+    {
         this.forward_reference = forward_reference;
     }
 
     // implementation of org.omg.PortableInterceptor.RequestInfoOperations interface
-    public Parameter[] arguments() {
+    public Parameter[] arguments()
+    {
         return arguments;
     }
 
-    public String[] contexts() {
+    public String[] contexts()
+    {
         throw new NO_RESOURCES("JacORB does not support operation contexts",
                                1, CompletionStatus.COMPLETED_MAYBE);
     }

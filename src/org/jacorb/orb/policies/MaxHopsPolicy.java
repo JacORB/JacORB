@@ -25,15 +25,12 @@ import org.omg.Messaging.*;
 
 public class MaxHopsPolicy extends _MaxHopsPolicyLocalBase
 {
-    private short max_hops;
+    private final short max_hops;
 
-    public MaxHopsPolicy (short max_hops)
-    {
-        this.max_hops = max_hops;
-    }
-    
     public MaxHopsPolicy (org.omg.CORBA.Any value)
     {
+        super();
+
         max_hops = value.extract_ushort();
     }
 
@@ -49,11 +46,10 @@ public class MaxHopsPolicy extends _MaxHopsPolicyLocalBase
 
     public Policy copy()
     {
-        return new MaxHopsPolicy (max_hops);
+        return this;
     }
 
     public void destroy()
     {
     }
-
 }

@@ -168,7 +168,7 @@ public class PolicyManager
             throw new IllegalArgumentException("Argument may not be null");
         }
 
-        HashMap newPolicies = new HashMap();
+        Map newPolicies = new HashMap();
         StringBuffer sb = new StringBuffer();
 
         // check that the policies argument does not contain multiple
@@ -207,7 +207,7 @@ public class PolicyManager
         else if (set_add == org.omg.CORBA.SetOverrideType.ADD_OVERRIDE )
         {
             // adds policies (and replaces any existing policies)
-            HashMap test = new HashMap(policy_overrides);
+            Map test = new HashMap(policy_overrides);
             test.putAll(policy_overrides);
             test.putAll( newPolicies );
             PolicyUtil.checkValidity(test);

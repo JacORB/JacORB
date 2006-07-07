@@ -72,70 +72,72 @@ public class ClientRequestInfoImpl
                         org.jacorb.orb.ParsedIOR piorOriginal,
                         org.jacorb.orb.giop.ClientConnection connection )
     {
-         this.orb = orb;
-         logger = orb.getConfiguration().getNamedLogger("jacorb.orb.interceptors");
+        super();
 
-         this.operation = ros.operation();
-         this.response_expected = ros.response_expected();
-         this.received_exception = orb.create_any();
+        this.orb = orb;
+        logger = orb.getConfiguration().getNamedLogger("jacorb.orb.interceptors");
 
-         if ( ros.getRequest() != null )
-         {
-             this.setRequest( ros.getRequest() );
-         }
+        this.operation = ros.operation();
+        this.response_expected = ros.response_expected();
+        this.received_exception = orb.create_any();
 
-         this.effective_target = self;
+        if ( ros.getRequest() != null )
+        {
+            this.setRequest( ros.getRequest() );
+        }
 
-         org.jacorb.orb.ParsedIOR pior = delegate.getParsedIOR();
+        this.effective_target = self;
 
-         if ( piorOriginal != null )
-         {
-             this.target = orb._getObject( pior );
-         }
-         else
-         {
-             this.target = self;
-         }
+        org.jacorb.orb.ParsedIOR pior = delegate.getParsedIOR();
 
-         Profile profile = pior.getEffectiveProfile();
+        if ( piorOriginal == null )
+        {
+            this.target = self;
+        }
+        else
+        {
+            this.target = orb._getObject( pior );
+        }
 
-         // If this ParsedIOR is using a profile that extends ProfileBase e.g. IIOPProfile
-         // and WIOP (within the regression suite) then grab the effective profile and the
-         // possibly null effective_components.
-         if (profile instanceof ProfileBase)
-         {
-             this.effective_profile    = ((ProfileBase)profile).asTaggedProfile();
-             this.effective_components =
-             (
-                 ((ProfileBase)profile).getComponents() == null ?
-                 new org.omg.IOP.TaggedComponent[0]             :
-                 ((ProfileBase)profile).getComponents().asArray()
-             );
-         }
-         else
-         {
-             this.effective_components = new org.omg.IOP.TaggedComponent[ 0 ];
-         }
+        Profile profile = pior.getEffectiveProfile();
 
-         this.delegate = delegate;
+        // If this ParsedIOR is using a profile that extends ProfileBase e.g. IIOPProfile
+        // and WIOP (within the regression suite) then grab the effective profile and the
+        // possibly null effective_components.
+        if (profile instanceof ProfileBase)
+        {
+            this.effective_profile    = ((ProfileBase)profile).asTaggedProfile();
+            this.effective_components =
+                (
+                        ((ProfileBase)profile).getComponents() == null ?
+                                new org.omg.IOP.TaggedComponent[0]             :
+                                    ((ProfileBase)profile).getComponents().asArray()
+                );
+        }
+        else
+        {
+            this.effective_components = new org.omg.IOP.TaggedComponent[ 0 ];
+        }
 
-         this.request_id = ros.requestId();
-         InterceptorManager manager = orb.getInterceptorManager();
+        this.delegate = delegate;
 
-         this.current = manager.getCurrent();
+        this.request_id = ros.requestId();
+        InterceptorManager manager = orb.getInterceptorManager();
 
-         //allow interceptors access to request output stream
-         this.request_os = ros;
+        this.current = manager.getCurrent();
 
-         //allow (BiDir) interceptor to inspect the connection
-         this.connection = connection;
+        //allow interceptors access to request output stream
+        this.request_os = ros;
 
-         // If the original ClientRequestInfo is not null and the forward_reference
-         // is not null then copy it over.
-         if (original != null && original.forward_reference != null)
-         {
-             forward_reference = original.forward_reference;
-         }
+        //allow (BiDir) interceptor to inspect the connection
+        this.connection = connection;
+
+        // If the original ClientRequestInfo is not null and the forward_reference
+        // is not null then copy it over.
+        if (original != null && original.forward_reference != null)
+        {
+            forward_reference = original.forward_reference;
+        }
     }
 
     public final void setRequest(org.jacorb.orb.dii.Request request)
@@ -431,16 +433,20 @@ public class ClientRequestInfoImpl
     {
 
         if (caller_op != ClientInterceptorIterator.SEND_REQUEST)
+        {
             throw new BAD_INV_ORDER("The operation \"add_request_service_context\" is " +
                                     "currently invalid!", 10,
                                     CompletionStatus.COMPLETED_MAYBE);
+        }
 
         Integer _id = ObjectUtil.newInteger(service_context.context_id);
 
         if (! replace && request_ctx.containsKey(_id))
+        {
             throw new BAD_INV_ORDER("The ServiceContext with id " + _id.toString()
                                     + " has already been set!", 11,
                                     CompletionStatus.COMPLETED_MAYBE);
+        }
 
         request_ctx.put(_id, service_context);
     }

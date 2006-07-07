@@ -23,7 +23,7 @@ package org.jacorb.orb.portableInterceptor;
 import org.omg.PortableInterceptor.*;
 
 public abstract class DefaultClientInterceptor
-    extends org.omg.CORBA.LocalObject 
+    extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor
 {
     public abstract String name();
@@ -32,7 +32,7 @@ public abstract class DefaultClientInterceptor
     {
     }
 
-    public void send_request( ClientRequestInfo ri ) 
+    public void send_request( ClientRequestInfo ri )
         throws ForwardRequest
     {
     }
@@ -45,13 +45,13 @@ public abstract class DefaultClientInterceptor
     {
     }
 
-    public void receive_exception(ClientRequestInfo ri) 
+    public void receive_exception(ClientRequestInfo ri)
         throws ForwardRequest
     {
     }
 
-    public void receive_other(ClientRequestInfo ri) 
+    public void receive_other(ClientRequestInfo ri)
         throws ForwardRequest
     {
     }
-} // DefaultClientInterceptor
+}

@@ -60,13 +60,13 @@ public class ReplyReceiver
     extends ReplyPlaceholder
     implements Configurable
 {
-    private org.jacorb.orb.Delegate  delegate     = null;
-    private ClientInterceptorHandler interceptors = null;
+    private final org.jacorb.orb.Delegate  delegate;
+    private final ClientInterceptorHandler interceptors;
 
-    private org.omg.Messaging.ReplyHandler replyHandler = null;
+    private final org.omg.Messaging.ReplyHandler replyHandler;
 
-    private String operation;
-    private Timer  timer;
+    private final String operation;
+    private final Timer timer;
 
     private Logger logger;
 
@@ -113,40 +113,47 @@ public class ReplyReceiver
     public void replyReceived( MessageInputStream in )
     {
         if (timeoutException)
+        {
             return; // discard reply
+        }
+
         if (timer != null)
+        {
             timer.wakeup();
+        }
 
         Set pending_replies = delegate.get_pending_replies();
         // grab pending_replies lock BEFORE my own,
         // then I will already have it in the replyDone call below.
         synchronized ( pending_replies )
         {
-        // This internal synchronization prevents a deadlock
-        // when a timeout and a reply coincide, suggested
-        // by Jimmy Wilson, 2005-01.  It is only a temporary
-        // work-around though, until I can simplify this entire
-        // logic much more thoroughly, AS.
-        synchronized (this)
-        {
-            if (timeoutException)
-                return; // discard reply
-
-            this.in = in;
-            delegate.replyDone (this);
-
-            if (replyHandler != null)
+            // This internal synchronization prevents a deadlock
+            // when a timeout and a reply coincide, suggested
+            // by Jimmy Wilson, 2005-01.  It is only a temporary
+            // work-around though, until I can simplify this entire
+            // logic much more thoroughly, AS.
+            synchronized (this)
             {
-                // asynchronous delivery
-                performCallback ((ReplyInputStream)in);
+                if (timeoutException)
+                {
+                    return; // discard reply
+                }
+
+                this.in = in;
+                delegate.replyDone (this);
+
+                if (replyHandler != null)
+                {
+                    // asynchronous delivery
+                    performCallback ((ReplyInputStream)in);
+                }
+                else
+                {
+                    // synchronous delivery
+                    ready = true;
+                    notifyAll();
+                }
             }
-            else
-            {
-                // synchronous delivery
-                ready = true;
-                notifyAll();
-            }
-        }
         }
     }
 
@@ -244,15 +251,15 @@ public class ReplyReceiver
         catch ( Exception e )
         {
             if (logger.isWarnEnabled())
+            {
                 logger.warn("Exception during callback: " + e.toString() );
+            }
         }
         finally
         {
             replyHandlerDelegate.servant_postinvoke( replyHandler, so );
         }
     }
-
-
 
     /**
      * This method blocks until a reply becomes available.
@@ -459,8 +466,7 @@ public class ReplyReceiver
                         }
                         catch (InterruptedException ex)
                         {
-                            if (logger.isInfoEnabled())
-                                logger.info("Interrupted while waiting for timeout");
+                            logger.info("Interrupted while waiting for timeout");
                         }
                     }
                     if (!awakened)

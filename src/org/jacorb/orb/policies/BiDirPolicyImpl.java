@@ -20,16 +20,17 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.PortableInterceptor.*;
 
 public class BiDirPolicyImpl
     extends org.omg.CORBA.LocalObject
     implements org.omg.BiDirPolicy.BidirectionalPolicy
 {
-    short value;
+    private final short value;
 
     public BiDirPolicyImpl(short value)
     {
+        super();
+
         this.value = value;
     }
 
@@ -45,18 +46,10 @@ public class BiDirPolicyImpl
 
     public org.omg.CORBA.Policy copy()
     {
-        return new BiDirPolicyImpl( value );
+        return this;
     }
 
     public void destroy()
     {
     }
-    
-
 }
-
-
-
-
-
-

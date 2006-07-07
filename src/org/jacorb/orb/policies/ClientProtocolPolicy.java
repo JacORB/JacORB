@@ -35,12 +35,13 @@ public class ClientProtocolPolicy extends _ClientProtocolPolicyLocalBase
 
    public ClientProtocolPolicy(Protocol[] protos)
    {
-      this.protos = protos;
+       super();
+       this.protos = protos;
    }
 
    public ClientProtocolPolicy(org.omg.CORBA.Any any)
    {
-      this.protos = ProtocolListHelper.extract (any);
+      this(ProtocolListHelper.extract (any));
    }
 
    public int tag()

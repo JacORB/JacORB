@@ -66,10 +66,14 @@ public class IORInterceptorIterator
         try
         {
             if (interceptor instanceof CodeSetInfoInterceptor)
+            {
                 ((CodeSetInfoInterceptor) interceptor).
                     establish_components(info, profile_tags);
+            }
             else
+            {
                 ((IORInterceptor) interceptor).establish_components(info);
+            }
         }
         catch(Exception e)
         {

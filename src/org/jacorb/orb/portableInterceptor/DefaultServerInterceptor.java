@@ -30,12 +30,10 @@ import org.omg.PortableInterceptor.*;
  * @author Gerald Brose.
  * @version $Id$
  */
-
 public abstract class DefaultServerInterceptor
-    extends org.omg.CORBA.LocalObject 
+    extends org.omg.CORBA.LocalObject
     implements ServerRequestInterceptor
 {
-
     // InterceptorOperations interface
     public abstract String name();
 
@@ -43,7 +41,7 @@ public abstract class DefaultServerInterceptor
     {
     }
 
-    public void receive_request_service_contexts( ServerRequestInfo ri ) 
+    public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
     }
@@ -62,15 +60,8 @@ public abstract class DefaultServerInterceptor
     {
     }
 
-    public void send_other(ServerRequestInfo ri) 
+    public void send_other(ServerRequestInfo ri)
         throws ForwardRequest
     {
     }
-
 }
-
-
-
-
-
-
