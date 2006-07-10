@@ -20,8 +20,6 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
-
 /**
  * This class is the implementation of DataInputStream used for custom marshalling
  * of value type.

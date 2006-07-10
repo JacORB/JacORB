@@ -41,8 +41,8 @@ public class LocateReplyReceiver
     /**
      * This method blocks until a reply becomes available.
      */
-    public synchronized LocateReplyInputStream getReply()
-    throws RemarshalException
+    public LocateReplyInputStream getReply()
+        throws RemarshalException
     {
         return (LocateReplyInputStream)getInputStream(false);
     }

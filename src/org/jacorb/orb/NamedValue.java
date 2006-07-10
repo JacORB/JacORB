@@ -21,74 +21,66 @@
 package org.jacorb.orb;
 
 /**
- * @author Gerald Brose, FU Berlin 
- * @version $Id$	
+ * @author Gerald Brose, FU Berlin
+ * @version $Id$
  */
 
-public class NamedValue 
+public class NamedValue
     extends org.omg.CORBA.NamedValue
 {
     private org.omg.CORBA.Any value;
     private String name;
-    private int arg_modes;
+    private final int arg_modes;
 
     public NamedValue(int modes)
     {
-	arg_modes = modes;
+        super();
+        arg_modes = modes;
     }
 
-    public NamedValue( String n, org.omg.CORBA.Any a, int modes )
+    public NamedValue( String name, org.omg.CORBA.Any value, int modes )
     {
-	name = n;
-	value = a;
-	arg_modes = modes;
+        this(modes);
+
+        this.name = name;
+        this.value = value;
     }
 
-    public NamedValue( String n,  int modes )
+    public NamedValue( String name,  int modes )
     {
-	name = n;
-	arg_modes = modes;
+        this(modes);
+        this.name = name;
     }
-    
+
     public java.lang.String name()
     {
-	return name;
+        return name;
     }
 
     public org.omg.CORBA.Any value()
     {
-	return value;
-    }
-    
-    public int flags()
-    {
-	return arg_modes;
+        return value;
     }
 
-    public void set_value( org.omg.CORBA.Any v )
+    public int flags()
     {
-	value = v;
+        return arg_modes;
+    }
+
+    public void set_value( org.omg.CORBA.Any value )
+    {
+        this.value = value;
     }
 
     /** JacORB-specific */
 
     public void send(org.omg.CORBA.portable.OutputStream out )
     {
-	value().write_value(out);
+        value().write_value(out);
     }
 
-    public void receive(org.omg.CORBA.portable.InputStream in )
-    { 
-	value().read_value(in, value().type());
+    public void receive(org.omg.CORBA.portable.InputStream inputStream )
+    {
+        value().read_value(inputStream, value().type());
     }
-
-
 }
-
-
-
-
-
-
-
-
