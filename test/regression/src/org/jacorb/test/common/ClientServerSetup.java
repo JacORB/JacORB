@@ -184,12 +184,20 @@ public class ClientServerSetup extends TestSetup {
                                           "ERR");
         outListener.start();
         errListener.start();
-        String ior = outListener.getIOR(5000);
+        final int iorWait = 5000;
+        String ior = outListener.getIOR(iorWait);
+
         if (ior == null)
         {
-            String exc = errListener.getException(1000);
+            String exc = errListener.getException(2000);
 
-            fail("could not access IOR. cause maybe: " + exc);
+            StringBuffer details = new StringBuffer();
+            details.append("Details from Server OUT:");
+            details.append(outListener.getBuffer());
+            details.append("Details from Server ERR:");
+            details.append(errListener.getBuffer());
+
+            fail("could not access IOR for Server " + servantName + " within " + iorWait + " millis.\nThis maybe caused by: " + exc + '\n' + details);
         }
         resolveServerObject(ior);
     }

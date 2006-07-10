@@ -37,7 +37,8 @@ public class StreamListener extends Thread
     private String id = null;
     private String ior = null;
     private String exception = null;
-    private boolean destroyed;
+    private boolean active = true;
+    private final StringBuffer buffer = new StringBuffer();
 
     public StreamListener(InputStream stream, String id)
     {
@@ -62,7 +63,8 @@ public class StreamListener extends Thread
                 try
                 {
                     this.wait(timeout);
-                } catch (InterruptedException ex)
+                }
+                catch (InterruptedException ex)
                 {
                     // ignore
                 }
@@ -84,7 +86,8 @@ public class StreamListener extends Thread
                 try
                 {
                     wait(timeout);
-                } catch (InterruptedException e)
+                }
+                catch (InterruptedException e)
                 {
                     // ignore
                 }
@@ -102,17 +105,24 @@ public class StreamListener extends Thread
      */
     public void setDestroyed()
     {
-        destroyed = true;
+        active = false;
+    }
+
+    public String getBuffer()
+    {
+        return buffer.toString();
     }
 
 
     public void run()
     {
-        while (true)
+        while (active)
         {
             try
             {
                 String line = in.readLine();
+                buffer.append(line);
+                buffer.append('\n');
                 if (line == null)
                 {
                     break;
@@ -147,13 +157,13 @@ public class StreamListener extends Thread
             catch (NullPointerException ex)
             {
                 System.out.println("NullPointerException reading from server.");
-                if (destroyed)
+                if (active)
                 {
-                    System.out.println ("Server has been destroyed so likely this is JDK bugs 4956099, 4505257 or 4728096");
+                    ex.printStackTrace();
                 }
                 else
                 {
-                    ex.printStackTrace();
+                    System.out.println ("Server has been destroyed so likely this is JDK bugs 4956099, 4505257 or 4728096");
                 }
                 break;
             }
