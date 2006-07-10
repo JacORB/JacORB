@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.util.ValueHandler;
 import org.jacorb.util.ObjectUtil;
 
@@ -153,6 +154,13 @@ public class CDROutputStream
         to be bitwise or'ed into value tags. */
     private int chunkingFlag = 0;
 
+    /**
+     * <code>mutator</code> is a pluggable IOR mutator.
+     */
+    private IORMutator mutator;
+
+    private boolean isMutatorEnabled;
+
     /** configurable properties */
     private boolean useBOM = false;
     private boolean chunkCustomRmiValuetypes = false;
@@ -180,6 +188,19 @@ public class CDROutputStream
 
         useIndirection =
            !( configuration.getAttribute("jacorb.interop.indirection_encoding_disable","off").equals("on"));
+
+        isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
+
+        if (isMutatorEnabled)
+        {
+            try
+            {
+                mutator = (IORMutator) ((org.jacorb.config.Configuration)configuration).getAttributeAsObject("jacorb.iormutator");
+            } catch (ConfigurationException e)
+            {
+                throw new RuntimeException();
+            }
+        }
     }
 
     private static class DeferredWriteFrame
@@ -1255,7 +1276,15 @@ public class CDROutputStream
             }
             org.omg.CORBA.portable.ObjectImpl obj =
                 (org.omg.CORBA.portable.ObjectImpl)value;
-            IORHelper.write(this, ((Delegate)obj._get_delegate()).getIOR()  );
+
+            IOR intermediary = ((Delegate)obj._get_delegate()).getIOR();
+
+            if (isMutatorEnabled)
+            {
+                intermediary = mutator.mutateOutgoing (intermediary);
+            }
+
+            IORHelper.write(this, intermediary);
         }
     }
 
@@ -2905,6 +2934,25 @@ public class CDROutputStream
         {
             write_boolean(false);
             write_value((java.io.Serializable)object);
+        }
+    }
+
+    /**
+     * <code>updateMutatorConnection</code> is an accessor that updates the
+     * ior mutator.
+     *
+     * By making callers pass in a GIOPConnection not a transport this allows
+     * callers to not have to call getTransport which would require a synchronized
+     * lock. Therefore if the mutator has not been enabled this is effectively a
+     * NOP.
+     *
+     * @param connection an <code>org.omg.ETF.Connection</code> value
+     */
+    public void updateMutatorConnection(GIOPConnection connection)
+    {
+        if (isMutatorEnabled)
+        {
+            mutator.updateConnection (connection.getTransport());
         }
     }
 }

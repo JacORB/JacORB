@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.*;
 import org.apache.avalon.framework.logger.*;
 
 import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Stack;
 import org.jacorb.util.ValueHandler;
@@ -145,6 +146,12 @@ public class CDRInputStream
     /** Ending position of the current chunk */
     private int chunk_end_pos = -1;   // -1 means we're not within a chunk
 
+    /**
+     * <code>mutator</code> is a pluggable IOR mutator.
+     */
+    private IORMutator mutator;
+
+    private boolean isMutatorEnabled;
 
     /**
      * for this stream to be able to return a live object reference, a
@@ -214,8 +221,9 @@ public class CDRInputStream
     private void configure(Configuration configuration)
         throws ConfigurationException
     {
+        final org.jacorb.config.Configuration jacorbConfig = (org.jacorb.config.Configuration)configuration;
         logger =
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.cdr");
+            jacorbConfig.getNamedLogger("jacorb.orb.cdr");
 
         cometInteropFix =
             configuration.getAttribute("jacorb.interop.comet","off").equals("on");
@@ -225,6 +233,12 @@ public class CDRInputStream
             configuration.getAttribute("jacorb.cacheTypecodes","off").equals("on");
         sunInteropFix =
             configuration.getAttribute("jacorb.interop.sun", "off").equalsIgnoreCase("on");
+        isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
+
+        if (isMutatorEnabled)
+        {
+            mutator = (IORMutator) jacorbConfig.getAttributeAsObject("jacorb.iormutator");
+        }
     }
 
 
@@ -949,6 +963,12 @@ public class CDRInputStream
         handle_chunking();
 
         org.omg.IOP.IOR ior = org.omg.IOP.IORHelper.read(this);
+
+        if (isMutatorEnabled)
+        {
+            ior = mutator.mutateIncoming (ior);
+        }
+
         ParsedIOR pior = new ParsedIOR( ior, (org.jacorb.orb.ORB)orb, logger );
 
         if( pior.isNull() )
@@ -3167,6 +3187,25 @@ public class CDRInputStream
     public void register_value(final java.io.Serializable value)
     {
         getValueMap().put(ObjectUtil.newInteger(currentValueIndex), value);
+    }
+
+    /**
+     * <code>updateMutatorConnection</code> is an accessor that updates the
+     * ior mutator.
+     *
+     * By making callers pass in a GIOPConnection not a transport this allows
+     * callers to not have to call getTransport which would require a synchronized
+     * lock. Therefore if the mutator has not been enabled this is effectively a
+     * NOP.
+     *
+     * @param connection an <code>org.omg.ETF.Connection</code> value
+     */
+    public void updateMutatorConnection(GIOPConnection connection)
+    {
+        if (isMutatorEnabled)
+        {
+            mutator.updateConnection (connection.getTransport());
+        }
     }
 
     /**

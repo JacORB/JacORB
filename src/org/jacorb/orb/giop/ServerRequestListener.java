@@ -147,6 +147,8 @@ public class ServerRequestListener
 
         inputStream.setCodeSet( connection.getTCS(), connection.getTCSW() );
 
+        inputStream.updateMutatorConnection(connection);
+
         ServerRequest server_request = null;
 
         try

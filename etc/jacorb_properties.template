@@ -289,6 +289,10 @@ jacorb.acceptor_exception_listener=org.jacorb.orb.listener.DefaultAcceptorExcept
 # processing - Server_TCP_IP_Transport only.
 jacorb.enhanced_thread_name=off
 
+# If this is set to a class implementing org.jacorb.orb.IORMutator
+# then this will be used to mutate incoming/outgoing Objects
+#jacorb.iormutator=
+
 ###########################################
 #                                         #
 #         Interoperability                #

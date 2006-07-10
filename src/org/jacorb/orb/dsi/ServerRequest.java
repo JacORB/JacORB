@@ -450,6 +450,8 @@ public class ServerRequest
                                   inputStream.isLocateRequest(),
                                   logger );
 
+        out.updateMutatorConnection(connection);
+
         out.configure(orb.getConfiguration());
 
         return out;

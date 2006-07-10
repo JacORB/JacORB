@@ -1071,6 +1071,8 @@ public final class Delegate
             // This call blocks until the reply arrives.
             org.omg.CORBA.portable.InputStream is = receiver.getReply();
 
+            ((CDRInputStream)is).updateMutatorConnection (connection.getGIOPConnection());
+
             return is;
         }
 
@@ -1679,6 +1681,8 @@ public final class Delegate
             //other hand, the server side must have already read the
             //header to discover the codeset service context.
             out.setCodeSet( connection.getTCS(), connection.getTCSW() );
+
+            out.updateMutatorConnection (connection.getGIOPConnection());
 
             return out;
         }
