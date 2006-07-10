@@ -311,6 +311,20 @@ public class AbstractIDLTestcase extends TestCase
      */
     protected static Test suite(String srcDir, Class testClazz)
     {
+        return suite(srcDir, testClazz, ".idl");
+    }
+
+    /**
+     * create a test suite for all idl files which names are
+     * ending with the specified suffix and which are located in
+     * the supplied directory.
+     *
+     * @param srcDir directory that contains the .idl files.
+     * @param testClazz must supply a constructor that accepts a file argument.
+     * @param suffix should match all IDL files that should be tested.
+     */
+    protected static Test suite(final String srcDir, final Class testClazz, final String suffix)
+    {
         TestSuite suite = new TestSuite();
 
         File file = new File(srcDir);
@@ -318,7 +332,7 @@ public class AbstractIDLTestcase extends TestCase
         {
             public boolean accept(File dir, String name)
             {
-                return name.endsWith(".idl");
+                return name.endsWith(suffix);
             }
         });
 
