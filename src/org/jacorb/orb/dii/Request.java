@@ -21,10 +21,13 @@ package org.jacorb.orb.dii;
  */
 
 import org.omg.CORBA.Any;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.NamedValue;
+import org.omg.CORBA.TCKind;
 import org.omg.CORBA.portable.*;
 
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.giop.*;
 
@@ -39,19 +42,6 @@ import java.util.Iterator;
 public class Request
     extends org.omg.CORBA.Request
 {
-    private final org.jacorb.orb.NamedValue result_value;
-    private final org.omg.CORBA.ExceptionList exceptions;
-    private org.omg.CORBA.ContextList contexts;
-    private org.omg.CORBA.Context ctx;
-    private Thread deferred_caller;
-    private final org.jacorb.orb.ORB orb;
-    private org.omg.CORBA.portable.InputStream reply;
-
-    /* state of request object */
-    private boolean immediate = false;
-    private boolean deferred = false;
-    private boolean finished = false;
-
     public final org.omg.CORBA.Object target;
     public final ClientConnection connection;
     public final byte[] object_key;
@@ -59,46 +49,67 @@ public class Request
     public final String operation;
     public final org.omg.CORBA.Environment env = new Environment();
 
+    private final org.jacorb.orb.NamedValue result_value;
+    private final org.omg.CORBA.ExceptionList exceptions;
+    private final org.jacorb.orb.ORB orb;
+
+    private org.omg.CORBA.ContextList contexts = new ContextListImpl();
+    private org.omg.CORBA.Context context;
+    private Thread deferred_caller;
+    private org.omg.CORBA.portable.InputStream reply;
+
+    /* state of request object */
+    private boolean immediate = false;
+    private boolean deferred = false;
+    private boolean finished = false;
+
     private ClientRequestInfoImpl info = null;
 
     public Request( org.omg.CORBA.Object target,
-                    org.omg.CORBA.ORB _orb,
-                    ClientConnection conn,
+                    ORB orb,
+                    ClientConnection connection,
                     byte[] obj_key,
-                    String op)
+                    String operationName)
     {
-        this.target = target;
-        orb = (org.jacorb.orb.ORB)_orb;
-        connection = conn;
-        object_key = obj_key;
-        operation = op;
-        exceptions = new ExceptionList();
-        arguments = orb.create_list(10);
-        Any any = orb.create_any();
-
-        /* default return type is void */
-        any.type( orb.get_primitive_tc( org.omg.CORBA.TCKind.tk_void ) );
-        result_value = new org.jacorb.orb.NamedValue(1);
-        result_value.set_value(any);
+        this(target,
+             orb,
+             connection,
+             obj_key,
+             operationName,
+             orb.create_list(10),
+             null,
+             createVoidResultValue(orb));
     }
 
-    public Request( org.omg.CORBA.Object t,
-                    org.omg.CORBA.ORB _orb,
-                    ClientConnection e,
+    private static final NamedValue createVoidResultValue(ORB orb)
+    {
+        Any any = orb.create_any();
+        any.type(orb.get_primitive_tc(TCKind.tk_void));
+        org.jacorb.orb.NamedValue namedValue = new org.jacorb.orb.NamedValue(1);
+        namedValue.set_value(any);
+        return namedValue;
+    }
+
+    public Request( org.omg.CORBA.Object target,
+                    ORB orb,
+                    ClientConnection connection,
                     byte[] obj_key,
                     String op,
                     org.omg.CORBA.NVList args,
-                    org.omg.CORBA.Context c,
+                    org.omg.CORBA.Context context,
                     org.omg.CORBA.NamedValue result)
     {
-        target = t;
-        orb = (org.jacorb.orb.ORB)_orb;
-        connection = e;
-        object_key = obj_key;
-        operation = op;
+        super();
+
+        this.target = target;
+        this.orb = orb;
+        this.connection = connection;
+        this.object_key = obj_key;
+        this.operation = op;
         exceptions = new ExceptionList();
-        arguments = args;
-        ctx = c;
+
+        this.arguments = args;
+        this.context = context;
         result_value = (org.jacorb.orb.NamedValue)result;
     }
 
@@ -139,12 +150,12 @@ public class Request
 
     public org.omg.CORBA.Context ctx()
     {
-        return ctx;
+        return context;
     }
 
-    public void ctx( org.omg.CORBA.Context a)
+    public void ctx( org.omg.CORBA.Context ctx)
     {
-        ctx = a;
+        this.context = ctx;
     }
 
     public Any add_in_arg()
@@ -226,10 +237,10 @@ public class Request
     {
         while (true)
         {
-            org.jacorb.orb.Delegate deleg =
+            org.jacorb.orb.Delegate delegate =
                 (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate();
 
-            final RequestOutputStream out = (RequestOutputStream)deleg.request(target, operation, response_expected);
+            final RequestOutputStream out = (RequestOutputStream)delegate.request(target, operation, response_expected);
 
             try
             {
@@ -237,16 +248,16 @@ public class Request
 
                 for( Iterator it = ((org.jacorb.orb.NVList)arguments).iterator(); it.hasNext();)
                 {
-                    org.jacorb.orb.NamedValue nv = (org.jacorb.orb.NamedValue)it.next();
-                    if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
+                    org.jacorb.orb.NamedValue namedValue = (org.jacorb.orb.NamedValue)it.next();
+                    if( namedValue.flags() != org.omg.CORBA.ARG_OUT.value )
                     {
-                        nv.send(out);
+                        namedValue.send(out);
                     }
                 }
 
                 try
                 {
-                    reply = deleg.invoke(target, out);
+                    reply = delegate.invoke(target, out);
 
                     if( response_expected )
                     {
@@ -258,29 +269,30 @@ public class Request
                             InterceptorManager manager = orb.getInterceptorManager();
                             info.setCurrent (manager.getCurrent());
 
-                            try{
-                                deleg.invokeInterceptors(info,
+                            try
+                            {
+                                delegate.invokeInterceptors(info,
                                         ClientInterceptorIterator.RECEIVE_REPLY);
                             }
-                            catch(RemarshalException rem)
+                            catch(RemarshalException e)
                             {
                                 //not allowed to happen here anyway
-                                throw new RuntimeException("should not happen");
+                                throw new INTERNAL("should not happen");
                             }
                             info = null;
                         }
                     }
                 }
-                catch (RemarshalException rem)
+                catch (RemarshalException e)
                 {
                     // Try again
                     continue;
                 }
-                catch (ApplicationException ae)
+                catch (ApplicationException e)
                 {
                     org.omg.CORBA.Any any;
                     org.omg.CORBA.TypeCode tc;
-                    String id = ae.getId ();
+                    String id = e.getId ();
                     int count = exceptions.count ();
 
                     for (int i = 0; i < count; i++)
@@ -291,7 +303,7 @@ public class Request
                             if (id.equals (tc.id ()))
                             {
                                 any = orb.create_any ();
-                                any.read_value (ae.getInputStream (), tc);
+                                any.read_value (e.getInputStream (), tc);
                                 env.exception (new org.omg.CORBA.UnknownUserException (any));
                                 break;
                             }
@@ -342,7 +354,6 @@ public class Request
         finish();
     }
 
-    // Made static as does not depend upon Request instance information.
     private static class Caller extends Thread
     {
         private final Request request;
