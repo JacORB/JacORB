@@ -108,14 +108,14 @@ public class ORBSingleton
      * (Note that '_' is allowed here - it might have
      * been inserted by the IDL compiler to avoid clashes
      * with reserved Java identifiers )
-     * @param ch the character in question.
+     * @param character the character in question.
      */
 
-    final protected static boolean legalStartChar(int ch)
+    final protected static boolean legalStartChar(int character)
     {
-        return
-           ( ch >= 'a' &&  ch <= 'z') || (ch == '_') ||
-           ( ch >= 'A' && ch <= 'Z');
+        return ( character >= 'a' && character <= 'z')
+            || ( character == '_')
+            || ( character >= 'A' && character <= 'Z');
     }
 
 
@@ -125,9 +125,8 @@ public class ORBSingleton
      */
     final protected static boolean legalNameChar(int ch)
     {
-        return
-           legalStartChar(ch) ||
-           (ch == '_')
+        return legalStartChar(ch)
+           || (ch == '_')
            || (ch >= '0' && ch <= '9');
     }
 
@@ -151,39 +150,42 @@ public class ORBSingleton
     * @param allowNull a <code>boolean</code> value
     * @exception BAD_PARAM if an error occurs
     */
-   private void checkTCName (String name, boolean allowNull)
+    private void checkTCName (String name, boolean allowNull)
         throws BAD_PARAM
     {
-        if (name != null)
+        if (name == null && !allowNull)
         {
-            if( name.length() > 0 )
+            throw new BAD_PARAM("Illegal null IDL name",
+                                15,
+                                CompletionStatus.COMPLETED_NO );
+        }
+
+        if( name.length() > 0 )
+        {
+            // check that name begins with an ASCII char
+            if( !legalStartChar( name.charAt(0)) )
             {
-                // check that name begins with an ASCII char
-                if( !legalStartChar( name.charAt(0)) )
-                {
-                    throw new BAD_PARAM
-                    (
-                       "Illegal start character to IDL name: " + name,
-                       15,
-                       CompletionStatus.COMPLETED_NO
-                    );
-                }
-                for( int i = 0; i < name.length(); i++ )
-                {
-                    if( ! legalNameChar( name.charAt(i) ))
-                        throw new BAD_PARAM("Illegal IDL name: " + name, 15,
-                                            CompletionStatus.COMPLETED_NO );
-                }
+                throw new BAD_PARAM
+                (
+                        "Illegal start character to IDL name: " + name,
+                        15,
+                        CompletionStatus.COMPLETED_NO
+                );
             }
-            else
+            for( int i = 0; i < name.length(); i++ )
             {
-                throw new BAD_PARAM("Illegal blank IDL name", 15,
-                                    CompletionStatus.COMPLETED_NO );
+                if( ! legalNameChar( name.charAt(i) ))
+                {
+                    throw new BAD_PARAM("Illegal IDL name: " + name,
+                                        15,
+                                        CompletionStatus.COMPLETED_NO );
+                }
             }
         }
-        else if (allowNull == false)
+        else
         {
-            throw new BAD_PARAM("Illegal null IDL name", 15,
+            throw new BAD_PARAM("Illegal blank IDL name",
+                                15,
                                 CompletionStatus.COMPLETED_NO );
         }
     }
@@ -200,7 +202,8 @@ public class ORBSingleton
         if( repId == null || repId.indexOf( ':' ) < 0 )
         {
             throw new BAD_PARAM("Illegal Repository ID: " + repId,
-                                16, CompletionStatus.COMPLETED_NO );
+                                16,
+                                CompletionStatus.COMPLETED_NO );
         }
     }
 
@@ -210,26 +213,24 @@ public class ORBSingleton
      * @throws org.omg.CORBA.BAD_PARAM
      */
 
-    private void checkTCMemberType( TypeCode tc )
+    private void checkTCMemberType( TypeCode typeCode )
         throws BAD_TYPECODE
     {
-        if( !org.jacorb.orb.TypeCode.isRecursive(tc) &&
-            (tc == null ||
-             tc.kind().value() == TCKind._tk_null ||
-             tc.kind().value() == TCKind._tk_void ||
-             tc.kind().value() == TCKind._tk_except
+        if( !org.jacorb.orb.TypeCode.isRecursive(typeCode) &&
+            (typeCode == null ||
+             typeCode.kind().value() == TCKind._tk_null ||
+             typeCode.kind().value() == TCKind._tk_void ||
+             typeCode.kind().value() == TCKind._tk_except
              )
             )
         {
-            throw new BAD_TYPECODE("Illegal member tc", 2,
+            throw new BAD_TYPECODE("Illegal member TypeCode",
+                                   2,
                                    CompletionStatus.COMPLETED_NO );
         }
     }
 
-
-
     /* TypeCode factory section */
-
 
     public TypeCode create_alias_tc( String id,
                                      String name,
@@ -239,7 +240,9 @@ public class ORBSingleton
         checkTCName (name, true);
         checkTCMemberType( original_type );
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_alias,
-                                            id, name, original_type);
+                                            id,
+                                            name,
+                                            original_type);
     }
 
     public TypeCode create_array_tc( int length, TypeCode element_type)
@@ -279,23 +282,26 @@ public class ORBSingleton
         if (checkName)
         {
             // check that member names are legal and unique
-            HashSet names = new HashSet() ;
+            final HashSet names = new HashSet() ;
             for( int i = 0; i < members.length; i++ )
             {
                 boolean fault = false;
+
                 try
                 {
                     checkTCName( members[i] );
                 }
-                catch( BAD_PARAM bp )
+                catch( BAD_PARAM e )
                 {
                     fault = true;
-                    logger.debug("Typecode name check failed", bp);
+                    logger.debug("Typecode name check failed", e);
                 }
+
                 if((members[i] != null && names.contains(members[i])) || fault )
                 {
                     throw new BAD_PARAM("Illegal enum member name: " + members[i],
-                            17, CompletionStatus.COMPLETED_NO );
+                                        17,
+                                        CompletionStatus.COMPLETED_NO );
                 }
                 names.add(members[i]);
             }
@@ -331,7 +337,7 @@ public class ORBSingleton
         checkTCName (name, true);
 
         // check that member names are legal and unique
-        HashSet names = new HashSet() ;
+        final HashSet names = new HashSet() ;
         for( int i = 0; i < members.length; i++ )
         {
             checkTCMemberType( members[i].type );
@@ -339,25 +345,26 @@ public class ORBSingleton
             if (checkName)
             {
                 boolean fault = false;
+
                 try
                 {
                     checkTCName( members[i].name );
                 }
-                catch( BAD_PARAM bp )
+                catch( BAD_PARAM e )
                 {
                     fault = true;
-                    logger.debug("Typecode name check failed", bp);
+                    logger.debug("Typecode name check failed", e);
                 }
+
                 if((members[i].name != null && names.contains( members[i].name )) || fault )
                 {
-                    throw new BAD_PARAM("Illegal exception member name: " +
-                            members[i].name,
-                            17, CompletionStatus.COMPLETED_NO );
+                    throw new BAD_PARAM("Illegal exception member name: " + members[i].name,
+                                        17,
+                                        CompletionStatus.COMPLETED_NO );
                 }
                 names.add(members[i].name);
             }
         }
-
 
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_except,
                                             id,
@@ -370,7 +377,8 @@ public class ORBSingleton
         checkTCRepositoryId( id );
         checkTCName (name, true);
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_objref,
-                                            id, name);
+                                            id,
+                                            name);
     }
 
     public org.omg.CORBA.TypeCode create_fixed_tc( short digits,
@@ -393,11 +401,11 @@ public class ORBSingleton
     public TypeCode create_sequence_tc( int bound, TypeCode element_type)
     {
         checkTCMemberType( element_type );
-        TypeCode tc =
+        TypeCode typeCode =
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_sequence,
                                          bound,
                                          element_type);
-        return tc;
+        return typeCode;
     }
 
     public TypeCode create_string_tc(int bound)
@@ -438,42 +446,43 @@ public class ORBSingleton
         checkTCName (name, true);
 
         // check that member names are legal and unique
-        HashSet names = new HashSet();
+        final HashSet names = new HashSet();
         for( int i = 0; i < members.length; i++ )
         {
             if (checkName)
             {
                 checkTCMemberType( members[i].type );
                 boolean fault = false;
+
                 try
                 {
                     checkTCName( members[i].name );
                 }
-                catch( BAD_PARAM bp )
+                catch( BAD_PARAM e )
                 {
                     fault = true;
-                    logger.debug("Typecode name check failed", bp);
+                    logger.debug("Typecode name check failed", e);
                 }
+
                 if((members[i].name != null && names.contains(members[i].name)) || fault )
                 {
                     throw new BAD_PARAM("Illegal struct member name: " + members[i].name + (fault? " (Bad PARAM) ": "" ),
-                            17,
-                            CompletionStatus.COMPLETED_NO );
+                                        17,
+                                        CompletionStatus.COMPLETED_NO );
                 }
                 names.add(members[i].name);
             }
         }
 
-
-        org.jacorb.orb.TypeCode tc =
+        org.jacorb.orb.TypeCode typeCode =
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_struct,
                                          id,
                                          name,
                                          members);
 
         // resolve any recursive references to this TypeCode in its members
-        tc.resolveRecursion();
-        return tc;
+        typeCode.resolveRecursion();
+        return typeCode;
     }
 
     public TypeCode create_union_tc( String id,
@@ -539,9 +548,9 @@ public class ORBSingleton
                 {
                     checkTCName( members[i].name );
                 }
-                catch( BAD_PARAM bp )
+                catch( BAD_PARAM e )
                 {
-                    logger.debug("Typecode name check failed", bp);
+                    logger.debug("Typecode name check failed", e);
                     throw new BAD_PARAM("Illegal union member name: " + members[i].name,
                                         17,
                                         CompletionStatus.COMPLETED_NO );
@@ -551,7 +560,7 @@ public class ORBSingleton
             // check that member type matches discriminator type or is default
 
             org.omg.CORBA.Any label = members[i].label;
-            if (! discriminator_type.equivalent( label.type () ) &&
+            if (! discriminator_type.equivalent( label.type() ) &&
                 ! ( label.type().kind().value() == TCKind._tk_octet &&
                     label.extract_octet() == (byte)0
                   )
@@ -575,15 +584,15 @@ public class ORBSingleton
             }
         }
 
-        org.jacorb.orb.TypeCode tc =
+        org.jacorb.orb.TypeCode typeCode =
            new org.jacorb.orb.TypeCode( id,
                                         name,
                                         discriminator_type,
                                         members);
 
         // resolve any recursive references to this TypeCode in its members
-        tc.resolveRecursion();
-        return tc;
+        typeCode.resolveRecursion();
+        return typeCode;
     }
 
 
@@ -606,7 +615,9 @@ public class ORBSingleton
         // Sun's ORB we skip the name check in this case.
 
         if ( !id.startsWith("RMI:") )
+        {
             checkTCName (name, true);
+        }
         return new org.jacorb.orb.TypeCode (id,
                                             name,
                                             type_modifier,
@@ -636,7 +647,9 @@ public class ORBSingleton
        // as the name parameter. checkTCName() then throws
        //`org.omg.CORBA.BAD_PARAM: Illegal blank IDL name'.
        if ( doStrictCheckOnTypecodeCreation )
+       {
            checkTCName (name, true);
+       }
 
        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_abstract_interface,
                                            id,

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jacorb.ir.RepositoryID;
+import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.ValueMember;
@@ -44,7 +45,7 @@ import org.omg.CORBA.ValueMember;
 public class TypeCode
     extends org.omg.CORBA.TypeCode
 {
-    private int         kind = -1;
+    private final int         kind;
 
     private String      id = null;
     private String      name = null;
@@ -1129,11 +1130,6 @@ public class TypeCode
 
     // useful additional functionality
 
-    public void toSequence()
-    {
-        kind = TCKind._tk_sequence;
-    }
-
     public String toString()
     {
         return idlTypeName();
@@ -1190,6 +1186,7 @@ public class TypeCode
            case   TCKind._tk_native:
            case   TCKind._tk_abstract_interface:
            case   TCKind._tk_local_interface:
+           {
                try
                {
                    return  idToIDL(id());
@@ -1198,10 +1195,12 @@ public class TypeCode
                {
                    throw new INTERNAL("should never happen");
                }
+           }
            case   TCKind._tk_void: return "void";
            case   TCKind._tk_string: return "string";
            case   TCKind._tk_wstring: return "wstring";
            case   TCKind._tk_array:
+           {
                try
                {
                    return idlTypeName(content_type()) + "[]";
@@ -1210,6 +1209,7 @@ public class TypeCode
                {
                    throw new INTERNAL("should never happen");
                }
+           }
            case   TCKind._tk_long: return "long";
            case   TCKind._tk_ulong: return "ulong";
            case   TCKind._tk_longlong: return "long long";
@@ -1379,7 +1379,7 @@ public class TypeCode
 
                 if (classLoader == null)
                 {
-                    helperClass = Class.forName(helperClassName);
+                    helperClass = ObjectUtil.classForName(helperClassName);
                 }
                 else
                 {

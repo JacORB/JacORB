@@ -538,13 +538,13 @@ public final class Any
     /**
      * <code>insert_boolean</code> inserts a Boolean into this Any.
      *
-     * @param b a <code>boolean</code> value
+     * @param bool a <code>boolean</code> value
      */
-    public void insert_boolean (boolean b)
+    public void insert_boolean (boolean bool)
     {
         // Equivilant to the static valueOf factory which is only
         // available post 1.4.
-        value = (b ? Boolean.TRUE : Boolean.FALSE );
+        value = (bool ? Boolean.TRUE : Boolean.FALSE );
         typeCode = orb.get_primitive_tc (TCKind.tk_boolean);
     }
 
@@ -880,21 +880,19 @@ public final class Any
 
     // obj refs
 
-    public void insert_Object(org.omg.CORBA.Object o)
+    public void insert_Object(org.omg.CORBA.Object obj)
     {
-        value = o;
-
         String typeId = null;
         String name = "";
 
-        if (value == null)
+        if (obj == null)
         {
            typeId = "IDL:omg.org/CORBA/Object:1.0";
            name = "Object";
         }
         else
         {
-           typeId = ((org.omg.CORBA.portable.ObjectImpl)o)._ids()[0];
+           typeId = ((org.omg.CORBA.portable.ObjectImpl)obj)._ids()[0];
 
            // check if the repository Id is in IDL format
            if (typeId.startsWith("IDL:"))
@@ -917,6 +915,7 @@ public final class Any
            }
         }
         typeCode = orb.create_interface_tc( typeId , name );
+        value = obj;
     }
 
     public void insert_Object (org.omg.CORBA.Object obj,
@@ -1491,18 +1490,18 @@ public final class Any
 
     public void insert_void()
     {
-        value = null;
         typeCode = orb.get_primitive_tc(TCKind.tk_void);
+        value = null;
     }
 
     /**
      * Convenience method for making a shallow copy of an Any.
      */
     public void insert_object(org.omg.CORBA.TypeCode typeCode,
-                              java.lang.Object value)
+                             java.lang.Object object)
     {
         this.typeCode = typeCode;
-        this.value = value;
+        this.value = object;
     }
 
     private void writeComplexValue (org.omg.CORBA.portable.OutputStream output)
@@ -1548,14 +1547,6 @@ public final class Any
     {
         if ( ! (stream instanceof CDROutputStream))
         {
-//            if (Debug.isDebugEnabled())
-//            {
-//                Debug.output
-//                (
-//                    "Output class not CDROutputStream " +
-//                    stream.getClass().getName()
-//                );
-//            }
             throw new INTERNAL
             (
                 "Output class not CDROutputStream " +
@@ -1567,30 +1558,30 @@ public final class Any
 
     private boolean compareComplexValue(org.omg.CORBA.Any other)
     {
-        final CDROutputStream out1;
+        final CDROutputStream thisStream;
         if (value instanceof CDROutputStream)
         {
-            out1 = (CDROutputStream)value;
+            thisStream = (CDROutputStream)value;
         }
         else
         {
-            out1 = new CDROutputStream(orb);
-            write_value(out1);
+            thisStream = new CDROutputStream(orb);
+            write_value(thisStream);
         }
 
-        final CDROutputStream out2;
+        final CDROutputStream otherStream;
         if (other instanceof Any &&
             ((Any) other).value instanceof CDROutputStream)
         {
-            out2 = (CDROutputStream) ((Any) other).value;
+            otherStream = (CDROutputStream) ((Any) other).value;
         }
         else
         {
-            out2 = new CDROutputStream(orb);
-            other.write_value( out2 );
+            otherStream = new CDROutputStream(orb);
+            other.write_value( otherStream );
         }
 
-        return Arrays.equals( out1.getBufferCopy(),
-                              out2.getBufferCopy());
+        return Arrays.equals( thisStream.getBufferCopy(),
+                              otherStream.getBufferCopy());
     }
 }

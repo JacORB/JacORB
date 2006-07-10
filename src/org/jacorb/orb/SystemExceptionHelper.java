@@ -18,6 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.orb;
 
 import java.lang.reflect.*;
@@ -26,8 +27,18 @@ import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.util.ObjectUtil;
 import org.omg.IOP.*;
 
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
+
 public class SystemExceptionHelper
 {
+    private SystemExceptionHelper()
+    {
+        // utility class
+    }
+
     private static final String className( String repId )
     {
         // cut "IDL:" and version
@@ -37,7 +48,7 @@ public class SystemExceptionHelper
 
     private static final String ir2scopes( String prefix, String s )
     {
-        if( s.indexOf("/") < 0)
+        if( s.indexOf('/') < 0)
         {
             return s;
         }
@@ -45,58 +56,62 @@ public class SystemExceptionHelper
             new java.util.StringTokenizer( s, "/" );
 
         int count = strtok.countTokens();
-        StringBuffer sb = new StringBuffer();
-        sb.append(prefix);
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(prefix);
 
         for( int i = 0; strtok.hasMoreTokens(); i++ )
         {
-            String sc = strtok.nextToken();
+            String nextToken = strtok.nextToken();
             try
             {
-                if( sb.toString().length() > 0 )
+                if( buffer.length() > 0 )
                 {
-                    ObjectUtil.classForName( sb.toString() + "." + sc );
+                    ObjectUtil.classForName( buffer.toString() + "." + nextToken );
                 }
                 else
                 {
-                    ObjectUtil.classForName( sc );
+                    ObjectUtil.classForName( nextToken );
                 }
 
                 if( i < count-1)
                 {
-                    sb.append( "." + sc + "Package");
+                    buffer.append('.');
+                    buffer.append(nextToken);
+                    buffer.append("Package");
                 }
                 else
                 {
-                    sb.append( "." + sc );
+                    buffer.append('.');
+                    buffer.append(nextToken);
                 }
             }
             catch ( ClassNotFoundException cnfe )
             {
-                if( sb.toString().length() > 0 )
+                if( buffer.length() > 0 )
                 {
-                    sb.append( "." + sc );
+                    buffer.append('.');
+                    buffer.append(nextToken);
                 }
                 else
                 {
-                    sb.append( sc );
+                    buffer.append( nextToken );
                 }
             }
         }
 
-        return sb.toString();
+        return buffer.toString();
     }
 
-    private static final String repId( Class c )
+    private static final String repId( Class clazz )
     {
-        String className = c.getName();
+        String className = clazz.getName();
         String body = className.substring(7);
         return "IDL:omg.org/" + scopesToIR(body) + ":1.0";
     }
 
     private static final String scopesToIR( String s )
     {
-        if( s.indexOf(".") < 0)
+        if( s.indexOf('.') < 0)
         {
             return s;
         }
@@ -104,38 +119,39 @@ public class SystemExceptionHelper
         String scopes[] = new String[strtok.countTokens()];
         for( int i = 0; strtok.hasMoreTokens(); i++ )
         {
-            String sc = strtok.nextToken();
-            if( sc.endsWith("Package"))
+            String nextToken = strtok.nextToken();
+            if( nextToken.endsWith("Package"))
             {
-                scopes[i] = sc.substring(0,sc.indexOf("Package"));
+                scopes[i] = nextToken.substring(0,nextToken.indexOf("Package"));
             }
             else
             {
-                scopes[i] = sc;
+                scopes[i] = nextToken;
             }
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
         if( scopes.length > 1 )
         {
             for( int i = 0; i < scopes.length-1; i++)
             {
-                sb.append( scopes[i] + "/" );
+                buffer.append(scopes[i]);
+                buffer.append('/');
             }
         }
 
-        sb.append( scopes[scopes.length-1] );
-        return sb.toString();
+        buffer.append( scopes[scopes.length-1] );
+        return buffer.toString();
     }
 
-    public static void insert(org.omg.CORBA.Any any, org.omg.CORBA.SystemException  s)
+    public static void insert(org.omg.CORBA.Any any, org.omg.CORBA.SystemException exception)
     {
-        any.type( type( s ));
-        write( any.create_output_stream(), s);
+        any.type( type( exception ));
+        write( any.create_output_stream(), exception);
     }
 
-    public static org.omg.CORBA.TypeCode type( org.omg.CORBA.SystemException  s)
+    public static org.omg.CORBA.TypeCode type( org.omg.CORBA.SystemException exception)
     {
-        String name = s.getClass().getName();
+        String name = exception.getClass().getName();
         name = name.substring(name.lastIndexOf('.') + 1);
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init();
 
@@ -206,7 +222,7 @@ public class SystemExceptionHelper
 
             return (org.omg.CORBA.SystemException)ctor.newInstance(
                     new Object[]{"Server-side Exception: " + message,
-                            new Integer(minor),
+                            ObjectUtil.newInteger(minor),
                             completed});
         }
         catch (Exception e )
@@ -217,10 +233,10 @@ public class SystemExceptionHelper
     }
 
     public static void write(org.omg.CORBA.portable.OutputStream out,
-            org.omg.CORBA.SystemException s)
+                             org.omg.CORBA.SystemException exception)
     {
-        out.write_string(repId(s.getClass()));
-        out.write_long(s.minor);
-        org.omg.CORBA.CompletionStatusHelper.write(out,s.completed);
+        out.write_string(repId(exception.getClass()));
+        out.write_long(exception.minor);
+        org.omg.CORBA.CompletionStatusHelper.write(out,exception.completed);
     }
 }
