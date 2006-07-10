@@ -20,23 +20,18 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-import java.lang.reflect.*;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-
-import org.omg.GIOP.*;
-import org.omg.Messaging.ExceptionHolder;
-import org.omg.CORBA.ExceptionList;
-import org.omg.CORBA.SystemException;
-import org.omg.CORBA.UnknownUserException;
-import org.omg.CORBA.UserException;
-
-import org.jacorb.ir.*;
-import org.jacorb.orb.giop.*;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.ir.RepositoryID;
+import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.ExceptionList;
+import org.omg.CORBA.UserException;
+import org.omg.GIOP.ReplyStatusType_1_2;
 
 /**
  * JacORB-specific implementation of
@@ -94,14 +89,6 @@ public class ExceptionHolderImpl
         {
             output.close();
         }
-    }
-
-    /**
-     * No-arg constructor for demarshaling.
-     */
-    public ExceptionHolderImpl()
-    {
-        super();
     }
 
     public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
@@ -191,14 +178,14 @@ public class ExceptionHolderImpl
         String name = RepositoryID.className(id, "Helper", null);
 
         // if class doesn't exist, let exception propagate
-        Class  helper = ObjectUtil.classForName (name);
+        Class  helperClazz = ObjectUtil.classForName (name);
 
         // helper must not be null from here on
 
         // get read method from helper and invoke it,
         // i.e. read the object from the stream
         Method readMethod =
-            helper.getMethod( "read",
+            helperClazz.getMethod( "read",
                                new Class[]{
                                    ObjectUtil.classForName("org.omg.CORBA.portable.InputStream")
                                } );

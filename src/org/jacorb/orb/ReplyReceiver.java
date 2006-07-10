@@ -24,8 +24,6 @@ import java.util.*;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 
 import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
