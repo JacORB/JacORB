@@ -29,6 +29,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ExceptionList;
 import org.omg.CORBA.UserException;
 import org.omg.GIOP.ReplyStatusType_1_2;
@@ -48,14 +49,24 @@ public class ExceptionHolderImpl
     private Logger logger = null;
 
     /**
+     * No-arg constructor for demarshaling.
+     */
+    public ExceptionHolderImpl()
+    {
+        super();
+    }
+
+    /**
      * Constructs an ExceptionHolderImpl object from an input stream.
      * It is assumed that the reply status of this input stream is
      * either USER_EXCEPTION or SYSTEM_EXCEPTION.  If it has another
      * status, a RuntimeException is thrown.
      */
-    public ExceptionHolderImpl( ReplyInputStream is )
+    public ExceptionHolderImpl( ReplyInputStream inputStream )
     {
-        int status = is.getStatus().value();
+        this();
+
+        int status = inputStream.getStatus().value();
         if ( status == ReplyStatusType_1_2._USER_EXCEPTION )
         {
             is_system_exception = false;
@@ -66,15 +77,17 @@ public class ExceptionHolderImpl
         }
         else
         {
-            throw new RuntimeException( "attempt to create ExceptionHolder " +
+            throw new BAD_PARAM( "attempt to create ExceptionHolder " +
                                         "for non-exception reply" );
         }
-        byte_order          = is.littleEndian;
-        marshaled_exception = is.getBody();
+        byte_order          = inputStream.littleEndian;
+        marshaled_exception = inputStream.getBody();
     }
 
-    public ExceptionHolderImpl(org.omg.CORBA.SystemException ex)
+    public ExceptionHolderImpl(org.omg.CORBA.SystemException exception)
     {
+        this();
+
         is_system_exception = true;
         byte_order          = false;
 
@@ -82,7 +95,7 @@ public class ExceptionHolderImpl
 
         try
         {
-            SystemExceptionHelper.write(output, ex);
+            SystemExceptionHelper.write(output, exception);
             marshaled_exception = output.getBufferCopy();
         }
         finally
