@@ -14,7 +14,7 @@ import org.omg.Messaging.*;
  * Try to overrun the request queue with queue_wait=on.
  * Despite a heavy request storm all requests should come through.
  *
- * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
+ * @author Andre Spiegel
  * @version $Id$
  */
 public class QueueWaitTest extends CallbackTestCase
@@ -169,18 +169,20 @@ public class QueueWaitTest extends CallbackTestCase
      * Try to overrun the request queue, expect that all
      * requests come through without exceptions.
      */
-    public void test_overrun()
+    public void test_overrun() throws Exception
     {
-        class Holder {
+        class Holder
+        {
             public boolean exceptionReceived = false;
         }
-        final Holder h = new Holder();
+
+        final Holder holder = new Holder();
 
         ReplyHandler handler = new ReplyHandler()
         {
             public void delayed_ping_excep (ExceptionHolder excep)
             {
-                h.exceptionReceived = true;
+                holder.exceptionReceived = true;
             }
 
             public void delayed_ping()
@@ -193,19 +195,11 @@ public class QueueWaitTest extends CallbackTestCase
         {
             ( ( _CallbackServerStub ) server )
                     .sendc_delayed_ping( ref( handler ), 10 );
-            if (h.exceptionReceived)
-                fail ("should not have raised an exception");
+            assertFalse("should not have raised an exception", holder.exceptionReceived);
         }
-        try
-        {
-            Thread.sleep (1000);
-        }
-        catch (InterruptedException ex)
-        {}
 
-        if (h.exceptionReceived)
-            fail ("should not have raised an exception");
+        Thread.sleep (1000);
+
+        assertFalse("should not have raised an exception", holder.exceptionReceived);
     }
-
-
 }

@@ -19,7 +19,7 @@ import org.omg.Messaging.ExceptionHolder;
 /**
  * Overrun the request queue with queue_wait=off.
  * This must lead to TRANSIENT exceptions.
- * 
+ *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
@@ -39,26 +39,26 @@ public class QueueNoWaitTest extends CallbackTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite( "Request Queue Overrun - non-waiting" );   
+        TestSuite suite = new TestSuite( "Request Queue Overrun - non-waiting" );
 
         Properties props = new Properties();
         props.setProperty ("jacorb.poa.queue_max", "10");
         props.setProperty ("jacorb.poa.queue_min", "1");
         props.setProperty ("jacorb.poa.queue_wait", "off");
 
-        ClientServerSetup setup = 
-            new ClientServerSetup( suite, 
+        ClientServerSetup setup =
+            new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.CallbackServerImpl",
-                                   null, 
+                                   null,
                                    props );
 
         suite.addTest( new QueueNoWaitTest( "test_warm_up", setup ) );
         suite.addTest( new QueueNoWaitTest( "test_overrun", setup ) );
-            
+
         return setup;
     }
 
-    private class ReplyHandler 
+    private class ReplyHandler
         extends CallbackTestCase.ReplyHandler
         implements AMI_CallbackServerHandlerOperations
     {
@@ -148,11 +148,11 @@ public class QueueNoWaitTest extends CallbackTestCase
         AMI_CallbackServerHandlerPOATie tie =
             new AMI_CallbackServerHandlerPOATie( handler )
             {
-                public org.omg.CORBA.portable.OutputStream 
-                    _invoke( String method, 
-                             org.omg.CORBA.portable.InputStream _input, 
+                public org.omg.CORBA.portable.OutputStream
+                    _invoke( String method,
+                             org.omg.CORBA.portable.InputStream _input,
                              org.omg.CORBA.portable.ResponseHandler handler )
-                    throws org.omg.CORBA.SystemException   
+                    throws org.omg.CORBA.SystemException
                 {
                     try
                     {
@@ -175,47 +175,42 @@ public class QueueNoWaitTest extends CallbackTestCase
     /**
      * Overrun the request queue, expect TRANSIENT exception.
      */
-    public void test_overrun()
+    public void test_overrun() throws Exception
     {
-        class Holder {
+        class Holder
+        {
             public boolean exceptionReceived = false;
         }
 
-        final Holder h = new Holder();
-        
+        final Holder holder = new Holder();
+
         ReplyHandler handler = new ReplyHandler()
         {
             public void delayed_ping_excep (ExceptionHolder excep)
             {
                 if (getException (excep).getClass().equals
                      (org.omg.CORBA.TRANSIENT.class))
-                    h.exceptionReceived = true;
-            }   
-            
+                    holder.exceptionReceived = true;
+            }
+
             public void delayed_ping()
             {
                 // ignore
             }
         };
 
-        for (int i=0; i < 50; i++)
+        for (int i=0; i < 1000; i++)
         {
             ( ( _CallbackServerStub ) server )
                     .sendc_delayed_ping( ref( handler ), 1000);
-            if (h.exceptionReceived) 
+            if (holder.exceptionReceived)
             {
                 return;
             }
         }
 
-        try 
-        { 
-            Thread.sleep (1000); 
-        }
-        catch (InterruptedException ex) 
-        {
-            // ignored
-        }
-        assertTrue("should have raised a TRANSIENT exception", h.exceptionReceived);
+        Thread.sleep (1000);
+
+        assertTrue("should have raised a TRANSIENT exception", holder.exceptionReceived);
     }
 }
