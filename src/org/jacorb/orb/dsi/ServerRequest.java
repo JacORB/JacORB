@@ -505,7 +505,7 @@ public class ServerRequest
      */
     private ServiceContext createExceptionDetailMessage (String message)
     {
-        final CDROutputStream out = new CDROutputStream();
+        final CDROutputStream out = new CDROutputStream(orb);
 
         try
         {
