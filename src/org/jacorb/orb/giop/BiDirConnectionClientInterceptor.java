@@ -90,7 +90,7 @@ public class BiDirConnectionClientInterceptor
                 org.omg.CORBA.Any any = orb.create_any();
                 BiDirIIOPServiceContextHelper.insert( any, b );
 
-                final CDROutputStream cdr_out = new CDROutputStream();
+                final CDROutputStream cdr_out = new CDROutputStream(orb);
 
                 try
                 {
