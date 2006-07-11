@@ -25,6 +25,9 @@ import java.util.Properties;
 
 import junit.framework.*;
 
+import org.apache.avalon.framework.logger.NullLogger;
+import org.jacorb.orb.ParsedIOR;
+import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.*;
 import org.jacorb.test.common.*;
 
@@ -134,6 +137,10 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
     {
         server.setIORAddress( CORRECT_HOST, WRONG_PORT );
         Sample sample = server.getObject();
+
+        ParsedIOR ior = new ParsedIOR(sample.toString(), setup.getClientOrb(), new NullLogger());
+        PrintIOR.printIOR(ior, setup.getClientOrb());
+
         try
         {
             sample.ping (4);
