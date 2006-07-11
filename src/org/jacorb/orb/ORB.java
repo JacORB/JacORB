@@ -69,10 +69,12 @@ public final class ORB
     private static final String nullIORString =
         "IOR:00000000000000010000000000000000";
 
-    /** the configuration object for this ORB instance */
+    /**
+     * the configuration object for this ORB instance
+     */
     private org.jacorb.config.Configuration configuration = null;
 
-    /** configuration properties */
+    // configuration properties
     private boolean cacheReferences;
     private String implName;
     private int giopMinorVersion;
@@ -82,8 +84,6 @@ public final class ORB
 
     private ProtocolAddressBase imrProxyAddress = null;
     private ProtocolAddressBase iorProxyAddress;
-
-
 
     /**
      *  "initial" references
@@ -99,7 +99,7 @@ public final class ORB
     private InterceptorManager interceptor_manager = null;
     private boolean hasClientInterceptors = false;
     private boolean hasServerInterceptors = false;
-    private org.omg.PortableInterceptor.Current piCurrent = new PICurrent();
+    private final org.omg.PortableInterceptor.Current piCurrent = new PICurrent();
 
     /** reference caching */
     private Map knownReferences = null;
@@ -142,17 +142,24 @@ public final class ORB
 
     private boolean shutdown_in_progress = false;
     private boolean destroyed = false;
-    private Object shutdown_synch = new Object();
+    private final Object shutdown_synch = new Object();
 
-    /* for registering POAs with the ImR */
+    /**
+     *  for registering POAs with the ImR
+     */
     private ImRAccess imr = null;
     private int persistentPOACount;
 
     public static final String orb_id = "jacorb:" + org.jacorb.util.Version.version;
 
-    /* outstanding dii requests awaiting completion */
-    private Set requests = Collections.synchronizedSet( new HashSet() );
-    /* most recently completed dii request found during poll */
+    /**
+     * outstanding dii requests awaiting completion
+     */
+    private final Set requests = Collections.synchronizedSet( new HashSet() );
+
+    /**
+     * most recently completed dii request found during poll
+     */
     private Request request = null;
 
     private RTORB rtORB;
@@ -190,17 +197,17 @@ public final class ORB
     /**
      * configure the ORB
      */
-    public void configure(Configuration myConfiguration) throws ConfigurationException
+    public void configure(Configuration config) throws ConfigurationException
     {
-        super.configure(myConfiguration);
+        super.configure(config);
 
         this.configuration =
-            (org.jacorb.config.Configuration)myConfiguration;
+            (org.jacorb.config.Configuration)config;
         logger =
             configuration.getNamedLogger("jacorb.orb");
 
         cacheReferences =
-            configuration.getAttribute("jacorb.reference_caching", "off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.reference_caching", false);
 
         implName =
             configuration.getAttribute("jacorb.implname", "" );
@@ -209,13 +216,13 @@ public final class ORB
             configuration.getAttributeAsInteger("jacorb.giop_minor_version", 2);
 
         giopAdd_1_0_Profiles =
-            configuration.getAttribute("jacorb.giop.add_1_0_profiles", "off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.giop.add_1_0_profiles", false);
 
         hashTableClassName =
             configuration.getAttribute( "jacorb.hashtable_class", HashMap.class.getName());
 
         useIMR =
-            configuration.getAttribute("jacorb.use_imr","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.use_imr", false);
 
         String host =
             configuration.getAttribute("jacorb.imr.ior_proxy_host",null);
@@ -240,6 +247,7 @@ public final class ORB
         printVersion(configuration);
 
         BufferManager.configure( configuration);
+
         try
         {
             bufferManager = BufferManager.getInstance();
@@ -251,6 +259,16 @@ public final class ORB
         }
 
         configureObjectKeyMap(configuration);
+
+        if (poolManagerFactory != null)
+        {
+            // currently the ORB is only re-configured during
+            // test runs. in this case an existing the poolManagerFactory
+            // should be shut down properly to give its threads the
+            // change to exit.
+
+            poolManagerFactory.destroy();
+        }
 
         poolManagerFactory = new RPPoolManagerFactory(this);
     }
@@ -2099,13 +2117,13 @@ public final class ORB
         {
             return clazz.newInstance();
         }
-        catch (IllegalAccessException e1)
+        catch (IllegalAccessException e)
         {
             throw new IllegalArgumentException("cannot instantiate class "
                                         + clazz.getName()
                                         + " (IllegalAccessException)");
         }
-        catch (InstantiationException e2)
+        catch (InstantiationException e)
         {
             throw new IllegalArgumentException("cannot instantiate class "
                                         + clazz.getName()
@@ -2191,9 +2209,9 @@ public final class ORB
             {
                 transport_manager.configure(configuration);
             }
-            catch( ConfigurationException ce )
+            catch( ConfigurationException e )
             {
-                throw new INITIALIZE(ce.toString());
+                throw new INITIALIZE(e.toString());
             }
         }
         return transport_manager;
@@ -2298,7 +2316,8 @@ public final class ORB
                         configuration.getAttribute(name)
                 );
             }
-        } catch (ConfigurationException e)
+        }
+        catch (ConfigurationException e)
         {
             logger.fatalError("unexpected exception", e);
             throw new INTERNAL(e.toString());
