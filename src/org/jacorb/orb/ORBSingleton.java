@@ -68,10 +68,13 @@ public class ORBSingleton
                 logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger
                     ("jacorb.orb.singleton");
 
-                doStrictCheckOnTypecodeCreation = configuration.getAttribute
-                    ("jacorb.interop.strict_check_on_tc_creation", "on").equalsIgnoreCase("on");
+                doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
+                    ("jacorb.interop.strict_check_on_tc_creation", true);
 
-                logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
+                }
                 logger.info("created ORBSingleton");
             }
         }
@@ -88,11 +91,16 @@ public class ORBSingleton
 
     protected void configure(Configuration configuration) throws ConfigurationException
     {
-        doStrictCheckOnTypecodeCreation = configuration.getAttribute
-            ("jacorb.interop.strict_check_on_tc_creation", "on").equalsIgnoreCase("on");
-
         logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb");
+
+        doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
+            ("jacorb.interop.strict_check_on_tc_creation", true);
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
+        }
     }
 
 
