@@ -61,7 +61,7 @@ module org {
             string receive_record_sequence (in RecordSeq list);
             RecordSeq return_record_sequence (in long length);
 
-            string receive_list   (in Node node);
+            string receive_list   (in Node node_);
 
             string receive_list_in_any (in any node);
 

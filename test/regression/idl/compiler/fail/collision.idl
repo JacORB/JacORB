@@ -1,0 +1,17 @@
+
+module collision
+{
+   typedef long Foo;
+   struct Boo
+   {
+      long mylong;
+   };
+
+   interface Test
+   {
+      void doit1 (in Boo boo);
+      void doit2 (
+         in Foo foo // error: Foo and foo collide and refer to different things
+                );
+   };
+};

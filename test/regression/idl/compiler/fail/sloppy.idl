@@ -1,0 +1,23 @@
+
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            module sloppy
+            {
+               typedef short sloppy;
+
+               interface I
+               {
+                  void i (in short j);
+               };
+            };
+         };
+      };
+   };
+};

@@ -91,6 +91,7 @@
           classes for aliased basetypes.
         - fixed invalid handling of forward decl of CORBA::TypeCode
         - Improve generation for IDL exceptions.
+        - Fix for invalid IDL compilation.
     - Tools:
         - Updated 'dior' utility to decode realtime policies.
     - Security:

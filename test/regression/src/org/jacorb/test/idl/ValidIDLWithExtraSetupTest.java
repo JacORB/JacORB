@@ -57,7 +57,11 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
     public ValidIDLWithExtraSetupTest(String[] argList, String file)
     {
-        super("testMiscParseGood", new File(TEST_HOME + IDL_DIR + file));
+        super
+        (
+            "testMiscParseGood",
+            (new File(file)).isAbsolute() ? new File(file) : new File(TEST_HOME + IDL_DIR + file)
+        );
         arguments.addAll(Arrays.asList(argList));
 
         arguments.add("-d");
@@ -169,6 +173,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ir", "-i2jpackage", "AlarmIRPSystem:org._3gpp.AlarmIRPSystem"}, "bugJac101.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-genEnhanced", "bugJac149.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ami_callback", "-diistub"}, "ami.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest("-sloppy_names", TEST_HOME + "/idl/compiler/fail/sloppy.idl"));
 
         return suite;
     }

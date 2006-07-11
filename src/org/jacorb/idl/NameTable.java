@@ -158,6 +158,14 @@ public class NameTable
                 // modules may be "reopened", no further checks or table entries
                 return;
             }
+            // This check ensures that we can't redefine a name with a different type.
+            // We also need to ignore any pending forward declarations.
+            else if (names.containsKey (name) &&
+                     ! names.get(name).equals (kind) &&
+                     parser.get_pending (name) == null)
+            {
+                throw new IllegalRedefinition( name );
+            }
             else if( !shadows.containsKey( name ) ||
                      kind.equals( "operation" ) ||
                      kind.equals( "interface" ) )

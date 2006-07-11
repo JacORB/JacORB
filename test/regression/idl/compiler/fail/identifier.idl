@@ -1,0 +1,17 @@
+
+module identifier
+{
+   // Test Forward Declarations
+   interface TestForwardDecl;
+   interface TestForwardDecl
+   {
+   };
+   interface TestForwardDecl;
+
+   const long thing = 1;
+
+   interface thing
+   {
+      void doit (in string stringparam);
+   };
+};
