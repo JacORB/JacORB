@@ -18,7 +18,7 @@ module org
 
                     void add(in long i, in long j, out long r );
 
-                    string writeNumberWithEx( in long i ) raises (DIIException);
+                    void raiseException() raises (DIIException);
 
                     oneway void notify( in string msg );
                 };
