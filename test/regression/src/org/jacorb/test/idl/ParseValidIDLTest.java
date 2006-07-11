@@ -24,6 +24,7 @@ package org.jacorb.test.idl;
 import java.io.File;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.jacorb.test.common.TestUtils;
 
@@ -83,7 +84,18 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
 
     public static Test suite()
     {
+        TestSuite suite = new TestSuite();
+
         final String dir = TestUtils.testHome() + "/idl/compiler/succeed";
-        return suite(dir, ParseValidIDLTest.class);
+
+        // TODO this test currently fails during the nightly build.
+        // by adding it here explicitely we ensure that it is run
+        // first in this suite. if the problem does not occur anymore
+        // this comment and the following line may be removed (alphonse)
+        suite.addTest(suite(dir, ParseValidIDLTest.class, "basetypes.idl"));
+
+        suite.addTest(suite(dir, ParseValidIDLTest.class));
+
+        return suite;
     }
 }
