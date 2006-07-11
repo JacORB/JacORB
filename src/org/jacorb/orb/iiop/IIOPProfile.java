@@ -125,8 +125,8 @@ public class IIOPProfile
         String host = "127.0.0.1"; //default to localhost
         short port = 2809; // default IIOP port
 
-        int major = 1;
-        int minor = 2; // should this be 0? should it be configurable?
+        int major = 1; // should be 1 by default. see 13.6.10.3
+        int minor = 0; // should be 0 by default. see 13.6.10.3
 
         String errorstr =
             "Illegal IIOP protocol format in object address format: " + addr;
