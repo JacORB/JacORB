@@ -153,8 +153,13 @@ public class ORBSingleton
     private void checkTCName (String name, boolean allowNull)
         throws BAD_PARAM
     {
-        if (name == null && !allowNull)
+        if (name == null)
         {
+            if (allowNull)
+            {
+                return;
+            }
+
             throw new BAD_PARAM("Illegal null IDL name",
                                 15,
                                 CompletionStatus.COMPLETED_NO );
