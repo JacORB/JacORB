@@ -148,10 +148,9 @@ public class DiiTest extends ClientServerTestCase
 
     public void testSendRequestWhichCausesAnException()
     {
-        org.omg.CORBA.Request request = server._request("writeNumberWithEx");
-        request.add_in_arg().insert_long( 5 );
+        org.omg.CORBA.Request request = server._request("raiseException");
         org.omg.CORBA.ExceptionList exceptions = request.exceptions();
-        org.omg.CORBA.TypeCode tc =
+        org.omg.CORBA.TypeCode typeCode =
             orb.create_exception_tc(
                     DIIExceptionHelper.id(),
                     "e",
@@ -162,7 +161,7 @@ public class DiiTest extends ClientServerTestCase
                                     null)
                     }
             );
-        exceptions.add( tc );
+        exceptions.add( typeCode );
 
         request.invoke();
         Exception exception = request.env().exception();

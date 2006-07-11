@@ -30,15 +30,9 @@ public class ServerDelegate implements DIIServerOperations
         return "Number written";
     }
 
-    public String writeNumberWithEx( int i )
-    throws DIIException
+    public void raiseException()
+        throws DIIException
     {
-        if( true )
-        {
-            throw new DIIException("TestException");
-        }
-        return "Number written";
+        throw new DIIException("TestException");
     }
 }
-
-

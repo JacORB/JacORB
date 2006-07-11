@@ -93,19 +93,13 @@ public class DynamicServer extends DynamicImplementation implements Configurable
             resultAny.type(orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_void) );
             request.set_result( resultAny );
         }
-        else if( op.equals("writeNumberWithEx") )
+        else if( op.equals("raiseException") )
         {
-            org.omg.CORBA.NVList params = orb.create_list(0);
-            Any numAny = orb.create_any();
-            numAny.type( orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_long));
-            params.add_value( "", numAny, org.omg.CORBA.ARG_IN.value );
-            request.arguments( params );
-            Any a = orb.create_any();
             try
             {
-                a.insert_string( delegate.writeNumberWithEx( numAny.extract_long() ));
-                request.set_result( a );
-            } catch (DIIException e)
+                delegate.raiseException();
+            }
+            catch (DIIException e)
             {
                 Any any = orb.create_any();
                 DIIExceptionHelper.insert(any, e);
