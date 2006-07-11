@@ -641,7 +641,7 @@ public final class Delegate
             catch ( ApplicationException _ax )
             {
                 String _id = _ax.getId();
-                throw new RuntimeException( "Unexpected exception " + _id );
+                throw new INTERNAL( "Unexpected exception " + _id );
             }
 
         }
@@ -1413,7 +1413,7 @@ public final class Delegate
             }
             catch (ApplicationException ax)
             {
-                throw new RuntimeException ("Unexpected exception " + ax.getId());
+                throw new INTERNAL("Unexpected exception " + ax.getId());
             }
         }
     }
@@ -1525,7 +1525,7 @@ public final class Delegate
             }
             catch (ApplicationException e)
             {
-                throw new RuntimeException( "Unexpected exception " + e.getId() );
+                throw new INTERNAL( "Unexpected exception " + e.getId() );
             }
         }
     }
