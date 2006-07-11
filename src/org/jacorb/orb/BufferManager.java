@@ -124,6 +124,7 @@ public final class BufferManager
             j = j >> 1;
             m_pos++;
         }
+
         for( int min = 0; min < MIN_PREFERRED_BUFS; min++ )
         {
             bufferPool[ m_pos -MIN_OFFSET ].add(new byte[ MEM_BUFSIZE ]);
@@ -131,8 +132,15 @@ public final class BufferManager
 
         if (time > 0)
         {
+            if (reaper != null)
+            {
+                // this is the case when
+                // the BufferManager is re-configured
+                reaper.dispose();
+            }
+
             // create new reaper
-            reaper = new Reaper (time);
+            reaper = new Reaper(time);
             reaper.setName ("BufferManager MaxCache Reaper");
             reaper.setDaemon (true);
             reaper.start();
@@ -194,7 +202,7 @@ public final class BufferManager
     }
 
 
-    public synchronized byte[] getBuffer( int initial )
+    public byte[] getBuffer( int initial )
     {
         return getBuffer(initial, false);
     }
@@ -260,7 +268,7 @@ public final class BufferManager
         return result;
     }
 
-    public synchronized void returnBuffer(byte[] current)
+    public void returnBuffer(byte[] current)
     {
         returnBuffer (current, false);
     }
@@ -273,7 +281,7 @@ public final class BufferManager
      * @param cdrStr a <code>boolean</code> value value to denote if CDROuputStream is
      *               caller (may use cache in this situation)
      */
-    synchronized void returnBuffer(byte[] current, boolean cdrStr)
+    public synchronized void returnBuffer(byte[] current, boolean cdrStr)
     {
         if (current != null)
         {
@@ -313,7 +321,6 @@ public final class BufferManager
         }
         if (reaper != null)
         {
-            reaper.done = true;
             reaper.dispose();
         }
     }
