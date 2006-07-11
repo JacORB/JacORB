@@ -102,9 +102,9 @@ public class AlternateProfileTest extends ClientServerTestCase
 
         ClientServerSetup setup =
          new ClientServerSetup (suite,
-                                   "org.jacorb.test.orb.IIOPAddressServerImpl",
-                                   client_props,
-                                   server_props);
+                                IIOPAddressServerImpl.class.getName(),
+                                client_props,
+                                server_props);
 
         suite.addTest (new AlternateProfileTest("test_ping", setup));
         suite.addTest (new AlternateProfileTest("test_primary_ok", setup));
