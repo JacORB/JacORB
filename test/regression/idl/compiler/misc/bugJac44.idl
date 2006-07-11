@@ -1,0 +1,24 @@
+//*****************************************************************************
+//
+// FILE: SA_Connection.idl
+//
+// DESCRIPTION: This CORBA IDL File Defines the SA_Connection Structure.
+//
+//*****************************************************************************
+
+#ifndef _SA_CONNECTION_IDL_
+#define _SA_CONNECTION_IDL_
+
+//#include <notifications.idl>
+
+#pragma prefix "NGN.APM"
+
+struct SA_Connection
+{
+   // Identification of the affected connection (concatenation of the 6 data fields)
+   string name;
+};
+
+typedef sequence<SA_Connection> SA_ConnectionSeq;
+
+#endif

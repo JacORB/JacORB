@@ -223,6 +223,14 @@
 
 
     <target name="compile-idl" depends="test-init">
+        <!-- Test for correct package generation -->
+        <jacidl generateir="false"
+               srcdir="${idl}/compiler/misc"
+               ami_callback="false"
+               destdir="${src}/generated"
+               includes="bugJac44.idl">
+          <i2jpackage names=":apmInterface"/>
+        </jacidl>
         <antcall target="idl-tests" />
         <antcall target="idl-anyserver"/>
         <antcall target="idl-basicserver" />
@@ -583,9 +591,9 @@
 
     <target name="run-all-idl"
           description="Run all Jacorb tests in the idl package">
-        <antcall target="run">
-            <param name="jacorb.test" value="org.jacorb.test.idl.AllTest" />
-        </antcall>
+       <antcall target="run">
+          <param name="jacorb.test" value="org.jacorb.test.idl.AllTest" />
+       </antcall>
     </target>
 
 
