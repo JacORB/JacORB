@@ -32,28 +32,29 @@ package org.jacorb.orb.dii;
 public class Environment
     extends org.omg.CORBA.Environment
 {
-    private java.lang.Exception ex;
+    private Exception exception;
 
-    public void exception( java.lang.Exception e)
+    public void exception(Exception exception)
     {
-        ex = e;
+        synchronized(this)
+        {
+            this.exception = exception;
+        }
     }
 
-    public java.lang.Exception exception()
+    public Exception exception()
     {
-        return ex;
+        synchronized (this)
+        {
+            return exception;
+        }
     }
 
     public void clear()
     {
-        ex = null;
+        synchronized (this)
+        {
+            exception = null;
+        }
     }
 }
-
-
-
-
-
-
-
-
