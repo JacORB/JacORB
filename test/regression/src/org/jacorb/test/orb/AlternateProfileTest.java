@@ -85,7 +85,10 @@ public class AlternateProfileTest extends ClientServerTestCase
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");
         client_props.setProperty ("jacorb.retry_interval", "50");
-        client_props.setProperty ("jacorb.connection.client.pending_reply_timeout", "2000");
+
+        // This was originally two seconds but if the reg tests are run using the IMR we get
+        // TIMEOUT instead of TRANSIENT. Therefore this has been set to a much larger value.
+        client_props.setProperty ("jacorb.connection.client.pending_reply_timeout", "120000");
         client_props.setProperty ("jacorb.connection.client.connect_timeout","5000");
 
         Properties server_props = new Properties();
@@ -106,13 +109,7 @@ public class AlternateProfileTest extends ClientServerTestCase
                                 client_props,
                                 server_props);
 
-        suite.addTest (new AlternateProfileTest("test_ping", setup));
-        suite.addTest (new AlternateProfileTest("test_primary_ok", setup));
-        suite.addTest (new AlternateProfileTest("test_primary_wrong_host", setup));
-        suite.addTest (new AlternateProfileTest("test_primary_wrong_port", setup));
-        suite.addTest (new AlternateProfileTest("test_alternate_ok", setup));
-        suite.addTest (new AlternateProfileTest("test_alternate_ok_2", setup));
-        suite.addTest (new AlternateProfileTest("test_alternate_wrong", setup));
+        TestUtils.addToSuite(suite, setup, AlternateProfileTest.class);
 
         return setup;
     }
@@ -220,7 +217,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         testHostAndPortInIIOPProfile(s, 3, WRONG_HOST_2, CORRECT_PORT);
         try
         {
-            int result = s.ping (33);
+            s.ping (33);
             fail ("TRANSIENT or TIMEOUT  exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
@@ -294,19 +291,15 @@ public class AlternateProfileTest extends ClientServerTestCase
                   found = true;
                   break;
               }
-              else
-              {
-                  cnt--;
-                  continue;
-              }
+               cnt--;
+               continue;
            }
        }
-       assertEquals(true, found);
+       assertTrue(found);
     }
 
     public static void main(String args[])
     {
       junit.textui.TestRunner.run(suite());
     }
-
 }

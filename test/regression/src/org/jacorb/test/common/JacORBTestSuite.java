@@ -29,19 +29,19 @@ import junit.extensions.*;
 /**
  * A special TestSuite that accepts only Tests that are applicable
  * to a given client and server version.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
 public class JacORBTestSuite extends TestSuite implements JacORBTest
 {
     private TestAnnotations annotations = null;
-    
+
     private String clientVersion = null;
     private String serverVersion = null;
 
     /**
-     * Constructs a JacORBTestSuite for a given name, using the 
+     * Constructs a JacORBTestSuite for a given name, using the
      * annotatedClass to find test annotations.  This constructor
      * is for stand-alone use of this class, e.g. as part of a TestCase.
      */
@@ -56,7 +56,7 @@ public class JacORBTestSuite extends TestSuite implements JacORBTest
             annotations = TestAnnotations.forClass (annotatedClass);
         }
     }
-                            
+
     /**
      * Constructs a JacORBTestSuite for the given name.  This constructor
      * may only be used by subclasses, because the test annotations will
@@ -72,20 +72,23 @@ public class JacORBTestSuite extends TestSuite implements JacORBTest
             annotations = TestAnnotations.forTestSuite (this);
         }
     }
-    
+
     public boolean isApplicableTo (String clientVersion, String serverVersion)
     {
         if (annotations == null)
-            return true;
-        else
         {
-            boolean result = annotations.isApplicableTo (clientVersion,
-                                                         serverVersion);
-            if (!result) System.out.println ("not applicable: " + getName());
-            return result;
+            return true;
         }
+
+        boolean result = annotations.isApplicableTo (clientVersion,
+                serverVersion);
+        if (!result)
+        {
+            System.out.println ("not applicable: " + getName());
+        }
+        return result;
     }
-    
+
     /**
      * Adds a test to this suite, but if it's a JacORB test, it is
      * only added if it is applicable to the currently tested client
@@ -101,7 +104,9 @@ public class JacORBTestSuite extends TestSuite implements JacORBTest
         {
             if (((JacORBTest)test).isApplicableTo (clientVersion,
                                                    serverVersion))
+            {
                 super.addTest (test);
+            }
         }
         else if (test instanceof TestDecorator)
         {
@@ -111,17 +116,21 @@ public class JacORBTestSuite extends TestSuite implements JacORBTest
             {
                 if (((JacORBTest)t).isApplicableTo (clientVersion,
                                                     serverVersion))
+                {
                     super.addTest (test);
+                }
             }
             else
+            {
                 super.addTest (test);
+            }
         }
         else
         {
             super.addTest (test);
         }
     }
-    
+
     /**
      * Adds the TestSuite defined by class c to this JacORBTestSuite,
      * but only if the TestSuite is applicable to the client and server
@@ -130,36 +139,36 @@ public class JacORBTestSuite extends TestSuite implements JacORBTest
      * implementation of this method does, but it doesn't cause problems in
      * practice.  The advantage of invoking suite() here is that for
      * non-applicable tests, the suite() method is never invoked and so the
-     * corresponding classes needn't be loaded.  
+     * corresponding classes needn't be loaded.
      */
-    public void addTestSuite (Class c)
+    public void addTestSuite (Class clazz)
     {
-        if (JacORBTest.class.isAssignableFrom(c))
+        if (JacORBTest.class.isAssignableFrom(clazz))
         {
-            TestAnnotationsParser p = TestAnnotationsParser.getInstance(c);
-            TestAnnotations ta = p.getClassAnnotations();
-            if (ta == null || ta.isApplicableTo (clientVersion, serverVersion))
+            TestAnnotationsParser parser = TestAnnotationsParser.getInstance(clazz);
+            TestAnnotations annotations = parser.getClassAnnotations();
+            if (annotations == null || annotations.isApplicableTo (clientVersion, serverVersion))
             {
-                TestSuite ts = invokeSuiteMethod (c);
+                TestSuite ts = invokeSuiteMethod (clazz);
                 super.addTest (ts);
             }
         }
         else
         {
-            super.addTestSuite(c);
+            super.addTestSuite(clazz);
         }
     }
 
     /**
-     * Invokes the static suite() method of the class c, and returns the
+     * Invokes the static suite() method of the class clazz, and returns the
      * result.  If there is no suite() method, or the result of it is not
      * a TestSuite, this method throws a RuntimeException.
      */
-    private TestSuite invokeSuiteMethod (Class c)
+    private TestSuite invokeSuiteMethod(Class clazz)
     {
         try
         {
-            Method suiteMethod = c.getDeclaredMethod ("suite",
+            Method suiteMethod = clazz.getDeclaredMethod ("suite",
                                                       new Class[]{});
             Object result = suiteMethod.invoke(null, new Object[]{});
             return (TestSuite)result;
@@ -169,5 +178,4 @@ public class JacORBTestSuite extends TestSuite implements JacORBTest
             throw new RuntimeException (ex);
         }
     }
-    
 }

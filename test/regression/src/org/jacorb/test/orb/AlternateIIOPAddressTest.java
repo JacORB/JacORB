@@ -87,25 +87,19 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
 
         ClientServerSetup setup =
             new ClientServerSetup (suite,
-                                   "org.jacorb.test.orb.IIOPAddressServerImpl",
+                                   IIOPAddressServerImpl.class.getName(),
                                    client_props,
                                    server_props);
 
-        suite.addTest (new AlternateIIOPAddressTest("test_ping", setup));
-        suite.addTest (new AlternateIIOPAddressTest("test_primary_ok", setup));
-        suite.addTest (new AlternateIIOPAddressTest("test_primary_wrong_host", setup));
-        suite.addTest (new AlternateIIOPAddressTest("test_primary_wrong_port", setup));
-        suite.addTest (new AlternateIIOPAddressTest("test_alternate_ok", setup));
-        suite.addTest (new AlternateIIOPAddressTest("test_alternate_ok_2", setup));
-        suite.addTest (new AlternateIIOPAddressTest("test_alternate_wrong", setup));
+        TestUtils.addToSuite(suite, setup, AlternateIIOPAddressTest.class);
 
         return setup;
     }
 
     public void test_ping()
     {
-        Sample s = server.getObject();
-        int result = s.ping (17);
+        Sample sample = server.getObject();
+        int result = sample.ping (17);
         assertEquals (18, result);
     }
 
@@ -120,10 +114,10 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
     public void test_primary_wrong_host()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
-        Sample s = server.getObject();
+        Sample sample = server.getObject();
         try
         {
-            s.ping (123);
+            sample.ping (123);
             fail ("TRANSIENT or TIMEOUT exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
@@ -139,10 +133,10 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
     public void test_primary_wrong_port()
     {
         server.setIORAddress( CORRECT_HOST, WRONG_PORT );
-        Sample s = server.getObject();
+        Sample sample = server.getObject();
         try
         {
-            s.ping (4);
+            sample.ping (4);
             fail ("TRANSIENT or TIMEOUT exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)
@@ -159,8 +153,8 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
         server.addAlternateAddress( CORRECT_HOST, CORRECT_PORT );
-        Sample s = server.getObject();
-        int result = s.ping (99);
+        Sample sample = server.getObject();
+        int result = sample.ping (99);
         assertEquals (100, result);
     }
 
@@ -169,8 +163,8 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
         server.addAlternateAddress( WRONG_HOST_2, CORRECT_PORT );
         server.addAlternateAddress( CORRECT_HOST, CORRECT_PORT );
-        Sample s = server.getObject();
-        int result = s.ping (187);
+        Sample sample = server.getObject();
+        int result = sample.ping (187);
         assertEquals (188, result);
     }
 
@@ -180,10 +174,11 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         server.addAlternateAddress( WRONG_HOST, CORRECT_PORT );
         server.addAlternateAddress( WRONG_HOST_2, WRONG_PORT );
         server.addAlternateAddress( WRONG_HOST_2, WRONG_PORT );
-        Sample s = server.getObject();
+        Sample sample = server.getObject();
+
         try
         {
-            int result = s.ping (33);
+            sample.ping (33);
             fail ("TRANSIENT or TIMEOUT  exception expected");
         }
         catch (org.omg.CORBA.TRANSIENT ex)

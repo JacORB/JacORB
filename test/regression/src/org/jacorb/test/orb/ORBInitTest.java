@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 /**
  * <code>ORBInitTest</code> tests ORBInit parsing
  *
- * @author <a href="mailto:rnc@prismtechnologies.com"></a>
+ * @author Nick Cross
  * @version $Id$
  */
 public class ORBInitTest extends TestCase
