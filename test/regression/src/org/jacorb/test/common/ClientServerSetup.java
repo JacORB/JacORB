@@ -197,7 +197,7 @@ public class ClientServerSetup extends TestSetup {
                                           "ERR");
         outListener.start();
         errListener.start();
-        final int iorWait = 5000;
+        final int iorWait = 15000;
         String ior = outListener.getIOR(iorWait);
 
         if (ior == null)
