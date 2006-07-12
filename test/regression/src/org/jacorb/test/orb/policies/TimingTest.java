@@ -645,7 +645,7 @@ public class TimingTest extends CallbackTestCase
         clearPolicies (server);
         setRelativeRoundtripTimeout (server, 50);
         ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 100);
-        handler.wait_for_reply (200);
+        handler.wait_for_reply (400);
     }
 
     /**
