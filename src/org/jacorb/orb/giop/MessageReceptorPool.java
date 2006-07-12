@@ -53,7 +53,7 @@ public class MessageReceptorPool
             (org.jacorb.config.Configuration) myConfiguration;
 
         final int maxConnectionThreads =
-            configuration.getAttributeAsInteger("jacorb.connection." + config + ".max_threads", MAX_DEFAULT);
+            configuration.getAttributeAsInteger("jacorb.connection." + config + ".max_receptor_threads", MAX_DEFAULT);
 
         final int maxIdleThreads = configuration.getAttributeAsInteger("jacorb.connection." + config + ".max_idle_receptor_threads", MAX_IDLE_DEFAULT);
 

@@ -23,6 +23,7 @@ package org.jacorb.util.threadpool;
 
 import java.util.*;
 import org.jacorb.config.Configuration;
+import org.omg.CORBA.NO_RESOURCES;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
@@ -163,14 +164,25 @@ public class ThreadPool
         {
             createNewThread();
         }
-        else if (logger.isDebugEnabled())
+        else if ( job_queue.size() > idle_threads )
         {
-            logger.debug
-            (
-                "(Pool)[" + idle_threads + "/" + total_threads +
-                "] no idle threads but maximum number of threads reached (" +
-                max_threads + ")"
-            );
+            // more jobs than idle threads. however
+            // thread limit reached.
+            if (logger.isDebugEnabled())
+            {
+                logger.debug
+                (
+                        "(Pool)[" + idle_threads + "/" + total_threads +
+                        "] no idle threads but maximum number of threads reached (" +
+                        max_threads + ")"
+                );
+            }
+
+            job_queue.remove(job);
+
+            throw new NO_RESOURCES("(Pool)[" + idle_threads + "/" + total_threads +
+                    "] no idle threads but maximum number of threads reached (" +
+                    max_threads + ")");
         }
     }
 

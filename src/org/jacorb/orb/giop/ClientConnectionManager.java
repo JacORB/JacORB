@@ -119,8 +119,8 @@ public class ClientConnectionManager
                             + clientConnection.getGIOPConnection().toString() );
             }
 
-            connections.put( profile, clientConnection );
             receptor_pool.connectionCreated( connection );
+            connections.put( profile, clientConnection );
         }
         else
         {

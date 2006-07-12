@@ -96,7 +96,8 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(BugJac262Test.suite());
       suite.addTestSuite(BugJac294Test.class);
       suite.addTest(BugJac319AbstractTest.suite());
-
+      suite.addTest(org.jacorb.test.bugs.bugjac330.BugJac330Suite.suite());
+      
       return suite;
    }
 }

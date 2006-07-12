@@ -79,6 +79,9 @@
           binds client sockets to the address specified by the property
           "OAIAddr".
         - Add IORMutator plugin.
+        - if the value of jacorb.connection.client.max_receptor_threads
+          is exceeded, a NO_RESOURCES exception is thrown instead of a
+          hang.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
