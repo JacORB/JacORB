@@ -129,24 +129,18 @@ public class PrintIOR
             );
         }
 
-        final PrintWriter out = new PrintWriter(System.out);
-        try
+        PrintWriter out = new PrintWriter(System.out, true);
+
+        if( iorString.startsWith( "IOR:" ))
         {
-            if( iorString.startsWith( "IOR:" ))
-            {
-                ParsedIOR pior = new ParsedIOR( iorString, orb, logger );
-                printIOR(pior, orb, out);
-            }
-            else
-            {
-                out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
-            }
-            out.flush();
+            ParsedIOR pior = new ParsedIOR( iorString, orb, logger );
+            printIOR(pior, orb, out);
         }
-        finally
+        else
         {
-            out.close();
+            out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
         }
+
         orb.shutdown(true);
     }
 
@@ -166,14 +160,14 @@ public class PrintIOR
         out.println("TAG_INTERNET_IOP Profiles:");
         for( int i = 0; i < profiles.size(); i++ )
         {
-            out.println("\tProfile Id:  ");
+            out.println("\tProfile Id:\t\t" + i);
 
             IIOPProfile profile = (IIOPProfile)profiles.get(i);
-            out.println("\tIIOP Version :  " +
+            out.println("\tIIOP Version:\t\t" +
                                (int)profile.version().major + "." +
                                (int)profile.version().minor);
 
-            out.println("\tHost\t:\t" +
+            out.println("\tHost:\t\t\t" +
                                ((IIOPAddress)profile.getAddress()).getOriginalHost());
             int port = ((IIOPAddress)profile.getAddress()).getPort();
             if( port < 0 )
@@ -181,17 +175,17 @@ public class PrintIOR
                 port += 65536;
             }
 
-            out.println("\tPort\t:\t" + port );
+            out.println("\tPort:\t\t\t" + port );
             try
             {
-                out.println("\tObject key (URL):      " +
+                out.println("\tObject key (URL):\t" +
                                    CorbaLoc.parseKey( pior.get_object_key()));
             }
             catch( Exception e )
             {
                 // ignore, object key not in url format
             }
-            out.print("\tObject key (hex):    0x" );
+            out.print("\tObject key (hex):\t0x" );
             dumpHex( pior.get_object_key(), out);
             out.println();
 
