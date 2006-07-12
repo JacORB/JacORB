@@ -20,8 +20,11 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.lang.reflect.Field;
+
 import junit.framework.TestCase;
 
+import org.apache.avalon.framework.logger.NullLogger;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ORB;
@@ -45,7 +48,14 @@ public class CreateTypeCodesTest extends TestCase
      * for these tests we need an ORBSingleton not a full ORB
      */
     private final ORB orb = ORB.init();
-    
+
+    protected void setUp() throws Exception
+    {
+        Field logger = orb.getClass().getDeclaredField("logger");
+        logger.setAccessible(true);
+        logger.set(orb, new NullLogger());
+    }
+
     public void testCreateStructTC () throws Exception
     {
         String id = null;
@@ -115,7 +125,7 @@ public class CreateTypeCodesTest extends TestCase
         members[1] = new String ("Member2");
 
         orb.create_enum_tc (id, name, members);
-     
+
         /* Test blank name */
         members[0] = new String ("");
         members[1] = new String ("Member2");
@@ -168,7 +178,7 @@ public class CreateTypeCodesTest extends TestCase
 
         /* Test valid name */
         orb.create_exception_tc (id, name, members);
-      
+
         /* Test blank name */
         members[0] = new StructMember ("", testTC, null);
         members[1] = new StructMember ("StructMember2", testTC, null);
@@ -232,7 +242,7 @@ public class CreateTypeCodesTest extends TestCase
 
         /* Test valid name */
         orb.create_union_tc (id, name, discriminator, members);
-       
+
 
         /* Test blank name */
         members[0] = new UnionMember ("", label, testTC, null);
