@@ -23,6 +23,7 @@ package org.jacorb.test.orb.dynany;
 import junit.framework.*;
 import junit.extensions.TestSetup;
 import org.jacorb.test.common.ORBSetup;
+import org.omg.DynamicAny.DynAnyFactoryHelper;
 
 import java.math.BigDecimal;
 import java.lang.reflect.Method;
@@ -36,8 +37,8 @@ import java.lang.reflect.Method;
 
 public class DynAnyFixedTest extends TestCase
 {
-   private static org.omg.DynamicAny.DynAnyFactory factory = null;
-   private static org.omg.CORBA.ORB orb = null;
+   private org.omg.DynamicAny.DynAnyFactory factory = null;
+   private org.omg.CORBA.ORB orb = null;
 
 
    public DynAnyFixedTest (String name)
@@ -45,31 +46,11 @@ public class DynAnyFixedTest extends TestCase
       super (name);
    }
 
-
-   public static Test suite ()
+   protected void setUp() throws Exception
    {
-      TestSuite suite = new TestSuite ("DynFixed Tests");
-      Setup setup = new Setup (suite);
-      ORBSetup osetup = new ORBSetup (setup);
-
-      suite.addTest (new DynAnyFixedTest ("testFactoryCreateFromAny"));
-      suite.addTest (new DynAnyFixedTest ("testFactoryCreateFromTypeCode"));
-      suite.addTest (new DynAnyFixedTest ("testCompareDynAny"));
-      suite.addTest (new DynAnyFixedTest ("testAccessFixedValue"));
-      suite.addTest (new DynAnyFixedTest ("testAccessTypeMismatchEx"));
-      suite.addTest (new DynAnyFixedTest ("testAccessInvalidValueEx"));
-      suite.addTest (new DynAnyFixedTest ("testDynAnyTypeCode"));
-      suite.addTest (new DynAnyFixedTest ("testInitDynAnyFromDynAny"));
-      suite.addTest (new DynAnyFixedTest ("testInitDynAnyFromAny"));
-      suite.addTest (new DynAnyFixedTest ("testInitFromAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyFixedTest ("testGenerateAnyFromDynAny"));
-      suite.addTest (new DynAnyFixedTest ("testDestroyDynAny"));
-      suite.addTest (new DynAnyFixedTest ("testCopyDynAny"));
-      suite.addTest (new DynAnyFixedTest ("testIterateDynAny"));
-
-      return osetup;
+       orb = org.omg.CORBA.ORB.init(new String[0], null);
+       factory = DynAnyFactoryHelper.narrow(orb.resolve_initial_references("DynAnyFactory"));
    }
-
 
    /**
     * Tests creating a DynAny object from an Any object using the
@@ -115,14 +96,14 @@ public class DynAnyFixedTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynFixed dynAny = null;
       org.omg.DynamicAny.DynFixed dynAny2 = null;
-      
+
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       fixedVal = new BigDecimal ("1.0");
       any = orb.create_any ();
       any.insert_fixed (fixedVal, tc);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "Comparing two equal DynAny values using DynAny::equal failed";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
@@ -150,7 +131,7 @@ public class DynAnyFixedTest extends TestCase
       fixedVal2 = null;
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       dynAny = createDynAnyFromTypeCode (tc);
-      
+
       fixedClass = dynAny.getClass ();
       paramTypes [0] = String.class;
       params [0] = fixedVal.toString ();
@@ -181,7 +162,7 @@ public class DynAnyFixedTest extends TestCase
       {
          assertTrue (msg, setVal.booleanValue ());
       }
-      
+
       fixedVal = new BigDecimal ("1.01");
       params [0] = fixedVal.toString ();
 
@@ -285,7 +266,7 @@ public class DynAnyFixedTest extends TestCase
       }
    }
 
-   
+
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
@@ -297,7 +278,7 @@ public class DynAnyFixedTest extends TestCase
 
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       dynAny = createDynAnyFromTypeCode (tc);
-         
+
       msg = "Incorrect TypeCode retrieved from DynAny::type operation";
       assertTrue (msg, dynAny.type ().equal (tc));
    }
@@ -313,7 +294,7 @@ public class DynAnyFixedTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynFixed dynAny = null;
-      org.omg.DynamicAny.DynFixed dynAny2 = null;      
+      org.omg.DynamicAny.DynFixed dynAny2 = null;
 
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       dynAny = createDynAnyFromTypeCode (tc);
@@ -348,7 +329,7 @@ public class DynAnyFixedTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynFixed dynAny = null;
       org.omg.DynamicAny.DynFixed dynAny2 = null;
-      
+
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -381,13 +362,13 @@ public class DynAnyFixedTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynFixed dynAny = null;
-      
+
       any = orb.create_any ();
       any.insert_string ("Hello");
 
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       dynAny = createDynAnyFromTypeCode (tc);
-            
+
       msg = "TypeMismatch exception not thrown by DynAny::from_any ";
       msg += "operation when DynAny and Any operands have different types";
       try
@@ -418,7 +399,7 @@ public class DynAnyFixedTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynFixed dynAny = null;
       org.omg.DynamicAny.DynFixed dynAny2 = null;
-      
+
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       fixedVal = new BigDecimal ("1.0");
       dynAny = createDynAnyFromTypeCode (tc);
@@ -426,7 +407,7 @@ public class DynAnyFixedTest extends TestCase
       any = orb.create_any ();
       any = dynAny.to_any ();
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "The DynAny::to_any operation failed to create an Any ";
       msg += "object with the same value as the DynAny object";
       assertTrue (msg, dynAny.equal (dynAny2));
@@ -443,7 +424,7 @@ public class DynAnyFixedTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynFixed dynAny = null;
-      
+
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       fixedVal = new BigDecimal ("1.0");
       any = orb.create_any ();
@@ -477,7 +458,7 @@ public class DynAnyFixedTest extends TestCase
       catch (org.omg.CORBA.OBJECT_NOT_EXIST ex)
       {
          // success
-      }      
+      }
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
       {
          fail (msg + ": " + ex);
@@ -495,7 +476,7 @@ public class DynAnyFixedTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynFixed dynAny = null;
       org.omg.DynamicAny.DynFixed dynAny2 = null;
-      
+
       fixedVal = new BigDecimal ("1.0");
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       dynAny = createDynAnyFromTypeCode (tc);
@@ -507,7 +488,7 @@ public class DynAnyFixedTest extends TestCase
       catch (Throwable ex)
       {
          fail ("Failed to insert value into DynAny object: " + ex);
-      }      
+      }
       dynAny2 = (org.omg.DynamicAny.DynFixed) dynAny.copy ();
 
       msg = "The DynAny object created with the DynAny::copy operation ";
@@ -526,7 +507,7 @@ public class DynAnyFixedTest extends TestCase
       boolean seek;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynFixed dynAny = null;
-      
+
       tc = orb.create_fixed_tc ((short) 2, (short) 1);
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -543,19 +524,19 @@ public class DynAnyFixedTest extends TestCase
       msg = "The number of components returned from the ";
       msg += "DynAny::component_count operation is incorrect";
       assertEquals (msg, 0, compCount);
-      
+
       // test if there is a first component
       msg = "The DynAny::seek operation indicates that a valid component ";
       msg += "exists but the DynAny should have no components";
       seek = dynAny.seek (0);
       assertTrue (msg, !seek);
-      
+
       // test getting the current component
       try
       {
          dynAny = (org.omg.DynamicAny.DynFixed) dynAny.current_component ();
 
-         msg = "A TypeMismatch exception was not raised by the ";         
+         msg = "A TypeMismatch exception was not raised by the ";
          msg += "DynAny::current_component operation when trying to access ";
          msg += "the current component of a DynAny with no components";
          fail (msg);
@@ -567,48 +548,12 @@ public class DynAnyFixedTest extends TestCase
    }
 
 
-   private static class Setup extends TestSetup
-   {
-      public Setup (Test test)
-      {
-         super (test);
-      }
-
-      protected void setUp ()
-      {
-         org.omg.CORBA.Object obj = null;
-
-         orb = ORBSetup.getORB ();
-         try
-         {
-            obj = orb.resolve_initial_references ("DynAnyFactory");
-         }
-         catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-         {
-            fail ("Failed to resolve DynAnyFactory: " + ex);
-         }
-         try
-         {
-            factory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-         }
-         catch (Throwable ex)
-         {
-            fail ("Failed to narrow to DynAnyFactory: " + ex);
-         }
-      }
-
-      protected void tearDown ()
-      {
-      }
-   }
-
-
    /**
     * Create a DynAny object from an Any object.
-    */   
-   private static org.omg.DynamicAny.DynFixed createDynAnyFromAny
+    */
+   private org.omg.DynamicAny.DynFixed createDynAnyFromAny
       (org.omg.CORBA.Any any)
-   {      
+   {
       String msg;
       org.omg.DynamicAny.DynFixed dynAny = null;
 
@@ -628,11 +573,11 @@ public class DynAnyFixedTest extends TestCase
 
    /**
     * Create a DynAny object from a TypeCode object.
-    */   
-   private static org.omg.DynamicAny.DynFixed createDynAnyFromTypeCode
+    */
+   private org.omg.DynamicAny.DynFixed createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
-      String msg;      
+      String msg;
       org.omg.DynamicAny.DynFixed dynAny = null;
 
       try
@@ -648,5 +593,5 @@ public class DynAnyFixedTest extends TestCase
       }
       return dynAny;
    }
-   
+
 }

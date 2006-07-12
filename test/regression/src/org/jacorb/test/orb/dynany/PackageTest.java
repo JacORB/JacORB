@@ -34,12 +34,12 @@ public class PackageTest extends TestCase
       TestSuite suite = new TestSuite ("Package dynany");
 
       suite.addTest (DynAnyBaseTest.suite ());
-      suite.addTest (DynAnyFixedTest.suite ());
+      suite.addTestSuite(DynAnyFixedTest.class);
       suite.addTest (DynAnyEnumTest.suite ());
       suite.addTest (DynAnyBoundedSeqTest.suite ());
       suite.addTest (DynAnyUnboundedSeqTest.suite ());
       suite.addTest (DynAnyArrayTest.suite ());
-      suite.addTest (DynAnyStructTest.suite ());
+      suite.addTestSuite(DynAnyStructTest.class);
       suite.addTest (DynAnyNonEmptyExTest.suite ());
       suite.addTest (DynAnyEmptyExTest.suite ());
       suite.addTest (DynAnyUnionTest.suite ());

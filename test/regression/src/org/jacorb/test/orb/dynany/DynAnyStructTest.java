@@ -25,6 +25,8 @@ import junit.extensions.TestSetup;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.TCKind;
+import org.omg.CORBA.DynAnyPackage.InvalidValue;
+import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.DynamicAny.NameValuePair;
 import org.omg.DynamicAny.NameDynAnyPair;
 
@@ -33,16 +35,16 @@ import org.jacorb.test.StructType;
 import org.jacorb.test.StructTypeHelper;
 
 /**
- * DynAnyStructTest.java
- *
  * DynAny tests for struct types.
+ *
+ * @author Gerald Brose
  * @version $Id$
  */
 
 public class DynAnyStructTest extends TestCase
 {
-   private static org.omg.DynamicAny.DynAnyFactory factory = null;
-   private static org.omg.CORBA.ORB orb = null;
+   private org.omg.DynamicAny.DynAnyFactory factory;
+   private org.omg.CORBA.ORB orb;
 
    private static final String ID = "IDL:test:1.0";
    private static final String NAME = "MyStruct";
@@ -52,33 +54,10 @@ public class DynAnyStructTest extends TestCase
       super (name);
    }
 
-
-   public static Test suite ()
+   protected void setUp() throws Exception
    {
-      TestSuite suite = new TestSuite ("DynStruct Tests");
-      Setup setup = new Setup (suite);
-      ORBSetup osetup = new ORBSetup (setup);
-
-      suite.addTest (new DynAnyStructTest ("testFactoryCreateFromAny"));
-      suite.addTest (new DynAnyStructTest ("testFactoryCreateFromTypeCode"));
-      suite.addTest (new DynAnyStructTest ("testFactoryCreateFromIDLTypeCode"));
-      suite.addTest (new DynAnyStructTest ("testCompareDynAny"));
-      suite.addTest (new DynAnyStructTest ("testIterateDynAny"));
-      suite.addTest (new DynAnyStructTest ("testAccessStructMembers"));
-      suite.addTest (new DynAnyStructTest ("testAccessStructNameValuePairs"));
-      suite.addTest (new DynAnyStructTest ("testAccessStructDynAnyPairs"));
-      suite.addTest (new DynAnyStructTest ("testAccessStructPairsEx"));
-      suite.addTest (new DynAnyStructTest ("testDynAnyTypeCode"));
-      suite.addTest (new DynAnyStructTest ("testInitDynAnyFromDynAny"));
-      suite.addTest (new DynAnyStructTest ("testInitDynAnyFromAny"));
-      suite.addTest (new DynAnyStructTest ("testInitFromAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyStructTest ("testGenerateAnyFromDynAny"));
-      suite.addTest (new DynAnyStructTest ("testDestroyDynAny"));
-      suite.addTest (new DynAnyStructTest ("testDestroyComponent"));
-      suite.addTest (new DynAnyStructTest ("testCopyDynAny"));
-      suite.addTest (new DynAnyStructTest ("testCreateStructTypecodeFail"));
-
-      return osetup;
+       orb = org.omg.CORBA.ORB.init(new String[0], null);
+       factory = DynAnyFactoryHelper.narrow(orb.resolve_initial_references("DynAnyFactory"));
    }
 
 
@@ -150,7 +129,7 @@ public class DynAnyStructTest extends TestCase
    /**
     * Test iterating through components of a DynAny.
     */
-   public void testIterateDynAny ()
+   public void testIterateDynAny () throws Exception
    {
       String msg;
       int compCount = -1;
@@ -166,15 +145,7 @@ public class DynAnyStructTest extends TestCase
       // test the component count
       msg = "The number of components returned from the ";
       msg += "DynAny::component_count method is incorrect";
-      try
-      {
-         compCount = dynAny.component_count ();
-      }
-      catch (Throwable ex)
-      {
-         // should not be needed, but it prevents compiler errors
-         fail ("Unexpected error raised by DynAny::component_count operation");
-      }
+      compCount = dynAny.component_count ();
       assertEquals (msg, 2, compCount);  // specific to IDL
 
       // seek an invalid position
@@ -190,17 +161,7 @@ public class DynAnyStructTest extends TestCase
       assertTrue (msg, seek);
 
       // extract a value from the current position
-      try
-      {
-         compSeek = dynAny.current_component ();
-      }
-      catch (Throwable ex)
-      {
-         msg = "Failed to get the current component using the ";
-         msg += "DynAny::current_component operation after calling the ";
-         msg += "DynAny::seek operation";
-         fail (msg);
-      }
+      compSeek = dynAny.current_component ();
 
       // seek the next position
       msg = "The DynAny::next operation indicates an invalid current position ";
@@ -212,17 +173,8 @@ public class DynAnyStructTest extends TestCase
       dynAny.rewind ();
 
       // extract a value from the current position
-      try
-      {
-         compRewind = dynAny.current_component ();
-      }
-      catch (Throwable ex)
-      {
-         msg = "Failed to get the current component using the ";
-         msg += "DynAny::current_component operation after calling the ";
-         msg += "DynAny::rewind operation";
-         fail (msg);
-      }
+      compRewind = dynAny.current_component ();
+
       msg = "The component at DynAny::seek(0) is not equal to the ";
       msg += "component at DynAny::rewind";
       assertTrue (msg, compSeek.equal (compRewind));
@@ -232,7 +184,7 @@ public class DynAnyStructTest extends TestCase
    /**
     * Test accessing the names and types of members in a DynStruct object.
     */
-   public void testAccessStructMembers ()
+   public void testAccessStructMembers () throws Exception
    {
       String msg;
       String memberName = null;
@@ -246,39 +198,17 @@ public class DynAnyStructTest extends TestCase
       // test getting the name of the current member
       msg = "Failed to get the correct name of the first member using ";
       msg += "DynStruct::current_member_name operation";
-      try
-      {
-         memberName = dynAny.current_member_name ();
+      memberName = dynAny.current_member_name ();
 
-         assertEquals (msg, "field1", memberName); // specific to IDL
-      }
-      catch (AssertionFailedError ex)
-      {
-         throw ex;
-      }
-      catch (Throwable ex)
-      {
-         fail (msg + ": " + ex);
-      }
+      assertEquals (msg, "field1", memberName); // specific to IDL
 
       // test getting the kind of the current member
       msg = "Failed to get the correct kind of the first member using ";
       msg += "DynStruct::current_member_kind operation";
-      try
-      {
-         memberKind = dynAny.current_member_kind ();
+      memberKind = dynAny.current_member_kind ();
 
-         // specific to IDL
-         assertEquals (msg, TCKind._tk_long, memberKind.value ());
-      }
-      catch (AssertionFailedError ex)
-      {
-         throw ex;
-      }
-      catch (Throwable ex)
-      {
-         fail (msg + ": " + ex);
-      }
+      // specific to IDL
+      assertEquals (msg, TCKind._tk_long, memberKind.value ());
 
       // move to the next position
       dynAny.next ();
@@ -286,39 +216,19 @@ public class DynAnyStructTest extends TestCase
       // test getting the name of the current member
       msg = "Failed to get the correct name of the second member using ";
       msg += "DynStruct::current_member_name operation";
-      try
-      {
-         memberName = dynAny.current_member_name ();
 
-         assertEquals (msg, "field2", memberName); // specific to IDL
-      }
-      catch (AssertionFailedError ex)
-      {
-         throw ex;
-      }
-      catch (Throwable ex)
-      {
-         fail (msg + ": " + ex);
-      }
+      memberName = dynAny.current_member_name ();
+
+      assertEquals (msg, "field2", memberName); // specific to IDL
 
       // test getting the kind of the current member
       msg = "Failed to get the correct kind of the second member using ";
       msg += "DynStruct::current_member_kind operation";
-      try
-      {
-         memberKind = dynAny.current_member_kind ();
 
-         // specific to IDL
-         assertEquals (msg, TCKind._tk_string, memberKind.value ());
-      }
-      catch (AssertionFailedError ex)
-      {
-         throw ex;
-      }
-      catch (Throwable ex)
-      {
-         fail (msg + ": " + ex);
-      }
+      memberKind = dynAny.current_member_kind ();
+
+      // specific to IDL
+      assertEquals (msg, TCKind._tk_string, memberKind.value ());
 
       // move to an invalid position
       dynAny.seek (-1);
@@ -326,22 +236,15 @@ public class DynAnyStructTest extends TestCase
       // test getting the name of the current member
       msg = "Failed to throw an InvalidValue exception when calling ";
       msg += "DynStruct::current_member_name operation at an invalid position";
+
       try
       {
          memberName = dynAny.current_member_name ();
 
          fail (msg);
       }
-      catch (AssertionFailedError ex)
+      catch (org.omg.DynamicAny.DynAnyPackage.InvalidValue ex)
       {
-         throw ex;
-      }
-      catch (Throwable ex)
-      {
-         if (!(ex instanceof org.omg.DynamicAny.DynAnyPackage.InvalidValue))
-         {
-            fail (msg + ": " + ex);
-         }
       }
 
       // test getting the kind of the current member
@@ -353,16 +256,8 @@ public class DynAnyStructTest extends TestCase
 
          fail (msg);
       }
-      catch (AssertionFailedError ex)
+      catch (org.omg.DynamicAny.DynAnyPackage.InvalidValue ex)
       {
-         throw ex;
-      }
-      catch (Throwable ex)
-      {
-         if (!(ex instanceof org.omg.DynamicAny.DynAnyPackage.InvalidValue))
-         {
-            fail (msg + ": " + ex);
-         }
       }
    }
 
@@ -370,7 +265,7 @@ public class DynAnyStructTest extends TestCase
    /**
     * Test accessing the member Name/Value pairs in a DynStruct object.
     */
-   public void testAccessStructNameValuePairs ()
+   public void testAccessStructNameValuePairs () throws Exception
    {
       final String name1 = "field1"; // specific to IDL
       final String name2 = "field2"; // specific to IDL
@@ -410,14 +305,7 @@ public class DynAnyStructTest extends TestCase
 
       msg = "Failed to set DynStruct members using DynStruct::set_members ";
       msg += "operation";
-      try
-      {
-         dynAny.set_members (pairs);
-      }
-      catch (Throwable ex)
-      {
-         fail (msg + ": " + ex);
-      }
+      dynAny.set_members (pairs);
 
       // test extracting the name/value pairs as Anys
       pairs = dynAny.get_members ();
@@ -916,46 +804,12 @@ public class DynAnyStructTest extends TestCase
 
 
 
-   private static class Setup extends TestSetup
-   {
-      public Setup (Test test)
-      {
-         super (test);
-      }
-
-      protected void setUp ()
-      {
-         org.omg.CORBA.Object obj = null;
-
-         orb = ORBSetup.getORB ();
-         try
-         {
-            obj = orb.resolve_initial_references ("DynAnyFactory");
-         }
-         catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-         {
-            fail ("Failed to resolve DynAnyFactory: " + ex);
-         }
-         try
-         {
-            factory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-         }
-         catch (Throwable ex)
-         {
-            fail ("Failed to narrow to DynAnyFactory: " + ex);
-         }
-      }
-
-      protected void tearDown ()
-      {
-      }
-   }
 
 
    /**
     * Create a DynAny object from an Any object.
     */
-   private static org.omg.DynamicAny.DynStruct createDynAnyFromAny
+   private org.omg.DynamicAny.DynStruct createDynAnyFromAny
       (org.omg.CORBA.Any any)
    {
       String msg;
@@ -978,7 +832,7 @@ public class DynAnyStructTest extends TestCase
    /**
     * Create a DynAny object from a TypeCode object.
     */
-   private static org.omg.DynamicAny.DynStruct createDynAnyFromTypeCode
+   private org.omg.DynamicAny.DynStruct createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
       String msg;
@@ -1002,7 +856,7 @@ public class DynAnyStructTest extends TestCase
    /**
     * Create a sequence of fields for use in creating a struct TypeCode.
     */
-   private static org.omg.CORBA.StructMember [] getStructMembers ()
+   private org.omg.CORBA.StructMember [] getStructMembers ()
    {
       final org.omg.CORBA.StructMember [] members =
          new org.omg.CORBA.StructMember [2];
