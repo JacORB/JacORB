@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 import org.jacorb.orb.CDRInputStream;
@@ -128,58 +129,44 @@ public class PrintIOR
             );
         }
 
+        PrintWriter out = new PrintWriter(System.out);
         if( iorString.startsWith( "IOR:" ))
         {
             ParsedIOR pior = new ParsedIOR( iorString, orb, logger );
-            printIOR(pior, orb);
+            printIOR(pior, orb, out);
         }
         else
         {
-            println("Sorry, we only unparse IORs in the standard IOR URL scheme");
+            out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
         }
 
         orb.shutdown(true);
-    }
-
-    private static void print(String mesg)
-    {
-        System.out.print(mesg); // NOPMD
-    }
-
-    private static void println(String mesg)
-    {
-        System.out.println(mesg); // NOPMD
-    }
-
-    private static void println()
-    {
-        System.out.println(); // NOPMD
     }
 
     /**
      * top-level
      */
 
-    public static void printIOR( ParsedIOR pior, org.omg.CORBA.ORB orb)
+    public static void printIOR( ParsedIOR pior, org.omg.CORBA.ORB orb, PrintWriter out)
     {
         org.omg.IOP.IOR ior = pior.getIOR();
 
-        println("------IOR components-----");
-        println("TypeId\t:\t" + ior.type_id );
+        out.println("------IOR components-----");
+        out.println("TypeId\t:\t" + ior.type_id );
 
         List profiles = pior.getProfiles();
 
-        println("TAG_INTERNET_IOP Profiles:");
+        out.println("TAG_INTERNET_IOP Profiles:");
         for( int i = 0; i < profiles.size(); i++ )
         {
-            print("\tProfile Id:  ");
+            out.print("\tProfile Id:  ");
 
             IIOPProfile profile = (IIOPProfile)profiles.get(i);
-            println("\tIIOP Version :  " +
+            out.println("\tIIOP Version :  " +
                                (int)profile.version().major + "." +
                                (int)profile.version().minor);
 
-            println("\tHost\t:\t" +
+            out.println("\tHost\t:\t" +
                                ((IIOPAddress)profile.getAddress()).getOriginalHost());
             int port = ((IIOPAddress)profile.getAddress()).getPort();
             if( port < 0 )
@@ -187,42 +174,42 @@ public class PrintIOR
                 port += 65536;
             }
 
-            println("\tPort\t:\t" + port );
+            out.println("\tPort\t:\t" + port );
             try
             {
-                println("\tObject key (URL):      " +
+                out.println("\tObject key (URL):      " +
                                    CorbaLoc.parseKey( pior.get_object_key()));
             }
             catch( Exception e )
             {
                 // ignore, object key not in url format
             }
-            print("\tObject key (hex):    0x" );
-            dumpHex( pior.get_object_key() );
-            println();
+            out.print("\tObject key (hex):    0x" );
+            dumpHex( pior.get_object_key(), out);
+            out.println();
 
             if ( profile.version().minor >= ( char ) 1 )
             {
                 if( profile.getComponents().size() > 0 )
                 {
-                    println("\t-- Found " +
+                    out.println("\t-- Found " +
                                        profile.getComponents().size() +
                                        " Tagged Components--" );
                 }
 
-                printTaggedComponents( profile.getComponents().asArray() );
+                printTaggedComponents( profile.getComponents().asArray(), out);
             }
-            print("\n");
+            out.print("\n");
         }
 
         TaggedComponentList multiple_components = pior.getMultipleComponents();
 
         if( multiple_components.size() > 0 )
         {
-            println("Components in MULTIPLE_COMPONENTS profile: " +
+            out.println("Components in MULTIPLE_COMPONENTS profile: " +
                                multiple_components.size() );
 
-            printTaggedComponents( multiple_components.asArray() );
+            printTaggedComponents( multiple_components.asArray(), out);
         }
 
     }
@@ -232,121 +219,153 @@ public class PrintIOR
      * recognized.
      */
 
-    private static void printTaggedComponents( TaggedComponent[] taggedComponents )
+    private static void printTaggedComponents( TaggedComponent[] taggedComponents, PrintWriter out )
     {
         for( int i = 0; i < taggedComponents.length; i++ )
         {
             switch( taggedComponents[i].tag )
             {
                 case TAG_SSL_SEC_TRANS.value:
-                println("\t#"+ i + ": TAG_SSL_SEC_TRANS");
-                printSSLTaggedComponent( taggedComponents[i] );
-                break;
+                {
+                    out.println("\t#"+ i + ": TAG_SSL_SEC_TRANS");
+                    printSSLTaggedComponent( taggedComponents[i], out);
+                    break;
+                }
                 case TAG_CSI_SEC_MECH_LIST.value:
-                println("\t#"+ i + ": TAG_CSI_SEC_MECH_LIST");
-                printCSIMechComponent( taggedComponents[i] );
-                break;
+                {
+                    out.println("\t#"+ i + ": TAG_CSI_SEC_MECH_LIST");
+                    printCSIMechComponent( taggedComponents[i], out);
+                    break;
+                }
                 case TAG_SECIOP_SEC_TRANS.value:
-                println("\t#"+ i + ": TAG_SECIOP_SEC_TRANS");
-                break;
+                {
+                    out.println("\t#"+ i + ": TAG_SECIOP_SEC_TRANS");
+                    break;
+                }
                 case TAG_ALTERNATE_IIOP_ADDRESS.value:
-                println("\t#"+ i + ": TAG_ALTERNATE_IIOP_ADDRESS");
-                printAlternateAddress(taggedComponents[i]);
-                break;
+                {
+                    out.println("\t#"+ i + ": TAG_ALTERNATE_IIOP_ADDRESS");
+                    printAlternateAddress(taggedComponents[i], out);
+                    break;
+                }
                 case TAG_CODE_SETS.value:
-                println("\t#"+ i + ": TAG_CODE_SETS");
-                printCodeSetComponent( taggedComponents[i] );
-                break;
+                {
+                    out.println("\t#"+ i + ": TAG_CODE_SETS");
+                    printCodeSetComponent( taggedComponents[i], out);
+                    break;
+                }
                 case TAG_JAVA_CODEBASE.value:
-                println("\t#"+ i + ": TAG_JAVA_CODEBASE");
-                printJavaCodebaseComponent( taggedComponents[i] );
-                break;
+                {
+                    out.println("\t#"+ i + ": TAG_JAVA_CODEBASE");
+                    printJavaCodebaseComponent( taggedComponents[i], out);
+                    break;
+                }
                 case TAG_ORB_TYPE.value:
-                println("\t#"+ i + ": TAG_ORB_TYPE");
-                printOrbTypeComponent( taggedComponents[i] );
-                break;
+                {
+                    out.println("\t#"+ i + ": TAG_ORB_TYPE");
+                    printOrbTypeComponent( taggedComponents[i], out);
+                    break;
+                }
                 case TAG_POLICIES.value:
                 {
-                    println("\t#"+ i + ": TAG_POLICIES");
-                    printPolicyComponent (taggedComponents[i]);
+                    out.println("\t#"+ i + ": TAG_POLICIES");
+                    printPolicyComponent (taggedComponents[i], out);
                     break;
                 }
                 case TAG_NULL_TAG.value:
-                println("\t#"+ i + ": TAG_NULL_TAG");
-                break;
-                default:
-                println("\tUnknown tag : " +
-                                   taggedComponents[i].tag);
-            }
-        }
-    }
-
-    private static void printCSIMechComponent( TaggedComponent taggedComponent )
-    {
-        CDRInputStream is =
-        new CDRInputStream( (org.omg.CORBA.ORB)null,
-                            taggedComponent.component_data);
-
-        is.openEncapsulatedArray();
-        CompoundSecMechList csmList = CompoundSecMechListHelper.read( is );
-
-        if( csmList!= null )
-        {
-            println("\t\tis stateful: " + csmList.stateful );
-            for( int i = 0; i < csmList.mechanism_list.length; i++ )
-            {
-                println("\t\tCompoundSecMech #" + i);
-                println("\t\t\ttarget_requires: " +
-                                   csmList.mechanism_list[i].target_requires );
-                print("\t\t\ttransport mechanism tag: ");
-                switch( csmList.mechanism_list[i].transport_mech.tag )
                 {
-                    case TAG_TLS_SEC_TRANS.value:
-                    println("TAG_TLS_SEC_TRANS");
-                    printTlsSecTrans(csmList.mechanism_list[i].transport_mech.component_data);
+                    out.println("\t#"+ i + ": TAG_NULL_TAG");
                     break;
-                    case TAG_NULL_TAG.value:
-                    println("TAG_NULL_TAG");
-                    break;
-                    default:
-                    println("Unknown tag : " +
-                                       csmList.mechanism_list[i].transport_mech.tag );
                 }
-                println("\t\t\tAS_ContextSec target_supports: " + csmList.mechanism_list[i].as_context_mech.target_supports );
-                println("\t\t\tAS_ContextSec target_requires: " + csmList.mechanism_list[i].as_context_mech.target_requires );
-                print("\t\t\tAS_ContextSec mech: " );
-                dumpHex(csmList.mechanism_list[i].as_context_mech.client_authentication_mech);
-                println();
-                print("\t\t\tAS_ContextSec target_name: " );
-                printNTExportedName(csmList.mechanism_list[i].as_context_mech.target_name);
-                //}
-                println("\t\t\tSAS_ContextSec target_supports: " + csmList.mechanism_list[i].sas_context_mech.target_supports );
-                println("\t\t\tSAS_ContextSec target_requires: " + csmList.mechanism_list[i].sas_context_mech.target_requires );
-
-                for (int j = 0; j < csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms.length; j++) {
-                    print("\t\t\tSAS_ContextSec Naming mech: " );
-                    dumpHex(csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms[j]);
-                    println();
+                default:
+                {
+                    out.println("\tUnknown tag : " +
+                            taggedComponents[i].tag);
                 }
-                println("\t\t\tSAS_ContextSec Naming types: " + csmList.mechanism_list[i].sas_context_mech.supported_identity_types);
-                println();
             }
         }
     }
 
-    private static void printNTExportedName(byte[] nameData) {
+    private static void printCSIMechComponent( TaggedComponent taggedComponent, PrintWriter out)
+    {
+        final CDRInputStream is =
+            new CDRInputStream( (org.omg.CORBA.ORB)null,
+                    taggedComponent.component_data);
+
+        try
+        {
+            is.openEncapsulatedArray();
+            CompoundSecMechList csmList = CompoundSecMechListHelper.read( is );
+
+            if( csmList!= null )
+            {
+                out.println("\t\tis stateful: " + csmList.stateful );
+                for( int i = 0; i < csmList.mechanism_list.length; i++ )
+                {
+                    out.println("\t\tCompoundSecMech #" + i);
+                    out.println("\t\t\ttarget_requires: " +
+                            csmList.mechanism_list[i].target_requires );
+                    out.print("\t\t\ttransport mechanism tag: ");
+                    switch( csmList.mechanism_list[i].transport_mech.tag )
+                    {
+                        case TAG_TLS_SEC_TRANS.value:
+                        {
+                            out.println("TAG_TLS_SEC_TRANS");
+                            printTlsSecTrans(csmList.mechanism_list[i].transport_mech.component_data, out);
+                            break;
+                        }
+                        case TAG_NULL_TAG.value:
+                        {
+                            out.println("TAG_NULL_TAG");
+                            break;
+                        }
+                        default:
+                        {
+                            out.println("Unknown tag : " +
+                                    csmList.mechanism_list[i].transport_mech.tag );
+                        }
+                    }
+                    out.println("\t\t\tAS_ContextSec target_supports: " + csmList.mechanism_list[i].as_context_mech.target_supports );
+                    out.println("\t\t\tAS_ContextSec target_requires: " + csmList.mechanism_list[i].as_context_mech.target_requires );
+                    out.print("\t\t\tAS_ContextSec mech: " );
+                    dumpHex(csmList.mechanism_list[i].as_context_mech.client_authentication_mech, out);
+                    out.println();
+                    out.print("\t\t\tAS_ContextSec target_name: " );
+                    printNTExportedName(csmList.mechanism_list[i].as_context_mech.target_name, out);
+                    out.println("\t\t\tSAS_ContextSec target_supports: " + csmList.mechanism_list[i].sas_context_mech.target_supports );
+                    out.println("\t\t\tSAS_ContextSec target_requires: " + csmList.mechanism_list[i].sas_context_mech.target_requires );
+
+                    for (int j = 0; j < csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms.length; j++) {
+                        out.print("\t\t\tSAS_ContextSec Naming mech: " );
+                        dumpHex(csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms[j], out);
+                        out.println();
+                    }
+                    out.println("\t\t\tSAS_ContextSec Naming types: " + csmList.mechanism_list[i].sas_context_mech.supported_identity_types);
+                    out.println();
+                }
+            }
+        }
+        finally
+        {
+            is.close();
+        }
+    }
+
+    private static void printNTExportedName(byte[] nameData, PrintWriter out) {
         // check for token identifier
-        if (nameData.length < 2 || nameData[0] != 0x04 || nameData[1] != 0x01) {
-            dumpHex(nameData);
-            println();
+        if (nameData.length < 2 || nameData[0] != 0x04 || nameData[1] != 0x01)
+        {
+            dumpHex(nameData, out);
+            out.println();
             return;
         }
 
         // get mech length
         int mechLen = (nameData[2] << 8) + nameData[3];
-        if (mechLen > (nameData.length - 8)) {
-            dumpHex(nameData);
-            println();
+        if (mechLen > (nameData.length - 8))
+        {
+            dumpHex(nameData, out);
+            out.println();
             return;
         }
 
@@ -355,91 +374,102 @@ public class PrintIOR
                       (nameData[mechLen + 5] << 16) +
                       (nameData[mechLen + 6] << 8) +
                       (nameData[mechLen + 7]);
-        if ((mechLen + nameLen) > (nameData.length - 8)) {
-            dumpHex(nameData);
-            println();
+        if ((mechLen + nameLen) > (nameData.length - 8))
+        {
+            dumpHex(nameData, out);
+            out.println();
             return;
         }
         byte[] name = new byte[nameLen];
         System.arraycopy(nameData, mechLen + 8, name, 0, nameLen);
-        println(new String(name));
+        out.println(new String(name));
     }
 
-    private static void printTlsSecTrans(byte[] tagData) {
+    private static void printTlsSecTrans(byte[] tagData, PrintWriter out) {
         CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null, tagData );
+
         try
         {
             in.openEncapsulatedArray();
             TLS_SEC_TRANS tls = TLS_SEC_TRANSHelper.read( in );
-            println("\t\t\tTLS SEC TRANS target requires: " + tls.target_requires);
-            println("\t\t\tTLS SEC TRANS target supports: " + tls.target_supports);
-            for (int i = 0; i < tls.addresses.length; i++) {
+            out.println("\t\t\tTLS SEC TRANS target requires: " + tls.target_requires);
+            out.println("\t\t\tTLS SEC TRANS target supports: " + tls.target_supports);
+
+            for (int i = 0; i < tls.addresses.length; i++)
+            {
                 int ssl_port = tls.addresses[i].port;
                 if( ssl_port < 0 )
                 {
                     ssl_port += 65536;
                 }
-                println("\t\t\tTLS SEC TRANS address: " + tls.addresses[i].host_name+":"+ssl_port);
+                out.println("\t\t\tTLS SEC TRANS address: " + tls.addresses[i].host_name+":"+ssl_port);
             }
         }
         catch ( Exception ex )
         {
-            print("\t\t\tTLS SEC TRANS: " );
-            dumpHex(tagData);
-            println();
+            out.print("\t\t\tTLS SEC TRANS: " );
+            dumpHex(tagData, out);
+            out.println();
         }
     }
 
-    private static void printCodeSetComponent( TaggedComponent taggedComponent )
+    private static void printCodeSetComponent( TaggedComponent taggedComponent, PrintWriter out)
     {
-        CDRInputStream is =
-        new CDRInputStream( (org.omg.CORBA.ORB)null,
-                            taggedComponent.component_data);
+        final CDRInputStream is =
+            new CDRInputStream( (org.omg.CORBA.ORB)null,
+                    taggedComponent.component_data);
 
-        is.openEncapsulatedArray();
-
-        org.omg.CONV_FRAME.CodeSetComponentInfo codeSet =
-        CodeSetComponentInfoHelper.read( is );
-
-        if( codeSet != null )
+        try
         {
-            println("\t\tForChar native code set Id: " +
-                               CodeSet.csName(codeSet.ForCharData.native_code_set ));
-            print("\t\tChar Conversion Code Sets: ");
-            for( int ji = 0; ji < codeSet.ForCharData.conversion_code_sets.length; ji++ )
-            {
-                println( CodeSet.csName( codeSet.ForCharData.conversion_code_sets[ji] ) );
+            is.openEncapsulatedArray();
 
-                if( ji < (codeSet.ForCharData.conversion_code_sets.length - 1) )
+            org.omg.CONV_FRAME.CodeSetComponentInfo codeSet =
+                CodeSetComponentInfoHelper.read( is );
+
+            if( codeSet != null )
+            {
+                out.println("\t\tForChar native code set Id: " +
+                        CodeSet.csName(codeSet.ForCharData.native_code_set ));
+                out.print("\t\tChar Conversion Code Sets: ");
+                for( int ji = 0; ji < codeSet.ForCharData.conversion_code_sets.length; ji++ )
                 {
-                    print( ", " );
+                    out.println( CodeSet.csName( codeSet.ForCharData.conversion_code_sets[ji] ) );
+
+                    if( ji < (codeSet.ForCharData.conversion_code_sets.length - 1) )
+                    {
+                        out.print( ", " );
+                    }
+                }
+                if (codeSet.ForCharData.conversion_code_sets.length == 0 )
+                {
+                    out.print("\n");
+                }
+
+                out.println("\t\tForWChar native code set Id: " +
+                        CodeSet.csName(codeSet.ForWcharData.native_code_set ));
+                out.print("\t\tWChar Conversion Code Sets: ");
+                for( int ji = 0; ji < codeSet.ForWcharData.conversion_code_sets.length; ji++ )
+                {
+                    out.println( CodeSet.csName( codeSet.ForWcharData.conversion_code_sets[ji] ));
+
+                    if( ji < (codeSet.ForWcharData.conversion_code_sets.length - 1) )
+                    {
+                        out.print( ", " );
+                    }
+                }
+                if (codeSet.ForCharData.conversion_code_sets.length == 0 )
+                {
+                    out.print("\n");
                 }
             }
-            if (codeSet.ForCharData.conversion_code_sets.length == 0 )
-            {
-                print("\n");
-            }
-
-            println("\t\tForWChar native code set Id: " +
-                               CodeSet.csName(codeSet.ForWcharData.native_code_set ));
-            print("\t\tWChar Conversion Code Sets: ");
-            for( int ji = 0; ji < codeSet.ForWcharData.conversion_code_sets.length; ji++ )
-            {
-                println( CodeSet.csName( codeSet.ForWcharData.conversion_code_sets[ji] ));
-
-                if( ji < (codeSet.ForWcharData.conversion_code_sets.length - 1) )
-                {
-                    print( ", " );
-                }
-            }
-            if (codeSet.ForCharData.conversion_code_sets.length == 0 )
-            {
-                print("\n");
-            }
+        }
+        finally
+        {
+            is.close();
         }
     }
 
-    private static void printSSLTaggedComponent( TaggedComponent taggedComponent )
+    private static void printSSLTaggedComponent( TaggedComponent taggedComponent, PrintWriter out)
     {
         org.omg.SSLIOP.SSL  ssl = null;
         if( taggedComponent.tag == 20 )
@@ -462,19 +492,18 @@ public class PrintIOR
                 ssl_port += 65536;
             }
 
-            print( "\t\ttarget_supports\t:\t" );
+            out.print( "\t\ttarget_supports\t:\t" );
             //dump               ( ssl.target_supports );
-            decodeAssociationOption( ssl.target_supports );
-            println();
-            print( "\t\ttarget_requires\t:\t" );
+            decodeAssociationOption( ssl.target_supports, out);
+            out.println();
+            out.print( "\t\ttarget_requires\t:\t" );
             //dump               ( ssl.target_requires );
-            decodeAssociationOption( ssl.target_requires );
-            println();
-            println( "\t\tSSL Port\t:\t" + ssl_port );
-
+            decodeAssociationOption( ssl.target_requires, out);
+            out.println();
+            out.println( "\t\tSSL Port\t:\t" + ssl_port );
         }
     }
-    private static void decodeAssociationOption( int option )
+    private static void decodeAssociationOption( int option, PrintWriter out)
     {
         boolean first = true;
 
@@ -482,10 +511,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "NoProtection" );
+            out.print( "NoProtection" );
 
             first = false;
         }
@@ -494,10 +523,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "Integrity" );
+            out.print( "Integrity" );
 
             first = false;
         }
@@ -506,10 +535,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "Confidentiality" );
+            out.print( "Confidentiality" );
 
             first = false;
         }
@@ -518,10 +547,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "DetectReplay" );
+            out.print( "DetectReplay" );
 
             first = false;
         }
@@ -530,10 +559,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "DetectMisordering" );
+            out.print( "DetectMisordering" );
 
             first = false;
         }
@@ -542,10 +571,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "EstablishTrustInTarget" );
+            out.print( "EstablishTrustInTarget" );
 
             first = false;
         }
@@ -554,10 +583,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "EstablishTrustInClient" );
+            out.print( "EstablishTrustInClient" );
 
             first = false;
         }
@@ -566,10 +595,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "NoDelegation" );
+            out.print( "NoDelegation" );
 
             first = false;
         }
@@ -578,10 +607,10 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "SimpleDelegation" );
+            out.print( "SimpleDelegation" );
 
             first = false;
         }
@@ -590,17 +619,17 @@ public class PrintIOR
         {
             if( ! first )
             {
-                print( ", " );
+                out.print( ", " );
             }
 
-            print( "CompositeDelegation" );
+            out.print( "CompositeDelegation" );
 
             first = false;
         }
     }
 
 
-    private static void printJavaCodebaseComponent( TaggedComponent taggedComponent )
+    private static void printJavaCodebaseComponent( TaggedComponent taggedComponent, PrintWriter out)
     {
         final CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null,
                             taggedComponent.component_data );
@@ -610,7 +639,7 @@ public class PrintIOR
             in.openEncapsulatedArray();
             String codebase = in.read_string();
 
-            println( "\t\tCodebase: " + codebase );
+            out.println( "\t\tCodebase: " + codebase );
         }
         finally
         {
@@ -618,7 +647,7 @@ public class PrintIOR
         }
     }
 
-    private static void printOrbTypeComponent (TaggedComponent taggedComponent)
+    private static void printOrbTypeComponent (TaggedComponent taggedComponent, PrintWriter out)
     {
         final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, taggedComponent.component_data );
 
@@ -627,14 +656,14 @@ public class PrintIOR
             is.openEncapsulatedArray ();
             int type = is.read_long ();
 
-            print ( "\t\tType: " + type);
+            out.print ( "\t\tType: " + type);
             if (type == ORBConstants.JACORB_ORB_ID)
             {
-                println (" (JacORB)");
+                out.println (" (JacORB)");
             }
             else
             {
-                println (" (Foreign)");
+                out.println (" (Foreign)");
             }
         }
         finally
@@ -643,14 +672,14 @@ public class PrintIOR
         }
     }
 
-    private static void printAlternateAddress(TaggedComponent taggedComponent)
+    private static void printAlternateAddress(TaggedComponent taggedComponent, PrintWriter out)
     {
         final CDRInputStream is = new CDRInputStream((org.omg.CORBA.ORB)null, taggedComponent.component_data);
 
         try
         {
             is.openEncapsulatedArray();
-            println("\t\tAddress: " + IIOPAddress.read(is));
+            out.println("\t\tAddress: " + IIOPAddress.read(is));
         }
         finally
         {
@@ -658,7 +687,13 @@ public class PrintIOR
         }
     }
 
-    public static void dumpHex(byte values[])
+
+    public static void dumpHex(byte[] values)
+    {
+        dumpHex(values, new PrintWriter(System.out));
+    }
+
+    public static void dumpHex(byte values[], PrintWriter out)
     {
         for (int i=0; i<values.length; i++)
         {
@@ -666,7 +701,7 @@ public class PrintIOR
             int n2 = (values[i] & 0xff) % 16;
             char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
             char c2 = (char)(n2>9 ? ('A'+(n2-10)) : ('0'+n2));
-            print( c1 + (c2 + " "));
+            out.print( c1 + (c2 + " "));
         }
     }
 
@@ -674,59 +709,77 @@ public class PrintIOR
                                'A', 'B', 'C', 'D', 'E', 'F'
     };
 
-    public static void dump ( byte values[] ) {
+    public static String dump ( byte values[] ) {
+        StringBuffer buffer = new StringBuffer();
+
         for ( int i = 0; i < values.length; i++ )
         {
-            dump ( values[ i ] );
-            print( " " );
+            buffer.append(values[i]);
+            buffer.append(' ');
         }
+
+        return buffer.toString();
     }
 
-    public static void dump ( int values[] ) {
+    public static String dump ( int values[] ) {
+        StringBuffer buffer = new StringBuffer();
+
         for ( int i = 0; i < values.length; i++ )
         {
-            dump ( values[ i ] );
-            print( " " );
+            buffer.append(values[i]);
+
+            buffer.append(' ');
         }
+
+        return buffer.toString();
     }
 
-    public static void dump ( byte value ) {
-        print( ""
-                                    + hexDigit[ ( value >>  4 ) & 0x0f ]
-                                    + hexDigit[ ( value       ) & 0x0f ]
-                                  );
+    public static String dump ( byte value ) {
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(hexDigit[ (value >> 4) & 0x0f]);
+        buffer.append(hexDigit[ (value ) & 0x0f]);
+
+        return buffer.toString();
     }
 
-    public static void dump ( short value ) {
-        print( ""
-                                    + hexDigit[ ( value >> 12 ) & 0x0f ]
-                                    + hexDigit[ ( value >>  9 ) & 0x0f ]
-                                    + hexDigit[ ( value >>  4 ) & 0x0f ]
-                                    + hexDigit[ ( value       ) & 0x0f ]
-                                  );
+    public static String dump ( short value ) {
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(hexDigit[ ( value >> 12 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value >>  9 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value >>  4 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value       ) & 0x0f ]);
+
+        return buffer.toString();
     }
 
-    public static void dump ( int value ) {
-        print( ""
-                                    + hexDigit[ ( value >> 28 ) & 0x0f ]
-                                    + hexDigit[ ( value >> 24 ) & 0x0f ]
-                                    + hexDigit[ ( value >> 20 ) & 0x0f ]
-                                    + hexDigit[ ( value >> 16 ) & 0x0f ]
-                                    + hexDigit[ ( value >> 12 ) & 0x0f ]
-                                    + hexDigit[ ( value >>  8 ) & 0x0f ]
-                                    + hexDigit[ ( value >>  4 ) & 0x0f ]
-                                    + hexDigit[ ( value       ) & 0x0f ]
-                                  );
+    public static String dump ( int value ) {
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(hexDigit[ ( value >> 28 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value >> 24 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value >> 20 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value >> 16 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value >> 12 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value >>  8 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value >>  4 ) & 0x0f ]);
+        buffer.append(hexDigit[ ( value       ) & 0x0f ]);
+
+        return buffer.toString();
     }
 
-    public static void dump ( byte values[], boolean withChar )
+    public static String dump ( byte values[], boolean withChar )
     {
+        StringBuffer buffer = new StringBuffer();
+
         char c;
         int len = values.length;
-        for ( int i = 0; i < len; i++ ) {
+        for ( int i = 0; i < len; i++ )
+        {
             if ( 0 == i % 16 )
             {
-                println();
+                buffer.append('\n');
             }
             if ( values[ i ] > ( byte ) 31 && values[ i ] < ( byte ) 127 )
             {
@@ -735,81 +788,90 @@ public class PrintIOR
             else {
                 c = ' ';
             }
-            print( ":"
-                                        + hexDigit[ ( values [ i ] >> 4 ) & 0x0f ]
-                                        + hexDigit[ values [ i ] & 0x0f ]
-                                        + " " + c
-                                      );
+            buffer.append(':');
+            buffer.append(hexDigit[ ( values [ i ] >> 4 ) & 0x0f ]);
+            buffer.append(hexDigit[ values [ i ] & 0x0f ]);
+            buffer.append(' ');
+            buffer.append(c);
         }
+
+        return buffer.toString();
     }
 
-    private static void printPolicyComponent (TaggedComponent tc)
+    private static void printPolicyComponent (TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, tc.component_data);
-        int val;
-        int count = 0;
+        final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, taggedComponent.component_data);
 
-        is.openEncapsulatedArray ();
-        int len = is.read_long ();
-
-        while (len-- != 0)
+        try
         {
-           val = is.read_long ();
-           print ( "\t\t#" + count++ + ": ");
-           is.openEncapsulation ();
-           switch (val)
-           {
-              case PRIORITY_BANDED_CONNECTION_POLICY_TYPE.value:
-              {
-                 long i;
-                 short low;
-                 short high;
+            int val;
+            int count = 0;
 
-                 println ("RTCORBA::PRIORITY_BANDED_CONNECTION");
-                 val = is.read_long ();
-                 for (i = 0; i < val; i++)
-                 {
-                    low = is.read_short ();
-                    high = is.read_short ();
-                    println ("\t\t\tBand " + i + ": " + low + "-" + high);
-                 }
-                 break;
-              }
-              case PRIORITY_MODEL_POLICY_TYPE.value:
-              {
-                 print ("RTCORBA::PRIORITY_MODEL");
-                 val = is.read_long ();
-                 switch (val)
-                 {
-                    case PriorityModel._CLIENT_PROPAGATED:
+            is.openEncapsulatedArray ();
+            int len = is.read_long ();
+
+            while (len-- != 0)
+            {
+                val = is.read_long ();
+                out.print( "\t\t#" + count++ + ": ");
+                is.openEncapsulation ();
+                switch (val)
+                {
+                    case PRIORITY_BANDED_CONNECTION_POLICY_TYPE.value:
                     {
-                       print (" (CLIENT_PROPAGATED, ");
-                       break;
+                        long i;
+                        short low;
+                        short high;
+
+                        out.println ("RTCORBA::PRIORITY_BANDED_CONNECTION");
+                        val = is.read_long ();
+                        for (i = 0; i < val; i++)
+                        {
+                            low = is.read_short ();
+                            high = is.read_short ();
+                            out.println ("\t\t\tBand " + i + ": " + low + "-" + high);
+                        }
+                        break;
                     }
-                    case PriorityModel._SERVER_DECLARED:
+                    case PRIORITY_MODEL_POLICY_TYPE.value:
                     {
-                       print (" (SERVER_DECLARED, ");
-                       break;
+                        out.print("RTCORBA::PRIORITY_MODEL");
+                        val = is.read_long ();
+                        switch (val)
+                        {
+                            case PriorityModel._CLIENT_PROPAGATED:
+                            {
+                                out.print (" (CLIENT_PROPAGATED, ");
+                                break;
+                            }
+                            case PriorityModel._SERVER_DECLARED:
+                            {
+                                out.print (" (SERVER_DECLARED, ");
+                                break;
+                            }
+                            default:
+                            {
+                                out.print (" (Unknown, ");
+                                break;
+                            }
+                        }
+                        short prio = is.read_short ();
+                        out.println (prio + ")");
+                        break;
                     }
                     default:
                     {
-                       print (" (Unknown, ");
-                       break;
+                        out.println ("Unknown (" + val + ")");
+                        break;
                     }
-                 }
-                 short prio = is.read_short ();
-                 println (prio + ")");
-                 break;
-              }
-              default:
-              {
-                 println ("Unknown (" + val + ")");
-                 break;
-              }
-           }
-           is.closeEncapsulation ();
-        }
+                }
+                is.closeEncapsulation ();
+            }
 
-        is.close();
+        }
+        finally
+        {
+            is.close();
+        }
     }
 }
