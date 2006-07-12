@@ -110,7 +110,7 @@ public class AcceptorExceptionListenerTest extends TestCase
 
         startAcceptor(exception);
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
         assertNull(exception[0]);
 
