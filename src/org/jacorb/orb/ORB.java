@@ -267,7 +267,10 @@ public final class ORB
             // should be shut down properly to give its threads the
             // change to exit.
 
-            poolManagerFactory.destroy();
+            // doesn't work this way as configure is invoked during
+            // a request. causes the test to hang (alphonse)
+
+            //poolManagerFactory.destroy();
         }
 
         poolManagerFactory = new RPPoolManagerFactory(this);
@@ -284,8 +287,10 @@ public final class ORB
 
         try
         {
-            if (addressString == null) {
-                if (host != null || port != -1) {
+            if (addressString == null)
+            {
+                if (host != null || port != -1)
+                {
                     address = new IIOPAddress ();
                     address.configure(configuration);
                     if (host != null)
@@ -306,7 +311,9 @@ public final class ORB
             {
                 address = createAddress(addressString);
             }
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             logger.error ("error initializing ProxyAddress",ex);
             throw new INITIALIZE(ex.toString());
         }
@@ -317,7 +324,7 @@ public final class ORB
     private void printVersion(org.jacorb.config.Configuration configuration)
     {
         final boolean printVersion =
-            configuration.getAttribute("jacorb.orb.print_version", "on").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.orb.print_version", true);
 
         if (!printVersion)
         {
@@ -390,12 +397,12 @@ public final class ORB
     public synchronized org.omg.CORBA.Object _getObject( ParsedIOR pior )
     {
         String key = pior.getIORString();
-        org.omg.CORBA.portable.ObjectImpl o =
+        org.omg.CORBA.portable.ObjectImpl object =
             (org.omg.CORBA.portable.ObjectImpl)knownReferences.get( key );
 
-        if( o != null )
+        if( object != null )
         {
-            org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate)o._get_delegate();
+            org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate)object._get_delegate();
             if (del != null)
             {
                 ParsedIOR delpior= del.getParsedIOR();
@@ -410,7 +417,7 @@ public final class ORB
                 else if( pior.getEffectiveProfile()
                            .is_match(delpior.getEffectiveProfile()))
                 {
-                    return o._duplicate();
+                    return object._duplicate();
                 }
             }
             else
@@ -433,13 +440,13 @@ public final class ORB
             logger.error("ConfigurationException", ce);
         }
 
-        o = d.getReference( null );
+        object = d.getReference( null );
 
         if( cacheReferences )
         {
-            knownReferences.put( key, o );
+            knownReferences.put( key, object );
         }
-        return o;
+        return object;
     }
 
     /**
@@ -504,7 +511,7 @@ public final class ORB
 
         try
         {
-            org.jacorb.poa.POA tmp_poa = (org.jacorb.poa.POA)rootpoa;
+            org.jacorb.poa.POA tmp_poa = rootpoa;
             String poa_name =
                 org.jacorb.poa.util.POAUtil.extractPOAName( d.getObjectKey() );
 
