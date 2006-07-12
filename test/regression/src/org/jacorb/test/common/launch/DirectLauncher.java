@@ -95,6 +95,9 @@ public class DirectLauncher extends JacORBLauncher
         try
         {
             String[] cmd = toStringArray(cmdList);
+
+            TestUtils.log("start TestServer: " + cmdList);
+
             Process proc = rt.exec (cmd, envp);
             return proc;
         }
@@ -122,10 +125,12 @@ public class DirectLauncher extends JacORBLauncher
         {
             result = new File (jacorbHome, "classes-instrumented");
             if (!result.exists())
+            {
                 System.out.println ("WARNING: JacORB installation "
                         + jacorbHome
                         + " is not instrumented; coverage "
                         + " will not be available");
+            }
             else
             {
                 String jacorbPath = result.toString();
