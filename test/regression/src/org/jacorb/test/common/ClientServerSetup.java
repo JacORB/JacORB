@@ -207,10 +207,12 @@ public class ClientServerSetup extends TestSetup {
             StringBuffer details = new StringBuffer();
             details.append("Details from Server OUT:");
             details.append(outListener.getBuffer());
+            details.append('\n');
             details.append("Details from Server ERR:");
             details.append(errListener.getBuffer());
+            details.append('\n');
 
-            fail("could not access IOR for Server " + servantName + " within " + iorWait + " millis.\nThis maybe caused by: " + exc + '\n' + details);
+            fail("could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + iorWait + " millis.\nThis maybe caused by: " + exc + '\n' + details);
         }
         resolveServerObject(ior);
     }
