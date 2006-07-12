@@ -129,17 +129,24 @@ public class PrintIOR
             );
         }
 
-        PrintWriter out = new PrintWriter(System.out);
-        if( iorString.startsWith( "IOR:" ))
+        final PrintWriter out = new PrintWriter(System.out);
+        try
         {
-            ParsedIOR pior = new ParsedIOR( iorString, orb, logger );
-            printIOR(pior, orb, out);
+            if( iorString.startsWith( "IOR:" ))
+            {
+                ParsedIOR pior = new ParsedIOR( iorString, orb, logger );
+                printIOR(pior, orb, out);
+            }
+            else
+            {
+                out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
+            }
+            out.flush();
         }
-        else
+        finally
         {
-            out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
+            out.close();
         }
-
         orb.shutdown(true);
     }
 
@@ -690,10 +697,18 @@ public class PrintIOR
 
     public static void dumpHex(byte[] values)
     {
-        dumpHex(values, new PrintWriter(System.out));
+        final PrintWriter printWriter = new PrintWriter(System.out);
+        try
+        {
+            dumpHex(values, printWriter);
+        }
+        finally
+        {
+            printWriter.close();
+        }
     }
 
-    public static void dumpHex(byte values[], PrintWriter out)
+    private static void dumpHex(byte values[], PrintWriter out)
     {
         for (int i=0; i<values.length; i++)
         {
@@ -701,7 +716,9 @@ public class PrintIOR
             int n2 = (values[i] & 0xff) % 16;
             char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
             char c2 = (char)(n2>9 ? ('A'+(n2-10)) : ('0'+n2));
-            out.print( c1 + (c2 + " "));
+            out.print(c1);
+            out.print(c2);
+            out.print(' ');
         }
     }
 
