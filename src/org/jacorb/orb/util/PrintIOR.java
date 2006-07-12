@@ -166,7 +166,7 @@ public class PrintIOR
         out.println("TAG_INTERNET_IOP Profiles:");
         for( int i = 0; i < profiles.size(); i++ )
         {
-            out.print("\tProfile Id:  ");
+            out.println("\tProfile Id:  ");
 
             IIOPProfile profile = (IIOPProfile)profiles.get(i);
             out.println("\tIIOP Version :  " +
