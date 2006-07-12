@@ -21,6 +21,8 @@ package org.jacorb.test.orb;
  *   MA 02110-1301, USA.
  */
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.util.Properties;
 
 import junit.framework.*;
@@ -30,6 +32,7 @@ import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.*;
 import org.jacorb.test.common.*;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
@@ -138,9 +141,6 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         server.setIORAddress( CORRECT_HOST, WRONG_PORT );
         Sample sample = server.getObject();
 
-        ParsedIOR ior = new ParsedIOR(sample.toString(), setup.getClientOrb(), new NullLogger());
-        PrintIOR.printIOR(ior, setup.getClientOrb());
-
         try
         {
             sample.ping (4);
@@ -153,6 +153,18 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         catch (org.omg.CORBA.TIMEOUT ex)
         {
             // ok - client connection timeout configured.
+        }
+        catch (OBJECT_NOT_EXIST e)
+        {
+            ParsedIOR ior = new ParsedIOR(sample.toString(), setup.getClientOrb(), new NullLogger());
+            final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            PrintWriter out = new PrintWriter(outStream);
+            PrintIOR.printIOR(ior, setup.getClientOrb(), out);
+            out.flush();
+            out.close();
+            String decoded = outStream.toString();
+
+            fail(e.toString() + "\nshould not happen: trying to connect object on non existent port:\n" + decoded);
         }
     }
 
