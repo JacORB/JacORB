@@ -1,5 +1,7 @@
 package org.jacorb.test.dii;
 
+import java.util.Properties;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -30,7 +32,11 @@ public class DiiTest extends ClientServerTestCase
     {
         TestSuite suite = new TestSuite("DII tests (" + DiiTest.class.getName() + ")");
 
-        ClientServerSetup setup = new ClientServerSetup(suite, DynamicServer.class.getName());
+        Properties props = new Properties();
+
+        props.put("jacorb.dii.request.log.verbosity", "4");
+
+        ClientServerSetup setup = new ClientServerSetup(suite, DynamicServer.class.getName(), props, props);
 
         TestUtils.addToSuite(suite, setup, DiiTest.class);
 
