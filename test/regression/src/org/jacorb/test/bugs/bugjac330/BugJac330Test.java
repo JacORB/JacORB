@@ -68,6 +68,7 @@ public class BugJac330Test extends ClientServerTestCase
         thread.join(timeout);
 
         assertTrue("ping command did not terminate within " + timeout + " ms", success[0] || exception[0] != null);
+        assertNotNull("request should have failed", exception[0]);
         assertEquals(NO_RESOURCES.class, exception[0].getClass());
     }
 }

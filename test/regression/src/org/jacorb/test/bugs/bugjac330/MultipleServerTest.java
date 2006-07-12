@@ -112,14 +112,13 @@ public class MultipleServerTest extends TestCase
 
         BasicServer server1 = BasicServerHelper.narrow(orb.string_to_object(server1IOR));
         assertEquals(10, server1.bounce_long(10));
-        server1._release();
 
         BasicServer server2 = BasicServerHelper.narrow(orb.string_to_object(server2IOR));
 
         try
         {
             server2.bounce_long(10);
-            fail();
+            fail("should fail as there may not be more than 1 ClientReceptorThreads");
         }
         catch (NO_RESOURCES e)
         {
@@ -151,7 +150,7 @@ public class MultipleServerTest extends TestCase
 
         server1._release();
 
-        Thread.sleep(2000);
+        Thread.sleep(4000);
 
         assertFalse(isThereAThreadNamed("ClientMessageReceptor"));
     }
