@@ -64,7 +64,7 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.connection.ConnectionTimeoutServerImpl",
+                                   ConnectionTimeoutServerImpl.class.getName(),
                                    client_props,
                                    null );
 
