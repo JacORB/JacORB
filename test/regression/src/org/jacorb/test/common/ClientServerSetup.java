@@ -86,6 +86,7 @@ public class ClientServerSetup extends TestSetup {
     public static final String JACORB_REGRESSION_DISABLE_SECURITY = "jacorb.regression.disable_security";
     protected final String               servantName;
     protected Process                    serverProcess;
+    private boolean isProcessDestroyed = false;
     protected StreamListener             outListener, errListener;
     protected org.omg.CORBA.Object       serverObject;
     protected org.omg.CORBA.ORB          clientOrb;
@@ -178,6 +179,18 @@ public class ClientServerSetup extends TestSetup {
             new String[] { servantName }
         );
 
+        // add a shutdown hook to ensure that the server process
+        // is shutdown even if this JVM is going down unexpectedly
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run()
+            {
+                if (!isProcessDestroyed)
+                {
+                    serverProcess.destroy();
+                }
+            }
+        });
+
         outListener = new StreamListener (serverProcess.getInputStream(),
                                           "OUT");
         errListener = new StreamListener (serverProcess.getErrorStream(),
@@ -210,6 +223,7 @@ public class ClientServerSetup extends TestSetup {
     public void tearDown() throws Exception
     {
         serverProcess.destroy();
+        isProcessDestroyed = true;
         outListener.setDestroyed();
         errListener.setDestroyed();
     }
