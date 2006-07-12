@@ -21,12 +21,15 @@ package org.jacorb.test.common.launch;
  *   MA 02110-1301, USA.
  */
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-import java.lang.reflect.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
-import org.jacorb.test.common.*;
+import org.jacorb.test.common.TestUtils;
 
 /**
  * A JacORBLauncher runs a given main class against a specified
@@ -40,7 +43,6 @@ import org.jacorb.test.common.*;
  */
 public abstract class JacORBLauncher
 {
-    private static Map        launchers;
     private static Properties testProperties;
     private static List       versions;
 
@@ -63,16 +65,16 @@ public abstract class JacORBLauncher
         return jacorbHome;
     }
 
-    public String[] toStringArray (List l)
+    public String[] toStringArray (List list)
     {
-        return ((String[])l.toArray (new String[0]));
+        return ((String[])list.toArray (new String[list.size()]));
     }
 
     /**
      * Loads and returns the properties defined in the file test.properties
      * in the regression suite.
      */
-    public static Properties getTestProperties()
+    public synchronized static Properties getTestProperties()
     {
         if (testProperties == null)
         {
@@ -97,7 +99,7 @@ public abstract class JacORBLauncher
     /**
      * Returns a list of all the available JacORB versions.
      */
-    public static List getVersions()
+    public synchronized static List getVersions()
     {
         if (versions == null)
         {
@@ -106,7 +108,10 @@ public abstract class JacORBLauncher
             {
                 String key = "jacorb.test.jacorb_version." + i + ".id";
                 String value = getTestProperties().getProperty(key);
-                if (value == null) break;
+                if (value == null)
+                {
+                    break;
+                }
                 versions.add (value);
             }
         }
@@ -122,47 +127,56 @@ public abstract class JacORBLauncher
                                               boolean coverage)
     {
         if (version.startsWith("tao"))
+        {
             return new TAOLauncher (null, false);
+        }
 
         int index = getVersions().indexOf (version);
-        if (index == -1) throw new RuntimeException
-        (
-            "JacORB version " + version + " not available"
-        );
+        if (index == -1)
+        {
+            throw new IllegalArgumentException(
+                    "JacORB version " + version + " not available");
+        }
+
         String key = "jacorb.test.jacorb_version." + index + ".home";
         String home = getTestProperties().getProperty(key);
         if (home == null)
         {
             if (version.equals("cvs"))
+            {
                 home = getCVSHome();
+            }
             else
-                throw new RuntimeException
+            {
+                throw new IllegalArgumentException
                 (
                     "No home directory for JacORB version " + version
                 );
+            }
         }
         key = "jacorb.test.jacorb_version." + index + ".launcher";
         String launcherClassName = getTestProperties().getProperty(key);
-        if (launcherClassName == null) throw new RuntimeException
-        (
-            "No launcher class defined for JacORB version " + version
-        );
+        if (launcherClassName == null)
+        {
+            throw new IllegalArgumentException("No launcher class defined for JacORB version " + version);
+        }
+
         try
         {
             Class launcherClass = Class.forName (launcherClassName);
-            Constructor c = launcherClass.getConstructor
+            Constructor ctor = launcherClass.getConstructor
             (
                 new Class[] { java.lang.String.class,
                               boolean.class }
             );
-            return (JacORBLauncher)c.newInstance
+            return (JacORBLauncher)ctor.newInstance
             (
-                new Object[] { home, new Boolean(coverage) }
+                new Object[] { home, coverage ? Boolean.TRUE : Boolean.FALSE }
             );
         }
         catch (Exception ex)
         {
-            throw new RuntimeException (ex);
+            throw new IllegalArgumentException(ex);
         }
     }
 
@@ -187,11 +201,7 @@ public abstract class JacORBLauncher
         {
             return testHome.substring(0,index);
         }
-        else
-        {
-            throw new RuntimeException ("couldn't find CVS home: "
-                                            + testHome);
-        }
+        throw new IllegalArgumentException("couldn't find CVS home: "
+                + testHome);
     }
-
 }
