@@ -298,16 +298,16 @@ public class RepositoryID
                                                           ClassLoader loader)
     {
         String className = className(repId, "Helper", loader);
-        Class c = loadClass(className, loader);
-        if (c != null)
+        Class clazz = loadClass(className, loader);
+        if (clazz != null)
         {
             try
             {
-                return (BoxedValueHelper)c.newInstance();
+                return (BoxedValueHelper)clazz.newInstance();
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e.toString());
+                throw new RuntimeException(e);
             }
         }
         return null;
