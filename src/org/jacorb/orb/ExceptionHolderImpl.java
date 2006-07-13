@@ -169,8 +169,10 @@ public class ExceptionHolderImpl
         StringBuffer result = new StringBuffer();
         for (int i=0; i<marshaled_exception.length; i++)
         {
-            result.append (marshaled_exception[i] +
-                           "(" + (char)marshaled_exception[i] + ")  ");
+            result.append (marshaled_exception[i]);
+            result.append ('(');
+            result.append ((char)marshaled_exception[i]);
+            result.append (")  ");
         }
         return result.toString();
     }

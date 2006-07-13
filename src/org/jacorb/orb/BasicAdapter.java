@@ -224,8 +224,7 @@ public class BasicAdapter
         IIOPListener listener = getIIOPListener();
         if (listener != null)
         {
-            IIOPProfile profile = (IIOPProfile)listener.endpoint();
-            return profile.getSSLPort();
+            return ((IIOPProfile)listener.endpoint()).getSSLPort();
         }
 
         throw new RuntimeException("Non-IIOP transport does not have an SSL port");

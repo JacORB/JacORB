@@ -114,7 +114,8 @@ public class IIOPAddress
         }
         catch (UnknownHostException ex)
         {
-            try {
+            try
+            {
                 //get loopback
                 localhost = InetAddress.getByName(null);
             }
@@ -186,8 +187,8 @@ public class IIOPAddress
     {
         String host = in.read_string();
         short  port = in.read_ushort();
-        IIOPAddress addr = new IIOPAddress(host, port);
-        return addr;
+
+        return (new IIOPAddress(host, port));
     }
 
     /**

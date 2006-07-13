@@ -1223,7 +1223,7 @@ public class CDRInputStream
                         result = orb.create_recursive_tc(recursiveId);
                         break;
                     }
-                    catch(Throwable e)
+                    catch(org.omg.CORBA.SystemException e)
                     {
                         throw new MARSHAL(
                             "Failed to create recursive typecode: " +
@@ -1672,8 +1672,7 @@ public class CDRInputStream
      */
     private int calcSkipAmount(final int size, final int start_pos)
     {
-        int skipAmount = (size - ((pos - start_pos) - 4 - 4));
-        return skipAmount;
+        return (size - ((pos - start_pos) - 4 - 4));
     }
 
     /**

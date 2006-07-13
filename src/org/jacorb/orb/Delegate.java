@@ -246,7 +246,7 @@ public final class Delegate
      */
     private void checkIfImR( String typeId )
     {
-        if ( typeId.equals( "IDL:org/jacorb/imr/ImplementationRepository:1.0" ) )
+        if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals (typeId.equals))
         {
             isImR = true;
         }
@@ -634,9 +634,9 @@ public final class Delegate
                 org.omg.CORBA.portable.InputStream is = invoke( self, os );
                 return org.omg.CORBA.PolicyHelper.narrow( is.read_Object() );
             }
-            catch ( RemarshalException r )
+            catch ( RemarshalException r ) // NOPMD
             {
-                // ignored
+                // Ignored
             }
             catch ( ApplicationException _ax )
             {
@@ -778,10 +778,12 @@ public final class Delegate
                 os = request(self, "_interface", true);
                 is = invoke(self, os);
                 return is.read_Object();
-            } catch (RemarshalException re)
+            }
+            catch (RemarshalException re) // NOPMD
             {
-                // ignored
-            } catch (Exception ex)
+                // Ignored
+            }
+            catch (Exception ex)
             {
                 return null;
             }
@@ -1046,13 +1048,10 @@ public final class Delegate
 
             interceptors.handle_receive_exception ( cfe );
 
-            if ( cfe instanceof org.omg.CORBA.TRANSIENT )
+            // The exception is a TRANSIENT, so try rebinding.
+            if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind() )
             {
-                // The exception is a TRANSIENT, so try rebinding.
-                if ( try_rebind() )
-                {
-                    throw new RemarshalException();
-                }
+                throw new RemarshalException();
             }
 
             throw cfe;
@@ -1369,26 +1368,31 @@ public final class Delegate
                 }
             }
             // If it fails fall back to a remote call.
-            catch (ClassNotFoundException e)
+            catch (ClassNotFoundException e) // NOPMD
             {
                 // ignore
             }
-            catch (IllegalArgumentException e)
+            catch (IllegalArgumentException e) // NOPMD
             {
                 // ignore
-            } catch (SecurityException e)
+            }
+            catch (SecurityException e) // NOPMD
             {
                 // ignore
-            } catch (NoSuchMethodException e)
+            }
+            catch (NoSuchMethodException e) // NOPMD
             {
                 // ignore
-            } catch (IllegalAccessException e)
+            }
+            catch (IllegalAccessException e) // NOPMD
             {
                 // ignore
-            } catch (InvocationTargetException e)
+            }
+            catch (InvocationTargetException e) // NOPMD
             {
                 // ignore
-            } catch (InstantiationException e)
+            }
+            catch (InstantiationException e) // NOPMD
             {
                 // ignore
             }
@@ -1407,9 +1411,9 @@ public final class Delegate
                 is = invoke(self, os);
                 return is.read_boolean();
             }
-            catch (RemarshalException re)
+            catch (RemarshalException re) // NOPMD
             {
-                // ignored
+                // Ignored
             }
             catch (ApplicationException ax)
             {
@@ -1519,7 +1523,7 @@ public final class Delegate
                 is = invoke(self, os);
                 return is.read_boolean();
             }
-            catch (RemarshalException re)
+            catch (RemarshalException re) // NOPMD
             {
                 // ignored
             }
@@ -1698,37 +1702,36 @@ public final class Delegate
     {
         if (poa != null)
         {
-            if ( poa.isUseServantManager() )
+            if ( poa.isUseServantManager() &&
+                 ! poa.isRetain() &&
+                 cookie != null &&
+                 invokedOperation != null )
             {
-               if (! poa.isRetain() &&
-                   cookie != null &&
-                   invokedOperation != null )
-               {
-                  // ServantManager is a ServantLocator:
-                  // call postinvoke
-                  try
-                  {
-                     byte [] oid =
-                         POAUtil.extractOID( getParsedIOR().get_object_key() );
-                     org.omg.PortableServer.ServantLocator sl =
-                         ( org.omg.PortableServer.ServantLocator ) poa.get_servant_manager();
+                // ServantManager is a ServantLocator:
+                // call postinvoke
+                try
+                {
+                    byte [] oid =
+                    POAUtil.extractOID( getParsedIOR().get_object_key() );
+                    org.omg.PortableServer.ServantLocator sl =
+                        ( org.omg.PortableServer.ServantLocator ) poa.get_servant_manager();
 
-                     sl.postinvoke( oid, poa, invokedOperation, cookie.value, (Servant)servant.servant );
+                    sl.postinvoke( oid, poa, invokedOperation, cookie.value, (Servant)servant.servant );
 
-                     // delete stored values
-                     cookie = null;
-                     invokedOperation = null;
-                  }
-                  catch ( Throwable e )
-                  {
-                      if (logger.isWarnEnabled())
-                      {
-                          logger.warn( e.getMessage() );
-                      }
-                  }
-               }
+                    // delete stored values
+                    cookie = null;
+                    invokedOperation = null;
+                }
+                catch ( Throwable e )
+                {
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn( e.getMessage() );
+                    }
+                }
+
             }
-           poa.removeLocalRequest();
+            poa.removeLocalRequest();
         }
         orb.getPOACurrent()._removeContext( Thread.currentThread() );
     }

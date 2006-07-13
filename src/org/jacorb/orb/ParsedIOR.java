@@ -444,7 +444,9 @@ public class ParsedIOR
             catch(java.io.IOException ioe)
             {
                 if (logger.isDebugEnabled())
+                {
                     logger.debug("Error reading IOR/URL: ", ioe);
+                }
                 // ignore;
             }
             if (content == null)
@@ -542,7 +544,9 @@ public class ParsedIOR
             catch (Exception e)
             {
                 if (logger.isErrorEnabled())
+                {
                     logger.error(e.getMessage());
+                }
                 throw new IllegalArgumentException("Invalid corbaloc: URL");
             }
         }
