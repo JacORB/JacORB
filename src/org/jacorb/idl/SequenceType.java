@@ -54,26 +54,28 @@ public class SequenceType
 
     public Object clone()
     {
-        SequenceType st = new SequenceType(IdlSymbol.new_num());
-        st.type_spec = this.type_spec;
-        st.max = this.max;
-        st.length = this.length;
-        st.name = this.name;
-        st.pack_name = this.pack_name;
-        st.included = this.included;
-        st.typedefd = this.typedefd;
-        st.recursive = this.recursive;
-        st.set_token(this.get_token());
-        st.setEnclosingSymbol(this.getEnclosingSymbol());
-        return st;
+        SequenceType copy = new SequenceType(IdlSymbol.new_num());
+        copy.type_spec = this.type_spec;
+        copy.max = this.max;
+        copy.length = this.length;
+        copy.name = this.name;
+        copy.pack_name = this.pack_name;
+        copy.included = this.included;
+        copy.typedefd = this.typedefd;
+        copy.recursive = this.recursive;
+        copy.set_token(this.get_token());
+        copy.setEnclosingSymbol(this.getEnclosingSymbol());
+        return copy;
     }
 
 
-    public void setEnclosingSymbol(IdlSymbol s)
+    public void setEnclosingSymbol(IdlSymbol symbol)
     {
-        if (enclosing_symbol != null && enclosing_symbol != s)
+        if (enclosing_symbol != null && enclosing_symbol != symbol)
+        {
             throw new RuntimeException("Compiler Error: trying to reassign container for " + name);
-        enclosing_symbol = s;
+        }
+        enclosing_symbol = symbol;
     }
 
 
@@ -89,16 +91,22 @@ public class SequenceType
         return this;
     }
 
-    public void setPackage(String s)
+    public void setPackage(String pkg)
     {
-        s = parser.pack_replace(s);
+        pkg = parser.pack_replace(pkg);
         if (pack_name.length() > 0)
-            pack_name = s + "." + pack_name;
+        {
+            pack_name = pkg + "." + pack_name;
+        }
         else
-            pack_name = s;
-        type_spec.setPackage(s);
+        {
+            pack_name = pkg;
+        }
+        type_spec.setPackage(pkg);
         if (max != null)
-            max.setPackage(s);
+        {
+            max.setPackage(pkg);
+        }
     }
 
     /**
@@ -114,8 +122,10 @@ public class SequenceType
     void setRecursive()
     {
         if (logger.isWarnEnabled())
+        {
             logger.warn("Sequence " + typeName +
                         " set recursive ------- this: " + this);
+        }
         recursive = true;
     }
 
@@ -126,7 +136,9 @@ public class SequenceType
     public String getTypeCodeExpression()
     {
         if (logger.isDebugEnabled())
+        {
             logger.debug("Sequence getTypeCodeExpression " + name);
+        }
 
         String originalType = null;
 
@@ -160,27 +172,41 @@ public class SequenceType
     public String printReadStatement(String var_name, String streamname)
     {
         if (logger.isDebugEnabled())
+        {
             logger.debug("Sequence printReadStatement for " + typeName());
+        }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
         String type = typeName();
         String lgt = "_l" + var_name.replace('.', '_');
 
         // if [i] is part of the name, trim that off
-        if (lgt.indexOf("[") > 0)
-            lgt = lgt.substring(0, lgt.indexOf("[")) + "_";
+        if (lgt.indexOf('[') > 0)
+        {
+            lgt = lgt.substring(0, lgt.indexOf('[')) + "_";
+        }
 
         // make local variable name unique
         lgt = lgt + getNumber();
 
-        sb.append("int " + lgt + " = " + streamname + ".read_long();\n");
+        buffer.append("int " + lgt + " = " + streamname + ".read_long();\n");
         if (length != 0)
         {
-            sb.append("\t\tif (" + lgt + " > " + length + ")\n");
-            sb.append("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length incorrect!\");\n");
+            buffer.append("\t\tif (" + lgt + " > " + length + ")\n");
+            buffer.append("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length incorrect!\");\n");
         }
-        sb.append("\t\t" + var_name + " = new " + type.substring(0, type.indexOf("[")) +
-                  "[" + lgt + "]" + type.substring(type.indexOf("]") + 1) + ";\n");
+
+        buffer.append("\t\ttry\n\t\t{\n" );
+        buffer.append("\t\t\t int x = " + streamname + ".available();\n" );
+        buffer.append("\t\t\t if ( x > 0 && " + lgt + " > x )\n" );
+        buffer.append("\t\t\t\t{\n" );
+        buffer.append("\t\t\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length too large. Only \" + x + \" available and trying to assign \" + " + lgt + ");\n");
+        buffer.append("\t\t\t\t}\n" );
+        buffer.append("\t\t}\n\t\tcatch (java.io.IOException e)\n\t\t{\n\t\t}\n");
+
+
+        buffer.append("\t\t" + var_name + " = new " + type.substring(0, type.indexOf('[')) +
+                  "[" + lgt + "]" + type.substring(type.indexOf(']') + 1) + ";\n");
 
         TypeSpec elemType = elementTypeSpec();
         while (elemType instanceof AliasTypeSpec)
@@ -193,13 +219,13 @@ public class SequenceType
             !(elemType instanceof AnyType))
         {
             String _tmp = elemType.printReadExpression(streamname);
-            sb.append("\t\t");
-            sb.append(_tmp.substring(0, _tmp.indexOf("(")));
-            sb.append("_array(");
-            sb.append(var_name);
-            sb.append(",0,");
-            sb.append(lgt);
-            sb.append(");");
+            buffer.append("\t\t");
+            buffer.append(_tmp.substring(0, _tmp.indexOf('(')));
+            buffer.append("_array(");
+            buffer.append(var_name);
+            buffer.append(",0,");
+            buffer.append(lgt);
+            buffer.append(");");
         }
         else
         {
@@ -210,32 +236,31 @@ public class SequenceType
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0;" +
+            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0;" +
                       idx_variable + "<" + var_name + ".length;" + idx_variable + "++)\n\t\t" + indent + "{\n");
 
-            sb.append("\t\t\t" + indent +
+            buffer.append("\t\t\t" + indent +
                       elementTypeSpec().printReadStatement(var_name +
                                                            "[" + idx_variable + "]",
                                                            streamname)
                       + "\n");
 
-            sb.append("\t\t" + indent + "}\n");
+            buffer.append("\t\t" + indent + "}\n");
 
         }
-        return sb.toString();
+        return buffer.toString();
     }
 
 
     public String printWriteStatement(String var_name, String streamname)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
         if (length != 0)
         {
-            sb.append("\t\tif (" + var_name + ".length > " + length + ")\n");
-            sb.append("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect sequence length\");");
+            buffer.append("\t\tif (" + var_name + ".length > " + length + ")\n");
+            buffer.append("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect sequence length\");");
         }
-        sb.append("\n\t\t" + streamname + ".write_long(" + var_name + ".length);\n");
-
+        buffer.append("\n\t\t" + streamname + ".write_long(" + var_name + ".length);\n");
 
         TypeSpec elemType = elementTypeSpec();
         while (elemType instanceof AliasTypeSpec)
@@ -248,13 +273,13 @@ public class SequenceType
             !(elemType instanceof AnyType))
         {
             String _tmp = elemType.printWriteStatement(var_name, streamname);
-            sb.append("\t\t");
-            sb.append(_tmp.substring(0, _tmp.indexOf("(")));
-            sb.append("_array(");
-            sb.append(var_name);
-            sb.append(",0,");
-            sb.append(var_name);
-            sb.append(".length);");
+            buffer.append("\t\t");
+            buffer.append(_tmp.substring(0, _tmp.indexOf('(')));
+            buffer.append("_array(");
+            buffer.append(var_name);
+            buffer.append(",0,");
+            buffer.append(var_name);
+            buffer.append(".length);");
         }
         else
         {
@@ -265,47 +290,51 @@ public class SequenceType
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0; " +
+            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0; " +
                       idx_variable + "<" + var_name + ".length;" +
                       idx_variable + "++)\n\t\t" + indent + "{\n");
 
-            sb.append("\t\t\t" + indent +
+            buffer.append("\t\t\t" + indent +
                       elementTypeSpec().printWriteStatement(var_name
                                                             + "[" + idx_variable + "]",
                                                             streamname) + "\n");
-            sb.append("\t\t" + indent + "}\n");
+            buffer.append("\t\t" + indent + "}\n");
         }
-        return sb.toString();
+        return buffer.toString();
     }
 
 
     public String holderName()
     {
         if (!typedefd)
-            throw new RuntimeException("Compiler Error: should not be called (helpername on not typedef'd SequenceType " + name + ")");
-
-        String s = full_name();
-        if (pack_name.length() > 0)
         {
-            s = getFullName(s);
+            throw new RuntimeException("Compiler Error: should not be called (helpername on not typedef'd SequenceType " + name + ")");
         }
 
-        return s + "Holder";
+        String name = full_name();
+        if (pack_name.length() > 0)
+        {
+            name = getFullName(name);
+        }
+
+        return name + "Holder";
     }
 
 
     public String helperName()
     {
         if (!typedefd)
-            throw new RuntimeException("Compiler Error: should not be called (helperName() on not typedef'd SequenceType)");
-
-        String s = full_name();
-        if (pack_name.length() > 0)
         {
-            s = getFullName(s);
+            throw new RuntimeException("Compiler Error: should not be called (helperName() on not typedef'd SequenceType)");
         }
 
-        return s + "Helper";
+        String name = full_name();
+        if (pack_name.length() > 0)
+        {
+            name = getFullName(name);
+        }
+
+        return name + "Helper";
     }
 
     public String className()
@@ -340,15 +369,21 @@ public class SequenceType
 
         if (type_spec.typeSpec() instanceof ScopedName)
         {
-            TypeSpec ts =
+            TypeSpec typeSpec =
                 ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
-            if (ts != null)
-                type_spec = ts;
+            if (typeSpec != null)
+            {
+                type_spec = typeSpec;
+            }
 
             if (type_spec instanceof AliasTypeSpec)
+            {
                 addImportedAlias(type_spec.full_name());
+            }
             else
+            {
                 addImportedName(type_spec.typeName());
+            }
 
             addImportedName(type_spec.typeSpec().typeName());
         }
@@ -377,139 +412,147 @@ public class SequenceType
     }
 
 
-    private void printHolderClass(String className, PrintWriter ps)
+    private void printHolderClass(String className, PrintWriter out)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals(""))
-            ps.println("package " + pack_name + ";\n");
+        {
+            out.println("package " + pack_name + ";\n");
+        }
 
         String type = typeName();
 
-        printImport(ps);
+        printImport(out);
 
-        printClassComment("sequence", className, ps);
+        printClassComment("sequence", className, out);
 
-        ps.println("public" + parser.getFinalString() + " class " + className + "Holder");
-        ps.println("\timplements org.omg.CORBA.portable.Streamable");
+        out.println("public" + parser.getFinalString() + " class " + className + "Holder");
+        out.println("\timplements org.omg.CORBA.portable.Streamable");
 
-        ps.println("{");
-        ps.println("\tpublic " + type + " value;");
-        ps.println("\tpublic " + className + "Holder ()");
-        ps.println("\t{");
-        ps.println("\t}");
+        out.println("{");
+        out.println("\tpublic " + type + " value;");
+        out.println("\tpublic " + className + "Holder ()");
+        out.println("\t{");
+        out.println("\t}");
 
-        ps.println("\tpublic " + className + "Holder (final " + type + " initial)\n\t{");
-        ps.println("\t\tvalue = initial;");
-        ps.println("\t}");
+        out.println("\tpublic " + className + "Holder (final " + type + " initial)\n\t{");
+        out.println("\t\tvalue = initial;");
+        out.println("\t}");
 
-        ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
-        ps.println("\t{");
-        ps.println("\t\treturn " + className + "Helper.type ();");
-        ps.println("\t}");
+        out.println("\tpublic org.omg.CORBA.TypeCode _type ()");
+        out.println("\t{");
+        out.println("\t\treturn " + className + "Helper.type ();");
+        out.println("\t}");
 
-        ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream _in)");
-        ps.println("\t{");
-        ps.println("\t\tvalue = " + className + "Helper.read (_in);");
-        ps.println("\t}");
+        out.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream _in)");
+        out.println("\t{");
+        out.println("\t\tvalue = " + className + "Helper.read (_in);");
+        out.println("\t}");
 
-        ps.println("\tpublic void _write (final org.omg.CORBA.portable.OutputStream _out)");
-        ps.println("\t{");
-        ps.println("\t\t" + className + "Helper.write (_out,value);");
-        ps.println("\t}");
+        out.println("\tpublic void _write (final org.omg.CORBA.portable.OutputStream _out)");
+        out.println("\t{");
+        out.println("\t\t" + className + "Helper.write (_out,value);");
+        out.println("\t}");
 
-        ps.println("}");
+        out.println("}");
     }
 
 
-    private void printHelperClass(String className, PrintWriter ps)
+    private void printHelperClass(String className, PrintWriter out)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals(""))
-            ps.println("package " + pack_name + ";");
+        {
+            out.println("package " + pack_name + ";");
+        }
 
         String type = typeName();
-        printImport(ps);
+        printImport(out);
 
-        printClassComment("sequence", className, ps);
+        printClassComment("sequence", className, out);
 
-        ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
-        ps.println("{");
-        ps.println("\tprivate static org.omg.CORBA.TypeCode _type = " +
+        out.println("public" + parser.getFinalString() + " class " + className + "Helper");
+        out.println("{");
+        out.println("\tprivate static org.omg.CORBA.TypeCode _type = " +
                    getTypeCodeExpression() + ";");
 
-        TypeSpec.printHelperClassMethods(ps, type);
-        printIdMethod(ps); // from IdlSymbol
+        TypeSpec.printHelperClassMethods(out, type);
+        printIdMethod(out); // from IdlSymbol
 
         /** read */
 
-        ps.println("\tpublic static " + type +
+        out.println("\tpublic static " + type +
                    " read (final org.omg.CORBA.portable.InputStream in)");
 
-        ps.println("\t{");
-        ps.println("\t\tint l = in.read_long();");
+        out.println("\t{");
+        out.println("\t\tint l = in.read_long();");
 
         if (length != 0)
         {
-            ps.println("\t\tif (l > " + length + ")");
-            ps.println("\t\t\tthrow new org.omg.CORBA.MARSHAL();");
+            out.println("\t\tif (l > " + length + ")");
+            out.println("\t\t\tthrow new org.omg.CORBA.MARSHAL();");
         }
 
-        ps.println("\t\t" + type + " result = new " +
-                   type.substring(0, type.indexOf("[")) + "[l]" +
-                   type.substring(type.indexOf("]") + 1) + ";");
+        out.println("\t\t" + type + " result = new " +
+                   type.substring(0, type.indexOf('[')) + "[l]" +
+                   type.substring(type.indexOf(']') + 1) + ";");
 
         if (elementTypeSpec() instanceof BaseType &&
             !(elementTypeSpec() instanceof AnyType))
         {
             String _tmp = elementTypeSpec().printReadExpression("in");
-            ps.println("\t\t" + _tmp.substring(0, _tmp.indexOf("(")) +
+            out.println("\t\t" + _tmp.substring(0, _tmp.indexOf('(')) +
                        "_array(result,0,result.length);");
         }
         else
         {
-            ps.println("\t\tfor (int i = 0; i < l; i++)");
-            ps.println("\t\t{");
-            ps.println("\t\t\t" + elementTypeSpec().printReadStatement("result[i]", "in"));
-            ps.println("\t\t}");
+            out.println("\t\tfor (int i = 0; i < l; i++)");
+            out.println("\t\t{");
+            out.println("\t\t\t" + elementTypeSpec().printReadStatement("result[i]", "in"));
+            out.println("\t\t}");
         }
 
-        ps.println("\t\treturn result;");
-        ps.println("\t}");
+        out.println("\t\treturn result;");
+        out.println("\t}");
 
         /* write */
 
-        ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream out, "
+        out.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream out, "
                    + "final " + type + " s)");
-        ps.println("\t{");
+        out.println("\t{");
         if (length != 0)
         {
-            ps.println("\t\tif (s.length > " + length + ")");
-            ps.println("\t\t\tthrow new org.omg.CORBA.MARSHAL();");
+            out.println("\t\tif (s.length > " + length + ")");
+            out.println("\t\t\tthrow new org.omg.CORBA.MARSHAL();");
         }
-        ps.println("\t\tout.write_long(s.length);");
+        out.println("\t\tout.write_long(s.length);");
 
         if (elementTypeSpec() instanceof BaseType &&
             !(elementTypeSpec() instanceof AnyType))
         {
             String _tmp = elementTypeSpec().printWriteStatement("s", "out");
-            ps.println(_tmp.substring(0, _tmp.indexOf("(")) + "_array(s,0,s.length);");
+            out.println(_tmp.substring(0, _tmp.indexOf('(')) + "_array(s,0,s.length);");
         }
         else
         {
-            ps.println("\t\tfor (int i = 0; i < s.length; i++)");
-            ps.println("\t\t\t" + elementTypeSpec().printWriteStatement("s[i]", "out"));
+            out.println("\t\tfor (int i = 0; i < s.length; i++)");
+            out.println("\t\t\t" + elementTypeSpec().printWriteStatement("s[i]", "out"));
         }
 
-        ps.println("\t}");
-        ps.println("}");
+        out.println("\t}");
+        out.println("}");
     }
 
 
-    public void print(PrintWriter _ps)
+    public void print(PrintWriter out)
     {
         try
         {
@@ -518,7 +561,6 @@ public class SequenceType
 
             if ((!written) && typedefd)
             {
-
                 // write holder file
 
                 String fullName = full_name();
@@ -538,61 +580,55 @@ public class SequenceType
                     pack_name.replace('.', fileSeparator);
 
                 File dir = new File(path);
-                if (!dir.exists())
+                if (!dir.exists() && !dir.mkdirs())
                 {
-                    if (!dir.mkdirs())
-                    {
-                        org.jacorb.idl.parser.fatal_error("Unable to create " +
-                                                          path, null);
-                    }
+                    org.jacorb.idl.parser.fatal_error("Unable to create " +
+                            path, null);
                 }
 
                 String fname = className + "Holder.java";
-                File f = new File(dir, fname);
+                File file = new File(dir, fname);
 
-                if (GlobalInputStream.isMoreRecentThan(f))
+                if (GlobalInputStream.isMoreRecentThan(file))
                 {
                     // print the mapped java class
-                    PrintWriter ps = new PrintWriter(new java.io.FileWriter(f));
-                    printHolderClass(className, ps);
-                    ps.close();
+                    PrintWriter holderOut = new PrintWriter(new java.io.FileWriter(file));
+                    printHolderClass(className, holderOut);
+                    holderOut.close();
                 }
 
                 fname = className + "Helper.java";
-                f = new File(dir, fname);
+                file = new File(dir, fname);
 
-                if (GlobalInputStream.isMoreRecentThan(f))
+                if (GlobalInputStream.isMoreRecentThan(file))
                 {
                     // print the mapped java class
-                    PrintWriter ps = new PrintWriter(new java.io.FileWriter(f));
-                    printHelperClass(className, ps);
-                    ps.close();
+                    PrintWriter helperOut = new PrintWriter(new java.io.FileWriter(file));
+                    printHelperClass(className, helperOut);
+                    helperOut.close();
                 }
 
                 written = true;
             }
         }
-        catch (java.io.IOException i)
+        catch (java.io.IOException e)
         {
-            throw new RuntimeException("File IO error" + i);
+            throw new RuntimeException("File IO error" + e);
         }
     }
 
-    public void printInsertIntoAny(PrintWriter ps,
+    public void printInsertIntoAny(PrintWriter out,
                                    String anyname,
                                    String varname)
     {
-        ps.println("\t" + helperName() + ".insert(" + anyname + ", " + varname + " );");
-
+        out.println("\t" + helperName() + ".insert(" + anyname + ", " + varname + " );");
     }
 
-    public void printExtractResult(PrintWriter ps,
+    public void printExtractResult(PrintWriter out,
                                    String resultname,
                                    String anyname,
                                    String resulttype)
     {
        throw new RuntimeException("DII Stubs not yet complete for Sequence types");
     }
-
-
 }

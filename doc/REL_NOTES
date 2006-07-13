@@ -82,6 +82,7 @@
         - if the value of jacorb.connection.client.max_receptor_threads
           is exceeded, a NO_RESOURCES exception is thrown instead of a
           hang.
+        - Fix OutOfMemory issue when parsing invalid IOR's.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.

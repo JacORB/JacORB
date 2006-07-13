@@ -59,7 +59,8 @@ public class AllTest extends JacORBTestSuite
         suite.addTestSuite(DIOPIORTest.class);
         suite.addTestSuite(TypeCodeTest.class);
         suite.addTest(AnyTest.suite());
-
+        suite.addTestSuite(InvalidIORTest.class);
+        
         return suite;
    }
 }

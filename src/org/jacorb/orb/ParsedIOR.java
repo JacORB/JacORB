@@ -514,7 +514,7 @@ public class ParsedIOR
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug("Caught ", e);
+                logger.debug("Invalid IOR", e);
             }
             throw new BAD_PARAM("Invalid IOR " + e, 10, CompletionStatus.COMPLETED_NO);
         }
