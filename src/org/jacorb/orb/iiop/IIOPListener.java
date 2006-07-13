@@ -298,7 +298,7 @@ public class IIOPListener
         {
             if (logger.isErrorEnabled())
             {
-                logger.error("Could not create connection from socket: " + ex);
+                logger.error("Could not create connection from socket: ", ex);
             }
             return;
         }
