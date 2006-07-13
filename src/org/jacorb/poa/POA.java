@@ -773,6 +773,10 @@ public class POA
 
             if (index != -1)
             {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("Policy list invalid at index " + index);
+                }
                 throw new InvalidPolicy(index);
             }
 
