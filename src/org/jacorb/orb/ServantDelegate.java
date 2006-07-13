@@ -213,7 +213,7 @@ public class ServantDelegate
                 return true;
             }
         }
-        return repid.equals("IDL:omg.org/CORBA/Object:1.0");
+        return "IDL:omg.org/CORBA/Object:1.0".equals (repid);
     }
 
 
@@ -251,22 +251,22 @@ public class ServantDelegate
     {
         org.omg.CORBA.portable.OutputStream _out = null;
 
-        if(  method.equals("_get_policy"))
+        if ("_get_policy".equals (method))
         {
             _out = handler.createReply();
             _out.write_Object(_get_policy(_input.read_Object() , _input.read_long()  ) );
         }
-        else if( method.equals("_is_a"))
+        else if ("_is_a".equals (method))
         {
             _out = handler.createReply();
             _out.write_boolean(self._is_a(_input.read_string() ));
         }
-        else if( method.equals("_interface"))
+        else if ("_interface".equals (method))
         {
             _out = handler.createReply();
             _out.write_Object(self._get_interface_def() );
         }
-        else if( method.equals("_non_existent"))
+        else if ("_non_existent".equals (method))
         {
             _out = handler.createReply();
             _out.write_boolean(self._non_existent() );

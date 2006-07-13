@@ -176,7 +176,7 @@ public class SystemExceptionHelper
 
     public static org.omg.CORBA.SystemException read(org.omg.CORBA.portable.InputStream in)
     {
-        final String className = className(in.read_string());
+        final String className = SystemExceptionHelper.className(in.read_string());
         final int minor = in.read_long();
         final org.omg.CORBA.CompletionStatus completed =
             org.omg.CORBA.CompletionStatusHelper.read(in);

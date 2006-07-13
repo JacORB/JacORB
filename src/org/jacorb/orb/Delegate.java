@@ -246,7 +246,7 @@ public final class Delegate
      */
     private void checkIfImR( String typeId )
     {
-        if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals (typeId.equals))
+        if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals (typeId))
         {
             isImR = true;
         }
