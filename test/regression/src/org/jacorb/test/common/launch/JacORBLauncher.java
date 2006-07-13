@@ -176,7 +176,7 @@ public abstract class JacORBLauncher
         }
         catch (Exception ex)
         {
-            throw new IllegalArgumentException(ex);
+            throw new IllegalArgumentException(ex.toString());
         }
     }
 
