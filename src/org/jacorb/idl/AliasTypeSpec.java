@@ -331,10 +331,6 @@ public class AliasTypeSpec
         return full_name() + "Helper.write(" + streamname + "," + var_name + ");";
     }
 
-    private void printClassComment(String className, PrintWriter ps)
-    {
-        printClassComment("alias", className, ps);
-    }
 
     /**
      * @return true iff the original type is such that the alias should
@@ -383,7 +379,7 @@ public class AliasTypeSpec
 
         printImport(ps);
 
-        printClassComment(className, ps);
+        printClassComment("alias", className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Holder");
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -437,7 +433,7 @@ public class AliasTypeSpec
 
         printImport(ps);
 
-        printClassComment(className, ps);
+        printClassComment("alias", className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " +
                     className + "Helper");

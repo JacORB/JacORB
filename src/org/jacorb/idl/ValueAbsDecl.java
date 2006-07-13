@@ -283,11 +283,6 @@ public class ValueAbsDecl
     }
 
 
-    protected final void printClassComment(String className, PrintWriter ps)
-    {
-        printClassComment("abstract value type", className, ps);
-    }
-
     /**
      * generate the mapped class that extends ValueBase and has the
      * operations and attributes
@@ -330,7 +325,7 @@ public class ValueAbsDecl
                     if (!pack_name.equals(""))
                         ps.println("package " + pack_name + ";\n");
 
-                    printClassComment(name, ps);
+                    printClassComment("abstract value type", name, ps);
 
                     // do we inherit from a class in the unnamed package?
                     // if so, we have to import this class explicitly

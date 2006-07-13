@@ -377,11 +377,6 @@ public class SequenceType
     }
 
 
-    private void printClassComment(String className, PrintWriter ps)
-    {
-        printClassComment("sequence", className, ps);
-    }
-
     private void printHolderClass(String className, PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
@@ -394,7 +389,7 @@ public class SequenceType
 
         printImport(ps);
 
-        printClassComment(className, ps);
+        printClassComment("sequence", className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Holder");
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -439,7 +434,7 @@ public class SequenceType
         String type = typeName();
         printImport(ps);
 
-        printClassComment(className, ps);
+        printClassComment("sequence", className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
         ps.println("{");

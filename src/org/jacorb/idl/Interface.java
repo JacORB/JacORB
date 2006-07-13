@@ -458,10 +458,6 @@ public class Interface
             ps.println ("package " + pack_name + ";\n");
     }
 
-    protected void printClassComment(String className, PrintWriter ps)
-    {
-        printClassComment("interface", className, ps);
-    }
 
     /**
      *  If this interface inherits from classes in the unnamed package,
@@ -499,7 +495,7 @@ public class Interface
 
         printPackage(ps);
         printSuperclassImports(ps);
-        printClassComment(name, ps);
+        printClassComment("interface", name, ps);
 
         if (is_pseudo)
         {
@@ -618,7 +614,7 @@ public class Interface
         printPackage(ps);
         printSuperclassImports(ps);
         printImport(ps);
-        printClassComment(name, ps);
+        printClassComment("interface", name, ps);
 
         ps.println("public interface " + name + "Operations");
 
@@ -686,7 +682,7 @@ public class Interface
         }
 
         printPackage(ps);
-        printClassComment(name, ps);
+        printClassComment("interface", name, ps);
 
         ps.print("public" + parser.getFinalString() + " class " + name + "Holder");
         ps.print("\timplements org.omg.CORBA.portable.Streamable");
@@ -737,7 +733,7 @@ public class Interface
         printPackage(ps);
         printImport(ps);
 
-        printClassComment(name, ps);
+        printClassComment("interface", name, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + name + "Helper");
         ps.println("{");
@@ -1035,7 +1031,7 @@ public class Interface
 
         printPackage(ps);
         printImport(ps);
-        printClassComment(name, ps);
+        printClassComment("interface", name, ps);
 
         ps.println("public class _" + name + "Stub");
         ps.println("\textends org.omg.CORBA.portable.ObjectImpl");
@@ -1118,7 +1114,7 @@ public class Interface
 
         printPackage(ps);
         printImport(ps);
-        printClassComment(name, ps);
+        printClassComment("interface", name, ps);
 
         ps.print("public abstract class " + name + "POA");
         ps.println("\n\textends org.omg.PortableServer.Servant");
@@ -1195,7 +1191,7 @@ public class Interface
         ps.println("import org.omg.PortableServer.POA;");
         printImport(ps);
 
-        printClassComment(name, ps);
+        printClassComment("interface", name, ps);
 
         ps.println("public class " + name + "POATie");
         ps.println("\textends " + name + "POA");
@@ -1339,7 +1335,7 @@ public class Interface
         ps.println("import org.omg.PortableServer.POA;");
         printImport(ps);
 
-        printClassComment(name, ps);
+        printClassComment("interface", name, ps);
 
         ps.println("public class " + name + "LocalTie");
         ps.println("\textends _" + name + "LocalBase");

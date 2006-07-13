@@ -39,6 +39,7 @@ public class StructType
     public MemberList memberlist = null;
     private boolean parsed = false;
     private ScopeData scopeData;
+    private boolean forwardDecl;
     private static final HashSet systemExceptionNames;
 
     static
@@ -286,8 +287,8 @@ public class StructType
             // i am forward declared, must set myself as
             // pending further parsing
             parser.set_pending(full_name());
+            forwardDecl = true;
         }
-
         parsed = true;
     }
 
@@ -342,10 +343,6 @@ public class StructType
         return this.getTypeCodeExpression();
     }
 
-    private void printClassComment(String className, PrintWriter ps)
-    {
-        printClassComment((exc ? "exception" : "struct"), className, ps);
-    }
 
     private void printHolderClass(String className, PrintWriter ps)
     {
@@ -361,7 +358,7 @@ public class StructType
 
         printImport(ps);
 
-        printClassComment(className, ps);
+        printClassComment((exc ? "exception" : "struct"), className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Holder");
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -411,7 +408,7 @@ public class StructType
 
         printImport(ps);
 
-        printClassComment(className, ps);
+        printClassComment((exc ? "exception" : "struct"), className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
         ps.println("{");
@@ -521,7 +518,7 @@ public class StructType
 
         printImport(ps);
 
-        printClassComment(className, ps);
+        printClassComment((exc ? "exception" : "struct"), className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + className);
         if (exc)
@@ -545,8 +542,6 @@ public class StructType
         }
 
         ps.println("{");
-
-        // print an empty constructor
 
         if (exc)
         {
@@ -639,7 +634,6 @@ public class StructType
             {
                 printToString(fullClassName, ps);
                 printEquals(fullClassName, ps);
-                printHashCode(fullClassName, ps);
             }
 
             // print a constructor for class member initialization, unless
@@ -717,14 +711,6 @@ public class StructType
         ps.println("}");
     }
 
-    /**
-     * TODO need to implement this method
-     * as equals is overridden.
-     */
-    private void printHashCode(String fullClassName, PrintWriter ps)
-    {
-    }
-
 
     /**
      * Generates code from this AST class
@@ -778,7 +764,7 @@ public class StructType
                 String fname = className + ".java";
                 File f = new File(dir, fname);
 
-                if (GlobalInputStream.isMoreRecentThan(f))
+                if (forwardDecl != true && GlobalInputStream.isMoreRecentThan(f))
                 {
                     // print the mapped java class
                     PrintWriter printWriter = new PrintWriter(new java.io.FileWriter(f));
@@ -789,14 +775,14 @@ public class StructType
                 fname = className + "Holder.java";
                 f = new File(dir, fname);
 
-                if (GlobalInputStream.isMoreRecentThan(f))
+                if (forwardDecl != true && GlobalInputStream.isMoreRecentThan(f))
                 {
                     // print the mapped holder class unless it is for
                     // a system exception
                     if(  ( ! exc ) && ( ! isSystemException( className ) ) )
                     {
-                        // print the mapped holder class
-                        PrintWriter printWriter = new PrintWriter(new java.io.FileWriter(f));
+                        PrintWriter printWriter = new PrintWriter
+                            (new java.io.FileWriter(f));
                         printHolderClass(className, printWriter);
                         printWriter.close();
                     }
@@ -805,7 +791,7 @@ public class StructType
                 fname = className + "Helper.java";
                 f = new File(dir, fname);
 
-                if (GlobalInputStream.isMoreRecentThan(f))
+                if (forwardDecl != true && GlobalInputStream.isMoreRecentThan(f))
                 {
                     // print the mapped helper class
                     PrintWriter printWriter = new PrintWriter(new java.io.FileWriter(f));

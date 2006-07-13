@@ -303,11 +303,6 @@ public class UnionType
         return this.getTypeCodeExpression();
     }
 
-    private void printClassComment(String className, PrintWriter ps)
-    {
-        printClassComment("union", className, ps);
-    }
-
     private void printUnionClass(String className, PrintWriter pw)
     {
         Enumeration e;
@@ -323,7 +318,7 @@ public class UnionType
 
         printImport(pw);
 
-        printClassComment(className, pw);
+        printClassComment("union", className, pw);
 
         pw.println("public" + parser.getFinalString() + " class " + className);
         pw.println("\timplements org.omg.CORBA.portable.IDLEntity");
@@ -760,7 +755,7 @@ public class UnionType
             ps.println("package " + pack_name + ";");
         }
 
-        printClassComment(className, ps);
+        printClassComment("union", className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Holder");
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -809,7 +804,7 @@ public class UnionType
 
         printImport(ps);
 
-        printClassComment(className, ps);
+        printClassComment("union", className, ps);
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
         ps.println("{");

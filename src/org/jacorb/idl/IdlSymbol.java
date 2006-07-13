@@ -662,6 +662,14 @@ public class IdlSymbol
         // nothing here, all work done in subclasses.
     }
 
+
+    /**
+     * <code>printClassComment</code> is used by inherited classes to print
+     * the class comment.
+     *
+     * @param className a <code>String</code> value
+     * @param ps a <code>PrintWriter</code> value
+     */
     protected final void printClassComment(String type, String name, PrintWriter ps)
     {
         ps.println("/**");
