@@ -83,6 +83,7 @@
           is exceeded, a NO_RESOURCES exception is thrown instead of a
           hang.
         - Fix OutOfMemory issue when parsing invalid IOR's.
+        - Fix for hanging process when shutting down POA after accessing a destroyed object (bugzilla #400).
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.

@@ -1817,8 +1817,23 @@ public final class Delegate
 
                         invokedOperation = operation;
 
-                        so.servant =
-                            sl.preinvoke( oid, poa, operation, cookie );
+                        boolean ok = false;
+
+                        try
+                        {
+                            so.servant =
+                                sl.preinvoke( oid, poa, operation, cookie );
+                        }
+                        finally
+                        {
+                            if (!ok)
+                            {
+                                // error condition: need to clean up before
+                                // propagating the exception (added to fix
+                                // bug #400)
+                                poa.removeLocalRequest();
+                            }
+                        }
                     }
                 }
                 else

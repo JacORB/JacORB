@@ -22,6 +22,7 @@ package org.jacorb.test.bugs;
 
 import junit.framework.*;
 
+import org.jacorb.test.bugs.bug400.Bug400Test;
 import org.jacorb.test.bugs.bugjac10.TypeCodeTestCase;
 import org.jacorb.test.bugs.bugjac149.ObjectReplacementTest;
 import org.jacorb.test.bugs.bugjac174.InvalidIORTest_bug174;
@@ -97,7 +98,8 @@ public class AllTest extends JacORBTestSuite
       suite.addTestSuite(BugJac294Test.class);
       suite.addTest(BugJac319AbstractTest.suite());
       suite.addTest(org.jacorb.test.bugs.bugjac330.BugJac330Suite.suite());
-      
+      suite.addTestSuite(Bug400Test.class);
+
       return suite;
    }
 }
