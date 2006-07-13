@@ -39,6 +39,8 @@ public class QueueWaitTest extends CallbackTestCase
         props.setProperty ("jacorb.poa.queue_max", "10");
         props.setProperty ("jacorb.poa.queue_min", "5");
         props.setProperty ("jacorb.poa.queue_wait", "on");
+        props.setProperty ("jacorb.implname",
+                           "org.jacorb.test.orb.CallbackServerImplQueueWaitTest");
 
         ClientServerSetup setup = new ClientServerSetup
             ( suite, "org.jacorb.test.orb.CallbackServerImpl",
