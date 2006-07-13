@@ -150,9 +150,17 @@ public class MultipleServerTest extends TestCase
 
         server1._release();
 
-        Thread.sleep(4000);
+        int retry = 0;
+        final int maxRetry = 15;
 
-        assertFalse(isThereAThreadNamed("ClientMessageReceptor"));
+        while( (retry++ < maxRetry) && isThereAThreadNamed("ClientMessageReceptor"))
+        {
+            // wait some time to allow the ClientMessageReceptor Thread to exit
+            Thread.sleep(1000);
+            System.gc();
+        }
+
+        assertFalse("there should be no idle thread", isThereAThreadNamed("ClientMessageReceptor"));
     }
 
     private boolean isThereAThreadNamed(String name)
