@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.config.Configuration;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponent;
@@ -70,6 +71,7 @@ public class ClientConnection
     private final org.omg.ETF.Profile registeredProfile ;
 
     private final Logger logger;
+    private final boolean ignoreComponentInfo;
 
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
@@ -84,8 +86,11 @@ public class ClientConnection
         this.info = registeredProfile.toString();
         this.client_initiated = client_initiated;
 
+        final Configuration configuration = ((org.jacorb.orb.ORB)orb).getConfiguration();
         logger =
-            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.giop.conn");
+            configuration.getNamedLogger("jacorb.giop.conn");
+
+        ignoreComponentInfo = configuration.getAttributeAsBoolean("jacorb.ignoreComponentInfoProfiles", false);
 
         //For BiDirGIOP, the connection initiator may only generate
         //even valued request ids, and the other side odd valued
@@ -139,7 +144,7 @@ public class ClientConnection
         int tcsw = -1;
 
         CodeSetComponentInfo info = pior.getCodeSetComponentInfo();
-        if( info != null )
+        if( info != null  || ignoreComponentInfo)
         {
             tcs = CodeSet.selectTCS( info );
             tcsw = CodeSet.selectTCSW( info );
@@ -174,6 +179,7 @@ public class ClientConnection
 
                 logger.debug("Attempted to negotiate with target codeset " + CodeSet.csName(original.native_code_set) + " to match with " +  CodeSet.csName(CodeSet.getTCSDefault()));
                 logger.debug("Target has " + (original.conversion_code_sets == null ? 0 : original.conversion_code_sets.length) + " conversion codesets and native has " + CodeSet.csName(CodeSet.getConversionDefault()));
+                logger.debug("Was negotiating with IOR " + pior.getIORString());
             }
             //if no matching codesets can be found, an exception is
             //thrown
