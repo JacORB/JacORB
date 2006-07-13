@@ -293,12 +293,12 @@ public class SocketFactoryManager
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug("there was an invocation failure with the socket factory " + className, e.getTargetException());
+                logger.debug("there was an invocation failure with the socket factory " + className, e.getCause());
             }
 
             throw new org.omg.CORBA.INITIALIZE(
                 "there was an invocation failure with the " +
-                "socket factory " + className + ": " + e.getTargetException());
+                "socket factory " + className + ": " + e.getCause());
         }
         catch (Exception ex)
         {
