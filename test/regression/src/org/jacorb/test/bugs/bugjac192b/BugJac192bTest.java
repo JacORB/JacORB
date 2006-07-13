@@ -29,7 +29,6 @@ import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-
 /**
  * @author Nick Cross
  * @version $Id$
@@ -65,15 +64,6 @@ public class BugJac192bTest extends TestCase
         JAC192bImpl servant = new JAC192bImpl();
         byte[] oid = clientRootPOA.servant_to_id (servant);
         org.omg.CORBA.Object serverObject = clientRootPOA.id_to_reference (oid);
-
-        Thread orbRunner = new Thread("ORBStartThread")
-                {
-                    public void run()
-                    {
-                        orb.run();
-                    }
-                };
-        orbRunner.start();
 
         server = JAC192bHelper.narrow( serverObject );
     }

@@ -35,7 +35,7 @@ import org.omg.CORBA.ORB;
  */
 public class InvalidIORTest extends TestCase
 {
-    private static org.omg.CORBA.ORB orb = ORB.init(new String[0], null);
+    private org.omg.CORBA.ORB orb = ORB.init(new String[0], null);
 
     /**
      * <code>ior1</code> is an invalid ior (from the broken eorb before it was fixed)
@@ -43,6 +43,11 @@ public class InvalidIORTest extends TestCase
      */
     private static final String INVALID_IOR="IOR:010000001800000049444c3a4772656574696e67536572766963653a312e30000100000000000000250000000101000008000000302e312e322e3300f90a00000d000000654f524208b0a047560000000";
 
+
+    protected void tearDown() throws Exception
+    {
+        orb.shutdown(true);
+    }
 
     /**
      * <code>testDecode1</code> tests that JacORB can decode a valid IOR.

@@ -39,7 +39,6 @@ public class TestCase
 {
     private org.omg.CORBA.Object testObject;
     private org.omg.CORBA.Object localTestObject;
-    private POA poa;
     private org.omg.CORBA.ORB orb;
 
     public TestCase( String name, ClientServerSetup setup )
@@ -51,13 +50,14 @@ public class TestCase
     {
         testObject = setup.getServerObject();
         orb = org.omg.CORBA.ORB.init( new String[0], null);
-    try
-    {
-        poa = POAHelper.narrow( orb.resolve_initial_references("RootPOA"));
 
-        poa.the_POAManager().activate();
+        try
+        {
+            POA poa = POAHelper.narrow( orb.resolve_initial_references("RootPOA"));
 
-        localTestObject =
+            poa.the_POAManager().activate();
+
+            localTestObject =
                 poa.servant_to_reference( new TestObjectImpl());
         }
         catch( Exception e )
@@ -71,23 +71,15 @@ public class TestCase
     {
         TestSuite suite = new TestSuite( "bug 384 wrong is_a results" );
 
-        try
-        {
-            ClientServerSetup setup =
-                new ClientServerSetup( suite,
-                                       "org.jacorb.test.bugs.bug384.TestObjectImpl" );
+        ClientServerSetup setup =
+            new ClientServerSetup( suite,
+            "org.jacorb.test.bugs.bug384.TestObjectImpl" );
 
-            suite.addTest( new TestCase( "testNonLocalIsA", setup ));
-            suite.addTest( new TestCase( "testLocalIsA", setup ));
-            suite.addTest( new TestCase( "testMarshall", setup ));
+        suite.addTest( new TestCase( "testNonLocalIsA", setup ));
+        suite.addTest( new TestCase( "testLocalIsA", setup ));
+        suite.addTest( new TestCase( "testMarshall", setup ));
 
-            return setup;
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-        }
-        return null;
+        return setup;
     }
 
     public void testNonLocalIsA()
@@ -111,27 +103,13 @@ public class TestCase
     public void testMarshall()
     {
         TestObject serverObj = TestObjectHelper.narrow( testObject );
-        try
-        {
-            A[] result = serverObj.testMarshall();
-        }
-        catch (Exception e)
-        {
-            fail( "Caught an exception " + e );
-        }
+        A[] result = serverObj.testMarshall();
+        assertNotNull(result);
     }
-
 
     public void tearDown() throws Exception
     {
-        super.tearDown();
         orb.shutdown( true );
+        super.tearDown();
     }
-
-
-    public static void main( String[] args )
-    {
-        junit.textui.TestRunner.run( TestCase.class );
-    }
-
 }

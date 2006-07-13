@@ -56,6 +56,11 @@ public class InvalidIORTest_bug174 extends TestCase
         orb = ORB.init(new String[0], null);
     }
 
+    protected void tearDown() throws Exception
+    {
+        orb.shutdown(true);
+    }
+
     /**
      * <code>suite</code> lists the tests for Junit to run.
      *

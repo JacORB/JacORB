@@ -28,17 +28,22 @@ import org.jacorb.config.JacORBConfiguration;
  * @version $Id$
  */
 
-public class GIOPConnectionTest 
+public class GIOPConnectionTest
     extends JacORBTestCase
 {
     private Configuration config;
     private ORB orb;
 
-    public void setUp() 
+    public void setUp()
         throws Exception
     {
         orb = (ORB) ORB.init(new String[0], null);
         config = JacORBConfiguration.getConfiguration(null, orb, false);
+    }
+
+    protected void tearDown() throws Exception
+    {
+        orb.shutdown(true);
     }
 
     public static Test suite()
@@ -52,7 +57,7 @@ public class GIOPConnectionTest
 
         return suite;
     }
-    
+
 
     private class DummyTransport extends org.omg.ETF._ConnectionLocalBase
     {
@@ -144,7 +149,7 @@ public class GIOPConnectionTest
                 throw new org.omg.CORBA.COMM_FAILURE ("end of stream");
             }
             System.arraycopy(this.data, this.index, data.value, offset, min_length);
-            this.index += min_length; 
+            this.index += min_length;
         }
 
         public boolean is_data_available()

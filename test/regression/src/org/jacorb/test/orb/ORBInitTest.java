@@ -20,11 +20,15 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
-import org.omg.CORBA.INITIALIZE;
-
 import junit.framework.TestCase;
+
+import org.omg.CORBA.INITIALIZE;
+import org.omg.CORBA.ORB;
 
 
 /**
@@ -35,10 +39,21 @@ import junit.framework.TestCase;
  */
 public class ORBInitTest extends TestCase
 {
+    private final List orbs = new ArrayList();
+
     protected void setUp() throws Exception
     {
         PreInitFail.reset();
         PostInitFail.reset();
+    }
+
+    protected void tearDown() throws Exception
+    {
+        for (Iterator iter = orbs.iterator(); iter.hasNext();)
+        {
+            ORB orb = (ORB) iter.next();
+            orb.shutdown(true);
+        }
     }
 
     /**
@@ -53,7 +68,7 @@ public class ORBInitTest extends TestCase
 
         try
         {
-            org.omg.CORBA.ORB.init( args, null );
+            initORB(args, null);
             fail();
         }
         catch (org.omg.CORBA.BAD_PARAM e )
@@ -62,6 +77,12 @@ public class ORBInitTest extends TestCase
         }
     }
 
+    private ORB initORB(String[] args, Properties props)
+    {
+        ORB orb = org.omg.CORBA.ORB.init( args, props );
+        orbs.add(orb);
+        return orb;
+    }
 
     /**
      * <code>testParse2</code>
@@ -72,7 +93,7 @@ public class ORBInitTest extends TestCase
         args[0] = "-ORBInitRef";
         args[1] = "NameService=foo.ior";
 
-        org.omg.CORBA.ORB.init( args, null );
+        initORB( args, null );
     }
 
     public void testParse3 ()
@@ -82,7 +103,7 @@ public class ORBInitTest extends TestCase
 
         try
         {
-            org.omg.CORBA.ORB.init( args, null );
+            initORB( args, null );
             fail();
         }
         catch (org.omg.CORBA.BAD_PARAM e )
@@ -99,7 +120,7 @@ public class ORBInitTest extends TestCase
 
         try
         {
-            org.omg.CORBA.ORB.init((String[]) null, props);
+            initORB((String[]) null, props);
             fail( "No exception");
         }
         catch(org.omg.CORBA.INITIALIZE e)
@@ -114,7 +135,7 @@ public class ORBInitTest extends TestCase
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.none.existen.class", "");
         props.put("jacorb.orb_initializer.fail_on_error", "off");
 
-        org.omg.CORBA.ORB.init((String[]) null, props);
+        ORB orb = initORB((String[]) null, props);
     }
 
     public void testORBInitializerFailConstructorException()
@@ -126,7 +147,7 @@ public class ORBInitTest extends TestCase
 
         try
         {
-            org.omg.CORBA.ORB.init((String[]) null, props);
+            initORB((String[]) null, props);
             fail( "No exception");
         }
         catch(org.omg.CORBA.INITIALIZE e)
@@ -142,7 +163,7 @@ public class ORBInitTest extends TestCase
                   "org.jacorb.test.orb.ConstructorFail");
         props.put("jacorb.orb_initializer.fail_on_error", "off");
 
-        org.omg.CORBA.ORB.init((String[]) null, props);
+        initORB((String[]) null, props);
     }
 
     public void testORBInitializerFailPreInitException()
@@ -154,7 +175,7 @@ public class ORBInitTest extends TestCase
 
         try
         {
-            org.omg.CORBA.ORB.init((String[]) null, props);
+            initORB((String[]) null, props);
             fail( "No exception");
         }
         catch(org.omg.CORBA.INITIALIZE e)
@@ -170,7 +191,7 @@ public class ORBInitTest extends TestCase
                   "org.jacorb.test.orb.PreInitFail");
         props.put("jacorb.orb_initializer.fail_on_error", "off");
 
-        org.omg.CORBA.ORB.init((String[]) null, props);
+        initORB((String[]) null, props);
      }
 
     public void testORBInitializerFailPostInitException()
@@ -182,7 +203,7 @@ public class ORBInitTest extends TestCase
 
         try
         {
-            org.omg.CORBA.ORB.init((String[]) null, props);
+            initORB((String[]) null, props);
             fail("No exception");
         }
         catch(org.omg.CORBA.INITIALIZE e)
@@ -198,7 +219,7 @@ public class ORBInitTest extends TestCase
                   "org.jacorb.test.orb.PostInitFail");
         props.put("jacorb.orb_initializer.fail_on_error", "off");
 
-        org.omg.CORBA.ORB.init((String[]) null, props);
+        initORB((String[]) null, props);
     }
 
     public void testDontInvokePostInitIfPreInitFailed()
@@ -208,10 +229,12 @@ public class ORBInitTest extends TestCase
                   "org.jacorb.test.orb.PreInitFail");
         props.put("jacorb.orb_initializer.fail_on_error", "off");
 
-        org.omg.CORBA.ORB.init((String[]) null, props);
+        org.omg.CORBA.ORB orb = initORB((String[]) null, props);
 
         assertEquals(1, PreInitFail.getPreCount());
         assertEquals(0, PreInitFail.getPstCount());
+
+        orb.shutdown(true);
     }
 
     public void testORBInitializerWrongClass1()
@@ -221,7 +244,7 @@ public class ORBInitTest extends TestCase
                   "java.lang.String");
         props.put("jacorb.orb_initializer.fail_on_error", "off");
 
-        org.omg.CORBA.ORB.init((String[]) null, props);
+        initORB((String[]) null, props);
     }
 
     public void testORBInitializerWrongClass2()
@@ -233,7 +256,7 @@ public class ORBInitTest extends TestCase
 
         try
         {
-            org.omg.CORBA.ORB.init((String[]) null, props);
+            initORB((String[]) null, props);
             fail();
         } catch (INITIALIZE e)
         {

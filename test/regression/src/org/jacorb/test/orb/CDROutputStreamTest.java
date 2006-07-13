@@ -32,25 +32,30 @@ public class CDROutputStreamTest extends TestCase
 {
     private CDROutputStream objectUnderTest;
     private ORB orb;
-    
+
     protected void setUp() throws Exception
     {
         super.setUp();
-        
+
         orb = ORB.init(new String[0], null);
         objectUnderTest = new CDROutputStream(orb);
     }
-    
+
+    protected void tearDown() throws Exception
+    {
+        orb.shutdown(true);
+    }
+
     public void testIncreaseSize()
     {
         byte[] buffer = new byte[4];
         objectUnderTest.setBuffer(buffer);
-                
+
         objectUnderTest.increaseSize(8);
-        
+
         assertTrue(objectUnderTest.size() >= 8);
     }
-    
+
     public static Test suite()
     {
         return new TestSuite(CDROutputStreamTest.class);

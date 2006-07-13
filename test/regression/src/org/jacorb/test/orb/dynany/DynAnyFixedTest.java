@@ -52,6 +52,11 @@ public class DynAnyFixedTest extends TestCase
        factory = DynAnyFactoryHelper.narrow(orb.resolve_initial_references("DynAnyFactory"));
    }
 
+   protected void tearDown() throws Exception
+   {
+       orb.shutdown(true);
+   }
+
    /**
     * Tests creating a DynAny object from an Any object using the
     * DynAnyFactory object.

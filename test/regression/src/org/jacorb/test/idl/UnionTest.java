@@ -38,10 +38,17 @@ public class UnionTest extends TestCase
        // need to initialize ORB as there's a static dependency between the
        // singleton ORB and the standard ORB. otherwise BufferManager wouldn't
        // be intialized properly.
-       ORB.init(new String[0], null);
+       ORB orb = ORB.init(new String[0], null);
 
-       org.omg.CORBA.TypeCode type = org.jacorb.test.bugs.BasicConfig.MOidpairHelper.type();
+       try
+       {
+           org.omg.CORBA.TypeCode type = org.jacorb.test.bugs.BasicConfig.MOidpairHelper.type();
 
-       assertEquals("value0",(((org.jacorb.orb.TypeCode)type).member_name(0)));
+           assertEquals("value0",(((org.jacorb.orb.TypeCode)type).member_name(0)));
+       }
+       finally
+       {
+           orb.shutdown(true);
+       }
    }
 }

@@ -48,6 +48,11 @@ public class CoreContainerFactoryTest extends TestCase
         picoContainer_ = PicoContainerFactory.createRootContainer((org.jacorb.orb.ORB)orb_);
     }
 
+    protected void tearDown() throws Exception
+    {
+        orb_.shutdown(true);
+    }
+
     public void testGetORB()
     {
         ORB _orb = (ORB) picoContainer_.getComponentInstance(ORB.class);
@@ -65,17 +70,17 @@ public class CoreContainerFactoryTest extends TestCase
     public void testGetConfiguration()
     {
         Configuration config = (Configuration) picoContainer_.getComponentInstance(Configuration.class);
-        
+
         assertNotNull(config);
     }
-    
+
     public void testGetFilterFactory()
     {
         FilterFactory filterFactory = (FilterFactory)picoContainer_.getComponentInstance(FilterFactory.class);
-        
+
         assertNotNull(filterFactory);
     }
-    
+
     public static Test suite()
     {
         return new TestSuite(CoreContainerFactoryTest.class);

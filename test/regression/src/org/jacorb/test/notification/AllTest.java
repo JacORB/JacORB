@@ -25,6 +25,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.jacorb.test.common.*;
+import org.omg.CORBA.ORB;
 
 /**
  * @jacorb-since cvs
@@ -54,10 +55,11 @@ public class AllTest extends JacORBTestSuite
         _suite.addTest(org.jacorb.test.notification.filter.PackageTest.suite());
         _suite.addTest(org.jacorb.test.notification.servant.PackageTest.suite());
         _suite.addTest(org.jacorb.test.notification.lifecycle.PackageTest.suite());
-    
+
+        final ORB orb = org.omg.CORBA.ORB.init(new String[0], null);
         try
         {
-            org.omg.CORBA.Object obj = org.omg.CORBA.ORB.init(new String[0], null)
+            org.omg.CORBA.Object obj = orb
                     .resolve_initial_references("InterfaceRepository");
 
             // i know non_existent is NOT a ping. however try to ping
@@ -70,6 +72,10 @@ public class AllTest extends JacORBTestSuite
             System.err.println("TypedChannel Tests depend on accessible InterfaceRepository.");
             System.err.println("Will be skipped. See org/jacorb/test/notification/typed/README");
             System.err.println("for details.");
+        }
+        finally
+        {
+            orb.shutdown(true);
         }
 
         return _suite;

@@ -39,33 +39,21 @@ public class ExampleServiceRunner
 {
     public static void main(String[] args) throws Exception
     {
-        System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", PortableRemoteObjectDelegateImpl.class.getName());     
-        
+        System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", PortableRemoteObjectDelegateImpl.class.getName());
+
         final ORB orb = ORB.init(args, null);
-        
+
         PortableRemoteObjectDelegateImpl.setORB(orb);
-        
+
         MBeanServer server = MBeanServerFactory.createMBeanServer();
-        
+
         JMXServiceURL serviceURL = startIIOPConnector(orb, server);
-        
+
         server.registerMBean(new ExampleService(), new ObjectName(":service=example"));
-   
+
         System.out.println("SERVER IOR: " + serviceURL);
-        
-        Thread thread = new Thread()
-        {
-            public void run()
-            {
-                orb.run();
-            }
-        };
-        
-        thread.setDaemon(true);
-        
-        thread.start();
     }
-    
+
     private static JMXServiceURL startIIOPConnector(ORB orb, MBeanServer mbeanserver) throws Exception, IOException
     {
         JMXServiceURL serviceURL = new JMXServiceURL("service:jmx:iiop://localhost");
@@ -75,7 +63,7 @@ public class ExampleServiceRunner
         environment.put("java.naming.corba.orb", orb);
 
         // create the JMXCconnectorServer
-        JMXConnectorServer connectorServer = 
+        JMXConnectorServer connectorServer =
             JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, environment, mbeanserver);
 
         // register the JMXConnectorServer in the MBeanServer

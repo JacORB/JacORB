@@ -78,8 +78,10 @@ public class TestServer
             Class servantClass = Class.forName (className);
             Servant servant = ( Servant ) servantClass.newInstance();
 
-            if (servant instanceof Configurable)
+            if (servant instanceof Configurable && orb instanceof org.jacorb.orb.ORB)
+            {
                 ((Configurable)servant).configure (((org.jacorb.orb.ORB)orb).getConfiguration());
+            }
 
             // create the object reference
             org.omg.CORBA.Object obj = poa.servant_to_reference( servant );

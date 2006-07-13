@@ -35,7 +35,7 @@ import org.picocontainer.MutablePicoContainer;
  * helper class for internal notification service tests.
  * this class sets up basic parts of the notification
  * service internals to support writing Unit tests.
- * 
+ *
  * @author Alphonse Bendt
  */
 
@@ -74,33 +74,9 @@ public class NotificationTestCaseSetup extends TestSetup
 
         testUtils_ = new NotificationTestUtils(getORB());
 
-        Thread orbThread_ = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                getORB().run();
-            }
-        });
-
-        orbThread_.setDaemon(true);
-
-        orbThread_.start();
-
         clientORB_ = ORB.init(new String[] {}, null);
         POAHelper.narrow(clientORB_.resolve_initial_references("RootPOA")).the_POAManager()
                 .activate();
-
-        Thread clientOrbThread = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                getClientORB().run();
-            }
-        }, "JUnit-Client-ORB-Runner");
-
-        clientOrbThread.setDaemon(true);
-
-        clientOrbThread.start();
     }
 
     public final void tearDown() throws Exception

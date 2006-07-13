@@ -38,10 +38,17 @@ public class BasicTest extends TestCase
     public void test_Is_JacORB_POA_a_POA() throws Exception
     {
         ORB orb = ORB.init(new String[0], null);
-        POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-        assertTrue(poa._is_a(POAHelper.id()));
+        try
+        {
+            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            assertTrue(poa._is_a(POAHelper.id()));
+        }
+        finally
+        {
+            orb.shutdown(true);
+        }
     }
-    
+
     public static Test suite() throws Exception
     {
         return new TestSuite(BasicTest.class);

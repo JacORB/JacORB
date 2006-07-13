@@ -59,6 +59,13 @@ public class BugJac192Test extends ClientServerTestCase
         server = JAC192Helper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        if (serverOrb != null)
+        {
+            serverOrb.shutdown(true);
+        }
+    }
 
     /**
      * <code>suite</code> initialise the tests with the correct environment.

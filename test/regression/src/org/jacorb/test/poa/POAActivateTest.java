@@ -20,9 +20,7 @@ package org.jacorb.test.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.ORB;

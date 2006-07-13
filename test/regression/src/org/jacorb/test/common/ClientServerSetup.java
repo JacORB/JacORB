@@ -224,6 +224,7 @@ public class ClientServerSetup extends TestSetup {
 
     public void tearDown() throws Exception
     {
+        clientOrb.shutdown(true);
         serverProcess.destroy();
         isProcessDestroyed = true;
         outListener.setDestroyed();

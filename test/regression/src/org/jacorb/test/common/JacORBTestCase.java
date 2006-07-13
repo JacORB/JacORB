@@ -26,14 +26,14 @@ import junit.framework.*;
 /**
  * A special TestCase that is capable of deciding whether it applies
  * to a certain client and server version.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
 public class JacORBTestCase extends TestCase implements JacORBTest
 {
     private TestAnnotations annotations = null;
-    
+
     public JacORBTestCase (String name)
     {
         super(name);
@@ -54,14 +54,18 @@ public class JacORBTestCase extends TestCase implements JacORBTest
     public boolean isApplicableTo (String clientVersion, String serverVersion)
     {
         if (annotations == null)
-            return true;
-        else
         {
-            boolean result = annotations.isApplicableTo (clientVersion,
-                                                         serverVersion);
-            if (!result) System.out.println ("not applicable: " + getName());
-            return result;
+            return true;
         }
+
+        boolean result =
+            annotations.isApplicableTo (clientVersion, serverVersion);
+
+        if (!result)
+        {
+            System.out.println ("not applicable: " + getName());
+        }
+
+        return result;
     }
-    
 }

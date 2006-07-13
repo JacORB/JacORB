@@ -17,13 +17,20 @@ public class BugJac294Test extends TestCase
 
         try
         {
-            orb.string_to_object("bogus ior");
-            fail();
+            try
+            {
+                orb.string_to_object("bogus ior");
+                fail();
+            }
+            catch (BAD_PARAM e)
+            {
+                // expected
+                assertEquals(10, e.minor);
+            }
         }
-        catch (BAD_PARAM e)
+        finally
         {
-            // expected
-            assertEquals(10, e.minor);
+            orb.shutdown(true);
         }
     }
 }

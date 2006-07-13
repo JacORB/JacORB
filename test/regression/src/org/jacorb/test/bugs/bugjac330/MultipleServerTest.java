@@ -1,5 +1,7 @@
 package org.jacorb.test.bugs.bugjac330;
 
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -146,21 +148,52 @@ public class MultipleServerTest extends TestCase
         BasicServer server1 = BasicServerHelper.narrow(orb.string_to_object(server1IOR));
         assertEquals(10, server1.bounce_long(10));
 
-        assertTrue(isThereAThreadNamed("ClientMessageReceptor"));
+        final String threadName = "ClientMessageReceptor";
+        assertTrue(isThereAThreadNamed(threadName));
+
+        dumpThread(threadName);
 
         server1._release();
 
         int retry = 0;
-        final int maxRetry = 15;
+        final int maxRetry = 30;
 
-        while( (retry++ < maxRetry) && isThereAThreadNamed("ClientMessageReceptor"))
+        while( (retry++ < maxRetry) && isThereAThreadNamed(threadName))
         {
             // wait some time to allow the ClientMessageReceptor Thread to exit
             Thread.sleep(1000);
             System.gc();
         }
 
-        assertFalse("there should be no idle thread", isThereAThreadNamed("ClientMessageReceptor"));
+        dumpThread(threadName);
+
+        assertFalse("there should be no idle thread", isThereAThreadNamed(threadName));
+    }
+
+    private void dumpThread(final String threadName)
+    {
+        Map map = Thread.getAllStackTraces();
+
+        Iterator i = map.keySet().iterator();
+
+        while(i.hasNext())
+        {
+            Thread key = (Thread) i.next();
+
+            if (!key.getName().startsWith(threadName))
+            {
+                continue;
+            }
+
+            StackTraceElement[] stack = (StackTraceElement[]) map.get(key);
+
+            System.out.println(key.getName());
+            for (int j = 0; j < stack.length; j++)
+            {
+                System.out.println("\t" + stack[j]);
+            }
+            System.out.println();
+        }
     }
 
     private boolean isThereAThreadNamed(String name)

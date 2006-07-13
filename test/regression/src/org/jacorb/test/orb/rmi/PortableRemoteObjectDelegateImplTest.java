@@ -37,70 +37,59 @@ public class PortableRemoteObjectDelegateImplTest extends TestCase
 {
     private static ORB orb;
     private static Exception initException;
-    
+
     static
     {
         orb = ORB.init(new String[0], null);
         System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", PortableRemoteObjectDelegateImpl.class.getName());
         PortableRemoteObjectDelegateImpl.setORB(orb);
-        
+
         try
         {
             POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             poa.the_POAManager().activate();
-            
-            Thread orbRunner = new Thread()
-            {
-                public void run()
-                {
-                    orb.run();
-                }
-            };
-            
-            orbRunner.setDaemon(true);
-            
-            orbRunner.start();
-
-        } catch (InvalidName e)
+        }
+        catch (InvalidName e)
         {
             initException = e;
-        } catch (AdapterInactive e)
+        }
+        catch (AdapterInactive e)
         {
             initException = e;
         }
     }
-    
+
     protected void setUp() throws Exception
     {
         assertNull(initException);
     }
-    
+
     public void testExport() throws Exception
     {
         RMITestImpl servant = new RMITestImpl();
-        
+
         assertNotNull(Util.getTie(servant));
     }
-    
+
     public void testUnExport() throws Exception
     {
         RMITestImpl servant = new RMITestImpl();
-        
+
         assertNotNull(Util.getTie(servant));
-        
+
         PortableRemoteObject.unexportObject(servant);
-        
+
         assertNull(Util.getTie(servant));
     }
-    
+
     public void testToStub() throws Exception
     {
         RMITestImpl servant = new RMITestImpl();
 
         RMITestInterface remote = (RMITestInterface) PortableRemoteObject.toStub(servant);
-        
+
         String string = remote.testString("hello");
-        
+
         assertEquals("hello (echoed back)", string);
     }
 }

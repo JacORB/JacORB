@@ -36,6 +36,11 @@ public class DynAnyArrayObjectTest extends TestCase
        dynFactory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow(obj);
    }
 
+   protected void tearDown() throws Exception
+   {
+       orb.shutdown(true);
+   }
+
    public void testInsertAnyObject() throws Exception
    {
        DynArray dyn_array = null;
