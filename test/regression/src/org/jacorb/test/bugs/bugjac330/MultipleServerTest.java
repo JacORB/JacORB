@@ -151,8 +151,6 @@ public class MultipleServerTest extends TestCase
         final String threadName = "ClientMessageReceptor";
         assertTrue(isThereAThreadNamed(threadName));
 
-        dumpThread(threadName);
-
         server1._release();
 
         int retry = 0;
