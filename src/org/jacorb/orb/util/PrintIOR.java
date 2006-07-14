@@ -176,16 +176,8 @@ public class PrintIOR
             }
 
             out.println("\tPort:\t\t\t" + port );
-            try
-            {
-                out.println("\tObject key (URL):\t" +
-                                   CorbaLoc.parseKey( pior.get_object_key()));
-            }
-            catch( Exception e )
-            {
-                // ignore, object key not in url format
-            }
-            out.print("\tObject key (hex):\t0x" );
+            out.println("\tObject key (URL):\t" + CorbaLoc.parseKey( pior.get_object_key()));
+            out.print  ("\tObject key (hex):\t0x" );
             dumpHex( pior.get_object_key(), out);
             out.println();
 

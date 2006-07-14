@@ -325,9 +325,9 @@ public class Request
                                 break;
                             }
                         }
-                        catch (org.omg.CORBA.TypeCodePackage.BadKind ex)
+                        catch (org.omg.CORBA.TypeCodePackage.BadKind ex) // NOPMD
                         {
-                            // ignored
+                            // Ignored
                         }
                         catch (org.omg.CORBA.Bounds ex)
                         {

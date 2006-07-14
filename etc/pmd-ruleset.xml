@@ -33,6 +33,7 @@
       <exclude name="ClassNamingConventions"/>
       <exclude name="AbstractNaming"/>
       <exclude name="AvoidFieldNameMatchingMethodName"/>
+      <exclude name="PackageCase"/>
    </rule>
    <rule ref="rulesets/junit.xml"/>
    <rule ref="rulesets/braces.xml"/>
@@ -42,5 +43,6 @@
    <rule ref="rulesets/optimizations.xml">
       <exclude name="MethodArgumentCouldBeFinal"/>
       <exclude name="LocalVariableCouldBeFinal"/>
+      <exclude name="AvoidInstantiatingObjectsInLoops"/>
    </rule>
 </ruleset>

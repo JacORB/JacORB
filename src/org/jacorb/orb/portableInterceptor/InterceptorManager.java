@@ -159,7 +159,7 @@ public class InterceptorManager
      */
     public IORInterceptorIterator getIORIterator()
     {
-        return new IORInterceptorIterator(ior_interceptors, profile_tags);
+        return new IORInterceptorIterator(logger, ior_interceptors, profile_tags);
     }
 
 

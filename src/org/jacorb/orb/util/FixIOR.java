@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import org.apache.avalon.framework.logger.Logger;
@@ -47,7 +48,7 @@ import org.omg.IOP.TaggedProfile;
 public class FixIOR
 {
     public static void main (String args[])
-        throws Exception
+        throws IOException
     {
         org.omg.CORBA.ORB orb;
         String iorString;

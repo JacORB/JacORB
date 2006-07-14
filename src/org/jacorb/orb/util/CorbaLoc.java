@@ -59,7 +59,7 @@ public class CorbaLoc
         return "corbaloc:" + body();
     }
 
-    public String body()
+    private String body()
     {
         StringBuffer buffer = new StringBuffer();
 
@@ -84,7 +84,7 @@ public class CorbaLoc
         return key;
     }
 
-    public void defaultKeyString(String defaultKey)
+    private void defaultKeyString(String defaultKey)
     {
         if( keyString == null )
         {
@@ -190,7 +190,7 @@ public class CorbaLoc
                 "Illegal object address format: " + addr);
         }
 
-        if (addr.equals("rir:"))
+        if ("rir:".equals (addr))
         {
             is_rir = true;
             /* resolve initials references protocol */

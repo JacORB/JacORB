@@ -1,3 +1,5 @@
+package org.jacorb.orb.standardInterceptors;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -19,7 +21,6 @@
  *
  */
 
-package org.jacorb.orb.standardInterceptors; // NOPMD
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.ConfigurationException;
