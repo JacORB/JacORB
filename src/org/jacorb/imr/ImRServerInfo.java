@@ -95,7 +95,7 @@ public class ImRServerInfo
         final POAInfo[] _info;
         synchronized(poas)
         {
-            ImRPOAInfo[] _poas = (ImRPOAInfo[]) poas.toArray(new POAInfo[poas.size()]);
+            ImRPOAInfo[] _poas = (ImRPOAInfo[]) poas.toArray(new ImRPOAInfo[poas.size()]);
 
              _info = new POAInfo[_poas.length];
             for (int i = 0; i < _info.length; i++)
