@@ -426,28 +426,36 @@ public class ClientIIOPConnection
 
     public synchronized void close()
     {
+        if (!connected)
+        {
+            return;
+        }
+
         try
         {
-            if (connected)
+            if (socket != null)
             {
-                if (socket != null)
-                {
-                    socket.close();
-                }
+                socket.close();
+            }
 
-                //this will cause exceptions when trying to read from
-                //the streams. Better than "nulling" them.
-                if( in_stream != null )
-                {
-                    in_stream.close();
-                }
-                if( out_stream != null )
-                {
-                    out_stream.close();
-                }
+            //this will cause exceptions when trying to read from
+            //the streams. Better than "nulling" them.
+            if( in_stream != null )
+            {
+                in_stream.close();
+            }
+            if( out_stream != null )
+            {
+                out_stream.close();
+            }
 
-                //for testing purposes
-                --openTransports;
+            //for testing purposes
+            --openTransports;
+
+            if (logger.isInfoEnabled())
+            {
+                logger.info("Client-side TCP transport to " +
+                        connection_info + " closed.");
             }
 
             connected = false;
@@ -477,12 +485,6 @@ public class ClientIIOPConnection
                     )
                 );
             }
-        }
-
-        if (logger.isInfoEnabled())
-        {
-            logger.info("Client-side TCP transport to " +
-                        connection_info + " closed.");
         }
     }
 
