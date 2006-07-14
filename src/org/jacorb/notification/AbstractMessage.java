@@ -35,7 +35,6 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.AbstractPoolable;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyFilter.Filter;
