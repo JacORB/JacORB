@@ -32,7 +32,6 @@ package org.jacorb.imr;
 
 import org.jacorb.util.threadpool.*;
 
-import java.lang.*;
 import java.net.*;
 import java.io.*;
 
@@ -54,8 +53,6 @@ public class ServerStartupDaemonImpl
 
     /**
      * The constructor. It registers this daemon at the repository.
-     *
-     * @exception Exception any exception that is thrown inside is propagated upwards.
      */
     public ServerStartupDaemonImpl(org.omg.CORBA.ORB orb)
     {
@@ -130,7 +127,7 @@ public class ServerStartupDaemonImpl
      * @param command The server startup command, i.e. the servers class name and
      * parameters for its main method. The interpreter is inserted automatically.
      *
-     * @exception org.jacorb.imr.ServerStartupDaemonPackage.ServerStartupFailed
+     * @exception ServerStartupFailed
      * Runtime.exec() failed to execute the command.
      */
 
