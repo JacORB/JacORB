@@ -76,7 +76,7 @@ public final class BufferManager
     private static int time = 0;
 
     /** the singleton instance */
-    private static BufferManager singleton = new BufferManager();
+    private final static BufferManager singleton = new BufferManager();
 
     private static boolean configured = false;
 
@@ -84,7 +84,7 @@ public final class BufferManager
      * configures the BufferManager, in turn configures the singleton.
      * Must be called before getInstance() !
      */
-    public static void configure(Configuration configuration)
+    public synchronized static void configure(Configuration configuration)
     {
         singleton.singletonConfigure(configuration);
         configured = true;
@@ -92,13 +92,14 @@ public final class BufferManager
 
     private BufferManager()
     {
+        super();
     }
 
     /**
      * configures the singleton
      */
 
-    private synchronized void singletonConfigure(Configuration configuration)
+    private void singletonConfigure(Configuration configuration)
     {
         time =
             configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
@@ -152,8 +153,8 @@ public final class BufferManager
      * @throws BAD_INV_ORDER if not previously configured
      */
 
-    public static BufferManager getInstance()
-        throws  BAD_INV_ORDER
+    public synchronized static BufferManager getInstance()
+        throws BAD_INV_ORDER
     {
         if (!configured)
         {
