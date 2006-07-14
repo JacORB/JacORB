@@ -20,40 +20,39 @@ package org.jacorb.concurrency;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosConcurrencyControl.*;
-import org.omg.CosTransactions.*;
+import org.omg.CosConcurrencyControl.lock_mode;
 
-public class Request 
+public class Request
 {
     public static final int LOCK    = 1;
     public static final int CHANGE  = 3;
-   
+
     public int state;
     public TransactionCoordinator current;
     public int to_do;
     public lock_mode set_mode;
     public lock_mode reset_mode;
 
-    public String toString() 
+    public String toString()
     {
-        String s = 
+        String s =
             current.get_coordinator().get_transaction_name()+
             ": state="+state+" to_do="+(to_do==LOCK?"lock":"chng")+" set=";
 
         if( set_mode==null )
-        { 
+        {
             s = s + "null";
         }
-        else 
-        { 
+        else
+        {
             s = s + set_mode.value();
-        } 
+        }
         s =s +" reset=";
-        if( reset_mode==null ) 
-        { 
-            s = s +"null"; 
-        } 
-        else 
+        if( reset_mode==null )
+        {
+            s = s +"null";
+        }
+        else
         {
             s = s + reset_mode.value();
         }

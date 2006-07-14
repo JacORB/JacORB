@@ -71,21 +71,25 @@ public class LockSetFactoryImpl extends LockSetFactoryPOA {
         }
     };
 /* -------------------------------------------------------------------------- */
-    synchronized TransactionCoordinator get_transaction_coordinator( Coordinator current ){
-        if( coordinators.containsKey( current.get_transaction_name() ) ){
+    synchronized TransactionCoordinator get_transaction_coordinator( Coordinator current )
+    {
+        if( coordinators.containsKey( current.get_transaction_name() ) )
+        {
             return (TransactionCoordinator)coordinators.get( current.get_transaction_name() );
-        } else {
-            TransactionCoordinator c = new TransactionCoordinator( this, current, poa );
-            try {
-               Resource res = ResourceHelper.narrow( poa.servant_to_reference( c ) );
-               current.register_resource( res );
-            } catch ( Exception e ){
-                e.printStackTrace( System.out );
-            }
-            coordinators.put( current.get_transaction_name(), c );
-            return c;
         }
 
+        TransactionCoordinator coordinator = new TransactionCoordinator( this, current, poa );
+        try
+        {
+            Resource res = ResourceHelper.narrow( poa.servant_to_reference( coordinator ) );
+            current.register_resource( res );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace( System.out );
+        }
+        coordinators.put( current.get_transaction_name(), coordinator );
+        return coordinator;
     };
 /* -------------------------------------------------------------------------- */
     synchronized void remove_me( TransactionCoordinator i_am ){

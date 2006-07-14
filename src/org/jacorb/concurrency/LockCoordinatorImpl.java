@@ -20,8 +20,7 @@ package org.jacorb.concurrency;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosConcurrencyControl.*;
-import org.omg.CosTransactions.*;
+import org.omg.CosConcurrencyControl.LockCoordinatorPOA;
 
 class LockCoordinatorImpl
     extends LockCoordinatorPOA
@@ -29,7 +28,7 @@ class LockCoordinatorImpl
     private TransactionCoordinator tc;
     private TransactionalLockSetImpl ls;
 
-    LockCoordinatorImpl( TransactionCoordinator tc, 
+    LockCoordinatorImpl( TransactionCoordinator tc,
                          TransactionalLockSetImpl ls )
     {
         this.tc = tc;

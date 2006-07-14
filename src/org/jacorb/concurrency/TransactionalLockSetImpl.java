@@ -20,10 +20,17 @@ package org.jacorb.concurrency;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosConcurrencyControl.*;
-import org.omg.PortableServer.POA;
-import org.omg.CosTransactions.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import org.omg.CosConcurrencyControl.LockCoordinator;
+import org.omg.CosConcurrencyControl.LockNotHeld;
+import org.omg.CosConcurrencyControl.TransactionalLockSet;
+import org.omg.CosConcurrencyControl.TransactionalLockSetPOA;
+import org.omg.CosConcurrencyControl.lock_mode;
+import org.omg.CosTransactions.Coordinator;
+import org.omg.CosTransactions.Status;
 
 class TransactionalLockSetImpl extends TransactionalLockSetPOA {
     private Hashtable locks = new Hashtable();
@@ -153,7 +160,7 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
             if( lock.current == tc ){
                 current_transaction_locks = lock;
                 continue;
-            } 
+            }
             if( !lock.no_conflict( mode ) ){
                 return false;
             }
@@ -170,21 +177,20 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
         Status status = tc.get_state();
         if( status.equals( Status.StatusActive ) ){
             return;
-        } else if( status.equals( Status.StatusPrepared )      || 
+        } else if( status.equals( Status.StatusPrepared )      ||
                    status.equals( Status.StatusCommitted )     ||
                    status.equals( Status.StatusUnknown )       ||
                    status.equals( Status.StatusNoTransaction ) ||
                    status.equals( Status.StatusPreparing )     ||
                    status.equals( Status.StatusCommitting ) )  {
             throw new org.omg.CORBA.INVALID_TRANSACTION();
-        } else if (status.equals( Status.StatusRollingBack )   || 
+        } else if (status.equals( Status.StatusRollingBack )   ||
                    status.equals( Status.StatusMarkedRollback) ||
                    status.equals( Status.StatusRolledBack) )   {
             throw new org.omg.CORBA.TRANSACTION_ROLLEDBACK();
         }
     }
     private synchronized boolean attempt_lock_from_queue(){
-        boolean rc = false;
         boolean do_recursive = false;
         Vector executed = new Vector();
         Enumeration enumeration = queue.elements();
@@ -196,12 +202,10 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
                 } catch ( org.omg.CORBA.INVALID_TRANSACTION e ) {
                     r.state = LockSetFactoryImpl.NO_TRANS;
                     executed.addElement( r );
-                    rc = true;
                     continue;
                 } catch ( org.omg.CORBA.TRANSACTION_ROLLEDBACK e ) {
                     r.state = LockSetFactoryImpl.ROLLBACK;
                     executed.addElement( r );
-                    rc = true;
                     continue;
                 }
                 switch( r.to_do ) {
@@ -220,11 +224,10 @@ class TransactionalLockSetImpl extends TransactionalLockSetPOA {
                             do_recursive = true;
                         } catch ( LockNotHeld e ) {
                             r.state = LockSetFactoryImpl.REJECT;
-                        } 
+                        }
                         break;
                 }
                 executed.addElement( r );
-                rc = true;
             }
         };
         enumeration = executed.elements();

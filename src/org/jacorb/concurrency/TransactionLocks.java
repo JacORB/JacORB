@@ -20,10 +20,10 @@ package org.jacorb.concurrency;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosTransactions.*;
-import org.omg.CosConcurrencyControl.*;
+import org.omg.CosConcurrencyControl.LockNotHeld;
+import org.omg.CosConcurrencyControl.lock_mode;
 
-public class TransactionLocks 
+public class TransactionLocks
 {
     TransactionCoordinator current;
     private int read = 0;
@@ -68,8 +68,8 @@ public class TransactionLocks
         }
     };
 
-    synchronized void unlock( lock_mode mode ) 
-        throws LockNotHeld 
+    synchronized void unlock( lock_mode mode )
+        throws LockNotHeld
     {
         if( mode.equals( lock_mode.read ) ) {
             check_held( read );
@@ -89,15 +89,15 @@ public class TransactionLocks
         }
     }
 
-    private void check_held( int i )  
-        throws LockNotHeld 
+    private void check_held( int i )
+        throws LockNotHeld
     {
         if ( i == 0 ){
             throw new LockNotHeld();
         }
     };
 
-    boolean is_held( lock_mode mode ) 
+    boolean is_held( lock_mode mode )
     {
         if( mode.equals( lock_mode.read ) ) {
             return read > 0;
@@ -118,7 +118,7 @@ public class TransactionLocks
         return read!=0 || write!=0 || upgrade!=0 || intention_read!=0 || intention_write!=0;
     };
 
-    public String toString() 
+    public String toString()
     {
         return current.get_coordinator().get_transaction_name()+": "+
             " read="+read+
