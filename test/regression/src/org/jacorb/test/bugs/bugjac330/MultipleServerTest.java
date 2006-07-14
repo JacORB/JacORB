@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bugjac330;
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -168,9 +169,21 @@ public class MultipleServerTest extends TestCase
         assertFalse("there should be no idle thread", isThereAThreadNamed(threadName));
     }
 
-    private void dumpThread(final String threadName)
+    private void dumpThread(final String threadName) throws Exception
     {
-        Map map = Thread.getAllStackTraces();
+        Method method;
+
+        try
+        {
+            method = Thread.class.getMethod("getAllStackTraces", new Class[0]);
+        }
+        catch (NoSuchMethodException e)
+        {
+            // not a JDK 1.5
+            return;
+        }
+
+        Map map = (Map) method.invoke(null, new Object[0]);
 
         Iterator i = map.keySet().iterator();
 
@@ -206,6 +219,11 @@ public class MultipleServerTest extends TestCase
 
         for (int i = 0; i < threads.length; i++)
         {
+            if (threads[i] == null)
+            {
+                continue;
+            }
+
             if (threads[i].getName().indexOf(name) >= 0)
             {
                 return true;
