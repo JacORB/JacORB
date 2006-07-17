@@ -6,6 +6,13 @@ module org
    {
       module test
       {
+         // Test Forward Declarations
+         interface TestForwardDecl;
+         interface TestForwardDecl
+         {
+         };
+         interface TestForwardDecl;
+
          // bound for Sequences and Arrays
          const long Bound = 10;
 

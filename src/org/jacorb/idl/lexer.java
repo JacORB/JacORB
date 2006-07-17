@@ -627,7 +627,8 @@ public class lexer
             {
                 if( !conditionalCompilation )
                     return;
-                advance();      // skip ' '
+                // Swallow between include and < or "
+                swallow_whitespace();
                 boolean useIncludePath = ( next_char == '<' );
                 advance(); // skip `\"' or '<'
 

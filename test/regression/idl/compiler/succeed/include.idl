@@ -4,3 +4,5 @@ module testinclude
     typedef string s;
 };
 #include "const.idl"
+// Test skipping whitespace on include
+#include                                 "Char.idl"
