@@ -27,8 +27,8 @@ import java.io.*;
 import org.jacorb.test.common.TestUtils;
 
 /**
- * A launcher that uses the jaco script of a given JacORB installation. 
- * 
+ * A launcher that uses the jaco script of a given JacORB installation.
+ *
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
@@ -47,23 +47,17 @@ public class JacoLauncher extends JacORBLauncher
                           String[] args)
     {
         Runtime rt  = Runtime.getRuntime();
-        
+
         List cmdList = new ArrayList();
-        
+
         cmdList.add (jacorbHome + "/bin/jaco");
         cmdList.addAll (TestUtils.propsToArgList (props));
         cmdList.add (mainClass);
         cmdList.addAll (Arrays.asList(args));
-        
-        String[] envp = new String[]
-        {
-            "JACORB_HOME=" + jacorbHome,
-            "CLASSPATH=" + classpath,
-        };
-                
+
         try
         {
-            return rt.exec(toStringArray(cmdList), envp);
+            return rt.exec(toStringArray(cmdList));
         }
         catch (IOException ex)
         {
