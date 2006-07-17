@@ -1525,9 +1525,16 @@ public final class Any
             }
             checkStreamClass ((org.omg.CORBA.portable.OutputStream)value);
             CDROutputStream out = (CDROutputStream) value;
-            CDRInputStream in = new CDRInputStream(toUse, out.getBufferCopy ());
+            final CDRInputStream in = new CDRInputStream(toUse, out.getBufferCopy ());
 
-            in.read_value (typeCode, output);
+            try
+            {
+                in.read_value (typeCode, output);
+            }
+            finally
+            {
+                in.close();
+            }
         }
         else
         {
