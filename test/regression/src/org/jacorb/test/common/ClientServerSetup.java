@@ -28,7 +28,9 @@ import java.io.IOException;
 import java.util.*;
 
 import org.omg.CORBA.*;
+import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableServer.*;
+import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
 import junit.framework.*;
 import junit.extensions.*;
@@ -92,6 +94,9 @@ public class ClientServerSetup extends TestSetup {
     protected org.omg.CORBA.ORB          clientOrb;
     protected org.omg.PortableServer.POA clientRootPOA;
 
+    private ClientServerSetup imrSetup;
+    boolean inInit = false;
+
     private final Properties clientOrbProperties = new Properties();
     private final Properties serverOrbProperties = new Properties();
 
@@ -136,6 +141,13 @@ public class ClientServerSetup extends TestSetup {
     }
 
     public void setUp() throws Exception
+    {
+        initIMR();
+
+        setUpServer();
+    }
+
+    private void setUpServer() throws IOException, InvalidName, AdapterInactive
     {
         initSecurity();
 
@@ -229,6 +241,10 @@ public class ClientServerSetup extends TestSetup {
         isProcessDestroyed = true;
         outListener.setDestroyed();
         errListener.setDestroyed();
+        if (imrSetup != null)
+        {
+            imrSetup.tearDown();
+        }
     }
 
     public String getTestServerMain()
@@ -383,5 +399,40 @@ public class ClientServerSetup extends TestSetup {
         props.put("jacorb.security.ssl.ssl_listener", SSLListener.class.getName());
 
         return props;
+    }
+
+    /**
+     * optionally configures the IMR
+     * for a test. the system property
+     * "jacorb.test.imr" needs to be set
+     * to enable use of the IMR for Client/Server tests.
+     */
+    private void initIMR() throws Exception
+    {
+        final String imrProperty = System.getProperty("jacorb.test.imr");
+        final boolean useIMR = TestUtils.isPropertyTrue(imrProperty);
+
+        if (useIMR)
+        {
+            final Properties imrServerProps = new Properties();
+            File tempFile = File.createTempFile("IMR_Ref", ".ior");
+            imrServerProps.put("jacorb.imr.ior_file", tempFile.getAbsolutePath());
+
+            imrSetup = new ClientServerSetup(null, "", null, imrServerProps)
+            {
+                public String getTestServerMain()
+                {
+                    return ImplementationRepositoryRunner.class.getName();
+                }
+            };
+            imrSetup.setUpServer();
+
+            final Properties imrProps = new Properties();
+            imrProps.put("jacorb.use_imr", "on");
+            imrProps.put("ORBInitRef.ImplementationRepository", imrSetup.getClientOrb().object_to_string(imrSetup.getServerObject()));
+
+            clientOrbProperties.putAll(imrProps);
+            serverOrbProperties.putAll(imrProps);
+        }
     }
 }
