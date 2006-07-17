@@ -65,6 +65,7 @@ public class TestLauncher
         new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss Z");
     private static String testId;
     private static boolean isSSL;
+    private static boolean useIMR;
 
     private static class Listener extends Thread
     {
@@ -100,22 +101,23 @@ public class TestLauncher
 
     public static void printTestHeader (PrintWriter out)
     {
-        out.println ("-------------------------------------------------------------------------------");
+        out.println("-------------------------------------------------------------------------------");
         out.println();
-        out.println ("  JacORB Regression Test Report");
+        out.println("  JacORB Regression Test Report");
         out.println();
-        out.println ("  Suite:    " + getSuiteName() + " [" + (isSSL ? "" : "NO") + "SSL]");
-        out.println ("");
-        out.println ("  Date:     " + getTestDateString());
-        out.println ("  User:     " + getTestUser());
-        out.println ("  Platform: " + getTestPlatform());
+        out.println("  Suite:    " + getSuiteName() + " [" + (isSSL ? "" : "NO") + "SSL]");
+        out.println("");
+        out.println("  Date:     " + getTestDateString());
+        out.println("  User:     " + getTestUser());
+        out.println("  Platform: " + getTestPlatform());
         out.println();
-        out.println ("  Client Version:   " + getClientVersion());
-        out.println ("  Server Version:   " + getServerVersion());
-        out.println ("  Coverage:         " + (getCoverage() ? "yes" : "no"));
-        out.println ("  SSL:              " + (isSSL ? "yes" : "no"));
+        out.println("  Client Version:   " + getClientVersion());
+        out.println("  Server Version:   " + getServerVersion());
+        out.println("  Coverage:         " + (getCoverage() ? "yes" : "no"));
+        out.println("  SSL:              " + (isSSL ? "yes" : "no"));
+        out.println("  IMR:              " + (useIMR ? "yes" : "no"));
         out.println();
-        out.println ("-------------------------------------------------------------------------------");
+        out.println("-------------------------------------------------------------------------------");
     }
 
     public static void printTestHeader (PrintStream out)
@@ -201,6 +203,7 @@ public class TestLauncher
         TestLauncher.args = args;
 
         isSSL = TestUtils.isPropertyTrue(System.getProperty("jacorb.test.ssl"));
+        useIMR = TestUtils.isPropertyTrue(System.getProperty("jacorb.test.imr"));
         testId = System.getProperty("jacorb.test.id", newTestID());
 
         String filetestname = System.getProperty("jacorb.test.outputfile.testname", "false");
