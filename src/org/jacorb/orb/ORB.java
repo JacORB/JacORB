@@ -1760,7 +1760,7 @@ public final class ORB
             {
                 if (failOnORBInitializerError)
                 {
-                    logger.error("unable to build ORBInitializer from class" + name + ": Aborting", e);
+                    logger.error("unable to build ORBInitializer from class " + name + ": Aborting", e);
 
                     throw new INITIALIZE(e.toString());
                 }
