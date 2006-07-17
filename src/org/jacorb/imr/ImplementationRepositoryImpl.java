@@ -1393,9 +1393,9 @@ public class ImplementationRepositoryImpl
             if (_poa == null)
             {
                 sendSysException(
-                    new org.omg.CORBA.OBJECT_NOT_EXIST( "POA " +
-                                                        _poa_name +
-                                                        " unknown" ),
+                    new org.omg.CORBA.TRANSIENT( "POA " +
+                                                 _poa_name +
+                                                 " unknown" ),
                     connection,
                     request_id,
                     giop_minor );
