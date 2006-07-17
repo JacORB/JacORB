@@ -172,7 +172,15 @@
         <property name="jacorb.test.ssl" value="false"/>
     </target>
 
-    <target name="run" depends="test-init, build-all, check-ssl">
+    <target name="check-imr">
+        <condition property="jacorb.test.imr" value="true">
+            <isset property="TEST_IMR"/>
+        </condition>
+
+        <property name="jacorb.test.imr" value="false"/>
+    </target>
+
+    <target name="run" depends="test-init, build-all, check-ssl, check-imr">
         <property name="test.cp" refid="test.classpath"/>
 
         <!-- By default, we don't run coverage-->
@@ -195,6 +203,7 @@
             <jvmarg value="-Djacorb.test.verbose=${jacorb.test.verbose}" />
             <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
             <jvmarg value="-Djacorb.test.ssl=${jacorb.test.ssl}" />
+            <jvmarg value="-Djacorb.test.imr=${jacorb.test.imr}" />
 
              <!-- Note - passing multiple arguments to this class may affect the output file -->
              <!-- naming. See TestLauncher.getOutFilename                                    -->
