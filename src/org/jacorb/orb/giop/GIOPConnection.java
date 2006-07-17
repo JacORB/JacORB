@@ -388,7 +388,7 @@ public abstract class GIOPConnection
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("GIOPConnection.getMessage()" + msg_header.value );
+            logger.debug("GIOPConnection.getMessage()" + ObjectUtil.bufToString(msg_header.value, 0, 4));
         }
 
         return null;
