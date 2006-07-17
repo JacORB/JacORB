@@ -2462,7 +2462,7 @@ public final class ORB
     static class HandlerWrapper extends org.omg.PortableServer.Servant
                                 implements org.omg.CORBA.portable.InvokeHandler
     {
-        private org.omg.CORBA.portable.InvokeHandler wrappedHandler;
+        private final org.omg.CORBA.portable.InvokeHandler wrappedHandler;
 
         public HandlerWrapper(org.omg.CORBA.portable.ObjectImpl objectImpl)
         {
