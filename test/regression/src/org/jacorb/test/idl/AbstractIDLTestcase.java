@@ -46,6 +46,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.jacorb.test.common.StreamListener;
 import org.jacorb.test.common.TestUtils;
 
 public class AbstractIDLTestcase extends TestCase
@@ -95,14 +96,28 @@ public class AbstractIDLTestcase extends TestCase
 
     /**
      * run JacORBs IDL compiler on the current idlFile
+     * @param spawnProcess TODO
      */
-    protected void runJacIDL(boolean failureExpected)
+    protected void runJacIDL(boolean failureExpected, boolean spawnProcess) throws Exception
+    {
+        if (spawnProcess)
+        {
+            runJacIDLExtraProcess(failureExpected);
+        }
+        else
+        {
+            runJacIDLInProcess(failureExpected);
+        }
+    }
+
+    private void runJacIDLInProcess(boolean failureExpected) throws AssertionFailedError
     {
         String[] file = createJacIDLArgs();
 
         dirGeneration.mkdir();
 
         StringWriter writer = new StringWriter();
+        final String details = writer.toString();
         try
         {
             org.jacorb.idl.parser.compile(file, writer);
@@ -114,16 +129,61 @@ public class AbstractIDLTestcase extends TestCase
         }
         catch (Exception e)
         {
-            if (!failureExpected)
-            {
-                AssertionFailedError error = new AssertionFailedError("parsing of " + idlFile.getName()
-                        + " failed: " + writer.toString());
-                error.initCause(e);
-                throw error;
-            }
+            handleJacIDLFailed(failureExpected, details, e);
         }
 
-        TestUtils.log("[" + idlFile.getName() + " output]:\n" + writer.toString());
+        TestUtils.log("[" + idlFile.getName() + " output]:\n" + details);
+    }
+
+    private void handleJacIDLFailed(boolean failureExpected, final String failureCause, Exception e) throws AssertionFailedError
+    {
+        if (!failureExpected)
+        {
+            AssertionFailedError error = new AssertionFailedError("parsing of " + idlFile.getName()
+                    + " failed: " + failureCause);
+            error.initCause(e);
+            throw error;
+        }
+    }
+
+    private void runJacIDLExtraProcess(boolean failureExpected) throws Exception
+    {
+        List args = new ArrayList();
+        args.add(TestUtils.testHome() + "/../../bin/idl");
+        args.addAll(Arrays.asList(createJacIDLArgs()));
+
+        TestUtils.log("Running: " + args);
+
+        Process process = Runtime.getRuntime().exec((String[])args.toArray(new String[args.size()]));
+
+        StreamListener outListener = new StreamListener (process.getInputStream(), "OUT");
+        StreamListener errListener = new StreamListener (process.getErrorStream(), "ERR");
+        String details = "STDOUT\n" + outListener.getBuffer() + "\nSTDERR:\n" + errListener.getBuffer() + "\n";
+
+        try
+        {
+
+            outListener.start();
+            errListener.start();
+            process.waitFor();
+
+            boolean success = process.exitValue() == 0;
+
+            if (failureExpected)
+            {
+                assertFalse(success);
+            }
+            else
+            {
+                assertTrue(success);
+            }
+        }
+        catch (Exception e)
+        {
+            handleJacIDLFailed(failureExpected, details, e);
+        }
+
+        TestUtils.log("[" + idlFile.getName() + " output]:\n" + details);
     }
 
     /**

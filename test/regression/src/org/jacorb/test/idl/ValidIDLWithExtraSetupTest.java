@@ -91,7 +91,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
      */
     public void testMiscParseGood() throws Exception
     {
-        runJacIDL(false);
+        runJacIDL(false, false);
         ClassLoader cl = compileGeneratedSources(false);
 
         invokeVerifyMethod(cl);

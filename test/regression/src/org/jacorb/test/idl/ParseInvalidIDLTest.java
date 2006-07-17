@@ -32,7 +32,7 @@ import org.jacorb.test.common.TestUtils;
  * in the directory <TEST_HOME>/idl/compiler/fail.
  * this test assumes the idl files to be invalid and
  * will fail if JacIDL does not cause an error during processing.
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -43,10 +43,10 @@ public class ParseInvalidIDLTest extends AbstractIDLTestcase
         super("testParseInvalidIDLFails", file);
     }
 
-    public void testParseInvalidIDLFails() 
+    public void testParseInvalidIDLFails() throws Exception
     {
-        runJacIDL(true);
-        // if a test fails the directory 
+        runJacIDL(true, false);
+        // if a test fails the directory
         // will not be deleted. this way
         // the contents can be inspected.
         deleteRecursively(dirGeneration);
