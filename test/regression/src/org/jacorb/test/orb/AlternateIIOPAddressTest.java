@@ -154,18 +154,6 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         {
             // ok - client connection timeout configured.
         }
-        catch (OBJECT_NOT_EXIST e)
-        {
-            ParsedIOR ior = new ParsedIOR(sample.toString(), setup.getClientOrb(), new NullLogger());
-            final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-            PrintWriter out = new PrintWriter(outStream);
-            PrintIOR.printIOR(ior, setup.getClientOrb(), out);
-            out.flush();
-            out.close();
-            String decoded = outStream.toString();
-
-            fail(e.toString() + "\nshould not happen: trying to connect object on non existent port:\n" + decoded);
-        }
     }
 
     public void test_alternate_ok()
