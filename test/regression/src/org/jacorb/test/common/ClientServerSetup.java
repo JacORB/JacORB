@@ -86,6 +86,8 @@ import org.jacorb.test.common.launch.*;
 public class ClientServerSetup extends TestSetup {
 
     public static final String JACORB_REGRESSION_DISABLE_SECURITY = "jacorb.regression.disable_security";
+    public static final String JACORB_REGRESSION_DISABLE_IMR = "jacorb.regression.disable_imr";
+
     protected final String               servantName;
     protected Process                    serverProcess;
     private boolean isProcessDestroyed = false;
@@ -298,22 +300,37 @@ public class ClientServerSetup extends TestSetup {
     }
 
     /**
+     * check if SSL testing is disabled for this setup
+     */
+    private boolean isSSLEnabled()
+    {
+        return checkProperty(JACORB_REGRESSION_DISABLE_SECURITY);
+    }
+
+    /**
+     * check is IMR testing is disabled for this setup
+     */
+    private boolean isIMREnabled()
+    {
+        return checkProperty(JACORB_REGRESSION_DISABLE_IMR);
+    }
+
+    /**
      * <code>checkProperties</code> examines clientOrbProperties and serverOrbProperties
-     * for the key jacorb.regression.disable_security. If it is found in one of the properties
+     * for the specified key. If it is found in one of the properties
      * and is set to true this
-     * will return false therebye disabling security. This is useful if the test has not
-     * extended ClientServerSetup but does want to disable the security e.g. WIOP tests.
+     * will return false.
      *
      * @return a <code>boolean</code> value
      */
-    private boolean checkProperties()
+    private boolean checkProperty(String property)
     {
         boolean result = true;
 
         if (clientOrbProperties != null)
         {
             if (TestUtils.isPropertyTrue(clientOrbProperties.getProperty
-                            (JACORB_REGRESSION_DISABLE_SECURITY, "false")))
+                            (property, "false")))
             {
                 result = false;
             }
@@ -321,7 +338,7 @@ public class ClientServerSetup extends TestSetup {
         if (serverOrbProperties != null)
         {
             if (TestUtils.isPropertyTrue(serverOrbProperties.getProperty
-                            (JACORB_REGRESSION_DISABLE_SECURITY, "false")))
+                            (property, "false")))
             {
                 result = false;
             }
@@ -342,7 +359,7 @@ public class ClientServerSetup extends TestSetup {
         final String sslProperty = System.getProperty("jacorb.test.ssl");
         final boolean useSSL = TestUtils.isPropertyTrue(sslProperty);
 
-        if (useSSL && checkProperties())
+        if (useSSL && isSSLEnabled())
         {
             // In this case we have been configured to run all the tests
             // in SSL mode. For simplicity, we will use the demo/ssl keystore
@@ -412,7 +429,7 @@ public class ClientServerSetup extends TestSetup {
         final String imrProperty = System.getProperty("jacorb.test.imr");
         final boolean useIMR = TestUtils.isPropertyTrue(imrProperty);
 
-        if (useIMR)
+        if (useIMR && isIMREnabled())
         {
             final Properties imrServerProps = new Properties();
             File tempFile = File.createTempFile("IMR_Ref", ".ior");
