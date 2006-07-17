@@ -222,8 +222,8 @@ public class LogKitLoggerFactory
             // use default LogTarget
             if (defaultTarget == null)
             {
-            logger.setLogTargets(new LogTarget[] { consoleTarget } );
-        }
+                logger.setLogTargets(new LogTarget[] { consoleTarget } );
+            }
             else
             {
                 logger.setLogTargets(new LogTarget[] { defaultTarget } );
@@ -258,9 +258,13 @@ public class LogKitLoggerFactory
                 int priorityForLogger =
                     configuration.getAttributeAsInteger( prefix + ".log.verbosity");
                 if (priorityForLogger > 4)
+                {
                     priorityForLogger = 4;
+                }
                 else if (priorityForLogger < 0)
+                {
                     priorityForLogger = 0;
+                }
                 return priorityForLogger;
             }
             catch( ConfigurationException ce )
