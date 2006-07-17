@@ -828,6 +828,16 @@ public class ImplementationRepositoryImpl
         argProps.setProperty("jacorb.implname", "the_ImR");
         argProps.setProperty("jacorb.use_imr", "off");
 
+        boolean printIOR = false;
+
+        for (int i = 0; i < args.length; i++)
+        {
+            if ("-printIOR".equals(args[i]))
+            {
+                printIOR = true;
+            }
+        }
+
         //Write IOR to file
         try
         {
@@ -864,9 +874,16 @@ public class ImplementationRepositoryImpl
             PrintWriter _out = new PrintWriter
                 (new FileOutputStream(new File(_imr.getIORFile())));
 
-            _out.println(orb.object_to_string(imr_poa.servant_to_reference(_imr)));
+            final org.omg.CORBA.Object imrReference = imr_poa.servant_to_reference(_imr);
+            _out.println(orb.object_to_string(imrReference));
             _out.flush();
             _out.close();
+
+            if (printIOR)
+            {
+                System.out.println ("SERVER IOR: " + orb.object_to_string(imrReference));
+                System.out.flush();
+            }
 
             orb.run();
         }
@@ -891,66 +908,68 @@ public class ImplementationRepositoryImpl
                 this.logger.debug("ImR: server " + server.name + " is down");
             }
 
-            if (server.command.length() == 0){
-                //server can't be restartet, send exception
+            if (server.command.length() == 0)
+            {
+                //server can't be restarted, send exception
                 throw new ServerStartupFailed("Server " + server.name +
                                               " can't be restarted because" +
                                               " of missing startup command");
             }
-            else{
-                // we have to synchronize here to avoid a server to be
-                // restarted multiple times by requests that are
-                // received in the gap between the first try to
-                // restart and the reactivation of the POAs.
-                // restarting is set back to false when the first POA
-                // is reactivated and the server goes back to active
-                // (see ImRPOAInfo.reactivate()).
-                if (server.shouldBeRestarted()){
-                    try{
-                        // If there is no SSD for the host, we get an
-                        // NullPointerException.  In a further
-                        // version, we might choose another random
-                        // SSD.
-                        ImRHostInfo _host = server_table.getHost(server.host);
 
-                        if( _host == null )
-                        {
-                            throw new ServerStartupFailed( "Unknown host: >>" +
-                                                           server.host + "<<" );
-                        }
-
-                        if (this.logger.isDebugEnabled())
-                        {
-                            this.logger.debug("ImR: will restart " + server.name);
-                        }
-
-                        _host.startServer(server.command, orb);
-                    }
-                    catch (ServerStartupFailed ssf)
-                    {
-                        server.setNotRestarting();
-
-                        throw ssf;
-                    }
-                    catch (Exception e)
-                    {
-                        server.setNotRestarting();
-
-                        this.logger.debug("Caught Exception", e);
-
-                        // sth wrong with daemon, remove from table
-                        server_table.removeHost(server.host);
-
-                        throw new ServerStartupFailed("Failed to connect to host!");
-                    }
-                }
-                else
+            // we have to synchronize here to avoid a server to be
+            // restarted multiple times by requests that are
+            // received in the gap between the first try to
+            // restart and the reactivation of the POAs.
+            // restarting is set back to false when the first POA
+            // is reactivated and the server goes back to active
+            // (see ImRPOAInfo.reactivate()).
+            if (server.shouldBeRestarted())
+            {
+                try
                 {
+                    // If there is no SSD for the host, we get an
+                    // NullPointerException.  In a further
+                    // version, we might choose another random
+                    // SSD.
+                    ImRHostInfo _host = server_table.getHost(server.host);
+
+                    if( _host == null )
+                    {
+                        throw new ServerStartupFailed( "Unknown host: >>" +
+                                server.host + "<<" );
+                    }
+
                     if (this.logger.isDebugEnabled())
                     {
-                        this.logger.debug("ImR: somebody else is restarting " +
-                                          server.name);
+                        this.logger.debug("ImR: will restart " + server.name);
                     }
+
+                    _host.startServer(server.command, orb);
+                }
+                catch (ServerStartupFailed ssf)
+                {
+                    server.setNotRestarting();
+
+                    throw ssf;
+                }
+                catch (Exception e)
+                {
+                    server.setNotRestarting();
+
+                    this.logger.debug("Caught Exception", e);
+
+                    // sth wrong with daemon, remove from table
+                    server_table.removeHost(server.host);
+
+                    throw new ServerStartupFailed("Failed to connect to host!");
+                }
+            }
+            else
+            {
+                if (this.logger.isDebugEnabled())
+                {
+                    this.logger.debug("ImR: somebody else is restarting " +
+                            server.name);
                 }
             }
         }
@@ -1394,8 +1413,8 @@ public class ImplementationRepositoryImpl
             {
                 sendSysException(
                     new org.omg.CORBA.TRANSIENT( "POA " +
-                                                 _poa_name +
-                                                 " unknown" ),
+                                                _poa_name +
+                                                " unknown" ),
                     connection,
                     request_id,
                     giop_minor );
