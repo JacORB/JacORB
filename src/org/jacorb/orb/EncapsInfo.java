@@ -32,8 +32,8 @@ import java.util.*;
 public class EncapsInfo
 {
     public boolean littleEndian;
-    public int index;
-    public int start;
+    public final int index;
+    public final int start;
     public int size;
     public Map valueMap;
     public Map repIdMap;

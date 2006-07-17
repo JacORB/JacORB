@@ -130,7 +130,7 @@ public class ReplyReceiver
             // by Jimmy Wilson, 2005-01.  It is only a temporary
             // work-around though, until I can simplify this entire
             // logic much more thoroughly, AS.
-            synchronized (this)
+            synchronized (lock)
             {
                 if (timeoutException)
                 {
@@ -149,7 +149,7 @@ public class ReplyReceiver
                 {
                     // synchronous delivery
                     ready = true;
-                    notifyAll();
+                    lock.notifyAll();
                 }
             }
         }
@@ -347,11 +347,11 @@ public class ReplyReceiver
 
     private void doRebind ( org.omg.CORBA.Object forward_reference )
     {
+        // make other threads that have unreturned replies wait
+        delegate.lockBarrier();
+
         try
         {
-            // make other threads that have unreturned replies wait
-            delegate.lockBarrier();
-
             // tell every pending request to remarshal
             // they will be blocked on the barrier
             Set pending_replies = delegate.get_pending_replies();
@@ -439,8 +439,8 @@ public class ReplyReceiver
      */
     private class Timer extends Thread
     {
+        private final UtcT endTime;
         private boolean awakened = false;
-        private UtcT    endTime;
 
         public Timer (UtcT endTime)
         {
@@ -450,9 +450,9 @@ public class ReplyReceiver
 
         public void run()
         {
-            synchronized (this)
+            synchronized (lock)
             {
-                ReplyReceiver.this.timeoutException = false;
+                timeoutException = false;
                 if (!awakened)
                 {
                     long time = org.jacorb.util.Time.millisTo (endTime);
@@ -460,7 +460,7 @@ public class ReplyReceiver
                     {
                         try
                         {
-                            this.wait (time);
+                            lock.wait (time);
                         }
                         catch (InterruptedException ex)
                         {
@@ -469,19 +469,16 @@ public class ReplyReceiver
                     }
                     if (!awakened)
                     {
-                        synchronized (ReplyReceiver.this)
-                        {
-                            ReplyReceiver.this.timeoutException = true;
+                        timeoutException = true;
 
-                            if (replyHandler != null)
-                            {
-                                ExceptionHolderImpl exHolder =
-                                    new ExceptionHolderImpl(new org.omg.CORBA.TIMEOUT());
-                                performExceptionCallback(exHolder);
-                            }
-                            ReplyReceiver.this.ready = true;
-                            ReplyReceiver.this.notifyAll();
+                        if (replyHandler != null)
+                        {
+                            ExceptionHolderImpl exHolder =
+                                new ExceptionHolderImpl(new org.omg.CORBA.TIMEOUT());
+                            performExceptionCallback(exHolder);
                         }
+                        ready = true;
+                        lock.notifyAll();
                     }
                 }
             }
@@ -489,11 +486,11 @@ public class ReplyReceiver
 
         public void wakeup()
         {
-            synchronized (this)
+            synchronized (lock)
             {
                 awakened         = true;
-                ReplyReceiver.this.timeoutException = false;
-                this.notifyAll();
+                timeoutException = false;
+                lock.notifyAll();
             }
         }
     }

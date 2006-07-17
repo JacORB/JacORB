@@ -427,7 +427,7 @@ public class Request
         }
     }
 
-    public boolean poll_response()
+    public synchronized boolean poll_response()
     {
         if( ! immediate && ! deferred )
         {
@@ -469,7 +469,7 @@ public class Request
         deferred = true;
     }
 
-    private void finish()
+    private synchronized void finish()
     {
         finished = true;
     }

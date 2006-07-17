@@ -34,6 +34,7 @@ import org.omg.CORBA.portable.RemarshalException;
  */
 public abstract class ReplyPlaceholder
 {
+    protected final Object lock = new Object();
     protected boolean ready = false;
     protected boolean communicationException = false;
     protected boolean remarshalException = false;
@@ -41,7 +42,7 @@ public abstract class ReplyPlaceholder
 
     protected MessageInputStream in = null;
 
-    protected int timeout ;
+    protected final int timeout ;
 
     /**
      * self-configuring c'tor
@@ -53,31 +54,40 @@ public abstract class ReplyPlaceholder
             orb.getConfiguration().getAttributeAsInteger("jacorb.connection.client.pending_reply_timeout", 0);
     }
 
-    public synchronized void replyReceived( MessageInputStream in )
+    public void replyReceived( MessageInputStream in )
     {
-        if( ! timeoutException )
+        synchronized(lock)
         {
-            this.in = in;
-            ready = true;
-            notifyAll();
+            if( ! timeoutException )
+            {
+                this.in = in;
+                ready = true;
+                lock.notifyAll();
+            }
         }
     }
 
-    public synchronized void cancel()
+    public void cancel()
     {
-        if( in == null )
+        synchronized(lock)
         {
-            communicationException = true;
-            ready = true;
-            notify();
+            if( in == null )
+            {
+                communicationException = true;
+                ready = true;
+                lock.notify();
+            }
         }
     }
 
-    public synchronized void retry()
+    public void retry()
     {
-        remarshalException = true;
-        ready = true;
-        notify();
+        synchronized(lock)
+        {
+            remarshalException = true;
+            ready = true;
+            lock.notify();
+        }
     }
 
     /**
@@ -87,52 +97,55 @@ public abstract class ReplyPlaceholder
      * name, that does any specific processing of the reply before
      * returning it to the caller.
      */
-    protected synchronized MessageInputStream getInputStream(boolean hasTimeoutPolicy)
+    protected MessageInputStream getInputStream(boolean hasTimeoutPolicy)
         throws RemarshalException
     {
-        while( !ready )
+        synchronized(lock)
         {
-            try
+            while( !ready )
             {
-                if( timeout > 0 && !hasTimeoutPolicy)
+                try
                 {
-                    wait( timeout ); //wait only "timeout" long
-
-                    //timeout
-                    if( ! ready )
+                    if( timeout > 0 && !hasTimeoutPolicy)
                     {
-                        ready = true; //break loop
-                        timeoutException = true;
+                        lock.wait( timeout ); //wait only "timeout" long
+
+                        //timeout
+                        if( ! ready )
+                        {
+                            ready = true; //break loop
+                            timeoutException = true;
+                        }
+                    }
+                    else
+                    {
+                        lock.wait(); //wait infinitely
                     }
                 }
-                else
+                catch( InterruptedException e )
                 {
-                    wait(); //wait infinitely
+                    // ignored
                 }
             }
-            catch( InterruptedException e )
+
+            if( remarshalException )
             {
-                // ignored
+                throw new org.omg.CORBA.portable.RemarshalException();
             }
-        }
 
-        if( remarshalException )
-        {
-            throw new org.omg.CORBA.portable.RemarshalException();
-        }
+            if( communicationException )
+            {
+                throw new org.omg.CORBA.COMM_FAILURE(
+                        0,
+                        org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE );
+            }
 
-        if( communicationException )
-        {
-            throw new org.omg.CORBA.COMM_FAILURE(
-                0,
-                org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE );
-        }
+            if( timeoutException )
+            {
+                throw new org.omg.CORBA.TIMEOUT ("client timeout reached");
+            }
 
-        if( timeoutException )
-        {
-            throw new org.omg.CORBA.TIMEOUT ("client timeout reached");
+            return in;
         }
-
-        return in;
     }
-}// ReplyPlaceholder
+}

@@ -531,9 +531,9 @@ public class ClientIIOPConnection
                     in.close();
                 }
             }
-            catch ( Exception ex )
+            catch ( Exception e )
             {
-                logger.warn("Error parsing TLS_SEC_TRANS: "+ex);
+                logger.warn("Error parsing TLS_SEC_TRANS: "+e);
             }
         }
 
