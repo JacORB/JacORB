@@ -11,6 +11,7 @@ import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.dii.DIIServerPackage.DIIException;
 import org.jacorb.test.dii.DIIServerPackage.DIIExceptionHelper;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.WrongTransaction;
 
 /**
  * converted from demo.dii
@@ -48,6 +49,7 @@ public class DiiTest extends ClientServerTestCase
         server = setup.getServerObject();
         orb = setup.getClientOrb();
     }
+
 
     public void testSimpleRequest()
     {
@@ -102,13 +104,37 @@ public class DiiTest extends ClientServerTestCase
 
     public void testDeferredAsyncOperationSyncWithResult() throws Exception
     {
-        org.omg.CORBA.Request request =  server._request("writeNumber");
+        final boolean[] success = new boolean[1];
+        final Exception[] exception = new Exception[1];
+
+        final org.omg.CORBA.Request request =  server._request("writeNumber");
         request.add_in_arg().insert_long( 5 );
         request.set_return_type( orb.get_primitive_tc(
                 org.omg.CORBA.TCKind.tk_string ));
 
         request.send_deferred();
-        request.get_response();
+
+        Thread syncWithResult = new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    request.get_response();
+                    success[0] = true;
+                }
+                catch (WrongTransaction e)
+                {
+                    exception[0] = e;
+                }
+            }
+        };
+        syncWithResult.start();
+        syncWithResult.join(5000);
+
+        assertNull(exception[0]);
+        assertTrue("unable to sync with result within 5sec", success[0]);
+
         assertNull(request.env().exception());
         assertEquals("Number written", request.return_value().extract_string());
     }
