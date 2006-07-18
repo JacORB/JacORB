@@ -45,7 +45,7 @@ public class RecursiveParam extends ClientServerTestCase
         TestSuite suite = new TestSuite
             ( "Client/server recursiveparam tests" );
         ClientServerSetup setup = new ClientServerSetup
-            ( suite, "org.jacorb.test.orb.RecursiveParamServerImpl" );
+            ( suite, RecursiveParamServerImpl.class.getName() );
 
         suite.addTest( new RecursiveParam( "test_param1", setup ) );
 
