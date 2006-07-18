@@ -138,7 +138,9 @@ public class ValueDecl
     public void parse()
     {
         if (inheritanceSpec != null)
+        {
             inheritanceSpec.parse();
+        }
 
         boolean justAnotherOne = false;
 
@@ -184,38 +186,58 @@ public class ValueDecl
 
         if (hasBody)
         {
+            logger.warn("valueDecl.parse(): exports (but not attributes)");
+
+            // parse exports
+            Iterator iter = exports.iterator();
+            while(iter.hasNext())
+            {
+                IdlSymbol idlSymbol = (IdlSymbol)iter.next();
+
+                if (! ( idlSymbol instanceof AttrDecl ) )
+                {
+                    idlSymbol.parse();
+                }
+            }
+
+            logger.warn("valueDecl.parse(): members");
+
             ScopedName.addRecursionScope(typeName());
             stateMembers.parse();
             ScopedName.removeRecursionScope(typeName());
 
-            if (logger.isWarnEnabled())
-                logger.warn("valueDecl.parse(): operations");
+
+            logger.warn("valueDecl.parse(): operations");
 
             // parse operations
-            Iterator iter = operations.iterator();
+            iter = operations.iterator();
             while(iter.hasNext())
             {
                 IdlSymbol idlSymbol = (IdlSymbol)iter.next();
                 idlSymbol.parse();
             }
 
-            if (logger.isWarnEnabled())
-                logger.warn("valueDecl.parse(): exports");
+
+            logger.warn("valueDecl.parse(): exports(attributes)");
 
             // parser exports
             iter = exports.iterator();
             while(iter.hasNext())
             {
                 IdlSymbol idlSymbol = (IdlSymbol)iter.next();
-                idlSymbol.parse();
 
                 if (idlSymbol instanceof AttrDecl)
                 {
+                    idlSymbol.parse();
                     Enumeration e = ((AttrDecl)idlSymbol).getOperations();
                     while(e.hasMoreElements())
+                    {
                         operations.add(e.nextElement());
+                    }
                 }
             }
+
+            logger.warn("valueDecl.parse(): factories");
 
             // parse factories
             iter = factories.iterator();
@@ -226,10 +248,11 @@ public class ValueDecl
             }
 
             // check inheritance rules
+            logger.warn("valueDecl.parse(): check inheritance");
 
             if (inheritanceSpec != null)
             {
-                Hashtable h = new Hashtable();
+                HashSet h = new HashSet();
                 for(Enumeration e = inheritanceSpec.getValueTypes();
                     e.hasMoreElements();)
                 {
@@ -239,7 +262,7 @@ public class ValueDecl
 
                     if (ts.declaration() instanceof Value)
                     {
-                        if (h.containsKey(ts.full_name()))
+                        if (h.contains(ts.full_name()))
                         {
                             parser.fatal_error("Illegal inheritance spec: " +
                                                inheritanceSpec  +
@@ -247,7 +270,7 @@ public class ValueDecl
                                                token);
                         }
                         // else:
-                        h.put(ts.full_name(), "");
+                        h.add(ts.full_name());
                         continue;
                     }
                     logger.error(" Declaration is " + ts.declaration().getClass());
@@ -442,6 +465,11 @@ public class ValueDecl
             printFactory(dir);
             printHelper(dir);
             printHolder(dir);
+
+            // print class files for exports definitions
+            for (Iterator i = exports.iterator(); i.hasNext();) {
+                ((IdlSymbol)i.next()).print(null);
+            }
         }
         catch (IOException e)
         {

@@ -99,6 +99,8 @@
         - fixed invalid handling of forward decl of CORBA::TypeCode
         - Improve generation for IDL exceptions.
         - Fix for invalid IDL compilation.
+        - fix for "IDL compiler fails for typedef within valuetype declaration" (bugzilla #601). thanks
+          to Thomas Leineweber for providing the patch.
     - Tools:
         - Updated 'dior' utility to decode realtime policies.
     - Security:

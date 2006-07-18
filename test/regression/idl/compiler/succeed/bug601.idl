@@ -1,0 +1,14 @@
+module bug601a
+{
+  valuetype StrMapRelation
+  {
+    struct Item
+    {
+      string key;
+    };
+    typedef sequence <Item> ItemSeq;
+    private ItemSeq m_refs;
+
+    boolean is_composition();
+  };
+};
