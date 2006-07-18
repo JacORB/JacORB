@@ -96,21 +96,24 @@ public class AbstractIDLTestcase extends TestCase
 
     /**
      * run JacORBs IDL compiler on the current idlFile
-     * @param spawnProcess TODO
      */
     protected void runJacIDL(boolean failureExpected, boolean spawnProcess) throws Exception
     {
+        final String details;
+
         if (spawnProcess)
         {
-            runJacIDLExtraProcess(failureExpected);
+            details = runJacIDLExtraProcess(failureExpected);
         }
         else
         {
-            runJacIDLInProcess(failureExpected);
+            details = runJacIDLInProcess(failureExpected);
         }
+
+        TestUtils.log("[" + idlFile.getName() + " output]:\n" + details);
     }
 
-    private void runJacIDLInProcess(boolean failureExpected) throws AssertionFailedError
+    private String runJacIDLInProcess(boolean failureExpected) throws AssertionFailedError
     {
         String[] file = createJacIDLArgs();
 
@@ -132,21 +135,10 @@ public class AbstractIDLTestcase extends TestCase
             handleJacIDLFailed(failureExpected, details, e);
         }
 
-        TestUtils.log("[" + idlFile.getName() + " output]:\n" + details);
+        return details;
     }
 
-    private void handleJacIDLFailed(boolean failureExpected, final String failureCause, Exception e) throws AssertionFailedError
-    {
-        if (!failureExpected)
-        {
-            AssertionFailedError error = new AssertionFailedError("parsing of " + idlFile.getName()
-                    + " failed: " + failureCause);
-            error.initCause(e);
-            throw error;
-        }
-    }
-
-    private void runJacIDLExtraProcess(boolean failureExpected) throws Exception
+    private String runJacIDLExtraProcess(boolean failureExpected) throws Exception
     {
         List args = new ArrayList();
         args.add(TestUtils.testHome() + "/../../bin/idl");
@@ -162,7 +154,6 @@ public class AbstractIDLTestcase extends TestCase
 
         try
         {
-
             outListener.start();
             errListener.start();
             process.waitFor();
@@ -183,7 +174,18 @@ public class AbstractIDLTestcase extends TestCase
             handleJacIDLFailed(failureExpected, details, e);
         }
 
-        TestUtils.log("[" + idlFile.getName() + " output]:\n" + details);
+        return details;
+    }
+
+    private void handleJacIDLFailed(boolean failureExpected, final String details, Exception e) throws AssertionFailedError
+    {
+        if (!failureExpected)
+        {
+            AssertionFailedError error = new AssertionFailedError("parsing of " + idlFile.getName()
+                    + " failed: " + details);
+            error.initCause(e);
+            throw error;
+        }
     }
 
     /**
@@ -335,8 +337,9 @@ public class AbstractIDLTestcase extends TestCase
         Method runMethod = null;
         try
         {
-            runMethod = getClass().getMethod(testName, null);
-        } catch (NoSuchMethodException e)
+            runMethod = getClass().getMethod(testName, new Class[0]);
+        }
+        catch (NoSuchMethodException e)
         {
             fail("Method \"" + testName + "\" not found");
         }
@@ -347,7 +350,7 @@ public class AbstractIDLTestcase extends TestCase
 
         try
         {
-            runMethod.invoke(this, new Class[0]);
+            runMethod.invoke(this, new Object[0]);
         }
         catch (InvocationTargetException e)
         {
