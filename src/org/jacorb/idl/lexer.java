@@ -162,6 +162,7 @@ public class lexer
         /* set up the keyword table */
 
         keywords.put( "abstract", new Integer( sym.ABSTRACT ) );
+        keywords.put( "AbstractBase", new Integer( sym.ABSTRACTBASE ) );
         keywords.put( "any", new Integer( sym.ANY ) );
         keywords.put( "attribute", new Integer( sym.ATTRIBUTE ) );
         keywords.put( "boolean", new Integer( sym.BOOLEAN ) );

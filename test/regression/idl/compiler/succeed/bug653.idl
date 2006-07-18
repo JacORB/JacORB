@@ -1,0 +1,7 @@
+module bug653
+{
+    abstract valuetype DataOutputStream
+    {
+        void write_Abstract(in AbstractBase value);
+    };
+};
