@@ -5,6 +5,7 @@
 <project name="regression-test" default="help" basedir="../../">
 
     <property name="jacorb.home" value="${basedir}" />
+    <property file="${basedir}/test/regression/build.properties" />
 
     <!-- ==================================================== -->
     <!--             JacORB Tests build file                  -->
