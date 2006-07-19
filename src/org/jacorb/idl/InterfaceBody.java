@@ -45,15 +45,15 @@ public class InterfaceBody
     public class ParseThread
         extends Thread
     {
-        InterfaceBody b = null;
+        private final InterfaceBody b;
         private boolean running = false;
-        private boolean incremented = false;
 
         public ParseThread( InterfaceBody _b )
         {
             b = _b;
             setDaemon( true );
             parseThreads.addElement( this );
+            parser.incActiveParseThreads();
             start();
         }
 
@@ -73,8 +73,6 @@ public class InterfaceBody
                         {
                             o.wait();
                             running = true;
-                            parser.incActiveParseThreads();
-                            incremented = true;
                         }
                     }
                     catch( InterruptedException ie )
@@ -84,6 +82,7 @@ public class InterfaceBody
                 }
             }
             b.internal_parse();
+
             exitParseThread();
         }
 
@@ -104,8 +103,7 @@ public class InterfaceBody
         private synchronized void exitParseThread()
         {
             parser.remove_pending( b.full_name() );
-            if( incremented )
-                parser.decActiveParseThreads();
+            parser.decActiveParseThreads();
             parseThreads.removeElement( this );
             running = false;
         }

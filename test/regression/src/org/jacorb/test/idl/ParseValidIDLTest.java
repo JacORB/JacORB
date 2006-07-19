@@ -79,13 +79,11 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
      */
     private boolean shouldSpawnJacIDLProcess(File idlFile)
     {
-        if (idlFile.getName().endsWith("basetypes.idl"))
-        {
-            TestUtils.verbose = true;
-            return true;
-        }
+//        if (idlFile.getName().endsWith("basetypes.idl"))
+//        {
+//            return true;
+//        }
 
-        TestUtils.verbose = false;
         return false;
     }
 
