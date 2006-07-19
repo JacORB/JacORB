@@ -101,8 +101,6 @@
         - Fix for invalid IDL compilation.
         - fix for "IDL compiler fails for typedef within valuetype declaration" (bugzilla #601). thanks
           to Thomas Leineweber for providing the patch.
-        - fix to support the keyword AbstractBase which is mapped to java.lang.Object (bugzilla #653). thanks
-          to Anders Hessellund Jensen for providing the patch.
     - Tools:
         - Updated 'dior' utility to decode realtime policies.
     - Security:
