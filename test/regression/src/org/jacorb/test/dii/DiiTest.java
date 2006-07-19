@@ -5,6 +5,8 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.config.Configuration;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
@@ -36,10 +38,11 @@ public class DiiTest extends ClientServerTestCase
         Properties props = new Properties();
 
         props.put("jacorb.dii.request.log.verbosity", "4");
+//        props.put("jacorb.log.default.verbosity", "4");
 
         ClientServerSetup setup = new ClientServerSetup(suite, DynamicServer.class.getName(), props, props);
 
-        TestUtils.addToSuite(suite, setup, DiiTest.class);
+        TestUtils.addToSuite(suite, setup, DiiTest.class, "testSendRequestWhichCausesAnException");
 
         return setup;
     }
@@ -180,8 +183,17 @@ public class DiiTest extends ClientServerTestCase
 
     public void testSendRequestWhichCausesAnException()
     {
+        System.err.println("START testSendRequestWhichCausesAnException");
+        Logger logger = ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.dii.request");
+
         org.omg.CORBA.Request request = server._request("raiseException");
+
+        logger.debug("created request");
+
         org.omg.CORBA.ExceptionList exceptions = request.exceptions();
+
+        logger.debug("accessed exceptions");
+
         org.omg.CORBA.TypeCode typeCode =
             orb.create_exception_tc(
                     DIIExceptionHelper.id(),
@@ -193,15 +205,27 @@ public class DiiTest extends ClientServerTestCase
                                     null)
                     }
             );
+
+        logger.debug("created typecode: " + typeCode);
+
         exceptions.add( typeCode );
 
+        logger.debug("added typecode");
+
         request.invoke();
+
+        logger.debug("invoked request");
+
         Exception exception = request.env().exception();
+
+        logger.debug("Exception: " + exception);
+
         assertNotNull(exception);
 
         org.omg.CORBA.Any any = ((org.omg.CORBA.UnknownUserException) exception).except;
         DIIException ex = DIIExceptionHelper.extract(any);
 
         assertEquals("TestException", ex.why);
+        System.err.println("DONE testSendRequestWhichCausesAnException");
     }
 }
