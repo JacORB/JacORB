@@ -1242,12 +1242,14 @@ public final class ORB
         }
         else if( identifier.equals("SecurityCurrent") )
         {
-            if( securityCurrent == null )
-            {
-                securityCurrent = new org.jacorb.security.level2.CurrentImpl (this);
-                ((org.jacorb.security.level2.CurrentImpl)securityCurrent).init();
-            }
-            obj = securityCurrent;
+//            if( securityCurrent == null )
+//            {
+//                securityCurrent = new org.jacorb.security.level2.CurrentImpl (this);
+//                ((org.jacorb.security.level2.CurrentImpl)securityCurrent).init();
+//            }
+//            obj = securityCurrent;
+            // TODO level2 security was removed.
+            throw new InvalidName();
         }
         else if( identifier.equals("DynAnyFactory") )
         {
