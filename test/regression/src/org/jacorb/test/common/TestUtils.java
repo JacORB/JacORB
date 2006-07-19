@@ -54,12 +54,12 @@ public class TestUtils
 
     private static String testHome = null;
     private static String systemRoot = null;
-    private static final boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
+    public static boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
 
     private static final boolean JDK_13 =
         (
             System.getProperty ("java.version").indexOf("1.3") != -1 ||
-            "CVM".equals((String)System.getProperty ("java.vm.name"))
+            "CVM".equals(System.getProperty ("java.vm.name"))
         );
 
 
