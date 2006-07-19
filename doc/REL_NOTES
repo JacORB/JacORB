@@ -86,6 +86,7 @@
         - Fix for hanging process when shutting down POA after accessing a destroyed object (bugzilla #400).
         - new property: jacorb.ignoreComponentInfoProfiles. This forces JacORB to ignore
           all codeset component info profiles.
+        - Change default connect_timeout to 90000
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.

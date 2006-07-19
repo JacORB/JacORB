@@ -486,7 +486,7 @@ boolean & off \\
 \hline
 \verb"jacorb.connection.cli"
 \verb"ent.connect_timeout" & Initial timeout for establishing a connection.
- & millisec & 0 \\
+ & millisec & 90000 \\
 \hline
 \verb"jacorb.connection.clie"
 \verb"nt.pending_reply_timeo"
@@ -1115,6 +1115,8 @@ TCPConnectionEvent which allows the following information to be retrieved:
     public int getRemotePort()
 \end{verbatim}
 \end{small}
+Note that the TCPConnectionEvent extends java.util.EventObject and the EventObject.getSource
+operation will return the IIOPConnection of the TCP connection.
 
 \subsubsection{SSL Monitoring}
 
@@ -1149,8 +1151,14 @@ SSLSessionEvent which allows the following information to be retrieved:
 \end{verbatim}
 \end{small}
 
-Note that getRemoteDN will simply return a concatenated string of the certificates. For that reason it is deprecated; getPeerCertificateChain should be used instead as that allows a developer to extract specific information from the certificate.
-In order to detect a succesful handshake the implementation delegates to the JSSE {\tt javax.net.ssl.HandShakeCompletedListener}.
+Note that getRemoteDN will simply return a concatenated string of the
+certificates. For that reason it is deprecated; getPeerCertificateChain should
+be used instead as that allows a developer to extract specific information from
+the certificate.  In order to detect a succesful handshake the implementation
+delegates to the JSSE {\tt javax.net.ssl.HandShakeCompletedListener}. When using
+JDK1.3 JSSE the JSSE may not throw for instance a handshakeException but a
+sslException. Similar to above, SSLSessionEvent extends java.util.EventObject. The
+EventObject.getSource operation will return the source of the HandshakeCompletedEvent.
 
 \subsection{JacORB IORMutator}
 \label{eventLogging}

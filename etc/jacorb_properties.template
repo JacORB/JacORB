@@ -166,7 +166,7 @@ jacorb.maxManagedBufSize=18
 #jacorb.connection.timeout_after_closeconnection=20000
 
 # Initial timeout for establishing a connection.
-#jacorb.connection.client.connect_timeout=0
+jacorb.connection.client.connect_timeout=90000
 
 # Wait the specified number of msecs for a reply to a request. If
 # exceeded, a org.omg.CORBA.TIMEOUT exception will be thrown
