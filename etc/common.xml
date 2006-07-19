@@ -60,9 +60,6 @@
    <mkdir dir="${src}/generated"/>
    <filter token="path" value="basedir"/>
 
-    <condition property="java-source-version" value="1.5">
-        <available classname="java.util.concurrent.Semaphore"/>
-    </condition>
     <property name="java-source-version" value="1.4"/>
 
    <!-- = = = = = = = = = = = = = = = = =
