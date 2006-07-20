@@ -219,10 +219,10 @@ public class ClientServerSetup extends TestSetup {
             String exc = errListener.getException(2000);
 
             StringBuffer details = new StringBuffer();
-            details.append("Details from Server OUT:");
+            details.append("Details from Server OUT:\n");
             details.append(outListener.getBuffer());
             details.append('\n');
-            details.append("Details from Server ERR:");
+            details.append("Details from Server ERR:\n");
             details.append(errListener.getBuffer());
             details.append('\n');
 
