@@ -1,26 +1,26 @@
 module demo {
 
-  module value {
+   module value {
 
-    module idl {
+      module idl {
 
-      valuetype boxedLong   long;
-      valuetype boxedString string;
+         valuetype boxedLong   long;
+         valuetype boxedString string;
 
-      valuetype Node {
-        public long id;
-        public Node next;
+         valuetype Node {
+            public long id;
+            public Node next;
+         };
+
+         interface ValueServer {
+            string receive_long   (in boxedLong p1, in boxedLong p2);
+            string receive_string (in boxedString s1, in boxedString s2);
+
+            string receive_list   (in Node node_);
+         };
+
       };
 
-      interface ValueServer {
-        string receive_long   (in boxedLong p1, in boxedLong p2);
-        string receive_string (in boxedString s1, in boxedString s2);
-
-        string receive_list   (in Node node);
-      };
-
-    };
-
-  };
+   };
 
 };
