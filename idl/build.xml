@@ -323,11 +323,11 @@
 
     <target name="property">
         <jacidl generateir="true"
-             srcdir="idl"
-            omgprefix="true"
-            includepath="${idl}/omg"
-            includes="**/omg/CosProperty.idl"
-            destdir="${src}/generated"/>
+                srcdir="idl"
+                omgprefix="true"
+                includepath="${idl}/omg"
+                includes="**/omg/CosPropertyService.idl"
+                destdir="${src}/generated"/>
 
         <antcall target="jacorb-javac">
             <param name="javac-src" value="${src}/generated"/>
