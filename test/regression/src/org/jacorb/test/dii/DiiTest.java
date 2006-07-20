@@ -35,8 +35,6 @@ public class DiiTest extends ClientServerTestCase
 
         Properties props = new Properties();
 
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init", "null");
-
         ClientServerSetup setup = new ClientServerSetup(suite, DynamicServer.class.getName(), props, props);
 
         TestUtils.addToSuite(suite, setup, DiiTest.class);
@@ -208,7 +206,5 @@ public class DiiTest extends ClientServerTestCase
         DIIException ex = DIIExceptionHelper.extract(any);
 
         assertEquals("TestException", ex.why);
-
-        Thread.sleep(2000);
     }
 }
