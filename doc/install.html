@@ -165,7 +165,7 @@ This release has been tested on:
 <p>   To build JacORB you need to call "ant" in the installation
    directory:
    <p>
-	<tt>$> ant</tt>
+   <tt>$> ant</tt>
    <p>
    By default debugging is turned off when building JacORB. To build
    JacORB with debugging turned on, you need to call "ant -Ddebug=on"
@@ -193,11 +193,11 @@ This release has been tested on:
    For Windows add the following line after calling
    <tt>antrc_pre.bat</tt>
    <p>
-		<tt>set ANT_OPTS=-mx48m %ANT_OPTS%</tt><br>
+   <tt>set ANT_OPTS=-mx48m %ANT_OPTS%</tt><br>
    <p>
    For Unix add the following line after sourcing .antrc
    <p>
-		<tt>ANT_OPTS=-mx48m $ANT_OPTS</tt>
+   <tt>ANT_OPTS=-mx48m $ANT_OPTS</tt>
    <p>
    Yet another way of achieving the same is by setting the
    ANT_OPTS environment variable. On Windows:<br>
@@ -206,6 +206,18 @@ This release has been tested on:
    <br>
    or on Unix:<br>
       <tt>export ANT_OPTS=-mx48m</tt>
+
+<h2>Building JacORB Examples (Optional)</h2>
+</a>
+
+<p>   To build the JacORB demos within the demo directory a build.xml file
+has been supplied. Similar to above, simply call "ant" in the demo directory.
+The default Ant target will build all the demos. The classes will be placed
+in
+<p>
+<tt>${installdir}/classes</tt>
+<p>
+By default debugging is turned off. See above for instructions on this.
 
 </blockquote>
 
