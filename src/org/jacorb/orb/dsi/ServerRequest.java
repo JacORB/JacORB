@@ -662,7 +662,7 @@ public class ServerRequest
         if (out == null)
         {
             out = new ReplyOutputStream(requestId(),
-                                        ReplyStatusType_1_2.NO_EXCEPTION,
+                                        status(),
                                         inputStream.getGIOPMinor(),
                                         inputStream.isLocateRequest(),
                                         logger );
