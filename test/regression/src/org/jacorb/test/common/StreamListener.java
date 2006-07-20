@@ -123,6 +123,7 @@ public class StreamListener extends Thread
                 String line = in.readLine();
                 buffer.append(line);
                 buffer.append('\n');
+
                 if (line == null)
                 {
                     break;
@@ -174,5 +175,20 @@ public class StreamListener extends Thread
                 break;
             }
         }
+    }
+
+    public String toString()
+    {
+        StringBuffer details = new StringBuffer();
+        details.append("Details from " + id + ":\n");
+        details.append("Active: " + active + "\n");
+        details.append("IOR: " + ior + "\n");
+        details.append("Exception: " + exception + "\n");
+        details.append("Raw Buffer:\n");
+        details.append(getBuffer());
+        details.append('.');
+        details.append('\n');
+
+        return details.toString();
     }
 }

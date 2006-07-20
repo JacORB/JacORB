@@ -218,17 +218,20 @@ public class ClientServerSetup extends TestSetup {
         {
             String exc = errListener.getException(2000);
 
-            StringBuffer details = new StringBuffer();
-            details.append("Details from Server OUT:\n");
-            details.append(outListener.getBuffer());
-            details.append('\n');
-            details.append("Details from Server ERR:\n");
-            details.append(errListener.getBuffer());
-            details.append('\n');
+            String details = dumpStreamListener();
 
             fail("could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + iorWait + " millis.\nThis maybe caused by: " + exc + '\n' + details);
         }
+       
         resolveServerObject(ior);
+    }
+
+    private String dumpStreamListener()
+    {
+        StringBuffer details = new StringBuffer();
+        details.append(outListener.toString());
+        details.append(errListener.toString());
+        return details.toString();
     }
 
     protected void resolveServerObject(String ior)
