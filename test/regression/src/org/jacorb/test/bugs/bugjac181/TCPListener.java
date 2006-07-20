@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bugjac181;
 
+import org.jacorb.orb.iiop.IIOPConnection;
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.listener.TCPConnectionListener;
 
@@ -14,6 +15,7 @@ public class TCPListener implements TCPConnectionListener
 {
     private static boolean listenerOpen = false;
     private static boolean listenerClose = false;
+    private static boolean isCorrectType = true;
 
     /**
      * <code>connectionOpened</code> will be called whenever a socket
@@ -23,6 +25,8 @@ public class TCPListener implements TCPConnectionListener
      */
     public void connectionOpened(TCPConnectionEvent e)
     {
+        validateEvent(e);
+
         setListenerOpen(true);
     }
 
@@ -34,6 +38,8 @@ public class TCPListener implements TCPConnectionListener
      */
     public void connectionClosed(TCPConnectionEvent e)
     {
+        validateEvent(e);
+
         setListenerClose(true);
     }
 
@@ -57,14 +63,28 @@ public class TCPListener implements TCPConnectionListener
         TCPListener.listenerOpen = listenerOpen;
     }
 
-    public static void reset()
+    public static synchronized void reset()
     {
         listenerClose = false;
         listenerOpen = false;
+        isCorrectType = true;
     }
 
     public boolean isListenerEnabled()
     {
         return true;
+    }
+
+    public static boolean isEventOfCorrectType()
+    {
+        return isCorrectType;
+    }
+
+    private void validateEvent(TCPConnectionEvent e)
+    {
+        if (! (e.getSource() instanceof IIOPConnection) )
+        {
+            isCorrectType = false;
+        }
     }
 }

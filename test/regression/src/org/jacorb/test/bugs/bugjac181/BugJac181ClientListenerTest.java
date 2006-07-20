@@ -71,5 +71,6 @@ public class BugJac181ClientListenerTest extends ClientServerTestCase
 
         assertTrue ("No open message from listener", TCPListener.isListenerOpen());
         assertTrue ("No close message from listener", TCPListener.isListenerClose());
+        assertTrue(TCPListener.isEventOfCorrectType());
     }
 }

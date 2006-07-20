@@ -53,5 +53,7 @@ public class BugJac181ServerListenerTest extends TestCase
         Thread.sleep(1000);
 
         assertTrue("No close message from listener", TCPListener.isListenerClose());
+
+        assertTrue(TCPListener.isEventOfCorrectType());
     }
 }
