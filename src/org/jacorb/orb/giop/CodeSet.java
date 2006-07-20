@@ -33,6 +33,10 @@ import org.omg.IOP.*;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 public class CodeSet
 {
     // ISO 8859-1:1987; Latin Alphabet No. 1
