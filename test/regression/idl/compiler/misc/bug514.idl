@@ -1,0 +1,15 @@
+module test
+{
+
+   interface Hello {
+
+      string get_string ();
+
+      void args(in long long_value, inout double double_value, out
+                string string_value);
+
+      void exception_throw();
+
+      oneway void shutdown ();
+   };
+};
