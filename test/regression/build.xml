@@ -193,6 +193,7 @@
         <property name="jacorb.exclude-services" value="false"/>
         <!-- currently only affects idl tests -->
         <property name="jacorb.test.verbose" value="false" />
+        <property name="jacorb.test.timeout" value="15000" />
 
         <java fork="true" classname="org.jacorb.test.common.launch.TestLauncher">
             <classpath path="${test.cp}"/>
@@ -205,6 +206,7 @@
             <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
             <jvmarg value="-Djacorb.test.ssl=${jacorb.test.ssl}" />
             <jvmarg value="-Djacorb.test.imr=${jacorb.test.imr}" />
+            <jvmarg value="-Djacorb.test.timout=${jacorb.test.timeout}" />
 
              <!-- Note - passing multiple arguments to this class may affect the output file -->
              <!-- naming. See TestLauncher.getOutFilename                                    -->
