@@ -41,7 +41,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
 
     private final AtomicInteger received_ = new AtomicInteger(0);
 
-    long timeout_ = 4000L;
+    long timeout_ = 8000L;
 
     int filterId_ = Integer.MIN_VALUE;
 
@@ -148,7 +148,7 @@ public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestCl
             try
             {
                 synchronized (lock_)
-                {               
+                {
                     lock_.wait(timeout_);
                 }
             } catch (InterruptedException e)
