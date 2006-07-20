@@ -940,51 +940,18 @@ specification ::=
 
                 if( parser.pending_interfaces.size() > 0  )
                 {
-
-// TODO remove commented out section if there are no more problems during the overnight build (alphonse)
-//                   // give other threads a chance to start and signal
-//                   // that they're active
-//                   Thread.yield();
-
-//                   boolean runnableFound = false;
-
-//                   // still no one seems to be active, but we'll call
-//                   // round to be sure
-//                   if( parser.activeParseThreads() == 0 )
-//                   {
-//                        for( int t = 0;
-//                             t < InterfaceBody.parseThreads.size() && !runnableFound;
-//                             t++ )
-//                        {
-//                            runnableFound =
-//                                ((InterfaceBody.ParseThread)InterfaceBody.parseThreads.elementAt(t)).isRunnable();
-//                        }
-//                   }
-
                    // only block waiting if we know that there are active or
                    // runnable threads and that there are still pending tasks
-
-                    long timeout = System.currentTimeMillis() + 20000;
+                    final long timeout = 60000;
+                    long waitUntil = System.currentTimeMillis() + 20000;
 
                     synchronized(parser.pending_interfaces)
                     {
-                        while(parser.activeParseThreads() > 0 && parser.pending_interfaces.size() > 0 && System.currentTimeMillis() < timeout)
+                        while(parser.activeParseThreads() > 0 && parser.pending_interfaces.size() > 0 && System.currentTimeMillis() < waitUntil)
                         {
-                            parser.pending_interfaces.wait(20000);
+                            parser.pending_interfaces.wait(timeout);
                         }
                     }
-
-// TODO commented section can be removed if there are no more problems during the overnight run (alphonse)
-//                   if( ( parser.activeParseThreads() > 1 || runnableFound ) &&
-//                         parser.pending_interfaces.size() > 0 )
-//                   {
-//                       synchronized( parser.pending_interfaces )
-//                       {
-//                           parser.pending_interfaces.wait();
-//                       }
-//                   }
-
-
                 }
 
                 if( parser.pending_interfaces.size() > 0 &&
