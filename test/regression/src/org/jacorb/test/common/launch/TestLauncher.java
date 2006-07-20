@@ -242,6 +242,9 @@ public class TestLauncher
                       "org.jacorb.test.orb.rmi.FixSunDelegateBug");
             System.err.println("Using org.jacorb.test.orb.rmi.FixSunDelegateBug");
         }
+        catch(NoClassDefFoundError e)
+        {
+        }
         catch(Exception e)
         {
         }
