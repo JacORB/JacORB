@@ -249,7 +249,7 @@ public final class BufferManager
             }
             catch (OutOfMemoryError e)
             {
-                throw new NO_MEMORY();
+                throw new NO_MEMORY(e.toString());
             }
         }
         else
