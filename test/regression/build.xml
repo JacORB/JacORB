@@ -670,6 +670,18 @@
     </target>
 
     <!-- ==================================================== -->
+    <!--                 run dii tests                        -->
+    <!-- ==================================================== -->
+
+    <target name="run-all-dii"
+          description="Run all Jacorb tests in the dii package">
+        <antcall target="run">
+            <param name="jacorb.test" value="org.jacorb.test.dii.AllTest" />
+        </antcall>
+    </target>
+
+
+    <!-- ==================================================== -->
     <!--                 run notification tests               -->
     <!-- ==================================================== -->
 
