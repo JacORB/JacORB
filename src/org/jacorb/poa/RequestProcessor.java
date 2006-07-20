@@ -236,8 +236,8 @@ public class RequestProcessor
             {
                 logger.warn("rid: "+request.requestId() +
                             " opname: " + request.operation() +
-                            " incarnate: system exception was thrown (" +
-                            e + ")");
+                            " incarnate: system exception was thrown.",
+                            e);
             }
             request.setSystemException(e);
         }
@@ -247,8 +247,8 @@ public class RequestProcessor
             {
                 logger.warn("rid: " + request.requestId() +
                             " opname: " + request.operation() +
-                            " incarnate: forward exception was thrown (" +
-                            e + ")");
+                            " incarnate: forward exception was thrown.",
+                            e);
             }
             request.setLocationForward(e);
 
@@ -260,8 +260,8 @@ public class RequestProcessor
             {
                 logger.error("rid: " + request.requestId() +
                              " opname: " + request.operation() +
-                             " incarnate: throwable was thrown (" +
-                             e + ")", e);
+                             " incarnate: throwable was thrown.",
+                             e);
             }
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.toString()));
         }
@@ -339,8 +339,8 @@ public class RequestProcessor
             {
                 logger.info("rid: " + request.requestId() +
                             " opname: " + request.operation() +
-                            " invocation: system exception was thrown (" +
-                            e + ")");
+                            " invocation: system exception was thrown.",
+                            e);
             }
             request.setSystemException(e);
         }
@@ -351,8 +351,8 @@ public class RequestProcessor
             {
                 logger.error("rid: " + request.requestId() +
                              " opname: " + request.operation() +
-                             " invocation: throwable was thrown (" +
-                             e + ")", e);
+                             " invocation: throwable was thrown.",
+                             e);
             }
             request.setSystemException (new org.omg.CORBA.UNKNOWN(e.toString()));
         }
@@ -386,8 +386,8 @@ public class RequestProcessor
             {
                 logger.info("rid: " + request.requestId() +
                             " opname: " + request.operation() +
-                            " postinvoke: system exception was thrown (" +
-                            e + ")");
+                            " postinvoke: system exception was thrown.",
+                            e);
             }
             request.setSystemException(e);
 
@@ -399,7 +399,8 @@ public class RequestProcessor
             {
                 logger.warn("rid: " + request.requestId() +
                             " opname: " + request.operation() +
-                            " postinvoke: throwable was thrown" + e);
+                            " postinvoke: throwable was thrown.",
+                            e);
             }
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.toString()));
             /* which system exception I should raise? */
@@ -445,8 +446,8 @@ public class RequestProcessor
             {
                 logger.info("rid: " + request.requestId() +
                             " opname: " + request.operation() +
-                            " preinvoke: system exception was thrown (" +
-                            e + ")");
+                            " preinvoke: system exception was thrown.",
+                            e);
             }
             request.setSystemException(e);
 
@@ -457,8 +458,8 @@ public class RequestProcessor
             {
                 logger.info("rid: " + request.requestId() +
                             " opname: " + request.operation() +
-                            " preinvoke: forward exception was thrown (" +
-                            e + ")");
+                            " preinvoke: forward exception was thrown.",
+                            e);
             }
             request.setLocationForward(e);
         }
@@ -469,8 +470,8 @@ public class RequestProcessor
             {
                 logger.warn("rid: " + request.requestId() +
                             " opname: " + request.operation() +
-                            " preinvoke: throwable was thrown, " +
-                            e );
+                            " preinvoke: throwable was thrown.",
+                            e);
             }
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.toString()));
             /* which system exception I should raise? */
