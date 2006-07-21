@@ -126,16 +126,22 @@ public class ClientServerSetup extends TestSetup {
         clientOrbProperties.put ("org.omg.CORBA.ORBSingletonClass",
                                  "org.jacorb.orb.ORBSingleton");
 
+        long parseLong = getTestTimeout();
+        testTimeout = parseLong;
+    }
+
+    public static long getTestTimeout()
+    {
         long parseLong;
         try
         {
-            parseLong = Long.parseLong(System.getProperty("java.test.timeout"));
+            parseLong = Long.parseLong(System.getProperty("jacorb.test.timeout"));
         }
         catch (Exception e)
         {
             parseLong = 15000;
         }
-        testTimeout = parseLong;
+        return parseLong;
     }
 
     public ClientServerSetup( Test test,
