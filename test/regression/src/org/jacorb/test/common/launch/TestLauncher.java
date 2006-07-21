@@ -116,6 +116,7 @@ public class TestLauncher
         out.println("  Coverage:         " + (getCoverage() ? "yes" : "no"));
         out.println("  SSL:              " + (isSSL ? "yes" : "no"));
         out.println("  IMR:              " + (useIMR ? "yes" : "no"));
+        out.println("  Timeout:          " + ClientServerSetup.getTestTimeout());
         out.println();
         out.println("-------------------------------------------------------------------------------");
     }
@@ -234,6 +235,7 @@ public class TestLauncher
         props.put("jacorb.test.outputfile.testname",
                   System.getProperty("jacorb.test.outputfile.testname" , "false"));
         props.put("jacorb.test.ssl", System.getProperty("jacorb.test.ssl"));
+        props.put("jacorb.test.timeout", System.getProperty("jacorb.test.timeout"));
 
         try
         {
