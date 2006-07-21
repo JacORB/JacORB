@@ -206,7 +206,7 @@
             <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
             <jvmarg value="-Djacorb.test.ssl=${jacorb.test.ssl}" />
             <jvmarg value="-Djacorb.test.imr=${jacorb.test.imr}" />
-            <jvmarg value="-Djacorb.test.timout=${jacorb.test.timeout}" />
+            <jvmarg value="-Djacorb.test.timeout=${jacorb.test.timeout}" />
 
              <!-- Note - passing multiple arguments to this class may affect the output file -->
              <!-- naming. See TestLauncher.getOutFilename                                    -->
