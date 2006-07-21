@@ -1809,7 +1809,14 @@ public final class ORB
 
         if(!isRunning())
         {
-            return; // ORB already shut down...
+            // ORB is already down.
+            synchronized( shutdown_synch )
+            {
+                shutdown_in_progress = false;
+                shutdown_synch.notifyAll();
+            }
+
+            return;
         }
 
         logger.info("ORB going down...");
@@ -1829,6 +1836,7 @@ public final class ORB
         {
             giop_connection_manager.shutdown();
         }
+
         clientConnectionManager.shutdown();
         knownReferences.clear();
         bufferManager.release();
