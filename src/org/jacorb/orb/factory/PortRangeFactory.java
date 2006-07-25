@@ -21,17 +21,18 @@ package org.jacorb.orb.factory;
  */
 
 import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
  * @author Steve Osselton
  * @version $Id$
  */
-public abstract class PortRangeFactory
+public class PortRangeFactory
     implements Configurable
 {
-    protected int portMin = 0;
-    protected int portMax = 0;
+    private int portMin;
+    private int portMax;
     protected org.jacorb.config.Configuration configuration;
 
     protected int getPortProperty(String name)
@@ -50,5 +51,30 @@ public abstract class PortRangeFactory
         }
 
         return port;
+    }
+
+    public void configure(Configuration config) throws ConfigurationException
+    {
+        configuration = (org.jacorb.config.Configuration) config;
+    }
+
+    protected void setPortMin(int portMin)
+    {
+        this.portMin = portMin;
+    }
+
+    protected void setPortMax(int portMax)
+    {
+        this.portMax = portMax;
+    }
+
+    protected int getPortMin()
+    {
+        return portMin;
+    }
+
+    protected int getPortMax()
+    {
+        return portMax;
     }
 }

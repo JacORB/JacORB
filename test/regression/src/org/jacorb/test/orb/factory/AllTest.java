@@ -22,13 +22,20 @@
 package org.jacorb.test.orb.factory;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class AllTest extends TestCase
+public class AllTest
 {
     public static Test suite()
     {
-        return new TestSuite(PortRangeServerSocketFactoryTest.class);
+        TestSuite suite1 = new TestSuite();
+        
+        suite1.addTestSuite(DefaultSocketFactoryTest.class);
+        suite1.addTestSuite(FixedAddressSocketFactoryTest.class);
+        suite1.addTestSuite(JDK13AbstractSocketFactoryTest.class);
+        suite1.addTestSuite(PortRangeSocketFactoryTest.class);
+        suite1.addTestSuite(PortRangeServerSocketFactoryTest.class);
+        
+        return suite1;
     }
 }

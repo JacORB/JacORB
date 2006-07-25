@@ -22,7 +22,7 @@ package org.jacorb.orb.iiop;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -70,7 +70,6 @@ public class ClientIIOPConnection
     private TransportManager transportManager;
     private TCPConnectionListener connectionListener;
     private boolean keepAlive;
-    private final Object socketSync = new Object();
 
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
@@ -303,78 +302,15 @@ public class ClientIIOPConnection
                     logger.debug("Trying to connect to " + connection_info + " with timeout=" + time_out + ( use_ssl ? " using SSL." : "."));
                 }
                 exception = null;
-                socket = null;
 
                 if( time_out > 0 )
                 {
-                    //set up connect with an extra thread
-                    //if thread returns within time_out it notifies current thread
-                    //if not this thread will cancel the connect-thread
-                    //this is necessary since earlier JDKs didnt support connect()
-                    //with time_out
-                    Thread thread = new Thread ( new Runnable()
+                    final int truncatedTimeout = (int) time_out;
+                    if (truncatedTimeout != time_out)
                     {
-                        public void run()
-                        {
-                            try
-                            {
-                                final Socket createSocket = factory.createSocket(ipAddress, port);
-
-                                synchronized(socketSync)
-                                {
-                                    socket = createSocket;
-                                    socketSync.notify();
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                synchronized(socketSync)
-                                {
-                                    exception = e;
-                                    socketSync.notify();
-                                }
-                            }
-                        }
-                    } );
-
-                    thread.setName("SocketConnectorThread");
-
-                   thread.setDaemon(true);
-                   try
-                   {
-                       synchronized (socketSync)
-                       {
-                           thread.start();
-                           socketSync.wait(time_out);
-                       }
-                   }
-                   catch (InterruptedException _ex)
-                   {
-                       // ignored
-                   }
-
-                   if (socket == null)
-                   {
-                       if (exception == null)
-                       {
-                           if (logger.isDebugEnabled())
-                           {
-                               logger.debug("connect to " + connection_info +
-                                            " with timeout=" + time_out + " timed out");
-                           }
-                           thread.interrupt();
-                           exception =
-                               new TIMEOUT("connection timeout of " + time_out + " milliseconds expired");
-                       }
-                       else
-                       {
-                           if (logger.isDebugEnabled())
-                           {
-                               logger.debug("connect to " + connection_info + " with timeout="
-                                            + time_out + " raised exception: " + exception.toString());
-                           }
-                       }
-                   }
+                        logger.warn("timeout might be changed due to conversion from long to int. old value: " + time_out + " new value: " + truncatedTimeout);
+                    }
+                    socket = factory.createSocket(ipAddress, port, truncatedTimeout);
                 }
                 else
                 {
@@ -407,13 +343,13 @@ public class ClientIIOPConnection
 
         if (exception != null)
         {
-            if( exception instanceof IOException )
+            if (exception instanceof SocketTimeoutException)
+            {
+                throw new TIMEOUT("connection timeout of " + timeout + " milliseconds expired: " + exception);
+            }
+            else if( exception instanceof IOException )
             {
                 throw (IOException)exception;
-            }
-            else if( exception instanceof org.omg.CORBA.TIMEOUT )
-            {
-                throw (org.omg.CORBA.TIMEOUT)exception;
             }
             else
             {

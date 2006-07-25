@@ -20,34 +20,38 @@ package org.jacorb.orb.factory;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.net.*;
 import java.io.IOException;
+import java.net.BindException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
  * @author Steve Osselton
  * @version $Id$
  */
 public class PortRangeSocketFactory
-    extends PortRangeFactory
+    extends AbstractSocketFactory
     implements SocketFactory
 {
     public static final String MIN_PROP = "jacorb.net.socket_factory.port.min";
     public static final String MAX_PROP = "jacorb.net.socket_factory.port.max";
 
-    private Logger logger;
+    private int portMin;
+    private int portMax;
 
-    public void configure(Configuration configuration)
+    public void configure(Configuration config)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
-        logger = this.configuration.getNamedLogger("jacorb.orb.port_range_fcty");
+        super.configure(config);
 
        // Get configured max and min port numbers
-        portMin = getPortProperty(MIN_PROP);
-        portMax = getPortProperty(MAX_PROP);
+        portMin = getPortProperty(config, MIN_PROP);
+        portMax = getPortProperty(config, MAX_PROP);
 
         // Check min < max
         if (portMin > portMax)
@@ -101,5 +105,58 @@ public class PortRangeSocketFactory
     public boolean isSSL (Socket socket)
     {
         return false;
+    }
+
+    protected int getPortProperty(Configuration config, String name)
+        throws ConfigurationException
+    {
+        int port = config.getAttributeAsInteger(name);
+
+        // Check sensible port number
+        if (port < 0)
+        {
+            port += 65536;
+        }
+        if ((port <= 0) || (port > 65535))
+        {
+            throw new ConfigurationException("PortRangeFactory: " + name + " invalid port number");
+        }
+
+        return port;
+    }
+
+    public Socket createSocket(String host, int port, int timeout) throws IOException
+    {
+        final InetAddress localHost = InetAddress.getLocalHost ();
+        int localPort;
+        Socket socket;
+
+        for (localPort = portMin; localPort <= portMax; localPort++)
+        {
+            try
+            {
+                socket = new Socket();
+                socket.bind(new InetSocketAddress(localHost, localPort));
+                socket.connect(new InetSocketAddress(host, port), timeout);
+
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn("PortRangeSocketFactory: Created socket between "
+                            + localHost.getHostAddress () + ":" + localPort
+                            + " and " + host + ":" + port);
+                }
+                return socket;
+            }
+            catch (IOException ex)
+            {
+                // Ignore and continue
+            }
+        }
+
+        logger.warn("Cannot bind socket between ports " + portMin + " and "
+                     + portMax + " to target " + host + ":" + port);
+
+        throw new BindException ("PortRangeSocketFactory: no free port between "
+            + portMin + " and " + portMax);
     }
 }

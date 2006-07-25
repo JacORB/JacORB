@@ -50,5 +50,8 @@ public interface SocketFactory
                         int port )
         throws IOException, UnknownHostException;
 
+    Socket createSocket(String host, int port, int timeout)
+        throws IOException;
+
     boolean isSSL( Socket socket );
 }

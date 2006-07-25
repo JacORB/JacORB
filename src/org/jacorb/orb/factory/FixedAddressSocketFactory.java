@@ -32,7 +32,7 @@ import org.apache.avalon.framework.logger.Logger;
  * @author Nicolas Noffke
  * @version $Id$
  */
-public class FixedAddressSocketFactory implements SocketFactory, Configurable
+public class FixedAddressSocketFactory extends AbstractSocketFactory implements SocketFactory, Configurable
 {
     private InetAddress localEndpoint;
     private Logger logger;
@@ -54,6 +54,20 @@ public class FixedAddressSocketFactory implements SocketFactory, Configurable
         return new Socket(host, port);
     }
 
+    public Socket createSocket(String host, int port, int timeout) throws IOException, UnknownHostException
+    {
+        Socket socket = new Socket();
+
+        if (localEndpoint != null)
+        {
+            socket.bind(new InetSocketAddress(localEndpoint, 0));
+        }
+
+        socket.connect(new InetSocketAddress(host, port), timeout);
+
+        return socket;
+    }
+
     public boolean isSSL (Socket socket)
     {
         return false;
@@ -61,7 +75,7 @@ public class FixedAddressSocketFactory implements SocketFactory, Configurable
 
     public void configure(Configuration arg0) throws ConfigurationException
     {
-        logger = ((org.jacorb.config.Configuration)arg0).getNamedLogger("jacorb.orb.iiop");
+        super.configure(arg0);
 
         String oaiAddr = arg0.getAttribute("OAIAddr", "");
         if (oaiAddr.length() > 0)

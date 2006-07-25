@@ -60,7 +60,8 @@ public class AllTest extends JacORBTestSuite
         suite.addTestSuite(TypeCodeTest.class);
         suite.addTest(AnyTest.suite());
         suite.addTestSuite(InvalidIORTest.class);
-        
+        suite.addTest(org.jacorb.test.orb.factory.AllTest.suite());
+
         return suite;
    }
 }

@@ -27,8 +27,10 @@ import java.util.*;
 
 import org.apache.avalon.framework.configuration.*;
 import org.jacorb.orb.ORB;
+import org.jacorb.orb.factory.AbstractSocketFactory;
 import org.jacorb.orb.listener.SSLHandshakeListener;
 import org.jacorb.orb.listener.SSLSessionListener;
+import org.omg.CORBA.TIMEOUT;
 
 // for use with jsse 1.0.2
 //import com.sun.net.ssl.TrustManager;
@@ -43,7 +45,7 @@ import javax.net.*;
  * $Id$
  */
 public class SSLSocketFactory
-    extends SSLRandom
+    extends AbstractSocketFactory
     implements org.jacorb.orb.factory.SocketFactory, Configurable
 {
     private SocketFactory factory = null;
@@ -56,6 +58,7 @@ public class SSLSocketFactory
     private String keystore_location = null;
     private String keystore_passphrase = null;
     private final SSLSessionListener sslListener;
+    private SSLRandom sslRandom;
 
     public SSLSocketFactory(ORB orb)
         throws ConfigurationException
@@ -69,6 +72,9 @@ public class SSLSocketFactory
         throws ConfigurationException
     {
         super.configure(configuration);
+
+        sslRandom = new SSLRandom();
+        sslRandom.configure(configuration);
 
         trusteesFromKS =
             configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks",false);
@@ -235,7 +241,7 @@ public class SSLSocketFactory
 
         ctx.init( (kmf == null)? null : kmf.getKeyManagers(),
                   trustManagers,
-                  getSecureRandom() );
+                  sslRandom.getSecureRandom() );
 
         return ctx.getSocketFactory();
     }

@@ -27,12 +27,21 @@ import java.io.IOException;
  * @author Steve Osselton
  * @version $Id$
  */
-public class DefaultSocketFactory implements SocketFactory
+public class DefaultSocketFactory extends AbstractSocketFactory implements SocketFactory
 {
     public Socket createSocket (String host, int port)
         throws IOException, UnknownHostException
     {
         return new Socket (host, port);
+    }
+
+    public Socket createSocket(String host, int port, int timeout) throws IOException, UnknownHostException
+    {
+        final Socket socket = new Socket();
+
+        socket.connect(new InetSocketAddress(host, port), timeout);
+
+        return socket;
     }
 
     public boolean isSSL (Socket socket)

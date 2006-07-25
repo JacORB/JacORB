@@ -31,14 +31,16 @@ import org.apache.avalon.framework.configuration.*;
  * @version $Id$
  */
 public class PortRangeServerSocketFactory
-    extends PortRangeFactory
     implements ServerSocketFactory
 {
     public static final String MIN_PROP = "jacorb.net.server_socket_factory.port.min";
     public static final String MAX_PROP = "jacorb.net.server_socket_factory.port.max";
 
-    private Logger logger;
     private final ServerSocketFactory delegate;
+
+    private Logger logger;
+    private int portMin;
+    private int portMax;
 
     public PortRangeServerSocketFactory(ServerSocketFactory delegate)
     {
@@ -55,12 +57,11 @@ public class PortRangeServerSocketFactory
     public void configure(org.apache.avalon.framework.configuration.Configuration config)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)config;
-        logger = this.configuration.getNamedLogger("jacorb.orb.port_rang_fctry");
+        logger = ((org.jacorb.config.Configuration)config).getNamedLogger("jacorb.orb.port_rang_fctry");
 
-       // Get configured max and min port numbers
-        portMin = getPortProperty(MIN_PROP);
-        portMax = getPortProperty(MAX_PROP);
+        // Get configured max and min port numbers
+        portMin = getPortProperty(config, MIN_PROP);
+        portMax = getPortProperty(config, MAX_PROP);
 
         // Check min < max
         if (portMin > portMax)
@@ -191,6 +192,7 @@ public class PortRangeServerSocketFactory
             logger.debug("Created server socket at "
                          + ":" + port);
         }
+
         return socket;
     }
 
@@ -204,6 +206,24 @@ public class PortRangeServerSocketFactory
 
         throw new BindException ("PortRangeServerSocketFactory: no free port between "
                                  + portMin + " and " + portMax);
+    }
+
+    protected int getPortProperty(Configuration config, String name)
+        throws ConfigurationException
+    {
+        int port = config.getAttributeAsInteger(name);
+
+        // Check sensible port number
+        if (port < 0)
+        {
+            port += 65536;
+        }
+        if ((port <= 0) || (port > 65535))
+        {
+            throw new ConfigurationException("PortRangeFactory: " + name + " invalid port number");
+        }
+
+        return port;
     }
 }
 
