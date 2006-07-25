@@ -233,7 +233,7 @@ public class ClientServerSetup extends TestSetup {
 
         if (ior == null)
         {
-            String exc = errListener.getException(testTimeout);
+            String exc = errListener.getException(1000);
 
             String details = dumpStreamListener();
 
