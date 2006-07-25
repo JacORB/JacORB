@@ -20,7 +20,11 @@ package org.jacorb.test.common;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Date;
 
 /**
  * A <code>StreamListener</code> listens to a given <code>InputStream</code>
@@ -60,13 +64,18 @@ public class StreamListener extends Thread
         {
             while (ior == null && System.currentTimeMillis() < waitUntil)
             {
-                try
+                final long waitTime = waitUntil - System.currentTimeMillis();
+
+                if (waitTime > 0)
                 {
-                    this.wait(timeout);
-                }
-                catch (InterruptedException ex)
-                {
-                    // ignore
+                    try
+                    {
+                        this.wait(waitTime);
+                    }
+                    catch (InterruptedException ex)
+                    {
+                        // ignore
+                    }
                 }
             }
 
@@ -83,13 +92,18 @@ public class StreamListener extends Thread
         {
             while(exception == null && System.currentTimeMillis() < waitUntil)
             {
-                try
+                final long waitTime = waitUntil - System.currentTimeMillis();
+
+                if (waitTime > 0)
                 {
-                    wait(timeout);
-                }
-                catch (InterruptedException e)
-                {
-                    // ignore
+                    try
+                    {
+                        this.wait(waitTime);
+                    }
+                    catch (InterruptedException ex)
+                    {
+                        // ignore
+                    }
                 }
             }
 
@@ -116,6 +130,9 @@ public class StreamListener extends Thread
 
     public void run()
     {
+        buffer.append("Starttime: " + new Date());
+        buffer.append('\n');
+
         while (active)
         {
             try
@@ -130,19 +147,15 @@ public class StreamListener extends Thread
                 }
                 else if (line.startsWith("SERVER IOR: "))
                 {
-                    synchronized (this)
-                    {
-                        this.ior = line.substring(12);
-                        this.notifyAll();
-                    }
+                    buffer.append("Detected IOR: " + new Date());
+                    buffer.append('\n');
+                    setIOR(line.substring(12));
                 }
                 else if (line.matches("^(\\w+\\.)+\\w+: .*"))
                 {
-                    synchronized(this)
-                    {
-                        exception = line;
-                        notifyAll();
-                    }
+                    buffer.append("Detected Exception: " + new Date());
+                    buffer.append('\n');
+                    setException(line);
                     System.out.println("[ SERVER " + id + " " + line + " ]");
                 }
                 else
@@ -174,6 +187,24 @@ public class StreamListener extends Thread
                 System.out.println("StreamListener exiting");
                 break;
             }
+        }
+    }
+
+    private void setException(String line)
+    {
+        synchronized(this)
+        {
+            exception = line;
+            notifyAll();
+        }
+    }
+
+    private void setIOR(String line)
+    {
+        synchronized (this)
+        {
+            ior = line;
+            notifyAll();
         }
     }
 
