@@ -40,8 +40,8 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-2.x.y
-=====
+2.3
+===
     - ORB:
         - new property: jacorb.listener.server_socket_timeout. This is a
           workaround for Java bug #4344135 and is is only useful in conjunction
