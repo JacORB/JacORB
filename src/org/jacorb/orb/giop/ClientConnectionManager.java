@@ -47,15 +47,15 @@ public class ClientConnectionManager
     /** connection mgmt. */
     private final Map connections = new HashMap();
 
-    private RequestListener request_listener = null;
+    private RequestListener request_listener;
 
-    private MessageReceptorPool receptor_pool = null;
+    private MessageReceptorPool receptor_pool;
 
     private final TransportManager transport_manager;
     private final GIOPConnectionManager giop_connection_manager;
 
     /** the configuration object  */
-    private Logger logger = null;
+    private Logger logger;
 
     public ClientConnectionManager( ORB orb,
                                     TransportManager transport_manager,
