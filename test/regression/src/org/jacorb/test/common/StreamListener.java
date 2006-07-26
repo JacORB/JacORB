@@ -64,19 +64,19 @@ public class StreamListener extends Thread
         {
             while (ior == null && System.currentTimeMillis() < waitUntil)
             {
-                final long waitTime = waitUntil - System.currentTimeMillis();
+//                final long waitTime = waitUntil - System.currentTimeMillis();
 
-                if (waitTime > 0)
-                {
+//                if (waitTime > 0)
+//                {
                     try
                     {
-                        this.wait(waitTime);
+                        this.wait(1000);
                     }
                     catch (InterruptedException ex)
                     {
                         // ignore
                     }
-                }
+//                }
             }
 
             return ior;
