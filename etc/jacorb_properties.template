@@ -297,6 +297,14 @@ jacorb.enhanced_thread_name=off
 # within an IOR and also disable explicit marshalling with codesets (re Strings).
 # jacorb.codeset=off
 
+# Overrides the detection from the local environment for the codeset used to
+# transmit characters. Note that this property is only effective once per JVM.
+# jacorb.native_char_codeset=ISO8859_1
+
+# Overrides the detection from the local environment for the codeset used to
+# transmit wide characters. ote that this property is only effective once per JVM.
+# jacorb.native_wchar_codeset=UTF16
+
 
 ###########################################
 #                                         #
