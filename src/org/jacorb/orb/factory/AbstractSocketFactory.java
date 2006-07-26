@@ -30,6 +30,11 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.omg.CORBA.TIMEOUT;
 
+/**
+ * @author Alphonse Bendt
+ * @version $Id$
+ */
+
 public abstract class AbstractSocketFactory implements SocketFactory, Configurable
 {
     protected Logger logger;
@@ -41,7 +46,13 @@ public abstract class AbstractSocketFactory implements SocketFactory, Configurab
         logger = config.getNamedLogger("jacorb.orb.socketfactory");
     }
 
-    // TODO fixme
+    /*
+     * the preferred way to use a timeout during connect is to use the new methods
+     * that were introduced in JDK 1.4. for JDK 1.3 the timeout is
+     * controlled here with an extra thread. unfortunately this code might NOT work across
+     * all JDK/OS combinations. see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6315293
+     * for details.
+     */
     public Socket createSocket(final String host, final int port, int timeout) throws IOException
     {
         final Socket[] socket = new Socket[1];
@@ -93,7 +104,11 @@ public abstract class AbstractSocketFactory implements SocketFactory, Configurab
                              " with timeout=" + timeout + " timed out");
             }
 
+            // due to the JDK bug it's possible that the SocketConnectorThread
+            // keeps waiting in PlainSocketImpl.socketConnect() and is NOT interrupted.
+            // this may cause SocketConnectorThread's to pile up.
             connectThread.interrupt();
+
             throw new TIMEOUT("connection timeout of " + timeout + " milliseconds expired");
         }
 

@@ -31,6 +31,12 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
+ * a SocketFactory implementation that allows to specify the range
+ * of local ports that should be used by a created socket.
+ * the factory will read the attributes jacorb.net.socket_factory.port.min and
+ * jacorb.net.socket_factory.port.max from the configuration and use the specified
+ * values to configure the created sockets.
+ *
  * @author Steve Osselton
  * @version $Id$
  */
@@ -60,18 +66,22 @@ public class PortRangeSocketFactory
         }
     }
 
-    public Socket createSocket (String host, int port)
+    public Socket createSocket(String host, int port)
         throws IOException, UnknownHostException
     {
         int localPort;
         InetAddress localHost = InetAddress.getLocalHost ();
-        Socket socket;
 
         for (localPort = portMin; localPort <= portMax; localPort++)
         {
             try
             {
-                socket = newSocket(host, port, localPort, localHost);
+                final Socket socket = new Socket (host, port, localHost, localPort);
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("PortRangeSocketFactory: Created server socket at "
+                                 + ":" + localPort);
+                }
 
                 return socket;
             }
@@ -91,23 +101,12 @@ public class PortRangeSocketFactory
                                  + portMin + " and " + portMax);
     }
 
-    private Socket newSocket(String host, int port, int localPort, InetAddress localHost) throws IOException
-    {
-        final Socket socket = new Socket (host, port, localHost, localPort);
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("PortRangeSocketFactory: Created server socket at "
-                         + ":" + localPort);
-        }
-        return socket;
-    }
-
-    public boolean isSSL (Socket socket)
+    public boolean isSSL(Socket socket)
     {
         return false;
     }
 
-    protected int getPortProperty(Configuration config, String name)
+    private int getPortProperty(Configuration config, String name)
         throws ConfigurationException
     {
         int port = config.getAttributeAsInteger(name);
@@ -127,7 +126,7 @@ public class PortRangeSocketFactory
 
     public Socket createSocket(String host, int port, int timeout) throws IOException
     {
-        final InetAddress localHost = InetAddress.getLocalHost ();
+        final InetAddress localHost = InetAddress.getLocalHost();
         int localPort;
         Socket socket;
 

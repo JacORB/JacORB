@@ -20,25 +20,31 @@ package org.jacorb.orb.factory;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.net.*;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
+ * a SocketFactory implementation that allows
+ * to specify the local address the socket should be bound to.
+ * the factory will read the attribute OAIAddr from the configuration
+ * and use the specified value to configure the sockets it creates.
+ *
  * @author Nicolas Noffke
  * @version $Id$
  */
 public class FixedAddressSocketFactory extends AbstractSocketFactory implements SocketFactory, Configurable
 {
     private InetAddress localEndpoint;
-    private Logger logger;
 
-    public Socket createSocket (String host, int port)
-        throws IOException, UnknownHostException
+    public Socket createSocket(String host, int port)
+        throws IOException
     {
         if (localEndpoint != null)
         {
@@ -54,7 +60,7 @@ public class FixedAddressSocketFactory extends AbstractSocketFactory implements 
         return new Socket(host, port);
     }
 
-    public Socket createSocket(String host, int port, int timeout) throws IOException, UnknownHostException
+    public Socket createSocket(String host, int port, int timeout) throws IOException
     {
         Socket socket = new Socket();
 
@@ -68,16 +74,16 @@ public class FixedAddressSocketFactory extends AbstractSocketFactory implements 
         return socket;
     }
 
-    public boolean isSSL (Socket socket)
+    public boolean isSSL(Socket socket)
     {
         return false;
     }
 
-    public void configure(Configuration arg0) throws ConfigurationException
+    public void configure(Configuration config) throws ConfigurationException
     {
-        super.configure(arg0);
+        super.configure(config);
 
-        String oaiAddr = arg0.getAttribute("OAIAddr", "");
+        String oaiAddr = config.getAttribute("OAIAddr", "");
         if (oaiAddr.length() > 0)
         {
             try
