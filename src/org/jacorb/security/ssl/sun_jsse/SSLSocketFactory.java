@@ -20,27 +20,32 @@ package org.jacorb.security.ssl.sun_jsse;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.net.*;
-import java.io.*;
-import java.security.*;
-import java.util.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.security.KeyStore;
+import java.util.StringTokenizer;
 
-import org.apache.avalon.framework.configuration.*;
+import javax.net.SocketFactory;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.factory.AbstractSocketFactory;
 import org.jacorb.orb.listener.SSLHandshakeListener;
 import org.jacorb.orb.listener.SSLSessionListener;
-import org.omg.CORBA.TIMEOUT;
-
-// for use with jsse 1.0.2
-//import com.sun.net.ssl.TrustManager;
-//import com.sun.net.ssl.TrustManagerFactory;
-//import com.sun.net.ssl.KeyManagerFactory;
-//import com.sun.net.ssl.SSLContext;
-import javax.net.ssl.*;
-import javax.net.*;
 
 /**
+ * a SocketFactory implementation that allows
+ * to create sockets that support SSL.
+ *
  * @author Nicolas Noffke
  * $Id$
  */
@@ -61,11 +66,8 @@ public class SSLSocketFactory
     private SSLRandom sslRandom;
 
     public SSLSocketFactory(ORB orb)
-        throws ConfigurationException
     {
-        configure( orb.getConfiguration());
-
-        sslListener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
+         sslListener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
     }
 
     public void configure(Configuration configuration)
@@ -77,7 +79,7 @@ public class SSLSocketFactory
         sslRandom.configure(configuration);
 
         trusteesFromKS =
-            configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks",false);
+            configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks", false);
 
         keystore_location =
             configuration.getAttribute("jacorb.security.keystore","UNSET");
@@ -125,7 +127,6 @@ public class SSLSocketFactory
             throw new ConfigurationException("Unable to create SSLSocketFactory!", e);
         }
 
-
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need to obtain all the cipher suites to use from the
         // properties file.
@@ -160,6 +161,28 @@ public class SSLSocketFactory
         throws IOException, UnknownHostException
     {
         SSLSocket socket = (SSLSocket)factory.createSocket( host, port );
+
+        initSSLSocket(socket);
+
+        return socket;
+    }
+
+    public Socket createSocket(String host, int port, int timeout) throws IOException
+    {
+        SSLSocket socket = (SSLSocket)factory.createSocket();
+        socket.connect(new InetSocketAddress(host, port), timeout);
+
+        initSSLSocket(socket);
+
+        return socket;
+    }
+
+    /**
+     * common ssl socket initialization
+     * @param socket
+     */
+    private void initSSLSocket(SSLSocket socket)
+    {
         // Andrew T. Finnell
         // We need a way to enable the cipher suites that we would like to use
         // We should obtain these from the properties file
@@ -174,13 +197,11 @@ public class SSLSocketFactory
         }
 
         socket.addHandshakeCompletedListener(new SSLHandshakeListener(logger, sslListener));
-
-        return socket;
     }
 
-    public boolean isSSL ( java.net.Socket s )
+    public boolean isSSL( java.net.Socket socket )
     {
-        return (s instanceof SSLSocket);
+        return (socket instanceof SSLSocket);
     }
 
     private SocketFactory createSocketFactory()

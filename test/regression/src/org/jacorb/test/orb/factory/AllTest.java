@@ -29,13 +29,12 @@ public class AllTest
     public static Test suite()
     {
         TestSuite suite1 = new TestSuite();
-        
+
         suite1.addTestSuite(DefaultSocketFactoryTest.class);
         suite1.addTestSuite(FixedAddressSocketFactoryTest.class);
-        suite1.addTestSuite(JDK13AbstractSocketFactoryTest.class);
         suite1.addTestSuite(PortRangeSocketFactoryTest.class);
         suite1.addTestSuite(PortRangeServerSocketFactoryTest.class);
-        
+
         return suite1;
     }
 }
