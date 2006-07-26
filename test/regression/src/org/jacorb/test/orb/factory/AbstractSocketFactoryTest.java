@@ -7,10 +7,11 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
-import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.orb.factory.SocketFactory;
 
 /**
@@ -30,12 +31,12 @@ public abstract class AbstractSocketFactoryTest extends TestCase
 
     protected final void setUp() throws Exception
     {
-        Properties props = getPropertiesForTest(getName());
-        if (props != null)
-        {
-        }
-
         objectUnderTest = newObjectUnderTest();
+
+        if (objectUnderTest instanceof Configurable)
+        {
+            configureObjectUnderTest(getName(), (Configurable)objectUnderTest);
+        }
 
         serverSocket = new ServerSocket();
         serverSocket.bind(null);
@@ -74,9 +75,8 @@ public abstract class AbstractSocketFactoryTest extends TestCase
         doSetup();
     }
 
-    protected Properties getPropertiesForTest(String name)
+    protected void configureObjectUnderTest(String name, Configurable configurable) throws Exception
     {
-        return null;
     }
 
     protected void doSetup()
