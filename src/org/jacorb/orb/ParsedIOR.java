@@ -274,7 +274,9 @@ public class ParsedIOR
                     else
                     {
                         if (logger.isDebugEnabled())
+                        {
                             logger.debug("No transport available for profile tag " + tag);
+                        }
                     }
                     break;
                 }
@@ -327,7 +329,9 @@ public class ParsedIOR
             catch (Exception e)
             {
                 if (logger.isErrorEnabled())
-                    logger.error(e.getMessage());
+                {
+                    logger.error("Error in building IIOP-IOR", e);
+                }
                 throw new org.omg.CORBA.UNKNOWN("Error in building IIOP-IOR");
             }
         }
@@ -554,7 +558,9 @@ public class ParsedIOR
         {
             Profile profile = corbaLoc.profileList[0];
             if (profile == null)
+            {
                 return; // could not decode any address in list
+            }
 
             profile.set_object_key(corbaLoc.getKey());
             ior = createObjectIOR(profile);

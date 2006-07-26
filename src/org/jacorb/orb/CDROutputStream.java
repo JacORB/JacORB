@@ -824,7 +824,9 @@ public class CDROutputStream
        (final char[] value, final int offset, final int length)
     {
         if( value == null )
+        {
             throw new MARSHAL( "Null References" );
+        }
 
         //no alignment necessary
         check( length );
@@ -983,12 +985,16 @@ public class CDROutputStream
        (final char[] value, final int offset, final int length)
     {
         if( value == null )
+        {
             throw new MARSHAL("Null References");
+        }
 
         check( length * 3 );
 
         for( int i = offset; i < offset+length; i++)
+        {
             write_wchar( value[i] );
+        }
     }
 
     public final void write_wstring(final String s)

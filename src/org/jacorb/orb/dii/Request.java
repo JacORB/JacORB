@@ -58,7 +58,7 @@ public class Request
     // added the extra log statements to trace a spurious test failure.
     private final Logger logger;
 
-    private org.omg.CORBA.ContextList contexts = new ContextListImpl();
+    private final org.omg.CORBA.ContextList contexts = new ContextListImpl();
     private org.omg.CORBA.Context context;
     private Caller deferred_caller;
     private org.omg.CORBA.portable.InputStream reply;
