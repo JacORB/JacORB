@@ -1079,7 +1079,29 @@ Persistent objects are those that may live beyond the lifetime of the process th
 
 The implname property allows a program to run with a different implementation name so that it will not accept references created by another persistent POA with the same POA name. A common problem is where the developer has two persistent servers running with the same implname and POA names when one tries to contact the other. Rather than calling server x, server y performs local call. This is because there is no way of distinguishing the two servers; the developer should have used different implnames (e.g. UUIDs).
 
-As it is not possible to construct a transient object with a readable key unlike a persistent object where the developer may configure implname, POA name and object key as they wish, some developers may find it useful to use the objectKeyMap facility within JacORB to refer to their transient objects.
+\subsubsection{Corbaloc with JacORB Implname and CORBA Objects}
+
+Normally corbaloc is used to provide a shortcut to refer to CORBA objects. However the stringified key portion corresponds to the octet sequence in the object\_key member of a GIOP Request or LocateRequest header as defined in section 15.4 of CORBA 2.3. Further the key\_string uses the escape conventions described in RFC 2396 to map away from octet values that cannot directly be part of a URL. This means the key string might look like:
+\small{
+\begin{verbatim}
+corbaloc:iiop:10.1.0.4:18000/FooBar/ServiceName/V_3%f1%1c%9b%11%db%b7%e9
+         %bdsnQ%ea%85qV_3%f0%1c%9b%11%db%b7%e9%bdsnQ%ea%85TA5%f0%1c%9b%11
+         %db%b7%e9%bdsnQ%ea%85
+\end{verbatim}
+}
+With JacORB, for persistent objects, the developer may configure the implname, poa name and object key. This should mean that the corbaloc sequence should be more readable:
+\small{
+\begin{verbatim}
+corbaloc:iiop:10.1.0.4:42811/imr_demo/ImRDemoServerPOA/imr_demo
+\end{verbatim}
+}
+With a transient object the key may look like:
+\small{
+\begin{verbatim}
+corbaloc:iiop:10.1.0.4:42818/2649480905/%00%14%3e45%0d%0b!%10%3e
+\end{verbatim}
+}
+As it is not possible to construct a transient object with a readable key some developers may find it useful to use the objectKeyMap facility within JacORB to refer to their transient objects. Note the objectKey functionality may also be used with persistent objects.
 
 This property provides more readable corbaloc URLs by mapping the actual object key to an arbitrary string. The mapping below would permit clients of a name service to access it using corbaloc::ipaddress:portnum/NameService. The property also accepts the following mappings:
 \begin{itemize}
@@ -1092,6 +1114,8 @@ Note that {\tt jacorb.orb.objectKeyMap.name} is configurable both through the ja
 Example usage
 
 {\tt jacorb.orb.objectKeyMap.NameService=file:///home/rnc/NameSingleton.ior}
+
+This then allows the corbaloc key portion to simply be 'NameService'.
 
 \subsection{JacORB Network Event Logging}
 \label{eventLogging}
