@@ -143,6 +143,15 @@ public class CodesetTest extends ClientServerTestCase
         server = CodesetServerHelper.narrow( setup.getServerObject() );
     }
 
+    public static Test suite()
+    {
+        TestSuite suite = new TestSuite("Codeset tests");
+
+        suite.addTest(suite(1));
+        suite.addTest(suite(2));
+
+        return suite;
+    }
 
     /**
      * <code>suite</code> sets up the server/client tests.
