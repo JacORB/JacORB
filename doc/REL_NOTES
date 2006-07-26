@@ -87,6 +87,8 @@
         - new property: jacorb.ignoreComponentInfoProfiles. This forces JacORB to ignore
           all codeset component info profiles.
         - Change default connect_timeout to 90000
+        - use new Socket API to specify timeouts during Socket.connect
+          instead of using our own timeout implementation.
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.
