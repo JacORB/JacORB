@@ -35,6 +35,7 @@ import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TAG_CODE_SETS;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.NullLogger;
 
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.CDRInputStream;
@@ -83,12 +84,15 @@ public class CodeSet
     public static final String UTF16_STR = "UTF16";
 
 
-
     /**
      * <code>logger</code> is the static logger for Codeset.
      */
-    private static org.apache.avalon.framework.logger.Logger logger;
+    private static org.apache.avalon.framework.logger.Logger logger = new NullLogger();
 
+    /**
+     * static flag that keeps track of the configuration status.
+     */
+    private static boolean isConfigured = false;
 
     /**
      * Describe variable <code>nativeCodeSetChar</code> here.
@@ -123,7 +127,7 @@ public class CodeSet
     public synchronized static void configure (Configuration config) throws ConfigurationException
     {
         // Only do this once per JVM.
-        if (logger == null)
+        if (!isConfigured)
         {
             String ncsc = config.getAttribute("jacorb.native_char_codeset", "");
             String ncsw = config.getAttribute("jacorb.native_wchar_codeset", "");
@@ -155,6 +159,11 @@ public class CodeSet
             }
 
             logger = config.getNamedLogger("org.jacorb.orb.codeset");
+            isConfigured = true;
+        }
+        else
+        {
+            logger.warn("CodeSet is configured already. Further attempts to configure CodeSet will be ignored!");
         }
     }
 
