@@ -27,9 +27,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Properties;
 
-import org.omg.CONV_FRAME.*;
-import org.omg.IOP.*;
+import org.omg.CONV_FRAME.CodeSetContext;
+import org.omg.CONV_FRAME.CodeSetContextHelper;
+import org.omg.CONV_FRAME.CodeSetComponent;
+import org.omg.CONV_FRAME.CodeSetComponentInfo;
+import org.omg.IOP.ServiceContext;
+import org.omg.IOP.TAG_CODE_SETS;
 
+import org.apache.avalon.framework.configuration.ConfigurationException;
+
+import org.jacorb.config.Configuration;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 
@@ -39,17 +46,54 @@ import org.jacorb.orb.CDROutputStream;
  */
 public class CodeSet
 {
-    // ISO 8859-1:1987; Latin Alphabet No. 1
-    public static final int ISO8859_1=0x00010001;   /* standard ASCII */
+    /**
+     * <code>ISO8859_1</code> represents standard ASCII.
+     * It is ISO 8859-1:1987; Latin Alphabet No. 1
+     */
+    public static final int ISO8859_1 = 0x00010001;
 
-    // ISO/IEC 10646-1:1993; UTF-16, UCS Transformation Format 16-bit form
-    public static final int UTF16= 0x00010109;      /* extended UCS2,
-                                                       2 or 4 bytes
-                                                       for every char */
+    /**
+     * <code>UTF8</code> represents UTF8 1-6 bytes for every character
+     * X/Open UTF-8; UCS Transformation Format 8 (UTF-8)
+     */
+    public static final int UTF8 = 0x05010001;
 
-    // X/Open UTF-8; UCS Transformation Format 8 (UTF-8)
-    public static final int UTF8 = 0x05010001;      /* 1-6 bytes for
-                                                       every character */
+    /**
+     * <code>UTF16</code> represents extended UCS2, 2 or 4 bytes for every char
+     * ISO/IEC 10646-1:1993; UTF-16, UCS Transformation Format 16-bit form
+     */
+    public static final int UTF16 = 0x00010109;
+
+
+    /**
+     * <code>ISO8859_STR</code> represents the canonical string form of ISO8859_1.
+     */
+    public static final String ISO8859_STR = "ISO8859_1";
+
+
+    /**
+     * <code>UTF8_STR</code> represents the canonical string form of UTF8.
+     */
+    public static final String UTF8_STR = "UTF8";
+
+
+    /**
+     * <code>UTF16_STR</code> represents the canonical string form of UTF16
+     */
+    public static final String UTF16_STR = "UTF16";
+
+
+
+    /**
+     * <code>logger</code> is the static logger for Codeset.
+     */
+    private static org.apache.avalon.framework.logger.Logger logger;
+
+
+    /**
+     * Describe variable <code>nativeCodeSetChar</code> here.
+     *
+     */
     private static int nativeCodeSetChar = -1; //ISO8859_1;
     private static int nativeCodeSetWchar = UTF16;
 
@@ -57,12 +101,63 @@ public class CodeSet
     {
         switch(cs)
         {
-            case ISO8859_1: return "ISO-8859-1";
-            case UTF16: return  "UTF-16";
-            case UTF8: return  "UTF-8";
+            case ISO8859_1: return ISO8859_STR;
+            case UTF16: return  UTF16_STR;
+            case UTF8: return  UTF8_STR;
         }
         return "Unknown TCS: " + Integer.toHexString(cs);
     }
+
+
+    /**
+     * <code>configure</code> configures the logger and codesets. It is
+     * synchronized as the configuration parameters are static and therefore
+     * we do not want to 'collide' with another init.
+     *
+     * This class does not implement configurable which ideally it should. However
+     * as this method is static it would conflict with it.
+     *
+     * @param config a <code>Configuration</code> value
+     * @exception ConfigurationException if an error occurs
+     */
+    public synchronized static void configure (Configuration config) throws ConfigurationException
+    {
+        // Only do this once per JVM.
+        if (logger == null)
+        {
+            String ncsc = config.getAttribute("jacorb.native_char_codeset", "");
+            String ncsw = config.getAttribute("jacorb.native_wchar_codeset", "");
+
+            if (ncsc != null && ! ("".equals (ncsc)))
+            {
+                int value = csInt(ncsc);
+                if (value != -1)
+                {
+                    nativeCodeSetChar = value;
+                }
+                else if (logger.isErrorEnabled())
+                {
+                    logger.error("Cannot set default NCSC to " + ncsc);
+                }
+            }
+
+            if (ncsw != null && ! ("".equals (ncsw)))
+            {
+                int value = csInt(ncsw);
+                if (value != -1)
+                {
+                    nativeCodeSetWchar = value;
+                }
+                else if (logger.isErrorEnabled())
+                {
+                    logger.error("Cannot set default NCSW to " + ncsw);
+                }
+            }
+
+            logger = config.getNamedLogger("org.jacorb.orb.codeset");
+        }
+    }
+
 
     public static int csInt(String name)
     {
@@ -75,15 +170,15 @@ public class CodeSet
             // no problem, go on to match literal strings
         }
         String ucName = name.toUpperCase();
-        if (ucName.equals("ISO-8859-1"))
+        if (ucName.equals(ISO8859_STR))
         {
             return ISO8859_1;
         }
-        else if (ucName.equals("UTF-8"))
+        else if (ucName.equals(UTF8_STR))
         {
             return UTF8;
         }
-        else if (ucName.equals("UTF-16"))
+        else if (ucName.equals(UTF16_STR))
         {
             return UTF16;
         }
@@ -93,25 +188,6 @@ public class CodeSet
         }
     }
 
-    public static int setNCSC (String ncsc)
-    {
-        int value = csInt(ncsc);
-        if (value != -1)
-        {
-            nativeCodeSetChar = value;
-        }
-        return value;
-    }
-
-    public static int setNCSW (String ncsw)
-    {
-        int value = csInt(ncsw);
-        if (value != -1)
-        {
-            nativeCodeSetWchar = value;
-        }
-        return value;
-    }
 
     public static int getTCSDefault()
     {
@@ -132,27 +208,32 @@ public class CodeSet
                 defaultStream.close();
             }
             catch( IOException e ) {}
-            if (sysenc.equals( "ISO8859_1" ) )
+            if (sysenc.equals( ISO8859_STR ) )
             {
                 nativeCodeSetChar = ISO8859_1;
             }
-            else if ( sysenc.equals( "UTF8" ) )
+            else if ( sysenc.equals( UTF8_STR ) )
             {
                 nativeCodeSetChar = UTF8;
             }
             else
             {
-//                Debug.output
-//                    ( 2, "Warning - unknown codeset (" + sysenc + ") - defaulting to ISO-8859-1" );
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn
+                    (
+                        "Warning - unknown codeset (" +
+                        sysenc +
+                        ") - defaulting to ISO-8859-1"
+                    );
+                }
                 nativeCodeSetChar = ISO8859_1;
             }
-
-//            if( Debug.isDebugEnabled() )
-//            {
-//                Debug.output( 3, "TCS set to " + csName( TCS ));
-//            }
+            if( logger.isDebugEnabled() )
+            {
+                logger.debug("TCS set to " + csName( nativeCodeSetChar));
+            }
         }
-
         return nativeCodeSetChar;
     }
 
@@ -320,6 +401,7 @@ public class CodeSet
 
         String defaultIOEncoding = (new OutputStreamWriter(new ByteArrayOutputStream ())).getEncoding();
         System.out.println("Cannonical encoding: " + defaultIOEncoding);
+        System.out.println("Default WChar encoding: " + csName(nativeCodeSetWchar));
 
         // If we're not using Windows do some extra debug, printing out the locale information.
         if ((osName.toLowerCase ()).indexOf ("windows") == -1 &&

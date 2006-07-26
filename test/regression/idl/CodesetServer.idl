@@ -1,0 +1,28 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         interface CodesetServer
+         {
+            // Char
+            boolean pass_in_char (in string name, in char x);
+
+            // String
+            boolean pass_in_string (in string name, in string x);
+
+            // WChar
+            boolean pass_in_wchar (in string name, in wchar x);
+
+            // WString
+            boolean pass_in_wstring (in string name, in wstring x);
+
+            // Char Array
+            typedef sequence<char> chararray;
+            boolean pass_in_char_array (in string name, in chararray x);
+         };
+      };
+   };
+};

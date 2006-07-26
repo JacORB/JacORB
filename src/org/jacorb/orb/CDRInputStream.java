@@ -154,6 +154,11 @@ public class CDRInputStream
     private boolean isMutatorEnabled;
 
     /**
+     * <code>codesetEnabled</code> denotes whether codeset marshalling is enabled.
+     */
+    private boolean codesetEnabled;
+
+    /**
      * for this stream to be able to return a live object reference, a
      * full ORB (not the Singleton!) must be known. If this stream is
      * used only to demarshal base type data, the Singleton is enough
@@ -225,6 +230,8 @@ public class CDRInputStream
         logger =
             jacorbConfig.getNamedLogger("jacorb.orb.cdr");
 
+        codesetEnabled  =
+            configuration.getAttribute("jacorb.codeset","on").equals("on");
         cometInteropFix =
             configuration.getAttribute("jacorb.interop.comet","off").equals("on");
         laxBooleanEncoding =
@@ -739,17 +746,43 @@ public class CDRInputStream
         }
     }
 
+
+    /**
+     * <code>read_char</code> reads a character from the stream.
+     *
+     * @return a <code>char</code> value
+     */
     public final char read_char()
     {
         handle_chunking();
+
         index++;
-        return (char)(0xff & buffer[pos++]);
+        return (char)(buffer[pos++] & 0xFF);
     }
 
+
+    /**
+     * <code>read_char_array</code> reads an character array from the stream.
+     *
+     * @param value a <code>char[]</code>, the result array.
+     * @param offset an <code>int</code>, an offset into <code>value</code>
+     * @param length an <code>int</code>, the length of the array to read
+     */
     public final void read_char_array
-       (final char[] value, final int offset, final int length)
+        (final char[] value, final int offset, final int length)
     {
+        if (value == null)
+        {
+            throw new MARSHAL("Cannot marshall result into null array.");
+        }
+        else if ( offset + length > value.length || length < 0 || offset < 0 )
+        {
+            throw new MARSHAL
+                ("Cannot marshall as indices for array are out bounds.");
+        }
+
         handle_chunking();
+
         for (int j = offset; j < offset + length; j++)
         {
             index++;
@@ -1092,6 +1125,14 @@ public class CDRInputStream
         index += length * 2;
     }
 
+
+    /**
+     * <code>read_string</code> reads a string from the buffer. It is optimized
+     * for whether it is reading a blank string, and whether codeset translation
+     * is active.
+     *
+     * @return a <code>String</code> value, possibly blank, never null.
+     */
     public final String read_string()
     {
         String result = null;
@@ -1111,12 +1152,17 @@ public class CDRInputStream
 
         index += (size + 4);
         pos += (size + 4);
-        String csname = CodeSet.csName(codeSet);
+
 
         if ((size > 0) &&
             (buffer[ start + size - 1 ] == 0))
         {
             size --;
+        }
+        // Optimize for empty strings.
+        if (size == 0)
+        {
+            return "";
         }
 
         if(start + size > buffer.length)
@@ -1128,18 +1174,34 @@ public class CDRInputStream
             throw new MARSHAL ("Invalid size for string extraction");
         }
 
-        try
+        if (codesetEnabled)
         {
-          result = new String (buffer, start, size, csname);
-        }
-        catch (java.io.UnsupportedEncodingException ex)
-        {
-            if (logger != null && logger.isErrorEnabled())
+            String csname = CodeSet.csName(codeSet);
+
+            try
             {
-                logger.error("Charset " + csname + " is unsupported");
-                result = "";
+                result = new String (buffer, start, size, csname);
+            }
+            catch (java.io.UnsupportedEncodingException ex)
+            {
+                if (logger != null && logger.isErrorEnabled())
+                {
+                    logger.error("Charset " + csname + " is unsupported");
+                    result = "";
+                }
             }
         }
+        else
+        {
+            char[] buf = new char[size];
+
+            for (int i=0; i<size; i++)
+            {
+                buf[i] = (char)(0xff & buffer[start + i]);
+            }
+            result = new String(buf);
+        }
+
         return result;
     }
 

@@ -43,17 +43,18 @@ public class CodeSetInfoInterceptor
     implements IORInterceptor, Configurable
 {
     private final org.omg.IOP.TaggedComponent tagc;
-    private org.apache.avalon.framework.logger.Logger logger = null;
 
     public CodeSetInfoInterceptor(ORB orb)
     {
         super();
 
-        try {
+        try
+        {
             configure(orb.getConfiguration());
         }
         catch (ConfigurationException ex)
         {
+            ex.printStackTrace();
             // will have to do with defaults
         }
 
@@ -92,28 +93,7 @@ public class CodeSetInfoInterceptor
     public void configure(Configuration config)
         throws ConfigurationException
     {
-        org.jacorb.config.Configuration cfg =
-            (org.jacorb.config.Configuration)config;
-
-        logger = cfg.getNamedLogger("org.jacorb.interceptors.ior_init");
-
-        String ncsc =
-            config.getAttribute("jacorb.native_char_codeset", "ISO-8859-1");
-
-        String ncsw =
-            config.getAttribute("jacorb.native_wchar_codeset", "UTF-16");
-
-        if (CodeSet.setNCSC (ncsc) == -1 &&
-            logger.isErrorEnabled())
-        {
-            logger.error("Cannot set default NCSC to " + ncsc);
-        }
-
-        if (CodeSet.setNCSW (ncsw) == -1 &&
-            logger.isErrorEnabled())
-        {
-            logger.error("Cannot set default NCSW to " + ncsw);
-        }
+        CodeSet.configure((org.jacorb.config.Configuration)config);
     }
 
     public String name()

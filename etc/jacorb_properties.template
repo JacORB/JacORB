@@ -293,9 +293,9 @@ jacorb.enhanced_thread_name=off
 # then this will be used to mutate incoming/outgoing Objects
 #jacorb.iormutator=
 
-# Ignore all codesetComponentInfo profiles within IOR. This implictly disables
-# codeSet.
-# jacorb.ignoreComponentInfoProfiles=off
+# If true enable codesets. If false, this will ignore all codesetComponentInfo profiles
+# within an IOR and also disable explicit marshalling with codesets (re Strings).
+# jacorb.codeset=off
 
 
 ###########################################

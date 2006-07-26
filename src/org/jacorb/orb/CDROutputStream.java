@@ -33,6 +33,7 @@ import org.jacorb.util.ObjectUtil;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
+import org.omg.CORBA.DATA_CONVERSION;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -161,6 +162,11 @@ public class CDROutputStream
 
     private boolean isMutatorEnabled;
 
+    /**
+     * <code>codesetEnabled</code> denotes whether codeset marshalling is enabled.
+     */
+    private boolean codesetEnabled;
+
     /** configurable properties */
     private boolean useBOM = false;
     private boolean chunkCustomRmiValuetypes = false;
@@ -178,6 +184,9 @@ public class CDROutputStream
 
     public void configure(Configuration configuration)
     {
+       codesetEnabled  =
+            configuration.getAttribute("jacorb.codeset","on").equals("on");
+
         useBOM =
             configuration.getAttribute("jacorb.use_bom","off").equals("on");
 
@@ -201,6 +210,8 @@ public class CDROutputStream
                 throw new RuntimeException();
             }
         }
+
+
     }
 
     private static class DeferredWriteFrame
@@ -797,86 +808,108 @@ public class CDROutputStream
 
 
     /**
-     * Writes char according to specified encoding.
+     * <code>write_char</code> writes a character to the output stream. If
+     * codeset translation is active then it will use String and an encoding to
+     * get the bytes. It can then do a test for whether to throw DATA_CONVERSION.
+     *
+     * @param c a <code>char</code> value
      */
-    public final void write_char(final char c)
+    public final void write_char (final char c)
     {
-        check( 1 );
-
-        int too_large_mask =
-            (codeSet == CodeSet.ISO8859_1)?
-        0xFF00 : //ISO8859-1
-        0xFF80; //UTF-8
-
-        if( (c & too_large_mask) != 0 )//Are there any 1s in the MSB?
+        // According to 15.3.1.6 of CORBA 3.0 'a single instance of the char type
+        // may only hold one octet of any multi-byte character encoding.'
+        // Therefore we ensure that we are in the single byte range i.e.
+        // less than 0xFF or \377.
+        if (c > '\377')
         {
-            throw new org.omg.CORBA.DATA_CONVERSION(
-                "char (" + c +
-                ") out of range for " +
-                CodeSet.csName( codeSet) );
+            throw new DATA_CONVERSION ("Char " + c + " out of range");
         }
 
+        check( 1 );
+        buffer[pos++] = (byte)c;
         index++;
-        buffer[ pos++ ] = (byte) c;
     }
+
 
     public final void write_char_array
        (final char[] value, final int offset, final int length)
     {
         if( value == null )
         {
-            throw new MARSHAL( "Null References" );
+            throw new MARSHAL("Cannot marshall null array.");
+        }
+        else if ( offset + length > value.length || length < 0 || offset < 0 )
+        {
+            throw new MARSHAL
+                ("Cannot marshall as indices for array are out bounds.");
         }
 
-        //no alignment necessary
         check( length );
 
-        int too_large_mask =
-            (codeSet == CodeSet.ISO8859_1)?
-        0xFF00 : //ISO8859-1
-        0xFF80; //UTF-8
-
-
-        for( int i = offset; i < offset+length; i++)
+        for (int i=offset; i < length+offset; i++)
         {
-            if( (value[i] & too_large_mask) != 0 )
+            if (value[i] > '\377')
             {
-                throw new MARSHAL("char (" + value[i] +
-                                  ") out of range for " +
-                                  CodeSet.csName( codeSet ));
+                throw new DATA_CONVERSION ("Char " + value[i] + " out of range");
             }
-
-            buffer[ pos++ ] = (byte) value[i];
+            buffer[pos++] = (byte)value[i];
         }
-
-        index += length;
+        index+=length;
     }
 
+
+    /**
+     * <code>write_string</code> writes a string to the output stream. It is
+     * optimised for whether it is writing a blank string or for whether codeset
+     * translation is active.
+     *
+     * @param s a <code>String</code> value
+     */
     public final void write_string(final String s)
     {
+        // size is the
+        // Size indicator ulong + length in chars( i.e. bytes for type char)
+        // incl. terminating NUL char
+        int size;
+        // sizePosition is the position in the buffer for the size to be
+        // written.
+        int sizePosition;
+
         if( s == null )
         {
-            throw new MARSHAL("Null References");
+            throw new MARSHAL("Cannot marshall null string.");
         }
 
-        // size indicator ulong + length in chars( i.e. bytes for type char)
-        // incl. terminating NUL char
-        int size = 4 + s.length() + 1;
-        check( size, 4 );
 
-        int sizepos = pos;
+        // Size indicator ulong + length in chars( i.e. bytes for type char)
+        // incl. terminating NUL char
+        size = 4 + s.length() + 1;
+        check( size, 4 );
+        sizePosition = pos;
+
         pos += 4;
         index += 4;
 
         for (int i = 0; i < s.length(); i++)
         {
-            write_char_i(s.charAt(i),false,false, codeSet);
+            if (codesetEnabled)
+            {
+                write_char_i(s.charAt(i),false,false, codeSet);
+            }
+            else
+            {
+                buffer[pos++] = (byte)s.charAt(i);
+                index++;
+            }
         }
 
         buffer[ pos++ ] = (byte) 0; //terminating NUL char
         index ++;
-        size = pos - (sizepos + 4); // compute translated size
-        _write4int( buffer,sizepos,size);
+
+        // Now write the size back in.
+        size = pos - (sizePosition + 4); // compute translated size
+
+        _write4int( buffer, sizePosition, size);
     }
 
     public final void write_wchar(final char c)

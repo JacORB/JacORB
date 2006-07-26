@@ -31,7 +31,7 @@ public class AllTest extends JacORBTestSuite
    }
 
    public static Test suite()
-   {
+    {
         TestSuite suite = new AllTest ("All ORB Tests");
 
         suite.addTestSuite(org.jacorb.test.orb.ORBInitTest.class);
@@ -61,7 +61,9 @@ public class AllTest extends JacORBTestSuite
         suite.addTest(AnyTest.suite());
         suite.addTestSuite(InvalidIORTest.class);
         suite.addTest(org.jacorb.test.orb.factory.AllTest.suite());
+        suite.addTest (org.jacorb.test.orb.CodesetTest.suite(1));
+        suite.addTest (org.jacorb.test.orb.CodesetTest.suite(2));
 
         return suite;
-   }
+    }
 }

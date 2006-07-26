@@ -624,10 +624,6 @@ objects & class & Hashtable \\
 \verb"jacorb.dns.enable" & Use DNS names in IORs, rather than numeric
 IP addresses & boolean & off \\
 \hline
-\verb"jacorb.ignoreComponentInfoProfiles" &
-This overrides the previous property and forces JacORB to ignore all codeset component info profiles. &
-boolean & off\\
-\hline
 \verb"jacorb.compactTypecode"
 \verb"s" & Whether to send compact typecodes. Options are 0 (off), 1
 (Partial compaction), 2 (full compaction of all optional parameters) & integer & 2 \\
@@ -756,10 +752,28 @@ jacorb.net.socket\_factory.port.min above & integer & disabled\\
 that the thread started to the Thread name. To be used to correlate running
 threads with entries in debug logs. & string & off\\
 \hline
-
-
+\verb"jacorb.native_char_cod"
+\verb"eset" & Overrides the detection from the local environment for the codeset
+used to transmit characters. Note that this property is only effective once per
+JVM. & string & off\\
+\hline
+\verb"jacorb.native_wchar_co"
+\verb"deset" & Overrides the detection from the local environment for the codeset
+used to transmit wide characters. ote that this property is only effective once per
+JVM. & string & off\\
+\hline
+\verb"jacorb.codeset" &
+Enabling this will do codeset translation on marshalling. Disabling it will force
+JacORB to ignore all codeset component info profiles and to disable translation on
+marshalling. & boolean & on\\
+\hline
 \end{longtable}
 \end{small}
+
+\textbf{Note:} The class {\tt org.jacorb.orb.giop.CodeSet} provides a main method to
+aid debugging of codeset issues. It will print out the current system encoding values.
+If the developer is running under a Unix based system and passes the argument -a it will
+also print out the current locale and all known locales.
 
 
 \begin{small}
@@ -973,9 +987,6 @@ no more than queue\_min requests. Default is 10. & integer \\
 \hline
 \verb"jacorb.security.defaul"
 \verb"t_password" & The name of the default key alias to look up in the keystore. & string \\
-\hline
-\verb"jacorb.security.iaik_d"
-\verb"ebug" & Sets IAIKS SSL classes to print debug output to standard output. Default is off. & boolean \\
 \hline
 \verb"jacorb.security.jsse.t"
 \verb"rustees_from_ks" & Sun JSSE specific settings: Use the keystore to take trusted certificates from. Default is off. & boolean \\

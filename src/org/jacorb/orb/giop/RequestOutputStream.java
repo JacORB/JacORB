@@ -244,27 +244,9 @@ public class RequestOutputStream
         if (!conn.isTCSNegotiated())
         {
             // encapsulate context
-            final CDROutputStream out = new CDROutputStream();
-
-            try
-            {
-                out.beginEncapsulatedArray();
-                CodeSetContextHelper.write
-                (
-                        out,
-                        new CodeSetContext(conn.getTCS(), conn.getTCSW())
-                );
-                addServiceContext(new ServiceContext
-                        (
-                                org.omg.IOP.CodeSets.value,
-                                out.getBufferCopy()
-                        ));
-                conn.markTCSNegotiated();
-            }
-            finally
-            {
-                out.close();
-            }
+            addServiceContext (CodeSet.createCodesetContext (conn.getTCS(), conn.getTCSW()));
+                       
+            conn.markTCSNegotiated();
         }
         super.write_to(conn);
     }

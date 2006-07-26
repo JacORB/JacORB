@@ -35,7 +35,6 @@ import org.omg.CONV_FRAME.CodeSetComponentInfo;
  * @author Nicolas Noffke
  * @version $Id$
  */
-
 public class ClientConnection
     implements ReplyListener, ConnectionListener
 {
@@ -44,14 +43,20 @@ public class ClientConnection
 
     private final Map replies;
 
-    // support for SAS Stateful contexts
+    /**
+     * <code>sasContexts</code> is used to support for SAS Stateful contexts.
+     */
     private final Map sasContexts;
     private static long last_client_context_id = 0;
 
-    /* how many clients use this connection? */
+    /**
+     * <code>client_count</code> denotes how many clients use this connection.
+     */
     private int client_count = 0;
 
-    //to generate request ids
+    /**
+     * <code>id_count</code> is used to generate request ids.
+     */
     private int id_count = 0;
 
     private final ClientConnectionManager conn_mg;
@@ -60,18 +65,34 @@ public class ClientConnection
 
     private final String info;
 
-    // indicates if the stream has been closed gracefully, i.e. by a
-    // CloseConnection message. This will trigger a remarshaling of
-    // all pending messages.
+    /**
+     * <code>gracefulStreamClose</code> indicates if the stream has been closed
+     * gracefully, i.e. by a CloseConnection message. This will trigger a
+     * remarshaling of all pending messages.
+     */
     private boolean gracefulStreamClose;
 
-    //The profile that was used for registering with the
-    //ClientConnectionManager. In case of BiDirIIOP it is NOT equal to
-    //the transports profile.
+    /**
+     * <code>registeredProfile</code> indicates the profile that was used for
+     * registering with the ClientConnectionManager. In case of BiDirIIOP it is
+     * NOT equal to the transports profile.
+     */
     private final org.omg.ETF.Profile registeredProfile ;
 
+    /**
+     * <code>logger</code> is the logger for this object.
+     */
     private final Logger logger;
+
+    /**
+     * <code>ignoreComponentInfo</code> defaults to off. If jacorb.codeset
+     * is turned on then it will NOT ignore component profiles. If
+     * jacorb.codeset is turned off then this allows it to ignore codeset profiles
+     * in an IOR.
+     */
     private final boolean ignoreComponentInfo;
+
+
 
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
@@ -90,7 +111,7 @@ public class ClientConnection
         logger =
             configuration.getNamedLogger("jacorb.giop.conn");
 
-        ignoreComponentInfo = configuration.getAttributeAsBoolean("jacorb.ignoreComponentInfoProfiles", false);
+        ignoreComponentInfo = ! (configuration.getAttributeAsBoolean("jacorb.codeset", true));
 
         //For BiDirGIOP, the connection initiator may only generate
         //even valued request ids, and the other side odd valued
@@ -144,12 +165,7 @@ public class ClientConnection
         int tcsw = -1;
 
         CodeSetComponentInfo info = pior.getCodeSetComponentInfo();
-        if( info != null  || ignoreComponentInfo)
-        {
-            tcs = CodeSet.selectTCS( info );
-            tcsw = CodeSet.selectTCSW( info );
-        }
-        else
+        if( info == null || ignoreComponentInfo)
         {
             logger.debug("No CodeSetComponentInfo in IOR. Will use default CodeSets" );
 
@@ -164,11 +180,13 @@ public class ClientConnection
                pick reasonable default values and send those.
             */
 
-            //connection.markTCSNegotiated();
-            //return null;
-
-            tcs = CodeSet.getTCSDefault();
-            tcsw = CodeSet.getTCSWDefault();
+            connection.markTCSNegotiated();
+            return;
+        }
+        else
+        {
+            tcs = CodeSet.selectTCS( info );
+            tcsw = CodeSet.selectTCSW( info );
         }
 
         if( tcs == -1 || tcsw == -1 )
@@ -215,10 +233,6 @@ public class ClientConnection
         return connection.getTCSW();
     }
 
-    public String getInfo()
-    {
-        return info;
-    }
 
     public synchronized int getId()
     {

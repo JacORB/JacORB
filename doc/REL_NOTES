@@ -84,9 +84,10 @@
           hang.
         - Fix OutOfMemory issue when parsing invalid IOR's.
         - Fix for hanging process when shutting down POA after accessing a destroyed object (bugzilla #400).
-        - new property: jacorb.ignoreComponentInfoProfiles. This forces JacORB to ignore
-          all codeset component info profiles.
         - Change default connect_timeout to 90000
+        - new property: jacorb.codeset. By default this is on. If off, JacORB will ignore
+          all codeset component info profiles and will turn off explicit marshalling with
+          codesets (re Strings). Fixes for char transmission.
         - use new Socket API to specify timeouts during Socket.connect
           instead of using our own timeout implementation.
     - IDL Compiler:
