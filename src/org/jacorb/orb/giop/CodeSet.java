@@ -163,7 +163,12 @@ public class CodeSet
         }
         else
         {
-            logger.warn("CodeSet is configured already. Further attempts to configure CodeSet will be ignored!");
+            if (logger.isDebugEnabled())
+            {
+                logger.debug
+                    ("CodeSet is already configured; further attempts to reconfigure will be ignored!");
+            }
+
         }
     }
 
