@@ -73,7 +73,7 @@ public class SocketFactoryManager
 
     private SocketFactory socketFactory;
     private ServerSocketFactory serverFactory;
-    private SSLServerSocketFactory sslServerSocketFactory;
+    private ServerSocketFactory sslServerSocketFactory;
     private SocketFactory sslSocketFactory;
 
     private org.jacorb.config.Configuration configuration;
@@ -158,7 +158,7 @@ public class SocketFactoryManager
         return serverFactory;
     }
 
-    public synchronized SSLServerSocketFactory getSSLServerSocketFactory()
+    public synchronized ServerSocketFactory getSSLServerSocketFactory()
     {
         if( sslServerSocketFactory == null )
         {
@@ -208,9 +208,9 @@ public class SocketFactoryManager
         return result;
     }
 
-    private SSLServerSocketFactory newSSLServerSocketFactory(String className)
+    private ServerSocketFactory newSSLServerSocketFactory(String className)
     {
-        SSLServerSocketFactory result = (SSLServerSocketFactory)newFactory(className, SSLServerSocketFactory.class);
+        ServerSocketFactory result = (ServerSocketFactory)newFactory(className, ServerSocketFactory.class);
 
         logger.debug("created SSLServerSocketFactory: " + result);
 

@@ -43,7 +43,7 @@ import javax.net.*;
 
 public class SSLServerSocketFactory
     extends SSLRandom
-    implements org.jacorb.orb.factory.SSLServerSocketFactory, Configurable
+    implements org.jacorb.orb.factory.ServerSocketFactory, Configurable
 {
     private ServerSocketFactory factory = null;
     private boolean require_mutual_auth = false;
