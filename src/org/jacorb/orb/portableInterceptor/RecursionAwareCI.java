@@ -18,6 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
 package org.jacorb.orb.portableInterceptor;
 
 import java.util.HashSet;
@@ -26,6 +27,10 @@ import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
 
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 public abstract class RecursionAwareCI
     extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor
