@@ -41,6 +41,10 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
  */
 public class FixedAddressSocketFactory extends AbstractSocketFactory implements SocketFactory, Configurable
 {
+    /**
+     * optional local address the socket should be bound to.
+     * may be null if no local address is specified.
+     */
     private InetAddress localEndpoint;
 
     public Socket createSocket(String host, int port)
