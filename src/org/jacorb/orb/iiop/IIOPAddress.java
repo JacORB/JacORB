@@ -63,6 +63,11 @@ public class IIOPAddress
 
         source_name = hoststr;
 
+        init_port(port);
+    }
+
+    private void init_port(int port)
+    {
         if (port < 0)
         {
             this.port = port + 65536;
@@ -312,14 +317,44 @@ public class IIOPAddress
 
     public boolean fromString(String s)
     {
+        if (s.charAt(0) == '[')
+        {
+            return fromStringIPv6(s);
+        }
+        return fromStringIPv4(s);
+    }
+
+    //NOTE: IPv6 format is "[address]:port" since address will include colons.
+    private boolean fromStringIPv6(String s)
+    {
+        int end_bracket = s.indexOf(']');
+        if (end_bracket < 0)
+        {
+            return false;
+        }
+        source_name = s.substring(1, end_bracket);
+
+        int port_colon = s.indexOf(':', end_bracket);
+        if (port_colon < 0)
+        {
+            return false;
+        }
+        int _port = Integer.parseInt(s.substring(port_colon + 1));
+
+        init_host();
+        init_port (_port);
+
+        return true;
+    }
+
+    private boolean fromStringIPv4(String s)
+    {
         int colon = s.indexOf (':');
         if (colon == -1)
         {
             return false;
         }
 
-        source_name = null;
-        int p = 0;
         if (colon > 0)
         {
             source_name = s.substring(0,colon);
@@ -328,21 +363,15 @@ public class IIOPAddress
         {
             source_name = "";
         }
+
+        int _port = 0;
         if (colon < s.length()-1)
         {
-            p = Integer.parseInt(s.substring(colon+1));
+            _port = Integer.parseInt(s.substring(colon+1));
         }
 
-        init_host ();
-
-        if (p < 0)
-        {
-            port = p + 65536;
-        }
-        else
-        {
-            port = p;
-        }
+        init_host();
+        init_port(_port);
 
         return true;
     }
