@@ -37,12 +37,12 @@ import org.picocontainer.defaults.AbstractComponentAdapter;
 public class RepositoryComponentAdapter extends AbstractComponentAdapter
 {
     private static final long serialVersionUID = 1L;
-    
+
     public RepositoryComponentAdapter()
     {
         super(Repository.class, Repository.class);
     }
-    
+
     public Object getComponentInstance(PicoContainer container) throws PicoInitializationException, PicoIntrospectionException
     {
         try
@@ -52,13 +52,14 @@ public class RepositoryComponentAdapter extends AbstractComponentAdapter
             Repository repository = RepositoryHelper.narrow(orb.resolve_initial_references("InterfaceRepository"));
 
             return repository;
-        } catch (InvalidName e)
+        } 
+        catch (InvalidName e)
         {
-            throw new PicoInitializationException("could not resolve RootPOA", e);
+            throw new PicoInitializationException("could not resolve InterfaceRepository", e);
         }
     }
 
-    
+
     public void verify(PicoContainer container) throws PicoIntrospectionException
     {
         // TODO Auto-generated method stub
