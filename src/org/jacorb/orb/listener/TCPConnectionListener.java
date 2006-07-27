@@ -32,6 +32,14 @@ import java.util.EventListener;
  */
 public interface TCPConnectionListener extends EventListener
 {
+    /**
+     * Check whether this Listener is enabled.
+     * This function is intended to lessen the computational
+     * cost of disabled listeners.
+     *
+     * @return true, if the listener is ready to receive notifications
+     * of socket events.
+     */
     boolean isListenerEnabled();
 
     /**
