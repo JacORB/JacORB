@@ -6,45 +6,12 @@ only  notable  effect  is  that  SSL/TLS type  sockets  are  used  for
 transport  connections  instead of  plain  TCP  sockets  --- and  that
 connection setup takes a bit longer.
 
-The only  prerequisites are that you rebuild  JacORB with cryptography
-support. You  also need  to set up  a key  store file that  holds your
+The only  prerequisites are that set up  a key  store file that  holds your
 cryptographic   keys,  and  to   configure  SSL   by  setting   a  few
 properties. All of this is described in this chapter.
 
-\section{Re--Building JacORB's security libraries}
-
-In the  standard distribution, the  JacORB security libraries  are not
-enabled.   To do  so, you  simply need  to recompile  JacORB  with the
-required SSL libraries  in your CLASSPATH.  If these libraries
-are not found, JacORB will be rebuilt without SSL support.
-
-To  successfully rebuild  JacORB with  SSL support,  the  following is
-required:
-
-\begin{itemize}
-        \item when using IAIKs libraries:
-              \begin{itemize}
-                \item IAIK-JCE 2.591 or later, the security provider classes
-                downloadable from \\ \href{http://jcewww.iaik.tu-graz.ac.at}{http://jcewww.iaik.tu-graz.ac.at},
-              \item iSaSiLk 3.0 or later, the SSL implementation from the same
-                source.
-              \end{itemize}
-
-        \item when using Suns libraries:
-              \begin{itemize}
-              \item JDK 1.4 or JSSE 1.0.3 or above available from the
-                Sun's Java Webpages (for JSSE 1.0.3, please see the
-                {\tt README.jsse\_1\_0\_3} in
-                {\tt src/org/jacorb/security/ssl/sun\_jsse} on how to compile).
-              \item For key management, you also need additional packages like
-                OpenSSL. These are not necessary for JacORB to work.
-              \end{itemize}
-\end{itemize}
-
-Install the desired packages and read the documentation carefully. After
-successfull installation, build JacORB anew by typing {\tt ant} in your JacORB
-installation directory.
-
+\textbf{Note:} unlike previous versions of JacORB, as the minimum JDK is 1.4, SSL
+is enabled by default.
 
 \section{Key stores}
 
@@ -59,8 +26,7 @@ keys. It also  contains other certificates that can  be used to verify
 public key  certificates.  All  cryptographic data is  protected using
 passwords and accessed using names called {\em aliases}.
 
-The following section explain how to create key stores for Sun JSSE
-and for IAIK.
+The following section explain how to create key stores for Sun JSSE.
 
 %Note that  key  stores  are normally  used  only for  client
 %authentication in JacORB.   Servers may, but need not,  have their own
@@ -151,68 +117,6 @@ for ``real'' security,  be advised  that setting  up  and managing
 (or finding)  a properly administered CA is essential for the overall
 security of your system.
 
-%\section{IAIK specific setup}
-%This section covers topics that are specific to IAIKs libraries.
-
-\subsection{Setting up an IAIK key store}
-
-JacORB provides a  GUI tool to create and  manipulate IAIK key store
-files, the  KeyStoreManager. It  can generate  key pairs,  sign
-public keys, import  or   export  certificates,  and   define  trusted
-certificate authorities. To start the KeyStoreManager, simply type
-{\tt ks} on the command  line. The GUI  lets you  select and  open
-existing  key store files, or create new ones.
-
-Starting with an  empty key store, you first need to  create a new key
-store and then  a key pair and certificate. Select  {\tt New} from the
-{\tt File}  menu to create  a key store,  and then {\tt New}  from the
-{\tt Keys} menu.   You will then be asked to provide  a new alias name
-for your  new key entry. You also  need to choose a  password. You can
-leave  the  algorithm  and  key  length fields  in  the  combobox  menu
-unchanged.
-
-\bigskip
-\begin{center}
-  \includegraphics[width=7cm]{SSL/Generate}
-\end{center}
-
-You  now  have a  public  key certificate  that  you  can present  for
-authentication, claiming  identity with the  alias name that  has been
-embedded  in the  certificate.   Since anybody  could  present such  a
-certificate,  receivers  require  that  the certificate  be  digitally
-signed by someone  they trust, a {\em Certificate  Authority} (CA). By
-signing  the certificate,  a CA  supports  the identity  claim of  the
-certificate  subject. Whose  signature is  accepted as  trustworthy is
-just a matter  of configuration, but normally proper  CAs are expected
-to only sign certificates that  they have carefully scrutinized --- or
-even created themselves.
-
-\bigskip
-\centerline{\includegraphics[width=11cm]{SSL/Keystore}}
-
-For   convenience  you   can  act   as  a   CA  yourself,   using  the
-KeyStoreManager GUI  to import certificates  and then sign  and export
-them  again.   The  originating  key  store can  then  re--import  the
-certificate that now bears the  digital signature of someone acting as
-a CA. The key store has a  standard key chain format that must be used
-to store public key certificates. The  first entry in the key chain is
-your own public  key certificate as generated by the  key store. It is
-automatically signed with its own  private key. Second in the chain is
-the public key certificate that is signed by the CA. The last entry in
-a key  chain must hold the  CA's public key  certificate, signed using
-its private key. Trust in the CA key is ``axiomatic''.
-
-\bigskip
-\centerline{\includegraphics[width=11cm]{SSL/KSMenu}}
-
-You can  check the validity of a  key chain by selecting  an alias and
-then choosing {\tt Verify Chain}  from the {\tt Keys} menu. Unless the
-key  chain  has  the proper  format  {\em  and}  the CA's  public  key
-certificate is also declared  as trusted using the {\tt Trustees--add}
-menu, the  verification will fail.  Only of  the verification succeeds
-will you be able to use a public key certificate in the SSL connection
-setup.
-
 \subsection{Step--By--Step certificate creation}
 In  order to  generate  a  simple public  key  infrastructure you  can
 perform the following steps:
@@ -267,14 +171,6 @@ classname of SSL Socket Factory and SSL server socket factory:
 \end{verbatim}
 %jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
 
-If you want to use IAIK, then configure the following as qualified
-classname of SSL Socket Factory and SSL server socket factory:
-\begin{verbatim}
-         org.jacorb.security.ssl.iaik.SSLSocketFactory
-         org.jacorb.security.ssl.iaik.SSLServerSocketFactory
-\end{verbatim}
-%jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.iaik.SSLSocketFactory
-
 As explained  in the previous  section, cryptographic data  (key pairs
 and  certificates) is  stored in  a  key store  file. To configure the
 file name of the key store file, you need to define the following
@@ -291,8 +187,7 @@ prompted to enter a key store location on ORB startup.
 
 To avoid  typing in  lots of  aliases and passwords  (one for  the key
 store, and  one for each entry  that is used), you  can define default
-aliases and passwords like this (the default user only applies when
-using IAIK):
+aliases and passwords like this:
 
 \begin{verbatim}
 # the name of the default key alias to look up in the key store

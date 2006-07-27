@@ -528,7 +528,6 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 # without this interceptor
 
 #org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
-#org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.iaik.SecurityServiceInitializer
 
 # qualified classname of access decision object
 jacorb.security.access_decision=org.jacorb.security.level2.AccessDecisionImpl
@@ -540,12 +539,10 @@ jacorb.security.access_decision=org.jacorb.security.level2.AccessDecisionImpl
 jacorb.security.principal_authenticator=org.jacorb.security.level2.PrincipalAuthenticatorImpl
 
 # the qualified classname of the ssl socket factory class
-#jacorb.ssl.socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
-jacorb.ssl.socket_factory=org.jacorb.security.ssl.iaik.SSLSocketFactory
+jacorb.ssl.socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
 
 # the qualified classname of the ssl server socket factory class
-#jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
-jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.iaik.SSLServerSocketFactory
+jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
 
 # IIOP/SSL parameters (numbers are hex values, without the leading "0x"):
 # NoProtection = 1
@@ -584,26 +581,6 @@ jacorb.security.ssl.server.required_options=0
 # truststore.
 jacorb.security.keystore=
 jacorb.security.keystore_password=
-
-
-#
-# IAIK specific settings
-#
-
-
-# files with public key certs of trusted CAs
-#
-# WARNING: If no CA certs are present, the IAIK chain verifier will
-# accept ALL otherwise valid chains!
-#
-jacorb.security.trustees=
-
-# the name of the default key alias to look up in the keystore
-jacorb.security.default_user=
-jacorb.security.default_password=
-
-# have iaiks ssl classes print debug output to stdout
-jacorb.security.iaik_debug=off
 
 #
 # Sun JSSE specific settings

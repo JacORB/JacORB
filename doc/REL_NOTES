@@ -110,6 +110,7 @@
     - Security:
         - new property: jacorb.security.randomClassPlugin. Used by developers to plugin their
           own SecureRandom initialisation.
+        - SecurityLevel 2 and IAIK support removed.
     - Documentation:
         - Added chapter on threads to Programming Guide.
         - Enhanced logging documentation.

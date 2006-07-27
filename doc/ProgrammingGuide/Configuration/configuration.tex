@@ -974,19 +974,10 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"dpoint" &  Default is FALSE. The secure interoperabilty spec states that targets that require SSL shall not open (or publicise in their IORs) an unsecured listen port. Some ORBs (we're looking at you, MICO) apparently don't like this. Setting this switch to TRUE will override the correct behaviour for interoperability. Attempts to access the unsecured port should be met with a NO\_PERMISSION exception. & boolean \\
 \hline
 \verb"jacorb.security.keysto"
-\verb"re" & The name and location of the keystore. This may be absolute or relative to the home directory. NOTE (for Sun JSSE users): The javax.net.ssl.trustStore [Password] properties doesn't seem to take effect, so you may want to add trusted certificates to normal keystores. In this case, please set the property jacorb.security.jsse. trustees\_from\_ks to on, so trusted certificates are taken from the keystore instead of a dedicated truststore.  & file \\
+\verb"re" & The name and location of the keystore. This may be absolute or relative to the home directory. NOTE (for Sun JSSE users): The javax.net.ssl.trustStore [Password] properties doesn't seem to take effect, so you may want to add trusted certificates to normal keystores. In this case, please set the property jacorb.security.jsse.trustees\_from\_ks to on, so trusted certificates are taken from the keystore instead of a dedicated truststore.  & file \\
 \hline
 \verb"jacorb.security.keysto"
 \verb"re_password" & The keystore password. & string \\
-\hline
-\verb"jacorb.security.truste"
-\verb"es" & Files with public key certificates of trusted Certificate Authorities (CA). WARNING: If no CA certificates are present, the IAIK chain verifier will accept ALL otherwise valid chains. & file \\
-\hline
-\verb"jacorb.security.defaul"
-\verb"t_user" & The name of the default key alias to look up in the keystore. & name \\
-\hline
-\verb"jacorb.security.defaul"
-\verb"t_password" & The name of the default key alias to look up in the keystore. & string \\
 \hline
 \verb"jacorb.security.jsse.t"
 \verb"rustees_from_ks" & Sun JSSE specific settings: Use the keystore to take trusted certificates from. Default is off. & boolean \\

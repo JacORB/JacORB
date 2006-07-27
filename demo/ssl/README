@@ -15,18 +15,10 @@ untrusted certificates. You can also play around with the
 authentication schemes, that is mutual authentication or server-only.
 For more details on the configuration, please see the corresponding
 chapter in the programming guide.
- 
-        How to run this demo with IAIK JCE/SSL ?
-        ---------------------
-For the server:
-$> jaco -Dcustom.props=iaik_server_props demo.ssl.Server ior
-
-For the client:
-$> jaco -Dcustom.props=iaik_client_props demo.ssl.Client ior
 
        Running this demo with Sun JSSE (SDK 1.4+)
        ------------------------------------------
-       
+
 For the server:
 $> jaco -Dcustom.props=jsse_server_props demo.ssl.Server ior
 
@@ -35,7 +27,7 @@ $> jaco -Dcustom.props=jsse_client_props demo.ssl.Client ior
 
        How to generate the JSSE keystores
        ----------------------------------
-       
+
 There is a keystore each for the server and client. Aside from their own
 key pair each store contains the (trusted) certificate of the other party.
 
@@ -83,10 +75,3 @@ Certificate fingerprints:
          SHA1: D4:08:2F:69:B5:28:FF:CB:4A:44:E9:75:D4:A3:DF:B6:19:FD:99:33
 Trust this certificate? [no]:  y
 Certificate was added to keystore
-
-
-              Note on the IAIK CA Keystore
-              ----------------------------
-
-The keystore password for the the iaik_ca_ks is iaik_ca_ks_pass. The alias
-within the keystore is iaik_ca_alias and its password is iaik_ca_alias_pass.
