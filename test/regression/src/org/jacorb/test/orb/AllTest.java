@@ -61,8 +61,7 @@ public class AllTest extends JacORBTestSuite
         suite.addTest(AnyTest.suite());
         suite.addTestSuite(InvalidIORTest.class);
         suite.addTest(org.jacorb.test.orb.factory.AllTest.suite());
-        suite.addTest (org.jacorb.test.orb.CodesetTest.suite(1));
-        suite.addTest (org.jacorb.test.orb.CodesetTest.suite(2));
+        suite.addTest (org.jacorb.test.orb.CodesetTest.suite());
 
         return suite;
     }
