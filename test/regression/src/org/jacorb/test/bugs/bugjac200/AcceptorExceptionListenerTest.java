@@ -7,6 +7,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.ORB;
@@ -78,15 +79,12 @@ public class AcceptorExceptionListenerTest extends TestCase
                   "SSL_RSA_WITH_RC4_128_MD5");
 
         props.put("jacorb.acceptor_exception_listener",
-                  "org.jacorb.test.bugs.bugjac200.TestAcceptorExceptionListener");
+                  TestAcceptorExceptionListener.class.getName());
 
         //init ORB
         orb = ORB.init( (String[]) null, props );
 
-        TestAcceptorExceptionListener.hasBeenCreated = false;
-        TestAcceptorExceptionListener.hasBeenCalled       = false;
-        TestAcceptorExceptionListener.doShutdown          = false;
-        TestAcceptorExceptionListener.shuttingDown        = false;
+        TestAcceptorExceptionListener.reset();
 
         new Thread()
         {
@@ -110,13 +108,13 @@ public class AcceptorExceptionListenerTest extends TestCase
 
         startAcceptor(exception);
 
-        Thread.sleep(2000);
+        Thread.sleep(5000);
 
         assertNull(exception[0]);
 
         assertTrue("Acceptor was not created",
                    TestAcceptorExceptionListener.hasBeenCreated);
-        assertTrue("Acceptor not called", TestAcceptorExceptionListener.hasBeenCalled);
+        assertTrue("Acceptor not called", TestAcceptorExceptionListener.getHasBeenCalled(ClientServerSetup.getTestTimeout(), true));
         assertFalse(orbIsDown);
     }
 
@@ -133,8 +131,7 @@ public class AcceptorExceptionListenerTest extends TestCase
         assertNull(exception[0]);
         assertTrue("Listener was not created",
                    TestAcceptorExceptionListener.hasBeenCreated);
-        assertTrue("Listener was not invoked",
-                   TestAcceptorExceptionListener.hasBeenCalled);
+        assertTrue("Listener was not invoked", TestAcceptorExceptionListener.getHasBeenCalled(ClientServerSetup.getTestTimeout(), true));
         assertTrue("ORB was not shutdown", orbIsDown);
     }
 
