@@ -21,7 +21,6 @@ package org.jacorb.util.tracing;
  *
  */
 
-import java.io.PrintStream;
 import org.omg.IOP.Codec;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
@@ -30,23 +29,13 @@ public class ServerTraceInterceptor
     extends org.omg.CORBA.LocalObject
     implements ServerRequestInterceptor
 {
-
-
     private int slot_id;
-    private PrintStream logStream = null;
     private Codec codec = null;
 
     public ServerTraceInterceptor( int slot_id, Codec codec )
     {
-        this(slot_id, codec, System.out);
-    }
-
-    public ServerTraceInterceptor( int slot_id, Codec codec,
-                                   PrintStream logStream )
-    {
         this.slot_id = slot_id;
         this.codec = codec;
-        this.logStream = logStream;
     }
 
     public String name()
@@ -108,6 +97,4 @@ public class ServerTraceInterceptor
     {
 
     }
-
-
 }

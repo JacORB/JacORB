@@ -21,7 +21,6 @@ package org.jacorb.util.tracing;
  *
  */
 
-import java.util.Calendar;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.portableInterceptor.RecursionAwareCI;
 import org.omg.CORBA.Any;
@@ -34,11 +33,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
 public class ClientTraceInterceptor
     extends RecursionAwareCI
 {
-    private static final int TRACE_POLICY_TYPE = 303;
-    private static final String TRACE = "trace";
-    private static final String OFF = "off";
-
-    private Calendar date;
     private TracingService tracer;
     private int myTraceId;
     private Codec codec;
@@ -52,8 +46,6 @@ public class ClientTraceInterceptor
                                   TracingService tracer)
     {
         super(true);
-
-        date = Calendar.getInstance();
 
         this.tracer = tracer;
         this.codec = codec;
@@ -126,7 +118,7 @@ public class ClientTraceInterceptor
             }
         }
         catch( Exception e)
-	{
+    {
             e.printStackTrace();
         }
     }
@@ -140,14 +132,14 @@ public class ClientTraceInterceptor
         try
         {
 
-System.out.println("reply: return from op " + ri.operation());
+            System.out.println("reply: return from op " + ri.operation());
 
             long t = timer.stop( ri.request_id(), ri.target());
 
             tracer.logTraceAtPoint( current_request,
                                     ri.operation(),
                                     t,
-                                    (long) 0);
+                                    0);
 
             TraceData trace = tracer.getTrace( current_request );
 
@@ -159,7 +151,7 @@ System.out.println("reply: return from op " + ri.operation());
             printTrace( trace, "" );
         }
         catch( Exception e)
-	{
+    {
             e.printStackTrace();
         }
     }

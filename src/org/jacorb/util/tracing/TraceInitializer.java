@@ -36,10 +36,6 @@ public class TraceInitializer
     extends org.omg.CORBA.LocalObject
     implements ORBInitializer
 {
-    public TraceInitializer()
-    {
-    }
-
     /**
      * This method  registers the interceptor.
      */
@@ -85,5 +81,4 @@ public class TraceInitializer
     public void pre_init(ORBInitInfo info)
     {
     }
-
 }

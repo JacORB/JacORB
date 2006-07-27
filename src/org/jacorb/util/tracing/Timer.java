@@ -21,17 +21,14 @@ package org.jacorb.util.tracing;
  *
  */
 
-import java.util.Calendar;
 import java.util.Hashtable;
 
 public class Timer
 {
-    private Calendar date;
-    private Hashtable tableTable;
+    private final Hashtable tableTable;
 
     public Timer()
     {
-        date = Calendar.getInstance();
         tableTable = new Hashtable();
     }
 
@@ -50,7 +47,7 @@ public class Timer
             table.put( id, new Long( System.currentTimeMillis()));
         }
         catch( Exception e)
-	{
+    {
             e.printStackTrace();
         }
     }
@@ -66,7 +63,9 @@ public class Timer
 
         Hashtable table = (Hashtable)tableTable.get( target );
         if( table == null )
+        {
             System.err.println("errorin timer: no request table for object");
+        }
 
         Long startTime  =
             (Long)table.remove( new Integer(rid ));
@@ -75,13 +74,7 @@ public class Timer
         {
             return t - startTime.longValue();
         }
-        else
-            return -1;
+
+        return -1;
     }
 }
-
-
-
-
-
-
