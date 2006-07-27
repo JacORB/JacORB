@@ -58,25 +58,20 @@ public class StreamListener extends Thread
      */
     public String getIOR(long timeout)
     {
-        long waitUntil = System.currentTimeMillis() + timeout;
+        final long waitUntil = System.currentTimeMillis() + timeout;
 
         synchronized (this)
         {
             while (ior == null && System.currentTimeMillis() < waitUntil)
             {
-//                final long waitTime = waitUntil - System.currentTimeMillis();
-
-//                if (waitTime > 0)
-//                {
-                    try
-                    {
-                        this.wait(1000);
-                    }
-                    catch (InterruptedException ex)
-                    {
-                        // ignore
-                    }
-//                }
+                try
+                {
+                    this.wait(1000);
+                }
+                catch (InterruptedException ex)
+                {
+                    // ignore
+                }
             }
 
             return ior;
@@ -86,24 +81,19 @@ public class StreamListener extends Thread
 
     public String getException(long timeout)
     {
-        long waitUntil = System.currentTimeMillis() + timeout;
+        final long waitUntil = System.currentTimeMillis() + timeout;
 
         synchronized(this)
         {
             while(exception == null && System.currentTimeMillis() < waitUntil)
             {
-                final long waitTime = waitUntil - System.currentTimeMillis();
-
-                if (waitTime > 0)
+                try
                 {
-                    try
-                    {
-                        this.wait(waitTime);
-                    }
-                    catch (InterruptedException ex)
-                    {
-                        // ignore
-                    }
+                    this.wait(1000);
+                }
+                catch (InterruptedException ex)
+                {
+                    // ignore
                 }
             }
 
