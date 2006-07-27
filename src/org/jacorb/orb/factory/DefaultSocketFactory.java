@@ -29,7 +29,7 @@ import java.io.IOException;
  * @author Steve Osselton
  * @version $Id$
  */
-public class DefaultSocketFactory extends AbstractSocketFactory implements SocketFactory
+public class DefaultSocketFactory extends AbstractSocketFactory
 {
     public Socket createSocket (String host, int port)
         throws IOException, UnknownHostException

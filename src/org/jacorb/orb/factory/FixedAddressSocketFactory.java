@@ -39,7 +39,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
  * @author Nicolas Noffke
  * @version $Id$
  */
-public class FixedAddressSocketFactory extends AbstractSocketFactory implements SocketFactory, Configurable
+public class FixedAddressSocketFactory extends AbstractSocketFactory
 {
     /**
      * optional local address the socket should be bound to.
@@ -96,9 +96,9 @@ public class FixedAddressSocketFactory extends AbstractSocketFactory implements 
             }
             catch (UnknownHostException e)
             {
-                if (logger.isErrorEnabled())
+                if (logger.isWarnEnabled())
                 {
-                    logger.error(
+                    logger.warn(
                         "Failed to create InetAddress from property OAIAddr >" +
                         oaiAddr + "<", e);
                 }

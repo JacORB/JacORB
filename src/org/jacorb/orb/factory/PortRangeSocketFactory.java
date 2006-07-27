@@ -42,7 +42,6 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
  */
 public class PortRangeSocketFactory
     extends AbstractSocketFactory
-    implements SocketFactory
 {
     public static final String MIN_PROP = "jacorb.net.socket_factory.port.min";
     public static final String MAX_PROP = "jacorb.net.socket_factory.port.max";
@@ -91,10 +90,10 @@ public class PortRangeSocketFactory
             }
         }
 
-        if (logger.isDebugEnabled())
+        if (logger.isWarnEnabled())
         {
-            logger.debug("Cannot bind socket between ports " + portMin + " and "
-                         + portMax + " to target " + host + ":" + port);
+            logger.warn("Cannot bind socket between ports " + portMin + " and "
+                    + portMax + " to target " + host + ":" + port);
         }
 
         throw new BindException ("PortRangeSocketFactory: no free port between "
@@ -152,8 +151,11 @@ public class PortRangeSocketFactory
             }
         }
 
-        logger.warn("Cannot bind socket between ports " + portMin + " and "
-                     + portMax + " to target " + host + ":" + port);
+        if (logger.isWarnEnabled())
+        {
+            logger.warn("Cannot bind socket between ports " + portMin + " and "
+                    + portMax + " to target " + host + ":" + port);
+        }
 
         throw new BindException ("PortRangeSocketFactory: no free port between "
             + portMin + " and " + portMax);

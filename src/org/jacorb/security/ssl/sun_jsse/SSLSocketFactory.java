@@ -34,7 +34,6 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.orb.ORB;
@@ -51,7 +50,6 @@ import org.jacorb.orb.listener.SSLSessionListener;
  */
 public class SSLSocketFactory
     extends AbstractSocketFactory
-    implements org.jacorb.orb.factory.SocketFactory, Configurable
 {
     private SocketFactory factory = null;
     private String[] cipher_suites = null;
@@ -82,27 +80,27 @@ public class SSLSocketFactory
             configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks", false);
 
         keystore_location =
-            configuration.getAttribute("jacorb.security.keystore","UNSET");
+            configuration.getAttribute("jacorb.security.keystore", "UNSET");
 
         keystore_passphrase =
-            configuration.getAttribute("jacorb.security.keystore_password","UNSET" );
+            configuration.getAttribute("jacorb.security.keystore_password", "UNSET");
 
         clientSupportedOptions =
             Short.parseShort(
-                configuration.getAttribute("jacorb.security.ssl.client.supported_options","0"),
+                configuration.getAttribute("jacorb.security.ssl.client.supported_options", "0"),
                 16);
         try
         {
             trustManager = (TrustManager) ((org.jacorb.config.Configuration)configuration).getAttributeAsObject
                                             ("jacorb.security.ssl.client.trust_manager");
         }
-        catch (ConfigurationException ce)
+        catch (ConfigurationException e)
         {
             if (logger.isErrorEnabled())
             {
                 logger.error("TrustManager object creation failed. Please check value of property "
                              + "'jacorb.security.ssl.client.trust_manager'. Current value: "
-                             + configuration.getAttribute("jacorb.security.ssl.client.trust_manager", ""), ce);
+                             + configuration.getAttribute("jacorb.security.ssl.client.trust_manager", ""), e);
             }
         }
 
@@ -253,7 +251,7 @@ public class SSLSocketFactory
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug("Setting user specified client TrustManger : " + trustManager.getClass().toString());
+                logger.debug("Setting user specified client TrustManger : " + trustManager.getClass().getName());
             }
             trustManagers = new TrustManager[] { trustManager };
         }
