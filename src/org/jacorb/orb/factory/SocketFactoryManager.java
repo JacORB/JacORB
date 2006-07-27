@@ -42,10 +42,10 @@ public class SocketFactoryManager
     implements Configurable
 {
     // Properties used to define custom socket and server socket factories
+    public static final String SOCKET_FACTORY            = "jacorb.net.socket_factory";
+    public static final String SERVER_SOCKET_FACTORY     = "jacorb.net.server_socket_factory";
+    public static final String SSL_SOCKET_FACTORY        = "jacorb.ssl.socket_factory";
     public static final String SSL_SERVER_SOCKET_FACTORY = "jacorb.ssl.server_socket_factory";
-    public static final String SSL_SOCKET_FACTORY = "jacorb.ssl.socket_factory";
-    public static final String SOCKET_FACTORY = "jacorb.net.socket_factory";
-    public static final String SERVER_SOCKET_FACTORY = "jacorb.net.server_socket_factory";
 
     /**
      * <code>TCP_LISTENER</code> should be a classname for the implementation of the
@@ -53,19 +53,16 @@ public class SocketFactoryManager
      */
     public static final String TCP_LISTENER = "jacorb.net.tcp_listener";
 
-
     /**
      * <code>SSL_LISTENER</code> should be a classname for the implementation of the
      * SSL listener interface.
      */
     public static final String SSL_LISTENER = "jacorb.security.ssl.ssl_listener";
 
-
     /**
      * <code>listener</code> is a instantiated TCPConnectionListener.
      */
     private TCPConnectionListener tcpListener;
-
 
     /**
      * <code>sslListener</code> is a instantiated SSLSessionListener.
@@ -141,7 +138,6 @@ public class SocketFactoryManager
         }
     }
 
-
     public synchronized SocketFactory getSocketFactory()
     {
         if (socketFactory == null)
@@ -205,7 +201,7 @@ public class SocketFactoryManager
 
     private SocketFactory newSSLSocketFactory(String className)
     {
-        SocketFactory result = (SocketFactory)newFactory(orb, className, SocketFactory.class);
+        SocketFactory result = (SocketFactory)newFactory(className, SocketFactory.class);
 
         logger.debug("created SSLSocketFactory: " + className);
 
@@ -214,7 +210,7 @@ public class SocketFactoryManager
 
     private SSLServerSocketFactory newSSLServerSocketFactory(String className)
     {
-        SSLServerSocketFactory result = (SSLServerSocketFactory)newFactory(orb, className, SSLServerSocketFactory.class);
+        SSLServerSocketFactory result = (SSLServerSocketFactory)newFactory(className, SSLServerSocketFactory.class);
 
         logger.debug("created SSLServerSocketFactory: " + result);
 
@@ -223,7 +219,7 @@ public class SocketFactoryManager
 
     private SocketFactory newSocketFactory(String className)
     {
-        SocketFactory result = (SocketFactory)newFactory(orb, className, SocketFactory.class);
+        SocketFactory result = (SocketFactory)newFactory(className, SocketFactory.class);
 
         logger.debug("created SocketFactory: " + className);
 
@@ -232,14 +228,14 @@ public class SocketFactoryManager
 
     private ServerSocketFactory newServerSocketFactory(String className)
     {
-       ServerSocketFactory factory = (ServerSocketFactory) newFactory (orb, className, ServerSocketFactory.class);
+       ServerSocketFactory factory = (ServerSocketFactory) newFactory (className, ServerSocketFactory.class);
 
        logger.debug("created ServerSocketFactory: " + className);
 
        return factory;
     }
 
-    private Object newFactory(ORB orb, String className, Class expectedClazz)
+    private Object newFactory(String className, Class expectedClazz)
     {
         try
         {
@@ -252,21 +248,18 @@ public class SocketFactoryManager
 
             Constructor ctor = null;
 
-            if (orb != null)
+            try
             {
-                try
-                {
-                    // First try getting constructor with ORB parameter
-                    ctor = factoryClazz.getConstructor(new Class[] { ORB.class });
-                }
-                catch (NoSuchMethodException e) // NOPMD
-                {
-                    // ignore
-                }
-                catch (SecurityException e) // NOPMD
-                {
-                    // Ignore
-                }
+                // First try getting constructor with ORB parameter
+                ctor = factoryClazz.getConstructor(new Class[] { ORB.class });
+            }
+            catch (NoSuchMethodException e) // NOPMD
+            {
+                // ignore
+            }
+            catch (SecurityException e) // NOPMD
+            {
+                // Ignore
             }
 
             final Object result;
@@ -300,15 +293,15 @@ public class SocketFactoryManager
                 "there was an invocation failure with the " +
                 "socket factory " + className + ": " + e.getCause());
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug("Failed to create custom socket factory " + className, ex);
+                logger.debug("Failed to create custom socket factory " + className, e);
             }
 
             throw new org.omg.CORBA.INITIALIZE("Failed to create custom socket factory " +
-                    className + ": " + ex.toString());
+                    className + ": " + e.toString());
         }
     }
 }
