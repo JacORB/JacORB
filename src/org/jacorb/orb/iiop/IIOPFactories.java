@@ -77,8 +77,8 @@ public class IIOPFactories
         int colon = corbaloc.indexOf (':');
         String token = corbaloc.substring (0,colon).toLowerCase();
         if (token.length() == 0 ||
-            token.equals ("iiop") ||
-            token.equals ("ssliop"))
+            "iiop".equals (token) ||
+            "ssliop".equals (token))
         {
             IIOPProfile result = new IIOPProfile(corbaloc);
             try
@@ -103,7 +103,7 @@ public class IIOPFactories
         }
         int colon = address.indexOf (':');
         String token = address.substring (0,colon).toLowerCase();
-        if (token.equals ("iiop") || token.equals ("ssliop"))
+        if ("iiop".equals (token) || "ssliop".equals (token))
         {
             return colon+1;
         }

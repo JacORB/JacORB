@@ -22,7 +22,6 @@ package org.jacorb.poa;
 
 import java.util.*;
 
-import org.jacorb.poa.POA;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.ByteArrayKey;
 import org.jacorb.poa.util.POAUtil;
@@ -50,29 +49,30 @@ public class AOM
 {
     private AOMListener         aomListener;
 
-    private boolean             unique;
-    private Logger            logger;
+    private final boolean             unique;
+    private final Logger            logger;
 
     // an ObjectID can appear only once, but an servant can have multiple ObjectId's
     // if MULTIPLE_ID is set
-    private Hashtable           objectMap = new Hashtable(); // oid -> servant
+    private final Hashtable           objectMap = new Hashtable(); // oid -> servant
 
     // only meaningful if UNIQUE_ID is set
     // only for performance improvements (brose: is that still true?)
     private Hashtable           servantMap;             // servant -> oid
 
     // for synchronisation of servant activator calls
-    private Vector              etherealisationList = new Vector();
-    private Vector              incarnationList = new Vector();
+    private final Vector              etherealisationList = new Vector();
+    private final Vector              incarnationList = new Vector();
 
-    private Vector              deactivationList = new Vector();
-    /** a lock to protect two consecutive operations on the list, used
-        in remove() */
-    private Object              deactivationListLock = new Object();
+    private final Vector              deactivationList = new Vector();
+    /**
+     * <code>deactivationListLock</code> is a lock to protect two consecutive
+     * operations on the list, used in remove().
+     */
+    private final byte[]              deactivationListLock = new byte[0];
 
-    protected AOM( boolean _unique,
-                   Logger _logger
-                 )
+
+    protected AOM (boolean _unique, Logger _logger)
     {
         unique = _unique;
         logger = _logger;
@@ -126,10 +126,14 @@ public class AOM
         }
 
         if (objectMap.containsKey(oidbak))
+        {
             throw new ObjectAlreadyActive();
+        }
 
         if (unique && servantMap.containsKey(servant))
+        {
             throw new ServantAlreadyActive();
+        }
 
         /* this is the actual object activation: */
 
@@ -148,8 +152,11 @@ public class AOM
 
         // notify an aom listener
         if (aomListener != null)
+        {
             aomListener.objectActivated(oid, servant, objectMap.size());
+        }
     }
+
 
 
     protected synchronized void addAOMListener(AOMListener listener)
@@ -199,12 +206,16 @@ public class AOM
     protected byte[] getObjectId(Servant servant)
     {
         if (!unique)
+        {
             throw new POAInternalError("error: not UNIQUE_ID policy (getObjectId)");
+        }
 
         ByteArrayKey oidbak = (ByteArrayKey)servantMap.get(servant);
 
         if (oidbak != null)
+        {
             return oidbak.getBytes();
+        }
 
         return null;
     }
@@ -300,7 +311,9 @@ public class AOM
 
                 // notify an aom listener
                 if (aomListener != null)
+                {
                     aomListener.servantIncarnated(oid, servant);
+                }
 
                 /* object activation */
 
@@ -399,11 +412,14 @@ public class AOM
 
         // wait for request completion on this object (see freeObject below)
         if ( requestController != null)
+        {
             requestController.waitForObjectCompletion(oid);
+        }
 
         synchronized (this)
         {
-            if ((servant = (Servant)objectMap.get(oidbak)) == null) {
+            if ((servant = (Servant)objectMap.get(oidbak)) == null)
+            {
                 return;
             }
 
@@ -429,7 +445,9 @@ public class AOM
 
             // notify an aom listener
             if (aomListener != null)
+            {
                 aomListener.objectDeactivated(oid, servant, objectMap.size());
+            }
 
             if (servantActivator == null)
             {
@@ -478,8 +496,9 @@ public class AOM
                 // notify an aom listener
 
                 if (aomListener != null)
+                {
                     aomListener.servantEtherialized(oid, servant);
-
+                }
             }
             catch (org.omg.CORBA.SystemException e)
             {
@@ -498,7 +517,9 @@ public class AOM
 
             // unregister the object from deactivation list
             if (requestController != null)
+            {
                 requestController.freeObject(oid);
+            }
         }
     }
 

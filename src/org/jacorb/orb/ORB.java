@@ -93,7 +93,6 @@ public final class ORB
     private org.jacorb.poa.POA rootpoa;
     private org.jacorb.poa.Current poaCurrent;
     private BasicAdapter basicAdapter;
-    private org.omg.SecurityLevel2.Current securityCurrent = null;
 
     /** interceptor handling */
     private InterceptorManager interceptor_manager = null;
@@ -524,7 +523,7 @@ public final class ORB
             {
                 res = ((String)scopes.get( i ));
 
-                if( res.equals (""))
+                if( "".equals (res))
                 {
                     break;
                 }
@@ -905,13 +904,14 @@ public final class ORB
                                               String rep_id,
                                               boolean _transient )
     {
-        if( rep_id == null )
-        {
-            rep_id = "IDL:omg.org/CORBA/Object:1.0";
-        }
-
-        org.omg.IOP.IOR ior =
-            createIOR( rep_id, object_key, _transient, poa, null );
+        org.omg.IOP.IOR ior = createIOR
+        (
+            (rep_id == null ? "IDL:omg.org/CORBA/Object:1.0" : rep_id),
+            object_key,
+            _transient,
+            poa,
+            null
+        );
 
         if (ior == null)
         {
@@ -1003,7 +1003,7 @@ public final class ORB
                 /* Register the POA */
                 String server_name = implName;
                 ProtocolAddressBase sep = getServerAddress();
-                if (sep != null && sep instanceof IIOPAddress)
+                if (sep instanceof IIOPAddress)
                 {
                     String sep_host = ((IIOPAddress)sep).getHostname();
                     int sep_port = ((IIOPAddress)sep).getPort();
@@ -1062,7 +1062,7 @@ public final class ORB
                               String repId,
                               boolean _transient)
     {
-        if (repId.equals ("IDL:org/jacorb/imr/ImplementationRepository:1.0"))
+        if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals (repId))
         {
             profile.patchPrimaryAddress(imrProxyAddress);
         }
@@ -1232,34 +1232,27 @@ public final class ORB
                 throw new org.omg.CORBA.ORBPackage.InvalidName();
             }
         }
-        else if( identifier.equals("RootPOA") )
+        else if ("RootPOA".equals(identifier))
         {
             return getRootPOA();
         }
-        else if( identifier.equals("POACurrent") )
+        else if ("POACurrent".equals(identifier))
         {
             return getPOACurrent();
         }
-        else if( identifier.equals("SecurityCurrent") )
+        else if ("SecurityCurrent".equals(identifier))
         {
-//            if( securityCurrent == null )
-//            {
-//                securityCurrent = new org.jacorb.security.level2.CurrentImpl (this);
-//                ((org.jacorb.security.level2.CurrentImpl)securityCurrent).init();
-//            }
-//            obj = securityCurrent;
-            // TODO level2 security was removed.
-            throw new InvalidName();
+            throw new InvalidName("Level2 SecurityImplementation has been removed");
         }
-        else if( identifier.equals("DynAnyFactory") )
+        else if ("DynAnyFactory".equals(identifier))
         {
             obj = new org.jacorb.orb.dynany.DynAnyFactoryImpl( this );
         }
-        else if( identifier.equals("PICurrent") )
+        else if ("PICurrent".equals(identifier))
         {
             return piCurrent;
         }
-        else if( identifier.equals("ORBPolicyManager") )
+        else if ("ORBPolicyManager".equals(identifier))
         {
             if (policyManager == null)
             {
@@ -1267,11 +1260,11 @@ public final class ORB
             }
             return policyManager;
         }
-        else if( identifier.equals("CodecFactory") )
+        else if ("CodecFactory".equals(identifier))
         {
             obj = new CodecFactoryImpl(this);
         }
-        else if (identifier.equals("RTORB"))
+        else if ("RTORB".equals(identifier))
         {
             obj = getRTORB();
         }
@@ -1510,7 +1503,7 @@ public final class ORB
                     ((DefaultConfiguration)configuration).setAttribute( prop.substring( 0, equals_pos ),
                                                                         prop.substring( equals_pos + 1) );
                 }
-                else if( arg.equals( "-ORBInitRef" ))
+                else if ("-ORBInitRef".equals(arg))
                 {
                     //This is the compliant form -ORBInitRef <name>=<val>
 
@@ -1723,12 +1716,9 @@ public final class ORB
             final String prop_name = (String) i.next();
             String name = configuration.getAttribute( prop_name, "" );
 
-            if( name.length() == 0 )
+            if (name.length() == 0 && prop_name.length() > initializer_prefix.length())
             {
-                if( prop_name.length() > initializer_prefix.length() )
-                {
-                    name = prop_name.substring( initializer_prefix.length() );
-                }
+                name = prop_name.substring( initializer_prefix.length() );
             }
 
             if( name == null )
@@ -2011,14 +2001,11 @@ public final class ORB
     {
         ValueFactory result = (ValueFactory)valueFactories.get (id);
 
-        if (result == null)
+        if (result == null && id.startsWith("IDL"))
         {
-            if (id.startsWith("IDL"))
-            {
-                String valueName = org.jacorb.ir.RepositoryID.className(id, null);
-                result = findValueFactory(valueName);
-                valueFactories.put(id, result);
-            }
+            String valueName = org.jacorb.ir.RepositoryID.className(id, null);
+            result = findValueFactory(valueName);
+            valueFactories.put(id, result);
         }
         return result;
     }
@@ -2304,6 +2291,10 @@ public final class ORB
                 {
                     list.add_value (param.name, any, org.omg.CORBA.ARG_INOUT.value);
                     break;
+                }
+                default:
+                {
+                    throw new BAD_PARAM ("Invalid value for ParamaterMode");
                 }
             }
         }
