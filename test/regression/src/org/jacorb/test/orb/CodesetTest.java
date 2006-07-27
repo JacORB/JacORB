@@ -156,10 +156,10 @@ public class CodesetTest extends ClientServerTestCase
     /**
      * <code>suite</code> sets up the server/client tests.
      *
-     * @param codeset a <code>boolean</code> value
+     * @param config a <code>int</code> value
      * @return a <code>Test</code> value
      */
-    public static Test suite(int config)
+    private static Test suite(int config)
     {
         TestSuite suite = new TestSuite( "Client/server codeset tests" );
 
@@ -184,8 +184,7 @@ public class CodesetTest extends ClientServerTestCase
         }
         else
         {
-            System.err.println ("Invalid config value");
-            return null;
+            throw new IllegalArgumentException();
         }
 
         server_props.setProperty ("jacorb.logfile.append", "on");
