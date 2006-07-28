@@ -23,8 +23,6 @@
 
    <target name="subdirs"
            depends="template,config,util,orb,poa,imr,ir,naming,events,dds,concurrency,transaction,trading,tracing,security,notification">
-<!--       depends="config,template,util,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification"> -->
-
    </target>
 
    <target name="config" depends="init">
@@ -34,14 +32,6 @@
 
    <target name="util" depends="init">
       <ant antfile="${src}/org/jacorb/util/build.xml" dir="${basedir}"/>
-   </target>
-
-<!--proxy-->
-
-   <target name="proxy" depends="init" >
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/proxy/*.java"/>
-      </antcall>
    </target>
 
    <target name="poa" depends="init" >
