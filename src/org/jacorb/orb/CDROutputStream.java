@@ -867,9 +867,9 @@ public class CDROutputStream
      */
     public final void write_string(final String s)
     {
-        // size is the
-        // Size indicator ulong + length in chars( i.e. bytes for type char)
-        // incl. terminating NUL char
+        // size leaves room for ulong, plus the string itself (one or more 
+    	// bytes per char in the string, depending on the codeset), plus the
+        // terminating NUL char
         int size;
         // sizePosition is the position in the buffer for the size to be
         // written.
@@ -880,11 +880,17 @@ public class CDROutputStream
             throw new MARSHAL("Cannot marshall null string.");
         }
 
-
-        // Size indicator ulong + length in chars( i.e. bytes for type char)
-        // incl. terminating NUL char
-        size = 4 + s.length() + 1;
-        check( size, 4 );
+        if (codesetEnabled)
+        {
+        	// in the worst case (UTF-8) a string char might take up to 3 bytes
+        	size = 4 + 3 * s.length() + 1;
+        }
+        else
+        {
+        	// just one byte per string char
+        	size = 4 + s.length() + 1;   	
+        }
+        check(size, 4);
         sizePosition = pos;
 
         pos += 4;
@@ -940,10 +946,11 @@ public class CDROutputStream
                     if( giop_minor == 2 && write_length_indicator )
                     {
                         //the chars length in bytes
-                        write_octet( (byte) 1 );
+                        buffer[pos++] = (byte) 1;
+                        index++;
                     }
 
-                    buffer[ pos++ ] = (byte) c;
+                    buffer[pos++] = (byte) c;
                     index++;
                 }
                 else if( c > 0x07FF )
@@ -951,7 +958,8 @@ public class CDROutputStream
                     if( giop_minor == 2 && write_length_indicator )
                     {
                         //the chars length in bytes
-                        write_octet( (byte) 3 );
+                        buffer[pos++] = (byte) 3;
+                        index++;
                     }
 
                     buffer[pos++]=(byte)(0xE0 | ((c >> 12) & 0x0F));
@@ -965,7 +973,8 @@ public class CDROutputStream
                     if( giop_minor == 2 && write_length_indicator )
                     {
                         //the chars length in bytes
-                        write_octet( (byte) 2 );
+                        buffer[pos++] = (byte) 2 ;
+                        index++;
                     }
 
                     buffer[pos++]=(byte)(0xC0 | ((c >>  6) & 0x1F));
@@ -982,7 +991,8 @@ public class CDROutputStream
                     if( write_length_indicator )
                     {
                         //the chars length in bytes
-                        write_octet( (byte) 2 );
+                        buffer[pos++] = (byte) 2;
+                        index++;
                     }
 
                     if( write_bom )
