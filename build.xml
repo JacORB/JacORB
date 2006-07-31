@@ -16,8 +16,7 @@
 
    <!-- top-level target -->
    <target name="all" depends="init,compiler,omg_idl,jacorb,libs"
-           description="Build JacORB. Use -Ddebug=lines,vars,source to compile code with full debugging."/>
-
+           description="Build JacORB.  To build with debugging, use -Ddebug=true."/>
 
    <!-- ==================================================== -->
    <!--                   IDL compiler                       -->
