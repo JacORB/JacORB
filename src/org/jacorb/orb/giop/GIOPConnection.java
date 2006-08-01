@@ -871,6 +871,26 @@ public abstract class GIOPConnection
                 getStatisticsProvider().flushed();
             }
         }
+        catch (org.omg.CORBA.COMM_FAILURE e)
+        {
+            if (logger.isErrorEnabled())
+            {
+                logger.error( "Failed to write GIOP message due to COMM_FAILURE", e );
+            }
+            if( !do_close )
+            {
+                if (logger.isErrorEnabled())
+                {
+                    logger.error( "GIOP connection closed due to errors during sendMessage");
+                }
+                //close transport connection, there is nearly no chance to sync with
+                //peer on this connection again
+                close();
+                //signal GIOPConnectionManager to throw this connection away
+                this.streamClosed();
+            }
+            throw e;
+        }
         finally
         {
             decPendingWrite();
