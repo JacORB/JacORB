@@ -54,6 +54,7 @@ public class GIOPConnectionTest
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_IllegalMessageType"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_NoImplement"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectFragmentedRequest"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectCloseOnGarbage"));
 
         return suite;
     }
@@ -664,4 +665,67 @@ public class GIOPConnectionTest
 
         //can't check more, message is discarded
     }
+
+    public void testGIOP_1_2_CorrectCloseOnGarbage()
+    {
+        List messages = new Vector();
+
+        String garbage = "This is a garbage message";
+        byte[] b = garbage.getBytes();
+
+        messages.add( b );
+
+        DummyTransport transport =
+            new DummyTransport( messages );
+
+        DummyRequestListener request_listener =
+            new DummyRequestListener();
+
+        DummyReplyListener reply_listener =
+            new DummyReplyListener();
+
+        GIOPConnectionManager giopconn_mg =
+            new GIOPConnectionManager();
+        try
+        {
+            giopconn_mg.configure (config);
+        }
+        catch (Exception e)
+        {
+        }
+
+        GIOPConnection conn =
+            giopconn_mg.createServerGIOPConnection( null,
+                                                    transport,
+                                                    request_listener,
+                                                    reply_listener );
+
+        try
+        {
+            //will not return until an IOException is thrown (by the
+            //DummyTransport)
+            conn.receiveMessages();
+        }
+        catch( IOException e )
+        {
+            //o.k., thrown by DummyTransport
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+            fail( "Caught exception: " + e );
+        }
+
+        //no request or reply must have been handed over
+        assertTrue( request_listener.getRequest() == null );
+        assertTrue( reply_listener.getReply() == null );
+
+        //instead, connection should be closed
+        assertTrue( transport.hasBeenClosed() );
+
+        //no message is written (makes no real sense)
+        assertTrue( transport.getWrittenMessage() != null );
+        assertTrue( transport.getWrittenMessage().length == 0 );
+    }
+
 }// GIOPConnectionTest
