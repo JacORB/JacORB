@@ -338,6 +338,14 @@ jacorb.interop.strict_check_on_tc_creation=on
 # ORBs are not able to decode chunked values. Disable this property for
 # interoperability with the ORB in Sun's JDK 1.4.2.
 jacorb.interop.chunk_custom_rmi_valuetypes=on
+
+# RMI/IIOP data encoded as chunks should contain the length
+# of the chunk. the sun orb does not send the length
+# always.
+# enable this property for interoperability with the Sun ORB.
+# http://lists.spline.inf.fu-berlin.de/mailman/htdig/jacorb-developer/2006-May/008251.html
+jacorb.interop.sun=off
+
 ###########################################
 #                                         #
 #         Socket Factories                #

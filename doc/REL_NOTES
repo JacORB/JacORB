@@ -90,6 +90,8 @@
           codesets (re Strings). Fixes for char transmission.
         - use new Socket API to specify timeouts during Socket.connect
           instead of using our own timeout implementation.
+        - new property interop.sun to fix RMI/IIOP related interoperability issues
+          with the Sun ORB (see also http://lists.spline.inf.fu-berlin.de/mailman/htdig/jacorb-developer/2006-May/008251.html).
     - IDL Compiler:
         - Add option (-genEnhanced) to generate toString/equals on stubs. Only implemented
           in StructType so far.

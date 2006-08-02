@@ -171,6 +171,13 @@ public class CDRInputStream
      */
     private static final int MAX_BLOCK_SIZE = 0x7fffff00;
 
+    /**
+     * fixes RMI/IIOP related interoperability issues with the
+     * sun the orb that occured
+     * while receiving serialized collections.
+     * see mailing list for details:
+     * {@link http://lists.spline.inf.fu-berlin.de/mailman/htdig/jacorb-developer/2006-May/008251.html}
+     */
     private boolean sunInteropFix;
 
 
