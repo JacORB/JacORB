@@ -20,8 +20,6 @@
 
 package org.jacorb.orb.util;
 
-import org.apache.avalon.framework.logger.Logger;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
@@ -29,14 +27,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.ORBConstants;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.TaggedComponentList;
 import org.jacorb.orb.giop.CodeSet;
-import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.iiop.IIOPAddress;
-
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
@@ -71,8 +69,9 @@ public class PrintIOR
     public static void main(String args[])
     {
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
+        final org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)orb;
         Logger logger =
-            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.print_ior");
+            jorb.getConfiguration().getNamedLogger("jacorb.print_ior");
         String line, iorString = null;
 
         if( args.length != 2)
@@ -133,7 +132,7 @@ public class PrintIOR
 
         if( iorString.startsWith( "IOR:" ))
         {
-            ParsedIOR pior = new ParsedIOR( iorString, orb, logger );
+            ParsedIOR pior = new ParsedIOR(jorb, iorString );
             printIOR(pior, orb, out);
         }
         else

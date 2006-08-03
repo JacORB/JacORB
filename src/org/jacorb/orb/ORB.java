@@ -1888,7 +1888,7 @@ public final class ORB
 
         try
         {
-            ParsedIOR pior = new ParsedIOR( str, this, logger );
+            ParsedIOR pior = new ParsedIOR( this, str );
             if( pior.isNull() )
             {
                 return null;
@@ -2377,7 +2377,7 @@ public final class ORB
                     // the byte key.
                     try
                     {
-                        pIOR = new ParsedIOR( found, this, logger );
+                        pIOR = new ParsedIOR( this, found );
                         return pIOR.get_object_key();
                     }
                     catch ( IllegalArgumentException e )

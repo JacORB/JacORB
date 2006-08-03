@@ -172,53 +172,35 @@ public class ParsedIOR
         return getStringComponent (TAG_JAVA_CODEBASE.value);
     }
 
-    /**
-     * Creates a new <code>ParsedIOR</code> instance.
-     *
-     * @param object_reference a <code>String</code> value
-     * @param orb an <code>org.omg.CORBA.ORB</code> value
-     * @exception IllegalArgumentException if an error occurs
-     */
-
-    public ParsedIOR( String object_reference, org.omg.CORBA.ORB orb, Logger logger)
-        throws IllegalArgumentException
+    private ParsedIOR(org.jacorb.orb.ORB orb)
     {
-        this(orb, logger);
-        parse( object_reference );
+        super();
+
+        this.orb = orb;
+        this.logger = this.orb.getConfiguration().getNamedLogger("jacorb.orb.parsedior");
     }
 
     /**
      * Creates a new <code>ParsedIOR</code> instance.
-     *
-     * @param object_reference a <code>String</code> value
      * @param orb an <code>org.jacorb.orb.ORB</code> value
-     * @exception IllegalArgumentException if an error occurs
+     * @param object_reference a <code>String</code> value
      */
-    public ParsedIOR( String object_reference, org.jacorb.orb.ORB orb, Logger logger )
+    public ParsedIOR( org.jacorb.orb.ORB orb, String object_reference )
         throws IllegalArgumentException
     {
-        this(orb, logger);
+        this(orb);
         parse( object_reference );
     }
 
-    public ParsedIOR( IOR _ior, org.jacorb.orb.ORB orb, Logger logger )
+    /**
+     * Creates a new <code>ParsedIOR</code> instance.
+     * @param orb an <code>org.jacorb.orb.ORB</code> value
+     * @param ior an <code>IOR</code> value
+     */
+    public ParsedIOR( org.jacorb.orb.ORB orb, IOR ior )
     {
-        this(orb, logger);
-        decode( _ior );
-    }
-
-    private ParsedIOR(org.omg.CORBA.ORB orb, Logger logger)
-    {
-        if (!(orb instanceof org.jacorb.orb.ORB))
-        {
-            throw new IllegalArgumentException("Construct ParsedIOR with full ORB not Singleton");
-        }
-        if (logger == null)
-        {
-            throw new IllegalArgumentException();
-        }
-        this.orb = (org.jacorb.orb.ORB)orb;
-        this.logger = logger;
+        this(orb);
+        decode( ior );
     }
 
     /**

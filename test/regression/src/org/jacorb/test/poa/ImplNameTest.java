@@ -27,12 +27,10 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.logger.Logger;
-import org.easymock.MockControl;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.test.orb.BasicServerImpl;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
@@ -51,14 +49,12 @@ import org.omg.PortableServer.POAPackage.InvalidPolicy;
 public class ImplNameTest extends TestCase
 {
     private final List orbs = new ArrayList();
-    MockControl loggerControl = MockControl.createControl(Logger.class);
-    Logger loggerMock = (Logger) loggerControl.getMock();
 
     private ORB newORB(Properties props)
     {
-        ORB orb = ORB.init(new String[0], props);
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
         orbs.add(orb);
-        return orb;
+        return (ORB) orb;
     }
 
     protected void tearDown() throws Exception
@@ -101,7 +97,7 @@ public class ImplNameTest extends TestCase
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
 
-        ParsedIOR pior = new ParsedIOR( orb.object_to_string(obj), orb, loggerMock);
+        ParsedIOR pior = new ParsedIOR(orb, orb.object_to_string(obj));
 
         assertTrue
         (
@@ -143,7 +139,7 @@ public class ImplNameTest extends TestCase
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
 
-        ParsedIOR pior = new ParsedIOR( orb.object_to_string(obj), orb, loggerMock);
+        ParsedIOR pior = new ParsedIOR( orb, orb.object_to_string(obj));
 
         assertTrue
         (
@@ -164,8 +160,7 @@ public class ImplNameTest extends TestCase
         props.setProperty("jacorb.implname", "TEST_RANDOM_COMPONENT_TWO");
         props.setProperty("jacorb.logfile.append", "on");
 
-        final org.omg.CORBA.ORB orb1 = newORB(props);
-        final org.omg.CORBA.ORB orb2;
+        final ORB orb1 = newORB(props);
 
         POA rootPoa =
             (POAHelper.narrow( orb1.resolve_initial_references( "RootPOA" )));
@@ -188,12 +183,12 @@ public class ImplNameTest extends TestCase
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
 
-        ParsedIOR pior = new ParsedIOR( orb1.object_to_string(obj), orb1, loggerMock);
+        ParsedIOR pior = new ParsedIOR( orb1, orb1.object_to_string(obj));
 
 
         // Now create number two.
 
-        orb2 = newORB(props);
+        final ORB orb2 = newORB(props);
 
         rootPoa = (POAHelper.narrow( orb2.resolve_initial_references( "RootPOA" )));
 
@@ -215,7 +210,7 @@ public class ImplNameTest extends TestCase
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         obj = poa.id_to_reference( "Object".getBytes() );
 
-        ParsedIOR pior2 = new ParsedIOR( orb2.object_to_string(obj), orb1, loggerMock);
+        ParsedIOR pior2 = new ParsedIOR( orb2, orb2.object_to_string(obj));
 
         assertTrue
         (

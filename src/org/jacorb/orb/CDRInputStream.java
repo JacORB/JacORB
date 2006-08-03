@@ -1009,7 +1009,7 @@ public class CDRInputStream
             ior = mutator.mutateIncoming (ior);
         }
 
-        ParsedIOR pior = new ParsedIOR( ior, (org.jacorb.orb.ORB)orb, logger );
+        ParsedIOR pior = new ParsedIOR( (org.jacorb.orb.ORB)orb, ior );
 
         if( pior.isNull() )
         {

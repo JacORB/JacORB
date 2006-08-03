@@ -27,9 +27,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.omg.IIOP.ProfileBody_1_0;
 import org.omg.IIOP.ProfileBody_1_0Helper;
@@ -102,12 +102,9 @@ public class FixIOR
 
         orb = org.omg.CORBA.ORB.init (args, null);
 
-        Logger logger =
-            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.fixior");
-
         // Parse IOR
 
-        pior = new ParsedIOR(iorString, orb, logger);
+        pior = new ParsedIOR((ORB) orb, iorString);
         ior = pior.getIOR ();
 
         // Iterate through IIOP profiles setting host and port
@@ -149,7 +146,7 @@ public class FixIOR
             }
         }
 
-        pior = new ParsedIOR (ior, (org.jacorb.orb.ORB)orb, logger);
+        pior = new ParsedIOR ((org.jacorb.orb.ORB)orb, ior);
 
         // Write out new IOR to file
 

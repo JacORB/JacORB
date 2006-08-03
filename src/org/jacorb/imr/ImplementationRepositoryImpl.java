@@ -1519,7 +1519,7 @@ public class ImplementationRepositoryImpl
 
                 org.omg.CORBA.Object _object =
                     orb.string_to_object(
-                        (new ParsedIOR( _ior, (org.jacorb.orb.ORB) orb, logger)).getIORString());
+                        (new ParsedIOR( (org.jacorb.orb.ORB) orb, _ior)).getIORString());
 
                 // Sort of busy waiting here, no other way possible
                 for( int _i = 0; _i < object_activation_retries; _i++ )

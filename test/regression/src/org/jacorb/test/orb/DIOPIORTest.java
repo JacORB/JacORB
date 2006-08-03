@@ -24,8 +24,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.logger.Logger;
-import org.easymock.MockControl;
 import org.jacorb.orb.ParsedIOR;
 import org.omg.CORBA.ORB;
 
@@ -38,9 +36,6 @@ import org.omg.CORBA.ORB;
  */
 public class DIOPIORTest extends TestCase
 {
-    private static final MockControl loggerControl = MockControl.createNiceControl(Logger.class);
-    private static final Logger loggerMock = (Logger) loggerControl.getMock();
-
     private final org.omg.CORBA.ORB orb = ORB.init(new String[0], null);
 
     /**
@@ -55,7 +50,7 @@ public class DIOPIORTest extends TestCase
      */
     public void testDecode1 ()
     {
-        ParsedIOR pior = new ParsedIOR( ior, orb, loggerMock);
+        final ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB) orb, ior);
 
         List bodies = pior.getProfiles();
 
