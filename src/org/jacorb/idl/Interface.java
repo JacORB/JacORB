@@ -1084,17 +1084,17 @@ public class Interface
             ps.println("\tstatic");
             ps.println("\t{");
             ps.println("\t\ttry");  //try
-            ps.println("\t\t{");	//{
+            ps.println("\t\t{");    //{
 
             ps.print( "\t\t\t_opsClass = Class.forName(\"" );
             if( !pack_name.equals( "" ) ) ps.print( pack_name + "." );
             ps.println( name + "Operations\");" );
 
-            ps.println("\t\t}");	//}
+            ps.println("\t\t}");    //}
             ps.println("\t\tcatch(ClassNotFoundException cnfe)");
-            ps.println("\t\t{");	//{
+            ps.println("\t\t{");    //{
             ps.println("\t\t\tthrow new RuntimeException(\"Class " + fullName + " was not found.\");");
-            ps.println("\t\t}");	//}
+            ps.println("\t\t}");    //}
             ps.println("\t}\n");
         }
 
@@ -1154,9 +1154,12 @@ public class Interface
 
         ps.println("\t{");
 
-        ps.println("\t\torg.omg.CORBA.portable.OutputStream _out = null;");
+        if (body.getMethods().length > 0)
+        {
+            ps.println("\t\torg.omg.CORBA.portable.OutputStream _out = null;");
 
-        ps.println("\t\t// do something");
+            ps.println("\t\t// do something");
+        }
 
         body.printSkelInvocations(ps);
 
@@ -1332,7 +1335,6 @@ public class Interface
         }
 
         printPackage(ps);
-        ps.println("import org.omg.PortableServer.POA;");
         printImport(ps);
 
         printClassComment("interface", name, ps);
@@ -1342,7 +1344,6 @@ public class Interface
         ps.println("{");
 
         ps.println("\tprivate " + name + "Operations _delegate;\n");
-        ps.println("\tprivate POA _poa;");
 
         ps.println("\tpublic " + name + "LocalTie(" + name + "Operations delegate)");
         ps.println("\t{");
