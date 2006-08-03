@@ -824,13 +824,15 @@ public class Interface
             }
             else
             {
+                final String stubClass =
+                    parser.generate_stubs ? stubName(typeName()) + ".class" : "";
                 if( parser.useUncheckedNarrow )
                 {
-                    ps.println( "\t\treturn unchecked_narrow(in.read_Object());" );
+                    ps.println( "\t\treturn unchecked_narrow(in.read_Object(" + stubClass + "));" );
                 }
                 else
                 {
-                    ps.println("\t\treturn narrow(in.read_Object());");
+                    ps.println("\t\treturn narrow(in.read_Object(" + stubClass + "));");
                 }
             }
         }
@@ -859,13 +861,30 @@ public class Interface
 
         ps.println("\t}");
 
+        final String stub_name = stubName(typeName());
+
         // Generate narrow - only used by abstract_interfaces.
         ps.println("\tpublic static " + typeName() + " narrow(final java.lang.Object obj)");
         ps.println("\t{");
-        ps.println("\t\tif (obj instanceof " + typeName() + ')');
+
+        ps.println("\t\tif (obj == null)");
+        ps.println("\t\t{");
+        ps.println("\t\t\treturn null;");
+        ps.println("\t\t}");
+
+        if (parser.generate_stubs && !is_local)
+        {
+            ps.println("\t\telse if (obj.getClass() == " + stub_name + ".class)");
+            ps.println("\t\t{");
+            ps.println("\t\t\treturn (" + typeName() + ") obj;");
+            ps.println("\t\t}");
+        }
+
+        ps.println("\t\telse if (obj instanceof " + typeName() + ')');
         ps.println("\t\t{");
         ps.println("\t\t\treturn (" + typeName() + ")obj;");
         ps.println("\t\t}");
+
         ps.println("\t\telse if (obj instanceof org.omg.CORBA.Object)");
         ps.println("\t\t{");
         ps.println("\t\t\treturn narrow((org.omg.CORBA.Object)obj);");
@@ -884,6 +903,10 @@ public class Interface
 
         if (parser.generate_stubs && !is_local)
         {
+            ps.println("\t\telse if (obj.getClass() == " + stub_name + ".class)");
+            ps.println("\t\t{");
+            ps.println("\t\t\treturn (" + typeName() + ") obj;");
+            ps.println("\t\t}");
             ps.println("\t\telse if (obj instanceof " + typeName() + ")");
             ps.println("\t\t{");
             ps.println("\t\t\treturn (" + typeName() + ")obj;");
@@ -891,17 +914,6 @@ public class Interface
             ps.println("\t\telse if (obj._is_a(\"" + id() + "\"))");
             ps.println("\t\t{");
 
-            String stub_name = typeName();
-
-            if (stub_name.indexOf('.') > -1)
-            {
-                stub_name = stub_name.substring(0, typeName().lastIndexOf('.')) +
-                    "._" + stub_name.substring(stub_name.lastIndexOf('.') + 1) + "Stub";
-            }
-            else
-            {
-                stub_name = "_" + stub_name + "Stub";
-            }
 
             ps.println("\t\t\t" + stub_name + " stub;");
 
@@ -935,35 +947,31 @@ public class Interface
         ps.println("\tpublic static " + typeName() + " unchecked_narrow(final org.omg.CORBA.Object obj)");
         ps.println("\t{");
         ps.println("\t\tif (obj == null)");
+        ps.println("\t\t{");
         ps.println("\t\t\treturn null;");
+        ps.println("\t\t}");
 
         if (parser.generate_stubs && ! is_local)
         {
-            ps.println("\t\ttry");
+            ps.println("\t\telse if (obj.getClass() == " + stub_name + ".class)");
             ps.println("\t\t{");
-            ps.println("\t\t\treturn (" + typeName() + ")obj;");
+            ps.println("\t\t\treturn (" + typeName() + ") obj;");
             ps.println("\t\t}");
-            ps.println("\t\tcatch (ClassCastException c)");
+
+            ps.println("\t\telse if (obj instanceof " + typeName() + ')');
+            ps.println("\t\t{");
+            ps.println("\t\t\treturn (" + typeName() + ") obj;");
+            ps.println("\t\t}");
+            ps.println("\t\telse");
             ps.println("\t\t{");
 
-            String stub_name = typeName();
+            ps.println("\t\t\t" + stub_name + " stub;");
 
-            if (stub_name.indexOf('.') > -1)
-            {
-                stub_name = stub_name.substring(0, typeName().lastIndexOf('.')) +
-                    "._" + stub_name.substring(stub_name.lastIndexOf('.') + 1) + "Stub";
-            }
-            else
-                stub_name = "_" + stub_name + "Stub";
+            ps.println("\t\t\tstub = new " + stub_name + "();");
 
-            ps.println("\t\t\t\t" + stub_name + " stub;");
+            ps.println("\t\t\tstub._set_delegate(((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());");
 
-            ps.println("\t\t\t\tstub = new " + stub_name + "();");
-
-            ps.println("\t\t\t\tstub._set_delegate(((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());");
-
-            ps.println("\t\t\t\treturn stub;");
-
+            ps.println("\t\t\treturn stub;");
             ps.println("\t\t}");
         }
         else
@@ -1127,7 +1135,9 @@ public class Interface
         String[] ids = get_ids();
 
         for (int i = 0; i < ids.length - 1; i++)
+        {
             ps.print("\"" + ids[ i ] + "\",");
+        }
 
         ps.println("\"" + ids[ ids.length - 1 ] + "\"};");
 
@@ -1454,5 +1464,22 @@ public class Interface
     public void accept(IDLTreeVisitor visitor)
     {
         visitor.visitInterface(this);
+    }
+
+    private static final String stubName(final String typeName)
+    {
+        final String stub_name;
+        if (typeName.indexOf('.') > -1)
+        {
+            stub_name = typeName.substring(0, typeName.lastIndexOf('.')) +
+                "._" + typeName.substring(typeName.lastIndexOf('.') + 1) +
+                "Stub";
+        }
+        else
+        {
+            stub_name = "_" + typeName + "Stub";
+        }
+
+        return stub_name;
     }
 }
