@@ -28,6 +28,7 @@ import java.net.ServerSocket;
 
 import junit.framework.TestCase;
 
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.logger.Logger;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
@@ -65,13 +66,18 @@ public class PortRangeServerSocketFactoryTest extends TestCase
         objectUnderTest = new PortRangeServerSocketFactory(factoryDelegateMock);
     }
 
+    public void testFactoryIsConfigurable()
+    {
+        assertTrue(objectUnderTest instanceof Configurable);
+    }
+
     /*
      * Test method for 'org.jacorb.orb.factory.PortRangeServerSocketFactory.createServerSocket(int,
      * int)'
      */
     public void testCreateServerSocketIntInt() throws Exception
     {
-        
+
         factoryDelegateMock.createServerSocket(5, 10);
         factoryDelegateControl.setReturnValue(new ServerSocket());
 

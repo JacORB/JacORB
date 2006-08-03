@@ -31,7 +31,7 @@ import org.apache.avalon.framework.configuration.*;
  * @version $Id$
  */
 public class PortRangeServerSocketFactory
-    implements ServerSocketFactory
+    implements ServerSocketFactory, Configurable
 {
     public static final String MIN_PROP = "jacorb.net.server_socket_factory.port.min";
     public static final String MAX_PROP = "jacorb.net.server_socket_factory.port.max";
