@@ -868,7 +868,7 @@ public class CDROutputStream
     public final void write_string(final String s)
     {
         // size leaves room for ulong, plus the string itself (one or more 
-    	// bytes per char in the string, depending on the codeset), plus the
+        // bytes per char in the string, depending on the codeset), plus the
         // terminating NUL char
         int size;
         // sizePosition is the position in the buffer for the size to be
@@ -882,13 +882,13 @@ public class CDROutputStream
 
         if (codesetEnabled)
         {
-        	// in the worst case (UTF-8) a string char might take up to 3 bytes
-        	size = 4 + 3 * s.length() + 1;
+            // in the worst case (UTF-8) a string char might take up to 3 bytes
+            size = 4 + 3 * s.length() + 1;
         }
         else
         {
-        	// just one byte per string char
-        	size = 4 + s.length() + 1;   	
+            // just one byte per string char
+            size = 4 + s.length() + 1;
         }
         check(size, 4);
         sizePosition = pos;
@@ -2935,19 +2935,9 @@ public class CDROutputStream
             else
             {
                 // go to the beginning of the chunk and write the size tag
-
-                // check(7, 4); // DO NOT align to a 4-byte boundary
-
-                int current_pos = pos;
-                int current_idx = index;
-
-                pos = chunk_size_tag_pos;
-                index = chunk_size_tag_index;
-                write_long( current_pos - chunk_octets_pos );
-
-                pos = current_pos;
-                index = current_idx;
-
+                rewrite_long(chunk_size_tag_pos, 
+                             chunk_size_tag_index, 
+                             pos - chunk_octets_pos);
             }
             chunk_size_tag_pos = -1; // no chunk is currently open
         }
@@ -2960,10 +2950,30 @@ public class CDROutputStream
         chunk_size_tag_index = index;
 
         // insert four bytes here as a place-holder
-        write_long( 0 ); // need to go back later and write the actual size
+        write_long(0); // need to go back later and write the actual size
 
         // remember starting position of chunk data
         chunk_octets_pos = pos;
+    }
+
+    /**
+     * Writes a CORBA long value to (write_pos, write_index) without clearing
+     * the buffer padding. In the case of a non-sequential write, clearing
+     * buffer positions after the data just written is likely to erase data
+     * previously written. 
+     */
+    private final void rewrite_long(int write_pos, 
+                                    int write_index, 
+                                    final int value)
+    {
+        final int align = 4;
+        int remainder = align - (write_index % align);
+        if (remainder != align)
+        {
+            write_index += remainder;
+            write_pos += remainder;
+        }
+        _write4int(buffer, write_pos, value);
     }
 
     /**
