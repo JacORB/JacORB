@@ -2,7 +2,7 @@
 
 	* util/Version.java: Bump to version 2.3-Beta.
 
-2006-08-04  Francisco Revervel  <reverbel@ime.usp.br>
+2006-08-04  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/CDROutputStream.java: Do not clear the buffer padding
 	when (re)writing the chunk size tag. In the case of a
@@ -48,7 +48,7 @@
 	* orb/giop/GIOPConnection.java (getMessage): Close on garbage.
 	Suggested and implemented by Marc Heide.
 
-2006-07-28  Francisco Revervel  <reverbel@ime.usp.br>
+2006-07-28  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/CDROutputStream.java: - Fix the
 	ArrayIndexOutOfBoundsException thrown by write_string() when the
@@ -2864,7 +2864,7 @@
 
 	* notification/build.xml: used wrong property
 
-2005-09-29  Francisco Revervel  <reverbel@ime.usp.br>
+2005-09-29  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* poa/POA.java (_getChildPOA): changed to consider that an
 	"unborn" child POA whose parent POA has no adaptor activator is
@@ -2893,7 +2893,7 @@
 	new base class for manipulating protocol-specific addresses in a
 	generic way.
 
-2005-09-27  Francisco Revervel  <reverbel@ime.usp.br>
+2005-09-27  Francisco Reverbel  <reverbel@ime.usp.br>
 
 	* orb/BasicAdapter.java, orb/ORB.java, orb/dsi/ServerRequest.java,
 	orb/giop/ServerRequestListener.java, poa/POA.java:
