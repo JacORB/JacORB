@@ -1,3 +1,1242 @@
+2006-08-08  Gerald Brose  <gerald.brose@acm.org>
+
+	* util/Version.java: Bump to version 2.3-Beta.
+
+2006-08-04  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/CDROutputStream.java: Do not clear the buffer padding
+	when (re)writing the chunk size tag. In the case of a
+	non-sequential write, clearing buffer positions after the data
+	just written is likely to erase data prevously written. (This was
+	indeed happening!)
+
+2006-08-03  Alphonse Bendt  <bendt@prismtech.com>
+
+	* imr/ImplementationRepositoryImpl.java, orb/CDRInputStream.java,
+	orb/Delegate.java, orb/ORB.java, orb/ParsedIOR.java,
+	orb/util/FixIOR.java, orb/util/PrintIOR.java: simplified c'tor of
+	ParsedIOR
+
+	* idl/Interface.java (printImplSkeleton): cosmetics
+	(printHelper): enhance code generation
+	(stubName): new method
+
+	* idl/IdlSymbol.java (printClassComment): don't use tabs in comment
+
+	* orb/factory/PortRangeServerSocketFactory.java: made
+	PortRangeServerSocketFactory implement Configurable again.  thanks
+	to Gábor Sziklai for reporting.
+
+	* idl/OpDecl.java (print_sendc_Method): minor enhancement to
+	generated code to prevent compiler warnings
+
+	* idl/Interface.java: (printImplSkeleton)
+	(printLocalTie): minor enhancement to generated code to prevent
+	compiler warnings
+
+2006-08-02  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDRInputStream.java: added doc for new property
+	jacorb.interop.sun
+
+2006-08-01  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/GIOPConnection.java (sendMessage): Close connection if
+	there is a COMM_FAILURE.  Suggested and implemented by Marc Heide,
+	in bug #708.
+
+	* orb/giop/GIOPConnection.java (getMessage): Close on garbage.
+	Suggested and implemented by Marc Heide.
+
+2006-07-28  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/CDROutputStream.java: - Fix the
+	ArrayIndexOutOfBoundsException thrown by write_string() when the
+	codeset is UTF-8.  - Remove calls to write_octet() from
+	write_char_i(), to avoid superfluous check(1) calls.
+
+2006-07-28  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* build.xml: Remove unused target
+
+2006-07-27  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/container/RepositoryComponentAdapter.java
+	(getComponentInstance): fixed typo
+
+2006-07-27  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ORB.java, orb/ParsedIOR.java,
+	orb/giop/MessageReceptorPool.java, orb/iiop/IIOPFactories.java,
+	poa/AOM.java: PMD fixes
+
+	* security/build.xml, security/sas/build.xml, security/ssl/build.xml:
+	Remove IAIK support
+
+2006-07-27  Alphonse Bendt  <bendt@prismtech.com>
+
+	* util/tracing/ClientTraceInterceptor.java,
+	util/tracing/ServerTraceInterceptor.java, util/tracing/Timer.java,
+	util/tracing/TraceInitializer.java,
+	util/tracing/TraceTreeNode.java,
+	util/tracing/TracingServiceImpl.java: cosmetics
+
+	* orb/portableInterceptor/RecursionAwareCI.java:
+	cosmetics. added javadoc header
+
+	* orb/factory/DefaultSocketFactory.java,
+	orb/factory/FixedAddressSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: cosmetics
+
+	* orb/listener/TCPConnectionListener.java: javadoc
+
+2006-07-27  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/factory/SSLServerSocketFactory.java,
+	orb/factory/SocketFactoryManager.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java: Remove
+	orb/factory/SSLServerSocketFactory. Made
+	orb/factory/SocketFactoryManager be more generic and change
+	inheritance for ssl/sun_jsse/SSLServerSocketFactory.java
+
+2006-07-27  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/iiop/IIOPAddress.java: test and fix for "OAAddress property
+	can't parse IPv6 addresses" (bugzilla #711).  thanks to Adam Mitz
+	for supplying the patch
+
+	* orb/factory/DefaultSocketFactory.java,
+	orb/factory/FixedAddressSocketFactory.java: javadoc
+
+	* orb/factory/SocketFactoryManager.java: minor cleanup
+
+2006-07-26  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/giop/CodeSet.java: Change warn to debug level
+
+2006-07-26  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/giop/CodeSet.java (configure): fix so that logger is never null
+
+2006-07-26  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java,
+	orb/giop/ClientConnection.java, orb/giop/CodeSet.java,
+	orb/giop/RequestOutputStream.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java:
+	RT889/RT1056/RT1229/RT1274 Codeset changes. Fixes for char
+	transmission. Add tests. Move configuration for codeset to
+	codeset. Merge jacorb.codeset and ignoreComponentInfoProfiles.
+
+2006-07-26  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/factory/AbstractSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: related to scarab
+	JAC340.
+
+	provided timeout implementation in SSLSocketFactory that
+	uses the Socket API.
+
+	removed thread based timeout implementation
+
+	adapted tests
+
+	* orb/factory/AbstractSocketFactory.java,
+	orb/factory/FixedAddressSocketFactory.java,
+	orb/factory/PortRangeFactory.java,
+	orb/factory/PortRangeSocketFactory.java,
+	orb/factory/SocketFactory.java: added javadoc.  minor code cleanup
+
+2006-07-26  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* util/Version.java: Update version information to 2.3
+
+2006-07-26  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/rmi/PortableRemoteObjectDelegateImpl.java,
+	orb/CDROutputStream.java, orb/ParsedIOR.java,
+	orb/dii/Request.java, orb/giop/NoBiDirClientRequestListener.java,
+	orb/giop/NoBiDirServerReplyListener.java: cosmetics. fixed some
+	pmd warnings
+
+	* orb/giop/ClientConnectionManager.java: cosmetics
+
+	* orb/giop/ClientConnectionManager.java (shutdown):
+	made method synchronized as all others are also synchronized
+
+2006-07-25  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/factory/DefaultSocketFactory.java,
+	orb/factory/FixedAddressSocketFactory.java,
+	orb/iiop/ClientIIOPConnection.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java,
+	orb/factory/AbstractSocketFactory.java,
+	orb/factory/PortRangeFactory.java,
+	orb/factory/PortRangeServerSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java,
+	orb/factory/SocketFactory.java: fix for scarab JAC340.
+
+	interrupting a thread during PlainSocketImpl.socketConnect()
+	does not work correctly across all JDK/OS versions.
+
+	use jdk methods that accept a timeout
+
+	see also
+	http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6315293
+
+2006-07-21  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/ORB.java (shutdown): need to set shutdown_in_progress to
+	false again on method exit
+
+2006-07-20  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* poa/RequestProcessor.java: Pass exception object in rather than
+	stringify to get stacktrace.
+
+2006-07-20  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/giop/CodeSet.java: cosmetics: added javadoc class comment
+
+	* orb/BufferManager.java (getBuffer): added more details to exception
+
+	* idl/parser.cup: removed commented out code as there are no more
+	problems during the nightly build. cleaned code up a bit
+
+	* orb/dsi/ServerRequest.java (get_out): pass in the current status
+	to the created OutputStream
+
+2006-07-19  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/listener/TCPConnectionEvent.java: removed extra header
+
+	* orb/listener/TCPConnectionEvent.java: javadoc
+
+	* poa/RequestQueue.java: changed queue from ArrayList to
+	LinkedList. should be more performant
+
+	scarab JAC119
+
+	* orb/iiop/IIOPListener.java, orb/listener/TCPConnectionEvent.java:
+	removed TCPConnectionEvent's deprecated c'tor
+
+2006-07-19  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/giop/GIOPConnection.java: Change default connect timeout to 90000
+
+2006-07-19  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/InterfaceBody.java, idl/parser.cup: JAC#248 simplified
+	handling of parse threads.
+
+	* orb/ORB.java, security/ssl/sun_jsse/ServerInvocationInterceptor.java:
+	commented out security level2 related stuff
+
+	* idl/parser.cup, idl/lexer.java: backed out last change
+
+2006-07-18  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/AbstractBase.java, idl/lexer.java, idl/parser.cup:
+	added support for the IDL keyword AbstractBase (fixed #653).
+	thanks to Anders Hessellund Jensen for providing the patch.
+
+	* idl/ValueDecl.java: fix for "IDL compiler fails for typedef
+	within valuetype declaration" #601. thanks to Thomas Leineweber
+	for providing the patch.
+
+	* idl/StructType.java (print): simplified boolean expression
+
+	* orb/dii/Request.java: fixed synchronization
+
+2006-07-17  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/lexer.java: RT1525 Swallow whitespace on include.
+
+2006-07-17  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/iiop/ClientIIOPConnection.java, orb/giop/ReplyPlaceholder.java:
+	cosmetics. pmd/findbugs warnings
+
+	* orb/giop/GIOPConnection.java (getMessage):
+	convert byte[] to String before logging it
+
+	* orb/EncapsInfo.java, orb/ReplyReceiver.java, orb/dii/Request.java:
+	cosmetics. pmd/findbugs warnings
+
+	* orb/ORB.java (HandlerWrapper): made wrappedHandler final
+
+	* orb/Any.java (writeComplexValue): close inputstream after use
+
+	* orb/ORB.java (getORBInitializers): enhanced
+	log output
+
+	* imr/ImplementationRepositoryImpl.java (main): added cmd line
+	param -printIOR for use within the test regression framework
+
+2006-07-17  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Throw TRANSIENT not
+	OBJECT_NOT_EXIST.
+
+2006-07-17  Alphonse Bendt  <bendt@prismtech.com>
+
+	* config/LogKitLoggerFactory.java (getPriorityForNamedLogger):
+	pmd warnings
+
+2006-07-14  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/BufferManager.java (configure, getInstance): made methods
+	synchronized to prevent race issues when creating multiple orbs
+	concurrently. this should fix #638
+
+	* orb/iiop/ClientIIOPConnection.java (close): don't log close
+	event if connection was closed already. this fixes #693
+
+	* notification/AbstractMessage.java: cosmetics
+
+2006-07-14  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/dii/Request.java,
+	orb/portableInterceptor/IORInterceptorIterator.java,
+	orb/portableInterceptor/InterceptorManager.java,
+	orb/portableInterceptor/RequestInterceptorIterator.java,
+	orb/portableInterceptor/ServerRequestInfoImpl.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SASComponentInterceptor.java,
+	orb/util/CorbaLoc.java, orb/util/FixIOR.java,
+	orb/util/PrintIOR.java: Add logging. PMD fixes. Exclude some rules
+	in pmd.
+
+2006-07-14  Alphonse Bendt  <bendt@prismtech.com>
+
+	* trading/TradingService.java (main): pass in the properties to
+	ORB.init(...). this fixes #704
+
+	* imr/ImRServerInfo.java (toServerInfo): fixed wrong array
+	type. thanks to Gabor Sziklai for reporting
+
+	* notification/filter/DefaultFilterFactoryDelegate.java,
+	notification/filter/etcl/BoolValue.java,
+	imr/ServerStartupDaemonImpl.java,
+	collection/util/ArrayFactory.java,
+	collection/util/SortedVector.java,
+	concurrency/LockCoordinatorImpl.java,
+	concurrency/LockSetFactoryImpl.java, concurrency/Request.java,
+	concurrency/TransactionLocks.java,
+	concurrency/TransactionalLockSetImpl.java: cosmetics
+
+2006-07-13  Alphonse Bendt  <bendt@prismtech.com>
+
+	* ir/RepositoryID.java: cosmetics
+
+	* orb/giop/ClientConnection.java: added new property to ignore
+	codeset information in profiles
+
+	* orb/Delegate.java: fix for bugzilla #400
+
+	* idl/SequenceType.java, orb/ParsedIOR.java: Fix OutOfMemory issue
+	when parsing invalid IOR's.
+
+	scarab JAC38
+
+2006-07-13  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/Delegate.java, orb/ServantDelegate.java,
+	orb/SpecificProfileSelector.java, orb/SystemExceptionHelper.java,
+	orb/BasicAdapter.java, orb/CDRInputStream.java,
+	orb/ExceptionHolderImpl.java, orb/ParsedIOR.java,
+	orb/iiop/IIOPAddress.java: PMD fixes
+
+	* idl/AliasTypeSpec.java, idl/EnumType.java, idl/IdlSymbol.java,
+	idl/Interface.java, idl/SequenceType.java, idl/StructType.java,
+	idl/UnionType.java, idl/ValueAbsDecl.java: JAC#141 Minor class
+	comment improvement. Forward decl on struct
+
+	* orb/factory/SocketFactoryManager.java: Use getCause
+
+	* orb/iiop/IIOPListener.java: JAC#141 Pass ex as object not string
+
+	* poa/POA.java: JAC#141 Add debug statement
+
+2006-07-12  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/factory/SocketFactoryManager.java (newFactory): in case of a
+	InvocationTargetException use the nested exception for
+	logging/throwing
+
+	related to scarab JAC128
+
+	* orb/giop/ClientConnectionManager.java,
+	orb/giop/MessageReceptorPool.java,
+	util/threadpool/ThreadPool.java: throw NO_RESOURCES if during bind
+	no ClientMessageReceptor Thread can be created due to a configured
+	limit
+
+2006-07-12  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/util/PrintIOR.java: Use autoflush on printwriter. Don't
+	close as that will close system.out. Slight output format fixes.
+
+2006-07-12  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/util/PrintIOR.java (printIOR): added extra linebreak
+
+	* orb/util/PrintIOR.java (main): don't forget to flush printwriter
+
+	* orb/listener/TCPConnectionEvent.java (c'tor):
+	new c'tor should be used instead of the old one
+
+	related to scarab JAC336
+
+	* orb/util/PrintIOR.java: changed the class so that all print
+	operations work on a PrintWriter thats passed in. this way the
+	class can be better reused
+
+	* orb/dii/Request.java: added logger and some debug statements
+
+	* orb/ORB.java (configure): don't dispose pool (see inline comment)
+
+2006-07-11  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/NameTable.java, idl/OpDecl.java: JAC#332 Fix for invalid idl
+	compilation.
+
+2006-07-11  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/iiop/IIOPProfile.java (decode_corbaloc):
+	GIOP version should default to 1.0 if not specified
+
+	part of fix for #702
+
+	* orb/giop/BiDirConnectionClientInterceptor.java (send_request):
+	use CDROutputStream c'tor that accepts an orb whereever possible
+
+	* orb/dsi/ServerRequest.java (createExceptionDetailMessage):
+	use CDROutputStream c'tor that accepts an orb whereever possible
+
+	* orb/dii/Environment.java: sychronize access to member
+
+	* orb/ORB.java: code cleanup.
+	(configure): dispose poolmanager if orb is re-configured
+
+	* orb/BufferManager.java (singletonConfigure): dispose reaper if
+	buffermanager is re-configured
+
+	* poa/POA.java: cosmetics. pmd warnings
+
+	* orb/ORBSingleton.java: cosmetics. more logging
+
+	* config/JacORBConfiguration.java: cosmetics. pmd warnings
+
+	* orb/Delegate.java: throw internal instead of runtimexception
+
+	* orb/ORBSingleton.java (checkTCName): bugfix for bug introduced
+	yesterday
+
+	* orb/ExceptionHolderImpl.java: restored no-args c'tor
+
+2006-07-10  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/dii/ContextListImpl.java, orb/dii/Request.java: provided
+	empty implementation for ContextList instead of returning null
+
+	* orb/Any.java, orb/NVList.java, orb/SystemExceptionHelper.java,
+	orb/TypeCode.java, orb/ORBSingleton.java: cosmetics. pmd warnings
+
+	* orb/NamedValue.java, orb/LocateReplyReceiver.java,
+	orb/DataInputStream.java, orb/ExceptionHolderImpl.java,
+	orb/ReplyReceiver.java: cosmetics
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java,
+	orb/Delegate.java, orb/IORMutator.java,
+	orb/dsi/ServerRequest.java, orb/giop/ServerRequestListener.java:
+	new feature: added IORMutator plugin.
+
+	scarab JAC319
+
+2006-07-07  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/engine/DefaultTaskProcessor.java,
+	notification/engine/TaskProcessor.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/PullMessagesUtility.java: cosmetics
+
+	* notification/container/PicoContainerFactory.java: removed unused
+	imports
+
+	* notification/servant/ProxyPullSupplierImpl.java:
+	don't use the singleton orb
+
+	* poa/RPPoolManager.java, poa/RPPoolManagerFactory.java:
+	extracted the warning about the empty pool in its own method and
+	override that empty for the single threaded poa
+
+	* idl/parser.cup (init): removed double intializatino of
+	pending_interfaces
+
+	added extra debug statements
+
+	* util/Time.java (toCDR): return buffer copy
+
+	* security/ssl/sun_jsse/SSLSocketFactory.java (createSocketFactory):
+	enhanced log message
+
+	* orb/portableInterceptor/AbstractInterceptorIterator.java,
+	orb/portableInterceptor/ClientInterceptorIterator.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/portableInterceptor/CodecFactoryImpl.java,
+	orb/portableInterceptor/CodecImpl.java,
+	orb/portableInterceptor/Codec_CDR_1_0_Impl.java,
+	orb/portableInterceptor/DefaultClientInterceptor.java,
+	orb/portableInterceptor/DefaultServerInterceptor.java,
+	orb/portableInterceptor/IORInfoExt.java,
+	orb/portableInterceptor/IORInfoImpl.java,
+	orb/portableInterceptor/IORInterceptorIterator.java,
+	orb/portableInterceptor/InterceptorManager.java,
+	orb/portableInterceptor/ORBInitInfoImpl.java,
+	orb/portableInterceptor/PICurrentImpl.java,
+	orb/portableInterceptor/RecursionAwareCI.java,
+	orb/portableInterceptor/RequestInfoImpl.java,
+	orb/portableInterceptor/RequestInterceptorIterator.java,
+	orb/portableInterceptor/ServerInterceptorIterator.java,
+	orb/portableInterceptor/ServerRequestInfoImpl.java,
+	orb/policies/BiDirPolicyFactoryImpl.java,
+	orb/policies/BiDirPolicyImpl.java,
+	orb/policies/ClientProtocolPolicy.java,
+	orb/policies/MaxHopsPolicy.java, orb/policies/PolicyManager.java,
+	orb/policies/PolicyUtil.java, orb/policies/QueueOrderPolicy.java,
+	orb/policies/RebindPolicy.java,
+	orb/policies/RelativeRequestTimeoutPolicy.java,
+	orb/policies/RelativeRoundtripTimeoutPolicy.java,
+	orb/policies/ReplyEndTimePolicy.java,
+	orb/policies/ReplyPriorityPolicy.java,
+	orb/policies/ReplyStartTimePolicy.java,
+	orb/policies/RequestEndTimePolicy.java,
+	orb/policies/RequestPriorityPolicy.java,
+	orb/policies/RequestStartTimePolicy.java,
+	orb/policies/RoutingPolicy.java,
+	orb/policies/SyncScopePolicy.java, orb/iiop/IIOPAddress.java:
+	cosmetics, pmd warnings
+
+	* orb/SpecificProfileSelector.java: cosmetics
+
+	* orb/ReplyReceiver.java: cosmetics, pmd warnings
+
+	* orb/ParsedIOR.java, orb/ORB.java, orb/BufferManager.java: cosmetics
+
+	* notification/engine/PullFromSupplierTask.java (doWork): removed
+	dispose as this is done in superclass
+
+2006-07-06  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/iiop/ClientIIOPConnection.java (checkSSL): close stream after use
+
+	* orb/CDRInputStream.java (loadClass):
+	extracted method to avoid duplicated code
+
+	* orb/ORB.java (getTransportManager): changed type of exception
+
+2006-07-05  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/factory/FixedAddressSocketFactory.java: added new socket
+	factory impl
+
+	scarab JAC295
+
+	* idl/IdlSymbol.java (printClassComment): changed format a bit
+
+	* orb/ORB.java, orb/giop/ServerRequestListener.java: Fix for
+	POAs/transient objects
+
+	scarab JAC278
+
+	* config/JacORBConfiguration.java (getConfiguration/initApplet):
+	added patch from Gabor Sziklai to fix applet support
+
+	* orb/ORB.java: throw BAD_PARAM if something goes wrong during
+	string_to_object
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java:
+	further cleanup of typecode marshalling
+
+	scarab JAC277
+
+	* orb/TypeCode.java (id):  cleaned up switch statement. code cleanup
+
+	* orb/giop/CodeSet.java (createCodesetContext): close stream after use
+
+	* orb/util/FixIOR.java (main): close stream after use
+
+	* orb/iiop/IIOPProfile.java (createCodesetContext):
+	close stream after use
+
+	* orb/giop/BiDirConnectionClientInterceptor.java (send_request):
+	close stream after use
+
+	* orb/etf/ProtocolAddressBase.java (toCDR): close stream after use
+
+	* orb/dynany/DynArray.java, orb/dynany/DynEnum.java,
+	orb/dynany/DynSequence.java, orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java (to_any): use CDROutputStream c'tor that
+	accepts an ORB
+
+	* orb/ExceptionHolderImpl.java (c'tor): close outputstream after use
+
+	* orb/Any.java (create_input_stream): close outputstream after use
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: changes to
+	make CDRInputStream and CDROutputStream more symmetric
+
+	scarab JAC262
+
+	* orb/TypeCode.java: cosmetics
+
+2006-07-04  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/EncapsInfo.java: cosmetics
+
+	* orb/ORB.java, orb/policies/PolicyManager.java:
+	removed orb parameter from PolicyManager c'tor
+
+	* idl/StructType.java: improved generation of IDL exceptions
+
+	scarab JAC267
+
+	* orb/policies/PolicyManager.java (set_policy_overrides):
+	bugfix as ADD_OVERRIDE was broken
+
+	* idl/parser.cup (init): sorted member initialization. do extra
+	cleanup for ParseThreads
+
+	* idl/Interface.java: fixed idl compiler bug related to forward
+	declarations.
+
+	scarab JAC285
+
+	* orb/TypeCode.java (create_tc): fixed possible NPE
+	code cleanup
+
+	* orb/CDRInputStream.java (read_value): reordered switch
+	statement. code cleanup
+
+	* orb/ExceptionHolderImpl.java (raise_exception): remove senseless
+	orb parameter
+
+	* ir/ConstantDef.java (define): remove senseless parameter
+
+	* orb/Any.java (checkNull): new method that checks if value is not null
+	(insert_object): removed method
+
+2006-07-03  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/util/PrintIOR.java: also decode realtime policies
+
+	* idl/AliasTypeSpec.java, idl/ObjectTypeSpec.java,
+	idl/ValueBoxDecl.java, orb/Any.java: better support for
+	streamables, bugfixes, change generated helper code
+
+	changes related to scarab JAC280, 281, 282
+
+	* orb/TypeCode.java, orb/CDRInputStream.java,
+	orb/giop/MessageReceptor.java: cosmetics
+
+	* notification/AbstractMessage.java,
+	notification/StructuredEventMessage.java,
+	notification/container/LocalParameterComponentAdapter.java,
+	notification/filter/impl/DefaultETCLEvaluator.java,
+	notification/impl/DefaultMessageFactory.java: do not use the
+	singleton orb
+
+2006-06-30  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/Delegate.java (invoke_internal): invoke checkORB before
+	anything is done
+
+	* orb/ORB.java (perform_work/work_pending): removed redundant code
+
+	* orb/giop/ClientConnection.java: javadoc
+
+	* orb/giop/MessageReceptor.java, orb/giop/MessageReceptorPool.java:
+	new property: allows to enhance threadnames
+
+	scarab JAC228
+
+	* orb/factory/DefaultServerSocketFactory.java,
+	orb/factory/PortRangeFactory.java,
+	orb/factory/PortRangeServerSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java,
+	orb/factory/SSLServerSocketFactory.java,
+	orb/factory/ServerSocketFactory.java,
+	orb/factory/SocketFactory.java,
+	orb/factory/SocketFactoryManager.java: code cleanup. fixed pmd
+	warnings, added missing javadoc headers
+
+2006-06-29  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/BasicAdapter.java: Add include
+
+2006-06-29  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
+	orb/iiop/ServerIIOPConnection.java,
+	orb/listener/NullTCPConnectionListener.java,
+	orb/listener/TCPConnectionListener.java: wrap tcp listener in
+	check if listener is really active
+
+	* orb/listener/SSLHandshakeListener.java: removed todo comment
+
+	* orb/iiop/IIOPListener.java: cosmetics
+
+	* orb/iiop/IIOPConnection.java, orb/iiop/ClientIIOPConnection.java:
+	removed unused code
+
+	* orb/Delegate.java (invoke_internal): added extra check for
+	interceptors
+
+	* orb/ORBSingleton.java: extracted string constants
+
+	* orb/CDRInputStream.java, util/Stack.java:
+	replaced java.util.Stack with an unsychronized implementation
+
+	* orb/BasicAdapter.java, orb/ORB.java, orb/iiop/IIOPListener.java,
+	orb/listener/DefaultAcceptorExceptionListener.java,
+	orb/listener/NullAcceptorExceptionListener.java: add
+	acceptorexception listener feature, docs and tests
+
+	scarab JAC200
+
+	* config/JacORBConfiguration.java (newInstance):
+	configure new Instance if it needs configuration
+
+	* orb/ClientInterceptorHandler.java: further fixes and
+	documentation for PI exception handling.
+
+	from scarab 192/194.
+
+	* orb/Delegate.java, orb/ORB.java: fixed findbugs/pmd warnings
+	replaced redundant method checkIsRunning with perform_work
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/portableInterceptor/RequestInfoImpl.java: cosmetics
+
+	* orb/dii/Request.java (_invoke): close stream after use
+
+	* orb/CDRInputStream.java (close): do not return the buffer to the
+	BufferManager as 1) it did not come from there 2) it was passed in
+	through the c'tor so we cannot assume ownership of it
+
+2006-06-28  Alphonse Bendt  <bendt@prismtech.com>
+
+	* util/ObjectUtil.java, orb/util/CorbaLoc.java,
+	orb/util/FixIOR.java, orb/util/PrintIOR.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/standardInterceptors/SASComponentInterceptor.java,
+	orb/iiop/IIOPConnection.java, orb/iiop/ClientIIOPConnection.java,
+	orb/iiop/IIOPFactories.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPProfile.java,
+	orb/giop/BiDirConnectionClientInterceptor.java,
+	orb/giop/LocateRequestInputStream.java,
+	orb/giop/ServerGIOPConnection.java,
+	orb/giop/BiDirConnectionInitializer.java,
+	orb/giop/BiDirConnectionServerInterceptor.java,
+	orb/giop/BiDirPolicy.java, orb/giop/BiDirPolicyFactory.java,
+	orb/giop/ClientConnection.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/ClientGIOPConnection.java, orb/giop/GIOPConnection.java,
+	orb/giop/GIOPConnectionManager.java,
+	orb/giop/LFUStatisticsProviderImpl.java,
+	orb/giop/LocateReplyInputStream.java,
+	orb/giop/LocateRequestOutputStream.java,
+	orb/giop/MessageReceptorPool.java, orb/giop/ReplyInputStream.java,
+	orb/giop/ReplyOutputStream.java,
+	orb/giop/RequestOutputStream.java,
+	orb/giop/ServerRequestListener.java,
+	orb/giop/TransportManager.java, orb/etf/ProfileBase.java,
+	orb/dii/ExceptionList.java, orb/dii/Request.java,
+	orb/dsi/ServerRequest.java, orb/diop/DIOPFactories.java,
+	orb/Any.java, orb/ApplicationExceptionHelper.java,
+	orb/BasicAdapter.java, orb/CDRInputStream.java,
+	orb/DefaultProfileSelector.java, orb/ORB.java,
+	orb/ProfileSelector.java, orb/ServantDelegate.java,
+	idl/AliasTypeSpec.java, idl/EnumType.java, idl/IdlSymbol.java,
+	idl/Interface.java, idl/StructType.java, idl/UnionType.java,
+	idl/ValueAbsDecl.java, idl/ValueDecl.java: code cleanup. fixed
+	pmd/findbugs warnings
+
+2006-06-27  Alphonse Bendt  <bendt@prismtech.com>
+
+	* util/threadpool/ThreadPool.java, util/ObjectUtil.java:
+	fixed pmd warnings
+
+	* orb/ORB.java (run, shutdown):
+	simplified use of runSync and shutdownSync
+
+	cosmetics
+
+	* orb/CDROutputStream.java: cosmetics
+
+	* imr/ImRAccessImpl.java, imr/ImRHostInfo.java,
+	imr/ImRPOAInfo.java, imr/ImRServerInfo.java: fixed pmd warnings
+
+	* orb/SpecificProfileSelector.java: (selectProfile) use & instead of |
+
+	* orb/util/PrintIOR.java, poa/RequestController.java,
+	orb/factory/SocketFactoryManager.java,
+	orb/TaggedComponentList.java, orb/ParsedIOR.java,
+	orb/Delegate.java, orb/ORB.java: fixed findbugs warnings
+
+	* orb/BasicAdapter.java:
+	(deliverRequest) removed unnecessary synchronization
+
+	fixed findbugs warnings
+
+	* orb/iiop/IIOPConnection.java, orb/giop/GIOPConnection.java:
+	fixed findbugs warnings
+
+	* poa/POA.java: cosmetics
+
+	* orb/factory/SocketFactoryManager.java,
+	imr/util/AddServerWindow.java, imr/util/ConnectWindow.java,
+	imr/util/ImRManagerGUI.java: fixed findbugs warnings
+
+	* orb/util/FixIOR.java (main): better error handling
+
+	* orb/portableInterceptor/CodecImpl.java,
+	orb/portableInterceptor/Codec_CDR_1_0_Impl.java,
+	orb/giop/ReplyOutputStream.java, orb/giop/RequestInputStream.java,
+	orb/giop/ServerGIOPConnection.java, orb/dynany/DynAny.java,
+	orb/dynany/DynArray.java, orb/dynany/DynEnum.java,
+	orb/dynany/DynSequence.java, orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java, orb/dsi/ServerRequest.java,
+	orb/SystemExceptionHelper.java, orb/Any.java,
+	orb/ExceptionHolderImpl.java, orb/ORB.java, orb/ParsedIOR.java:
+	fixed findbugs warnings
+
+	* orb/CDROutputStream.java (getBufferCopy): pass in size of our
+	buffer into ByteArrayOutputStream c'tor
+
+	* imr/ImplementationRepositoryImpl.java: fixed findbugs warnings
+
+	* orb/portableInterceptor/PICurrentImpl.java, orb/ORB.java: cosmetics
+
+2006-06-26  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/JacIDL.java, idl/ParamDecl.java, idl/StructType.java,
+	idl/IllegalRedefinition.java, idl/Interface.java, idl/Member.java,
+	idl/PosIntConst.java, idl/ValueAbsDecl.java, idl/parser.cup: Fixes
+	for line numbering (reset lexer), better error propagation, only
+	print stack trace from Ant task if debuglevel >= 3
+
+	scarab JAC214
+
+	* orb/Delegate.java, poa/AOM.java, poa/POA.java:
+	logging and more exceptions
+
+	scarab jac287
+
+	* orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java:
+	allow SO_KEEPALIVE to be set on sockets
+
+	scarab JAC172
+
+	* imr/ImplementationRepositoryImpl.java, orb/BasicAdapter.java,
+	orb/build.xml, orb/etf/ConnectionBase.java,
+	orb/etf/FactoriesBase.java, orb/etf/ListenerBase.java,
+	orb/factory/SocketFactoryManager.java,
+	orb/giop/TransportManager.java,
+	orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPConnection.java,
+	orb/iiop/IIOPFactories.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPLoopbackConnection.java,
+	orb/iiop/ServerIIOPConnection.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java.patch,
+	security/ssl/sun_jsse/SSLSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java.patch: refactorings
+	for and implementation of tcp listener feature
+
+	* orb/listener/AcceptorExceptionEvent.java,
+	orb/listener/AcceptorExceptionListener.java,
+	orb/listener/DefaultAcceptorExceptionListener.java,
+	orb/listener/NullSSLSessionListener.java,
+	orb/listener/NullTCPConnectionListener.java,
+	orb/listener/SSLHandshakeListener.java,
+	orb/listener/SSLListenerUtil.java.nossl,
+	orb/listener/SSLListenerUtil.java.ssl,
+	orb/listener/SSLSessionEvent.java.nossl,
+	orb/listener/SSLSessionEvent.java.ssl,
+	orb/listener/SSLSessionListener.java,
+	orb/listener/TCPConnectionEvent.java,
+	orb/listener/TCPConnectionListener.java: added new package for tcp
+	listener feature
+
+	* orb/giop/GIOPConnection.java,
+	orb/factory/DefaultSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java,
+	orb/etf/StreamConnectionBase.java, orb/ParsedIOR.java: cosmetics
+
+	* orb/build.xml, orb/.cvsignore: Reference is generated to
+	src/generated now
+
+	* config/Configuration.java,
+	config/JacORBConfiguration.java (getAttributeAsObject): new method
+
+2006-06-22  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/giop/ClientGIOPConnection.java: cosmetics
+
+	* notification/AbstractChannelFactory.java: removed unused import
+
+	* idl/build.xml: temporarily disable deletion of generated
+	parser/sym as this currently breaks the PT build
+
+2006-06-21  Alphonse Bendt  <bendt@prismtech.com>
+
+	* util/ConsoleLoggerFactory.java: simple logger factory example
+
+	* config/LogKitLoggerFactory.java: set visibility of various
+	methods to private
+
+	* idl/ValueDecl.java: fixed valuetype inheritance
+
+	scarab JAC305/JAC318
+
+	* idl/StringType.java (getSize): new method
+
+	* idl/ConstExpr.java (pos_int_const): is now public
+
+	* idl/LongLongType.java, idl/LongType.java, idl/ShortType.java:
+	getIDLTypeName() now returns the type like it'S written in IDL.
+
+	scarab JAC196
+
+	* util/threadpool/ThreadPool.java (getJob): decrement thread
+	counters even during pool shutdown
+
+	* orb/Any.java: replaced Integer.valueOf(int) with new
+	Integer(int) as this method is only available in JDK 1.5
+
+2006-06-20  Alphonse Bendt  <bendt@prismtech.com>
+
+	* util/threadpool/ConsumerTie.java: cosmetics
+
+	* util/Time.java: code cleanup to fix pmd warnings
+	(waitUntil): rewrote using Thread.sleep
+
+	* idl/ExceptionHolderTypeSpec.java: test and fix for bugzilla #687.
+
+	thanks to thomas leineweber for reporting it and providing the patch.
+
+	* orb/Delegate.java: code cleanup: chain c'tors
+	(threadlocals): made static
+
+	* orb/giop/MessageReceptorPool.java: cosmetics
+
+	* build.xml, idl/build.xml: added clean target to idl/build.xml
+
+	* idl/ScopedName.java: added test and fix for bugzilla #429/scarab
+	JAC297
+
+	* idl/ConstDecl.java (print): use printClassComment method
+
+	* orb/Delegate.java (invoke_internal): enhanced comment
+
+	* idl/UnionType.java (parse): added isParsed flag to ignore
+	multiple calls to parse.  this fixes #697
+
+	* idl/Module.java: added toString method to ease debugging
+
+	* orb/ClientInterceptorHandler.java, orb/Delegate.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java: further
+	interceptor fixes
+
+	scarab JAC192/JAC192b
+
+	* idl/parser.cup: renamed member in ElementSpec
+
+	* orb/LocateReplyReceiver.java, orb/ReplyReceiver.java,
+	orb/giop/ReplyPlaceholder.java: tests and fix for bugzilla
+	#611/scarab JAC235
+
+	* orb/dynany/DynValue.java: fix cvs id
+
+2006-06-19  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDROutputStream.java: fixed CDROutputStream to correctly
+	handle RMI object replacement
+
+	scarab JAC212
+
+	* orb/ClientInterceptorHandler.java, orb/Delegate.java:
+	Fix for interceptor service context propagation.
+
+	related to scarab JAC194
+
+	* idl/TypeMap.java, idl/ValueBody.java, idl/AddExpr.java,
+	idl/AndExpr.java, idl/ArrayDeclarator.java, idl/BaseType.java,
+	idl/BooleanType.java, idl/Case.java, idl/CharType.java,
+	idl/ConstDecl.java, idl/ConstExpr.java, idl/ConstType.java,
+	idl/DoubleType.java, idl/ElementSpec.java,
+	idl/FixedArraySize.java, idl/FixedPointConstType.java,
+	idl/FloatPtType.java, idl/FloatType.java,
+	idl/IllegalRedefinition.java, idl/InitDecl.java,
+	idl/InitParamDecl.java, idl/IntType.java, idl/Literal.java,
+	idl/LongLongType.java, idl/LongType.java, idl/MultExpr.java,
+	idl/NameAlreadyDefined.java, idl/NameTable.java,
+	idl/OctetType.java, idl/OpDecl.java, idl/OrExpr.java,
+	idl/PosIntConst.java, idl/PrimaryExpr.java, idl/RaisesExpr.java,
+	idl/ShiftExpr.java, idl/ShortType.java, idl/SimpleTypeSpec.java,
+	idl/SwitchBody.java, idl/TemplateTypeSpec.java,
+	idl/Truncatable.java, idl/TypeDeclarator.java, idl/TypeDef.java,
+	idl/UnaryExpr.java, idl/UnionType.java, idl/ValueBase.java,
+	idl/ValueInheritanceSpec.java, idl/XorExpr.java: Most classes of
+	the IDL compiler only have default access, i.e. aren't accessible
+	from other packages. changed that so the AST can be traversed in
+	full.
+
+	related to scarab JAC155
+
+	* orb/Any.java, orb/TypeCode.java: code cleanup (pmd/findbugs) warnings
+
+	* poa/RPPoolManagerFactory.java: renamed variable
+
+2006-06-16  Alphonse Bendt  <bendt@prismtech.com>
+
+	* util/threadpool/ThreadPool.java,
+	util/threadpool/ConsumerTie.java, orb/giop/MessageReceptor.java:
+	cosmetics
+
+	* orb/giop/GIOPConnection.java (fragments): as all accesses to
+	fragments are inside the same synchronized block its safe to
+	replace Hashtable with HashMap
+
+	* notification/servant/AbstractProxyPushSupplier.java: added debug
+
+	* idl/.cvsignore, idl/build.xml: temporarily revert location of
+	parser/sym.java. however no need to check them in
+
+	* poa/AOM.java, poa/POA.java, orb/policies/PolicyUtil.java,
+	orb/ParsedIOR.java, orb/ReplyReceiver.java: fixed findbugs
+	warnings. unused code
+
+	* imr/util/ImRPOATableModel.java, imr/util/ImRServerTableModel.java:
+	fixed some findbugs warnings
+
+2006-06-16  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/build.xml: Add a progress flag to java_cup and remove the
+	summary statement.
+
+	* orb/BasicAdapter.java, orb/ORB.java,
+	imr/ServerStartupDaemonImpl.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/MessageReceptorPool.java,
+	util/threadpool/ConsumerTie.java, util/threadpool/ThreadPool.java:
+	JAC#111 / OS#459 Fix for applet reload / shutdown of receptor
+	pools.
+
+2006-06-15  Alphonse Bendt  <bendt@prismtech.com>
+
+	* idl/build.xml: (all) remove unless
+
+	* ir/ConstantDef.java, ir/Container.java, ir/IRObject.java,
+	ir/IRServer.java, ir/InterfaceDef.java, ir/ModuleDef.java,
+	ir/RepositoryImpl.java, ir/StructDef.java, ir/UnionDef.java: fix
+	related to scarab JAC165: This and the related bugs seem to
+	indicate that a change was made in JDK1.4.2_05. The classloader
+	will not accept classnames with / in it.
+
+	see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4986512
+
+	* idl/StringType.java: code cleanup
+
+	* security/ssl/sun_jsse/SSLRandom.java (configure): debug code
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java
+	(forward_reference): allow other interceptors to access the
+	forward destination
+
+	* orb/iiop/ClientIIOPConnection.java (checkSSL): code cleanup
+
+	* orb/giop/LocateRequestInputStream.java,
+	orb/giop/ReplyInputStream.java,
+	orb/giop/RequestInputStream.java (close): removed unnecessary
+	exception from signature
+
+	* orb/etf/ProfileBase.java (initFromProfileData): better error handling
+
+	* orb/dsi/ServerRequest.java: cosmetics
+
+	* orb/ParsedIOR.java: code cleanup
+
+	* orb/Delegate.java (bind): removed unused method
+	(invokeInterceptors): fix for local objects
+
+	* orb/ClientInterceptorHandler.java (invokeInterceptors):
+	add forward destination to requestInfo
+
+	* orb/CDRInputStream.java (close):
+	removed unnecessary exception from signature
+
+	* orb/Delegate.java, orb/ParsedIOR.java,
+	orb/iiop/IIOPProfile.java,
+	orb/portableInterceptor/ClientInterceptorIterator.java,
+	orb/portableInterceptor/InterceptorManager.java: ParsedIOR.equals
+	checks effectiveProfile. Rebind checks clientProtocols. Error
+	checking on IIOPProfile. Debug improvement on
+	ClientInterceptorIterator.java
+
+	related to scarab JAC160
+
+	* orb/CDROutputStream.java: fixed CDROutputStream to correctly
+	handle RMI object replacement
+
+	scarab JAC149
+
+	* idl/StructType.java: added todo
+
+	* idl/JacIDL.java, idl/StructType.java, idl/parser.cup:
+	added support for generating toString and equals methods in structs
+
+	* idl/build.xml, idl/parser.java, idl/sym.java:
+	generate parser into src/generated
+
+2006-06-14  Alphonse Bendt  <bendt@prismtech.com>
+
+	* security/build.xml: enhance buildfile
+
+	* orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPProfile.java: allow to restart the ssl listen port at
+	runtime
+
+	* security/ssl/sun_jsse/JSRandom.java,
+	security/ssl/sun_jsse/JSRandomImpl.java,
+	security/ssl/sun_jsse/JSRandomImplThread.java,
+	security/ssl/sun_jsse/JSSEUtil.java,
+	security/ssl/sun_jsse/KeyStoreUtil.java,
+	security/ssl/sun_jsse/SSLRandom.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java,
+	security/ssl/sun_jsse/SecurityServiceInitializer.java,
+	security/ssl/sun_jsse/ServerInvocationInterceptor.java: new plugin
+	mechanism to allow customization of SecureRandom
+
+	* util/ObjectUtil.java (getResource): added new utility method
+
+	* orb/BasicAdapter.java, orb/Delegate.java, orb/ORB.java,
+	orb/ORBConstants.java, orb/ParsedIOR.java, orb/RTORB.java,
+	orb/SpecificProfileSelector.java,
+	orb/policies/ClientProtocolPolicy.java: added ProfileSelector that
+	allows to match a specific profile.  added error checking: after
+	ORB::shutdown most ORB operations should throw BAD_INV_ORDER
+
+	* orb/CDROutputStream.java: fix for typecode indirection.
+
+	related to scarab JAC110
+
+	* orb/BufferManager.java (release, Reaper):
+	reworked synchronization code
+
+	* idl/util/PrettyPrinter.java: optional prettyprinter
+
+	* idl/ValueAbsDecl.java, idl/ValueDecl.java,
+	idl/UnionType.java (printClassComment): enhance javadoc generation
+
+	* idl/TypeDeclaration.java: cosmetics, fixed javadoc warnings,
+	removed unused code
+
+	* idl/StructType.java (printClassComment): enhance javadoc generation
+
+	* idl/SequenceType.java (printClassComment): enhance generation of
+	javadoc
+	(printReadStatement, printWriteStatement): generated code for
+	sequence types is now more efficient
+
+	* idl/parser.cup (getLogger): made method public
+	added generation date
+
+	* idl/ParamDecl.java:
+	cosmetics, fixed javadoc warnings, removed unused code
+
+	* idl/OpDecl.java (printStreamBody):
+	beautify generated java code (less warnings in eclipse)
+
+	* idl/Interface.java, idl/IDLTreeVisitor.java:
+	cosmetics, fixed javadoc warnings, removed unused code
+
+	* idl/IdlSymbol.java, idl/EnumType.java,
+	idl/AliasTypeSpec.java (printClassComment): fix generated javadoc
+
+	* orb/ORBSingleton.java: extra error handling during typecode creation.
+
+	related to scarab JAC117
+
+	* idl/lexer.java, poa/gui/beans/PopupMenu.java,
+	poa/gui/pm/POAManagerFrame.java, poa/util/POAUtil.java,
+	security/sas/ATLASPolicyFactory.java,
+	security/sas/SASPolicyFactory.java: cosmetics, fixed javadoc
+	warnings, removed unused code
+
+	* orb/standardInterceptors/IORInterceptorInitializer.java (post_init):
+	clarify javadoc
+
+	* orb/policies/PolicyManager.java, orb/iiop/IIOPAddress.java,
+	orb/giop/GIOPConnection.java, orb/giop/ServerGIOPConnection.java:
+	cosmetics, fixed javadoc warnings, removed unused code
+
+	* orb/giop/TransportManager.java (configure):
+	throw INITIALIZE instead of RuntimeException
+
+	* orb/factory/ServerSocketFactory.java,
+	orb/factory/SocketFactoryManager.java, orb/etf/ProfileBase.java:
+	cosmetics: fixed javadoc warnings, removed unused code
+
+	* orb/dsi/ServerRequest.java (reply): don't explicitely write out
+	the exceptions type as otherwise it'll end up twice in the stream
+
+	this fixes bugzilla #696
+
+	* orb/diop/DIOPFactories.java, orb/dii/ExceptionList.java,
+	orb/dii/Request.java, orb/dii/Environment.java,
+	notification/util/AbstractObjectPool.java,
+	notification/queue/AbstractBoundedEventHeap.java,
+	notification/filter/EvaluationContext.java,
+	naming/namemanager/NSTableModel.java: cosmetics: fixed javadoc
+	warnings, removed unused code
+
+	* naming/NamingContextImpl.java (init):
+	removed unneccessary delegate initialization (its done in AOM)
+
+	* naming/Name.java, ir/gui/typesystem/remote/IRContainer.java,
+	ir/gui/typesystem/remote/IRInterface.java,
+	ir/gui/typesystem/remote/IRLeaf.java,
+	ir/gui/typesystem/remote/IRNode.java,
+	ir/gui/typesystem/remote/IRParameter.java,
+	ir/gui/typesystem/remote/IRStructMember.java,
+	ir/gui/typesystem/remote/IRUnionMember.java,
+	ir/gui/typesystem/remote/IRValue.java,
+	ir/gui/typesystem/remote/RemoteTypeSystem.java,
+	ir/gui/typesystem/AbstractContainer.java,
+	ir/gui/typesystem/Interface.java,
+	ir/gui/typesystem/ModelBuilder.java,
+	ir/gui/typesystem/ModelParticipant.java,
+	ir/gui/typesystem/NodeMapper.java,
+	ir/gui/typesystem/TypeSystem.java,
+	ir/gui/typesystem/TypeSystemNode.java,
+	ir/gui/remoteobject/ObjectRepresentant.java,
+	ir/gui/remoteobject/ObjectRepresentantFactory.java,
+	ir/gui/remoteobject/RemoteObject.java, ir/gui/IRBrowser.java,
+	ir/RepositoryID.java, ir/RepositoryImpl.java,
+	imr/util/AddServerWindow.java, imr/util/ConnectWindow.java,
+	imr/util/ImRModel.java, imr/util/ImRServerTableModel.java:
+	cosmetics: fixed javadoc warnings, removed unused code
+
+	* imr/ImRHostInfo.java, imr/ImRServerInfo.java,
+	imr/ImplementationRepositoryImpl.java: cosmetics: fixed javadoc
+	warnings
+
+	* dds/DomainParticipantImpl.java: fixed javadoc warnings
+
 2006-06-04  Andre Spiegel  <spiegel@gnu.org>
 
 	* poa/RequestQueue.java (configure): Add support for new property
