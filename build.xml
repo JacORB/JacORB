@@ -398,7 +398,11 @@
             <auxClasspath path="${classdir}"/>
             <auxClasspath path="${basedir}/lib/avalon-framework-4.1.5.jar"/>
             <systemProperty name="findbugs.de.comment" value="true"/>
+            <class location="${basedir}/classes/org/jacorb/imr"/>
             <class location="${basedir}/classes/org/jacorb/orb"/>
+            <class location="${basedir}/classes/org/jacorb/poa"/>
+            <class location="${basedir}/classes/org/jacorb/security"/>
+            <class location="${basedir}/classes/org/jacorb/util"/>
         </findBugs>
     </target>
 </project>
