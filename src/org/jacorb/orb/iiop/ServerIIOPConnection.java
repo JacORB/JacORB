@@ -84,11 +84,6 @@ public class ServerIIOPConnection
     }
 
 
-    public Socket getSocket()
-    {
-        return socket;
-    }
-
     public synchronized void close()
     {
         if( socket != null )

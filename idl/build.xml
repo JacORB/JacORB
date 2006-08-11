@@ -720,7 +720,8 @@
    <!--                       CORBA                          -->
    <!-- ==================================================== -->
 
-   <target name="jacorb" depends="imr,proxy,sasPolicy,sslPolicy"/>
+   <target name="jacorb" depends="imr,proxy,sasPolicy,sslPolicy,transport"/>
+
 
    <target name="imr">
       <jacidl srcdir="${idl}/jacorb"
@@ -770,5 +771,30 @@
          <param name="javac-includes" value="org/jacorb/ssl/**"/>
       </antcall>
    </target>
+
+   <target name="transport"
+	   depends="init,load-taskdef,transport_curent_generic,transport_curent_iiop">
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/jacorb/transport/**"/>
+      </antcall>
+   </target>
+
+   <target name="transport_curent_generic">
+     <jacidl
+	     srcdir="${idl}/jacorb"
+	     destdir="${src}/generated"
+	     includepath="${idl}/omg"
+	     includes="TransportCurrent.idl, TraitsFactory.idl"/>
+   </target>
+
+   <target name="transport_curent_iiop">
+     <jacidl
+             srcdir="${idl}/jacorb"
+	     destdir="${src}/generated"
+	     includepath="${idl}/omg"
+	     includes="IIOPTransportCurrent.idl"/>
+   </target>
+
 
 </project>

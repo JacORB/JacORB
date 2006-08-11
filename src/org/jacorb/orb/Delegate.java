@@ -967,6 +967,8 @@ public final class Delegate
             connection
         );
 
+        orb.notifyTransportListeners (connection.getGIOPConnection());
+
         if (orb.hasRequestInterceptors())
         {
             localInterceptors.set(interceptors);

@@ -2588,8 +2588,14 @@ public final class ORB
         return poolManagerFactory.newRPPoolManager(isSingleThreaded);
     }
 
+  public void notifyTransportListeners(GIOPConnection gc) {
+    
+    transport_manager.notifyTransportListeners (gc);
+  }
+
     public String getImplName()
     {
         return implName;
     }
+
 }

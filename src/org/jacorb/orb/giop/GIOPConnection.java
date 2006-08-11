@@ -38,10 +38,88 @@ import org.jacorb.util.*;
 
 
 /**
+ * Class StatisticsProviderAdapter is responsible for managing 
+ * the StatisticsProvider instances for collecting transport usage 
+ * information.
+ *
+ * @author Iliyan Jeliazkov
+ * @version $Id$
+ */
+
+final class StatisticsProviderAdapter implements StatisticsProvider
+{
+    private int cardinality_;
+    private StatisticsProvider head_;
+    private StatisticsProviderAdapter tail_;
+
+    public StatisticsProviderAdapter (StatisticsProvider p)
+    {
+        this (p, null);
+    }
+
+    public StatisticsProviderAdapter (StatisticsProvider head, StatisticsProviderAdapter tail)
+    {
+        this.head_ = head;
+        this.tail_ = tail;
+        this.cardinality_ = (tail == null) ? 0 : tail.cardinality_ + 1;
+    }
+
+    public StatisticsProvider find (int cardinality)
+    {
+        if (this.cardinality_ == cardinality)
+            return this.head_;
+        
+        if (this.tail_ == null)
+            return null;
+        
+        return this.tail_.find (cardinality);
+    }
+
+    public void messageChunkSent(int size) {
+        try {
+            if(head_ != null)
+                head_.messageChunkSent(size);
+        }
+        finally {
+            if(tail_ != null)
+                tail_.messageChunkSent(size);
+        }
+    }
+
+    public void flushed() {
+        try {
+            if(head_ != null)
+                head_.flushed();
+        }
+        finally {
+            if(tail_ != null)
+                tail_.flushed();
+        }
+    }
+
+    public void messageReceived(int size) {
+        try {
+            if(head_ != null)
+                head_.messageReceived(size);
+        }
+        finally {
+            if(tail_ != null)
+                tail_.messageReceived(size);
+        }
+    }
+}
+
+/**
  * GIOPConnection.java
  *
  * Created: Sun Aug 12 21:30:48 2002
  *
+ * Configuration parameters:<br>
+ * 
+ * jacorb.debug.dump_incoming_messages=[on|off],        default=off<br>
+ * jacorb.connection.client.connect_timeout=N,          default=0<br>
+ * jacorb.connection.statistics_providers={classnames}, default=(empty)<br>
+ * 
  * @author Nicolas Noffke
  * @version $Id$
  */
@@ -115,6 +193,7 @@ public abstract class GIOPConnection
     protected boolean do_close = false;
 
     protected StatisticsProvider statistics_provider = null;
+    protected StatisticsProviderAdapter statistics_provider_adapter = null;
 
     public GIOPConnection( org.omg.ETF.Profile profile,
                            org.omg.ETF.Connection transport,
@@ -130,10 +209,15 @@ public abstract class GIOPConnection
         this.reply_listener = reply_listener;
         this.statistics_provider = statistics_provider;
 
-        buf_mg = BufferManager.getInstance();
+        if (statistics_provider != null)
+            this.statistics_provider_adapter = 
+                new StatisticsProviderAdapter (statistics_provider);
+
+        this.buf_mg = BufferManager.getInstance();
         //sasContexts = new Hashtable();
 
-        cubbyholes = new Object[cubby_count];
+        this.cubbyholes = new Object[cubby_count];
+        
     }
 
     public void configure(Configuration configuration)
@@ -145,6 +229,28 @@ public abstract class GIOPConnection
             configuration.getAttribute("jacorb.debug.dump_incoming_messages","off").equals("on");
         timeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 90000);
+
+        List statsProviderClassNames =
+            this.configuration.getAttributeList( "jacorb.connection.statistics_providers");
+        
+        for (Iterator iter = statsProviderClassNames.iterator (); iter.hasNext ();) {
+            String className = (String) iter.next ();
+            try
+            {
+                Class iclass = ObjectUtil.classForName (className);
+                
+                this.statistics_provider_adapter = 
+                    new StatisticsProviderAdapter ((StatisticsProvider)iclass.newInstance(), 
+                                                   statistics_provider_adapter);
+            }
+            catch( Exception e )
+            {
+                if (logger.isErrorEnabled())
+                {
+                    logger.error( "Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e.toString() );
+                }
+            }
+        }
     }
 
 
@@ -371,9 +477,9 @@ public abstract class GIOPConnection
                 }
             }
 
-            if( statistics_provider != null )
+           if( getStatisticsProviderAdapter() != null )
             {
-                statistics_provider.messageReceived( msg_size +
+                getStatisticsProviderAdapter().messageReceived( msg_size +
                                                      Messages.MSG_HEADER_SIZE );
             }
 
@@ -780,9 +886,9 @@ public abstract class GIOPConnection
     {
         transport.write( false, false, fragment, start, size, 0 );
 
-        if (getStatisticsProvider() != null)
+        if (getStatisticsProviderAdapter() != null)
         {
-            getStatisticsProvider().messageChunkSent (size);
+            getStatisticsProviderAdapter().messageChunkSent (size);
         }
     }
 
@@ -866,9 +972,9 @@ public abstract class GIOPConnection
 
             transport.flush();
 
-            if (getStatisticsProvider() != null)
+            if (getStatisticsProviderAdapter() != null)
             {
-                getStatisticsProvider().flushed();
+                getStatisticsProviderAdapter().flushed();
             }
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
@@ -929,11 +1035,37 @@ public abstract class GIOPConnection
 
 
     /**
-     * Get the statistics provider for transport usage statistics.
+     * Get an instance of StatisticsProvider derivative, for 
+     * updating the transport usage statistics.
+     */
+    protected final StatisticsProviderAdapter getStatisticsProviderAdapter()
+    {
+        return statistics_provider_adapter;
+    }
+
+
+    /**
+     * Get the statistics provider for transport usage statistics 
+     * that can be used in conjunction with the SelectionStrategy. 
+     * This is a special-case provider, usually supplied by, and 
+     * known to, the concrete SelectionStrategy. To actually update 
+     * the usage stats use getStatisticsProviderAdapter()
      */
     public final StatisticsProvider getStatisticsProvider()
     {
         return statistics_provider;
+    }
+
+    /**
+     * Return the StatissticsProvider, given the cardinality number
+     * @param no
+     * @return
+     */
+    public StatisticsProvider getStatisticsProvider(int no) {
+        if (statistics_provider_adapter == null)
+            return null;
+        
+        return statistics_provider_adapter.find(no);
     }
 
 
@@ -1017,6 +1149,12 @@ public abstract class GIOPConnection
            return;
         }
         cubbyholes[id] = obj;
+    }
+
+    
+    /*default (or, package-level) access*/ 
+    org.omg.ETF.Profile getProfile() {
+        return profile;
     }
 
 }// GIOPConnection

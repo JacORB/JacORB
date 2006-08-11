@@ -492,6 +492,9 @@ public class RequestProcessor
     {
         ServerRequestInfoImpl info = null;
 
+        // Notify parties interested in using information about a Transport
+        controller.getORB().notifyTransportListeners(request.getConnection());
+
         if (controller.getORB().hasServerRequestInterceptors())
         {
             //RequestInfo attributes

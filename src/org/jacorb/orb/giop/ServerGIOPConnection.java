@@ -151,9 +151,9 @@ public class ServerGIOPConnection
 
             transport.flush();
 
-            if (statistics_provider != null)
+            if (getStatisticsProviderAdapter() != null)
             {
-                statistics_provider.flushed();
+                getStatisticsProviderAdapter().flushed();
             }
 
             if( delayClose && transport instanceof IIOPConnection )

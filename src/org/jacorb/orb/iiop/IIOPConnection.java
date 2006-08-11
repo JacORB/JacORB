@@ -87,4 +87,8 @@ public abstract class IIOPConnection
             throw to_COMM_FAILURE (ex, socket);
         }
     }
+
+    public Socket getSocket() {
+        return socket;
+    }
 }

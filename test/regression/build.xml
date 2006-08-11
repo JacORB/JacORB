@@ -12,7 +12,7 @@
     <!-- ==================================================== -->
     <target name="help">
         <exec executable="java" outputproperty="OUTPUT">
-            <arg line="-classpath ${java.class.path} org.apache.tools.ant.Main -logger org.apache.tools.ant.NoBannerLogger -projecthelp -buildfile ${basedir}/test/regression/build.xml" />
+            <arg line="-classpath '${java.class.path}' org.apache.tools.ant.Main -logger org.apache.tools.ant.NoBannerLogger -projecthelp -buildfile '${basedir}/test/regression/build.xml'" />
         </exec>
         <echo message="${OUTPUT}" />
     </target>
@@ -264,6 +264,7 @@
         <antcall target="idl-shutdown" />
         <antcall target="idl-dii" />
         <antcall target="idl-bugs" />
+        <antcall target="idl-transport-current-server" />
     </target>
 
 
@@ -312,6 +313,14 @@
         <property name="pkg.idl" value="org/jacorb/test" />
         <property name="callback.idl" value="false" />
         <property name="file.idl" value="Tests.idl" />
+        <antcall target="process-idl" />
+    </target>
+
+    <target name="idl-transport-current-server">
+        <property name="props.idl" value="TransportCurrentServer" />
+        <property name="pkg.idl" value="org/jacorb/test" />
+        <property name="callback.idl" value="false" />
+        <property name="file.idl" value="TransportCurrentServer.idl" />
         <antcall target="process-idl" />
     </target>
 
@@ -682,6 +691,18 @@
         </antcall>
     </target>
 
+
+    <!-- ==================================================== -->
+    <!--                 run transport tests                  -->
+    <!-- ==================================================== -->
+
+
+    <target name="run-all-transport-current"
+          description="Run all Jacorb tests in the tc (TransportCurrent) package">
+        <antcall target="run">
+            <param name="jacorb.test" value="org.jacorb.test.transport.AllTest" />
+        </antcall>
+    </target>
 
     <!-- ==================================================== -->
     <!--                 run notification tests               -->
