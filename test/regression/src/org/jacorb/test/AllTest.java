@@ -47,6 +47,7 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(org.jacorb.test.bugs.AllTest.suite());
       suite.addTest (org.jacorb.test.util.AllTest.suite());
       suite.addTest(org.jacorb.test.dii.AllTest.suite());
+      suite.addTest(org.jacorb.test.transport.AllTest.suite());
 
       return suite;
    }
