@@ -21,8 +21,7 @@
       <ant antfile="${src}/org/jacorb/orb/build.xml" dir="${basedir}" target="template"/>
    </target>
 
-   <target name="subdirs"
-           depends="template,config,util,orb,poa,imr,ir,naming,events,dds,concurrency,transaction,trading,tracing,security,notification">
+   <target name="subdirs" depends="template,config,util,orb,poa,imr,ir,naming,events,dds,concurrency,transaction,trading,tracing,transport,security,notification">
    </target>
 
    <target name="config" depends="init">
@@ -84,6 +83,10 @@
 
    <target name="tracing" depends="init">
       <ant antfile="${src}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
+   </target>
+
+   <target name="transport" depends="init">
+      <ant antfile="${src}/org/jacorb/transport/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="notification" depends="init">
