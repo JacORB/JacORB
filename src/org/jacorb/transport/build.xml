@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../etc/common.xml"> ]>
+
+<project name="naming" default="all" basedir="../../../..">
+
+	<!-- =======================================+============= -->
+	<!--            TransportCurrent build file                -->
+	<!-- $Id$ -->
+	<!-- ========================================+============ -->
+
+   &common;
+
+   <target name="all" depends="init,load-taskdef,build" />
+
+	<target name="build" depends="idl">
+		<antcall target="jacorb-javac">
+			<param name="javac-includes" value="org/jacorb/transport/*.java, org/jacorb/transport/**/*.java" />
+		</antcall>
+		<antcall target="jacorb-javac">
+			<param name="javac-src" value="${src}/generated" />
+			<param name="javac-includes" value="org/jacorb/transport/**.java" />
+		</antcall>
+	</target>
+
+	<target name="idl">
+		<jacidl srcdir="${idl}/jacorb" 
+				destdir="${src}/generated" 
+				includepath="${idl}/jacorb:${idl}/omg" 
+				includes="*TransportCurrent.idl" />
+	</target>
+
+	<target name="clean">
+		<delete>
+			<fileset dir="${basedir}/classes">
+				<include name="org/jacorb/transport/**" />
+			</fileset>
+			<fileset dir="${basedir}/src/generated">
+				<include name="org/jacorb/transport/**" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="realclean" depends="clean">
+		<delete>
+			<fileset dir="${basedir}/src/generated">
+				<include name="org/jacorb/transport/**" />
+			</fileset>
+		</delete>
+	</target>
+</project>
