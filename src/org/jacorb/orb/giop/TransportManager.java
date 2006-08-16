@@ -223,38 +223,44 @@ public class TransportManager
 
 	public void notifyTransportListeners(GIOPConnection giopc) {
 
-        if (listener != null)
+        if (listener != null) {
             listener.transportSelected (new Event (giopc));
-    }
-
-    public void addTransportListener(final TransportListener tl) {
-
-        if (logger.isInfoEnabled ())
-            logger.info ("Transport listener to add: " + tl);
-
-        if (tl == null) return;
-
-        synchronized (this) {
-            if (listener == null) {
-                listener = tl;
-            }
-            else {
-
-                listener = new TransportListener () {
-
-                    private final TransportListener next_ = listener;
-
-                    public void transportSelected(Event event) {
-
-                        try {
-                            tl.transportSelected (event);
-                        }
-                        finally {
-                            next_.transportSelected (event);
-                        }
-                    }
-                };
-            }
         }
     }
+
+    public void addTransportListener(TransportListener tl) {
+
+        if (logger.isInfoEnabled ()) {
+            logger.info ("Transport listener to add: " + tl);
+        }
+
+        if (tl != null) {
+            addTransportListenerImpl (tl);
+        }
+    }
+
+    private synchronized void addTransportListenerImpl(final TransportListener tl) {
+
+        if (listener == null) {
+            listener = tl;
+        }
+        else {
+
+            listener = new TransportListener () {
+
+                private final TransportListener next_ = listener;
+
+                public void transportSelected(Event event) {
+
+                    try {
+                        tl.transportSelected (event);
+                    }
+                    finally {
+                        next_.transportSelected (event);
+                    }
+                }
+            };
+        }
+    }
+ 
 }

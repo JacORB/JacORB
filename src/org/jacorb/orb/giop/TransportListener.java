@@ -1,6 +1,5 @@
 package org.jacorb.orb.giop;
 
-import org.jacorb.transport.DefaultStatisticsProvider;
 
 
 
@@ -48,9 +47,11 @@ public interface TransportListener {
         
         public org.omg.ETF.Profile profile () {
             if (transport().get_server_profile() == null) {
-                if (giopc_.getProfile () == null)
+                if (giopc_.getProfile () == null) {
+                    
+                    // This looks like the most appropriate exception to throw
                     throw new NullPointerException ("Primary profile");
-
+                }
                 return giopc_.getProfile ();
             }
             
@@ -58,9 +59,10 @@ public interface TransportListener {
         }
         
         public org.omg.ETF.Connection transport () {
-            if (giopc_.getTransport() == null)
+            if (giopc_.getTransport() == null) {
+                // This looks like the most appropriate exception to throw
                 throw new NullPointerException ("Transport");
-            
+            }
             return giopc_.getTransport();
         }
         
