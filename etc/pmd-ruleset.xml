@@ -16,6 +16,7 @@
       <exclude name="ConfusingTernary"/>
       <exclude name="SimplifyBooleanExpressions"/>
       <exclude name="NullAssignmentRule"/>
+      <exclude name="AvoidSynchronizedAtMethodLevel"/>
    </rule>
    <rule ref="rulesets/sunsecure.xml"/>
    <rule ref="rulesets/strictexception.xml"/>
