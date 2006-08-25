@@ -35,7 +35,7 @@ public class PackageTest extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite("org.jacorb.transport");
-                suite.addTest(new PackageTest("testInitializers"));
+        suite.addTest(new PackageTest("testInitializers"));
 		suite.addTest(FrameworkClientTest.suite());
 		suite.addTest(FrameworkServerTest.suite());
 		suite.addTest(IIOPClientTest.suite());

@@ -3,16 +3,17 @@ package org.jacorb.test.transport;
 import java.util.Properties;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
 import org.jacorb.transport.NoContext;
+import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
 /**
  * FrameworkClientTest.java
@@ -20,25 +21,12 @@ import org.jacorb.transport.NoContext;
  * Tests for corect operation of the Transport Current framework
  */
 
-public class FrameworkClientTest extends ClientServerTestCase /* CallbackTestCase */{
+public class FrameworkClientTest extends TestCase {
 
-    protected CurrentServer server = null;
-
-    protected Current transport_current_ = null;
-
-    public static Test suite() {
-
-        TestSuite suite = new TestSuite ("TransportCurrent");
-        ClientServerSetup setup = new ClientServerSetup (suite,
-                                                         "org.jacorb.test.transport.CurrentServerImpl",
-                                                         getClientProperties (),
-                                                         null);
-
-        TestUtils.addToSuite (suite, setup, FrameworkClientTest.class);
-
-        return setup;
-    }
-
+    private ORB client_orb_;
+    private ORB server_orb_;
+    private CurrentServer server_ = null;
+    private Current transport_current_ = null;
 
     // Client-side ORB configuration
     public static Properties getClientProperties() {
@@ -52,32 +40,52 @@ public class FrameworkClientTest extends ClientServerTestCase /* CallbackTestCas
         return cp;
     }
 
-    public FrameworkClientTest(String name, ClientServerSetup setup) {
+   
+    public FrameworkClientTest(String name) {
 
-        super (name, setup);
+        super (name);
  
     }
 
-    protected void setUp() throws Exception {
+    protected void setUp() throws Exception
+    {
+        ServerInterceptor.reset ();
+
+        server_orb_ = ORB.init(new String[0], new Properties());
+
+        POA rootPOA = POAHelper.narrow(server_orb_.resolve_initial_references("RootPOA"));
+        rootPOA.the_POAManager().activate();
+        org.omg.CORBA.Object obj = rootPOA.servant_to_reference(new CurrentServerImpl(server_orb_, null));
+        String objString = server_orb_.object_to_string(obj);
+
+        new Thread()
+        {
+            public void run() {
+                server_orb_.run();
+            };
+        }.start();
         
-        server = CurrentServerHelper.narrow (setup.getServerObject ());
+        Thread.sleep(1000);
+        client_orb_ = ORB.init(new String[0], getClientProperties());
 
-
-        Object tcobject = setup.getClientOrb ()
-                               .resolve_initial_references ("JacOrbTransportCurrent");
+        server_ = CurrentServerHelper.narrow(client_orb_.string_to_object(objString));
+        Object tcobject = client_orb_.resolve_initial_references ("JacOrbTransportCurrent");
         transport_current_ = CurrentHelper.narrow (tcobject);
-        
-        ClientInterceptor.interceptions (0);
-//        super.setUp ();
 
     }
+
+    protected void tearDown() throws Exception
+    {
+        server_orb_.shutdown(true);
+        Thread.sleep(1000);
+        client_orb_.shutdown(true);
+    }
+
+    public static Test suite() {
+        return new TestSuite(FrameworkClientTest.class);
+    }
+
     
-//    protected void tearDown() throws Exception {
-//        ClientInterceptor.interceptions (0);
-////        super.tearDown ();
-//    }
-
-
     // tests
 
     
@@ -97,7 +105,7 @@ public class FrameworkClientTest extends ClientServerTestCase /* CallbackTestCas
     public void testInContext() throws Exception {
 
         // verify in-context access
-        server.invoked_by_client ();
+        server_.invoked_by_client ();
         assertEquals ("Two interceptions per invocation expected", 2, ClientInterceptor.interceptions ());
     }
 }
